@@ -17,6 +17,31 @@ UIを持たない制御専用プラグイン。
 | `screenshot` | `iface.mapCanvas().saveAsImage(path)` で地図キャンバスをPNG保存 |
 | `eval` / `devreload` | viewを持たないため **unsupported エラーを返す**(ハングしない) |
 
+## 制御可能な範囲
+
+`pyeval` はQGISプロセス内での任意Python実行のため、
+**PyQGISで書ける操作は全て制御可能**:
+
+| 対象 | pyevalの例 |
+|---|---|
+| レイヤー/プロジェクト | `iface.addVectorLayer(...)` / `QgsProject.instance().write()` |
+| キャンバス | `iface.mapCanvas().setExtent(...)` / `.refresh()` |
+| メニュー/ツールバー | `iface.actionZoomIn().trigger()`、`mainWindow().findChildren(QAction)` で全アクション列挙・実行 |
+| 他プラグイン | `qgis.utils.plugins["<id>"]` で他プラグインのオブジェクトに到達 |
+| Processing | `processing.run("native:buffer", {...})` |
+| 設定 | `QgsSettings().setValue(...)` |
+| 任意ウィジェットの画像化 | `widget.grab().save(path)`(pyeval経由) |
+
+**制約:**
+
+- **同期GUIスレッド実行** — pyeval実行中はGUIがブロックし、逆に
+  再描画等でGUIビジーの間はポーリングが飢餓する(一時的)
+- **OSネイティブダイアログ** — Qt外のダイアログはwidget introspection経由の
+  間接操作。Qtモーダルは `QApplication.activeModalWidget()` で `accept()`/`reject()` 可能
+- **実マウス/実キー** — `QMouseEvent`/`QTest.mouseClick` のpostで模倣可能だが
+  座標変換等の下ごしらえが必要
+- **Python API未露出の内部機能** — 稀だがC++ privateな振る舞いは不可
+
 ## 仕組み
 
 環境変数 `WEBENGINE_LIVE_DIR` が設定された状態でQGISが起動すると、
