@@ -37,20 +37,23 @@ class PluginBridge(QObject):
     @pyqtSlot(str, result=str)
     def setActiveLayer(self, layer_id):
         from qgis.core import QgsProject
+        from qgis.PyQt.QtCore import QTimer
         layer = QgsProject.instance().mapLayer(layer_id)
         if layer is None:
             return json.dumps({"ok": False, "error": f"layer not found: {layer_id}"})
-        self._iface.setActiveLayer(layer)
+        # 重いQGIS操作は即時実行するとWebChannelの同期呼び出しがJSスレッドを
+        # ブロックし、後続のrunJavaScriptまで飢餓するためイベントループに譲る
+        QTimer.singleShot(0, lambda l=layer: self._iface.setActiveLayer(l))
         return json.dumps({"ok": True, "active": layer.name()})
 
     @pyqtSlot(result=str)
     def zoomToActiveLayer(self):
-        canvas = self._iface.mapCanvas()
+        from qgis.PyQt.QtCore import QTimer
         layer = self._iface.activeLayer()
         if layer is None:
             return json.dumps({"ok": False, "error": "no active layer"})
-        canvas.setExtent(layer.extent())
-        canvas.refresh()
+        canvas = self._iface.mapCanvas()
+        QTimer.singleShot(0, lambda c=canvas, e=layer.extent(): (c.setExtent(e), c.refresh()))
         return json.dumps({"ok": True})
 
     def _qgis_version(self):

@@ -1,11 +1,17 @@
 import os
 
-from qgis.PyQt.QtCore import QUrl
+from qgis.PyQt.QtCore import QUrl, QTimer
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QDialog, QVBoxLayout
-from qgis.PyQt.QtWebChannel import QWebChannel
-from qgis.PyQt.QtWebEngineWidgets import QWebEngineView
 
+try:
+    from qgis.PyQt.QtWebChannel import QWebChannel
+    from qgis.PyQt.QtWebEngineWidgets import QWebEngineView
+except ImportError:  # qgis.PyQt shim がQtWebEngine系を仲介しないQGISバージョン向け
+    from PyQt6.QtWebChannel import QWebChannel
+    from PyQt6.QtWebEngineWidgets import QWebEngineView
+
+from . import _log
 from .bridge import PluginBridge
 
 PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -36,6 +42,12 @@ class WebEnginePlugin:
         self.action.triggered.connect(self.open_dialog)
         self.iface.addPluginToMenu(f"&{PLUGIN_NAME}", self.action)
         self.iface.addToolBarIcon(self.action)
+        _log("initGui done; WEBENGINE env=" + str(
+            {k: v for k, v in os.environ.items() if k.startswith("WEBENGINE")}))
+        if os.environ.get("WEBENGINE_AUTOOPEN"):
+            delay = int(os.environ.get("WEBENGINE_AUTOOPEN_DELAY", "3000"))
+            QTimer.singleShot(delay, self.open_dialog)
+            _log(f"autoopen scheduled in {delay}ms")
 
     def unload(self):
         if self.action is not None:
@@ -63,6 +75,19 @@ class WebEnginePlugin:
             layout.addWidget(view)
             index_html = os.path.join(resolve_ui_dir(), "index.html")
             view.setUrl(QUrl.fromLocalFile(index_html))
+
+            live_dir = os.environ.get("WEBENGINE_LIVE_DIR")
+            _log(f"open_dialog: live_dir={live_dir!r}")
+            if live_dir:
+                # 複数QGISインスタンスが同じlive dirを使わないようPIDで分離
+                live_dir = os.path.join(live_dir, f"qgis-{os.getpid()}")
+                try:
+                    from .live_driver import LiveDriver
+                    self._live = LiveDriver(view, live_dir)
+                    _log(f"LiveDriver active: {live_dir}")
+                except Exception:
+                    import traceback
+                    _log("LiveDriver failed:\n" + traceback.format_exc())
 
         self.dialog.show()
         self.dialog.raise_()

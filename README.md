@@ -21,8 +21,8 @@ npm run deploy        # QGISプラグインディレクトリへジャンクシ�
 ```powershell
 npm test              # UI単体E2E(ブラウザ、mock使用)
 npm run test:unit     # Pythonロジックのpytest
-npm run verify:qgis   # QGISをリモートデバッグ付き起動 → ダイアログを開く
-npm run test:live     # 起動中のQGISにPlaywrightで接続して検証
+npm run verify:qgis   # QGISを検証モードで起動(GPU無効化+自動オープン)
+npm run test:live     # 実QGIS内UIをファイル経由JS実行で検証
 ```
 
 詳細は AGENTS.md 参照。

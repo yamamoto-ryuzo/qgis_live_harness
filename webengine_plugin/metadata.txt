@@ -13,3 +13,4 @@ homepage=
 experimental=True
 deprecated=False
 hasProcessingProvider=no
+supportsQt6=yes
