@@ -4,15 +4,23 @@ MCP (Streamable HTTP) と plain REST を同一ポートで提供し、
 MCP非対応のAI/アプリからもHTTP POSTだけでQGISを操作できるようにする。
 
   POST /mcp              MCP JSON-RPC (initialize/tools/list/tools/call/ping)
+  POST /api/cmd          コマンドJSONそのまま dispatch ({"type":"status"} 等)
   POST /api/pyeval       {"code": "..."} → {"result": ...} | {"error": ...}
-  POST /api/eval         {"expression": "..."} (viewを持たないのでunsupportedを返す)
-  POST /api/screenshot   {"path": "...?"} → PNGバイナリ (Content-Type: image/png)
+  POST /api/eval         {"expression": "...", "plugin_id": "<id>"} (viewを持つ
+                         プラグインへ転送。plugin_id無しならunsupportedを返す)
+  POST /api/screenshot   {"path": "...?", "plugin_id": "...", "target": "..."}
+                         → PNGバイナリ (Content-Type: image/png)
   GET  /api/tools        ツール仕様JSON(function calling系AIが読む用)
+  GET  /api/status       statusコマンドの結果
   GET  /api/health       {"ok": true, "pid": ...}
 
 実行経路: HTTPワーカースレッド → driver.submit() でメモリキュー投入 →
 GUIスレッドの LiveDriver._poll が実行 → 結果を待機して返す。
 iface/QgsProject に触れるのは常にGUIスレッドのみ。
+
+plugin_id を指定すると eval/pyeval/screenshot/devreload はそのプラグインの
+LiveDriverへ転送される(ハブ経路)。open_plugin/reload_plugin/bridge_call/
+status は plugin_id をコマンド引数としてこのドライバが処理する。
 
 バインドは 127.0.0.1 固定、ポート0(空き自動選択)。
 pyeval=任意コード実行のためリモート公開は想定しない。
@@ -33,20 +41,100 @@ TOOLS = [
             "Execute arbitrary Python inside the running QGIS process "
             "(GUI thread). Namespace has iface/QgsProject/QgsApplication/"
             "driver. Expressions return their value; statements return "
-            "the `result` variable.",
+            "the `result` variable. With plugin_id, runs in that plugin's "
+            "driver namespace (its `view` is available).",
         "inputSchema": {
             "type": "object",
-            "properties": {"code": {"type": "string"}},
+            "properties": {
+                "code": {"type": "string"},
+                "plugin_id": {"type": "string"},
+            },
             "required": ["code"],
+        },
+    },
+    {
+        "name": "qgis_eval",
+        "description":
+            "Evaluate a JS expression inside a plugin's QWebEngineView "
+            "(routed to the plugin's live driver via plugin_id).",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "expression": {"type": "string"},
+                "plugin_id": {"type": "string"},
+            },
+            "required": ["expression", "plugin_id"],
         },
     },
     {
         "name": "qgis_screenshot",
         "description":
-            "Capture the QGIS map canvas as PNG. Returns the image.",
+            "Capture PNG. Default: this driver's map canvas. With plugin_id "
+            "routes to that plugin (its view). target: canvas|mainwindow "
+            "(driver) or view|window|canvas|mainwindow (WebEngine plugin). "
+            "Returns the image.",
         "inputSchema": {
             "type": "object",
-            "properties": {"path": {"type": "string"}},
+            "properties": {
+                "path": {"type": "string"},
+                "plugin_id": {"type": "string"},
+                "target": {"type": "string"},
+            },
+        },
+    },
+    {
+        "name": "qgis_devreload",
+        "description":
+            "Re-import a plugin's repo-side bridge/ui (WEBENGINE_DEV_SRC) and "
+            "reload its page. Routed via plugin_id.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"plugin_id": {"type": "string"}},
+            "required": ["plugin_id"],
+        },
+    },
+    {
+        "name": "qgis_status",
+        "description":
+            "Driver status: pid, http port, loaded plugins and which have "
+            "live drivers / views.",
+        "inputSchema": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "qgis_open_plugin",
+        "description":
+            "Load+start a QGIS plugin if needed and call its open_dialog().",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"plugin_id": {"type": "string"}},
+            "required": ["plugin_id"],
+        },
+    },
+    {
+        "name": "qgis_reload_plugin",
+        "description":
+            "Hot-reload a QGIS plugin (sys.modules cleanup + reloadPlugin + "
+            "open_dialog). No QGIS restart needed.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"plugin_id": {"type": "string"}},
+            "required": ["plugin_id"],
+        },
+    },
+    {
+        "name": "qgis_bridge_call",
+        "description":
+            "Call a plugin's bridge method directly in-process (bypasses "
+            "WebChannel, so it works even while the JS renderer is starved). "
+            "JSON-string results are parsed. plugin_id optional.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "plugin_id": {"type": "string"},
+                "method": {"type": "string"},
+                "args": {"type": "array"},
+            },
+            "required": ["method"],
         },
     },
 ]
@@ -63,8 +151,12 @@ def _content_text(v):
     }
 
 
+def _content_error(msg):
+    return {"content": [{"type": "text", "text": str(msg)}], "isError": True}
+
+
 class _Handler(BaseHTTPRequestHandler):
-    server_version = "qgis-live/0.1"
+    server_version = "qgis-live/0.2"
     protocol_version = "HTTP/1.1"
 
     def log_message(self, *args):
@@ -86,7 +178,7 @@ class _Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def _dispatch(self, cmd, timeout=120.0):
+    def _dispatch(self, cmd, timeout=180.0):
         return self.server.driver.submit(cmd, timeout=timeout)
 
     # ---- REST ----
@@ -97,6 +189,8 @@ class _Handler(BaseHTTPRequestHandler):
                              "plugin": "qgis_live_driver"})
         elif self.path == "/api/tools":
             self._json(200, {"tools": TOOLS})
+        elif self.path == "/api/status":
+            self._json(200, self._dispatch({"type": "status"}))
         else:
             self._json(404, {"error": "not found"})
 
@@ -109,25 +203,39 @@ class _Handler(BaseHTTPRequestHandler):
             return
         if self.path == "/mcp":
             self._mcp(data)
+        elif self.path == "/api/cmd":
+            # コマンドJSONをそのままdispatch(type/plugin_id等すべて有効)
+            self._api_call(data)
         elif self.path == "/api/pyeval":
-            self._api_call({"type": "pyeval", "code": data.get("code", "")})
+            self._api_call({"type": "pyeval", "code": data.get("code", ""),
+                            "plugin_id": data.get("plugin_id")})
         elif self.path == "/api/eval":
             self._api_call({"type": "eval",
-                            "expression": data.get("expression", "")})
+                            "expression": data.get("expression", ""),
+                            "plugin_id": data.get("plugin_id")})
         elif self.path == "/api/screenshot":
-            self._api_shot(data.get("path"))
+            self._api_shot(data.get("path"), data.get("plugin_id"),
+                           data.get("target"))
         else:
             self._json(404, {"error": "not found"})
 
     def _api_call(self, cmd):
+        # 未指定のplugin_idは送信しない(省略=ローカル/既定対象の意味を残す)
+        if cmd.get("plugin_id") is None:
+            cmd.pop("plugin_id", None)
         rep = self._dispatch(cmd)
         self._json(200 if "error" not in rep else 500, rep)
 
-    def _api_shot(self, path):
+    def _api_shot(self, path, plugin_id=None, target=None):
         if not path:
             path = os.path.join(tempfile.gettempdir(),
                                 f"qgis-shot-{uuid.uuid4().hex[:8]}.png")
-        rep = self._dispatch({"type": "screenshot", "path": path})
+        cmd = {"type": "screenshot", "path": path}
+        if plugin_id:
+            cmd["plugin_id"] = plugin_id
+        if target:
+            cmd["target"] = target
+        rep = self._dispatch(cmd)
         if "error" in rep:
             self._json(500, rep)
             return
@@ -161,7 +269,7 @@ class _Handler(BaseHTTPRequestHandler):
                     "protocolVersion": msg.get("params", {})
                         .get("protocolVersion", PROTOCOL_VERSION),
                     "capabilities": {"tools": {}},
-                    "serverInfo": {"name": "qgis-live", "version": "0.1.0"},
+                    "serverInfo": {"name": "qgis-live", "version": "0.2.0"},
                 },
             }, {"Mcp-Session-Id": uuid.uuid4().hex})
             return
@@ -188,32 +296,41 @@ class _Handler(BaseHTTPRequestHandler):
         })
 
     def _tool_call(self, name, args):
-        if name == "qgis_pyeval":
-            rep = self._dispatch({"type": "pyeval",
-                                  "code": args.get("code", "")})
-            if "error" in rep:
-                return {"content": [{"type": "text",
-                                     "text": rep["error"]}], "isError": True}
-            return _content_text(rep.get("result"))
+        if not (name or "").startswith("qgis_"):
+            return _content_error(f"unknown tool: {name}")
+        # qgis_<type> → {"type": "<type>", ...args} にそのまま変換する。
+        # 新しいコマンド種別を追加してもここは変更不要。
         if name == "qgis_screenshot":
-            path = args.get("path") or os.path.join(
-                tempfile.gettempdir(), f"qgis-shot-{uuid.uuid4().hex[:8]}.png")
-            rep = self._dispatch({"type": "screenshot", "path": path})
-            if "error" in rep:
-                return {"content": [{"type": "text",
-                                     "text": rep["error"]}], "isError": True}
-            try:
-                with open(rep["result"], "rb") as f:
-                    return {"content": [{
-                        "type": "image",
-                        "data": base64.b64encode(f.read()).decode("ascii"),
-                        "mimeType": "image/png",
-                    }]}
-            except Exception as e:
-                return {"content": [{"type": "text", "text": repr(e)}],
-                        "isError": True}
-        return {"content": [{"type": "text", "text": f"unknown tool: {name}"}],
-                "isError": True}
+            return self._tool_screenshot(args)
+        cmd = {"type": name[len("qgis_"):],
+               "id": f"http-{uuid.uuid4().hex[:8]}"}
+        cmd.update({k: v for k, v in args.items() if v is not None})
+        rep = self._dispatch(cmd)
+        if "error" in rep:
+            return _content_error(rep["error"])
+        return _content_text(rep.get("result"))
+
+    def _tool_screenshot(self, args):
+        path = args.get("path") or os.path.join(
+            tempfile.gettempdir(), f"qgis-shot-{uuid.uuid4().hex[:8]}.png")
+        cmd = {"type": "screenshot", "path": path,
+               "id": f"http-{uuid.uuid4().hex[:8]}"}
+        if args.get("plugin_id"):
+            cmd["plugin_id"] = args["plugin_id"]
+        if args.get("target"):
+            cmd["target"] = args["target"]
+        rep = self._dispatch(cmd)
+        if "error" in rep:
+            return _content_error(rep["error"])
+        try:
+            with open(rep["result"], "rb") as f:
+                return {"content": [{
+                    "type": "image",
+                    "data": base64.b64encode(f.read()).decode("ascii"),
+                    "mimeType": "image/png",
+                }]}
+        except Exception as e:
+            return _content_error(repr(e))
 
 
 def start_http(driver, host="127.0.0.1", port=0):

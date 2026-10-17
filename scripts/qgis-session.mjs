@@ -113,6 +113,8 @@ export async function ensureQgis({ liveBase = LIVE_BASE, timeoutMs = 180000 } = 
 // pyevalで実行するリロードコードを生成する。プラグイン配下のimportキャッシュを
 // 掃除してからreloadPluginし、ダイアログを開き直す。
 // プラグインが未ロードの場合(QGIS側で無効化等)はloadPlugin+startPluginに倒す。
+// ※ドライバが reload_plugin コマンドを実装済みならそちらを使い、
+//   これは旧ドライバ向けのフォールバック。
 const reloadCode = (pluginId) => `
 import sys, qgis.utils
 PLUGIN_ID = ${JSON.stringify(pluginId)}
@@ -142,18 +144,45 @@ export async function reloadPlugin({ liveBase = LIVE_BASE, deploy: doDeploy = tr
     deploy();
   }
   const dirs = await ensureQgis({ liveBase });
+  // 制御プラグインがあればhub経由でreloadできる
+  // (対象プラグインにlive dirが無くても reload_plugin→open_dialog で作られる)
+  const ctrlDir = dirs.find((d) => d.pluginId === "qgis_live_driver");
+  const ctrlPage = ctrlDir ? new LivePage(ctrlDir.dir) : null;
+  // reload対象: live dirを持つ全プラグイン + plugin.config.jsonの開発対象
+  const ids = [
+    ...new Set([...dirs.map((d) => d.pluginId).filter(Boolean), PLUGIN_ID]),
+  ];
+  // 送信中の経路を先に殺さないようドライバ自身は最後にreloadする
+  ids.sort((a, b) => (a === "qgis_live_driver") - (b === "qgis_live_driver"));
   const results = [];
-  for (const d of dirs) {
-    const id = d.pluginId || PLUGIN_ID;
-    const page = new LivePage(d.dir);
-    const res = await page.pyeval(reloadCode(id));
+  for (const id of ids) {
+    const own = dirs.find((d) => d.pluginId === id);
+    const page = own ? new LivePage(own.dir) : ctrlPage;
+    if (!page) {
+      console.log(`[reload] ${id}: no live dir and no control driver; skipped`);
+      continue;
+    }
+    let res;
+    try {
+      res = await page.reloadPlugin(id);
+    } catch (e) {
+      // 旧ドライバ(コマンド未実装)はpyeval版へフォールバック
+      if (!/unknown type|unsupported|does not support/i.test(String(e.message))) {
+        throw e;
+      }
+      res = await page.pyeval(reloadCode(id));
+    }
     console.log(`[reload] ${id}: ${JSON.stringify(res)}`);
     // 新しいviewがindex.htmlを読み込み終わるまで待つ。
     // reload直後は旧viewが破棄中でeval timeoutすることがあるのでwaitForで吸収する。
-    // viewを持たない制御プラグイン(qgis_live_driver等)はスキップ
-    const hasUi = await page.pyeval("driver.view is not None").catch(() => false);
+    // viewを持たない制御プラグイン(qgis_live_driver等)はスキップ。
+    // hub経由の場合はplugin_idで対象ドライバの名前空間に転送される。
+    const opts = own ? {} : { pluginId: id };
+    const hasUi = await page
+      .pyeval("driver.view is not None", opts)
+      .catch(() => false);
     if (hasUi) {
-      await page.waitFor('[data-testid="layer-list"]', 60000);
+      await page.waitFor('[data-testid="layer-list"]', 60000, opts);
       console.log(`[reload] ${id}: dialog re-opened and UI ready`);
     }
     results.push(res);

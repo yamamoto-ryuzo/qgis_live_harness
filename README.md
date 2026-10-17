@@ -36,7 +36,7 @@ flowchart TB
     end
 
     subgraph Q["常駐QGISプロセス"]
-        DRIVER["QGIS Live Driver(汎用部品)<br/>pyeval / 地図スクショ<br/>ファイルJSONL + 内蔵HTTP(/mcp,/api/*)"]
+        DRIVER["QGIS Live Driver(汎用部品)<br/>pyeval / 地図スクショ / plugin_id転送(hub)<br/>ファイルJSONL + 内蔵HTTP(/mcp,/api/*)"]
         VESSEL["webengine_plugin(器)<br/>view/channel + view用LiveDriver"]
         PROD["開発対象(repo側)<br/>bridge.py / logic.py / ui/<br/>WEBENGINE_DEV_SRCから別名import"]
         VESSEL --> PROD
@@ -48,6 +48,7 @@ flowchart TB
     CLIC --> NODE
     NODE -->|ファイルJSONL| DRIVER
     NODE -->|ファイルJSONL| VESSEL
+    DRIVER -.->|plugin_id転送| VESSEL
 ```
 
 破線 = **Driver単体でも成立する経路**(Harnessに依存しない)。
@@ -66,6 +67,14 @@ flowchart TB
 **PyQGISで書ける操作は全て制御可能**: レイヤー/プロジェクト操作、
 キャンバス、メニュー/アクション、`qgis.utils.plugins` 経由の他プラグイン、
 Processing、QgsSettings、任意widgetの `grab()` による画像化 等。
+
+さらに `status`/`open_plugin`/`reload_plugin`/`bridge_call` のnamedコマンドと、
+`plugin_id` による他プラグインへのコマンド転送(ハブ機能)を持つ。
+`plugin_id` 付きの `eval`/`pyeval`/`screenshot`/`devreload` は
+対象プラグインのLiveDriverへ転送され、結果は呼び出し元に返るため、
+**このドライバ1箇所(またはHTTPポート1本)で全プラグインを制御できる**。
+`bridge_call` はbridgeメソッドをプロセス内で直接呼ぶため、
+WebChannelを通らずJSレンダラー飢餓中でも動作する。
 
 ### 接続面(4系統・全て同じdispatchへ)
 
@@ -140,11 +149,17 @@ Driverが「QGIS側の手」なら、Harnessは「操縦席+管制塔」。
 生のファイルJSONL/HTTPを直接読み書きする代わりに、
 プラグイン開発の全工程を無人化する層を提供する。
 
+言い換えると、**Harnessとは「QGISプロセス内へプラグインとして移せない部分」
+の総体**である。ブートストラップ(初回インストール/プロセス起動)・
+自己監視・QGIS非依存の検証は原理的に外にしか置けず、
+その不可還元な外側こそがHarnessの存在理由になる
+(詳細は「Harness自体のプラグイン化について」節)。
+
 HarnessがDriverに対して追加するもの:
 
 | 要素 | 役割 |
 |---|---|
-| `scripts/live-drive.mjs` (`LivePage`) | Nodeからの高水準API。`evaluate`/`pyeval`/`click`/`waitFor`/`screenshot`/`devreload`。使い勝手はPlaywright相当 |
+| `scripts/live-drive.mjs` (`LivePage`) | Nodeからの高水準API。`evaluate`/`pyeval`/`click`/`waitFor`/`screenshot`/`devreload`/`status`/`openPlugin`/`reloadPlugin`/`bridgeCall`。使い勝手はPlaywright相当 |
 | `scripts/qgis-session.mjs` | セッション管理。`ensure`=起動中へアタッチ/自動deploy+起動、`reload`=器のホットリロード、`devreload`=repo側コード即反映 |
 | `scripts/qgis-live-check.mjs` | L2検証ランナー(`npm run test:live`)。QGIS未起動でも内部でensureする |
 | `scripts/qgis-mcp.mjs` | Harness側MCPアダプタ(stdio)。Driverの操作面を `qgis_pyeval` 等のtoolとして公開(後述) |
@@ -179,8 +194,11 @@ MCPクライアント設定例(stdioの場合、Driver同梱shimを直接使う)
 このリポジトリをDevin等で開く場合は `.devin/mcp_config.json` で
 `qgis-live`(`scripts/qgis-mcp.mjs`)が登録済み。
 tools: `qgis_ensure` / `qgis_pyeval` / `qgis_eval` / `qgis_bridge_call` /
-`qgis_screenshot` / `qgis_devreload` / `qgis_reload`。
+`qgis_screenshot` / `qgis_status` / `qgis_open_plugin` /
+`qgis_devreload` / `qgis_reload`。
 各toolは内部でensureするためQGIS未起動でも自動で立ち上がり、
+qgis_live_driver がlive中ならそれをhubとして使い
+(`pluginId`引数はplugin_idルーティングに載る)、
 `qgis_screenshot` はPNGをMCP **image content**で返すためエージェントが画像として見られる。
 
 ```mermaid
@@ -245,12 +263,15 @@ qgis-plugin/          プラグイン群のルート(複数プラグインをこ
     metadata.txt      プラグイン定義(name=はQGIS上の表示名)
     __init__.py       エントリポイント(classFactory)
     main_plugin.py    ダイアログ/view/channel/ドライバ起動 + dev source loader
-    live_driver.py    view用ファイルドライバ(eval/pyeval/screenshot/devreload)
+    live_driver.py    view用ファイルドライバ
+                      (eval/pyeval/screenshot/devreload + 共通コマンド)
     bridge.py         ★開発対象: WebChannel経由でJSに公開するAPI
     logic.py          ★開発対象: QGIS非依存の純粋ロジック(pytest対象)
     ui/               ★開発対象: HTML/CSS/JS (mockでブラウザ単体動作も可)
   qgis_live_driver/   QGIS Live Driver。制御専用プラグイン(UIなし・汎用部品)
-    live_driver.py    pyeval/screenshotの実行体(ファイル+メモリキューdispatch)
+    live_driver.py    pyeval/screenshot + status/open_plugin/reload_plugin/
+                      bridge_call + plugin_id転送の実行体
+                      (ファイル+メモリキューdispatch)
     mcp_http.py       内蔵HTTPサーバ(/mcp=MCP Streamable HTTP, /api/*=REST)
     mcp_stdio.py      stdio↔ファイルJSONLブリッジ(同梱・stdlibのみ)
                       詳細: qgis_live_driver/README.md
@@ -313,7 +334,7 @@ npm run test:live      # L2: 実QGIS内検証(QGIS未起動でも自動起動)
 
 | 面 | 形態 | 対象クライアント例 | 提供元 |
 |---|---|---|---|
-| ファイルプロトコル | `commands.jsonl` に `{id,type:eval\|pyeval\|screenshot\|devreload}` を追記、結果は `results.jsonl` | 任意言語(最下位の基底) | Driver/器 |
+| ファイルプロトコル | `commands.jsonl` に `{id,type:eval\|pyeval\|screenshot\|devreload\|status\|open_plugin\|reload_plugin\|bridge_call}` を追記、結果は `results.jsonl` | 任意言語(最下位の基底) | Driver/器 |
 | HTTP REST | `POST 127.0.0.1:<port>/api/pyeval` `{"code":"..."}` 等。ポートは `~/.qgis-live/` で自動検出 | curl・function calling系AI・自作エージェント | Driver |
 | MCP Streamable HTTP | `POST 127.0.0.1:<port>/mcp` (JSON-RPC) | HTTP transport対応MCPクライアント | Driver |
 | MCP stdio | `python <profile>/python/plugins/qgis_live_driver/mcp_stdio.py` をspawn | stdio型MCPクライアント全般 | Driver |
@@ -324,7 +345,8 @@ npm run test:live      # L2: 実QGIS内検証(QGIS未起動でも自動起動)
 ### MCPツール(Harness側)
 
 `qgis_ensure` / `qgis_pyeval` / `qgis_eval` / `qgis_bridge_call` /
-`qgis_screenshot` / `qgis_devreload` / `qgis_reload`
+`qgis_screenshot` / `qgis_status` / `qgis_open_plugin` /
+`qgis_devreload` / `qgis_reload`
 
 どのツールも内部でensureするため、QGIS未起動でも自動で立ち上がる。
 
@@ -364,6 +386,66 @@ webengine_plugin/     (plugin.config.json の id 名でpython/plugins/へdeploy�
 
 除去しても環境変数を立てられても `ImportError` がキャッチされるだけで
 正常動作する設計だが、任意コード実行の扉を物理的に残さないため除去を推奨。
+
+## Harness自体のプラグイン化について
+
+**結論: 大部分は可能で、実行時の中核はすでにDriver側に吸収済み。**
+残る外側は「構造上プロセスの外にしか置けないブートストラップ」だけ。
+
+つまり「プラグイン化できないもの」の一覧が、そのまま
+**Harnessの定義(=最小のHarness)** になる。
+現在のHarnessが含む LivePage・MCPアダプタ・ensure/reloadの
+オーケストレーション等は不可還元ではなく、その不可還元な核の
+周りに集まった**便益層**である(`/api/*`・`/mcp`越しに任意言語で
+再実装できる)。Harnessは「消せない外側+便利だから置いた外側」の
+2層でできている、と読むと正確。
+
+### すでにプラグイン側にあるもの
+
+コマンドdispatch・ファイルJSONL・REST・MCP・レジストリ・stdio shimは
+全て `qgis_live_driver` 内にあるため、輸送層としての外側スクリプト
+(`live-drive.mjs`/`qgis-mcp.mjs`相当)は原理的には不要。
+
+さらに以下は**namedコマンドとしてDriverに実装済み**:
+
+| コマンド | 吸収した元の機能 |
+|---|---|
+| `reload_plugin` | `qgis-session.mjs` がクライアント側で生成していたreloadコード(sys.modules掃除+reloadPlugin+open_dialog)。自己リロードも可 |
+| `open_plugin` | `startup.py`+`WEBENGINE_AUTOOPEN` によるダイアログ自動オープン(コマンド呼び出し型に置換) |
+| `bridge_call` | JS経由 `BridgeClient.callJson` のbridge呼出しをプロセス内直接呼出しに。WebChannelのwedge/飢餓の影響を受けない |
+| `status` | `pyeval("1")` による間接的な生存probeを正式コマンド化 |
+| `plugin_id` ルーティング | `eval`/`pyeval`/`screenshot`/`devreload` を他プラグインのドライバへ転送。Driverのlive dir/HTTPポート1本が全プラグインの統一制御点になる |
+
+### さらに内側へ移せるもの
+
+| 機能 | 方法 |
+|---|---|
+| 他プラグインのdeploy(ファイル配置) | `pyeval`でファイル配置・junction・`QGIS4.ini`まで完結可能(reload側は `reload_plugin` 化済み) |
+| LivePage相当のクライアント | `/api/*`を叩くだけのstdlibクライアントに置換可能(`mcp_stdio.py`がほぼそれ) |
+| `QTWEBENGINE_CHROMIUM_FLAGS`の設定 | `classFactory`時点ではQWebEngine未初期化のためプラグイン内で`os.environ`設定できる可能性(他が先に初期化すると破綻。要検証) |
+| `WEBENGINE_LIVE_DIR` のゲート | `QgsSettings`や `~/.qgis-live/` の設定ファイルで有効化判定すればenv無し起動QGISへもアタッチ可能(任意コード実行の常時有効化になるためopt-in必須) |
+
+### 構造上外に残るもの(不可逆)
+
+| 残るもの | 理由 | 最小化策 |
+|---|---|---|
+| プラグイン自身の初回インストール | 自己deployの鶏卵問題 | 通常のプラグインzip/プラグインマネージャ配布 |
+| QGISプロセスの起動 | プラグインは起動済みQGIS内でしか動かない | envを永続化するかlive dir既定パス化すれば「普通に起動」で済む |
+| クラッシュ監視・再起動 | ホスト死亡時にドライバも死ぬ(自己監視不可) | クライアント側タイムアウト+レジストリstale検出で代替 |
+| L1(Playwright)/pytest | QGIS無しでの検証が目的なので外が正しい | そのまま(Nodeは任意依存に退化) |
+
+`QGIS_PLUGINPATH`をrepoの `qgis-plugin/` に恒久的に向ければ
+deploy自体も不要になる可能性がある(QGIS 4.0.1での動作は要検証)。
+
+### 留保
+
+- GUIスレッド同期実行のため、モーダルダイアログやGUIブロック中は
+  ドライバも沈黙する。プラグイン化で悪化も改善もしない固有の制約
+- `eval`/`devreload`/UIスクショは対象プラグインのWebEngine viewが必要。
+  DriverだけではJS側を駆動できず「器ごとのlive_driver」という2層構造は残る
+  (ただし `plugin_id` ルーティングでDriver経由の一窓操作は可能)
+- `pyeval`=任意コード実行なので、配布可能なプラグインにするなら
+  envゲートを設定UI等に置き換える配慮が必要
 
 ## 環境要件
 

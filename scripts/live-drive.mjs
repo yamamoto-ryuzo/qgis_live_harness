@@ -56,6 +56,16 @@ export async function resolveLiveDir(liveDir, pluginId) {
   return match ? match.dir : liveDir;
 }
 
+/**
+ * 制御プラグイン qgis_live_driver のLivePageを返す。見つからなければnull。
+ * 存在すれば plugin_id ルーティングで全プラグインを制御できる統一窓口になる。
+ */
+export async function getControlPage(liveDir) {
+  const dirs = await resolveLiveDirs(liveDir);
+  const c = dirs.find((d) => d.pluginId === "qgis_live_driver");
+  return c ? new LivePage(c.dir) : null;
+}
+
 export class LivePage {
   /**
    * @param liveDir プラグイン側 WEBENGINE_LIVE_DIR と同じディレクトリ
@@ -124,12 +134,15 @@ export class LivePage {
    * JSを評価。Promiseはawaitされる。JSON化可能な値が返る。
    * ナビゲーション中などでrunJavaScriptのコールバックが捨てられると
    * プラグイン側がeval timeoutを返すため、その場合は新しいidでリトライする。
+   * pluginId指定時はplugin_idルーティングで他プラグインへ転送される
+   * (このpageが指すlive dirがqgis_live_driver等のハブである場合に有効)。
    */
-  async evaluate(expression, { retries = 4, timeoutMs = 45000 } = {}) {
+  async evaluate(expression, { retries = 4, timeoutMs = 45000, pluginId } = {}) {
     for (let attempt = 0; attempt <= retries; attempt++) {
       const id = this._nextId();
       try {
-        return await this._send({ id, type: "eval", expression }, timeoutMs);
+        return await this._send(
+          { id, type: "eval", expression, plugin_id: pluginId }, timeoutMs);
       } catch (e) {
         // "eval timeout"(ドライバ側宣言)と "timeout waiting result"(GUI飢餓で
         // 結果が返らない)はどちらも一過性なので新idで再送する。
@@ -144,20 +157,23 @@ export class LivePage {
    * QGISプロセス内でPythonを実行する(任意コード実行。検証モード専用)。
    * 式ならevalの結果、文なら `result` 変数の値が返る。
    * 名前空間には iface/view/driver が持続する。
+   * pluginId指定時はそのプラグインのドライバ名前空間で実行される。
    * 例: pyeval("iface.activeLayer().name() if iface.activeLayer() else None")
    */
-  async pyeval(code, { timeoutMs = 120000 } = {}) {
-    return this._send({ id: this._nextId(), type: "pyeval", code }, timeoutMs);
+  async pyeval(code, { timeoutMs = 120000, pluginId } = {}) {
+    return this._send(
+      { id: this._nextId(), type: "pyeval", code, plugin_id: pluginId },
+      timeoutMs);
   }
 
-  async waitFor(selector, timeoutMs = 15000) {
+  async waitFor(selector, timeoutMs = 15000, { pluginId } = {}) {
     const start = Date.now();
     let lastErr;
     while (Date.now() - start < timeoutMs) {
       try {
         const found = await this.evaluate(
           `!!document.querySelector(${JSON.stringify(selector)})`,
-          { timeoutMs: 5000 }
+          { timeoutMs: 5000, pluginId }
         );
         if (found) return;
       } catch (e) {
@@ -183,13 +199,54 @@ export class LivePage {
    * リポジトリ側のbridge等を再importしてページを再読み込みさせる。
    * deploy/reloadPlugin不要。WEBENGINE_DEV_SRC 必須(未設定ならエラー返る)。
    */
-  async devreload(timeoutMs = 30000) {
-    return this._send({ id: this._nextId(), type: "devreload" }, timeoutMs);
+  async devreload({ timeoutMs = 30000, pluginId } = {}) {
+    return this._send(
+      { id: this._nextId(), type: "devreload", plugin_id: pluginId },
+      timeoutMs);
   }
 
-  /** QWebEngineView.grab() でPNG保存。pathはQGIS側から見える絶対パス */
-  async screenshot(path) {
-    return this._send({ id: this._nextId(), type: "screenshot", path });
+  /**
+   * PNG保存。pathはQGIS側から見える絶対パス。
+   * target: view(既定)|window|canvas|mainwindow。
+   */
+  async screenshot(path, { pluginId, target } = {}) {
+    return this._send(
+      { id: this._nextId(), type: "screenshot", path, plugin_id: pluginId,
+        target });
+  }
+
+  /** ドライバ状態(pid/プラグイン一覧/view有無/http_port)を返す。 */
+  async status() {
+    return this._send({ id: this._nextId(), type: "status" });
+  }
+
+  /** プラグインをload/startしてopen_dialogする(未ロードでも使える)。 */
+  async openPlugin(pluginId, { timeoutMs = 60000 } = {}) {
+    return this._send(
+      { id: this._nextId(), type: "open_plugin", plugin_id: pluginId },
+      timeoutMs);
+  }
+
+  /**
+   * プラグインをホットリロード(sys.modules掃除+reloadPlugin+open_dialog)。
+   * deploy済みコードの器側変更を反映する。QGIS再起動不要。
+   */
+  async reloadPlugin(pluginId, { timeoutMs = 120000 } = {}) {
+    return this._send(
+      { id: this._nextId(), type: "reload_plugin", plugin_id: pluginId },
+      timeoutMs);
+  }
+
+  /**
+   * プラグインのbridgeメソッドをプロセス内で直接呼ぶ。
+   * JS経由のBridgeClient.callJsonと違いWebChannelを通らないため、
+   * レンダラー飢餓中でも使える。JSON文字列の結果は構造化して返る。
+   */
+  async bridgeCall(method, args = [], { pluginId, timeoutMs = 120000 } = {}) {
+    return this._send(
+      { id: this._nextId(), type: "bridge_call", plugin_id: pluginId,
+        method, args },
+      timeoutMs);
   }
 
   close() {}

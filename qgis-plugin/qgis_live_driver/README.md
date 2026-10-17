@@ -16,8 +16,23 @@ QGIS Live Harness(親リポジトリ)の「QGIS側の手」だが、
 | コマンド | 動作 |
 |---|---|
 | `pyeval` | QGISプロセス内で任意Pythonを同期実行し結果を返す。名前空間に `iface` / `QgsProject` / `QgsApplication` / `driver` を持つ → `iface.activeLayer().name()` や `QgsProject.instance().mapLayers()` 等で内部状態を直接取得・操作できる |
-| `screenshot` | `iface.mapCanvas().saveAsImage(path)` で地図キャンバスをPNG保存 |
-| `eval` / `devreload` | viewを持たないため **unsupported エラーを返す**(ハングしない) |
+| `screenshot` | `iface.mapCanvas().saveAsImage(path)` で地図キャンバスをPNG保存。`target:"mainwindow"` でQGISメインウィンドウを `grab()` |
+| `status` | pid / http_port / live_dir / ロード中プラグインと各driver・view有無を返す(生存確認・一覧用) |
+| `open_plugin` | `plugin_id` のプラグインをload+startし、`open_dialog` があれば開く |
+| `reload_plugin` | `plugin_id` のプラグインを `sys.modules` 掃除+`reloadPlugin`+`open_dialog` でホットリロード(QGIS再起動不要。自プラグイン自身も可) |
+| `bridge_call` | `plugin_id` + `method` + `args` で対象プラグインのbridgeオブジェクトを**プロセス内で直接呼ぶ**。WebChannelを通らないためJSレンダラー飢餓中でも動作する。JSON文字列の返値はパースして返す |
+| `eval` / `devreload` | viewを持たないため **unsupported エラーを返す**(ハングしない)。ただし `plugin_id` を付けると対象プラグインへ転送される(下記) |
+
+### plugin_idルーティング(ハブ機能)
+
+`eval` / `pyeval` / `screenshot` / `devreload` に `plugin_id` を付けると、
+そのプラグインのLiveDriver(`plugin.driver`/`plugin._live`)へコマンドが
+転送され、結果は呼び出し元の `results.jsonl` に返る。
+つまり**このドライバのlive dir / HTTPポート1本で全プラグインを制御できる**。
+
+- 転送先ドライバは `_handle(cmd, reply)` の `reply` 引数に対応している必要がある
+  (repo同梱の webengine_plugin 版 live_driver.py は対応済み)
+- `pyeval` を転送すると対象プラグインの名前空間(その `view`/`driver`)で実行される
 
 ## 制御可能な範囲
 
@@ -67,10 +82,15 @@ QGIS Live Harness(親リポジトリ)の「QGIS側の手」だが、
 |---|---|
 | `GET /api/health` | `{"ok":true,"pid":...,"plugin":"qgis_live_driver"}` |
 | `GET /api/tools` | ツール仕様JSON(function calling系AIが読む用) |
-| `POST /api/pyeval` | `{"code":"..."}` → `{"result":...}` |
-| `POST /api/eval` | view非所持のため unsupported を返す |
-| `POST /api/screenshot` | `{"path":"..."}` → PNGバイナリ(Content-Type: image/png) |
+| `GET /api/status` | `status` コマンドの結果 |
+| `POST /api/cmd` | コマンドJSONをそのままdispatch(`{"type":"reload_plugin","plugin_id":"..."}` 等すべて有効) |
+| `POST /api/pyeval` | `{"code":"...", "plugin_id":"..."}` → `{"result":...}` |
+| `POST /api/eval` | `{"expression":"...", "plugin_id":"<id>"}` → 対象プラグインへ転送(plugin_id無しなら unsupported) |
+| `POST /api/screenshot` | `{"path":"...","plugin_id":"...","target":"..."}` → PNGバイナリ(Content-Type: image/png) |
 | `POST /mcp` | MCP JSON-RPC (initialize/tools/list/tools/call/ping) |
+
+MCP tools は `qgis_<コマンド種別>` の命名で、引数はコマンドJSONの
+キーにそのまま対応する(`plugin_id` / `target` / `method` / `args` 等)。
 
 ## 仕組み(ファイルプロトコル詳細)
 

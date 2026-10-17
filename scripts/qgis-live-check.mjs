@@ -65,6 +65,14 @@ for (const { dir: liveDir, pluginId } of liveDirs) {
         String(e.message || e).slice(0, 120));
     }
     try {
+      const st = await page.status();
+      check(`${tag}statusコマンドが応答`, !!st && typeof st.pid === "number",
+        `plugins=${Object.keys(st?.plugins || {}).join(",")}`);
+    } catch (e) {
+      check(`${tag}statusコマンドが応答`, false,
+        String(e.message || e).slice(0, 120));
+    }
+    try {
       const shot = await page.screenshot(
         join(OUT_DIR, `qgis-live-${pluginId || "plugin"}.png`).replace(/\\/g, "/")
       );
@@ -94,6 +102,15 @@ for (const { dir: liveDir, pluginId } of liveDirs) {
 
   const info = await page.evaluate(`BridgeClient.callJson("pluginInfo")`);
   check(`${tag}pluginInfo が実QGISバージョンを返す`, !!info.qgis && !info.qgis.startsWith("mock"), `qgis=${info.qgis}`);
+
+  // bridge_call コマンドはWebChannelを通らずプロセス内でbridgeを直接呼ぶ。
+  // レンダラー飢餓に関係なく動くはずなのでJS経由と同じ結果を期待する
+  try {
+    const info2 = await page.bridgeCall("pluginInfo");
+    check(`${tag}bridge_callコマンドでpluginInfo`, !!info2.qgis && !info2.qgis.startsWith("mock"), `qgis=${info2.qgis}`);
+  } catch (e) {
+    check(`${tag}bridge_callコマンドでpluginInfo`, false, String(e.message || e).slice(0, 120));
+  }
 
   const layers = await page.evaluate(`BridgeClient.callJson("listLayers")`);
   check(`${tag}listLayers が配列を返す`, Array.isArray(layers), `${layers?.length ?? "?"} layers`);

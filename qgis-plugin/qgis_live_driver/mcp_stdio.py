@@ -38,20 +38,100 @@ TOOLS = [
             "Execute arbitrary Python inside the running QGIS process "
             "(GUI thread). Namespace has iface/QgsProject/QgsApplication/"
             "driver. Expressions return their value; statements return "
-            "the `result` variable.",
+            "the `result` variable. With plugin_id, runs in that plugin's "
+            "driver namespace (its `view` is available).",
         "inputSchema": {
             "type": "object",
-            "properties": {"code": {"type": "string"}},
+            "properties": {
+                "code": {"type": "string"},
+                "plugin_id": {"type": "string"},
+            },
             "required": ["code"],
+        },
+    },
+    {
+        "name": "qgis_eval",
+        "description":
+            "Evaluate a JS expression inside a plugin's QWebEngineView "
+            "(routed to the plugin's live driver via plugin_id).",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "expression": {"type": "string"},
+                "plugin_id": {"type": "string"},
+            },
+            "required": ["expression", "plugin_id"],
         },
     },
     {
         "name": "qgis_screenshot",
         "description":
-            "Capture the QGIS map canvas as PNG. Returns the image.",
+            "Capture PNG. Default: this driver's map canvas. With plugin_id "
+            "routes to that plugin (its view). target: canvas|mainwindow "
+            "(driver) or view|window|canvas|mainwindow (WebEngine plugin). "
+            "Returns the image.",
         "inputSchema": {
             "type": "object",
-            "properties": {"path": {"type": "string"}},
+            "properties": {
+                "path": {"type": "string"},
+                "plugin_id": {"type": "string"},
+                "target": {"type": "string"},
+            },
+        },
+    },
+    {
+        "name": "qgis_devreload",
+        "description":
+            "Re-import a plugin's repo-side bridge/ui (WEBENGINE_DEV_SRC) and "
+            "reload its page. Routed via plugin_id.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"plugin_id": {"type": "string"}},
+            "required": ["plugin_id"],
+        },
+    },
+    {
+        "name": "qgis_status",
+        "description":
+            "Driver status: pid, http port, loaded plugins and which have "
+            "live drivers / views.",
+        "inputSchema": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "qgis_open_plugin",
+        "description":
+            "Load+start a QGIS plugin if needed and call its open_dialog().",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"plugin_id": {"type": "string"}},
+            "required": ["plugin_id"],
+        },
+    },
+    {
+        "name": "qgis_reload_plugin",
+        "description":
+            "Hot-reload a QGIS plugin (sys.modules cleanup + reloadPlugin + "
+            "open_dialog). No QGIS restart needed.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"plugin_id": {"type": "string"}},
+            "required": ["plugin_id"],
+        },
+    },
+    {
+        "name": "qgis_bridge_call",
+        "description":
+            "Call a plugin's bridge method directly in-process (bypasses "
+            "WebChannel, so it works even while the JS renderer is starved). "
+            "JSON-string results are parsed. plugin_id optional.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "plugin_id": {"type": "string"},
+                "method": {"type": "string"},
+                "args": {"type": "array"},
+            },
+            "required": ["method"],
         },
     },
 ]
@@ -135,28 +215,28 @@ def _tool_call(name, args):
                                  "no live qgis_live_driver driver "
                                  f"(registry: {REG_DIR})"}],
                     "isError": True}
-    if name == "qgis_pyeval":
-        rep = _send(_live_dir, {"id": _next_id(), "type": "pyeval",
-                                "code": args.get("code", "")})
-    elif name == "qgis_screenshot":
-        import tempfile
-        path = args.get("path") or os.path.join(
-            tempfile.gettempdir(), f"qgis-shot-{_seq}.png")
-        rep = _send(_live_dir, {"id": _next_id(), "type": "screenshot",
-                                "path": path})
-        if "error" not in rep:
-            try:
-                with open(rep["result"], "rb") as f:
-                    return {"content": [{
-                        "type": "image",
-                        "data": base64.b64encode(f.read()).decode("ascii"),
-                        "mimeType": "image/png",
-                    }]}
-            except Exception as e:
-                rep = {"error": repr(e)}
-    else:
+    if not (name or "").startswith("qgis_"):
         return {"content": [{"type": "text", "text": f"unknown tool: {name}"}],
                 "isError": True}
+    # qgis_<type> → {"type": "<type>", ...args} にそのまま変換する。
+    # 新しいコマンド種別を追加してもここは変更不要。
+    cmd = {"id": _next_id(), "type": name[len("qgis_"):]}
+    cmd.update({k: v for k, v in args.items() if v is not None})
+    if name == "qgis_screenshot" and not cmd.get("path"):
+        import tempfile
+        cmd["path"] = os.path.join(
+            tempfile.gettempdir(), f"qgis-shot-{_seq}.png")
+    rep = _send(_live_dir, cmd)
+    if name == "qgis_screenshot" and "error" not in rep:
+        try:
+            with open(rep["result"], "rb") as f:
+                return {"content": [{
+                    "type": "image",
+                    "data": base64.b64encode(f.read()).decode("ascii"),
+                    "mimeType": "image/png",
+                }]}
+        except Exception as e:
+            rep = {"error": repr(e)}
     if "error" in rep:
         return {"content": [{"type": "text", "text": str(rep["error"])}],
                 "isError": True}

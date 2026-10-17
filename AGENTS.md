@@ -119,9 +119,25 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
   (main_plugin.py/live_driver.py/__init__.py)の変更はdevreloadでは反映されず
   `live:reload` が必要
 - クライアント側 `scripts/live-drive.mjs` (`LivePage`クラス)が
-  `evaluate()` / `pyeval()` / `devreload()` / `waitFor()` / `click()` / `screenshot()`
-  を提供。使い勝手はPlaywright相当。`resolveLiveDirs` がlive中の
-  全プラグインdirを列挙する
+  `evaluate()` / `pyeval()` / `devreload()` / `waitFor()` / `click()` /
+  `screenshot()` / `status()` / `openPlugin()` / `reloadPlugin()` /
+  `bridgeCall()` を提供。使い勝手はPlaywright相当。`resolveLiveDirs` が
+  live中の全プラグインdirを列挙する
+- **ドライバ共通コマンド**(両live_driver.pyに実装。`_handle(cmd, reply)` の
+  reply注入で転送にも対応):
+  `status`(pid/プラグイン一覧/view有無/http_port) /
+  `open_plugin`(load+start+open_dialog) /
+  `reload_plugin`(sys.modules掃除+reloadPlugin+open_dialog。
+  `live:reload` はこれを優先し、旧ドライバではpyevalにフォールバック) /
+  `bridge_call`(bridgeメソッドをプロセス内で直接呼ぶ。WebChannelを通らない
+  ためレンダラー飢餓中でも動く。JSON文字列返値はパースされる)
+- **`plugin_id` ルーティング(ハブ)**: `eval`/`pyeval`/`screenshot`/`devreload`
+  に `plugin_id` を付けるとそのプラグインのLiveDriverへ転送され、結果は
+  呼び出し元のresults.jsonlに返る。qgis_live_driver のlive dir 1箇所
+  (または内蔵HTTPポート1本)で全プラグインを制御できる。pyeval転送は
+  対象プラグインの名前空間(その `view`/`driver`)で実行される。
+  `screenshot` は `target` 指定可: driver側 canvas|mainwindow、
+  webengine側 view|window|canvas|mainwindow
 - **commands.jsonl は append-only。絶対に切り詰めないこと**(LivePage.reset()は
   results.jsonlのみ消す)。ドライバは読み取りoffsetを保持するため、
   切り詰め後にファイルが旧offsetを超えて再成長すると「縮小」と検出できず、
@@ -137,13 +153,16 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
 - `scripts/qgis-mcp.mjs` は **MCPサーバとして同経路を公開**する(stdio)。
   `.devin/mcp_config.json` で `qgis-live` として登録済み。
   tools: `qgis_ensure` / `qgis_pyeval` / `qgis_eval` / `qgis_bridge_call` /
-  `qgis_screenshot` / `qgis_devreload` / `qgis_reload`。
+  `qgis_screenshot` / `qgis_status` / `qgis_open_plugin` /
+  `qgis_devreload` / `qgis_reload`。
   各toolは内部でensureするためQGIS未起動でも自動で立ち上がる。
-  stdoutはプロトコル専用のためログはstderrに出る。
+  qgis_live_driver がlive中ならhubとして使い、`pluginId`引数は
+  plugin_idルーティングに載る。stdoutはプロトコル専用のためログはstderrに出る。
   **プラグイン側にもMCP/REST面がある**: `qgis_live_driver` が `POST /mcp`
-  (Streamable HTTP)と `POST /api/*`(REST)を内蔵し、同梱 `mcp_stdio.py` が
-  stdioクライアントをファイルJSONLへ中継する(Node不要)。
-  toolsは `qgis_pyeval`/`qgis_screenshot` のみの最小構成(実行系はpyevalで網羅できる)
+  (Streamable HTTP)と `POST /api/*`(REST、汎用 `/api/cmd` 含む)を内蔵し、
+  同梱 `mcp_stdio.py` がstdioクライアントをファイルJSONLへ中継する(Node不要)。
+  toolsは `qgis_<コマンド種別>` の命名でドライバの全コマンドに対応
+  (pyeval/eval/screenshot/devreload/status/open_plugin/reload_plugin/bridge_call)
 - **ドライバは起動時にcommands.jsonlの末尾から読み始める**。reloadでドライバが
   作り直されても過去コマンドの再実行は起きない
 - コマンドidはクライアント側でセッションprefix付き(`s<rand>-<n>`)にする。

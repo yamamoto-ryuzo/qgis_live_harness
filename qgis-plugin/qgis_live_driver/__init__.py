@@ -62,6 +62,7 @@ class QgisLivePlugin:
         try:
             from .mcp_http import start_http
             self._http, port = start_http(self.driver)
+            self.driver.http_port = port
             _log(f"qgis_live_driver HTTP API: http://127.0.0.1:{port}/")
         except Exception:
             _log("qgis_live_driver HTTP failed:\n" + traceback.format_exc())
