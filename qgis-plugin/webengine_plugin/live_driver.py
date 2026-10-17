@@ -65,6 +65,12 @@ class LiveDriver:
         self.timer.timeout.connect(self._poll)
         self.timer.start(POLL_MS)
 
+    def stop(self):
+        self.timer.stop()
+        # timer.timeout.connect(bound method) がselfへの参照を保持し、
+        # リロードごとにドライバ+QTimerが滞留するためC++側も解放する
+        self.timer.deleteLater()
+
     def _poll(self):
         if os.path.exists(self.cmd_path):
             # ファイルが作り直されるとoffsetが実サイズを超えて読み飛ばすため補正
@@ -72,15 +78,22 @@ class LiveDriver:
                 self.offset = 0
             with open(self.cmd_path, "r", encoding="utf-8") as f:
                 f.seek(self.offset)
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        self._handle(json.loads(line))
-                    except Exception as e:
-                        self._reply({"id": None, "error": repr(e)})
-                self.offset = f.tell()
+                data = f.read()
+            # クライアントが書き込み中の部分行を処理するとJSONDecodeErrorで
+            # コマンド喪失するため、改行で終端された行だけ処理し、
+            # 未完の末尾はoffsetを進めず次ポーリングに残す
+            end = data.rfind("\n")
+            if end < 0:
+                return
+            self.offset += end + 1
+            for line in data[:end].split("\n"):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    self._handle(json.loads(line))
+                except Exception as e:
+                    self._reply({"id": None, "error": repr(e)})
 
         # evalコマンドの結果をグローバル辞書経由で回収
         for cid in list(self.pending):

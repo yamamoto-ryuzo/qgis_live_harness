@@ -1,0 +1,9 @@
+[general]
+name=QGIS Live Driver
+description=File-protocol remote control driver for QGIS (pyeval/screenshot). Development-only.
+about=Exposes QGIS internals to external apps via commands.jsonl/results.jsonl when WEBENGINE_LIVE_DIR is set. pyeval executes arbitrary Python inside QGIS; screenshot captures the map canvas. Do not distribute to end users.
+version=0.1.0
+qgisMinimumVersion=4.0
+supportsQt6=yes
+author=Cognition
+experimental=False

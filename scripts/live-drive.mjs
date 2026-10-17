@@ -72,11 +72,17 @@ export class LivePage {
     this.pending = new Map();
   }
 
-  /** 以前のセッションの結果が残っているとid衝突で誤読するため初期化する */
+  /**
+   * 以前のセッションの結果が残っているとid衝突で誤読するため初期化する。
+   * commands.jsonl は切り詰めない: ドライバは読み取りoffsetを保持しており、
+   * 切り詰め後にファイルが旧offsetを超えて再成長すると「縮小」と判定できず
+   * コマンド行の途中から読み出してJSONDecodeError+コマンド喪失を起こす。
+   * append-only にすればoffsetは常に行頭を指す。results側は追記専用で
+   * offsetを持たないため、切り詰めても破壊的にならない。
+   */
   async reset() {
     await mkdir(this.dir, { recursive: true });
     const { writeFile } = await import("node:fs/promises");
-    await writeFile(this.cmdPath, "");
     await writeFile(this.resPath, "");
   }
 

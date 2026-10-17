@@ -84,6 +84,13 @@ class WebEnginePlugin:
             self.iface.removePluginMenu(f"&{PLUGIN_NAME}", self.action)
             self.iface.removeToolBarIcon(self.action)
             self.action = None
+        live = getattr(self, "_live", None)
+        if live is not None:
+            try:
+                live.stop()
+            except Exception:
+                pass
+            self._live = None
         if self.dialog is not None:
             self.dialog.deleteLater()
             self.dialog = None

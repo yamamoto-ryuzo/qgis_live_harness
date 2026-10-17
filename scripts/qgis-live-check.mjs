@@ -35,6 +35,47 @@ for (const { dir: liveDir, pluginId } of liveDirs) {
   console.log(`live dir: ${liveDir}`);
   await page.reset();
 
+  // WebEngine viewを持たない制御専用プラグイン(qgis_live等)は
+  // UIチェックではなく pyeval/キャンバススクショの生存確認に切り替える。
+  // プローブが1回限りだとコマンド喪失時にUI経路へ誤分岐してevalを
+  // 延々と送り続けるため、resetを挟んでリトライし、
+  // それでも応答しない場合は即FAILして次のプラグインへ進む
+  let hasUi = null;
+  for (let i = 0; i < 3 && hasUi === null; i++) {
+    try {
+      hasUi = !!(await page.pyeval("driver.view is not None",
+        { timeoutMs: 45000 }));
+    } catch {
+      await page.reset();
+    }
+  }
+  if (hasUi === null) {
+    check(`${tag}LiveDriverがpyevalに応答`, false, "no response after retries");
+    continue;
+  }
+  if (!hasUi) {
+    try {
+      const layers = await page.pyeval(
+        "len(QgsProject.instance().mapLayers())"
+      );
+      check(`${tag}pyevalでQGIS内部に到達`, typeof layers === "number",
+        `layers=${layers}`);
+    } catch (e) {
+      check(`${tag}pyevalでQGIS内部に到達`, false,
+        String(e.message || e).slice(0, 120));
+    }
+    try {
+      const shot = await page.screenshot(
+        join(OUT_DIR, `qgis-live-${pluginId || "plugin"}.png`).replace(/\\/g, "/")
+      );
+      check(`${tag}地図キャンバスのスクショ取得`, !!shot, String(shot));
+    } catch (e) {
+      check(`${tag}地図キャンバスのスクショ取得`, false,
+        String(e.message || e).slice(0, 120));
+    }
+    continue;
+  }
+
   // LiveDriverが応答するか + index.htmlのナビゲーション完了を待つ
   let href = "";
   for (let i = 0; i < 30; i++) {

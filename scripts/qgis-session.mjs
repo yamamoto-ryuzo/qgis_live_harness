@@ -124,7 +124,9 @@ if PLUGIN_ID in qgis.utils.plugins:
 else:
     qgis.utils.loadPlugin(PLUGIN_ID)
     qgis.utils.startPlugin(PLUGIN_ID)
-qgis.utils.plugins[PLUGIN_ID].open_dialog()
+_p = qgis.utils.plugins.get(PLUGIN_ID)
+if hasattr(_p, "open_dialog"):
+    _p.open_dialog()
 result = {"loaded": PLUGIN_ID in qgis.utils.plugins,
           "plugins": sorted(qgis.utils.plugins.keys())}
 `;
@@ -148,8 +150,12 @@ export async function reloadPlugin({ liveBase = LIVE_BASE, deploy: doDeploy = tr
     console.log(`[reload] ${id}: ${JSON.stringify(res)}`);
     // 新しいviewがindex.htmlを読み込み終わるまで待つ。
     // reload直後は旧viewが破棄中でeval timeoutすることがあるのでwaitForで吸収する。
-    await page.waitFor('[data-testid="layer-list"]', 60000);
-    console.log(`[reload] ${id}: dialog re-opened and UI ready`);
+    // viewを持たない制御プラグイン(qgis_live等)はスキップ
+    const hasUi = await page.pyeval("driver.view is not None").catch(() => false);
+    if (hasUi) {
+      await page.waitFor('[data-testid="layer-list"]', 60000);
+      console.log(`[reload] ${id}: dialog re-opened and UI ready`);
+    }
     results.push(res);
   }
   return results;
@@ -163,6 +169,9 @@ export async function devReload({ liveBase = LIVE_BASE } = {}) {
   const dirs = await ensureQgis({ liveBase });
   for (const d of dirs) {
     const page = new LivePage(d.dir);
+    // viewを持たない制御プラグイン(qgis_live等)はdevreload対象外
+    const hasUi = await page.pyeval("driver.view is not None").catch(() => false);
+    if (!hasUi) continue;
     await page.devreload();
     await page.waitFor('[data-testid="layer-list"]', 60000);
     console.log(`[devreload] ${d.pluginId || "?"}: repo-side bridge/ui reloaded`);
