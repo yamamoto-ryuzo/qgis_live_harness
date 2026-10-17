@@ -1,7 +1,17 @@
-# qgis-webengine-plugin
+# QGIS Live Harness
 
-**QGISプロセスをAI/外部スクリプトから自律駆動する制御基盤** +
+**QGISプロセスをAI/外部スクリプトから自律駆動する制御基盤(ハーネス)** +
 Qt WebEngine ベースのプラグイン開発テンプレート。
+(リポジトリ/ディレクトリ名: `qgis-webengine-plugin`)
+
+## 命名
+
+| 名前 | 指すもの |
+|---|---|
+| **QGIS Live Harness** | このリポジトリ全体。開発・制御・観測・検証の環境(基盤)。QGISに「取り付けて操縦する外側の装具」 |
+| **QGIS Live Driver** (`qgis_live_driver`) | QGIS内にdeployされる制御プラグイン。ファイルJSONL・HTTP REST・MCP HTTP/stdioの接続面を持つ実行部品。ハーネスの「QGIS側の手」 |
+
+この上で回るのは **エージェンティックループ**: AIが「書く→devreloadで実機反映→eval/pyeval/スクショで観測→test:liveで検証」を人間なしで反復する。
 
 ## 概要
 
@@ -10,9 +20,9 @@ Qt WebEngine ベースのプラグイン開発テンプレート。
 - **プラグイン(製品)**: `qgis-plugin/<id>/` の器 + `bridge.py`/`logic.py`/`ui/`。
   `live_driver.py` と dev loader を剥がせば、そのまま配布できる普通のQGISプラグイン。
   **リポジトリが無くても動く**
-- **基盤(このリポジトリ)**: そのプラグインを育て・観測・外部操作するための
-  開発・制御環境。ファイルプロトコル経由のLiveDriver、セッション管理、
-  devreload、テスト、MCPアダプタを含む。**リポジトリがあって初めて成り立つ**
+- **基盤(QGIS Live Harness = このリポジトリ)**: そのプラグインを育て・観測・
+  外部操作するための開発・制御環境。ファイルプロトコル経由のLiveDriver、
+  セッション管理、devreload、テスト、MCPアダプタを含む。**リポジトリがあって初めて成り立つ**
 
 `qgis-plugin/<id>/` は境界をまたぐ部品で、LiveDriver等を載せれば基盤側の
 操縦装置になり、剥がせば配布用の製品になる。
