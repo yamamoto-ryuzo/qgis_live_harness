@@ -122,7 +122,7 @@ flowchart TB
 | `live-drive.mjs`(LivePage) | リポジトリ | Nodeからの高水準API。`evaluate`/`pyeval`/`click`/`waitFor`/`screenshot` |
 | `qgis-session.mjs` | リポジトリ | セッション管理。`ensure`=起動中へアタッチ/自動起動、`reload`=器のホットリロード |
 
-### 2. AIによるプラグイン完全自動化環境
+### 2. AIによるプラグイン完全自動化環境 — `webengine_plugin`プラグイン
 
 ```mermaid
 flowchart TD
@@ -154,7 +154,7 @@ flowchart TD
 
 開発ループ: **編集 → `live:devreload` → `npm run test:live`**(全て無人化可能)
 
-### 3. MCPによるAI連携
+### 3. MCPによるAI連携 — `qgis_live`プラグイン(+`qgis-mcp.mjs`)
 
 AIの接続方式はクライアントごとに異なるため、**全方式を並列提供**する:
 
