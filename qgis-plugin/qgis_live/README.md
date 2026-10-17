@@ -42,7 +42,35 @@ UIを持たない制御専用プラグイン。
   座標変換等の下ごしらえが必要
 - **Python API未露出の内部機能** — 稀だがC++ privateな振る舞いは不可
 
-## 仕組み
+## 接続面(4系統・全て同じdispatchへ)
+
+```
+① ファイルJSONL  外部アプリ → commands.jsonl 追記 → QTimer(200ms)実行 → results.jsonl
+② HTTP REST     POST 127.0.0.1:<port>/api/pyeval {"code":"..."} → JSON応答
+③ MCP HTTP      POST 127.0.0.1:<port>/mcp  (Streamable HTTP, JSON-RPC)
+④ MCP stdio     python mcp_stdio.py をspawn → stdio↔①を中継
+```
+
+- ②③はプラグイン内蔵の `http.server`(stdlibのみ)が `127.0.0.1` の
+  空きポートで提供。ワーカースレッド→ `driver.submit()` メモリキュー →
+  GUIスレッドのQTimerが①と同じ経路で実行する
+- ポート等の接続情報は **`~/.qgis-live/<pid>-qgis_live.json`** に書き出される
+  (`QGIS_LIVE_REGISTRY` で変更可)。クライアントはここから自動検出できる
+- ④ `mcp_stdio.py` はstdlibのみで動く同梱shim。spawn側にQGIS/Node不要。
+  レジストリからlive dirを自動検出してstdio↔JSONLを中継する
+
+### HTTP RESTエンドポイント
+
+| エンドポイント | 内容 |
+|---|---|
+| `GET /api/health` | `{"ok":true,"pid":...,"plugin":"qgis_live"}` |
+| `GET /api/tools` | ツール仕様JSON(function calling系AIが読む用) |
+| `POST /api/pyeval` | `{"code":"..."}` → `{"result":...}` |
+| `POST /api/eval` | view非所持のため unsupported を返す |
+| `POST /api/screenshot` | `{"path":"..."}` → PNGバイナリ(Content-Type: image/png) |
+| `POST /mcp` | MCP JSON-RPC (initialize/tools/list/tools/call/ping) |
+
+## 仕組み(ファイルプロトコル詳細)
 
 環境変数 `WEBENGINE_LIVE_DIR` が設定された状態でQGISが起動すると、
 `initGui` 時に `live_driver.py` が起動し
@@ -77,3 +105,6 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
 `pyeval` は **任意コード実行**。**開発専用**であり、
 エンドユーザーへの配布物に含めてはいけない
 (metadata.txtにも `Development-only` と明記済み)。
+
+HTTPサーバは `127.0.0.1` のみにバインドするが、ローカルマシン上の
+任意プロセスからQGIS内部を操作できるため、リモート公開は想定しない。
