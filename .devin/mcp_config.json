@@ -2,11 +2,11 @@
   "mcpServers": {
     "qgis-live": {
       "command": "node",
-      "args": ["C:/devin/qgis_live_harness/scripts/qgis-mcp.mjs"]
+      "args": ["scripts/qgis-mcp.mjs"]
     },
     "qgis-live-py": {
       "command": "python",
-      "args": ["C:/devin/qgis_live_harness/qgis-plugin/qgis_live_driver/mcp_stdio.py"]
+      "args": ["qgis-plugin/qgis_live_driver/mcp_stdio.py"]
     }
   }
 }

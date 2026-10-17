@@ -152,6 +152,10 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
   `test:live` も内部でensureするため事前起動は不要になった
 - `scripts/qgis-mcp.mjs` は **MCPサーバとして同経路を公開**する(stdio)。
   `.devin/mcp_config.json` で `qgis-live` として登録済み。
+  argsはリポジトリ相対パス(`scripts/qgis-mcp.mjs`)で、cwd=プロジェクトルート前提。
+  相対パスが解決されない環境では gitignore済みの
+  `.devin/mcp_config.local.json` に絶対パスで同名サーバを定義すれば上書きできる。
+  VS Code Copilot向けには `.vscode/mcp.json`(`servers` + `${workspaceFolder}`)を同梱。
   tools: `qgis_ensure` / `qgis_pyeval` / `qgis_eval` / `qgis_bridge_call` /
   `qgis_screenshot` / `qgis_status` / `qgis_open_plugin` /
   `qgis_devreload` / `qgis_reload`。

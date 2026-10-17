@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "qgis-live": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${workspaceFolder}/scripts/qgis-mcp.mjs"]
+    }
+  }
+}
