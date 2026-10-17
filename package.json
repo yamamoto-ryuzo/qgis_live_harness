@@ -1,5 +1,5 @@
 {
-  "name": "qgis-webengine-plugin",
+  "name": "qgis-live-harness",
   "version": "0.1.0",
   "private": true,
   "scripts": {

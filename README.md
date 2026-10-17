@@ -2,7 +2,7 @@
 
 **QGISプロセスをAI/外部スクリプトから自律駆動する制御基盤(ハーネス)** +
 Qt WebEngine ベースのプラグイン開発テンプレート。
-(リポジトリ/ディレクトリ名: `qgis-webengine-plugin`)
+(リポジトリ/ディレクトリ名: `qgis-live-harness`)
 
 ## 命名
 
