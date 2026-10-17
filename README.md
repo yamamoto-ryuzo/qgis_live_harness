@@ -182,7 +182,7 @@ flowchart LR
 | `qgis_live_driver/mcp_stdio.py` | 開発版の器 | stdioブリッジ。QGIS無しのspawn側でもstdlibだけで動き、`~/.qgis-live/` レジストリからlive dirを自動検出 |
 | `qgis_live_driver` 内蔵 `/mcp` `/api/*` | 開発版の器 | HTTP面。MCP未対応のAIでも `POST /api/pyeval {"code":"..."}` だけで操作できる |
 
-### 3. AIによるプラグイン完全自動化環境 — `webengine_plugin`プラグイン
+### 3. AIによるプラグイン完全自動化環境 — リポジトリ基盤(器: `webengine_plugin`)
 
 ```mermaid
 flowchart TD
