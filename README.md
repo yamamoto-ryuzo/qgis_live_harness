@@ -165,6 +165,27 @@ AIの接続方式はクライアントごとに異なるため、**全方式を�
 | 汎用HTTPのみ — function calling/自作エージェント | plain REST | `qgis_live` 内蔵 `POST /api/*` + `GET /api/tools` |
 | シェル/ファイルのみ — 制限環境 | 生ファイルプロトコル | `commands.jsonl`/`results.jsonl`(言語非依存) |
 
+> **プラグイン名**: 上記のプラグイン側実装は全て **`qgis_live`** プラグイン
+> (表示名: `QGIS Live Driver`、deploy先 `python/plugins/qgis_live/`)に
+> 内蔵されている。`webengine_plugin` 側はWebEngine UI用のドライバのみ持ち、
+> MCP/REST面は `qgis_live` が担当する。
+
+MCPクライアント設定例(stdioの場合):
+
+```json
+{
+  "mcpServers": {
+    "qgis-live": {
+      "command": "python",
+      "args": ["C:/Users/<user>/AppData/Roaming/QGIS/QGIS4/profiles/<profile>/python/plugins/qgis_live/mcp_stdio.py"]
+    }
+  }
+}
+```
+
+HTTP transport対応クライアントの場合は `http://127.0.0.1:<port>/mcp`
+(portは `~/.qgis-live/<pid>-qgis_live.json` の `http_port` を参照)。
+
 ```mermaid
 flowchart LR
     CLIENT["MCPクライアント<br/>(Devin等)"]
