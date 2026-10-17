@@ -131,7 +131,10 @@ export class LivePage {
       try {
         return await this._send({ id, type: "eval", expression }, timeoutMs);
       } catch (e) {
-        if (!String(e.message).includes("eval timeout") || attempt === retries) throw e;
+        // "eval timeout"(ドライバ側宣言)と "timeout waiting result"(GUI飢餓で
+        // 結果が返らない)はどちらも一過性なので新idで再送する。
+        // コマンドはid単位で無害(古い結果は誰も拾わない)
+        if (!String(e.message).includes("timeout") || attempt === retries) throw e;
         await new Promise((r) => setTimeout(r, 1000));
       }
     }
@@ -149,14 +152,24 @@ export class LivePage {
 
   async waitFor(selector, timeoutMs = 15000) {
     const start = Date.now();
+    let lastErr;
     while (Date.now() - start < timeoutMs) {
-      const found = await this.evaluate(
-        `!!document.querySelector(${JSON.stringify(selector)})`
-      );
-      if (found) return;
+      try {
+        const found = await this.evaluate(
+          `!!document.querySelector(${JSON.stringify(selector)})`,
+          { timeoutMs: 5000 }
+        );
+        if (found) return;
+      } catch (e) {
+        // GUI/レンダラー飢餓中はevalが無応答になる。窓内では粘る
+        lastErr = e;
+      }
       await new Promise((r) => setTimeout(r, 250));
     }
-    throw new Error(`waitFor timeout: ${selector}`);
+    throw new Error(
+      `waitFor timeout: ${selector}` +
+      (lastErr ? ` (last error: ${lastErr.message})` : "")
+    );
   }
 
   async click(selector) {

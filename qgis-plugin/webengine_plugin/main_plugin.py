@@ -7,8 +7,10 @@ from qgis.PyQt.QtWidgets import QAction, QDialog, QVBoxLayout
 try:
     from qgis.PyQt.QtWebChannel import QWebChannel
     from qgis.PyQt.QtWebEngineWidgets import QWebEngineView
+    from qgis.PyQt.QtWebEngineCore import QWebEnginePage
 except ImportError:  # qgis.PyQt shim がQtWebEngine系を仲介しないQGISバージョン向け
     from PyQt6.QtWebChannel import QWebChannel
+    from PyQt6.QtWebEngineCore import QWebEnginePage
     from PyQt6.QtWebEngineWidgets import QWebEngineView
 
 from . import _log
@@ -33,6 +35,27 @@ def resolve_ui_dir():
         if os.path.isfile(os.path.join(d, "index.html")):
             return d
     raise FileNotFoundError("ui/index.html not found in: " + ", ".join(candidates))
+
+
+class _LiveConsolePage(QWebEnginePage):
+    """console.logの "__live " プレフィックス付きメッセージをドライバへ中継するページ。
+
+    eval結果の報告に WebChannel の transport.send を使うと、sendの返信待ち中に
+    割り込んだrunJavaScriptが返信を喪失させてチャネル全体をwedgeさせる。
+    consoleメッセージはChromium側からの一方向通知でreplyを持たないため
+    この干渉を受けない(実測で確認済みのwedge機構を完全に迂回する)。
+    """
+
+    report = None  # callable(str) — LiveDriverが _on_report を接続する
+
+    def javaScriptConsoleMessage(self, level, msg, line, src):
+        if self.report is not None and msg.startswith("__live "):
+            try:
+                self.report(msg[len("__live "):])
+                return
+            except Exception:
+                pass
+        super().javaScriptConsoleMessage(level, msg, line, src)
 
 
 def load_dev_bridge_class():
@@ -120,6 +143,7 @@ class WebEnginePlugin:
             layout.setContentsMargins(0, 0, 0, 0)
 
             view = QWebEngineView(self.dialog)
+            view.setPage(_LiveConsolePage(view))
             self.bridge = self._make_bridge(view)
             channel = QWebChannel(view.page())
             channel.registerObject("bridge", self.bridge)

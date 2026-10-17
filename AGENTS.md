@@ -136,7 +136,8 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
   作り直されても過去コマンドの再実行は起きない
 - コマンドidはクライアント側でセッションprefix付き(`s<rand>-<n>`)にする。
   reset無しでアタッチしても過去の結果を誤読しない。JS側の結果受け渡しは
-  `window.__live_res` 辞書(idにハイフン等を含んでも安全)
+  `console.log("__live <cid> <n> <i> <chunk>")` → `_LiveConsolePage.
+  javaScriptConsoleMessage`(WebChannel非依存の一方向通知)でpushされる
 
 ## 環境固有の制約(ハマりやすい点)
 
@@ -147,6 +148,13 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
 - **bridgeの重いQGIS操作は `QTimer.singleShot(0, ...)` で遅延させること**。
   WebChannel経由の呼び出しは同期で、重い処理(レイヤーアクティブ化・再描画等)をすると
   レンダラーのJSスレッドがブロックされ後続のrunJavaScriptまで飢餓する(bridge.py参照)
+- **WebChannel sendの飛行中は renderer->browser の他メッセージも全て喪失する**(Qt6.8実測)。
+  send返信待ちに割り込んだ `runJavaScript` は返信を殺してチャネルをwedgeさせ、
+  `console.log` も同様に届かない。対策として live_driver は
+  (a) eval結果を `__live_res` ポーリングしない、(b) eval投入をpending空まで直列化、
+  (c) 結果報告を console.log一方向通知+タイムアウトまでの定期再送、にしている。
+  `.click()` 等が起こしたsendの返信が重い処理で遅れるとその間のeval結果報告は
+  全て落ちるため、GUIブロックが長いプロジェクトではクリック系チェックがWARNになる
 - プラグイン有効化は `QGIS4.ini` の `[PythonPlugins]`。deployスクリプトが自動書き込み
 - **.ps1はUTF-8 BOM必須**。BOM無しだとWindows PowerShell 5.1がANSI誤読し、
   日本語コメントの直後の文が実行されない(静かに失敗する)

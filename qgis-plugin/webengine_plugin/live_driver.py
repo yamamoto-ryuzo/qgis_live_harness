@@ -2,7 +2,14 @@
 
 QtWebEngineのCDP実装(Runtimeドメイン)がこの環境では応答しないため、
 プラグイン側でQTimerポーリングし commands.jsonl に書き込まれたJSを
-view.page().runJavaScript() で実行して results.jsonl に結果を返す。
+view.page().runJavaScript() で実行する。結果はJS側が console.log("__live ...")
+で報告し、_LiveConsolePage.javaScriptConsoleMessage が受けて results.jsonl に返す。
+
+重要: WebChannelの transport.send は返信をネストして同期的に待つため、
+send中にrunJavaScriptを実行すると返信が喪失しチャネルがwedgeする(実測確認)。
+そのため (a) eval結果のポーリング読み取りはしない、(b) evalの投入は
+pendingが空の時だけに直列化する、(c) 結果報告はWebChannelを経由しない
+一方向のconsole通知にする、という3点で回避している。
 
 環境変数 WEBENGINE_LIVE_DIR が設定されている場合のみ有効化される。
 
@@ -27,12 +34,16 @@ main_plugin/live_driver 等の変更は対象外。それらはlive:reloadを使
 
 import json
 import os
+import time
 import traceback
 
 from qgis.PyQt.QtCore import QTimer
 
 EVAL_TIMEOUT_MS = 120000
 POLL_MS = 200
+# キューでこれだけ滞留したevalは、クライアント側が既にタイムアウトして
+# 新idでリトライ済みとみなし、実行せず破棄する(遅延clickの多重実行防止)
+QUEUE_STALE_MS = 30000
 
 
 def _to_jsonable(v):
@@ -56,10 +67,18 @@ class LiveDriver:
         # 再実行しないよう既存ファイルは末尾までスキップする
         self.offset = os.path.getsize(self.cmd_path) if os.path.exists(self.cmd_path) else 0
         self.pending = {}  # cid -> remaining ms
+        self._queue = []  # (cid, expr) eval送信キュー。sendが飛んでいる間は投入しない
         self._runjs_mode = None  # "qt6" | "qt5"
         self._ns = {"iface": iface, "view": view, "driver": self}
         self._dev_reload = dev_reload  # callable -> 新しいbridgeオブジェクト or None
         os.makedirs(live_dir, exist_ok=True)
+
+        # eval結果は console.log("__live ...") → _LiveConsolePage.
+        # javaScriptConsoleMessage 経由でプッシュ受信する。
+        # WebChannelのsendは返信待ち中のrunJavaScript割り込みでwedgeするため、
+        # 一方向のconsole通知を使う(返信経路が存在しない=壊れようがない)。
+        self._reports = {}  # cid -> {"n": total, "parts": {i: chunk}}
+        self._attach_report_handler()
 
         self.timer = QTimer(view)
         self.timer.timeout.connect(self._poll)
@@ -81,12 +100,13 @@ class LiveDriver:
                 data = f.read()
             # クライアントが書き込み中の部分行を処理するとJSONDecodeErrorで
             # コマンド喪失するため、改行で終端された行だけ処理し、
-            # 未完の末尾はoffsetを進めず次ポーリングに残す
+            # 未完の末尾はoffsetを進めず次ポーリングに残す。
+            # 新規データ無し(空)でも後段のタイムアウト管理とキューdispatchを
+            # 回す必要があるため、ここでは早期returnしない
             end = data.rfind("\n")
-            if end < 0:
-                return
-            self.offset += end + 1
-            for line in data[:end].split("\n"):
+            if end >= 0:
+                self.offset += end + 1
+            for line in data[: max(end, 0)].split("\n"):
                 line = line.strip()
                 if not line:
                     continue
@@ -95,15 +115,22 @@ class LiveDriver:
                 except Exception as e:
                     self._reply({"id": None, "error": repr(e)})
 
-        # evalコマンドの結果をグローバル辞書経由で回収
+        # evalのタイムアウト管理のみ(runJavaScriptプローブはwedgeを起こすため廃止)
         for cid in list(self.pending):
-            probe = f"window.__live_res&&window.__live_res[{json.dumps(str(cid))}]"
-            self._js(probe, lambda res, cid=cid: self._collect(cid, res))
+            self.pending[cid] -= POLL_MS
             if self.pending[cid] <= 0:
                 self._reply({"id": cid, "error": "eval timeout"})
                 self.pending.pop(cid, None)
+
+        # 直列送信: pendingのevalが無い時だけ次を投入する。
+        # sendが飛んでいる最中にrunJavaScriptを実行するとそのsendの返信が
+        # 喪失する(Qt6.8のWebChannel transport制約)ため、evalは1件ずつ処理する
+        if not self.pending and self._queue:
+            cid, expr, enq = self._queue.pop(0)
+            if (time.monotonic() - enq) * 1000 > QUEUE_STALE_MS:
+                self._reply({"id": cid, "error": "eval dropped: queue stale"})
             else:
-                self.pending[cid] -= POLL_MS
+                self._submit_eval(cid, expr)
 
     def _handle(self, cmd):
         cid = cmd.get("id")
@@ -114,20 +141,8 @@ class LiveDriver:
             self._reply({"id": cid, "result": path})
             return
         if ctype == "eval":
-            expr = cmd.get("expression", "")
-            # Promiseも結果として受け取れるようasyncで包み、グローバル辞書に退避。
-            # cidはクライアント生成の任意文字列(ハイフン等を含みうる)なので
-            # 変数名ではなく辞書キーとして扱う
-            key = json.dumps(str(cid))
-            wrapper = (
-                "(async()=>{try{const __r=await(" + expr + ");"
-                "(window.__live_res=window.__live_res||{})[" + key + "]={ok:true,v:__r};"
-                "}catch(e){"
-                "(window.__live_res=window.__live_res||{})[" + key + "]={ok:false,e:String(e&&e.stack||e)}"
-                "}})()"
-            )
-            self.pending[cid] = EVAL_TIMEOUT_MS
-            self._js(wrapper)
+            self._queue.append(
+                (cmd.get("id"), cmd.get("expression", ""), time.monotonic()))
             return
         if ctype == "pyeval":
             self._pyeval(cid, cmd.get("code", ""))
@@ -147,6 +162,7 @@ class LiveDriver:
             channel = self.view.page().webChannel()
             if channel is not None:
                 channel.registerObject("bridge", bridge)
+            self._attach_report_handler()
             self.view.reload()
             self._reply({"id": cid, "result": True})
         except Exception:
@@ -188,10 +204,56 @@ class LiveDriver:
                 self._runjs_mode = "qt5"
         self.view.page().runJavaScript(script, cb)
 
-    def _collect(self, cid, res):
-        if cid not in self.pending or res is None:
+    def _attach_report_handler(self):
+        """console報告の受け口をページに接続する(devreload後も再呼び出し)。"""
+        try:
+            self.view.page().report = self._on_report
+        except Exception:
+            pass
+
+    def _submit_eval(self, cid, expr):
+        """evalをJS側に投入。結果は console.log('__live ...') でプッシュされる。
+
+        transport.send が飛行中に発行された console.log は喪失する(実測:
+        .click() が起こした send 完了まで数十秒掛かり、その間の報告が全て
+        届かなかった)。ただし喪失してもsendの返信自体は殺さないため、
+        ドライバ側タイムアウトの直前まで定期的に再送すれば、send完了後の
+        再送分が必ず届く(受信側はcid単位で冪等)。
+        大きな結果は分割送信する(Chromiumのconsoleメッセージ長制限対策)。
+        """
+        key = json.dumps(str(cid))
+        wrapper = (
+            "(async()=>{let __o;try{__o={ok:true,v:await(" + expr + ")}"
+            "}catch(e){__o={ok:false,e:String(e&&e.stack||e)}}"
+            "let __s='';try{__s=JSON.stringify(__o)}catch(e){__s='{\"ok\":false,\"e\":\"unserializable\"}'}"
+            "const __f=()=>{const __n=Math.max(1,Math.ceil(__s.length/4000));"
+            "for(let __i=0;__i<__n;__i++)"
+            "console.log('__live '+" + key + "+' '+__n+' '+__i+' '+__s.substr(__i*4000,4000));};"
+            "__f();const __iv=setInterval(__f,3000);"
+            "setTimeout(()=>clearInterval(__iv)," + str(EVAL_TIMEOUT_MS - 5000) + ");})()"
+        )
+        self.pending[cid] = EVAL_TIMEOUT_MS
+        self._js(wrapper)
+
+    def _on_report(self, msg):
+        """'__live <cid> <n> <i> <chunk>' を受けて再構成しresults.jsonlに流す。"""
+        try:
+            cid, n_s, i_s, chunk = msg.split(" ", 3)
+            n, i = int(n_s), int(i_s)
+        except ValueError:
             return
+        if cid not in self.pending:
+            return
+        ent = self._reports.setdefault(cid, {"n": n, "parts": {}})
+        ent["parts"][i] = chunk
+        if len(ent["parts"]) < ent["n"]:
+            return
+        self._reports.pop(cid, None)
         self.pending.pop(cid, None)
+        try:
+            res = json.loads("".join(ent["parts"][k] for k in range(ent["n"])))
+        except Exception:
+            res = {"ok": False, "e": "bad report payload"}
         if res.get("ok"):
             self._reply({"id": cid, "result": res.get("v")})
         else:
