@@ -24,7 +24,7 @@ Write-Host "Profile: $Profile ($profileRoot)"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $pluginConfig = Get-Content (Join-Path $repoRoot "plugin.config.json") -Raw -Encoding UTF8 | ConvertFrom-Json
 $pluginId = $pluginConfig.id
-$pluginSrc = Join-Path $repoRoot "plugin"
+$pluginSrc = Join-Path $repoRoot "qgis-plugin\$pluginId"
 $pluginDst = Join-Path $profileRoot "python\plugins\$pluginId"
 Write-Host "Plugin id: $pluginId"
 

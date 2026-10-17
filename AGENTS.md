@@ -37,14 +37,15 @@
 
 ## 構成
 
-- `plugin/` — QGISプラグイン本体(Python)。QGIS依存は `bridge.py` に閉じ込める。
-  deploy時に `python/plugins/<id>` へ配置される(idは`plugin.config.json`、
-  既定 `webengine_plugin`)。リポジトリ内フォルダ名は `plugin/` 固定
-- `plugin/logic.py` — QGIS非依存の純粋ロジック。pytest対象
-- `plugin/live_driver.py` — L2検証用。実QGIS内でJS実行を仲介(後述)
-- `plugin/ui/` — HTML/CSS/JSフロントエンド。QGIS無しの通常ブラウザでも動く(mock使用)
-- `plugin/ui/src/mock-bridge.js` — Pythonブリッジのモック。**bridgeメソッド追加時は必ず同期更新**
-- `plugin.config.json` — QGIS上のプラグインID。独自名にする場合ここを変える
+- `qgis-plugin/` — プラグイン群のルート。**フォルダ名=プラグインID**で複数管理。
+  `webengine_plugin/` がその1つ。QGIS依存は `bridge.py` に閉じ込める。
+  deploy時に `python/plugins/<フォルダ名>` へ配置される
+- `qgis-plugin/<id>/logic.py` — QGIS非依存の純粋ロジック。pytest対象
+- `qgis-plugin/<id>/live_driver.py` — L2検証用。実QGIS内でJS実行を仲介(後述)
+- `qgis-plugin/<id>/ui/` — HTML/CSS/JSフロントエンド。QGIS無しの通常ブラウザでも動く(mock使用)
+- `qgis-plugin/<id>/ui/src/mock-bridge.js` — Pythonブリッジのモック。**bridgeメソッド追加時は必ず同期更新**
+- `plugin.config.json` — 開発対象プラグインのID(qgis-plugin/下のフォルダ名)。
+  別プラグイン開発時はここを切り替える
 - `tests/e2e/` — Playwrightテスト(L1=mock)
 - `tests/unit/` — pytest(logic.py等)
 
@@ -69,7 +70,7 @@ npm run live:ensure
 # ★普段のコード反映はこれだけ。bridge.py/logic.py/ui/* の変更を即反映。
 #   deployもreloadPluginも再起動も不要
 npm run live:devreload
-#   → repo側の plugin/ を別名パッケージ(plugin_devsrc)として再importし、
+#   → repo側の qgis-plugin/<id>/ を別名パッケージ(<id>_devsrc)として再importし、
 #     WebChannelのbridgeオブジェクトを差し替えてページを再読み込みする
 
 # プラグインの器側(main_plugin.py, live_driver.py等)を変更した時だけこちら
@@ -101,7 +102,7 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
   QGIS内部状態を直接assertできる。任意コード実行なのでWEBENGINE_LIVE_DIR
   設定時のみ有効
 - `devreload` コマンドは `WEBENGINE_DEV_SRC` 指定時のみ有効。リポジトリ側の
-  `plugin/` を `plugin_devsrc` として別名importし直し、
+  `qgis-plugin/<id>/` を `<id>_devsrc` として別名importし直し、
   WebChannelのbridgeを差し替えてview.reload()する。**プラグイン本体(deploy物)は
   「器」で、開発対象のロジックはリポジトリに置いたまま動く**。器側
   (main_plugin.py/live_driver.py/__init__.py)の変更はdevreloadでは反映されず
@@ -137,9 +138,9 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
 - プラグイン有効化は `QGIS4.ini` の `[PythonPlugins]`。deployスクリプトが自動書き込み
 - **.ps1はUTF-8 BOM必須**。BOM無しだとWindows PowerShell 5.1がANSI誤読し、
   日本語コメントの直後の文が実行されない(静かに失敗する)
-- `plugin/ui/` は **ESモジュール不可**。`file://` 直読みのためクラシックスクリプト+グローバル名前空間
+- `qgis-plugin/<id>/ui/` は **ESモジュール不可**。`file://` 直読みのためクラシックスクリプト+グローバル名前空間
 - `bridge.py` の新メソッドはJSON文字列を返す(JS側は `BridgeClient.callJson` で受ける)
-- `plugin/ui/index.html` の `qrc:///qtwebchannel/qwebchannel.js` はQGIS内でのみ解決可能。
+- `qgis-plugin/<id>/ui/index.html` の `qrc:///qtwebchannel/qwebchannel.js` はQGIS内でのみ解決可能。
   通常ブラウザでは読み込み失敗するが正常動作(mockにフォールバック)
 - QGISターゲット: **4.0.1**(`C:\Program Files\QGIS 4.0.1`)、Qt6/PyQt6。
   `qgis.PyQt` shim経由でimport。`runJavaScript`はQt6で`(script, worldId, callback)`シグネチャ

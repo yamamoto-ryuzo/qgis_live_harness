@@ -7,14 +7,14 @@ Qt WebEngine ベースのプラグイン開発テンプレート。
 
 このシステムは2つの面を持つ:
 
-- **プラグイン(製品)**: `plugin/` の器 + `bridge.py`/`logic.py`/`ui/`。
+- **プラグイン(製品)**: `qgis-plugin/<id>/` の器 + `bridge.py`/`logic.py`/`ui/`。
   `live_driver.py` と dev loader を剥がせば、そのまま配布できる普通のQGISプラグイン。
   **リポジトリが無くても動く**
 - **基盤(このリポジトリ)**: そのプラグインを育て・観測・外部操作するための
   開発・制御環境。ファイルプロトコル経由のLiveDriver、セッション管理、
   devreload、テスト、MCPアダプタを含む。**リポジトリがあって初めて成り立つ**
 
-`plugin/` は境界をまたぐ部品で、LiveDriver等を載せれば基盤側の
+`qgis-plugin/<id>/` は境界をまたぐ部品で、LiveDriver等を載せれば基盤側の
 操縦装置になり、剥がせば配布用の製品になる。
 
 deployするのは固定の「器」(QWebEngineView + ファイル経由ドライバ)だけで、
@@ -150,15 +150,16 @@ flowchart LR
 ## ディレクトリ構成
 
 ```
-plugin/               QGISにdeployされるプラグイン(ここが製品+器)
-  metadata.txt        プラグイン定義(name=はQGIS上の表示名)
-  __init__.py         エントリポイント(classFactory)
-  main_plugin.py      ダイアログ/view/channel/ドライバ起動 + dev source loader
-  live_driver.py      ファイル経由ドライバ(eval/pyeval/screenshot/devreload)
-  bridge.py           ★開発対象: WebChannel経由でJSに公開するAPI
-  logic.py            ★開発対象: QGIS非依存の純粋ロジック(pytest対象)
-  ui/                 ★開発対象: HTML/CSS/JS (mockでブラウザ単体動作も可)
-plugin.config.json    プラグインID(QGIS上の名前=deploy先ディレクトリ名)
+qgis-plugin/          プラグイン群のルート(複数プラグインをここに並べる)
+  webengine_plugin/   プラグイン1つ分。フォルダ名=QGISのプラグインID
+    metadata.txt      プラグイン定義(name=はQGIS上の表示名)
+    __init__.py       エントリポイント(classFactory)
+    main_plugin.py    ダイアログ/view/channel/ドライバ起動 + dev source loader
+    live_driver.py    ファイル経由ドライバ(eval/pyeval/screenshot/devreload)
+    bridge.py         ★開発対象: WebChannel経由でJSに公開するAPI
+    logic.py          ★開発対象: QGIS非依存の純粋ロジック(pytest対象)
+    ui/               ★開発対象: HTML/CSS/JS (mockでブラウザ単体動作も可)
+plugin.config.json    開発対象のプラグインID(qgis-plugin/下のフォルダ名)
 scripts/
   live-drive.mjs      LivePage: クライアント側API(evaluate/pyeval/devreload等)
   qgis-session.mjs    ensure/reload/devreloadのオーケストレーション
@@ -168,12 +169,12 @@ tests/e2e/            Playwright (L1 = mock使用)
 tests/unit/           pytest
 ```
 
-### プラグイン名の変更
+### プラグインの追加・名前の変更
 
-`plugin.config.json` の `id` を書き換えるだけで、deploy先が
-`python/plugins/<id>` になりQGIS上のプラグイン名も変わる。
-`metadata.txt` の `name=` も合わせて変更すること。リポジトリ内の
-フォルダ名は常に `plugin/` 固定で、ID変更はconfigが吸収する。
+`qgis-plugin/` の下に **プラグインIDと同じ名前のフォルダ** で管理する。
+`plugin.config.json` の `id` が「現在開発対象のプラグイン」を指し、
+deploy/live系コマンドは全てそのIDを使う。別プラグインを開発する場合は
+`qgis-plugin/<新id>/` を作り `id` を切り替える(`metadata.txt` の `name=` も変更)。
 
 ## セットアップ
 
@@ -240,11 +241,11 @@ webengine_plugin/     (plugin.config.json の id 名でpython/plugins/へdeploy�
   main_plugin.py      ダイアログ/view/channelの器
   bridge.py           製品コード: WebChannel API
   logic.py            製品コード: 純粋ロジック
-  ui/                 製品コード: フロントエンド(plugin/内に同梱済み)
+  ui/                 製品コード: フロントエンド(パッケージ内に同梱済み)
 ```
 
 - `deploy -Copy` で生成されるフォルダがほぼ配布形態。
-  ui/はplugin/内にあるためjunction deployでも同梱される
+  ui/はパッケージ内にあるためjunction deployでも同梱される
 - `metadata.txt` の `name=` はQGIS上の表示名。`plugin.config.json` の
   `id` がdeploy先ディレクトリ名(=QGISのプラグインID)になる
 - `WEBENGINE_LIVE_DIR`/`WEBENGINE_DEV_SRC` 未設定では

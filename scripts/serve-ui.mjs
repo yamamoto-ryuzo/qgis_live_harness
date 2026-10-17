@@ -4,7 +4,12 @@ import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = fileURLToPath(new URL("../plugin/ui/", import.meta.url));
+import { readFileSync } from "node:fs";
+
+const pluginId = JSON.parse(
+  readFileSync(new URL("../plugin.config.json", import.meta.url), "utf8")
+).id;
+const root = fileURLToPath(new URL(`../qgis-plugin/${pluginId}/ui/`, import.meta.url));
 const port = Number(process.env.UI_PORT || 8734);
 const mime = {
   ".html": "text/html; charset=utf-8",

@@ -26,7 +26,8 @@ def resolve_ui_dir():
     """ui/ は DEV_SRCリポジトリ > プラグイン同梱 の順で探す。"""
     candidates = []
     if DEV_SRC:
-        candidates.append(os.path.join(DEV_SRC, "plugin", "ui"))
+        candidates.append(
+            os.path.join(DEV_SRC, "qgis-plugin", __package__, "ui"))
     candidates.append(os.path.join(PLUGIN_DIR, "ui"))
     for d in candidates:
         if os.path.isfile(os.path.join(d, "index.html")):
@@ -35,17 +36,18 @@ def resolve_ui_dir():
 
 
 def load_dev_bridge_class():
-    """DEV_SRC内の plugin/ パッケージを別名で読み込みPluginBridgeを返す。
+    """DEV_SRC内の qgis-plugin/<id>/ パッケージを別名で読み込みPluginBridgeを返す。
 
-    deploy済みのプラグインパッケージと衝突しないよう plugin_devsrc
+    deploy済みのプラグインパッケージと衝突しないよう <id>_devsrc
     としてimportする。毎回モジュールキャッシュを掃除するため、呼ぶたびに
     最新のファイル内容が反映される(bridge.py -> logic.py の相対importも追従)。
+    __package__ はdeploy先ディレクトリ名(=プラグインID)と一致する。
     """
     import importlib.util
     import sys
 
-    pkg_name = "plugin_devsrc"
-    pkg_dir = os.path.join(DEV_SRC, "plugin")
+    pkg_name = __package__ + "_devsrc"
+    pkg_dir = os.path.join(DEV_SRC, "qgis-plugin", __package__)
     for k in [k for k in list(sys.modules)
               if k == pkg_name or k.startswith(pkg_name + ".")]:
         sys.modules.pop(k, None)
