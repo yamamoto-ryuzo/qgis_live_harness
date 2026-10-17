@@ -1,7 +1,8 @@
 ﻿# プラグインをQGISのプラグインディレクトリへ配置する。
 # 既定ではジャンクション(管理者権限不要)を張り、失敗した場合はコピーする。
 # 現在使用中のプロファイル(profiles.ini の lastProfile)を自動検出し、
-# プラグイン有効化フラグ([PythonPlugins] webengine_plugin=true)をQGIS設定に書き込む。
+# プラグイン有効化フラグ([PythonPlugins] <id>=true)をQGIS設定に書き込む。
+# プラグインIDは plugin.config.json の id で決まる(deploy先ディレクトリ名)。
 
 param(
   [string]$QgisUserRoot = "$env:APPDATA\QGIS\QGIS4",
@@ -21,8 +22,11 @@ $profileRoot = Join-Path $QgisUserRoot "profiles\$Profile"
 Write-Host "Profile: $Profile ($profileRoot)"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$pluginSrc = Join-Path $repoRoot "webengine_plugin"
-$pluginDst = Join-Path $profileRoot "python\plugins\webengine_plugin"
+$pluginConfig = Get-Content (Join-Path $repoRoot "plugin.config.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+$pluginId = $pluginConfig.id
+$pluginSrc = Join-Path $repoRoot "plugin"
+$pluginDst = Join-Path $profileRoot "python\plugins\$pluginId"
+Write-Host "Plugin id: $pluginId"
 
 New-Item -ItemType Directory -Force -Path (Split-Path $pluginDst) | Out-Null
 
@@ -41,7 +45,6 @@ if (-not $Copy) {
 }
 if ($Copy) {
   Copy-Item -Recurse $pluginSrc $pluginDst
-  Copy-Item -Recurse (Join-Path $repoRoot "ui") (Join-Path $pluginDst "ui")
   Write-Host "Copied to $pluginDst"
 }
 
@@ -56,15 +59,15 @@ New-Item -ItemType Directory -Force -Path $qgisConfDir | Out-Null
 if (-not (Test-Path $iniPath)) { New-Item -ItemType File -Path $iniPath | Out-Null }
 
 $ini = Get-Content $iniPath -Raw -ErrorAction SilentlyContinue
-if ($ini -match "webengine_plugin") {
+if ($ini -match "$pluginId=") {
   # 既存エントリをtrueに揃える
-  $ini = $ini -replace "webengine_plugin=\w+", "webengine_plugin=true"
+  $ini = $ini -replace "$pluginId=\w+", "$pluginId=true"
   Set-Content $iniPath $ini -NoNewline
 } elseif ($ini -match "\[PythonPlugins\]") {
-  $ini = $ini -replace "\[PythonPlugins\]", "[PythonPlugins]`nwebengine_plugin=true"
+  $ini = $ini -replace "\[PythonPlugins\]", "[PythonPlugins]`n$pluginId=true"
   Set-Content $iniPath $ini -NoNewline
 } else {
-  Add-Content $iniPath "`n[PythonPlugins]`nwebengine_plugin=true"
+  Add-Content $iniPath "`n[PythonPlugins]`n$pluginId=true"
 }
 Write-Host "Plugin enabled in $iniPath"
 Write-Host "Done. Restart QGIS if it is running."

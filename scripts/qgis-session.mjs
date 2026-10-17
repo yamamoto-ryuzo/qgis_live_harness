@@ -13,12 +13,16 @@
 //   node scripts/qgis-session.mjs reload [--no-deploy]
 
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { LivePage, resolveLiveDir } from "./live-drive.mjs";
 
 const REPO = fileURLToPath(new URL("../", import.meta.url));
+// QGIS上のプラグインID(deploy先ディレクトリ名)。独自名にする場合はここだけ変える
+const PLUGIN_ID = JSON.parse(
+  readFileSync(join(REPO, "plugin.config.json"), "utf8")
+).id;
 const LIVE_BASE = process.env.WEBENGINE_LIVE_DIR || join(REPO, "test-results", "live");
 const DEPLOY_PS1 = join(REPO, "scripts", "deploy-plugin.ps1");
 const QGIS_EXE = process.env.QGIS_EXE || "C:\\Program Files\\QGIS 4.0.1\\bin\\qgis-bin.exe";
@@ -108,21 +112,22 @@ export async function ensureQgis({ liveBase = LIVE_BASE, timeoutMs = 180000 } = 
   );
 }
 
-// pyevalで実行するリロードコード。webengine_plugin配下のimportキャッシュを
+// pyevalで実行するリロードコード。プラグイン配下のimportキャッシュを
 // 掃除してからreloadPluginし、ダイアログを開き直す。
 // プラグインが未ロードの場合(QGIS側で無効化等)はloadPlugin+startPluginに倒す。
 const RELOAD_CODE = `
 import sys, qgis.utils
+PLUGIN_ID = ${JSON.stringify(PLUGIN_ID)}
 for k in [k for k in list(sys.modules)
-          if k == "webengine_plugin" or k.startswith("webengine_plugin.")]:
+          if k == PLUGIN_ID or k.startswith(PLUGIN_ID + ".")]:
     sys.modules.pop(k, None)
-if "webengine_plugin" in qgis.utils.plugins:
-    qgis.utils.reloadPlugin("webengine_plugin")
+if PLUGIN_ID in qgis.utils.plugins:
+    qgis.utils.reloadPlugin(PLUGIN_ID)
 else:
-    qgis.utils.loadPlugin("webengine_plugin")
-    qgis.utils.startPlugin("webengine_plugin")
-qgis.utils.plugins["webengine_plugin"].open_dialog()
-result = {"loaded": "webengine_plugin" in qgis.utils.plugins,
+    qgis.utils.loadPlugin(PLUGIN_ID)
+    qgis.utils.startPlugin(PLUGIN_ID)
+qgis.utils.plugins[PLUGIN_ID].open_dialog()
+result = {"loaded": PLUGIN_ID in qgis.utils.plugins,
           "plugins": sorted(qgis.utils.plugins.keys())}
 `;
 

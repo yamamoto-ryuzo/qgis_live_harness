@@ -5,6 +5,18 @@ Qt WebEngine ベースのプラグイン開発テンプレート。
 
 ## 概要
 
+このシステムは2つの面を持つ:
+
+- **プラグイン(製品)**: `plugin/` の器 + `bridge.py`/`logic.py`/`ui/`。
+  `live_driver.py` と dev loader を剥がせば、そのまま配布できる普通のQGISプラグイン。
+  **リポジトリが無くても動く**
+- **基盤(このリポジトリ)**: そのプラグインを育て・観測・外部操作するための
+  開発・制御環境。ファイルプロトコル経由のLiveDriver、セッション管理、
+  devreload、テスト、MCPアダプタを含む。**リポジトリがあって初めて成り立つ**
+
+`plugin/` は境界をまたぐ部品で、LiveDriver等を載せれば基盤側の
+操縦装置になり、剥がせば配布用の製品になる。
+
 deployするのは固定の「器」(QWebEngineView + ファイル経由ドライバ)だけで、
 開発対象のロジック/UIはリポジトリに置いたまま**実QGIS内で動作・観測・即時反映**できる。
 ブラウザにおける Chrome DevTools Protocol + Playwright に相当するものを
@@ -30,6 +42,14 @@ flowchart TB
 「MCP連携」が乗る3段構成。
 
 ## 主な機能
+
+以下の3機能は全て**基盤側**(このリポジトリが必要)の機能。
+プラグイン(製品)はこれらの**操作対象**として登場する。
+要素表の「面」列の意味:
+
+- **製品** — 配布プラグインに同梱されるもの
+- **開発版の器** — deployされるが配布物からは除去するもの
+- **リポジトリ** — 基盤側にのみ存在するもの
 
 ### 1. APIによる各種アプリからの遠隔操作(基盤)
 
@@ -66,12 +86,12 @@ flowchart TB
 
 要素:
 
-| 要素 | 役割 |
-|---|---|
-| `commands.jsonl`→`results.jsonl` | 輸送層。`eval`/`pyeval`/`screenshot`/`devreload` を中継 |
-| `live_driver.py`(QGIS側) | JS評価・任意Python(`iface`直アクセス)・スクショ・再読込の実行体 |
-| `live-drive.mjs`(LivePage) | Nodeからの高水準API。`evaluate`/`pyeval`/`click`/`waitFor`/`screenshot` |
-| `qgis-session.mjs` | セッション管理。`ensure`=起動中へアタッチ/自動起動、`reload`=器のホットリロード |
+| 要素 | 面 | 役割 |
+|---|---|---|
+| `commands.jsonl`→`results.jsonl` | 開発版の器 | 輸送層。`eval`/`pyeval`/`screenshot`/`devreload` を中継 |
+| `live_driver.py`(QGIS側) | 開発版の器 | JS評価・任意Python(`iface`直アクセス)・スクショ・再読込の実行体 |
+| `live-drive.mjs`(LivePage) | リポジトリ | Nodeからの高水準API。`evaluate`/`pyeval`/`click`/`waitFor`/`screenshot` |
+| `qgis-session.mjs` | リポジトリ | セッション管理。`ensure`=起動中へアタッチ/自動起動、`reload`=器のホットリロード |
 
 ### 2. AIによるプラグイン完全自動化環境
 
@@ -95,12 +115,13 @@ flowchart TD
 
 要素:
 
-| 要素 | 役割 |
-|---|---|
-| **QWebEngineView** | UIを実物Chromiumにする → Web標準自動化の適用が可能になる**核** |
-| `WEBENGINE_DEV_SRC` | 製品コードをリポジトリに置いたままQGIS内で実行する機構 |
-| `devreload` | 編集→即反映(deploy/reloadPlugin/再起動 全て不要) |
-| `pyeval` | UIの外側・QGIS内部状態まで踏み込む検証手段 |
+| 要素 | 面 | 役割 |
+|---|---|---|
+| **QWebEngineView** | 製品 | UIを実物Chromiumにする → Web標準自動化の適用が可能になる**核** |
+| `bridge.py`/`logic.py`/`ui/` | 製品 | 操作対象であり、配布物そのもの |
+| `WEBENGINE_DEV_SRC` | 開発版の器 | 製品コードをリポジトリに置いたままQGIS内で実行する機構 |
+| `devreload` | 開発版の器 | 編集→即反映(deploy/reloadPlugin/再起動 全て不要) |
+| `pyeval` | 開発版の器 | UIの外側・QGIS内部状態まで踏み込む検証手段 |
 
 開発ループ: **編集 → `live:devreload` → `npm run test:live`**(全て無人化可能)
 
@@ -119,22 +140,25 @@ flowchart LR
 
 要素:
 
-| 要素 | 役割 |
-|---|---|
-| `qgis_ensure` / `qgis_devreload` / `qgis_reload` | セッション・リロードのtool化 |
-| `qgis_pyeval` / `qgis_eval` / `qgis_bridge_call` | 実行系。実QGIS内部・UI・bridgeへ |
-| `qgis_screenshot` | PNGをMCP **image content**で返却 → エージェントが画像として見られる |
-| `.devin/mcp_config.json` | `qgis-live` として登録。このリポジトリを開けば自動認識 |
+| 要素 | 面 | 役割 |
+|---|---|---|
+| `qgis_ensure` / `qgis_devreload` / `qgis_reload` | リポジトリ | セッション・リロードのtool化 |
+| `qgis_pyeval` / `qgis_eval` / `qgis_bridge_call` | リポジトリ | 実行系。実QGIS内部・UI・bridgeへ |
+| `qgis_screenshot` | リポジトリ | PNGをMCP **image content**で返却 → エージェントが画像として見られる |
+| `.devin/mcp_config.json` | リポジトリ | `qgis-live` として登録。このリポジトリを開けば自動認識 |
 
 ## ディレクトリ構成
 
 ```
-webengine_plugin/     プラグイン器( deployするのは基本的にこれだけ )
+plugin/               QGISにdeployされるプラグイン(ここが製品+器)
+  metadata.txt        プラグイン定義(name=はQGIS上の表示名)
+  __init__.py         エントリポイント(classFactory)
   main_plugin.py      ダイアログ/view/channel/ドライバ起動 + dev source loader
   live_driver.py      ファイル経由ドライバ(eval/pyeval/screenshot/devreload)
   bridge.py           ★開発対象: WebChannel経由でJSに公開するAPI
   logic.py            ★開発対象: QGIS非依存の純粋ロジック(pytest対象)
-ui/                   ★開発対象: HTML/CSS/JS (mockでブラウザ単体動作も可)
+  ui/                 ★開発対象: HTML/CSS/JS (mockでブラウザ単体動作も可)
+plugin.config.json    プラグインID(QGIS上の名前=deploy先ディレクトリ名)
 scripts/
   live-drive.mjs      LivePage: クライアント側API(evaluate/pyeval/devreload等)
   qgis-session.mjs    ensure/reload/devreloadのオーケストレーション
@@ -143,6 +167,13 @@ scripts/
 tests/e2e/            Playwright (L1 = mock使用)
 tests/unit/           pytest
 ```
+
+### プラグイン名の変更
+
+`plugin.config.json` の `id` を書き換えるだけで、deploy先が
+`python/plugins/<id>` になりQGIS上のプラグイン名も変わる。
+`metadata.txt` の `name=` も合わせて変更すること。リポジトリ内の
+フォルダ名は常に `plugin/` 固定で、ID変更はconfigが吸収する。
 
 ## セットアップ
 
@@ -196,6 +227,39 @@ npm run test:live      # L2: 実QGIS内検証(QGIS未起動でも自動起動)
 npm run mcp:qgis       # 手動でMCPサーバ(stdio)を起動する場合
 ```
 
+## プラグイン配布
+
+**配布物は単独プラグインとして完結する**(このリポジトリやNode環境は不要)。
+
+### 配布物の構成
+
+```
+webengine_plugin/     (plugin.config.json の id 名でpython/plugins/へdeployされる)
+  metadata.txt        QGISプラグインのIDカード
+  __init__.py         エントリポイント(classFactory)
+  main_plugin.py      ダイアログ/view/channelの器
+  bridge.py           製品コード: WebChannel API
+  logic.py            製品コード: 純粋ロジック
+  ui/                 製品コード: フロントエンド(plugin/内に同梱済み)
+```
+
+- `deploy -Copy` で生成されるフォルダがほぼ配布形態。
+  ui/はplugin/内にあるためjunction deployでも同梱される
+- `metadata.txt` の `name=` はQGIS上の表示名。`plugin.config.json` の
+  `id` がdeploy先ディレクトリ名(=QGISのプラグインID)になる
+- `WEBENGINE_LIVE_DIR`/`WEBENGINE_DEV_SRC` 未設定では
+  同梱bridgeと同梱ui/で普通に動作する(env-gated機構は全て無効化される)
+
+### 配布時に除去するもの
+
+| 対象 | 理由 |
+|---|---|
+| `live_driver.py` | `pyeval`/`eval` = 任意コード実行。同梱すると環境変数を立てた誰でもQGIS内でコード実行可能になる |
+| `main_plugin.py` のDEV_SRCローダ部(`load_dev_bridge_class`等) | 外部パスからコードをimportする機構。無害だが配布物に残すべきではない |
+
+除去しても環境変数を立てられても `ImportError` がキャッチされるだけで
+正常動作する設計だが、任意コード実行の扉を物理的に残さないため除去を推奨。
+
 ## 環境要件
 
 - QGIS 4.0.1 (`C:\Program Files\QGIS 4.0.1`)、Qt6/PyQt6
@@ -207,7 +271,7 @@ npm run mcp:qgis       # 手動でMCPサーバ(stdio)を起動する場合
 
 - `pyeval`/`devreload` は任意コード実行を含む **開発専用機能**。
   `WEBENGINE_LIVE_DIR`/`WEBENGINE_DEV_SRC` 設定時のみ有効。
-  **エンドユーザーへの配布物にはlive_driver周りを含めないこと**
+  配布手順は上記「プラグイン配布」節を参照
 - 重いQGIS操作(大きなプロジェクトでのレイヤーアクティブ化等)の直後は
   JS側evalが一時的に飢餓することがある。その場合はpyevalで確認する
 - 詳細な仕組み・制約は [AGENTS.md](AGENTS.md) を参照

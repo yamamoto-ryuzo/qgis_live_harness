@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = fileURLToPath(new URL("../ui/", import.meta.url));
+const root = fileURLToPath(new URL("../plugin/ui/", import.meta.url));
 const port = Number(process.env.UI_PORT || 8734);
 const mime = {
   ".html": "text/html; charset=utf-8",

@@ -7,7 +7,7 @@ def _log(msg):
     # 未指定時はテンポラリディレクトリに書く。
     log = os.environ.get(
         "WEBENGINE_LOG_PATH",
-        os.path.join(os.environ.get("TEMP", "/tmp"), "webengine_plugin_load.log"),
+        os.path.join(os.environ.get("TEMP", "/tmp"), "plugin_load.log"),
     )
     try:
         os.makedirs(os.path.dirname(log), exist_ok=True)

@@ -1,4 +1,4 @@
-from webengine_plugin.logic import format_layer_label, summarize_layers
+from plugin.logic import format_layer_label, summarize_layers
 
 
 class FakeLayer:

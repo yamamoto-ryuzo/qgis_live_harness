@@ -23,14 +23,11 @@ DEV_SRC = os.environ.get("WEBENGINE_DEV_SRC")
 
 
 def resolve_ui_dir():
-    """ui/ は DEV_SRCリポジトリ > プラグイン同梱 > リポジトリ直下 の順で探す。"""
+    """ui/ は DEV_SRCリポジトリ > プラグイン同梱 の順で探す。"""
     candidates = []
     if DEV_SRC:
-        candidates.append(os.path.join(DEV_SRC, "ui"))
-    candidates += [
-        os.path.join(PLUGIN_DIR, "ui"),
-        os.path.join(os.path.dirname(PLUGIN_DIR), "ui"),
-    ]
+        candidates.append(os.path.join(DEV_SRC, "plugin", "ui"))
+    candidates.append(os.path.join(PLUGIN_DIR, "ui"))
     for d in candidates:
         if os.path.isfile(os.path.join(d, "index.html")):
             return d
@@ -38,17 +35,17 @@ def resolve_ui_dir():
 
 
 def load_dev_bridge_class():
-    """DEV_SRC内の webengine_plugin パッケージを別名で読み込みPluginBridgeを返す。
+    """DEV_SRC内の plugin/ パッケージを別名で読み込みPluginBridgeを返す。
 
-    deploy済みの webengine_plugin と衝突しないよう webengine_plugin_devsrc
+    deploy済みのプラグインパッケージと衝突しないよう plugin_devsrc
     としてimportする。毎回モジュールキャッシュを掃除するため、呼ぶたびに
     最新のファイル内容が反映される(bridge.py -> logic.py の相対importも追従)。
     """
     import importlib.util
     import sys
 
-    pkg_name = "webengine_plugin_devsrc"
-    pkg_dir = os.path.join(DEV_SRC, "webengine_plugin")
+    pkg_name = "plugin_devsrc"
+    pkg_dir = os.path.join(DEV_SRC, "plugin")
     for k in [k for k in list(sys.modules)
               if k == pkg_name or k.startswith(pkg_name + ".")]:
         sys.modules.pop(k, None)

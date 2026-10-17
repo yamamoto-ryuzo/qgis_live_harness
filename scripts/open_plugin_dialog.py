@@ -3,22 +3,27 @@
 # プラグイン読み込み完了を待つため QTimer で遅延実行する。
 # 結果は <repo>/test-results/open_plugin_dialog.log に記録される。
 
+import json
 import os
 import traceback
 
-LOG = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "..",
-    "test-results",
-    "open_plugin_dialog.log",
-)
+_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# QGIS上のプラグインID(deploy先ディレクトリ名)はplugin.config.jsonで管理
+try:
+    with open(os.path.join(_REPO, "plugin.config.json"), encoding="utf-8") as f:
+        PLUGIN_ID = json.load(f)["id"]
+except Exception:
+    PLUGIN_ID = "webengine_plugin"
+
+LOG = os.path.join(_REPO, "test-results", "open_plugin_dialog.log")
 
 
 def _w(msg):
     os.makedirs(os.path.dirname(LOG), exist_ok=True)
     with open(LOG, "a", encoding="utf-8") as f:
         f.write(str(msg) + "\n")
-    print("[webengine_plugin autostart]", msg)
+    print(f"[{PLUGIN_ID} autostart]", msg)
 
 
 def open_dialog():
@@ -26,15 +31,15 @@ def open_dialog():
 
     _w("loaded plugins: " + ", ".join(sorted(plugins.keys())))
 
-    plugin = plugins.get("webengine_plugin")
+    plugin = plugins.get(PLUGIN_ID)
     if plugin is None:
-        _w("webengine_plugin not loaded; trying loadPlugin/startPlugin")
+        _w(f"{PLUGIN_ID} not loaded; trying loadPlugin/startPlugin")
         try:
-            _w(f"loadPlugin -> {loadPlugin('webengine_plugin')}")
-            startPlugin("webengine_plugin")
+            _w(f"loadPlugin -> {loadPlugin(PLUGIN_ID)}")
+            startPlugin(PLUGIN_ID)
         except Exception:
             _w("loadPlugin error:\n" + traceback.format_exc())
-        plugin = plugins.get("webengine_plugin")
+        plugin = plugins.get(PLUGIN_ID)
 
     if plugin is None:
         _w("FAILED: plugin still not loaded")
