@@ -1,0 +1,15 @@
+[general]
+name=WebEngine Plugin
+qgisMinimumVersion=4.0
+qgisMaximumVersion=4.99
+description=HTML/JS-based plugin UI (Qt WebEngine) with Playwright-testable interface
+about=UI is implemented in HTML/CSS/JS inside QWebEngineView. Python logic is exposed to JS via QWebChannel bridge. Set QTWEBENGINE_REMOTE_DEBUGGING=9222 before launching QGIS to allow Playwright to connect over CDP.
+version=0.1.0
+author=ryu
+email=
+tracker=
+repository=
+homepage=
+experimental=True
+deprecated=False
+hasProcessingProvider=no
