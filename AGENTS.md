@@ -3,6 +3,38 @@
 このリポジトリは **Qt WebEngine ベースの QGIS プラグイン**。
 プラグインUIは HTML/CSS/JS で実装され、2層の自動検証ができる。
 
+## システム概要
+
+このリポジトリは「プラグイン製品」そのものではなく、
+**AIエージェントがQGISを自律駆動してプラグインを開発する環境**である。
+
+```
+[エージェント/人間]
+   │  MCP (scripts/qgis-mcp.mjs, stdio)  ← .devin/mcp_config.json で登録済
+   │  または CLI (npm run live:*)
+   ▼
+[クライアント層] scripts/live-drive.mjs (LivePage) / qgis-session.mjs
+   │  ファイルJSONL: commands.jsonl → results.jsonl
+   ▼
+[常駐QGISプロセス] WEBENGINE_LIVE_DIR/qgis-<pid>/
+   ├─ deploy済み webengine_plugin = 「器/ドライバ」(ほぼ不変)
+   │    LiveDriver: eval(任意JS) / pyeval(任意Python) /
+   │                 screenshot / devreload
+   └─ 開発対象 = repo側の bridge.py/logic.py/ui/*
+        (WEBENGINE_DEV_SRC から別名import。devreloadで即反映)
+```
+
+ポイント:
+- **QWebEngineViewが実物ChromiumであることがAI自動化の根幹**。
+  UI(HTML/CSS/JS)がそのまま通常ブラウザで動くため、Playwright/DevTools等の
+  Web標準の自動化資産をそのまま流用できる(L1)。実QGIS内ではCDPが使えない
+  環境のためLiveDriverで代替しているが、検査対象が「DOM+JS+WebChannel」の
+  Web資産である点は変わらない
+- **deployするのは器だけ**。ロジック/UIはリポジトリに置いたまま実QGISで動く
+- **pyeval でQGIS内部(iface/QgsProject/canvas)を直接assertできる**
+- **編集→`npm run live:devreload`→検証 のループに再起動もdeployも不要**
+- MCPサーバを通せばエージェントから `qgis_pyeval` 等のtoolとして使える
+
 ## 構成
 
 - `webengine_plugin/` — QGISプラグイン本体(Python)。QGIS依存は `bridge.py` に閉じ込める
@@ -26,18 +58,27 @@ npm run test:unit
 ### L2: 実QGISでの検証
 
 ```powershell
-# 1. プラグイン配置(コード変更のたびに必要。コピー型)
-npm run deploy          # ※ junctionはこの環境で未確認。-Copyが確実
-#   → 使用中プロファイル(profiles.iniのlastProfile)を自動検出して配置+有効化
+# QGIS常駐インスタンスを用意(起動済みならアタッチ、未起動ならdeploy+起動を自動化)
+npm run live:ensure
+#   → live dirが応答すれば再利用、無ければdeploy-plugin.ps1 -Copy +
+#     WEBENGINE_DEV_SRC等のenv付きでQGISを起動してLiveDriver応答までポーリング
 
-# 2. QGISを検証モードで起動(別ターミナル、開きっぱなし)
-npm run verify:qgis
-#   → QTWEBENGINE_CHROMIUM_FLAGS=--disable-gpu 等を設定して起動
-#   → WEBENGINE_AUTOOPEN でダイアログ自動オープン
-#   → WEBENGINE_LIVE_DIR にファイル経由のJS実行チャネルを用意
+# ★普段のコード反映はこれだけ。bridge.py/logic.py/ui/* の変更を即反映。
+#   deployもreloadPluginも再起動も不要
+npm run live:devreload
+#   → repoを別名パッケージ(webengine_plugin_devsrc)として再importし、
+#     WebChannelのbridgeオブジェクトを差し替えてページを再読み込みする
 
-# 3. 実QGIS内UIを検証
+# プラグインの器側(main_plugin.py, live_driver.py等)を変更した時だけこちら
+npm run live:reload     # = deploy -Copy → pyevalで sys.modules掃除+reloadPlugin
+#   + open_dialog し直し。--no-deploy でdeploy省略可( junction配置なら不要)
+
+# 実QGIS内UIを検証(QGIS未起動でも内部でensureして自動起動)
 npm run test:live       # test-results/qgis-live.png にスクショも残る
+
+# 手動で個別に回したい場合の旧手順も引き続き使える
+npm run deploy          # プラグイン配置(junction既定、失敗時copyにフォールバック)
+npm run verify:qgis     # 別ターミナルでQGIS起動(開きっぱなし)
 ```
 
 ## L2の仕組み(重要)
@@ -51,9 +92,35 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
 - プラグイン側 `live_driver.py` が `WEBENGINE_LIVE_DIR/qgis-<pid>/commands.jsonl` を
   QTimerでポーリングし、`view.page().runJavaScript()` でJSを実行、
   結果を `results.jsonl` に返す。`screenshot` コマンドは `view.grab()` でPNG保存
+- `pyeval` コマンドは **QGISプロセス内で任意Pythonを同期実行**し結果をJSON化して返す。
+  式ならeval、文ならexec(`result`変数への代入が返却値)。名前空間に
+  `iface`/`view`/`driver`があり持続する → `iface.activeLayer().name()` 等で
+  QGIS内部状態を直接assertできる。任意コード実行なのでWEBENGINE_LIVE_DIR
+  設定時のみ有効
+- `devreload` コマンドは `WEBENGINE_DEV_SRC` 指定時のみ有効。リポジトリ側の
+  `webengine_plugin` を `webengine_plugin_devsrc` として別名importし直し、
+  WebChannelのbridgeを差し替えてview.reload()する。**プラグイン本体(deploy物)は
+  「器」で、開発対象のロジックはリポジトリに置いたまま動く**。器側
+  (main_plugin.py/live_driver.py/__init__.py)の変更はdevreloadでは反映されず
+  `live:reload` が必要
 - クライアント側 `scripts/live-drive.mjs` (`LivePage`クラス)が
-  `evaluate()` / `waitFor()` / `click()` / `screenshot()` を提供。使い勝手はPlaywright相当
+  `evaluate()` / `pyeval()` / `devreload()` / `waitFor()` / `click()` / `screenshot()`
+  を提供。使い勝手はPlaywright相当
 - 複数QGISインスタンスが動いていても PID サブディレクトリで分離される
+- `scripts/qgis-session.mjs` が `ensure`(起動中へのアタッチ/自動起動)と
+  `reload`(deploy+ホットリロード)、`devreload`(repo側再読込)を提供。
+  `test:live` も内部でensureするため事前起動は不要になった
+- `scripts/qgis-mcp.mjs` は **MCPサーバとして同経路を公開**する(stdio)。
+  `.devin/mcp_config.json` で `qgis-live` として登録済み。
+  tools: `qgis_ensure` / `qgis_pyeval` / `qgis_eval` / `qgis_bridge_call` /
+  `qgis_screenshot` / `qgis_devreload` / `qgis_reload`。
+  各toolは内部でensureするためQGIS未起動でも自動で立ち上がる。
+  stdoutはプロトコル専用のためログはstderrに出る
+- **ドライバは起動時にcommands.jsonlの末尾から読み始める**。reloadでドライバが
+  作り直されても過去コマンドの再実行は起きない
+- コマンドidはクライアント側でセッションprefix付き(`s<rand>-<n>`)にする。
+  reset無しでアタッチしても過去の結果を誤読しない。JS側の結果受け渡しは
+  `window.__live_res` 辞書(idにハイフン等を含んでも安全)
 
 ## 環境固有の制約(ハマりやすい点)
 

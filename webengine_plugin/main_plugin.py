@@ -17,10 +17,17 @@ from .bridge import PluginBridge
 PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
 PLUGIN_NAME = "WebEngine Plugin"
 
+# 設定時はロジック層(bridge.py等)とui/をdeploy済みパッケージではなく
+# リポジトリ側から読む。devreloadコマンドでdeploy無しに再importできる。
+DEV_SRC = os.environ.get("WEBENGINE_DEV_SRC")
+
 
 def resolve_ui_dir():
-    """ui/ はリポジトリ直下(開発時)とプラグイン内(配布時)の両方を許容する。"""
-    candidates = [
+    """ui/ は DEV_SRCリポジトリ > プラグイン同梱 > リポジトリ直下 の順で探す。"""
+    candidates = []
+    if DEV_SRC:
+        candidates.append(os.path.join(DEV_SRC, "ui"))
+    candidates += [
         os.path.join(PLUGIN_DIR, "ui"),
         os.path.join(os.path.dirname(PLUGIN_DIR), "ui"),
     ]
@@ -28,6 +35,30 @@ def resolve_ui_dir():
         if os.path.isfile(os.path.join(d, "index.html")):
             return d
     raise FileNotFoundError("ui/index.html not found in: " + ", ".join(candidates))
+
+
+def load_dev_bridge_class():
+    """DEV_SRC内の webengine_plugin パッケージを別名で読み込みPluginBridgeを返す。
+
+    deploy済みの webengine_plugin と衝突しないよう webengine_plugin_devsrc
+    としてimportする。毎回モジュールキャッシュを掃除するため、呼ぶたびに
+    最新のファイル内容が反映される(bridge.py -> logic.py の相対importも追従)。
+    """
+    import importlib.util
+    import sys
+
+    pkg_name = "webengine_plugin_devsrc"
+    pkg_dir = os.path.join(DEV_SRC, "webengine_plugin")
+    for k in [k for k in list(sys.modules)
+              if k == pkg_name or k.startswith(pkg_name + ".")]:
+        sys.modules.pop(k, None)
+    spec = importlib.util.spec_from_file_location(
+        pkg_name, os.path.join(pkg_dir, "__init__.py"),
+        submodule_search_locations=[pkg_dir])
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[pkg_name] = mod
+    spec.loader.exec_module(mod)
+    return importlib.import_module(pkg_name + ".bridge").PluginBridge
 
 
 class WebEnginePlugin:
@@ -58,6 +89,22 @@ class WebEnginePlugin:
             self.dialog.deleteLater()
             self.dialog = None
 
+    def _make_bridge(self, view):
+        """DEV_SRC設定時はリポジトリ側のbridgeを読み、失敗時は同梱版にフォールバック。"""
+        if DEV_SRC:
+            try:
+                return load_dev_bridge_class()(self.iface, parent=view)
+            except Exception:
+                import traceback
+                _log("dev bridge load failed, fallback to bundled:\n"
+                     + traceback.format_exc())
+        return PluginBridge(self.iface, parent=view)
+
+    def _dev_reload(self):
+        """devreloadコマンド用: リポジトリ側bridgeを再importして返す。"""
+        self.bridge = load_dev_bridge_class()(self.iface, parent=self.dialog)
+        return self.bridge
+
     def open_dialog(self):
         if self.dialog is None:
             self.dialog = QDialog(self.iface.mainWindow())
@@ -67,7 +114,7 @@ class WebEnginePlugin:
             layout.setContentsMargins(0, 0, 0, 0)
 
             view = QWebEngineView(self.dialog)
-            self.bridge = PluginBridge(self.iface, parent=view)
+            self.bridge = self._make_bridge(view)
             channel = QWebChannel(view.page())
             channel.registerObject("bridge", self.bridge)
             view.page().setWebChannel(channel)
@@ -77,13 +124,16 @@ class WebEnginePlugin:
             view.setUrl(QUrl.fromLocalFile(index_html))
 
             live_dir = os.environ.get("WEBENGINE_LIVE_DIR")
-            _log(f"open_dialog: live_dir={live_dir!r}")
+            _log(f"open_dialog: live_dir={live_dir!r} dev_src={DEV_SRC!r}")
             if live_dir:
                 # 複数QGISインスタンスが同じlive dirを使わないようPIDで分離
                 live_dir = os.path.join(live_dir, f"qgis-{os.getpid()}")
                 try:
                     from .live_driver import LiveDriver
-                    self._live = LiveDriver(view, live_dir)
+                    self._live = LiveDriver(
+                        view, live_dir, iface=self.iface,
+                        dev_reload=self._dev_reload if DEV_SRC else None,
+                    )
                     _log(f"LiveDriver active: {live_dir}")
                 except Exception:
                     import traceback

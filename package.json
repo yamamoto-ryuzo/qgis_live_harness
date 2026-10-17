@@ -6,12 +6,17 @@
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:live": "node scripts/qgis-live-check.mjs",
+    "live:ensure": "node scripts/qgis-session.mjs ensure",
+    "live:reload": "node scripts/qgis-session.mjs reload",
+    "live:devreload": "node scripts/qgis-session.mjs devreload",
+    "mcp:qgis": "node scripts/qgis-mcp.mjs",
     "test:unit": "python -m pytest tests/unit -v",
     "deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1",
     "verify:qgis": "powershell -ExecutionPolicy Bypass -File scripts/verify-in-qgis.ps1",
     "deploy:copy": "powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy"
   },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "@playwright/test": "^1.64.1"
   }
 }

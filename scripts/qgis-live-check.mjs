@@ -4,15 +4,15 @@
 // Playwright/Puppeteerは使えない。代わりにプラグイン側の live_driver.py が
 // ファイル経由でJSを実行する仕組み(live-drive.mjs)を使う。
 //
-// 前提:
-//   1. npm run deploy:copy でプラグインを配置(コピー型。junctionは要再検証)
-//   2. npm run verify:qgis でQGIS起動(WEBENGINE_AUTOOPENでダイアログ自動オープン)
+// QGIS未起動なら自動でdeploy+起動する(qgis-session.mjs ensure)。
+// 起動済みなら既存インスタンスにアタッチして再利用する。
 // 実行: npm run test:live
 
 import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
-import { LivePage, resolveLiveDir } from "./live-drive.mjs";
+import { LivePage } from "./live-drive.mjs";
+import { ensureQgis } from "./qgis-session.mjs";
 
 const LIVE_BASE = process.env.WEBENGINE_LIVE_DIR ||
   fileURLToPath(new URL("../test-results/live/", import.meta.url));
@@ -24,12 +24,9 @@ const check = (name, ok, detail = "") => {
   console.log(`${ok ? "PASS" : "FAIL"} ${name}${detail ? ` — ${detail}` : ""}`);
 };
 
-const page = new LivePage(LIVE_BASE);
-// ドライバ側は qgis-<pid>/ サブディレクトリを使う。最新インスタンスを選ぶ。
-page.dir = await resolveLiveDir(LIVE_BASE);
-page.cmdPath = join(page.dir, "commands.jsonl");
-page.resPath = join(page.dir, "results.jsonl");
-console.log(`live dir: ${page.dir}`);
+const liveDir = await ensureQgis({ liveBase: LIVE_BASE });
+const page = new LivePage(liveDir);
+console.log(`live dir: ${liveDir}`);
 await page.reset();
 
 // LiveDriverが応答するか + index.htmlのナビゲーション完了を待つ
@@ -65,6 +62,16 @@ if (layers?.length > 0) {
       { retries: 2 }
     );
     check("レイヤークリックでactive化", !!active, active || "");
+
+    // pyevalでQGIS内部状態を直接assert(DOM表示ではなく実iface側の確認)
+    const realActive = await page.pyeval(
+      "(iface.activeLayer().name() if iface.activeLayer() is not None else None)"
+    );
+    check(
+      "iface.activeLayer も実際に切り替わる",
+      realActive === layers[0].name,
+      `expected=${layers[0].name} actual=${realActive}`
+    );
   } catch (e) {
     console.log(`WARN レイヤークリック検証をスキップ — ${String(e.message || e).slice(0, 120)}`);
     results.push({ name: "レイヤークリックでactive化", ok: true });

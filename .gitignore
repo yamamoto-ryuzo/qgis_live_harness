@@ -4,3 +4,4 @@ playwright-report/
 __pycache__/
 *.pyc
 .pytest_cache/
+.devin/mcp_config.local.json

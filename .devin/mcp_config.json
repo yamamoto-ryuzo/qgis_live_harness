@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "qgis-live": {
+      "command": "node",
+      "args": ["C:/devin/qgis-webengine-plugin/scripts/qgis-mcp.mjs"]
+    }
+  }
+}

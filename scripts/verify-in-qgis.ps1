@@ -20,6 +20,8 @@ if (-not $NoAutoOpen) {
   # LiveDriver(ファイル経由JS実行)の作業ディレクトリを指定
   $env:WEBENGINE_LIVE_DIR = Join-Path (Split-Path -Parent $PSScriptRoot) "test-results\live"
   $env:WEBENGINE_LOG_PATH = Join-Path (Split-Path -Parent $PSScriptRoot) "test-results\plugin_load.log"
+  # リポジトリ側のbridge/uiを直接読むdevモード(live:devreloadが有効になる)
+  $env:WEBENGINE_DEV_SRC = (Split-Path -Parent $PSScriptRoot)
 }
 Write-Host "Launching QGIS with QTWEBENGINE_REMOTE_DEBUGGING=$DebugPort"
 Write-Host "  -> $QgisExe"
