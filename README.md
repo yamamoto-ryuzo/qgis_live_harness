@@ -43,8 +43,8 @@ flowchart TB
     end
 
     MCPC -->|stdio| ADAPT --> NODE
-    MCPC -.->|mcp_stdio.py / HTTP /mcp<br/>(Harness不要)| DRIVER
-    HTTPC -.->|/api/*(Harness不要)| DRIVER
+    MCPC -.->|"mcp_stdio.py / HTTP /mcp<br/>(Harness不要)"| DRIVER
+    HTTPC -.->|"/api/*(Harness不要)"| DRIVER
     CLIC --> NODE
     NODE -->|ファイルJSONL| DRIVER
     NODE -->|ファイルJSONL| VESSEL
@@ -114,7 +114,7 @@ flowchart TB
     APP & LP --> CMD
     HTTP --> SRV
     CMD --> LD
-    SRV -->|submit()| LD
+    SRV -->|"submit()"| LD
     LD --> RES
     RES --> APP & LP
 ```
@@ -212,9 +212,9 @@ flowchart LR
     API["Harness: LivePage / ensure"]
     QGIS["常駐QGISプロセス<br/>(Driver + 器)"]
 
-    CLIENT -->|tools/call| MCP --> API -->|ファイルJSONL| QGIS
+    CLIENT -->|"tools/call"| MCP --> API -->|ファイルJSONL| QGIS
     CLIENT -->|stdio| SHIM -->|ファイルJSONL| QGIS
-    CLIENT -->|HTTP| HTTP -->|submit()| QGIS
+    CLIENT -->|HTTP| HTTP -->|"submit()"| QGIS
     QGIS -->|image content等| MCP --> CLIENT
 ```
 
