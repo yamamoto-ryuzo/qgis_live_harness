@@ -14,6 +14,8 @@ live dir は WEBENGINE_LIVE_DIR/qgis-<pid>/<plugin_id>/。
 
 import json
 import os
+import queue
+import threading
 import traceback
 
 from qgis.PyQt.QtCore import QTimer
@@ -48,11 +50,27 @@ class LiveDriver:
                              "QgsApplication": QgsApplication})
         except Exception:
             pass
+        # ファイル以外の命令入力(HTTPサーバ等の別スレッドからの投入)。
+        # GUIスレッド以外から iface/QgsProject に触れないため、
+        # 実行は必ずこのドライバの_poll(GUIスレッド)内で行う
+        self._queue = queue.Queue()
         os.makedirs(live_dir, exist_ok=True)
 
         self.timer = QTimer()
         self.timer.timeout.connect(self._poll)
         self.timer.start(POLL_MS)
+
+    def submit(self, cmd, timeout=120.0):
+        """別スレッドからコマンドを投入し、GUIスレッドでの実行結果を待って返す。
+
+        @returns {"id":..., "result": v} or {"id":..., "error": e}
+        """
+        box = {}
+        done = threading.Event()
+        self._queue.put((cmd, box, done))
+        if not done.wait(timeout):
+            return {"id": cmd.get("id"), "error": f"submit timeout ({timeout}s)"}
+        return box.get("reply", {"id": cmd.get("id"), "error": "no reply"})
 
     def stop(self):
         self.timer.stop()
@@ -61,6 +79,17 @@ class LiveDriver:
         self.timer.deleteLater()
 
     def _poll(self):
+        # メモリキュー(HTTP等)の命令を先に処理
+        while True:
+            try:
+                cmd, box, done = self._queue.get_nowait()
+            except queue.Empty:
+                break
+            try:
+                self._handle(cmd, reply=lambda obj: box.__setitem__("reply", obj))
+            finally:
+                done.set()
+
         if not os.path.exists(self.cmd_path):
             return
         # ファイルが作り直されるとoffsetが実サイズを超えて読み飛ばすため補正
@@ -85,35 +114,37 @@ class LiveDriver:
             except Exception as e:
                 self._reply({"id": None, "error": repr(e)})
 
-    def _handle(self, cmd):
+    def _handle(self, cmd, reply=None):
+        reply = reply or self._reply
         cid = cmd.get("id")
         ctype = cmd.get("type", "eval")
         if ctype == "pyeval":
-            self._pyeval(cid, cmd.get("code", ""))
+            self._pyeval(cid, cmd.get("code", ""), reply)
             return
         if ctype == "screenshot":
             path = cmd.get("path") or os.path.join(self.dir, f"shot-{cid}.png")
             # viewが無いので地図キャンバスを撮る(QgsMapCanvas.saveAsImage)
             canvas = self.iface.mapCanvas() if self.iface is not None else None
             if canvas is None:
-                self._reply({"id": cid, "error": "no map canvas"})
+                reply({"id": cid, "error": "no map canvas"})
                 return
             canvas.saveAsImage(path)
-            self._reply({"id": cid, "result": path})
+            reply({"id": cid, "result": path})
             return
-        self._reply({
+        reply({
             "id": cid,
             "error": f"type={ctype} unsupported: qgis_live has no WebEngine view "
                      "(pyeval/screenshot only)",
         })
 
-    def _pyeval(self, cid, code):
+    def _pyeval(self, cid, code, reply=None):
         """QGISプロセス内でPythonを実行する。
 
         式としてコンパイルできればeval、その結果を返す。文の場合はexecで実行し、
         名前空間の `result` 変数の値を返す(未設定ならNone)。
         同期的に実行するため長いコードはイベントループをブロックする点に注意。
         """
+        reply = reply or self._reply
         self._ns.pop("result", None)
         try:
             try:
@@ -123,9 +154,9 @@ class LiveDriver:
             res = eval(code_obj, self._ns)
             if res is None:
                 res = self._ns.pop("result", None)
-            self._reply({"id": cid, "result": _to_jsonable(res)})
+            reply({"id": cid, "result": _to_jsonable(res)})
         except Exception:
-            self._reply({"id": cid, "error": traceback.format_exc()})
+            reply({"id": cid, "error": traceback.format_exc()})
 
     def _reply(self, obj):
         os.makedirs(os.path.dirname(self.res_path), exist_ok=True)

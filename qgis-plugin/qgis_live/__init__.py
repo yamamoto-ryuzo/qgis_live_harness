@@ -1,4 +1,6 @@
+import json
 import os
+import time
 import traceback
 
 
@@ -15,17 +17,33 @@ def _log(msg):
         pass
 
 
+def _registry_dir():
+    # spawnされる側(MCPクライアントのshim等)が環境変数を持たないため、
+    # 検出情報は固定パス ~/.qgis-live/ に書き出す
+    return os.environ.get(
+        "QGIS_LIVE_REGISTRY",
+        os.path.join(os.path.expanduser("~"), ".qgis-live"),
+    )
+
+
 class QgisLivePlugin:
     """UIを持たない制御専用プラグイン。
 
     WEBENGINE_LIVE_DIR 設定時のみLiveDriverを起動し、
-    pyeval/キャンバススクショをファイルプロトコルで公開する。
+    pyeval/キャンバススクショを公開する。
     未設定なら何もしない(通常プラグインとして無害)。
+
+    公開面:
+      - ファイルJSONL (commands.jsonl/results.jsonl) — 言語非依存の基底
+      - HTTP 127.0.0.1:<auto port> (/mcp = MCP Streamable HTTP, /api/* = REST)
+      - ~/.qgis-live/<pid>-qgis_live.json — 上記への接続情報(自動検出用)
     """
 
     def __init__(self, iface):
         self.iface = iface
         self.driver = None
+        self._http = None
+        self._reg_path = None
 
     def initGui(self):
         live_base = os.environ.get("WEBENGINE_LIVE_DIR")
@@ -39,11 +57,48 @@ class QgisLivePlugin:
             _log(f"qgis_live LiveDriver active: {live_dir}")
         except Exception:
             _log("qgis_live LiveDriver failed:\n" + traceback.format_exc())
+            return
+
+        try:
+            from .mcp_http import start_http
+            self._http, port = start_http(self.driver)
+            _log(f"qgis_live HTTP API: http://127.0.0.1:{port}/")
+        except Exception:
+            _log("qgis_live HTTP failed:\n" + traceback.format_exc())
+            port = None
+
+        try:
+            reg_dir = _registry_dir()
+            os.makedirs(reg_dir, exist_ok=True)
+            self._reg_path = os.path.join(
+                reg_dir, f"{os.getpid()}-{__package__}.json")
+            with open(self._reg_path, "w", encoding="utf-8") as f:
+                json.dump({
+                    "pid": os.getpid(),
+                    "plugin_id": __package__,
+                    "live_dir": live_dir,
+                    "http_port": port,
+                    "started": time.time(),
+                }, f)
+        except Exception:
+            _log("qgis_live registry write failed:\n" + traceback.format_exc())
 
     def unload(self):
+        if self._http is not None:
+            try:
+                self._http.shutdown()
+            except Exception:
+                pass
+            self._http = None
         if self.driver is not None:
             self.driver.stop()
             self.driver = None
+        if self._reg_path is not None:
+            try:
+                os.remove(self._reg_path)
+            except Exception:
+                pass
+            self._reg_path = None
 
 
 def classFactory(iface):
