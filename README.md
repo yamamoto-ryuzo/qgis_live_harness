@@ -169,12 +169,16 @@ tests/e2e/            Playwright (L1 = mock使用)
 tests/unit/           pytest
 ```
 
-### プラグインの追加・名前の変更
+### プラグインの追加・複数開発
 
 `qgis-plugin/` の下に **プラグインIDと同じ名前のフォルダ** で管理する。
-`plugin.config.json` の `id` が「現在開発対象のプラグイン」を指し、
-deploy/live系コマンドは全てそのIDを使う。別プラグインを開発する場合は
-`qgis-plugin/<新id>/` を作り `id` を切り替える(`metadata.txt` の `name=` も変更)。
+複数フォルダを並べると **1つのQGISインスタンスで全プラグインを同時起動**
+でき、live dirは `qgis-<pid>/<plugin_id>/` で分離されるため各プラグインを
+独立にeval/pyeval/testできる。deployはqgis-plugin/直下の全プラグインを
+一括配置し、`test:live` は検出した全プラグインに対してチェックを回す。
+
+`plugin.config.json` の `id` はserve-uiやMCPのデフォルト対象を指す
+(`metadata.txt` の `name=` は表示名)。
 
 ## セットアップ
 

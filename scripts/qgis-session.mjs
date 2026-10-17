@@ -13,10 +13,10 @@
 //   node scripts/qgis-session.mjs reload [--no-deploy]
 
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
-import { LivePage, resolveLiveDir } from "./live-drive.mjs";
+import { LivePage, resolveLiveDirs } from "./live-drive.mjs";
 
 const REPO = fileURLToPath(new URL("../", import.meta.url));
 // QGIS上のプラグインID(deploy先ディレクトリ名)。独自名にする場合はここだけ変える
@@ -61,49 +61,47 @@ function launchQgis(liveBase) {
   );
 }
 
-// 既知のlive dirに短時間プローブを打ち、応答するdirを返す。無ければnull。
+// 全live plugin dirに短時間プローブを打ち、応答したものを返す。
 // pyevalでプローブする: evaluateはレンダラー(JS側)が飢餓していると応答しないが、
 // pyevalはPython側(プラグインのQTimer)だけで完結するため、ドライバの生存確認に適する。
 // ドライバが生きていればattach扱いにし、レンダラーの不調は呼び出し側の責務とする
 // (reloadはviewを作り直すので飢餓したレンダラーも直せる)。
-async function probe(liveBase) {
-  const dir = await resolveLiveDir(liveBase);
-  const page = new LivePage(dir);
-  try {
-    await page.pyeval("1", { timeoutMs: 5000 });
-    return dir;
-  } catch {
-    return null;
+async function probeAll(liveBase) {
+  const dirs = await resolveLiveDirs(liveBase);
+  const live = [];
+  for (const d of dirs) {
+    const page = new LivePage(d.dir);
+    // 過去セッションの古いresultsによる誤検知を防ぐため一度空にする
+    try { await page.reset(); } catch {}
+    try {
+      await page.pyeval("1", { timeoutMs: 5000 });
+      live.push(d);
+    } catch {}
   }
+  return live;
 }
 
 /**
- * 応答するlive dirを返す。無ければQGISを起動して待つ。
- * @returns {Promise<string>} LiveDriverのlive dir (qgis-<pid>)
+ * 応答するlive plugin dirを全て返す。1つも無ければQGISを起動して待つ。
+ * @returns {Promise<Array<{dir:string, pluginId:string|null}>>}
  */
 export async function ensureQgis({ liveBase = LIVE_BASE, timeoutMs = 180000 } = {}) {
-  const existing = await resolveLiveDir(liveBase);
-  if (existsSync(existing)) {
-    // 過去セッションの古いresultsによる誤検知を防ぐため一度空にする
-    const page = new LivePage(existing);
-    await page.reset();
-    try {
-      await page.pyeval("1", { timeoutMs: 5000 });
-      return existing;
-    } catch {}
-  }
+  const live = await probeAll(liveBase);
+  if (live.length) return live;
 
-  console.log("[ensure] no live driver; deploying plugin and launching QGIS...");
+  console.log("[ensure] no live driver; deploying plugins and launching QGIS...");
   deploy();
   launchQgis(liveBase);
 
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
     await sleep(2000);
-    const dir = await probe(liveBase);
-    if (dir) {
-      console.log(`[ensure] live driver ready: ${dir}`);
-      return dir;
+    const found = await probeAll(liveBase);
+    if (found.length) {
+      console.log(
+        `[ensure] live driver ready: ${found.map((d) => d.dir).join(", ")}`
+      );
+      return found;
     }
   }
   throw new Error(
@@ -112,12 +110,12 @@ export async function ensureQgis({ liveBase = LIVE_BASE, timeoutMs = 180000 } = 
   );
 }
 
-// pyevalで実行するリロードコード。プラグイン配下のimportキャッシュを
+// pyevalで実行するリロードコードを生成する。プラグイン配下のimportキャッシュを
 // 掃除してからreloadPluginし、ダイアログを開き直す。
 // プラグインが未ロードの場合(QGIS側で無効化等)はloadPlugin+startPluginに倒す。
-const RELOAD_CODE = `
+const reloadCode = (pluginId) => `
 import sys, qgis.utils
-PLUGIN_ID = ${JSON.stringify(PLUGIN_ID)}
+PLUGIN_ID = ${JSON.stringify(pluginId)}
 for k in [k for k in list(sys.modules)
           if k == PLUGIN_ID or k.startswith(PLUGIN_ID + ".")]:
     sys.modules.pop(k, None)
@@ -132,25 +130,29 @@ result = {"loaded": PLUGIN_ID in qgis.utils.plugins,
 `;
 
 /**
- * deploy後、実行中のQGIS内でプラグインをホットリロードする。
+ * deploy後、実行中のQGIS内で全プラグインをホットリロードする。
  * reloadPluginでプラグインインスタンスが作り直され、新しいview+LiveDriverが
  * 同じlive dir(PID不変)を使い始める。
  */
 export async function reloadPlugin({ liveBase = LIVE_BASE, deploy: doDeploy = true } = {}) {
   if (doDeploy) {
-    console.log("[reload] deploying plugin (-Copy)...");
+    console.log("[reload] deploying plugins (-Copy)...");
     deploy();
   }
-  const dir = await ensureQgis({ liveBase });
-  const page = new LivePage(dir);
-  const res = await page.pyeval(RELOAD_CODE);
-  console.log(`[reload] pyeval result: ${JSON.stringify(res)}`);
-
-  // 新しいviewがindex.htmlを読み込み終わるまで待つ。
-  // reload直後は旧viewが破棄中でeval timeoutすることがあるのでwaitForで吸収する。
-  await page.waitFor('[data-testid="layer-list"]', 60000);
-  console.log("[reload] plugin dialog re-opened and UI ready");
-  return res;
+  const dirs = await ensureQgis({ liveBase });
+  const results = [];
+  for (const d of dirs) {
+    const id = d.pluginId || PLUGIN_ID;
+    const page = new LivePage(d.dir);
+    const res = await page.pyeval(reloadCode(id));
+    console.log(`[reload] ${id}: ${JSON.stringify(res)}`);
+    // 新しいviewがindex.htmlを読み込み終わるまで待つ。
+    // reload直後は旧viewが破棄中でeval timeoutすることがあるのでwaitForで吸収する。
+    await page.waitFor('[data-testid="layer-list"]', 60000);
+    console.log(`[reload] ${id}: dialog re-opened and UI ready`);
+    results.push(res);
+  }
+  return results;
 }
 
 /**
@@ -158,19 +160,21 @@ export async function reloadPlugin({ liveBase = LIVE_BASE, deploy: doDeploy = tr
  * プラグイン本体側(main_plugin.py, live_driver.py等)を触った時は live:reload を使う。
  */
 export async function devReload({ liveBase = LIVE_BASE } = {}) {
-  const dir = await ensureQgis({ liveBase });
-  const page = new LivePage(dir);
-  await page.devreload();
-  await page.waitFor('[data-testid="layer-list"]', 60000);
-  console.log("[devreload] repo-side bridge/ui reloaded");
+  const dirs = await ensureQgis({ liveBase });
+  for (const d of dirs) {
+    const page = new LivePage(d.dir);
+    await page.devreload();
+    await page.waitFor('[data-testid="layer-list"]', 60000);
+    console.log(`[devreload] ${d.pluginId || "?"}: repo-side bridge/ui reloaded`);
+  }
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const cmd = process.argv[2];
   try {
     if (cmd === "ensure") {
-      const dir = await ensureQgis();
-      console.log(`live dir: ${dir}`);
+      const dirs = await ensureQgis();
+      for (const d of dirs) console.log(`live dir: ${d.dir} (${d.pluginId})`);
     } else if (cmd === "reload") {
       await reloadPlugin({ deploy: !process.argv.includes("--no-deploy") });
     } else if (cmd === "devreload") {

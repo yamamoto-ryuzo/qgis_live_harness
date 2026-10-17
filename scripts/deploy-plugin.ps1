@@ -22,28 +22,33 @@ $profileRoot = Join-Path $QgisUserRoot "profiles\$Profile"
 Write-Host "Profile: $Profile ($profileRoot)"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$pluginConfig = Get-Content (Join-Path $repoRoot "plugin.config.json") -Raw -Encoding UTF8 | ConvertFrom-Json
-$pluginId = $pluginConfig.id
-$pluginSrc = Join-Path $repoRoot "qgis-plugin\$pluginId"
-$pluginDst = Join-Path $profileRoot "python\plugins\$pluginId"
-Write-Host "Plugin id: $pluginId"
+# qgis-plugin/ 直下で metadata.txt を持つフォルダを全てプラグインとしてdeployする。
+# フォルダ名=QGISのプラグインID。複数プラグインを並行開発できる。
+$pluginIds = Get-ChildItem (Join-Path $repoRoot "qgis-plugin") -Directory |
+  Where-Object { Test-Path (Join-Path $_.FullName "metadata.txt") } |
+  ForEach-Object { $_.Name }
+if (-not $pluginIds) { Write-Error "no plugins found under qgis-plugin/" }
+Write-Host "Plugins: $($pluginIds -join ', ')"
 
-New-Item -ItemType Directory -Force -Path (Split-Path $pluginDst) | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $profileRoot "python\plugins") | Out-Null
 
-if (Test-Path $pluginDst) {
-  Remove-Item -Recurse -Force $pluginDst
-}
+foreach ($pluginId in $pluginIds) {
+  $pluginSrc = Join-Path $repoRoot "qgis-plugin\$pluginId"
+  $pluginDst = Join-Path $profileRoot "python\plugins\$pluginId"
 
-if (-not $Copy) {
-  try {
-    New-Item -ItemType Junction -Path $pluginDst -Target $pluginSrc | Out-Null
-    Write-Host "Junction: $pluginDst -> $pluginSrc"
-  } catch {
-    Write-Warning "Junction failed, falling back to copy: $_"
-    $Copy = $true
+  if (Test-Path $pluginDst) {
+    Remove-Item -Recurse -Force $pluginDst
   }
-}
-if ($Copy) {
+
+  if (-not $Copy) {
+    try {
+      New-Item -ItemType Junction -Path $pluginDst -Target $pluginSrc | Out-Null
+      Write-Host "Junction: $pluginDst -> $pluginSrc"
+      continue
+    } catch {
+      Write-Warning "Junction failed for $pluginId, falling back to copy: $_"
+    }
+  }
   Copy-Item -Recurse $pluginSrc $pluginDst
   Write-Host "Copied to $pluginDst"
 }
@@ -59,15 +64,16 @@ New-Item -ItemType Directory -Force -Path $qgisConfDir | Out-Null
 if (-not (Test-Path $iniPath)) { New-Item -ItemType File -Path $iniPath | Out-Null }
 
 $ini = Get-Content $iniPath -Raw -ErrorAction SilentlyContinue
-if ($ini -match "$pluginId=") {
-  # 既存エントリをtrueに揃える
-  $ini = $ini -replace "$pluginId=\w+", "$pluginId=true"
-  Set-Content $iniPath $ini -NoNewline
-} elseif ($ini -match "\[PythonPlugins\]") {
-  $ini = $ini -replace "\[PythonPlugins\]", "[PythonPlugins]`n$pluginId=true"
-  Set-Content $iniPath $ini -NoNewline
-} else {
-  Add-Content $iniPath "`n[PythonPlugins]`n$pluginId=true"
+foreach ($pluginId in $pluginIds) {
+  if ($ini -match "$pluginId=") {
+    # 既存エントリをtrueに揃える
+    $ini = $ini -replace "$pluginId=\w+", "$pluginId=true"
+  } elseif ($ini -match "\[PythonPlugins\]") {
+    $ini = $ini -replace "\[PythonPlugins\]", "[PythonPlugins]`n$pluginId=true"
+  } else {
+    $ini += "`n[PythonPlugins]`n$pluginId=true"
+  }
 }
+Set-Content $iniPath $ini -NoNewline
 Write-Host "Plugin enabled in $iniPath"
 Write-Host "Done. Restart QGIS if it is running."

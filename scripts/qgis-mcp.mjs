@@ -13,28 +13,35 @@
 console.log = (...args) => console.error(...args);
 
 import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { LivePage, resolveLiveDir } from "./live-drive.mjs";
+import { LivePage, resolveLiveDirs } from "./live-drive.mjs";
 import { ensureQgis, reloadPlugin, devReload } from "./qgis-session.mjs";
 
 const REPO = fileURLToPath(new URL("../", import.meta.url));
 const LIVE_BASE = process.env.WEBENGINE_LIVE_DIR || join(REPO, "test-results", "live");
+const PLUGIN_ID = JSON.parse(
+  readFileSync(new URL("../plugin.config.json", import.meta.url), "utf8")
+).id;
 
-// live dirを解決してLivePageを返す。ドライバが死んでいればensureで起動する。
+// live dirを解決してLivePageを返す。複数プラグインが同居していれば
+// plugin.config.json の id を優先(無ければ先頭)。ドライバが死んでいればensureで起動する。
 // (ensureは応答するインスタンスがあればアタッチするだけで安い)
 async function getPage() {
-  const dir = await resolveLiveDir(LIVE_BASE);
-  const page = new LivePage(dir);
+  let dirs = await resolveLiveDirs(LIVE_BASE);
+  let target = dirs.find((d) => d.pluginId === PLUGIN_ID) || dirs[0];
+  const page = new LivePage(target.dir);
   try {
     await page.pyeval("1", { timeoutMs: 4000 });
     return page;
   } catch {
-    const ensured = await ensureQgis({ liveBase: LIVE_BASE });
-    return new LivePage(ensured);
+    dirs = await ensureQgis({ liveBase: LIVE_BASE });
+    target = dirs.find((d) => d.pluginId === PLUGIN_ID) || dirs[0];
+    return new LivePage(target.dir);
   }
 }
 
@@ -58,7 +65,13 @@ server.registerTool(
   },
   async () => {
     try {
-      return { content: [{ type: "text", text: await ensureQgis({ liveBase: LIVE_BASE }) }] };
+      const dirs = await ensureQgis({ liveBase: LIVE_BASE });
+      return {
+        content: [{
+          type: "text",
+          text: dirs.map((d) => `${d.dir} (${d.pluginId})`).join("\n"),
+        }],
+      };
     } catch (e) {
       return err(e);
     }

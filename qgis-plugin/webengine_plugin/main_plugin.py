@@ -125,8 +125,10 @@ class WebEnginePlugin:
             live_dir = os.environ.get("WEBENGINE_LIVE_DIR")
             _log(f"open_dialog: live_dir={live_dir!r} dev_src={DEV_SRC!r}")
             if live_dir:
-                # 複数QGISインスタンスが同じlive dirを使わないようPIDで分離
-                live_dir = os.path.join(live_dir, f"qgis-{os.getpid()}")
+                # qgis-<pid>/<plugin_id> で分離。複数インスタンス・
+                # 複数プラグインが共存しても衝突しない
+                live_dir = os.path.join(
+                    live_dir, f"qgis-{os.getpid()}", __package__)
                 try:
                     from .live_driver import LiveDriver
                     self._live = LiveDriver(

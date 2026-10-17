@@ -16,7 +16,8 @@
 [クライアント層] scripts/live-drive.mjs (LivePage) / qgis-session.mjs
    │  ファイルJSONL: commands.jsonl → results.jsonl
    ▼
-[常駐QGISプロセス] WEBENGINE_LIVE_DIR/qgis-<pid>/
+[常駐QGISプロセス] WEBENGINE_LIVE_DIR/qgis-<pid>/<plugin_id>/
+                    (プラグインごとに独立したlive dir。複数プラグイン同居可)
    ├─ deploy済み <id>(既定 webengine_plugin) = 「器/ドライバ」(ほぼ不変)
    │    LiveDriver: eval(任意JS) / pyeval(任意Python) /
    │                 screenshot / devreload
@@ -93,7 +94,7 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
 
 代わりに **ファイル経由ライブドライバ** を使う:
 
-- プラグイン側 `live_driver.py` が `WEBENGINE_LIVE_DIR/qgis-<pid>/commands.jsonl` を
+- プラグイン側 `live_driver.py` が `WEBENGINE_LIVE_DIR/qgis-<pid>/<plugin_id>/commands.jsonl` を
   QTimerでポーリングし、`view.page().runJavaScript()` でJSを実行、
   結果を `results.jsonl` に返す。`screenshot` コマンドは `view.grab()` でPNG保存
 - `pyeval` コマンドは **QGISプロセス内で任意Pythonを同期実行**し結果をJSON化して返す。
@@ -109,8 +110,11 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
   `live:reload` が必要
 - クライアント側 `scripts/live-drive.mjs` (`LivePage`クラス)が
   `evaluate()` / `pyeval()` / `devreload()` / `waitFor()` / `click()` / `screenshot()`
-  を提供。使い勝手はPlaywright相当
-- 複数QGISインスタンスが動いていても PID サブディレクトリで分離される
+  を提供。使い勝手はPlaywright相当。`resolveLiveDirs` がlive中の
+  全プラグインdirを列挙する
+- 複数QGISインスタンス・複数プラグインが同居しても `qgis-<pid>/<plugin_id>`
+  で分離される。deployは `qgis-plugin/` 直下の全プラグインを一括配置し、
+  `live:*`/`test:live` は検出した全プラグインに対して実行される
 - `scripts/qgis-session.mjs` が `ensure`(起動中へのアタッチ/自動起動)と
   `reload`(deploy+ホットリロード)、`devreload`(repo側再読込)を提供。
   `test:live` も内部でensureするため事前起動は不要になった

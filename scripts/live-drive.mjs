@@ -10,23 +10,50 @@ import { join } from "node:path";
 import { readdir, stat } from "node:fs/promises";
 
 /**
- * liveDirを解決する。プラグイン側は liveDir/qgis-<pid>/ に分離して書き込むため、
- * baseディレクトリが渡された場合は最も新しく作られた qgis-* サブディレクトリを選ぶ。
+ * liveDirを解決し、live plugin dirの一覧を返す。
+ * プラグイン側は liveDir/qgis-<pid>/<pluginId>/ に分離して書き込む。
+ * 新しいpidディレクトリ順に [{dir, pluginId}] を返す。
+ * qgis-* が無い場合は渡されたdir自身を1件として返す(単一dir指定の後方互換)。
  */
-export async function resolveLiveDir(liveDir) {
+export async function resolveLiveDirs(liveDir) {
   try {
     const entries = await readdir(liveDir, { withFileTypes: true });
-    const subdirs = entries.filter((e) => e.isDirectory() && e.name.startsWith("qgis-"));
-    let newest = null, newestBirth = 0;
-    for (const e of subdirs) {
+    const pids = [];
+    for (const e of entries) {
+      if (!e.isDirectory() || !e.name.startsWith("qgis-")) continue;
       const p = join(liveDir, e.name);
       // クライアントのcommands.jsonl書き込みでmtimeが更新されてしまうためbirthtimeで判定
-      const s = await stat(p);
-      if (s.birthtimeMs > newestBirth) { newestBirth = s.birthtimeMs; newest = p; }
+      pids.push({ path: p, birth: (await stat(p)).birthtimeMs });
     }
-    if (newest) return newest;
+    pids.sort((a, b) => b.birth - a.birth);
+    const out = [];
+    for (const { path } of pids) {
+      const subs = (await readdir(path, { withFileTypes: true }))
+        .filter((x) => x.isDirectory());
+      if (!subs.length) {
+        // 旧レイアウト(qgis-<pid>直下にjsonlを置く)で動く既存インスタンス向け
+        if (existsSync(join(path, "results.jsonl")) ||
+            existsSync(join(path, "commands.jsonl"))) {
+          out.push({ dir: path, pluginId: null });
+        }
+        continue;
+      }
+      for (const s of subs) out.push({ dir: join(path, s.name), pluginId: s.name });
+    }
+    if (out.length) return out;
   } catch {}
-  return liveDir;
+  return [{ dir: liveDir, pluginId: null }];
+}
+
+/**
+ * 単一のlive plugin dirを返す(後方互換)。pluginId指定でそのプラグインを選ぶ。
+ */
+export async function resolveLiveDir(liveDir, pluginId) {
+  const dirs = await resolveLiveDirs(liveDir);
+  const match = pluginId
+    ? dirs.find((d) => d.pluginId === pluginId)
+    : dirs[0];
+  return match ? match.dir : liveDir;
 }
 
 export class LivePage {
