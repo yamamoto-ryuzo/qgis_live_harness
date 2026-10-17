@@ -57,6 +57,12 @@ flowchart TB
 このビルドのQtWebEngineはCDP非応答のため、輸送層は**ファイルJSONLプロトコル**
 (言語非依存)を独自実装している。
 
+このAPIは**プラグインとしても配備できる**:
+[`qgis-plugin/qgis_live/`](qgis-plugin/qgis_live/README.md) は制御面だけを
+切り出したUIなしプラグインで、WebEngineを持たない任意のQGIS環境・
+他プラグインに対しても `pyeval` + 地図キャンバススクショの遠隔操作を提供する
+(開発専用。任意コード実行のため配布物には含めない)。
+
 ```mermaid
 flowchart TB
     subgraph EXT["外部クライアント"]
@@ -90,6 +96,7 @@ flowchart TB
 |---|---|---|
 | `commands.jsonl`→`results.jsonl` | 開発版の器 | 輸送層。`eval`/`pyeval`/`screenshot`/`devreload` を中継 |
 | `live_driver.py`(QGIS側) | 開発版の器 | JS評価・任意Python(`iface`直アクセス)・スクショ・再読込の実行体 |
+| [`qgis_live`プラグイン](qgis-plugin/qgis_live/README.md) | 開発版の器 | このAPIを単独プラグイン化したもの。view不要で他プラグイン含めQGIS全体を `pyeval` 操作可能にする |
 | `live-drive.mjs`(LivePage) | リポジトリ | Nodeからの高水準API。`evaluate`/`pyeval`/`click`/`waitFor`/`screenshot` |
 | `qgis-session.mjs` | リポジトリ | セッション管理。`ensure`=起動中へアタッチ/自動起動、`reload`=器のホットリロード |
 
@@ -159,6 +166,8 @@ qgis-plugin/          プラグイン群のルート(複数プラグインをこ
     bridge.py         ★開発対象: WebChannel経由でJSに公開するAPI
     logic.py          ★開発対象: QGIS非依存の純粋ロジック(pytest対象)
     ui/               ★開発対象: HTML/CSS/JS (mockでブラウザ単体動作も可)
+  qgis_live/          制御専用プラグイン(UIなし)。遠隔操作APIを単独配備する形。
+                      詳細: qgis_live/README.md
 plugin.config.json    開発対象のプラグインID(qgis-plugin/下のフォルダ名)
 scripts/
   live-drive.mjs      LivePage: クライアント側API(evaluate/pyeval/devreload等)
