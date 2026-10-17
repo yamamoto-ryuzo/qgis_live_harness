@@ -40,7 +40,9 @@
 
 - `qgis-plugin/` — プラグイン群のルート。**フォルダ名=プラグインID**で複数管理。
   `webengine_plugin/` がその1つ。QGIS依存は `bridge.py` に閉じ込める。
-  deploy時に `python/plugins/<フォルダ名>` へ配置される
+  deploy時に `python/plugins/<フォルダ名>` へ配置される。
+  `qgis_live/` はWebEngineを持たない制御専用プラグイン(pyeval+地図キャンバス
+  スクショのみ)で、任意プラグインの遠隔操作基盤として常駐させられる
 - `qgis-plugin/<id>/logic.py` — QGIS非依存の純粋ロジック。pytest対象
 - `qgis-plugin/<id>/live_driver.py` — L2検証用。実QGIS内でJS実行を仲介(後述)
 - `qgis-plugin/<id>/ui/` — HTML/CSS/JSフロントエンド。QGIS無しの通常ブラウザでも動く(mock使用)
@@ -112,6 +114,12 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
   `evaluate()` / `pyeval()` / `devreload()` / `waitFor()` / `click()` / `screenshot()`
   を提供。使い勝手はPlaywright相当。`resolveLiveDirs` がlive中の
   全プラグインdirを列挙する
+- **commands.jsonl は append-only。絶対に切り詰めないこと**(LivePage.reset()は
+  results.jsonlのみ消す)。ドライバは読み取りoffsetを保持するため、
+  切り詰め後にファイルが旧offsetを超えて再成長すると「縮小」と検出できず、
+  コマンド行の途中から読み出して JSONDecodeError+コマンド喪失になる。
+  同じlive dirに複数クライアントプロセス(テストとMCP等)を同時に
+  ぶつけてはいけない — 片方のresetが他方の結果を消す
 - 複数QGISインスタンス・複数プラグインが同居しても `qgis-<pid>/<plugin_id>`
   で分離される。deployは `qgis-plugin/` 直下の全プラグインを一括配置し、
   `live:*`/`test:live` は検出した全プラグインに対して実行される
