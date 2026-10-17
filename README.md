@@ -8,29 +8,29 @@
 
 ```mermaid
 flowchart LR
-    C["クライアント<br/>AI / CI / 人間"]
-
-    subgraph H["QGIS Live Harness = E2Eプラグイン開発・検証環境(このリポジトリ)"]
-        direction TB
-        API["クライアントAPI<br/>LivePage / live:*"]
-        SESSION["セッション<br/>ensure / reload / devreload"]
-        TEST["検証<br/>L1 Playwright / L2 test:live"]
-        MCPAD["MCPアダプタ<br/>qgis-mcp.mjs"]
-        API ~~~ SESSION
-        SESSION ~~~ TEST
-        TEST ~~~ MCPAD
+    subgraph CL["クライアント"]
+        C["AI / CI / 人間"]
     end
 
-    subgraph D["QGIS Live Driver(QGIS側の手)"]
-        IO["JSONL・/api/*(REST)<br/>/mcp(MCP)・stdio shim"]
+    subgraph H["QGIS Live Harness<br/>(E2Eプラグイン開発・検証環境)"]
+        HC["LivePage / live:*<br/>ensure / reload / devreload<br/>L1 Playwright / L2 test:live<br/>MCPアダプタ qgis-mcp.mjs"]
     end
-    Q["QGIS内部<br/>iface / QgsProject / 他プラグイン"]
 
-    C --> H
-    C -.->|"Harness不要で直接接続"| IO
-    H -->|ファイルJSONL| IO
-    IO --> Q
+    subgraph D["QGIS Live Driver<br/>(QGIS側の手)"]
+        DC["ファイルJSONL<br/>REST /api/*<br/>MCP /mcp・stdio shim"]
+    end
+
+    subgraph QGIS["QGIS本体"]
+        Q["iface / QgsProject<br/>他プラグイン"]
+    end
+
+    CL --> H
+    CL -.->|直接接続| D
+    H --> D
+    D --> QGIS
 ```
+
+破線 = **Driver単体でも成立する経路**(Harness不要)。
 
 | 層 | 名前 | 役割 |
 |---|---|---|
