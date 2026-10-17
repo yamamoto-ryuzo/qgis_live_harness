@@ -32,8 +32,8 @@ npx playwright test --headed   # または test-results/ の画像を見る
 npm run deploy
 
 # 2. QGISをCDPデバッグ付きで起動(別ターミナル、開きっぱなし)
+#    --code で起動後にプラグインダイアログを自動で開く(-NoAutoOpenで無効化)
 npm run verify:qgis
-#    → QGIS内でプラグインダイアログを開く
 
 # 3. 実QGISのUIにPlaywrightで接続
 npm run test:live

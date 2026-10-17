@@ -3,7 +3,8 @@
 
 param(
   [string]$QgisExe = "C:\Program Files\QGIS 4.0.1\bin\qgis-bin.exe",
-  [int]$DebugPort = 9222
+  [int]$DebugPort = 9222,
+  [switch]$NoAutoOpen
 )
 
 if (-not (Test-Path $QgisExe)) {
@@ -14,4 +15,11 @@ if (-not (Test-Path $QgisExe)) {
 $env:QTWEBENGINE_REMOTE_DEBUGGING = "$DebugPort"
 Write-Host "Launching QGIS with QTWEBENGINE_REMOTE_DEBUGGING=$DebugPort"
 Write-Host "  -> $QgisExe"
-& $QgisExe
+
+if ($NoAutoOpen) {
+  & $QgisExe
+} else {
+  # 起動後にプラグインダイアログを自動で開く
+  $openScript = Join-Path $PSScriptRoot "open_plugin_dialog.py"
+  & $QgisExe --code $openScript
+}
