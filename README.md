@@ -40,8 +40,8 @@ flowchart TB
     REST -->|127.0.0.1 HTTP| Q
 ```
 
-全体は「遠隔操作API」を土台に、その上へ「プラグイン自動化環境」と
-「MCP連携」が乗る3段構成。
+全体は「遠隔操作API」を土台に、その上へ「MCP連携」と
+「プラグイン自動化環境」が乗る3段構成。
 
 ## 主な機能
 
@@ -122,39 +122,7 @@ flowchart TB
 | `live-drive.mjs`(LivePage) | リポジトリ | Nodeからの高水準API。`evaluate`/`pyeval`/`click`/`waitFor`/`screenshot` |
 | `qgis-session.mjs` | リポジトリ | セッション管理。`ensure`=起動中へアタッチ/自動起動、`reload`=器のホットリロード |
 
-### 2. AIによるプラグイン完全自動化環境 — `webengine_plugin`プラグイン
-
-```mermaid
-flowchart TD
-    WEB["QWebEngineView(実物Chromium)"]
-    BROWSER["同じ ui/ が通常ブラウザでも動く<br/>(mock bridgeにフォールバック)"]
-    PW["Playwright / DevTools / DOM検査<br/>がそのまま使える [L1]"]
-
-    SRC["WEBENGINE_DEV_SRC<br/>= このリポジトリ"]
-    LOAD["bridge.py / logic.py を実行時ロード<br/>(deploy物に含まない)"]
-    DR["npm run live:devreload<br/>→ 実行中QGISに即反映"]
-
-    PY["pyeval(1のAPI経由)"]
-    ASSERT["iface / QgsProject / canvas の<br/>実状態を任意assert [L2]"]
-
-    WEB --> BROWSER --> PW
-    SRC --> LOAD --> DR
-    PY --> ASSERT
-```
-
-要素:
-
-| 要素 | 面 | 役割 |
-|---|---|---|
-| **QWebEngineView** | 製品 | UIを実物Chromiumにする → Web標準自動化の適用が可能になる**核** |
-| `bridge.py`/`logic.py`/`ui/` | 製品 | 操作対象であり、配布物そのもの |
-| `WEBENGINE_DEV_SRC` | 開発版の器 | 製品コードをリポジトリに置いたままQGIS内で実行する機構 |
-| `devreload` | 開発版の器 | 編集→即反映(deploy/reloadPlugin/再起動 全て不要) |
-| `pyeval` | 開発版の器 | UIの外側・QGIS内部状態まで踏み込む検証手段 |
-
-開発ループ: **編集 → `live:devreload` → `npm run test:live`**(全て無人化可能)
-
-### 3. MCPによるAI連携 — `qgis_live`プラグイン(+`qgis-mcp.mjs`)
+### 2. MCPによるAI連携 — `qgis_live`プラグイン(+`qgis-mcp.mjs`)
 
 AIの接続方式はクライアントごとに異なるため、**全方式を並列提供**する:
 
@@ -213,6 +181,38 @@ flowchart LR
 | `.devin/mcp_config.json` | リポジトリ | `qgis-live` として登録。このリポジトリを開けば自動認識 |
 | `qgis_live/mcp_stdio.py` | 開発版の器 | stdioブリッジ。QGIS無しのspawn側でもstdlibだけで動き、`~/.qgis-live/` レジストリからlive dirを自動検出 |
 | `qgis_live` 内蔵 `/mcp` `/api/*` | 開発版の器 | HTTP面。MCP未対応のAIでも `POST /api/pyeval {"code":"..."}` だけで操作できる |
+
+### 3. AIによるプラグイン完全自動化環境 — `webengine_plugin`プラグイン
+
+```mermaid
+flowchart TD
+    WEB["QWebEngineView(実物Chromium)"]
+    BROWSER["同じ ui/ が通常ブラウザでも動く<br/>(mock bridgeにフォールバック)"]
+    PW["Playwright / DevTools / DOM検査<br/>がそのまま使える [L1]"]
+
+    SRC["WEBENGINE_DEV_SRC<br/>= このリポジトリ"]
+    LOAD["bridge.py / logic.py を実行時ロード<br/>(deploy物に含まない)"]
+    DR["npm run live:devreload<br/>→ 実行中QGISに即反映"]
+
+    PY["pyeval(1のAPI経由)"]
+    ASSERT["iface / QgsProject / canvas の<br/>実状態を任意assert [L2]"]
+
+    WEB --> BROWSER --> PW
+    SRC --> LOAD --> DR
+    PY --> ASSERT
+```
+
+要素:
+
+| 要素 | 面 | 役割 |
+|---|---|---|
+| **QWebEngineView** | 製品 | UIを実物Chromiumにする → Web標準自動化の適用が可能になる**核** |
+| `bridge.py`/`logic.py`/`ui/` | 製品 | 操作対象であり、配布物そのもの |
+| `WEBENGINE_DEV_SRC` | 開発版の器 | 製品コードをリポジトリに置いたままQGIS内で実行する機構 |
+| `devreload` | 開発版の器 | 編集→即反映(deploy/reloadPlugin/再起動 全て不要) |
+| `pyeval` | 開発版の器 | UIの外側・QGIS内部状態まで踏み込む検証手段 |
+
+開発ループ: **編集 → `live:devreload` → `npm run test:live`**(全て無人化可能)
 
 ## ディレクトリ構成
 
