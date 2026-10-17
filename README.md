@@ -1,100 +1,93 @@
 # QGIS Live Harness
 
-**QGISプロセスをAI/外部スクリプトから自律駆動する制御基盤(ハーネス)** +
-Qt WebEngine ベースのプラグイン開発テンプレート。
+**QGISプロセスをAI/外部スクリプトから自律駆動するための開発・制御・検証の基盤(ハーネス)。**
+このリポジトリは単体のプラグイン製品ではなく、QGISに「取り付けて操縦する外側の装具」そのもの。
 (リポジトリ/ディレクトリ名: `qgis_live_harness`)
 
-## 命名
+## 構成(2層)
 
-| 名前 | 指すもの |
-|---|---|
-| **QGIS Live Harness** | このリポジトリ全体。開発・制御・観測・検証の環境(基盤)。QGISに「取り付けて操縦する外側の装具」 |
-| **QGIS Live Driver** (`qgis_live_driver`) | QGIS内にdeployされる制御プラグイン。ファイルJSONL・HTTP REST・MCP HTTP/stdioの接続面を持つ実行部品。ハーネスの「QGIS側の手」 |
+| 層 | 名前 | 役割 |
+|---|---|---|
+| QGIS側の手 | **QGIS Live Driver** (`qgis_live_driver`) | QGIS内で動く制御専用プラグイン。**このリポジトリに依存しない汎用部品**で、任意のQGISへ単独導入して遠隔操作面を得られる |
+| 外側の装具 | **QGIS Live Harness** (このリポジトリ全体) | Driverの操作面の上に乗る、クライアントAPI・セッション管理・ホットリロード・検証の基盤。**リポジトリがあって初めて成り立つ** |
 
-この上で回るのは **エージェンティックループ**: AIが「書く→devreloadで実機反映→eval/pyeval/スクショで観測→test:liveで検証」を人間なしで反復する。
+さらに `qgis-plugin/webengine_plugin/` を、Harness上で育てる開発対象プラグインの
+「器」(Qt WebEngineベースのテンプレート)として同梱する。
 
-## 概要
+- **Driverだけ使う**: `python/plugins/` へのコピーで成立。ファイルJSONL・REST・MCPの
+  操作面を持ち、リポジトリもNodeも不要
+- **Harnessとして使う**: このリポジトリを開けば、高水準クライアント・
+  ensure/reload/devreload・L1/L2テスト・MCPアダプタが揃う
 
-このシステムは2つの面を持つ:
-
-- **プラグイン(製品)**: `qgis-plugin/<id>/` の器 + `bridge.py`/`logic.py`/`ui/`。
-  `live_driver.py` と dev loader を剥がせば、そのまま配布できる普通のQGISプラグイン。
-  **リポジトリが無くても動く**
-- **基盤(QGIS Live Harness = このリポジトリ)**: そのプラグインを育て・観測・
-  外部操作するための開発・制御環境。ファイルプロトコル経由のLiveDriver、
-  セッション管理、devreload、テスト、MCPアダプタを含む。**リポジトリがあって初めて成り立つ**
-
-`qgis-plugin/<id>/` は境界をまたぐ部品で、LiveDriver等を載せれば基盤側の
-操縦装置になり、剥がせば配布用の製品になる。
-
-deployするのは固定の「器」(QWebEngineView + ファイル経由ドライバ)だけで、
-開発対象のロジック/UIはリポジトリに置いたまま**実QGIS内で動作・観測・即時反映**できる。
-ブラウザにおける Chrome DevTools Protocol + Playwright に相当するものを
-QGISプロセスに対して実現するシステム。
+この上で回るのは **エージェンティックループ**: AIが「書く→devreloadで実機反映→
+eval/pyeval/スクショで観測→test:liveで検証」を人間なしで反復する。
 
 ```mermaid
 flowchart TB
     subgraph TOP["利用者: AIエージェント / CI / 人間"]
-        MCPC["MCP (qgis-mcp.mjs / mcp_stdio.py / 内蔵HTTP /mcp)"]
-        CLIC["CLI (npm run live:*)"]
-        REST["REST (/api/*)"]
+        MCPC["MCPクライアント(Devin等)"]
+        CLIC["CLI / 自作スクリプト"]
+        HTTPC["任意HTTPクライアント"]
+    end
+
+    subgraph HARNESS["QGIS Live Harness = このリポジトリ(基盤)"]
+        ADAPT["MCPアダプタ<br/>scripts/qgis-mcp.mjs(stdio)"]
+        NODE["クライアント層<br/>LivePage / qgis-session<br/>live:* / test:live"]
     end
 
     subgraph Q["常駐QGISプロセス"]
-        VESSEL["器(deploy物)<br/>dialog / view / channel + LiveDriver"]
-        PROD["開発対象(repo側)<br/>bridge.py / logic.py / ui/<br/>WEBENGINE_DEV_SRC から別名import"]
+        DRIVER["QGIS Live Driver(汎用部品)<br/>pyeval / 地図スクショ<br/>ファイルJSONL + 内蔵HTTP(/mcp,/api/*)"]
+        VESSEL["webengine_plugin(器)<br/>view/channel + view用LiveDriver"]
+        PROD["開発対象(repo側)<br/>bridge.py / logic.py / ui/<br/>WEBENGINE_DEV_SRCから別名import"]
         VESSEL --> PROD
     end
 
-    MCPC & CLIC -->|ファイルJSONL commands/results| Q
-    REST -->|127.0.0.1 HTTP| Q
+    MCPC -->|stdio| ADAPT --> NODE
+    MCPC -.->|mcp_stdio.py / HTTP /mcp<br/>(Harness不要)| DRIVER
+    HTTPC -.->|/api/*(Harness不要)| DRIVER
+    CLIC --> NODE
+    NODE -->|ファイルJSONL| DRIVER
+    NODE -->|ファイルJSONL| VESSEL
 ```
 
-全体は「遠隔操作API」を土台に、その上へ「MCP連携」と
-「プラグイン自動化環境」が乗る3段構成。
+破線 = **Driver単体でも成立する経路**(Harnessに依存しない)。
+実線 = Harnessが提供する層。
 
-## 主な機能
+---
 
-以下の3機能は全て**基盤側**(このリポジトリが必要)の機能。
-プラグイン(製品)はこれらの**操作対象**として登場する。
-要素表の「面」列の意味:
+## 1. QGIS Live Driver — Harnessから独立した汎用制御プラグイン
 
-- **製品** — 配布プラグインに同梱されるもの
-- **開発版の器** — deployされるが配布物からは除去するもの
-- **リポジトリ** — 基盤側にのみ存在するもの
+[`qgis-plugin/qgis_live_driver/`](qgis-plugin/qgis_live_driver/README.md) は
+**UIを持たない制御専用プラグイン**で、実行中QGISを外部から遠隔操作する面を提供する。
+`QWebEngineView` を持たないため、**WebEngineを使わない任意のQGIS環境・
+任意の他プラグイン**に対しても使える汎用部品。
 
-### 1. APIによる各種アプリからの遠隔操作(基盤) — `qgis_live_driver`プラグイン
+`pyeval` でQGISプロセス内の任意Pythonを同期実行できるため、
+**PyQGISで書ける操作は全て制御可能**: レイヤー/プロジェクト操作、
+キャンバス、メニュー/アクション、`qgis.utils.plugins` 経由の他プラグイン、
+Processing、QgsSettings、任意widgetの `grab()` による画像化 等。
 
-実行中QGISの `iface`/`QgsProject`/プラグインUIを外部から観測・操作する基盤。
-このビルドのQtWebEngineはCDP非応答のため、輸送層は**ファイルJSONLプロトコル**
-(言語非依存)を独自実装している。
+### 接続面(4系統・全て同じdispatchへ)
 
-このAPIは**プラグインとしても配備できる**:
-[`qgis-plugin/qgis_live_driver/`](qgis-plugin/qgis_live_driver/README.md) は制御面だけを
-切り出したUIなしプラグインで、WebEngineを持たない任意のQGIS環境・
-他プラグインに対しても `pyeval` + 地図キャンバススクショの遠隔操作を提供する
-(開発専用。任意コード実行のため配布物には含めない)。
+- **ファイルJSONL** — `commands.jsonl` 追記 → QTimerが実行 → `results.jsonl` 返却。
+  **言語非依存の最下位輸送層**
+- **HTTP REST** — `POST 127.0.0.1:<port>/api/pyeval` `{"code":"..."}` 等。
+  MCPを知らないfunction calling系AI・curl・自作エージェント向け
+- **MCP Streamable HTTP** — `POST 127.0.0.1:<port>/mcp`(JSON-RPC)
+- **MCP stdio** — 同梱 `mcp_stdio.py` をspawnするだけ(stdlibのみ、spawn側にQGIS/Node不要)
 
-`qgis_live_driver` はファイルJSONLの他に、**QGISプロセス内蔵のHTTPサーバ**も持つ
-(標準ライブラリのみ・`127.0.0.1`・空きポート自動選択):
-
-- `POST /mcp` — **MCP Streamable HTTP**(initialize/tools/list/tools/call/ping)
-- `POST /api/pyeval` / `POST /api/eval` / `POST /api/screenshot` — **plain REST**
-  (MCPを知らないfunction calling系AI・自作エージェント・curlから直接操作)
-- `GET /api/tools` / `GET /api/health` — ツール仕様JSON / 生存確認
-
-ポート番号は `~/.qgis-live/<pid>-qgis_live_driver.json` に書き出され、
-クライアント側はこれを読んで**自動検出**できる(QGIS_LIVE_REGISTRYで変更可)。
-HTTPワーカースレッドが受けた命令は `driver.submit()` でメモリキューに入り、
+②③はプラグイン内蔵の `http.server`(stdlibのみ・`127.0.0.1`・空きポート自動選択)が提供。
+ワーカースレッドが受けた命令は `driver.submit()` でメモリキューに入り、
 GUIスレッドのQTimerがファイルJSONLと同じ要領で実行する(dispatchは1本に統一)。
+ポート番号等の接続情報は **`~/.qgis-live/<pid>-qgis_live_driver.json`** に書き出され、
+クライアントはここから自動検出できる(`QGIS_LIVE_REGISTRY`で変更可)。
 
 ```mermaid
 flowchart TB
-    subgraph EXT["外部クライアント"]
+    subgraph EXT["外部クライアント(Harnessでも第三者アプリでも)"]
         APP["任意言語のアプリ"]
-        LP["Node: LivePage<br/>(live-drive.mjs)"]
-        CLI["CLI: live:* / test:live"]
-        HTTP["MCP/RESTクライアント<br/>(curl・function calling系AI等)"]
+        LP["Harness: LivePage<br/>(live-drive.mjs)"]
+        HTTP["MCP/RESTクライアント<br/>(curl・AIエージェント等)"]
     end
 
     subgraph TR["輸送層"]
@@ -105,50 +98,72 @@ flowchart TB
 
     subgraph QGIS["常駐QGISプロセス"]
         LD["LiveDriver<br/>QTimer poll + メモリキュー"]
-        CORE["iface / QgsProject /<br/>QWebEngineView / WebChannel bridge"]
+        CORE["iface / QgsProject /<br/>他プラグイン / widget全般"]
         LD --> CORE
     end
 
-    APP --> CMD
-    LP --> CMD
-    CLI --> CMD
+    APP & LP --> CMD
     HTTP --> SRV
     CMD --> LD
     SRV -->|submit()| LD
     LD --> RES
-    RES --> APP & LP & CLI
+    RES --> APP & LP
 ```
 
-要素:
+### Harnessなしでの単独導入
 
-| 要素 | 面 | 役割 |
-|---|---|---|
-| `commands.jsonl`→`results.jsonl` | 開発版の器 | 輸送層。`eval`/`pyeval`/`screenshot`/`devreload` を中継 |
-| `live_driver.py`(QGIS側) | 開発版の器 | JS評価・任意Python(`iface`直アクセス)・スクショ・再読込の実行体 |
-| `mcp_http.py` | 開発版の器 | QGIS内蔵HTTPサーバ。MCP `/mcp` と REST `/api/*` を同一ポートで提供 |
-| `mcp_stdio.py` | 開発版の器 | stdio↔ファイルJSONLのブリッジ。MCPクライアントから `python .../mcp_stdio.py` でspawnするだけ |
-| `~/.qgis-live/<pid>-<plugin>.json` | 開発版の器 | 接続情報レジストリ(http_port/live_dir)。クライアントの自動検出用 |
-| [`qgis_live_driver`プラグイン](qgis-plugin/qgis_live_driver/README.md) | 開発版の器 | このAPIを単独プラグイン化したもの。view不要で他プラグイン含めQGIS全体を `pyeval` 操作可能にする |
-| `live-drive.mjs`(LivePage) | リポジトリ | Nodeからの高水準API。`evaluate`/`pyeval`/`click`/`waitFor`/`screenshot` |
-| `qgis-session.mjs` | リポジトリ | セッション管理。`ensure`=起動中へアタッチ/自動起動、`reload`=器のホットリロード |
+Driverの利用にこのリポジトリは要らない:
 
-### 2. MCPによるAI連携 — `qgis_live_driver`プラグイン(+`qgis-mcp.mjs`)
+```powershell
+# このリポジトリからなら一括deploy(任意)
+powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
 
-AIの接続方式はクライアントごとに異なるため、**全方式を並列提供**する:
+# 手動でも可: qgis-plugin/qgis_live_driver/ を
+# python/plugins/qgis_live_driver/ へコピーし、QGISのプラグイン管理で有効化
+```
 
-| AIの種類 | 使う面 | 実装 |
-|---|---|---|
-| MCP(stdio) — Devin/Claude Desktop/IDE系 | MCP stdio | `qgis_live_driver/mcp_stdio.py`(プラグイン同梱・stdlibのみ)または `scripts/qgis-mcp.mjs`(Node版) |
-| MCP(HTTP) — リモート/マルチクライアント系 | MCP Streamable HTTP | `qgis_live_driver` 内蔵 `POST /mcp` |
-| 汎用HTTPのみ — function calling/自作エージェント | plain REST | `qgis_live_driver` 内蔵 `POST /api/*` + `GET /api/tools` |
-| シェル/ファイルのみ — 制限環境 | 生ファイルプロトコル | `commands.jsonl`/`results.jsonl`(言語非依存) |
+あとは `WEBENGINE_LIVE_DIR` を設定した状態でQGISを起動するだけで、
+live dir(`<WEBENGINE_LIVE_DIR>/qgis-<pid>/qgis_live_driver/`)と
+レジストリJSONが作られ、上記4系統のいずれでも接続できる
+(未設定なら何もしない無害なプラグイン)。
 
-> **プラグイン名**: 上記のプラグイン側実装は全て **`qgis_live_driver`** プラグイン
-> (表示名: `QGIS Live Driver`、deploy先 `python/plugins/qgis_live_driver/`)に
-> 内蔵されている。`webengine_plugin` 側はWebEngine UI用のドライバのみ持ち、
-> MCP/REST面は `qgis_live_driver` が担当する。
+> **セキュリティ**: `pyeval` は任意コード実行。**開発専用**であり
+> エンドユーザーへの配布物に含めてはいけない。
+> HTTPサーバは `127.0.0.1` のみにバインドする。詳細・制御範囲・制約は
+> [qgis_live_driver/README.md](qgis-plugin/qgis_live_driver/README.md) を参照。
 
-MCPクライアント設定例(stdioの場合):
+---
+
+## 2. QGIS Live Harness — Driverの上に乗る基盤(このリポジトリ)
+
+Driverが「QGIS側の手」なら、Harnessは「操縦席+管制塔」。
+生のファイルJSONL/HTTPを直接読み書きする代わりに、
+プラグイン開発の全工程を無人化する層を提供する。
+
+HarnessがDriverに対して追加するもの:
+
+| 要素 | 役割 |
+|---|---|
+| `scripts/live-drive.mjs` (`LivePage`) | Nodeからの高水準API。`evaluate`/`pyeval`/`click`/`waitFor`/`screenshot`/`devreload`。使い勝手はPlaywright相当 |
+| `scripts/qgis-session.mjs` | セッション管理。`ensure`=起動中へアタッチ/自動deploy+起動、`reload`=器のホットリロード、`devreload`=repo側コード即反映 |
+| `scripts/qgis-live-check.mjs` | L2検証ランナー(`npm run test:live`)。QGIS未起動でも内部でensureする |
+| `scripts/qgis-mcp.mjs` | Harness側MCPアダプタ(stdio)。Driverの操作面を `qgis_pyeval` 等のtoolとして公開(後述) |
+| `tests/e2e` + Playwright | L1検証。UIが実物Chromiumで動くことを利用したブラウザ単体テスト |
+| `WEBENGINE_DEV_SRC` 機構 | 開発対象コードをリポジトリに置いたままQGIS内で実行 → `devreload`で即反映 |
+
+### MCPによるAI連携
+
+AIの接続方式はクライアントごとに異なるため、Driver側・Harness側で**全方式を並列提供**する:
+
+| AIの種類 | 使う面 | 実装 | 提供元 |
+|---|---|---|---|
+| MCP(stdio) — Devin/Claude Desktop/IDE系 | MCP stdio | `qgis_live_driver/mcp_stdio.py`(stdlibのみ) または `scripts/qgis-mcp.mjs`(Node版・ツール豊富) | Driver / Harness |
+| MCP(HTTP) — リモート/マルチクライアント系 | MCP Streamable HTTP | `POST /mcp` | Driver |
+| 汎用HTTPのみ — function calling/自作エージェント | plain REST | `POST /api/*` + `GET /api/tools` | Driver |
+| シェル/ファイルのみ — 制限環境 | 生ファイルプロトコル | `commands.jsonl`/`results.jsonl` | Driver |
+| Nodeライブラリ/CLI | LivePage・`npm run live:*` | `scripts/` 内 | Harness |
+
+MCPクライアント設定例(stdioの場合、Driver同梱shimを直接使う):
 
 ```json
 {
@@ -161,38 +176,36 @@ MCPクライアント設定例(stdioの場合):
 }
 ```
 
-HTTP transport対応クライアントの場合は `http://127.0.0.1:<port>/mcp`
-(portは `~/.qgis-live/<pid>-qgis_live_driver.json` の `http_port` を参照)。
+このリポジトリをDevin等で開く場合は `.devin/mcp_config.json` で
+`qgis-live`(`scripts/qgis-mcp.mjs`)が登録済み。
+tools: `qgis_ensure` / `qgis_pyeval` / `qgis_eval` / `qgis_bridge_call` /
+`qgis_screenshot` / `qgis_devreload` / `qgis_reload`。
+各toolは内部でensureするためQGIS未起動でも自動で立ち上がり、
+`qgis_screenshot` はPNGをMCP **image content**で返すためエージェントが画像として見られる。
 
 ```mermaid
 flowchart LR
     CLIENT["MCPクライアント<br/>(Devin等)"]
     subgraph SURF["接続面(全て同じdispatchへ)"]
-        MCP["scripts/qgis-mcp.mjs<br/>stdio JSON-RPC<br/>※薄いアダプタ"]
-        SHIM["qgis_live_driver/mcp_stdio.py<br/>stdio shim(stdlibのみ)"]
-        HTTP["qgis_live_driver内蔵HTTP<br/>/mcp + /api/*"]
+        MCP["Harness: qgis-mcp.mjs<br/>stdio JSON-RPC"]
+        SHIM["Driver: mcp_stdio.py<br/>stdio shim(stdlibのみ)"]
+        HTTP["Driver内蔵HTTP<br/>/mcp + /api/*"]
     end
-    API["1のAPI<br/>(LivePage / ensure / reload)"]
-    QGIS["常駐QGISプロセス"]
+    API["Harness: LivePage / ensure"]
+    QGIS["常駐QGISプロセス<br/>(Driver + 器)"]
 
-    CLIENT -->|tools/call| MCP --> API --> QGIS
+    CLIENT -->|tools/call| MCP --> API -->|ファイルJSONL| QGIS
     CLIENT -->|stdio| SHIM -->|ファイルJSONL| QGIS
     CLIENT -->|HTTP| HTTP -->|submit()| QGIS
     QGIS -->|image content等| MCP --> CLIENT
 ```
 
-要素:
+### プラグイン自動化環境(開発対象 = `webengine_plugin`)
 
-| 要素 | 面 | 役割 |
-|---|---|---|
-| `qgis_ensure` / `qgis_devreload` / `qgis_reload` | リポジトリ | セッション・リロードのtool化 |
-| `qgis_pyeval` / `qgis_eval` / `qgis_bridge_call` | リポジトリ | 実行系。実QGIS内部・UI・bridgeへ |
-| `qgis_screenshot` | リポジトリ | PNGをMCP **image content**で返却 → エージェントが画像として見られる |
-| `.devin/mcp_config.json` | リポジトリ | `qgis-live` として登録。このリポジトリを開けば自動認識 |
-| `qgis_live_driver/mcp_stdio.py` | 開発版の器 | stdioブリッジ。QGIS無しのspawn側でもstdlibだけで動き、`~/.qgis-live/` レジストリからlive dirを自動検出 |
-| `qgis_live_driver` 内蔵 `/mcp` `/api/*` | 開発版の器 | HTTP面。MCP未対応のAIでも `POST /api/pyeval {"code":"..."}` だけで操作できる |
-
-### 3. AIによるプラグイン完全自動化環境 — QGIS Live Harness(このリポジトリ)
+Harnessは「任意QGISを操る」だけでなく、**Qt WebEngineプラグインの開発ループ自体を無人化**する。
+`webengine_plugin` がその器であり、deployするのは固定の器
+(QWebEngineView + view用ドライバ)だけで、開発対象のロジック/UIは
+リポジトリに置いたまま**実QGIS内で動作・観測・即時反映**できる。
 
 ```mermaid
 flowchart TD
@@ -204,7 +217,7 @@ flowchart TD
     LOAD["bridge.py / logic.py を実行時ロード<br/>(deploy物に含まない)"]
     DR["npm run live:devreload<br/>→ 実行中QGISに即反映"]
 
-    PY["pyeval(1のAPI経由)"]
+    PY["pyeval(Driver/器のドライバ経由)"]
     ASSERT["iface / QgsProject / canvas の<br/>実状態を任意assert [L2]"]
 
     WEB --> BROWSER --> PW
@@ -212,17 +225,17 @@ flowchart TD
     PY --> ASSERT
 ```
 
-要素:
-
 | 要素 | 面 | 役割 |
 |---|---|---|
 | **QWebEngineView** | 製品 | UIを実物Chromiumにする → Web標準自動化の適用が可能になる**核** |
 | `bridge.py`/`logic.py`/`ui/` | 製品 | 操作対象であり、配布物そのもの |
-| `WEBENGINE_DEV_SRC` | 開発版の器 | 製品コードをリポジトリに置いたままQGIS内で実行する機構 |
-| `devreload` | 開発版の器 | 編集→即反映(deploy/reloadPlugin/再起動 全て不要) |
-| `pyeval` | 開発版の器 | UIの外側・QGIS内部状態まで踏み込む検証手段 |
+| `WEBENGINE_DEV_SRC` | 器 | 製品コードをリポジトリに置いたままQGIS内で実行する機構 |
+| `devreload` | 器 | 編集→即反映(deploy/reloadPlugin/再起動 全て不要) |
+| `pyeval` | 器/Driver | UIの外側・QGIS内部状態まで踏み込む検証手段 |
 
-開発ループ: **編集 → `live:devreload` → `npm run test:live`**(全て無人化可能)
+要素の「面」について: **製品** = 配布プラグインに同梱、
+**器** = deployされるが配布物からは除去、**Driver** = 単独導入できる汎用部品、
+**Harness** = リポジトリ側にのみ存在。
 
 ## ディレクトリ構成
 
@@ -232,11 +245,11 @@ qgis-plugin/          プラグイン群のルート(複数プラグインをこ
     metadata.txt      プラグイン定義(name=はQGIS上の表示名)
     __init__.py       エントリポイント(classFactory)
     main_plugin.py    ダイアログ/view/channel/ドライバ起動 + dev source loader
-    live_driver.py    ファイル経由ドライバ(eval/pyeval/screenshot/devreload)
+    live_driver.py    view用ファイルドライバ(eval/pyeval/screenshot/devreload)
     bridge.py         ★開発対象: WebChannel経由でJSに公開するAPI
     logic.py          ★開発対象: QGIS非依存の純粋ロジック(pytest対象)
     ui/               ★開発対象: HTML/CSS/JS (mockでブラウザ単体動作も可)
-  qgis_live_driver/          制御専用プラグイン(UIなし)。遠隔操作APIを単独配備する形
+  qgis_live_driver/   QGIS Live Driver。制御専用プラグイン(UIなし・汎用部品)
     live_driver.py    pyeval/screenshotの実行体(ファイル+メモリキューdispatch)
     mcp_http.py       内蔵HTTPサーバ(/mcp=MCP Streamable HTTP, /api/*=REST)
     mcp_stdio.py      stdio↔ファイルJSONLブリッジ(同梱・stdlibのみ)
@@ -296,19 +309,19 @@ npm run test:unit      # Pythonロジックのpytest
 npm run test:live      # L2: 実QGIS内検証(QGIS未起動でも自動起動)
 ```
 
-### 外部API(接続面)
+### 外部API(接続面まとめ)
 
-| 面 | 形態 | 対象クライアント例 |
-|---|---|---|
-| ファイルプロトコル | `commands.jsonl` に `{id,type:eval\|pyeval\|screenshot\|devreload}` を追記、結果は `results.jsonl` | 任意言語(最下位の基底) |
-| HTTP REST | `POST 127.0.0.1:<port>/api/pyeval` `{"code":"..."}` 等。ポートは `~/.qgis-live/` で自動検出 | curl・function calling系AI・自作エージェント |
-| MCP Streamable HTTP | `POST 127.0.0.1:<port>/mcp` (JSON-RPC) | HTTP transport対応MCPクライアント |
-| MCP stdio | `python <profile>/python/plugins/qgis_live_driver/mcp_stdio.py` をspawn | stdio型MCPクライアント全般 |
-| Nodeライブラリ | `new LivePage(dir)` → `evaluate/pyeval/devreload/waitFor/screenshot` | `scripts/` 内実装参照 |
-| CLI | `npm run live:*` | シェル/CI |
-| MCP(リポジトリ側) | `.devin/mcp_config.json` の `qgis-live` サーバ(`qgis-mcp.mjs`) | Devin等のMCPクライアント |
+| 面 | 形態 | 対象クライアント例 | 提供元 |
+|---|---|---|---|
+| ファイルプロトコル | `commands.jsonl` に `{id,type:eval\|pyeval\|screenshot\|devreload}` を追記、結果は `results.jsonl` | 任意言語(最下位の基底) | Driver/器 |
+| HTTP REST | `POST 127.0.0.1:<port>/api/pyeval` `{"code":"..."}` 等。ポートは `~/.qgis-live/` で自動検出 | curl・function calling系AI・自作エージェント | Driver |
+| MCP Streamable HTTP | `POST 127.0.0.1:<port>/mcp` (JSON-RPC) | HTTP transport対応MCPクライアント | Driver |
+| MCP stdio | `python <profile>/python/plugins/qgis_live_driver/mcp_stdio.py` をspawn | stdio型MCPクライアント全般 | Driver |
+| Nodeライブラリ | `new LivePage(dir)` → `evaluate/pyeval/devreload/waitFor/screenshot` | `scripts/` 内実装参照 | Harness |
+| CLI | `npm run live:*` | シェル/CI | Harness |
+| MCP(Harness側) | `.devin/mcp_config.json` の `qgis-live` サーバ(`qgis-mcp.mjs`) | Devin等のMCPクライアント | Harness |
 
-### MCPツール
+### MCPツール(Harness側)
 
 `qgis_ensure` / `qgis_pyeval` / `qgis_eval` / `qgis_bridge_call` /
 `qgis_screenshot` / `qgis_devreload` / `qgis_reload`
@@ -355,7 +368,7 @@ webengine_plugin/     (plugin.config.json の id 名でpython/plugins/へdeploy�
 ## 環境要件
 
 - QGIS 4.0.1 (`C:\Program Files\QGIS 4.0.1`)、Qt6/PyQt6
-- Node.js 24+
+- Node.js 24+ (Harness側クライアント用。Driver単体利用なら不要)
 - Python 3.13+ (ユニットテスト用)
 - Windowsデスクトップセッション(常駐QGISモデルのため)
 
