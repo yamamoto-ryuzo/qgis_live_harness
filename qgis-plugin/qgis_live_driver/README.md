@@ -1,4 +1,4 @@
-# QGIS Live Driver (`qgis_live`)
+# QGIS Live Driver (`qgis_live_driver`)
 
 実行中のQGISプロセスを**外部アプリから遠隔操作**するための、
 UIを持たない制御専用プラグイン。
@@ -54,7 +54,7 @@ UIを持たない制御専用プラグイン。
 - ②③はプラグイン内蔵の `http.server`(stdlibのみ)が `127.0.0.1` の
   空きポートで提供。ワーカースレッド→ `driver.submit()` メモリキュー →
   GUIスレッドのQTimerが①と同じ経路で実行する
-- ポート等の接続情報は **`~/.qgis-live/<pid>-qgis_live.json`** に書き出される
+- ポート等の接続情報は **`~/.qgis-live/<pid>-qgis_live_driver.json`** に書き出される
   (`QGIS_LIVE_REGISTRY` で変更可)。クライアントはここから自動検出できる
 - ④ `mcp_stdio.py` はstdlibのみで動く同梱shim。spawn側にQGIS/Node不要。
   レジストリからlive dirを自動検出してstdio↔JSONLを中継する
@@ -63,7 +63,7 @@ UIを持たない制御専用プラグイン。
 
 | エンドポイント | 内容 |
 |---|---|
-| `GET /api/health` | `{"ok":true,"pid":...,"plugin":"qgis_live"}` |
+| `GET /api/health` | `{"ok":true,"pid":...,"plugin":"qgis_live_driver"}` |
 | `GET /api/tools` | ツール仕様JSON(function calling系AIが読む用) |
 | `POST /api/pyeval` | `{"code":"..."}` → `{"result":...}` |
 | `POST /api/eval` | view非所持のため unsupported を返す |
@@ -74,7 +74,7 @@ UIを持たない制御専用プラグイン。
 
 環境変数 `WEBENGINE_LIVE_DIR` が設定された状態でQGISが起動すると、
 `initGui` 時に `live_driver.py` が起動し
-`WEBENGINE_LIVE_DIR/qgis-<pid>/qgis_live/` をポーリングする:
+`WEBENGINE_LIVE_DIR/qgis-<pid>/qgis_live_driver/` をポーリングする:
 
 ```
 外部アプリ → commands.jsonl に1行1JSONを追記
@@ -93,7 +93,7 @@ UIを持たない制御専用プラグイン。
 # このリポジトリから(全プラグイン一括deploy)
 powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
 
-# または手動: このフォルダを python/plugins/qgis_live/ へコピーし、
+# または手動: このフォルダを python/plugins/qgis_live_driver/ へコピーし、
 # QGISのプラグイン管理で有効化
 ```
 

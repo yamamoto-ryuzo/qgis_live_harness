@@ -150,7 +150,7 @@ export async function reloadPlugin({ liveBase = LIVE_BASE, deploy: doDeploy = tr
     console.log(`[reload] ${id}: ${JSON.stringify(res)}`);
     // 新しいviewがindex.htmlを読み込み終わるまで待つ。
     // reload直後は旧viewが破棄中でeval timeoutすることがあるのでwaitForで吸収する。
-    // viewを持たない制御プラグイン(qgis_live等)はスキップ
+    // viewを持たない制御プラグイン(qgis_live_driver等)はスキップ
     const hasUi = await page.pyeval("driver.view is not None").catch(() => false);
     if (hasUi) {
       await page.waitFor('[data-testid="layer-list"]', 60000);
@@ -169,7 +169,7 @@ export async function devReload({ liveBase = LIVE_BASE } = {}) {
   const dirs = await ensureQgis({ liveBase });
   for (const d of dirs) {
     const page = new LivePage(d.dir);
-    // viewを持たない制御プラグイン(qgis_live等)はdevreload対象外
+    // viewを持たない制御プラグイン(qgis_live_driver等)はdevreload対象外
     const hasUi = await page.pyeval("driver.view is not None").catch(() => false);
     if (!hasUi) continue;
     await page.devreload();

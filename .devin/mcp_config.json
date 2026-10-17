@@ -6,7 +6,7 @@
     },
     "qgis-live-py": {
       "command": "python",
-      "args": ["C:/devin/qgis-webengine-plugin/qgis-plugin/qgis_live/mcp_stdio.py"]
+      "args": ["C:/devin/qgis-webengine-plugin/qgis-plugin/qgis_live_driver/mcp_stdio.py"]
     }
   }
 }

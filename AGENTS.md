@@ -11,9 +11,9 @@
 ```
 [エージェント/人間]
    │  MCP (scripts/qgis-mcp.mjs, stdio)  ← .devin/mcp_config.json で登録済
-   │  MCP (qgis_live内蔵 /mcp, Streamable HTTP)
-   │  MCP (qgis_live/mcp_stdio.py, 同梱stdio shim)
-   │  REST (qgis_live内蔵 /api/*) または CLI (npm run live:*)
+   │  MCP (qgis_live_driver内蔵 /mcp, Streamable HTTP)
+   │  MCP (qgis_live_driver/mcp_stdio.py, 同梱stdio shim)
+   │  REST (qgis_live_driver内蔵 /api/*) または CLI (npm run live:*)
    ▼
 [クライアント層] scripts/live-drive.mjs (LivePage) / qgis-session.mjs
    │  ファイルJSONL: commands.jsonl → results.jsonl
@@ -44,11 +44,11 @@
 - `qgis-plugin/` — プラグイン群のルート。**フォルダ名=プラグインID**で複数管理。
   `webengine_plugin/` がその1つ。QGIS依存は `bridge.py` に閉じ込める。
   deploy時に `python/plugins/<フォルダ名>` へ配置される。
-  `qgis_live/` はWebEngineを持たない制御専用プラグイン(pyeval+地図キャンバス
+  `qgis_live_driver/` はWebEngineを持たない制御専用プラグイン(pyeval+地図キャンバス
   スクショのみ)で、任意プラグインの遠隔操作基盤として常駐させられる。
   内蔵HTTPサーバ(`/mcp`=MCP Streamable HTTP、`/api/*`=REST)と
   同梱stdio shim(`mcp_stdio.py`)も持ち、接続情報は
-  `~/.qgis-live/<pid>-qgis_live.json` に書き出す(QGIS_LIVE_REGISTRYで変更可)
+  `~/.qgis-live/<pid>-qgis_live_driver.json` に書き出す(QGIS_LIVE_REGISTRYで変更可)
 - `qgis-plugin/<id>/logic.py` — QGIS非依存の純粋ロジック。pytest対象
 - `qgis-plugin/<id>/live_driver.py` — L2検証用。実QGIS内でJS実行を仲介(後述)
 - `qgis-plugin/<id>/ui/` — HTML/CSS/JSフロントエンド。QGIS無しの通常ブラウザでも動く(mock使用)
@@ -138,7 +138,7 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
   `qgis_screenshot` / `qgis_devreload` / `qgis_reload`。
   各toolは内部でensureするためQGIS未起動でも自動で立ち上がる。
   stdoutはプロトコル専用のためログはstderrに出る。
-  **プラグイン側にもMCP/REST面がある**: `qgis_live` が `POST /mcp`
+  **プラグイン側にもMCP/REST面がある**: `qgis_live_driver` が `POST /mcp`
   (Streamable HTTP)と `POST /api/*`(REST)を内蔵し、同梱 `mcp_stdio.py` が
   stdioクライアントをファイルJSONLへ中継する(Node不要)。
   toolsは `qgis_pyeval`/`qgis_screenshot` のみの最小構成(実行系はpyevalで網羅できる)

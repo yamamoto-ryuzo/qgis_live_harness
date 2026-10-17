@@ -133,7 +133,7 @@ class LiveDriver:
             return
         reply({
             "id": cid,
-            "error": f"type={ctype} unsupported: qgis_live has no WebEngine view "
+            "error": f"type={ctype} unsupported: qgis_live_driver has no WebEngine view "
                      "(pyeval/screenshot only)",
         })
 

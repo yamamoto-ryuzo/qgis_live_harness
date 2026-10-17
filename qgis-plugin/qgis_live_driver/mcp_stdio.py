@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""qgis_live用 MCP stdio ブリッジ(標準ライブラリのみ)。
+"""qgis_live_driver用 MCP stdio ブリッジ(標準ライブラリのみ)。
 
 MCPクライアントがこのスクリプトをspawnするだけで、
 稼働中QGISへの遠隔操作がMCPツールとして使える:
 
-    python .../plugins/qgis_live/mcp_stdio.py
+    python .../plugins/qgis_live_driver/mcp_stdio.py
 
 動作: stdinの1行1JSON-RPCメッセージを受け、tools/callを
 live dir の commands.jsonl へ追記 → results.jsonl の結果を待ち
 MCP形式でstdoutへ返す。
 
 接続先は ~/.qgis-live/<pid>-<plugin>.json のレジストリから自動検出
-(QGIS側で qgis_live が WEBENGINE_LIVE_DIR 付きで起動している必要あり)。
-QGIS_LIVE_PLUGIN で対象プラグインを指定できる(既定: qgis_live)。
+(QGIS側で qgis_live_driver が WEBENGINE_LIVE_DIR 付きで起動している必要あり)。
+QGIS_LIVE_PLUGIN で対象プラグインを指定できる(既定: qgis_live_driver)。
 """
 
 import base64
@@ -25,7 +25,7 @@ REG_DIR = os.environ.get(
     "QGIS_LIVE_REGISTRY",
     os.path.join(os.path.expanduser("~"), ".qgis-live"),
 )
-TARGET_PLUGIN = os.environ.get("QGIS_LIVE_PLUGIN", "qgis_live")
+TARGET_PLUGIN = os.environ.get("QGIS_LIVE_PLUGIN", "qgis_live_driver")
 TIMEOUT = 120.0
 POLL = 0.2
 
@@ -132,7 +132,7 @@ def _tool_call(name, args):
         _live_dir = _find_live_dir()
         if _live_dir is None:
             return {"content": [{"type": "text", "text":
-                                 "no live qgis_live driver "
+                                 "no live qgis_live_driver driver "
                                  f"(registry: {REG_DIR})"}],
                     "isError": True}
     if name == "qgis_pyeval":

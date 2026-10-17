@@ -36,7 +36,7 @@ class QgisLivePlugin:
     公開面:
       - ファイルJSONL (commands.jsonl/results.jsonl) — 言語非依存の基底
       - HTTP 127.0.0.1:<auto port> (/mcp = MCP Streamable HTTP, /api/* = REST)
-      - ~/.qgis-live/<pid>-qgis_live.json — 上記への接続情報(自動検出用)
+      - ~/.qgis-live/<pid>-qgis_live_driver.json — 上記への接続情報(自動検出用)
     """
 
     def __init__(self, iface):
@@ -47,24 +47,24 @@ class QgisLivePlugin:
 
     def initGui(self):
         live_base = os.environ.get("WEBENGINE_LIVE_DIR")
-        _log(f"qgis_live initGui: live_base={live_base!r}")
+        _log(f"qgis_live_driver initGui: live_base={live_base!r}")
         if not live_base:
             return
         live_dir = os.path.join(live_base, f"qgis-{os.getpid()}", __package__)
         try:
             from .live_driver import LiveDriver
             self.driver = LiveDriver(live_dir, iface=self.iface)
-            _log(f"qgis_live LiveDriver active: {live_dir}")
+            _log(f"qgis_live_driver LiveDriver active: {live_dir}")
         except Exception:
-            _log("qgis_live LiveDriver failed:\n" + traceback.format_exc())
+            _log("qgis_live_driver LiveDriver failed:\n" + traceback.format_exc())
             return
 
         try:
             from .mcp_http import start_http
             self._http, port = start_http(self.driver)
-            _log(f"qgis_live HTTP API: http://127.0.0.1:{port}/")
+            _log(f"qgis_live_driver HTTP API: http://127.0.0.1:{port}/")
         except Exception:
-            _log("qgis_live HTTP failed:\n" + traceback.format_exc())
+            _log("qgis_live_driver HTTP failed:\n" + traceback.format_exc())
             port = None
 
         try:
@@ -81,7 +81,7 @@ class QgisLivePlugin:
                     "started": time.time(),
                 }, f)
         except Exception:
-            _log("qgis_live registry write failed:\n" + traceback.format_exc())
+            _log("qgis_live_driver registry write failed:\n" + traceback.format_exc())
 
     def unload(self):
         if self._http is not None:

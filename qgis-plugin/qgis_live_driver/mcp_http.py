@@ -1,4 +1,4 @@
-"""qgis_live内蔵HTTPサーバ。標準ライブラリのみで実装。
+"""qgis_live_driver内蔵HTTPサーバ。標準ライブラリのみで実装。
 
 MCP (Streamable HTTP) と plain REST を同一ポートで提供し、
 MCP非対応のAI/アプリからもHTTP POSTだけでQGISを操作できるようにする。
@@ -94,7 +94,7 @@ class _Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/api/health":
             self._json(200, {"ok": True, "pid": os.getpid(),
-                             "plugin": "qgis_live"})
+                             "plugin": "qgis_live_driver"})
         elif self.path == "/api/tools":
             self._json(200, {"tools": TOOLS})
         else:

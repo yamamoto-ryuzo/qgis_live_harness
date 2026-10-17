@@ -35,7 +35,7 @@ for (const { dir: liveDir, pluginId } of liveDirs) {
   console.log(`live dir: ${liveDir}`);
   await page.reset();
 
-  // WebEngine viewを持たない制御専用プラグイン(qgis_live等)は
+  // WebEngine viewを持たない制御専用プラグイン(qgis_live_driver等)は
   // UIチェックではなく pyeval/キャンバススクショの生存確認に切り替える。
   // プローブが1回限りだとコマンド喪失時にUI経路へ誤分岐してevalを
   // 延々と送り続けるため、resetを挟んでリトライし、
