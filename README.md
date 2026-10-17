@@ -6,10 +6,36 @@
 
 ## 構成(2層)
 
+```mermaid
+flowchart LR
+    C["クライアント<br/>AI / CI / 人間"]
+
+    subgraph H["QGIS Live Harness = E2Eプラグイン開発・検証環境(このリポジトリ)"]
+        direction TB
+        API["クライアントAPI<br/>LivePage / live:*"]
+        SESSION["セッション<br/>ensure / reload / devreload"]
+        TEST["検証<br/>L1 Playwright / L2 test:live"]
+        MCPAD["MCPアダプタ<br/>qgis-mcp.mjs"]
+        API ~~~ SESSION
+        SESSION ~~~ TEST
+        TEST ~~~ MCPAD
+    end
+
+    subgraph D["QGIS Live Driver(QGIS側の手)"]
+        IO["JSONL・/api/*(REST)<br/>/mcp(MCP)・stdio shim"]
+    end
+    Q["QGIS内部<br/>iface / QgsProject / 他プラグイン"]
+
+    C --> H
+    C -.->|"Harness不要で直接接続"| IO
+    H -->|ファイルJSONL| IO
+    IO --> Q
+```
+
 | 層 | 名前 | 役割 |
 |---|---|---|
 | QGIS側の手 | **QGIS Live Driver** (`qgis_live_driver`) | QGIS内で動く制御専用プラグイン。**このリポジトリに依存しない汎用部品**で、任意のQGISへ単独導入して遠隔操作面を得られる |
-| 外側の装具 | **QGIS Live Harness** (このリポジトリ全体) | Driverの操作面の上に乗る、クライアントAPI・セッション管理・ホットリロード・検証の基盤。**リポジトリがあって初めて成り立つ** |
+| E2Eプラグイン開発・検証環境<br/>(外側の装具) | **QGIS Live Harness** (このリポジトリ全体) | Driverの操作面の上に乗る、クライアントAPI・セッション管理・ホットリロード・検証の基盤。**リポジトリがあって初めて成り立つ** |
 
 さらに `qgis-plugin/webengine_plugin/` を、Harness上で育てる開発対象プラグインの
 「器」(Qt WebEngineベースのテンプレート)として同梱する。
