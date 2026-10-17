@@ -1,10 +1,10 @@
-# rename-repo.ps1 — rename repo dir qgis-webengine-plugin -> qgis-live-harness
+# rename-repo.ps1 — rename repo dir qgis-live-harness -> qgis_live_harness
 # Run AFTER closing Devin/IDE (the agent process holds the workspace dir).
 # If a junction already exists at the new name (alias), it is removed first.
 # Usage: powershell -ExecutionPolicy Bypass -File scripts\rename-repo.ps1
 param(
-    [string]$OldPath = "C:\devin\qgis-webengine-plugin",
-    [string]$NewPath = "C:\devin\qgis-live-harness",
+    [string]$OldPath = "C:\devin\qgis-live-harness",
+    [string]$NewPath = "C:\devin\qgis_live_harness",
     [string]$ProfilePlugins = "$env:APPDATA\QGIS\QGIS4\profiles\geo_custom\python\plugins"
 )
 $ErrorActionPreference = "Stop"
@@ -12,7 +12,7 @@ $ErrorActionPreference = "Stop"
 # 1. stop processes that hold repo paths (QGIS, renderers, stale MCP shims)
 Get-Process qgis-bin, QtWebEngineProcess -ErrorAction SilentlyContinue | Stop-Process -Force
 Get-CimInstance Win32_Process | Where-Object {
-    $_.CommandLine -like "*qgis-webengine-plugin*"
+    $_.CommandLine -like "*qgis-live-harness*" -and $_.ProcessId -ne $PID
 } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
 Start-Sleep 2
 

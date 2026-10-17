@@ -1,5 +1,5 @@
 {
-  "name": "qgis-live-harness",
+  "name": "qgis_live_harness",
   "version": "0.1.0",
   "private": true,
   "scripts": {

@@ -2,7 +2,7 @@
 
 **QGISプロセスをAI/外部スクリプトから自律駆動する制御基盤(ハーネス)** +
 Qt WebEngine ベースのプラグイン開発テンプレート。
-(リポジトリ/ディレクトリ名: `qgis-live-harness`)
+(リポジトリ/ディレクトリ名: `qgis_live_harness`)
 
 ## 命名
 
@@ -192,7 +192,7 @@ flowchart LR
 | `qgis_live_driver/mcp_stdio.py` | 開発版の器 | stdioブリッジ。QGIS無しのspawn側でもstdlibだけで動き、`~/.qgis-live/` レジストリからlive dirを自動検出 |
 | `qgis_live_driver` 内蔵 `/mcp` `/api/*` | 開発版の器 | HTTP面。MCP未対応のAIでも `POST /api/pyeval {"code":"..."}` だけで操作できる |
 
-### 3. AIによるプラグイン完全自動化環境 — リポジトリ基盤(器: `webengine_plugin`)
+### 3. AIによるプラグイン完全自動化環境 — QGIS Live Harness(このリポジトリ)
 
 ```mermaid
 flowchart TD
