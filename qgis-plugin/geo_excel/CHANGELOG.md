@@ -1,5 +1,42 @@
 # CHANGELOG — geo_excel
 
+## 1.7.0
+
+- **翻訳方式を `i18n/<lang>.json` に移行**(Harness横断の方針変更)。
+  `.ts`/`.qm`・lupdate/lrelease・`generate_qm.py`・`TRANSLATION.md` を廃止し、
+  `{"context": {"英語ソース": "翻訳"}}` のJSONカタログを新設。
+  `i18n_json.py`(全プラグイン共通ローダ)の `install_translator()` で
+  起動時ロード。`tr()`/`translate()`/`.ui` 文字列は無改変のまま動作。
+  未登録の文字列は英語にフォールバック。
+
+## 1.6.0
+
+- **設定ダイアログを新設**(`settings_dialog.py`、メニュー `Settings...`)。
+  - 環境チェックの列挙: pywin32(win32com) / Excel COM登録(レジストリ+
+    「起動テスト」で実起動確認) / ドキュメントフォルダ / 出力先
+  - 既定値(QSettings `geo_excel/*`): 出力先フォルダ・DPI・
+    一覧/単票テンプレート指定・自動適用の有無
+  - アクティブレイヤの `xlsout_*`/`dpi` レイヤ変数を表で確認・編集・
+    「不足変数へ既定値を適用」「自動テンプレートを再生成」
+  - 「必要なもの」セクションで実行要件(Excel・pywin32・テンプレート
+    プレースホルダ・マップテーマ等)を列挙
+- **既定値モジュール `settings.py` を新設**:
+  - 出力先既定 = `<ドキュメント>/geo_excel`
+    (`QStandardPaths.DocumentsLocation`。マイドキュメント汎用化)
+  - `xlsout_output_path_variable` 既定 = `concat('<レイヤ名>_', $id, '.xlsx')`
+    (一覧は `<レイヤ名>_list.xlsx`)
+  - テンプレート未指定時は `<出力先>/templates/<レイヤ名>_<種別>.xlsx` に
+    `##Attach::`/`##ListInsert::` プレースホルダ入りの最小xlsxを
+    レイヤのフィールドから自動生成(zipfileによる直接生成)
+- **実行時の自動適用**: `_exec_script` が実行前に
+  `ensure_layer_variables` で不足している必須レイヤ変数を既定値で補完
+  (出力先フォルダ自動作成含む)。QSettings `geo_excel/auto_apply` で
+  無効化可(既定ON)。これによりレイヤ変数未設定でも即実行できる
+- **bridge メソッド追加**: `settings()`(既定値・環境・要件列挙) /
+  `applyDefaults(layer_id, script)` / `checkExcel()`(実起動検証) /
+  `openSettings()`
+- i18n: 新規UI文字列を9言語の `.ts`/`.qm` に追加
+
 ## 1.5.0
 
 - 採用言語セット(AGENTS.md)に合わせ de/es/fr/hi/it/pt/ru/zh の

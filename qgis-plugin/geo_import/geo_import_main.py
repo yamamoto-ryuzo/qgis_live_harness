@@ -1,10 +1,11 @@
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtCore import QSettings, qVersion, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 from qgis.core import QgsMessageLog, Qgis
 from .geo_import_dialog import GeoImportDialog
 from .geo_import_dialog_settings import GeoImportDialogSettings
 import os.path
+from .i18n_json import install_translator
 from .settings import Settings
 from .util import Util
 
@@ -29,73 +30,8 @@ class GeoImport:
         self.plugin_dir = os.path.dirname(__file__)
         QgsMessageLog.logMessage(u'plugin directory: {}'.format(self.plugin_dir), self.settings.DLG_CAPTION, Qgis.Info)
 
-        # ロケールを初期化（安全に取得）
-        locale_value = QSettings().value('locale/userLocale', 'en_US')
-        if locale_value and len(locale_value) >= 2:
-            locale = locale_value[0:2]
-        else:
-            locale = 'en'
-        QgsMessageLog.logMessage(u'locale: {}'.format(locale), self.settings.DLG_CAPTION, Qgis.Info)
-        # Use geo_import_*.qm naming convention
-        locale_path_geo = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'geo_import_{}.qm'.format(locale))
-
-        locale_path_legacy = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'CKANBrowser_{}.qm'.format(locale))
-
-        locale_path_geo_en = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'geo_import_en.qm'
-        )
-
-        locale_path_legacy_en = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'CKANBrowser_en.qm'
-        )
-
-        # Choose which English fallback to use if present
-        if os.path.exists(locale_path_geo_en):
-            locale_path_en = locale_path_geo_en
-        else:
-            locale_path_en = locale_path_legacy_en
-
-        # Decide which file to use for the chosen locale
-        if os.path.exists(locale_path_geo):
-            locale_path = locale_path_geo
-        elif os.path.exists(locale_path_legacy):
-            locale_path = locale_path_legacy
-        else:
-            # current locale file not found -> fall back to English
-            locale = 'en'
-            if os.path.exists(locale_path_geo_en):
-                locale_path = locale_path_geo_en
-            else:
-                locale_path = locale_path_legacy_en
-
-        # ロケールが英語でない場合、未翻訳要素用のフォールバックとして英語を追加でロード
-        if locale != 'en':
-            QgsMessageLog.logMessage(u'loading "en" fallback: {}'.format(locale_path_en), self.settings.DLG_CAPTION, Qgis.Info)
-            self.translator_en = QTranslator()
-            self.translator_en.load(locale_path_en)
-            if not QCoreApplication.installTranslator(self.translator_en):
-                QgsMessageLog.logMessage(u'could not install translator: {}'.format(locale_path_en), self.settings.DLG_CAPTION, Qgis.Critical)
-            else:
-                QgsMessageLog.logMessage(u'locale "en" installed', self.settings.DLG_CAPTION, Qgis.Info)
-
-        # ロケールに応じた翻訳をロード
-        if os.path.exists(locale_path):
-            self.translator = QTranslator()
-            self.translator.load(locale_path)
-            if not QCoreApplication.installTranslator(self.translator):
-                QgsMessageLog.logMessage(u'could not install translator: {}'.format(locale_path), self.settings.DLG_CAPTION, Qgis.Critical)
-            else:
-                QgsMessageLog.logMessage(u'locale "{}" installed'.format(locale), self.settings.DLG_CAPTION, Qgis.Info)
+        # 言語を初期化(i18n/<lang>.json をQGISの言語設定に合わせて載せる)
+        self.translator = install_translator(self.plugin_dir)
 
         # 設定をロード
         self.settings.load()

@@ -115,7 +115,7 @@ def validate_plugin_package(zip_path):
                 print(f"UI files found: {len(ui_files)}")
             
             # Check for translation files
-            translation_files = [f for f in file_list if f.endswith('.qm') or f.endswith('.ts')]
+            translation_files = [f for f in file_list if f.endswith('.json') and '/i18n/' in f]
             if translation_files:
                 print(f"Translation files found: {len(translation_files)}")
             

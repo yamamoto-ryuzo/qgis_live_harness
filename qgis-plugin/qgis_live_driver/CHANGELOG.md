@@ -3,6 +3,38 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
+## [0.13.0] - 2026-10-19
+
+### Added
+
+- **レイヤ整理サービス `layer_org`**(`layer_org.py`):
+  プラグイン横断で追加レイヤの表示を標準化する共有サービス。
+  `plugins['qgis_live_driver'].layer_org.place_all([(layer, ctx)])`
+  で、プロファイルJSONのルールに従いレイヤをグループ配置・
+  リネーム・.qmlスタイル適用する。プロファイルは
+  `<plugin>/layer_org/*.json`(同梱デフォルト) +
+  `~/.qgis-live/layer_org/*.json`(ユーザ/業界別、同名優先)の
+  2階層で、アクティブは QSettings
+  `qgis_live_driver/layer_org/profile`。match条件(format/ext/
+  provider/layer_type/geom/plugin/name_re/dataset_re/url_re/tags)
+  を全キーANDで先勝ち評価し、`root`/`fallback`/`rename`/`style`/
+  `top`/`collapsed` を適用する。同梱 `default.json` は
+  サービス系・ベクタ(geometry別)・ラスタの汎用配置。
+  bridgeメソッド `layerOrgProfiles`/`layerOrgRules`/
+  `setLayerOrgProfile`/`organizeLayers`(dry対応)/`placeLayer` を
+  追加し `bridge_call`/`describe_plugins` から到達可能。
+  geo_import は読込で追加したレイヤを自動でこのサービスに渡す
+  (ドライバ未ロード・プロファイル無効時は従来のflat追加に
+  フォールバック)
+
+### Changed
+
+- 翻訳方式を `i18n/<lang>.json` に移行(Harness横断の方針変更)。
+  `.ts`/`.qm` を廃止し `{"context": {"英語ソース": "翻訳"}}` の
+  JSONカタログを新設。`i18n_json.py`(全プラグイン共通ローダ)の
+  `install_translator()` で起動時ロードに統一。
+  `QT_TRANSLATE_NOOP` 含む全翻訳経路は無改変で動作。
+
 ## [0.12.0] - 2026-10-18
 
 ### Added

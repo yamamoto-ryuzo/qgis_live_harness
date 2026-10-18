@@ -5,6 +5,15 @@ All notable changes to the QGIS Legend View plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-10-19
+
+### Changed
+- 翻訳方式を `i18n/<lang>.json` に移行(Harness横断の方針変更)。
+  `.ts`/`.qm`・`i18n/LegendView.pro`・Makefileのtrans系ターゲットを廃止し、
+  `{"context": {"英語ソース": "翻訳"}}` のJSONカタログを新設。
+  `i18n_json.py`(全プラグイン共通ローダ)の `install_translator()` で
+  起動時ロードに統一。
+
 ## [2.5.0] - 2026-10-18
 
 ### Added

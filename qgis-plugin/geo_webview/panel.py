@@ -172,7 +172,7 @@ class GeoWebViewPanel(QDockWidget):
         
     def translate_ui(self):
         """UI要素のテキストを翻訳"""
-        # NOTE: lupdate がコンテキスト 'geo_webview' を検出できるよう
+        # NOTE: i18n/<lang>.json のコンテキスト 'geo_webview' に対応させるため
         # ラッパー関数ではなく QCoreApplication.translate を直接呼ぶこと
         from qgis.PyQt.QtCore import QCoreApplication
 

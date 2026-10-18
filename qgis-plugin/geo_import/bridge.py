@@ -118,7 +118,9 @@ class GeoImportBridge:
         "loadSelected": {
             "description":
                 "チェック済みリソースをQGISへ読み込む(追加ボタン押下相当)。"
-                "警告ダイアログは自動Ok応答しメッセージとして返す。",
+                "警告ダイアログは自動Ok応答しメッセージとして返す。"
+                "追加レイヤは qgis_live_driver のレイヤ整理プロファイルが"
+                "有効ならルールでグループ配置され、結果はorganizedに返る。",
             "example": {"method": "loadSelected", "args": []},
         },
         "status": {
@@ -210,6 +212,11 @@ class GeoImportBridge:
         st = p.settings
         searching = bool(getattr(dlg, "data_thread", None) is not None
                          and dlg.data_thread.isRunning()) if dlg else False
+        try:
+            cur_cache = bool(
+                st.use_local_cache(getattr(st, "ckan_url", "") or ""))
+        except Exception:
+            cur_cache = None
         return self._ok({
             "dialog": dlg is not None,
             "dialogVisible": bool(dlg is not None and dlg.isVisible()),
@@ -221,6 +228,9 @@ class GeoImportBridge:
                 "ckan_url": getattr(st, "ckan_url", None),
                 "cache_dir": getattr(st, "cache_dir", None),
                 "results_limit": getattr(st, "results_limit", None),
+                "use_local_cache_all": getattr(st, "use_local_cache_all", None),
+                "local_cache_sites": getattr(st, "local_cache_sites", None),
+                "current_site_local_cache": cur_cache,
             },
         })
 
@@ -351,4 +361,9 @@ class GeoImportBridge:
             return err
         with _DialogAutoReply() as cap:
             dlg.load_resource_clicked()
-        return self._ok({"messages": cap.messages})
+        return self._ok({
+            "messages": cap.messages,
+            # qgis_live_driver の LayerOrganizer が有効なら、
+            # 追加レイヤのグループ配置結果(無効/未適用ならNone)
+            "organized": getattr(dlg, "last_org_report", None),
+        })

@@ -23,15 +23,8 @@
 #################################################
 
 
-#Add iso code for any locales you want to support here (space separated)
-# default is no locales
-LOCALES = ja en
-
-# If locales are enabled, set the name of the lrelease binary on your system. If
-# you have trouble compiling the translations, you may have to specify the full path to
-# lrelease
-LRELEASE = lrelease
-#LRELEASE = lrelease-qt4
+# 翻訳は i18n/<lang>.json(de es fr hi it ja pt ru zh)を直接編集する方式。
+# .ts/.qm/lrelease は使わない(AGENTS.md「国際化(i18n)」参照)。
 
 
 # translation
@@ -90,10 +83,7 @@ compile: $(COMPILED_RESOURCE_FILES)
 %.py : %.qrc $(RESOURCES_SRC)
 	pyrcc5 -o $*.py  $<
 
-%.qm : %.ts
-	$(LRELEASE) $<
-
-test: compile transcompile
+test: compile
 	@echo
 	@echo "----------------------"
 	@echo "Regression Test Suite"
@@ -111,7 +101,7 @@ test: compile transcompile
 	@echo "e.g. source run-env-linux.sh <path to qgis install>; make test"
 	@echo "----------------------"
 
-deploy: compile doc transcompile
+deploy: compile doc
 	@echo
 	@echo "------------------------------------------"
 	@echo "Deploying plugin to your .qgis2 directory."
@@ -179,28 +169,8 @@ upload: zip
 	@echo "-------------------------------------"
 	$(PLUGIN_UPLOAD) $(PLUGINNAME).zip
 
-transup:
-	@echo
-	@echo "------------------------------------------------"
-	@echo "Updating translation files with any new strings."
-	@echo "------------------------------------------------"
-	@chmod +x scripts/update-strings.sh
-	@scripts/update-strings.sh $(LOCALES)
-
-transcompile:
-	@echo
-	@echo "----------------------------------------"
-	@echo "Compiled translation files to .qm files."
-	@echo "----------------------------------------"
-	@chmod +x scripts/compile-strings.sh
-	@scripts/compile-strings.sh $(LRELEASE) $(LOCALES)
-
-transclean:
-	@echo
-	@echo "------------------------------------"
-	@echo "Removing compiled translation files."
-	@echo "------------------------------------"
-	rm -f i18n/*.qm
+# 翻訳は i18n/<lang>.json を直接編集する(AGENTS.md「国際化(i18n)」参照)。
+# 未翻訳の検出: python ../../scripts/i18n_tool.py check
 
 clean:
 	@echo

@@ -1,0 +1,26 @@
+{
+  "SearchWidget": {
+    "Angle (deg):": "Ángulo (grados):",
+    "Angle: Not specified": "Ángulo: no especificado",
+    "Angle: {0}": "Ángulo: {0}",
+    "Angle: {0}°": "Ángulo: {0}°",
+    "Edit Tab Settings: {0}": "Editar configuración de pestaña: {0}",
+    "Exact Match": "Coincidencia exacta",
+    "Forward Match": "Coincidencia de prefijo",
+    "Fuzzy Search": "Búsqueda difusa",
+    "Geo Search: ": "Búsqueda Geo: ",
+    "OR search for multiple fields": "Búsqueda OR en varios campos",
+    "Owner Search": "Búsqueda de propietario",
+    "Partial Match": "Coincidencia parcial",
+    "Results": "Resultados",
+    "Scale:": "Escala:",
+    "Scale: Not specified": "Escala: no especificada",
+    "Scale: {0}": "Escala: {0}",
+    "Search Results: {0} items": "Resultados de búsqueda: {0} elementos",
+    "Search all fields": "Buscar en todos los campos",
+    "Set current value": "Establecer valor actual"
+  },
+  "plugin": {
+    "Geo Search": "Búsqueda Geo"
+  }
+}

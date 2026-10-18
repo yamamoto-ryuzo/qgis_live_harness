@@ -27,6 +27,8 @@ import os
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.core import QgsExpressionContextUtils, QgsProject, QgsVectorLayer
 
+from . import settings as _settings
+
 # レイヤ変数の既知キー(scripts側の定義と対応)
 _SCRIPT_DEFS = [
     {
@@ -110,6 +112,7 @@ class GeoExcelBridge:
         "選択した地物の属性をExcel単票テンプレートへ差し込み出力したい",
         "選択地物または全地物の単票を一括出力したい",
         "帳票出力用レイヤ変数(xlsout_*)の設定状況を確認・変更したい",
+        "帳票出力に必要な既定値(出力先・テンプレート)を自動設定したい",
     ]
     METHOD_DOCS = {
         "run": {
@@ -143,6 +146,29 @@ class GeoExcelBridge:
                 "{変数名: 値}。値Noneで削除。",
             "example": {"method": "setLayerVariables",
                         "args": [{"xlsout_output_path_fixed": "C:/out"}]},
+        },
+        "settings": {
+            "description":
+                "既定設定(出力先=ドキュメント/geo_excel等・QSettings)と"
+                "環境チェック(win32com/Excel登録/出力先)・必要物の列挙を返す。",
+            "example": {"method": "settings", "args": []},
+        },
+        "applyDefaults": {
+            "description":
+                "対象レイヤ(既定=アクティブ)の不足レイヤ変数へ既定値を適用する。"
+                "script省略で全スクリプト分。出力先フォルダの作成と"
+                "テンプレート自動生成も行う。",
+            "example": {"method": "applyDefaults", "args": []},
+        },
+        "checkExcel": {
+            "description":
+                "Excelを実際にCOM起動して検証する(数秒ブロック)。"
+                "既存ExcelインスタンスがあればQuitしない。",
+            "example": {"method": "checkExcel", "args": []},
+        },
+        "openSettings": {
+            "description": "設定ダイアログを開く。",
+            "example": {"method": "openSettings", "args": []},
         },
     }
 
@@ -332,6 +358,55 @@ class GeoExcelBridge:
             "results": results,
             "messages": dlg.messages,
         })
+
+    # ---------- 既定設定・環境 ----------
+
+    def settings(self):
+        """既定設定・環境チェック・必要物の列挙を返す。"""
+        info = {
+            "environment": _settings.environment_report(),
+            "defaults": _settings.current_settings(),
+            "requirements": _settings.requirements(),
+            "script_variables": _settings.script_variable_spec(),
+        }
+        layer = self._layer()
+        if layer is not None:
+            info["layer"] = {"id": layer.id(), "name": layer.name()}
+            info["layer_variables"] = self._variables(layer)
+        return self._ok(info)
+
+    def applyDefaults(self, layer_id=None, script=None):
+        """不足レイヤ変数へ既定値を適用する(script省略で全スクリプト)。"""
+        layer = self._layer(layer_id)
+        if layer is None:
+            return self._err("vector layer not found or not active")
+        if script is None:
+            files = list(_settings.SCRIPT_VARS)
+        else:
+            entry = self._script_entry(script)
+            if entry is None:
+                return self._err(f"unknown script: {script}")
+            files = [entry["file"]]
+        applied, errors = {}, []
+        for f in files:
+            rep = _settings.ensure_layer_variables(layer, f)
+            applied.update(rep["applied"])
+            errors.extend(rep["errors"])
+        return self._ok({"layer_id": layer.id(), "layer": layer.name(),
+                         "applied": applied, "errors": errors,
+                         "variables": self._variables(layer)})
+
+    def checkExcel(self):
+        """Excelを実際にCOM起動して検証する(数秒ブロックする)。"""
+        rep = _settings.check_excel_launch()
+        if rep.get("ok"):
+            return self._ok(rep)
+        return self._err(rep.get("error", "Excel launch check failed"))
+
+    def openSettings(self):
+        """設定ダイアログを開く。"""
+        dlg = self._plugin.open_settings()
+        return self._ok({"opened": dlg is not None})
 
     # ---------- 実行環境 ----------
 

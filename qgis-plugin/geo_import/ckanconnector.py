@@ -82,13 +82,8 @@ class CkanConnector:
                 return True, []
             self.util.msg_log_error(u'error during local path check: {0}'.format(str(e)))
             
-        # サーバー接続確認
-        connection_ok, error_message = self.__check_connection(result)
-        if not connection_ok:
-            self.util.msg_log_error(u'server connection check failed: {0}'.format(error_message))
-            return False, QCoreApplication.translate('GeoImport', u'cc_api_not_accessible').format(error_message)
-            
-        self.util.msg_log_debug(u'server connection OK, fetching group list')
+        # 接続確認は __get_data 内で行うためここでは実施しない
+        self.util.msg_log_debug(u'fetching group list')
         return self.__get_data(result, 'action/group_list?all_fields=true')
 
     def test_groups(self, test_path):
@@ -111,13 +106,8 @@ class CkanConnector:
         except Exception as e:
             self.util.msg_log_error(u'test: error during local path check: {0}'.format(str(e)))
         
-        # サーバー接続確認
-        connection_ok, error_message = self.__check_connection(result)
-        if not connection_ok:
-            self.util.msg_log_error(u'test: server connection check failed: {0}'.format(error_message))
-            return False, QCoreApplication.translate('GeoImport', u'cc_api_not_accessible').format(error_message)
-            
-        self.util.msg_log_debug(u'test: server connection OK, fetching group list')
+        # 接続確認は __get_data 内で行うためここでは実施しない
+        self.util.msg_log_debug(u'test: fetching group list')
         return self.__get_data(result, 'action/group_list?all_fields=true')
 
     def package_search(self, text, groups=None, page=None, rows=None, start=None):
@@ -162,17 +152,19 @@ class CkanConnector:
                 return True, {'results': [], 'count': 0}
             self.util.msg_log_error(u'error during local path check: {0}'.format(str(e)))
             
-        # サーバー接続確認
-        connection_ok, error_message = self.__check_connection(result)
-        if not connection_ok:
-            self.util.msg_log_error(u'server connection check failed: {0}'.format(error_message))
-            return False, QCoreApplication.translate('GeoImport', u'cc_api_not_accessible').format(error_message)
-            
-        self.util.msg_log_debug(u'server connection OK, running package search')
+        # 接続確認は __get_data 内で行うためここでは実施しない
+        self.util.msg_log_debug(u'running package search')
 
-        # グループフィルタは使用しない
-        group_filter = ''
-        # self.util.msg_log_debug(u'group_filter: {0}'.format(group_filter))
+        # グループフィルタ(カテゴリ)。複数選択時はOR条件でfqに渡す
+        fq_query = ''
+        if groups:
+            try:
+                quoted = u' OR '.join(
+                    u'"{0}"'.format(str(g).replace('"', '')) for g in groups)
+                fq_query = u'&fq=groups:({0})'.format(quoted)
+            except Exception:
+                fq_query = ''
+        self.util.msg_log_debug(u'fq: {0}'.format(fq_query))
         # startパラメータ
         if start is not None:
             start_query = f'&start={start}'
@@ -193,7 +185,7 @@ class CkanConnector:
         rows_val = rows if rows is not None else self.settings.results_limit
         return self.__get_data(
             result,
-            u'action/package_search?q={0}&rows={1}{2}'.format(q, rows_val, start_query)
+            u'action/package_search?q={0}&rows={1}{2}{3}'.format(q, rows_val, start_query, fq_query)
         )
 
     def show_group(self, group_name, page=None):
@@ -203,12 +195,7 @@ class CkanConnector:
             self.util.msg_log_error(u'CKAN URL validation failed: {0}'.format(result))
             return ok, result
             
-        # サーバー接続確認
-        connection_ok, error_message = self.__check_connection(result)
-        if not connection_ok:
-            self.util.msg_log_error(u'server connection check failed: {0}'.format(error_message))
-            return False, QCoreApplication.translate('GeoImport', u'cc_api_not_accessible').format(error_message)
-
+        # 接続確認は __get_data 内で行うためここでは実施しない
         self.util.msg_log_debug(group_name)
         if page is None:
             start_query = ''

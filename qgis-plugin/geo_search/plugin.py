@@ -16,6 +16,7 @@ PyQt5 を直接参照していた箇所を qgis.PyQt 経由に統一し、
 """
 
 from .constants import OTHER_GROUP_NAME
+from .i18n_json import install_translator
 from .searchfeature import (
     SearchTextFeature,
     SearchTibanFeature,
@@ -65,43 +66,12 @@ class plugin(object):
         self.current_layers = []  # 追加されたレイヤを管理するリスト
 
     def _init_language(self):
-        """QGISとプラグインの言語設定を自動化"""
+        """QGISの言語設定に合わせて i18n/<lang>.json を載せる。
+
+        ソース文字列は英語。en または未対応言語では翻訳を載せない。
+        """
         try:
-            from qgis.PyQt.QtCore import QSettings, QLocale, QTranslator, QCoreApplication
-            import os
-            # QGIS の設定から言語取得（なければ OS のロケール）
-            settings = QSettings()
-            raw_locale = settings.value('locale/userLocale', None)
-            if raw_locale is None:
-                raw_locale = QLocale.system().name()
-
-            # raw_locale may be 'ja_JP' or 'en' etc. Normalize to language code 'ja', 'en', ...
-            try:
-                if isinstance(raw_locale, str) and '_' in raw_locale:
-                    lang_code = raw_locale.split('_')[0]
-                elif isinstance(raw_locale, str) and '-' in raw_locale:
-                    lang_code = raw_locale.split('-')[0]
-                else:
-                    lang_code = str(raw_locale)
-                lang_code = lang_code.lower()
-            except Exception:
-                lang_code = QLocale.system().name().split('_')[0]
-
-            # Supported languages (keep in sync with i18n/*.qm)
-            supported = { 'en', 'fr', 'de', 'es', 'it', 'pt', 'ja', 'zh', 'ru', 'hi' }
-
-            # If English, no translator needed (source strings are English)
-            if lang_code == 'en' or lang_code not in supported:
-                return
-
-            # Try to load a matching .qm file from the i18n folder.
-            qm_name = f"{lang_code}.qm"
-            qm_path = os.path.join(os.path.dirname(__file__), 'i18n', qm_name)
-            if os.path.exists(qm_path):
-                self.translator = QTranslator()
-                loaded = self.translator.load(qm_path)
-                if loaded:
-                    QCoreApplication.installTranslator(self.translator)
+            self.translator = install_translator(os.path.dirname(__file__))
         except Exception as e:
             # エラーは無視（QGIS外実行時など）。開発時はログで確認する。
             try:

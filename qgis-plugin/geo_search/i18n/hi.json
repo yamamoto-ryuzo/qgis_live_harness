@@ -1,0 +1,26 @@
+{
+  "SearchWidget": {
+    "Angle (deg):": "कोण (डिग्री):",
+    "Angle: Not specified": "कोण: निर्दिष्ट नहीं",
+    "Angle: {0}": "कोण: {0}",
+    "Angle: {0}°": "कोण: {0}°",
+    "Edit Tab Settings: {0}": "टैब सेटिंग संपादित करें: {0}",
+    "Exact Match": "सटीक मिलान",
+    "Forward Match": "उपसर्ग मिलान",
+    "Fuzzy Search": "अस्पष्ट खोज",
+    "Geo Search: ": "भू-खोज: ",
+    "OR search for multiple fields": "कई फ़ील्ड के लिए OR खोज",
+    "Owner Search": "मालिक खोज",
+    "Partial Match": "आंशिक मिलान",
+    "Results": "परिणाम",
+    "Scale:": "स्केल:",
+    "Scale: Not specified": "स्केल: निर्दिष्ट नहीं",
+    "Scale: {0}": "स्केल: {0}",
+    "Search Results: {0} items": "खोज परिणाम: {0} आइटम",
+    "Search all fields": "सभी फ़ील्ड खोजें",
+    "Set current value": "वर्तमान मान सेट करें"
+  },
+  "plugin": {
+    "Geo Search": "जियो खोज"
+  }
+}

@@ -8,69 +8,46 @@ import math
 import os
 import re
 import concurrent.futures
-from qgis.PyQt.QtCore import QCoreApplication, QSettings
+from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY, QgsMessageLog, Qgis
+from .i18n_json import catalog, lang_code
 # lazy import http_server inside methods to avoid circular import during QGIS plugin init
 
-# 生成HTMLページのラベル辞書(言語はQGISロケール由来。未対応言語は英語)
-_PAGE_STRINGS = {
-    'en': {
-        'lang': 'en',
-        'title': 'QMap Permalink - Map View',
-        'subtitle': 'Integrated map view by the QGIS plugin - using WMS endpoint',
-        'map_info': '📍 Map Information',
-        'center_x': 'Center (X)',
-        'center_y': 'Center (Y)',
-        'scale': 'Scale',
-        'crs': 'CRS',
-        'rotation': 'Rotation',
-        'image_size': 'Image Size',
-        'controls': '🔧 Controls',
-        'wms_image': '📷 Show WMS Image',
-        'refresh': '🔄 Refresh Map',
-        'copy_link': '🔗 Copy Permalink',
-        'tip_rotate': 'Rotate with north up',
-        'tip_reset': 'Reset north',
-        'copied': 'Permalink copied to clipboard!',
-        'err_title': 'QMap Permalink - Error',
-        'err_failed': 'Failed to generate the permalink page',
-        'back': '🔙 Back',
-        'home': '🏠 Home',
-    },
-    'ja': {
-        'lang': 'ja',
-        'title': 'QMap Permalink - 地図表示',
-        'subtitle': 'QGISプラグインによる統合地図表示 - WMSエンドポイント使用',
-        'map_info': '📍 地図情報',
-        'center_x': '中心座標 (X)',
-        'center_y': '中心座標 (Y)',
-        'scale': '縮尺',
-        'crs': '座標系',
-        'rotation': '回転角度',
-        'image_size': '画像サイズ',
-        'controls': '🔧 コントロール',
-        'wms_image': '📷 WMS画像を表示',
-        'refresh': '🔄 地図を更新',
-        'copy_link': '🔗 パーマリンクをコピー',
-        'tip_rotate': '北向きに回転',
-        'tip_reset': '北向きにリセット',
-        'copied': 'パーマリンクをクリップボードにコピーしました！',
-        'err_title': 'QMap Permalink - エラー',
-        'err_failed': 'パーマリンクページの生成に失敗',
-        'back': '🔙 戻る',
-        'home': '🏠 ホーム',
-    },
+# 生成HTMLページのラベル(i18n/<lang>.json の "geo_webview.page" context
+# に翻訳を登録。未登録は英語にフォールバック)
+_PAGE_CONTEXT = 'geo_webview.page'
+_PAGE_EN = {
+    'title': 'QMap Permalink - Map View',
+    'subtitle': 'Integrated map view by the QGIS plugin - using WMS endpoint',
+    'map_info': '📍 Map Information',
+    'center_x': 'Center (X)',
+    'center_y': 'Center (Y)',
+    'scale': 'Scale',
+    'crs': 'CRS',
+    'rotation': 'Rotation',
+    'image_size': 'Image Size',
+    'controls': '🔧 Controls',
+    'wms_image': '📷 Show WMS Image',
+    'refresh': '🔄 Refresh Map',
+    'copy_link': '🔗 Copy Permalink',
+    'tip_rotate': 'Rotate with north up',
+    'tip_reset': 'Reset north',
+    'copied': 'Permalink copied to clipboard!',
+    'err_title': 'QMap Permalink - Error',
+    'err_failed': 'Failed to generate the permalink page',
+    'back': '🔙 Back',
+    'home': '🏠 Home',
 }
 
 
-def _page_lang():
-    """生成HTMLページの言語コード('en'/'ja')を返す。"""
-    try:
-        raw = QSettings().value('locale/userLocale', '') or ''
-        lang = str(raw).split('_')[0].split('-')[0].lower()
-        return lang if lang in _PAGE_STRINGS else 'en'
-    except Exception:
-        return 'en'
+def _page_strings():
+    """生成HTMLページのラベル辞書を返す。"""
+    lang = lang_code()
+    page = catalog(os.path.dirname(os.path.abspath(__file__)),
+                   lang).get(_PAGE_CONTEXT, {})
+    strings = {key: page.get(en) or en for key, en in _PAGE_EN.items()}
+    strings['lang'] = lang if page else 'en'
+    return strings
 
 
 class GeoWebViewServerManager:
@@ -1696,7 +1673,7 @@ class GeoWebViewServerManager:
         # earlier in the request handling, so no additional special-case is necessary here.
 
         # OpenLayersを使用したHTMLページテンプレート
-        S = _PAGE_STRINGS[_page_lang()]
+        S = _page_strings()
         html_template = f"""<!DOCTYPE html>
 <html lang="{S['lang']}">
     <head>
@@ -2026,7 +2003,7 @@ class GeoWebViewServerManager:
 
     def _generate_error_html_page(self, error_message):
         """エラーページのHTMLを生成"""
-        S = _PAGE_STRINGS[_page_lang()]
+        S = _page_strings()
         error_html = f"""<!DOCTYPE html>
 <html lang="{S['lang']}">
 <head>

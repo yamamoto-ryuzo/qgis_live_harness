@@ -1,3 +1,10 @@
+# V4.3.0 翻訳方式を `i18n/<lang>.json` に移行
+- `.ts`/`.qm` を廃止し、`{"context": {"英語ソース": "翻訳"}}` の
+  JSONカタログを新設。`i18n_json.py`(全プラグイン共通ローダ)の
+  `install_translator()` で起動時ロードに統一。
+- `SearchWidget` context の未登録12メッセージ(角度/縮尺表示・
+  検索方式ラベル等)を全9言語で補完。
+
 # V4.2.0 国際化(i18n)対応
 - UI文字列を英語ソースに統一(`dialog.ui`/`result.ui`・各ダイアログコード)。
   `self.tr()`/`QCoreApplication.translate` で抽出可能な翻訳呼出に置き換え。

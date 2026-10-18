@@ -199,6 +199,13 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
                 for idx, server in enumerate(self.servers):
                     # サーバー名＋URLを表示
                     display_text = f"{server.short_title} ({server.url})"
+                    # ローカルダウンロード利用サイトはマーカーを付ける
+                    try:
+                        if server.api_url and self.settings.use_local_cache(server.api_url):
+                            display_text = QCoreApplication.translate(
+                                'GeoImport', '[local] ') + display_text
+                    except Exception:
+                        pass
                     i = QStandardItem(display_text)
                     i.setData(server)
                     if server.api_url is not None:

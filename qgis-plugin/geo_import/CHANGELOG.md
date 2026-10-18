@@ -1,3 +1,36 @@
+2.8.0 翻訳方式を `i18n/<lang>.json` に移行 + レイヤ整理連携
+- `.ts`/`.qm`・`.pro`・`generate_qm.py`・`update_translations.py`・
+  `TRANSLATION.md`・`scripts/*-strings.sh`・i18n補助スクリプト群を廃止。
+  `{"context": {"英語ソース": "翻訳"}}` のJSONカタログを新設し、
+  `i18n_json.py`(全プラグイン共通ローダ)の `install_translator()` で
+  起動時ロードに集約(CKANBrowser_*.qmレガシー探索とenフォールバックの
+  二重installを廃止)。言語セットを共通9言語(de/es/fr/hi/it/ja/pt/ru/zh)に
+  統一し en/fi カタログを廃止。
+- `GeoImport` contextの未登録5メッセージ(SQLiteキャッシュ等)を全9言語で補完。
+- レイヤ整理連携: `load_resource_clicked` で追加したレイヤを
+  `layersAdded` で収集し、`qgis_live_driver` の `layer_org` サービス
+  (プロファイルのルールでグループ配置・リネーム・スタイル適用)へ渡す。
+  ドライバ未ロード・プロファイル無効時は従来どおりプロジェクト直下に
+  flat追加。bridge `loadSelected` の応答に `organized` レポートを同梱。
+
+2.7.0 カタログ取得のデフォルトをネットワーク直接参照に変更
+- これまで検索・一覧はローカルSQLiteキャッシュ(Refresh SQLiteでの一括ダウンロード)
+  を前提としていたが、デフォルトをCKAN APIへの直接問い合わせ(ネットワークモード)
+  に変更。サイト切替時・検索時に一括ダウンロードを行わない。
+- ローカルダウンロード(SQLiteキャッシュ)はオプション化:
+  - メイン画面の「Use local download for this site」チェックでサイト単位に選択可
+    (`ckan_servers.json` の `local_cache_sites` にURL単位で保持)。
+    ON時は既存キャッシュがあればそれを利用し、無ければ一括ダウンロードを実行。
+    「Refresh SQLite」ボタン押下でもそのサイトのローカル利用が自動ONになる。
+  - 設定ダイアログの「Use local download for all sites」で全サイト一括指定可
+    (サイト個別設定より優先。QSettings `geo_import/use_local_cache_all`)。
+- ネットワークモードではカテゴリ一覧を `group_list` APIから取得し、
+  `package_search` の `fq=groups:` フィルタを実装してカテゴリ絞り込みに対応。
+- データプロバイダ画面のサーバー一覧でローカル利用サイトに `[local]` マーカー表示。
+- bridge `status()` に `use_local_cache_all` / `local_cache_sites` /
+  `current_site_local_cache` を追加。
+- ローカルフォルダ型サーバー(LOCAL type/local://file://)は従来通り常にローカル扱い。
+
 2.6.0 国際化(i18n)対応
 - UI・ログ文字列を英語ソースに統一し、翻訳コンテキストを `GeoImport` に正規化
   (`Util`/`self.util` 等の不一致コンテキストを解消しカタログが実行時に適用されるようにした)。

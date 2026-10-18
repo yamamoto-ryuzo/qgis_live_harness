@@ -89,9 +89,14 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   geo_searchと同じく `bridge_call`/`describe_plugins` から利用できる。
   メソッド: `pluginInfo`/`status`/`listScripts`/`layerVariables`/
   `setLayerVariables`(xlsout_*・dpi変数の取得設定)/
+  `settings`(既定値・環境チェック・要件列挙)/`applyDefaults`/
+  `checkExcel`/`openSettings`/
   `run(script, feature_id, confirm)`(帳票実行。modal QMessageBoxは
   実行中だけ自動応答に差し替え、confirm=False既定では確認系をCancel=
-  中断として扱う。Excel生成中はGUIスレッドをブロック)
+  中断として扱う。Excel生成中はGUIスレッドをブロック)。
+  さらに `settings.py`+`settings_dialog.py` による既定値自動適用と
+  設定UIを持つ(出力先既定=<ドキュメント>/geo_excel、
+  テンプレート未指定時はレイヤのフィールドから最小xlsxを自動生成)
   `qgis_live_driver/` はWebEngineを持たない制御専用プラグイン(pyeval+地図キャンバス
   スクショのみ)で、任意プラグインの遠隔操作基盤として常駐させられる。
   内蔵HTTPサーバ(`/mcp`=MCP Streamable HTTP、`/api/*`=REST)と
@@ -128,7 +133,24 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   選んだプラグインを手動で sys.modules掃除+reloadPlugin
   (+open_dialog再表示)する。「すべて再読込」も可
   (qgis_live_driverは最後)。QGIS再起動・deploy不要で、
-  Node側 `npm run live:watch`(自動watch)の手動版に相当する
+  Node側 `npm run live:watch`(自動watch)の手動版に相当する。
+  さらに **レイヤ整理サービス**(`layer_org.py`):
+  プラグイン横断で追加レイヤの表示を標準化する共有プリミティブ。
+  `plugins['qgis_live_driver'].layer_org.place_all([(layer, ctx)])`
+  でプロファイルJSONのルールに従いグループ配置・リネーム・
+  .qmlスタイル適用する。プロファイルは同梱 `<plugin>/layer_org/*.json`
+  + ユーザ `~/.qgis-live/layer_org/*.json`(同名優先)の2階層で、
+  アクティブは QSettings `qgis_live_driver/layer_org/profile`
+  (bridge `setLayerOrgProfile` で切替)。ルールは match キー
+  (format/ext/provider/layer_type/geom/plugin/name_re/dataset_re/
+  url_re/tags)の全キーAND先勝ちで、groupパス(`/区切り`)/rename
+  テンプレ/style/top/collapsedを適用。bridgeメソッド
+  `layerOrgProfiles`/`layerOrgRules`/`setLayerOrgProfile`/
+  `organizeLayers`(dry対応)/`placeLayer` 経由でAIからも操作可。
+  geo_import は load_resource_clicked で追加したレイヤを自動で
+  このサービスに渡し、ドライバ未ロード・無効時は従来のflat追加に
+  フォールバックする。他プラグインも同様に place_all を呼べば
+  同じ標準化を共有できる
 - `qgis-plugin/<id>/logic.py` — QGIS非依存の純粋ロジック。pytest対象(WebEngineプラグインの構成)
 - `qgis-plugin/<id>/live_driver.py` — L2検証用。実QGIS内でJS実行を仲介(後述)
 - `qgis-plugin/<id>/ui/` — HTML/CSS/JSフロントエンド。QGIS無しの通常ブラウザでも動く(mock使用)
@@ -329,29 +351,43 @@ npm run verify:qgis     # 別ターミナルでQGIS起動(開きっぱなし)
 ## 国際化(i18n)/多言語化(固定方針)
 
 **qgis-plugin/ 下の全プラグインは英語をソース言語とし、
-採用言語セットの翻訳カタログを同梱する。**
+`i18n/<lang>.json`(JSONカタログ)方式に統一する。
+.ts/.qm/Qt Linguist(lupdate/lrelease)・言語別のPython辞書等、
+他の翻訳方式は使わない。**
 
-- **採用言語(固定)**: ソース言語=英語(en)。翻訳対象は次の9言語:
-  日本語(ja)・ドイツ語(de)・スペイン語(es)・フランス語(fr)・
-  イタリア語(it)・ポルトガル語(pt)・ロシア語(ru)・
-  中国語(zh)・ヒンディー語(hi)
-  (geo_search/geo_report/geo_import が upstream から継承している
-  既存共通セットに合わせた。upstream由来の追加言語 —
-  geo_importのfiやenカタログ等 — はそのまま維持してよい。
-  ロケール属性は `<lang>_<REGION>` 形式: ja_JP/de_DE/es_ES/
-  fr_FR/it_IT/pt_PT/ru_RU/zh_CN/hi_IN)
+- **採用言語(固定・全プラグイン同一)**: ソース言語=英語(en)で
+  カタログ不要。翻訳対象は次の9言語のみ:
+  ja・de・es・fr・it・pt・ru・zh・hi
+  (9言語以外のカタログは置かない。過去に存在した geo_import の
+  fi/en、geo_report の en は廃止済み — git履歴から復元可能。
+  追加する場合は全プラグインへの展開が前提)
+- **カタログ**: `<plugin>/i18n/<lang>.json`(UTF-8)の
+  `{"<context>": {"<英語ソース>": "<翻訳>"}}` 2層JSON。
+  キーの追加・修正は **JSONを直接編集するだけ**。ビルド・コンパイル・
+  Qt Linguist 等のツールは一切不要(AIが直接読み書きできる
+  テキスト形式が正)。未登録のソースは実行時に英語へフォールバック
+  するため、未翻訳のまま置いても動作する
+- **ローダ**: 各プラグインに同一内容の `i18n_json.py` を置き、
+  起動時に `self.translator = install_translator(PLUGIN_DIR)` を呼ぶ
+  (返り値の参照保持は必須)。中身はJSON辞書を引く QTranslator
+  サブクラスで、`QCoreApplication.installTranslator` するため
+  `self.tr()`/`QCoreApplication.translate()`/`QT_TRANSLATE_NOOP`/
+  `.ui`(uic/loadUi経由)の全経路が同じカタログを引く。
+  言語判定は `locale/userLocale` → `QLocale.system()` の順
 - **ソース言語は英語**: UI文字列・ログ・ユーザー向けメッセージは
-  コード内では英語で書く。`.ui` ファイルの文字列も英語
-- **Qt翻訳で多言語化**: `QCoreApplication.translate` / `self.tr()` /
-  `QT_TRANSLATE_NOOP` を使い `lupdate` で抽出可能な形式にする。
-  **カスタムの `tr()` ラッパーやコンテキスト不一致は lupdate が抽出
-  できない/実行時に適用されないため禁止**(コンテキスト名をコードと
-  `.ts` で一致させる)。`i18n/` に言語別 `.ts` を持ち、
-  変更時は `lupdate` で再抽出→`lrelease` で `.qm` を再生成して
-  コミットに含める。プラグイン起動時に `QTranslator` +
-  `QCoreApplication.installTranslator` で `.qm` をロードすること
+  コード内では英語で書く。`.ui` ファイルの文字列も英語。
+  マーキングは Qt 標準の `self.tr("...")` /
+  `QCoreApplication.translate("<ctx>", "...")` /
+  `QT_TRANSLATE_NOOP` のみ。**カスタムの `tr()` ラッパーは
+  コンテキスト名がカタログとずれる原因になるため禁止**
+  (translate第1引数=context名をコードとJSONで一致させる。
+  context不一致時は全context検索にフォールバックするが、
+  同名ソースの別訳を拾い得るため基本は一致させる)
+- **Qtを介さない文字列**(生成HTML等): `i18n_json.translate_text()`
+  または `catalog()`/`lookup()` で同一カタログを直接引く
+  (実装例: geo_webview の "geo_webview.page" context)
 - **日本語は翻訳・ドキュメントとして維持**: UIの日本語は
-  `.ts`→`.qm` の翻訳として提供し、日本語ドキュメントは
+  ja.json の翻訳として提供し、日本語ドキュメントは
   `README_JP.md` 等として `README.md`(英語)と併存させる
   (upstreamが日英併記README形式を持つプラグインはその形式を維持してよい。
   README等のドキュメント翻訳はja以外は必須としない)
@@ -359,11 +395,15 @@ npm run verify:qgis     # 別ターミナルでQGIS起動(開きっぱなし)
   API値・フォーマット種別等のデータドメイン文字列・内部識別子・
   URLスキーム・外部プロトコル値。表示用文字列とセンチネル/キー値は
   必ず分離する(例: 表示「All」と比較値の一致を translate 経由で保証)
+- **検証・変換ツール** (`scripts/i18n_tool.py`):
+  - `check [plugin_id]`: ソース(.pyのtr/translate/QT_TRANSLATE_NOOPと
+    .uiの`<string>`)を走査し、カタログ未登録のキーを報告
+    (新規文字列追加時に追記漏れが無いか確認する)
+  - `convert [plugin_id]`: upstreamから.tsを取り込んだ場合に
+    `<lang>.json` へ変換する(.ts側はコミットしない)
+- **制限**: numerus(複数形)は先頭の訳文のみ使用する簡易仕様
 - 翻訳カタログの変更は他の機能変更と同様に **プラグインの
   CHANGELOG.md に記録し metadata.txt の version も上げる**
-- Linguistツール: `C:/Qt/linguist_6.9.1/lupdate.exe` / `lrelease.exe`
-  (QGIS同梱Qtには存在しない。`lupdate` は `.pro` より
-  ソースファイル明示指定が確実)
 
 ## L2の仕組み(重要)
 

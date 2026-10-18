@@ -4,6 +4,33 @@
 フォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.1.0/)、
 バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に準拠します。
 
+## [Unreleased]
+
+### Changed
+
+- **翻訳方式を `i18n/<lang>.json` 1方式に統一**: 全7プラグインの
+  翻訳を Qt Linguist(`.ts`→`lrelease`→`.qm`+QTranslator)から
+  JSONカタログ(`{context: {英語ソース: 翻訳}}`)へ移行。
+  各プラグインに同一内容の `i18n_json.py`(JSON辞書を引く
+  QTranslatorサブクラス)を配置し、従来の `tr()`/`translate()`/
+  `.ui` 文字列は無改変のまま同じカタログを引く。Qt Linguist/
+  lrelease 等のツール不要で、AIが翻訳を直接編集できる。
+  合わせて以下を整理:
+  - 言語セットを9言語(ja/de/es/fr/it/pt/ru/zh/hi)に全プラグインで
+    統一。geo_importのen/fi、geo_reportのenカタログは廃止
+  - geo_webview の生成HTML向けPython辞書 `_PAGE_STRINGS` も
+    廃止し同一JSONカタログ(context "geo_webview.page")へ統合
+  - geo_import/geo_report の重複・レガシーローダ
+    (CKANBrowser_*.qm探索/enフォールバック二重install/geo_report
+    の__init__+plugin二重install)を `install_translator()` 1本に集約
+  - 旧資産を削除: 全 `.ts`/`.qm`/`.pro`、`generate_qm.py`、
+    `update_translations.py`、geo_importの翻訳補助スクリプト群と
+    `i18n/reports/`、TRANSLATION.md×2、legendView Makefileの
+    trans系ターゲット
+  - `scripts/i18n_tool.py` を追加: `check` でカタログ未登録の
+    ソース文字列を検出、`convert` でupstreamの.tsをJSON化可能
+  - AGENTS.md「国際化(i18n)/多言語化」を新方針に更新
+
 ## [1.3.0] - 2026-10-18
 
 ### Changed

@@ -299,12 +299,13 @@ Development steps:
 3. Test changes in QGIS
 4. Iterate: change → test → commit
 
-Translation support: 10 languages (including English, Japanese, French, German, Spanish, Italian, Portuguese, Chinese, Russian, Hindi)
-
-Update translations:
+Translation support: English source strings with `i18n/<lang>.json` catalogs
+(de, es, fr, hi, it, ja, pt, ru, zh). Edit the JSON directly —
+untranslated strings fall back to English.
 
 ```bash
-python update_translations.py
+# list source strings not yet in the catalogs
+python ../../scripts/i18n_tool.py check
 ```
 
 ## Security notes

@@ -293,11 +293,13 @@ geo_webview/
 
 ### 翻訳対応
 
-10言語対応（英語、フランス語、ドイツ語、スペイン語、イタリア語、ポルトガル語、日本語、中国語、ロシア語、ヒンディー語）
+ソース言語は英語。`i18n/<lang>.json` に9言語
+(de, es, fr, hi, it, ja, pt, ru, zh)の翻訳カタログを持つ。
+JSON を直接編集する。未登録の文字列は英語にフォールバック。
 
 ```bash
-# 翻訳ファイル更新
-python update_translations.py
+# カタログ未登録の文字列を検出
+python ../../scripts/i18n_tool.py check
 ```
 
 ## セキュリティ注意事項

@@ -21,7 +21,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt, QUrl, QThread, pyqtSignal, QObject
+from qgis.PyQt.QtCore import QCoreApplication, Qt, QUrl, QThread, pyqtSignal, QObject
 
 from qgis.PyQt.QtGui import QIcon, QDesktopServices, QClipboard
 from qgis.PyQt.QtWidgets import QAction, QMessageBox, QApplication, QDockWidget
@@ -59,6 +59,8 @@ except Exception:
     QMapWebMapGenerator = None
     WEBMAP_AVAILABLE = False
 
+from .i18n_json import install_translator
+
 
 class NavigationSignals(QObject):
     """プラグイン内で使用するシンプルなシグナルコンテナ"""
@@ -79,40 +81,8 @@ class GeoWebView:
         self.iface = iface
         self.plugin_dir = os.path.dirname(__file__)
         
-        # 翻訳の初期化 - QGISの言語設定を自動検出
-        self.translator = None
-        locale = QSettings().value('locale/userLocale')
-        if locale:
-            # QGISのロケール設定から言語コードを取得（例: 'ja_JP' -> 'ja'）
-            locale_code = locale[0:2] if len(locale) >= 2 else 'en'
-        else:
-            # デフォルトは英語
-            locale_code = 'en'
-        
-        # 対応言語リスト
-        supported_languages = ['en', 'fr', 'de', 'es', 'it', 'pt', 'ja', 'zh', 'ru', 'hi']
-        
-        # 対応していない言語の場合は英語にフォールバック
-        if locale_code not in supported_languages:
-            locale_code = 'en'
-        
-        # 翻訳ファイルのパス
-        locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'geo_webview_{}.qm'.format(locale_code))
-
-        # 翻訳ファイルが存在する場合はロード
-        if os.path.exists(locale_path):
-            self.translator = QTranslator()
-            if self.translator.load(locale_path):
-                QCoreApplication.installTranslator(self.translator)
-                print(f"Translation file loaded: {locale_path}")
-            else:
-                print(f"Warning: failed to load translation file: {locale_path}")
-                self.translator = None
-        else:
-            print(f"Info: translation file not found (English used by default): {locale_path}")
+        # 翻訳の初期化 - i18n/<lang>.json をQGISの言語設定に合わせて載せる
+        self.translator = install_translator(self.plugin_dir)
 
         # プラグインの宣言
         self.actions = []

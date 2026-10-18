@@ -33,7 +33,7 @@ import sys
 import subprocess
 import threading
 
-from qgis.PyQt.QtCore import QSettings, QVariant, QCoreApplication, QTranslator, Qt, QPoint
+from qgis.PyQt.QtCore import QVariant, QCoreApplication, Qt, QPoint
 from qgis.PyQt.QtGui import QIcon, QColor
 from qgis.PyQt.QtWidgets import (QAction, QDialog, QVBoxLayout, QListWidget, QListWidgetItem, 
                                 QPushButton, QHBoxLayout, QSplitter, QTextEdit, QLabel, 
@@ -308,25 +308,7 @@ class GeoReport:
         self.iface = iface
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
-        # 多言語対応: QGIS のユーザロケール設定に従って翻訳を自動ロード
-        try:
-            settings = QSettings()
-            user_locale = settings.value('locale/userLocale', '') or ''
-            # 'ja' または 'ja_JP' のような形式に対応
-            lang = user_locale.split('_')[0].split('-')[0] if user_locale else 'en'
-            i18n_dir = os.path.join(self.plugin_dir, 'i18n')
-            qm_path = os.path.join(i18n_dir, f'geo_report_{lang}.qm')
-            translator = QTranslator()
-            if os.path.exists(qm_path) and translator.load(qm_path):
-                QCoreApplication.installTranslator(translator)
-                self.translator = translator
-                try:
-                    log_message(f"translation file loaded: {qm_path}")
-                except Exception:
-                    pass
-        except Exception:
-            # 翻訳ロードに失敗してもプラグインは継続
-            pass
+        # 翻訳は __init__.py の _setup_language() で install 済み
         # Declare instance attributes
         self.actions = []
         self.menu = 'geo_report'

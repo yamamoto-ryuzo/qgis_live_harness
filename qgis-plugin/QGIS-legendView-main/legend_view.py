@@ -24,7 +24,8 @@
 import re
 
 # Import Qt compatibility module first
-from .qt_compat import QSettings, QTranslator, QCoreApplication, Qt, QIcon, QAction, QDockWidget, WA_DeleteOnClose, RightDockWidgetArea, translate, QtWidgets, QSize
+from .qt_compat import QCoreApplication, Qt, QIcon, QAction, QDockWidget, WA_DeleteOnClose, RightDockWidgetArea, translate, QtWidgets, QSize
+from .i18n_json import install_translator
 
 from qgis.core import QgsSettings, QgsMessageLog, QgsProject, QgsExpressionContextUtils
 
@@ -55,21 +56,8 @@ class LegendView:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
 
-        # initialize locale (default: English)
-        locale = QSettings().value('locale/userLocale', 'en')[0:2]
-        locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'LegendView_{}.qm'.format(locale))
-
-        # Try to load Qt translator (QGIS標準)
-        self.translator = None
-        if os.path.exists(locale_path):
-            self.translator = QTranslator()
-            if self.translator.load(locale_path):
-                QCoreApplication.installTranslator(self.translator)
-            else:
-                self.translator = None
+        # initialize locale (i18n/<lang>.json をQGISの言語設定に合わせて載せる)
+        self.translator = install_translator(self.plugin_dir)
 
         # Declare instance attributes
         self.actions = []

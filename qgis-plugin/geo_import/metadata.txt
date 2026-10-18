@@ -4,7 +4,7 @@
 name=geo_import
 qgisMinimumVersion=4.0
 qgisMaximumVersion=4.99
-version=2.6.0
+version=2.8.0
 author=yamamoto-ryuzo
 email=ryu@yamakun.net
 description=さまざまなデータセットを検索・追加できるQGISプラグインです / A QGIS plugin to search and add various datasets.
@@ -15,6 +15,9 @@ homepage=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-pl
 tracker=https://github.com/yamamoto-ryuzo/qgis_live_harness/issues
 repository=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_import
 changelog=
+	2.8.0: 翻訳方式をi18n/<lang>.jsonに移行。qgis_live_driverのlayer_orgサービス連携で追加レイヤのグループ整理・命名を標準化
+	2.7.0: カタログ取得のデフォルトをネットワーク直接参照に変更。ローカル一括ダウンロード(SQLiteキャッシュ)はサイトごと/全体で選択可能なオプション化
+	2.6.0: 国際化(i18n)対応 — UI・ログ文字列を英語ソースに統一、翻訳コンテキスト正規化
 	2.5.0: 対応バージョンをQGIS4以降に更新(qgisMinimumVersion=4.0)
 	2.4.0: AI/外部制御用ブリッジ(bridge.py)を追加 — bridge_call/describe_plugins対応
 	2.3.46: QGIS Live Harnessへ組み込み、プラグイン内文書を整備（機能変更なし）

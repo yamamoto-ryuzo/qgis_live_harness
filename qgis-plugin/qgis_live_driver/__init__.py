@@ -5,12 +5,13 @@ import time
 import traceback
 
 try:
-    from qgis.PyQt.QtCore import (
-        QCoreApplication, QSettings, QTranslator)
+    from qgis.PyQt.QtCore import QCoreApplication
 except ImportError:
     # QGISの外(unit test等)でimportされる場合はNoneになる。
     # GUIコードパスはQGIS内でしか走らないため問題ない。
-    QCoreApplication = QSettings = QTranslator = None
+    QCoreApplication = None
+
+from .i18n_json import install_translator
 
 
 def _log(msg):
@@ -106,29 +107,23 @@ class QgisLivePlugin:
             self.bridge = QgisLiveBridge(self)
         except Exception:
             pass
+        # プラグイン横断のレイヤ整理サービス。geo_import等は
+        # plugins['qgis_live_driver'].layer_org.place_all([(layer, ctx)])
+        # で追加レイヤをプロファイルのルールへ配置できる(無ければflat)
+        try:
+            from .layer_org import LayerOrganizer
+            self.layer_org = LayerOrganizer()
+        except Exception:
+            self.layer_org = None
 
     def _init_language(self):
-        """QGISの locale/userLocale に合わせて i18n/qgis_live_driver_<lang>.qm
-        を読む。ソース文字列は英語。en または未対応言語では翻訳を載せない。"""
-        self.translator = None
-        if QCoreApplication is None:
-            return
+        """QGISの言語設定に合わせて i18n/<lang>.json を載せる。
+        ソース文字列は英語。en または未対応言語では翻訳を載せない。"""
         try:
-            raw = QSettings().value("locale/userLocale", None)
-            lang = (str(raw).split("_")[0].split("-")[0].lower()
-                    if raw else "")
-            if not lang or lang == "en":
-                return
-            qm_path = os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                "i18n", f"qgis_live_driver_{lang}.qm")
-            if os.path.exists(qm_path):
-                translator = QTranslator()
-                if translator.load(qm_path):
-                    QCoreApplication.installTranslator(translator)
-                    self.translator = translator
+            self.translator = install_translator(
+                os.path.dirname(os.path.abspath(__file__)))
         except Exception:
-            pass
+            self.translator = None
 
     def _own_menu(self):
         """プラグイン > QGIS Live Driver サブメニューを返す(無ければNone)。"""

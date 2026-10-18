@@ -76,33 +76,19 @@ The UI automatically switches according to QGIS language settings.
 
 ### 翻訳のカスタマイズ / Translation Customization
 
-翻訳を編集・追加する場合：  
-To edit or add translations:
+翻訳を編集・追加する場合は `i18n/<lang>.json` を直接編集する
+(`{context: {英語ソース: 翻訳}}` 形式。未登録の文字列は英語にフォールバック)。  
+To edit or add translations, edit `i18n/<lang>.json` directly
+(`{context: {english_source: translation}}`; missing entries fall back to English):
 
-1. Qt Linguist で翻訳ファイル (.ts) を編集：  
-   Edit translation files (.ts) with Qt Linguist:
+1. 翻訳ファイルの場所 / Translation files location:
    ```
-   C:\Qt\linguist_6.9.1\linguist.exe
-   ```
-
-2. 翻訳ファイルの場所：  
-   Translation files location:
-   ```
-   geo_report/i18n/geo_report_*.ts
+   geo_report/i18n/ja.json など (de, es, fr, hi, it, ja, pt, ru, zh)
    ```
 
-3. 翻訳後、コンパイルスクリプトを実行：  
-   After translation, run the compile script:
+2. カタログ未登録のソース文字列を検出 / Detect untranslated source strings:
    ```bash
-   python compile_translations.py
-   ```
-
-4. 新しい翻訳文字列を追加した場合：  
-   If new translatable strings are added:
-   ```bash
-   python generate_translations.py
-   python add_translations.py
-   python compile_translations.py
+   python ../../scripts/i18n_tool.py check
    ```
 
 ## インストール / Installation

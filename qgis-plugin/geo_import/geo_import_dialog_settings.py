@@ -55,6 +55,9 @@ class GeoImportDialogSettings(QDialog, FORM_CLASS):
 
         self.IDC_leCacheDir.setText(self.settings.cache_dir)
         self.IDC_chkbox_show_debug_info.setChecked(self.settings.debug)
+        if hasattr(self, 'IDC_chkLocalCacheAll'):
+            self.IDC_chkLocalCacheAll.setChecked(
+                getattr(self.settings, 'use_local_cache_all', False))
 
         if QgsAuthConfigSelect is None:
             self.IDC_leAuthCfg.hide()
@@ -96,6 +99,8 @@ class GeoImportDialogSettings(QDialog, FORM_CLASS):
 
         self.settings.cache_dir = cache_dir
         self.settings.debug = self.IDC_chkbox_show_debug_info.isChecked()
+        if hasattr(self, 'IDC_chkLocalCacheAll'):
+            self.settings.use_local_cache_all = self.IDC_chkLocalCacheAll.isChecked()
 
         authcfg = self.IDC_leAuthCfg.text()
         self.settings.authcfg = authcfg

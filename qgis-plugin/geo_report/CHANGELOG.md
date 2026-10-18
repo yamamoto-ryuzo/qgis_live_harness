@@ -12,6 +12,15 @@
 
 ## 変更履歴
 
+### V2.6.0 翻訳方式を `i18n/<lang>.json` に移行
+- `.ts`/`.qm` を廃止し、`{"context": {"英語ソース": "翻訳"}}` の
+  JSONカタログを新設。`i18n_json.py`(全プラグイン共通ローダ)の
+  `install_translator()` で起動時ロードに統一
+  (`__init__.py` と `plugin.py` の二重installを解消)。
+- 言語セットを共通9言語(de/es/fr/hi/it/ja/pt/ru/zh)に統一し en を廃止。
+- `geo_report` context の未登録4メッセージ(Size/Modified/bytes等)を
+  全9言語で補完。
+
 ### V2.5.0 国際化(i18n)対応
 - ハードコードされていた日本語UI文字列を英語ソースに変換し、
   `QCoreApplication.translate('geo_report', ...)` による翻訳呼出に統一。

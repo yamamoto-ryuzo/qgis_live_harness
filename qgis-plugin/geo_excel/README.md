@@ -16,7 +16,8 @@ A lightweight wrapper plugin that makes the layer-action scripts from
    - **Export single records in bulk (selected or all features)** — equivalent
      of `exportSingleBulk.py`
 3. Layer variables (`xlsout_*`) are configured the same way as described in
-   the upstream documentation below.
+   the upstream documentation below. If unset, defaults are applied
+   automatically at run time (see next section).
 
 At execution time, `[% @layer_id %]` (active layer) and `[% $id %]` (selected
 feature) are substituted automatically. The script bodies are bundled
@@ -24,6 +25,33 @@ unmodified from upstream; only Qt6 rewrites (`PyQt5`→`qgis.PyQt`,
 `Qt.WaitCursor`→`Qt.CursorShape.WaitCursor`) are applied just before exec.
 
 **Prerequisites**: `win32com` (pywin32) and Excel must be installed.
+
+## Defaults and the settings dialog (works out of the box)
+
+When a layer lacks the required `xlsout_*` variables, defaults are applied
+automatically before running (`settings.py`; disable via the settings dialog
+or QSettings `geo_excel/auto_apply`). Defaults:
+
+- `xlsout_*_output_path_fixed` → **`<Documents>/geo_excel`**
+  (via `QStandardPaths.DocumentsLocation`; no machine-specific paths)
+- `xlsout_output_path_variable` → `concat('<layer name>_', $id, '.xlsx')`
+  (list report: `<layer name>_list.xlsx`)
+- `xlsout_*_template_path` → when unset, a minimal xlsx template with
+  `##Attach::`/`##ListInsert::` placeholders for the layer's fields is
+  generated at `<output dir>/templates/<layer name>_<kind>_template.xlsx`
+- `dpi` → script default (200) when unset
+
+The settings dialog (menu `Settings...`, `settings_dialog.py`) shows on one
+screen:
+
+- **Environment check**: pywin32 import, Excel COM registration (registry +
+  a real "Launch test"), Documents/output folder paths
+- **Defaults editing**: output folder, DPI, list/single template overrides,
+  auto-apply toggle (persisted to QSettings `geo_excel/*`)
+- **Active layer variables**: view/edit `xlsout_*`/`dpi` in a table, apply
+  defaults to missing variables, regenerate the auto template
+- **Requirements**: enumerates what is needed (Excel, pywin32, template
+  placeholders, map theme for `##AttachFitImage::`, ...)
 
 ## AI/external control API (bridge)
 
@@ -38,6 +66,12 @@ strings:
   required layer variables)
 - `layerVariables(layer_id)` / `setLayerVariables(vars, layer_id)` —
   get/set `xlsout_*`/`dpi` layer variables
+- `settings()` — defaults (QSettings), environment check, requirements list
+- `applyDefaults(layer_id=None, script=None)` — fill missing layer variables
+  with defaults (creates the output folder and auto-generates templates)
+- `checkExcel()` — actually launch Excel via COM to verify (does not quit an
+  already-running Excel)
+- `openSettings()` — open the settings dialog
 - `run(script, feature_id=None, confirm=False)` — run a report.
   `script` accepts `list`/`single`/`bulk`/filename/index. `single` uses the
   selected feature or `feature_id`. Modal QMessageBoxes inside the scripts

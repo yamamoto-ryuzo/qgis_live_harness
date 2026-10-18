@@ -18,11 +18,13 @@ qgis.utils._import フックで禁止されるため、sys.modules shim では�
 import os
 import re
 
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
+from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
-from qgis.core import QgsVectorLayer
+from qgis.core import QgsProject, QgsVectorLayer
 
+from . import settings
 from .bridge import GeoExcelBridge
+from .i18n_json import install_translator
 
 PLUGIN_DIR = os.path.dirname(__file__)
 
@@ -62,32 +64,18 @@ class plugin(object):
         # qgis_live_driver の bridge_call / describe_plugins 経由で
         # AI・外部制御から使われるAPI (plugins['geo_excel'].bridge)
         self.bridge = GeoExcelBridge(self)
+        self._settings_dialog = None
 
     @staticmethod
     def tr(message):
         return QCoreApplication.translate("geo_excel", message)
 
     def _init_language(self):
-        """QGISの locale/userLocale に合わせて i18n/geo_excel_<lang>.qm を読む。
+        """QGISの言語設定に合わせて i18n/<lang>.json を載せる。
 
         ソース文字列は英語。en または未対応言語では翻訳を載せない。
         """
-        self.translator = None
-        try:
-            raw = QSettings().value("locale/userLocale", None)
-            lang = (str(raw).split("_")[0].split("-")[0].lower()
-                    if raw else "")
-            if not lang or lang == "en":
-                return
-            qm_path = os.path.join(
-                PLUGIN_DIR, "i18n", f"geo_excel_{lang}.qm")
-            if os.path.exists(qm_path):
-                translator = QTranslator()
-                if translator.load(qm_path):
-                    QCoreApplication.installTranslator(translator)
-                    self.translator = translator
-        except Exception:
-            pass
+        self.translator = install_translator(PLUGIN_DIR)
 
     # ---- GUI --------------------------------------------------------------
     def initGui(self):
@@ -107,10 +95,33 @@ class plugin(object):
             self.iface.addPluginToMenu(self.menu_name, action)
             self.actions.append(action)
 
+        settings_action = QAction(
+            self.tr("Settings..."), self.iface.mainWindow())
+        settings_action.triggered.connect(self.open_settings)
+        self.iface.addPluginToMenu(self.menu_name, settings_action)
+        self.actions.append(settings_action)
+
     def unload(self):
         for action in self.actions:
             self.iface.removePluginMenu(self.menu_name, action)
         self.actions = []
+        if self._settings_dialog is not None:
+            self._settings_dialog.close()
+            self._settings_dialog = None
+
+    def open_settings(self):
+        """設定ダイアログを開く(既にあれば前面に出す)。"""
+        from .settings_dialog import GeoExcelSettingsDialog
+
+        if self._settings_dialog is None:
+            self._settings_dialog = GeoExcelSettingsDialog(
+                self, self.iface.mainWindow())
+        else:
+            self._settings_dialog.refresh()
+        self._settings_dialog.show()
+        self._settings_dialog.raise_()
+        self._settings_dialog.activateWindow()
+        return self._settings_dialog
 
     # ---- script runner ----------------------------------------------------
     def _run(self, script_name, needs_fid):
@@ -137,6 +148,23 @@ class plugin(object):
         ns にはスクリプトのグローバルが残るため、bridgeは
         excel_result/output_path 等の終了状態をここから取得する。
         """
+        # 不足しているレイヤ変数(xlsout_*)へ既定値を自動適用する。
+        # 既定の出力先は <ドキュメント>/geo_excel、テンプレートは
+        # 未指定時にレイヤのフィールドから自動生成される(設定で無効化可)。
+        if settings.auto_apply_enabled():
+            layer = QgsProject.instance().mapLayer(layer_id)
+            if isinstance(layer, QgsVectorLayer):
+                rep = settings.ensure_layer_variables(layer, script_name)
+                if rep["applied"]:
+                    self.iface.messageBar().pushInfo(
+                        "geo_excel",
+                        self.tr("Applied default layer variables: {0}").format(
+                            ", ".join(sorted(rep["applied"]))))
+                for err in rep["errors"]:
+                    self.iface.messageBar().pushCritical(
+                        "geo_excel",
+                        self.tr("Could not apply default for {0}").format(err))
+
         path = os.path.join(PLUGIN_DIR, script_name)
         with open(path, encoding="utf-8") as f:
             src = f.read()

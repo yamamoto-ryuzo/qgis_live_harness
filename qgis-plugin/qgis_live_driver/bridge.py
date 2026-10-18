@@ -54,12 +54,14 @@ class QgisLiveBridge:
             "name": "QGIS Live Driver",
             "summary": "QGISプロセス内の遠隔制御ハブ。pyeval/status/"
                        "bridge_call/describe_plugins等をファイルJSONL・"
-                       "REST・MCPの全経路で提供する",
+                       "REST・MCPの全経路で提供する。layer_org サービスで"
+                       "追加レイヤのグループ整理・命名を標準化できる",
             "when_to_use": [
                 "QGIS内部(iface/QgsProject/地物/レイヤ)を直接操作・検査したい",
                 "他プラグインの機能をbridge_callで呼び出したい",
                 "地図キャンバスやウィンドウのスクリーンショットが欲しい",
                 "プラグインのロード・再読み込みを行いたい",
+                "取り込んだレイヤをルールでグループ整理・リネームしたい",
             ],
             "invoke": {"type": "command",
                        "note": "bridge_callではなくドライバのコマンド面"
@@ -70,12 +72,36 @@ class QgisLiveBridge:
                  "description": "この自己記述を返す"},
                 {"name": "status", "signature": "status()",
                  "description": "ドライバ稼働状態(live_dir/http_port/pid)"},
+                {"name": "layerOrgProfiles",
+                 "signature": "layerOrgProfiles()",
+                 "description": "レイヤ整理プロファイル一覧とアクティブ"
+                                "(~/.qgis-live/layer_org/*.json + 同梱)"},
+                {"name": "layerOrgRules",
+                 "signature": "layerOrgRules(profile=None)",
+                 "description": "プロファイルのルール一覧を返す"
+                                "(省略時=アクティブ)"},
+                {"name": "setLayerOrgProfile",
+                 "signature": "setLayerOrgProfile(name)",
+                 "description": "アクティブプロファイルを切替(QSettings永続化)"},
+                {"name": "organizeLayers",
+                 "signature": "organizeLayers(profile=None, dry=False)",
+                 "description": "全レイヤをルールで再配置(dry=Trueでプレビュー)"},
+                {"name": "placeLayer",
+                 "signature": "placeLayer(layer_id=None, ctx=None)",
+                 "description": "単一レイヤをルールへ配置"
+                                "(省略時=アクティブレイヤ)"},
             ],
         })
+
+    @staticmethod
+    def _err(msg):
+        return json.dumps({"ok": False, "error": str(msg)},
+                          ensure_ascii=False)
 
     def status(self):
         """ドライバの稼働状態を返す。"""
         d = self._plugin.driver
+        org = getattr(self._plugin, "layer_org", None)
         return self._ok({
             "id": _PLUGIN_ID,
             "pid": os.getpid(),
@@ -83,4 +109,74 @@ class QgisLiveBridge:
             "live_dir": getattr(d, "dir", None),
             "http_port": getattr(d, "http_port", None),
             "commands": [c["name"] for c in _COMMANDS],
+            "layer_org": (org.active_profile_name()
+                          if org is not None else None),
         })
+
+    # ---- レイヤ整理(layer_org) ----
+
+    def _org(self):
+        return getattr(self._plugin, "layer_org", None)
+
+    def layerOrgProfiles(self):
+        """利用可能なレイヤ整理プロファイル一覧とアクティブを返す。"""
+        from . import layer_org as lo
+        org = self._org()
+        return self._ok({
+            "profiles": lo.list_profiles(),
+            "active": (org.active_profile_name()
+                       if org is not None else None),
+        })
+
+    def layerOrgRules(self, profile=None):
+        """プロファイルのルール一覧を返す(省略時=アクティブ)。"""
+        org = self._org()
+        if org is None:
+            return self._err("layer_org not available")
+        desc = org.describe(profile)
+        if desc is None:
+            return self._err(
+                f"profile not found or disabled: "
+                f"{profile or org.active_profile_name()}")
+        return self._ok(desc)
+
+    def setLayerOrgProfile(self, name):
+        """アクティブな整理プロファイルを切り替える(QSettings永続化)。"""
+        org = self._org()
+        if org is None:
+            return self._err("layer_org not available")
+        return json.dumps(org.set_active_profile(name),
+                          ensure_ascii=False)
+
+    def organizeLayers(self, profile=None, dry=False):
+        """プロジェクト内の全レイヤをプロファイルのルールで再配置する。
+
+        dry=True で移動せず適用結果の予定だけを返す(プレビュー)。
+        """
+        org = self._org()
+        if org is None:
+            return self._err("layer_org not available")
+        rep = org.organize_project(profile_name=profile,
+                                   dry=bool(dry))
+        return self._ok(rep)
+
+    def placeLayer(self, layer_id=None, ctx=None):
+        """単一レイヤを整理ルールへ配置する。
+
+        layer_id 省略時はアクティブレイヤ。ctx は
+        {"plugin_id","dataset","resource","format","url"} 等のdict。
+        """
+        org = self._org()
+        if org is None:
+            return self._err("layer_org not available")
+        from qgis.core import QgsProject
+        from qgis.utils import iface
+        layer = None
+        if layer_id:
+            layer = QgsProject.instance().mapLayer(str(layer_id))
+        if layer is None:
+            layer = iface.activeLayer() if iface is not None else None
+        if layer is None:
+            return self._err("no layer (pass layer_id or activate one)")
+        rep = org.place_all([(layer, dict(ctx or {}))])
+        return self._ok(rep)

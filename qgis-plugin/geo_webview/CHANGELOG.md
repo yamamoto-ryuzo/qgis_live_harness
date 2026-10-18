@@ -11,6 +11,16 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.15.0] - 2026-10-19 翻訳方式を `i18n/<lang>.json` に移行
+
+- `.ts`/`.qm` を廃止し、`{"context": {"英語ソース": "翻訳"}}` の
+  JSONカタログを新設。`i18n_json.py`(全プラグイン共通ローダ)の
+  `install_translator()` で起動時ロードに統一。
+- 生成HTML向けの言語別Python辞書 `_PAGE_STRINGS`(en/jaのみ)を廃止し、
+  同一JSONカタログの `"geo_webview.page"` context へ統合
+  (`i18n_json.translate_text`/`catalog` で直接参照。
+  未登録言語は英語フォールバック)。
+
 ## [3.14.0] - 2026-10-18 翻訳カタログの言語拡充
 
 - 採用言語セット(AGENTS.md)に合わせ de/es/fr/hi/it/pt/ru/zh の

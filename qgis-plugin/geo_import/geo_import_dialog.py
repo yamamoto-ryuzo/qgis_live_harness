@@ -282,6 +282,10 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         # --- 追加: SQLite再取得ボタンのシグナル接続 ---
         if hasattr(self, 'IDC_bRefreshSqlite'):
             self.IDC_bRefreshSqlite.clicked.connect(self.refresh_sqlite_clicked)
+        # --- 追加: サイト単位のローカルキャッシュ利用チェック ---
+        if hasattr(self, 'IDC_chkLocalCache'):
+            self.IDC_chkLocalCache.toggled.connect(self.local_cache_toggled)
+            self._sync_local_cache_checkbox()
         # データセット一覧で複数選択を可能に
         if hasattr(self, 'IDC_listResults'):
             self.IDC_listResults.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.MultiSelection)
@@ -296,7 +300,10 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             self.IDC_bSelectAllResources.clicked.connect(self.select_all_resources)
         
         # ダイアログ起動時に一度全件検索を実施（初期表示）
-        self.list_all_clicked()
+        # ネットワークモードではコンストラクタ内で同期ネットワーク取得を行わず、
+        # 表示後の window_loaded タイマーで初回取得する
+        if self._use_local_cache():
+            self.list_all_clicked()
 
     def update_resource_checked_count(self, item=None):
         checked_count = 0
@@ -347,6 +354,78 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             pass
         if hasattr(self, 'IDC_lblSelectedCount'):
             self.IDC_lblSelectedCount.setText(QCoreApplication.translate('GeoImport', "Selected - datasets: {0} / resources: {1}").format(len(selected_items), len(all_resources)))
+    def _get_local_server_path(self):
+        """
+        現在のサーバー(ckan_url)がローカルフォルダを指す場合はそのパスを返す。
+        リモートのCKAN APIサーバーの場合はNone。
+        """
+        try:
+            server_url = getattr(self.settings, 'ckan_url', '') or ''
+            if not isinstance(server_url, str) or not server_url:
+                return None
+            # custom_servers で type=LOCAL のエントリ
+            for name, info in self.settings.custom_servers.items():
+                if isinstance(info, dict) and info.get('url') == server_url \
+                        and info.get('type') == 'LOCAL':
+                    return info.get('url')
+            if server_url.startswith('local://'):
+                return server_url[len('local://'):]
+            if server_url.startswith('file://'):
+                from urllib.parse import urlparse
+                parsed = urlparse(server_url)
+                try:
+                    from urllib.request import url2pathname
+                    p = url2pathname(parsed.path)
+                    if parsed.netloc:
+                        return os.path.abspath('//' + parsed.netloc + p)
+                    if p.startswith('/') and len(p) > 2 and p[2] == ':':
+                        p = p.lstrip('/')
+                    return os.path.abspath(p)
+                except Exception:
+                    return os.path.abspath(os.path.join(parsed.netloc, parsed.path))
+            if os.path.isdir(server_url):
+                return server_url
+        except Exception:
+            pass
+        return None
+
+    def _use_local_cache(self):
+        """
+        現在のサイトがローカルキャッシュ(SQLite)モードか判定する。
+        ローカルフォルダ型サーバーは常にTrue。
+        """
+        if self._get_local_server_path() is not None:
+            return True
+        return self.settings.use_local_cache(getattr(self.settings, 'ckan_url', '') or '')
+
+    def _sync_local_cache_checkbox(self):
+        """ローカルキャッシュ利用チェックボックスを現在のサイト設定に同期する"""
+        if not hasattr(self, 'IDC_chkLocalCache'):
+            return
+        local_server = self._get_local_server_path() is not None
+        self.IDC_chkLocalCache.blockSignals(True)
+        self.IDC_chkLocalCache.setChecked(self._use_local_cache())
+        # ローカルフォルダ型サーバーは常にローカル扱いのため変更不可
+        self.IDC_chkLocalCache.setEnabled(not local_server)
+        self.IDC_chkLocalCache.blockSignals(False)
+
+    def local_cache_toggled(self, checked):
+        """サイト単位のローカルキャッシュ利用の切り替え"""
+        if self._get_local_server_path() is not None:
+            return  # ローカルフォルダ型は常にローカル(チェックは無効化済み)
+        url = getattr(self.settings, 'ckan_url', '') or ''
+        self.settings.set_local_cache_site(url, bool(checked))
+        self.settings.save()
+        if checked:
+            # 既存キャッシュがあればそのまま利用、無ければ一括ダウンロードする
+            if os.path.isfile(self._get_cache_db_path()):
+                self.window_loaded()
+            else:
+                self.refresh_sqlite_clicked()
+        else:
+            # ネットワークモードで再読み込み
+            self.window_loaded()
+
     def _get_cache_db_path(self):
         """
         現在のCKANサーバーURLごとにキャッシュDBファイル名を分けて返す
@@ -633,50 +712,17 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         try:
             # 1. APIからカテゴリ取得
             # determine if current server is LOCAL type
-            server_url = getattr(self.settings, 'ckan_url', '')
-            server_is_local = False
-            try:
-                # if url corresponds to a custom server entry with type LOCAL, mark as local
-                for name, info in self.settings.custom_servers.items():
-                    if isinstance(info, dict) and info.get('url'):
-                        if info.get('url') == server_url and info.get('type') == 'LOCAL':
-                            server_is_local = True
-                            local_path = info.get('url')
-                            break
-                # also accept local paths directly stored in ckan_url
-                import os
-                if not server_is_local:
-                    # support local:// and file:// schemes and plain directory paths
-                    try:
-                        if server_url.startswith('local://'):
-                            local_path = server_url[len('local://'):]
-                            if os.path.isdir(local_path):
-                                server_is_local = True
-                        elif server_url.startswith('file://'):
-                            from urllib.parse import urlparse
-                            parsed = urlparse(server_url)
-                            try:
-                                from urllib.request import url2pathname
-                                p = url2pathname(parsed.path)
-                                if parsed.netloc:
-                                    local_path = os.path.abspath('//' + parsed.netloc + p)
-                                else:
-                                    if p.startswith('/') and len(p) > 2 and p[2] == ':':
-                                        p = p.lstrip('/')
-                                    local_path = os.path.abspath(p)
-                                if os.path.isdir(local_path):
-                                    server_is_local = True
-                            except Exception:
-                                local_path = os.path.abspath(os.path.join(parsed.netloc, parsed.path))
-                                if os.path.isdir(local_path):
-                                    server_is_local = True
-                        elif os.path.isdir(server_url):
-                            server_is_local = True
-                            local_path = server_url
-                    except Exception:
-                        server_is_local = False
-            except Exception:
-                server_is_local = False
+            local_path = self._get_local_server_path()
+            server_is_local = local_path is not None
+
+            # リモートサイトでローカルキャッシュ未設定の場合、ダウンロード結果を
+            # 使えるようこのサイトのローカルキャッシュ利用を有効化する
+            if not server_is_local:
+                current_url = getattr(self.settings, 'ckan_url', '') or ''
+                if not self.settings.use_local_cache(current_url):
+                    self.settings.set_local_cache_site(current_url, True)
+                    self.settings.save()
+                self._sync_local_cache_checkbox()
 
             if server_is_local:
                 # Read local groups and packages from files
@@ -1014,37 +1060,12 @@ class GeoImportDialog(QDialog, FORM_CLASS):
 
             # --- カテゴリリストをSQLiteから取得 ---
             import sqlite3, json
-            db_path = self._get_cache_db_path()
             all_results = []
             # determine if current server is a local folder and get path
-            local_path = None
-            try:
-                server_url = getattr(self.settings, 'ckan_url', '')
-                for name, info in self.settings.custom_servers.items():
-                    if isinstance(info, dict) and info.get('url') == server_url and info.get('type') == 'LOCAL':
-                        local_path = info.get('url')
-                        break
-                if not local_path:
-                    if server_url.startswith('local://'):
-                        local_path = server_url[len('local://'):]
-                    elif server_url.startswith('file://'):
-                        from urllib.parse import urlparse
-                        parsed = urlparse(server_url)
-                        try:
-                            from urllib.request import url2pathname
-                            p = url2pathname(parsed.path)
-                            if parsed.netloc:
-                                local_path = os.path.abspath('//' + parsed.netloc + p)
-                            else:
-                                if p.startswith('/') and len(p) > 2 and p[2] == ':':
-                                    p = p.lstrip('/')
-                                local_path = os.path.abspath(p)
-                        except Exception:
-                            local_path = os.path.abspath(os.path.join(parsed.netloc, parsed.path))
-                    elif os.path.isdir(server_url):
-                        local_path = server_url
-            except Exception:
-                local_path = None
+            local_path = self._get_local_server_path()
+            self._sync_local_cache_checkbox()
+            use_cache = local_path is not None or self.settings.use_local_cache(
+                getattr(self.settings, 'ckan_url', '') or '')
 
             def _read_db_and_fill(db_path_local):
                 res_list = []
@@ -1079,28 +1100,57 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     self.util.msg_log_error(f"DB read error: {e}")
                     return False, str(e)
 
-            ok, result = _read_db_and_fill(db_path)
-            if ok:
-                all_results = result
-            else:
-                # try to auto-create DB from local folder if available
-                if local_path:
-                    created, msg = self._create_sqlite_from_local(local_path)
-                    if created:
-                        # re-read db
-                        ok2, result2 = _read_db_and_fill(db_path)
-                        if ok2:
-                            all_results = result2
+            # カテゴリ追加時の itemChanged(再検索)発火を抑制
+            self.IDC_listGroup.blockSignals(True)
+            try:
+                if use_cache:
+                    db_path = self._get_cache_db_path()
+                    ok, result = _read_db_and_fill(db_path)
+                    if ok:
+                        all_results = result
+                    else:
+                        # try to auto-create DB from local folder if available
+                        if local_path:
+                            created, msg = self._create_sqlite_from_local(local_path)
+                            if created:
+                                # re-read db
+                                ok2, result2 = _read_db_and_fill(db_path)
+                                if ok2:
+                                    all_results = result2
+                                else:
+                                    all_results = None
+                            else:
+                                self.util.msg_log_error(f"Failed to create DB from local: {msg}")
+                                all_results = None
                         else:
                             all_results = None
-                    else:
-                        self.util.msg_log_error(f"Failed to create DB from local: {msg}")
-                        all_results = None
                 else:
-                    all_results = None
+                    # --- ネットワークモード: カテゴリをAPIから直接取得 ---
+                    ok_net, group_result = self.cc.get_groups()
+                    if ok_net is False:
+                        self.util.dlg_warning(group_result)
+                    elif group_result:
+                        for group in group_result:
+                            title = group.get('title') or group.get('name', '')
+                            self.util.msg_log_debug(f'Add group: {title}')
+                            item = QListWidgetItem(title)
+                            item.setData(Qt.ItemDataRole.UserRole, group)
+                            item.setCheckState(Qt.CheckState.Unchecked)
+                            self.IDC_listGroup.addItem(item)
+            finally:
+                self.IDC_listGroup.blockSignals(False)
             self.update_format_list(all_results)
             # 起動時に必ず検索結果を表示
             self.list_all_clicked()
+            if not use_cache:
+                # ネットワークモード: 取得済みの1ページ目から実データ形式をコンボに反映
+                entries = []
+                for i in range(self.IDC_listResults.count()):
+                    pkg = self.IDC_listResults.item(i).data(Qt.ItemDataRole.UserRole)
+                    if pkg:
+                        entries.append(pkg)
+                if entries:
+                    self.update_format_list(entries)
         except Exception as e:
             self.util.msg_log_error(f"window_loaded error: {e}")
             self.util.dlg_warning(f"startup error: {e}")
@@ -1157,6 +1207,10 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                 self.current_page = self.page_count
             self.util.msg_log_debug(u'page is not None, cp:{0} pg:{1}'.format(self.current_page, page))
         QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        if not self._use_local_cache():
+            # ネットワークモード: CKAN APIを直接呼んで検索する(ローカルキャッシュ不使用)
+            self._search_package_network()
+            return
         db_path = self._get_cache_db_path()
         format_text = self.IDC_comboFormat.currentText() if hasattr(self, 'IDC_comboFormat') else QCoreApplication.translate('GeoImport', 'All')
         format_lc = format_text.lower()
@@ -1167,6 +1221,23 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         self.data_thread = DataFetchThread(db_path, format_text, format_lc, self.current_page, results_limit, self.search_txt, group_names)
         self.data_thread.result_ready.connect(self._on_data_ready)
         self.data_thread.start()
+
+    def _search_package_network(self):
+        """ネットワークモードの検索: CKAN APIへ直接問い合わせ(QgsNetworkAccessManagerの
+        ためGUIスレッドで同期実行。WaitCursorは _on_data_ready で解除される)"""
+        group_names = self.__get_selected_groups()
+        ok, result = self.cc.package_search(
+            self.search_txt, groups=group_names, page=self.current_page)
+        if not ok:
+            QApplication.restoreOverrideCursor()
+            self.util.dlg_warning(result)
+            return
+        results = result.get('results', []) if isinstance(result, dict) else []
+        count = result.get('count', len(results)) if isinstance(result, dict) else len(results)
+        rows = getattr(self.settings, 'results_limit', 50) or 50
+        page_count = max(1, math.ceil(count / rows))
+        total_resource_count = sum(len(e.get('resources', [])) for e in results)
+        self._on_data_ready(results, count, page_count, total_resource_count)
 
     def _on_data_ready(self, page_results, result_count, page_count, total_resource_count):
         QApplication.restoreOverrideCursor()
@@ -1320,6 +1391,22 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             self.util.start_xml_collection_session(session_name)
             xml_session_started = True
 
+        # --- レイヤ整理: 追加されたレイヤを layersAdded で収集し、
+        # ループ後に qgis_live_driver の LayerOrganizer で配置する ---
+        self._org_items = []
+        self._org_ctx = {}
+        try:
+            from qgis.core import QgsProject as _QgsProject
+            try:
+                _QgsProject.instance().layersAdded.disconnect(
+                    self._on_org_layers_added)
+            except Exception:
+                pass
+            _QgsProject.instance().layersAdded.connect(
+                self._on_org_layers_added)
+        except Exception:
+            pass
+
         for resource in all_resources:
             # パッケージIDからpackage情報取得
             package_id = resource.get('_package_id')
@@ -1334,6 +1421,17 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             res_name = resource.get('name') or resource.get('title') or resource.get('id')
             safe_pkg = self.util.safe_filename(pkg_title, fallback=package.get('id'))
             safe_res = self.util.safe_filename(res_name, fallback=resource.get('id'))
+
+            # このリソースから追加されるレイヤの整理用コンテキスト
+            self._org_ctx = {
+                "plugin_id": "geo_import",
+                "dataset": pkg_title,
+                "dataset_id": package.get('id'),
+                "resource": res_name,
+                "resource_id": resource.get('id'),
+                "format": resource.get('format'),
+                "url": resource.get('url'),
+            }
 
             # Derive server folder from current CKAN API URL
             server_url = getattr(self.settings, 'ckan_url', '') or 'default'
@@ -1579,6 +1677,47 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             # 古いコードパスでは xml_session_started が定義されていない場合がある
             # その場合は finish を呼ばない
             pass
+
+        # 収集したレイヤをプロファイルルールで整理(ドライバ無しなら無変更)
+        try:
+            from qgis.core import QgsProject as _QgsProject
+            _QgsProject.instance().layersAdded.disconnect(
+                self._on_org_layers_added)
+        except Exception:
+            pass
+        self._apply_layer_org()
+
+    def _on_org_layers_added(self, layers):
+        """layersAdded収集スロット。整理用に(layer, ctx)を保持する。"""
+        items = getattr(self, "_org_items", None)
+        if items is None:
+            return
+        ctx = dict(getattr(self, "_org_ctx", None) or {})
+        for lyr in layers:
+            items.append((lyr, ctx))
+
+    def _apply_layer_org(self):
+        """収集したレイヤを qgis_live_driver の LayerOrganizer で配置する。
+
+        ドライバ未ロード・サービス無し・プロファイル無効の場合は何もしない
+        (従来どおりプロジェクト直下に残る)。結果は self.last_org_report
+        に残し bridge 経由で参照できる。
+        """
+        items = getattr(self, "_org_items", None) or []
+        self._org_items = []
+        self._org_ctx = {}
+        self.last_org_report = None
+        if not items:
+            return
+        try:
+            import qgis.utils
+            drv = qgis.utils.plugins.get("qgis_live_driver")
+            org = getattr(drv, "layer_org", None) if drv is not None else None
+            if org is None:
+                return
+            self.last_org_report = org.place_all(items)
+        except Exception as e:
+            self.util.msg_log_debug(f"layer_org skipped: {e}")
 
     def next_page_clicked(self):
         self.__search_package(page=+1)

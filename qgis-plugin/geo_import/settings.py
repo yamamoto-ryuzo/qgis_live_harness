@@ -21,6 +21,10 @@ class Settings:
         self.cache_dir = None
         self.boxdrive_support = True  # BoxDriveサポートを有効化
         self.long_path_support = True  # 長いパス名対応を有効化
+        # ローカルダウンロード(SQLiteキャッシュ)利用設定
+        # デフォルトはネットワーク経由の直接取得。ローカルキャッシュはオプション。
+        self.use_local_cache_all = False  # 全サイトでローカルキャッシュを利用
+        self.local_cache_sites = []  # ローカルキャッシュを利用するサイト(api_url)のリスト
         self.DLG_CAPTION = u'geo_import'
         self.KEY_CACHE_DIR = 'geo_import/cache_dir'
         self.KEY_CKAN_API = 'geo_import/ckan_api'
@@ -31,6 +35,7 @@ class Settings:
         self.KEY_SHOW_DEBUG_INFO = 'geo_import/show_debug_info'
         self.KEY_BOXDRIVE_SUPPORT = 'geo_import/boxdrive_support'
         self.KEY_LONG_PATH_SUPPORT = 'geo_import/long_path_support'
+        self.KEY_USE_LOCAL_CACHE_ALL = 'geo_import/use_local_cache_all'
         self.version = self._determine_version()
 
     def load(self):
@@ -44,6 +49,8 @@ class Settings:
         # BoxDriveサポートと長いパス名対応の設定を読み込み
         self.boxdrive_support = qgis_settings.value(self.KEY_BOXDRIVE_SUPPORT, True, bool)
         self.long_path_support = qgis_settings.value(self.KEY_LONG_PATH_SUPPORT, True, bool)
+        # 全サイトのローカルキャッシュ利用フラグ
+        self.use_local_cache_all = qgis_settings.value(self.KEY_USE_LOCAL_CACHE_ALL, False, bool)
         # サーバリストはキャッシュフォルダに保存
         if not self.cache_dir:
             # デフォルトキャッシュディレクトリ
@@ -82,12 +89,16 @@ class Settings:
                             # 不正な形式はスキップ
                             continue
                     self.custom_servers = new_custom
+                    sites = data.get('local_cache_sites', [])
+                    self.local_cache_sites = sites if isinstance(sites, list) else []
             except Exception:
                 self.selected_ckan_servers = ''
                 self.custom_servers = {}
+                self.local_cache_sites = []
         else:
             self.selected_ckan_servers = ''
             self.custom_servers = {}
+            self.local_cache_sites = []
         self.debug = qgis_settings.value(self.KEY_SHOW_DEBUG_INFO, False, bool)
         self.authcfg = qgis_settings.value(self.KEY_AUTHCFG, '')
         self.auth_propagate = qgis_settings.value(self.KEY_AUTH_PROPAGATE, False, bool)
@@ -103,6 +114,7 @@ class Settings:
         qgis_settings.setValue(self.KEY_SHOW_DEBUG_INFO, self.debug)
         qgis_settings.setValue(self.KEY_BOXDRIVE_SUPPORT, self.boxdrive_support)
         qgis_settings.setValue(self.KEY_LONG_PATH_SUPPORT, self.long_path_support)
+        qgis_settings.setValue(self.KEY_USE_LOCAL_CACHE_ALL, self.use_local_cache_all)
         # サーバリストはキャッシュフォルダに保存
         if not self.cache_dir:
             self.cache_dir = os.path.join(os.path.expanduser('~'), '.geo_import_cache')
@@ -124,13 +136,33 @@ class Settings:
         # custom_serversの値は{name: {url, type}}形式で保存
         data = {
             'selected_ckan_servers': self.selected_ckan_servers,
-            'custom_servers': self.custom_servers
+            'custom_servers': self.custom_servers,
+            'local_cache_sites': self.local_cache_sites if isinstance(self.local_cache_sites, list) else []
         }
         try:
             with open(servers_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
         except Exception as e:
             QgsMessageLog.logMessage(f'Failed to save ckan_servers.json: {e}', self.DLG_CAPTION, Qgis.Warning)
+
+    def use_local_cache(self, url):
+        """
+        指定したサイト(api_url)でローカルキャッシュ(SQLite)を利用するか判定する。
+        全体設定(use_local_cache_all)またはサイト個別設定(local_cache_sites)で有効ならTrue。
+        """
+        if self.use_local_cache_all:
+            return True
+        return bool(url) and url in (self.local_cache_sites or [])
+
+    def set_local_cache_site(self, url, enabled):
+        """サイト単位のローカルキャッシュ利用フラグを設定する"""
+        if not isinstance(self.local_cache_sites, list):
+            self.local_cache_sites = []
+        if enabled:
+            if url and url not in self.local_cache_sites:
+                self.local_cache_sites.append(url)
+        elif url in self.local_cache_sites:
+            self.local_cache_sites.remove(url)
 
     def _determine_version(self):
         """
