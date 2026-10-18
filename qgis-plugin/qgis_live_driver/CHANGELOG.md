@@ -3,6 +3,23 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
+## [0.5.0] - 2026-10-18
+
+### Added
+
+- **汎用ブリッジ `_GenericBridge`**(`live_driver.py`): `plugin.bridge` を
+  持たないプラグインに `bridge_call` が自動フォールバックする共通制御面。
+  `pluginInfo`/`status`/`actions`/`trigger`/`run`/`openDialog`/
+  `closeDialog` を提供し、`run`/`trigger` は QTimer.singleShot(0) で
+  非同期発火するため対象がmodalダイアログを開いてもコマンド応答は
+  ブロックされない。サードパーティ製プラグイン(mmqgis等)も
+  repo外改変なしでAIから操作できる
+- `describe_plugins` がbridge未搭載プラグインにも汎用アダプタ経由の
+  metadata由来の自己記述を載せる(`generic: true` フラグ付き)。
+  全ロード済みプラグインがカタログ上で発見・操作可能になった
+- `bridge.py`(`QgisLiveBridge`)を新設しドライバ自身の `plugin.bridge`
+  に配線。`pluginInfo`/`status` でコマンド面と稼働状態を自己記述
+
 ## [0.4.0] - 2026-10-18
 
 ### Added

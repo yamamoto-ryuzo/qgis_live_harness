@@ -43,23 +43,10 @@ class HttpCall:
         self.util = util
         self.reply = None
 
-    # Qt5 / Qt6 の違いで QNetworkReply のエラー定数が名前空間化されている場合があるため
-    # ここで互換性用の定数を解決しておく（Qt5/Qt6対応）
-    try:
-        QNR_NO_ERROR = QNetworkReply.NoError
-        QNR_TIMEOUT_ERROR = QNetworkReply.TimeoutError
-        QNR_CONNECTION_REFUSED_ERROR = QNetworkReply.ConnectionRefusedError
-    except AttributeError:
-        # Qt6: QNetworkReply.NetworkError.<Name>
-        try:
-            QNR_NO_ERROR = QNetworkReply.NetworkError.NoError
-            QNR_TIMEOUT_ERROR = QNetworkReply.NetworkError.TimeoutError
-            QNR_CONNECTION_REFUSED_ERROR = QNetworkReply.NetworkError.ConnectionRefusedError
-        except Exception:
-            # 最終フォールバック: 既存属性に頼る（互換性のため）
-            QNR_NO_ERROR = getattr(QNetworkReply, 'NoError', 0)
-            QNR_TIMEOUT_ERROR = getattr(QNetworkReply, 'TimeoutError', 1)
-            QNR_CONNECTION_REFUSED_ERROR = getattr(QNetworkReply, 'ConnectionRefusedError', 2)
+    # Qt6: QNetworkReply.NetworkError.<Name>
+    QNR_NO_ERROR = QNetworkReply.NetworkError.NoError
+    QNR_TIMEOUT_ERROR = QNetworkReply.NetworkError.TimeoutError
+    QNR_CONNECTION_REFUSED_ERROR = QNetworkReply.NetworkError.ConnectionRefusedError
 
     
     def execute_request(self, url, **kwargs):
@@ -105,20 +92,10 @@ class HttpCall:
         # ネットワークリクエストを作成
         req = QNetworkRequest()
         req.setUrl(QUrl(url))
-        # FollowRedirectsAttribute は Qt のバージョンで存在しない場合があるため
-        # 存在チェックしてから設定する（Qt5/Qt6互換性のため）
         try:
-            attr_ns = getattr(QNetworkRequest, 'Attribute', None)
-            if attr_ns is not None and hasattr(attr_ns, 'FollowRedirectsAttribute'):
-                req.setAttribute(attr_ns.FollowRedirectsAttribute, True)
-            elif hasattr(QNetworkRequest, 'FollowRedirectsAttribute'):
-                req.setAttribute(QNetworkRequest.FollowRedirectsAttribute, True)
-            else:
-                self.util.msg_log_debug('QNetworkRequest FollowRedirectsAttribute not available; skipping setAttribute')
+            req.setAttribute(QNetworkRequest.Attribute.FollowRedirectsAttribute, True)
         except Exception:
-            # 何らかの予期せぬ問題があればログに残して続行
-            self.util.msg_log_error('error setting FollowRedirectsAttribute on QNetworkRequest')
-            self.util.msg_log_last_exception()
+            self.util.msg_log_debug('QNetworkRequest FollowRedirectsAttribute not available; skipping setAttribute')
 
         for k, v in headers.items():
             self.util.msg_log_debug("%s: %s" % (k, v))

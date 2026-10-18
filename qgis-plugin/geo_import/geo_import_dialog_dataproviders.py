@@ -424,7 +424,7 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
             self,
             self.util.tr('py_dlg_data_providers_custom_server'),
             self.util.tr('py_dlg_data_providers_name_custom_server'),
-            QLineEdit.Normal,
+            QLineEdit.EchoMode.Normal,
             ""
         )
         if not ok_pressed or server_name is None or server_name.isspace() or server_name == '':

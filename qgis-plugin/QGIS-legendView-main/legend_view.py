@@ -24,28 +24,12 @@
 import re
 
 # Import Qt compatibility module first
-from .qt_compat import QSettings, QTranslator, QCoreApplication, Qt, QIcon, QAction, QDockWidget, WA_DeleteOnClose, RightDockWidgetArea, translate, is_qt5, is_qt6, QT_VERSION, QtWidgets, QSize
+from .qt_compat import QSettings, QTranslator, QCoreApplication, Qt, QIcon, QAction, QDockWidget, WA_DeleteOnClose, RightDockWidgetArea, translate, QtWidgets, QSize
 
 from qgis.core import QgsSettings, QgsMessageLog, QgsProject, QgsExpressionContextUtils
 
 # Initialize Qt resources from file resources.py
-if is_qt5():
-    # Qt5 specific resource file with forced registration
-    try:
-        from . import resources_rc_qt5
-        # Force resource registration for Qt5 multiple times if needed
-        resources_rc_qt5.qInitResources()
-        # Double-check registration
-        if hasattr(resources_rc_qt5, 'qInitResources'):
-            resources_rc_qt5.qInitResources()
-    except ImportError:
-        try:
-            from .resources_rc import *
-        except:
-            pass
-else:
-    # Qt6 and fallback
-    from .resources_rc import *
+from .resources_rc import *
 
 # Import version information
 from .version import __version__, get_version_info, get_compatibility_info
@@ -96,6 +80,16 @@ class LegendView:
 
         self.pluginIsActive = False
         self.dockwidget = None
+
+        # AI/外部制御用ブリッジ。qgis_live_driver の bridge_call コマンドが
+        # qgis.utils.plugins['QGIS-legendView-main'].bridge をプロセス内で
+        # 直接呼ぶため、ファイルJSONL/REST/MCP(qgis_bridge_call)の
+        # 全経路から制御できる
+        try:
+            from .bridge import LegendViewBridge
+            self.bridge = LegendViewBridge(self)
+        except Exception:
+            self.bridge = None
 
         # Show window if project variable contains its own name
         iface.projectRead.connect(self.checkLoadedProject)
@@ -185,10 +179,7 @@ class LegendView:
             icon = self.create_fallback_icon()
         
         # Qt6ではparent=NoneでQAction生成（ツールバー表示対策）
-        if is_qt6():
-            action = QAction(icon, text)
-        else:
-            action = QAction(icon, text, parent)
+        action = QAction(icon, text)
         action.triggered.connect(callback)
         action.setEnabled(enabled_flag)
 
@@ -333,20 +324,14 @@ class LegendView:
     def create_fallback_icon(self):
         """Create a simple fallback icon when other methods fail"""
         try:
-            # Import Qt modules based on version
-            if is_qt5():
-                from PyQt5.QtGui import QPixmap, QPainter, QColor, QPen
-                from PyQt5.QtCore import Qt
-            else:
-                from PyQt6.QtGui import QPixmap, QPainter, QColor, QPen
-                from PyQt6.QtCore import Qt
-            
+            from qgis.PyQt.QtGui import QPixmap, QPainter, QColor, QPen
+
             # Create a simple 24x24 icon
             pixmap = QPixmap(24, 24)
-            pixmap.fill(Qt.transparent)
-            
+            pixmap.fill(Qt.GlobalColor.transparent)
+
             painter = QPainter(pixmap)
-            painter.setRenderHint(QPainter.Antialiasing)
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
             
             # Draw a simple legend-like icon
             painter.setPen(QPen(QColor(50, 50, 150), 2))

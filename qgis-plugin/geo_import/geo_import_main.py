@@ -107,6 +107,15 @@ class GeoImport:
         self.toolbar = self.iface.addToolBar(u'geo_import')
         self.toolbar.setObjectName(u'geo_import')
 
+        # AI/外部制御用ブリッジ。qgis_live_driver の bridge_call コマンドが
+        # qgis.utils.plugins['geo_import'].bridge をプロセス内で直接呼ぶため、
+        # ファイルJSONL/REST/MCP(qgis_bridge_call)の全経路から制御できる
+        try:
+            from .bridge import GeoImportBridge
+            self.bridge = GeoImportBridge(self)
+        except Exception:
+            self.bridge = None
+
 
     def add_action(
         self,

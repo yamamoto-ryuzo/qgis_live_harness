@@ -133,11 +133,11 @@ class ResultDialog(QDialog):
                 pass
             for i in range(len(fields)):
                 try:
-                    header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
+                    header.setSectionResizeMode(i, QHeaderView.ResizeMode.ResizeToContents)
                 except Exception:
                     # fallback to Stretch if ResizeToContents not available
                     try:
-                        header.setSectionResizeMode(i, QHeaderView.Stretch)
+                        header.setSectionResizeMode(i, QHeaderView.ResizeMode.Stretch)
                     except Exception:
                         pass
             try:
@@ -218,10 +218,10 @@ class ResultDialog(QDialog):
                     pass
                 for i in range(len(fields)):
                     try:
-                        header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
+                        header.setSectionResizeMode(i, QHeaderView.ResizeMode.ResizeToContents)
                     except Exception:
                         try:
-                            header.setSectionResizeMode(i, QHeaderView.Stretch)
+                            header.setSectionResizeMode(i, QHeaderView.ResizeMode.Stretch)
                         except Exception:
                             pass
                 try:

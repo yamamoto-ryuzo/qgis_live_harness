@@ -1181,7 +1181,7 @@ class GeoWebViewWFSService:
                     if sl is not None and hasattr(sl, 'brushStyle') and callable(sl.brushStyle):
                         from qgis.PyQt.QtCore import Qt
                         brush_style = sl.brushStyle()
-                        if brush_style == Qt.NoBrush:
+                        if brush_style == Qt.BrushStyle.NoBrush:
                             has_brush = False
                             from qgis.core import QgsMessageLog, Qgis
             except Exception as e:

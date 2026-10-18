@@ -1081,8 +1081,8 @@ class Util:
             self.main_win,
             self.dlg_caption,
             msg,
-            QMessageBox.Yes,
-            QMessageBox.No
+            QMessageBox.StandardButton.Yes,
+            QMessageBox.StandardButton.No
         )
 
     def msg_log(self, msg):

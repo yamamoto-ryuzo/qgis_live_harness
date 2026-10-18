@@ -1926,7 +1926,7 @@ class SearchOwnerFeature(SearchTextFeature):
         search_widget = self.widget.search_widgets[0]
         suggest_list = []
         for field_name, check in zip(self.field_names, self.widget.check_list):
-            if check.checkState() == Qt.Checked:
+            if check.checkState() == Qt.CheckState.Checked:
                 suggest_list += map(str, unique_values(self.layer, field_name))
         comp = QCompleter(suggest_list)
         search_widget.setCompleter(comp)

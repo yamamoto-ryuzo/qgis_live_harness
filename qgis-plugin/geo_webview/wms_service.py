@@ -675,20 +675,20 @@ class GeoWebViewWMSService:
                                 big_rotated = big_image.mirrored(True, True)
                             except Exception:
                                 # fallback to general transform
-                                big_rotated = big_image.transformed(inv_transform, Qt.SmoothTransformation)
+                                big_rotated = big_image.transformed(inv_transform, Qt.TransformationMode.SmoothTransformation)
                         elif abs(deg_norm - 90.0) < 1e-6 or abs(deg_norm - 270.0) < 1e-6:
                             # 90/270 can use a transform but prefer FastTransformation for performance
                             try:
-                                big_rotated = big_image.transformed(inv_transform, Qt.FastTransformation)
+                                big_rotated = big_image.transformed(inv_transform, Qt.TransformationMode.FastTransformation)
                             except Exception:
                                 try:
-                                    big_rotated = big_image.transformed(inv_transform, Qt.SmoothTransformation)
+                                    big_rotated = big_image.transformed(inv_transform, Qt.TransformationMode.SmoothTransformation)
                                 except Exception:
                                     big_rotated = big_image.transformed(inv_transform)
                         else:
                             # general arbitrary-angle inverse rotation (slower, high-quality)
                             try:
-                                big_rotated = big_image.transformed(inv_transform, Qt.SmoothTransformation)
+                                big_rotated = big_image.transformed(inv_transform, Qt.TransformationMode.SmoothTransformation)
                             except Exception:
                                 big_rotated = big_image.transformed(inv_transform)
                     except Exception:
@@ -732,7 +732,7 @@ class GeoWebViewWMSService:
                     # もしサイズが若干異なる場合のみ、高品質でリサイズ
                     if cropped.width() != width or cropped.height() != height:
                         try:
-                            scaled = cropped.scaled(width, height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+                            scaled = cropped.scaled(width, height, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
                         except Exception:
                             scaled = cropped.scaled(width, height)
                         png_data = self._save_image_as_png(scaled)
@@ -1530,11 +1530,7 @@ class GeoWebViewWMSService:
                 # fallback to 30s if misconfigured
                 timer.start(30000)
 
-            # Qt5 had exec_(), Qt6 uses exec(). Support both.
-            if hasattr(loop, 'exec_'):
-                loop.exec_()
-            else:
-                loop.exec()
+            loop.exec()
             
             render_elapsed = time.time() - render_start
 
@@ -1576,19 +1572,7 @@ class GeoWebViewWMSService:
         try:
             from qgis.PyQt.QtCore import QBuffer, QIODevice
             buffer = QBuffer()
-            # QIODevice.WriteOnly may be namespaced differently in Qt6/PyQt6.
-            write_mode = getattr(QIODevice, 'WriteOnly', None)
-            if write_mode is None:
-                om = getattr(QIODevice, 'OpenMode', None) or getattr(QIODevice, 'OpenModeFlag', None)
-                if om is not None and hasattr(om, 'WriteOnly'):
-                    write_mode = getattr(om, 'WriteOnly')
-            if write_mode is None:
-                # fallback to integer 1 if nothing else available
-                try:
-                    write_mode = int(1)
-                except Exception:
-                    write_mode = 1
-            buffer.open(write_mode)
+            buffer.open(QIODevice.OpenModeFlag.WriteOnly)
             image.save(buffer, "PNG")
             png_data = buffer.data()
             # Ensure we return Python bytes (QByteArray -> bytes)

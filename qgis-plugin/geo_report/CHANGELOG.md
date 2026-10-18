@@ -12,6 +12,26 @@
 
 ## 変更履歴
 
+### V2.4.0 QGIS4以降への対応宣言
+
+- `metadata.txt` の `qgisMinimumVersion` を 3.40 → 4.0 に更新
+  (QGIS4以降専用。`qgisMaximumVersion=4.99`・`supportsQt6`は継続)
+- 残存していたQt5向けフォールバック・非スコープenum・`exec_()`・`PyQt6`直接import分岐を除去しQt6専用コードに統一
+
+### V2.3.0 QGIS Live Harness: AI/外部制御ブリッジ追加
+
+- `bridge.py`(`GeoReportBridge`)を新設し `plugin.bridge` に配線。
+  `qgis_live_driver` の `bridge_call`(ファイルJSONL / REST /api/cmd /
+  MCP `qgis_bridge_call` / AIアシスタントパネル)と `describe_plugins`
+  カタログから利用可能。メソッド(JSON文字列返却):
+  `pluginInfo` / `status` / `openPanel` / `closePanel` / `listLayouts` /
+  `selectLayout` / `printOptions`(scale・angle) / `showPrintArea` /
+  `listItems` / `itemProperties` / `setItemProperties` /
+  `saveLayoutProperties` / `loadLayoutProperties` / `openLayoutManager`
+- `save/loadLayoutProperties` はファイルダイアログを通さずパス指定で
+  直接JSON読み書きするため、modalで呼出をブロックしない
+- 機能変更なし(UI操作は従来通り)
+
 
 ### V2.2.7（2026-10-18）
 - QGIS Live Harness (`qgis-plugin/geo_report`) への組み込み

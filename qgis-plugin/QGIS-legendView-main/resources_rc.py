@@ -2,17 +2,11 @@
 
 # Resource object code
 #
-# Created by: The Resource Compiler for Qt5/Qt6
+# Created by: The Resource Compiler for Qt6
 #
 # WARNING! All changes made in this file will be lost!
 
-try:
-    from qgis.PyQt import QtCore
-except ImportError:
-    try:
-        from PyQt6 import QtCore
-    except ImportError:
-        from PyQt5 import QtCore
+from qgis.PyQt import QtCore
 
 qt_resource_data = b"\
 \x00\x00\x00\xfb\

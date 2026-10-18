@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 TSファイル更新スクリプト
-pylupdate5を使用して翻訳ファイルを更新します
+pylupdate6を使用して翻訳ファイルを更新します
 """
 
 import os
@@ -11,18 +11,14 @@ import sys
 # プラグインディレクトリ
 PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# pylupdate5のパスを探索
+# pylupdate6のパスを探索
 def find_pylupdate():
-    """pylupdate5/pylupdate6のパスを検索"""
+    """pylupdate6のパスを検索"""
     # 一般的なパスをチェック
     possible_paths = [
-        'pylupdate5',
         'pylupdate6',
         r'C:\Qt\6.9.1\msvc2019_64\bin\lupdate.exe',
         r'C:\Qt\linguist_6.9.1\lupdate.exe',
-        r'C:\Python39\Scripts\pylupdate5.exe',
-        r'C:\Python310\Scripts\pylupdate5.exe',
-        r'C:\Python311\Scripts\pylupdate5.exe',
     ]
     
     for path in possible_paths:
@@ -44,8 +40,8 @@ def update_ts_files():
     pylupdate = find_pylupdate()
     
     if not pylupdate:
-        print('エラー: pylupdate5/pylupdate6が見つかりません')
-        print('PyQt5またはPyQt6をインストールしてください')
+        print('エラー: pylupdate6が見つかりません')
+        print('PyQt6をインストールしてください')
         return False
     
     # プロジェクトファイルのパス
@@ -57,7 +53,7 @@ def update_ts_files():
     
     print(f'TSファイルを更新中: {pro_file}')
     
-    # pylupdate5を実行
+    # pylupdate6を実行
     try:
         result = subprocess.run(
             [pylupdate, '-verbose', pro_file],
@@ -75,11 +71,11 @@ def update_ts_files():
             print('TSファイルの更新が完了しました')
             return True
         else:
-            print(f'エラー: pylupdate5の実行に失敗しました (終了コード: {result.returncode})')
+            print(f'エラー: pylupdate6の実行に失敗しました (終了コード: {result.returncode})')
             return False
             
     except subprocess.TimeoutExpired:
-        print('エラー: pylupdate5の実行がタイムアウトしました')
+        print('エラー: pylupdate6の実行がタイムアウトしました')
         return False
     except Exception as e:
         print(f'エラー: {e}')

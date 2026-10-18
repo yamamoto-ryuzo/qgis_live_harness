@@ -22,17 +22,9 @@ The interface will automatically display in your system's language if supported,
 
 ## Qt Compatibility / Qt互換性
 
-This plugin is compatible with both Qt5 and Qt6:
-- **Qt5 Support**: QGIS 3.0 to 3.21 (PyQt5)
-- **Qt6 Support**: QGIS 3.22+ (PyQt6)
+This plugin requires **QGIS 4.0 or later (Qt6/PyQt6)**. Qt5 support was removed in version 2.2.0.
 
-The plugin automatically detects the Qt version and imports the appropriate modules. This ensures compatibility across different QGIS versions.
-
-このプラグインはQt5とQt6の両方に対応しています：
-- **Qt5サポート**: QGIS 3.0～3.21（PyQt5）
-- **Qt6サポート**: QGIS 3.22以降（PyQt6）
-
-プラグインはQtバージョンを自動検出し、適切なモジュールをインポートします。これにより、異なるQGISバージョン間での互換性を確保しています。
+このプラグインは **QGIS 4.0 以降(Qt6/PyQt6) 専用**です。Qt5サポートはバージョン2.2.0で削除されました。
 
 ## Version Management / バージョン管理
 

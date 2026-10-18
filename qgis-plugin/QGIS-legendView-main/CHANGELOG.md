@@ -5,6 +5,36 @@ All notable changes to the QGIS Legend View plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-10-18
+
+### Changed
+- `metadata.txt` の `qgisMinimumVersion` を 3.40 → 4.0 に更新
+  (QGIS4以降専用。`qgisMaximumVersion=4.99`・`supportsQt6`は継続)。
+  説明文の対応範囲表記も QGIS 4.x に修正
+
+### Removed
+- **Qt5サポートを完全削除**: `qt_compat.py` をQt6専用に書き換え、
+  PyQt5フォールバック・バージョン分岐(`is_qt5`/`is_qt6`)を除去。
+  `qt_compat_new.py`・`resources_rc_qt5.py`・`resources_rc_qt5_test.py`・
+  `metadata_qt6_only.txt` を削除。非スコープenum
+  (`Qt.transparent`/`Qt.ItemIsEditable`)もQt6 enum形式に修正
+- `version.py`/`version_manager.py` の互換性情報をQGIS4/Qt6専用に更新
+- 旧upstream由来の `README.txt` / `README.html` を削除(README.md に統合済みのため不要)
+  (version.py の値が古かったため 2.2.0 に同期)
+
+## [2.1.0] - 2026-10-18
+
+### Added
+- AI/外部制御用ブリッジ(`bridge.py` の `LegendViewBridge`)を新設し
+  `plugin.bridge` に配線。`qgis_live_driver` の `bridge_call`
+  (ファイルJSONL / REST /api/cmd / MCP `qgis_bridge_call` /
+  AIアシスタントパネル)と `describe_plugins` カタログから利用可能。
+  メソッド(JSON文字列返却): `pluginInfo` / `status` / `openDock` /
+  `closeDock` / `listDatasets` / `selectDataset` / `legend` /
+  `opacity` / `listStyles` / `setStyle` / `selectCurrentLayer` /
+  `registerCurrentLayer` / `legendVariables`
+- 機能変更なし(UI操作は従来通り)
+
 ## [2.0.17] - 2026-10-18
 
 ### Changed

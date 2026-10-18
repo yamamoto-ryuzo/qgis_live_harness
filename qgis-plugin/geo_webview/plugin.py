@@ -23,18 +23,6 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt, QUrl, QThread, pyqtSignal, QObject
 
-# Qt6 enum compatibility shim: some enums are scoped under classes in Qt6
-# (for example DockWidgetArea). Provide legacy attribute names if missing so
-# code using Qt.LeftDockWidgetArea continues to work on both Qt5 and Qt6.
-try:
-    if not hasattr(Qt, 'LeftDockWidgetArea'):
-        try:
-            Qt.LeftDockWidgetArea = Qt.DockWidgetArea.LeftDockWidgetArea
-            Qt.RightDockWidgetArea = Qt.DockWidgetArea.RightDockWidgetArea
-        except Exception:
-            pass
-except Exception:
-    pass
 from qgis.PyQt.QtGui import QIcon, QDesktopServices, QClipboard
 from qgis.PyQt.QtWidgets import QAction, QMessageBox, QApplication, QDockWidget
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY, QgsRectangle
@@ -478,10 +466,10 @@ class GeoWebView:
                                     self.iface.mainWindow(),
                                     self.tr("geo_webview"),
                                     self.tr(f"サーバーを停止してポート {new_port} で再起動しますか？"),
-                                    QMessageBox.Yes | QMessageBox.No,
-                                    QMessageBox.No
+                                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                    QMessageBox.StandardButton.No
                                 )
-                                if reply == QMessageBox.Yes:
+                                if reply == QMessageBox.StandardButton.Yes:
                                     self.server_manager.stop_http_server()
                                     self.server_manager.start_http_server(new_port)
                                     # 更新後の状態をパネルに反映
@@ -514,7 +502,7 @@ class GeoWebView:
                 self.update_theme_list()
                 
                 # QGISのメインウィンドウの左側にドッキング
-                self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.panel)
+                self.iface.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.panel)
                 
                 # 既存の左側パネルがあればタブ化
                 self._try_tabify_with_existing_panels()
@@ -800,7 +788,7 @@ class GeoWebView:
             for panel_name in preferred_panels:
                 for widget in main_window.findChildren(QDockWidget):
                     if (widget != self.panel and 
-                        main_window.dockWidgetArea(widget) == Qt.LeftDockWidgetArea and
+                        main_window.dockWidgetArea(widget) == Qt.DockWidgetArea.LeftDockWidgetArea and
                         widget.isVisible() and
                         (panel_name.lower() in widget.objectName().lower() or
                          panel_name.lower() in widget.windowTitle().lower())):
@@ -813,7 +801,7 @@ class GeoWebView:
             if not target_panel:
                 for widget in main_window.findChildren(QDockWidget):
                     if (widget != self.panel and 
-                        main_window.dockWidgetArea(widget) == Qt.LeftDockWidgetArea and
+                        main_window.dockWidgetArea(widget) == Qt.DockWidgetArea.LeftDockWidgetArea and
                         widget.isVisible()):
                         target_panel = widget
                         break
@@ -2198,15 +2186,8 @@ class GeoWebView:
             
         clipboard = QApplication.clipboard()
         
-        # Qt5/Qt6互換性: QClipboard.Mode.Clipboard (Qt6) vs QClipboard.Clipboard (Qt5)
-        try:
-            # Qt6
-            clipboard_mode = QClipboard.Mode.Clipboard
-            selection_mode = QClipboard.Mode.Selection if clipboard.supportsSelection() else None
-        except AttributeError:
-            # Qt5
-            clipboard_mode = QClipboard.Clipboard
-            selection_mode = QClipboard.Selection if clipboard.supportsSelection() else None
+        clipboard_mode = QClipboard.Mode.Clipboard
+        selection_mode = QClipboard.Mode.Selection if clipboard.supportsSelection() else None
         
         success = False
         for _ in range(3):
@@ -2459,13 +2440,8 @@ class GeoWebView:
                     # 確認メッセージを表示
                     from qgis.PyQt.QtWidgets import QMessageBox
                     
-                    # Qt5/Qt6互換性のためStandardButtonを取得
-                    try:
-                        Yes = QMessageBox.StandardButton.Yes
-                        No = QMessageBox.StandardButton.No
-                    except AttributeError:
-                        Yes = QMessageBox.Yes
-                        No = QMessageBox.No
+                    Yes = QMessageBox.StandardButton.Yes
+                    No = QMessageBox.StandardButton.No
                     
                     reply = QMessageBox.question(
                         dialog,
@@ -2536,14 +2512,7 @@ class GeoWebView:
                         
                         admin_dialog.setLayout(admin_layout)
                         
-                        # Qt5/Qt6互換性
-                        try:
-                            if hasattr(admin_dialog, 'exec'):
-                                admin_dialog.exec()
-                            else:
-                                admin_dialog.exec_()
-                        except Exception:
-                            admin_dialog.exec_()
+                        admin_dialog.exec()
                     else:
                         QMessageBox.warning(
                             dialog,
@@ -2572,14 +2541,7 @@ class GeoWebView:
             
             dialog.setLayout(layout)
             
-            # Qt5/Qt6互換性: exec_() (Qt5) または exec() (Qt6)
-            try:
-                if hasattr(dialog, 'exec'):
-                    dialog.exec()
-                else:
-                    dialog.exec_()
-            except Exception:
-                dialog.exec_()
+            dialog.exec()
             
         except Exception as e:
             QMessageBox.warning(
@@ -2610,20 +2572,8 @@ class GeoWebView:
             
             warning_msg += f"\nポート番号を {port} に設定しますか？"
             
-            # Qt5/Qt6互換性: StandardButtonの取得
-            try:
-                # Qt6
-                if hasattr(QMessageBox, 'StandardButton'):
-                    Yes = QMessageBox.StandardButton.Yes
-                    No = QMessageBox.StandardButton.No
-                # Qt5
-                else:
-                    Yes = QMessageBox.Yes
-                    No = QMessageBox.No
-            except Exception:
-                # フォールバック
-                Yes = 0x00004000  # QMessageBox.Yes in Qt5
-                No = 0x00010000   # QMessageBox.No in Qt5
+            Yes = QMessageBox.StandardButton.Yes
+            No = QMessageBox.StandardButton.No
             
             reply = QMessageBox.question(
                 self.iface.mainWindow(),

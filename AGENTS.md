@@ -58,7 +58,7 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   Harness基盤・横断的変更用)。upstreamに公開する場合はそちらにも反映する。
   現在は `qgis_live_driver/` と検証対象 `geo_search/` `geo_webview/`
   `geo_report/` `geo_import/` `QGIS-legendView-main/`、および
-  Harness生まれの `export_excel/`(下記)を管理する。
+  Harness生まれの `geo_excel/`(下記)を管理する。
   実体はすべてこのrepo内のgit管理対象(Harness側が正本)。
   upstreamリポジトリとの同期基盤は構造で2形式に分かれ、
   `npm run upstream -- <repo> <git引数>`(scripts/upstream-git.ps1。
@@ -69,7 +69,7 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
     junctionに置き換える(例: `<clone>/geo_report` → `qgis-plugin/geo_report`)。
     cloneが無い間はHarness側が唯一の正本
   - 「repoルート=プラグイン/コンテンツ」構造のupstream
-    (QGIS-legendView→QGIS-legendView-main、QGIS-exportExcel→export_excel)は
+    (QGIS-legendView→QGIS-legendView-main、QGIS-exportExcel→geo_excel)は
     subfolder junctionが張れないため、**upstream側の `.git` を
     `.upstream/<repo>.git` に退避し `core.worktree` を `qgis-plugin/<id>` に
     向けたgitdir運用**。直接叩く場合は
@@ -77,14 +77,21 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   (旧サンプル `webengine_plugin` は削除済み。
   WebEngineプラグインの構成例はgit履歴を参照)。WebEngineプラグインでは
   QGIS依存は `bridge.py` に閉じ込める。deploy時に `python/plugins/<フォルダ名>` へ配置される。
-  `export_excel/` は upstream `QGIS-exportExcel` のレイヤアクション用
+  `geo_excel/` は upstream `QGIS-exportExcel` のレイヤアクション用
   スクリプト群(プラグインではない)を簡易プラグイン化したもので、
   スクリプト本体は無改変で同梱し `plugin.py` が実行時に
   `[% @layer_id %]`/`[% $id %]` をアクティブレイヤ/選択地物で置換して
   exec する(QGIS4/Qt6では `import PyQt5` がブロックされるため
   exec直前に `PyQt5`→`qgis.PyQt` へソース書き換え。実行には
   win32com+Excelが必要)。upstream側は
-  `.upstream/QGIS-exportExcel.git` のgitdir運用
+  `.upstream/QGIS-exportExcel.git` のgitdir運用。
+  `geo_excel` は `bridge.py`(`GeoExcelBridge`)を `plugin.bridge` に配線済みで、
+  geo_searchと同じく `bridge_call`/`describe_plugins` から利用できる。
+  メソッド: `pluginInfo`/`status`/`listScripts`/`layerVariables`/
+  `setLayerVariables`(xlsout_*・dpi変数の取得設定)/
+  `run(script, feature_id, confirm)`(帳票実行。modal QMessageBoxは
+  実行中だけ自動応答に差し替え、confirm=False既定では確認系をCancel=
+  中断として扱う。Excel生成中はGUIスレッドをブロック)
   `qgis_live_driver/` はWebEngineを持たない制御専用プラグイン(pyeval+地図キャンバス
   スクショのみ)で、任意プラグインの遠隔操作基盤として常駐させられる。
   内蔵HTTPサーバ(`/mcp`=MCP Streamable HTTP、`/api/*`=REST)と
@@ -100,10 +107,37 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
 - `qgis-plugin/<id>/live_driver.py` — L2検証用。実QGIS内でJS実行を仲介(後述)
 - `qgis-plugin/<id>/ui/` — HTML/CSS/JSフロントエンド。QGIS無しの通常ブラウザでも動く(mock使用)
 - `qgis-plugin/<id>/ui/src/mock-bridge.js` — Pythonブリッジのモック。**bridgeメソッド追加時は必ず同期更新**
+- `qgis-plugin/<id>/bridge.py` — AI/外部制御用ブリッジ(**このrepoで管理する
+  プラグインはAI制御フル対応を前提とする**)。`<id>Bridge` クラスを定義し
+  `plugin.bridge` に配線すると、`qgis_live_driver` の `bridge_call`
+  (ファイルJSONL / REST /api/cmd / MCP `qgis_bridge_call` /
+  AIアシスタントパネル)と `describe_plugins` カタログから利用できる。
+  フル対応の要件:
+  - `pluginInfo()` を標準スキーマ(id/name/summary/when_to_use/invoke/
+    methods/state)で実装し、AIが用途と呼び方を自己発見できるようにする
+  - プラグインの主要機能をJSON文字列を返すメソッドとして公開する
+    (ドメインエラーは `{"ok": false, "error": ...}`、予期しない例外は
+    driver側の {"error": traceback} に委ねる)
+  - modalなQMessageBox等が呼出をブロックしないよう自動応答等で吸収する
+    (geo_excelの _DialogAutoReply 参照)
+  - GUIスレッドを長時間占有する処理はその旨をdocstringに明記する
+  実装例は `geo_search/bridge.py`(高機能)と `geo_excel/bridge.py`(小規模)。
+  **全管理プラグインが配線済み**: `qgis_live_driver`・`geo_search`・
+  `geo_webview`・`geo_excel`・`geo_report`・`geo_import`・
+  `QGIS-legendView-main`
+  (新規プラグイン追加時もbridge.py同梱が前提)
+  なお **bridgeを持たないプラグインにもドライバ側の汎用アダプタ
+  `live_driver._GenericBridge` が自動フォールバックする**
+  (`pluginInfo`/`status`/`actions`/`trigger`/`run`/`openDialog`/
+  `closeDialog`。`run`/`trigger`はQTimer.singleShotで非同期発火のため
+  modalダイアログを開いても応答をブロックしない)。
+  `describe_plugins` では `generic: true` としてmetadata由来の
+  自己記述が載るため、mmqgis等のサードパーティ製プラグインも
+  repo外改変なしでAIが発見・操作できる
 - `plugin.config.json` — 開発・検証対象プラグインのID(qgis-plugin/下のフォルダ名)。
   **文字列または配列**: 先頭=主開発対象(MCPツール等のデフォルトpluginId)、
   全要素=live:reload/test:liveの対象。現在は
-  `["geo_search","geo_webview","geo_report","geo_import","QGIS-legendView-main","qgis_live_driver"]`。
+  `["geo_search","geo_webview","geo_report","geo_import","geo_excel","QGIS-legendView-main","qgis_live_driver"]`。
   live dirを持たない対象(geo_search等)はtest:liveでhubドライバ経由の
   open_plugin/pyeval/run()/スクショが検証される
 - `tests/e2e/` — Playwrightテスト(L1=mock)。**現在specなし**
@@ -164,7 +198,7 @@ npm run test:unit
 ### L2: 実QGISでの検証
 
 **標準の検証対象プラグインは `geo_search`・`geo_webview`・`geo_report`・
-`geo_import`・`QGIS-legendView-main`**(実体は
+`geo_import`・`geo_excel`・`QGIS-legendView-main`**(実体は
 `qgis-plugin/<id>` = このrepoのgit管理対象。
 deploy先 `geo_custom/python/plugins/<id>` はここへのjunction。
 upstream同期は `.upstream/` 経由(前述。いずれもHarness側が正本)。Qt Widgetsプラグインでrepo側編集→`reload_plugin`で即反映できる。

@@ -113,7 +113,7 @@ class plugin(object):
         except Exception:
             pass
         # メッセージ表示
-        # QMessageBox.information(None, "iniGui", "Gui構築", QMessageBox.Yes)
+        # QMessageBox.information(None, "iniGui", "Gui構築", QMessageBox.StandardButton.Yes)
 
         # ダイヤログ構築
         self.create_search_dialog()
@@ -823,30 +823,7 @@ class plugin(object):
                 btn_layout.addWidget(cancel_btn)
                 layout.addLayout(btn_layout)
 
-            try:
-                qt_compat = importlib.import_module('geo_search.qt_compat')
-            except Exception:
-                qt_compat = None
-
-            if qt_compat is not None:
-                try:
-                    qt_compat.exec_dialog(dlg)
-                except Exception:
-                    try:
-                        dlg.exec_()
-                    except Exception:
-                        try:
-                            dlg.exec()
-                        except Exception:
-                            pass
-            else:
-                try:
-                    dlg.exec_()
-                except Exception:
-                    try:
-                        dlg.exec()
-                    except Exception:
-                        pass
+            dlg.exec()
         except Exception as e:
             try:
                 from qgis.core import QgsMessageLog
@@ -1009,7 +986,7 @@ class plugin(object):
 
     def create_search_dialog(self):
         # メッセージ表示
-        # QMessageBox.information(None, "create_search_dialog", "ダイヤログ構築", QMessageBox.Yes)
+        # QMessageBox.information(None, "create_search_dialog", "ダイヤログ構築", QMessageBox.StandardButton.Yes)
 
         self.current_feature = None
         flag = 0
@@ -1512,7 +1489,7 @@ class plugin(object):
     def run(self, state=None, layer=None, view_fields=None):
         """検索ダイアログを表示する"""
         # メッセージ表示
-        # QMessageBox.information(None, "run", "検索ダイアログ表示", QMessageBox.Yes)
+        # QMessageBox.information(None, "run", "検索ダイアログ表示", QMessageBox.StandardButton.Yes)
         
         # 現在のレイヤの状態を確認
         try:
@@ -1520,7 +1497,7 @@ class plugin(object):
             if active_layer:
                 active_layer_name = active_layer.name()
                 # ログ出力
-                # QMessageBox.information(None, "アクティブレイヤ", active_layer_name, QMessageBox.Yes)
+                # QMessageBox.information(None, "アクティブレイヤ", active_layer_name, QMessageBox.StandardButton.Yes)
         except Exception:
             pass
             

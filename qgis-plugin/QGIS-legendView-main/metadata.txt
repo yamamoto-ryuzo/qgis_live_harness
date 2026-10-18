@@ -4,18 +4,18 @@
 
 [general]
 name=QGIS-legendView-main
-qgisMinimumVersion=3.40
+qgisMinimumVersion=4.0
 qgisMaximumVersion=4.99
-description=Display only the necessary legends in a clear, easy-to-understand manner with Qt5/Qt6 compatibility
-version=2.0.17
-author=yamamoto_ryuzo
+description=Display only the necessary legends in a clear, easy-to-understand manner with Qt6 compatibility
+version=2.2.0
+author=yamamoto-ryuzo
 email=ryu@yamakun.net
 supportsQt6=True
 
-about=The legend you want to display is set in the project variable legend_group_layer_name. This plugin provides a dockable widget that displays legends for selected layers in a compact and organized way. Features include multi-language support (Japanese/English), Qt5/Qt6 compatibility, and enhanced user interface. Supports QGIS 3.0 to 3.99 with both Qt5 and Qt6 frameworks.
+about=The legend you want to display is set in the project variable legend_group_layer_name. This plugin provides a dockable widget that displays legends for selected layers in a compact and organized way. Features include multi-language support (Japanese/English), Qt6 support, and enhanced user interface. Supports QGIS 4.x (Qt6).
 
-tracker=https://github.com/yamamoto-ryuzo/QGIS-legendView/
-repository=https://github.com/yamamoto-ryuzo/QGIS-legendView/
+tracker=https://github.com/yamamoto-ryuzo/qgis_live_harness/issues
+repository=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/QGIS-legendView-main
 # End of mandatory metadata
 
 # Recommended items:
@@ -24,6 +24,10 @@ hasProcessingProvider=no
 
 # Changelog for version 2.0.2
 changelog=
+    Version 2.2.0:
+    - 対応バージョンをQGIS4以降に更新(qgisMinimumVersion=4.0)
+    Version 2.1.0:
+    - AI/外部制御用ブリッジ(bridge.py)を追加 — bridge_call/describe_plugins対応
     Version 2.0.17:
     - QGIS Live Harnessへ組み込み（機能変更なし、ドキュメント・管理構成のみ）
     Version 2.0.16:
@@ -60,10 +64,11 @@ changelog=
     - Fixed translation issues and Qt compatibility problems
 
 # Tags are comma separated with spaces allowed
-tags=python,legend,dock,widget,qt5,qt6,qt6-compatible,visualization,cartography,compatibility
+tags=python,legend,dock,widget,qt6,visualization,cartography
 
-homepage=https://github.com/yamamoto-ryuzo/QGIS-legendView/
+homepage=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/QGIS-legendView-main
 category=Plugins
+license=GPL-3.0
 icon=icon.png
 # experimental flag
 experimental=False

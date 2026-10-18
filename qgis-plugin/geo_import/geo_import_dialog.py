@@ -1485,16 +1485,16 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                 # --- 既存ファイル上書き確認ダイアログ（1回目だけ表示） ---
                 if already_loaded_dialog_answer is None:
                     # 1回目だけダイアログ表示し、選択を記憶
-                    if QMessageBox.Yes == self.util.dlg_yes_no(self.util.tr(u'py_dlg_base_data_already_loaded')):
-                        already_loaded_dialog_answer = QMessageBox.Yes
+                    if QMessageBox.StandardButton.Yes == self.util.dlg_yes_no(self.util.tr(u'py_dlg_base_data_already_loaded')):
+                        already_loaded_dialog_answer = QMessageBox.StandardButton.Yes
                         do_delete = True
                         do_download = True
                     else:
-                        already_loaded_dialog_answer = QMessageBox.No
+                        already_loaded_dialog_answer = QMessageBox.StandardButton.No
                         do_download = False
                 else:
                     # 2回目以降は前回の選択を自動適用
-                    if already_loaded_dialog_answer == QMessageBox.Yes:
+                    if already_loaded_dialog_answer == QMessageBox.StandardButton.Yes:
                         do_delete = True
                         do_download = True
                     else:
@@ -1511,14 +1511,14 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                 if file_size > 50:
                     if bigfile_dialog_answer is None:
                         # 1回目だけダイアログ表示し、選択を記憶
-                        if QMessageBox.No == self.util.dlg_yes_no(self.util.tr(u'py_dlg_base_big_file').format(file_size)):
-                            bigfile_dialog_answer = QMessageBox.No
+                        if QMessageBox.StandardButton.No == self.util.dlg_yes_no(self.util.tr(u'py_dlg_base_big_file').format(file_size)):
+                            bigfile_dialog_answer = QMessageBox.StandardButton.No
                             continue
                         else:
-                            bigfile_dialog_answer = QMessageBox.Yes
+                            bigfile_dialog_answer = QMessageBox.StandardButton.Yes
                     else:
                         # 2回目以降は前回の選択を自動適用
-                        if bigfile_dialog_answer == QMessageBox.No:
+                        if bigfile_dialog_answer == QMessageBox.StandardButton.No:
                             continue
                 if hdr_exception:
                     self.util.msg_log_error(u'error getting size of response, HEAD request failed: {}'.format(hdr_exception))
@@ -1546,14 +1546,14 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                         if ok is False:
                             if extract_dialog_answer is None:
                                 # 1回目だけダイアログ表示し、選択を記憶
-                                if QMessageBox.No == self.util.dlg_yes_no(self.util.tr(u'py_dlg_base_warn_not_extracted').format(err_msg)):
-                                    extract_dialog_answer = QMessageBox.No
+                                if QMessageBox.StandardButton.No == self.util.dlg_yes_no(self.util.tr(u'py_dlg_base_warn_not_extracted').format(err_msg)):
+                                    extract_dialog_answer = QMessageBox.StandardButton.No
                                     continue
                                 else:
-                                    extract_dialog_answer = QMessageBox.Yes
+                                    extract_dialog_answer = QMessageBox.StandardButton.Yes
                             else:
                                 # 2回目以降は前回の選択を自動適用
-                                if extract_dialog_answer == QMessageBox.No:
+                                if extract_dialog_answer == QMessageBox.StandardButton.No:
                                     continue
             # XYZ形式でURLが空や不正な場合は何もしない（警告も不要）
             ok, err_msg = self.util.add_lyrs_from_dir(dest_dir, resource['name'], resource['url'])
@@ -1562,17 +1562,17 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                 if addlayer_dialog_answer is None:
                     # 1回目だけダイアログ表示し、選択を記憶
                     if isinstance(err_msg, dict):
-                        if QMessageBox.Yes == self.util.dlg_yes_no(self.util.tr(u'py_dlg_base_open_manager').format(resource['url'])):
-                            addlayer_dialog_answer = QMessageBox.Yes
+                        if QMessageBox.StandardButton.Yes == self.util.dlg_yes_no(self.util.tr(u'py_dlg_base_open_manager').format(resource['url'])):
+                            addlayer_dialog_answer = QMessageBox.StandardButton.Yes
                             self.util.open_in_manager(err_msg["dir_path"])
                         else:
-                            addlayer_dialog_answer = QMessageBox.No
+                            addlayer_dialog_answer = QMessageBox.StandardButton.No
                     else:
                         self.util.dlg_warning(self.util.tr(u'py_dlg_base_lyr_not_loaded').format(resource['name'], err_msg))
-                        addlayer_dialog_answer = QMessageBox.No
+                        addlayer_dialog_answer = QMessageBox.StandardButton.No
                 else:
                     # 2回目以降は前回の選択を自動適用
-                    if addlayer_dialog_answer == QMessageBox.Yes and isinstance(err_msg, dict):
+                    if addlayer_dialog_answer == QMessageBox.StandardButton.Yes and isinstance(err_msg, dict):
                         self.util.open_in_manager(err_msg["dir_path"])
                 continue
 

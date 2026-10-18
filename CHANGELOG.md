@@ -20,12 +20,57 @@
   向けるgitdir運用にした。いずれもHarness側が正本で、upstream操作は
   `npm run upstream -- <repo> <git引数>`(scripts/upstream-git.ps1)が
   clone/gitdir両形式を吸収する。
-  さらに **`export_excel`** を新設: `QGIS-exportExcel` のレイヤアクション
+  さらに **`geo_excel`** を新設: `QGIS-exportExcel` のレイヤアクション
   用スクリプト群(metadata.txtを持たない非プラグイン)を簡易プラグイン化し、
   プラグインメニューからアクティブレイヤ/選択地物へ実行可能にした。
   スクリプト本体は無改変で同梱し、`[% @layer_id %]`/`[% $id %]` を
   実行時置換、PyQt5固定importはexec直前のソース書き換えで
-  `qgis.PyQt` に変換(Qt6対応)
+  `qgis.PyQt` に変換(Qt6対応)。
+- **管理プラグイン全件のAI制御フル対応**: `geo_report`・`geo_import`・
+  `QGIS-legendView-main` にも `bridge.py`(`GeoReportBridge`/
+  `GeoImportBridge`/`LegendViewBridge`)を新設し `plugin.bridge` に配線。
+  `bridge_call`/`describe_plugins` から利用可能(geo_search・geo_webview・
+  geo_excelは既対応。repo管理プラグインはbridge.py+pluginInfo標準スキーマが
+  前提になった — AGENTS.md参照)。各種modalダイアログはbridge経路では
+  自動応答/パス指定直読みで吸収し、呼出をブロックしない
+- **管理プラグイン全件をQGIS4以降専用に更新**: 残っていた
+  `qgisMinimumVersion=3.40` を全件 `4.0` に統一
+  (`geo_excel` 1.3.0 / `geo_import` V2.5.0 / `geo_report` 2.4.0 /
+  `geo_webview` 3.12.0 / `QGIS-legendView-main` 2.2.0。
+  geo_search・qgis_live_driverは既に4.0起点)。
+  併せて全プラグインの `homepage`/`tracker`/`repository` を
+  upstream個別repoから Harness repo の `qgis-plugin/<id>` 配下
+  (tree/master)・issues に統一(正本はHarness側のため)。
+  author を `yamamoto-ryuzo` に統一し、ライセンスをGPL-3.0
+  (geo_importのみMIT継続)に統一。`QGIS-legendView-main` はQt5
+  対応コードを完全削除してQt6専用化、`plugin.config.json` に
+  `geo_excel` を追加して全管理プラグインを検証対象にした
+- **管理プラグイン全件のQt5/フォールバック残存を一掃**: 実機QGIS4では
+  非スコープenum(`QMessageBox.Yes`/`Qt.UserRole`/`QHeaderView.Stretch`等)は
+  属性エラーになるため、全プラグインの残存Qt5分岐・enum shim・
+  `exec_()`・動的enum解決(getattr/`hasattr`フォールバック)を削除し
+  Qt6スコープenumに統一。`geo_import/update_translations.py` は
+  pylupdate6専用に、`resources_rc.py` のPyQt5由来ヘッダーも整理。
+  `QGIS-legendView-main` の旧upstream文書 `README.txt`/`README.html` を削除。
+  `geo_import` CHANGELOG/metadataの `V` 接頭辞を全エントリで除去
+  (geo_excelのupstreamスクリプト内 `PyQt5` 記述は exec直前の
+  ソース書き換え設計として意図的に維持)
+- **bridge未搭載プラグインへの汎用アダプタ**(`qgis_live_driver` 0.5.0):
+  `live_driver._GenericBridge` が `plugin.bridge` を持たない
+  プラグイン(mmqgis等のサードパーティ製含むロード済み全件)に
+  `pluginInfo`/`status`/`actions`/`trigger`/`run`/`openDialog`/
+  `closeDialog` を提供。`run`/`trigger` はQTimer.singleShotで
+  非同期発火するためmodalダイアログを開いても応答をブロックしない。
+  `describe_plugins` では `generic: true` としてmetadata由来の
+  自己記述が載る。また `qgis_live_driver` 自身にも
+  `bridge.py`(`QgisLiveBridge`)を配線しカタログに自己記述を追加
+- `geo_excel` に **AI向けブリッジ**(`bridge.py` の
+  `GeoExcelBridge`)を追加し `plugin.bridge` に配線。
+  `bridge_call` / `describe_plugins` から `listScripts` /
+  `layerVariables` / `setLayerVariables` / `run` / `status` を
+  呼べる。`run` はスクリプト内のmodal QMessageBoxを実行中だけ
+  自動応答(confirmで上書き/続行Ok、既定は中断)に差し替え、
+  `excel_result`/`output_path` を構造化して返す
 - **プラグイン個別の文書管理**を開始。`qgis-plugin/<id>/` 配下に
   各プラグインの README/CHANGELOG/詳細文書を配置する方式に統一。
   `geo_search`: upstream(GEO-search-plugin)から README.md /

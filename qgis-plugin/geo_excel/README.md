@@ -1,4 +1,4 @@
-# export_excel
+# geo_excel
 
 [QGIS-exportExcel](https://github.com/yamamoto-ryuzo/QGIS-exportExcel) の
 レイヤアクション用スクリプト群を、**QGISプラグインとしてメニューから実行できる**
@@ -7,7 +7,7 @@
 ## 使い方(プラグインとして)
 
 1. 対象のベクターレイヤをアクティブにする(単票出力は地物も選択)
-2. メニュー `プラグイン → export_excel` から実行:
+2. メニュー `プラグイン → geo_excel` から実行:
    - **一覧帳票を出力 (アクティブレイヤ)** — `exportList.py` 相当
    - **単票を出力 (選択地物)** — `exportSingle.py` 相当(選択地物ごとに実行)
    - **単票を一括出力 (選択地物または全地物)** — `exportSingleBulk.py` 相当
@@ -18,6 +18,24 @@
 `Qt.WaitCursor`→`Qt.CursorShape.WaitCursor` の Qt6 向け書き換えのみ行う。
 
 **前提**: `win32com`(pywin32)と Excel がインストール済みであること。
+
+## AI/外部制御 API(bridge)
+
+`plugins['geo_excel'].bridge`(`GeoExcelBridge`)経由で、QGIS Live Driver の
+`bridge_call` / `describe_plugins`(MCP `qgis_bridge_call`・REST・
+AIアシスタントパネル)から操作できる。メソッドはJSON文字列を返す:
+
+- `pluginInfo()` / `status()` — 自己記述・実行時状態(アクティブレイヤ/選択数/win32com有無/変数設定状況)
+- `listScripts()` — 帳票スクリプト一覧(id/ファイル/要選択/必要レイヤ変数)
+- `layerVariables(layer_id)` / `setLayerVariables(vars, layer_id)` — `xlsout_*`/`dpi` レイヤ変数の取得/設定
+- `run(script, feature_id=None, confirm=False)` — 帳票実行。
+  `script` は `list`/`single`/`bulk`/ファイル名/index。`single` は選択地物
+  または `feature_id` 指定。スクリプト内の modal QMessageBox は実行中だけ
+  自動応答に差し替わり、`confirm=True` で上書き/続行にOk応答
+  (既定False=中断)。実行結果(`excel_result`/`output_path`)と収集した
+  メッセージを返す。Excel生成中はGUIスレッドをブロックする
+
+例: `qgis_bridge_call pluginId="geo_excel" method="run" args=["list", null, true]`
 
 ---
 

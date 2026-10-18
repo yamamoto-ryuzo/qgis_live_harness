@@ -37,7 +37,7 @@ def _jsonable(v):
     try:
         from qgis.PyQt.QtCore import QDate, QDateTime, QTime, QByteArray, Qt
         if isinstance(v, (QDate, QDateTime, QTime)):
-            return v.toString(Qt.ISODate)
+            return v.toString(Qt.DateFormat.ISODate)
         if isinstance(v, QByteArray):
             return bytes(v).decode("utf-8", "replace")
     except Exception:

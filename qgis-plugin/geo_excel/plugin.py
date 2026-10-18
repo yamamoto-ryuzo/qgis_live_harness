@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""export_excel プラグイン本体。
+"""geo_excel プラグイン本体。
 
 upstream(QGIS-exportExcel)のスクリプトは「レイヤアクション」として実行される
 前提で書かれており、QGISアクションの置換変数([% @layer_id %] / [% $id %])を
@@ -20,6 +20,8 @@ import re
 
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.core import QgsVectorLayer
+
+from .bridge import GeoExcelBridge
 
 PLUGIN_DIR = os.path.dirname(__file__)
 
@@ -42,7 +44,7 @@ def _active_vector_layer(iface):
     layer = iface.activeLayer()
     if not isinstance(layer, QgsVectorLayer):
         iface.messageBar().pushCritical(
-            "export_excel", "ベクターレイヤをアクティブにしてください。"
+            "geo_excel", "ベクターレイヤをアクティブにしてください。"
         )
         return None
     return layer
@@ -52,7 +54,10 @@ class plugin(object):
     def __init__(self, iface):
         self.iface = iface
         self.actions = []
-        self.menu_name = "&export_excel"
+        self.menu_name = "&geo_excel"
+        # qgis_live_driver の bridge_call / describe_plugins 経由で
+        # AI・外部制御から使われるAPI (plugins['geo_excel'].bridge)
+        self.bridge = GeoExcelBridge(self)
 
     # ---- GUI --------------------------------------------------------------
     def initGui(self):
@@ -84,7 +89,7 @@ class plugin(object):
             fids = layer.selectedFeatureIds()
             if not fids:
                 self.iface.messageBar().pushCritical(
-                    "export_excel", "地物を選択してください。"
+                    "geo_excel", "地物を選択してください。"
                 )
                 return
             for fid in fids:
@@ -93,6 +98,12 @@ class plugin(object):
             self._exec_script(script_name, layer.id(), None)
 
     def _exec_script(self, script_name, layer_id, fid):
+        """スクリプトをexecして結果を返す。
+
+        戻り値: {"ok": bool, "error": str|None, "ns": dict}。
+        ns にはスクリプトのグローバルが残るため、bridgeは
+        excel_result/output_path 等の終了状態をここから取得する。
+        """
         path = os.path.join(PLUGIN_DIR, script_name)
         with open(path, encoding="utf-8") as f:
             src = f.read()
@@ -103,12 +114,15 @@ class plugin(object):
             src = src.replace("[% $id %]", str(fid))
         src = _rewrite_source(src)
 
+        ns = {"__name__": f"geo_excel.{script_name}", "__file__": path}
         try:
             code = compile(src, path, "exec")
-            exec(code, {"__name__": f"export_excel.{script_name}", "__file__": path})
+            exec(code, ns)
         except Exception as e:  # noqa: BLE001 - スクリプト側の失敗をQGISを落とさず通知する
             QMessageBox.critical(
                 self.iface.mainWindow(),
-                "export_excel",
+                "geo_excel",
                 f"{script_name} の実行に失敗しました:\n{e}",
             )
+            return {"ok": False, "error": str(e), "ns": ns}
+        return {"ok": True, "ns": ns}

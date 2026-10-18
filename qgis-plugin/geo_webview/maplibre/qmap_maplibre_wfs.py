@@ -413,19 +413,19 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
                 
                 # Join and cap styles
                 pen_join_style = symbol_layer.penJoinStyle()
-                if pen_join_style == 0x40:  # Qt.MiterJoin
+                if pen_join_style == 0x40:  # Qt.PenJoinStyle.MiterJoin
                     layout['line-join'] = 'miter'
-                elif pen_join_style == 0x80:  # Qt.BevelJoin
+                elif pen_join_style == 0x80:  # Qt.PenJoinStyle.BevelJoin
                     layout['line-join'] = 'bevel'
-                elif pen_join_style == 0x100:  # Qt.RoundJoin
+                elif pen_join_style == 0x100:  # Qt.PenJoinStyle.RoundJoin
                     layout['line-join'] = 'round'
                 
                 pen_cap_style = symbol_layer.penCapStyle()
-                if pen_cap_style == 0x00:  # Qt.FlatCap
+                if pen_cap_style == 0x00:  # Qt.PenCapStyle.FlatCap
                     layout['line-cap'] = 'butt'
-                elif pen_cap_style == 0x10:  # Qt.SquareCap
+                elif pen_cap_style == 0x10:  # Qt.PenCapStyle.SquareCap
                     layout['line-cap'] = 'square'
-                elif pen_cap_style == 0x20:  # Qt.RoundCap
+                elif pen_cap_style == 0x20:  # Qt.PenCapStyle.RoundCap
                     layout['line-cap'] = 'round'
             
             layers.append({
@@ -491,11 +491,11 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
                     
                     layout = {}
                     pen_join_style = symbol_layer.penJoinStyle()
-                    if pen_join_style == 0x40:  # Qt.MiterJoin
+                    if pen_join_style == 0x40:  # Qt.PenJoinStyle.MiterJoin
                         layout['line-join'] = 'miter'
-                    elif pen_join_style == 0x80:  # Qt.BevelJoin
+                    elif pen_join_style == 0x80:  # Qt.PenJoinStyle.BevelJoin
                         layout['line-join'] = 'bevel'
-                    elif pen_join_style == 0x100:  # Qt.RoundJoin
+                    elif pen_join_style == 0x100:  # Qt.PenJoinStyle.RoundJoin
                         layout['line-join'] = 'round'
                     
                     layers.append({

@@ -4,13 +4,14 @@ name=geo_search
 qgisMinimumVersion=4.0
 qgisMaximumVersion=4.99
 version=4.1.0
-author=yamamotoryuzo
+author=yamamoto-ryuzo
 email=ryu@yamakun.net
-tracker=https://github.com/yamamoto-ryuzo/GEO-search-plugin
-repository=https://github.com/yamamoto-ryuzo/GEO-search-plugin
-homepage=https://github.com/yamamoto-ryuzo/GEO-search-plugin
+tracker=https://github.com/yamamoto-ryuzo/qgis_live_harness/issues
+repository=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_search
+homepage=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_search
 icon=icon/qgis-icon.png
 category=Plugins
+license=GPL-3.0
 supportsQt6=True
 
 # --- Description (English & Japanese) ---

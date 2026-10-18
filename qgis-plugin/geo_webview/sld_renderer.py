@@ -173,7 +173,7 @@ def _extract_symbol_properties(symbol, geom_type: str):
                         try:
                             from qgis.PyQt.QtCore import Qt
                             brush_style = sl.brushStyle()
-                            if brush_style == Qt.NoBrush:
+                            if brush_style == Qt.BrushStyle.NoBrush:
                                 has_brush = False
                                 color = None
                         except Exception:
@@ -234,7 +234,7 @@ def _extract_symbol_properties(symbol, geom_type: str):
                             if geom_type == 'Polygon' and hasattr(slx, 'brushStyle') and callable(slx.brushStyle):
                                 try:
                                     from qgis.PyQt.QtCore import Qt
-                                    if slx.brushStyle() == Qt.NoBrush:
+                                    if slx.brushStyle() == Qt.BrushStyle.NoBrush:
                                         has_brush = False
                                 except Exception:
                                     pass
@@ -313,7 +313,7 @@ def _build_stroke_params(stroke_color, stroke_width, stroke_opacity, pen_join_st
     # Add line join style (using integer values for compatibility)
     if pen_join_style is not None:
         try:
-            # Qt.MiterJoin=0, Qt.BevelJoin=64, Qt.RoundJoin=128
+            # Qt.PenJoinStyle.MiterJoin=0, Qt.PenJoinStyle.BevelJoin=64, Qt.PenJoinStyle.RoundJoin=128
             join_val = int(pen_join_style)
             if join_val == 64:  # BevelJoin
                 stroke_params += f'    <CssParameter name="stroke-linejoin">bevel</CssParameter>\n'
@@ -327,7 +327,7 @@ def _build_stroke_params(stroke_color, stroke_width, stroke_opacity, pen_join_st
     # Add line cap style (using integer values for compatibility)
     if pen_cap_style is not None:
         try:
-            # Qt.FlatCap=0, Qt.SquareCap=16, Qt.RoundCap=32
+            # Qt.PenCapStyle.FlatCap=0, Qt.PenCapStyle.SquareCap=16, Qt.PenCapStyle.RoundCap=32
             cap_val = int(pen_cap_style)
             if cap_val == 0:  # FlatCap
                 stroke_params += f'    <CssParameter name="stroke-linecap">butt</CssParameter>\n'
@@ -341,7 +341,7 @@ def _build_stroke_params(stroke_color, stroke_width, stroke_opacity, pen_join_st
     # Add dash pattern (using integer values for compatibility)
     if pen_style is not None:
         try:
-            # Qt.SolidLine=1, Qt.DashLine=2, Qt.DotLine=3, Qt.DashDotLine=4, Qt.DashDotDotLine=5
+            # Qt.PenStyle.SolidLine=1, Qt.PenStyle.DashLine=2, Qt.PenStyle.DotLine=3, Qt.PenStyle.DashDotLine=4, Qt.PenStyle.DashDotDotLine=5
             style_val = int(pen_style)
             if style_val == 2:  # DashLine
                 stroke_params += f'    <CssParameter name="stroke-dasharray">5 2</CssParameter>\n'

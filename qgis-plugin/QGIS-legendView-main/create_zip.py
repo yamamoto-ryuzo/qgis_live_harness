@@ -82,7 +82,6 @@ def create_plugin_zip():
         "legend_view_dockwidget.py",
         "legend_view_dockwidget_base.ui",
         "resources_rc.py",
-        "resources_rc_qt5.py",
         "metadata.txt",
         "LICENSE",
         "README.md",

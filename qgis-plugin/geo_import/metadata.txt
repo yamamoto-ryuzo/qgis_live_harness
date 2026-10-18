@@ -2,25 +2,27 @@
 ## Required
 [general]
 name=geo_import
-qgisMinimumVersion=3.40
+qgisMinimumVersion=4.0
 qgisMaximumVersion=4.99
-version=V2.3.46
-author=Ryuzo Yamamoto
+version=2.5.0
+author=yamamoto-ryuzo
 email=ryu@yamakun.net
 description=さまざまなデータセットを検索・追加できるQGISプラグインです / A QGIS plugin to search and add various datasets.
 about=さまざまなデータセットを検索・追加できるQGISプラグインです / A QGIS plugin to search and add various datasets.
 category=Web;Data Management;Database
 icon=icon.png
-homepage=https://github.com/yamamoto-ryuzo/geo_import
-tracker=https://github.com/yamamoto-ryuzo/geo_import/issues
-repository=https://github.com/yamamoto-ryuzo/geo_import
+homepage=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_import
+tracker=https://github.com/yamamoto-ryuzo/qgis_live_harness/issues
+repository=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_import
 changelog=
-	V2.3.46: QGIS Live Harnessへ組み込み、プラグイン内文書を整備（機能変更なし）
+	2.5.0: 対応バージョンをQGIS4以降に更新(qgisMinimumVersion=4.0)
+	2.4.0: AI/外部制御用ブリッジ(bridge.py)を追加 — bridge_call/describe_plugins対応
+	2.3.46: QGIS Live Harnessへ組み込み、プラグイン内文書を整備（機能変更なし）
 	1.0.0: Initial release
 tags=CKAN,OpenData,GeoNetwork,Data Catalog,Search,Integration
 supportsQt6=True
 
 ## Optional
 
-license=GPL-3.0-or-later
+license=MIT
 

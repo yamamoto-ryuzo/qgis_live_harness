@@ -79,6 +79,11 @@ class QgisLivePlugin:
         self._ai_action = None
         self._ai_panel = None
         self._ai_driver = None
+        try:
+            from .bridge import QgisLiveBridge
+            self.bridge = QgisLiveBridge(self)
+        except Exception:
+            pass
 
     def _own_menu(self):
         """プラグイン > QGIS Live Driver サブメニューを返す(無ければNone)。"""

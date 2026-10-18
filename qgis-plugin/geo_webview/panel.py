@@ -26,43 +26,6 @@ import os
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QDockWidget, QWidget
 from qgis.PyQt.QtCore import Qt, QSize
-
-# Qt6 enum compatibility: some enums are scoped in Qt6 (e.g. DockWidgetArea).
-# Ensure older attribute style (Qt.LeftDockWidgetArea) exists for code that
-# expects it so the plugin works on both Qt5 and Qt6 via qgis.PyQt.
-try:
-    if not hasattr(Qt, 'LeftDockWidgetArea'):
-        # Qt6: enums are namespaced (Qt.DockWidgetArea.LeftDockWidgetArea)
-        try:
-            Qt.LeftDockWidgetArea = Qt.DockWidgetArea.LeftDockWidgetArea
-            Qt.RightDockWidgetArea = Qt.DockWidgetArea.RightDockWidgetArea
-        except Exception:
-            # best-effort fallback: leave as-is
-            pass
-except Exception:
-    pass
-try:
-    # Provide legacy enum names on QDockWidget for Qt6 where enums may be scoped.
-    if not hasattr(QDockWidget, 'DockWidgetMovable'):
-        feat = getattr(QDockWidget, 'DockWidgetFeature', None) or getattr(QDockWidget, 'Feature', None)
-        if feat is not None:
-            # map common names if present
-            if hasattr(feat, 'DockWidgetMovable'):
-                QDockWidget.DockWidgetMovable = getattr(feat, 'DockWidgetMovable')
-            elif hasattr(feat, 'Movable'):
-                QDockWidget.DockWidgetMovable = getattr(feat, 'Movable')
-
-            if hasattr(feat, 'DockWidgetFloatable'):
-                QDockWidget.DockWidgetFloatable = getattr(feat, 'DockWidgetFloatable')
-            elif hasattr(feat, 'Floatable'):
-                QDockWidget.DockWidgetFloatable = getattr(feat, 'Floatable')
-
-            if hasattr(feat, 'DockWidgetClosable'):
-                QDockWidget.DockWidgetClosable = getattr(feat, 'DockWidgetClosable')
-            elif hasattr(feat, 'Closable'):
-                QDockWidget.DockWidgetClosable = getattr(feat, 'Closable')
-except Exception:
-    pass
 from qgis.PyQt.QtGui import QGuiApplication, QIcon
 
 # UIファイルのパスを指定
@@ -95,7 +58,7 @@ class GeoWebViewPanel(QDockWidget):
         self.setWindowTitle("GeoWebView")
         
         # ドッキングエリアを設定（左側を優先、右側も可能）
-        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+        self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea)
 
         # 内部ウィジェットを作成
         self.widget = QWidget()
@@ -157,9 +120,9 @@ class GeoWebViewPanel(QDockWidget):
         self.setMaximumWidth(400)
         
         # パネルの特徴を設定
-        self.setFeatures(QDockWidget.DockWidgetMovable | 
-                        QDockWidget.DockWidgetFloatable | 
-                        QDockWidget.DockWidgetClosable)
+        self.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable |
+                        QDockWidget.DockWidgetFeature.DockWidgetFloatable |
+                        QDockWidget.DockWidgetFeature.DockWidgetClosable)
         
         # UI要素を翻訳
         self.translate_ui()
@@ -183,11 +146,7 @@ class GeoWebViewPanel(QDockWidget):
                     def _open_settings():
                         try:
                             dlg = SettingsDialog(self)
-                            # exec_ on PyQt5, exec on PyQt6 — handle both
-                            if hasattr(dlg, 'exec_'):
-                                dlg.exec_()
-                            else:
-                                dlg.exec()
+                            dlg.exec()
                         except Exception:
                             pass
 

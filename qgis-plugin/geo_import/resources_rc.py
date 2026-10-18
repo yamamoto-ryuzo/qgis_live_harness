@@ -2,7 +2,7 @@
 
 # Resource object code
 #
-# Created by: The Resource Compiler for PyQt5 (Qt v5.15.2)
+# Created by: The Qt Resource Compiler (Qt resource format; Qt6/QGIS4)
 #
 # WARNING! All changes made in this file will be lost!
 

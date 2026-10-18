@@ -94,23 +94,11 @@ class QMapWebMapGenerator:
                 except Exception:
                     pass
             else:
-                # fallback to QCoreApplication translation if Qt is available
+                # fallback to QCoreApplication translation
                 try:
-                    import importlib
-                    qt_core = None
-                    try:
-                        qt_core = importlib.import_module('PyQt5.QtCore')
-                    except Exception:
-                        try:
-                            qt_core = importlib.import_module('PySide2.QtCore')
-                        except Exception:
-                            qt_core = None
-                    if qt_core is not None and hasattr(qt_core, 'QCoreApplication'):
-                        QCoreApplication = getattr(qt_core, 'QCoreApplication')
-                        try:
-                            prompt_text = QCoreApplication.translate('geo_webview', prompt_text)
-                        except Exception:
-                            pass
+                    from qgis.PyQt.QtCore import QCoreApplication
+                    prompt_text = QCoreApplication.translate('geo_webview', prompt_text)
+                    prompt_theme_text = QCoreApplication.translate('geo_webview', prompt_theme_text)
                 except Exception:
                     pass
         except Exception:

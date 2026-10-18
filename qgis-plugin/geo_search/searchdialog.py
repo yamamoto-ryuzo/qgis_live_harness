@@ -455,7 +455,7 @@ class SearchDialog(QDialog):
                 # Show dialog with summary and detailed text for troubleshooting
                 try:
                     msg = QMessageBox(self)
-                    msg.setIcon(QMessageBox.Warning)
+                    msg.setIcon(QMessageBox.Icon.Warning)
                     msg.setWindowTitle(self.tr("Add current layer aborted"))
                     msg.setText(self.tr("The save operation was cancelled. Diagnostic information has been logged."))
                     # setDetailedText is available on QMessageBox to show long diagnostics
@@ -464,13 +464,7 @@ class SearchDialog(QDialog):
                     except Exception:
                         # Fallback: append diagnostics to text if detailed not available
                         msg.setText(msg.text() + "\n\n" + "\n".join(diag))
-                    try:
-                        msg.exec_()
-                    except Exception:
-                        try:
-                            msg.exec()
-                        except Exception:
-                            pass
+                    msg.exec()
                 except Exception:
                     # As a last resort, show a simple information box
                     try:
@@ -685,31 +679,9 @@ class SearchDialog(QDialog):
             except Exception:
                 print("remove_current_tab_from_project_variable invoked")
 
-            # Determine safe QMessageBox constants to avoid binding differences
-            YES_CONST = None
-            NO_CONST = None
-            YES_NO_FLAGS = 0
-            try:
-                # Avoid referencing QMessageBox.Yes/No directly in comparisons
-                YES_CONST = getattr(QMessageBox, 'Yes', None)
-                NO_CONST = getattr(QMessageBox, 'No', None)
-                if YES_CONST is None or NO_CONST is None:
-                    sb = getattr(QMessageBox, 'StandardButton', None)
-                    if sb is not None:
-                        YES_CONST = getattr(sb, 'Yes', YES_CONST)
-                        NO_CONST = getattr(sb, 'No', NO_CONST)
-                if YES_CONST is None:
-                    YES_CONST = 0
-                if NO_CONST is None:
-                    NO_CONST = 0
-                try:
-                    YES_NO_FLAGS = YES_CONST | NO_CONST
-                except Exception:
-                    YES_NO_FLAGS = 0
-            except Exception:
-                YES_CONST = 0
-                NO_CONST = 0
-                YES_NO_FLAGS = 0
+            YES_CONST = QMessageBox.StandardButton.Yes
+            NO_CONST = QMessageBox.StandardButton.No
+            YES_NO_FLAGS = YES_CONST | NO_CONST
                 
             # 選択されているタブの情報を取得（共通ヘルパーを使用）
             try:
@@ -1727,11 +1699,8 @@ class SearchDialog(QDialog):
             
             # 区切り線
             separator = QFrame()
-            # PyQt5/6両対応: HLine, Sunken
-            hline = getattr(QFrame, 'HLine', getattr(QFrame, 'Shape', QFrame).HLine if hasattr(getattr(QFrame, 'Shape', QFrame), 'HLine') else 1)
-            sunken = getattr(QFrame, 'Sunken', getattr(QFrame, 'Shadow', QFrame).Sunken if hasattr(getattr(QFrame, 'Shadow', QFrame), 'Sunken') else 2)
-            separator.setFrameShape(hline)
-            separator.setFrameShadow(sunken)
+            separator.setFrameShape(QFrame.Shape.HLine)
+            separator.setFrameShadow(QFrame.Shadow.Sunken)
             layout.addWidget(separator)
             
             # 読み取り専用フィールドの前にスペースを追加
@@ -1806,22 +1775,7 @@ class SearchDialog(QDialog):
             layout.addLayout(button_layout)
             
             # ダイアログを表示
-            try:
-                import importlib
-                qt_compat = importlib.import_module('geo_search.qt_compat')
-            except Exception:
-                qt_compat = None
-            if qt_compat is not None:
-                qt_compat.exec_dialog(edit_dialog)
-            else:
-                # fallback: try old call
-                try:
-                    edit_dialog.exec_()
-                except Exception:
-                    try:
-                        edit_dialog.exec()
-                    except Exception:
-                        pass
+            edit_dialog.exec()
             
         except Exception as e:
             try:
@@ -2656,22 +2610,8 @@ class SearchDialog(QDialog):
             layout.addLayout(button_layout)
             
             # ダイアログを表示
-            try:
-                import importlib
-                qt_compat = importlib.import_module('geo_search.qt_compat')
-            except Exception:
-                qt_compat = None
-            if qt_compat is not None:
-                qt_compat.exec_dialog(fields_dialog)
-            else:
-                try:
-                    fields_dialog.exec_()
-                except Exception:
-                    try:
-                        fields_dialog.exec()
-                    except Exception:
-                        pass
-            
+            fields_dialog.exec()
+
         except Exception as e:
             try:
                 from qgis.core import QgsMessageLog
@@ -2791,21 +2731,7 @@ class SearchDialog(QDialog):
             layout.addLayout(button_layout)
             
             # ダイアログを表示
-            try:
-                import importlib
-                qt_compat = importlib.import_module('geo_search.qt_compat')
-            except Exception:
-                qt_compat = None
-            if qt_compat is not None:
-                qt_compat.exec_dialog(fields_dialog)
-            else:
-                try:
-                    fields_dialog.exec_()
-                except Exception:
-                    try:
-                        fields_dialog.exec()
-                    except Exception:
-                        pass
+            fields_dialog.exec()
         except Exception as e:
             try:
                 from qgis.core import QgsMessageLog

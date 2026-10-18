@@ -2230,7 +2230,7 @@ class GeoWebViewServerManager:
                                 from qgis.PyQt.QtCore import Qt
                                 # For WMS we should match the requested size exactly
                                 if w and h and (w != pixmap.width() or h != pixmap.height()):
-                                    pixmap = pixmap.scaled(w, h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+                                    pixmap = pixmap.scaled(w, h, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
                             except Exception:
                                 pass
 
@@ -2307,7 +2307,7 @@ class GeoWebViewServerManager:
             timer.timeout.connect(lambda: loop.quit())
             timer.start(5000)
 
-            loop.exec_()
+            loop.exec()
             try:
                 helper.finished.disconnect(_on_finished)
             except Exception:
@@ -2607,7 +2607,7 @@ class GeoWebViewServerManager:
             
             # エラーメッセージを描画
             rect = image.rect()
-            painter.drawText(rect, Qt.AlignCenter | Qt.TextWordWrap, f"Error:\n{error_message}")
+            painter.drawText(rect, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextWordWrap, f"Error:\n{error_message}")
             
             painter.end()
             

@@ -53,32 +53,8 @@ try:
 except ImportError as e:
     pass
 
-# PyQt5/PyQt6互換性対応
-try:
-    # PyQt6の場合
-    USER_ROLE = Qt.ItemDataRole.UserRole
-except AttributeError:
-    # PyQt5の場合
-    USER_ROLE = Qt.UserRole
-
-# PyQt5/PyQt6 互換: LeftDockWidgetArea の取得
-def _resolve_left_dock_widget_area():
-    try:
-        return Qt.LeftDockWidgetArea
-    except Exception:
-        pass
-    try:
-        # PyQt6: enum nested under DockWidgetArea
-        return Qt.DockWidgetArea.LeftDockWidgetArea
-    except Exception:
-        pass
-    try:
-        # 最終手段:属性があるかチェックして返す
-        return getattr(Qt, 'LeftDockWidgetArea', None)
-    except Exception:
-        return None
-
-LEFT_DOCK_WIDGET_AREA = _resolve_left_dock_widget_area()
+USER_ROLE = Qt.ItemDataRole.UserRole
+LEFT_DOCK_WIDGET_AREA = Qt.DockWidgetArea.LeftDockWidgetArea
 
 # ログ出力関数
 def log_message(message, level=Qgis.Info):
@@ -378,6 +354,15 @@ class GeoReport:
         self.dialog = None
         self.dock_widget = None
 
+        # AI/外部制御用ブリッジ。qgis_live_driver の bridge_call コマンドが
+        # qgis.utils.plugins['geo_report'].bridge をプロセス内で直接呼ぶため、
+        # ファイルJSONL/REST/MCP(qgis_bridge_call)の全経路から制御できる
+        try:
+            from .bridge import GeoReportBridge
+            self.bridge = GeoReportBridge(self)
+        except Exception:
+            self.bridge = None
+
         # 起動ログ
         try:
             log_message('GeoReport プラグインを初期化しました')
@@ -575,18 +560,7 @@ class GeoReport:
         import glob
         import os
         from qgis.core import QgsReadWriteContext, QgsPrintLayout
-        try:
-            from qgis.PyQt.QtXml import QDomDocument
-            log_message("QtXmlインポート成功（qgis.PyQt経由）", Qgis.Info)
-        except ImportError as e:
-            # QT6環境の場合
-            log_message(f"QtXmlインポート失敗（qgis.PyQt経由）、PyQt6から再試行: {e}", Qgis.Warning)
-            try:
-                from PyQt6.QtXml import QDomDocument
-                log_message("QtXmlインポート成功（PyQt6直接）", Qgis.Info)
-            except ImportError as e2:
-                log_message(f"QtXmlインポート完全失敗: {e2}", Qgis.Critical)
-                raise
+        from qgis.PyQt.QtXml import QDomDocument
         project = QgsProject.instance()
         layout_manager = project.layoutManager()
         layouts = layout_manager.layouts()
@@ -661,16 +635,8 @@ class GeoReport:
                 for widget in self.iface.mainWindow().findChildren(QDockWidget):
                     area = self.iface.mainWindow().dockWidgetArea(widget)
                     try:
-                        if LEFT_DOCK_WIDGET_AREA is not None:
-                            if area == LEFT_DOCK_WIDGET_AREA and widget.isVisible():
-                                left_docks.append(widget)
-                        else:
-                            # 最終フォールバック: 名前から判定
-                            try:
-                                if hasattr(area, 'name') and area.name == 'LeftDockWidgetArea' and widget.isVisible():
-                                    left_docks.append(widget)
-                            except Exception:
-                                pass
+                        if area == LEFT_DOCK_WIDGET_AREA and widget.isVisible():
+                            left_docks.append(widget)
                     except Exception:
                         continue
                 if left_docks:
@@ -695,17 +661,7 @@ class GeoReport:
                 
                 if target_dock:
                     # 既存のドックが見つかった場合、タブ化して追加
-                    try:
-                        if LEFT_DOCK_WIDGET_AREA is not None:
-                            self.iface.addDockWidget(LEFT_DOCK_WIDGET_AREA, self.dock_widget)
-                        else:
-                            self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
-                    except Exception:
-                        # 最後の手段で元の呼び出しを試す
-                        try:
-                            self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
-                        except Exception:
-                            pass
+                    self.iface.addDockWidget(LEFT_DOCK_WIDGET_AREA, self.dock_widget)
                     # ターゲットドックにタブとして追加
                     self.iface.mainWindow().tabifyDockWidget(target_dock, self.dock_widget)
                     # タブバー上で新しく追加したタブを先頭（上位）に移動する
@@ -732,16 +688,7 @@ class GeoReport:
                         pass
                 else:
                     # 既存のドックがない場合は通常追加
-                    try:
-                        if LEFT_DOCK_WIDGET_AREA is not None:
-                            self.iface.addDockWidget(LEFT_DOCK_WIDGET_AREA, self.dock_widget)
-                        else:
-                            self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
-                    except Exception:
-                        try:
-                            self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
-                        except Exception:
-                            pass
+                    self.iface.addDockWidget(LEFT_DOCK_WIDGET_AREA, self.dock_widget)
                 
                 # 作成したパネルをアクティブに
                 self.dock_widget.raise_()
@@ -2130,12 +2077,8 @@ class LayoutSelectorDialog(QDialog):
             else:
                 # ファイル選択ダイアログを作成
                 dialog = LayoutFileSelectDialog(default_folder, json_files, self)
-                # PyQt5/PyQt6互換性: exec_() -> exec()
-                try:
-                    dialog_result = dialog.exec()
-                except AttributeError:
-                    dialog_result = dialog.exec_()
-                if dialog_result != QDialog.Accepted:
+                dialog_result = dialog.exec()
+                if dialog_result != QDialog.DialogCode.Accepted:
                     return
                 
                 selected_file = dialog.get_selected_file()
@@ -2168,11 +2111,11 @@ class LayoutSelectorDialog(QDialog):
                     self,
                     tr("Item Count Mismatch"),
                     tr("Saved item count ({}) and current layout item count ({}) are different.\n\nDo you want to apply within possible range?").format(saved_items_count, current_items_count),
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.Yes
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.Yes
                 )
                 
-                if reply == QMessageBox.No:
+                if reply == QMessageBox.StandardButton.No:
                     return
             
             # レイアウトプロパティを適用

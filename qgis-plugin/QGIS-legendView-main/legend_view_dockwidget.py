@@ -84,13 +84,8 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.currentLayer = None
         self.root = QgsProject.instance().layerTreeRoot()
 
-        # Qt5/Qt6 compatible orientation usage
-        if is_qt5():
-            vheader = QHeaderView(Qt.Vertical)
-            hheader = QHeaderView(Qt.Horizontal)
-        else:
-            vheader = QHeaderView(QtOrientation.Vertical)
-            hheader = QHeaderView(QtOrientation.Horizontal)
+        vheader = QHeaderView(QtOrientation.Vertical)
+        hheader = QHeaderView(QtOrientation.Horizontal)
             
         self.tableWidget.setVerticalHeader(vheader)
         self.tableWidget.setHorizontalHeader(hheader)
@@ -116,18 +111,9 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         except Exception:
             pass
         
-        # Qt5/Qt6 compatible signal connection
-        try:
-            # Try Qt6 approach first
-            self.styleComboBox.currentTextChanged.connect(self.changeNamedStyle)
-        except AttributeError:
-            try:
-                # Qt5 approach with QString
-                self.styleComboBox.currentIndexChanged['QString'].connect(self.changeNamedStyle)
-            except (KeyError, TypeError):
-                # Fallback: use index changed and get text manually
-                self.styleComboBox.currentIndexChanged.connect(self._styleComboBoxIndexChanged)
-                
+        self.styleComboBox.currentTextChanged.connect(self.changeNamedStyle)
+
+
         self.comboBox.setCurrentIndex(-1)
         self.comboBox.setCurrentIndex(0)
         self.showLegend()
@@ -155,19 +141,16 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.tableWidget.setVisible(True)
             self.tableWidget.horizontalHeader().setDefaultSectionSize(65)
             
-            # Qt6 requires larger row height for better symbol display
-            if is_qt6():
-                self.tableWidget.verticalHeader().setDefaultSectionSize(30)  # Same as Qt5
-            else:
-                self.tableWidget.verticalHeader().setDefaultSectionSize(30)  # Standard for Qt5
-                
+            self.tableWidget.verticalHeader().setDefaultSectionSize(30)
+
+
             self.tableWidget.setRowCount(len(symbols))
             self.tableWidget.setColumnCount(2)
             self.tableWidget.horizontalHeader().setStretchLastSection(True)
 
             pm_icon_size = self.tableWidget.style().pixelMetric(PM_ListViewIconSize)
             
-            # Use same size for both Qt5 and Qt6
+            # Symbol icon size based on list view metric
             icon_size = QSize(self.tableWidget.columnWidth(0) - 10, pm_icon_size)
 
             i = 0
@@ -373,12 +356,6 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         
         nonNumericList.append([layer_id, layer_name])
 
-    def _styleComboBoxIndexChanged(self, index):
-        """Fallback method for Qt5/Qt6 compatibility when currentTextChanged is not available"""
-        if index >= 0:
-            styleName = self.styleComboBox.itemText(index)
-            self.changeNamedStyle(styleName)
-
     def selectCurrentLayer(self):
         """Select the currently active layer"""
         current_layer = self.iface.activeLayer()
@@ -476,8 +453,8 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             value = ecs.variable(name)
             item_name = QTableWidgetItem(name)
             item_value = QTableWidgetItem('' if value is None else str(value))
-            item_name.setFlags(item_name.flags() & ~Qt.ItemIsEditable)
-            item_value.setFlags(item_value.flags() & ~Qt.ItemIsEditable)
+            item_name.setFlags(item_name.flags() & ~Qt.ItemFlag.ItemIsEditable)
+            item_value.setFlags(item_value.flags() & ~Qt.ItemFlag.ItemIsEditable)
             table.setItem(i, 0, item_name)
             table.setItem(i, 1, item_value)
 
@@ -496,7 +473,7 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         btn_layout.addWidget(close_btn)
         layout.addLayout(btn_layout)
 
-        dlg.exec_()
+        dlg.exec()
 
     def editLegendVariable(self, table: QTableWidget):
         sel = table.selectionModel().selectedRows()
@@ -537,8 +514,8 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             return
         name = name_item.text()
 
-        resp = QMessageBox.question(self, self.tr('Confirm delete'), self.tr('Delete variable %s?') % name, QMessageBox.Yes | QMessageBox.No)
-        if resp != QMessageBox.Yes:
+        resp = QMessageBox.question(self, self.tr('Confirm delete'), self.tr('Delete variable %s?') % name, QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        if resp != QMessageBox.StandardButton.Yes:
             return
 
         # attempt removal

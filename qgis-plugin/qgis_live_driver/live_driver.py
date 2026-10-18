@@ -74,6 +74,186 @@ def _loaded_plugins():
     return qgis.utils.plugins
 
 
+def _plugin_metadata(pid, key):
+    """プラグインのmetadata.txtから値を読む(失敗時None)。"""
+    try:
+        import qgis.utils
+        v = qgis.utils.pluginMetadata(pid, key)
+        return v if v else None
+    except Exception:
+        return None
+
+
+class _GenericBridge:
+    """bridgeを持たないプラグイン向けの汎用アダプタ。
+
+    repo管理外のサードパーティプラグイン(mmqgis等)は個別bridge.pyを
+    持てないため、ドライバ側で最低限の共通制御面を提供する。
+    メソッドは専用bridgeと同じくJSON文字列を返す。
+
+    - `pluginInfo` / `status` / `actions` / `trigger` / `run` /
+      `openDialog` / `closeDialog`
+    - `run`/`trigger` はQTimer.singleShot(0, ...)で非同期発火するため、
+      対象がmodalダイアログを開いてもコマンド応答はブロックされない
+    """
+
+    _DLG_ATTRS = ("dialog", "dlg", "dockwidget", "dock_widget", "dock")
+
+    def __init__(self, plugin_id, plugin):
+        self._pid = plugin_id
+        self._plugin = plugin
+
+    @staticmethod
+    def _ok(payload=None):
+        obj = {"ok": True, "generic": True}
+        if payload:
+            obj.update(payload)
+        return json.dumps(obj, ensure_ascii=False)
+
+    @staticmethod
+    def _err(msg):
+        return json.dumps({"ok": False, "generic": True, "error": str(msg)},
+                          ensure_ascii=False)
+
+    def _find_dialog(self):
+        for a in self._DLG_ATTRS:
+            w = getattr(self._plugin, a, None)
+            if w is not None and hasattr(w, "show"):
+                return w
+        return None
+
+    def _actions(self):
+        from qgis.PyQt.QtWidgets import QAction
+        acts = getattr(self._plugin, "actions", None) or []
+        return [a for a in acts if isinstance(a, QAction)]
+
+    # ---------- メソッド(JSON文字列を返す) ----------
+
+    def pluginInfo(self):
+        """metadata由来の自己記述+汎用メソッド一覧。"""
+        return self._ok({
+            "id": self._pid,
+            "name": _plugin_metadata(self._pid, "name") or self._pid,
+            "version": _plugin_metadata(self._pid, "version"),
+            "summary": _plugin_metadata(self._pid, "description"),
+            "when_to_use": [
+                "このプラグインのメニュー/ツールバー操作を実行したい",
+                "プラグインのダイアログやドックを開閉したい",
+                "専用bridge未搭載プラグインを最低限操作したい",
+            ],
+            "invoke": {"type": "bridge_call", "plugin_id": self._pid,
+                       "method": "<method>", "args": []},
+            "methods": [
+                {"name": "pluginInfo", "signature": "pluginInfo()",
+                 "description": "metadata由来の自己記述を返す"},
+                {"name": "status", "signature": "status()",
+                 "description": "ダイアログ有無・アクション数等の状態を返す"},
+                {"name": "actions", "signature": "actions()",
+                 "description": "プラグインのQAction一覧(index/text/enabled)"},
+                {"name": "trigger", "signature": "trigger(action)",
+                 "description": "アクションを非同期で実行(index/テキスト。"
+                                "modalダイアログを開いても応答は即返る)"},
+                {"name": "run", "signature": "run()",
+                 "description": "plugin.run()を非同期で実行"
+                                "(modalダイアログを開いても応答は即返る)"},
+                {"name": "openDialog", "signature": "openDialog()",
+                 "description": "dialog/dlg/dockwidget属性のウィジェットを"
+                                "表示(無ければrun()を非同期実行)"},
+                {"name": "closeDialog", "signature": "closeDialog()",
+                 "description": "dialog/dlg/dockwidget属性のウィジェットを閉じる"},
+            ],
+        })
+
+    def status(self):
+        """プラグインの状態(ダイアログ有無・アクション数・版)を返す。"""
+        dlg = self._find_dialog()
+        return self._ok({
+            "id": self._pid,
+            "version": _plugin_metadata(self._pid, "version"),
+            "widget": dlg.__class__.__name__ if dlg is not None else None,
+            "widgetVisible": bool(dlg is not None and dlg.isVisible()),
+            "actions": len(self._actions()),
+            "has_run": callable(getattr(self._plugin, "run", None)),
+        })
+
+    def actions(self):
+        """プラグインのQAction一覧を返す。"""
+        out = []
+        for i, a in enumerate(self._actions()):
+            try:
+                out.append({"index": i, "text": a.text(),
+                            "enabled": a.isEnabled(),
+                            "checkable": a.isCheckable()})
+            except Exception:
+                out.append({"index": i, "text": None})
+        return self._ok({"actions": out})
+
+    def trigger(self, action):
+        """アクションを非同期で実行する(index/テキスト指定)。"""
+        acts = self._actions()
+        target = None
+        if isinstance(action, bool):
+            return self._err("invalid action selector")
+        if isinstance(action, int):
+            if -len(acts) <= action < len(acts):
+                target = acts[action]
+        else:
+            s = str(action or "")
+            for a in acts:
+                if a.text() == s:
+                    target = a
+                    break
+            if target is None:
+                for a in acts:
+                    if s and s in a.text():
+                        target = a
+                        break
+        if target is None:
+            return self._err(
+                f"action not found: {action} "
+                f"(have: {[a.text() for a in acts]})")
+        QTimer.singleShot(0, target.trigger)
+        return self._ok({"triggered": target.text(), "async": True})
+
+    def run(self):
+        """plugin.run()を非同期で実行する。"""
+        fn = getattr(self._plugin, "run", None)
+        if not callable(fn):
+            return self._err("plugin has no run()")
+        QTimer.singleShot(0, fn)
+        return self._ok({"started": True, "async": True})
+
+    def openDialog(self):
+        """dialog/dlg/dockwidget属性のウィジェットを表示する。"""
+        dlg = self._find_dialog()
+        if dlg is not None:
+            dlg.show()
+            try:
+                dlg.raise_()
+                dlg.activateWindow()
+            except Exception:
+                pass
+            return self._ok({"opened": True,
+                             "widget": dlg.__class__.__name__})
+        fn = getattr(self._plugin, "run", None)
+        if callable(fn):
+            QTimer.singleShot(0, fn)
+            return self._ok({"opened": True, "via": "run", "async": True})
+        return self._err("no dialog/dockwidget attribute and no run()")
+
+    def closeDialog(self):
+        """dialog/dlg/dockwidget属性のウィジェットを閉じる。"""
+        dlg = self._find_dialog()
+        if dlg is None:
+            return self._err("no dialog/dockwidget attribute")
+        try:
+            dlg.close()
+        except Exception:
+            dlg.hide()
+        return self._ok({"closed": True,
+                         "widget": dlg.__class__.__name__})
+
+
 def _find_plugin_driver(plugin_id):
     """他プラグインのLiveDriverを返す(無ければNone)。"""
     p = _loaded_plugins().get(plugin_id)
@@ -364,10 +544,15 @@ class LiveDriver:
                      if getattr(p, "bridge", None) is not None), None)
             if target is None:
                 reply({"id": cid, "error":
-                       f"plugin '{pid}' not loaded or has no bridge "
+                       f"plugin '{pid}' not loaded "
                        f"(loaded: {sorted(plugins.keys())})"})
                 return
+            # 専用bridgeが無いプラグインは汎用アダプタで最低限の制御面を提供
             bridge = getattr(target, "bridge", None)
+            if bridge is None:
+                gpid = next((k for k, v in plugins.items() if v is target),
+                            pid)
+                bridge = _GenericBridge(gpid, target)
             fn = getattr(bridge, method, None) if bridge is not None else None
             if not callable(fn):
                 reply({"id": cid, "error":
@@ -398,6 +583,11 @@ class LiveDriver:
                 entry = {"id": pid}
                 bridge = getattr(p, "bridge", None)
                 entry["bridge"] = bridge is not None
+                if bridge is None:
+                    # 汎用アダプタ経由でmetadata由来の自己記述を載せ、
+                    # bridge未搭載プラグインもAIが発見・操作できるようにする
+                    bridge = _GenericBridge(pid, p)
+                    entry["generic"] = True
                 if bridge is not None:
                     info = getattr(bridge, "pluginInfo", None)
                     if callable(info):

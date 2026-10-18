@@ -3,7 +3,7 @@
 UI ローダー - Qt Designer の .ui ファイルを動的にロード
 
 Qt Designer で作成した .ui ファイルから UI をプログラムで読み込むためのユーティリティ。
-QT6 (PyQt6) と QT5 (PyQt5) の両方に対応。
+Qt6 (PyQt6) / QGIS4 専用。
 """
 
 import os
