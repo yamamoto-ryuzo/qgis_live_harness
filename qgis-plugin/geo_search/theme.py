@@ -1718,36 +1718,6 @@ def apply_legend_visibility(layer, legend_state: Optional[Dict], log_func=None, 
     if not items:
         return
 
-    def _set_obj_state(obj, enable: bool):
-        try:
-            if hasattr(obj, 'setActive'):
-                try:
-                    obj.setActive(bool(enable))
-                    return True
-                except Exception:
-                    pass
-            if hasattr(obj, 'setEnabled'):
-                try:
-                    obj.setEnabled(bool(enable))
-                    return True
-                except Exception:
-                    pass
-            if hasattr(obj, 'setVisible'):
-                try:
-                    obj.setVisible(bool(enable))
-                    return True
-                except Exception:
-                    pass
-            if hasattr(obj, 'setRenderState'):
-                try:
-                    obj.setRenderState(bool(enable))
-                    return True
-                except Exception:
-                    pass
-        except Exception:
-            pass
-        return False
-
     # Delegate renderer-specific visibility application to helpers
     try:
         _apply_categorized_visibility(layer, items, overwrite_all=overwrite_all, log_func=log_func)

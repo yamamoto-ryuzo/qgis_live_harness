@@ -3,15 +3,13 @@ import os
 
 import psycopg2
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import QCompleter, QDialog, QMessageBox, QTableWidgetItem
+from qgis.PyQt.QtWidgets import QCompleter, QMessageBox, QTableWidgetItem
 from qgis.core import (
-    QgsApplication,
     QgsDataSourceUri,
     QgsVectorLayer,
     QgsFeatureRequest,
     QgsExpression,
     QgsProject,
-    QgsTask,
 )
 from . import jaconv
 
@@ -61,7 +59,6 @@ class SearchFeature(object):
             except Exception:
                 pass
 
-        self.sample_table_task = None
         # 検索ウィジェットは常に有効化（カレントレイヤがNoneでも入力可能にする）
         self.widget.setEnabled(True)
         # pan mode (0: default zoom-to-selected). May be set by plugin when dialog is created.
@@ -327,20 +324,6 @@ class SearchFeature(object):
     def show_message(self):
         window = self.widget.parent()
         QMessageBox.information(self.widget, window.windowTitle(), self.tr(self.message) if isinstance(self.message, str) else self.message)
-
-    def open_feature_form(self, item):
-        if not item:
-            return
-        feature_id = item.data(self.data_role)
-        feature = get_feature_by_id(self.layer, feature_id)
-        self.iface.openFeatureForm(self.layer, feature)
-
-    def zoom_item(self, item):
-        """クリックした地物アイテムの座標にズームする"""
-        if not item:
-            return
-        value = item.data(self.data_role)
-        self.zoom_features([value])
 
     def zoom_items(self, item=None):
         # support tabbed tables: prefer dialog's current_table if present
@@ -1244,34 +1227,6 @@ class SearchFeature(object):
                 continue
 
         return layers
-
-    def add_search_task(self):
-        task = QgsTask.fromFunction(
-            "地図検索",
-            self.search_task,
-            on_finished=self.search_finished,
-        )
-
-        QgsApplication.taskManager().addTask(task)
-        self.sample_table_task = task
-
-    def search_task(self, task):
-        """検索最中に検索テーブルを更新する"""
-        try:
-            features = self.search_feature()
-        except:
-            features = []
-        return features
-
-    def search_finished(self, exception, result=None):
-        if result is None:
-            result = []
-        # show results as per-layer tab(s)
-        try:
-            self.result_dialog.set_features_by_layer([(self.layer, self.view_fields, result)])
-        except Exception:
-            self.result_dialog.set_features(self.view_fields, result)
-
 
 # "通常の検索"
 class SearchTextFeature(SearchFeature):

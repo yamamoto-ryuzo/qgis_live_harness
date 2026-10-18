@@ -9,14 +9,12 @@ import json
 import re
 import time
 import threading
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Optional, Dict, Any, List
 from qgis.core import (
     QgsProject, QgsVectorLayer, QgsFeatureRequest, 
     QgsJsonExporter, QgsMessageLog, Qgis, QgsRectangle,
     QgsCoordinateReferenceSystem, QgsCoordinateTransform
 )
-from qgis.PyQt.QtCore import QUrl
-from qgis.PyQt.QtGui import QColor
 
 
 class GeoWebViewWFSService:
@@ -637,7 +635,7 @@ class GeoWebViewWFSService:
             # try to attach simple style hints extracted from the QGIS symbol
             # NOTE: intentionally do NOT include per-feature style hints inside the
             # GeoJSON properties. Styling is now unified via WFS GetStyles (SLD) and
-            # converted to Mapbox/MapLibre style layers by `sld_to_mapbox_style`.
+            # converted to Mapbox/MapLibre style layers by the MapLibre generator.
             # Embedding `_qgis_style` or flattening style keys into feature
             # properties caused conflicts and made MapLibre prefer feature-level
             # hints over SLD defaults. By omitting these hints we ensure a single
@@ -688,107 +686,6 @@ class GeoWebViewWFSService:
             geojson["features"].append(feature_json)
 
         return json.dumps(geojson, ensure_ascii=False, indent=2)
-
-    def _extract_style_hint(self, layer: QgsVectorLayer, feature) -> Dict[str, Any]:
-        """Extract a minimal style hint for a feature from the layer's renderer.
-
-        Returns a dict suitable for client-side MapLibre usage, e.g.
-        { 'geomType':'LineString', 'stroke':'#rrggbb', 'stroke-width':2 }
-
-        This is best-effort: we handle simple single-symbol renderers and
-        fall back to empty dict for complex cases.
-        """
-        try:
-            from qgis.core import (QgsMarkerSymbol, QgsLineSymbol, QgsFillSymbol,
-                                   QgsRuleBasedRenderer, QgsCategorizedSymbolRenderer,
-                                   QgsRenderContext, QgsExpressionContext,
-                                   QgsExpressionContextUtils)
-            renderer = layer.renderer()
-            if renderer is None:
-                return {}
-
-            # Create render context for symbolForFeature
-            context = QgsRenderContext()
-            context.setExpressionContext(QgsExpressionContext())
-            context.expressionContext().appendScopes(QgsExpressionContextUtils.globalProjectLayerScopes(layer))
-            context.expressionContext().setFeature(feature)
-
-            # Get the actual symbol for this feature
-            symbol = renderer.symbolForFeature(feature, context)
-            if symbol is None:
-                # Fall back to the renderer's default symbol based on renderer type
-                try:
-                    from qgis.core import (QgsSingleSymbolRenderer, QgsCategorizedSymbolRenderer,
-                                           QgsGraduatedSymbolRenderer, QgsRuleBasedRenderer)
-                    if isinstance(renderer, QgsSingleSymbolRenderer):
-                        symbol = renderer.symbol()
-                    elif isinstance(renderer, QgsCategorizedSymbolRenderer):
-                        categories = renderer.categories()
-                        if categories:
-                            symbol = categories[0].symbol()
-                    elif isinstance(renderer, QgsGraduatedSymbolRenderer):
-                        ranges = renderer.ranges()
-                        if ranges:
-                            symbol = ranges[0].symbol()
-                    elif isinstance(renderer, QgsRuleBasedRenderer):
-                        # For rule-based, use the first child rule's symbol
-                        root_rule = renderer.rootRule()
-                        if root_rule:
-                            children = root_rule.children()
-                            for child in children:
-                                if child.symbol():
-                                    symbol = child.symbol()
-                                    break
-                    # If still None, try renderer.symbol() as last resort
-                    if symbol is None:
-                        symbol = renderer.symbol()
-                except Exception:
-                    pass
-            if symbol is None:
-                return {}
-
-            style = {}
-
-            # Extract geometry type
-            if isinstance(symbol, QgsMarkerSymbol):
-                style['geomType'] = 'Point'
-            elif isinstance(symbol, QgsLineSymbol):
-                style['geomType'] = 'LineString'
-            elif isinstance(symbol, QgsFillSymbol):
-                style['geomType'] = 'Polygon'
-
-            # Extract color information
-            try:
-                color = symbol.color()
-                if hasattr(color, 'name') and color.isValid():
-                    if isinstance(symbol, (QgsLineSymbol, QgsMarkerSymbol)):
-                        style['stroke'] = color.name()
-                    elif isinstance(symbol, QgsFillSymbol):
-                        style['fill'] = color.name()
-            except Exception:
-                pass
-
-            # Extract stroke width for lines
-            if isinstance(symbol, QgsLineSymbol):
-                try:
-                    width = symbol.width()
-                    if width > 0:
-                        style['stroke-width'] = width
-                except Exception:
-                    pass
-
-            # Extract fill opacity for polygons
-            if isinstance(symbol, QgsFillSymbol):
-                try:
-                    opacity = symbol.opacity()
-                    if opacity < 1.0:
-                        style['fill-opacity'] = opacity
-                except Exception:
-                    pass
-
-            return style
-        except Exception:
-            return {}
 
     def _extract_feature_label(self, layer: QgsVectorLayer, feature) -> str:
         """Extract a display label for a feature.

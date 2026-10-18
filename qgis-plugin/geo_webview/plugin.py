@@ -38,12 +38,7 @@ except Exception:
 from qgis.PyQt.QtGui import QIcon, QDesktopServices, QClipboard
 from qgis.PyQt.QtWidgets import QAction, QMessageBox, QApplication, QDockWidget
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY, QgsRectangle
-try:
-    from qgis.core import qgsfunction
-except Exception:
-    qgsfunction = None
 
-from qgis.gui import QgsMapCanvas
 
 # --- 標準ライブラリのインポート（欠落しているため追加）
 import os
@@ -75,23 +70,6 @@ try:
 except Exception:
     QMapWebMapGenerator = None
     WEBMAP_AVAILABLE = False
-
-# ユーザー関数定義（デコレータでの自動登録は import 時に QGIS の内部で
-# Cレベルの処理を行うため、環境によってはプロセスがクラッシュすることがある。
-# 安全性のためここではデコレータを使わず通常の関数として定義する。必要なら
-# プラグイン初期化時に明示的に登録処理を行う。）
-def my_custom_function(value1, value2, feature, parent):
-    """単純なサンプル関数（登録は行わない）
-
-    NOTE: QGIS の qgsfunction デコレータでの自動登録はここでは行いません。
-    もしプラグイン実行環境でユーザー関数の登録が必要であれば、
-    initGui() 内など安全なタイミングで登録処理を追加してください。
-    """
-    try:
-        return value1 + value2
-    except Exception:
-        # 安全に失敗して None を返すだけにする
-        return None
 
 
 class NavigationSignals(QObject):
@@ -1115,35 +1093,6 @@ class GeoWebView:
                 pass
             return 16.0
 
-    def _zoom_to_earth_distance(self, zoom_level):
-        """ズームレベルからGoogle Earth用の適切な距離を計算
-        
-        Args:
-            zoom_level: ズームレベル（小数点可）
-            
-        Returns:
-            距離（メートル）
-        """
-        if zoom_level is None:
-            return 5000
-            
-        try:
-            z = float(zoom_level)
-            # ズームレベルに対応する距離テーブル
-            zoom_distances = {
-                0: 20000000, 1: 10000000, 2: 5000000, 3: 2000000, 4: 1000000,
-                5: 500000, 6: 200000, 7: 100000, 8: 50000, 9: 20000,
-                10: 10000, 11: 5000, 12: 2000, 13: 1000, 14: 500,
-                15: 200, 16: 100, 17: 50, 18: 20, 19: 10, 20: 5
-            }
-            
-            # 最も近い整数ズームレベルの距離を使用
-            rounded_zoom = max(0, min(20, round(z)))
-            return zoom_distances.get(rounded_zoom, 5000)
-            
-        except (ValueError, TypeError):
-            return 5000
-
     def _parse_google_maps_at_url(self, url):
         """Google Maps の @lat,lon,XXXm または @lat,lon,ZZz 形式を解析する
 
@@ -1305,58 +1254,6 @@ class GeoWebView:
         except Exception:
             return None
 
-    def _extract_altitude_from_earth_url(self, url):
-        """Google Earth Web の URL から altitude（高度, メートル）を抽出するヘルパー。
-
-        Google Earth の URL では高度と距離が `...,{altitude}a,{distance}d,...` のように表現されることが多いです。
-        この関数は altitude 部分を見つけて float で返します。
-
-        Args:
-            url (str): Google Earth の @... 形式を含む URL
-
-        Returns:
-            float: altitude（メートル）
-
-        Raises:
-            ValueError: 高度が見つからない場合
-        """
-        try:
-            # よくある形式: @lat,lon,altitudea,distanced,...
-            m = re.search(r'@[-0-9.]+,[-0-9.]+,(-?[0-9.]+)a,([0-9.]+)d', url)
-            if not m:
-                # 別の形式やマイナスゼロなども考慮して柔軟に検索
-                m2 = re.search(r',(-?[0-9.]+)a,([0-9.]+)d', url)
-                if not m2:
-                    raise ValueError("Altitude not found in URL")
-                return float(m2.group(1))
-            return float(m.group(1))
-        except Exception as e:
-            raise ValueError(f"Altitude extraction failed: {e}")
-
-    def _estimate_ground_resolution_from_altitude(self, altitude_meters, latitude_deg, pixel_angle_deg=0.00028):
-        """与えられた高度（m）と中心緯度（度）から概算の地上解像度（メートル/ピクセル）を計算する。
-
-        注記: この計算はおおよその概算であり、実際の表示スケールはモニタ解像度、表示領域のピクセル数、投影
-        の影響などに依存します。ここでは単純化した幾何学モデルを用いて m/px の見積もりを返します。
-
-        Args:
-            altitude_meters (float): カメラ/観測点の高度（メートル）
-            latitude_deg (float): 地表の中心緯度（度）
-            pixel_angle_deg (float): 画面上1ピクセルが占める角度（度）。デフォルトは 0.00028deg（概算）
-
-        Returns:
-            float: 推定される地上解像度（メートル/ピクセル）
-        """
-        try:
-            earth_radius = 6371000.0
-            r = float(earth_radius) + float(altitude_meters)
-            pixel_angle_rad = math.radians(float(pixel_angle_deg))
-            lat_correction = math.cos(math.radians(float(latitude_deg)))
-            ground_resolution = r * pixel_angle_rad * lat_correction
-            return float(ground_resolution)
-        except Exception:
-            return None
-
     def _estimate_scale_from_zoom(self, zoom_level):
         """ズームレベルからスケール値を逆算（小数点対応版）
         
@@ -1423,65 +1320,6 @@ class GeoWebView:
             # map_width_m divided by meters_per_deg_lon -> degrees of longitude
             deg_width = float(map_width_m) / meters_per_deg_lon if meters_per_deg_lon != 0 else None
             return {'deg_width': deg_width, 'meters_per_deg_lon': meters_per_deg_lon}
-        except Exception:
-            return None
-
-    def _compute_scale_from_map_width_with_dpi(self, center_lat, map_width_m, canvas, dpi=96):
-        """Compute map scale denominator (approx) from desired map width in meters, using canvas size and DPI.
-
-        Returns scale_denominator (e.g. 10000 for 1:10000) or None.
-        """
-        try:
-            dest_crs = canvas.mapSettings().destinationCrs()
-            # compute deg width and meters per degree at center
-            info = self._compute_scale_from_map_width(center_lat, map_width_m, dest_crs.authid())
-            if not info or not info.get('deg_width'):
-                return None
-            deg_width = info['deg_width']
-            # convert deg left/right to destination CRS map units
-            try:
-                # get canvas center in dest CRS and transform to WGS84
-                center_map = canvas.extent().center()
-                wgs_lat, wgs_lon = self._convert_to_wgs84(center_map.x(), center_map.y(), dest_crs.authid())
-                if wgs_lat is None or wgs_lon is None:
-                    return None
-            except Exception:
-                return None
-
-            lon_center = wgs_lon
-            lon_left = lon_center - deg_width / 2.0
-            lon_right = lon_center + deg_width / 2.0
-            x_left, y_left = self._convert_wgs84_to_crs(wgs_lat, lon_left, dest_crs.authid())
-            x_right, y_right = self._convert_wgs84_to_crs(wgs_lat, lon_right, dest_crs.authid())
-            if x_left is None or x_right is None:
-                return None
-            map_width_map_units = abs(x_right - x_left)
-
-            canvas_width_px = canvas.size().width()
-            if canvas_width_px <= 0:
-                return None
-
-            desired_map_units_per_pixel = map_width_map_units / float(canvas_width_px)
-
-            # Preferred method: use current canvas.mapUnitsPerPixel() and canvas.scale() to compute new scale
-            try:
-                current_map_units_per_pixel = canvas.mapUnitsPerPixel()
-                current_scale = canvas.scale()
-                if current_map_units_per_pixel and current_scale:
-                    # scale is proportional to mapUnitsPerPixel, so we can scale by the ratio
-                    scale_denominator = float(current_scale) * (desired_map_units_per_pixel / float(current_map_units_per_pixel))
-                    if scale_denominator > 0:
-                        return float(scale_denominator)
-            except Exception:
-                # Fall back to DPI-based conversion below
-                pass
-
-            # Fallback: Convert meters per pixel to scale denominator using DPI
-            meters_per_pixel = map_width_map_units / float(canvas_width_px)
-            scale_denominator = meters_per_pixel * float(dpi) / 0.0254
-            if scale_denominator <= 0:
-                return None
-            return float(scale_denominator)
         except Exception:
             return None
 
@@ -2783,137 +2621,6 @@ class GeoWebView:
             )
 
     # テーマ関連のメソッド群
-    
-    def _get_current_theme_info(self):
-        """現在のテーマ情報を取得（無効化 - 複雑すぎるため）
-        
-        Returns:
-            None: 常にNoneを返す（機能無効化）
-        """
-        # 複雑すぎて安定しないため、この機能を無効化
-        return None
-        try:
-            from qgis.core import QgsProject, QgsMapThemeCollection
-            
-            project = QgsProject.instance()
-            if not project:
-                return None
-                
-            theme_collection = project.mapThemeCollection()
-            if not theme_collection:
-                return None
-            
-            # 現在のレイヤー状態を取得
-            layer_states = self._get_current_layer_states()
-            
-            # アクティブなテーマがあるかチェック
-            current_theme = self._detect_current_theme(theme_collection, layer_states)
-            
-            theme_info = {
-                'version': '1.0',
-                'current_theme': current_theme,
-                'layer_states': layer_states,
-                'available_themes': theme_collection.mapThemes()
-            }
-            
-            return theme_info
-            
-        except ImportError:
-            # QGISが利用できない環境
-            return None
-        except Exception as e:
-            print(f"テーマ情報取得エラー: {e}")
-            return None
-    
-    def _get_current_layer_states(self):
-        """現在のレイヤー状態を取得
-        
-        Returns:
-            dict: レイヤー状態情報
-        """
-        try:
-            from qgis.core import QgsProject, QgsLayerTreeLayer, QgsLayerTreeGroup
-            
-            project = QgsProject.instance()
-            root = project.layerTreeRoot()
-            
-            layer_states = {}
-            
-            def collect_layer_info(node, path=""):
-                """レイヤーノードから情報を再帰的に収集"""
-                if isinstance(node, QgsLayerTreeLayer):
-                    layer = node.layer()
-                    if layer:
-                        layer_id = layer.id()
-                        layer_states[layer_id] = {
-                            'name': layer.name(),
-                            'visible': node.isVisible(),
-                            'expanded': node.isExpanded(),
-                            'opacity': getattr(layer, 'opacity', lambda: 1.0)(),
-                            'path': path,
-                            'type': layer.type().name if hasattr(layer.type(), 'name') else str(layer.type())
-                        }
-                        
-                        # スタイル情報も含める（可能であれば）
-                        if hasattr(layer, 'styleManager'):
-                            try:
-                                current_style = layer.styleManager().currentStyle()
-                                layer_states[layer_id]['current_style'] = current_style
-                                layer_states[layer_id]['available_styles'] = layer.styleManager().styles()
-                            except:
-                                pass
-                                
-                elif isinstance(node, QgsLayerTreeGroup):
-                    group_path = f"{path}/{node.name()}" if path else node.name()
-                    layer_states[f"group:{node.name()}"] = {
-                        'name': node.name(),
-                        'type': 'group',
-                        'visible': node.isVisible(),
-                        'expanded': node.isExpanded(),
-                        'path': path
-                    }
-                    
-                    # 子要素を再帰的に処理
-                    for child in node.children():
-                        collect_layer_info(child, group_path)
-            
-            # ルートから開始
-            for child in root.children():
-                collect_layer_info(child)
-            
-            return layer_states
-            
-        except Exception as e:
-            print(f"レイヤー状態取得エラー: {e}")
-            return {}
-    
-    def _detect_current_theme(self, theme_collection, current_layer_states):
-        """現在の状態に最も近いテーマを検出
-        
-        Args:
-            theme_collection: QgsMapThemeCollection
-            current_layer_states: 現在のレイヤー状態
-            
-        Returns:
-            str or None: テーマ名、または一致するものがない場合はNone
-        """
-        try:
-            available_themes = theme_collection.mapThemes()
-            
-            for theme_name in available_themes:
-                # テーマの状態と現在の状態を比較
-                # 実際の詳細比較は複雑になるため、簡単な一致判定を行う
-                
-                # ここでは簡単な実装として、テーマ名による判定のみ行う
-                # 実際の実装では、レイヤーの表示状態やスタイルを詳細に比較する必要がある
-                pass
-            
-            # 簡略化：現在は常にNoneを返す（完全一致の検出は複雑なため）
-            return None
-            
-        except Exception as e:
-            print(f"テーマ検出エラー: {e}")
-            return None
     
     def _apply_theme_from_permalink(self, theme_name):
         """パーマリンクからテーマを復元・適用

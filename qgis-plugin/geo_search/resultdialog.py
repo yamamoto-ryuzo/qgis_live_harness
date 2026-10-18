@@ -367,26 +367,6 @@ class ResultDialog(QDialog):
         except Exception:
             pass
 
-    def set_form(self, fields, features):
-        """Placeholder API: set results for 'form' display mode (single layer).
-        This stub records provided data and shows the dialog; UI rendering
-        for form mode is implemented later.
-        """
-        # For single-layer form mode, delegate to set_form_by_layer with single entry
-        try:
-            self.set_form_by_layer([(None, fields, features)])
-        except Exception:
-            # fallback minimal behavior
-            try:
-                self._form_tabs = [{"layer": None, "fields": fields, "features": features}]
-                self.setWindowTitle(self.tr("Search Results (Form): {0} items").format(len(features) if features else 0))
-                try:
-                    self.show()
-                except Exception:
-                    pass
-            except Exception:
-                pass
-
     def set_form_by_layer(self, layers_with_features):
         """Placeholder API: set results for 'form' display mode with per-layer tabs.
         Records the provided structures for later rendering.

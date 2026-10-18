@@ -1,112 +1,3 @@
-def export_layer_geojson(layer, geojson_path="data.geojson"):
-	"""
-	QGISレイヤをGeoJSON形式でエクスポートする。
-	geojson_path: 出力するGeoJSONファイルのパス
-	"""
-	try:
-		from qgis.core import QgsVectorFileWriter, QgsCoordinateTransformContext
-		# QGIS 3.x 以降推奨の書き出し方法
-		options = QgsVectorFileWriter.SaveVectorOptions()
-		options.driverName = "GeoJSON"
-		options.fileEncoding = "UTF-8"
-		# CRS変換なし（レイヤのCRSのまま出力）
-		context = QgsCoordinateTransformContext()
-		res, err = QgsVectorFileWriter.writeAsVectorFormatV2(layer, geojson_path, context, options)
-		if res == QgsVectorFileWriter.NoError:
-			_qgis_log(f"GeoJSON exported: {geojson_path}")
-			return geojson_path
-		else:
-			raise RuntimeError(f"GeoJSONエクスポート失敗: {err}")
-	except Exception as e:
-		_qgis_log(f"GeoJSONエクスポート失敗: {e}", level="critical")
-		return None
-def export_mapbox_style_json(layer, geojson_url="data.geojson", style_path="style.json"):
-	"""
-	QGISレイヤからMapbox Style JSON (v8) を生成し、style.jsonとして保存する。
-	単一レイヤ・単一シンボルのみ対応（複雑なスタイルは簡易化）。
-	geojson_url: GeoJSONデータのURL（例: "data.geojson"）
-	style_path: 出力するstyle.jsonのパス
-	"""
-	import json
-	try:
-		from qgis.core import QgsMarkerSymbol, QgsLineSymbol, QgsFillSymbol
-		# レイヤのシンボル情報を取得
-		renderer = layer.renderer()
-		symbol = renderer.symbol() if renderer else None
-		style = {}
-		if symbol:
-			# 幾何タイプ
-			if isinstance(symbol, QgsMarkerSymbol):
-				geom_type = 'circle'
-			elif isinstance(symbol, QgsLineSymbol):
-				geom_type = 'line'
-			elif isinstance(symbol, QgsFillSymbol):
-				geom_type = 'fill'
-			else:
-				geom_type = 'fill'
-			# 色・線幅など
-			props = {}
-			try:
-				sl = symbol.symbolLayer(0)
-				props = sl.properties() if sl else {}
-			except Exception:
-				props = {}
-			color = props.get('color') or props.get('stroke') or props.get('stroke_color') or props.get('fill') or props.get('fill_color') or None
-			width = props.get('width') or props.get('stroke-width') or props.get('size') or None
-			opacity = props.get('fill-opacity') or props.get('opacity') or None
-			# Mapbox Styleのpaint/layoutにマッピング
-			paint = {}
-			layout = {}
-			if geom_type == 'circle':
-				if color:
-					paint['circle-color'] = color
-				if width:
-					paint['circle-radius'] = float(width)
-				if opacity:
-					paint['circle-opacity'] = float(opacity)
-			elif geom_type == 'line':
-				if color:
-					paint['line-color'] = color
-				if width:
-					paint['line-width'] = float(width)
-				if opacity:
-					paint['line-opacity'] = float(opacity)
-			elif geom_type == 'fill':
-				if color:
-					paint['fill-color'] = color
-				if opacity:
-					paint['fill-opacity'] = float(opacity)
-			# Mapbox Style JSON構造
-			# ここでURLを常に8089ポートに固定
-			style_json = {
-				"version": 8,
-				"name": layer.id(),
-				"sources": {
-					"qgis": {
-						"type": "geojson",
-						"data": "http://localhost:8089/data.geojson"
-					}
-				},
-				"layers": [
-					{
-						"id": layer.id(),
-						"type": geom_type,
-						"source": "qgis",
-						"paint": paint,
-						"layout": layout
-					}
-				]
-			}
-			# style.jsonとして保存
-			with open(style_path, "w", encoding="utf-8") as f:
-				json.dump(style_json, f, ensure_ascii=False, indent=2)
-			_qgis_log(f"Mapbox Style JSON exported: {style_path}")
-			return style_json
-		else:
-			raise RuntimeError("レイヤのシンボル情報が取得できません")
-	except Exception as e:
-		_qgis_log(f"Mapbox Style JSONエクスポート失敗: {e}", level="critical")
-		return None
 """MapLibre HTML generator for QMapPermalink
 
 This module provides a small helper to create a temporary HTML file that
@@ -131,10 +22,8 @@ from urllib.parse import urlparse, parse_qs
 import traceback
 import json
 import json as _jsonmod
-import xml.etree.ElementTree as ET
 import requests
-from .maplibre.qmap_maplibre_wmts import choose_tile_template, default_wmts_layers_js
-from .maplibre.qmap_maplibre_wfs import sld_to_mapbox_style
+from .maplibre.qmap_maplibre_wmts import choose_tile_template
 
 # Import for settings
 try:
@@ -457,7 +346,7 @@ def open_maplibre_from_permalink(permalink_text, wfs_typename: str = None):
 		
 		# Try to get bookmarks from QGIS project if available
 		try:
-			from qgis.core import QgsProject, QgsBookmarkManager, QgsApplication
+			from qgis.core import QgsProject, QgsApplication
 			project = QgsProject.instance()
 			if project:
 				# Get project bookmarks

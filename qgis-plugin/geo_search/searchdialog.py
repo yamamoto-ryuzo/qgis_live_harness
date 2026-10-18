@@ -7,8 +7,7 @@ import datetime
 from collections import OrderedDict
 
 from qgis.PyQt.QtWidgets import QDialog, QTabWidget, QTextEdit, QVBoxLayout, QPushButton, QHBoxLayout, QMessageBox
-from qgis.PyQt.QtWidgets import QLabel, QGridLayout, QFrame, QCheckBox, QScrollArea, QWidget, QButtonGroup, QRadioButton
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QLabel, QGridLayout, QFrame, QCheckBox, QScrollArea, QWidget
 
 from qgis.PyQt import uic
 from qgis.core import QgsProject
@@ -1519,35 +1518,6 @@ class SearchDialog(QDialog):
                     # ボタン: 現在の地図回転値を設定
                     set_current_btn = QPushButton(self.tr("Set current value"), edit_dialog)
 
-                    def _set_current_value(btn=None, spin_box=spin):
-                        try:
-                            # prefer dialog's iface, fallback to parent iface
-                            iface = getattr(self, 'iface', None)
-                            if iface is None and hasattr(self.parent(), 'iface'):
-                                iface = self.parent().iface
-                            if iface is None:
-                                return
-                            try:
-                                canvas = iface.mapCanvas()
-                                rotation = canvas.rotation() if hasattr(canvas, 'rotation') else None
-                            except Exception:
-                                rotation = None
-                            if rotation is None:
-                                return
-                            try:
-                                spin_box.setValue(float(rotation))
-                                # uncheck '指定しない' if it was checked
-                                try:
-                                    if chk.isChecked():
-                                        chk.setChecked(False)
-                                        spin_box.setDisabled(False)
-                                except Exception:
-                                    pass
-                            except Exception:
-                                pass
-                        except Exception:
-                            pass
-
                     # capture current chk in default args to avoid late-binding of closure
                     def _set_current_value_captured(btn=None, spin_box=spin, chk=chk):
                         try:
@@ -1623,33 +1593,6 @@ class SearchDialog(QDialog):
 
                     # ボタン: 現在の地図スケールを設定
                     set_current_btn = QPushButton("現在のスケールを設定", edit_dialog)
-
-                    def _set_current_scale(btn=None, spin_box=spin):
-                        try:
-                            iface = getattr(self, 'iface', None)
-                            if iface is None and hasattr(self.parent(), 'iface'):
-                                iface = self.parent().iface
-                            if iface is None:
-                                return
-                            try:
-                                canvas = iface.mapCanvas()
-                                scale_val = canvas.scale() if hasattr(canvas, 'scale') else None
-                            except Exception:
-                                scale_val = None
-                            if scale_val is None:
-                                return
-                            try:
-                                spin_box.setValue(float(scale_val))
-                                try:
-                                    if chk.isChecked():
-                                        chk.setChecked(False)
-                                        spin_box.setDisabled(False)
-                                except Exception:
-                                    pass
-                            except Exception:
-                                pass
-                        except Exception:
-                            pass
 
                     # capture current chk in default args to avoid late-binding of closure
                     def _set_current_scale_captured(btn=None, spin_box=spin, chk=chk):
@@ -3095,26 +3038,6 @@ class SearchDialog(QDialog):
                 print(f"save_tab_config_by_fields error: {e}")
             QMessageBox.warning(self, "エラー", f"タブ設定の保存中にエラーが発生しました:\n{str(e)}")
     
-    def save_tab_config(self, text, dialog, all_configs, tab_index, tab_title):
-        """タブの設定を保存（単一テキストエディタから）"""
-        try:
-            # JSONとして解析できるかチェック
-            try:
-                tab_config = json.loads(text)
-                
-                # ユーザーが入力したタイトルをそのまま使用する
-                # (タイトル変更を許可するため、タイトル修正の処理を削除)
-                    
-            except Exception as e:
-                QMessageBox.warning(self, "JSONエラー", f"入力されたテキストはJSONとして有効ではありません:\n{str(e)}")
-                return
-                
-            # 設定の更新と保存の共通処理を呼び出し
-            self._update_config_and_save(tab_config, dialog, all_configs, tab_index)
-                
-        except Exception as e:
-            QMessageBox.warning(self, "エラー", f"タブ設定の保存中にエラーが発生しました:\n{str(e)}")
-            
     def _update_config_and_save(self, tab_config, dialog, all_configs, tab_index):
         """設定を更新し、プロジェクト変数に保存する共通処理"""
         try:

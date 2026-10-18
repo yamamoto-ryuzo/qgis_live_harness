@@ -762,7 +762,7 @@ class GeoWebViewServerManager:
                     # lazily create service if missing
                     if not hasattr(self, 'wmts_service') or self.wmts_service is None:
                         try:
-                            from .qmap_wmts_service import GeoWebViewWMTSService
+                            from .wmts_service import GeoWebViewWMTSService
                             self.wmts_service = GeoWebViewWMTSService(self)
                         except Exception:
                             # Log import/instantiation failure so operator can diagnose
@@ -814,7 +814,7 @@ class GeoWebViewServerManager:
                     # lazily create service if missing
                     if not hasattr(self, 'wfs_service') or self.wfs_service is None:
                         try:
-                            from .qmap_wfs_service import GeoWebViewWFSService
+                            from .wfs_service import GeoWebViewWFSService
                             self.wfs_service = GeoWebViewWFSService(self.iface, self.server_port)
                         except Exception:
                             self.wfs_service = None
@@ -909,268 +909,6 @@ class GeoWebViewServerManager:
                 "Available endpoints: /wms (PNG image), /qgis-map (OpenLayers HTML), /maplibre (MapLibre HTML), /wmts (WMTS tiles), /wfs (WFS service)"
             )
             return
-    def _build_navigation_data_from_params(self, params):
-        """クエリパラメータからナビゲーション用辞書を構築する
-
-        params: urllib.parse.parse_qs の戻り値（辞書: key -> [values]）
-
-        戻り値の形式:
-            {'type': 'coordinates', 'x': float, 'y': float, 'scale': float, 'crs': str, ...}
-            または
-            {'type': 'location', 'location': '<encoded json string>'}
-        """
-        # location ベースのパラメータがあれば優先
-        if 'location' in params:
-            # location はエンコード済みJSON文字列を想定
-            loc_val = params.get('location', [''])[0]
-            if not loc_val:
-                raise ValueError('location パラメータが空です')
-            return {'type': 'location', 'location': loc_val}
-
-        # 個別座標パラメータをチェック
-        if 'x' in params and 'y' in params and ('scale' in params or 'zoom' in params or 'crs' in params):
-            try:
-                x = float(params.get('x', [None])[0])
-                y = float(params.get('y', [None])[0])
-            except Exception:
-                raise ValueError('x/y パラメータが数値ではありません')
-
-            scale = None
-            if 'scale' in params:
-                try:
-                    scale = float(params.get('scale', [None])[0])
-                except Exception:
-                    scale = None
-
-            zoom = None
-            if 'zoom' in params:
-                try:
-                    zoom = float(params.get('zoom', [None])[0])
-                except Exception:
-                    zoom = None
-
-            crs = params.get('crs', [None])[0]
-            rotation = None
-            if 'rotation' in params:
-                try:
-                    rotation = float(params.get('rotation', [None])[0])
-                except Exception:
-                    rotation = None
-
-            theme_info = None
-            if 'theme' in params:
-                theme_info = params.get('theme', [None])[0]
-
-            return {
-                'type': 'coordinates',
-                'x': x,
-                'y': y,
-                'scale': scale,
-                'zoom': zoom,
-                'crs': crs,
-                'rotation': rotation,
-                'theme_info': theme_info,
-            }
-
-        # 条件に合致しない場合はエラー
-        raise ValueError('ナビゲーションパラメータが見つかりません')
-
-    def _get_canvas_extent_info(self):
-        """キャンバスから現在の範囲情報を取得してWMS XMLに埋め込む"""
-        try:
-            canvas = self.iface.mapCanvas()
-            if not canvas:
-                return "<EX_GeographicBoundingBox><westBoundLongitude>-180</westBoundLongitude><eastBoundLongitude>180</eastBoundLongitude><southBoundLatitude>-90</southBoundLatitude><northBoundLatitude>90</northBoundLatitude></EX_GeographicBoundingBox>"
-            
-            # 現在の表示範囲を取得
-            extent = canvas.extent()
-            crs = canvas.mapSettings().destinationCrs()
-            
-            # WGS84に変換
-            from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject
-            wgs84_crs = QgsCoordinateReferenceSystem("EPSG:4326")
-            
-            if crs.authid() != "EPSG:4326":
-                transform = QgsCoordinateTransform(crs, wgs84_crs, QgsProject.instance())
-                try:
-                    extent = transform.transformBoundingBox(extent)
-                except Exception:
-                    pass  # 変換失敗時はそのまま使用
-            
-            # XML形式で範囲情報を生成
-            extent_xml = f"""<EX_GeographicBoundingBox>
-        <westBoundLongitude>{extent.xMinimum():.6f}</westBoundLongitude>
-        <eastBoundLongitude>{extent.xMaximum():.6f}</eastBoundLongitude>
-        <southBoundLatitude>{extent.yMinimum():.6f}</southBoundLatitude>
-        <northBoundLatitude>{extent.yMaximum():.6f}</northBoundLatitude>
-      </EX_GeographicBoundingBox>
-      <BoundingBox CRS="{crs.authid()}" minx="{extent.xMinimum():.6f}" miny="{extent.yMinimum():.6f}" maxx="{extent.xMaximum():.6f}" maxy="{extent.yMaximum():.6f}"/>"""
-            
-            return extent_xml
-            
-        except Exception as e:
-            from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"⚠️ Error getting canvas extent info: {e}", "geo_webview", Qgis.Warning)
-            return "<EX_GeographicBoundingBox><westBoundLongitude>-180</westBoundLongitude><eastBoundLongitude>180</eastBoundLongitude><southBoundLatitude>-90</southBoundLatitude><northBoundLatitude>90</northBoundLatitude></EX_GeographicBoundingBox>"
-
-
-
-
-            height = self._safe_int(params.get('HEIGHT', ['256'])[0], 256)
-            bbox = params.get('BBOX', [''])[0]
-            # WMS version and CRS/SRS handling: accept both CRS (1.3.0) and SRS (1.1.1)
-            wms_version = params.get('VERSION', params.get('version', ['1.3.0']))[0]
-            # Prefer CRS (WMS 1.3.0) but fall back to SRS if provided
-            original_crs = None
-            if 'CRS' in params and params.get('CRS'):
-                original_crs = params.get('CRS', [''])[0]
-            elif 'SRS' in params and params.get('SRS'):
-                original_crs = params.get('SRS', [''])[0]
-            if not original_crs:
-                original_crs = 'EPSG:3857'
-
-            # If WMS 1.3.0 and CRS is EPSG:4326, axis order in BBOX is lat,lon (y,x)
-            # so we need to swap coordinates when parsing. For other CRSs assume BBOX
-            # is minx,miny,maxx,maxy.
-            try:
-                bbox_coords = [float(v) for v in bbox.split(',')] if bbox else []
-                if bbox_coords and wms_version and str(wms_version).startswith('1.3') and original_crs and original_crs.upper().endswith('4326') and len(bbox_coords) == 4:
-                    # incoming BBOX: miny,minx,maxy,maxx -> reorder to minx,miny,maxx,maxy
-                    bbox = f"{bbox_coords[1]},{bbox_coords[0]},{bbox_coords[3]},{bbox_coords[2]}"
-                else:
-                    # keep as-is
-                    bbox = ','.join(str(v) for v in bbox_coords) if bbox_coords else ''
-            except Exception:
-                # if parsing fails, keep original string
-                pass
-            # オプションで任意CRSを強制的にEPSG:3857として扱う
-            if getattr(self, 'force_epsg3857', False):
-                crs = 'EPSG:3857'
-            else:
-                crs = original_crs
-            
-            # リクエストで与えられたBBOXがある場合、必要なら元々のCRSからEPSG:3857に変換する
-            # BBOXを変換するのは force_epsg3857 が無効な場合のみ
-            if not getattr(self, 'force_epsg3857', False):
-                try:
-                    if bbox and original_crs and original_crs.upper() != 'EPSG:3857':
-                        from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsRectangle
-                        src_crs = QgsCoordinateReferenceSystem(original_crs)
-                        tgt_crs = QgsCoordinateReferenceSystem('EPSG:3857')
-                        if src_crs.isValid():
-                            try:
-                                coords = [float(x) for x in bbox.split(',')]
-                                if len(coords) == 4:
-                                            rect = QgsRectangle(coords[0], coords[1], coords[2], coords[3])
-                                            transform = QgsCoordinateTransform(src_crs, tgt_crs, QgsProject.instance())
-                                            rect = transform.transformBoundingBox(rect)
-                                            bbox = f"{rect.xMinimum()},{rect.yMinimum()},{rect.xMaximum()},{rect.yMaximum()}"
-                                            # Ensure the CRS variable matches the transformed BBOX coordinates
-                                            crs = 'EPSG:3857'
-                            except Exception as e:
-                                QgsMessageLog.logMessage(f"⚠️ Failed to transform BBOX to EPSG:3857: {e}", "geo_webview", Qgis.Warning)
-                        else:
-                            QgsMessageLog.logMessage(f"⚠️ Invalid source CRS '{original_crs}' - forcing to EPSG:3857", "geo_webview", Qgis.Warning)
-                except Exception:
-                    # non-fatal: continue with original crs/bbox
-                    pass
-            # Use the QGIS canvas-based rendering as the authoritative renderer.
-            # This ensures we rely on QGIS official rendering (layer symbology, styles
-            # and labeling) rather than any independent/custom renderer which may
-            # produce different visuals.
-            png_data = self._generate_qgis_map_png(width, height, bbox, crs)
-            if png_data and len(png_data) > 1000:
-                from . import http_server
-                http_server.send_binary_response(conn, 200, "OK", png_data, "image/png")
-                return
-            else:
-                QgsMessageLog.logMessage("❌ Canvas rendering failed", "geo_webview", Qgis.Warning)
-                # フォールバック: エラー画像を生成
-                error_image = self._generate_error_image(width, height, "QGIS Map Generation Failed")
-                from . import http_server
-                http_server.send_binary_response(conn, 200, "OK", error_image, "image/png")
-            
-        except Exception as e:
-            QgsMessageLog.logMessage(f"❌ WMS GetMap error: {e}", "geo_webview", Qgis.Critical)
-            import traceback
-            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
-            
-            # エラー時は最小限のテスト画像を返す
-            test_image = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x01\x00\x00\x00\x01\x00\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\tpHYs\x00\x00\x0b\x13\x00\x00\x0b\x13\x01\x00\x9a\x9c\x18\x00\x00\x00\x16tEXtSoftware\x00www.inkscape.org\x9b\xee<\x1a\x00\x00\x00\x1ftEXtTitle\x00Test Image\x87\x96\xf0\x8e\x00\x00\x00\x12IDATx\x9cc\xf8\x0f\x00\x00\x01\x00\x01\x00\x18\xdd\x8d\xb4\x00\x00\x00\x00IEND\xaeB`\x82'
-            self._send_binary_response(conn, 200, "OK", test_image, "image/png")
-
-    def _handle_permalink_as_wms_getmap(self, conn, params):
-        """パーマリンクパラメータをWMS GetMapリクエストとして処理"""
-        from qgis.core import QgsMessageLog, Qgis
-        
-        try:
-            
-            # パーマリンクパラメータを取得
-            x = float(params.get('x', ['0'])[0])
-            y = float(params.get('y', ['0'])[0])
-            scale = float(params.get('scale', ['10000'])[0])
-            crs = params.get('crs', ['EPSG:3857'])[0]
-            # パーマリンクでも内部処理はEPSG:3857を使用する（元CRSを保持）
-            original_permalink_crs = crs
-            crs = 'EPSG:3857'
-            rotation = float(params.get('rotation', ['0'])[0])
-            
-            # デフォルトの画像サイズ（パラメータで指定可能）
-            width = self._safe_int(params.get('width', ['512'])[0], 512)
-            height = self._safe_int(params.get('height', ['512'])[0], 512)
-            
-            
-            # スケールから表示範囲（BBOX）を計算（計算は元CRSで行う）
-            bbox = self._calculate_bbox_from_permalink(x, y, scale, width, height, original_permalink_crs)
-            
-            if bbox:
-                # If permalink requested CRS is not EPSG:3857, transform computed
-                # BBOX into EPSG:3857 and render in EPSG:3857.
-                try:
-                    # If computed bbox is in a CRS different from EPSG:3857, transform to 3857
-                    from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsRectangle
-                    src_crs = QgsCoordinateReferenceSystem(original_permalink_crs)
-                    tgt_crs = QgsCoordinateReferenceSystem('EPSG:3857')
-                    if src_crs.isValid():
-                        coords = [float(x) for x in bbox.split(',')]
-                        if len(coords) == 4:
-                            rect = QgsRectangle(coords[0], coords[1], coords[2], coords[3])
-                            transform = QgsCoordinateTransform(src_crs, tgt_crs, QgsProject.instance())
-                            rect = transform.transformBoundingBox(rect)
-                            bbox = f"{rect.xMinimum()},{rect.yMinimum()},{rect.xMaximum()},{rect.yMaximum()}"
-                    else:
-                        QgsMessageLog.logMessage(f"⚠️ Invalid permalink CRS '{original_permalink_crs}' - forcing to EPSG:3857", "geo_webview", Qgis.Warning)
-                        # leave bbox as-is; downstream code will force EPSG:3857 as needed
-                except Exception as ex:
-                    QgsMessageLog.logMessage(f"⚠️ Error transforming permalink BBOX: {ex}", "geo_webview", Qgis.Warning)
-
-                # Use canvas-based rendering for permalink requests. Rotation, if
-                # needed, should be handled by the canvas adjustment routines.
-                png_data = self._generate_qgis_map_png(width, height, bbox, crs, rotation)
-                if png_data and len(png_data) > 1000:
-                    from . import http_server
-                    http_server.send_binary_response(conn, 200, "OK", png_data, "image/png")
-                    return
-                else:
-                    QgsMessageLog.logMessage("❌ Permalink canvas rendering failed", "geo_webview", Qgis.Warning)
-                    error_image = self._generate_error_image(width, height, "Permalink Rendering Failed")
-                    from . import http_server
-                    http_server.send_binary_response(conn, 200, "OK", error_image, "image/png")
-                    return
-            else:
-                QgsMessageLog.logMessage("❌ Failed to calculate BBOX from permalink parameters", "geo_webview", Qgis.Warning)
-                error_image = self._generate_error_image(width, height, "Invalid Permalink Parameters")
-                from . import http_server
-                http_server.send_binary_response(conn, 200, "OK", error_image, "image/png")
-                
-        except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Permalink processing error: {e}", "geo_webview", Qgis.Critical)
-            import traceback
-            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
-            
-            # エラー時はエラー画像を返す
-            error_image = self._generate_error_image(512, 512, f"Permalink Error: {str(e)}")
-            self._send_binary_response(conn, 200, "OK", error_image, "image/png")
 
     def _handle_permalink_html_page(self, conn, params):
         """パーマリンクパラメータに基づいてWMSエンドポイントを使用するHTMLページを生成"""
@@ -1861,7 +1599,7 @@ class GeoWebViewServerManager:
         
         # Build head scripts for OpenLayers using shared utility
         try:
-            from qmap_permalink.proj_utils import build_ol_proj_head, crs_has_proj4
+            from qmap_permalink.proj_utils import build_ol_proj_head
             head_scripts = build_ol_proj_head(crs)
         except Exception:
             # fallback include
@@ -2126,64 +1864,6 @@ class GeoWebViewServerManager:
 </html>"""
         
         return html_template
-
-    def _get_ol_proj_head(self, crs):
-        """Return HTML head scripts for OpenLayers.
-
-        If QGIS can provide a proj4 definition for the given CRS, include
-        proj4.js and register the definition so OpenLayers can use the CRS.
-        Otherwise return the minimal OpenLayers includes.
-
-        This is a single method to keep the projection-registration logic
-        simple and centralized.
-
-        Args:
-            crs (str): CRS identifier like 'EPSG:3857'
-
-        Returns:
-            str: HTML snippet to insert into the <head>
-        """
-        try:
-            from qgis.core import QgsCoordinateReferenceSystem
-            crs_obj = QgsCoordinateReferenceSystem(str(crs))
-            if crs_obj.isValid():
-                try:
-                    proj4_def = crs_obj.toProj4()
-                except Exception:
-                    proj4_def = ''
-                if proj4_def:
-                    # Escape quotes/newlines for embedding
-                    proj4_def_escaped = proj4_def.replace('"', '\\"').replace('\n', ' ')
-                    return (
-                        '    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v8.2.0/ol.css" type="text/css">\n'
-                        '    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>\n'
-                        '    <script src="https://cdn.jsdelivr.net/npm/ol@v8.2.0/dist/ol.js"></script>\n'
-                        f'    <script>try{{proj4.defs("{crs}", "{proj4_def_escaped}"); if (ol && ol.proj && ol.proj.proj4) {{ ol.proj.proj4.register(proj4); }} else {{ console.warn("ol.proj.proj4 not available - projection registration skipped"); }} }}catch(e){{console.warn("proj4 registration failed", e);}}</script>'
-                    )
-        except Exception:
-            # any failure -> fallthrough to default head
-            pass
-
-        # default: only include OpenLayers
-        return (
-            '    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v8.2.0/ol.css" type="text/css">\n'
-            '    <script src="https://cdn.jsdelivr.net/npm/ol@v8.2.0/dist/ol.js"></script>\n'
-        )
-
-    def _crs_has_proj4(self, crs):
-        """Return True if QGIS can provide a proj4 definition for the CRS."""
-        try:
-            from qgis.core import QgsCoordinateReferenceSystem
-            crs_obj = QgsCoordinateReferenceSystem(str(crs))
-            if not crs_obj.isValid():
-                return False
-            try:
-                proj4_def = crs_obj.toProj4()
-            except Exception:
-                proj4_def = ''
-            return bool(proj4_def)
-        except Exception:
-            return False
 
     def _build_navigation_data_from_params(self, params):
         """互換性用: HTTPパラメータ(dict of lists)から navigation_data を構築して返す
@@ -2457,60 +2137,6 @@ class GeoWebViewServerManager:
         except Exception as e:
             QgsMessageLog.logMessage(f"❌ Error in _generate_qgis_map_png (delegated): {e}", "geo_webview", Qgis.Critical)
             return None
-
-    def _set_canvas_extent_from_bbox(self, bbox, crs):
-        """WMS BBOXパラメータからキャンバスの表示範囲を設定"""
-        from qgis.core import QgsMessageLog, Qgis
-        
-        try:
-            # BBOXの解析 (minx,miny,maxx,maxy)
-            coords = [float(x) for x in bbox.split(',')]
-            if len(coords) != 4:
-                QgsMessageLog.logMessage(f"❌ Invalid BBOX format: {bbox}", "geo_webview", Qgis.Warning)
-                return False
-            
-            minx, miny, maxx, maxy = coords
-            
-            # QGISの座標系変換を設定
-            from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsRectangle
-            
-            # 入力CRS
-            source_crs = QgsCoordinateReferenceSystem(crs)
-            if not source_crs.isValid():
-                QgsMessageLog.logMessage(f"❌ Invalid CRS: {crs}", "geo_webview", Qgis.Warning)
-                return False
-            
-            # キャンバスのCRS取得
-            canvas = self.iface.mapCanvas()
-            if not canvas:
-                QgsMessageLog.logMessage("❌ No map canvas available", "geo_webview", Qgis.Warning)
-                return False
-            
-            dest_crs = canvas.mapSettings().destinationCrs()
-            
-            # 座標変換が必要かチェック
-            extent = QgsRectangle(minx, miny, maxx, maxy)
-            
-            if source_crs.authid() != dest_crs.authid():
-                # 座標変換実行
-                transform = QgsCoordinateTransform(source_crs, dest_crs, QgsProject.instance())
-                try:
-                    extent = transform.transformBoundingBox(extent)
-                except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ Coordinate transformation failed: {e}", "geo_webview", Qgis.Warning)
-                    return False
-            
-            # キャンバスの表示範囲を設定
-            canvas.setExtent(extent)
-            canvas.refresh()
-            
-            return True
-            
-        except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Error setting canvas extent: {e}", "geo_webview", Qgis.Critical)
-            import traceback
-            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
-            return False
 
     def _capture_canvas_image(self, width, height):
         """キャンバスから直接画像をキャプチャ"""
@@ -3023,10 +2649,6 @@ class GeoWebViewServerManager:
         """現在のサーバーポートを取得"""
         return self.server_port if self.is_server_running() else None
 
-    def get_last_request(self):
-        """最後のHTTPリクエストテキストを取得"""
-        return self._last_request_text
-    
     def check_external_access(self):
         """外部からのアクセス可能性を診断
         

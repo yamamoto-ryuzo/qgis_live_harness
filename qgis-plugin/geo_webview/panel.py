@@ -207,117 +207,6 @@ class GeoWebViewPanel(QDockWidget):
             if self.pushButton_paste is not None:
                 # 貼り付け: クリップボードから navigate テキストボックスへ
                 self.pushButton_paste.clicked.connect(self._on_paste_from_clipboard)
-            if self.pushButton_maplibre is not None:
-                # Open permalink in a MapLibre-based viewer
-                try:
-                    from . import qmap_maplibre as maplibre_gen
-
-                    def _open_maplibre():
-                        """Open MapLibre viewer from the current permalink (robust).
-
-                        Fallback order for permalink text: current permalink field,
-                        navigate field, system clipboard. Any error is shown to the user
-                        instead of being silently swallowed so debugging is easier.
-                        """
-                        try:
-                            permalink_text = ''
-                            # prefer generated permalink
-                            if hasattr(self, 'lineEdit_permalink') and self.lineEdit_permalink is not None:
-                                permalink_text = self.lineEdit_permalink.text() or ''
-
-                            # fallback to navigate input
-                            if not permalink_text and hasattr(self, 'lineEdit_navigate') and self.lineEdit_navigate is not None:
-                                permalink_text = self.lineEdit_navigate.text() or ''
-
-                            # finally try clipboard
-                            if not permalink_text:
-                                try:
-                                    cb = QGuiApplication.clipboard()
-                                    if cb is not None:
-                                        permalink_text = cb.text() or ''
-                                except Exception:
-                                    pass
-
-                            # Parse the permalink to extract x, y, scale, crs, rotation parameters
-                            # and construct a /maplibre URL with these direct parameters instead of
-                            # passing the full permalink string.
-                            try:
-                                import webbrowser
-                                import re
-                                from urllib.parse import parse_qs, urlparse
-                                
-                                # default port
-                                port = 8089
-                                try:
-                                    if hasattr(self, 'label_server_status') and self.label_server_status is not None:
-                                        text = self.label_server_status.text() or ''
-                                        m = re.search(r'localhost:(\d+)', text)
-                                        if m:
-                                            port = int(m.group(1))
-                                except Exception:
-                                    pass
-
-                                # Parse permalink parameters
-                                params = {}
-                                if permalink_text:
-                                    try:
-                                        parsed = urlparse(permalink_text)
-                                        query_params = parse_qs(parsed.query)
-                                        # Extract x, y, scale, crs, rotation from query parameters
-                                        for key in ['x', 'y', 'scale', 'crs', 'rotation']:
-                                            if key in query_params and query_params[key]:
-                                                params[key] = query_params[key][0]
-                                    except Exception:
-                                        pass
-
-                                # Build MapLibre URL with x/y/scale/crs/rotation format
-                                base = f'http://localhost:{port}/maplibre'
-                                if params:
-                                    # Use x/y/scale/crs/rotation format
-                                    param_parts = []
-                                    for key in ['x', 'y', 'scale', 'crs', 'rotation']:
-                                        if key in params:
-                                            param_parts.append(f'{key}={params[key]}')
-                                    if param_parts:
-                                        url = base + '?' + '&'.join(param_parts)
-                                    else:
-                                        url = base
-                                else:
-                                    url = base
-
-                                webbrowser.open(url)
-                            except Exception:
-                                # fallback to original generator if webbrowser/URL fails
-                                maplibre_gen.open_maplibre_from_permalink(permalink_text)
-                        except Exception as e:
-                            try:
-                                from qgis.PyQt.QtWidgets import QMessageBox
-                                if isinstance(e, ValueError) or 'Cannot parse permalink' in str(e):
-                                    QMessageBox.information(
-                                        self,
-                                        "MapLibre",
-                                        "有効なパーマリンクが見つかりませんでした。\n" \
-                                        "'Current Permalink' または 'Navigate' 欄に有効なパーマリンクを入力するか、\n" \
-                                        "クリップボードを確認してください。"
-                                    )
-                                else:
-                                    QMessageBox.warning(self, "MapLibre", f"Failed to open MapLibre: {e}")
-                            except Exception:
-                                # if even QMessageBox fails, silently ignore to avoid breaking plugin
-                                pass
-
-                    self.pushButton_maplibre.clicked.connect(_open_maplibre)
-                except Exception as e:
-                    # If the generator cannot be imported, disable the button so
-                    # users see that MapLibre functionality is unavailable and
-                    # can inspect the tooltip for the cause.
-                    try:
-                        self.pushButton_maplibre.setEnabled(False)
-                        # set tooltip with brief error message (avoid long traces)
-                        self.pushButton_maplibre.setToolTip(f"MapLibre generator unavailable: {e}")
-                    except Exception:
-                        # ignore any errors while attempting to update the widget
-                        pass
         except Exception:
             # Qt 環境が利用できない場合は無視
             pass
@@ -462,17 +351,6 @@ class GeoWebViewPanel(QDockWidget):
         except Exception:
             pass
     
-    def update_google_buttons_state(self, enabled=True):
-        """Google Maps/Earthボタンの状態を更新
-        
-        Args:
-            enabled: ボタンを有効にするかどうか
-        """
-        if hasattr(self, 'pushButton_google_maps'):
-            self.pushButton_google_maps.setEnabled(enabled)
-        if hasattr(self, 'pushButton_google_earth'):
-            self.pushButton_google_earth.setEnabled(enabled)
-
     # --- Clipboard handlers ---
     def _on_copy_permalink_to_clipboard(self):
         """lineEdit_permalink の内容をシステムクリップボードにコピーする"""

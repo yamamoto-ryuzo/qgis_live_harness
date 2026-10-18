@@ -10,8 +10,6 @@ QGIS がインポートできない環境でも解析/テストが走るよう�
 - QGIS が提供する shim が存在しない環境でもフォールバックを提供する。
 """
 import importlib
-import types
-from typing import Optional
 
 
 def _import_module_candidates(candidates):

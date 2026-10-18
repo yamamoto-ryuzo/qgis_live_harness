@@ -6,17 +6,15 @@ WMS (Web Map Service) 機能を提供する専用クラス。
 QGISキャンバスから地図画像を生成し、WMSプロトコルに対応。
 """
 
-import math
 import os
 import multiprocessing
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any
 from qgis.core import (
     QgsMapSettings, QgsMapRendererParallelJob, QgsRectangle, 
     QgsCoordinateReferenceSystem, QgsCoordinateTransform, 
     QgsProject, QgsMessageLog, Qgis
 )
 from qgis.PyQt.QtCore import QSize, QEventLoop, QTimer
-from qgis.PyQt.QtGui import QColor
 
 
 class GeoWebViewWMSService:
@@ -772,100 +770,6 @@ class GeoWebViewWMSService:
                         pass
             except Exception:
                 pass
-
-    def _apply_label_rotation_correction(self, map_settings, rotation):
-        """地図回転時の文字回転補正を適用
-        
-        地図が回転しても文字は上向きに保つため、
-        すべてのベクタレイヤーのラベル回転を地図回転の逆方向に設定
-        """
-        try:
-            from qgis.core import QgsMessageLog, Qgis, QgsVectorLayer
-            
-            # 文字の回転補正角度（地図回転の逆方向）
-            label_rotation = -rotation
-            
-            from qgis.core import QgsMessageLog, Qgis
-            
-            # マップ設定のレイヤを取得
-            layers = map_settings.layers()
-            
-            labeled_layer_count = 0
-            for layer in layers:
-                if isinstance(layer, QgsVectorLayer) and layer.labelsEnabled():
-                    labeled_layer_count += 1
-                    from qgis.core import QgsMessageLog, Qgis
-                    
-                    # ラベル設定を取得
-                    label_settings = layer.labeling()
-                    if label_settings:
-                        try:
-                            from qgis.core import QgsPalLayerSettings, QgsVectorLayerSimpleLabeling
-                            
-                            # ラベル設定のタイプに応じて処理
-                            if isinstance(label_settings, QgsVectorLayerSimpleLabeling):
-                                # QgsVectorLayerSimpleLabelingの場合
-                                pal_settings = label_settings.settings()
-                                if pal_settings:
-                                    # 既存の設定をコピー
-                                    pal_settings = QgsPalLayerSettings(pal_settings)
-                                    
-                                    # 文字回転を地図回転の逆方向に設定
-                                    pal_settings.rotation = label_rotation
-                                    
-                                    # 新しいラベル設定を作成
-                                    new_labeling = QgsVectorLayerSimpleLabeling(pal_settings)
-                                    layer.setLabeling(new_labeling)
-                                    
-                                    from qgis.core import QgsMessageLog, Qgis
-                                    QgsMessageLog.logMessage(
-                                        f"🔤 ✅ Applied label rotation correction: {label_rotation}° for layer '{layer.name()}' (QgsVectorLayerSimpleLabeling)", 
-                                        "geo_webview", Qgis.Info
-                                    )
-                                else:
-                                    from qgis.core import QgsMessageLog, Qgis
-                                    QgsMessageLog.logMessage(f"⚠️ No PAL settings found in QgsVectorLayerSimpleLabeling for layer '{layer.name()}'", "geo_webview", Qgis.Warning)
-                            
-                            elif isinstance(label_settings, QgsPalLayerSettings):
-                                # 直接QgsPalLayerSettingsの場合（古い形式）
-                                pal_settings = QgsPalLayerSettings(label_settings)
-                                
-                                # 文字回転を地図回転の逆方向に設定
-                                pal_settings.rotation = label_rotation
-                                
-                                # 新しいラベル設定をレイヤに適用
-                                labeling = QgsVectorLayerSimpleLabeling(pal_settings)
-                                layer.setLabeling(labeling)
-                                
-                                from qgis.core import QgsMessageLog, Qgis
-                                QgsMessageLog.logMessage(
-                                    f"🔤 ✅ Applied label rotation correction: {label_rotation}° for layer '{layer.name()}' (QgsPalLayerSettings)", 
-                                    "geo_webview", Qgis.Info
-                                )
-                            else:
-                                from qgis.core import QgsMessageLog, Qgis
-                                QgsMessageLog.logMessage(f"⚠️ Label settings type not supported for layer '{layer.name()}': {type(label_settings)}", "geo_webview", Qgis.Warning)
-                        
-                        except Exception as e:
-                            from qgis.core import QgsMessageLog, Qgis
-                            import traceback
-                            QgsMessageLog.logMessage(f"⚠️ Failed to apply rotation to layer '{layer.name()}': {e}", "geo_webview", Qgis.Warning)
-                            QgsMessageLog.logMessage(f"⚠️ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.Warning)
-                    else:
-                        from qgis.core import QgsMessageLog, Qgis
-                        QgsMessageLog.logMessage(f"⚠️ No label settings found for layer '{layer.name()}'", "geo_webview", Qgis.Warning)
-            
-            from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(
-                f"🔤 Label rotation correction completed: {labeled_layer_count} labeled layers processed", 
-                "geo_webview", Qgis.Info
-            )
-            
-        except Exception as e:
-            from qgis.core import QgsMessageLog, Qgis
-            import traceback
-            QgsMessageLog.logMessage(f"❌ Label rotation correction error: {e}", "geo_webview", Qgis.Critical)
-            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
 
     def _apply_label_rotation_only(self, map_settings, rotation):
         """ラベルのみを指定角度で回転させる（画像は回転させない）。

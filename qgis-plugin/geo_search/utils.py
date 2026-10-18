@@ -8,7 +8,6 @@ import datetime
 from qgis.PyQt.QtCore import QVariant
 
 from qgis.core import QgsProject, QgsFeatureRequest
-from qgis.utils import iface
 
 # テーマ関連ユーティリティは `geo_search.theme` に移動しました。互換のため再エクスポートします。
 from .theme import parse_theme_group, group_themes

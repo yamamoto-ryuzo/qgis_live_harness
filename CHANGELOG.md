@@ -37,6 +37,52 @@
 
 ### Removed
 
+- `geo_search` の未使用コード・不要ファイルを整理。
+  未参照ファイル `autodialog.py`・`resources.py`/`resources.qrc`・
+  `view.sql`・`setting.json.sample`・`i18n/*.ts`(翻訳ソース。
+  実行時は`.qm`のみ使用)を削除。デッドコードとして
+  `save_tab_config`(searchdialog)、`set_form`(resultdialog)、
+  `open_feature_form`/`zoom_item`/`add_search_task`/`search_task`/
+  `search_finished`(searchfeature、QgsTask非同期検索の未配線経路)、
+  `export_themes_dialog`/`import_themes_dialog`等(settingsdialog、
+  ボタン自体が撤去済みで到達不能)、`_set_obj_state`(theme)、
+  未使用の`_set_current_value`/`_set_current_scale`クロージャ、
+  各ファイルの未使用import(`NULL`/`IsNot`/`nullcontext`/`Qt`/
+  `QDialog`/`QInputDialog`/`QComboBox`/`iface`/`types`/`Optional`等)を除去
+- `geo_webview` の未使用コード・不要ファイルを整理。
+  `i18n/*.ts`(翻訳ソース。`.qm`不在で実行時には使われない)・
+  `icon_org.png`・`__pycache__` を削除。デッドコードとして
+  panel.py の MapLibreボタン冗長配線(plugin側の
+  `on_maplibre_clicked_panel` と二重接続になり、かつ存在しない
+  `qmap_maplibre` モジュールへのimport失敗でボタンが無効化されていた)、
+  `update_google_buttons_state`、plugin.py の `my_custom_function`・
+  `qgsfunction`・`QgsMapCanvas` import・Google Earth補助の未呼出メソッド群
+  (`_zoom_to_earth_distance`/`_extract_altitude_from_earth_url`/
+  `_estimate_ground_resolution_from_altitude`/
+  `_compute_scale_from_map_width_with_dpi`)・無効化済みテーマ検出
+  (`_get_current_theme_info`/`_get_current_layer_states`/
+  `_detect_current_theme`)、server_manager.py の重複・未呼出メソッド
+  (先勝ちでshadowされていた `_build_navigation_data_from_params` 初版、
+  wms_service側に同名実装がある `_get_canvas_extent_info`/
+  `_handle_permalink_as_wms_getmap` のコピー、`_get_ol_proj_head`/
+  `_crs_has_proj4`/`_set_canvas_extent_from_bbox`/`get_last_request`)、
+  `export_layer_geojson`/`export_mapbox_style_json`(maplibre_generator)、
+  `sld_to_mapbox_style`/`_extract_css_param`(qmap_maplibre_wfs)、
+  `default_wmts_layers_js`(qmap_maplibre_wmts)、
+  `estimate_scale_from_zoom_maplibre`(scale_zoom)、
+  `escape_js_string`/`get_qgis_layers_info`/`get_current_extent_info`/
+  `_resolve_coordinates`(webmap_generator)、`_extract_style_hint`
+  (wfs_service)、`_apply_label_rotation_correction`(wms_service)、
+  `get_identity_diagnostics`(wmts_service)、各ファイルの未使用importを除去
+
+### Fixed
+
+- `geo_webview` server_manager の遅延サービス生成が存在しない
+  `.qmap_wmts_service`/`.qmap_wfs_service` をimportして常に失敗して
+  いたのを、実在する `.wmts_service`/`.wfs_service` に修正
+
+### Removed
+
 - **サンプルプラグイン `webengine_plugin` を削除**(`qgis-plugin/webengine_plugin/`)。
   併せてその固有テスト(`tests/e2e/plugin-ui.spec.ts`、`tests/unit/test_logic.py`)と
   テンプレート生成スクリプト `scripts/new-plugin.mjs`(`npm run new:plugin`)を除去。

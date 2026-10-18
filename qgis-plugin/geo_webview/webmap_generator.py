@@ -776,39 +776,6 @@ class QMapWebMapGenerator:
 
         return html
 
-    # lightweight stubs
-    def get_qgis_layers_info(self):
-        return {'layer_count': 0, 'visible_layers': []}
-
-    def get_current_extent_info(self):
-        return {}
-
-    def _resolve_coordinates(self, navigation_data):
-        try:
-            if not navigation_data:
-                return None, None
-            lat = navigation_data.get('lat')
-            lon = navigation_data.get('lon')
-            if lat is not None and lon is not None:
-                return float(lat), float(lon)
-            x = navigation_data.get('x')
-            y = navigation_data.get('y')
-            if x is None or y is None:
-                return None, None
-            # navigation_data provides x/y in map coordinates (x, y).
-            # Previously this returned (y, x) which swapped the axes.
-            # Return (x, y) in the same order as provided.
-            return float(x), float(y)
-        except Exception:
-            return None, None
-
-
-# small helpers used only at generation time; keep them local to avoid runtime deps
-def escape_js_string(s: str) -> str:
-    if s is None:
-        return ''
-    return str(s).replace('\\', '\\\\').replace('"', '\\"').replace("\n", ' ')
-
 
 def json_safe(v):
     # simple serializer for numbers/strings used in small f-strings above
