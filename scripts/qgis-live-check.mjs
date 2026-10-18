@@ -196,20 +196,41 @@ for (const id of PLUGIN_IDS.filter((i) => i && !covered.has(i))) {
     check(`${tag}pyevalからプラグインに到達`, false,
       String(e.message || e).slice(0, 120));
   }
-  // run()を持つ通常プラグインはダイアログ表示まで試す
+  // run()を持つ通常プラグインはダイアログ表示まで試す。
+  // run()をpyeval内で同期実行すると、dlg.exec()モーダルやrun()中の
+  // ブロッキング処理(geo_importのCKAN全件取得等)でドライバのdispatchが
+  // 詰まり以降の全コマンドがタイムアウトする。QTimer.singleShotで
+  // イベントループへ遅延させてpyevalを即座に返し、表示確認と後始末は
+  // 別pyevalで行う(exec中のモーダルはネストしたループでQTimerが回るため
+  // ドライバは応答し続けられる)
   try {
-    const dlg = await page.pyeval(
+    const fired = await page.pyeval(
       `_p=qgis.utils.plugins.get(${JSON.stringify(id)})\n` +
       `_r=getattr(_p,'run',None)\n` +
-      `_r() if _r else None\n` +
-      `_d=getattr(_p,'dialog',None)\n` +
-      `result={'has_run':_r is not None,` +
-      `'visible':_d.isVisible() if hasattr(_d,'isVisible') else None}`);
+      `from qgis.PyQt.QtCore import QTimer\n` +
+      `QTimer.singleShot(0,_r) if _r else None\n` +
+      `result={'has_run':_r is not None}`);
+    // run()内の初期化が重いプラグイン向けに少し待ってから表示状態を確認
+    await new Promise((r) => setTimeout(r, 3000));
+    const dlg = await page.pyeval(
+      `_p=qgis.utils.plugins.get(${JSON.stringify(id)})\n` +
+      `_d=getattr(_p,'dialog',None) or getattr(_p,'dlg',None)\n` +
+      `result={'visible':_d.isVisible() if hasattr(_d,'isVisible') else None}`);
     check(`${tag}run()でダイアログ表示`,
-      dlg.has_run !== true || dlg.visible !== false,
-      JSON.stringify(dlg));
+      fired.has_run !== true || dlg.visible !== false,
+      JSON.stringify({ has_run: fired.has_run, visible: dlg.visible }));
   } catch (e) {
     console.log(`WARN ${tag}run()検証をスキップ — ${String(e.message || e).slice(0, 120)}`);
+  }
+  // 開きっぱなしのモーダル/execダイアログを閉じて後続チェックへ進む
+  try {
+    await page.pyeval(
+      `_p=qgis.utils.plugins.get(${JSON.stringify(id)})\n` +
+      `_d=getattr(_p,'dialog',None) or getattr(_p,'dlg',None)\n` +
+      `_d.done(0) if hasattr(_d,'done') and _d.isVisible() else None\n` +
+      `result='closed'`);
+  } catch {
+    // ダイアログがまだコンストラクタ中(ブロッキングI/O)等で閉じられなくても続行
   }
   try {
     const shot = await page.screenshot(

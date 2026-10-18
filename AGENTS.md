@@ -49,18 +49,31 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   の言語別・`SEARCH.md`/`SPEC.md`等の詳細文書)・`CHANGELOG.md`
   (そのプラグインの変更履歴)をフォルダ内に持つ。
   upstreamリポジトリがあるプラグイン(geo_search=GEO-search-plugin、
-  geo_webview=geo_webview)の文書はupstream版を復元・追従し、
+  geo_webview=geo_webview、geo_report、geo_import、
+  QGIS-legendView-main=QGIS-legendView)の文書はupstream版を復元・追従し、
   Harness側での追加・変更はそのプラグインのCHANGELOGに
   新バージョンエントリとして記録する(metadata.txtのversionも同期して上げる)。
   **プラグイン固有の変更をルートのCHANGELOG.mdではなく
   プラグインのCHANGELOG.mdに書くのが原則**(ルートCHANGELOGは
   Harness基盤・横断的変更用)。upstreamに公開する場合はそちらにも反映する。
   現在は `qgis_live_driver/` と検証対象 `geo_search/` `geo_webview/`
-  (実体はこのrepo内のgit管理対象。`C:\devin\geo_search\geo_search`・
-  `C:\devin\geo_webview\geo_webview` 側はupstream同期用にここへのjunction)のみ
+  `geo_report/` `geo_import/` `QGIS-legendView-main/`、および
+  Harness生まれの `export_excel/`(下記)を管理する。
+  実体はすべてこのrepo内のgit管理対象。upstream同期用junctionは
+  `C:\devin\<repo>/<プラグインsubfolder>` → ここ(geo_report/geo_import)
+  の形式。QGIS-legendViewはupstreamが「repoルート=プラグイン」構造のため
+  junctionは張れず、`C:\devin\QGIS-legendView` の通常cloneを維持して
+  コピーで同期する
   (旧サンプル `webengine_plugin` は削除済み。
   WebEngineプラグインの構成例はgit履歴を参照)。WebEngineプラグインでは
   QGIS依存は `bridge.py` に閉じ込める。deploy時に `python/plugins/<フォルダ名>` へ配置される。
+  `export_excel/` は upstream `QGIS-exportExcel` のレイヤアクション用
+  スクリプト群(プラグインではない)を簡易プラグイン化したもので、
+  スクリプト本体は無改変で同梱し `plugin.py` が実行時に
+  `[% @layer_id %]`/`[% $id %]` をアクティブレイヤ/選択地物で置換して
+  exec する(PyQt5固定importは qgis.PyQt shimで吸収。実行には
+  win32com+Excelが必要)。upstreamの `C:\devin\QGIS-exportExcel` は
+  通常cloneで維持し、スクリプトの同期はコピーで行う
   `qgis_live_driver/` はWebEngineを持たない制御専用プラグイン(pyeval+地図キャンバス
   スクショのみ)で、任意プラグインの遠隔操作基盤として常駐させられる。
   内蔵HTTPサーバ(`/mcp`=MCP Streamable HTTP、`/api/*`=REST)と
@@ -78,7 +91,8 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
 - `qgis-plugin/<id>/ui/src/mock-bridge.js` — Pythonブリッジのモック。**bridgeメソッド追加時は必ず同期更新**
 - `plugin.config.json` — 開発・検証対象プラグインのID(qgis-plugin/下のフォルダ名)。
   **文字列または配列**: 先頭=主開発対象(MCPツール等のデフォルトpluginId)、
-  全要素=live:reload/test:liveの対象。現在は `["geo_search","qgis_live_driver"]`。
+  全要素=live:reload/test:liveの対象。現在は
+  `["geo_search","geo_webview","geo_report","geo_import","QGIS-legendView-main","qgis_live_driver"]`。
   live dirを持たない対象(geo_search等)はtest:liveでhubドライバ経由の
   open_plugin/pyeval/run()/スクショが検証される
 - `tests/e2e/` — Playwrightテスト(L1=mock)。**現在specなし**
@@ -138,10 +152,12 @@ npm run test:unit
 
 ### L2: 実QGISでの検証
 
-**標準の検証対象プラグインは `geo_search`・`geo_webview`**(実体は
+**標準の検証対象プラグインは `geo_search`・`geo_webview`・`geo_report`・
+`geo_import`・`QGIS-legendView-main`**(実体は
 `qgis-plugin/<id>` = このrepoのgit管理対象。
 deploy先 `geo_custom/python/plugins/<id>` および
-upstream用 `C:\devin/<id>/<id>` はどちらもここへのjunction。Qt Widgetsプラグインでrepo側編集→`reload_plugin`で即反映できる。
+upstream用 `C:\devin/<repo>/<id>` はどちらもここへのjunction
+(QGIS-legendView-mainのみupstream構造上コピー同期)。Qt Widgetsプラグインでrepo側編集→`reload_plugin`で即反映できる。
 `open_plugin`/`reload_plugin`/
 `status`/`screenshot(mainwindow)` の対象になり、pyevalからは
 `qgis.utils.plugins['<id>']` で `dialog`/`run` 等に直接触れられる。
