@@ -92,8 +92,9 @@
 <td>Driverの操作面の上に乗る、クライアントAPI・セッション管理・ホットリロード・検証の基盤。<strong>リポジトリがあって初めて成り立つ</strong></td>
 </tr>
 </tbody></table>
-<p>さらに <code>qgis-plugin/webengine_plugin/</code> を、Harness上で育てる開発対象プラグインの
-「器」(Qt WebEngineベースのテンプレート)として同梱する。</p>
+<p>開発対象のWebEngineプラグインは <code>qgis-plugin/&lt;id&gt;/</code> に置き、
+deployするのは固定の「器」(QWebEngineView + ドライバ)だけで、
+ロジック/UIはrepo側に置いたまま動かせる。</p>
 <ul>
 <li><strong>Driverだけ使う</strong>: <code>python/plugins/</code> へのコピーで成立。ファイルJSONL・REST・MCPの
 操作面を持ち、リポジトリもNodeも不要</li>
@@ -116,7 +117,7 @@ eval/pyeval/スクショで観測→test:liveで検証」を人間なしで反�
 
     subgraph Q[&quot;常駐QGISプロセス&quot;]
         DRIVER[&quot;QGIS Live Driver(汎用部品)&lt;br/&gt;pyeval / 地図スクショ / plugin_id転送(hub)&lt;br/&gt;ファイルJSONL + 内蔵HTTP(/mcp,/api/*)&quot;]
-        VESSEL[&quot;webengine_plugin(器)&lt;br/&gt;view/channel + view用LiveDriver&quot;]
+        VESSEL[&quot;開発対象プラグイン(器)&lt;br/&gt;view/channel + view用LiveDriver&quot;]
         PROD[&quot;開発対象(repo側)&lt;br/&gt;bridge.py / logic.py / ui/&lt;br/&gt;WEBENGINE_DEV_SRCから別名import&quot;]
         VESSEL --&gt; PROD
     end

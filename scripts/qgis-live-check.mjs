@@ -9,6 +9,7 @@
 // 実行: npm run test:live
 
 import { mkdir } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { LivePage } from "./live-drive.mjs";
@@ -17,6 +18,10 @@ import { ensureQgis } from "./qgis-session.mjs";
 const LIVE_BASE = process.env.WEBENGINE_LIVE_DIR ||
   fileURLToPath(new URL("../test-results/live/", import.meta.url));
 const OUT_DIR = fileURLToPath(new URL("../test-results/", import.meta.url));
+// plugin.config.jsonのidは文字列または配列。配列の全要素が検証対象
+const PLUGIN_IDS = [].concat(JSON.parse(
+  readFileSync(new URL("../plugin.config.json", import.meta.url), "utf8")
+).id);
 
 const results = [];
 const check = (name, ok, detail = "") => {
@@ -156,6 +161,64 @@ for (const { dir: liveDir, pluginId } of liveDirs) {
     console.log(`screenshot: ${shot}`);
   } catch (e) {
     check(`${tag}スクリーンショット取得`, false, String(e.message || e).slice(0, 120));
+  }
+}
+
+// live dirを持たない検証対象(plugin.config.jsonに列挙・live_driver未同梱)は
+// 制御ドライバ(qgis_live_driver)をhubにして open_plugin + pyeval で確認する。
+// plugin_idルーティングは対象ドライバが無いと届かないため、
+// open_plugin/status等のローカルコマンドとドライバ自身のpyevalのみ使う。
+const covered = new Set(liveDirs.map((d) => d.pluginId));
+const ctrlDir = liveDirs.find((d) => d.pluginId === "qgis_live_driver");
+for (const id of PLUGIN_IDS.filter((i) => i && !covered.has(i))) {
+  const tag = `[${id}] `;
+  if (!ctrlDir) {
+    check(`${tag}hubドライバ経由で到達`, false, "no qgis_live_driver live dir");
+    continue;
+  }
+  const page = new LivePage(ctrlDir.dir);
+  console.log(`no live dir: ${id} (checked via hub ${ctrlDir.dir})`);
+
+  try {
+    const r = await page.openPlugin(id);
+    check(`${tag}open_pluginでロード`, !!r && r.loaded === true,
+      `loaded=${r?.loaded} opened=${r?.opened}`);
+  } catch (e) {
+    check(`${tag}open_pluginでロード`, false,
+      String(e.message || e).slice(0, 120));
+    continue;
+  }
+  try {
+    const ok = await page.pyeval(
+      `qgis.utils.plugins.get(${JSON.stringify(id)}) is not None`);
+    check(`${tag}pyevalからプラグインに到達`, ok === true, `loaded=${ok}`);
+  } catch (e) {
+    check(`${tag}pyevalからプラグインに到達`, false,
+      String(e.message || e).slice(0, 120));
+  }
+  // run()を持つ通常プラグインはダイアログ表示まで試す
+  try {
+    const dlg = await page.pyeval(
+      `_p=qgis.utils.plugins.get(${JSON.stringify(id)})\n` +
+      `_r=getattr(_p,'run',None)\n` +
+      `_r() if _r else None\n` +
+      `_d=getattr(_p,'dialog',None)\n` +
+      `result={'has_run':_r is not None,` +
+      `'visible':_d.isVisible() if hasattr(_d,'isVisible') else None}`);
+    check(`${tag}run()でダイアログ表示`,
+      dlg.has_run !== true || dlg.visible !== false,
+      JSON.stringify(dlg));
+  } catch (e) {
+    console.log(`WARN ${tag}run()検証をスキップ — ${String(e.message || e).slice(0, 120)}`);
+  }
+  try {
+    const shot = await page.screenshot(
+      join(OUT_DIR, `qgis-live-${id}.png`).replace(/\\/g, "/"),
+      { target: "mainwindow" });
+    check(`${tag}メインウィンドウのスクショ取得`, !!shot, String(shot));
+  } catch (e) {
+    check(`${tag}メインウィンドウのスクショ取得`, false,
+      String(e.message || e).slice(0, 120));
   }
 }
 

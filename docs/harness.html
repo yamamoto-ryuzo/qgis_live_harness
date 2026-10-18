@@ -166,9 +166,9 @@ Host/Originがloopback以外のリクエストは拒否される。
     CLIENT --&gt;|HTTP| HTTP --&gt;|&quot;submit()&quot;| QGIS
     QGIS --&gt;|image content等| MCP --&gt; CLIENT
 </code></pre>
-<h2>プラグイン自動化環境(開発対象 = <code>webengine_plugin</code>)</h2>
+<h2>プラグイン自動化環境(開発対象 = plugin.config.json の id)</h2>
 <p>Harnessは「任意QGISを操る」だけでなく、<strong>Qt WebEngineプラグインの開発ループ自体を無人化</strong>する。
-<code>webengine_plugin</code> がその器であり、deployするのは固定の器
+deployするのは固定の器
 (QWebEngineView + view用ドライバ)だけで、開発対象のロジック/UIは
 リポジトリに置いたまま<strong>実QGIS内で動作・観測・即時反映</strong>できる。</p>
 <pre><code class="language-mermaid">flowchart TD
@@ -224,6 +224,25 @@ Host/Originがloopback以外のリクエストは拒否される。
 <p>要素の「面」について: <strong>製品</strong> = 配布プラグインに同梱、
 <strong>器</strong> = deployされるが配布物からは除去、<strong>Driver</strong> = 単独導入できる汎用部品、
 <strong>Harness</strong> = リポジトリ側にのみ存在。</p>
+<h2>Qt Widgetsプラグインも検証対象になる(WebEngineへの作り替えは不要)</h2>
+<p>DOM/JSレベルのUI検査にはQWebEngineViewが必須だが、<strong>Qt Widgets製プラグインも
+「UIの機能検証」は同等以上にできる</strong>。pyevalはQGISプロセス内で実行されるため、
+Qtウィジェットツリー(<code>findChildren</code>/<code>isVisible</code>/<code>text()</code>)の
+読み取り、<code>setText()</code>/<code>click()</code>/<code>QTest</code>による操作注入、
+<code>dialog.grab()</code>やmainwindowのスクショまで、全てインプロセス・同期で行える。
+ネイティブAPIを直接触るため検査深度はむしろ深く、CDP不応答・レンダラー飢餓といった
+WebEngine固有の不安定さもない。<strong>検証目的でWebEngineへ作り替える必要はない</strong>。</p>
+<p>異なるのは2点だけ:</p>
+<ul>
+<li><strong>L1(QGIS無しのブラウザ単体テスト)はWidgetsでは原理的に不可能</strong>(HTMLを持たないため)。
+  ただしgeo_webviewのように内蔵HTTPサーバがWebページを配信するプラグインでは、
+  出力側を通常ブラウザ+PlaywrightでL1相当に試験できる</li>
+<li>検査コードはDOMセレクタではなくQt API(<code>findChildren</code>等)で書く</li>
+</ul>
+<p>live dir(<code>live_driver.py</code>)を持たないWidgetsプラグインでも、
+<code>plugin.config.json</code>に列挙すれば <code>test:live</code> がhub
+(qgis_live_driver)経由で <code>open_plugin</code>/<code>pyeval</code>/<code>run()</code>/
+スクショを検証する(同梱の <code>geo_search</code>・<code>geo_webview</code> がその例)。</p>
 <nav class="pager">
   <a href="driver.html"><span class="dir">前へ</span><span class="title">QGIS Live Driver</span></a>
   <a class="next" href="distribution.html"><span class="dir">次へ</span><span class="title">プラグイン配布</span></a>

@@ -89,7 +89,7 @@ Processing、QgsSettings、任意widgetの <code>grab()</code> による画像�
 転送され、結果は呼び出し元の <code>results.jsonl</code> に返る。
 つまり<strong>このドライバのlive dir / HTTPポート1本で全プラグインを制御できる</strong>。</p>
 <ul>
-<li>転送先ドライバは <code>_handle(cmd, reply)</code> の <code>reply</code> 引数に対応している必要がある(repo同梱の webengine_plugin 版 live_driver.py は対応済み)</li>
+<li>転送先ドライバは <code>_handle(cmd, reply)</code> の <code>reply</code> 引数に対応している必要がある(本リポジトリ同梱の live_driver.py 実装を他プラグインに同梱すれば対応可)</li>
 <li><code>pyeval</code> を転送すると対象プラグインの名前空間(その <code>view</code>/<code>driver</code>)で実行される</li>
 </ul>
 <h3>制御可能な範囲(pyeval)</h3>

@@ -68,7 +68,6 @@
 <pre><code class="language-powershell">git clone &lt;repo&gt; &amp;&amp; cd qgis_live_harness
 powershell -ExecutionPolicy Bypass -File scripts\setup.ps1
 #   -Yes / -CheckOnly / -SkipPlaywright / -SkipDeploy オプションあり
-npm run new:plugin my_plugin   # qgis-plugin/my_plugin/ をテンプレートから生成
 </code></pre>
 <p>手動でセットアップする場合(スクリプトと等価):</p>
 <pre><code class="language-powershell">npm install
@@ -76,7 +75,7 @@ npm run deploy:copy            # 器をQGISプラグインディレクトリへ�
 npx playwright install         # L1テスト(npm test)を回す場合のみ
 pip install pytest             # ユニットテスト(test:unit)を回す場合のみ
 </code></pre>
-<p>サンプルの <code>webengine_plugin</code> をそのまま試す場合は <code>new:plugin</code> 不要。
+<p>開発対象プラグインは <code>qgis-plugin/&lt;id&gt;/</code> に配置する。
 開発対象の切替は <code>plugin.config.json</code> の <code>id</code> を書き換える。</p>
 <h3>開発ループ</h3>
 <pre><code class="language-powershell">npm run live:ensure     # 常駐QGISを用意(初回は自動でdeploy+起動)
@@ -88,13 +87,17 @@ npm run test:live       # 実QGIS内で検証(pyevalで内部状態assert含む)
 <pre><code class="language-powershell">npm run live:reload     # deploy -Copy + 実行中QGISでホットリロード
 </code></pre>
 <h3>テスト</h3>
-<pre><code class="language-powershell">npm test               # L1: UI単体E2E(ブラウザ+mock)
+<pre><code class="language-powershell">npm test               # L1: UI単体E2E(ブラウザ+mock。WebEngineプラグインのみ)
 npm run test:unit      # Pythonロジックのpytest
 npm run test:live      # L2: 実QGIS内検証(QGIS未起動でも自動起動)
 </code></pre>
+<p><strong>Qt Widgets製プラグインもL2の検証対象になる</strong>(WebEngineへの作り替えは不要)。
+pyevalでQtウィジェットを直接検査・操作し、live dirを持たないプラグインも
+<code>plugin.config.json</code>に列挙すればhub経由でtest:liveが検証する。
+詳しくは <a href="harness.html">QGIS Live Harness</a> を参照。</p>
 <h2>ディレクトリ構成</h2>
 <pre><code>qgis-plugin/          プラグイン群のルート(複数プラグインをここに並べる)
-  webengine_plugin/   プラグイン1つ分。フォルダ名=QGISのプラグインID
+  &lt;plugin_id&gt;/       プラグイン1つ分。フォルダ名=QGISのプラグインID
     metadata.txt      プラグイン定義(name=はQGIS上の表示名)
     __init__.py       エントリポイント(classFactory)
     main_plugin.py    ダイアログ/view/channel/ドライバ起動 + dev source loader

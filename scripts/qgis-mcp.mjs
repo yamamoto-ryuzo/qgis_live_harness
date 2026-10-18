@@ -30,9 +30,10 @@ import { ensureQgis, reloadPlugin, devReload } from "./qgis-session.mjs";
 
 const REPO = fileURLToPath(new URL("../", import.meta.url));
 const LIVE_BASE = process.env.WEBENGINE_LIVE_DIR || join(REPO, "test-results", "live");
-const PLUGIN_ID = JSON.parse(
+// plugin.config.jsonのidは文字列または配列(先頭=主開発対象)
+const PLUGIN_ID = [].concat(JSON.parse(
   readFileSync(new URL("../plugin.config.json", import.meta.url), "utf8")
-).id;
+).id)[0];
 
 // live dirを列挙する。どれか1つでもドライバが応答すればそれを返し、
 // 全滅ならensure(deploy+起動)して再列挙する。

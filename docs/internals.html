@@ -129,6 +129,30 @@
 </tbody></table>
 <p><code>QGIS_PLUGINPATH</code>をrepoの <code>qgis-plugin/</code> に恒久的に向ければ
 deploy自体も不要になる可能性がある(QGIS 4.0.1での動作は要検証)。</p>
+<h2>決定: ハイブリッド構造を固定方針とする</h2>
+<p>上記の分析から「全部プラグインにできる」わけだが、<strong>実運用の安定性を
+考えて「プラグイン内の薄いプリミティブ + 外側のオーケストレーション」の
+ハイブリッド構造を固定方針とした</strong>。</p>
+<ul>
+<li><strong>プラグイン内</strong>: pyeval / status / open_plugin / reload_plugin /
+  screenshot / bridge_call 等の<strong>即応答の実行プリミティブ</strong>のみ。
+  各コマンドはGUIスレッドで即時実行し、例外は <code>{error: ...}</code> として返す</li>
+<li><strong>外側</strong>: 順序制御・待機・リトライ・タイムアウト・結果集約。
+  REST(<code>/api/*</code>)/MCP(<code>/mcp</code>)/ファイルJSONL越しに
+  任意言語の薄いクライアントで行う</li>
+</ul>
+<p>理由(いずれも実測): dispatchはGUIスレッドで動くため、待機や多段処理を
+インプロセスに入れるとQGIS UIをブロックしてドライバ自身も無応答になる
+(pyeval内のdriver.submit自己デッドロック等)。加えて、検証側の障害で
+QGISを巻き込まないクラッシュ分離、実行中コマンドを打ち切る手段が
+クライアント側の放棄しかない、という理由から、<strong>タイムアウトと
+リトライは構造上外側でしか制御できない</strong>。</p>
+<p>エラー処理の契約もこの境界で固定する: プリミティブは失敗を
+<code>{error}</code> で返して例外を漏らさない、境界のHTTP/接続エラーは
+クライアント側で例外化する、オーケストレーションは個別失敗を集約して
+続行する(test:liveのcheck()/WARNパターン)。新コマンドは
+「即応答・error返却・GUIブロック禁止」を満たすこととし、長時間処理は
+状態付きコマンド(start→poll→result)に分割して待機を外側に置く。</p>
 <h2>留保</h2>
 <ul>
 <li>GUIスレッド同期実行のため、モーダルダイアログやGUIブロック中は

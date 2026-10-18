@@ -19,10 +19,11 @@ import { join } from "node:path";
 import { LivePage, resolveLiveDirs } from "./live-drive.mjs";
 
 const REPO = fileURLToPath(new URL("../", import.meta.url));
-// QGIS上のプラグインID(deploy先ディレクトリ名)。独自名にする場合はここだけ変える
-const PLUGIN_ID = JSON.parse(
+// QGIS上のプラグインID(deploy先ディレクトリ名)。plugin.config.jsonのidは
+// 文字列または配列(先頭=主開発対象、全要素=reload/テスト対象)
+const PLUGIN_IDS = [].concat(JSON.parse(
   readFileSync(join(REPO, "plugin.config.json"), "utf8")
-).id;
+).id);
 const LIVE_BASE = process.env.WEBENGINE_LIVE_DIR || join(REPO, "test-results", "live");
 const DEPLOY_PS1 = join(REPO, "scripts", "deploy-plugin.ps1");
 // QGIS_EXE env > C:\Program Files\QGIS<ver>\bin\qgis-bin.exe(最新版優先)
@@ -165,7 +166,7 @@ export async function reloadPlugin({ liveBase = LIVE_BASE, deploy: doDeploy = tr
   const ctrlPage = ctrlDir ? new LivePage(ctrlDir.dir) : null;
   // reload対象: live dirを持つ全プラグイン + plugin.config.jsonの開発対象
   const ids = [
-    ...new Set([...dirs.map((d) => d.pluginId).filter(Boolean), PLUGIN_ID]),
+    ...new Set([...dirs.map((d) => d.pluginId).filter(Boolean), ...PLUGIN_IDS]),
   ];
   // 送信中の経路を先に殺さないようドライバ自身は最後にreloadする
   ids.sort((a, b) => (a === "qgis_live_driver") - (b === "qgis_live_driver"));

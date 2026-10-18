@@ -166,7 +166,6 @@ if ($issues.Count -eq 0) {
   Write-Host "次の一歩:"
   Write-Host "  npm run live:ensure     # 常駐QGISを用意"
   Write-Host "  npm run test:live       # 実QGIS内で検証"
-  Write-Host "  npm run new:plugin my_plugin  # 自分のプラグインの足場を作る"
 } else {
   Write-Host "=== 未解決の項目があります ===" -ForegroundColor Yellow
   $issues | ForEach-Object { Write-Host "  - $_" -ForegroundColor Yellow }

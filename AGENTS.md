@@ -23,7 +23,7 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
    ▼
 [常駐QGISプロセス] WEBENGINE_LIVE_DIR/qgis-<pid>/<plugin_id>/
                     (プラグインごとに独立したlive dir。複数プラグイン同居可)
-   ├─ deploy済み <id>(既定 webengine_plugin) = 「器/ドライバ」(ほぼ不変)
+   ├─ deploy済み <id>(plugin.config.json の id) = 「器/ドライバ」(ほぼ不変)
    │    LiveDriver: eval(任意JS) / pyeval(任意Python) /
    │                 screenshot / devreload
    └─ 開発対象 = repo側の bridge.py/logic.py/ui/*
@@ -44,33 +44,99 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
 ## 構成
 
 - `qgis-plugin/` — プラグイン群のルート。**フォルダ名=プラグインID**で複数管理。
-  `webengine_plugin/` がその1つ。QGIS依存は `bridge.py` に閉じ込める。
-  deploy時に `python/plugins/<フォルダ名>` へ配置される。
+  現在は `qgis_live_driver/` と検証対象 `geo_search/` `geo_webview/`
+  (実体はこのrepo内のgit管理対象。`C:\devin\geo_search\geo_search`・
+  `C:\devin\geo_webview\geo_webview` 側はupstream同期用にここへのjunction)のみ
+  (旧サンプル `webengine_plugin` は削除済み。
+  WebEngineプラグインの構成例はgit履歴を参照)。WebEngineプラグインでは
+  QGIS依存は `bridge.py` に閉じ込める。deploy時に `python/plugins/<フォルダ名>` へ配置される。
   `qgis_live_driver/` はWebEngineを持たない制御専用プラグイン(pyeval+地図キャンバス
   スクショのみ)で、任意プラグインの遠隔操作基盤として常駐させられる。
   内蔵HTTPサーバ(`/mcp`=MCP Streamable HTTP、`/api/*`=REST)と
   同梱stdio shim(`mcp_stdio.py`)も持ち、接続情報は
-  `~/.qgis-live/<pid>-qgis_live_driver.json` に書き出す(QGIS_LIVE_REGISTRYで変更可)
-- `qgis-plugin/<id>/logic.py` — QGIS非依存の純粋ロジック。pytest対象
+  `~/.qgis-live/<pid>-qgis_live_driver.json` に書き出す(QGIS_LIVE_REGISTRYで変更可)。
+  さらに **AIアシスタントパネル**(`ai_panel.py`+`ai_client.py`)を内蔵:
+  `プラグイン > QGIS Live Driver > AI アシスタント` で開くQtドックで、
+  OpenAI互換(`/chat/completions`)またはGemini(`generateContent`)の
+  APIを接続すると、モデルが `mcp_http.TOOLS` のツール群を
+  `driver.submit()` 経由でループ実行する。リモート制御OFF時は
+  パネル専用の内部ドライバで動く
+- `qgis-plugin/<id>/logic.py` — QGIS非依存の純粋ロジック。pytest対象(WebEngineプラグインの構成)
 - `qgis-plugin/<id>/live_driver.py` — L2検証用。実QGIS内でJS実行を仲介(後述)
 - `qgis-plugin/<id>/ui/` — HTML/CSS/JSフロントエンド。QGIS無しの通常ブラウザでも動く(mock使用)
 - `qgis-plugin/<id>/ui/src/mock-bridge.js` — Pythonブリッジのモック。**bridgeメソッド追加時は必ず同期更新**
-- `plugin.config.json` — 開発対象プラグインのID(qgis-plugin/下のフォルダ名)。
-  別プラグイン開発時はここを切り替える
-- `tests/e2e/` — Playwrightテスト(L1=mock)
-- `tests/unit/` — pytest(logic.py等)
+- `plugin.config.json` — 開発・検証対象プラグインのID(qgis-plugin/下のフォルダ名)。
+  **文字列または配列**: 先頭=主開発対象(MCPツール等のデフォルトpluginId)、
+  全要素=live:reload/test:liveの対象。現在は `["geo_search","qgis_live_driver"]`。
+  live dirを持たない対象(geo_search等)はtest:liveでhubドライバ経由の
+  open_plugin/pyeval/run()/スクショが検証される
+- `tests/e2e/` — Playwrightテスト(L1=mock)。**現在specなし**
+  (webengine_plugin削除と共に除去。serve-ui.mjs/playwright.config.ts等の
+  L1基盤は残置。WebEngineプラグイン追加時にspecを作る)
+- `tests/unit/` — pytest(mcp_http/ai_client/credential_store等のstdlib層)
+
+## ハイブリッド構造(固定方針)
+
+**制御面は「プラグイン内の薄いプリミティブ + 外側のオーケストレーション」の
+2層を固定とする。今後もこの構造で開発する。**
+
+```
+[プラグイン内] 即応答の実行プリミティブ
+   pyeval / status / open_plugin / reload_plugin / screenshot / bridge_call
+   ※各コマンドはGUIスレッドで即時実行し、例外は {error: ...} として返す
+        │  REST(/api/*) / MCP(/mcp) / ファイルJSONL
+[外側] オーケストレーション
+   順序制御・待機・リトライ・タイムアウト・結果集約・レポート
+   (live-drive.mjs / qgis-session.mjs / qgis-live-check.mjs / pytest)
+```
+
+理由(実測済み):
+
+- **GUIスレッドを占有しない**: dispatchはGUIスレッドで動くため、
+  待機・sleep・多段処理をインプロセスに入れるとQGIS UIをブロックし、
+  ドライバ自身が無応答になる(pyeval内のdriver.submit自己デッドロック、
+  重いfindChildrenクエリの無応答を実測)
+- **クラッシュ分離**: 検証・クライアント側の障害でQGISを巻き込まない
+- **タイムアウト/リトライは外側でしか制御できない**: ホスト側が
+  処理中のコマンドを打ち切る手段は、クライアント側の放棄しかない
+
+### エラー処理の契約(境界の両側で必須)
+
+- **プリミティブ側(プラグイン内)**: コマンドの失敗は必ず
+  `{"error": "<msg>"}` を返し、例外を外へ漏らさない
+  (呼び出し元は `reply["error"]` の有無で判定できる)
+- **境界**: HTTPエラー・接続失敗・応答形式不正はクライアント側で
+  `ApiError`等の例外に変換し、タイムアウトは常にクライアント側で管理
+- **オーケストレーション側**: 個別チェックの失敗は集約して続行
+  (test:liveのcheck()/WARN継続パターン)。「検証自体が死ぬ」
+  ケースだけ即FAILにして次プラグインへ進む
+- **新しいコマンドを追加する時**: 上記3点(即応答・error返却・
+  GUIブロック禁止)を満たすこと。長時間処理が必要なら
+  状態付きコマンド(start→poll→result)に分割し、待機は外側に置く
 
 ## 検証ループ(変更時はこの順で回す)
 
 ```powershell
-# L1: UI単体テスト(QGIS不要)。最も頻繁に回す
-npm test
-
-# 単体: Pythonロジック
+# 単体: Pythonロジック・stdlib層(mcp_http/ai_client/credential_store)
 npm run test:unit
+
+# L1(UI単体のPlaywright)は現在specなし。
+# WebEngineプラグイン追加時に tests/e2e/ へspecを置き npx playwright test
 ```
 
 ### L2: 実QGISでの検証
+
+**標準の検証対象プラグインは `geo_search`・`geo_webview`**(実体は
+`qgis-plugin/<id>` = このrepoのgit管理対象。
+deploy先 `geo_custom/python/plugins/<id>` および
+upstream用 `C:\devin/<id>/<id>` はどちらもここへのjunction。Qt Widgetsプラグインでrepo側編集→`reload_plugin`で即反映できる。
+`open_plugin`/`reload_plugin`/
+`status`/`screenshot(mainwindow)` の対象になり、pyevalからは
+`qgis.utils.plugins['<id>']` で `dialog`/`run` 等に直接触れられる。
+AIパネルの実用検証にも使う(例:「geo_searchの検索ダイアログを開いて」)。
+なお `view` を持たないため `eval`/`devreload`/`bridge_call` の
+WebEngine固有検証の対象にはならず、`plugin_id`転送先にもなれない
+(転送対象にするには対象プラグイン側にlive_driver.py同梱が必要)。
 
 ```powershell
 # QGIS常駐インスタンスを用意(起動済みならアタッチ、未起動ならdeploy+起動を自動化)

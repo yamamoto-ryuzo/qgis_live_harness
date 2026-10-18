@@ -1,8 +1,9 @@
 """QGISプロセスをファイル経由で外部制御するドライバ(スタンドアロン版)。
 
 WebEngineを持たない任意のプラグイン/QGIS環境で使える制御面だけの実装。
-webengine_plugin版との違い: viewを持たないため eval/devreload は未対応。
-代わりに screenshot は iface.mapCanvas() の地図キャンバスをPNG化する。
+viewを持たないため eval/devreload は未対応(plugin_idでviewを持つ
+他プラグインへ転送は可)。代わりに screenshot は iface.mapCanvas() の
+地図キャンバスをPNG化する。
 
 環境変数 WEBENGINE_LIVE_DIR 設定時のみ有効。
 live dir は WEBENGINE_LIVE_DIR/qgis-<pid>/<plugin_id>/。
@@ -13,11 +14,11 @@ live dir は WEBENGINE_LIVE_DIR/qgis-<pid>/<plugin_id>/。
   {"id": 2, "type": "screenshot", "path": "C:/.../shot.png",
    "token": "..."}  ← 地図キャンバス
   {"id": 3, "type": "status", "token": "..."}
-  {"id": 4, "type": "open_plugin", "plugin_id": "webengine_plugin",
+  {"id": 4, "type": "open_plugin", "plugin_id": "<plugin_id>",
    "token": "..."}
-  {"id": 5, "type": "reload_plugin", "plugin_id": "webengine_plugin",
+  {"id": 5, "type": "reload_plugin", "plugin_id": "<plugin_id>",
    "token": "..."}
-  {"id": 6, "type": "bridge_call", "plugin_id": "webengine_plugin",
+  {"id": 6, "type": "bridge_call", "plugin_id": "<plugin_id>",
    "method": "pluginInfo", "args": [], "token": "..."}
 
 認証: 起動ごとにセッショントークンを生成し live_dir/token と

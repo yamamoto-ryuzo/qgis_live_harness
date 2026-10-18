@@ -89,11 +89,10 @@ npm run test:live       # 実QGIS内で検証(pyevalで内部状態assert含む)
 ## 自分のプラグイン開発に使う
 
 `qgis-plugin/` 直下がプラグイン単位の管理単位(フォルダ名=プラグインID)。
-サンプルの `webengine_plugin` をテンプレートに足場を作る:
-
-```powershell
-npm run new:plugin my_plugin   # qgis-plugin/my_plugin/ 生成 + plugin.config.json 切替
-```
+WebEngineプラグインを新規に作る場合は `qgis-plugin/<id>/` に
+`metadata.txt`(`supportsQt6=yes` 必須)・`__init__.py`・`bridge.py`・
+`ui/`・`live_driver.py` を配置する。旧サンプル `webengine_plugin` は
+削除済みだが構成の参考にはgit履歴を参照できる。
 
 あとはクイックスタートと同じ手順で、repo側の `bridge.py`/`logic.py`/`ui/` を
 `live:devreload` で即反映しながら開発できる(deploy・QGIS再起動は不要)。

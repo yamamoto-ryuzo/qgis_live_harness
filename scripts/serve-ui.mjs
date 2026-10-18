@@ -4,12 +4,20 @@ import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
-const pluginId = JSON.parse(
+// plugin.config.jsonのidは文字列または配列。ui/index.htmlを持つ最初のidを使う
+const repo = fileURLToPath(new URL("../", import.meta.url));
+const ids = [].concat(JSON.parse(
   readFileSync(new URL("../plugin.config.json", import.meta.url), "utf8")
-).id;
-const root = fileURLToPath(new URL(`../qgis-plugin/${pluginId}/ui/`, import.meta.url));
+).id);
+const pluginId = ids.find((i) =>
+  existsSync(join(repo, "qgis-plugin", i, "ui", "index.html")));
+if (!pluginId) {
+  console.error(`ui/index.html を持つプラグインがありません: ${ids.join(", ")}`);
+  process.exit(1);
+}
+const root = join(repo, "qgis-plugin", pluginId, "ui");
 const port = Number(process.env.UI_PORT || 8734);
 const mime = {
   ".html": "text/html; charset=utf-8",

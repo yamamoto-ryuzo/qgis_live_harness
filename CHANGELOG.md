@@ -6,6 +6,33 @@
 
 ## [Unreleased]
 
+### Added
+
+- `qgis_live_driver` 0.3.0: **AIアシスタントパネル**を追加。
+  `プラグイン > QGIS Live Driver > AI アシスタント` で開くチャット型
+  エージェントドック(Qt Widgets)。**OpenAI互換API**
+  (`{base}/chat/completions` + function calling)と **Gemini API**
+  (`{base}/models/{model}:generateContent` + functionDeclarations)
+  をプロバイダ選択で接続し、モデルが `mcp_http.TOOLS` と同じツール群を
+  `driver.submit()` 経由でループ実行する。リモート制御OFFでも
+  パネル専用の内部ドライバで動作
+  (`ai_panel.py` / `ai_client.py`、stdlibのみのクライアント層は
+  pytest対象)。APIキーはOS資格情報ストアに保存する
+  (`credential_store.py`: Windows=DPAPI / macOS=キーチェーン /
+  Linux=Secret Service、無い環境は600権限ファイルにフォールバック。
+  ストア書込み失敗時は平文保存せずエラー表示)。
+  モデル欄は編集可コンボ+「取得」ボタンで `GET {base}/models` から
+  モデル一覧を取り込める
+
+### Removed
+
+- **サンプルプラグイン `webengine_plugin` を削除**(`qgis-plugin/webengine_plugin/`)。
+  併せてその固有テスト(`tests/e2e/plugin-ui.spec.ts`、`tests/unit/test_logic.py`)と
+  テンプレート生成スクリプト `scripts/new-plugin.mjs`(`npm run new:plugin`)を除去。
+  `plugin.config.json` の既定idは `qgis_live_driver`。L1基盤
+  (`playwright.config.ts`/`serve-ui.mjs`)は残置(WebEngineプラグイン追加時に
+  specを再作成すれば再利用可)
+
 ## [1.1.0] - 2026-10-18
 
 ### Added

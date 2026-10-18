@@ -12,9 +12,10 @@ _REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # QGIS上のプラグインID(deploy先ディレクトリ名)はplugin.config.jsonで管理
 try:
     with open(os.path.join(_REPO, "plugin.config.json"), encoding="utf-8") as f:
-        PLUGIN_ID = json.load(f)["id"]
+        _ids = json.load(f)["id"]
+        PLUGIN_ID = _ids[0] if isinstance(_ids, list) else _ids
 except Exception:
-    PLUGIN_ID = "webengine_plugin"
+    PLUGIN_ID = "geo_search"
 
 LOG = os.path.join(_REPO, "test-results", "open_plugin_dialog.log")
 
