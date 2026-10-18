@@ -190,7 +190,8 @@ for (const id of PLUGIN_IDS.filter((i) => i && !covered.has(i))) {
   }
   try {
     const ok = await page.pyeval(
-      `qgis.utils.plugins.get(${JSON.stringify(id)}) is not None`);
+      `import qgis.utils\n` +
+      `result=qgis.utils.plugins.get(${JSON.stringify(id)}) is not None`);
     check(`${tag}pyevalからプラグインに到達`, ok === true, `loaded=${ok}`);
   } catch (e) {
     check(`${tag}pyevalからプラグインに到達`, false,
@@ -205,6 +206,7 @@ for (const id of PLUGIN_IDS.filter((i) => i && !covered.has(i))) {
   // ドライバは応答し続けられる)
   try {
     const fired = await page.pyeval(
+      `import qgis.utils\n` +
       `_p=qgis.utils.plugins.get(${JSON.stringify(id)})\n` +
       `_r=getattr(_p,'run',None)\n` +
       `from qgis.PyQt.QtCore import QTimer\n` +
@@ -213,6 +215,7 @@ for (const id of PLUGIN_IDS.filter((i) => i && !covered.has(i))) {
     // run()内の初期化が重いプラグイン向けに少し待ってから表示状態を確認
     await new Promise((r) => setTimeout(r, 3000));
     const dlg = await page.pyeval(
+      `import qgis.utils\n` +
       `_p=qgis.utils.plugins.get(${JSON.stringify(id)})\n` +
       `_d=getattr(_p,'dialog',None) or getattr(_p,'dlg',None)\n` +
       `result={'visible':_d.isVisible() if hasattr(_d,'isVisible') else None}`);
@@ -225,6 +228,7 @@ for (const id of PLUGIN_IDS.filter((i) => i && !covered.has(i))) {
   // 開きっぱなしのモーダル/execダイアログを閉じて後続チェックへ進む
   try {
     await page.pyeval(
+      `import qgis.utils\n` +
       `_p=qgis.utils.plugins.get(${JSON.stringify(id)})\n` +
       `_d=getattr(_p,'dialog',None) or getattr(_p,'dlg',None)\n` +
       `_d.done(0) if hasattr(_d,'done') and _d.isVisible() else None\n` +
