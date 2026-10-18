@@ -58,11 +58,28 @@ AIエージェント向け開発手順は [AGENTS.md](AGENTS.md)、
 
 ## クイックスタート
 
+初回クローン直後は、セットアップスクリプトが前提ツールの確認・不足分の
+インストール(winget経由)から `npm install`・プラグイン配置までを一括で行う:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\setup.ps1
+#   -Yes            確認プロンプトなしで全てインストール
+#   -CheckOnly      確認のみ(何もインストールしない)
+#   -SkipPlaywright L1テスト用ブラウザの取得を省略
+#   -SkipDeploy     QGISへのプラグイン配置を省略
+```
+
+手動でセットアップする場合(スクリプトと等価):
+
 ```powershell
 npm install
 npx playwright install   # L1テスト(npm test)を回す場合のみ
 npm run deploy:copy      # 器をQGISプラグインディレクトリへ配置(初回のみ)
+```
 
+セットアップ後の開発ループ:
+
+```powershell
 npm run live:ensure     # 常駐QGISを用意(初回は自動でdeploy+起動)
 # → bridge.py / logic.py / ui/* を編集
 npm run live:devreload  # repo側コードを即反映(deploy不要)
@@ -95,6 +112,9 @@ npm run new:plugin my_plugin   # qgis-plugin/my_plugin/ 生成 + plugin.config.j
   (別場所・別バージョンは `QGIS_EXE` 環境変数で指定)
 - Node.js 24+ (Harness側クライアント用。Driver単体利用なら不要)
 - Python 3.13+ (ユニットテスト用。`pip install pytest`)
+
+いずれも `scripts\setup.ps1` が確認し、不足分はwinget経由で
+インストールできる(上記クイックスタート参照)。
 
 ## ライセンス
 

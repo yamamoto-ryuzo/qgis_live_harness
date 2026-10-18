@@ -6,6 +6,16 @@
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-18
+
+### Added
+
+- `scripts/setup.ps1`(`npm run setup`): 初回クローン後の一括セットアップ。
+  前提ツール(QGIS 4.x / Node.js 24+ / Python 3.13+ / pytest)を確認し、
+  不足分をwinget経由でインストールした上で `npm install` →
+  `npx playwright install` → `npm run deploy:copy` を実行する
+  (`-Yes` / `-CheckOnly` / `-SkipPlaywright` / `-SkipDeploy`)
+
 ## [1.0.0] - 2026-10-18
 
 初回公開リリース。QGISプロセスをAI/外部スクリプトから自律駆動するための

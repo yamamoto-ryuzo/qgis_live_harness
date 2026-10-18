@@ -62,9 +62,16 @@
 <h2>使い方(B): Harnessでプラグインを開発する</h2>
 <p><strong>WebEngineベースのQGISプラグインをAIと一緒に作りたい人向け。リポジトリをクローンして使う。</strong></p>
 <h3>セットアップ(初回のみ)</h3>
+<p>クローン直後は <code>scripts\setup.ps1</code> が前提ツール
+(QGIS 4.x / Node.js 24+ / Python 3.13+)の確認・不足分のインストール(winget経由)から
+<code>npm install</code>・プラグイン配置までを一括で行う:</p>
 <pre><code class="language-powershell">git clone &lt;repo&gt; &amp;&amp; cd qgis_live_harness
-npm install
+powershell -ExecutionPolicy Bypass -File scripts\setup.ps1
+#   -Yes / -CheckOnly / -SkipPlaywright / -SkipDeploy オプションあり
 npm run new:plugin my_plugin   # qgis-plugin/my_plugin/ をテンプレートから生成
+</code></pre>
+<p>手動でセットアップする場合(スクリプトと等価):</p>
+<pre><code class="language-powershell">npm install
 npm run deploy:copy            # 器をQGISプラグインディレクトリへ配置+有効化
 npx playwright install         # L1テスト(npm test)を回す場合のみ
 pip install pytest             # ユニットテスト(test:unit)を回す場合のみ
