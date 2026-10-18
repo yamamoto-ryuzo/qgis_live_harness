@@ -4,56 +4,33 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Harnessのプラグイン化 | QGIS Live Harness</title>
-<style>
-  :root { --nav-w: 240px; }
-  * { box-sizing: border-box; }
-  body { margin: 0; font-family: -apple-system, "Segoe UI", "Noto Sans JP", sans-serif;
-         color: #1f2328; display: flex; min-height: 100vh; }
-  nav { width: var(--nav-w); flex-shrink: 0; border-right: 1px solid #d1d9e0;
-        padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow: auto; }
-  nav .site { font-weight: 700; font-size: 15px; margin-bottom: 16px; }
-  nav a { display: block; padding: 6px 8px; border-radius: 6px; color: #0969da;
-          text-decoration: none; font-size: 14px; }
-  nav a.active { background: #ddf4ff; font-weight: 600; }
-  nav a:hover { background: #f6f8fa; }
-  main { flex: 1; max-width: 980px; padding: 32px 48px 80px; overflow-wrap: break-word; }
-  h1 { border-bottom: 1px solid #d1d9e0; padding-bottom: .3em; }
-  h2 { border-bottom: 1px solid #d1d9e0; padding-bottom: .3em; margin-top: 32px; }
-  h3 { margin-top: 24px; }
-  code, pre { font-family: ui-monospace, Consolas, monospace; }
-  code { background: #eff1f3; padding: .2em .4em; border-radius: 6px; font-size: 85%; }
-  pre { background: #f6f8fa; padding: 16px; border-radius: 6px; overflow: auto; }
-  pre code { background: none; padding: 0; }
-  table { border-collapse: collapse; display: block; overflow: auto; }
-  th, td { border: 1px solid #d1d9e0; padding: 6px 13px; }
-  tr:nth-child(2n) { background: #f6f8fa; }
-  blockquote { border-left: .25em solid #d1d9e0; color: #59636e;
-               margin: 0; padding: 0 1em; }
-  a { color: #0969da; }
-  .mermaid { margin: 16px 0; }
-  @media (max-width: 800px) {
-    body { flex-direction: column; }
-    nav { width: auto; height: auto; position: static; border-right: none;
-          border-bottom: 1px solid #d1d9e0; }
-    main { padding: 16px 20px 60px; }
-  }
-</style>
+<meta name="description" content="Harness自体をどこまでQGIS内に移せるか — 不可還元な外側の分析">
+<link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-  <nav>
-    <div class="site">QGIS Live Harness</div>
-    <a href="index.html">概要</a>
-      <a href="driver.html">QGIS Live Driver</a>
-      <a href="harness.html">QGIS Live Harness</a>
-      <a href="usage.html">構成・セットアップ・使い方</a>
-      <a href="distribution.html">プラグイン配布</a>
-      <a href="internals.html" class="active">Harnessのプラグイン化</a>
-    <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness">GitHub リポジトリ</a>
+  <nav class="sidebar">
+    <div class="site"><span class="logo">Q</span>QGIS Live Harness</div>
+    <div class="links">
+      <div class="group">はじめに</div>
+      <a class="navlink" href="index.html">概要</a>
+      <div class="group">コンポーネント</div>
+      <a class="navlink" href="driver.html">QGIS Live Driver</a>
+      <a class="navlink" href="harness.html">QGIS Live Harness</a>
+      <div class="group">ガイド</div>
+      <a class="navlink" href="usage.html">構成・セットアップ・使い方</a>
+      <a class="navlink" href="distribution.html">プラグイン配布</a>
+      <a class="navlink active" href="internals.html">Harnessのプラグイン化</a>
+      <div class="group">リンク</div>
+      <a class="navlink ext" href="https://github.com/yamamoto-ryuzo/qgis_live_harness">GitHub リポジトリ</a>
+    </div>
   </nav>
+  <div class="content">
   <main>
-<h2>Harness自体のプラグイン化について</h2>
-<p><strong>結論: 大部分は可能で、実行時の中核はすでにDriver側に吸収済み。</strong>
-残る外側は「構造上プロセスの外にしか置けないブートストラップ」だけ。</p>
+<header class="page-header">
+<p class="eyebrow">設計ノート</p>
+<h1>Harness自体のプラグイン化について</h1>
+<p class="lead">結論: 大部分は可能で、実行時の中核はすでにDriver側に吸収済み。残る外側は「構造上プロセスの外にしか置けないブートストラップ」だけ。</p>
+</header>
 <p>つまり「プラグイン化できないもの」の一覧が、そのまま
 <strong>Harnessの定義(=最小のHarness)</strong> になる。
 現在のHarnessが含む LivePage・MCPアダプタ・ensure/reloadの
@@ -61,7 +38,7 @@
 周りに集まった<strong>便益層</strong>である(<code>/api/*</code>・<code>/mcp</code>越しに任意言語で
 再実装できる)。Harnessは「消せない外側+便利だから置いた外側」の
 2層でできている、と読むと正確。</p>
-<h3>すでにプラグイン側にあるもの</h3>
+<h2>すでにプラグイン側にあるもの</h2>
 <p>コマンドdispatch・ファイルJSONL・REST・MCP・レジストリ・stdio shimは
 全て <code>qgis_live_driver</code> 内にあるため、輸送層としての外側スクリプト
 (<code>live-drive.mjs</code>/<code>qgis-mcp.mjs</code>相当)は原理的には不要。</p>
@@ -94,7 +71,7 @@
 <td><code>eval</code>/<code>pyeval</code>/<code>screenshot</code>/<code>devreload</code> を他プラグインのドライバへ転送。Driverのlive dir/HTTPポート1本が全プラグインの統一制御点になる</td>
 </tr>
 </tbody></table>
-<h3>さらに内側へ移せるもの</h3>
+<h2>さらに内側へ移せるもの</h2>
 <table>
 <thead>
 <tr>
@@ -119,7 +96,7 @@
 <td><code>QgsSettings</code>や <code>~/.qgis-live/</code> の設定ファイルで有効化判定すればenv無し起動QGISへもアタッチ可能(任意コード実行の常時有効化になるためopt-in必須)</td>
 </tr>
 </tbody></table>
-<h3>構造上外に残るもの(不可逆)</h3>
+<h2>構造上外に残るもの(不可逆)</h2>
 <table>
 <thead>
 <tr>
@@ -151,7 +128,7 @@
 </tbody></table>
 <p><code>QGIS_PLUGINPATH</code>をrepoの <code>qgis-plugin/</code> に恒久的に向ければ
 deploy自体も不要になる可能性がある(QGIS 4.0.1での動作は要検証)。</p>
-<h3>留保</h3>
+<h2>留保</h2>
 <ul>
 <li>GUIスレッド同期実行のため、モーダルダイアログやGUIブロック中は
 ドライバも沈黙する。プラグイン化で悪化も改善もしない固有の制約</li>
@@ -161,18 +138,12 @@ DriverだけではJS側を駆動できず「器ごとのlive_driver」という2
 <li><code>pyeval</code>=任意コード実行なので、配布可能なプラグインにするなら
 envゲートを設定UI等に置き換える配慮が必要</li>
 </ul>
-
+<nav class="pager">
+  <a href="distribution.html"><span class="dir">前へ</span><span class="title">プラグイン配布</span></a>
+</nav>
   </main>
-<script type="module">
-import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-document.querySelectorAll('pre > code.language-mermaid').forEach((el) => {
-  const div = document.createElement('div');
-  div.className = 'mermaid';
-  div.textContent = el.textContent;
-  el.parentElement.replaceWith(div);
-});
-mermaid.initialize({ startOnLoad: false });
-await mermaid.run({ querySelector: '.mermaid' });
-</script>
+  <aside class="toc"></aside>
+  </div>
+<script type="module" src="assets/site.js"></script>
 </body>
 </html>

@@ -4,54 +4,33 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>QGIS Live Harness | QGIS Live Harness</title>
-<style>
-  :root { --nav-w: 240px; }
-  * { box-sizing: border-box; }
-  body { margin: 0; font-family: -apple-system, "Segoe UI", "Noto Sans JP", sans-serif;
-         color: #1f2328; display: flex; min-height: 100vh; }
-  nav { width: var(--nav-w); flex-shrink: 0; border-right: 1px solid #d1d9e0;
-        padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow: auto; }
-  nav .site { font-weight: 700; font-size: 15px; margin-bottom: 16px; }
-  nav a { display: block; padding: 6px 8px; border-radius: 6px; color: #0969da;
-          text-decoration: none; font-size: 14px; }
-  nav a.active { background: #ddf4ff; font-weight: 600; }
-  nav a:hover { background: #f6f8fa; }
-  main { flex: 1; max-width: 980px; padding: 32px 48px 80px; overflow-wrap: break-word; }
-  h1 { border-bottom: 1px solid #d1d9e0; padding-bottom: .3em; }
-  h2 { border-bottom: 1px solid #d1d9e0; padding-bottom: .3em; margin-top: 32px; }
-  h3 { margin-top: 24px; }
-  code, pre { font-family: ui-monospace, Consolas, monospace; }
-  code { background: #eff1f3; padding: .2em .4em; border-radius: 6px; font-size: 85%; }
-  pre { background: #f6f8fa; padding: 16px; border-radius: 6px; overflow: auto; }
-  pre code { background: none; padding: 0; }
-  table { border-collapse: collapse; display: block; overflow: auto; }
-  th, td { border: 1px solid #d1d9e0; padding: 6px 13px; }
-  tr:nth-child(2n) { background: #f6f8fa; }
-  blockquote { border-left: .25em solid #d1d9e0; color: #59636e;
-               margin: 0; padding: 0 1em; }
-  a { color: #0969da; }
-  .mermaid { margin: 16px 0; }
-  @media (max-width: 800px) {
-    body { flex-direction: column; }
-    nav { width: auto; height: auto; position: static; border-right: none;
-          border-bottom: 1px solid #d1d9e0; }
-    main { padding: 16px 20px 60px; }
-  }
-</style>
+<meta name="description" content="Driverの上に乗る基盤 — クライアントAPI・セッション管理・ホットリロード・検証">
+<link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-  <nav>
-    <div class="site">QGIS Live Harness</div>
-    <a href="index.html">概要</a>
-      <a href="driver.html">QGIS Live Driver</a>
-      <a href="harness.html" class="active">QGIS Live Harness</a>
-      <a href="usage.html">構成・セットアップ・使い方</a>
-      <a href="distribution.html">プラグイン配布</a>
-      <a href="internals.html">Harnessのプラグイン化</a>
-    <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness">GitHub リポジトリ</a>
+  <nav class="sidebar">
+    <div class="site"><span class="logo">Q</span>QGIS Live Harness</div>
+    <div class="links">
+      <div class="group">はじめに</div>
+      <a class="navlink" href="index.html">概要</a>
+      <div class="group">コンポーネント</div>
+      <a class="navlink" href="driver.html">QGIS Live Driver</a>
+      <a class="navlink active" href="harness.html">QGIS Live Harness</a>
+      <div class="group">ガイド</div>
+      <a class="navlink" href="usage.html">構成・セットアップ・使い方</a>
+      <a class="navlink" href="distribution.html">プラグイン配布</a>
+      <a class="navlink" href="internals.html">Harnessのプラグイン化</a>
+      <div class="group">リンク</div>
+      <a class="navlink ext" href="https://github.com/yamamoto-ryuzo/qgis_live_harness">GitHub リポジトリ</a>
+    </div>
   </nav>
+  <div class="content">
   <main>
-<h2>2. QGIS Live Harness — Driverの上に乗る基盤(このリポジトリ)</h2>
+<header class="page-header">
+<p class="eyebrow">コンポーネント 2</p>
+<h1>QGIS Live Harness</h1>
+<p class="lead">Driverの上に乗る基盤(このリポジトリ) — 操縦席+管制塔。</p>
+</header>
 <p>Driverが「QGIS側の手」なら、Harnessは「操縦席+管制塔」。
 生のファイルJSONL/HTTPを直接読み書きする代わりに、
 プラグイン開発の全工程を無人化する層を提供する。</p>
@@ -59,7 +38,7 @@
 の総体</strong>である。ブートストラップ(初回インストール/プロセス起動)・
 自己監視・QGIS非依存の検証は原理的に外にしか置けず、
 その不可還元な外側こそがHarnessの存在理由になる
-(詳細は「Harness自体のプラグイン化について」節)。</p>
+(詳細は「<a href="internals.html">Harnessのプラグイン化</a>」)。</p>
 <p>HarnessがDriverに対して追加するもの:</p>
 <table>
 <thead>
@@ -93,7 +72,7 @@
 <td>開発対象コードをリポジトリに置いたままQGIS内で実行 → <code>devreload</code>で即反映</td>
 </tr>
 </tbody></table>
-<h3>MCPによるAI連携</h3>
+<h2>MCPによるAI連携</h2>
 <p>AIの接続方式はクライアントごとに異なるため、Driver側・Harness側で<strong>全方式を並列提供</strong>する:</p>
 <table>
 <thead>
@@ -181,7 +160,7 @@ qgis_live_driver がlive中ならそれをhubとして使い
     CLIENT --&gt;|HTTP| HTTP --&gt;|&quot;submit()&quot;| QGIS
     QGIS --&gt;|image content等| MCP --&gt; CLIENT
 </code></pre>
-<h3>プラグイン自動化環境(開発対象 = <code>webengine_plugin</code>)</h3>
+<h2>プラグイン自動化環境(開発対象 = <code>webengine_plugin</code>)</h2>
 <p>Harnessは「任意QGISを操る」だけでなく、<strong>Qt WebEngineプラグインの開発ループ自体を無人化</strong>する。
 <code>webengine_plugin</code> がその器であり、deployするのは固定の器
 (QWebEngineView + view用ドライバ)だけで、開発対象のロジック/UIは
@@ -239,18 +218,13 @@ qgis_live_driver がlive中ならそれをhubとして使い
 <p>要素の「面」について: <strong>製品</strong> = 配布プラグインに同梱、
 <strong>器</strong> = deployされるが配布物からは除去、<strong>Driver</strong> = 単独導入できる汎用部品、
 <strong>Harness</strong> = リポジトリ側にのみ存在。</p>
-
+<nav class="pager">
+  <a href="driver.html"><span class="dir">前へ</span><span class="title">QGIS Live Driver</span></a>
+  <a class="next" href="usage.html"><span class="dir">次へ</span><span class="title">構成・セットアップ・使い方</span></a>
+</nav>
   </main>
-<script type="module">
-import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-document.querySelectorAll('pre > code.language-mermaid').forEach((el) => {
-  const div = document.createElement('div');
-  div.className = 'mermaid';
-  div.textContent = el.textContent;
-  el.parentElement.replaceWith(div);
-});
-mermaid.initialize({ startOnLoad: false });
-await mermaid.run({ querySelector: '.mermaid' });
-</script>
+  <aside class="toc"></aside>
+  </div>
+<script type="module" src="assets/site.js"></script>
 </body>
 </html>
