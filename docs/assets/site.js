@@ -82,35 +82,51 @@ if (tocEl && headings.length >= 2) {
   headings.forEach((h) => observer.observe(h));
 }
 
+// ---- media modal: shared lightbox for videos and images ----
+function openMediaModal(mediaEl) {
+  const modal = document.createElement('div');
+  modal.className = 'media-modal';
+  const close = document.createElement('button');
+  close.className = 'close';
+  close.type = 'button';
+  close.setAttribute('aria-label', '閉じる');
+  close.textContent = '✕';
+  modal.append(mediaEl, close);
+  const onKey = (ev) => { if (ev.key === 'Escape') dismiss(); };
+  function dismiss() {
+    if (mediaEl.tagName === 'VIDEO') mediaEl.pause();
+    document.removeEventListener('keydown', onKey);
+    modal.remove();
+  }
+  close.addEventListener('click', dismiss);
+  modal.addEventListener('click', (ev) => { if (ev.target === modal) dismiss(); });
+  document.addEventListener('keydown', onKey);
+  document.body.appendChild(modal);
+}
+
 // ---- video links: play in a modal instead of navigating away ----
 const VIDEO_EXT = /\.(mp4|webm|mov|m4v)(\?|#|$)/i;
 for (const a of document.querySelectorAll('main a[href]')) {
   if (!VIDEO_EXT.test(a.getAttribute('href'))) continue;
   a.addEventListener('click', (e) => {
     e.preventDefault();
-    const modal = document.createElement('div');
-    modal.className = 'video-modal';
     const video = document.createElement('video');
     video.src = a.href;
     video.controls = true;
     video.autoplay = true;
     video.playsInline = true;
-    const close = document.createElement('button');
-    close.className = 'close';
-    close.type = 'button';
-    close.setAttribute('aria-label', '閉じる');
-    close.textContent = '✕';
-    modal.append(video, close);
-    const onKey = (ev) => { if (ev.key === 'Escape') dismiss(); };
-    function dismiss() {
-      video.pause();
-      document.removeEventListener('keydown', onKey);
-      modal.remove();
-    }
-    close.addEventListener('click', dismiss);
-    modal.addEventListener('click', (ev) => { if (ev.target === modal) dismiss(); });
-    document.addEventListener('keydown', onKey);
-    document.body.appendChild(modal);
+    openMediaModal(video);
+  });
+}
+
+// ---- images: open in a modal on click ----
+for (const img of document.querySelectorAll('main img')) {
+  if (img.closest('a')) continue;
+  img.addEventListener('click', () => {
+    const big = document.createElement('img');
+    big.src = img.currentSrc || img.src;
+    big.alt = img.alt;
+    openMediaModal(big);
   });
 }
 
