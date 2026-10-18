@@ -174,6 +174,9 @@ class GeoWebView:
         # 最終的に受信した要求元のURLを保持（パネル未生成時のフォールバック用）
         self._last_request_origin = None
 
+        # AI/外部制御用ブリッジ(initGuiで実体を設定)
+        self.bridge = None
+
     def handle_request_origin_changed(self, origin):
         """サーバから受け取った完全URLをパネルのlineEdit_navigateにセットする
 
@@ -322,8 +325,31 @@ class GeoWebView:
         # HTTPサーバーを起動
         self.server_manager.start_http_server()
 
+        # AI/外部制御用ブリッジ。qgis_live_driver の bridge_call コマンドが
+        # qgis.utils.plugins['geo_webview'].bridge をプロセス内で直接呼ぶため、
+        # ファイルJSONL/REST/MCP(qgis_bridge_call)の全経路から制御できる
+        try:
+            from .bridge import GeoWebViewBridge
+            self.bridge = GeoWebViewBridge(self)
+        except Exception:
+            self.bridge = None
+
         # 初回起動フラグ
         self.first_start = True
+
+    def open_dialog(self):
+        """live driver の open_plugin から呼ばれる互換フック。
+
+        パネルを開く(トグルではなく冪等に表示状態にする)。
+        """
+        if self.panel is None:
+            self.toggle_panel()
+        elif not self.panel.isVisible():
+            self.panel.show()
+
+    def run(self):
+        """run() 互換エントリ: open_dialog と同じ(パネルを開く)。"""
+        self.open_dialog()
 
     def toggle_panel(self):
         """パネルの表示/非表示を切り替え"""
@@ -847,6 +873,9 @@ class GeoWebView:
                 self.tr(u'&geo_webview'),
                 action)
             self.iface.removeToolBarIcon(action)
+
+        # AI/外部制御用ブリッジを解除
+        self.bridge = None
 
 
 

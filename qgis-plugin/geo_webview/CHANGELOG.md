@@ -11,6 +11,47 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.11.0] - 2026-10-18 🤖 AI連携対応リリース
+
+### Added (追加)
+- **AI/外部制御用ブリッジ (`bridge.py`)**: `GeoWebViewBridge` を新設し、
+  `plugin.bridge` に配線。qgis_live_driver の `bridge_call` コマンド
+  (ファイルJSONL / REST `/api/cmd` / MCP `qgis_bridge_call`) から
+  全機能をプロセス内で直接呼び出せるようになりました。
+- **`pluginInfo()` 自己記述**: AI向けプラグインカタログ標準スキーマ
+  (id/name/summary/when_to_use/invoke/methods/state)を実装。
+  `describe_plugins` で発見可能になります。
+- **ブリッジメソッド群**:
+  - `status` / `openPanel` / `closePanel` — 実行時状態とパネル制御
+  - `serverStatus` / `startServer` / `stopServer` / `setPort` /
+    `externalControl` — HTTPサーバ(WMS/WMTS/WFS)制御
+  - `generatePermalink` / `copyPermalink` — パーマリンク生成・コピー
+  - `navigate` / `navigateTo` — URL・座標からの地図移動
+    (モーダルダイアログを出さない非ブロッキング版)
+  - `listThemes` / `applyTheme` / `listBookmarks` — テーマ・ブックマーク
+  - `googleMapsUrl` / `googleEarthUrl` / `maplibreUrl` /
+    `openlayersUrl` / `openExternal` — 外部連携URL発行・ブラウザ起動
+  - `wfsLayers` / `checkAccess` / `endpoints` — WFS一覧・外部アクセス
+    診断・エンドポイント一覧
+  - `getSettings` / `setSettings` — 出力先ディレクトリ・ポート設定
+- **`open_dialog()` / `run()`**: live driver の `open_plugin` がパネルを
+  開ける互換フックを追加(冪等、トグルではない)。
+
+### Fixed (修正)
+- **`GET /maplibre` がパラメータ無しで500になる問題を修正**: 空パーマリンクは
+  `_parse_permalink` が必ず失敗させるため、パラメータ省略時は現在の地図
+  キャンバス(中心/縮尺/CRS/回転)から合成パーマリンクを生成する
+  フォールバックを追加しました(生成失敗時のリトライも同様)。
+- **`GET /qgis-map` のパラメータ省略時フォールバック**: x/y 未指定時に
+  EPSG:3857 原点(0,0)へ飛んでいたのを、現在の地図キャンバスを使うよう
+  修正しました。
+
+### Notes (注意事項)
+- bridge メソッドはモーダルダイアログ(QMessageBox)を出さず、失敗は
+  `{"ok": false, "error": ...}` を返します(自動化でのGUIブロック防止)。
+- ブラウザを開く操作(`openExternal`, `openlayersUrl(open_browser=True)`)は
+  OSの既定ブラウザを起動します。
+
 ## [3.7.0] - 2025-11-17 ✅ XYZ Tiles 正式対応リリース
 
 ## [3.8.0] - 2025-11-19 ✅ is_layer_visible() 対応リリース

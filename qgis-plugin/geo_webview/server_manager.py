@@ -705,16 +705,20 @@ class GeoWebViewServerManager:
                                         p += f"&zoom={zoom}"
                                     temp_path = maplibre_generator.open_maplibre_from_permalink(p, wfs_typename)
                                 else:
-                                    # Fallback: attempt to generate with empty permalink but pass typename
-                                    temp_path = maplibre_generator.open_maplibre_from_permalink('', wfs_typename)
+                                    # Fallback: 現在の地図キャンバスから合成パーマリンクを生成
+                                    # (空パーマリンクは _parse_permalink が必ず失敗させるため)
+                                    canvas_permalink = self._canvas_permalink()
+                                    temp_path = maplibre_generator.open_maplibre_from_permalink(
+                                        canvas_permalink or '', wfs_typename)
                             except Exception as e:
                                 # If generator failed (e.g. couldn't parse permalink), attempt a safe fallback
                                 try:
-                                    QgsMessageLog.logMessage(f"⚠️ MapLibre generator failed: {e} - retrying with empty permalink", "geo_webview", Qgis.Warning)
+                                    QgsMessageLog.logMessage(f"⚠️ MapLibre generator failed: {e} - retrying with canvas permalink", "geo_webview", Qgis.Warning)
                                 except Exception:
                                     pass
                                 try:
-                                    temp_path = maplibre_generator.open_maplibre_from_permalink('', None)
+                                    temp_path = maplibre_generator.open_maplibre_from_permalink(
+                                        self._canvas_permalink() or '', None)
                                 except Exception:
                                     # re-raise original to be handled by outer exception handler
                                     raise
@@ -924,8 +928,25 @@ class GeoWebViewServerManager:
             rotation = params.get('rotation', ['0.0'])[0]
             width = params.get('width', ['800'])[0]
             height = params.get('height', ['600'])[0]
-            
-            
+
+            # x/y 未指定時は現在の地図キャンバスへフォールバック
+            # (以前は暗黙に EPSG:3857 原点(0,0)へ飛んでいた)
+            if x is None or y is None:
+                try:
+                    canvas = self.iface.mapCanvas()
+                    if canvas is not None:
+                        c = canvas.center()
+                        x = str(c.x())
+                        y = str(c.y())
+                        if scale is None:
+                            scale = str(canvas.scale())
+                        crs = canvas.mapSettings().destinationCrs().authid()
+                        if 'rotation' not in params:
+                            rotation = str(canvas.rotation()) \
+                                if hasattr(canvas, 'rotation') else '0.0'
+                except Exception:
+                    pass
+
             # Convert incoming center coordinates to EPSG:3857 unconditionally
             try:
                 from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsPointXY
@@ -1864,6 +1885,26 @@ class GeoWebViewServerManager:
 </html>"""
         
         return html_template
+
+    def _canvas_permalink(self):
+        """現在の地図キャンバスから /maplibre 用の合成パーマリンクを生成する。
+
+        maplibre_generator.open_maplibre_from_permalink は空文字列を受理
+        しないため、パラメータ無しリクエスト時のフォールバックに使う。
+        キャンバスが読めない場合は None を返す。
+        """
+        try:
+            canvas = self.iface.mapCanvas()
+            if canvas is None:
+                return None
+            center = canvas.center()
+            scale = canvas.scale()
+            crs = canvas.mapSettings().destinationCrs().authid()
+            rotation = canvas.rotation() if hasattr(canvas, 'rotation') else 0.0
+            return (f"http://localhost/?x={center.x()}&y={center.y()}"
+                    f"&crs={crs}&scale={scale}&rotation={rotation}")
+        except Exception:
+            return None
 
     def _build_navigation_data_from_params(self, params):
         """互換性用: HTTPパラメータ(dict of lists)から navigation_data を構築して返す
