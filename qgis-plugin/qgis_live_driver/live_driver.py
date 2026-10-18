@@ -84,6 +84,35 @@ def _plugin_metadata(pid, key):
         return None
 
 
+def reload_plugin_now(plugin_id):
+    """sys.modulesキャッシュを掃除してreloadPluginし、open_dialogを開き直す。
+
+    reload_pluginコマンドとメニューのホットリロード(hot_reload.py)の
+    共通処理。呼び出し中のコードフレームはreload後も有効なままなので、
+    plugin_id に自分自身(qgis_live_driver)を渡してもよい。
+    """
+    import sys
+    import qgis.utils
+    for k in [k for k in list(sys.modules)
+              if k == plugin_id or k.startswith(plugin_id + ".")]:
+        sys.modules.pop(k, None)
+    if plugin_id in qgis.utils.plugins:
+        qgis.utils.reloadPlugin(plugin_id)
+    else:
+        qgis.utils.loadPlugin(plugin_id)
+        qgis.utils.startPlugin(plugin_id)
+    p = qgis.utils.plugins.get(plugin_id)
+    opened = False
+    if p is not None and hasattr(p, "open_dialog"):
+        p.open_dialog()
+        opened = True
+    return {
+        "loaded": plugin_id in qgis.utils.plugins,
+        "opened": opened,
+        "plugins": sorted(qgis.utils.plugins.keys()),
+    }
+
+
 class _GenericBridge:
     """bridgeを持たないプラグイン向けの汎用アダプタ。
 
@@ -548,26 +577,7 @@ class LiveDriver:
             reply({"id": cid, "error": "plugin_id required"})
             return
         try:
-            import sys
-            import qgis.utils
-            for k in [k for k in list(sys.modules)
-                      if k == pid or k.startswith(pid + ".")]:
-                sys.modules.pop(k, None)
-            if pid in qgis.utils.plugins:
-                qgis.utils.reloadPlugin(pid)
-            else:
-                qgis.utils.loadPlugin(pid)
-                qgis.utils.startPlugin(pid)
-            p = qgis.utils.plugins.get(pid)
-            opened = False
-            if p is not None and hasattr(p, "open_dialog"):
-                p.open_dialog()
-                opened = True
-            reply({"id": cid, "result": {
-                "loaded": pid in qgis.utils.plugins,
-                "opened": opened,
-                "plugins": sorted(qgis.utils.plugins.keys()),
-            }})
+            reply({"id": cid, "result": reload_plugin_now(pid)})
         except Exception:
             reply({"id": cid, "error": traceback.format_exc()})
 

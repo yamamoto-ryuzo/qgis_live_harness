@@ -120,7 +120,15 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   MCP/RESTで公開している。逆方向としてAIパネル自体が
   MCPクライアントも持ち、`~/.qgis-live/mcp_servers.json`
   (Claude Desktop互換、command=stdio/url=Streamable HTTP)の
-  外部MCPサーバのツールを `mcp_<サーバ>__<ツール>` で使える
+  外部MCPサーバのツールを `mcp_<サーバ>__<ツール>` で使える。
+  さらに **ホットリロード**(`hot_reload.py`):
+  `プラグイン > QGIS Live Driver > ホットリロード` サブメニューに
+  開発対象(plugin.config.jsonのid、junction配置時にrealpathから
+  repoを辿って発見。無ければロード中の全プラグイン)を一覧し、
+  選んだプラグインを手動で sys.modules掃除+reloadPlugin
+  (+open_dialog再表示)する。「すべて再読込」も可
+  (qgis_live_driverは最後)。QGIS再起動・deploy不要で、
+  Node側 `npm run live:watch`(自動watch)の手動版に相当する
 - `qgis-plugin/<id>/logic.py` — QGIS非依存の純粋ロジック。pytest対象(WebEngineプラグインの構成)
 - `qgis-plugin/<id>/live_driver.py` — L2検証用。実QGIS内でJS実行を仲介(後述)
 - `qgis-plugin/<id>/ui/` — HTML/CSS/JSフロントエンド。QGIS無しの通常ブラウザでも動く(mock使用)
@@ -288,6 +296,15 @@ npm run live:devreload
 # プラグインの器側(main_plugin.py, live_driver.py等)を変更した時だけこちら
 npm run live:reload     # = deploy -Copy → pyevalで sys.modules掃除+reloadPlugin
 #   + open_dialog し直し。--no-deploy でdeploy省略可( junction配置なら不要)
+
+# ★ホットリロード(watchモード): qgis-plugin/<id> の保存を監視して自動反映
+npm run live:watch      # 起動中は編集→保存だけでリロードされる(Ctrl+Cで終了)
+#   ui/**・bridge.py・logic.pyのみの変更かつ対象がview持ち → devreload、
+#   それ以外(本体*.py等を含む) → reload_plugin を自動選択。
+#   --plugin <id> で対象絞込、--debounce <ms> でまとめ待ち調整可
+#   (junction配置前提。-Copy配置は先に deploy:copy)
+# ※QGIS側メニュー「QGIS Live Driver > ホットリロード」からは対象プラグインを
+#   手動選択してreload_pluginできる(自動watchなしの手動版)
 
 # 実QGIS内UIを検証(QGIS未起動でも内部でensureして自動起動)
 npm run test:live       # test-results/qgis-live.png にスクショも残る

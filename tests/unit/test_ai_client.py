@@ -103,6 +103,52 @@ def test_image_message_content(tmp_path):
     assert ai_client.image_message_content(str(tmp_path / "no.png")) is None
 
 
+def test_user_content(tmp_path):
+    """ユーザ入力(テキスト+画像パス)のOpenAI content変換。"""
+    png = tmp_path / "a.png"
+    png.write_bytes(b"\x89PNG fake")
+    # 画像無しは文字列のまま(vision非対応モデルとの互換)
+    assert ai_client.user_content("hello", None) == "hello"
+    assert ai_client.user_content("hello", [str(tmp_path / "no.png")]) \
+        == "hello"
+    # 画像ありはtext+image_urlのcontent配列
+    c = ai_client.user_content("見て", [str(png)])
+    assert c[0] == {"type": "text", "text": "見て"}
+    assert c[1]["type"] == "image_url"
+    assert c[1]["image_url"]["url"].startswith("data:image/png;base64,")
+    # テキスト無しの画像のみ送信も可
+    c = ai_client.user_content("", [str(png)])
+    assert [p["type"] for p in c] == ["image_url"]
+
+
+def test_build_messages_with_images(tmp_path):
+    """build_messages が添付画像をワイヤ形式へ変換する。"""
+    png = tmp_path / "a.png"
+    png.write_bytes(b"\x89PNG fake")
+    # OpenAI: 新規メッセージも履歴の images キーもcontent配列化し、
+    # imagesキー自体はワイヤ形式へ残さない
+    prov = ai_client.get_provider("openai")
+    hist = [{"role": "user", "content": "前の", "images": [str(png)]},
+            {"role": "assistant", "content": "了解"}]
+    msgs = prov.build_messages("sys", hist, "これは?", [str(png)])
+    assert msgs[0] == {"role": "system", "content": "sys"}
+    assert "images" not in msgs[1]
+    assert [p["type"] for p in msgs[1]["content"]] == \
+        ["text", "image_url"]
+    assert msgs[2]["content"] == "了解"   # 画像無しは文字列のまま
+    assert [p["type"] for p in msgs[3]["content"]] == \
+        ["text", "image_url"]
+    # Gemini: inlineDataパート
+    g = ai_client.get_provider("gemini")
+    msgs = g.build_messages("sys", hist, "これは?", [str(png)])
+    assert msgs[0]["role"] == "user"
+    kinds = [set(p) for p in msgs[0]["parts"]]
+    assert {"text"} in kinds and {"inlineData"} in kinds
+    assert msgs[1]["role"] == "model"
+    kinds = [set(p) for p in msgs[2]["parts"]]
+    assert {"text"} in kinds and {"inlineData"} in kinds
+
+
 def test_system_prompt_lists_plugins():
     p = ai_client.system_prompt(["some_plugin", "qgis_live_driver"])
     assert "some_plugin" in p and "qgis_live_driver" in p
@@ -711,18 +757,39 @@ def test_github_device_flow(copilot_server):
 
 # ---- エージェント/スキル(指示書ファイル) ----
 
+@pytest.fixture
+def bundled_skills(tmp_path, monkeypatch):
+    """同梱指示書の代替: _bundled_dir を一時dirに差し替える。
+
+    プラグイン同梱デフォルトは現在無いが、bundledフラグ・
+    ユーザ優先・削除不可の仕組み自体は維持するためfixtureで検証する。
+    """
+    d = tmp_path / "bundled"
+    (d / "skills").mkdir(parents=True)
+    (d / "skills" / "sample-recipe.md").write_text(
+        "# サンプルレシピ\n\n手順書X\nuse_when: テスト用レシピ\n\n"
+        "result = 1\n",
+        encoding="utf-8")
+    monkeypatch.setattr(
+        ai_client, "_bundled_dir", lambda kind: str(d / kind))
+    return d
+
+
 def test_agents_roundtrip(tmp_path, monkeypatch):
     """agents/*.md の作成→一覧→読込→削除。"""
     monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
     assert ai_client.list_agents() == []
-    p = ai_client.save_agent("テスト agent",
-                             "# 地図士\n\n日本語で簡潔に答える")
+    p = ai_client.save_agent(
+        "テスト agent",
+        "# 地図士\n\n日本語で簡潔に答える\nuse_when: 地図デザインの依頼時"
+        "\n\n詳細本文")
     assert p.endswith("テスト_agent.md")  # 空白は_に置換
     agents = ai_client.list_agents()
     assert [a["id"] for a in agents] == ["テスト_agent"]
     a = agents[0]
     assert a["title"] == "地図士"          # 先頭の # 行
     assert a["desc"] == "日本語で簡潔に答える"
+    assert a["when"] == "地図デザインの依頼時"  # desc直後のuse_when行
     assert not a["builtin"]
     assert "地図士" in ai_client.load_agent("テスト_agent")
     assert ai_client.load_agent("nonexistent") is None
@@ -731,43 +798,50 @@ def test_agents_roundtrip(tmp_path, monkeypatch):
     assert ai_client.list_agents() == []
 
 
-def test_bundled_skill_listed(tmp_path, monkeypatch):
-    """プラグイン同梱のskills/がbuiltinフラグ付きで列挙される。"""
+def test_bundled_skill_listed(tmp_path, monkeypatch, bundled_skills):
+    """同梱のskills/がbuiltinフラグ付きで列挙される。"""
     monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
     s = next(s for s in ai_client.list_skills()
-             if s["id"] == "qgis-basics")
+             if s["id"] == "sample-recipe")
     assert s["builtin"] and s["title"] and s["desc"]
+    assert s["when"] == "テスト用レシピ"
 
 
-def test_user_skill_overrides_bundled(tmp_path, monkeypatch):
+def test_user_skill_overrides_bundled(tmp_path, monkeypatch,
+                                      bundled_skills):
     """ユーザ側の同名.mdはbundledを上書きする。"""
     monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
     d = ai_client.skills_dir()
     os.makedirs(d)
-    with open(os.path.join(d, "qgis-basics.md"), "w",
+    with open(os.path.join(d, "sample-recipe.md"), "w",
               encoding="utf-8") as f:
         f.write("# カスタム\n\n説明X\n")
     s = next(s for s in ai_client.list_skills()
-             if s["id"] == "qgis-basics")
+             if s["id"] == "sample-recipe")
     assert not s["builtin"]
     assert s["title"] == "カスタム"
 
 
-def test_system_prompt_agent_and_skills(tmp_path, monkeypatch):
+def test_system_prompt_agent_and_skills(tmp_path, monkeypatch,
+                                        bundled_skills):
     """agent_textは常時注入、skillsはパス+説明のみ載る。"""
     monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
     p = ai_client.system_prompt(["x"], agent_text="Be brief",
                                 skills=ai_client.list_skills())
     assert "Be brief" in p
-    assert "qgis-basics" in p and "open()" in p
+    assert "sample-recipe" in p and "open()" in p
+    # use_when も一覧に載る
+    assert "use when: テスト用レシピ" in p
     # 本文は載らない(ファイルを読ませる方式)
-    assert "QgsProject.instance()" not in p
+    assert "result = 1" not in p
 
 
 def test_system_prompt_agent_list(tmp_path, monkeypatch):
     """agents一覧はid+説明のみ載り、選択中は[active]が付く。"""
     monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
-    ai_client.save_agent("mapper", "# 地図士\n\n地図デザイン専門")
+    ai_client.save_agent(
+        "mapper",
+        "# 地図士\n\n地図デザイン専門\nuse_when: 配色・スタイル系")
     ai_client.save_agent("coder", "# 開発者\n\nコード重視")
     p = ai_client.system_prompt(
         ["x"],
@@ -775,7 +849,8 @@ def test_system_prompt_agent_list(tmp_path, monkeypatch):
         agents=ai_client.list_agents(),
         active_agent="mapper")
     assert "## Agents" in p
-    assert "mapper: 地図デザイン専門 [active]" in p
+    assert ("mapper: 地図デザイン専門 — use when: 配色・スタイル系"
+            " [active]") in p
     assert "coder: コード重視" in p and "[active]" not in \
         next(l for l in p.splitlines() if "coder" in l)
     assert "ai_select_agent" in p
@@ -803,7 +878,8 @@ def test_instruction_tool_roundtrip(tmp_path, monkeypatch):
             "ai_read_instruction", {"kind": "skills", "id": "レシピ_a"})
 
 
-def test_instruction_tool_errors(tmp_path, monkeypatch):
+def test_instruction_tool_errors(tmp_path, monkeypatch,
+                                 bundled_skills):
     """ai_*ツール: 引数不正・同梱品削除はApiError。"""
     monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
     with pytest.raises(ai_client.ApiError):
@@ -817,7 +893,7 @@ def test_instruction_tool_errors(tmp_path, monkeypatch):
     with pytest.raises(ai_client.ApiError) as ei:
         ai_client.run_instruction_tool(
             "ai_delete_instruction",
-            {"kind": "skills", "id": "qgis-basics"})
+            {"kind": "skills", "id": "sample-recipe"})
     assert "削除できません" in str(ei.value)
     with pytest.raises(ai_client.ApiError):
         ai_client.run_instruction_tool("ai_nope", {"kind": "agents"})
@@ -863,6 +939,12 @@ def test_mcp_config_roundtrip(tmp_path, monkeypatch):
         ai_client.mcp_save_config("{not json")
     with pytest.raises(ai_client.ApiError):
         ai_client.mcp_save_config('{"servers": {}}')  # 形式違い
+    # 空欄は「MCPサーバなし」として保存できる
+    assert ai_client.mcp_save_config("") \
+        == '{"mcpServers": {}}'
+    assert ai_client.mcp_servers_config() == {}
+    assert ai_client.mcp_save_config("  \n") \
+        == '{"mcpServers": {}}'
 
 
 class _McpFakeDriver:
@@ -1160,6 +1242,28 @@ def test_mcp_http_oauth_authcode(tmp_path, monkeypatch):
     finally:
         httpd.shutdown()
         tokd.shutdown()
+
+
+def test_mcp_oauth_abort(tmp_path, monkeypatch):
+    """is_aborted で OAuth認可待ちを打ち切れる(中断ボタン相当)。"""
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    monkeypatch.setattr(ai_client.webbrowser, "open", lambda url: None)
+    oc = {"authorize_url": "http://127.0.0.1:9/authorize",
+          "token_url": "http://127.0.0.1:9/token",
+          "client_id": "cid"}
+    t0 = time.time()
+    with pytest.raises(ai_client.ApiError, match="中断"):
+        ai_client._oauth_authorize(oc, timeout=60, on_status=None,
+                                   is_aborted=lambda: True)
+    assert time.time() - t0 < 5          # タイムアウト待ちでない
+
+    # mcp_discover にも中断が伝播する
+    ai_client.mcp_save_config(json.dumps({"mcpServers": {
+        "s": {"url": "http://127.0.0.1:9/mcp", "oauth": oc}}}))
+    t0 = time.time()
+    r = ai_client.mcp_discover(is_aborted=lambda: True)
+    assert time.time() - t0 < 5
+    assert r["sessions"] == {}
 
 
 def test_extra_tools_register():

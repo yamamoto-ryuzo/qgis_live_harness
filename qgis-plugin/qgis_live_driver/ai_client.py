@@ -59,7 +59,7 @@ DEFAULT_BASE_URL = "https://api.openai.com/v1"
 DEFAULT_MODEL = "gpt-4o-mini"
 
 GEMINI_DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
-GEMINI_DEFAULT_MODEL = "gemini-2.5-flash"
+GEMINI_DEFAULT_MODEL = "gemini-3.8-flash"
 
 # ---- GitHub Copilot ----
 # GitHub Copilot APIは公開仕様ではなく、VS CodeのCopilot Chatが使う
@@ -132,8 +132,8 @@ MODEL_KIND_LABELS = dict(MODEL_KINDS)
 SUGGESTED_MODELS = {
     "openai": ["gpt-5-mini", "gpt-5", "gpt-4.1-mini", "gpt-4.1",
                "gpt-4o-mini", "gpt-4o", "o4-mini"],
-    "gemini": ["gemini-2.5-flash", "gemini-2.5-pro",
-               "gemini-2.5-flash-lite", "gemini-2.0-flash"],
+    "gemini": ["gemini-3.8-flash", "gemini-3.5-flash",
+               "gemini-3.1-flash-lite", "gemini-2.5-pro"],
     "copilot": ["gpt-4o", "gpt-4.1", "gpt-5-mini", "gpt-5", "o4-mini",
                 "claude-sonnet-4", "claude-3.7-sonnet", "gemini-2.5-pro"],
 }
@@ -775,6 +775,12 @@ def screenshot_temp_path():
                         f"qgis-ai-shot-{uuid.uuid4().hex[:8]}.png")
 
 
+def attachment_temp_path():
+    """チャット入力に添付された画像の保存先(PNGに正規化して書く)。"""
+    return os.path.join(tempfile.gettempdir(),
+                        f"qgis-ai-attach-{uuid.uuid4().hex[:8]}.png")
+
+
 def image_b64(path):
     """PNGファイルをbase64文字列にする(読めなければNone)。"""
     try:
@@ -784,17 +790,44 @@ def image_b64(path):
         return None
 
 
-def image_message_content(path, note=None):
-    """PNGファイルをOpenAI vision用のcontent配列にする(読めなければNone)。"""
+def image_url_part(path):
+    """PNGファイル→OpenAIのimage_urlパート(読めなければNone)。"""
     b64 = image_b64(path)
     if b64 is None:
         return None
-    return [
-        {"type": "text",
-         "text": note or f"screenshot saved: {path}"},
-        {"type": "image_url",
-         "image_url": {"url": f"data:image/png;base64,{b64}"}},
-    ]
+    return {"type": "image_url",
+            "image_url": {"url": f"data:image/png;base64,{b64}"}}
+
+
+def image_inline_part(path):
+    """PNGファイル→GeminiのinlineDataパート(読めなければNone)。"""
+    b64 = image_b64(path)
+    if b64 is None:
+        return None
+    return {"inlineData": {"mimeType": "image/png", "data": b64}}
+
+
+def user_content(text, image_paths):
+    """ユーザ入力(テキスト+画像パス列)をOpenAIのcontentにする。
+
+    画像が無い・全て読めない場合はテキスト文字列のまま返す
+    (vision非対応モデルとの互換のため単一テキストは配列化しない)。
+    """
+    imgs = [p for p in
+            (image_url_part(x) for x in image_paths or [])
+            if p is not None]
+    if not imgs:
+        return text or ""
+    return ([{"type": "text", "text": text}] if text else []) + imgs
+
+
+def image_message_content(path, note=None):
+    """PNGファイルをOpenAI vision用のcontent配列にする(読めなければNone)。"""
+    part = image_url_part(path)
+    if part is None:
+        return None
+    return [{"type": "text",
+             "text": note or f"screenshot saved: {path}"}, part]
 
 
 def system_prompt(plugins=None, agent_text=None, skills=None,
@@ -817,21 +850,25 @@ def system_prompt(plugins=None, agent_text=None, skills=None,
     if agents:
         lines = "\n".join(
             f"- {a['id']}: {a['desc'] or a['title']}"
+            + (f" — use when: {a['when']}" if a.get("when") else "")
             + (" [active]" if a["id"] == active_agent else "")
             for a in agents)
         p += ("\n## Agents\n"
               "Agent instruction files define persistent behavior. "
               "The [active] agent's body is already injected above. "
-              "Switch with ai_select_agent, or read one via "
+              "Each entry's 'use when' (if any) says which tasks it "
+              "suits. Switch with ai_select_agent, or read one via "
               "ai_read_instruction and adopt it ad hoc:\n"
               + lines + "\n")
     if skills:
         lines = "\n".join(
             f"- {s['id']} ({s['path']}): {s['desc']}"
+            + (f" — use when: {s['when']}" if s.get("when") else "")
             for s in skills)
         p += ("\n## Skills\n"
-              "Skill files are available on this machine. When a task "
-              "matches, read the file via qgis_pyeval open() first:\n"
+              "Skill files are available on this machine. Check each "
+              "entry's 'use when' (if any); when a task matches, read "
+              "the file via qgis_pyeval open() first:\n"
               + lines + "\n")
     return p
 
@@ -864,13 +901,24 @@ def _bundled_dir(kind):
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), kind)
 
 
-def _md_head(path):
-    """.md の先頭から (title, desc) を取る。
+# ヘッダーの「使いどき」ラベル(説明文の直後・最初の空行までの間に書く)
+_WHEN_RE = re.compile(
+    r"^(?:use_when|when_to_use|when|用途|使いどき)\s*[:：]\s*(.+)$",
+    re.IGNORECASE)
 
-    最初の '# '行をタイトル、次の非空行を説明文とする。
+
+def _md_head(path):
+    """.md の先頭から (title, desc, when) を取る。
+
+    所定書式(ヘッダー):
+        # タイトル
+        説明文(1行)
+        use_when: 使いどき(1行、省略可)
+    'use_when' には when/when_to_use/用途/使いどき の別名も使える。
+    when 行は説明文の直後・最初の空行までの間のみ認識する。
     frontmatter的な '---' やコメント行は読み飛ばす。
     """
-    title = desc = None
+    title = desc = when = None
     try:
         with open(path, "r", encoding="utf-8") as f:
             for raw in f:
@@ -882,14 +930,21 @@ def _md_head(path):
                 if t.startswith("#"):
                     if title is None:
                         title = t.lstrip("#").strip()
+                    elif desc:
+                        break      # 次見出し=ヘッダー終了
                     continue
-                if t.startswith("---") or t.startswith("<!--"):
+                if desc is None:
+                    if t.startswith("---") or t.startswith("<!--"):
+                        continue
+                    desc = t
                     continue
-                desc = t
-                break
+                m = _WHEN_RE.match(t)
+                if m:
+                    when = m.group(1).strip()
+                break              # ラベル行以外=ヘッダー終了
     except Exception:
         pass
-    return title, desc
+    return title, desc, when
 
 
 def list_instruction_files(kind):
@@ -909,9 +964,10 @@ def list_instruction_files(kind):
             stem = f[:-3]
             if not builtin or stem not in out:
                 p = os.path.join(d, f)
-                title, desc = _md_head(p)
+                title, desc, when = _md_head(p)
                 out[stem] = {"id": stem, "path": p, "builtin": builtin,
-                             "title": title or stem, "desc": desc or ""}
+                             "title": title or stem, "desc": desc or "",
+                             "when": when or ""}
     return [out[k] for k in sorted(out)]
 
 
@@ -1044,7 +1100,9 @@ INSTRUCTION_TOOLS = [
             "output-style instructions (only one is active at a time), "
             "'skills' for task procedures and recipes (many coexist, "
             "read on demand). Format: first '# ' line = title, next "
-            "non-empty line = description, the rest is the "
+            "non-empty line = description, optionally followed by a "
+            "'use_when: <when to use>' line (shown in listings so "
+            "the model can pick it when a task matches), then the "
             "instruction body.",
         "inputSchema": {"type": "object",
                         "properties": {"kind": _KIND_PROP,
@@ -1101,6 +1159,7 @@ def run_instruction_tool(name, args):
         return "\n".join(
             f"- {i['id']}: {i['title']}"
             + (f" — {i['desc']}" if i.get("desc") else "")
+            + (f" — use when: {i['when']}" if i.get("when") else "")
             + f" [{'bundled' if i['builtin'] else 'user'}] {i['path']}"
             for i in items)
     if name == "ai_read_instruction":
@@ -1224,7 +1283,10 @@ def mcp_save_config(text):
     '$store:<key>' 参照だけを残す(APIキーと同じ方針で
     ストア保存に失敗した場合は平文では保存しない)。
     実際に保存したJSONテキストを返す。
+    空欄は「MCPサーバなし」として {"mcpServers": {}} に正規化する。
     """
+    if not (text or "").strip():
+        text = '{"mcpServers": {}}'
     try:
         d = json.loads(text)
     except Exception as e:
@@ -1398,12 +1460,13 @@ def _mcp_token_delete(name):
         pass
 
 
-def _oauth_authorize(oc, timeout=180.0, on_status=None):
+def _oauth_authorize(oc, timeout=180.0, on_status=None, is_aborted=None):
     """authorization_code + PKCE でユーザー同意型トークンを取得する。
 
     ローカルHTTPリスナ(既定 http://127.0.0.1:8020/callback)を立てて
     ブラウザを開き、コールバックの code をトークンに交換する。
     oauth.authorize_url が必須。client_secret あれば Basic 認証。
+    is_aborted() がTrueを返すと待機を打ち切ってApiErrorを返す。
     @returns _oauth_request() のdict
     """
     from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -1467,6 +1530,8 @@ def _oauth_authorize(oc, timeout=180.0, on_status=None):
                 + hint)
         deadline = time.time() + timeout
         while "code" not in got and "error" not in got:
+            if is_aborted and is_aborted():
+                raise ApiError("OAuth認証を中断しました")
             if time.time() > deadline:
                 raise ApiError(
                     "OAuth認証がタイムアウトしました"
@@ -1499,7 +1564,7 @@ class _McpHttp:
     に永続化し refresh_token で更新)、無ければ client_credentials。
     """
 
-    def __init__(self, cfg, name="", on_status=None):
+    def __init__(self, cfg, name="", on_status=None, is_aborted=None):
         self.url = (cfg.get("url") or "").rstrip("/")
         if not self.url:
             raise ApiError("MCPサーバのurlが空です")
@@ -1508,6 +1573,7 @@ class _McpHttp:
         self.oauth = cfg.get("oauth") or None
         self.name = name
         self._status = on_status or (lambda m: None)
+        self._aborted = is_aborted or (lambda: False)
         self._tok, self._tok_exp = None, 0.0
         self._stale = False       # 401を受けたら保存トークンを疑う
         self.session_id = None
@@ -1535,7 +1601,8 @@ class _McpHttp:
         if oc.get("authorize_url"):
             self._status(
                 f"MCP '{self.name}': ブラウザでOAuth認証してください")
-            t = _oauth_authorize(oc, on_status=self._status)
+            t = _oauth_authorize(oc, on_status=self._status,
+                                 is_aborted=self._aborted)
             _mcp_token_save(self.name, t)
         else:
             tok, exp = _oauth_token(oc, timeout)
@@ -1714,10 +1781,12 @@ class McpSession:
     transportはcfgで決まる: command→stdio / url→Streamable HTTP。
     """
 
-    def __init__(self, name, cfg, timeout=30.0, on_status=None):
+    def __init__(self, name, cfg, timeout=30.0, on_status=None,
+                 is_aborted=None):
         self.name = name
         self._io = (_McpStdio(cfg) if cfg.get("command")
-                    else _McpHttp(cfg, name=name, on_status=on_status))
+                    else _McpHttp(cfg, name=name, on_status=on_status,
+                                  is_aborted=is_aborted))
         self._io.request("initialize", {
             "protocolVersion": MCP_PROTOCOL_VERSION,
             "capabilities": {},
@@ -1743,17 +1812,21 @@ def _safe_name(s):
     return re.sub(r"[^A-Za-z0-9_-]", "_", s or "")
 
 
-def mcp_discover(timeout=30.0, on_status=None):
+def mcp_discover(timeout=30.0, on_status=None, is_aborted=None):
     """設定ファイルの全MCPサーバへ接続しツール一覧を集約する。
 
     @param on_status: 進行状況コールバック(OAuth認証待ち等をUIへ)
+    @param is_aborted: Trueを返すと接続処理を打ち切るコールバック
     @returns {"tools": [mangled TOOL形], "callers": {name: fn},
               "sessions": {name: McpSession}, "errors": {name: str}}
     """
     out = {"tools": [], "callers": {}, "sessions": {}, "errors": {}}
     for name, cfg in mcp_servers_config().items():
+        if is_aborted and is_aborted():
+            break
         try:
-            sess = McpSession(name, cfg, timeout, on_status=on_status)
+            sess = McpSession(name, cfg, timeout, on_status=on_status,
+                              is_aborted=is_aborted)
         except ApiError as e:
             out["errors"][name] = str(e)
             continue
@@ -1800,7 +1873,10 @@ def run_extra_tool(name, args):
 
 # ---- プロバイダ抽象化 ----
 # 各プロバイダは以下のインターフェースを持つ:
-#   build_messages(system, history, user_text) -> ワイヤ形式のメッセージ列
+#   build_messages(system, history, user_text, user_images=None)
+#       -> ワイヤ形式のメッセージ列
+#       historyの要素は {"role","content","images"?}(images=PNGパス列)、
+#       user_imagesは新規ユーザメッセージに添付するPNGパス列。
 #   send(base, key, model, system, msgs, timeout) -> 応答JSON
 #   parse(data) -> {"text": str, "calls": [{"id","name","args"}], "raw": ...}
 #   append_exchange(msgs, turn, results)
@@ -1845,10 +1921,19 @@ class OpenAIProvider:
         """GET {base}/models → data[].id をソートして返す。"""
         return [e["id"] for e in self.list_model_entries(base, key, timeout)]
 
-    def build_messages(self, system, history, user_text):
-        return ([{"role": "system", "content": system}]
-                + [dict(m) for m in history]
-                + [{"role": "user", "content": user_text}])
+    def build_messages(self, system, history, user_text,
+                       user_images=None):
+        msgs = [{"role": "system", "content": system}]
+        for m in history:
+            d = dict(m)
+            imgs = d.pop("images", None)  # ワイヤ形式に無いキーは剥がす
+            if imgs:
+                d["content"] = user_content(
+                    m.get("content") or "", imgs)
+            msgs.append(d)
+        msgs.append({"role": "user",
+                     "content": user_content(user_text, user_images)})
+        return msgs
 
     def send(self, base, key, model, system, msgs, timeout=180.0):
         return chat_completions(base, key, model, msgs,
@@ -1917,16 +2002,23 @@ class GeminiProvider:
         """
         return [e["id"] for e in self.list_model_entries(base, key, timeout)]
 
-    def _parts(self, text):
-        return [{"text": text}] if text else []
+    def _parts(self, text, image_paths=None):
+        parts = [{"text": text}] if text else []
+        parts += [p for p in
+                  (image_inline_part(x) for x in image_paths or [])
+                  if p is not None]
+        return parts
 
-    def build_messages(self, system, history, user_text):
+    def build_messages(self, system, history, user_text,
+                       user_images=None):
         contents = []
         for m in history:
             role = "model" if m.get("role") == "assistant" else "user"
             contents.append({"role": role,
-                             "parts": self._parts(m.get("content", ""))})
-        contents.append({"role": "user", "parts": [{"text": user_text}]})
+                             "parts": self._parts(
+                                 m.get("content", ""), m.get("images"))})
+        contents.append({"role": "user",
+                         "parts": self._parts(user_text, user_images)})
         return contents
 
     def send(self, base, key, model, system, msgs, timeout=180.0):
@@ -1961,10 +2053,9 @@ class GeminiProvider:
                 "response": {"result": r["text"]},
             }})
             if r.get("image"):
-                b64 = image_b64(r["image"])
-                if b64 is not None:
-                    parts.append({"inlineData": {
-                        "mimeType": "image/png", "data": b64}})
+                part = image_inline_part(r["image"])
+                if part is not None:
+                    parts.append(part)
         msgs.append({"role": "user", "parts": parts})
 
 

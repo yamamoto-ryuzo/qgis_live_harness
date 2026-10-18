@@ -67,8 +67,11 @@ class QgisLivePlugin:
     """
 
     SETTING_ENABLED = "qgis_live_driver/enabled"
+    SETTING_AI_PANEL = "qgis_live_driver/ai_panel_open"
     _MENU_NAME = "QGIS Live Driver"
-    _OWN_ACTION_TEXTS = ("リモート制御 (localhostのみ)", "AI アシスタント")
+    _OWN_ACTION_TEXTS = ("リモート制御 (localhostのみ)", "AI アシスタント",
+                         "ホットリロード",
+                         "ホットリロード (保存で自動反映)")
 
     def __init__(self, iface):
         self.iface = iface
@@ -79,6 +82,7 @@ class QgisLivePlugin:
         self._ai_action = None
         self._ai_panel = None
         self._ai_driver = None
+        self._hot_menu = None
         try:
             from .bridge import QgisLiveBridge
             self.bridge = QgisLiveBridge(self)
@@ -131,6 +135,10 @@ class QgisLivePlugin:
         self._action.toggled.connect(self._on_toggle)
         self.iface.addPluginToMenu("QGIS Live Driver", self._action)
 
+        self._hot_menu = self._build_hot_menu()
+        self.iface.addPluginToMenu("QGIS Live Driver",
+                                   self._hot_menu.menuAction())
+
         live_base = os.environ.get("WEBENGINE_LIVE_DIR")
         _log(f"qgis_live_driver initGui: live_base={live_base!r}")
         if live_base:
@@ -138,13 +146,77 @@ class QgisLivePlugin:
         elif self._settings_enabled():
             self._start(self._default_live_base())
         self._sync_action()
+        # 前回開いていたAIパネルはリロード/再起動後も開き直す
+        if self._settings_enabled(self.SETTING_AI_PANEL):
+            self._open_ai_panel()
+
+    # ---- ホットリロード ----
+
+    def _build_hot_menu(self):
+        from qgis.PyQt.QtWidgets import QMenu
+        menu = QMenu("ホットリロード", self.iface.mainWindow())
+        menu.aboutToShow.connect(self._rebuild_hot_menu)
+        return menu
+
+    def _rebuild_hot_menu(self):
+        """開くたびに開発対象プラグインの一覧を作り直す。"""
+        if self._hot_menu is None:
+            return
+        self._hot_menu.clear()
+        ids = self._dev_plugin_ids()
+        for pid in ids:
+            act = self._hot_menu.addAction(pid)
+            act.triggered.connect(
+                lambda _checked=False, p=pid: self._hot_reload([p]))
+        if ids:
+            self._hot_menu.addSeparator()
+        act = self._hot_menu.addAction("すべて再読込")
+        act.triggered.connect(
+            lambda _checked=False: self._hot_reload(ids))
+
+    def _dev_plugin_ids(self):
+        try:
+            from .hot_reload import dev_plugin_ids
+            return dev_plugin_ids(__file__)
+        except Exception:
+            _log("hot reload id discovery failed:\n"
+                 + traceback.format_exc())
+            return []
+
+    def _hot_reload(self, ids):
+        try:
+            from .hot_reload import reload_plugins
+            reload_plugins(ids, notify=self._hot_notify)
+        except Exception:
+            _log("hot reload failed:\n" + traceback.format_exc())
+
+    def _hot_notify(self, level, msg):
+        try:
+            from qgis.core import Qgis
+            lv = (Qgis.MessageLevel.Warning if level == "warn"
+                  else Qgis.MessageLevel.Info)
+            self.iface.messageBar().pushMessage(
+                "QGIS Live Driver", msg, level=lv, duration=4)
+        except Exception:
+            pass
+        _log(f"hot_reload {level}: {msg}")
 
     # ---- AIアシスタントパネル ----
 
     def _open_ai_panel(self):
         from .ai_panel import show_panel
+        new = self._ai_panel is None
         self._ai_panel = show_panel(
             self.iface, self._panel_driver, self._ai_panel)
+        # 表示状態を永続化(ホットリロード/QGIS再起動で開き直すため)
+        self._set_setting(True, self.SETTING_AI_PANEL)
+        if new:
+            try:
+                self._ai_panel.visibilityChanged.connect(
+                    lambda vis:
+                    self._set_setting(bool(vis), self.SETTING_AI_PANEL))
+            except Exception:
+                pass
 
     def _panel_driver(self):
         """AIパネルのツール実行に使うLiveDriverを返す。
@@ -169,18 +241,18 @@ class QgisLivePlugin:
         # env未指定の配布利用ではレジストリ配下のユーザ専用dirを使う
         return os.path.join(_registry_dir(), "run")
 
-    def _settings_enabled(self):
+    def _settings_enabled(self, key=SETTING_ENABLED):
         try:
             from qgis.PyQt.QtCore import QSettings
             return str(QSettings().value(
-                self.SETTING_ENABLED, "false")).lower() in ("1", "true")
+                key, "false")).lower() in ("1", "true")
         except Exception:
             return False
 
-    def _set_setting(self, on):
+    def _set_setting(self, on, key=SETTING_ENABLED):
         try:
             from qgis.PyQt.QtCore import QSettings
-            QSettings().setValue(self.SETTING_ENABLED, bool(on))
+            QSettings().setValue(key, bool(on))
         except Exception:
             pass
 
@@ -297,6 +369,17 @@ class QgisLivePlugin:
         # 除去前のアクションがメニューに孤立するため、全て個別に握り潰す
         if self._ai_panel is not None:
             try:
+                # closeで発火するvisibilityChangedが設定をFalseへ
+                # 上書きしないよう先に切ってから表示状態を保存する
+                self._ai_panel.visibilityChanged.disconnect()
+            except Exception:
+                pass
+            try:
+                self._set_setting(bool(self._ai_panel.isVisible()),
+                                  self.SETTING_AI_PANEL)
+            except Exception:
+                pass
+            try:
                 self._ai_panel.close()
                 self._ai_panel.deleteLater()
             except Exception:
@@ -308,6 +391,14 @@ class QgisLivePlugin:
             except Exception:
                 pass
             self._ai_driver = None
+        if self._hot_menu is not None:
+            try:
+                self.iface.removePluginMenu(
+                    "QGIS Live Driver", self._hot_menu.menuAction())
+                self._hot_menu.deleteLater()
+            except Exception:
+                pass
+            self._hot_menu = None
         for action in (self._ai_action, self._action):
             if action is not None:
                 try:

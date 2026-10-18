@@ -6,8 +6,26 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-18
+
 ### Added
 
+- **メニュー「ホットリロード」**(qgis_live_driver 0.9.0、
+  `hot_reload.py`): 「プラグイン > QGIS Live Driver >
+  ホットリロード」サブメニューから開発対象
+  (plugin.config.jsonのid)を選んで手動reloadPluginする。
+  QGIS再起動・deploy不要の手動ホットリロード
+- **開発中ホットリロード `npm run live:watch`**(`scripts/live-watch.mjs`):
+  `plugin.config.json` の全idを `qgis-plugin/<id>/` 配下で監視し、
+  ファイル保存のたびに実行中QGISへ自動反映するwatchモード。
+  `ui/**`・`bridge.py`・`logic.py` のみの変更かつ対象がWebEngine
+  viewを持てば `devreload`、それ以外(本体 `*.py`/`.ui` 等を含む)は
+  `reload_plugin` を自動選択して送信する。debounce(既定500ms)で
+  連続保存をまとめ、変更が複数プラグインに跨る場合は制御面の
+  `qgis_live_driver` を最後にリロード。`--plugin <id>` で監視対象の
+  絞込、`--debounce <ms>` で待ち調整が可能。QGIS未起動なら
+  ensureで自動起動し、コマンド消失系の失敗時はensureして1回リトライ。
+  junction配置が前提(-Copy配置は先に `deploy:copy`)
 - **upstreamプラグイン4件を `qgis-plugin/` に組み込み**:
   `geo_report`(yamamoto-ryuzo/geo_report)・`geo_import`(geo_import)・
   `QGIS-legendView-main`(QGIS-legendView、repoルート=プラグイン構造を
@@ -260,5 +278,7 @@
 - `mcp_stdio.py` の serverInfo バージョンを `mcp_http.py` / metadata.txt に
   合わせ 0.2.0 に修正
 
-[Unreleased]: https://github.com/yamamoto-ryuzo/qgis_live_harness/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/yamamoto-ryuzo/qgis_live_harness/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/yamamoto-ryuzo/qgis_live_harness/releases/tag/v1.2.0
+[1.1.0]: https://github.com/yamamoto-ryuzo/qgis_live_harness/releases/tag/v1.1.0
 [1.0.0]: https://github.com/yamamoto-ryuzo/qgis_live_harness/releases/tag/v1.0.0

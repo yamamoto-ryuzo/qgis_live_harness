@@ -131,7 +131,7 @@ export async function ensureQgis({ liveBase = LIVE_BASE, timeoutMs = 180000 } = 
 // プラグインが未ロードの場合(QGIS側で無効化等)はloadPlugin+startPluginに倒す。
 // ※ドライバが reload_plugin コマンドを実装済みならそちらを使い、
 //   これは旧ドライバ向けのフォールバック。
-const reloadCode = (pluginId) => `
+export const reloadCode = (pluginId) => `
 import sys, qgis.utils
 PLUGIN_ID = ${JSON.stringify(pluginId)}
 for k in [k for k in list(sys.modules)

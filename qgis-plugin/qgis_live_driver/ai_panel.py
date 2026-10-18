@@ -27,6 +27,8 @@ import time
 from qgis.PyQt.QtCore import Qt, QSettings, QUrl, pyqtSignal
 from qgis.PyQt.QtGui import (
     QDesktopServices,
+    QImage,
+    QPixmap,
     QStandardItem,
     QStandardItemModel,
     QTextDocument,
@@ -38,6 +40,7 @@ from qgis.PyQt.QtWidgets import (
     QDockWidget,
     QFileDialog,
     QFormLayout,
+    QFrame,
     QGroupBox,
     QHBoxLayout,
     QLineEdit,
@@ -73,15 +76,79 @@ def _md(t):
 
 
 class _Input(QPlainTextEdit):
-    """Ctrl+Enterで送信する入力欄。"""
+    """Enterで送信、Shift+Enterで改行する入力欄。
+
+    画像(クリップボード・画像ファイルのドラッグ&ドロップ)は
+    テキストとして挿入せず sig_images でパネルへ渡す。
+    """
     sig_submit = pyqtSignal()
+    sig_images = pyqtSignal(list)  # [QImage|ローカルパスstr, ...]
+
+    _IMG_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".bmp",
+                 ".webp", ".tif", ".tiff"}
+
+    def __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+        self._hint = ""
+        self._composing = False
+
+    def _image_sources(self, mime):
+        """mimeデータから画像ソース(QImage or ローカルパス)を取り出す。"""
+        if mime.hasImage():
+            return [mime.imageData()]
+        return [u.toLocalFile() for u in mime.urls()
+                if u.isLocalFile() and os.path.splitext(
+                    u.toLocalFile())[1].lower() in self._IMG_EXTS]
+
+    def canInsertFromMimeData(self, mime):
+        return (bool(self._image_sources(mime))
+                or super().canInsertFromMimeData(mime))
+
+    def insertFromMimeData(self, mime):
+        imgs = self._image_sources(mime)
+        if imgs:
+            self.sig_images.emit(imgs)
+            return
+        super().insertFromMimeData(mime)
+
+    def dragEnterEvent(self, e):
+        if self._image_sources(e.mimeData()):
+            e.acceptProposedAction()
+        else:
+            super().dragEnterEvent(e)
+
+    def dropEvent(self, e):
+        imgs = self._image_sources(e.mimeData())
+        if imgs:
+            self.sig_images.emit(imgs)
+            e.acceptProposedAction()
+            return
+        super().dropEvent(e)
+
+    def set_hint(self, text):
+        """プレースホルダ文言を保持して適用する。"""
+        self._hint = text or ""
+        super().setPlaceholderText(self._hint)
 
     def keyPressEvent(self, e):
+        # ShiftなしのEnterで送信(IME変換中の確定Enterは送信しない)
         if (e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter)
-                and e.modifiers() & Qt.KeyboardModifier.ControlModifier):
+                and not self._composing
+                and not e.modifiers() & Qt.KeyboardModifier.ShiftModifier):
             self.sig_submit.emit()
             return
         super().keyPressEvent(e)
+
+    def inputMethodEvent(self, e):
+        # IME変換中(preedit)もdocumentは空のままのため、Qtのplaceholderが
+        # 未確定文字列と重なって描画される。変換中はplaceholderを消す
+        self._composing = bool(e.preeditString())
+        super().setPlaceholderText("" if self._composing else self._hint)
+        super().inputMethodEvent(e)
+
+    def focusOutEvent(self, e):
+        super().setPlaceholderText(self._hint)
+        super().focusOutEvent(e)
 
 
 class AiPanel(QDockWidget):
@@ -117,6 +184,8 @@ class AiPanel(QDockWidget):
         self._mcp_done = False       # 外部MCPの発見を済ませたか
         self._mcp_sessions = {}      # {name: McpSession} 切断用に保持
         self._plugins = []           # 直近送信時のプラグイン一覧(ctx推定用)
+        self._instr_dlg = None       # 開いている指示書編集ダイアログ
+        self._attachments = []       # 送信待ちの添付画像パス(PNG)
         self._usage = {"in": 0, "out": 0, "last": 0}  # API応答usage累計
         self.destroyed.connect(self._on_destroyed)
 
@@ -153,9 +222,6 @@ class AiPanel(QDockWidget):
         self.lbl_model_info = QLabel(_MODEL_HINT, box)
         self.lbl_model_info.setStyleSheet("color:#666; font-size:11px")
         self.lbl_model_info.setWordWrap(True)
-        self.chk_vision = QCheckBox(
-            "スクリーンショットを画像として送信 (vision対応モデル)", box)
-        self.chk_vision.setChecked(True)
         self.chk_confirm = QCheckBox(
             "ツール実行の前に確認する", box)
         self.chk_confirm.setToolTip(
@@ -226,7 +292,6 @@ class AiPanel(QDockWidget):
         form.addRow("キー保存先", self.lbl_keystore)
         form.addRow("モデル", model_row)
         form.addRow("", self.lbl_model_info)
-        form.addRow("", self.chk_vision)
         form.addRow("", self.chk_confirm)
         lay.addWidget(box)
         self.box_api = box
@@ -267,18 +332,37 @@ class AiPanel(QDockWidget):
         self.view.setOpenExternalLinks(True)
         lay.addWidget(self.view, 1)
 
+        # ---- 添付画像(入力欄への貼付・D&D・📎ボタンで追加) ----
+        self.attach_row = QWidget(root)
+        ah = QHBoxLayout(self.attach_row)
+        ah.setContentsMargins(0, 0, 0, 0)
+        ah.setSpacing(4)
+        ah.addStretch(1)
+        self.attach_row.setVisible(False)
+        lay.addWidget(self.attach_row)
+
         # ---- 入力行 ----
         self.input = _Input(root)
-        self.input.setPlaceholderText(
-            "指示を入力 (Ctrl+Enterで送信)。例: 現在のレイヤー一覧を教えて")
+        self._input_hint = (
+            "指示を入力 (Enterで送信 / Shift+Enterで改行 / "
+            "Ctrl+Vやドラッグ&ドロップで画像添付)。"
+            "/agent・/skill で指示書を直接編集 (/help)")
+        self.input.set_hint(self._input_hint)
         self.input.setMaximumHeight(64)
         lay.addWidget(self.input)
 
         row = QHBoxLayout()
+        self.btn_attach = QPushButton("📎", root)
+        self.btn_attach.setFixedWidth(30)
+        self.btn_attach.setToolTip(
+            "画像ファイルを添付して送信。\n"
+            "入力欄への貼付(Ctrl+V)・ドラッグ&ドロップでも追加できる。")
+        row.addWidget(self.btn_attach)
         self.btn_send = QPushButton("送信", root)
         self.btn_send.setToolTip(
-            "送信中は「中断」に変わり、実行中の往復を止める\n"
-            "(進行中のAPI応答/ツール実行の完了待ちは中断できない)")
+            "Enterでも送信できる。送信中は「中断」に変わり\n"
+            "実行中の往復を止める(進行中のAPI応答/ツール実行の\n"
+            "完了待ちは中断できない)")
         self.btn_retry = QPushButton("再送", root)
         self.btn_retry.setEnabled(False)
         self.btn_retry.setToolTip(
@@ -322,6 +406,10 @@ class AiPanel(QDockWidget):
         self.btn_skill_edit.clicked.connect(self._edit_skills)
         self.btn_mcp.clicked.connect(self._edit_mcp)
         self.input.sig_submit.connect(self._send)
+        self.input.sig_images.connect(self._on_pasted_images)
+        self.btn_attach.clicked.connect(self._attach_files)
+        self.input.textChanged.connect(self._refresh_send_button)
+        self._refresh_send_button()
         self.sig_append.connect(self._append)
         self.sig_instructions.connect(self._refresh_instructions)
         self.sig_agent_changed.connect(self._on_agent_changed)
@@ -345,9 +433,6 @@ class AiPanel(QDockWidget):
         idx = (_PROVIDER_IDS.index(pid) if pid in _PROVIDER_IDS else 0)
         self.cmb_provider.setCurrentIndex(idx)
         self._load_provider_fields()
-        self.chk_vision.setChecked(
-            str(s.value(_SETTING.format("vision"), "true")).lower()
-            in ("1", "true"))
         self.chk_confirm.setChecked(
             str(s.value(_SETTING.format("confirm"), "false")).lower()
             in ("1", "true"))
@@ -379,8 +464,13 @@ class AiPanel(QDockWidget):
         self.cmb_agent.addItem("(なし)", None)
         for a in ai_client.list_agents():
             self.cmb_agent.addItem(a["title"], a["id"])
+            tip = a["path"]
+            if a.get("when"):
+                tip = f"use_when: {a['when']}\n" + tip
+            if a.get("desc"):
+                tip = a["desc"] + "\n" + tip
             self.cmb_agent.setItemData(
-                self.cmb_agent.count() - 1, a["path"],
+                self.cmb_agent.count() - 1, tip,
                 Qt.ItemDataRole.ToolTipRole)
         idx = self.cmb_agent.findData(cur)
         self.cmb_agent.setCurrentIndex(idx if idx >= 0 else 0)
@@ -392,11 +482,8 @@ class AiPanel(QDockWidget):
         self._update_ctx_label()
 
     def _edit_agent(self):
-        dlg = _InstructionsDialog(
-            self, kind="agents", select=self.cmb_agent.currentData())
-        dlg.exec()
-        self._refresh_agents()
-        self._refresh_skills()
+        self._open_instruction_editor(
+            "agents", self.cmb_agent.currentData())
 
     # ---- スキル(オンデマンド手順書。選択不要で全件が一覧に載る) ----
 
@@ -412,8 +499,10 @@ class AiPanel(QDockWidget):
             label = s["title"] + (" (同梱)" if s["builtin"] else "")
             self.cmb_skill.addItem(label, s["id"])
             tip = s["path"]
+            if s.get("when"):
+                tip = f"use_when: {s['when']}\n" + tip
             if s.get("desc"):
-                tip = s["desc"] + "\n" + s["path"]
+                tip = s["desc"] + "\n" + tip
             self.cmb_skill.setItemData(
                 self.cmb_skill.count() - 1, tip,
                 Qt.ItemDataRole.ToolTipRole)
@@ -422,16 +511,48 @@ class AiPanel(QDockWidget):
         self.cmb_skill.blockSignals(False)
 
     def _edit_skills(self):
-        dlg = _InstructionsDialog(
-            self, kind="skills", select=self.cmb_skill.currentData())
-        dlg.exec()
-        self._refresh_skills()
-        self._refresh_agents()
+        self._open_instruction_editor(
+            "skills", self.cmb_skill.currentData())
+
+    # ---- 指示書編集 ----
+    # 「編集」ダイアログは非モーダル。開いている間もチャット入力欄は
+    # 通常通り使え、ダイアログ内のプロンプト欄からAIへ本文の修正を
+    # 依頼できる(AIの ai_save_instruction 保存を sig_instructions で
+    # 検知し、開いているダイアログの編集欄へ反映する)。
+
+    def _open_instruction_editor(self, kind, select):
+        """指示書編集ダイアログを(非モーダルで)開く。"""
+        dlg = self._instr_dlg
+        if dlg is not None:
+            # 既に開いていれば種別/対象を切替えて前面へ
+            i = dlg.cmb_kind.findData(kind)
+            if i >= 0:
+                dlg.cmb_kind.setCurrentIndex(i)
+                dlg.reload(select)
+            dlg.show()
+            dlg.raise_()
+            dlg.activateWindow()
+            return
+        dlg = _InstructionsDialog(self, kind=kind, select=select)
+        self._instr_dlg = dlg
+        dlg.finished.connect(
+            lambda _r: self._close_instruction_editor())
+        dlg.show()
+
+    def _close_instruction_editor(self):
+        """ダイアログが閉じたら参照を外してコンボを再構築する。"""
+        dlg = self._instr_dlg
+        self._instr_dlg = None
+        if dlg is not None:
+            dlg.deleteLater()
+        self._refresh_instructions()
 
     def _refresh_instructions(self):
         """AIのai_*ツールが指示書を更新した後のコンボ再構築。"""
         self._refresh_agents()
         self._refresh_skills()
+        if self._instr_dlg is not None:
+            self._instr_dlg.refresh_external()
 
     def _on_agent_changed(self, aid):
         """AIの ai_select_agent で選択中エージェントが切替わった。"""
@@ -484,9 +605,14 @@ class AiPanel(QDockWidget):
         self._emit(self.sig_status, "MCPサーバへ接続中…")
         r = ai_client.mcp_discover(
             on_status=lambda m: self._emit(
-                self.sig_append, "tool", m))
+                self.sig_append, "tool", m),
+            is_aborted=lambda: self._abort)
         ai_client.register_extra_tools(r["tools"], r["callers"])
         self._mcp_sessions = r["sessions"]
+        if self._abort:
+            # 中断で未接続のまま。次の送信で再ディスカバリする
+            self._mcp_done = False
+            return
         for name, err in r["errors"].items():
             self._emit(self.sig_append, "error",
                        f"MCP '{name}' 接続失敗: {err}")
@@ -544,7 +670,6 @@ class AiPanel(QDockWidget):
         self._save_provider_key(pid, self.ed_key.text())
         s.setValue(_SETTING.format(f"{pid}_model"),
                    self._current_model())
-        s.setValue(_SETTING.format("vision"), self.chk_vision.isChecked())
         s.setValue(_SETTING.format("confirm"),
                    self.chk_confirm.isChecked())
 
@@ -606,9 +731,11 @@ class AiPanel(QDockWidget):
         """選択中のモデルID。装飾付き表示("id   $x/$y")や
         グループ見出しが入っていてもIDだけを返す。"""
         data = self.cmb_model.currentData()
-        if data:
-            return str(data)
         t = self.cmb_model.currentText().strip()
+        # itemDataは表示テキストがその項目のIDと一致する時だけ信用する
+        # (選択後にテキストが書き換わるとcurrentIndexが旧項目を指し得る)
+        if data and (not t or t == str(data)):
+            return str(data)
         if not t or t.startswith("──"):
             return ""
         # モデルIDは空白を含まないため、表示装飾(空白2つ以上+価格)は剥がす
@@ -659,8 +786,30 @@ class AiPanel(QDockWidget):
     def _on_model_text_changed(self, _text):
         self._update_model_info()
 
+    def _model_supports_images(self):
+        """選択中モデルが画像入力対応と推定されるか。
+
+        取得済み一覧(_model_infos)のkindを優先し、手入力の未知
+        モデルは classify_model の名前ヒントで推定する。
+        """
+        mid = (self._current_model()
+               or ai_client.PROVIDERS[self._provider()]["model"])
+        info = self._model_infos.get(mid)
+        kind = (info["kind"] if info
+                else ai_client.classify_model(mid))
+        return kind == "chat_vision"
+
     def _update_model_info(self):
         """モデル欄の下に選択中モデルの種別・価格等を表示する。"""
+        ok_img = self._model_supports_images()
+        self.btn_attach.setEnabled(ok_img)
+        self.btn_attach.setToolTip(
+            "画像ファイルを添付して送信。\n"
+            "入力欄への貼付(Ctrl+V)・ドラッグ&ドロップでも追加できる。"
+            if ok_img else
+            "選択中のモデルは画像入力に対応していないため"
+            "添付できません。\n「画像入力可」グループのモデルを"
+            "選んでください。")
         info = self._model_infos.get(self._current_model())
         if not info:
             self.lbl_model_info.setText(_MODEL_HINT)
@@ -675,7 +824,7 @@ class AiPanel(QDockWidget):
         if ctx:
             parts.append(f"コンテキスト {ctx}")
         if info["kind"] == "chat":
-            parts.append("画像入力非対応の可能性(スクショ送信には"
+            parts.append("画像入力非対応の可能性(画像送信には"
                          "「画像入力可」モデルを選択)")
         elif info["kind"] != "chat_vision":
             parts.append("チャット用途には使えません")
@@ -688,13 +837,15 @@ class AiPanel(QDockWidget):
         "user": "#0759c7",
         "assistant": "#222222",
         "tool": "#666666",
+        "cmd": "#666666",
         "error": "#b00020",
     }
 
     def _append(self, kind, text):
         color = self._STYLE.get(kind, "#222")
         label = {"user": "あなた", "assistant": "AI",
-                 "tool": "tool", "error": "error"}.get(kind, kind)
+                 "tool": "tool", "cmd": "cmd",
+                 "error": "error"}.get(kind, kind)
         if kind == "assistant":
             # AI応答はMarkdownレンダリング(表・コードブロック・見出し等)
             body = f"<div style='color:{color}'>{_md(text)}</div>"
@@ -710,14 +861,128 @@ class AiPanel(QDockWidget):
     def _set_busy(self, busy):
         self._busy = busy
         self.input.setEnabled(not busy)
-        # 実行中は送信ボタンを「中断」に変える
-        self.btn_send.setText("中断" if busy else "送信")
+        self._refresh_send_button()
         self.btn_retry.setEnabled(not busy and bool(self._history))
         self.btn_chat_export.setEnabled(not busy)
         if busy:
             self.lbl_status.setText("実行中…")
         if not busy:
             self._update_ctx_label()   # 往復終了=履歴確定のタイミング
+
+    def _refresh_send_button(self):
+        """送信ボタンで状態を示す。
+
+        実行中は停止色の「中断」(中断ボタン)、待機中は「送信」で
+        入力が空の間は無効化して入力待ちであることを示す。
+        """
+        if self._busy:
+            self.btn_send.setText("■ 中断")
+            self.btn_send.setStyleSheet(
+                "background:#b03a2e; color:white;")
+            self.btn_send.setEnabled(True)
+        else:
+            self.btn_send.setText("送信")
+            self.btn_send.setStyleSheet("")
+            self.btn_send.setEnabled(
+                bool(self.input.toPlainText().strip())
+                or bool(self._attachments))
+
+    # ---- 添付画像 ----
+    # クリップボード貼付・ドラッグ&ドロップ・📎ボタンで追加した画像は
+    # PNGへ正規化してtempへ保存し、サムネイルチップとして入力欄の
+    # 上に並べる。送信時にユーザメッセージへ同梱され、履歴にも残る
+    # (tempファイルが残る間だけ表示・再送できる)。
+
+    _ATTACH_MAX_SIDE = 2048   # 添付画像の長辺上限(トークン節約)
+
+    def _add_attachment(self, src):
+        """画像(QImage/QPixmap/ファイルパス)をPNG正規化して添付列へ。"""
+        if not self._model_supports_images():
+            self._append(
+                "error",
+                "選択中のモデルは画像入力に対応していないため"
+                "添付できません(「画像入力可」グループのモデルを"
+                "選んでください)")
+            return
+        if isinstance(src, str):
+            img = QImage(src)
+        elif isinstance(src, QPixmap):
+            img = src.toImage()
+        else:
+            img = src
+        if img is None or img.isNull():
+            self._append("error",
+                         f"画像として読めません: "
+                         f"{src if isinstance(src, str) else '(貼付画像)'}")
+            return
+        if max(img.width(), img.height()) > self._ATTACH_MAX_SIDE:
+            img = img.scaled(
+                self._ATTACH_MAX_SIDE, self._ATTACH_MAX_SIDE,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation)
+        path = ai_client.attachment_temp_path()
+        if not img.save(path, "PNG"):
+            self._append("error", f"添付画像の保存に失敗: {path}")
+            return
+        self._attachments.append(path)
+        chip = QFrame(self.attach_row)
+        chip.setFrameShape(QFrame.Shape.StyledPanel)
+        cl = QHBoxLayout(chip)
+        cl.setContentsMargins(2, 2, 2, 2)
+        cl.setSpacing(2)
+        thumb = QLabel(chip)
+        thumb.setPixmap(QPixmap.fromImage(img).scaledToHeight(
+            44, Qt.TransformationMode.SmoothTransformation))
+        thumb.setToolTip(path)
+        cl.addWidget(thumb)
+        btn = QPushButton("✕", chip)
+        btn.setFixedSize(18, 18)
+        btn.setToolTip("この画像を取り除く")
+        cl.addWidget(btn, 0, Qt.AlignmentFlag.AlignTop)
+        btn.clicked.connect(
+            lambda _c, p=path, w=chip: self._remove_attachment(p, w))
+        lay = self.attach_row.layout()
+        lay.insertWidget(lay.count() - 1, chip)  # stretchの直前
+        self.attach_row.setVisible(True)
+        self._refresh_send_button()
+
+    def _remove_attachment(self, path, chip):
+        try:
+            self._attachments.remove(path)
+        except ValueError:
+            pass
+        chip.deleteLater()
+        if not self._attachments:
+            self.attach_row.setVisible(False)
+        self._refresh_send_button()
+
+    def _clear_attachments(self):
+        self._attachments = []
+        lay = self.attach_row.layout()
+        while lay.count() > 1:        # 末尾のstretchだけ残す
+            w = lay.takeAt(0).widget()
+            if w is not None:
+                w.deleteLater()
+        self.attach_row.setVisible(False)
+
+    def _on_pasted_images(self, sources):
+        for s in sources:
+            self._add_attachment(s)
+
+    def _attach_files(self):
+        paths, _ = QFileDialog.getOpenFileNames(
+            self, "画像を添付", "",
+            "画像ファイル (*.png *.jpg *.jpeg *.gif *.bmp *.webp"
+            " *.tif *.tiff)")
+        for p in paths:
+            self._add_attachment(p)
+
+    def _append_image(self, path):
+        """送信した添付画像をチャット表示へ出す(ローカルimgタグ)。"""
+        url = QUrl.fromLocalFile(path).toString()
+        self.view.append(
+            f"<div style='margin:2px 0 6px 0'>"
+            f"<img src='{html.escape(url)}' width='240'></div>")
 
     def _update_ctx_label(self):
         """コンテキスト使用量と累計トークン/コストを右下に表示する。"""
@@ -1012,6 +1277,9 @@ class AiPanel(QDockWidget):
         if self._busy:
             self._abort = True
             self.lbl_status.setText("中断中…")
+            # 中断要求を受理したことが見えるようボタン側も変える
+            self.btn_send.setText("中断中…")
+            self.btn_send.setEnabled(False)
             return
         self._send()
 
@@ -1023,46 +1291,177 @@ class AiPanel(QDockWidget):
             self._history.pop()
         if not self._history:
             return
-        text = self._history.pop()["content"]
-        self.input.setPlainText(text)
+        msg = self._history.pop()
+        self.input.setPlainText(msg["content"])
+        for p in msg.get("images") or []:
+            if os.path.isfile(p):
+                self._add_attachment(p)
         self._send()
 
     def _send(self):
         text = self.input.toPlainText().strip()
-        if not text or self._busy:
+        images = list(self._attachments)
+        if (not text and not images) or self._busy:
             return
-        driver = self._get_driver()  # 生成を伴うため必ずGUIスレッドで取得
-        if driver is None:
-            self._append("error", "live driverを用意できませんでした")
+        if text and self._chat_command(text):
+            self.input.clear()
             return
-        plugins = []
-        try:
-            import qgis.utils
-            plugins = sorted(qgis.utils.plugins.keys())
-        except Exception:
-            pass
-        self._plugins = plugins
-        pid = self._provider()
-        cfg = {
-            "provider": pid,
-            "base": (self.ed_endpoint.text().strip()
-                     or ai_client.PROVIDERS[pid]["base"]),
-            "key": self.ed_key.text().strip(),
-            "model": (self._current_model()
-                      or ai_client.PROVIDERS[pid]["model"]),
-            "vision": self.chk_vision.isChecked(),
-            "agent": self.cmb_agent.currentData(),
-            "confirm": self.chk_confirm.isChecked(),
-        }
-        self._save_settings()
-        self.input.clear()
-        self._append("user", text)
+        if self._send_prompt(text, images):
+            self.input.clear()
+            self._clear_attachments()
+
+    def _send_prompt(self, text, images=None):
+        """ユーザーメッセージをAPIへ送る。送信を開始できたらTrue。
+
+        images は添付画像(PNGパス列)。テキスト無しでも画像だけ送れる。
+        指示書編集ダイアログの「AIに修正を依頼」からも呼ぶ。
+        """
+        if self._busy:
+            self._append("error",
+                         "実行中のため送信できません(完了後に再送)")
+            return False
+        images = [p for p in (images or []) if os.path.isfile(p)]
+        vision = self._model_supports_images()
+        if images and not vision:
+            self._append(
+                "error",
+                "選択中のモデルは画像入力に対応していないため"
+                "画像を送信できません(「画像入力可」グループの"
+                "モデルを選んでください)")
+            return False
+        # 送信の応答を速くするため、GUI側の準備(ドライバ生成・設定保存・
+        # 履歴描画)より先にボタンを「中断」表示へ切替えて即再描画する
+        # (通常の再描画はこの関数が戻るまで遅延されるため)。
+        # 準備が失敗したら待機表示へ戻す
         self._abort = False
         self.sig_busy.emit(True)
+        self.btn_send.repaint()
+        self.lbl_status.repaint()
+        try:
+            driver = self._get_driver()  # 生成を伴うため必ずGUIスレッドで取得
+            if driver is None:
+                raise RuntimeError(
+                    "live driverを用意できませんでした")
+            plugins = []
+            try:
+                import qgis.utils
+                plugins = sorted(qgis.utils.plugins.keys())
+            except Exception:
+                pass
+            self._plugins = plugins
+            pid = self._provider()
+            cfg = {
+                "provider": pid,
+                "base": (self.ed_endpoint.text().strip()
+                         or ai_client.PROVIDERS[pid]["base"]),
+                "key": self.ed_key.text().strip(),
+                "model": (self._current_model()
+                          or ai_client.PROVIDERS[pid]["model"]),
+                # モデルの画像対応推定。スクショの画像返却に使う
+                "vision": vision,
+                "agent": self.cmb_agent.currentData(),
+                "confirm": self.chk_confirm.isChecked(),
+            }
+            self._save_settings()
+            self._append("user", text or "(画像のみ)")
+            for p in images:
+                self._append_image(p)
+        except Exception as e:
+            self.sig_busy.emit(False)
+            self._append("error", str(e))
+            return False
         threading.Thread(
             target=self._agent_run,
-            args=(driver, cfg, plugins, text),
+            args=(driver, cfg, plugins, text, images),
             daemon=True, name="qgis-ai-agent").start()
+        return True
+
+    # チャット入力のローカルコマンド(APIへは送らない)。
+    # '/<cmd> <名前>' のあと同一行または改行以降を指示書本文とする。
+    _CHAT_CMDS = {"/agent": "agents", "/agents": "agents",
+                  "/skill": "skills", "/skills": "skills"}
+
+    _CMD_USAGE = (
+        "指示書コマンド(APIへは送らずローカル実行):\n"
+        "  /agent               現在のエージェントと一覧\n"
+        "  /agent <名前>        エージェントを切替\n"
+        "  /agent <名前> <本文> エージェントを保存して選択\n"
+        "  /skill               スキル一覧\n"
+        "  /skill <名前>        スキル本文を表示\n"
+        "  /skill <名前> <本文> スキルを保存\n"
+        "(本文は2行目以降に改行して書ける)")
+
+    def _chat_command(self, text):
+        """'/agent' '/skill' 系の入力をローカルコマンドとして処理する。
+
+        指示書(agents|skills の .md)の保存・切替・参照をAPIを介さず
+        直接行う。処理した場合True(APIへは送らない)。該当しない
+        コマンド名の '/' 入力はFalse(通常メッセージとして送信)。
+        """
+        first, _, rest = text.partition("\n")
+        toks = first.split(None, 2)
+        if toks[0].lower() in ("/help", "/?"):
+            self._append("user", text)
+            self._append("cmd", self._CMD_USAGE)
+            return True
+        kind = self._CHAT_CMDS.get(toks[0].lower())
+        if kind is None:
+            return False
+        name = toks[1] if len(toks) > 1 else ""
+        body = ((toks[2] + "\n" if len(toks) > 2 else "") + rest).strip()
+        self._append("user", text)
+        try:
+            if not name:
+                msg = ai_client.run_instruction_tool(
+                    "ai_list_instructions", {"kind": kind})
+                if kind == "agents":
+                    cur = self.cmb_agent.currentData()
+                    msg = f"選択中: {cur or '(なし)'}\n" + msg
+                self._append("cmd", msg)
+                return True
+            if not body:
+                if kind == "agents":
+                    self._cmd_select_agent(name)
+                else:
+                    self._cmd_show_instruction(kind, name)
+                return True
+            self._cmd_save_instruction(kind, name, body)
+        except ai_client.ApiError as e:
+            self._append("error", str(e))
+        return True
+
+    def _cmd_select_agent(self, name):
+        """'/agent <名前>' — 既存エージェントへ切替える。"""
+        stem = re.sub(r'[\\/:*?"<>|\s]+', "_", name)
+        if ai_client.load_instruction("agents", stem) is None:
+            raise ai_client.ApiError(
+                f"エージェント '{stem}' が見つかりません"
+                "(本文付きなら新規保存します)")
+        self._on_agent_changed(stem)
+        self._append("cmd", f"エージェントを '{stem}' に切替えました")
+
+    def _cmd_show_instruction(self, kind, name):
+        """'/skill <名前>' — 指示書の本文を表示する。"""
+        stem = re.sub(r'[\\/:*?"<>|\s]+', "_", name)
+        text = ai_client.load_instruction(kind, stem)
+        if text is None:
+            raise ai_client.ApiError(
+                f"スキル '{stem}' が見つかりません"
+                "(本文付きなら新規保存します)")
+        self._append("cmd", text)
+
+    def _cmd_save_instruction(self, kind, name, body):
+        """'/agent|skill <名前> <本文>' — 指示書を保存する。"""
+        p = ai_client.save_instruction(kind, name, body)
+        stem = os.path.splitext(os.path.basename(p))[0]
+        self._refresh_instructions()
+        label = "エージェント" if kind == "agents" else "スキル"
+        if kind == "agents":
+            self._on_agent_changed(stem)
+            self._append(
+                "cmd", f"{label} '{stem}' を保存して選択しました\n{p}")
+        else:
+            self._append("cmd", f"{label} '{stem}' を保存しました\n{p}")
 
     def _build_system(self, plugins, agent_id):
         """選択中エージェント+スキル/エージェント一覧込みのsystem prompt。"""
@@ -1073,7 +1472,7 @@ class AiPanel(QDockWidget):
             agents=ai_client.list_agents(),
             active_agent=agent_id)
 
-    def _agent_run(self, driver, cfg, plugins, user_text):
+    def _agent_run(self, driver, cfg, plugins, user_text, user_images):
         """ワーカースレッド: API呼出 + ツール実行のループ。"""
         try:
             prov = ai_client.get_provider(cfg["provider"])
@@ -1085,7 +1484,8 @@ class AiPanel(QDockWidget):
         self._ensure_mcp()
         system = self._build_system(plugins, cfg.get("agent"))
         msgs = prov.build_messages(
-            system, ai_client.trim_history(self._history), user_text)
+            system, ai_client.trim_history(self._history),
+            user_text, user_images)
         final_text = ""
         try:
             for _ in range(ai_client.MAX_TOOL_ROUNDS):
@@ -1132,8 +1532,13 @@ class AiPanel(QDockWidget):
             else:
                 final_text = "(ツール往復の上限に達しました)"
                 self._emit(self.sig_append, "error", final_text)
-            # 会話履歴はテキスト対のみ保持(ツール詳細は畳む)
-            self._history.append({"role": "user", "content": user_text})
+            # 会話履歴はテキスト対のみ保持(ツール詳細は畳む)。
+            # 添付画像はPNGパスとしてuserエントリに残し、後続ターンの
+            # build_messagesがワイヤ形式へ再変換する
+            entry = {"role": "user", "content": user_text}
+            if user_images:
+                entry["images"] = list(user_images)
+            self._history.append(entry)
             if final_text:
                 self._history.append(
                     {"role": "assistant", "content": final_text})
@@ -1178,7 +1583,8 @@ class AiPanel(QDockWidget):
         self._emit(self.sig_append, "tool",
                    f"→ {text[:2000]}"
                    + ("…" if len(text) > 2000 else ""))
-        # vision有効時はスクリーンショットを画像として返す
+        # スクリーンショットは画像対応モデルの時だけ画像として返す
+        # (非対応モデルへ画像を送るとAPIエラーになるため)
         image = None
         if (cmd["type"] == "screenshot" and "error" not in rep
                 and cfg["vision"]):
@@ -1283,6 +1689,7 @@ class _McpDialog(QDialog):
             "発見したツールは mcp_<サーバ>__<ツール> で使えます。\n"
             "oauth.client_secret は保存時にOSの資格情報ストアへ移され、"
             "設定ファイルには $store: 参照だけが残ります。\n"
+            "空欄で保存するとMCPサーバなし(無効)になり、"
             "保存すると次の送信で再接続されます。", self)
         lbl.setWordWrap(True)
         lbl.setStyleSheet("color:#666; font-size:11px")
@@ -1344,17 +1751,22 @@ class _McpDialog(QDialog):
             json.dumps(d, ensure_ascii=False, indent=2))
 
     def _save(self):
+        text = self.ed.toPlainText()
         try:
-            saved = ai_client.mcp_save_config(self.ed.toPlainText())
+            saved = ai_client.mcp_save_config(text)
         except ai_client.ApiError as e:
             QMessageBox.warning(self, "MCP設定", str(e))
             return
-        if saved != self.ed.toPlainText():
+        if saved != text:
             self.ed.setPlainText(saved)
-            QMessageBox.information(
-                self, "MCP設定",
-                "client_secret をOSの資格情報ストアへ移し、"
-                "設定ファイルには $store: 参照だけ残しました。")
+            # $store: 参照が増えた時だけclient_secret移行を通知する
+            # (空欄→{"mcpServers": {}} 等の正規化では出さない)
+            if (saved.count(ai_client.MCP_SECRET_REF)
+                    > text.count(ai_client.MCP_SECRET_REF)):
+                QMessageBox.information(
+                    self, "MCP設定",
+                    "client_secret をOSの資格情報ストアへ移し、"
+                    "設定ファイルには $store: 参照だけ残しました。")
         self.saved = True
         self.accept()
 
@@ -1403,10 +1815,33 @@ class _InstructionsDialog(QDialog):
         split.setStretchFactor(1, 1)
         lay.addWidget(split, 1)
         self.ed_body.textChanged.connect(self._update_preview)
+        # 編集/表示ペインのスクロール位置を比率で相互に追従させる
+        self._syncing_scroll = False
+        self.ed_body.verticalScrollBar().valueChanged.connect(
+            lambda _v: self._sync_scroll(self.ed_body, self.preview))
+        self.preview.verticalScrollBar().valueChanged.connect(
+            lambda _v: self._sync_scroll(self.preview, self.ed_body))
         self.lbl_hint = QLabel("", self)
         self.lbl_hint.setStyleSheet("color:#666; font-size:11px")
         self.lbl_hint.setWordWrap(True)
         lay.addWidget(self.lbl_hint)
+        # AIへの修正依頼: 編集欄の本文と指示をチャットへ送り、
+        # AIが ai_save_instruction で保存した結果を編集欄へ反映する
+        prow = QHBoxLayout()
+        self.ed_prompt = _Input(self)
+        self.ed_prompt.set_hint(
+            "AIへの修正指示 (Enterで送信)")
+        self.ed_prompt.setMaximumHeight(48)
+        self.ed_prompt.setToolTip(
+            "例: 「要約の節を追加して」「トーンを簡潔に」")
+        self.btn_ai = QPushButton("AIに修正を依頼", self)
+        self.btn_ai.setToolTip(
+            "編集欄の本文と上の指示をチャットのAIへ送る。\n"
+            "AIが保存すると編集欄へ反映される(未保存の手編集が\n"
+            "ある間は反映しない)")
+        prow.addWidget(self.ed_prompt, 1)
+        prow.addWidget(self.btn_ai)
+        lay.addLayout(prow)
         row = QHBoxLayout()
         self.btn_save = QPushButton("保存", self)
         self.btn_del = QPushButton("削除", self)
@@ -1424,14 +1859,38 @@ class _InstructionsDialog(QDialog):
         self.btn_del.clicked.connect(self._delete)
         self.btn_dir.clicked.connect(self._open_dir)
         btn_close.clicked.connect(self.accept)
+        self.ed_prompt.sig_submit.connect(self._ask_ai)
+        self.btn_ai.clicked.connect(self._ask_ai)
         self._items = {}
+        self._loaded_body = ""   # 最後に読込/保存した本文(外部変更検知用)
         i = self.cmb_kind.findData(kind)
         self.cmb_kind.setCurrentIndex(i if i >= 0 else 0)
         self.reload(select)
 
     def _update_preview(self):
         """編集中のMarkdownを表示ペインにレンダリングする。"""
-        self.preview.setMarkdown(self.ed_body.toPlainText())
+        # setMarkdown で表示側が先頭へ巻き戻るため、その間の
+        # 逆方向同期(表示→編集)を抑止し、描画後に編集側の
+        # スクロール位置へ合わせ直す
+        self._syncing_scroll = True
+        try:
+            self.preview.setMarkdown(self.ed_body.toPlainText())
+        finally:
+            self._syncing_scroll = False
+        self._sync_scroll(self.ed_body, self.preview)
+
+    def _sync_scroll(self, src, dst):
+        """src のスクロール比率を dst へ反映する(双方向の追従用)。"""
+        if self._syncing_scroll:
+            return
+        s = src.verticalScrollBar()
+        d = dst.verticalScrollBar()
+        ratio = s.value() / s.maximum() if s.maximum() > 0 else 0.0
+        self._syncing_scroll = True
+        try:
+            d.setValue(int(round(d.maximum() * ratio)))
+        finally:
+            self._syncing_scroll = False
 
     def _kind(self):
         return self.cmb_kind.currentData() or "agents"
@@ -1444,28 +1903,36 @@ class _InstructionsDialog(QDialog):
         self._items = {a["id"]: a for a in
                        ai_client.list_instruction_files(kind)}
         self.lbl_hint.setText(
-            "エージェント: 選択中は毎回system promptに注入"
+            "エージェント: 選択中は毎回system promptに注入。"
+            "書式: 「# タイトル」→説明文→「use_when: 使いどき」"
+            "(省略可)"
             if kind == "agents" else
-            "スキル: 一覧のみプロンプトに載り、モデルが必要時に"
-            " qgis_pyeval の open() で本文を読む")
+            "スキル: id+説明+use_when の一覧のみプロンプトに載り、"
+            "モデルが必要時に qgis_pyeval の open() で本文を読む。"
+            "書式: 「# タイトル」→説明文→「use_when: 使いどき」"
+            "(省略可)")
+        self._rebuild_combo(select)
+        self._pick(self.cmb.currentIndex())
+
+    def _rebuild_combo(self, select=None):
+        """self._items でコンボを再構築しselect(省略時は現在値)を維持。"""
+        cur = self.cmb.currentData() if select is None else select
         self.cmb.blockSignals(True)
         self.cmb.clear()
         self.cmb.addItem(f"＋ 新規{self._kind_label()}", "")
         for a in self._items.values():
             label = a["title"] + (" (同梱)" if a["builtin"] else "")
             self.cmb.addItem(label, a["id"])
+        i = self.cmb.findData(cur) if cur else -1
+        self.cmb.setCurrentIndex(i if i > 0 else 0)
         self.cmb.blockSignals(False)
-        if select:
-            i = self.cmb.findData(select)
-            if i > 0:
-                self.cmb.setCurrentIndex(i)
-        self._pick(self.cmb.currentIndex())
 
     def _pick(self, _idx):
         a = self._items.get(self.cmb.currentData() or "")
         if a is None:
             self.ed_name.setText("")
             self.ed_body.setPlainText("")
+            self._loaded_body = ""
             return
         self.ed_name.setText(a["id"])
         try:
@@ -1474,6 +1941,64 @@ class _InstructionsDialog(QDialog):
         except Exception:
             body = ""
         self.ed_body.setPlainText(body)
+        self._loaded_body = body
+
+    def refresh_external(self):
+        """AIの ai_* ツール等で指示書ファイルが変わった時の追従。
+
+        一覧を再構築して選択を維持し、選択中ファイルの本文が外部で
+        更新されていれば編集欄へ反映する。未保存の手編集がある間は
+        上書きしない。新規作成中に同名ファイルが現れたらそれを
+        選択状態にする。
+        """
+        kind = self._kind()
+        self._items = {a["id"]: a for a in
+                       ai_client.list_instruction_files(kind)}
+        aid = self.cmb.currentData() or ""
+        if not aid:
+            stem = re.sub(r'[\\/:*?"<>|\s]+', "_",
+                          self.ed_name.text().strip())
+            if stem in self._items:
+                aid = stem
+        self._rebuild_combo(aid or None)
+        a = self._items.get(self.cmb.currentData() or "")
+        if a is None:
+            return
+        try:
+            with open(a["path"], "r", encoding="utf-8") as f:
+                body = f.read()
+        except Exception:
+            return
+        if (body != self._loaded_body
+                and self.ed_body.toPlainText() == self._loaded_body):
+            self.ed_name.setText(a["id"])
+            self.ed_body.setPlainText(body)
+            self._loaded_body = body
+
+    def _ask_ai(self):
+        """「AIに修正を依頼」: 編集欄の本文と指示をチャットのAIへ送る。"""
+        prompt = self.ed_prompt.toPlainText().strip()
+        if not prompt:
+            return
+        panel = self.parent()
+        if panel is None:
+            return
+        kind = self._kind()
+        name = (self.ed_name.text().strip()
+                or self.cmb.currentData() or "")
+        body = self.ed_body.toPlainText().strip()
+        msg = (f"{self._kind_label()} '{name or '新規'}' の指示書を"
+               "修正してください。\n\n"
+               f"## 修正指示\n{prompt}\n\n"
+               f"## 現在の本文\n{body or '(空)'}\n\n")
+        if name:
+            msg += (f"修正後の全文を ai_save_instruction "
+                    f"(kind='{kind}', name='{name}') で保存してください。")
+        else:
+            msg += ("内容に合う名前を付けて ai_save_instruction "
+                    f"(kind='{kind}') で新規保存してください。")
+        if panel._send_prompt(msg):
+            self.ed_prompt.clear()
 
     def _save(self):
         try:
@@ -1482,9 +2007,10 @@ class _InstructionsDialog(QDialog):
                 self.ed_body.toPlainText())
         except Exception as e:
             QMessageBox.warning(self, "保存失敗", str(e))
-            return
+            return False
         stem = os.path.splitext(os.path.basename(p))[0]
         self.reload(stem)
+        return True
 
     def _delete(self):
         aid = self.cmb.currentData() or ""
