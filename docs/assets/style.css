@@ -257,6 +257,26 @@ blockquote p + p { margin-top: 8px; }
   overflow-x: auto;
 }
 
+/* ---------- media (image / video) ---------- */
+figure.media {
+  margin: 20px 0 28px;
+}
+figure.media img,
+figure.media video {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: var(--bg-soft);
+}
+figure.media figcaption {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--fg-muted);
+  text-align: center;
+}
+
 /* ---------- cards (index) ---------- */
 .cards {
   display: grid;
