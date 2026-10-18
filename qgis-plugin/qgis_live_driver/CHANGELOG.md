@@ -3,6 +3,22 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
+## [0.7.1] - 2026-10-18
+
+### Added
+
+- **外部MCPの秘密値を資格情報ストアへ**(`ai_client.py`):
+  `mcp_servers.json` の `oauth.client_secret` に平文が書かれた
+  まま保存するとOSの資格情報ストア(credential_store。
+  APIキーと同じ保存先)へ自動で移行し、設定ファイルには
+  `"$store:mcp:<サーバ>:client_secret"` 参照だけを残す。
+  ストア保存に失敗した場合はエラーとし平文では保存しない
+  (APIキーと同じ方針)。`headers`/`env`/`oauth.client_id`
+  の値も `"$store:<キー>"` 記法で接続時にストアから解決される。
+  設定ダイアログは移行後のJSONを表示して通知し、
+  client_secret 未指定時は Basic 認証を付けず
+  `client_id` をボディへ送る public client として動作する
+
 ## [0.7.0] - 2026-10-18
 
 ### Added

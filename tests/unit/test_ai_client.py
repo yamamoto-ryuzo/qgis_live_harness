@@ -14,7 +14,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
 
-from qgis_live_driver import ai_client
+from qgis_live_driver import ai_client, credential_store
 from qgis_live_driver.mcp_http import TOOLS, start_http
 
 
@@ -992,6 +992,70 @@ def test_mcp_http_oauth(tmp_path):
             timeout=10)
         try:
             assert "qgis_status" in {t["name"] for t in sess.tools}
+            assert sess._io._tok == "otk"
+            assert "echo" in sess.call("qgis_status", {})
+        finally:
+            sess.close()
+    finally:
+        httpd.shutdown()
+        tokd.shutdown()
+
+
+def test_mcp_secret_store_migration(tmp_path, monkeypatch):
+    """平文client_secretは保存時に資格情報ストアへ移され$store:参照になる。"""
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    out = ai_client.mcp_save_config(json.dumps({"mcpServers": {
+        "box": {"url": "https://mcp.box.com",
+                "oauth": {
+                    "token_url": "https://api.box.com/oauth2/token",
+                    "client_id": "cid",
+                    "client_secret": "csec"}},
+        "tmpl": {"url": "http://x/mcp",
+                 "oauth": {"client_id": "<id>",
+                           "client_secret": "<Client Secret>"}},
+        "ref": {"url": "http://x/mcp",
+                "oauth": {"client_secret": "$store:mcp:x:client_secret"}}}}))
+    d = json.loads(out)["mcpServers"]
+    ref = d["box"]["oauth"]["client_secret"]
+    assert ref == "$store:mcp:box:client_secret"
+    # 雛形の <...> と既存の $store: 参照はそのまま
+    assert d["tmpl"]["oauth"]["client_secret"] == "<Client Secret>"
+    assert d["ref"]["oauth"]["client_secret"] == \
+        "$store:mcp:x:client_secret"
+    # ファイルにも平文が残らない
+    with open(ai_client.mcp_config_path(), encoding="utf-8") as f:
+        assert "csec" not in f.read()
+    assert credential_store.get_secret("mcp:box:client_secret") == "csec"
+
+
+def test_mcp_secret_store_unresolved(tmp_path, monkeypatch):
+    """$store:参照先が無ければエラー。"""
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    with pytest.raises(ai_client.ApiError):
+        ai_client._resolve_secret_ref("$store:mcp:none:client_secret")
+    # 参照でない値は素通し
+    assert ai_client._resolve_secret_ref("plain") == "plain"
+
+
+def test_mcp_oauth_secret_ref(tmp_path, monkeypatch):
+    """$store:参照のclient_secretでもBasic認証でトークン取得できる。"""
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    assert credential_store.set_secret("mcp:o:client_secret", "csec")
+    tokd = ThreadingHTTPServer(("127.0.0.1", 0), _TokenHandler)
+    threading.Thread(target=tokd.serve_forever, daemon=True).start()
+    httpd, port = start_http(_McpFakeDriver(), api_keys={"otk"})
+    try:
+        tport = tokd.server_address[1]
+        sess = ai_client.McpSession(
+            "o", {"url": f"http://127.0.0.1:{port}/mcp",
+                  "oauth": {
+                      "token_url":
+                          f"http://127.0.0.1:{tport}/oauth/token",
+                      "client_id": "cid",
+                      "client_secret": "$store:mcp:o:client_secret",
+                      "extra": {"box_subject_type": "enterprise"}}},
+            timeout=10)
+        try:
             assert sess._io._tok == "otk"
             assert "echo" in sess.call("qgis_status", {})
         finally:

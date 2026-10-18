@@ -43,6 +43,7 @@ import urllib.request
 import uuid
 import webbrowser
 
+from . import credential_store
 from .mcp_http import TOOLS
 
 # 1ユーザメッセージに対するツール実行の最大往復数(暴走防止)
@@ -1128,6 +1129,10 @@ def run_instruction_tool(name, args):
 # command=stdio起動 / url=Streamable HTTP。発見ツールは
 # mcp_<server>__<tool> にマングリングしてfunction callingへ混ぜ、
 # _EXTRA_TOOL_CALLERS 経由でパネルがローカル実行する。
+# 秘密値(client_secret・headers・env)は "$store:<key>" と書くと
+# OSの資格情報ストア(credential_store)から解決される。
+# 平文の oauth.client_secret は mcp_save_config 保存時に自動で
+# ストアへ移され、設定ファイルには参照だけが残る。
 
 MCP_PROTOCOL_VERSION = "2025-03-26"
 
@@ -1135,6 +1140,28 @@ MCP_PROTOCOL_VERSION = "2025-03-26"
 def mcp_config_path():
     """外部MCPサーバの設定ファイル。"""
     return os.path.join(_registry_dir(), "mcp_servers.json")
+
+
+# 設定値中の資格情報ストア参照プレフィックス
+MCP_SECRET_REF = "$store:"
+
+
+def _mcp_secret_key(server, field):
+    """資格情報ストア上のキー名(サーバ名+項目名)。"""
+    return f"mcp:{server}:{field}"
+
+
+def _resolve_secret_ref(v):
+    """'$store:<key>' 参照なら資格情報ストアから値を解決する。"""
+    if isinstance(v, str) and v.startswith(MCP_SECRET_REF):
+        key = v[len(MCP_SECRET_REF):]
+        s = credential_store.get_secret(key)
+        if s is None:
+            raise ApiError(
+                f"資格情報ストアに '{key}' がありません"
+                "(mcp_servers.json の $store: 参照)")
+        return s
+    return v
 
 
 MCP_CONFIG_TEMPLATE = {
@@ -1190,7 +1217,14 @@ def mcp_servers_config():
 
 
 def mcp_save_config(text):
-    """設定JSONテキストを検証して mcp_servers.json へ保存する。"""
+    """設定JSONテキストを検証して mcp_servers.json へ保存する。
+
+    oauth.client_secret に平文が書かれていた場合はOSの資格情報
+    ストア(credential_store)へ移し、設定ファイルには
+    '$store:<key>' 参照だけを残す(APIキーと同じ方針で
+    ストア保存に失敗した場合は平文では保存しない)。
+    実際に保存したJSONテキストを返す。
+    """
     try:
         d = json.loads(text)
     except Exception as e:
@@ -1198,9 +1232,28 @@ def mcp_save_config(text):
     if not isinstance(d, dict) \
             or not isinstance(d.get("mcpServers"), dict):
         raise ApiError('{"mcpServers": {...}} 形式にしてください')
+    migrated = False
+    for name, conf in d["mcpServers"].items():
+        oc = conf.get("oauth") if isinstance(conf, dict) else None
+        sec = oc.get("client_secret") if isinstance(oc, dict) else None
+        if not isinstance(sec, str) or not sec \
+                or sec.startswith(MCP_SECRET_REF) \
+                or (sec.startswith("<") and sec.endswith(">")):
+            continue                      # 既に参照 or 未記入の雛形
+        key = _mcp_secret_key(name, "client_secret")
+        if not credential_store.set_secret(key, sec):
+            raise ApiError(
+                f"'{name}' のclient_secretを資格情報ストア"
+                f"(backend={credential_store.backend()})へ"
+                "保存できませんでした。平文では保存しません。")
+        oc["client_secret"] = MCP_SECRET_REF + key
+        migrated = True
+    out = (json.dumps(d, ensure_ascii=False, indent=2)
+           if migrated else text)
     os.makedirs(os.path.dirname(mcp_config_path()), exist_ok=True)
     with open(mcp_config_path(), "w", encoding="utf-8") as f:
-        f.write(text)
+        f.write(out)
+    return out
 
 
 def _loads_rpc(text):
@@ -1249,16 +1302,22 @@ def _oauth_request(oc, body, timeout=30.0):
     turl = oc.get("token_url") or ""
     if not turl:
         raise ApiError("oauth.token_url が空です")
-    cred = (f"{urllib.parse.quote(oc.get('client_id') or '')}:"
-            f"{urllib.parse.quote(oc.get('client_secret') or '')}")
+    cid = _resolve_secret_ref(oc.get("client_id")) or ""
+    csec = _resolve_secret_ref(oc.get("client_secret")) or ""
+    body = dict(body)
+    headers = {"Content-Type": "application/x-www-form-urlencoded",
+               "Accept": "application/json"}
+    if csec:
+        # confidential client: RFC 6749 Basic認証
+        cred = (f"{urllib.parse.quote(cid)}:"
+                f"{urllib.parse.quote(csec)}")
+        headers["Authorization"] = (
+            "Basic " + base64.b64encode(cred.encode()).decode())
+    elif cid:
+        body.setdefault("client_id", cid)   # public client
     req = urllib.request.Request(
         turl, data=urllib.parse.urlencode(body).encode("utf-8"),
-        headers={
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "application/json",
-            "Authorization":
-                "Basic " + base64.b64encode(cred.encode()).decode()},
-        method="POST")
+        headers=headers, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
             d = json.loads(r.read().decode("utf-8", "replace"))
@@ -1444,7 +1503,8 @@ class _McpHttp:
         self.url = (cfg.get("url") or "").rstrip("/")
         if not self.url:
             raise ApiError("MCPサーバのurlが空です")
-        self.headers = dict(cfg.get("headers") or {})
+        self.headers = {str(k): str(_resolve_secret_ref(v) or "")
+                        for k, v in (cfg.get("headers") or {}).items()}
         self.oauth = cfg.get("oauth") or None
         self.name = name
         self._status = on_status or (lambda m: None)
@@ -1560,7 +1620,7 @@ class _McpStdio:
             raise ApiError("MCPサーバのcommandが空です")
         exe = shutil.which(command) or command
         env = dict(os.environ)
-        env.update({str(k): str(v)
+        env.update({str(k): str(_resolve_secret_ref(v) or "")
                     for k, v in (cfg.get("env") or {}).items()})
         kw = {}
         cf = getattr(subprocess, "CREATE_NO_WINDOW", 0)

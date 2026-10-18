@@ -1281,6 +1281,8 @@ class _McpDialog(QDialog):
             "外部MCPサーバを {\"mcpServers\": {...}} 形式で設定します。\n"
             "command=stdio起動 / url=Streamable HTTP。"
             "発見したツールは mcp_<サーバ>__<ツール> で使えます。\n"
+            "oauth.client_secret は保存時にOSの資格情報ストアへ移され、"
+            "設定ファイルには $store: 参照だけが残ります。\n"
             "保存すると次の送信で再接続されます。", self)
         lbl.setWordWrap(True)
         lbl.setStyleSheet("color:#666; font-size:11px")
@@ -1343,10 +1345,16 @@ class _McpDialog(QDialog):
 
     def _save(self):
         try:
-            ai_client.mcp_save_config(self.ed.toPlainText())
+            saved = ai_client.mcp_save_config(self.ed.toPlainText())
         except ai_client.ApiError as e:
             QMessageBox.warning(self, "MCP設定", str(e))
             return
+        if saved != self.ed.toPlainText():
+            self.ed.setPlainText(saved)
+            QMessageBox.information(
+                self, "MCP設定",
+                "client_secret をOSの資格情報ストアへ移し、"
+                "設定ファイルには $store: 参照だけ残しました。")
         self.saved = True
         self.accept()
 

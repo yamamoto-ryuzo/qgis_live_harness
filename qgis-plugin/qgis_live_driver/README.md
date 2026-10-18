@@ -161,7 +161,17 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
   }}
   ```
   `command`=stdioで子プロセス起動(Windowsではコンソール窓を出さない)、
-  `url`=Streamable HTTP。認証は `headers` で固定値を渡すか、
+  `url`=Streamable HTTP。
+  **秘密値は資格情報ストアへ**: `oauth.client_secret` に平文を
+  書いて保存するとOSの資格情報ストア(credential_store。
+  APIキーと同じ保存先)へ自動で移され、設定ファイルには
+  `"$store:mcp:<サーバ>:client_secret"` 参照だけが残る。
+  ストア保存に失敗した場合はエラーになり平文では保存しない。
+  `headers`/`env`/`oauth.client_id` の値も `"$store:<キー>"` と
+  書けば接続時にストアから解決される(手動で参照を書く場合は
+  資格情報ストアへ事前登録が必要)。平文のclient_secretが
+  残っている既存設定は、設定ダイアログで再保存すれば移行される。
+  認証は `headers` で固定値を渡すか、
   `oauth` で2種類のOAuthを使う:
   `authorize_url` あり=**authorization_code+PKCE**(初回送信時に
   ブラウザが開き同意画面、トークンは `~/.qgis-live/mcp_tokens.json`
