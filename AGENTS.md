@@ -64,9 +64,10 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   `npm run upstream -- <repo> <git引数>`(scripts/upstream-git.ps1。
   例: `npm run upstream -- geo_report status`)が形式を吸収する:
   - repo内にプラグインsubfolderを持つupstream(geo_report、geo_import)は
-    `C:\devin\<repo>` に通常cloneし、subfolderを `qgis-plugin/<id>` への
-    junctionに置き換える(例: `C:\devin\geo_report\geo_report` →
-    `qgis-plugin/geo_report`)。cloneはそのまま `git -C` で操作可能
+    upstreamとの同期が必要な場合に `C:\devin\<repo>` または
+    `.upstream/<repo>/` にcloneし、subfolderを `qgis-plugin/<id>` への
+    junctionに置き換える(例: `<clone>/geo_report` → `qgis-plugin/geo_report`)。
+    cloneが無い間はHarness側が唯一の正本
   - 「repoルート=プラグイン/コンテンツ」構造のupstream
     (QGIS-legendView→QGIS-legendView-main、QGIS-exportExcel→export_excel)は
     subfolder junctionが張れないため、**upstream側の `.git` を
