@@ -17,9 +17,11 @@ qgis_screenshot/...)をfunction callingでループ実行する。
 
 import html
 import json
+import re
 import threading
 
 from qgis.PyQt.QtCore import Qt, QSettings, pyqtSignal
+from qgis.PyQt.QtGui import QStandardItem, QStandardItemModel
 from qgis.PyQt.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -40,6 +42,8 @@ from . import ai_client, credential_store
 
 _SETTING = "qgis_live_driver/ai_{}"
 _PROVIDER_IDS = list(ai_client.PROVIDERS.keys())
+_MODEL_HINT = ("「取得」でエンドポイントのモデル一覧を表示。"
+               "括弧内は価格(入力/出力, $/1Mトークン, 参考値)。")
 
 
 def _esc(t):
@@ -70,6 +74,7 @@ class AiPanel(QDockWidget):
         self.iface = iface
         self._get_driver = get_driver
         self._history = []      # [{"role": "user"|"assistant", "content": str}]
+        self._model_infos = {}  # {id: ai_client.model_info()}
         self._busy = False
         self._alive = True
         self.destroyed.connect(self._on_destroyed)
@@ -92,6 +97,10 @@ class AiPanel(QDockWidget):
         self.lbl_keystore.setWordWrap(True)
         self.cmb_model = QComboBox(box)
         self.cmb_model.setEditable(True)
+        self.cmb_model.setToolTip(
+            "使用するモデル。「取得」でエンドポイントの一覧を表示。\n"
+            "括弧内は1Mトークンあたりの価格(入力/出力, $)。\n"
+            "「画像入力可」グループのモデルはスクリーンショット送信に対応。")
         model_row = QWidget(box)
         mr = QHBoxLayout(model_row)
         mr.setContentsMargins(0, 0, 0, 0)
@@ -100,6 +109,9 @@ class AiPanel(QDockWidget):
             "エンドポイントからモデル一覧を取得 (GET {base}/models)")
         mr.addWidget(self.cmb_model, 1)
         mr.addWidget(self.btn_models)
+        self.lbl_model_info = QLabel(_MODEL_HINT, box)
+        self.lbl_model_info.setStyleSheet("color:#666; font-size:11px")
+        self.lbl_model_info.setWordWrap(True)
         self.chk_vision = QCheckBox(
             "スクリーンショットを画像として送信 (vision対応モデル)", box)
         self.chk_vision.setChecked(True)
@@ -108,6 +120,7 @@ class AiPanel(QDockWidget):
         form.addRow("APIキー", self.ed_key)
         form.addRow("キー保存先", self.lbl_keystore)
         form.addRow("モデル", model_row)
+        form.addRow("", self.lbl_model_info)
         form.addRow("", self.chk_vision)
         lay.addWidget(box)
 
@@ -138,6 +151,9 @@ class AiPanel(QDockWidget):
 
         self.cmb_provider.currentIndexChanged.connect(
             self._on_provider_changed)
+        self.cmb_model.activated.connect(self._on_model_activated)
+        self.cmb_model.currentTextChanged.connect(
+            self._on_model_text_changed)
         self.btn_models.clicked.connect(self._fetch_models)
         self.btn_send.clicked.connect(self._send)
         self.btn_clear.clicked.connect(self._clear)
@@ -187,8 +203,18 @@ class AiPanel(QDockWidget):
         self.ed_key.setText(key)
         self.ed_key.setPlaceholderText(d["key_hint"])
         self.cmb_model.clear()
+        # 既定エンドポイント利用時は推奨モデル(種別・参考価格付き)を
+        # 予めコンボへ載せる。カスタムエンドポイント(Ollama等)では
+        # 一覧が異なるため載せず「取得」で実一覧を取る運用にする。
+        if ep == d["base"]:
+            infos = [ai_client.model_info({"id": m})
+                     for m in ai_client.SUGGESTED_MODELS.get(pid, ())]
+            self._set_model_items(infos, keep_text=model)
+        else:
+            self._model_infos = {}
         self.cmb_model.setEditText(model)
         self.cmb_model.lineEdit().setPlaceholderText(d["model"])
+        self._update_model_info()
 
     def _save_settings(self):
         s = QSettings()
@@ -198,7 +224,7 @@ class AiPanel(QDockWidget):
                    self.ed_endpoint.text())
         self._save_provider_key(pid, self.ed_key.text())
         s.setValue(_SETTING.format(f"{pid}_model"),
-                   self.cmb_model.currentText())
+                   self._current_model())
         s.setValue(_SETTING.format("vision"), self.chk_vision.isChecked())
 
     def _save_provider_key(self, pid, key):
@@ -250,7 +276,87 @@ class AiPanel(QDockWidget):
         self._prev_provider = self._provider()
         self._prev_endpoint = self.ed_endpoint.text()
         self._prev_key = self.ed_key.text()
-        self._prev_model = self.cmb_model.currentText()
+        self._prev_model = self._current_model()
+
+    # ---- モデル選択 ----
+
+    def _current_model(self):
+        """選択中のモデルID。装飾付き表示("id   $x/$y")や
+        グループ見出しが入っていてもIDだけを返す。"""
+        data = self.cmb_model.currentData()
+        if data:
+            return str(data)
+        t = self.cmb_model.currentText().strip()
+        if not t or t.startswith("──"):
+            return ""
+        # モデルIDは空白を含まないため、表示装飾(空白2つ以上+価格)は剥がす
+        return re.split(r"\s{2,}", t, maxsplit=1)[0].strip()
+
+    def _set_model_items(self, infos, keep_text=None):
+        """モデルコンボを種別グループ付きで再構築する。
+
+        @returns 設定したモデル数
+        """
+        cur = (keep_text if keep_text is not None
+               else self._current_model())
+        self._model_infos = {i["id"]: i for i in infos}
+        mdl = QStandardItemModel(self.cmb_model)
+        n = 0
+        for kind, label in ai_client.MODEL_KINDS:
+            entries = [i for i in infos if i["kind"] == kind]
+            if not entries:
+                continue
+            hdr = QStandardItem(f"── {label} ──")
+            hdr.setEnabled(False)          # 選択不可の見出し行
+            f = hdr.font()
+            f.setBold(True)
+            hdr.setFont(f)
+            mdl.appendRow(hdr)
+            for i in entries:
+                it = QStandardItem(ai_client.model_label(i))
+                it.setData(i["id"], Qt.ItemDataRole.UserRole)
+                it.setToolTip(ai_client.model_tooltip(i))
+                mdl.appendRow(it)
+                n += 1
+        self.cmb_model.setModel(mdl)
+        idx = self.cmb_model.findData(cur) if cur else -1
+        if cur and idx >= 0:
+            self.cmb_model.setCurrentIndex(idx)
+            self.cmb_model.setEditText(cur)  # IDだけをline editに表示
+        elif cur:
+            self.cmb_model.setEditText(cur)
+        self._update_model_info()
+        return n
+
+    def _on_model_activated(self, idx):
+        """項目選択時、line editには装飾無しのIDだけを残す。"""
+        data = self.cmb_model.itemData(idx)
+        if data:
+            self.cmb_model.setEditText(str(data))
+
+    def _on_model_text_changed(self, _text):
+        self._update_model_info()
+
+    def _update_model_info(self):
+        """モデル欄の下に選択中モデルの種別・価格等を表示する。"""
+        info = self._model_infos.get(self._current_model())
+        if not info:
+            self.lbl_model_info.setText(_MODEL_HINT)
+            return
+        parts = [ai_client.MODEL_KIND_LABELS.get(
+            info["kind"], info["kind"])]
+        if info.get("price_desc"):
+            src = "API" if info["price_src"] == "api" else "参考"
+            parts.append(f"{info['price_desc']} ({src})")
+        ctx = ai_client.fmt_tokens(info.get("context"))
+        if ctx:
+            parts.append(f"コンテキスト {ctx}")
+        if info["kind"] == "chat":
+            parts.append("画像入力非対応の可能性(スクショ送信には"
+                         "「画像入力可」モデルを選択)")
+        elif info["kind"] != "chat_vision":
+            parts.append("チャット用途には使えません")
+        self.lbl_model_info.setText(" / ".join(parts))
 
     # ---- 表示 ----
 
@@ -317,23 +423,19 @@ class AiPanel(QDockWidget):
 
     def _models_run(self, pid, base, key):
         try:
-            models = ai_client.list_models(pid, base, key)
-            self._emit(self.sig_models, models, "")
+            infos = ai_client.list_model_infos(pid, base, key)
+            self._emit(self.sig_models, infos, "")
         except Exception as e:
             self._emit(self.sig_models, [], str(e))
 
-    def _on_models(self, models, error):
+    def _on_models(self, infos, error):
         self.btn_models.setEnabled(True)
         self.lbl_status.setText("")
         if error:
             self._append("error", f"モデル一覧の取得に失敗: {error}")
             return
-        cur = self.cmb_model.currentText().strip()
-        self.cmb_model.clear()
-        self.cmb_model.addItems(models)
-        if cur:
-            self.cmb_model.setCurrentText(cur)
-        self._append("tool", f"モデル一覧を{len(models)}件取得しました")
+        n = self._set_model_items(infos)
+        self._append("tool", f"モデル一覧を{n}件取得しました")
 
     # ---- 送信/エージェントループ ----
 
@@ -357,7 +459,7 @@ class AiPanel(QDockWidget):
             "base": (self.ed_endpoint.text().strip()
                      or ai_client.PROVIDERS[pid]["base"]),
             "key": self.ed_key.text().strip(),
-            "model": (self.cmb_model.currentText().strip()
+            "model": (self._current_model()
                       or ai_client.PROVIDERS[pid]["model"]),
             "vision": self.chk_vision.isChecked(),
         }

@@ -23,6 +23,7 @@ ai_panel のエージェントループはプロバイダ非依存で回る。
 import base64
 import json
 import os
+import re
 import tempfile
 import urllib.error
 import urllib.request
@@ -58,6 +59,208 @@ PROVIDERS = {
         "endpoint_hint": "https://generativelanguage.googleapis.com/v1beta",
     },
 }
+
+# ---- モデル一覧のメタ情報 ----
+
+# モデル種別 → 表示ラベル。この順序でコンボをグループ化する。
+MODEL_KINDS = [
+    ("chat_vision", "テキスト (画像入力可)"),
+    ("chat", "テキスト"),
+    ("image", "画像生成"),
+    ("embed", "埋め込み"),
+    ("other", "音声/その他"),
+]
+MODEL_KIND_LABELS = dict(MODEL_KINDS)
+
+# プロバイダ既定エンドポイント利用時にコンボへ予め載せる推奨モデル
+# (「取得」ボタンを押さなくても価格付きで選べるようにするため)。
+# 実際に使えるかはAPIキーのプラン次第。取得で実一覧に置き換わる。
+SUGGESTED_MODELS = {
+    "openai": ["gpt-5-mini", "gpt-5", "gpt-4.1-mini", "gpt-4.1",
+               "gpt-4o-mini", "gpt-4o", "o4-mini"],
+    "gemini": ["gemini-2.5-flash", "gemini-2.5-pro",
+               "gemini-2.5-flash-lite", "gemini-2.0-flash"],
+}
+
+# 主要モデルの参考価格 (USD / 1Mトークン, [入力, 出力])。
+# APIが価格を返さない場合の目安表示用。公開価格ベースだが
+# 変動しうるため「参考値」として表示する。モデルIDの末尾部分
+# (プロバイダ名を除いたもの)との前方一致・最長一致で引く。
+KNOWN_MODEL_PRICES = {
+    "gpt-5-pro": (15.00, 120.00),
+    "gpt-5": (1.25, 10.00),
+    "gpt-5-mini": (0.25, 2.00),
+    "gpt-5-nano": (0.05, 0.40),
+    "gpt-4.1": (2.00, 8.00),
+    "gpt-4.1-mini": (0.40, 1.60),
+    "gpt-4.1-nano": (0.10, 0.40),
+    "gpt-4o": (2.50, 10.00),
+    "gpt-4o-mini": (0.15, 0.60),
+    "o3": (2.00, 8.00),
+    "o4-mini": (1.10, 4.40),
+    "claude-opus-4": (15.00, 75.00),
+    "claude-sonnet-4": (3.00, 15.00),
+    "claude-haiku-4": (1.00, 5.00),
+    "claude-3-5-haiku": (0.80, 4.00),
+    "claude-3-haiku": (0.25, 1.25),
+    "gemini-2.5-pro": (1.25, 10.00),
+    "gemini-2.5-flash": (0.30, 2.50),
+    "gemini-2.5-flash-lite": (0.10, 0.40),
+    "gemini-2.0-flash": (0.10, 0.40),
+    "gemini-2.0-flash-lite": (0.075, 0.30),
+}
+
+# 種別推定のための名前ヒント(モデルID末尾の小文字に対して検索)。
+# 判定は推定であり、APIが modality 等を返す場合はそちらを優先する。
+_EMBED_RE = re.compile(r"embed")
+_IMAGE_RE = re.compile(
+    r"dall-e|gpt-image|imagen|[-_/]image($|[-_.0-9])|flux|"
+    r"stable.?diffusion|sdxl|ideogram|recraft|playground-v|cogview|"
+    r"kolors|seedream|photon|hunyuan-image|pixart")
+_AUDIO_RE = re.compile(
+    r"whisper|tts|transcribe|realtime|audio|moderation|speech|voice")
+_VISION_RE = re.compile(
+    r"vision|gpt-4o|chatgpt|gpt-4\.1|gpt-5|gpt-4-turbo|gpt-4-|"
+    r"\bo[134]\b|claude|gemini|gemma-?3|pixtral|llava|moondream|"
+    r"cogvlm|internvl|minicpm-v|qvq|glm-4|kimi|[-_.]vl($|[-_.0-9])|"
+    r"qwen.*vl|llama-4|llama-3\.2-(11|90)b|mistral-(small|medium|large)|"
+    r"grok")
+
+
+def classify_model(model_id, entry=None):
+    """モデルID(+APIのメタ情報)から種別を推定する。
+
+    @returns "chat_vision"|"chat"|"image"|"embed"|"other"
+    entry は list_model_entries() の1要素。OpenRouter等が返す
+    architecture.modality ("text+image->text" 等) や
+    input_modalities/output_modalities があれば最優先で使う。
+    """
+    tail = (model_id or "").split("/")[-1].lower()
+    if entry:
+        mod = str(entry.get("modality") or "").lower()
+        ins = [str(x).lower() for x in entry.get("input_modalities") or []]
+        outs = [str(x).lower() for x in entry.get("output_modalities") or []]
+        if "->" in mod:
+            mi, mo = mod.split("->", 1)
+            if "image" in mo:
+                return "image"
+            if "image" in mi:
+                return "chat_vision"
+        if any("image" in o for o in outs):
+            return "image"
+        if any("image" in i for i in ins):
+            return "chat_vision"
+    if _EMBED_RE.search(tail):
+        return "embed"
+    if _IMAGE_RE.search(tail):
+        return "image"
+    if _AUDIO_RE.search(tail):
+        return "other"
+    if _VISION_RE.search(tail):
+        return "chat_vision"
+    return "chat"
+
+
+def _usd(v):
+    """金額を $ 表記に整形 (0.6→$0.60, 0.075→$0.075, 10→$10)。"""
+    s = f"{v:.4f}".rstrip("0").rstrip(".")
+    if "." in s and len(s.rsplit(".", 1)[1]) < 2:
+        s = f"{v:.2f}"
+    return f"${s}"
+
+
+def fmt_tokens(n):
+    """トークン数を短縮表記に (128000→"128k", 1048576→"1.0M")。"""
+    try:
+        n = int(n)
+    except (TypeError, ValueError):
+        return None
+    if n >= 1_000_000:
+        return f"{n / 1_000_000:.1f}M"
+    if n >= 1_000:
+        return f"{n / 1_000:.0f}k"
+    return str(n)
+
+
+def _known_price(tail):
+    """既知価格表を末尾IDで最長前方一致検索 → (in_usd, out_usd)|None"""
+    best = None
+    for key, io in KNOWN_MODEL_PRICES.items():
+        if tail == key or tail.startswith(key):
+            if best is None or len(key) > len(best[0]):
+                best = (key, io)
+    return best[1] if best else None
+
+
+def _entry_price(entry, tail):
+    """価格情報 → (短表記, 説明文, 出典) 。無ければ (None, None, None)。
+
+    OpenRouter等が pricing.prompt/completion (USD/token) を返せば
+    それを使い、無ければ既知価格表(参考値)にフォールバックする。
+    """
+    pr = entry.get("pricing")
+    if isinstance(pr, dict):
+        def _pm(key):
+            try:
+                return float(pr[key]) * 1_000_000
+            except (KeyError, TypeError, ValueError):
+                return None
+        pin, pout = _pm("prompt"), _pm("completion")
+        if pin is not None or pout is not None:
+            pin, pout = pin or 0.0, pout or 0.0
+            return (f"{_usd(pin)}/{_usd(pout)}",
+                    f"入力 {_usd(pin)} / 出力 {_usd(pout)} /1Mトークン",
+                    "api")
+        try:
+            pimg = float(pr.get("image"))
+        except (TypeError, ValueError):
+            pimg = None
+        if pimg:
+            return (f"{_usd(pimg)}/img",
+                    f"{_usd(pimg)} /枚(画像生成)", "api")
+    kp = _known_price(tail)
+    if kp:
+        return (f"{_usd(kp[0])}/{_usd(kp[1])}",
+                f"入力 {_usd(kp[0])} / 出力 {_usd(kp[1])} /1Mトークン",
+                "known")
+    return None, None, None
+
+
+def model_info(entry):
+    """list_model_entries()の1要素 → {id, kind, price, price_desc,
+    price_src, context} に正規化する。"""
+    mid = entry["id"]
+    tail = mid.split("/")[-1].lower()
+    price, desc, src = _entry_price(entry, tail)
+    return {
+        "id": mid,
+        "kind": classify_model(mid, entry),
+        "price": price,
+        "price_desc": desc,
+        "price_src": src,          # "api"=エンドポイント応答 / "known"=参考値
+        "context": (entry.get("context_length")
+                    or entry.get("input_token_limit")),
+    }
+
+
+def model_label(info):
+    """コンボの表示テキスト。価格があれば 'id   $in/$out' 形式。"""
+    return (f"{info['id']}   {info['price']}" if info.get("price")
+            else info["id"])
+
+
+def model_tooltip(info):
+    """コンボ項目のツールチップ(複数行)。"""
+    lines = [info["id"],
+             f"種別: {MODEL_KIND_LABELS.get(info['kind'], info['kind'])}"]
+    if info.get("price_desc"):
+        src = "API応答値" if info["price_src"] == "api" else "参考値"
+        lines.append(f"価格: {info['price_desc']} ({src})")
+    if info.get("context"):
+        ctx = fmt_tokens(info["context"])
+        if ctx:
+            lines.append(f"コンテキスト: {ctx} tokens")
+    return "\n".join(lines)
 
 SYSTEM_PROMPT = """\
 You are an AI assistant running inside QGIS (a desktop GIS application).
@@ -351,21 +554,43 @@ def system_prompt(plugins=None):
 #       results: callsに対応する [{"text": str, "image": path|None}]
 #       raw assistant + プロバイダ固有のツール結果エントリをmsgsに積む
 #   list_models(base, key, timeout) -> [モデルID, ...]
+#   list_model_entries(base, key, timeout) -> [{id, メタ情報...}]
 
 
 class OpenAIProvider:
     id = "openai"
     label = PROVIDERS["openai"]["label"]
 
-    def list_models(self, base, key, timeout=30.0):
-        """GET {base}/models → data[].id をソートして返す。"""
+    def list_model_entries(self, base, key, timeout=30.0):
+        """GET {base}/models → [{id, 価格/modality等(あれば)}, ...]
+
+        OpenRouter等は pricing・context_length・architecture.modality
+        を返すため、あれば拾ってメタ情報表示に使う。
+        """
         headers = {"Authorization": f"Bearer {key}"} if key else {}
         data = _get_json(openai_models_url(base), headers, timeout)
         items = data.get("data") if isinstance(data, dict) else None
         if not isinstance(items, list):
             raise ApiError(f"応答形式が不正です: {str(data)[:300]}")
-        return sorted(i["id"] for i in items
-                      if isinstance(i, dict) and i.get("id"))
+        out = []
+        for i in items:
+            if not isinstance(i, dict) or not i.get("id"):
+                continue
+            e = {"id": i["id"]}
+            arch = i.get("architecture") or {}
+            for k in ("modality", "input_modalities", "output_modalities"):
+                if arch.get(k):
+                    e[k] = arch[k]
+            if i.get("pricing"):
+                e["pricing"] = i["pricing"]
+            if i.get("context_length"):
+                e["context_length"] = i["context_length"]
+            out.append(e)
+        return sorted(out, key=lambda e: e["id"])
+
+    def list_models(self, base, key, timeout=30.0):
+        """GET {base}/models → data[].id をソートして返す。"""
+        return [e["id"] for e in self.list_model_entries(base, key, timeout)]
 
     def build_messages(self, system, history, user_text):
         return ([{"role": "system", "content": system}]
@@ -406,13 +631,9 @@ class GeminiProvider:
     id = "gemini"
     label = PROVIDERS["gemini"]["label"]
 
-    def list_models(self, base, key, timeout=30.0):
-        """GET {base}/models → generateContent対応モデルを返す。
-
-        応答の models[].name は "models/<id>" 形式なので接頭辞を剥がす。
-        supportedGenerationMethods に generateContent が無いモデル
-        (embed等)は除外する。
-        """
+    def list_model_entries(self, base, key, timeout=30.0):
+        """GET {base}/models → generateContent対応モデルの
+        [{id, input/output_token_limit}, ...] を返す。"""
         headers = {"x-goog-api-key": key} if key else {}
         data = _get_json(gemini_models_url(base), headers, timeout)
         items = data.get("models") if isinstance(data, dict) else None
@@ -424,8 +645,23 @@ class GeminiProvider:
             methods = m.get("supportedGenerationMethods")
             if not name or (methods and "generateContent" not in methods):
                 continue
-            out.append(name)
-        return sorted(set(out))
+            e = {"id": name}
+            if m.get("inputTokenLimit"):
+                e["input_token_limit"] = m["inputTokenLimit"]
+            if m.get("outputTokenLimit"):
+                e["output_token_limit"] = m["outputTokenLimit"]
+            out.append(e)
+        return sorted({e["id"]: e for e in out}.values(),
+                      key=lambda e: e["id"])
+
+    def list_models(self, base, key, timeout=30.0):
+        """GET {base}/models → generateContent対応モデルを返す。
+
+        応答の models[].name は "models/<id>" 形式なので接頭辞を剥がす。
+        supportedGenerationMethods に generateContent が無いモデル
+        (embed等)は除外する。
+        """
+        return [e["id"] for e in self.list_model_entries(base, key, timeout)]
 
     def _parts(self, text):
         return [{"text": text}] if text else []
@@ -491,3 +727,12 @@ def get_provider(provider):
 def list_models(provider, base, key, timeout=30.0):
     """プロバイダのエンドポイントから利用可能なモデルID一覧を返す。"""
     return get_provider(provider).list_models(base, key, timeout)
+
+
+def list_model_infos(provider, base, key, timeout=30.0):
+    """モデル一覧をメタ情報付きで返す。
+
+    @returns [model_info()のdict, ...] (idでソート済み)
+    """
+    entries = get_provider(provider).list_model_entries(base, key, timeout)
+    return [model_info(e) for e in entries]

@@ -35,16 +35,20 @@ const PLUGIN_ID = [].concat(JSON.parse(
   readFileSync(new URL("../plugin.config.json", import.meta.url), "utf8")
 ).id)[0];
 
-// live dirを列挙する。どれか1つでもドライバが応答すればそれを返し、
+// live dirを列挙し、実際に応答するものだけを返す。
+// 死んだQGISプロセスの残骸dirが混ざっていると hub として死んだ方を
+// 選んでしまうため、全dirにプローブを打って応答したものに絞る。
 // 全滅ならensure(deploy+起動)して再列挙する。
 async function liveDirs() {
   const dirs = await resolveLiveDirs(LIVE_BASE);
+  const live = [];
   for (const d of dirs) {
     try {
       await new LivePage(d.dir).pyeval("1", { timeoutMs: 4000 });
-      return dirs;
+      live.push(d);
     } catch {}
   }
+  if (live.length) return live;
   return ensureQgis({ liveBase: LIVE_BASE });
 }
 

@@ -51,7 +51,13 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
     APIキーは AI Studio で発行。既定モデル `gemini-2.5-flash`
 - **モデル選択**: モデル欄は編集可コンボ。隣の「取得」ボタンで
   `GET {base}/models` から利用可能モデル一覧を取り込める
-  (GeminiではgenerateContent非対応モデルを除外)
+  (GeminiではgenerateContent非対応モデルを除外)。
+  一覧は種別(テキスト/画像入力可・画像生成・埋め込み等)で
+  グループ化され、各項目に価格(入力/出力, $/1Mトークン)を併記。
+  価格はOpenRouter等が返す `pricing`/`modality`/`context_length`
+  を優先し、無ければ主要モデルの既知価格表(参考値)を使う。
+  既定エンドポイント利用時は「取得」前から推奨モデル一覧を表示。
+  モデル欄の下に選択中モデルの種別・価格・コンテキスト長も出る
 - **ツール**: `mcp_http.TOOLS` と同じセット
   (`qgis_pyeval` / `qgis_screenshot` / `qgis_status` /
   `qgis_eval` / `qgis_devreload` / `qgis_open_plugin` /

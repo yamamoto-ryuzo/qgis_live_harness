@@ -136,6 +136,41 @@ Processing、QgsSettings、任意widgetの <code>grab()</code> による画像�
 <li><strong>実マウス/実キー</strong> — <code>QMouseEvent</code>/<code>QTest.mouseClick</code> のpostで模倣可能だが座標変換等の下ごしらえが必要</li>
 <li><strong>Python API未露出の内部機能</strong> — 稀だがC++ privateな振る舞いは不可</li>
 </ul>
+<h2>AIアシスタントパネル</h2>
+<p><code>プラグイン &gt; QGIS Live Driver &gt; AI アシスタント</code> で、
+LLM APIを接続してQGISを対話操作するチャット型ドックを開ける
+(<code>ai_panel.py</code> + <code>ai_client.py</code>)。
+モデルは上記コマンドに対応するツール群(<code>qgis_pyeval</code> /
+<code>qgis_screenshot</code> / …)をfunction callingでループ実行し、
+結果をチャットに返す。<strong>リモート制御トグルOFFでも動作</strong>する
+(外部公開面を持たないパネル専用の内部ドライバを使う)。</p>
+<figure class="media">
+<img src="images/ai-assistant-panel.png" alt="AIアシスタントパネル" style="max-width:380px">
+<img src="images/ai-assistant-models.png" alt="モデル選択ドロップダウン">
+<figcaption>AIアシスタントパネルとモデル選択ドロップダウン(種別グループ+価格併記)</figcaption>
+</figure>
+<ul>
+<li><strong>プロバイダ</strong>: OpenAI互換(<code>{base}/chat/completions</code> +
+function calling)とGemini(<code>{base}/models/{model}:generateContent</code> +
+functionDeclarations)。エンドポイントを変えればOllama・LM Studio・
+OpenRouter等の互換サーバも使える。設定はプロバイダごとに別保存</li>
+<li><strong>モデル選択</strong>: 編集可コンボ。隣の「取得」ボタンで
+<code>GET {base}/models</code> から利用可能モデル一覧を取り込む
+(GeminiではgenerateContent非対応モデルを除外)。
+一覧は種別(テキスト(画像入力可)/テキスト/画像生成/埋め込み/その他)で
+グループ化され、各項目に価格(入力/出力, $/1Mトークン)を併記。
+価格はOpenRouter等が返す <code>pricing</code>/<code>modality</code>/
+<code>context_length</code> を優先し、無ければ主要モデルの既知価格表
+(参考値)にフォールバック。既定エンドポイント利用時は「取得」前から
+推奨モデル一覧を予め表示し、選択中モデルの種別・価格・コンテキスト長は
+欄の下にも表示される</li>
+<li><strong>vision</strong>: 「スクリーンショットを画像として送信」をONにすると
+<code>qgis_screenshot</code> の結果を画像としてモデルに返す
+(非対応モデルではAPIエラーになるためOFFに)</li>
+<li><strong>APIキー</strong>: OSの資格情報ストアに保存(Windows=DPAPI /
+macOS=キーチェーン / Linux=Secret Service)。エンドポイント・モデルは
+QSettingsにプロバイダ別キーで保持</li>
+</ul>
 <h2>接続面(4系統・全て同じdispatchへ)</h2>
 <ul>
 <li><strong>ファイルJSONL</strong> — <code>commands.jsonl</code> 追記 → QTimerが実行 → <code>results.jsonl</code> 返却。

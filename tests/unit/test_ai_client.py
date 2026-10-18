@@ -327,13 +327,21 @@ class _ModelsStub(BaseHTTPRequestHandler):
         if self.path.startswith("/v1beta"):
             resp = {"models": [
                 {"name": "models/gemini-b",
-                 "supportedGenerationMethods": ["generateContent"]},
+                 "supportedGenerationMethods": ["generateContent"],
+                 "inputTokenLimit": 1048576},
                 {"name": "models/embed-a",
                  "supportedGenerationMethods": ["embedContent"]},
                 {"name": "models/gemini-a"},  # methods無しは含める
             ]}
         else:
-            resp = {"data": [{"id": "m2"}, {"id": "m1"}, {"noid": 1}]}
+            resp = {"data": [
+                {"id": "m2"},
+                {"id": "m1",
+                 "pricing": {"prompt": "0.00000015",
+                             "completion": "0.0000006"},
+                 "context_length": 128000,
+                 "architecture": {"modality": "text+image->text"}},
+                {"noid": 1}]}
         raw = json.dumps(resp).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
@@ -367,3 +375,74 @@ def test_gemini_list_models(models_server):
     assert models == ["gemini-a", "gemini-b"]
     assert models_server.last_req["path"] == "/v1beta/models"
     assert models_server.last_req["key"] == "g-key"
+
+
+# ---- モデルの種別・価格メタ情報 ----
+
+def test_classify_model():
+    c = ai_client.classify_model
+    assert c("gpt-4o-mini") == "chat_vision"
+    assert c("o3") == "chat_vision"
+    assert c("gpt-3.5-turbo") == "chat"
+    assert c("dall-e-3") == "image"
+    assert c("google/gemini-2.5-flash-image") == "image"
+    assert c("text-embedding-3-large") == "embed"
+    assert c("whisper-1") == "other"
+    assert c("anthropic/claude-sonnet-4") == "chat_vision"
+    # API応答のmodalityは名前ヒントより優先
+    assert c("strange-name", {"modality": "text+image->text"}) == \
+        "chat_vision"
+    assert c("strange-name", {"modality": "text->image"}) == "image"
+    assert c("strange-name",
+             {"input_modalities": ["text", "image"]}) == "chat_vision"
+
+
+def test_model_info_price():
+    # API応答のpricing(USD/token)を1Mトークンあたりに変換
+    i = ai_client.model_info({
+        "id": "openai/gpt-4o-mini",
+        "pricing": {"prompt": "0.00000015", "completion": "0.0000006"},
+        "context_length": 128000,
+        "modality": "text+image->text"})
+    assert i["kind"] == "chat_vision"
+    assert i["price"] == "$0.15/$0.60"
+    assert i["price_src"] == "api"
+    assert i["context"] == 128000
+    # 価格を返さないAPIでは既知価格表の参考値にフォールバック
+    k = ai_client.model_info({"id": "gpt-4o-mini-2024-07-18"})
+    assert k["price_src"] == "known" and k["price"] == "$0.15/$0.60"
+    # 未知モデルは価格無し・chat判定
+    u = ai_client.model_info({"id": "some-local-model"})
+    assert u["price"] is None and u["kind"] == "chat"
+
+
+def test_fmt_tokens_and_label():
+    assert ai_client.fmt_tokens(128000) == "128k"
+    assert ai_client.fmt_tokens(1048576) == "1.0M"
+    info = ai_client.model_info({"id": "gpt-4o-mini"})
+    label = ai_client.model_label(info)
+    assert label.startswith("gpt-4o-mini") and "$" in label
+    assert "種別" in ai_client.model_tooltip(info)
+
+
+def test_openai_list_model_infos(models_server):
+    port = models_server.server_address[1]
+    infos = ai_client.list_model_infos(
+        "openai", f"http://127.0.0.1:{port}/v1", "k")
+    m1 = next(i for i in infos if i["id"] == "m1")
+    assert m1["kind"] == "chat_vision"     # architecture.modality由来
+    assert m1["price_src"] == "api"
+    assert m1["price"] == "$0.15/$0.60"
+    assert m1["context"] == 128000
+    m2 = next(i for i in infos if i["id"] == "m2")
+    assert m2["price"] is None and m2["kind"] == "chat"
+
+
+def test_gemini_list_model_infos(models_server):
+    port = models_server.server_address[1]
+    infos = ai_client.list_model_infos(
+        "gemini", f"http://127.0.0.1:{port}/v1beta", "g-key")
+    assert [i["id"] for i in infos] == ["gemini-a", "gemini-b"]
+    gb = next(i for i in infos if i["id"] == "gemini-b")
+    assert gb["kind"] == "chat_vision"     # gemini名ヒント
+    assert gb["context"] == 1048576
