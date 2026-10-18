@@ -99,7 +99,12 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   `~/.qgis-live/<pid>-qgis_live_driver.json` に書き出す(QGIS_LIVE_REGISTRYで変更可)。
   さらに **AIアシスタントパネル**(`ai_panel.py`+`ai_client.py`)を内蔵:
   `プラグイン > QGIS Live Driver > AI アシスタント` で開くQtドックで、
-  OpenAI互換(`/chat/completions`)またはGemini(`generateContent`)の
+  OpenAI互換(`/chat/completions`)・Gemini(`generateContent`)・
+  GitHub Copilot(GitHubトークンを `copilot_internal/v2/token` で
+  短期トークンに交換し、応答の `endpoints.api` へ。
+  Pro/Business/Enterprise/EMU対応・失敗時は `copilot_internal/user`
+  でAPI先解決+生トークンBearerにフォールバック。
+  パネルの「GitHubでサインイン」はOAuthデバイスフロー)の
   APIを接続すると、モデルが `mcp_http.TOOLS` のツール群を
   `driver.submit()` 経由でループ実行する。リモート制御OFF時は
   パネル専用の内部ドライバで動く

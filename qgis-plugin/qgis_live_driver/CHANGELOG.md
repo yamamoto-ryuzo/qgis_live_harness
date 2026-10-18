@@ -3,6 +3,50 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
+## [0.6.0] - 2026-10-18
+
+### Added
+
+- **AIアシスタントに GitHub Copilot プロバイダを追加**(`ai_client.py` の
+  `CopilotProvider`)。メッセージ形式はOpenAI互換だが、認証はAPIキー欄の
+  GitHubトークン(`gho_`/`ghu_`/`ghp_`…)を
+  `api.github.com/copilot_internal/v2/token` で短期トークンに交換し、
+  応答の `endpoints.api`(individual/business/enterprise)へ送る
+  (トークンは期限切れ前までキャッシュ)。**対応プランは
+  Pro/Free/Business/Enterprise/EMU** — Business/Enterprise/EMUでは
+  `endpoints.api` がプラン別API先を返すため同じ経路で自動解決
+  (EMUのPAT制限時はデバイスフローを利用)。`v2/token` が応答しない環境では
+  `copilot_internal/user` でAPI先を解決しGitHubトークンをそのまま
+  Bearerに使う(`@github/copilot` CLI方式)フォールバック付き。
+  GitHub Copilotの契約が必要で、エンドポイントはVS Codeの
+  Copilot Chatと同じ内部APIを使う点に注意
+- **「GitHubでサインイン」ボタン**(`ai_panel.py`): copilot選択時のみ
+  表示され、OAuthデバイスフローでGitHubトークンを取得してAPIキー欄と
+  OS資格情報ストアへ保存。既定のclient_idはVS Codeの公開OAuth Appで、
+  同意画面には「Visual Studio Code」と表示される。
+  `QGIS_LIVE_GITHUB_CLIENT_ID` で独自OAuth Appに差し替え可
+- Copilotの `GET {api}/models` 応答(`capabilities.type`/`policy.state`/
+  `supports.vision`/`limits.max_context_window_tokens`)をパネルの
+  モデル一覧(種別・コンテキスト長付き)にマッピング
+- エンドポイントを既定から変更した場合はトークン交換せずGitHubトークンを
+  そのままBearerに使うため、copilot-api等の互換プロキシにも接続可能
+- **AI応答のMarkdownレンダリング**(`ai_panel.py`): アシスタントの
+  メッセージを `QTextDocument.setMarkdown()` で変換して表示し、
+  見出し・リスト・表・コードブロックが整形される。
+  user/tool/error表示は従来通りエスケープ済みテキスト
+- **チャット履歴**(`ai_panel.py`): 「新しいチャット」ボタンで現在の
+  会話を履歴コンボへ保存し新規開始(コンテキストもリセット)。
+  履歴コンボから過去チャットを選ぶと表示内容と会話コンテキストが
+  復元され、そのまま会話を継続できる。セッションはQGIS起動中のみ
+  メモリ保持(永続化はしない)
+- **ドックのタブ化**(`ai_panel.py`): パネル追加時に同じドック領域へ
+  表示中ドックがあれば `tabifyDockWidget` でタブ化し、
+  縦分割せずレイヤパネル等とタブで重なる(QGISプラグインの標準的な
+  振る舞い)
+- **API設定の表示切替**(`ai_panel.py`): 「新しいチャット」左の
+  「設定」トグルボタンでAPI設定ボックスを表示/非表示。
+  状態はQSettingsに保存。初回はAPIキー未設定時のみ開く
+
 ## [0.5.0] - 2026-10-18
 
 ### Added

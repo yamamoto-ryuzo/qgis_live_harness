@@ -49,6 +49,30 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
     (`POST {base}/models/{model}:generateContent` +
     functionDeclarations、認証は `x-goog-api-key`)。
     APIキーは AI Studio で発行。既定モデル `gemini-2.5-flash`
+  - **GitHub Copilot**: OpenAI互換のCopilot API
+    (`POST {api}/chat/completions`)。**GitHub Copilotの契約が必要**。
+    APIキー欄にはGitHubトークン(`gho_`/`ghu_`/`ghp_`…)を入れる。
+    内部で `api.github.com/copilot_internal/v2/token` に交換し、
+    応答の `endpoints.api` (individual/business/enterprise)へ送る。
+    `v2/token` が応答しない環境では `copilot_internal/user` で
+    API先だけを解決しGitHubトークンをそのままBearerに使う
+    (`@github/copilot` CLIと同じ動作)に自動フォールバック。
+    **「GitHubでサインイン」ボタン**でOAuthデバイスフローによる
+    トークン取得もできる(既定のclient_idはVS Codeの公開OAuth App。
+    `QGIS_LIVE_GITHUB_CLIENT_ID` で差し替え可)。
+    エンドポイントを既定から変えた場合はトークン交換せず
+    GitHubトークンをそのままBearerに使うため、
+    copilot-api等の互換プロキシにも繋がる。
+    **対応プラン**: Pro/Free/Business/Enterprise/EMU
+    (Enterprise Managed Users。EMUはエンタープライズから
+    Business/Enterpriseシートを付与された場合に使える)。
+    Business/Enterprise/EMUでは `endpoints.api` が
+    `api.business.`/`api.enterprise.githubcopilot.com` を返すため
+    同じ経路で自動解決される。EMUではPAT発行が企業ポリシーで
+    制限されうるため「GitHubでサインイン」(デバイスフロー)推奨。
+    組織のCopilotモデルポリシーで無効化されたモデルは
+    一覧・使用とも不可。IdP条件付きアクセス等の企業側制限は
+    アプリ側では回避不可
 - **モデル選択**: モデル欄は編集可コンボ。隣の「取得」ボタンで
   `GET {base}/models` から利用可能モデル一覧を取り込める
   (GeminiではgenerateContent非対応モデルを除外)。
@@ -58,6 +82,10 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
   を優先し、無ければ主要モデルの既知価格表(参考値)を使う。
   既定エンドポイント利用時は「取得」前から推奨モデル一覧を表示。
   モデル欄の下に選択中モデルの種別・価格・コンテキスト長も出る
+- **表示**: AI応答はMarkdownレンダリング(見出し/リスト/表/
+  コードブロック)。「新しいチャット」で現在の会話を履歴コンボへ
+  保存して新規開始。履歴コンボから過去チャットを開くと
+  表示とコンテキストが復元され会話を継続できる(QGIS起動中のみ保持)
 - **ツール**: `mcp_http.TOOLS` と同じセット
   (`qgis_pyeval` / `qgis_screenshot` / `qgis_status` /
   `qgis_eval` / `qgis_devreload` / `qgis_open_plugin` /

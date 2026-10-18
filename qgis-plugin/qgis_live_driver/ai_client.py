@@ -10,12 +10,17 @@ ai_panel.py(Qt層)から呼ばれる。QGIS/Qtに依存しないためpytest対�
   - "gemini": Google Gemini API
     (POST {base}/models/{model}:generateContent, functionDeclarations。
     認証は x-goog-api-key ヘッダ)
+  - "copilot": GitHub Copilot
+    (OpenAI互換の {api}/chat/completions。APIキー欄のGitHubトークンを
+    api.github.com/copilot_internal/v2/token で短期トークンに交換し、
+    応答の endpoints.api をAPI先に使う。Copilot契約が必要。
+    「GitHubでサインイン」ボタンはOAuthデバイスフローでトークンを取得)
 
 ツール定義は mcp_http.TOOLS(MCP/RESTと同一)を各プロバイダの
 スキーマに変換して使う。実行は LiveDriver.submit() に委譲するため
 このモジュール自体はQGISを触らない。
 
-プロバイダ抽象化: OpenAIProvider/GeminiProvider が
+プロバイダ抽象化: OpenAIProvider/GeminiProvider/CopilotProvider が
   build_messages / send / parse / append_exchange を実装し、
 ai_panel のエージェントループはプロバイダ非依存で回る。
 """
@@ -25,7 +30,10 @@ import json
 import os
 import re
 import tempfile
+import threading
+import time
 import urllib.error
+import urllib.parse
 import urllib.request
 import uuid
 
@@ -43,6 +51,35 @@ DEFAULT_MODEL = "gpt-4o-mini"
 GEMINI_DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
 GEMINI_DEFAULT_MODEL = "gemini-2.5-flash"
 
+# ---- GitHub Copilot ----
+# GitHub Copilot APIは公開仕様ではなく、VS CodeのCopilot Chatが使う
+# 内部エンドポイント。GitHubトークンを短期トークンに交換して使うのは
+# copilot-api等のコミュニティ実装と同じ経路。Copilot契約が必要。
+COPILOT_DEFAULT_BASE = "https://api.githubcopilot.com"
+COPILOT_DEFAULT_MODEL = "gpt-4o"
+COPILOT_TOKEN_URL = "https://api.github.com/copilot_internal/v2/token"
+# v2/tokenが応答しない環境でのフォールバック: 契約情報(endpoints.api/
+# access_type_sku)を返す。@github/copilot CLIが使う公式経路
+COPILOT_USER_URL = "https://api.github.com/copilot_internal/user"
+# api.githubcopilot.com が要求するクライアント識別ヘッダ。
+# 任意のEditor-Versionでは拒否されうるため、VS CodeのCopilot Chatが
+# 送る値(VS Code拡張・copilot-api等と同じデファクト)を使う。
+COPILOT_HEADERS = {
+    "Editor-Version": "vscode/1.99.3",
+    "Editor-Plugin-Version": "copilot-chat/0.26.7",
+    "Copilot-Integration-Id": "vscode-chat",
+    "Openai-Intent": "conversation-panel",
+    "User-Agent": "GitHubCopilotChat/0.26.7",
+}
+# OAuthデバイスフローのclient_id。既定はVS Codeの公開OAuth Appで、
+# 同意画面には「Visual Studio Code」と表示される(Copilot認可を受ける
+# デファクトの方法。copilot-api等も同値)。独自OAuth Appを使う場合は
+# 環境変数で差し替える。
+GITHUB_CLIENT_ID = os.environ.get("QGIS_LIVE_GITHUB_CLIENT_ID",
+                                  "Iv1.b507a08c87ecfe98")
+GITHUB_DEVICE_CODE_URL = "https://github.com/login/device/code"
+GITHUB_ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token"
+
 PROVIDERS = {
     "openai": {
         "label": "OpenAI互換",
@@ -57,6 +94,13 @@ PROVIDERS = {
         "model": GEMINI_DEFAULT_MODEL,
         "key_hint": "Gemini APIキー (AI Studioで発行)",
         "endpoint_hint": "https://generativelanguage.googleapis.com/v1beta",
+    },
+    "copilot": {
+        "label": "GitHub Copilot",
+        "base": COPILOT_DEFAULT_BASE,
+        "model": COPILOT_DEFAULT_MODEL,
+        "key_hint": "GitHubトークン (Copilot契約必須。「GitHubでサインイン」で自動取得可)",
+        "endpoint_hint": "https://api.githubcopilot.com  (copilot-api等の互換プロキシはそのURL)",
     },
 }
 
@@ -80,6 +124,8 @@ SUGGESTED_MODELS = {
                "gpt-4o-mini", "gpt-4o", "o4-mini"],
     "gemini": ["gemini-2.5-flash", "gemini-2.5-pro",
                "gemini-2.5-flash-lite", "gemini-2.0-flash"],
+    "copilot": ["gpt-4o", "gpt-4.1", "gpt-5-mini", "gpt-5", "o4-mini",
+                "claude-sonnet-4", "claude-3.7-sonnet", "gemini-2.5-pro"],
 }
 
 # 主要モデルの参考価格 (USD / 1Mトークン, [入力, 出力])。
@@ -332,6 +378,127 @@ def _post_json(url, headers, body, timeout=180.0):
         raise ApiError(f"接続失敗: {e.reason}") from e
 
 
+def _post_form(url, fields, timeout=30.0):
+    """application/x-www-form-urlencoded でPOSTして応答JSONを返す。"""
+    body = urllib.parse.urlencode(fields).encode("utf-8")
+    req = urllib.request.Request(
+        url, data=body, method="POST", headers={
+            "Accept": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
+        })
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return json.loads(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        detail = ""
+        try:
+            detail = e.read().decode("utf-8", "replace")[:500]
+        except Exception:
+            pass
+        raise ApiError(f"HTTP {e.code}: {detail or e.reason}") from e
+    except urllib.error.URLError as e:
+        raise ApiError(f"接続失敗: {e.reason}") from e
+
+
+# ---- GitHub Copilot: トークン交換 / OAuthデバイスフロー ----
+
+# GitHubトークン → {"token","expires_at","api"} のキャッシュ
+_COPILOT_CACHE = {}
+_COPILOT_CACHE_LOCK = threading.Lock()
+
+
+def _gh_headers(github_token):
+    return {"Authorization": f"token {github_token}",
+            "Accept": "application/json",
+            **COPILOT_HEADERS}
+
+
+def copilot_session(github_token, base):
+    """GitHubトークン → (Copilot APIのBearerトークン, API base) に解決する。
+
+    baseが既定(COPILOT_DEFAULT_BASE)の場合のみ、GitHubトークンを
+    copilot_internal/v2/token で短期トークンに交換し、応答の
+    endpoints.api (individual/business/enterprise) をAPI先に使う。
+    トークンは期限切れ60秒前までモジュール内キャッシュする。
+    v2/token が応答しない環境(404の報告あり)では
+    copilot_internal/user でAPI先だけを解決し、GitHubトークンを
+    そのままBearerに使う(@github/copilot CLIと同じ動作)。
+    既定以外のbaseはcopilot-api互換プロキシ等とみなし、
+    交換せずgithub_tokenをそのままBearerに使う。
+    """
+    u = (base or "").strip().rstrip("/") or COPILOT_DEFAULT_BASE
+    if not github_token:
+        raise ApiError(
+            "APIキー欄にGitHubトークンを入力するか、"
+            "「GitHubでサインイン」で取得してください")
+    if u != COPILOT_DEFAULT_BASE:
+        return github_token, u
+    now = time.time()
+    with _COPILOT_CACHE_LOCK:
+        ent = _COPILOT_CACHE.get(github_token)
+        if ent and ent["expires_at"] - now >= 60:
+            return ent["token"], ent["api"]
+        try:
+            data = _get_json(COPILOT_TOKEN_URL, _gh_headers(github_token))
+            tok = data.get("token")
+            if not tok:
+                raise ApiError(f"token無し: {str(data)[:200]}")
+            ent = {
+                "token": tok,
+                "expires_at": float(
+                    data.get("expires_at")
+                    or now + float(data.get("refresh_in") or 1500)),
+                "api": ((data.get("endpoints") or {}).get("api")
+                        or COPILOT_DEFAULT_BASE),
+            }
+        except ApiError as e1:
+            # フォールバック: copilot_internal/user でプラン別API先を
+            # 解決し、GitHubトークンをそのままBearerに使う
+            try:
+                user = _get_json(COPILOT_USER_URL,
+                                 _gh_headers(github_token))
+            except ApiError as e2:
+                raise ApiError(
+                    "Copilotトークンを取得できません"
+                    " (GitHubトークンが無効かCopilot未契約の可能性): "
+                    f"{e1} / {e2}") from e2
+            ent = {
+                "token": github_token,
+                "expires_at": now + 1500,
+                "api": ((user.get("endpoints") or {}).get("api")
+                        or COPILOT_DEFAULT_BASE),
+            }
+        _COPILOT_CACHE[github_token] = ent
+        return ent["token"], ent["api"]
+
+
+def github_device_code(scope="read:user"):
+    """OAuthデバイスフローを開始する。
+
+    @returns {"device_code","user_code","verification_uri",
+              "interval","expires_in"} — ユーザにverification_uriで
+      user_codeを入力させ、device_codeをポーリングに使う
+    """
+    d = _post_form(GITHUB_DEVICE_CODE_URL,
+                   {"client_id": GITHUB_CLIENT_ID, "scope": scope})
+    if not d.get("device_code") or not d.get("user_code"):
+        raise ApiError(f"デバイスコードの応答が不正: {str(d)[:300]}")
+    return d
+
+
+def github_poll_access_token(device_code):
+    """デバイスフローのトークンを1回ポーリングする。
+
+    @returns API応答dict。{"access_token": ...} なら完了、
+      {"error": "authorization_pending"|"slow_down"|...} は未完了/失敗
+      (GitHubは未認可でもHTTP 200でerrorフィールドを返す)
+    """
+    return _post_form(GITHUB_ACCESS_TOKEN_URL, {
+        "client_id": GITHUB_CLIENT_ID,
+        "device_code": device_code,
+        "grant_type": "urn:ietf:params:oauth:grant-type:device_code"})
+
+
 # ---- OpenAI互換 (Chat Completions) ----
 
 def openai_models_url(base):
@@ -376,9 +543,10 @@ def openai_tools(allowed=None):
 
 
 def chat_completions(base, api_key, model, messages, tools=None,
-                     timeout=180.0, extra=None):
+                     timeout=180.0, extra=None, headers=None):
     """POST {base}/chat/completions (非ストリーミング)して応答JSONを返す。
 
+    @param headers: Authorization以外に追加するヘッダ(Copilot用)
     @raises ApiError: HTTP/接続エラー・応答形式不正
     """
     body = {"model": model, "messages": messages}
@@ -387,8 +555,10 @@ def chat_completions(base, api_key, model, messages, tools=None,
         body["tool_choice"] = "auto"
     if extra:
         body.update(extra)
-    headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
-    data = _post_json(endpoint_url(base), headers, body, timeout)
+    hdrs = dict(headers or {})
+    if api_key:
+        hdrs["Authorization"] = f"Bearer {api_key}"
+    data = _post_json(endpoint_url(base), hdrs, body, timeout)
     if not isinstance(data, dict) or not data.get("choices"):
         raise ApiError(f"応答形式が不正です: {str(data)[:300]}")
     return data
@@ -713,7 +883,65 @@ class GeminiProvider:
         msgs.append({"role": "user", "parts": parts})
 
 
-_PROVIDERS = {"openai": OpenAIProvider, "gemini": GeminiProvider}
+class CopilotProvider(OpenAIProvider):
+    """GitHub Copilot。
+
+    メッセージ形式はOpenAI互換なので build_messages/parse/
+    append_exchange は OpenAIProvider を継承。違いは認証だけ:
+    APIキー欄のGitHubトークンを copilot_session() で短期トークンに
+    交換し、契約種別に応じたAPI先(endpoints.api)を使う。
+    """
+    id = "copilot"
+    label = PROVIDERS["copilot"]["label"]
+
+    def list_model_entries(self, base, key, timeout=30.0):
+        """GET {api}/models → chat対応モデル一覧。
+
+        Copilot APIの応答は capabilities.type / policy.state /
+        capabilities.limits.max_context_window_tokens /
+        supports.vision を持つため、種別とコンテキスト長の判定に使う。
+        capabilitiesを持たない応答(互換プロキシ等)は全件採用する。
+        """
+        tok, api_base = copilot_session(key, base)
+        data = _get_json(
+            api_base.rstrip("/") + "/models",
+            {"Authorization": f"Bearer {tok}", **COPILOT_HEADERS},
+            timeout)
+        items = data.get("data") if isinstance(data, dict) else None
+        if not isinstance(items, list):
+            raise ApiError(f"応答形式が不正です: {str(data)[:300]}")
+        out = []
+        for m in items:
+            if not isinstance(m, dict) or not m.get("id"):
+                continue
+            caps = m.get("capabilities")
+            if not isinstance(caps, dict):
+                out.append({"id": m["id"]})
+                continue
+            if caps.get("type") not in (None, "chat"):
+                continue
+            if (m.get("policy") or {}).get("state") == "disabled":
+                continue
+            e = {"id": m["id"],
+                 "input_modalities":
+                     ["text", "image"]
+                     if (caps.get("supports") or {}).get("vision")
+                     else ["text"]}
+            lim = caps.get("limits") or {}
+            if lim.get("max_context_window_tokens"):
+                e["context_length"] = lim["max_context_window_tokens"]
+            out.append(e)
+        return sorted(out, key=lambda e: e["id"])
+
+    def send(self, base, key, model, system, msgs, timeout=180.0):
+        tok, api_base = copilot_session(key, base)
+        return chat_completions(api_base, tok, model, msgs,
+                                tools=openai_tools(), timeout=timeout,
+                                headers=COPILOT_HEADERS)
+
+
+_PROVIDERS = {"openai": OpenAIProvider, "gemini": GeminiProvider,
+              "copilot": CopilotProvider}
 
 
 def get_provider(provider):

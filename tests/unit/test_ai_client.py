@@ -6,6 +6,8 @@
 
 import json
 import threading
+import time
+import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
@@ -182,6 +184,7 @@ def test_models_url():
 def test_provider_registry():
     assert ai_client.get_provider("openai").id == "openai"
     assert ai_client.get_provider("gemini").id == "gemini"
+    assert ai_client.get_provider("copilot").id == "copilot"
     with pytest.raises(ai_client.ApiError):
         ai_client.get_provider("nope")
     assert ai_client.provider_defaults("gemini")["model"] == \
@@ -446,3 +449,207 @@ def test_gemini_list_model_infos(models_server):
     gb = next(i for i in infos if i["id"] == "gemini-b")
     assert gb["kind"] == "chat_vision"     # gemini名ヒント
     assert gb["context"] == 1048576
+
+
+# ---- GitHub Copilot ----
+
+class _CopilotStub(BaseHTTPRequestHandler):
+    """copilot_internalトークン交換・Copilot API・OAuthの統合スタブ。"""
+
+    def log_message(self, *a):
+        pass
+
+    def _json(self, resp):
+        raw = json.dumps(resp).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(raw)))
+        self.end_headers()
+        self.wfile.write(raw)
+
+    def _record(self):
+        self.server.reqs.append({
+            "path": self.path,
+            "auth": self.headers.get("Authorization"),
+            "editor": self.headers.get("Editor-Version"),
+        })
+
+    def do_GET(self):
+        self._record()
+        port = self.server.server_address[1]
+        if "/copilot_internal/v2/token" in self.path:
+            if getattr(self.server, "v2_fail", False):
+                self.send_response(404)
+                self.end_headers()
+                return
+            self._json({"token": "ct-1", "expires_at": time.time() + 1800,
+                        "endpoints": {"api": f"http://127.0.0.1:{port}"}})
+        elif "/copilot_internal/user" in self.path:
+            self._json({"copilot_plan": "business",
+                        "endpoints": {"api": f"http://127.0.0.1:{port}"}})
+        elif self.path == "/models":
+            self._json({"data": [
+                {"id": "gpt-4o",
+                 "capabilities": {"type": "chat",
+                     "limits": {"max_context_window_tokens": 128000},
+                     "supports": {"tool_calls": True, "vision": True}},
+                 "policy": {"state": "enabled"}},
+                {"id": "embed-x", "capabilities": {"type": "embedding"}},
+                {"id": "off-m", "capabilities": {"type": "chat"},
+                 "policy": {"state": "disabled"}},
+                {"id": "plain-m"}]})
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def do_POST(self):
+        body = self.rfile.read(int(self.headers.get("Content-Length") or 0))
+        self._record()
+        if self.path == "/login/device/code":
+            self.server.last_form = urllib.parse.parse_qs(body.decode())
+            self._json({"device_code": "dc-1", "user_code": "ABCD-1234",
+                        "verification_uri":
+                            "https://github.com/login/device",
+                        "interval": 5, "expires_in": 900})
+        elif self.path == "/login/oauth/access_token":
+            self.server.last_form = urllib.parse.parse_qs(body.decode())
+            self._json({"access_token": "gho_test",
+                        "token_type": "bearer"})
+        else:
+            self.server.last_json = json.loads(body.decode())
+            self._json({"choices": [{"message": {"role": "assistant",
+                                                 "content": "hi"}}]})
+
+
+@pytest.fixture
+def copilot_server(monkeypatch):
+    """Copilot系URLをスタブへ向け、トークンキャッシュをクリアする。"""
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), _CopilotStub)
+    httpd.reqs = []
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    port = httpd.server_address[1]
+    ai_client._COPILOT_CACHE.clear()
+    monkeypatch.setattr(
+        ai_client, "COPILOT_TOKEN_URL",
+        f"http://127.0.0.1:{port}/copilot_internal/v2/token")
+    monkeypatch.setattr(
+        ai_client, "COPILOT_USER_URL",
+        f"http://127.0.0.1:{port}/copilot_internal/user")
+    monkeypatch.setattr(
+        ai_client, "GITHUB_DEVICE_CODE_URL",
+        f"http://127.0.0.1:{port}/login/device/code")
+    monkeypatch.setattr(
+        ai_client, "GITHUB_ACCESS_TOKEN_URL",
+        f"http://127.0.0.1:{port}/login/oauth/access_token")
+    yield httpd
+    httpd.shutdown()
+    ai_client._COPILOT_CACHE.clear()
+
+
+def test_copilot_send_exchanges_token(copilot_server):
+    """既定base: GitHubトークンをCopilotトークンに交換して送信。"""
+    prov = ai_client.get_provider("copilot")
+    msgs = [{"role": "user", "content": "hello"}]
+    data = prov.send("https://api.githubcopilot.com", "gh-tok",
+                     "gpt-4o", "sys", msgs)
+    assert data["choices"][0]["message"]["content"] == "hi"
+    exch = next(r for r in copilot_server.reqs
+                if "copilot_internal" in r["path"])
+    assert exch["auth"] == "token gh-tok"
+    post = next(r for r in copilot_server.reqs
+                if r["path"] == "/chat/completions")
+    assert post["auth"] == "Bearer ct-1"     # 交換後トークンで認証
+    assert post["editor"]                    # Copilot用クライアントヘッダ
+    assert copilot_server.last_json["tools"]  # function calling付き
+    # 2回目はキャッシュで交換APIを呼ばない
+    prov.send("https://api.githubcopilot.com", "gh-tok", "gpt-4o",
+              "sys", msgs)
+    assert len([r for r in copilot_server.reqs
+                if "copilot_internal" in r["path"]]) == 1
+
+
+def test_copilot_passthrough_custom_base(copilot_server):
+    """既定外エンドポイント(copilot-api互換プロキシ)は交換せず
+    GitHubトークンをそのままBearerに使う。"""
+    port = copilot_server.server_address[1]
+    prov = ai_client.get_provider("copilot")
+    prov.send(f"http://127.0.0.1:{port}/v1", "gh-tok", "m", "s",
+              [{"role": "user", "content": "x"}])
+    assert not any("copilot_internal" in r["path"]
+                   for r in copilot_server.reqs)
+    post = copilot_server.reqs[-1]
+    assert post["path"] == "/v1/chat/completions"
+    assert post["auth"] == "Bearer gh-tok"
+
+
+def test_copilot_list_model_entries(copilot_server):
+    infos = ai_client.list_model_infos(
+        "copilot", "https://api.githubcopilot.com", "gh-tok")
+    # embedding型とpolicy=disabledは除外。capabilities無しは採用
+    assert [i["id"] for i in infos] == ["gpt-4o", "plain-m"]
+    g = next(i for i in infos if i["id"] == "gpt-4o")
+    assert g["kind"] == "chat_vision"     # supports.vision由来
+    assert g["context"] == 128000
+    exch = next(r for r in copilot_server.reqs
+                if "copilot_internal" in r["path"])
+    assert exch["auth"] == "token gh-tok"
+
+
+def test_copilot_missing_key():
+    prov = ai_client.get_provider("copilot")
+    with pytest.raises(ai_client.ApiError):
+        prov.send("https://api.githubcopilot.com", "", "m", "s", [])
+
+
+def test_copilot_user_endpoint_fallback(copilot_server):
+    """v2/tokenが404の環境では copilot_internal/user でAPI先を解決し、
+    GitHubトークンをそのままBearerに使う(CLI方式)。"""
+    copilot_server.v2_fail = True
+    prov = ai_client.get_provider("copilot")
+    data = prov.send("https://api.githubcopilot.com", "gh-tok",
+                     "m", "s", [{"role": "user", "content": "x"}])
+    assert data["choices"][0]["message"]["content"] == "hi"
+    paths = [r["path"] for r in copilot_server.reqs]
+    assert "/copilot_internal/user" in " ".join(paths)
+    post = next(r for r in copilot_server.reqs
+                if r["path"] == "/chat/completions")
+    assert post["auth"] == "Bearer gh-tok"    # 生トークンで直接認証
+
+
+def test_copilot_auth_failure(copilot_server, monkeypatch):
+    """トークン交換も契約情報も失敗する場合はApiError。"""
+    copilot_server.v2_fail = True  # v2/tokenを404にしてfallbackさせる
+
+    class _DenyAll(_CopilotStub):
+        def do_GET(self):
+            self._record()
+            self.send_response(401)
+            self.end_headers()
+
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), _DenyAll)
+    httpd.reqs = []
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    try:
+        monkeypatch.setattr(
+            ai_client, "COPILOT_USER_URL",
+            f"http://127.0.0.1:{httpd.server_address[1]}/u")
+        with pytest.raises(ai_client.ApiError) as ei:
+            ai_client.copilot_session(
+                "bad-tok", "https://api.githubcopilot.com")
+        assert "401" in str(ei.value)
+    finally:
+        httpd.shutdown()
+
+
+def test_github_device_flow(copilot_server):
+    d = ai_client.github_device_code()
+    assert d["device_code"] == "dc-1" and d["user_code"] == "ABCD-1234"
+    f = copilot_server.last_form
+    assert f["client_id"][0] == ai_client.GITHUB_CLIENT_ID
+    assert f["scope"] == ["read:user"]
+    r = ai_client.github_poll_access_token(d["device_code"])
+    assert r["access_token"] == "gho_test"
+    f = copilot_server.last_form
+    assert f["device_code"] == ["dc-1"]
+    assert f["grant_type"] == [
+        "urn:ietf:params:oauth:grant-type:device_code"]
