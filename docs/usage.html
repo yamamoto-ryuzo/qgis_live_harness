@@ -14,6 +14,7 @@
       <div class="group">はじめに</div>
       <a class="navlink" href="index.html">概要</a>
       <a class="navlink active" href="usage.html">使い方・セットアップ</a>
+      <a class="navlink" href="security.html">セキュリティ</a>
       <div class="group">コンポーネント</div>
       <a class="navlink" href="driver.html">QGIS Live Driver</a>
       <a class="navlink" href="harness.html">QGIS Live Harness</a>
@@ -51,8 +52,13 @@
 </ol>
 <p>できること: <code>pyeval</code>(任意Python実行・iface/QgsProjectに直接アクセス)/
 <code>screenshot</code>/<code>status</code>/<code>open_plugin</code>/<code>reload_plugin</code>/
-<code>bridge_call</code> + <code>plugin_id</code> 転送(hub)。
-認証・脅威モデルは <a href="driver.html">QGIS Live Driver</a> を参照。</p>
+<code>bridge_call</code> + <code>plugin_id</code> 転送(hub)。</p>
+<blockquote>
+<p><strong>セキュリティの境界</strong>: localhost限定・全チャネルでセッショントークン必須で、
+他のOSユーザ・ブラウザ発のページ・外部ネットワークからは遮断される。
+ただし<strong>同一ユーザ権限のプロセスはトークンを読めるため防げない</strong>
+(信頼境界=ローカルユーザアカウント)。詳細は <a href="security.html">セキュリティモデル</a> を参照。</p>
+</blockquote>
 <h2>使い方(B): Harnessでプラグインを開発する</h2>
 <p><strong>WebEngineベースのQGISプラグインをAIと一緒に作りたい人向け。リポジトリをクローンして使う。</strong></p>
 <h3>セットアップ(初回のみ)</h3>
@@ -179,7 +185,7 @@ docs/                 GitHub Pages用HTML(直接編集)
 </code></pre>
 <nav class="pager">
   <a href="index.html"><span class="dir">前へ</span><span class="title">概要</span></a>
-  <a class="next" href="driver.html"><span class="dir">次へ</span><span class="title">QGIS Live Driver</span></a>
+  <a class="next" href="security.html"><span class="dir">次へ</span><span class="title">セキュリティ</span></a>
 </nav>
   </main>
   <aside class="toc"></aside>

@@ -14,6 +14,7 @@
       <div class="group">はじめに</div>
       <a class="navlink active" href="index.html">概要</a>
       <a class="navlink" href="usage.html">使い方・セットアップ</a>
+      <a class="navlink" href="security.html">セキュリティ</a>
       <div class="group">コンポーネント</div>
       <a class="navlink" href="driver.html">QGIS Live Driver</a>
       <a class="navlink" href="harness.html">QGIS Live Harness</a>
@@ -35,6 +36,7 @@
 (リポジトリ/ディレクトリ名: <code>qgis_live_harness</code>)</p>
 <ul class="cards">
 <li><a class="card" href="usage.html"><b>使い方・セットアップ</b><span>まずここ。Driver単体利用 / Harnessでのプラグイン開発の手順</span></a></li>
+<li><a class="card" href="security.html"><b>セキュリティ</b><span>脅威モデル・認証方式・防御の限界。有効化前に読む</span></a></li>
 <li><a class="card" href="driver.html"><b>QGIS Live Driver</b><span>QGIS内で動く制御専用プラグイン。単独導入できる汎用部品</span></a></li>
 <li><a class="card" href="harness.html"><b>QGIS Live Harness</b><span>Driverの上に乗るクライアントAPI・セッション管理・検証基盤</span></a></li>
 <li><a class="card" href="distribution.html"><b>プラグイン配布</b><span>開発したプラグインを単独配布物にする手順と注意点</span></a></li>
@@ -135,7 +137,7 @@ eval/pyeval/スクショで観測→test:liveで検証」を人間なしで反�
 <strong>localhost限定・セッショントークン認証必須</strong>で保護される
 (トークンはユーザ限定ACLファイルにのみ保存)。有効化は
 <code>WEBENGINE_LIVE_DIR</code> env またはメニュートグル。
-配布手順は<a href="distribution.html">プラグイン配布</a>を参照</li>
+脅威モデルは<a href="security.html">セキュリティ</a>、配布手順は<a href="distribution.html">プラグイン配布</a>を参照</li>
 <li>重いQGIS操作(大きなプロジェクトでのレイヤーアクティブ化等)の直後は
 JS側evalが一時的に飢餓することがある。その場合はpyevalで確認する</li>
 <li>詳細な仕組み・制約は <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/AGENTS.md">AGENTS.md</a> を参照</li>

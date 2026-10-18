@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>セキュリティ | QGIS Live Harness</title>
+<meta name="description" content="QGIS Live Driverの脅威モデル・認証方式・防御の限界">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="site"><span class="logo">Q</span>QGIS Live Harness</div>
+    <div class="links">
+      <div class="group">はじめに</div>
+      <a class="navlink" href="index.html">概要</a>
+      <a class="navlink" href="usage.html">使い方・セットアップ</a>
+      <a class="navlink active" href="security.html">セキュリティ</a>
+      <div class="group">コンポーネント</div>
+      <a class="navlink" href="driver.html">QGIS Live Driver</a>
+      <a class="navlink" href="harness.html">QGIS Live Harness</a>
+      <div class="group">ガイド</div>
+      <a class="navlink" href="distribution.html">プラグイン配布</a>
+      <a class="navlink" href="internals.html">Harnessのプラグイン化</a>
+      <div class="group">リンク</div>
+      <a class="navlink ext" href="https://github.com/yamamoto-ryuzo/qgis_live_harness">GitHub リポジトリ</a>
+    </div>
+  </nav>
+  <div class="content">
+  <main>
+<header class="page-header">
+<p class="eyebrow">Security</p>
+<h1>セキュリティモデル</h1>
+<p class="lead">任意コード実行を持つリモート制御プラグインを、一般ユーザーに配布できる水準で守るための設計。</p>
+</header>
+
+<h2>なぜ対策が必要か</h2>
+<p>QGIS Live Driver が提供する <code>pyeval</code> は <strong>QGISプロセス内での任意Python実行</strong>です。
+<code>iface</code>・<code>QgsProject</code>・OS APIにフルアクセスでき、実質的にQGISユーザ権限での
+任意コード実行に相当します。対策なしに有効化すると「認証なしのローカルRCEサーバ」が
+常駐する形になるため、Driverは<strong>既定で無害・有効化はopt-in・全チャネル認証必須</strong>
+という設計になっています。</p>
+
+<h2>防御の全体像</h2>
+<pre><code class="language-mermaid">flowchart TB
+    subgraph ATK["遮断される相手"]
+        direction TB
+        A1["外部ネットワーク"]
+        A2["同一マシンの他OSユーザ"]
+        A3["ブラウザ内の悪意ページ"]
+    end
+    A1 & A2 & A3 -.->|遮断| D1
+    D1["1. 既定OFF(opt-in有効化)"]
+    D2["2. 127.0.0.1 バインドのみ"]
+    D3["3. 全チャネルでセッショントークン必須&lt;br/&gt;(トークンはユーザ限定ACLファイルに保存)"]
+    D4["4. Host/Origin がloopback以外なら拒否"]
+    SVC["QGIS Live Driver&lt;br/&gt;pyeval / screenshot / bridge_call ..."]
+    D1 --> D2 --> D3 --> D4 --> SVC
+</code></pre>
+
+<h2>攻撃者モデル:誰を防ぎ、誰を防がないか</h2>
+<table>
+<thead>
+<tr><th>相手</th><th>到達性</th><th>結果</th><th>防御手段</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>外部ネットワーク</td>
+<td>不可</td>
+<td>接続自体が拒否</td>
+<td><code>127.0.0.1</code> へのみバインド。トンネル公開は設計対象外</td>
+</tr>
+<tr>
+<td>同一マシンの<strong>他OSユーザ</strong></td>
+<td>ポートには届く</td>
+<td>トークンを読めず全要求が拒否</td>
+<td>トークンファイル・レジストリにユーザ限定ACL(Windows: icacls / POSIX: chmod 600)</td>
+</tr>
+<tr>
+<td><strong>ブラウザ内の悪意ページ</strong>(ドライブバイ)</td>
+<td>no-cors POSTは届く</td>
+<td>トークン不在で401/破棄</td>
+<td>全エンドポイントでトークン照合 + Host/Origin がloopback以外なら403</td>
+</tr>
+<tr>
+<td>同一ユーザ権限の任意プロセス</td>
+<td>届く</td>
+<td><strong>防げない</strong>(トークンを読める)</td>
+<td>なし — これが脅威モデルの境界(下記)</td>
+</tr>
+</tbody>
+</table>
+
+<h2>各防御層の詳細</h2>
+<h3>1. 既定無害(有効化はopt-in)</h3>
+<p>インストール直後は何もしません。起動するのは次のどちらかの場合だけです:</p>
+<ul>
+<li><code>WEBENGINE_LIVE_DIR</code> 環境変数が設定されている(開発・自動化用)</li>
+<li>メニュー <code>プラグイン &gt; QGIS Live Driver &gt; リモート制御 (localhostのみ)</code> をON
+(初回は警告ダイアログを表示し、QSettingsに永続化)</li>
+</ul>
+<p>OFFの間はHTTPポートもlive dirも作られないため、攻撃面は存在しません。</p>
+<h3>2. localhost限定</h3>
+<p>内蔵HTTPサーバは <code>127.0.0.1</code> にのみバインドします。LAN/外部からは到達不能です。
+ngrok等のトンネル経由でも <code>Host</code> ヘッダがloopback以外になるため403で拒否されます
+(外部公開は設計対象外)。</p>
+<h3>3. セッショントークン(全チャネル必須)</h3>
+<ul>
+<li>起動ごとに <code>secrets.token_hex(24)</code> で新規生成。使い回しなし</li>
+<li><strong>HTTP</strong>: <code>Authorization: Bearer</code> / <code>X-Api-Key</code> / <code>api-key</code> のいずれか。
+無認証は401(例外は <code>/api/health</code> のみ)</li>
+<li><strong>ファイルJSONL</strong>: <code>commands.jsonl</code> の各行に <code>"token"</code> を必須化し
+<code>hmac.compare_digest</code> で照合。不一致は <code>unauthorized</code> で破棄</li>
+<li><strong>MCP</strong>(/mcp・stdio shim): HTTPと同じ照合</li>
+<li>トークンを知らなければ、ポートを発見しても一切実行できません</li>
+</ul>
+<h3>4. Host/Origin検証(ブラウザ経由対策)</h3>
+<p>ブラウザからは <code>fetch(url, {mode:'no-cors'})</code> でlocalhostへPOSTできます(DNSリバインドや
+悪意ページのドライブバイ攻撃)。これに対し <code>Host</code>/<code>Origin</code> が
+<code>127.0.0.1</code>/<code>localhost</code> 以外を指す要求は403で拒否します。
+トークン必須と合わせた二重の防御です。</p>
+<h3>5. トークンの保存とACL</h3>
+<p>トークンは <code>&lt;live_dir&gt;/token</code> とレジストリJSON
+(<code>~/.qgis-live/&lt;pid&gt;-qgis_live_driver.json</code>)にのみ保存され、
+作成直後にユーザ限定ACLを適用します(Windows: <code>icacls /inheritance:r + /grant:r</code>、
+POSIX: <code>chmod 600</code>)。正規クライアント(Harness・mcp_stdio.py・自作ツール)は
+ここから自動読み取りするため、利用者がトークンを意識する必要はありません。</p>
+
+<h2>脅威モデルの境界(防げないもの)</h2>
+<blockquote>
+<p><strong>同一ユーザ権限で動く任意プロセスは防げません。</strong>
+トークンファイルを読めるため、あなたのアカウントで動くマルウェアには防御不能です。
+これはOSの責任範囲であり、あらゆるlocalhostサービスに共通する限界です。
+<strong>信頼境界はローカルユーザアカウントです。</strong></p>
+</blockquote>
+<p>その他の残存リスク:</p>
+<ul>
+<li><code>pyeval</code> はGUIスレッドで同期実行されるため、重いコードはQGISを固まらせ得る
+(正当ユーザのみが実行可能だが、運用上の注意点)</li>
+<li><code>screenshot</code> は呼び出し側指定パスへPNGを書き込む(トークン保持者のみ)</li>
+<li>トークンを外部へ公開・コミットしないこと(扱いはパスワードと同等)</li>
+</ul>
+
+<h2>運用上の推奨</h2>
+<ul>
+<li><strong>公開コマンドの絞り込み</strong>: <code>QGIS_LIVE_TOOLS</code> envでコマンド種別を
+ホワイトリスト化できる(<code>pyeval</code>を外せば読み取り系のみに限定可能)</li>
+<li><strong>追加キーの併用</strong>: <code>QGIS_LIVE_API_KEY</code> envを設定すると
+セッショントークンとは別の固定キーも受理される(自動化で固定認証情報が必要な場合向け)</li>
+<li><strong>トンネル公開をしない</strong>: Host/Origin検証でそもそも拒否される設計。
+外部公開が必要な用途はこのプラグインの対象外</li>
+<li>自作プラグインを配布する際は <a href="distribution.html">プラグイン配布</a> の
+「開発用機構の除去」を参照(Driverは例外で、単体配布が前提の製品)</li>
+</ul>
+
+<h2>脆弱性の報告</h2>
+<p>セキュリティ上の問題を見つけた場合は、公開Issueではなく
+<a href="https://github.com/yamamoto-ryuzo/qgis_live_harness">GitHubリポジトリ</a> の
+メンテナへ個別に連絡してください(リポジトリの <code>SECURITY.md</code> も参照)。</p>
+
+<nav class="pager">
+  <a href="usage.html"><span class="dir">前へ</span><span class="title">使い方・セットアップ</span></a>
+  <a class="next" href="driver.html"><span class="dir">次へ</span><span class="title">QGIS Live Driver</span></a>
+</nav>
+  </main>
+  <aside class="toc"></aside>
+  </div>
+<script type="module" src="assets/site.js"></script>
+</body>
+</html>

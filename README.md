@@ -46,6 +46,7 @@ eval/pyeval/スクショで観測→test:liveで検証」を人間なしで反�
 |---|---|
 | [概要](https://yamamoto-ryuzo.github.io/qgis_live_harness/) | システム全体像・2層構成 |
 | [使い方・セットアップ](https://yamamoto-ryuzo.github.io/qgis_live_harness/usage.html) | Driver単体利用 / Harnessでのプラグイン開発・テスト・外部API一覧 |
+| [セキュリティ](https://yamamoto-ryuzo.github.io/qgis_live_harness/security.html) | 脅威モデル・認証方式・防御の限界 |
 | [QGIS Live Driver](https://yamamoto-ryuzo.github.io/qgis_live_harness/driver.html) | 汎用制御プラグイン。pyeval・REST・MCP・plugin_id転送(hub) |
 | [QGIS Live Harness](https://yamamoto-ryuzo.github.io/qgis_live_harness/harness.html) | LivePage・ensure/devreload・MCP連携・プラグイン自動化環境 |
 | [プラグイン配布](https://yamamoto-ryuzo.github.io/qgis_live_harness/distribution.html) | 配布物の構成と配布時に除去するもの |
