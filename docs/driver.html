@@ -13,11 +13,11 @@
     <div class="links">
       <div class="group">はじめに</div>
       <a class="navlink" href="index.html">概要</a>
+      <a class="navlink" href="usage.html">使い方・セットアップ</a>
       <div class="group">コンポーネント</div>
       <a class="navlink active" href="driver.html">QGIS Live Driver</a>
       <a class="navlink" href="harness.html">QGIS Live Harness</a>
       <div class="group">ガイド</div>
-      <a class="navlink" href="usage.html">構成・セットアップ・使い方</a>
       <a class="navlink" href="distribution.html">プラグイン配布</a>
       <a class="navlink" href="internals.html">Harnessのプラグイン化</a>
       <div class="group">リンク</div>
@@ -134,7 +134,7 @@ Processing、QgsSettings、任意widgetの <code>grab()</code> による画像�
 <h2>接続面(4系統・全て同じdispatchへ)</h2>
 <ul>
 <li><strong>ファイルJSONL</strong> — <code>commands.jsonl</code> 追記 → QTimerが実行 → <code>results.jsonl</code> 返却。
-<strong>言語非依存の最下位輸送層</strong></li>
+<strong>言語非依存の最下位輸送層</strong>(各行に <code>token</code> 必須、後述)</li>
 <li><strong>HTTP REST</strong> — <code>POST 127.0.0.1:&lt;port&gt;/api/pyeval</code> <code>{&quot;code&quot;:&quot;...&quot;}</code> 等。
 MCPを知らないfunction calling系AI・curl・自作エージェント向け</li>
 <li><strong>MCP Streamable HTTP</strong> — <code>POST 127.0.0.1:&lt;port&gt;/mcp</code>(JSON-RPC)</li>
@@ -143,8 +143,9 @@ MCPを知らないfunction calling系AI・curl・自作エージェント向け<
 <p>②③はプラグイン内蔵の <code>http.server</code>(stdlibのみ・<code>127.0.0.1</code>・空きポート自動選択)が提供。
 ワーカースレッドが受けた命令は <code>driver.submit()</code> でメモリキューに入り、
 GUIスレッドのQTimerがファイルJSONLと同じ要領で実行する(dispatchは1本に統一)。
-ポート番号等の接続情報は <strong><code>~/.qgis-live/&lt;pid&gt;-qgis_live_driver.json</code></strong> に書き出され、
-クライアントはここから自動検出できる(<code>QGIS_LIVE_REGISTRY</code>で変更可)。</p>
+ポート番号・live dir・認証トークン等の接続情報は <strong><code>~/.qgis-live/&lt;pid&gt;-qgis_live_driver.json</code></strong> に書き出され、
+クライアントはここから自動検出できる(<code>QGIS_LIVE_REGISTRY</code>で変更可)。
+このファイルと <code>live_dir/token</code> はユーザ限定ACLで作成される。</p>
 <pre><code class="language-mermaid">flowchart TB
     subgraph EXT[&quot;外部クライアント(Harnessでも第三者アプリでも)&quot;]
         APP[&quot;任意言語のアプリ&quot;]
@@ -215,31 +216,37 @@ GUIスレッドのQTimerがファイルJSONLと同じ要領で実行する(dispa
 <p>MCP tools は <code>qgis_&lt;コマンド種別&gt;</code> の命名で、引数はコマンドJSONの
 キーにそのまま対応する(<code>plugin_id</code> / <code>target</code> / <code>method</code> / <code>args</code> 等)。</p>
 <h3>ファイルプロトコル詳細</h3>
-<p>環境変数 <code>WEBENGINE_LIVE_DIR</code> が設定された状態でQGISが起動すると、
-<code>initGui</code> 時に <code>live_driver.py</code> が起動し
-<code>WEBENGINE_LIVE_DIR/qgis-&lt;pid&gt;/qgis_live_driver/</code> をポーリングする:</p>
-<pre><code>外部アプリ → commands.jsonl に1行1JSONを追記
+<p>ドライバが起動すると <code>&lt;live_base&gt;/qgis-&lt;pid&gt;/qgis_live_driver/</code> をポーリングする
+(live base は <code>WEBENGINE_LIVE_DIR</code> env、またはメニュートグル利用時は
+<code>~/.qgis-live/run</code>):</p>
+<pre><code>外部アプリ → commands.jsonl に1行1JSONを追記(各行に "token" 必須)
            → QTimer(200ms)が読み取り実行
            → results.jsonl に {id, result|error} を追記で返却</code></pre>
 <ul>
 <li>輸送層はファイルのみ。<strong>言語非依存</strong>(JSON Linesを追記・読取できれば何でもよい)</li>
+<li>各行の <code>token</code> はドライバが生成するセッショントークン。<code>live_dir/token</code>
+またはレジストリJSONから読む。不一致は <code>{"error":"unauthorized"}</code> で破棄される</li>
 <li><code>commands.jsonl</code> は <strong>append-only</strong>。切り詰めるとドライバのoffsetがずれてmid-line読み(JSONDecodeError+コマンド喪失)を起こす</li>
 <li>同一live dirへの同時アクセスは <strong>単一クライアント</strong> 前提</li>
 </ul>
 <h2 id="publish">外部公開(Copilot Studio等からの接続)</h2>
-<p><code>/mcp</code> は Copilot Studio が対応する <strong>Streamable HTTP transport 互換</strong>だが、
-既定では <code>127.0.0.1</code>・認証なしのためクラウドからは到達しない。
-以下の手順で公開できる。</p>
-<h3>1. APIキー認証と公開ツールの絞り込み(QGIS起動前にenvを設定)</h3>
+<p><code>/mcp</code> は Copilot Studio が対応する <strong>Streamable HTTP transport 互換</strong>。
+本プラグインは <strong>localhost限定運用を設計前提</strong>とするが、
+どうしてもクラウドから接続したい場合は以下の手順が使える(非推奨・自己責任)。</p>
+<h3>1. 認証キーと公開ツールの絞り込み(QGIS起動前にenvを設定)</h3>
+<p>全エンドポイントは常にトークン照合を要求する
+(<code>/api/health</code>除く)。既定のキーは起動ごとに自動生成される
+セッショントークン(レジストリJSON/<code>live_dir/token</code>参照)。
+<code>QGIS_LIVE_API_KEY</code> を設定するとその固定キーも追加で受け付ける。</p>
 <pre><code class="language-powershell">$env:QGIS_LIVE_API_KEY = "&lt;ランダムなキー&gt;"
 # 推奨: 公開ツールを限定。pyevalは任意コード実行のため除外
 $env:QGIS_LIVE_TOOLS = "status,screenshot"
 npm run live:ensure</code></pre>
 <ul>
 <li>親シェルのenvは <code>live:ensure</code> → powershell → <code>Start-Process</code> 経由でQGISへ引き継がれる。<strong>既にQGISがlive中の場合は再起動が必要</strong>(envは起動時に読む)</li>
-<li><code>QGIS_LIVE_API_KEY</code> 設定時は <code>Authorization: Bearer &lt;key&gt;</code> / <code>X-Api-Key:</code> / <code>api-key:</code> のいずれかのヘッダを要求(不一致は401)。<code>/api/health</code> のみ無認証</li>
+<li>認証は <code>Authorization: Bearer &lt;key&gt;</code> / <code>X-Api-Key:</code> / <code>api-key:</code> のいずれかのヘッダで行う(不一致は401)。Host/Origin がloopback以外を指すリクエストは403で拒否されるため、トンネル経由のHostヘッダでは <strong>403になる点に注意</strong>(外部公開は設計対象外)</li>
 <li><code>QGIS_LIVE_TOOLS</code> はコマンド種別名のカンマ区切り(<code>qgis_</code>前置も可、<code>*</code>または未設定で全許可)。<code>/mcp</code> の tools/list・tools/call と <code>/api/*</code> の両方に効く</li>
-<li>有効状態は <code>~/.qgis-live/&lt;pid&gt;-qgis_live_driver.json</code> の <code>http_auth</code> / <code>http_tools</code> / <code>mcp_url</code> で確認できる(キー自体は書き出さない)</li>
+<li>有効状態は <code>~/.qgis-live/&lt;pid&gt;-qgis_live_driver.json</code> の <code>http_tools</code> / <code>mcp_url</code> で確認できる</li>
 </ul>
 <h3>2. HTTPSで公開(トンネル)</h3>
 <p>Copilot Studioはクラウドのため公開URLが必要。ローカルポートをトンネルする:</p>
@@ -262,20 +269,23 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
 # 手動でも可: qgis-plugin/qgis_live_driver/ を
 # python/plugins/qgis_live_driver/ へコピーし、QGISのプラグイン管理で有効化
 </code></pre>
-<p>あとは <code>WEBENGINE_LIVE_DIR</code> を設定した状態でQGISを起動するだけで、
-live dir(<code>&lt;WEBENGINE_LIVE_DIR&gt;/qgis-&lt;pid&gt;/qgis_live_driver/</code>)と
-レジストリJSONが作られ、上記4系統のいずれでも接続できる
-(未設定なら何もしない無害なプラグイン)。</p>
+<p>あとは <code>WEBENGINE_LIVE_DIR</code> を設定した状態でQGISを起動するか、
+プラグインメニューの <code>QGIS Live Driver → リモート制御 (localhostのみ)</code> を
+ONにするだけで、live dirとレジストリJSONが作られ、上記4系統のいずれでも接続できる
+(未設定・OFFなら何もしない無害なプラグイン)。</p>
 <blockquote>
-<p><strong>セキュリティ</strong>: <code>pyeval</code> は任意コード実行。<strong>開発専用</strong>であり
-エンドユーザーへの配布物に含めてはいけない(metadata.txtにも <code>Development-only</code> と明記済み)。
-HTTPサーバは <code>127.0.0.1</code> のみにバインドするが、ローカルマシン上の
-任意プロセスからQGIS内部を操作できるためリモート公開は想定しない。
-外部公開する場合は必ず <a href="#publish">上記手順</a> でAPIキー認証を有効にし、
-<code>QGIS_LIVE_TOOLS</code> で <code>pyeval</code> を含まない最小限のツールに絞ること。</p>
+<p><strong>セキュリティ</strong>: <code>pyeval</code> は任意コード実行であり、本プラグインは
+<strong>localhost限定のリモート制御面</strong>として以下で保護される:
+HTTPは <code>127.0.0.1</code> バインドのみ・全エンドポイントでセッショントークン必須・
+Host/Originがloopback以外なら拒否(DNSリバインド・ブラウザ経由対策)。
+ファイルJSONLも各行の <code>token</code> 照合必須。トークンはユーザ限定ACLの
+ファイル(<code>live_dir/token</code>・レジストリJSON)にのみ保存される。
+<strong>脅威モデルの境界</strong>: 同一ユーザ権限の任意プロセスはトークンを
+読めるため防げない(あらゆるlocalhostサービスの限界)。
+信頼境界はローカルユーザアカウントである。</p>
 </blockquote>
 <nav class="pager">
-  <a href="index.html"><span class="dir">前へ</span><span class="title">概要</span></a>
+  <a href="usage.html"><span class="dir">前へ</span><span class="title">使い方・セットアップ</span></a>
   <a class="next" href="harness.html"><span class="dir">次へ</span><span class="title">QGIS Live Harness</span></a>
 </nav>
   </main>

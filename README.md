@@ -45,9 +45,9 @@ eval/pyeval/スクショで観測→test:liveで検証」を人間なしで反�
 | ページ | 内容 |
 |---|---|
 | [概要](https://yamamoto-ryuzo.github.io/qgis_live_harness/) | システム全体像・2層構成 |
+| [使い方・セットアップ](https://yamamoto-ryuzo.github.io/qgis_live_harness/usage.html) | Driver単体利用 / Harnessでのプラグイン開発・テスト・外部API一覧 |
 | [QGIS Live Driver](https://yamamoto-ryuzo.github.io/qgis_live_harness/driver.html) | 汎用制御プラグイン。pyeval・REST・MCP・plugin_id転送(hub) |
 | [QGIS Live Harness](https://yamamoto-ryuzo.github.io/qgis_live_harness/harness.html) | LivePage・ensure/devreload・MCP連携・プラグイン自動化環境 |
-| [構成・セットアップ・使い方](https://yamamoto-ryuzo.github.io/qgis_live_harness/usage.html) | ディレクトリ構成・開発ループ・テスト・外部API一覧 |
 | [プラグイン配布](https://yamamoto-ryuzo.github.io/qgis_live_harness/distribution.html) | 配布物の構成と配布時に除去するもの |
 | [Harnessのプラグイン化](https://yamamoto-ryuzo.github.io/qgis_live_harness/internals.html) | 構造解析:何がDriver側に吸収済みで何が外に残るか |
 
@@ -58,7 +58,8 @@ AIエージェント向け開発手順は [AGENTS.md](AGENTS.md) を参照。
 
 ```powershell
 npm install
-npm run deploy:copy    # 器をQGISプラグインディレクトリへ配置(初回のみ)
+npx playwright install   # L1テスト(npm test)を回す場合のみ
+npm run deploy:copy      # 器をQGISプラグインディレクトリへ配置(初回のみ)
 
 npm run live:ensure     # 常駐QGISを用意(初回は自動でdeploy+起動)
 # → bridge.py / logic.py / ui/* を編集
@@ -66,15 +67,45 @@ npm run live:devreload  # repo側コードを即反映(deploy不要)
 npm run test:live       # 実QGIS内で検証(pyevalで内部状態assert含む)
 ```
 
+## 自分のプラグイン開発に使う
+
+`qgis-plugin/` 直下がプラグイン単位の管理単位(フォルダ名=プラグインID)。
+サンプルの `webengine_plugin` をテンプレートに足場を作る:
+
+```powershell
+npm run new:plugin my_plugin   # qgis-plugin/my_plugin/ 生成 + plugin.config.json 切替
+```
+
+あとはクイックスタートと同じ手順で、repo側の `bridge.py`/`logic.py`/`ui/` を
+`live:devreload` で即反映しながら開発できる(deploy・QGIS再起動は不要)。
+開発対象を切り替えたい時は `plugin.config.json` の `id` を書き換える。
+`qgis-plugin/` に複数プラグインを置いても、live dirは `qgis-<pid>/<id>` で分離される。
+
+`qgis_live_driver` はこのリポジトリに依存しない汎用制御プラグインなので、
+遠隔操作だけ使いたい場合は QGISプラグインリポジトリから単体インストールすればよい
+(クローンもNodeも不要)。
+
 ## 環境要件
 
-- QGIS 4.0.1 (`C:\Program Files\QGIS 4.0.1`)、Qt6/PyQt6
+- **Windows 10/11 専用**(deploy/起動スクリプトがPowerShell実装。
+  Linux/macOSは未対応)
+- QGIS 4.0.x、Qt6/PyQt6。`C:\Program Files\QGIS*` から最新版を自動検出
+  (別場所・別バージョンは `QGIS_EXE` 環境変数で指定)
 - Node.js 24+ (Harness側クライアント用。Driver単体利用なら不要)
-- Python 3.13+ (ユニットテスト用)
-- Windowsデスクトップセッション(常駐QGISモデルのため)
+- Python 3.13+ (ユニットテスト用。`pip install pytest`)
+
+## ライセンス
+
+GPL-2.0-or-later ([LICENSE](LICENSE))。
+QGISプラグイン部分はQGIS(GPL-2.0+)/PyQt6(GPLv3)へのリンクを伴うため
+GPL系が実質必須。使用コンポーネントの一覧は
+[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)。
 
 ## 注意
 
-- `pyeval`/`devreload` は任意コード実行を含む **開発専用機能**。
-  `WEBENGINE_LIVE_DIR`/`WEBENGINE_DEV_SRC` 設定時のみ有効。
+- `pyeval`/`devreload` は任意コード実行を含むため、Driver側は
+  **localhost限定・セッショントークン認証必須**で保護される
+  (トークンはユーザ限定ACLの `<live_dir>/token`・レジストリJSONにのみ保存)。
+  Driverの有効化は `WEBENGINE_LIVE_DIR` env または
+  `プラグイン > QGIS Live Driver > リモート制御 (localhostのみ)` トグル。
   配布手順は[プラグイン配布](https://yamamoto-ryuzo.github.io/qgis_live_harness/distribution.html)を参照

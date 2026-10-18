@@ -42,10 +42,12 @@ deploy/reloadPluginなしでコード変更を反映できる(プラグイン本
 main_plugin/live_driver 等の変更は対象外。それらはlive:reloadを使う)。
 """
 
+import hmac
 import inspect
 import itertools
 import json
 import os
+import secrets
 import time
 import traceback
 
@@ -108,7 +110,16 @@ class LiveDriver:
         self._runjs_mode = None  # "qt6" | "qt5"
         self._ns = {"iface": iface, "view": view, "driver": self}
         self._dev_reload = dev_reload  # callable -> 新しいbridgeオブジェクト or None
+        # ファイル経由コマンドの認証トークン(qgis_live_driverと同仕様)。
+        # クライアントは live_dir/token から読んでコマンドに付ける
+        self.token = secrets.token_hex(24)
         os.makedirs(live_dir, exist_ok=True)
+        try:
+            with open(os.path.join(live_dir, "token"), "w",
+                      encoding="ascii") as f:
+                f.write(self.token)
+        except Exception:
+            pass
 
         # eval結果は console.log("__live ...") → _LiveConsolePage.
         # javaScriptConsoleMessage 経由でプッシュ受信する。
@@ -148,7 +159,17 @@ class LiveDriver:
                 if not line:
                     continue
                 try:
-                    self._handle(json.loads(line))
+                    cmd = json.loads(line)
+                except Exception as e:
+                    self._reply({"id": None, "error": repr(e)})
+                    continue
+                if not hmac.compare_digest(str(cmd.get("token") or ""),
+                                           self.token):
+                    self._reply({"id": cmd.get("id"),
+                                 "error": "unauthorized"})
+                    continue
+                try:
+                    self._handle(cmd)
                 except Exception as e:
                     self._reply({"id": None, "error": repr(e)})
 

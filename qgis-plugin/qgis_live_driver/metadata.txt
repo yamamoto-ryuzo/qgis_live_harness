@@ -1,9 +1,13 @@
 [general]
 name=QGIS Live Driver
-description=File-protocol remote control driver for QGIS (pyeval/screenshot). Development-only.
-about=Exposes QGIS internals to external apps via commands.jsonl/results.jsonl when WEBENGINE_LIVE_DIR is set. pyeval executes arbitrary Python inside QGIS; screenshot captures the map canvas. Do not distribute to end users.
-version=0.1.0
+description=Localhost-only remote control driver for QGIS (token-authenticated MCP/REST/file API for local AI tools)
+about=Exposes QGIS internals to local clients via commands.jsonl/results.jsonl, REST /api/* and MCP Streamable HTTP /mcp on 127.0.0.1 only. All channels require a per-session token stored in user-only files. Disabled by default; enable via the Plugins > QGIS Live Driver menu or WEBENGINE_LIVE_DIR env. pyeval executes arbitrary Python inside QGIS — the trust boundary is the local user account.
+version=0.2.0
+icon=icon.png
 qgisMinimumVersion=4.0
 supportsQt6=yes
-author=Cognition
-experimental=False
+author=yamamoto-ryuzo
+homepage=https://yamamoto-ryuzo.github.io/qgis_live_harness/driver.html
+tracker=https://github.com/yamamoto-ryuzo/qgis_live_harness/issues
+repository=https://github.com/yamamoto-ryuzo/qgis_live_harness
+experimental=True

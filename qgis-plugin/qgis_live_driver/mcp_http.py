@@ -25,14 +25,18 @@ status は plugin_id をコマンド引数としてこのドライバが処理�
 バインドは 127.0.0.1 固定、ポート0(空き自動選択)。
 pyeval=任意コード実行のためリモート公開は想定しない。
 
-外部公開(M365 Copilot Studio等のクラウドMCPクライアント)する場合:
-  QGIS_LIVE_API_KEY  設定すると全エンドポイント(/api/health以外)で
-                     Authorization: Bearer / X-Api-Key / api-key ヘッダの
-                     照合を要求する。トンネル(devtunnel/ngrok等)でHTTPS化して
-                     公開する際は必須。
+認証(localhost限定運用):
+  全エンドポイント(/api/health以外)でセッショントークンの照合を必須とする。
+  トークンはドライバ起動時に自動生成され、ユーザ限定ファイル
+  (live_dir/token・レジストリJSON)にのみ書き出される。
+  ローカルのMCPクライアントはそこから読むだけで使える。
+  Authorization: Bearer / X-Api-Key / api-key のいずれかで送る。
+  加えて Host が loopback 以外、または Origin が loopback 以外を指す
+  リクエストは拒否する(DNSリバインド・ブラウザ経由の対策)。
+  QGIS_LIVE_API_KEY を設定するとそのキーも追加で受け付ける。
   QGIS_LIVE_TOOLS    公開するコマンド種別のカンマ区切り(例 "status,screenshot")。
                      /mcp の tools/list・tools/call と /api/* の両方に効く。
-                     未設定 or "*" で全許可。pyeval除外を推奨。
+                     未設定 or "*" で全許可。
 """
 
 import base64
@@ -43,6 +47,7 @@ import tempfile
 import threading
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlparse
 
 TOOLS = [
     {
@@ -166,19 +171,49 @@ def _content_error(msg):
 
 
 class _Handler(BaseHTTPRequestHandler):
-    server_version = "qgis-live/0.2"
+    server_version = "qgis-live/0.3"
     protocol_version = "HTTP/1.1"
+
+    _LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1"}
 
     def log_message(self, *args):
         pass  # QGIS内でstderrは死にやすいので黙らせる
 
     # ---- 共通ユーティリティ ----
 
+    def _local_req_ok(self):
+        """loopback発であることをヘッダで確認(DNSリバインド/ブラウザ対策)。
+
+        Hostがloopback以外を指す、またはOriginがloopback以外の
+        サイトを指すリクエストは拒否する。ローカルのWebアプリ
+        (localhostオリジン)からの利用は許可する。
+        """
+        host = self.headers.get("Host", "")
+        if host:
+            h = host.strip()
+            if h.startswith("["):
+                h = h[1:h.index("]")] if "]" in h else h.strip("[]")
+            else:
+                h = h.split(":")[0]
+            if h.lower() not in self._LOCAL_HOSTS:
+                self._json(403, {"error": "forbidden host"})
+                return False
+        origin = self.headers.get("Origin")
+        if origin is not None:
+            try:
+                oh = urlparse(origin).hostname or ""
+            except Exception:
+                oh = ""
+            if oh.lower() not in self._LOCAL_HOSTS:
+                self._json(403, {"error": "forbidden origin"})
+                return False
+        return True
+
     def _auth_ok(self):
-        """QGIS_LIVE_API_KEY設定時のAPIキー照合。未設定なら常に許可。"""
-        key = self.server.api_key
-        if not key:
-            return True
+        """トークン照合。サーバに1つ以上の有効キーが必須(無ければ全拒否)。"""
+        keys = self.server.api_keys
+        if not keys:
+            return False
         auth = self.headers.get("Authorization", "")
         tok = ""
         if auth.lower().startswith("bearer "):
@@ -186,10 +221,13 @@ class _Handler(BaseHTTPRequestHandler):
         if not tok:
             tok = (self.headers.get("X-Api-Key")
                    or self.headers.get("api-key") or "")
-        return bool(tok) and hmac.compare_digest(tok, key)
+        return bool(tok) and any(
+            hmac.compare_digest(tok, k) for k in keys)
 
     def _gate(self, path):
         """認証ゲート。/api/health は生存確認用に無認証で通す。"""
+        if not self._local_req_ok():
+            return False
         if path == "/api/health" or self._auth_ok():
             return True
         self._json(401, {"error": "unauthorized"})
@@ -395,16 +433,16 @@ class _Handler(BaseHTTPRequestHandler):
 
 
 def start_http(driver, host="127.0.0.1", port=0,
-               api_key=None, allowed=None):
+               api_keys=None, allowed=None):
     """HTTPサーバをデーモンスレッドで起動し実ポートを返す。
 
-    api_key: 設定時は全エンドポイント(/api/health除く)でAPIキー照合を要求
+    api_keys: 受け付けるトークンの集合。必須(空なら全リクエスト拒否)
     allowed: 許可するコマンド種別の集合。None=全許可
     """
     httpd = ThreadingHTTPServer((host, port), _Handler)
     httpd.daemon_threads = True
     httpd.driver = driver
-    httpd.api_key = api_key
+    httpd.api_keys = set(api_keys or ())
     httpd.allowed = allowed
     t = threading.Thread(target=httpd.serve_forever, daemon=True)
     t.start()

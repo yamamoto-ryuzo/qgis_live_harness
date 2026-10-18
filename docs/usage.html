@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>構成・セットアップ・使い方 | QGIS Live Harness</title>
-<meta name="description" content="ディレクトリ構成、セットアップ、開発ループ、テスト、外部API一覧">
+<title>使い方・セットアップ | QGIS Live Harness</title>
+<meta name="description" content="使い方(Driver単体利用 / Harnessでのプラグイン開発)、セットアップ、開発ループ、テスト、外部API一覧">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -13,11 +13,11 @@
     <div class="links">
       <div class="group">はじめに</div>
       <a class="navlink" href="index.html">概要</a>
+      <a class="navlink active" href="usage.html">使い方・セットアップ</a>
       <div class="group">コンポーネント</div>
       <a class="navlink" href="driver.html">QGIS Live Driver</a>
       <a class="navlink" href="harness.html">QGIS Live Harness</a>
       <div class="group">ガイド</div>
-      <a class="navlink active" href="usage.html">構成・セットアップ・使い方</a>
       <a class="navlink" href="distribution.html">プラグイン配布</a>
       <a class="navlink" href="internals.html">Harnessのプラグイン化</a>
       <div class="group">リンク</div>
@@ -27,10 +27,58 @@
   <div class="content">
   <main>
 <header class="page-header">
-<p class="eyebrow">ガイド</p>
-<h1>構成・セットアップ・使い方</h1>
-<p class="lead">ディレクトリ構成、開発ループ、テスト、外部API(接続面)の一覧。</p>
+<p class="eyebrow">はじめに</p>
+<h1>使い方・セットアップ</h1>
+<p class="lead">やりたいことは2通り。「QGISを外から動かしたい」だけなら Driver単体、
+「WebEngineプラグインをAIで作りたい」なら Harnessごと使う。</p>
 </header>
+<h2>使い方(A): Driver単体で使う</h2>
+<p><strong>QGISをAIツールや自作アプリから遠隔操作したい人向け。リポジトリもNodeも不要。</strong></p>
+<ol>
+<li>QGISプラグインリポジトリから <strong>QGIS Live Driver</strong> をインストール
+(または <code>qgis_live_driver/</code> フォルダを <code>python/plugins/</code> へコピー)</li>
+<li><code>プラグイン &gt; QGIS Live Driver &gt; リモート制御 (localhostのみ)</code> をON
+(初回は警告ダイアログ→Yes。QSettingsに保存され次回起動から自動有効)</li>
+<li>接続は4系統のどれでもよい(<a href="driver.html">Driver詳細</a>):
+<ul>
+<li><strong>MCP stdio</strong> — AIクライアントのMCP設定に
+<code>python &lt;profile&gt;/python/plugins/qgis_live_driver/mcp_stdio.py</code> を登録するだけ</li>
+<li><strong>MCP/REST HTTP</strong> — <code>~/.qgis-live/&lt;pid&gt;-qgis_live_driver.json</code> から
+<code>mcp_url</code>/<code>http_port</code> と <code>token</code> を読み Bearer 認証で接続</li>
+<li><strong>ファイルJSONL</strong> — <code>commands.jsonl</code> に
+<code>{"type":...,"token":...}</code> を追記 → <code>results.jsonl</code> で結果受取</li>
+</ul></li>
+</ol>
+<p>できること: <code>pyeval</code>(任意Python実行・iface/QgsProjectに直接アクセス)/
+<code>screenshot</code>/<code>status</code>/<code>open_plugin</code>/<code>reload_plugin</code>/
+<code>bridge_call</code> + <code>plugin_id</code> 転送(hub)。
+認証・脅威モデルは <a href="driver.html">QGIS Live Driver</a> を参照。</p>
+<h2>使い方(B): Harnessでプラグインを開発する</h2>
+<p><strong>WebEngineベースのQGISプラグインをAIと一緒に作りたい人向け。リポジトリをクローンして使う。</strong></p>
+<h3>セットアップ(初回のみ)</h3>
+<pre><code class="language-powershell">git clone &lt;repo&gt; &amp;&amp; cd qgis_live_harness
+npm install
+npm run new:plugin my_plugin   # qgis-plugin/my_plugin/ をテンプレートから生成
+npm run deploy:copy            # 器をQGISプラグインディレクトリへ配置+有効化
+npx playwright install         # L1テスト(npm test)を回す場合のみ
+pip install pytest             # ユニットテスト(test:unit)を回す場合のみ
+</code></pre>
+<p>サンプルの <code>webengine_plugin</code> をそのまま試す場合は <code>new:plugin</code> 不要。
+開発対象の切替は <code>plugin.config.json</code> の <code>id</code> を書き換える。</p>
+<h3>開発ループ</h3>
+<pre><code class="language-powershell">npm run live:ensure     # 常駐QGISを用意(初回は自動でdeploy+起動)
+# → bridge.py / logic.py / ui/* を編集
+npm run live:devreload  # repo側コードを即反映(deploy不要)
+npm run test:live       # 実QGIS内で検証(pyevalで内部状態assert含む)
+</code></pre>
+<p>器側(<code>main_plugin.py</code>/<code>live_driver.py</code>等)を変更した時だけ:</p>
+<pre><code class="language-powershell">npm run live:reload     # deploy -Copy + 実行中QGISでホットリロード
+</code></pre>
+<h3>テスト</h3>
+<pre><code class="language-powershell">npm test               # L1: UI単体E2E(ブラウザ+mock)
+npm run test:unit      # Pythonロジックのpytest
+npm run test:live      # L2: 実QGIS内検証(QGIS未起動でも自動起動)
+</code></pre>
 <h2>ディレクトリ構成</h2>
 <pre><code>qgis-plugin/          プラグイン群のルート(複数プラグインをここに並べる)
   webengine_plugin/   プラグイン1つ分。フォルダ名=QGISのプラグインID
@@ -69,25 +117,6 @@ docs/                 GitHub Pages用HTML(直接編集)
 一括配置し、<code>test:live</code> は検出した全プラグインに対してチェックを回す。</p>
 <p><code>plugin.config.json</code> の <code>id</code> はserve-uiやMCPのデフォルト対象を指す
 (<code>metadata.txt</code> の <code>name=</code> は表示名)。</p>
-<h2>セットアップ</h2>
-<pre><code class="language-powershell">npm install
-npm run deploy:copy    # 器をQGISプラグインディレクトリへ配置(初回のみ)
-</code></pre>
-<h2>使い方</h2>
-<h3>開発ループ</h3>
-<pre><code class="language-powershell">npm run live:ensure     # 常駐QGISを用意(初回は自動でdeploy+起動)
-# → bridge.py / logic.py / ui/* を編集
-npm run live:devreload  # repo側コードを即反映(deploy不要)
-npm run test:live       # 実QGIS内で検証(pyevalで内部状態assert含む)
-</code></pre>
-<p>器側(<code>main_plugin.py</code>/<code>live_driver.py</code>等)を変更した時だけ:</p>
-<pre><code class="language-powershell">npm run live:reload     # deploy -Copy + 実行中QGISでホットリロード
-</code></pre>
-<h3>テスト</h3>
-<pre><code class="language-powershell">npm test               # L1: UI単体E2E(ブラウザ+mock)
-npm run test:unit      # Pythonロジックのpytest
-npm run test:live      # L2: 実QGIS内検証(QGIS未起動でも自動起動)
-</code></pre>
 <h3>外部API(接続面まとめ)</h3>
 <table>
 <thead>
@@ -100,7 +129,7 @@ npm run test:live      # L2: 実QGIS内検証(QGIS未起動でも自動起動)
 </thead>
 <tbody><tr>
 <td>ファイルプロトコル</td>
-<td><code>commands.jsonl</code> に <code>{id,type:eval|pyeval|screenshot|devreload|status|open_plugin|reload_plugin|bridge_call}</code> を追記、結果は <code>results.jsonl</code></td>
+<td><code>commands.jsonl</code> に <code>{id,type:eval|pyeval|screenshot|devreload|status|open_plugin|reload_plugin|bridge_call,token}</code> を追記、結果は <code>results.jsonl</code></td>
 <td>任意言語(最下位の基底)</td>
 <td>Driver/器</td>
 </tr>
@@ -112,8 +141,8 @@ npm run test:live      # L2: 実QGIS内検証(QGIS未起動でも自動起動)
 </tr>
 <tr>
 <td>MCP Streamable HTTP</td>
-<td><code>POST 127.0.0.1:&lt;port&gt;/mcp</code> (JSON-RPC)。<code>QGIS_LIVE_API_KEY</code>/<code>QGIS_LIVE_TOOLS</code> で認証+ツール絞り込み可</td>
-<td>HTTP transport対応MCPクライアント、Copilot Studio(要トンネル公開)</td>
+<td><code>POST 127.0.0.1:&lt;port&gt;/mcp</code> (JSON-RPC)。セッショントークン認証必須、<code>QGIS_LIVE_TOOLS</code> でツール絞り込み可</td>
+<td>HTTP transport対応MCPクライアント(localhost限定)</td>
 <td>Driver</td>
 </tr>
 <tr>
@@ -149,8 +178,8 @@ npm run test:live      # L2: 実QGIS内検証(QGIS未起動でも自動起動)
 <pre><code class="language-powershell">npm run mcp:qgis       # 手動でMCPサーバ(stdio)を起動する場合
 </code></pre>
 <nav class="pager">
-  <a href="harness.html"><span class="dir">前へ</span><span class="title">QGIS Live Harness</span></a>
-  <a class="next" href="distribution.html"><span class="dir">次へ</span><span class="title">プラグイン配布</span></a>
+  <a href="index.html"><span class="dir">前へ</span><span class="title">概要</span></a>
+  <a class="next" href="driver.html"><span class="dir">次へ</span><span class="title">QGIS Live Driver</span></a>
 </nav>
   </main>
   <aside class="toc"></aside>

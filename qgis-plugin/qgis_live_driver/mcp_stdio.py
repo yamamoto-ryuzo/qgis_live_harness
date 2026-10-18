@@ -139,6 +139,7 @@ TOOLS = [
 _session = f"mcp{os.getpid()}"
 _seq = 0
 _live_dir = None
+_token = None
 
 
 def _err(msg):
@@ -146,8 +147,24 @@ def _err(msg):
     sys.stderr.flush()
 
 
+def _entry_token(entry, live_dir):
+    """レジストリエントリ or live_dir/token から認証トークンを取り出す。"""
+    t = entry.get("token")
+    if t:
+        return t
+    try:
+        with open(os.path.join(live_dir, "token"),
+                  encoding="ascii") as f:
+            return f.read().strip() or None
+    except Exception:
+        return None
+
+
 def _find_live_dir():
-    """レジストリから稼働中のlive dirを探して応答確認する。"""
+    """レジストリから稼働中のlive dirを探して応答確認する。
+
+    @returns (live_dir, token) or None
+    """
     if not os.path.isdir(REG_DIR):
         return None
     cands = []
@@ -165,23 +182,26 @@ def _find_live_dir():
         e.get("plugin_id") != TARGET_PLUGIN, -e.get("started", 0)))
     for e in cands:
         d = e["live_dir"]
-        if _probe(d):
-            return d
+        tok = _entry_token(e, d)
+        if _probe(d, tok):
+            return d, tok
     return None
 
 
-def _probe(live_dir):
+def _probe(live_dir, token):
     try:
         return _send(live_dir, {"id": f"{_session}-probe",
                                 "type": "pyeval", "code": "1"},
-                     timeout=5.0).get("result") == 1
+                     token=token, timeout=5.0).get("result") == 1
     except Exception:
         return False
 
 
-def _send(live_dir, cmd, timeout=TIMEOUT):
+def _send(live_dir, cmd, token=None, timeout=TIMEOUT):
     cmd_path = os.path.join(live_dir, "commands.jsonl")
     res_path = os.path.join(live_dir, "results.jsonl")
+    if token:
+        cmd["token"] = token
     os.makedirs(live_dir, exist_ok=True)
     with open(cmd_path, "a", encoding="utf-8") as f:
         f.write(json.dumps(cmd, ensure_ascii=False) + "\n")
@@ -206,15 +226,22 @@ def _next_id():
     return f"{_session}-{_seq}"
 
 
-def _tool_call(name, args):
-    global _live_dir
+def _resolve():
+    global _live_dir, _token
     if _live_dir is None:
-        _live_dir = _find_live_dir()
-        if _live_dir is None:
-            return {"content": [{"type": "text", "text":
-                                 "no live qgis_live_driver driver "
-                                 f"(registry: {REG_DIR})"}],
-                    "isError": True}
+        found = _find_live_dir()
+        if found:
+            _live_dir, _token = found
+    return _live_dir is not None
+
+
+def _tool_call(name, args):
+    global _live_dir, _token
+    if not _resolve():
+        return {"content": [{"type": "text", "text":
+                             "no live qgis_live_driver driver "
+                             f"(registry: {REG_DIR})"}],
+                "isError": True}
     if not (name or "").startswith("qgis_"):
         return {"content": [{"type": "text", "text": f"unknown tool: {name}"}],
                 "isError": True}
@@ -226,7 +253,12 @@ def _tool_call(name, args):
         import tempfile
         cmd["path"] = os.path.join(
             tempfile.gettempdir(), f"qgis-shot-{_seq}.png")
-    rep = _send(_live_dir, cmd)
+    rep = _send(_live_dir, cmd, token=_token)
+    # ドライバreload等でトークンが変わった場合は再検出して1回だけやり直す
+    if rep.get("error") == "unauthorized":
+        _live_dir = _token = None
+        if _resolve():
+            rep = _send(_live_dir, cmd, token=_token)
     if name == "qgis_screenshot" and "error" not in rep:
         try:
             with open(rep["result"], "rb") as f:

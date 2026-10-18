@@ -10,6 +10,7 @@
     "live:reload": "node scripts/qgis-session.mjs reload",
     "live:devreload": "node scripts/qgis-session.mjs devreload",
     "mcp:qgis": "node scripts/qgis-mcp.mjs",
+    "new:plugin": "node scripts/new-plugin.mjs",
     "test:unit": "python -m pytest tests/unit -v",
     "deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1",
     "verify:qgis": "powershell -ExecutionPolicy Bypass -File scripts/verify-in-qgis.ps1",

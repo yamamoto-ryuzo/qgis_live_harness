@@ -8,13 +8,23 @@ webengine_plugin版との違い: viewを持たないため eval/devreload は未
 live dir は WEBENGINE_LIVE_DIR/qgis-<pid>/<plugin_id>/。
 
 コマンド形式(1行1JSON):
-  {"id": 1, "type": "pyeval", "code": "iface.activeLayer().name()"}
-  {"id": 2, "type": "screenshot", "path": "C:/.../shot.png"}  ← 地図キャンバス
-  {"id": 3, "type": "status"}
-  {"id": 4, "type": "open_plugin", "plugin_id": "webengine_plugin"}
-  {"id": 5, "type": "reload_plugin", "plugin_id": "webengine_plugin"}
+  {"id": 1, "type": "pyeval", "code": "iface.activeLayer().name()",
+   "token": "<live_dir>/token の内容"}
+  {"id": 2, "type": "screenshot", "path": "C:/.../shot.png",
+   "token": "..."}  ← 地図キャンバス
+  {"id": 3, "type": "status", "token": "..."}
+  {"id": 4, "type": "open_plugin", "plugin_id": "webengine_plugin",
+   "token": "..."}
+  {"id": 5, "type": "reload_plugin", "plugin_id": "webengine_plugin",
+   "token": "..."}
   {"id": 6, "type": "bridge_call", "plugin_id": "webengine_plugin",
-   "method": "pluginInfo", "args": []}
+   "method": "pluginInfo", "args": [], "token": "..."}
+
+認証: 起動ごとにセッショントークンを生成し live_dir/token と
+レジストリJSONに書き出す(どちらもユーザ限定ACL)。ファイル経由
+コマンドは token 一致を必須とし、同一マシンの他ユーザや
+無関係なプロセスからの書き込みを拒否する。HTTP面も同じ
+トークンでBearer認証する(mcp_http.py参照)。
 
 plugin_id を「ルーティング」として使うコマンド(eval/pyeval/screenshot/
 devreload)は、plugin_id が他プラグインを指す場合そのプラグインの
@@ -22,11 +32,13 @@ LiveDriverに転送され、結果は呼び出し元の results.jsonl に返る
 (このドライバが全プラグインの統一制御点になる)。
 """
 
+import hmac
 import inspect
 import itertools
 import json
 import os
 import queue
+import secrets
 import threading
 import traceback
 
@@ -80,6 +92,11 @@ class LiveDriver:
         self.http_port = None  # __init__.py が start_http 後に設定する
         # ドライバ再生成時に過去のコマンドを再実行しないよう末尾までスキップ
         self.offset = os.path.getsize(self.cmd_path) if os.path.exists(self.cmd_path) else 0
+        # 全チャネル共通の認証トークン。commands.jsonl は同じマシンの
+        # 誰でもappendし得るため、ファイル経由のコマンド受付はこの
+        # 一致を必須とする。クライアントは live_dir/token または
+        # レジストリJSONから読む(いずれもユーザ限定ACLを目指す)
+        self.token = secrets.token_hex(24)
         self._ns = {"iface": iface, "view": None, "driver": self}
         # pyeval内で頻出のQGIS APIを事前importしておく(利便性のため)
         try:
@@ -93,6 +110,12 @@ class LiveDriver:
         # 実行は必ずこのドライバの_poll(GUIスレッド)内で行う
         self._queue = queue.Queue()
         os.makedirs(live_dir, exist_ok=True)
+        try:
+            with open(os.path.join(live_dir, "token"), "w",
+                      encoding="ascii") as f:
+                f.write(self.token)
+        except Exception:
+            pass
 
         self.timer = QTimer()
         self.timer.timeout.connect(self._poll)
@@ -159,7 +182,18 @@ class LiveDriver:
             if not line:
                 continue
             try:
-                self._handle(json.loads(line))
+                cmd = json.loads(line)
+            except Exception as e:
+                self._reply({"id": None, "error": repr(e)})
+                continue
+            # ファイル経由コマンドはトークン必須。submit()(HTTP経由)や
+            # _forward()(他ドライバ経由)は呼び出し元で認証済みのため対象外
+            if not hmac.compare_digest(str(cmd.get("token") or ""),
+                                       self.token):
+                self._reply({"id": cmd.get("id"), "error": "unauthorized"})
+                continue
+            try:
+                self._handle(cmd)
             except Exception as e:
                 self._reply({"id": None, "error": repr(e)})
 

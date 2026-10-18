@@ -66,26 +66,36 @@ MCP_CALL = lambda name, args=None: {  # noqa: E731
 AUTH = {"Authorization": "Bearer testkey"}
 
 
-def test_open_server_no_auth(make_server):
-    port = make_server()
+def test_token_always_required(make_server):
+    # 認証は常時必須(/api/healthのみ無認証)。トークン付きで全機能が使える
+    port = make_server(api_keys={"testkey"})
     st, body, _ = _req(port, "GET", "/api/health")
     assert st == 200 and body["ok"]
-    st, body, hdrs = _req(port, "POST", "/mcp", MCP_INIT)
+    st, _, _ = _req(port, "POST", "/mcp", MCP_INIT)
+    assert st == 401
+    st, body, hdrs = _req(port, "POST", "/mcp", MCP_INIT, AUTH)
     assert st == 200
     assert body["result"]["serverInfo"]["name"] == "qgis-live"
     assert "Mcp-Session-Id" in hdrs
-    st, body, _ = _req(port, "POST", "/mcp", MCP_LIST)
+    st, body, _ = _req(port, "POST", "/mcp", MCP_LIST, AUTH)
     assert len(body["result"]["tools"]) == len(TOOLS)
-    st, body, _ = _req(port, "POST", "/api/pyeval", {"code": "1"})
+    st, body, _ = _req(port, "POST", "/api/pyeval", {"code": "1"}, AUTH)
     assert st == 200 and body["result"]["echo"] == "pyeval"
 
 
-def test_api_key_required(make_server):
-    port = make_server(api_key="testkey")
-    # healthは無認証で通る
+def test_no_keys_rejects_all(make_server):
+    # 有効キーが1つも無いサーバは fail-closed(health以外全て401)
+    port = make_server()
     st, body, _ = _req(port, "GET", "/api/health")
-    assert st == 200
-    # キー無し・誤キーは401
+    assert st == 200 and body["ok"]
+    st, _, _ = _req(port, "POST", "/mcp", MCP_INIT, AUTH)
+    assert st == 401
+    st, _, _ = _req(port, "POST", "/api/pyeval", {"code": "1"}, AUTH)
+    assert st == 401
+
+
+def test_wrong_key_rejected(make_server):
+    port = make_server(api_keys={"testkey"})
     st, _, _ = _req(port, "POST", "/mcp", MCP_INIT)
     assert st == 401
     st, _, _ = _req(port, "POST", "/mcp", MCP_INIT,
@@ -96,14 +106,38 @@ def test_api_key_required(make_server):
               {"X-Api-Key": "testkey"}, {"api-key": "testkey"}):
         st, body, _ = _req(port, "POST", "/mcp", MCP_INIT, h)
         assert st == 200, h
-    st, _, _ = _req(port, "POST", "/api/pyeval", {"code": "1"})
-    assert st == 401
-    st, body, _ = _req(port, "POST", "/api/pyeval", {"code": "1"}, AUTH)
+
+
+def test_multiple_keys_accepted(make_server):
+    # セッショントークン + QGIS_LIVE_API_KEY 等の複数キーが併存できる
+    port = make_server(api_keys={"k1", "k2"})
+    for key in ("k1", "k2"):
+        st, _, _ = _req(port, "POST", "/mcp", MCP_INIT,
+                        {"Authorization": f"Bearer {key}"})
+        assert st == 200, key
+
+
+def test_forbidden_host_and_origin(make_server):
+    port = make_server(api_keys={"k"})
+    auth = {"Authorization": "Bearer k"}
+    # loopback以外を指すHost/Originは拒否(DNSリバインド・ブラウザ対策)
+    st, _, _ = _req(port, "GET", "/api/status",
+                    headers={**auth, "Host": "evil.com"})
+    assert st == 403
+    st, _, _ = _req(port, "GET", "/api/status",
+                    headers={**auth, "Origin": "https://evil.com"})
+    assert st == 403
+    st, _, _ = _req(port, "GET", "/api/status",
+                    headers={**auth, "Origin": "null"})
+    assert st == 403
+    # localhostオリジンのローカルWebアプリからは使える
+    st, _, _ = _req(port, "GET", "/api/status",
+                    headers={**auth, "Origin": "http://localhost:3000"})
     assert st == 200
 
 
 def test_tool_filter(make_server):
-    port = make_server(api_key="testkey", allowed={"status", "screenshot"})
+    port = make_server(api_keys={"testkey"}, allowed={"status", "screenshot"})
     st, body, _ = _req(port, "POST", "/mcp", MCP_LIST, AUTH)
     names = {t["name"] for t in body["result"]["tools"]}
     assert names == {"qgis_status", "qgis_screenshot"}
@@ -129,13 +163,14 @@ def test_tool_filter(make_server):
 
 
 def test_tool_filter_blocks_screenshot(make_server):
-    port = make_server(api_key="k", allowed={"status"})
+    port = make_server(api_keys={"k"}, allowed={"status"})
     st, body, _ = _req(port, "POST", "/api/screenshot", {},
                        {"Authorization": "Bearer k"})
     assert st == 403
 
 
 def test_get_mcp_is_405(make_server):
-    port = make_server()
-    st, _, hdrs = _req(port, "GET", "/mcp")
+    port = make_server(api_keys={"k"})
+    st, _, hdrs = _req(port, "GET", "/mcp",
+                       headers={"Authorization": "Bearer k"})
     assert st == 405 and hdrs.get("Allow") == "POST"

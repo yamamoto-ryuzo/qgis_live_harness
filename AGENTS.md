@@ -106,12 +106,14 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
 
 - プラグイン側 `live_driver.py` が `WEBENGINE_LIVE_DIR/qgis-<pid>/<plugin_id>/commands.jsonl` を
   QTimerでポーリングし、`view.page().runJavaScript()` でJSを実行、
-  結果を `results.jsonl` に返す。`screenshot` コマンドは `view.grab()` でPNG保存
+  結果を `results.jsonl` に返す。`screenshot` コマンドは `view.grab()` でPNG保存。
+  **ファイル経由コマンドは `token` フィールド必須**(値は `<live_dir>/token`
+  にドライバが書き出す。LivePage/mcp_stdio.py は自動で読んで付与する)
 - `pyeval` コマンドは **QGISプロセス内で任意Pythonを同期実行**し結果をJSON化して返す。
   式ならeval、文ならexec(`result`変数への代入が返却値)。名前空間に
   `iface`/`view`/`driver`があり持続する → `iface.activeLayer().name()` 等で
-  QGIS内部状態を直接assertできる。任意コード実行なのでWEBENGINE_LIVE_DIR
-  設定時のみ有効
+  QGIS内部状態を直接assertできる。任意コード実行のため全チャネルで
+  セッショントークン認証を必須化(下記「セキュリティ」)
 - `devreload` コマンドは `WEBENGINE_DEV_SRC` 指定時のみ有効。リポジトリ側の
   `qgis-plugin/<id>/` を `<id>_devsrc` として別名importし直し、
   WebChannelのbridgeを差し替えてview.reload()する。**プラグイン本体(deploy物)は
@@ -167,11 +169,18 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
   同梱 `mcp_stdio.py` がstdioクライアントをファイルJSONLへ中継する(Node不要)。
   toolsは `qgis_<コマンド種別>` の命名でドライバの全コマンドに対応
   (pyeval/eval/screenshot/devreload/status/open_plugin/reload_plugin/bridge_call)。
-  **`QGIS_LIVE_API_KEY`/`QGIS_LIVE_TOOLS` env(QGIS起動時に設定)で
-  /mcp・/api/* にAPIキー認証+コマンド種別フィルタが効く**。
-  Copilot Studio等のクラウドMCPクライアントから接続する際は
-  これらを有効化してトンネル公開する
-  (手順: docs/driver.html「外部公開」)
+  **全チャネルでセッショントークン認証が必須**(下記「セキュリティ」)。
+  `QGIS_LIVE_API_KEY`/`QGIS_LIVE_TOOLS` env(QGIS起動時に設定)で
+  追加キー・コマンド種別フィルタが効く
+- **セキュリティ(localhost限定運用)**: ドライバ起動時に
+  `secrets.token_hex` でセッショントークンを生成し、
+  `<live_dir>/token` とレジストリJSONにユーザ限定ACLで書き出す。
+  commands.jsonl の全コマンドは `token` 一致必須、HTTP(/mcp・/api/*)は
+  Bearer等の照合必須 + Host/Origin がloopback以外なら拒否
+  (DNSリバインド・ブラウザ経由対策)。配布版は
+  `プラグイン > QGIS Live Driver > リモート制御 (localhostのみ)`
+  トグル(QSettings永続化・初回警告)でも有効化できる。
+  env `WEBENGINE_LIVE_DIR` は従来通り優先の開発経路
 - **ドライバは起動時にcommands.jsonlの末尾から読み始める**。reloadでドライバが
   作り直されても過去コマンドの再実行は起きない
 - コマンドidはクライアント側でセッションprefix付き(`s<rand>-<n>`)にする。

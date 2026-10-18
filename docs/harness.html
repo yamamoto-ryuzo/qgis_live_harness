@@ -13,11 +13,11 @@
     <div class="links">
       <div class="group">はじめに</div>
       <a class="navlink" href="index.html">概要</a>
+      <a class="navlink" href="usage.html">使い方・セットアップ</a>
       <div class="group">コンポーネント</div>
-      <a class="navlink" href="driver.html">QGIS Live Driver</a>
-      <a class="navlink active" href="harness.html">QGIS Live Harness</a>
+      <a class="navlink active" href="driver.html">QGIS Live Driver</a>
+      <a class="navlink" href="harness.html">QGIS Live Harness</a>
       <div class="group">ガイド</div>
-      <a class="navlink" href="usage.html">構成・セットアップ・使い方</a>
       <a class="navlink" href="distribution.html">プラグイン配布</a>
       <a class="navlink" href="internals.html">Harnessのプラグイン化</a>
       <div class="group">リンク</div>
@@ -96,9 +96,9 @@
 <td>Driver</td>
 </tr>
 <tr>
-<td>MCP(HTTP) — <strong>M365 Copilot Studio等のクラウド系</strong></td>
-<td>MCP Streamable HTTP + APIキー認証</td>
-<td><code>POST /mcp</code> + <code>QGIS_LIVE_API_KEY</code>/<code>QGIS_LIVE_TOOLS</code> env + トンネル公開</td>
+<td>MCP(HTTP) — <strong>ローカルのMCPクライアント</strong></td>
+<td>MCP Streamable HTTP + セッショントークン認証</td>
+<td><code>POST /mcp</code> + Bearer(トークンはレジストリJSON参照)</td>
 <td>Driver</td>
 </tr>
 <tr>
@@ -139,12 +139,13 @@ tools: <code>qgis_ensure</code> / <code>qgis_pyeval</code> / <code>qgis_eval</co
 qgis_live_driver がlive中ならそれをhubとして使い
 (<code>pluginId</code>引数はplugin_idルーティングに載る)、
 <code>qgis_screenshot</code> はPNGをMCP <strong>image content</strong>で返すためエージェントが画像として見られる。</p>
-<p><strong>M365 Copilot Studio 等のクラウドMCPクライアントから接続する場合</strong>:
-<code>/mcp</code> は Copilot Studio が要求する Streamable HTTP transport 互換だが、
-既定では localhost・無認証のため、公開には
-<code>QGIS_LIVE_API_KEY</code>(APIキー認証)+ <code>QGIS_LIVE_TOOLS</code>(公開ツール絞り込み)
-をQGIS起動envに設定し、devtunnel/ngrok等でHTTPS化する。
-手順詳細は <a href="driver.html#publish">QGIS Live Driver「外部公開」</a> を参照。</p>
+<p><strong>認証モデル</strong>: 全チャネルでセッショントークン必須
+(起動ごとに自動生成・ユーザ限定ACLファイルのみに保存)。
+HTTPは <code>127.0.0.1</code> バインドでlocalhost限定の設計であり、
+Host/Originがloopback以外のリクエストは拒否される。
+クラウドMCPクライアント(Copilot Studio等)からの接続は設計対象外だが、
+<code>QGIS_LIVE_API_KEY</code> + トンネルで無理やり公開する手順は
+<a href="driver.html#publish">QGIS Live Driver「外部公開」</a> に残してある(非推奨)。</p>
 <pre><code class="language-mermaid">flowchart LR
     CLIENT[&quot;MCPクライアント&lt;br/&gt;(Devin等)&quot;]
     subgraph SURF[&quot;接続面(全て同じdispatchへ)&quot;]
@@ -220,7 +221,7 @@ qgis_live_driver がlive中ならそれをhubとして使い
 <strong>Harness</strong> = リポジトリ側にのみ存在。</p>
 <nav class="pager">
   <a href="driver.html"><span class="dir">前へ</span><span class="title">QGIS Live Driver</span></a>
-  <a class="next" href="usage.html"><span class="dir">次へ</span><span class="title">構成・セットアップ・使い方</span></a>
+  <a class="next" href="distribution.html"><span class="dir">次へ</span><span class="title">プラグイン配布</span></a>
 </nav>
   </main>
   <aside class="toc"></aside>

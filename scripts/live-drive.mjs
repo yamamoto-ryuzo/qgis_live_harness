@@ -80,6 +80,16 @@ export class LivePage {
     // インスタンスごとに一意なprefixをidに付ける(ドライバはidをそのままエコーする)
     this.session = `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
     this.pending = new Map();
+    // ドライバが live_dir/token を書き出す場合、コマンドへの付与に使う。
+    // undefined=未読 / null=ファイル無し(旧ドライバ)
+    this._token = undefined;
+  }
+
+  async _readToken() {
+    this._token = await readFile(join(this.dir, "token"), "ascii")
+      .then((t) => t.trim() || null)
+      .catch(() => null);
+    return this._token;
   }
 
   /**
@@ -126,8 +136,21 @@ export class LivePage {
 
   async _send(cmd, timeoutMs = 45000) {
     await mkdir(this.dir, { recursive: true });
+    if (this._token === undefined) await this._readToken();
+    if (this._token) cmd.token = this._token;
     await appendFile(this.cmdPath, JSON.stringify(cmd) + "\n");
-    return this._nextResult(cmd.id, timeoutMs);
+    try {
+      return await this._nextResult(cmd.id, timeoutMs);
+    } catch (e) {
+      // ドライバreloadでトークンが変わった場合は読み直して1回だけ再送
+      if (!String(e.message).includes("unauthorized")) throw e;
+      await this._readToken();
+      if (!this._token) throw e;
+      const id = this._nextId();
+      const retry = { ...cmd, id, token: this._token };
+      await appendFile(this.cmdPath, JSON.stringify(retry) + "\n");
+      return this._nextResult(id, timeoutMs);
+    }
   }
 
   /**

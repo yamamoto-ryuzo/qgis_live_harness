@@ -2,13 +2,20 @@
 # 起動後、プラグインのダイアログを開けば npm run test:live でPlaywrightが接続できる。
 
 param(
-  [string]$QgisExe = "C:\Program Files\QGIS 4.0.1\bin\qgis-bin.exe",
+  [string]$QgisExe = "",
   [int]$DebugPort = 9222,
   [switch]$NoAutoOpen
 )
 
-if (-not (Test-Path $QgisExe)) {
-  Write-Error "QGIS not found: $QgisExe"
+# 未指定なら C:\Program Files\QGIS* の最新版を自動検出
+if (-not $QgisExe) {
+  $cand = Get-ChildItem "$env:ProgramFiles\QGIS*\bin\qgis-bin.exe" -ErrorAction SilentlyContinue |
+    Sort-Object FullName -Descending | Select-Object -First 1
+  if ($cand) { $QgisExe = $cand.FullName }
+}
+
+if (-not $QgisExe -or -not (Test-Path $QgisExe)) {
+  Write-Error "QGIS not found. Pass -QgisExe or set QGIS_EXE."
   exit 1
 }
 

@@ -13,7 +13,7 @@
 //   node scripts/qgis-session.mjs reload [--no-deploy]
 
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { LivePage, resolveLiveDirs } from "./live-drive.mjs";
@@ -25,7 +25,22 @@ const PLUGIN_ID = JSON.parse(
 ).id;
 const LIVE_BASE = process.env.WEBENGINE_LIVE_DIR || join(REPO, "test-results", "live");
 const DEPLOY_PS1 = join(REPO, "scripts", "deploy-plugin.ps1");
-const QGIS_EXE = process.env.QGIS_EXE || "C:\\Program Files\\QGIS 4.0.1\\bin\\qgis-bin.exe";
+// QGIS_EXE env > C:\Program Files\QGIS<ver>\bin\qgis-bin.exe(最新版優先)
+function resolveQgisExe() {
+  if (process.env.QGIS_EXE) return process.env.QGIS_EXE;
+  const root = "C:\\Program Files";
+  try {
+    const cands = readdirSync(root)
+      .filter((d) => /^QGIS/i.test(d))
+      .map((d) => join(root, d, "bin", "qgis-bin.exe"))
+      .filter((p) => existsSync(p))
+      .sort()
+      .reverse();
+    if (cands.length) return cands[0];
+  } catch {}
+  return "C:\\Program Files\\QGIS 4.0.1\\bin\\qgis-bin.exe";
+}
+const QGIS_EXE = resolveQgisExe();
 const LOG_PATH = join(REPO, "test-results", "plugin_load.log");
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

@@ -13,11 +13,11 @@
     <div class="links">
       <div class="group">はじめに</div>
       <a class="navlink active" href="index.html">概要</a>
+      <a class="navlink" href="usage.html">使い方・セットアップ</a>
       <div class="group">コンポーネント</div>
       <a class="navlink" href="driver.html">QGIS Live Driver</a>
       <a class="navlink" href="harness.html">QGIS Live Harness</a>
       <div class="group">ガイド</div>
-      <a class="navlink" href="usage.html">構成・セットアップ・使い方</a>
       <a class="navlink" href="distribution.html">プラグイン配布</a>
       <a class="navlink" href="internals.html">Harnessのプラグイン化</a>
       <div class="group">リンク</div>
@@ -34,9 +34,9 @@
 <p>このリポジトリは単体のプラグイン製品ではなく、QGISに「取り付けて操縦する外側の装具」そのもの。
 (リポジトリ/ディレクトリ名: <code>qgis_live_harness</code>)</p>
 <ul class="cards">
+<li><a class="card" href="usage.html"><b>使い方・セットアップ</b><span>まずここ。Driver単体利用 / Harnessでのプラグイン開発の手順</span></a></li>
 <li><a class="card" href="driver.html"><b>QGIS Live Driver</b><span>QGIS内で動く制御専用プラグイン。単独導入できる汎用部品</span></a></li>
 <li><a class="card" href="harness.html"><b>QGIS Live Harness</b><span>Driverの上に乗るクライアントAPI・セッション管理・検証基盤</span></a></li>
-<li><a class="card" href="usage.html"><b>構成・セットアップ・使い方</b><span>ディレクトリ構成、開発ループ、テスト、外部API一覧</span></a></li>
 <li><a class="card" href="distribution.html"><b>プラグイン配布</b><span>開発したプラグインを単独配布物にする手順と注意点</span></a></li>
 <li><a class="card" href="internals.html"><b>Harnessのプラグイン化</b><span>何がQGIS内に移せて、何が構造上外に残るのか</span></a></li>
 </ul>
@@ -46,11 +46,11 @@
         C[&quot;AI / CI / 人間&quot;]
     end
 
-    subgraph H[&quot;QGIS Live Harness&lt;br/&gt;(E2Eプラグイン開発・検証環境)&quot;]
+    subgraph H[&quot;QGIS Live Harness (E2Eプラグイン開発・検証環境)&quot;]
         HC[&quot;LivePage / live:*&lt;br/&gt;ensure / reload / devreload&lt;br/&gt;L1 Playwright / L2 test:live&lt;br/&gt;MCPアダプタ qgis-mcp.mjs&quot;]
     end
 
-    subgraph D[&quot;QGIS Live Driver&lt;br/&gt;(QGIS側の手)&quot;]
+    subgraph D[&quot;QGIS Live Driver (QGIS側の手)&quot;]
         DC[&quot;ファイルJSONL&lt;br/&gt;REST /api/*&lt;br/&gt;MCP /mcp・stdio shim&quot;]
     end
 
@@ -124,22 +124,24 @@ eval/pyeval/スクショで観測→test:liveで検証」を人間なしで反�
 実線 = Harnessが提供する層。</p>
 <h2>環境要件</h2>
 <ul>
-<li>QGIS 4.0.1 (<code>C:\Program Files\QGIS 4.0.1</code>)、Qt6/PyQt6</li>
+<li><strong>Windows 10/11 専用</strong>(deploy/起動スクリプトがPowerShell実装)</li>
+<li>QGIS 4.0.x、Qt6/PyQt6。<code>C:\Program Files\QGIS*</code> から自動検出(別場所は <code>QGIS_EXE</code> env)</li>
 <li>Node.js 24+ (Harness側クライアント用。Driver単体利用なら不要)</li>
-<li>Python 3.13+ (ユニットテスト用)</li>
-<li>Windowsデスクトップセッション(常駐QGISモデルのため)</li>
+<li>Python 3.13+ (ユニットテスト用。<code>pip install pytest</code>)</li>
 </ul>
 <h2>注意</h2>
 <ul>
-<li><code>pyeval</code>/<code>devreload</code> は任意コード実行を含む <strong>開発専用機能</strong>。
-<code>WEBENGINE_LIVE_DIR</code>/<code>WEBENGINE_DEV_SRC</code> 設定時のみ有効。
+<li><code>pyeval</code>/<code>devreload</code> は任意コード実行を含むため、Driver側は
+<strong>localhost限定・セッショントークン認証必須</strong>で保護される
+(トークンはユーザ限定ACLファイルにのみ保存)。有効化は
+<code>WEBENGINE_LIVE_DIR</code> env またはメニュートグル。
 配布手順は<a href="distribution.html">プラグイン配布</a>を参照</li>
 <li>重いQGIS操作(大きなプロジェクトでのレイヤーアクティブ化等)の直後は
 JS側evalが一時的に飢餓することがある。その場合はpyevalで確認する</li>
 <li>詳細な仕組み・制約は <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/AGENTS.md">AGENTS.md</a> を参照</li>
 </ul>
 <nav class="pager">
-  <a class="next" href="driver.html"><span class="dir">次へ</span><span class="title">QGIS Live Driver</span></a>
+  <a class="next" href="usage.html"><span class="dir">次へ</span><span class="title">使い方・セットアップ</span></a>
 </nav>
   </main>
   <aside class="toc"></aside>

@@ -13,11 +13,11 @@
     <div class="links">
       <div class="group">はじめに</div>
       <a class="navlink" href="index.html">概要</a>
+      <a class="navlink" href="usage.html">使い方・セットアップ</a>
       <div class="group">コンポーネント</div>
       <a class="navlink" href="driver.html">QGIS Live Driver</a>
       <a class="navlink" href="harness.html">QGIS Live Harness</a>
       <div class="group">ガイド</div>
-      <a class="navlink" href="usage.html">構成・セットアップ・使い方</a>
       <a class="navlink active" href="distribution.html">プラグイン配布</a>
       <a class="navlink" href="internals.html">Harnessのプラグイン化</a>
       <div class="group">リンク</div>
@@ -67,8 +67,15 @@ ui/はパッケージ内にあるためjunction deployでも同梱される</li>
 </tbody></table>
 <p>除去しても環境変数を立てられても <code>ImportError</code> がキャッチされるだけで
 正常動作する設計だが、任意コード実行の扉を物理的に残さないため除去を推奨。</p>
+<blockquote>
+<p><strong>例外</strong>: <code>qgis_live_driver</code> は「リモート制御するための製品」
+そのものであり、このページの「開発品からdev機構を除く」ルールは
+<strong>自作プラグイン側</strong>に適用するもの。Driverはセッショントークン認証・
+localhost限定・ユーザ限定ACLで保護された状態で配布物として成立する
+(<a href="driver.html">Driver詳細</a>)。</p>
+</blockquote>
 <nav class="pager">
-  <a href="usage.html"><span class="dir">前へ</span><span class="title">構成・セットアップ・使い方</span></a>
+  <a href="harness.html"><span class="dir">前へ</span><span class="title">QGIS Live Harness</span></a>
   <a class="next" href="internals.html"><span class="dir">次へ</span><span class="title">Harnessのプラグイン化</span></a>
 </nav>
   </main>
