@@ -8,3 +8,11 @@ __pycache__/
 .upstream/
 .devin/mcp_config.local.json
 *.bak
+
+# 検証・実験の一時成果物(リポジトリルート)
+.tmp_jtest/
+nul
+hidden_all.png
+hidden_all.pgw
+osm_only.png
+osm_only.pgw
