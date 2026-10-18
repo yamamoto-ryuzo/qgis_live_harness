@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QGIS Live Harness | QGIS Live Harness</title>
+<style>
+  :root { --nav-w: 240px; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", "Noto Sans JP", sans-serif;
+         color: #1f2328; display: flex; min-height: 100vh; }
+  nav { width: var(--nav-w); flex-shrink: 0; border-right: 1px solid #d1d9e0;
+        padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow: auto; }
+  nav .site { font-weight: 700; font-size: 15px; margin-bottom: 16px; }
+  nav a { display: block; padding: 6px 8px; border-radius: 6px; color: #0969da;
+          text-decoration: none; font-size: 14px; }
+  nav a.active { background: #ddf4ff; font-weight: 600; }
+  nav a:hover { background: #f6f8fa; }
+  main { flex: 1; max-width: 980px; padding: 32px 48px 80px; overflow-wrap: break-word; }
+  h1 { border-bottom: 1px solid #d1d9e0; padding-bottom: .3em; }
+  h2 { border-bottom: 1px solid #d1d9e0; padding-bottom: .3em; margin-top: 32px; }
+  h3 { margin-top: 24px; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  code { background: #eff1f3; padding: .2em .4em; border-radius: 6px; font-size: 85%; }
+  pre { background: #f6f8fa; padding: 16px; border-radius: 6px; overflow: auto; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; display: block; overflow: auto; }
+  th, td { border: 1px solid #d1d9e0; padding: 6px 13px; }
+  tr:nth-child(2n) { background: #f6f8fa; }
+  blockquote { border-left: .25em solid #d1d9e0; color: #59636e;
+               margin: 0; padding: 0 1em; }
+  a { color: #0969da; }
+  .mermaid { margin: 16px 0; }
+  @media (max-width: 800px) {
+    body { flex-direction: column; }
+    nav { width: auto; height: auto; position: static; border-right: none;
+          border-bottom: 1px solid #d1d9e0; }
+    main { padding: 16px 20px 60px; }
+  }
+</style>
+</head>
+<body>
+  <nav>
+    <div class="site">QGIS Live Harness</div>
+    <a href="index.html">概要</a>
+      <a href="driver.html">QGIS Live Driver</a>
+      <a href="harness.html" class="active">QGIS Live Harness</a>
+      <a href="usage.html">構成・セットアップ・使い方</a>
+      <a href="distribution.html">プラグイン配布</a>
+      <a href="internals.html">Harnessのプラグイン化</a>
+    <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness">GitHub リポジトリ</a>
+  </nav>
+  <main>
+<h2>2. QGIS Live Harness — Driverの上に乗る基盤(このリポジトリ)</h2>
+<p>Driverが「QGIS側の手」なら、Harnessは「操縦席+管制塔」。
+生のファイルJSONL/HTTPを直接読み書きする代わりに、
+プラグイン開発の全工程を無人化する層を提供する。</p>
+<p>言い換えると、<strong>Harnessとは「QGISプロセス内へプラグインとして移せない部分」
+の総体</strong>である。ブートストラップ(初回インストール/プロセス起動)・
+自己監視・QGIS非依存の検証は原理的に外にしか置けず、
+その不可還元な外側こそがHarnessの存在理由になる
+(詳細は「Harness自体のプラグイン化について」節)。</p>
+<p>HarnessがDriverに対して追加するもの:</p>
+<table>
+<thead>
+<tr>
+<th>要素</th>
+<th>役割</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>scripts/live-drive.mjs</code> (<code>LivePage</code>)</td>
+<td>Nodeからの高水準API。<code>evaluate</code>/<code>pyeval</code>/<code>click</code>/<code>waitFor</code>/<code>screenshot</code>/<code>devreload</code>/<code>status</code>/<code>openPlugin</code>/<code>reloadPlugin</code>/<code>bridgeCall</code>。使い勝手はPlaywright相当</td>
+</tr>
+<tr>
+<td><code>scripts/qgis-session.mjs</code></td>
+<td>セッション管理。<code>ensure</code>=起動中へアタッチ/自動deploy+起動、<code>reload</code>=器のホットリロード、<code>devreload</code>=repo側コード即反映</td>
+</tr>
+<tr>
+<td><code>scripts/qgis-live-check.mjs</code></td>
+<td>L2検証ランナー(<code>npm run test:live</code>)。QGIS未起動でも内部でensureする</td>
+</tr>
+<tr>
+<td><code>scripts/qgis-mcp.mjs</code></td>
+<td>Harness側MCPアダプタ(stdio)。Driverの操作面を <code>qgis_pyeval</code> 等のtoolとして公開(後述)</td>
+</tr>
+<tr>
+<td><code>tests/e2e</code> + Playwright</td>
+<td>L1検証。UIが実物Chromiumで動くことを利用したブラウザ単体テスト</td>
+</tr>
+<tr>
+<td><code>WEBENGINE_DEV_SRC</code> 機構</td>
+<td>開発対象コードをリポジトリに置いたままQGIS内で実行 → <code>devreload</code>で即反映</td>
+</tr>
+</tbody></table>
+<h3>MCPによるAI連携</h3>
+<p>AIの接続方式はクライアントごとに異なるため、Driver側・Harness側で<strong>全方式を並列提供</strong>する:</p>
+<table>
+<thead>
+<tr>
+<th>AIの種類</th>
+<th>使う面</th>
+<th>実装</th>
+<th>提供元</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MCP(stdio) — Devin/Claude Desktop/IDE系</td>
+<td>MCP stdio</td>
+<td><code>qgis_live_driver/mcp_stdio.py</code>(stdlibのみ) または <code>scripts/qgis-mcp.mjs</code>(Node版・ツール豊富)</td>
+<td>Driver / Harness</td>
+</tr>
+<tr>
+<td>MCP(HTTP) — リモート/マルチクライアント系</td>
+<td>MCP Streamable HTTP</td>
+<td><code>POST /mcp</code></td>
+<td>Driver</td>
+</tr>
+<tr>
+<td>MCP(HTTP) — <strong>M365 Copilot Studio等のクラウド系</strong></td>
+<td>MCP Streamable HTTP + APIキー認証</td>
+<td><code>POST /mcp</code> + <code>QGIS_LIVE_API_KEY</code>/<code>QGIS_LIVE_TOOLS</code> env + トンネル公開</td>
+<td>Driver</td>
+</tr>
+<tr>
+<td>汎用HTTPのみ — function calling/自作エージェント</td>
+<td>plain REST</td>
+<td><code>POST /api/*</code> + <code>GET /api/tools</code></td>
+<td>Driver</td>
+</tr>
+<tr>
+<td>シェル/ファイルのみ — 制限環境</td>
+<td>生ファイルプロトコル</td>
+<td><code>commands.jsonl</code>/<code>results.jsonl</code></td>
+<td>Driver</td>
+</tr>
+<tr>
+<td>Nodeライブラリ/CLI</td>
+<td>LivePage・<code>npm run live:*</code></td>
+<td><code>scripts/</code> 内</td>
+<td>Harness</td>
+</tr>
+</tbody></table>
+<p>MCPクライアント設定例(stdioの場合、Driver同梱shimを直接使う):</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;qgis-live&quot;: {
+      &quot;command&quot;: &quot;python&quot;,
+      &quot;args&quot;: [&quot;C:/Users/&lt;user&gt;/AppData/Roaming/QGIS/QGIS4/profiles/&lt;profile&gt;/python/plugins/qgis_live_driver/mcp_stdio.py&quot;]
+    }
+  }
+}
+</code></pre>
+<p>このリポジトリをDevin等で開く場合は <code>.devin/mcp_config.json</code> で
+<code>qgis-live</code>(<code>scripts/qgis-mcp.mjs</code>)が登録済み。
+tools: <code>qgis_ensure</code> / <code>qgis_pyeval</code> / <code>qgis_eval</code> / <code>qgis_bridge_call</code> /
+<code>qgis_screenshot</code> / <code>qgis_status</code> / <code>qgis_open_plugin</code> /
+<code>qgis_devreload</code> / <code>qgis_reload</code>。
+各toolは内部でensureするためQGIS未起動でも自動で立ち上がり、
+qgis_live_driver がlive中ならそれをhubとして使い
+(<code>pluginId</code>引数はplugin_idルーティングに載る)、
+<code>qgis_screenshot</code> はPNGをMCP <strong>image content</strong>で返すためエージェントが画像として見られる。</p>
+<p><strong>M365 Copilot Studio 等のクラウドMCPクライアントから接続する場合</strong>:
+<code>/mcp</code> は Copilot Studio が要求する Streamable HTTP transport 互換だが、
+既定では localhost・無認証のため、公開には
+<code>QGIS_LIVE_API_KEY</code>(APIキー認証)+ <code>QGIS_LIVE_TOOLS</code>(公開ツール絞り込み)
+をQGIS起動envに設定し、devtunnel/ngrok等でHTTPS化する。
+手順詳細は <code>qgis-plugin/qgis_live_driver/README.md</code> の「外部公開」を参照。</p>
+<pre><code class="language-mermaid">flowchart LR
+    CLIENT[&quot;MCPクライアント&lt;br/&gt;(Devin等)&quot;]
+    subgraph SURF[&quot;接続面(全て同じdispatchへ)&quot;]
+        MCP[&quot;Harness: qgis-mcp.mjs&lt;br/&gt;stdio JSON-RPC&quot;]
+        SHIM[&quot;Driver: mcp_stdio.py&lt;br/&gt;stdio shim(stdlibのみ)&quot;]
+        HTTP[&quot;Driver内蔵HTTP&lt;br/&gt;/mcp + /api/*&quot;]
+    end
+    API[&quot;Harness: LivePage / ensure&quot;]
+    QGIS[&quot;常駐QGISプロセス&lt;br/&gt;(Driver + 器)&quot;]
+
+    CLIENT --&gt;|&quot;tools/call&quot;| MCP --&gt; API --&gt;|ファイルJSONL| QGIS
+    CLIENT --&gt;|stdio| SHIM --&gt;|ファイルJSONL| QGIS
+    CLIENT --&gt;|HTTP| HTTP --&gt;|&quot;submit()&quot;| QGIS
+    QGIS --&gt;|image content等| MCP --&gt; CLIENT
+</code></pre>
+<h3>プラグイン自動化環境(開発対象 = <code>webengine_plugin</code>)</h3>
+<p>Harnessは「任意QGISを操る」だけでなく、<strong>Qt WebEngineプラグインの開発ループ自体を無人化</strong>する。
+<code>webengine_plugin</code> がその器であり、deployするのは固定の器
+(QWebEngineView + view用ドライバ)だけで、開発対象のロジック/UIは
+リポジトリに置いたまま<strong>実QGIS内で動作・観測・即時反映</strong>できる。</p>
+<pre><code class="language-mermaid">flowchart TD
+    WEB[&quot;QWebEngineView(実物Chromium)&quot;]
+    BROWSER[&quot;同じ ui/ が通常ブラウザでも動く&lt;br/&gt;(mock bridgeにフォールバック)&quot;]
+    PW[&quot;Playwright / DevTools / DOM検査&lt;br/&gt;がそのまま使える [L1]&quot;]
+
+    SRC[&quot;WEBENGINE_DEV_SRC&lt;br/&gt;= このリポジトリ&quot;]
+    LOAD[&quot;bridge.py / logic.py を実行時ロード&lt;br/&gt;(deploy物に含まない)&quot;]
+    DR[&quot;npm run live:devreload&lt;br/&gt;→ 実行中QGISに即反映&quot;]
+
+    PY[&quot;pyeval(Driver/器のドライバ経由)&quot;]
+    ASSERT[&quot;iface / QgsProject / canvas の&lt;br/&gt;実状態を任意assert [L2]&quot;]
+
+    WEB --&gt; BROWSER --&gt; PW
+    SRC --&gt; LOAD --&gt; DR
+    PY --&gt; ASSERT
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>要素</th>
+<th>面</th>
+<th>役割</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>QWebEngineView</strong></td>
+<td>製品</td>
+<td>UIを実物Chromiumにする → Web標準自動化の適用が可能になる<strong>核</strong></td>
+</tr>
+<tr>
+<td><code>bridge.py</code>/<code>logic.py</code>/<code>ui/</code></td>
+<td>製品</td>
+<td>操作対象であり、配布物そのもの</td>
+</tr>
+<tr>
+<td><code>WEBENGINE_DEV_SRC</code></td>
+<td>器</td>
+<td>製品コードをリポジトリに置いたままQGIS内で実行する機構</td>
+</tr>
+<tr>
+<td><code>devreload</code></td>
+<td>器</td>
+<td>編集→即反映(deploy/reloadPlugin/再起動 全て不要)</td>
+</tr>
+<tr>
+<td><code>pyeval</code></td>
+<td>器/Driver</td>
+<td>UIの外側・QGIS内部状態まで踏み込む検証手段</td>
+</tr>
+</tbody></table>
+<p>要素の「面」について: <strong>製品</strong> = 配布プラグインに同梱、
+<strong>器</strong> = deployされるが配布物からは除去、<strong>Driver</strong> = 単独導入できる汎用部品、
+<strong>Harness</strong> = リポジトリ側にのみ存在。</p>
+
+  </main>
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+document.querySelectorAll('pre > code.language-mermaid').forEach((el) => {
+  const div = document.createElement('div');
+  div.className = 'mermaid';
+  div.textContent = el.textContent;
+  el.parentElement.replaceWith(div);
+});
+mermaid.initialize({ startOnLoad: false });
+await mermaid.run({ querySelector: '.mermaid' });
+</script>
+</body>
+</html>

@@ -4,10 +4,10 @@
 このリポジトリは単体のプラグイン製品ではなく、QGISに「取り付けて操縦する外側の装具」そのもの。
 (リポジトリ/ディレクトリ名: `qgis_live_harness`)
 
-## 構成(2層)
+## 構成(全体像)
 
 ```mermaid
-flowchart LR
+flowchart TB
     subgraph CL["クライアント"]
         C["AI / CI / 人間"]
     end
@@ -319,6 +319,7 @@ scripts/
   repair-ini.js       QGIS4.iniの破損エントリ修復(backup付き)
 tests/e2e/            Playwright (L1 = mock使用)
 tests/unit/           pytest
+docs/                 GitHub Pages用HTML(npm run docs:build でREADMEから生成)
 ```
 
 ### プラグインの追加・複数開発
