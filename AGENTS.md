@@ -96,6 +96,13 @@ npm run deploy          # プラグイン配置(junction既定、失敗時copy�
 npm run verify:qgis     # 別ターミナルでQGIS起動(開きっぱなし)
 ```
 
+## リリース
+
+- **リリースタグ(`git tag`)・GitHub Release はユーザーの明示的な指示がない限り作成しない**
+- バージョンは `package.json` がリポジトリ(Harness)のバージョン、
+  各 `qgis-plugin/<id>/metadata.txt` がプラグイン個別のバージョン(別系で管理)
+- 変更履歴は `CHANGELOG.md` に記録する
+
 ## L2の仕組み(重要)
 
 **この環境(QGIS 4.0.1 / QtWebEngine 6.8.1 / Chrome 122)では Playwright は使えない。**
