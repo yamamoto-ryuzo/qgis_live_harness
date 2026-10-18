@@ -1148,7 +1148,7 @@ MCP_CONFIG_TEMPLATE = {
             "url": "http://localhost:3000/mcp",
             "headers": {"Authorization": "Bearer <固定トークン>"},
         },
-        "example-http-oauth": {
+        "box-http-oauth": {
             "url": "https://mcp.box.com",
             "oauth": {
                 "authorize_url":
