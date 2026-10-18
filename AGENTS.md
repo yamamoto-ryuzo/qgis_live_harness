@@ -171,7 +171,7 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
   /mcp・/api/* にAPIキー認証+コマンド種別フィルタが効く**。
   Copilot Studio等のクラウドMCPクライアントから接続する際は
   これらを有効化してトンネル公開する
-  (手順: qgis_live_driver/README.md「外部公開」)
+  (手順: docs/driver.html「外部公開」)
 - **ドライバは起動時にcommands.jsonlの末尾から読み始める**。reloadでドライバが
   作り直されても過去コマンドの再実行は起きない
 - コマンドidはクライアント側でセッションprefix付き(`s<rand>-<n>`)にする。

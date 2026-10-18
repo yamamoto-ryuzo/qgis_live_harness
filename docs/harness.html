@@ -144,7 +144,7 @@ qgis_live_driver がlive中ならそれをhubとして使い
 既定では localhost・無認証のため、公開には
 <code>QGIS_LIVE_API_KEY</code>(APIキー認証)+ <code>QGIS_LIVE_TOOLS</code>(公開ツール絞り込み)
 をQGIS起動envに設定し、devtunnel/ngrok等でHTTPS化する。
-手順詳細は <code>qgis-plugin/qgis_live_driver/README.md</code> の「外部公開」を参照。</p>
+手順詳細は <a href="driver.html#publish">QGIS Live Driver「外部公開」</a> を参照。</p>
 <pre><code class="language-mermaid">flowchart LR
     CLIENT[&quot;MCPクライアント&lt;br/&gt;(Devin等)&quot;]
     subgraph SURF[&quot;接続面(全て同じdispatchへ)&quot;]

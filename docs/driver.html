@@ -86,6 +86,34 @@ GUIスレッドのQTimerがファイルJSONLと同じ要領で実行する(dispa
     LD --&gt; RES
     RES --&gt; APP &amp; LP
 </code></pre>
+<h2 id="publish">外部公開(Copilot Studio等からの接続)</h2>
+<p><code>/mcp</code> は Copilot Studio が対応する <strong>Streamable HTTP transport 互換</strong>だが、
+既定では <code>127.0.0.1</code>・認証なしのためクラウドからは到達しない。
+以下の手順で公開できる。</p>
+<h3>1. APIキー認証と公開ツールの絞り込み(QGIS起動前にenvを設定)</h3>
+<pre><code class="language-powershell">$env:QGIS_LIVE_API_KEY = "&lt;ランダムなキー&gt;"
+# 推奨: 公開ツールを限定。pyevalは任意コード実行のため除外
+$env:QGIS_LIVE_TOOLS = "status,screenshot"
+npm run live:ensure</code></pre>
+<ul>
+<li>親シェルのenvは <code>live:ensure</code> → powershell → <code>Start-Process</code> 経由でQGISへ引き継がれる。<strong>既にQGISがlive中の場合は再起動が必要</strong>(envは起動時に読む)</li>
+<li><code>QGIS_LIVE_API_KEY</code> 設定時は <code>Authorization: Bearer &lt;key&gt;</code> / <code>X-Api-Key:</code> / <code>api-key:</code> のいずれかのヘッダを要求(不一致は401)。<code>/api/health</code> のみ無認証</li>
+<li><code>QGIS_LIVE_TOOLS</code> はコマンド種別名のカンマ区切り(<code>qgis_</code>前置も可、<code>*</code>または未設定で全許可)。<code>/mcp</code> の tools/list・tools/call と <code>/api/*</code> の両方に効く</li>
+<li>有効状態は <code>~/.qgis-live/&lt;pid&gt;-qgis_live_driver.json</code> の <code>http_auth</code> / <code>http_tools</code> / <code>mcp_url</code> で確認できる(キー自体は書き出さない)</li>
+</ul>
+<h3>2. HTTPSで公開(トンネル)</h3>
+<p>Copilot Studioはクラウドのため公開URLが必要。ローカルポートをトンネルする:</p>
+<pre><code class="language-powershell">devtunnel host -p &lt;port&gt; --allow-anonymous
+# または
+ngrok http &lt;port&gt;</code></pre>
+<p>(TLS終端とFQDN払い出しはトンネル側が担い、認証は <code>/mcp</code> 側のAPIキーが担う)</p>
+<h3>3. Copilot Studio 側の設定</h3>
+<p>エージェントの <strong>Tools → Add a tool → New tool → Model Context Protocol</strong> で
+MCP onboarding wizardを開き、Server URL に <code>https://&lt;トンネルFQDN&gt;/mcp</code>、
+認証に <strong>API key</strong> を選んで <code>QGIS_LIVE_API_KEY</code> の値を入力する。
+<strong>generative orchestration が有効なエージェント</strong>が必要。
+追加後は <code>qgis_status</code> 等がツールとして使える。</p>
+<p>REST面を使う場合は Power Apps カスタムコネクタ経由で <code>/api/*</code> を包む方法もある。</p>
 <h2>Harnessなしでの単独導入</h2>
 <p>Driverの利用にこのリポジトリは要らない:</p>
 <pre><code class="language-powershell"># このリポジトリからなら一括deploy(任意)
