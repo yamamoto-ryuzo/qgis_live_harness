@@ -278,6 +278,39 @@ figure.media figcaption {
   text-align: center;
 }
 
+/* ---------- video modal ---------- */
+.video-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  background: rgba(0, 0, 0, .78);
+}
+.video-modal video {
+  max-width: 100%;
+  max-height: calc(100vh - 96px);
+  display: block;
+  border-radius: var(--radius);
+  background: #000;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, .5);
+}
+.video-modal .close {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .16);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+.video-modal .close:hover { background: rgba(255, 255, 255, .32); }
+
 /* ---------- cards (index) ---------- */
 .cards {
   display: grid;

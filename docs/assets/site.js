@@ -82,6 +82,38 @@ if (tocEl && headings.length >= 2) {
   headings.forEach((h) => observer.observe(h));
 }
 
+// ---- video links: play in a modal instead of navigating away ----
+const VIDEO_EXT = /\.(mp4|webm|mov|m4v)(\?|#|$)/i;
+for (const a of document.querySelectorAll('main a[href]')) {
+  if (!VIDEO_EXT.test(a.getAttribute('href'))) continue;
+  a.addEventListener('click', (e) => {
+    e.preventDefault();
+    const modal = document.createElement('div');
+    modal.className = 'video-modal';
+    const video = document.createElement('video');
+    video.src = a.href;
+    video.controls = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    const close = document.createElement('button');
+    close.className = 'close';
+    close.type = 'button';
+    close.setAttribute('aria-label', '閉じる');
+    close.textContent = '✕';
+    modal.append(video, close);
+    const onKey = (ev) => { if (ev.key === 'Escape') dismiss(); };
+    function dismiss() {
+      video.pause();
+      document.removeEventListener('keydown', onKey);
+      modal.remove();
+    }
+    close.addEventListener('click', dismiss);
+    modal.addEventListener('click', (ev) => { if (ev.target === modal) dismiss(); });
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(modal);
+  });
+}
+
 // ---- mermaid ----
 const mermaidBlocks = document.querySelectorAll('pre > code.language-mermaid');
 if (mermaidBlocks.length) {
