@@ -24,9 +24,19 @@ status は plugin_id をコマンド引数としてこのドライバが処理�
 
 バインドは 127.0.0.1 固定、ポート0(空き自動選択)。
 pyeval=任意コード実行のためリモート公開は想定しない。
+
+外部公開(M365 Copilot Studio等のクラウドMCPクライアント)する場合:
+  QGIS_LIVE_API_KEY  設定すると全エンドポイント(/api/health以外)で
+                     Authorization: Bearer / X-Api-Key / api-key ヘッダの
+                     照合を要求する。トンネル(devtunnel/ngrok等)でHTTPS化して
+                     公開する際は必須。
+  QGIS_LIVE_TOOLS    公開するコマンド種別のカンマ区切り(例 "status,screenshot")。
+                     /mcp の tools/list・tools/call と /api/* の両方に効く。
+                     未設定 or "*" で全許可。pyeval除外を推奨。
 """
 
 import base64
+import hmac
 import json
 import os
 import tempfile
@@ -164,6 +174,35 @@ class _Handler(BaseHTTPRequestHandler):
 
     # ---- 共通ユーティリティ ----
 
+    def _auth_ok(self):
+        """QGIS_LIVE_API_KEY設定時のAPIキー照合。未設定なら常に許可。"""
+        key = self.server.api_key
+        if not key:
+            return True
+        auth = self.headers.get("Authorization", "")
+        tok = ""
+        if auth.lower().startswith("bearer "):
+            tok = auth[7:].strip()
+        if not tok:
+            tok = (self.headers.get("X-Api-Key")
+                   or self.headers.get("api-key") or "")
+        return bool(tok) and hmac.compare_digest(tok, key)
+
+    def _gate(self, path):
+        """認証ゲート。/api/health は生存確認用に無認証で通す。"""
+        if path == "/api/health" or self._auth_ok():
+            return True
+        self._json(401, {"error": "unauthorized"})
+        return False
+
+    def _allowed(self, ctype):
+        """QGIS_LIVE_TOOLSによるコマンド種別フィルタ。None=全許可。"""
+        allow = self.server.allowed
+        return allow is None or ctype in allow
+
+    def _tools(self):
+        return [t for t in TOOLS if self._allowed(t["name"][len("qgis_"):])]
+
     def _read_body(self):
         n = int(self.headers.get("Content-Length") or 0)
         return self.rfile.read(n) if n else b""
@@ -184,19 +223,31 @@ class _Handler(BaseHTTPRequestHandler):
     # ---- REST ----
 
     def do_GET(self):
+        if not self._gate(self.path):
+            return
         if self.path == "/api/health":
             self._json(200, {"ok": True, "pid": os.getpid(),
                              "plugin": "qgis_live_driver"})
         elif self.path == "/api/tools":
-            self._json(200, {"tools": TOOLS})
+            self._json(200, {"tools": self._tools()})
         elif self.path == "/api/status":
+            if not self._allowed("status"):
+                self._json(403, {"error": "type 'status' not allowed"})
+                return
             self._json(200, self._dispatch({"type": "status"}))
+        elif self.path == "/mcp":
+            # Streamable HTTPのGET(SSEストリーム)は提供しない
+            self._json(405, {"error": "method not allowed"},
+                       {"Allow": "POST"})
         else:
             self._json(404, {"error": "not found"})
 
     def do_POST(self):
+        # keep-alive接続で未読ボディが次リクエストを壊さないよう先に読み捨てる
+        body = self._read_body()
+        if not self._gate(self.path):
+            return
         try:
-            body = self._read_body()
             data = json.loads(body.decode("utf-8")) if body else {}
         except Exception as e:
             self._json(400, {"error": f"bad json: {e}"})
@@ -220,6 +271,10 @@ class _Handler(BaseHTTPRequestHandler):
             self._json(404, {"error": "not found"})
 
     def _api_call(self, cmd):
+        if not self._allowed(cmd.get("type", "")):
+            self._json(403, {"error":
+                             f"type '{cmd.get('type')}' not allowed"})
+            return
         # 未指定のplugin_idは送信しない(省略=ローカル/既定対象の意味を残す)
         if cmd.get("plugin_id") is None:
             cmd.pop("plugin_id", None)
@@ -227,6 +282,9 @@ class _Handler(BaseHTTPRequestHandler):
         self._json(200 if "error" not in rep else 500, rep)
 
     def _api_shot(self, path, plugin_id=None, target=None):
+        if not self._allowed("screenshot"):
+            self._json(403, {"error": "type 'screenshot' not allowed"})
+            return
         if not path:
             path = os.path.join(tempfile.gettempdir(),
                                 f"qgis-shot-{uuid.uuid4().hex[:8]}.png")
@@ -280,7 +338,7 @@ class _Handler(BaseHTTPRequestHandler):
 
         if method == "tools/list":
             self._json(200, {"jsonrpc": "2.0", "id": mid,
-                             "result": {"tools": TOOLS}})
+                             "result": {"tools": self._tools()}})
             return
 
         if method == "tools/call":
@@ -298,6 +356,9 @@ class _Handler(BaseHTTPRequestHandler):
     def _tool_call(self, name, args):
         if not (name or "").startswith("qgis_"):
             return _content_error(f"unknown tool: {name}")
+        if not self._allowed(name[len("qgis_"):]):
+            return _content_error(
+                f"tool '{name}' disabled (QGIS_LIVE_TOOLS)")
         # qgis_<type> → {"type": "<type>", ...args} にそのまま変換する。
         # 新しいコマンド種別を追加してもここは変更不要。
         if name == "qgis_screenshot":
@@ -333,11 +394,18 @@ class _Handler(BaseHTTPRequestHandler):
             return _content_error(repr(e))
 
 
-def start_http(driver, host="127.0.0.1", port=0):
-    """HTTPサーバをデーモンスレッドで起動し実ポートを返す。"""
+def start_http(driver, host="127.0.0.1", port=0,
+               api_key=None, allowed=None):
+    """HTTPサーバをデーモンスレッドで起動し実ポートを返す。
+
+    api_key: 設定時は全エンドポイント(/api/health除く)でAPIキー照合を要求
+    allowed: 許可するコマンド種別の集合。None=全許可
+    """
     httpd = ThreadingHTTPServer((host, port), _Handler)
     httpd.daemon_threads = True
     httpd.driver = driver
+    httpd.api_key = api_key
+    httpd.allowed = allowed
     t = threading.Thread(target=httpd.serve_forever, daemon=True)
     t.start()
     return httpd, httpd.server_address[1]

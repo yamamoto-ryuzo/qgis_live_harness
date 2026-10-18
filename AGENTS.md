@@ -166,7 +166,12 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
   (Streamable HTTP)と `POST /api/*`(REST、汎用 `/api/cmd` 含む)を内蔵し、
   同梱 `mcp_stdio.py` がstdioクライアントをファイルJSONLへ中継する(Node不要)。
   toolsは `qgis_<コマンド種別>` の命名でドライバの全コマンドに対応
-  (pyeval/eval/screenshot/devreload/status/open_plugin/reload_plugin/bridge_call)
+  (pyeval/eval/screenshot/devreload/status/open_plugin/reload_plugin/bridge_call)。
+  **`QGIS_LIVE_API_KEY`/`QGIS_LIVE_TOOLS` env(QGIS起動時に設定)で
+  /mcp・/api/* にAPIキー認証+コマンド種別フィルタが効く**。
+  Copilot Studio等のクラウドMCPクライアントから接続する際は
+  これらを有効化してトンネル公開する
+  (手順: qgis_live_driver/README.md「外部公開」)
 - **ドライバは起動時にcommands.jsonlの末尾から読み始める**。reloadでドライバが
   作り直されても過去コマンドの再実行は起きない
 - コマンドidはクライアント側でセッションprefix付き(`s<rand>-<n>`)にする。

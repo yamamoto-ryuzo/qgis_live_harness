@@ -200,6 +200,7 @@ AIの接続方式はクライアントごとに異なるため、Driver側・Har
 |---|---|---|---|
 | MCP(stdio) — Devin/Claude Desktop/IDE系 | MCP stdio | `qgis_live_driver/mcp_stdio.py`(stdlibのみ) または `scripts/qgis-mcp.mjs`(Node版・ツール豊富) | Driver / Harness |
 | MCP(HTTP) — リモート/マルチクライアント系 | MCP Streamable HTTP | `POST /mcp` | Driver |
+| MCP(HTTP) — **M365 Copilot Studio等のクラウド系** | MCP Streamable HTTP + APIキー認証 | `POST /mcp` + `QGIS_LIVE_API_KEY`/`QGIS_LIVE_TOOLS` env + トンネル公開 | Driver |
 | 汎用HTTPのみ — function calling/自作エージェント | plain REST | `POST /api/*` + `GET /api/tools` | Driver |
 | シェル/ファイルのみ — 制限環境 | 生ファイルプロトコル | `commands.jsonl`/`results.jsonl` | Driver |
 | Nodeライブラリ/CLI | LivePage・`npm run live:*` | `scripts/` 内 | Harness |
@@ -226,6 +227,13 @@ tools: `qgis_ensure` / `qgis_pyeval` / `qgis_eval` / `qgis_bridge_call` /
 qgis_live_driver がlive中ならそれをhubとして使い
 (`pluginId`引数はplugin_idルーティングに載る)、
 `qgis_screenshot` はPNGをMCP **image content**で返すためエージェントが画像として見られる。
+
+**M365 Copilot Studio 等のクラウドMCPクライアントから接続する場合**:
+`/mcp` は Copilot Studio が要求する Streamable HTTP transport 互換だが、
+既定では localhost・無認証のため、公開には
+`QGIS_LIVE_API_KEY`(APIキー認証)+ `QGIS_LIVE_TOOLS`(公開ツール絞り込み)
+をQGIS起動envに設定し、devtunnel/ngrok等でHTTPS化する。
+手順詳細は `qgis-plugin/qgis_live_driver/README.md` の「外部公開」を参照。
 
 ```mermaid
 flowchart LR
@@ -362,7 +370,7 @@ npm run test:live      # L2: 実QGIS内検証(QGIS未起動でも自動起動)
 |---|---|---|---|
 | ファイルプロトコル | `commands.jsonl` に `{id,type:eval\|pyeval\|screenshot\|devreload\|status\|open_plugin\|reload_plugin\|bridge_call}` を追記、結果は `results.jsonl` | 任意言語(最下位の基底) | Driver/器 |
 | HTTP REST | `POST 127.0.0.1:<port>/api/pyeval` `{"code":"..."}` 等。ポートは `~/.qgis-live/` で自動検出 | curl・function calling系AI・自作エージェント | Driver |
-| MCP Streamable HTTP | `POST 127.0.0.1:<port>/mcp` (JSON-RPC) | HTTP transport対応MCPクライアント | Driver |
+| MCP Streamable HTTP | `POST 127.0.0.1:<port>/mcp` (JSON-RPC)。`QGIS_LIVE_API_KEY`/`QGIS_LIVE_TOOLS` で認証+ツール絞り込み可 | HTTP transport対応MCPクライアント、Copilot Studio(要トンネル公開) | Driver |
 | MCP stdio | `python <profile>/python/plugins/qgis_live_driver/mcp_stdio.py` をspawn | stdio型MCPクライアント全般 | Driver |
 | Nodeライブラリ | `new LivePage(dir)` → `evaluate/pyeval/devreload/waitFor/screenshot` | `scripts/` 内実装参照 | Harness |
 | CLI | `npm run live:*` | シェル/CI | Harness |

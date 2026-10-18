@@ -17,6 +17,22 @@ def _log(msg):
         pass
 
 
+def _http_config():
+    """外部公開用のHTTP設定をenvから読む。
+
+    QGIS_LIVE_API_KEY: 設定すると /mcp・/api/* でAPIキー認証を要求
+    QGIS_LIVE_TOOLS:   公開するコマンド種別のカンマ区切り("qgis_"前置可、
+                       "*"または未設定で全許可)。公開時はpyeval除外推奨。
+    """
+    api_key = os.environ.get("QGIS_LIVE_API_KEY") or None
+    raw = os.environ.get("QGIS_LIVE_TOOLS", "").strip()
+    allowed = None
+    if raw and raw != "*":
+        allowed = {t.strip().lower().removeprefix("qgis_")
+                   for t in raw.split(",") if t.strip()}
+    return api_key, allowed
+
+
 def _registry_dir():
     # spawnされる側(MCPクライアントのshim等)が環境変数を持たないため、
     # 検出情報は固定パス ~/.qgis-live/ に書き出す
@@ -59,11 +75,15 @@ class QgisLivePlugin:
             _log("qgis_live_driver LiveDriver failed:\n" + traceback.format_exc())
             return
 
+        api_key, allowed = _http_config()
         try:
             from .mcp_http import start_http
-            self._http, port = start_http(self.driver)
+            self._http, port = start_http(
+                self.driver, api_key=api_key, allowed=allowed)
             self.driver.http_port = port
-            _log(f"qgis_live_driver HTTP API: http://127.0.0.1:{port}/")
+            _log(f"qgis_live_driver HTTP API: http://127.0.0.1:{port}/ "
+                 f"auth={'on' if api_key else 'off'} "
+                 f"tools={sorted(allowed) if allowed else 'all'}")
         except Exception:
             _log("qgis_live_driver HTTP failed:\n" + traceback.format_exc())
             port = None
@@ -79,6 +99,10 @@ class QgisLivePlugin:
                     "plugin_id": __package__,
                     "live_dir": live_dir,
                     "http_port": port,
+                    "mcp_url": (f"http://127.0.0.1:{port}/mcp"
+                                if port else None),
+                    "http_auth": bool(api_key),
+                    "http_tools": sorted(allowed) if allowed else "all",
                     "started": time.time(),
                 }, f)
         except Exception:

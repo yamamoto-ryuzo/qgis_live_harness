@@ -92,6 +92,54 @@ QGIS Live Harness(親リポジトリ)の「QGIS側の手」だが、
 MCP tools は `qgis_<コマンド種別>` の命名で、引数はコマンドJSONの
 キーにそのまま対応する(`plugin_id` / `target` / `method` / `args` 等)。
 
+### 外部公開(M365 Copilot Studio等からの接続)
+
+`/mcp` は Copilot Studio が対応する **Streamable HTTP transport 互換**だが、
+既定では `127.0.0.1`・認証なしのためクラウドからは到達しない。
+以下の手順で公開できる。
+
+**1. APIキー認証と公開ツールの絞り込み(QGIS起動前にenvを設定)**
+
+```powershell
+$env:QGIS_LIVE_API_KEY = "<ランダムなキー>"
+# 推奨: 公開ツールを限定。pyevalは任意コード実行のため除外
+$env:QGIS_LIVE_TOOLS = "status,screenshot"
+npm run live:ensure
+```
+
+- 親シェルのenvは `live:ensure` → powershell → `Start-Process` 経由で
+  QGISへ引き継がれる。**既にQGISがlive中の場合は再起動が必要**(envは起動時に読む)
+- `QGIS_LIVE_API_KEY` 設定時は `Authorization: Bearer <key>` /
+  `X-Api-Key:` / `api-key:` のいずれかのヘッダを要求(不一致は401)。
+  `/api/health` のみ無認証
+- `QGIS_LIVE_TOOLS` はコマンド種別名のカンマ区切り(`qgis_`前置も可、
+  `*`または未設定で全許可)。`/mcp` の tools/list・tools/call と
+  `/api/*` の両方に効く
+- 有効状態は `~/.qgis-live/<pid>-qgis_live_driver.json` の
+  `http_auth` / `http_tools` / `mcp_url` で確認できる(キー自体は書き出さない)
+
+**2. HTTPSで公開(トンネル)**
+
+Copilot Studioはクラウドのため公開URLが必要。ローカルポートをトンネルする:
+
+```powershell
+devtunnel host -p <port> --allow-anonymous
+# または
+ngrok http <port>
+```
+
+(TLS終端とFQDN払い出しはトンネル側が担い、認証は `/mcp` 側のAPIキーが担う)
+
+**3. Copilot Studio 側の設定**
+
+エージェントの **Tools → Add a tool → New tool → Model Context Protocol** で
+MCP onboarding wizardを開き、Server URL に `https://<トンネルFQDN>/mcp`、
+認証に **API key** を選んで `QGIS_LIVE_API_KEY` の値を入力する。
+**generative orchestration が有効なエージェント**が必要。
+追加後は `qgis_status` 等がツールとして使える。
+
+REST面を使う場合は Power Apps カスタムコネクタ経由で `/api/*` を包む方法もある。
+
 ## 仕組み(ファイルプロトコル詳細)
 
 環境変数 `WEBENGINE_LIVE_DIR` が設定された状態でQGISが起動すると、
@@ -130,3 +178,7 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
 
 HTTPサーバは `127.0.0.1` のみにバインドするが、ローカルマシン上の
 任意プロセスからQGIS内部を操作できるため、リモート公開は想定しない。
+
+外部公開する場合は必ず `QGIS_LIVE_API_KEY` で認証を有効にし、
+`QGIS_LIVE_TOOLS` で `pyeval` を含まない最小限のツールに絞ること
+(上記「外部公開」参照)。
