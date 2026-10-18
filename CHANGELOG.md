@@ -13,15 +13,13 @@
   `QGIS-legendView-main`(QGIS-legendView、repoルート=プラグイン構造を
   そのまま配置)を実体git管理で取り込み、`plugin.config.json` の id 配列に
   追加して test:live/live:reload の検証対象にした。
-  upstream同期の基盤は `.upstream/`(gitignore済み・マシンローカル)に
-  集約し、`C:\devin` 直下にclone/junctionは置かない。
-  geo_report/geo_importは `.upstream/<repo>/` にcloneしてプラグイン
+  geo_report/geo_importは `C:\devin/<repo>` にcloneしてプラグイン
   subfolderをここへのjunctionに置換。「repoルート=プラグイン」構造の
   QGIS-legendView/QGIS-exportExcelは upstreamの `.git` を
   `.upstream/<repo>.git` に退避し `core.worktree` を `qgis-plugin/<id>` に
   向けるgitdir運用にした。いずれもHarness側が正本で、upstream操作は
   `npm run upstream -- <repo> <git引数>`(scripts/upstream-git.ps1)が
-  両形式を吸収する。
+  clone/gitdir両形式を吸収する。
   さらに **`export_excel`** を新設: `QGIS-exportExcel` のレイヤアクション
   用スクリプト群(metadata.txtを持たない非プラグイン)を簡易プラグイン化し、
   プラグインメニューからアクティブレイヤ/選択地物へ実行可能にした。
