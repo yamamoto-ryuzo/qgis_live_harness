@@ -1,5 +1,6 @@
 import json
 import os
+import tempfile
 import time
 import traceback
 
@@ -66,6 +67,8 @@ class QgisLivePlugin:
     """
 
     SETTING_ENABLED = "qgis_live_driver/enabled"
+    _MENU_NAME = "QGIS Live Driver"
+    _OWN_ACTION_TEXTS = ("リモート制御 (localhostのみ)", "AI アシスタント")
 
     def __init__(self, iface):
         self.iface = iface
@@ -73,9 +76,50 @@ class QgisLivePlugin:
         self._http = None
         self._reg_path = None
         self._action = None
+        self._ai_action = None
+        self._ai_panel = None
+        self._ai_driver = None
+
+    def _own_menu(self):
+        """プラグイン > QGIS Live Driver サブメニューを返す(無ければNone)。"""
+        try:
+            for top in self.iface.mainWindow().menuBar().actions():
+                tm = top.menu()
+                if tm is None:
+                    continue
+                for a in tm.actions():
+                    sm = a.menu()
+                    if sm is not None and sm.title() == self._MENU_NAME:
+                        return sm
+        except Exception:
+            pass
+        return None
+
+    def _sweep_menu_actions(self):
+        """同名テキストの残存アクションをメニューから除去する。
+
+        過去世代のプラグインがunloadで除去し損ねたQAction(リロードで
+        孤立したもの)を掃除する。initGuiで新規追加の前に呼ぶ。
+        """
+        menu = self._own_menu()
+        if menu is None:
+            return
+        for a in list(menu.actions()):
+            if a.text() in self._OWN_ACTION_TEXTS:
+                try:
+                    menu.removeAction(a)
+                    a.deleteLater()
+                except Exception:
+                    pass
 
     def initGui(self):
         from qgis.PyQt.QtWidgets import QAction
+        self._sweep_menu_actions()  # 前世代の孤立アクション除去
+        self._ai_action = QAction("AI アシスタント",
+                                  self.iface.mainWindow())
+        self._ai_action.triggered.connect(self._open_ai_panel)
+        self.iface.addPluginToMenu("QGIS Live Driver", self._ai_action)
+
         self._action = QAction("リモート制御 (localhostのみ)",
                                self.iface.mainWindow())
         self._action.setCheckable(True)
@@ -89,6 +133,30 @@ class QgisLivePlugin:
         elif self._settings_enabled():
             self._start(self._default_live_base())
         self._sync_action()
+
+    # ---- AIアシスタントパネル ----
+
+    def _open_ai_panel(self):
+        from .ai_panel import show_panel
+        self._ai_panel = show_panel(
+            self.iface, self._panel_driver, self._ai_panel)
+
+    def _panel_driver(self):
+        """AIパネルのツール実行に使うLiveDriverを返す。
+
+        リモート制御が有効なら既存ドライバを共有し、無効時はパネル専用の
+        内部ドライバを作る。内部ドライバはレジストリ・HTTP公開面を持たず
+        (tempdirのlive dirのみ)外部からは発見できない。
+        生成はQTimerを含むため必ずGUIスレッドで行う。
+        """
+        if self.driver is not None:
+            return self.driver
+        if self._ai_driver is None:
+            from .live_driver import LiveDriver
+            live_dir = os.path.join(
+                tempfile.gettempdir(), f"qgis-live-ai-{os.getpid()}")
+            self._ai_driver = LiveDriver(live_dir, iface=self.iface)
+        return self._ai_driver
 
     # ---- 有効化/無効化 ----
 
@@ -207,7 +275,10 @@ class QgisLivePlugin:
                 pass
             self._http = None
         if self.driver is not None:
-            self.driver.stop()
+            try:
+                self.driver.stop()
+            except Exception:
+                pass
             self.driver = None
         if self._reg_path is not None:
             try:
@@ -217,15 +288,36 @@ class QgisLivePlugin:
             self._reg_path = None
 
     def unload(self):
-        if self._action is not None:
+        # unload中の例外はQGIS側で握り潰されつつ処理が続行され、
+        # 除去前のアクションがメニューに孤立するため、全て個別に握り潰す
+        if self._ai_panel is not None:
             try:
-                self.iface.removePluginMenu("QGIS Live Driver",
-                                            self._action)
-                self._action.deleteLater()
+                self._ai_panel.close()
+                self._ai_panel.deleteLater()
             except Exception:
                 pass
-            self._action = None
-        self._stop()
+            self._ai_panel = None
+        if self._ai_driver is not None:
+            try:
+                self._ai_driver.stop()
+            except Exception:
+                pass
+            self._ai_driver = None
+        for action in (self._ai_action, self._action):
+            if action is not None:
+                try:
+                    self.iface.removePluginMenu("QGIS Live Driver",
+                                                action)
+                    action.deleteLater()
+                except Exception:
+                    pass
+        self._ai_action = None
+        self._action = None
+        self._sweep_menu_actions()  # 自身以外の残存も掃除
+        try:
+            self._stop()
+        except Exception:
+            pass
 
 
 def classFactory(iface):

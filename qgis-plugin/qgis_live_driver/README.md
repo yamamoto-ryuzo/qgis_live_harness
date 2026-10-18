@@ -5,7 +5,7 @@ UIを持たない制御専用プラグイン。
 `python/plugins/` へのコピーだけで任意のQGISインストールに単独導入できる
 (リポジトリ・Node不要)。
 
-`webengine_plugin` と違い `QWebEngineView` を持たないため、
+このプラグインは `QWebEngineView` を持たないため、
 **WebEngineを使わない任意のQGIS環境・任意の他プラグイン**に対しても
 `pyeval` 経由の遠隔操作面を提供できる。
 
@@ -33,6 +33,44 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
   初回ON時に警告ダイアログを表示し、QSettingsに保存されるため次回起動から自動有効。
 - **環境変数**: `WEBENGINE_LIVE_DIR` 設定時は起動時に即座に有効(開発用途。
   `scripts/verify-in-qgis.ps1` が付与して起動する)。
+
+## AI アシスタントパネル
+
+`プラグイン > QGIS Live Driver > AI アシスタント` で、
+**LLM APIを接続してQGISを対話操作するチャットドック**を開ける
+(`ai_panel.py` + `ai_client.py`)。
+
+- **プロバイダ**(コンボで選択。設定はプロバイダごとに別保存):
+  - **OpenAI互換**: Chat Completions
+    (`POST {base}/chat/completions` + function calling)。
+    エンドポイントを変えれば Ollama (`http://localhost:11434/v1`)・
+    LM Studio・OpenRouter等のローカル/互換サーバも使える
+  - **Gemini**: Google Gemini API
+    (`POST {base}/models/{model}:generateContent` +
+    functionDeclarations、認証は `x-goog-api-key`)。
+    APIキーは AI Studio で発行。既定モデル `gemini-2.5-flash`
+- **モデル選択**: モデル欄は編集可コンボ。隣の「取得」ボタンで
+  `GET {base}/models` から利用可能モデル一覧を取り込める
+  (GeminiではgenerateContent非対応モデルを除外)
+- **ツール**: `mcp_http.TOOLS` と同じセット
+  (`qgis_pyeval` / `qgis_screenshot` / `qgis_status` /
+  `qgis_eval` / `qgis_devreload` / `qgis_open_plugin` /
+  `qgis_reload_plugin` / `qgis_bridge_call`)をモデルに渡し、
+  戻ってきたtool_callを `driver.submit()` で実行して結果を返す
+  エージェントループ(上限25往復)
+- **リモート制御トグルOFFでも動く**: パネル専用の内部LiveDriver
+  (レジストリ・HTTP公開面なし)を使うため、外部公開を有効化せずに
+  AI操作だけを試せる
+- **vision**: 「スクリーンショットを画像として送信」をONにすると
+  `qgis_screenshot` の結果を `image_url` contentでモデルに返す
+  (非対応モデルではAPIエラーになるのでOFFに)
+- 設定(エンドポイント/モデル)はQSettingsに保存。
+  **APIキーはOSの資格情報ストアに保存**(`credential_store.py`):
+  WindowsはDPAPI(ブラウザのパスワード保存と同じユーザ紐付け暗号化)、
+  macOSはキーチェーン、LinuxはSecret Service(secret-tool)。
+  いずれも無い環境のみ `~/.qgis-live/ai-secrets.json`(600権限・平文)に
+  フォールバック。パネルの「キー保存先」欄で現バックエンドを確認できる。
+  **ストア書込み自体に失敗した場合はエラー表示し、平文では保存しない**
 
 ## セキュリティモデル(localhost限定)
 
