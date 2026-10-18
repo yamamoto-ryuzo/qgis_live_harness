@@ -272,5 +272,15 @@ export class LivePage {
       timeoutMs);
   }
 
+  /**
+   * AIから利用可能なプラグインのカタログを返す。
+   * bridgeを持つプラグインは pluginInfo() の自己記述
+   * (summary/when_to_use/methods)を含む。利用プラグインの発見用。
+   */
+  async describePlugins({ timeoutMs = 45000 } = {}) {
+    return this._send(
+      { id: this._nextId(), type: "describe_plugins" }, timeoutMs);
+  }
+
   close() {}
 }

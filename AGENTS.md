@@ -44,6 +44,17 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
 ## 構成
 
 - `qgis-plugin/` — プラグイン群のルート。**フォルダ名=プラグインID**で複数管理。
+  **各プラグインは「1つのQGISプラグイン配布物」として自律管理する**:
+  `metadata.txt`(バージョンの正)・`LICENSE`・`README.md`(+`README_JP.md`等
+  の言語別・`SEARCH.md`/`SPEC.md`等の詳細文書)・`CHANGELOG.md`
+  (そのプラグインの変更履歴)をフォルダ内に持つ。
+  upstreamリポジトリがあるプラグイン(geo_search=GEO-search-plugin、
+  geo_webview=geo_webview)の文書はupstream版を復元・追従し、
+  Harness側での追加・変更はそのプラグインのCHANGELOGに
+  新バージョンエントリとして記録する(metadata.txtのversionも同期して上げる)。
+  **プラグイン固有の変更をルートのCHANGELOG.mdではなく
+  プラグインのCHANGELOG.mdに書くのが原則**(ルートCHANGELOGは
+  Harness基盤・横断的変更用)。upstreamに公開する場合はそちらにも反映する。
   現在は `qgis_live_driver/` と検証対象 `geo_search/` `geo_webview/`
   (実体はこのrepo内のgit管理対象。`C:\devin\geo_search\geo_search`・
   `C:\devin\geo_webview\geo_webview` 側はupstream同期用にここへのjunction)のみ
@@ -82,7 +93,8 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
 
 ```
 [プラグイン内] 即応答の実行プリミティブ
-   pyeval / status / open_plugin / reload_plugin / screenshot / bridge_call
+   pyeval / status / open_plugin / reload_plugin / screenshot / bridge_call /
+   describe_plugins
    ※各コマンドはGUIスレッドで即時実行し、例外は {error: ...} として返す
         │  REST(/api/*) / MCP(/mcp) / ファイルJSONL
 [外側] オーケストレーション
@@ -134,9 +146,54 @@ upstream用 `C:\devin/<id>/<id>` はどちらもここへのjunction。Qt Widget
 `status`/`screenshot(mainwindow)` の対象になり、pyevalからは
 `qgis.utils.plugins['<id>']` で `dialog`/`run` 等に直接触れられる。
 AIパネルの実用検証にも使う(例:「geo_searchの検索ダイアログを開いて」)。
-なお `view` を持たないため `eval`/`devreload`/`bridge_call` の
+なお `view` を持たないため `eval`/`devreload` の
 WebEngine固有検証の対象にはならず、`plugin_id`転送先にもなれない
 (転送対象にするには対象プラグイン側にlive_driver.py同梱が必要)。
+
+**geo_search のAI向けAPI(`bridge_call`)**: `geo_search/bridge.py` の
+`GeoSearchBridge` が `plugin.bridge` に配線されており、hubドライバの
+`bridge_call` が `plugins['geo_search'].bridge.<method>(*args)` を直接呼ぶ
+(WebChannelを通らないローカルコマンドなのでview不要。ファイルJSONL/
+REST/MCP `qgis_bridge_call` 全経路で利用可)。
+メソッドはJSON文字列を返す:
+
+- `pluginInfo()` — プラグインの自己記述(下記「AI向けプラグインカタログ」の
+  標準スキーマ: id/name/summary/when_to_use/invoke/methods/state)
+- `status()` — 実行時状態(現在タブ/入力値/結果概要)
+- `listTabs()` — 検索タブ一覧(フラットindex/group/title/layer/fields)
+- `selectTab(tab)` — tab: int(フラットindex)/タイトルstr/{group,title}
+- `search(query, tab=None, show=True, zoom=True, max_features=200)`
+  — 検索ボタン押下と同じ `show_features` 経路で実行し、
+  `result_dialog._tabs` を構造化して返す(レイヤ別count/属性/centroid)。
+  query は str(先頭入力欄)/list(各入力欄)/dict({Field名 or ViewName
+  or 表示ラベル: 値})
+- `results(max_features)` — 直近結果の再取得(再検索しない)
+- `zoom(feature_ids=None, tab_index=0)` — 結果地物へズーム
+- `openDialog()` / `closeDialog()`
+- `searchOptions(options)` — 検索オプション get/set:
+  `pan_mode`(0選択フィット/1中心パン/4固定縮尺/5アニメーションパン/
+  6選択のみ)・`fixed_scale`・`show_layer_name`。全タブへ適用し
+  ダイアログのコンボ/チェックも同期。`search` の `options` 引数でも同値を受ける
+- `tabOptions(tab, options)` — タブ固有コントロール get/set。
+  地番検索: `match`=exact|fuzzy・`aza_code`(字コードテーブル選択)。
+  所有者検索: `fields`=[対象ViewName]・`match_mode`=partial|forward
+- `suggest(tab, field, limit)` — 検索フィールドのユニーク値一覧
+- `listThemes()` / `applyTheme(name, additive=None)` /
+  `themeAdditive(enabled)` — マップテーマ一覧・適用・追加表示(union)
+- `saveUserTheme(path=None)` / `loadUserTheme(path)` —
+  ユーザーテーマ(.usertheme.json)の保存/読込適用
+- `getSettings()` / `setSettings({geo_search_json}, rebuild)` —
+  設定由来と geo_search_json パスの取得/設定
+- `tabSetting(tab)` / `addTabFromCurrentLayer(title)` /
+  `removeTab(tab)` / `reloadDialog()` — タブ設定JSON参照・
+  現在レイヤのタブ追加(プロジェクト変数)・タブ削除
+  (由来=_sourceに応じ setting.json/geo_search_json/プロジェクト変数から除去)
+  ・ダイアログ再構築。add/removeは確認ダイアログ無しで直接実行される点に注意
+
+例(MCP): `qgis_bridge_call pluginId="geo_search" method="search" args=["○○町"]`
+pyevalからも `plugins['geo_search'].bridge.search("○○町")` で直接呼べる。
+コード変更の反映は junction 配置なら `reload_plugin`、
+copy配置なら `npm run deploy` + `reload_plugin`。
 
 ```powershell
 # QGIS常駐インスタンスを用意(起動済みならアタッチ、未起動ならdeploy+起動を自動化)
@@ -167,7 +224,12 @@ npm run verify:qgis     # 別ターミナルでQGIS起動(開きっぱなし)
 - **リリースタグ(`git tag`)・GitHub Release はユーザーの明示的な指示がない限り作成しない**
 - バージョンは `package.json` がリポジトリ(Harness)のバージョン、
   各 `qgis-plugin/<id>/metadata.txt` がプラグイン個別のバージョン(別系で管理)
-- 変更履歴は `CHANGELOG.md` に記録する
+- 変更履歴は `CHANGELOG.md` (Harness基盤) と
+  `qgis-plugin/<id>/CHANGELOG.md` (プラグイン個別) に記録する。
+  プラグイン個別の変更を反映する時は **そのプラグインの
+  CHANGELOG.mdにエントリを追加し metadata.txt の version も上げる**
+  (新機能=マイナー、修正=パッチを目安。geo_search/geo_webviewは
+  upstreamリポジトリの履歴形式に従う)
 
 ## L2の仕組み(重要)
 
@@ -205,7 +267,19 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
   `reload_plugin`(sys.modules掃除+reloadPlugin+open_dialog。
   `live:reload` はこれを優先し、旧ドライバではpyevalにフォールバック) /
   `bridge_call`(bridgeメソッドをプロセス内で直接呼ぶ。WebChannelを通らない
-  ためレンダラー飢餓中でも動く。JSON文字列返値はパースされる)
+  ためレンダラー飢餓中でも動く。JSON文字列返値はパースされる) /
+  `describe_plugins`(ロード済み全プラグインのカタログ。bridgeを持つものは
+  各pluginInfo()の自己記述を集約。下記「AI向けプラグインカタログ」)
+- **AI向けプラグインカタログ**: 「どのプラグインをいつどう使うか」の
+  発見経路。bridgeを持つプラグインは `pluginInfo()` が標準スキーマ
+  `{id, name, summary, when_to_use[], invoke, methods[{name, signature,
+  description, example}], state}` を返す契約(methodsはsignature/
+  docstring自動生成+bridge.py内の補足定数)。`describe_plugins` コマンドが
+  全プラグイン分を集約して返し、REST `/api/cmd`・`/api/tools`・
+  MCP `qgis_describe_plugins`(qgis-mcp.mjs/mcp_http.py/mcp_stdio.py
+  いずれも)で公開される。AIは `describe_plugins` で選択→
+  `bridge_call` で実行の2段で使う。bridge付きプラグイン追加時は
+  pluginInfo() をこのスキーマで実装すること
 - **`plugin_id` ルーティング(ハブ)**: `eval`/`pyeval`/`screenshot`/`devreload`
   に `plugin_id` を付けるとそのプラグインのLiveDriverへ転送され、結果は
   呼び出し元のresults.jsonlに返る。qgis_live_driver のlive dir 1箇所
@@ -232,16 +306,20 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
   `.devin/mcp_config.local.json` に絶対パスで同名サーバを定義すれば上書きできる。
   VS Code Copilot向けには `.vscode/mcp.json`(`servers` + `${workspaceFolder}`)を同梱。
   tools: `qgis_ensure` / `qgis_pyeval` / `qgis_eval` / `qgis_bridge_call` /
-  `qgis_screenshot` / `qgis_status` / `qgis_open_plugin` /
-  `qgis_devreload` / `qgis_reload`。
+  `qgis_describe_plugins` / `qgis_screenshot` / `qgis_status` /
+  `qgis_open_plugin` / `qgis_devreload` / `qgis_reload`。
   各toolは内部でensureするためQGIS未起動でも自動で立ち上がる。
   qgis_live_driver がlive中ならhubとして使い、`pluginId`引数は
   plugin_idルーティングに載る。stdoutはプロトコル専用のためログはstderrに出る。
+  **MCPサーバプロセスは起動時のコードを保持する**ため、
+  scripts/*.mjs 変更後はクライアント側でサーバ再起動が必要
+  (旧コードが死んだlive dirを拾ってコマンド喪失→タイムアウトになる事例あり)
   **プラグイン側にもMCP/REST面がある**: `qgis_live_driver` が `POST /mcp`
   (Streamable HTTP)と `POST /api/*`(REST、汎用 `/api/cmd` 含む)を内蔵し、
   同梱 `mcp_stdio.py` がstdioクライアントをファイルJSONLへ中継する(Node不要)。
   toolsは `qgis_<コマンド種別>` の命名でドライバの全コマンドに対応
-  (pyeval/eval/screenshot/devreload/status/open_plugin/reload_plugin/bridge_call)。
+  (pyeval/eval/screenshot/devreload/status/open_plugin/reload_plugin/
+  bridge_call/describe_plugins)。
   **全チャネルでセッショントークン認証が必須**(下記「セキュリティ」)。
   `QGIS_LIVE_API_KEY`/`QGIS_LIVE_TOOLS` env(QGIS起動時に設定)で
   追加キー・コマンド種別フィルタが効く

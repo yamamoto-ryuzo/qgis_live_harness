@@ -20,6 +20,8 @@ live dir は WEBENGINE_LIVE_DIR/qgis-<pid>/<plugin_id>/。
    "token": "..."}
   {"id": 6, "type": "bridge_call", "plugin_id": "<plugin_id>",
    "method": "pluginInfo", "args": [], "token": "..."}
+  {"id": 7, "type": "describe_plugins", "token": "..."}
+   ← 全プラグインのAI利用可能機能カタログ(bridge+pluginInfo集約)
 
 認証: 起動ごとにセッショントークンを生成し live_dir/token と
 レジストリJSONに書き出す(どちらもユーザ限定ACL)。ファイル経由
@@ -53,7 +55,8 @@ _AUTO_IDS = itertools.count(1)
 
 # plugin_id をルーティングではなくコマンド自身の引数として使う種別。
 # これらは常にこのドライバ自身が処理する。
-_LOCAL_TYPES = {"status", "open_plugin", "reload_plugin", "bridge_call"}
+_LOCAL_TYPES = {"status", "open_plugin", "reload_plugin", "bridge_call",
+                "describe_plugins"}
 
 
 def _to_jsonable(v):
@@ -225,12 +228,16 @@ class LiveDriver:
         if ctype == "bridge_call":
             self._bridge_call(cid, cmd, reply)
             return
+        if ctype == "describe_plugins":
+            self._describe_plugins(cid, reply)
+            return
         reply({
             "id": cid,
             "error": f"type={ctype} unsupported: qgis_live_driver has no WebEngine view. "
                      "pass plugin_id of a WebEngine plugin to route "
                      "(eval/devreload/screenshot), or use "
-                     "pyeval/status/open_plugin/reload_plugin/bridge_call",
+                     "pyeval/status/open_plugin/reload_plugin/bridge_call/"
+                     "describe_plugins",
         })
 
     def _forward(self, cid, pid, cmd, reply):
@@ -267,6 +274,7 @@ class LiveDriver:
                     "driver": drv is not None,
                     "view": bool(drv is not None
                                  and getattr(drv, "view", None) is not None),
+                    "bridge": getattr(p, "bridge", None) is not None,
                 }
         except Exception:
             pass
@@ -373,6 +381,46 @@ class LiveDriver:
                 except Exception:
                     pass
             reply({"id": cid, "result": _to_jsonable(res)})
+        except Exception:
+            reply({"id": cid, "error": traceback.format_exc()})
+
+    def _describe_plugins(self, cid, reply):
+        """AIから利用可能なプラグインのカタログを返す。
+
+        ロード済み全プラグインを列挙し、bridgeを持つものは
+        pluginInfo() を呼んで自己記述(id/name/summary/when_to_use/
+        methods)を集約する。「どのプラグインをいつどう使うか」を
+        AIが発見するための入口。
+        """
+        try:
+            out = []
+            for pid, p in sorted(_loaded_plugins().items()):
+                entry = {"id": pid}
+                bridge = getattr(p, "bridge", None)
+                entry["bridge"] = bridge is not None
+                if bridge is not None:
+                    info = getattr(bridge, "pluginInfo", None)
+                    if callable(info):
+                        try:
+                            res = info()
+                            if isinstance(res, str):
+                                try:
+                                    res = json.loads(res)
+                                except Exception:
+                                    pass
+                            entry["info"] = _to_jsonable(res)
+                        except Exception:
+                            entry["info_error"] = traceback.format_exc()
+                    else:
+                        entry["methods"] = sorted(
+                            m for m in dir(bridge)
+                            if not m.startswith("_")
+                            and callable(getattr(bridge, m)))
+                out.append(entry)
+            reply({"id": cid, "result": {
+                "pid": os.getpid(),
+                "plugins": out,
+            }})
         except Exception:
             reply({"id": cid, "error": traceback.format_exc()})
 

@@ -349,6 +349,15 @@ class plugin(object):
             except:
                 pass
 
+        # AI/外部制御用ブリッジ。qgis_live_driver の bridge_call コマンドが
+        # qgis.utils.plugins['geo_search'].bridge をプロセス内で直接呼ぶため、
+        # ファイルJSONL/REST/MCP(qgis_bridge_call)の全経路から検索を実行できる
+        try:
+            from .bridge import GeoSearchBridge
+            self.bridge = GeoSearchBridge(self)
+        except Exception:
+            self.bridge = None
+
         # GUI is now ready for warnings/updates
         try:
             self._gui_ready = True
@@ -885,6 +894,10 @@ class plugin(object):
         # mark GUI not-ready to suppress warnings while widgets are being removed
         try:
             self._gui_ready = False
+        except Exception:
+            pass
+        try:
+            self.bridge = None
         except Exception:
             pass
         # disconnect theme collection signals if we connected them

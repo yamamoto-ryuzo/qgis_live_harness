@@ -8,6 +8,51 @@
 
 ### Added
 
+- **プラグイン個別の文書管理**を開始。`qgis-plugin/<id>/` 配下に
+  各プラグインの README/CHANGELOG/詳細文書を配置する方式に統一。
+  `geo_search`: upstream(GEO-search-plugin)から README.md /
+  README_JP.md / SEARCH.md / SEARCH_JP.md / THEMES.md /
+  THEMES_JP.md / CHANGELOG.md を復元し V4.1.0(bridge追加)を追記、
+  metadata 4.1.0へ。`geo_webview`: upstreamから README.md /
+  README_JP.md / SPEC.md / SPEC_JP.md / CHANGELOG.md を復元。
+  `qgis_live_driver`: CHANGELOG.md 新設、metadata 0.4.0へ
+- **AI向けプラグインカタログ**(`describe_plugins` コマンド):
+  「どのプラグインをいつどう使うか」をAIが発見するための集約機構。
+  `qgis_live_driver` がロード済み全プラグインを列挙し、bridgeを持つ
+  ものは各 `pluginInfo()` の自己記述(標準スキーマ:
+  `id/name/summary/when_to_use/invoke/methods[{name,signature,
+  description,example}]/state`)を集約して返す。ファイルJSONL /
+  REST `/api/cmd`・`/api/tools` / MCP `qgis_describe_plugins`
+  (qgis-mcp.mjs・プラグイン内蔵 `/mcp`・`mcp_stdio.py` の全面)で
+  公開され、QGIS内AIアシスタントパネルからも利用できる。
+  `status` のプラグイン情報に `bridge` フラグを追加。
+  `geo_search.bridge.pluginInfo()` はこの標準スキーマで実装済み
+  (methodsは `inspect.signature`+docstring自動生成+`METHOD_DOCS`補足)
+- `geo_search`: **AI/外部制御用ブリッジ**(`bridge.py` の
+  `GeoSearchBridge`)を追加し `plugin.bridge` に配線。
+  `qgis_live_driver` の既存 `bridge_call` コマンドが
+  `plugins['geo_search'].bridge.<method>(*args)` をプロセス内で直接
+  呼ぶため、ファイルJSONL / REST `/api/cmd` / MCP `qgis_bridge_call`
+  (AIアシスタントパネル含む)の全経路から利用できる。
+  WebChannel不要のQt Widgetsプラグイン向けの第一級制御面。
+  メソッド(JSON文字列返却): `pluginInfo` / `status` / `listTabs` /
+  `selectTab` / `search` / `results` / `zoom` / `openDialog` /
+  `closeDialog`。`search(query, tab, show, zoom, max_features)` は
+  検索ボタン押下と同じ `show_features` 経路を通り、結果を
+  `result_dialog._tabs` から構造化(レイヤ別・属性・centroid)して返す。
+  query は str(先頭入力欄) / list(各入力欄) /
+  dict({フィールド名 or ViewName or 表示ラベル: 値}) を取る。
+  実QGISでメモリレイヤ検索・全レイヤ検索・dictクエリを検証済み。
+  さらに全機能をカバーするメソッドを追加:
+  `searchOptions`(pan_mode/fixed_scale/show_layer_name) /
+  `tabOptions`(地番=完全一致|あいまい・字コード選択、所有者=対象
+  フィールド・一致方式) / `suggest`(ユニーク値) /
+  `listThemes`・`applyTheme`・`themeAdditive`(マップテーマ) /
+  `saveUserTheme`・`loadUserTheme`(ユーザーテーマJSON) /
+  `getSettings`・`setSettings`(geo_search_json) /
+  `tabSetting`・`addTabFromCurrentLayer`・`removeTab`・
+  `reloadDialog`(タブ管理・設定由来を跨ぐ削除・再構築)。
+  `search` に `options` 引数を追加(検索前にオプション適用可能)
 - `qgis_live_driver` 0.3.0: **AIアシスタントパネル**を追加。
   `プラグイン > QGIS Live Driver > AI アシスタント` で開くチャット型
   エージェントドック(Qt Widgets)。**OpenAI互換API**

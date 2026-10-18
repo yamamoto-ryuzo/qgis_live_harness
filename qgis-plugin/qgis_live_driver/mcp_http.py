@@ -152,6 +152,17 @@ TOOLS = [
             "required": ["method"],
         },
     },
+    {
+        "name": "qgis_describe_plugins",
+        "description":
+            "Catalog of all loaded QGIS plugins and their AI-callable "
+            "capabilities. For plugins exposing a `bridge`, aggregates "
+            "each bridge's pluginInfo() (summary / when_to_use / methods "
+            "with signatures and examples). Call this first to discover "
+            "which plugin to use for a task, then invoke it via "
+            "qgis_bridge_call.",
+        "inputSchema": {"type": "object", "properties": {}},
+    },
 ]
 
 PROTOCOL_VERSION = "2025-03-26"

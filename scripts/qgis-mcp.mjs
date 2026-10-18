@@ -222,6 +222,26 @@ server.registerTool(
 );
 
 server.registerTool(
+  "qgis_describe_plugins",
+  {
+    description:
+      "利用可能なQGISプラグインとそのAI呼び出し可能機能のカタログを返す。 " +
+      "bridgeを持つプラグインは各pluginInfo()の自己記述(summary/when_to_use/" +
+      "methods+シグネチャ+例)を含む。まずこれを呼んで使うプラグインとメソッドを決め、 " +
+      "qgis_bridge_callで実行する、という2段構成で使う。",
+    inputSchema: {},
+  },
+  async () => {
+    try {
+      const { page } = await dispatchPage();
+      return text(await page.describePlugins());
+    } catch (e) {
+      return err(e);
+    }
+  }
+);
+
+server.registerTool(
   "qgis_status",
   {
     description:
