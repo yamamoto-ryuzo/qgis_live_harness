@@ -50,7 +50,7 @@ class Util:
         self.current_session_name = session_name
         self.global_xml_files = []
         QgsMessageLog.logMessage(
-            f"*** XMLファイル収集セッション開始: {session_name} ***",
+            f"*** XML collection session started: {session_name} ***",
             self.dlg_caption,
             Qgis.Info
         )
@@ -62,7 +62,7 @@ class Util:
         if self.current_session_name:
             self.global_xml_files.extend(xml_files)
             QgsMessageLog.logMessage(
-                f"XMLファイル追加: {len(xml_files)}個 (合計: {len(self.global_xml_files)}個)",
+                f"XML files added: {len(xml_files)} (total: {len(self.global_xml_files)})",
                 self.dlg_caption,
                 Qgis.Info
             )
@@ -73,14 +73,14 @@ class Util:
         """
         if not self.current_session_name or not self.global_xml_files:
             QgsMessageLog.logMessage(
-                "XMLファイル収集セッション: 処理対象なし",
+                "XML collection session: nothing to process",
                 self.dlg_caption,
                 Qgis.Info
             )
             return
 
             QgsMessageLog.logMessage(
-                f"*** XMLファイル収集セッション終了: {len(self.global_xml_files)}個のファイルを統合処理 ***",
+                f"*** XML collection session ended: {len(self.global_xml_files)} files merged ***",
                 self.dlg_caption,
                 Qgis.Info
             )
@@ -90,7 +90,7 @@ class Util:
             from qgis.utils import iface
             
             QgsMessageLog.logMessage(
-                f"統合処理開始: {len(self.global_xml_files)}個のXMLファイル",
+                f"merge started: {len(self.global_xml_files)} XML files",
                 self.dlg_caption,
                 Qgis.Info
             )
@@ -107,7 +107,7 @@ class Util:
             created_layers = xml_loader.load_multiple_xml_merged(self.global_xml_files, self.current_session_name)
             
             QgsMessageLog.logMessage(
-                f"統合処理完了: {len(created_layers) if created_layers else 0}個のレイヤを作成",
+                f"merge completed: {len(created_layers) if created_layers else 0} layers created",
                 self.dlg_caption,
                 Qgis.Info
             )
@@ -117,26 +117,26 @@ class Util:
                 for layer in created_layers:
                     if layer and layer.isValid():
                         QgsMessageLog.logMessage(
-                            f"統合XMLレイヤが作成されました: {layer.name()} ({layer.featureCount()}件)",
+                            f"created merged XML layer: {layer.name()} ({layer.featureCount()} features)",
                             self.dlg_caption,
                             Qgis.Info
                         )
                     else:
                         QgsMessageLog.logMessage(
-                            "無効な統合XMLレイヤが作成されました",
+                            "created merged XML layer is invalid",
                             self.dlg_caption,
                             Qgis.Warning
                         )
             else:
                 QgsMessageLog.logMessage(
-                    "統合XMLレイヤの作成に失敗しました",
+                    "failed to create merged XML layer",
                     self.dlg_caption,
                     Qgis.Warning
                 )
                 
         except Exception as e:
             import traceback
-            error_msg = f"XML統合処理エラー: {str(e)}\n{traceback.format_exc()}"
+            error_msg = f"XML merge error: {e}\n{traceback.format_exc()}"
             QgsMessageLog.logMessage(
                 error_msg,
                 self.dlg_caption,
@@ -149,20 +149,6 @@ class Util:
 
     # Moved from ckan_browser.py
     # noinspection PyMethodMayBeStatic
-    def tr(self, message):
-        """Get the translation for a string using Qt translation API.
-
-        We implement this ourselves since we do not inherit QObject.
-
-        :param message: String for translation.
-        :type message: str, QString
-
-        :returns: Translated version of message.
-        :rtype: QString
-        """
-        # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('GeoImport', message)
-
     def create_dir(self, dir_path):
         """
         ディレクトリを作成。長いパス名にも対応
@@ -173,24 +159,24 @@ class Util:
                 if sys.platform == 'win32' and len(dir_path) > 240:
                     # 260文字制限を超えるパスにはUNC表記を使用
                     if not dir_path.startswith('\\\\?\\'):
-                        self.msg_log_warning(u'【パス長対策】長いパスを検出 ({0}文字): {1}'.format(len(dir_path), dir_path))
+                        self.msg_log_warning(u'[path length] detected long path ({0} chars): {1}'.format(len(dir_path), dir_path))
                         if os.path.isabs(dir_path):
                             # 絶対パスの場合、UNC形式に変換
                             dir_path = '\\\\?\\' + dir_path
-                            self.msg_log(u'【パス長対策】UNC形式に変換: {0}'.format(dir_path))
+                            self.msg_log(u'[path length] converted to UNC form: {0}'.format(dir_path))
                 
                 # ディレクトリ作成
                 os.makedirs(dir_path, exist_ok=True)
-                self.msg_log_debug(u'ディレクトリを作成しました: {0}'.format(dir_path))
+                self.msg_log_debug(u'created directory: {0}'.format(dir_path))
                 return True
             except OSError as ose:
                 if ose.errno == errno.EEXIST:
                     # 既に存在する場合は成功とみなす
                     return True
                 # その他のエラー
-                self.msg_log_error(u'ディレクトリ作成エラー: {0} - {1}'.format(dir_path, ose))
+                self.msg_log_error(u'directory creation error: {0} - {1}'.format(dir_path, ose))
                 # パス名が長すぎる場合は別の方法を試す
-                if ose.errno == errno.ENAMETOOLONG or 'ファイル名が長すぎます' in str(ose) or 'filename too long' in str(ose).lower():
+                if ose.errno == errno.ENAMETOOLONG or 'file name too long' in str(ose) or 'filename too long' in str(ose).lower():
                     return self._create_dir_with_shorter_path(dir_path)
                 return False
         return True
@@ -200,7 +186,7 @@ class Util:
         長すぎるパス名の場合、パスを短縮してディレクトリ作成を試みる
         """
         try:
-            self.msg_log_warning(u'【パス長対策】パスが長すぎるため短縮を試みます: {0}'.format(dir_path))
+            self.msg_log_warning(u'[path length] path too long; attempting to shorten: {0}'.format(dir_path))
             
             # パスの各コンポーネントに分解
             import hashlib
@@ -216,7 +202,7 @@ class Util:
                     hash_obj = hashlib.md5(base.encode('utf-8'))
                     hash_str = hash_obj.hexdigest()[:8]
                     short_base = base[:10] + '_' + hash_str  # 先頭10文字 + ハッシュ8文字
-                    self.msg_log(u'【パス短縮】コンポーネント短縮: {0} → {1}'.format(base, short_base))
+                    self.msg_log(u'[path shorten] component shortened: {0} -> {1}'.format(base, short_base))
                     path_components.insert(0, short_base)
                 else:
                     path_components.insert(0, base)
@@ -227,11 +213,11 @@ class Util:
                 
             # 新しいパスを構築
             new_path = os.path.join(*path_components)
-            self.msg_log(u'【パス短縮】新しいパス: {0}'.format(new_path))
+            self.msg_log(u'[path shorten] new path: {0}'.format(new_path))
             
             # 短縮したパスでディレクトリ作成を試みる
             os.makedirs(new_path, exist_ok=True)
-            self.msg_log(u'【パス短縮】短縮パスでディレクトリを作成しました: {0}'.format(new_path))
+            self.msg_log(u'[path shorten] created directory with shortened path: {0}'.format(new_path))
             
             # 元のパスへのシンボリックリンクを作成（可能な場合）
             try:
@@ -243,13 +229,13 @@ class Util:
                     import subprocess
                     subprocess.call(['cmd', '/c', 'mklink', '/J', dir_path, new_path], 
                                    shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-                    self.msg_log(u'【パス短縮】ジャンクションを作成: {0} → {1}'.format(dir_path, new_path))
+                    self.msg_log(u'[path shorten] created junction: {0} -> {1}'.format(dir_path, new_path))
             except Exception as e:
-                self.msg_log_warning(u'【パス短縮】リンク作成に失敗: {0}'.format(e))
+                self.msg_log_warning(u'[path shorten] failed to create link: {0}'.format(e))
                 
             return True
         except Exception as e:
-            self.msg_log_error(u'【パス短縮】短縮パス作成に失敗: {0}'.format(e))
+            self.msg_log_error(u'[path shorten] failed to create shortened path: {0}'.format(e))
             return False
 
     def check_dir(self, dir_path):
@@ -282,7 +268,7 @@ class Util:
             # BoxDriveパスを検出して特別処理
             if 'Box' in name and ('Box Drive' in name or 'BoxDrive' in name) and len(name) > 50:
                 # BoxDriveのパスは特に長くなりやすいので、よりアグレッシブに短縮
-                self.msg_log(u'【BoxDrive対策】BoxDriveパスを検出: {0}'.format(name))
+                self.msg_log(u'[BoxDrive] detected BoxDrive path: {0}'.format(name))
                 hash_obj = hashlib.md5(name.encode('utf-8'))
                 hash_str = hash_obj.hexdigest()[:12]  # 12文字のハッシュ
                 
@@ -294,7 +280,7 @@ class Util:
                 else:
                     name = f"Box_{path_parts[-1][:15]}_{hash_str}"  # 最後の要素（15文字まで）
                 
-                self.msg_log(u'【BoxDrive対策】BoxDriveパスを短縮: {0}'.format(name))
+                self.msg_log(u'[BoxDrive] shortened BoxDrive path: {0}'.format(name))
             # 通常の長いパス名の場合はハッシュ化して短くする
             elif len(name) > max_len:
                 # オリジナルの名前の先頭部分を保持しつつ、ハッシュを追加
@@ -302,9 +288,9 @@ class Util:
                 hash_str = hash_obj.hexdigest()[:8]  # 8文字のハッシュ
                 prefix_len = max_len - 9  # ハッシュ(8文字) + '_'(1文字) の分を引く
                 name = name[:prefix_len] + '_' + hash_str
-                self.msg_log(u'【パス短縮】長いファイル名を短縮: {0}... → {1}'.format(name[:30], name))
+                self.msg_log(u'[path shorten] shortened long file name: {0}... -> {1}'.format(name[:30], name))
         except Exception as e:
-            self.msg_log_error(u'【パス短縮】ファイル名短縮エラー: {0}'.format(e))
+            self.msg_log_error(u'[path shorten] file name shortening error: {0}'.format(e))
             name = ''
 
         if not name:
@@ -419,7 +405,7 @@ class Util:
 
             self.msg_log_debug(u'add lyrs: {0}'.format(data_dir))
             self.msg_log_debug(u'add lyrs: {0}'.format('\n'.join(geo_files)))
-            self.msg_log_debug(f"総ファイル数: {len(geo_files)}個")
+            self.msg_log_debug(f"total files: {len(geo_files)}")
 
             if len(geo_files) < 1:
                 self.msg_log_debug('len(geo_files)<1')
@@ -428,23 +414,23 @@ class Util:
             
             # XMLファイルを別途収集
             xml_files = [f for f in geo_files if f.lower().endswith('.xml') and not os.path.basename(f).lower().endswith('.shp.xml')]
-            self.msg_log_debug(f"検出されたXMLファイル: {len(xml_files)}個")
+            self.msg_log_debug(f"detected XML files: {len(xml_files)}")
             for xml_file in xml_files:
                 self.msg_log_debug(f"  - {xml_file}")
             
             if xml_files:
                 # セッション管理が有効な場合はセッションに追加
                 if self.current_session_name:
-                    self.msg_log_debug(f"XMLファイルをセッションに追加: {len(xml_files)}個のファイル")
-                    self.msg_log_debug(f"セッション名: {self.current_session_name}")
+                    self.msg_log_debug(f"adding XML files to session: {len(xml_files)} files")
+                    self.msg_log_debug(f"session name: {self.current_session_name}")
                     self.add_xml_files_to_session(xml_files)
                 else:
                     # セッション管理が無効な場合は従来の処理
-                    self.msg_log_debug(f"XMLマージ処理を開始（セッション無効）: {len(xml_files)}個のファイル")
+                    self.msg_log_debug(f"starting XML merge (no session): {len(xml_files)} files")
                     self.msg_log_debug(f"current_session_name = {self.current_session_name}")
                     self._process_xml_files(xml_files, layer_name)
             else:
-                self.msg_log_debug("XMLファイルが見つからない")
+                self.msg_log_debug("no XML files found")
             
             for geo_file in geo_files:
                 if os.path.basename(geo_file).lower().endswith('.shp.xml'):
@@ -714,7 +700,7 @@ class Util:
         self.msg_log_debug(u'add CSV file: {0}'.format(full_path))
         name = os.path.basename(full_path)
         delimiters = [',', ';', '\t', ':', ' ']
-        delimiter_names = {',': 'カンマ', ';': 'セミコロン', '\t': 'タブ', ':': 'コロン', ' ': 'スペース'}
+        delimiter_names = {',': 'comma', ';': 'semicolon', '\t': 'tab', ':': 'colon', ' ': 'space'}
         delimiter_counts = {d: 0 for d in delimiters}
         lines = []
         encodings = [
@@ -745,7 +731,7 @@ class Util:
                     self.msg_log_debug(f"CSV delimiter auto-detect ambiguous: {delimiter_counts} [{enc}]")
                     # --- 1回目だけダイアログ表示し、以降は抑制 ---
                     if Util._csv_delim_dialog_answer is None:
-                        msg = f"CSVファイルの区切り文字が自動判定できませんでした: {full_path}\nカンマ・セミコロン・タブ・コロン・スペースのいずれかで明確に区切られている必要があります。"
+                        msg = QCoreApplication.translate('GeoImport', "Could not auto-detect CSV delimiter: {0}").format(full_path) + chr(10) + QCoreApplication.translate('GeoImport', "The file must be clearly separated by comma, semicolon, tab, colon or space.")
                         QMessageBox.warning(self.main_win, self.dlg_caption, msg)
                         Util._csv_delim_dialog_answer = True
                     return
@@ -807,20 +793,20 @@ class Util:
                             if is_float(vals[lat_idx]) and is_float(vals[lon_idx]):
                                 valid_count += 1
                     if valid_count >= 2:
-                        self.msg_log_debug(f"緯度経度カラム自動検出: lat={lat_col}, lon={lon_col} (数値判定OK) [{valid_count}行]")
+                        self.msg_log_debug(f"lat/lon column auto-detection: lat={lat_col}, lon={lon_col} (numeric OK) [{valid_count} rows]")
                     else:
-                        self.msg_log_debug(f"緯度経度カラム候補はあるが数値でない: lat={lat_col}, lon={lon_col}")
+                        self.msg_log_debug(f"lat/lon column candidates found but not numeric: lat={lat_col}, lon={lon_col}")
                         lat_col = None
                         lon_col = None
                 else:
-                    self.msg_log_debug(f"緯度経度カラムが見つかりません: columns={columns}")
+                    self.msg_log_debug(f"lat/lon columns not found: columns={columns}")
                 break
             except Exception as e:
                 self.msg_log_debug(f"CSV delimiter auto-detect failed with {enc}: {e}")
                 lines = []
                 delimiter_counts = {d: 0 for d in delimiters}
         else:
-            QMessageBox.warning(self.main_win, self.dlg_caption, f"CSVファイルの区切り文字自動判定に失敗しました: {full_path}\nUTF-8/CP932/ANSI/Shift_JIS/ISO-8859-1のいずれでも開けませんでした。")
+            QMessageBox.warning(self.main_win, self.dlg_caption, QCoreApplication.translate('GeoImport', "CSV delimiter auto-detection failed: {0}").format(full_path) + QCoreApplication.translate('GeoImport', "Could not open as UTF-8/CP932/ANSI/Shift_JIS/ISO-8859-1."))
             return
         # QgsVectorLayerのURIにdelimiterとencodingパラメータを付与
         uri = f"file:///{full_path}?delimiter={delimiter}&encoding={detected_encoding}"
@@ -829,24 +815,24 @@ class Util:
             uri += f"&xField={lon_col}&yField={lat_col}&crs=EPSG:4326"
             lyr = QgsVectorLayer(uri, name, "delimitedtext")
             if not lyr.isValid():
-                QMessageBox.warning(self.main_win, self.dlg_caption, f"CSVファイルの読み込みに失敗しました: {full_path}")
+                QMessageBox.warning(self.main_win, self.dlg_caption, QCoreApplication.translate('GeoImport', "Failed to load CSV file: {0}").format(full_path))
                 return
             QgsProject.instance().addMapLayer(lyr)
-            self.msg_log_debug(f"CSVをポイントレイヤとして追加しました: {full_path} (delimiter={delimiter}, encoding={detected_encoding}, xField={lon_col}, yField={lat_col})")
+            self.msg_log_debug(f"added CSV as point layer: {full_path} (delimiter={delimiter}, encoding={detected_encoding}, xField={lon_col}, yField={lat_col})")
         else:
             lyr = QgsVectorLayer(uri, name, "delimitedtext")
             if not lyr.isValid():
-                QMessageBox.warning(self.main_win, self.dlg_caption, f"CSVファイルの読み込みに失敗しました: {full_path}")
+                QMessageBox.warning(self.main_win, self.dlg_caption, QCoreApplication.translate('GeoImport', "Failed to load CSV file: {0}").format(full_path))
                 return
             if lyr.wkbType() == 100:  # QgsWkbTypes.NoGeometry == 100
                 QgsProject.instance().addMapLayer(lyr)
-                self.msg_log_debug(f"CSVを属性テーブルとして追加しました: {full_path} (delimiter={delimiter}, encoding={detected_encoding})")
+                self.msg_log_debug(f"added CSV as attribute table: {full_path} (delimiter={delimiter}, encoding={detected_encoding})")
             else:
                 from qgis.utils import iface
                 if iface is not None:
                     iface.addVectorLayer(uri, name, "delimitedtext")
                 else:
-                    QMessageBox.warning(self.main_win, self.dlg_caption, "QGISインターフェースが利用できません (iface is None)。CSVレイヤを追加できません。")
+                    QMessageBox.warning(self.main_win, self.dlg_caption, QCoreApplication.translate('GeoImport', "QGIS interface unavailable (iface is None). Cannot add CSV layer."))
 
     def _process_xml_files(self, xml_files, base_layer_name):
         """複数のXMLファイルを処理（タイプ別にマージ）"""
@@ -862,28 +848,28 @@ class Util:
             xml_loader = XmlAttributeLoader(iface)
             
             # 常にマージ処理を使用（単一ファイルでも統一された処理）
-            self.msg_log_debug(f"XMLファイルをマージ処理します: {len(xml_files)}個のファイル")
+            self.msg_log_debug(f"merging XML files: {len(xml_files)} files")
             created_layers = xml_loader.load_multiple_xml_merged(xml_files, base_layer_name)
             
             # 作成されたレイヤの確認（レイヤは既にプロジェクトに追加済み）
             if created_layers:
                 for layer in created_layers:
                     if layer and layer.isValid():
-                        self.msg_log_debug(f"XMLレイヤが作成・追加されました: {layer.name()} ({layer.featureCount()}件)")
+                        self.msg_log_debug(f"XML layer created and added: {layer.name()} ({layer.featureCount()} features)")
                         # QGISプロジェクト内での確認
                         project_layer = QgsProject.instance().mapLayer(layer.id())
                         if project_layer:
-                            self.msg_log_debug(f"  → プロジェクトに正常に登録されています")
+                            self.msg_log_debug(f"  -> successfully registered to project")
                         else:
-                            self.msg_log_debug(f"  → プロジェクトへの登録に問題があります")
+                            self.msg_log_debug(f"  -> problem registering to project")
                     else:
-                        self.msg_log_debug("無効なレイヤが作成されました")
+                        self.msg_log_debug("created layer is invalid")
             else:
-                self.msg_log_debug("XMLレイヤの作成に失敗しました")
+                self.msg_log_debug("failed to create XML layer")
                 
         except Exception as e:
-            self.msg_log_debug(f"XML処理エラー: {str(e)}")
-            QMessageBox.warning(self.main_win, self.dlg_caption, f"XMLファイルの処理中にエラーが発生しました: {str(e)}")
+            self.msg_log_debug(f"XML processing error: {e}")
+            QMessageBox.warning(self.main_win, self.dlg_caption, QCoreApplication.translate('GeoImport', "An error occurred while processing XML file: {0}").format(e))
 
     def _open_xml_attributes(self, full_path, layer_name):
         """XMLファイルを属性テーブルとして読み込む"""
@@ -899,14 +885,14 @@ class Util:
             layer = xml_loader.load_xml_as_attribute_table(full_path, layer_name)
             
             if layer is not None:
-                self.msg_log_debug(f"XMLファイルを属性テーブルとして追加しました: {full_path}")
+                self.msg_log_debug(f"added XML file as attribute table: {full_path}")
             else:
-                self.msg_log_debug(f"XMLファイルの読み込みに失敗しました: {full_path}")
-                QMessageBox.warning(self.main_win, self.dlg_caption, f"XMLファイルの読み込みに失敗しました: {full_path}")
+                self.msg_log_debug(f"failed to load XML file: {full_path}")
+                QMessageBox.warning(self.main_win, self.dlg_caption, QCoreApplication.translate('GeoImport', "Failed to load XML file: {0}").format(full_path))
                 
         except Exception as e:
-            self.msg_log_debug(f"XML属性読み込みエラー: {str(e)}")
-            QMessageBox.warning(self.main_win, self.dlg_caption, f"XMLファイルの読み込み中にエラーが発生しました: {str(e)}")
+            self.msg_log_debug(f"XML attribute load error: {e}")
+            QMessageBox.warning(self.main_win, self.dlg_caption, QCoreApplication.translate('GeoImport', "An error occurred while loading XML file: {0}").format(e))
 
 
     def __open_with_system(self, file_name):

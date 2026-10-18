@@ -52,18 +52,18 @@ class Settings:
             try:
                 os.makedirs(self.cache_dir, exist_ok=True)
             except Exception as e:
-                QgsMessageLog.logMessage(f'キャッシュディレクトリの作成に失敗: {e}', self.DLG_CAPTION, Qgis.Warning)
+                QgsMessageLog.logMessage(f'failed to create cache directory: {e}', self.DLG_CAPTION, Qgis.Warning)
                 # 別の場所にフォールバック（ユーザーディレクトリ直下）
                 try:
                     alternate_cache = os.path.join(os.path.expanduser('~'), 'Catalog_Integration_Cache')
                     os.makedirs(alternate_cache, exist_ok=True)
                     self.cache_dir = alternate_cache
-                    QgsMessageLog.logMessage(f'代替キャッシュディレクトリを使用: {alternate_cache}', self.DLG_CAPTION, Qgis.Info)
+                    QgsMessageLog.logMessage(f'using alternative cache directory: {alternate_cache}', self.DLG_CAPTION, Qgis.Info)
                 except Exception:
                     # 最終的にはシステムの一時ディレクトリを使用
                     import tempfile
                     self.cache_dir = tempfile.gettempdir()
-                    QgsMessageLog.logMessage(f'一時ディレクトリをキャッシュとして使用: {self.cache_dir}', self.DLG_CAPTION, Qgis.Info)
+                    QgsMessageLog.logMessage(f'using temp directory as cache: {self.cache_dir}', self.DLG_CAPTION, Qgis.Info)
         servers_path = os.path.join(self.cache_dir, 'ckan_servers.json')
         if os.path.exists(servers_path):
             try:
@@ -110,7 +110,7 @@ class Settings:
             try:
                 os.makedirs(self.cache_dir, exist_ok=True)
             except Exception as e:
-                QgsMessageLog.logMessage(f'設定保存用キャッシュディレクトリの作成に失敗: {e}', self.DLG_CAPTION, Qgis.Warning)
+                QgsMessageLog.logMessage(f'failed to create settings cache directory: {e}', self.DLG_CAPTION, Qgis.Warning)
                 # 別の場所にフォールバック（ユーザーディレクトリ直下）
                 try:
                     alternate_cache = os.path.join(os.path.expanduser('~'), 'Catalog_Integration_Cache')

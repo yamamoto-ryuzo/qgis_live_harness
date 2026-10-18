@@ -50,13 +50,13 @@ def _setup_language():
     plugin_dir = os.path.dirname(__file__)
     i18n_dir = os.path.join(plugin_dir, 'i18n')
     
-    log_message(f"言語セットアップ開始: {i18n_dir}")
+    log_message(f"language setup started: {i18n_dir}")
     
     # QGIS の設定からユーザー言語を取得
     settings = QSettings()
     locale_str = settings.value("locale/userLocale", "")
     
-    log_message(f"QGIS ロケール設定: {locale_str}")
+    log_message(f"QGIS locale setting: {locale_str}")
     
     # 言語コードの決定（例：ja_JP -> ja）
     if locale_str:
@@ -64,21 +64,21 @@ def _setup_language():
     else:
         system_locale = QLocale.system().name()
         lang_code = system_locale.split('_')[0]
-        log_message(f"システムロケールを使用: {system_locale}")
+        log_message(f"using system locale: {system_locale}")
     
     # 翻訳ファイルのロード候補（優先度順）
     # 完全一致 > 言語コードのみ > 英語
     lang_candidates = [locale_str, lang_code, 'en']
     lang_candidates = [c for c in lang_candidates if c]  # 空文字列を除外
     
-    log_message(f"言語候補: {lang_candidates}")
+    log_message(f"language candidates: {lang_candidates}")
     
     for candidate in lang_candidates:
         # 言語コードから翻訳ファイル名を生成
         qm_file = f"geo_report_{candidate}.qm"
         qm_path = os.path.join(i18n_dir, qm_file)
         
-        log_message(f"確認中: {qm_path}")
+        log_message(f"checking: {qm_path}")
         
         if os.path.exists(qm_path):
             try:
@@ -88,15 +88,15 @@ def _setup_language():
                 if result:
                     # 新しいトランスレータをインストール
                     QCoreApplication.installTranslator(_translator)
-                    log_message(f"✓ 翻訳ファイルをロード成功: {qm_path} (言語: {candidate})", Qgis.Success)
+                    log_message(f"translation file loaded: {qm_path} (language: {candidate})", Qgis.Success)
                     return
                 else:
-                    log_message(f"× 翻訳ファイルのロード失敗: {qm_path}", Qgis.Warning)
+                    log_message(f"failed to load translation file: {qm_path}", Qgis.Warning)
             except Exception as e:
-                log_message(f"× 例外エラー: {qm_path}, エラー: {e}", Qgis.Critical)
+                log_message(f"exception: {qm_path}, error: {e}", Qgis.Critical)
     
-    log_message(f"× 翻訳ファイルが見つかりません。候補: {lang_candidates}", Qgis.Warning)
-    log_message(f"i18n フォルダ内のファイル: {os.listdir(i18n_dir) if os.path.exists(i18n_dir) else '不在'}", Qgis.Warning)
+    log_message(f"no translation file found. candidates: {lang_candidates}", Qgis.Warning)
+    log_message(f"files in i18n dir: {os.listdir(i18n_dir) if os.path.exists(i18n_dir) else '(missing)'}", Qgis.Warning)
 
 
 # プラグイン初期化時に言語セットアップを実行

@@ -22,7 +22,7 @@
 
 import os
 import xml.etree.ElementTree as ET
-from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QVariant, QCoreApplication
 from qgis.core import (
     QgsVectorLayer, 
     QgsFeature, 
@@ -33,7 +33,7 @@ from qgis.core import (
 )
 
 # Unified log tag for this repository
-LOG_TAG = 'データカタログ統合'
+LOG_TAG = 'geo_import'
 
 
 class XmlAttributeLoader:
@@ -67,13 +67,13 @@ class XmlAttributeLoader:
         :return: 作成されたレイヤのリスト
         """
         QgsMessageLog.logMessage(
-            f"*** load_multiple_xml_merged開始: {len(xml_file_paths)}個のファイル ***",
+            f"*** load_multiple_xml_merged started: {len(xml_file_paths)} files ***",
             LOG_TAG,
             Qgis.Info
         )
         for file_path in xml_file_paths:
             QgsMessageLog.logMessage(
-                f"  処理予定ファイル: {file_path}",
+                f"  file to process: {file_path}",
                 LOG_TAG,
                 Qgis.Info
             )
@@ -85,13 +85,13 @@ class XmlAttributeLoader:
         xml_groups = self._group_xml_files_by_type(xml_file_paths)
         
         QgsMessageLog.logMessage(
-            f"XMLグループ化結果: {len(xml_groups)}種類",
+            f"XML grouping result: {len(xml_groups)} types",
             LOG_TAG,
             Qgis.Info
         )
         for xml_type, file_paths in xml_groups.items():
             QgsMessageLog.logMessage(
-                f"  {xml_type}: {len(file_paths)}個のファイル",
+                f"  {xml_type}: {len(file_paths)} files",
                 LOG_TAG,
                 Qgis.Info
             )
@@ -127,7 +127,7 @@ class XmlAttributeLoader:
                 
                 # 信頼度が低い場合は汎用XMLとして扱う
                 if confidence < 0.3:
-                    xml_type = "📄 汎用XML"
+                    xml_type = "Generic XML"
                 
                 if xml_type not in groups:
                     groups[xml_type] = []
@@ -135,9 +135,9 @@ class XmlAttributeLoader:
                 
             except Exception as e:
                 # エラーの場合は汎用XMLとして分類
-                if "📄 汎用XML" not in groups:
-                    groups["📄 汎用XML"] = []
-                groups["📄 汎用XML"].append(file_path)
+                if "Generic XML" not in groups:
+                    groups["Generic XML"] = []
+                groups["Generic XML"].append(file_path)
         
         return groups
     
@@ -160,17 +160,17 @@ class XmlAttributeLoader:
             layer_name = f"XML_Attributes_{filename}"
         else:
             # 複数ファイルの場合 - XMLタイプ名に統合情報を追加
-            layer_name = f"{xml_type} (統合 {len(file_paths)}ファイル)"
+            layer_name = f"{xml_type} (merged {len(file_paths)} files)"
         
         if len(file_paths) == 1:
             QgsMessageLog.logMessage(
-                f"XML処理: {xml_type} - {os.path.basename(file_paths[0])}", 
+                f"XML processing: {xml_type} - {os.path.basename(file_paths[0])}", 
                 LOG_TAG, 
                 Qgis.Info
             )
         else:
             QgsMessageLog.logMessage(
-                f"XMLマージ開始: {xml_type} - {len(file_paths)}ファイル", 
+                f"XML merge started: {xml_type} - {len(file_paths)} files", 
                 LOG_TAG, 
                 Qgis.Info
             )
@@ -181,7 +181,7 @@ class XmlAttributeLoader:
             return None
         
         QgsMessageLog.logMessage(
-            f"ベースレイヤ作成完了: {file_paths[0]} -> {layer_name}",
+            f"base layer created: {file_paths[0]} -> {layer_name}",
             LOG_TAG,
             Qgis.Info
         )
@@ -192,7 +192,7 @@ class XmlAttributeLoader:
                 temp_layer = self.load_xml_as_attribute_table(file_path, f"temp_{i}")
                 if temp_layer:
                     QgsMessageLog.logMessage(
-                        f"ファイル{i}をマージ: {file_path}",
+                        f"merging file {i}: {file_path}",
                         LOG_TAG, 
                         Qgis.Info
                     )
@@ -201,25 +201,25 @@ class XmlAttributeLoader:
                     # マージ完了後、一時レイヤを削除
                     QgsProject.instance().removeMapLayer(temp_layer.id())
                     QgsMessageLog.logMessage(
-                        f"一時レイヤを削除: temp_{i}",
+                        f"removing temp layer: temp_{i}",
                         LOG_TAG, 
                         Qgis.Info
                     )
                     
             except Exception as e:
                 QgsMessageLog.logMessage(
-                    f"ファイルマージエラー: {file_path} - {str(e)}", 
+                    f"file merge error: {file_path} - {e}", 
                     LOG_TAG, 
                     Qgis.Warning
                 )
         
         # 完了メッセージ
         if len(file_paths) == 1:
-            success_message = f"XML読み込み完了: {layer_name} - {base_layer.featureCount()}件"
+            success_message = f"XML load completed: {layer_name} - {base_layer.featureCount()} features"
             QgsMessageLog.logMessage(success_message, LOG_TAG, Qgis.Success)
             self._show_success(success_message)
         else:
-            success_message = f"XMLマージ完了: {layer_name} - {len(file_paths)}ファイル, {base_layer.featureCount()}件"
+            success_message = f"XML merge completed: {layer_name} - {len(file_paths)} files, {base_layer.featureCount()} features"
             QgsMessageLog.logMessage(success_message, LOG_TAG, Qgis.Success)
             self._show_success(success_message)
         
@@ -239,15 +239,15 @@ class XmlAttributeLoader:
         # 呼び出し元の特定のためのログ
         import traceback
         call_stack = traceback.format_stack()
-        caller_info = call_stack[-2] if len(call_stack) > 1 else "不明"
+        caller_info = call_stack[-2] if len(call_stack) > 1 else "unknown"
         
         QgsMessageLog.logMessage(
-            f"*** load_xml_as_attribute_table呼び出し: {xml_file_path} ***",
+            f"*** load_xml_as_attribute_table called: {xml_file_path} ***",
             LOG_TAG,
             Qgis.Info
         )
         QgsMessageLog.logMessage(
-            f"呼び出し元: {caller_info.strip()}",
+            f"caller: {caller_info.strip()}",
             LOG_TAG, 
             Qgis.Info
         )
@@ -258,18 +258,18 @@ class XmlAttributeLoader:
             
             # ファイルの存在確認
             if not os.path.exists(xml_file_path):
-                self._show_error(f"XMLファイルが見つかりません: {xml_file_path}")
+                self._show_error(QCoreApplication.translate('GeoImport', "XML file not found: {0}").format(xml_file_path))
                 return None
             
             # ファイルサイズの確認
             file_size = os.path.getsize(xml_file_path)
             if file_size == 0:
-                self._show_error(f"XMLファイルが空です: {xml_file_path}")
+                self._show_error(QCoreApplication.translate('GeoImport', "XML file is empty: {0}").format(xml_file_path))
                 return None
             
             # ファイルの読み取り権限確認
             if not os.access(xml_file_path, os.R_OK):
-                self._show_error(f"XMLファイルの読み取り権限がありません: {xml_file_path}")
+                self._show_error(QCoreApplication.translate('GeoImport', "No read permission for XML file: {0}").format(xml_file_path))
                 return None
             
             # レイヤ名の設定
@@ -291,7 +291,7 @@ class XmlAttributeLoader:
                 
                 # 診断結果をログに記録
                 QgsMessageLog.logMessage(
-                    f"XML診断結果 - 種類: {xml_type}, 国土交通省XML: {is_mlit}, 信頼度: {confidence:.2f}", 
+                    f"XML diagnosis - type: {xml_type}, MLIT XML: {is_mlit}, confidence: {confidence:.2f}", 
                     LOG_TAG, 
                     Qgis.Info
                 )
@@ -300,20 +300,20 @@ class XmlAttributeLoader:
                 if confidence >= 0.5:
                     if details.get('mlit_keywords'):
                         QgsMessageLog.logMessage(
-                            f"検出されたキーワード: {', '.join(details['mlit_keywords'][:3])}", 
+                            f"detected keywords: {', '.join(details['mlit_keywords'][:3])}", 
                             LOG_TAG, 
                             Qgis.Info
                         )
                     if details.get('structure_indicators'):
                         QgsMessageLog.logMessage(
-                            f"構造指標: {', '.join(details['structure_indicators'][:2])}", 
+                            f"structure indicators: {', '.join(details['structure_indicators'][:2])}", 
                             LOG_TAG, 
                             Qgis.Info
                         )
                 
             except Exception as e:
-                error_msg = f"XMLファイルの読み込みでエラーが発生しました: {str(e)}\n"
-                error_msg += f"ファイル: {xml_file_path}"
+                error_msg = QCoreApplication.translate('GeoImport', "Error while loading XML file: {0}").format(e) + "\n"
+                error_msg += f"file: {xml_file_path}"
                 self._show_error(error_msg)
                 return None
             
@@ -321,13 +321,13 @@ class XmlAttributeLoader:
             fields = self._analyze_xml_structure(root)
             
             if not fields:
-                self._show_error("XMLファイルから属性フィールドを検出できませんでした")
+                self._show_error(QCoreApplication.translate('GeoImport', "Could not detect attribute fields in XML file"))
                 return None
             
             # メモリレイヤを作成（ジオメトリなし）
             layer = QgsVectorLayer("None", layer_name, "memory")
             if not layer.isValid():
-                self._show_error("メモリレイヤの作成に失敗しました")
+                self._show_error(QCoreApplication.translate('GeoImport', "Failed to create memory layer"))
                 return None
             
             provider = layer.dataProvider()
@@ -345,7 +345,7 @@ class XmlAttributeLoader:
             features = self._extract_features_from_xml(root, fields)
             
             if not features:
-                self._show_warning("XMLファイルからデータが抽出されませんでした")
+                self._show_warning(QCoreApplication.translate('GeoImport', "No data extracted from XML file"))
             
             # フィーチャをレイヤに追加
             provider.addFeatures(features)
@@ -358,7 +358,7 @@ class XmlAttributeLoader:
             QgsProject.instance().addMapLayer(layer)
             
             # 成功メッセージ
-            self._show_success(f"XMLファイルが属性テーブルとして読み込まれました: {layer.name()} ({len(features)}件)")
+            self._show_success(QCoreApplication.translate('GeoImport', "XML file loaded as attribute table: {0} ({1} features)").format(layer.name(), len(features)))
             
             # ログに記録
             QgsMessageLog.logMessage(
@@ -370,9 +370,9 @@ class XmlAttributeLoader:
             return layer
             
         except Exception as e:
-            error_msg = f"XMLファイルの読み込みに失敗しました: {str(e)}\n"
-            error_msg += f"ファイル: {xml_file_path}\n"
-            error_msg += "詳細なエラー情報はQGISログパネルを確認してください。"
+            error_msg = QCoreApplication.translate('GeoImport', "Failed to load XML file: {0}").format(e) + "\n"
+            error_msg += f"file: {xml_file_path}\n"
+            error_msg += QCoreApplication.translate('GeoImport', "See the QGIS log panel for detailed error information.")
             self._show_error(error_msg)
             QgsMessageLog.logMessage(
                 f"Error loading XML: {str(e)} from file: {xml_file_path}",
@@ -405,7 +405,7 @@ class XmlAttributeLoader:
                     continue
             
             if file_content is None:
-                self._show_error(f"XMLファイルの文字エンコーディングが認識できません: {xml_file_path}")
+                self._show_error(QCoreApplication.translate('GeoImport', "Cannot detect character encoding of XML file: {0}").format(xml_file_path))
                 return False
             
             # XML宣言の確認
@@ -418,13 +418,13 @@ class XmlAttributeLoader:
                                  for line in lines if line.strip())
             
             if not has_xml_declaration and not has_xml_elements:
-                self._show_error(f"XMLファイルではないようです: {xml_file_path}\n最初の行: {first_line[:100]}...")
+                self._show_error(QCoreApplication.translate('GeoImport', "File does not appear to be XML: {0}\nfirst line: {1}...").format(xml_file_path, first_line[:100]))
                 return False
             
             # DTD宣言があっても問題ない
             if '<!DOCTYPE' in file_content:
                 QgsMessageLog.logMessage(
-                    f"DTD宣言が見つかりました。処理を続行します: {xml_file_path}",
+                    f"DTD declaration found; continuing: {xml_file_path}",
                     LOG_TAG,
                     Qgis.Info
                 )
@@ -432,14 +432,14 @@ class XmlAttributeLoader:
             # スタイルシート宣言があっても問題ない
             if '<?xml-stylesheet' in file_content:
                 QgsMessageLog.logMessage(
-                    f"スタイルシート宣言が見つかりました。処理を続行します: {xml_file_path}",
+                    f"stylesheet declaration found; continuing: {xml_file_path}",
                     LOG_TAG,
                     Qgis.Info
                 )
             
             # エンコーディング情報をログに記録
                 QgsMessageLog.logMessage(
-                    f"XMLファイルのエンコーディング検出: {detected_encoding} - {xml_file_path}",
+                    f"XML encoding detected: {detected_encoding} - {xml_file_path}",
                     LOG_TAG,
                     Qgis.Info
                 )
@@ -447,7 +447,7 @@ class XmlAttributeLoader:
             return True
             
         except Exception as e:
-            self._show_error(f"XMLファイルの事前チェックでエラーが発生しました: {str(e)}")
+            self._show_error(QCoreApplication.translate('GeoImport', "Error during XML pre-check: {0}").format(e))
             return False
     
     def _parse_xml_with_encoding(self, xml_file_path):
@@ -476,7 +476,7 @@ class XmlAttributeLoader:
                     tree = ET.ElementTree(root)
                     
                     QgsMessageLog.logMessage(
-                        f"XMLファイルを {encoding} エンコーディングで正常に解析しました: {xml_file_path}",
+                        f"XML file parsed successfully as {encoding}: {xml_file_path}",
                         LOG_TAG,
                         Qgis.Info
                     )
@@ -484,7 +484,7 @@ class XmlAttributeLoader:
                     
                 except ET.ParseError as e:
                     QgsMessageLog.logMessage(
-                        f"エンコーディング {encoding} でXML解析エラー: {str(e)}",
+                        f"XML parse error with encoding {encoding}: {e}",
                         LOG_TAG,
                         Qgis.Warning
                     )
@@ -495,16 +495,16 @@ class XmlAttributeLoader:
                 continue
             except Exception as e:
                 QgsMessageLog.logMessage(
-                    f"エンコーディング {encoding} で読み込みエラー: {str(e)}",
+                    f"read error with encoding {encoding}: {e}",
                     LOG_TAG,
                     Qgis.Warning
                 )
                 continue
         
         # すべてのエンコーディングで失敗
-        error_msg = f"XMLファイルを解析できませんでした。サポートされているエンコーディングで読み込めません。\n"
-        error_msg += f"試行したエンコーディング: {', '.join(encodings)}\n"
-        error_msg += f"ファイル: {xml_file_path}"
+        error_msg = f"could not parse XML file; no supported encoding could read it.\n"
+        error_msg += f"tried encodings: {', '.join(encodings)}\n"
+        error_msg += f"file: {xml_file_path}"
         self._show_error(error_msg)
         
         QgsMessageLog.logMessage(
@@ -548,7 +548,7 @@ class XmlAttributeLoader:
         
         # DTD宣言からの識別
         if 'rep04.dtd' in xml_content_str or 'rep' in xml_content_str:
-            return "📄 国土交通省報告書データ"
+            return "MLIT report data"
         
         # 各パターンとマッチング
         for xml_type, patterns in self.mlit_xml_patterns.items():
@@ -558,26 +558,26 @@ class XmlAttributeLoader:
                     pattern_lower in root_tag or 
                     any(pattern_lower in tag for tag in child_tags)):
                     type_names = {
-                        'electronic_delivery': "📋 電子納品XML (CALS/EC準拠)",
-                        'survey_results': "📐 測量成果XML (測量成果電子納品要領)", 
-                        'jpgis': "🗺️ JPGIS準拠地理空間情報XML",
-                        'cad_sxf': "📐 CAD/SXF関連XML",
-                        'estimation': "💰 積算システムXML (JACIC準拠)",
-                        'facility_mgmt': "🏢 施設管理XML",
-                        'geography': "🌏 地理空間情報XML",
-                        'construction': "🏗️ 建設工事関連XML"
+                        'electronic_delivery': "Electronic delivery XML (CALS/EC)",
+                        'survey_results': "Survey results XML (MLIT survey spec)", 
+                        'jpgis': "JPGIS geospatial XML",
+                        'cad_sxf': "CAD/SXF XML",
+                        'estimation': "Cost estimation XML (JACIC)",
+                        'facility_mgmt': "Facility management XML",
+                        'geography': "Geospatial XML",
+                        'construction': "Construction XML"
                     }
-                    return type_names.get(xml_type, f"{xml_type}関連XML")
+                    return type_names.get(xml_type, f"{xml_type} XML")
         
         # 特定の構造からの識別
         if '報告書' in root_tag or '情報' in root_tag:
-            return "📝 日本語XML（報告書/情報系）"
+            return "Japanese XML (report/info)"
         elif 'feature' in root_tag or 'gml' in xml_content_str:
-            return "🗺️ GML/地理情報XML"
+            return "GML/geospatial XML"
         elif root_tag in ['data', 'records', 'items']:
-            return "📊 データテーブルXML"
+            return "Data table XML"
         
-        return "📄 汎用XML"
+        return "Generic XML"
     
     def is_mlit_xml(self, xml_file_path):
         """
@@ -590,7 +590,7 @@ class XmlAttributeLoader:
             # XMLファイルを解析
             tree, root = self._parse_xml_with_encoding(xml_file_path)
             if tree is None or root is None:
-                return False, "解析不可", 0.0, {}
+                return False, "unparseable", 0.0, {}
             
             # 判定結果の詳細を記録
             details = {
@@ -643,7 +643,7 @@ class XmlAttributeLoader:
             ]
             for pattern in mlit_file_patterns:
                 if pattern in filename:
-                    details['structure_indicators'].append(f"ファイル名パターン: {pattern}")
+                    details['structure_indicators'].append(f"file name pattern: {pattern}")
                     confidence_score += 0.6
                     break
             
@@ -677,7 +677,7 @@ class XmlAttributeLoader:
             
             # 国土交通省XML特有の構造パターン
             if root_tag in ['reportdata', '工事情報', '業務情報', '測量成果', 'survey_data']:
-                details['structure_indicators'].append(f"ルート要素: {root_tag}")
+                details['structure_indicators'].append(f"root element: {root_tag}")
                 confidence_score += 0.4
             
             # 子要素のパターンチェック
@@ -689,13 +689,13 @@ class XmlAttributeLoader:
             
             for pattern in mlit_child_patterns:
                 if pattern in child_tags:
-                    details['structure_indicators'].append(f"子要素: {pattern}")
+                    details['structure_indicators'].append(f"child elements: {pattern}")
                     confidence_score += 0.2
                     break
             
             # 6. 文字エンコーディングによる補助判定
             if 'shift_jis' in xml_content_lower or 'shift-jis' in xml_content_lower:
-                details['structure_indicators'].append("Shift_JISエンコーディング（日本語XML）")
+                details['structure_indicators'].append("Shift_JIS encoding (Japanese XML)")
                 confidence_score += 0.1
             
             # 判定結果の決定
@@ -710,7 +710,7 @@ class XmlAttributeLoader:
             return is_mlit, xml_type, confidence_score, details
             
         except Exception as e:
-            return False, f"エラー: {str(e)}", 0.0, {'error': str(e)}
+            return False, f"error: {e}", 0.0, {'error': str(e)}
     
     def _fix_encoding_declaration(self, xml_content, actual_encoding):
         """
@@ -1069,7 +1069,7 @@ class XmlAttributeLoader:
         if missing_fields:
             # 追加前にログ
             QgsMessageLog.logMessage(
-                f"ターゲットに存在しないフィールドを追加: {', '.join([f.name() for f in missing_fields])}",
+                f"adding fields missing in target: {', '.join([f.name() for f in missing_fields])}",
                 LOG_TAG,
                 Qgis.Info
             )
@@ -1109,7 +1109,7 @@ class XmlAttributeLoader:
             target_layer.updateExtents()
 
         QgsMessageLog.logMessage(
-            f"マージ完了: {len(features)}件のレコードを'{source_file_path}'から追加",
+            f"merge completed: added {len(features)} records from '{source_file_path}'",
             LOG_TAG,
             Qgis.Info
         )
@@ -1131,7 +1131,7 @@ class XmlAttributeLoader:
         layer.updateExtents()
         
         QgsMessageLog.logMessage(
-            f"ソースファイル情報を更新: {len(features)}件のレコードに'{file_path}'を設定",
+            f"updated source file info: set '{file_path}' on {len(features)} records",
             LOG_TAG,
             Qgis.Info
         )
@@ -1169,23 +1169,23 @@ def diagnose_mlit_xml(xml_file_path):
     except Exception as e:
         return {
             'is_mlit_xml': False,
-            'xml_type': 'エラー',
+            'xml_type': 'error',
             'confidence': 0.0,
             'details': {'error': str(e)},
-            'recommendation': f"ファイル診断中にエラーが発生しました: {str(e)}"
+            'recommendation': f"error during file diagnosis: {e}"
         }
 
 
 def _get_recommendation(is_mlit, confidence, xml_type):
     """診断結果に基づく推奨事項を生成"""
     if is_mlit and confidence >= 0.8:
-        return f"高い確度で{xml_type}と判定されます。QGISでの読み込みに適しています。"
+        return f"identified as {xml_type} with high confidence. Suitable for loading in QGIS."
     elif is_mlit and confidence >= 0.5:
-        return f"中程度の確度で{xml_type}と判定されます。読み込み可能ですが、構造を確認することをお勧めします。"
+        return f"identified as {xml_type} with medium confidence. Loadable, but checking the structure is recommended."
     elif is_mlit and confidence >= 0.3:
-        return f"低い確度で{xml_type}と判定されます。一部の国土交通省XMLの特徴がありますが、詳細な確認が必要です。"
+        return f"identified as {xml_type} with low confidence. Some MLIT XML characteristics found; detailed review required."
     else:
-        return "国土交通省の標準的なXMLフォーマットではないと思われます。汎用XMLとして処理されます。"
+        return "The file does not appear to be a standard MLIT XML format. It will be processed as generic XML."
 
 
 def print_mlit_xml_diagnosis(xml_file_path):
@@ -1194,33 +1194,33 @@ def print_mlit_xml_diagnosis(xml_file_path):
     
     :param xml_file_path: XMLファイルのパス
     """
-    print(f"=== 国土交通省XML診断結果: {xml_file_path} ===")
+    print(f"=== MLIT XML diagnosis: {xml_file_path} ===")
     
     result = diagnose_mlit_xml(xml_file_path)
     
-    print(f"ファイル名: {os.path.basename(xml_file_path)}")
-    print(f"国土交通省XML: {'はい' if result['is_mlit_xml'] else 'いいえ'}")
-    print(f"XMLタイプ: {result['xml_type']}")
-    print(f"信頼度: {result['confidence']:.2f} ({result['confidence']*100:.1f}%)")
-    print(f"推奨事項: {result['recommendation']}")
+    print(f"file name: {os.path.basename(xml_file_path)}")
+    print(f"MLIT XML: {'yes' if result['is_mlit_xml'] else 'no'}")
+    print(f"XML type: {result['xml_type']}")
+    print(f"confidence: {result['confidence']:.2f} ({result['confidence']*100:.1f}%)")
+    print(f"recommendation: {result['recommendation']}")
     
     details = result['details']
     if details:
-        print("\n--- 詳細情報 ---")
+        print("\n--- details ---")
         if 'file_size' in details:
-            print(f"ファイルサイズ: {details['file_size']:,} bytes")
+            print(f"file size: {details['file_size']:,} bytes")
         if 'root_element' in details:
-            print(f"ルート要素: {details['root_element']}")
+            print(f"root element: {details['root_element']}")
         if details.get('dtd_detected'):
-            print(f"DTD検出: {details['dtd_detected']}")
+            print(f"DTD detected: {details['dtd_detected']}")
         if details.get('namespace_detected'):
-            print(f"名前空間検出: {', '.join(details['namespace_detected'])}")
+            print(f"namespaces detected: {', '.join(details['namespace_detected'])}")
         if details.get('mlit_keywords'):
-            print(f"国土交通省キーワード: {', '.join(details['mlit_keywords'][:5])}{'...' if len(details['mlit_keywords']) > 5 else ''}")
+            print(f"MLIT keywords: {', '.join(details['mlit_keywords'][:5])}{'...' if len(details['mlit_keywords']) > 5 else ''}")
         if details.get('structure_indicators'):
-            print(f"構造指標: {', '.join(details['structure_indicators'])}")
+            print(f"structure indicators: {', '.join(details['structure_indicators'])}")
         if 'error' in details:
-            print(f"エラー: {details['error']}")
+            print(f"error: {details['error']}")
     
     print("=" * 50)
 
@@ -1232,5 +1232,5 @@ if __name__ == "__main__":
         xml_file_path = sys.argv[1]
         print_mlit_xml_diagnosis(xml_file_path)
     else:
-        print("使用方法: python xml_attribute_loader.py <XMLファイルパス>")
-        print("例: python xml_attribute_loader.py /path/to/report.xml")
+        print("usage: python xml_attribute_loader.py <XML file path>")
+        print("example: python xml_attribute_loader.py /path/to/report.xml")

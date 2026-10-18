@@ -483,7 +483,7 @@ class LiveDriver:
             kind = cmd.get("kind") or ""
             if kind not in ("agents", "skills"):
                 reply({"id": cid,
-                       "error": f"kind は agents|skills: {kind!r}"})
+                       "error": f"kind must be agents|skills: {kind!r}"})
                 return
             if op == "list":
                 reply({"id": cid, "result":
@@ -511,7 +511,7 @@ class LiveDriver:
                            "(missing or bundled)"})
             else:
                 reply({"id": cid,
-                       "error": f"op は list|read|save|delete: {op!r}"})
+                       "error": f"op must be list|read|save|delete: {op!r}"})
         except Exception:
             reply({"id": cid, "error": traceback.format_exc()})
 

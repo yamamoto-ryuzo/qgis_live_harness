@@ -5,6 +5,30 @@ All notable changes to the QGIS Legend View plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-10-18
+
+### Added
+- 採用言語セット(AGENTS.md)に合わせ hi/pt/ru の翻訳カタログ
+  (`i18n/LegendView_<lang>.ts`/`.qm`)を追加。既存の
+  de/es/fr/it/ja/zh と合わせ全9言語を同梱。
+
+## [2.4.0] - 2026-10-18
+
+### Changed
+- 翻訳カタログ(`.ts`)を最新ソースから再抽出し、日本語および
+  既存言語(de/es/fr/it/zh)の全メッセージを翻訳済みに更新。
+  各言語の `.qm` を再コンパイル。
+
+## [2.3.0] - 2026-10-18
+
+### Changed
+- ドックウィジェットの追加時、同じドックエリア(右側)に既存パネルが
+  あれば `QMainWindow.tabifyDockWidget` でタブ化して追加するように変更
+  (`restoreState` → `tabifyWithExistingDock` 新設。
+  可視ドックを優先し、非表示のみの場合はそれにタブ化。
+  既存パネルが無ければ従来通り単独追加。
+  QGIS保存状態の復元に成功した場合やフローティング時は対象外)
+
 ## [2.2.0] - 2026-10-18
 
 ### Changed

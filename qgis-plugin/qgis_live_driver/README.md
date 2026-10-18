@@ -1,170 +1,176 @@
 # QGIS Live Driver (`qgis_live_driver`)
 
-実行中のQGISプロセスを**同じPC上のクライアント(AIツール等)から遠隔操作**するための、
-UIを持たない制御専用プラグイン。
-`python/plugins/` へのコピーだけで任意のQGISインストールに単独導入できる
-(リポジトリ・Node不要)。
+[Japanese / 日本語: `README_JP.md`](README_JP.md)
 
-このプラグインは `QWebEngineView` を持たないため、
-**WebEngineを使わない任意のQGIS環境・任意の他プラグイン**に対しても
-`pyeval` 経由の遠隔操作面を提供できる。
+A UI-less, control-only plugin that lets clients on the **same PC** (AI tools,
+etc.) **remotely operate a running QGIS process**.
+It can be installed standalone into any QGIS installation by simply copying it
+into `python/plugins/` (no repository or Node required).
 
-- コマンド: `pyeval`(任意Python実行) / `screenshot` / `status` /
-  `open_plugin` / `reload_plugin` / `bridge_call` + `plugin_id` 転送(hub)
-- 接続面(4系統・全て同じdispatchへ): ファイルJSONL /
+Because this plugin has no `QWebEngineView`, it provides a `pyeval`-based
+remote-control surface for **any QGIS environment and any other plugin**, with
+or without WebEngine.
+
+- Commands: `pyeval` (arbitrary Python execution) / `screenshot` / `status` /
+  `open_plugin` / `reload_plugin` / `bridge_call` + `plugin_id` forwarding (hub)
+- Connection surfaces (4, all routed to the same dispatch): file JSONL /
   HTTP REST `/api/*` / MCP Streamable HTTP `/mcp` / MCP stdio (`mcp_stdio.py`)
 
-**詳細ドキュメント(コマンド一覧・制御範囲・RESTエンドポイント等):**
+**Full documentation (command list, control scope, REST endpoints, etc.):**
 https://yamamoto-ryuzo.github.io/qgis_live_harness/driver.html
 
-## 有効化
+## Activation
 
 ```powershell
-# このリポジトリから(全プラグイン一括deploy)
+# From this repository (deploys all plugins at once)
 powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
 
-# または手動: このフォルダを python/plugins/qgis_live_driver/ へコピーし、
-# QGISのプラグイン管理で有効化
+# Or manually: copy this folder to python/plugins/qgis_live_driver/
+# and enable it in the QGIS Plugin Manager
 ```
 
-有効化は2経路(既定ではOFF・無害):
+Two activation paths (OFF and harmless by default):
 
-- **メニュートグル**: `プラグイン > QGIS Live Driver > リモート制御 (localhostのみ)`。
-  初回ON時に警告ダイアログを表示し、QSettingsに保存されるため次回起動から自動有効。
-- **環境変数**: `WEBENGINE_LIVE_DIR` 設定時は起動時に即座に有効(開発用途。
-  `scripts/verify-in-qgis.ps1` が付与して起動する)。
+- **Menu toggle**: `Plugins > QGIS Live Driver > Remote control (localhost only)`.
+  A warning dialog is shown the first time it is enabled; the setting is saved
+  to QSettings so it stays enabled on subsequent launches.
+- **Environment variable**: setting `WEBENGINE_LIVE_DIR` enables it immediately
+  at startup (for development; `scripts/verify-in-qgis.ps1` sets this when
+  launching QGIS).
 
-## AI アシスタントパネル
+## AI Assistant Panel
 
-`プラグイン > QGIS Live Driver > AI アシスタント` で、
-**LLM APIを接続してQGISを対話操作するチャットドック**を開ける
-(`ai_panel.py` + `ai_client.py`)。
+`Plugins > QGIS Live Driver > AI Assistant` opens a **chat dock that connects
+an LLM API to operate QGIS interactively** (`ai_panel.py` + `ai_client.py`).
 
-- **プロバイダ**(コンボで選択。設定はプロバイダごとに別保存):
-  - **OpenAI互換**: Chat Completions
-    (`POST {base}/chat/completions` + function calling)。
-    エンドポイントを変えれば Ollama (`http://localhost:11434/v1`)・
-    LM Studio・OpenRouter等のローカル/互換サーバも使える
+- **Providers** (combo selection; settings are stored per provider):
+  - **OpenAI-compatible**: Chat Completions
+    (`POST {base}/chat/completions` + function calling).
+    Change the endpoint to use Ollama (`http://localhost:11434/v1`),
+    LM Studio, OpenRouter, or other local/compatible servers.
   - **Gemini**: Google Gemini API
     (`POST {base}/models/{model}:generateContent` +
-    functionDeclarations、認証は `x-goog-api-key`)。
-    APIキーは AI Studio で発行。既定モデル `gemini-2.5-flash`
-  - **GitHub Copilot**: OpenAI互換のCopilot API
-    (`POST {api}/chat/completions`)。**GitHub Copilotの契約が必要**。
-    APIキー欄にはGitHubトークン(`gho_`/`ghu_`/`ghp_`…)を入れる。
-    内部で `api.github.com/copilot_internal/v2/token` に交換し、
-    応答の `endpoints.api` (individual/business/enterprise)へ送る。
-    `v2/token` が応答しない環境では `copilot_internal/user` で
-    API先だけを解決しGitHubトークンをそのままBearerに使う
-    (`@github/copilot` CLIと同じ動作)に自動フォールバック。
-    **「GitHubでサインイン」ボタン**でOAuthデバイスフローによる
-    トークン取得もできる(既定のclient_idはVS Codeの公開OAuth App。
-    `QGIS_LIVE_GITHUB_CLIENT_ID` で差し替え可)。
-    エンドポイントを既定から変えた場合はトークン交換せず
-    GitHubトークンをそのままBearerに使うため、
-    copilot-api等の互換プロキシにも繋がる。
-    **対応プラン**: Pro/Free/Business/Enterprise/EMU
-    (Enterprise Managed Users。EMUはエンタープライズから
-    Business/Enterpriseシートを付与された場合に使える)。
-    Business/Enterprise/EMUでは `endpoints.api` が
-    `api.business.`/`api.enterprise.githubcopilot.com` を返すため
-    同じ経路で自動解決される。EMUではPAT発行が企業ポリシーで
-    制限されうるため「GitHubでサインイン」(デバイスフロー)推奨。
-    組織のCopilotモデルポリシーで無効化されたモデルは
-    一覧・使用とも不可。IdP条件付きアクセス等の企業側制限は
-    アプリ側では回避不可
-- **モデル選択**: モデル欄は編集可コンボ。隣の「取得」ボタンで
-  `GET {base}/models` から利用可能モデル一覧を取り込める
-  (GeminiではgenerateContent非対応モデルを除外)。
-  一覧は種別(テキスト/画像入力可・画像生成・埋め込み等)で
-  グループ化され、各項目に価格(入力/出力, $/1Mトークン)を併記。
-  価格はOpenRouter等が返す `pricing`/`modality`/`context_length`
-  を優先し、無ければ主要モデルの既知価格表(参考値)を使う。
-  既定エンドポイント利用時は「取得」前から推奨モデル一覧を表示。
-  モデル欄の下に選択中モデルの種別・価格・コンテキスト長も出る
-- **エージェント/スキル(指示書)**: Markdownファイル2系統で振る舞いを拡張:
-  - **`~/.qgis-live/agents/*.md`** — 常時注入の指示書(役割・方針)。
-    パネルの「エージェント」コンボで1件選択するとsystem promptに
-    本文が注入される。「編集」ボタンで作成・編集・削除できる
-    (複数定義して切替可能。チャットごとに選択も記憶される)
-  - **`~/.qgis-live/skills/*.md`** — オンデマンドの手順書。
-    プロンプトにはid+説明(+`use_when`)の一覧のみ載り、
-    モデルが該当タスク時に `qgis_pyeval` の `open()` で本文を
-    読む(常時注入しないのでトークン節約)。
-    **設定方法はAPI設定の「スキル」行 — 全件がコンボに列挙され
-    (選択不要・全件が自動で一覧に載る)、「編集」ダイアログで
-    作成・編集・削除する**
-  - 両者とも `<plugin>/<kind>/` にプラグイン同梱デフォルトを置け、
-    ユーザ側の同名ファイルが優先される。書式: 先頭 `# `行=タイトル、
-    次の非空行=説明文、その直後の `use_when: <使いどき>` 行
-    (省略可。別名 when/when_to_use/用途/使いどき)=起動条件として
-    プロンプト一覧に `use when:` で載る(同梱デフォルトは任意。
-    現在の同梱品なし)
-  - **AI自身も指示書を編集・選択できる**: `ai_list_instructions` /
-    `ai_read_instruction` / `ai_save_instruction` /
-    `ai_delete_instruction` に加え `ai_select_agent`(選択中
-    エージェントの切替)をモデルに渡す。エージェント一覧は
-    スキルと同様にid+説明がプロンプトに載るため、モデルが
-    タスクに合うエージェントを自律選択できる。保存は常に
-    ユーザ側へ書き、同梱品は同名保存で実質上書き(削除は
-    ユーザ側のみ)。変更後はパネルのコンボも自動で再構築される
-  - **「編集」ダイアログは非モーダル**: 開いている間もチャット
-    入力欄は通常通り使える。ダイアログ下部のプロンプト欄に修正
-    指示を書いて「AIに修正を依頼」すると、編集欄の本文と共に
-    チャットのAIへ送られ、AIが `ai_save_instruction` で保存した
-    結果が編集欄へ反映される(未保存の手編集がある間は上書き
-    しない)。新規作成中に同名ファイルが保存された場合は
-    そのファイルが選択状態になる
-  - **チャット入力からも直接編集できる**: `/` で始まる入力はAPIへ
-    送らずローカルコマンドとして実行される。`/agent`(一覧+現在値)、
-    `/agent <名>`(切替)、`/agent <名> <本文>`(保存して選択)、
-    `/skill`(一覧)、`/skill <名>`(本文表示)、`/skill <名> <本文>`
-    (保存)。本文は2行目以降に改行して書ける。`/help` で一覧表示
-  - **外部AIからも操作できる**: MCP/REST側の `qgis_instruction`
-    ツール(op=list|read|save|delete)で、オーケストレーターが
-    指示書を発見・編集可能(`QGIS_LIVE_TOOLS` の許可対象)
-- **表示**: AI応答はMarkdownレンダリング(見出し/リスト/表/
-  コードブロック)。「新しいチャット」で現在の会話を履歴コンボへ
-  保存して新規開始。履歴コンボから過去チャットを開くと
-  表示とコンテキストが復元され会話を継続できる。
-  履歴は `~/.qgis-live/chats.json` に永続化され(最新50件)
-  QGIS再起動後も残る。「↓」で表示中チャットをMarkdown保存、
-  「✕」で表示中の履歴チャットを削除できる
-- **送信/中断/再送**: Enter(または「送信」)で送信、
-  Shift+Enterで改行。入力が空の間は「送信」は無効で、
-  実行中はボタンが赤色の「■ 中断」に変わって
-  往復の境界でループを止められる(進行中のAPI応答やツール実行
-  そのものは完了を待つ)。「再送」は最後の質問+応答を取り消して
-  同じ質問を送り直す。長い会話は古いターンから自動で切り詰める
-  (MAX_HISTORY_CHARS)ためコンテキスト過大でAPIエラーにならない。
-  右下にコンテキスト/コスト表示
-  (`ctx 9k/128k (6%) · Σ13k · $0.0023`)。
-  ctx は直近API応答のprompt_tokens実測値(未取得時は~付きで
-  文字数÷3推定)、Σ はチャット毎の累計トークン、$ は
-  価格情報があるモデルでの推定コスト(定額制のCopilot等では
-  Σのみ表示)。usageとともにチャット履歴へ保存される
-- **画像添付**: 入力欄へのクリップボード貼付(Ctrl+V)・
-  画像ファイルのドラッグ&ドロップ・「📎」ボタンで画像を添付
-  できる。サムネイルチップとして入力欄の上に並び、送信時に
-  ユーザメッセージへ同梱される(履歴にも残り、後続ターンでも
-  モデルが参照できる)。画像はPNGへ正規化し長辺2048pxに縮小して
-  一時ファイルへ保存する。**画像非対応と推定されるモデル
-  (一覧の「画像入力可」グループ外)選択中は添付できず**、
-  📎ボタンも無効化される(手入力モデルは名前ヒントで推定)
-- **確認モード**: 「ツール実行の前に確認する」をONにすると
-  各ツール呼び出しで実行可否を都度確認する(任意コード実行の
-  pyevalを自動で回したくない場合に)
-- **ツール**: `mcp_http.TOOLS` と同じセット
+    functionDeclarations, authenticated via `x-goog-api-key`).
+    Get an API key from AI Studio. Default model: `gemini-2.5-flash`.
+  - **GitHub Copilot**: OpenAI-compatible Copilot API
+    (`POST {api}/chat/completions`). **Requires a GitHub Copilot
+    subscription.** Enter a GitHub token (`gho_`/`ghu_`/`ghp_`…) in the API
+    key field. Internally it is exchanged at
+    `api.github.com/copilot_internal/v2/token` and requests are sent to the
+    `endpoints.api` from the response (individual/business/enterprise).
+    In environments where `v2/token` does not respond, it falls back to
+    resolving only the API endpoint via `copilot_internal/user` and using the
+    GitHub token directly as Bearer (same behavior as the `@github/copilot`
+    CLI). The **"Sign in with GitHub"** button can also obtain a token via the
+    OAuth device flow (default client_id is VS Code's public OAuth App;
+    override with `QGIS_LIVE_GITHUB_CLIENT_ID`). If the endpoint is changed
+    from the default, no token exchange occurs and the GitHub token is used
+    directly as Bearer, so compatible proxies such as copilot-api also work.
+    **Supported plans**: Pro/Free/Business/Enterprise/EMU
+    (Enterprise Managed Users — usable when an enterprise assigns a
+    Business/Enterprise seat to an EMU). For Business/Enterprise/EMU,
+    `endpoints.api` returns `api.business.`/`api.enterprise.githubcopilot.com`
+    and is resolved automatically via the same path. For EMU, PAT issuance may
+    be restricted by enterprise policy, so "Sign in with GitHub" (device flow)
+    is recommended. Models disabled by the organization's Copilot model policy
+    cannot be listed or used. Enterprise-side restrictions such as IdP
+    conditional access cannot be bypassed by the app.
+- **Model selection**: the model field is an editable combo. The adjacent
+  "Fetch" button imports the available model list from `GET {base}/models`
+  (for Gemini, models without generateContent support are excluded). The list
+  is grouped by capability (text / image-input / image generation / embedding,
+  etc.), and each item shows pricing (input/output, $/1M tokens). Pricing
+  prefers `pricing`/`modality`/`context_length` returned by services such as
+  OpenRouter, falling back to a built-in reference price table for major
+  models. With the default endpoint, a recommended model list is shown even
+  before "Fetch". The capability, price, and context length of the selected
+  model are displayed below the field.
+- **Agents/Skills (instruction files)**: two kinds of Markdown files extend
+  behavior:
+  - **`~/.qgis-live/agents/*.md`** — always-injected instruction files
+    (role/policy). Selecting one in the panel's "Agent" combo injects its
+    content into the system prompt. The "Edit" button creates/edits/deletes
+    files (multiple definitions can be switched; the selection is remembered
+    per chat).
+  - **`~/.qgis-live/skills/*.md`** — on-demand procedure files. Only a list of
+    id + description (+ `use_when`) is placed in the prompt; the model reads
+    the body via `qgis_pyeval`'s `open()` when the task matches (saves tokens
+    since nothing is always injected). **Configure via the "Skills" row in API
+    settings — all files are listed in the combo (no selection needed; all
+    are listed automatically), and the "Edit" dialog
+    creates/edits/deletes them**.
+  - Both can have bundled defaults under `<plugin>/<kind>/`; user-side files
+    with the same name take precedence. Format: first `# ` line = title, next
+    non-empty line = description, followed by an optional
+    `use_when: <when to use>` line (aliases: when/when_to_use/用途/使いどき)
+    which appears as `use when:` in the prompt list. (Bundled defaults are
+    optional; none are currently bundled.)
+  - **The AI itself can edit and select instruction files**:
+    `ai_list_instructions` / `ai_read_instruction` /
+    `ai_save_instruction` / `ai_delete_instruction`, plus
+    `ai_select_agent` (switching the selected agent) are exposed to the model.
+    Since the agent list appears in the prompt with id + description like
+    skills, the model can autonomously select an agent suited to the task.
+    Saves always write to the user side; saving with the same name as a
+    bundled file effectively overrides it (deletion is user-side only). After
+    changes, the panel combos are rebuilt automatically.
+  - **The "Edit" dialog is non-modal**: chat input remains usable while it is
+    open. Writing a fix request in the prompt field at the bottom of the
+    dialog and clicking "Ask AI to fix" sends it to the chat AI together with
+    the editor content; the result the AI saves via `ai_save_instruction` is
+    reflected in the editor (unsaved manual edits are not overwritten). If a
+    file with the same name is saved while creating a new one, that file
+    becomes selected.
+  - **Direct editing from chat input is also possible**: input starting with
+    `/` is executed as a local command instead of being sent to the API.
+    `/agent` (list + current), `/agent <name>` (switch),
+    `/agent <name> <body>` (save and select), `/skill` (list),
+    `/skill <name>` (show body), `/skill <name> <body>` (save). The body can
+    span multiple lines starting from line 2. `/help` shows the list.
+  - **Also operable by external AI**: the MCP/REST `qgis_instruction` tool
+    (op=list|read|save|delete) lets orchestrators discover and edit
+    instruction files (subject to `QGIS_LIVE_TOOLS` allowlist).
+- **Display**: AI responses are rendered as Markdown
+  (headings/lists/tables/code blocks). "New chat" saves the current
+  conversation to the history combo and starts fresh. Opening a past chat
+  from the history combo restores its display and context so the conversation
+  can continue. History is persisted to `~/.qgis-live/chats.json`
+  (latest 50) and survives QGIS restarts. "↓" saves the displayed chat as
+  Markdown; "✕" deletes the displayed history chat.
+- **Send/Stop/Resend**: Enter (or "Send") sends; Shift+Enter inserts a
+  newline. "Send" is disabled while input is empty; while running, the button
+  becomes a red "■ Stop" which stops the loop at turn boundaries (in-flight
+  API responses and tool executions run to completion). "Resend" cancels the
+  last question+response and sends the same question again. Long
+  conversations are truncated from the oldest turns (MAX_HISTORY_CHARS) so
+  API errors from oversized contexts do not occur. Context/cost display at
+  bottom right (`ctx 9k/128k (6%) · Σ13k · $0.0023`). ctx is the measured
+  prompt_tokens from the latest API response (~ prefix with a chars÷3
+  estimate when unavailable), Σ is cumulative tokens per chat, $ is the
+  estimated cost for models with pricing info (flat-rate services such as
+  Copilot show Σ only). Saved to chat history together with usage.
+- **Image attachments**: paste from clipboard (Ctrl+V), drag & drop image
+  files, or use the "📎" button to attach images. They appear as thumbnail
+  chips above the input and are bundled into the user message on send (kept
+  in history so the model can reference them in later turns). Images are
+  normalized to PNG and resized to 2048px on the long edge before being saved
+  to a temp file. **Attachments are not allowed while a model estimated not
+  to support images (outside the "image input" group in the list) is
+  selected** — the 📎 button is also disabled (manually entered models are
+  estimated by name hints).
+- **Confirmation mode**: enabling "Confirm before tool execution" asks for
+  approval on each tool call (for cases where you do not want pyeval, which
+  executes arbitrary code, to run automatically).
+- **Tools**: the same set as `mcp_http.TOOLS`
   (`qgis_pyeval` / `qgis_screenshot` / `qgis_status` /
   `qgis_eval` / `qgis_devreload` / `qgis_open_plugin` /
   `qgis_reload_plugin` / `qgis_bridge_call` /
-  `qgis_instruction`)に加え、指示書を
-  読み書きするパネルローカルツール `ai_*`、および外部MCPサーバの
-  ツール `mcp_*` をモデルに渡し、戻ってきたtool_callを
-  `driver.submit()`(qgis_*)またはローカル実行(ai_*/mcp_*)で
-  処理するエージェントループ(上限25往復)
-- **外部MCPサーバ接続**: API設定の「MCP」行→「設定」で
-  `~/.qgis-live/mcp_servers.json` を編集(Claude Desktop互換形式):
+  `qgis_instruction`), plus panel-local `ai_*` tools for reading/writing
+  instruction files, and external MCP server tools `mcp_*`. Returned
+  tool_calls are processed via `driver.submit()` (qgis_*) or local execution
+  (ai_*/mcp_*) in an agent loop (max 25 round trips).
+- **External MCP server connections**: API settings "MCP" row → "Settings"
+  edits `~/.qgis-live/mcp_servers.json` (Claude Desktop-compatible format):
   ```json
   {"mcpServers": {
     "fs":  {"command": "npx",
@@ -184,71 +190,73 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
                                 "box_subject_id": "..."}}}
   }}
   ```
-  `command`=stdioで子プロセス起動(Windowsではコンソール窓を出さない)、
-  `url`=Streamable HTTP。
-  **秘密値は資格情報ストアへ**: `oauth.client_secret` に平文を
-  書いて保存するとOSの資格情報ストア(credential_store。
-  APIキーと同じ保存先)へ自動で移され、設定ファイルには
-  `"$store:mcp:<サーバ>:client_secret"` 参照だけが残る。
-  ストア保存に失敗した場合はエラーになり平文では保存しない。
-  `headers`/`env`/`oauth.client_id` の値も `"$store:<キー>"` と
-  書けば接続時にストアから解決される(手動で参照を書く場合は
-  資格情報ストアへ事前登録が必要)。平文のclient_secretが
-  残っている既存設定は、設定ダイアログで再保存すれば移行される。
-  認証は `headers` で固定値を渡すか、
-  `oauth` で2種類のOAuthを使う:
-  `authorize_url` あり=**authorization_code+PKCE**(初回送信時に
-  ブラウザが開き同意画面、トークンは `~/.qgis-live/mcp_tokens.json`
-  に保存して以降は refresh_token で自動更新。mcp.box.com等の
-  ユーザー同意型サーバ用。redirect_uriはアプリ側に登録が必要)、
-  `authorize_url` 無し=**client_credentials**(client_id+secret、
-  `extra`でプロバイダ固有のformパラメータ)。
-  401で1回リトライ。接続に失敗した場合はエラーと一緒に
-  「①Redirect URIの登録 ②authorization_code有効 ③id/secret一致」
-  の確認ガイドを表示する。
-  mcp.box.com を使う場合はさらに Box側で Business プラン以上、
-  Admin Console での MCP 有効化、Custom App で標準OAuth2
-  (CCGのみのServer Appは不可)が必要。
-  取得トークンは `~/.qgis-live/mcp_tokens.json` に平文保存される
-  (アクセス/refreshトークンを含むため取り扱い注意)。
-  初回送信時に接続・tools/listを行い、
-  各ツールは `mcp_<サーバ>__<ツール>` としてモデルに公開される。
-  設定を保存すると次の送信で再接続される。接続失敗したサーバは
-  チャット欄にエラー表示され他サーバは継続する。
-  注意: QGIS自身のドライバMCPエンドポイントを指定すると、
-  tools/callがGUIスレッドdispatchを経由する自己参照になるため
-  実用上は他サーバを指すこと
-- **リモート制御トグルOFFでも動く**: パネル専用の内部LiveDriver
-  (レジストリ・HTTP公開面なし)を使うため、外部公開を有効化せずに
-  AI操作だけを試せる
-- **画像送信**: `qgis_screenshot` の結果は `image_url` contentで、
-  添付画像(貼付/📎)はユーザメッセージへ同梱されて画像として
-  モデルへ送られる。画像非対応と推定されるモデルでは
-  スクショ結果はテキスト(パス)のみ返され、添付自体もできない
-- 設定(エンドポイント/モデル)はQSettingsに保存。
-  **APIキーはOSの資格情報ストアに保存**(`credential_store.py`):
-  WindowsはDPAPI(ブラウザのパスワード保存と同じユーザ紐付け暗号化)、
-  macOSはキーチェーン、LinuxはSecret Service(secret-tool)。
-  いずれも無い環境のみ `~/.qgis-live/ai-secrets.json`(600権限・平文)に
-  フォールバック。パネルの「キー保存先」欄で現バックエンドを確認できる。
-  **ストア書込み自体に失敗した場合はエラー表示し、平文では保存しない**
+  `command` = stdio child process (no console window on Windows);
+  `url` = Streamable HTTP.
+  **Secrets go to the credential store**: saving a plaintext
+  `oauth.client_secret` automatically moves it to the OS credential store
+  (credential_store, the same location as API keys); the config file keeps
+  only a `"$store:mcp:<server>:client_secret"` reference. If storing fails,
+  it is an error and nothing is saved in plaintext. Values in
+  `headers`/`env`/`oauth.client_id` written as `"$store:<key>"` are also
+  resolved from the store at connection time (manually written references
+  require prior registration in the credential store). Existing configs with
+  leftover plaintext client_secrets are migrated by re-saving in the settings
+  dialog. Authentication is either fixed values via `headers`, or two kinds
+  of OAuth via `oauth`: with `authorize_url` = **authorization_code+PKCE**
+  (the browser opens a consent screen on first send; tokens are saved to
+  `~/.qgis-live/mcp_tokens.json` and automatically refreshed via
+  refresh_token afterwards; for user-consent servers such as mcp.box.com;
+  redirect_uri must be registered app-side), without `authorize_url` =
+  **client_credentials** (client_id+secret; provider-specific form params via
+  `extra`). Retries once on 401. On connection failure, a checklist guide
+  "① Redirect URI registration ② authorization_code enabled ③ id/secret
+  match" is shown with the error. To use mcp.box.com, Box additionally
+  requires a Business plan or higher, MCP enabled in the Admin Console, and a
+  Custom App with standard OAuth2 (CCG-only Server Apps do not work).
+  Obtained tokens are stored in plaintext in
+  `~/.qgis-live/mcp_tokens.json` (contains access/refresh tokens — handle
+  with care). On first send, it connects and performs tools/list; each tool
+  is exposed to the model as `mcp_<server>__<tool>`. Saving the config
+  reconnects on the next send. Servers that fail to connect show an error in
+  the chat area while other servers continue. Note: pointing this at QGIS's
+  own driver MCP endpoint makes tools/call self-referential via GUI-thread
+  dispatch, so in practice point it at other servers.
+- **Works even with the remote-control toggle OFF**: the panel uses its own
+  internal LiveDriver (no registry/HTTP exposure), so AI operation can be
+  tried without enabling external exposure.
+- **Sending images**: `qgis_screenshot` results go as `image_url` content,
+  and attached images (paste/📎) are bundled into the user message and sent
+  to the model as images. For models estimated not to support images,
+  screenshot results return text (path) only and attachments cannot be made.
+- Settings (endpoint/model) are stored in QSettings.
+  **API keys are stored in the OS credential store** (`credential_store.py`):
+  DPAPI on Windows (same user-bound encryption as browser password storage),
+  Keychain on macOS, Secret Service (secret-tool) on Linux. Only when none is
+  available does it fall back to `~/.qgis-live/ai-secrets.json` (0600
+  permissions, plaintext). The panel's "Key storage" field shows the current
+  backend. **If writing to the store itself fails, an error is shown and the
+  key is never saved in plaintext.**
 
-## セキュリティモデル(localhost限定)
+## Security model (localhost only)
 
-`pyeval` は **任意コード実行** のため、全チャネルを以下で保護する:
+Because `pyeval` is **arbitrary code execution**, all channels are protected
+by:
 
-- **127.0.0.1 バインドのみ** — 外部ネットワークからは到達不能
-- **セッショントークン必須** — 起動ごとに自動生成。HTTPは
-  `Authorization: Bearer` 等、commands.jsonl は各行の `token` フィールドで照合。
-  トークンは `~/.qgis-live/<pid>-qgis_live_driver.json` (レジストリ)と
-  `live_dir/token` にのみ書き出され、ユーザ限定ACLを適用
-- **Host/Origin 検証** — HostまたはOriginがloopback以外を指すHTTP要求は拒否
-  (DNSリバインド・ブラウザ経由のドライブバイ対策)
-- `QGIS_LIVE_TOOLS` で公開コマンド種別を絞れる(例 `status,screenshot`)
+- **127.0.0.1 binding only** — unreachable from external networks
+- **Mandatory session token** — auto-generated per launch. HTTP requires
+  `Authorization: Bearer` etc.; commands.jsonl verifies the `token` field of
+  each line. The token is written only to the registry
+  (`~/.qgis-live/<pid>-qgis_live_driver.json`) and `live_dir/token`, with
+  user-only ACLs applied.
+- **Host/Origin validation** — HTTP requests whose Host or Origin points
+  outside loopback are rejected (DNS rebinding / browser drive-by protection).
+- `QGIS_LIVE_TOOLS` can restrict the exposed command types
+  (e.g. `status,screenshot`).
 
-**脅威モデルの境界**: トークンはユーザ専用ファイルに置くため、
-同一ユーザ権限で任意コードを実行できるプロセスまでは防げない
-(これはあらゆるlocalhostサービスの限界)。信頼境界はローカルユーザアカウント。
+**Threat model boundary**: since the token lives in a user-only file,
+processes that can already execute arbitrary code as the same user cannot be
+stopped (the limit of any localhost service). The trust boundary is the local
+user account.
 
-ローカルのMCPクライアント(`mcp_stdio.py` 等)はレジストリからトークンを
-自動で読むため、利用側の手順は変わらない。
+Local MCP clients (`mcp_stdio.py`, etc.) read the token automatically from
+the registry, so client-side usage is unchanged.

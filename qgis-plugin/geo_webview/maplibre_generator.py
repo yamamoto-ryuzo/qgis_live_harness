@@ -514,7 +514,7 @@ def open_maplibre_from_permalink(permalink_text, wfs_typename: str = None):
 	<div style="font-weight:600;margin-bottom:6px">Layers</div>
 	<!-- checkboxes will be inserted here by script -->
 </div>
-<button id="pitchToggle" style="position:absolute;top:10px;right:10px;z-index:1001;padding:6px 8px;background:#fff;border:1px solid #666;border-radius:4px;cursor:pointer">斜め禁止</button>
+<button id="pitchToggle" style="position:absolute;top:10px;right:10px;z-index:1001;padding:6px 8px;background:#fff;border:1px solid #666;border-radius:4px;cursor:pointer">Tilt locked</button>
 <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
 <script>
   console.log('MapLibre script loaded');
@@ -564,12 +564,12 @@ def open_maplibre_from_permalink(permalink_text, wfs_typename: str = None):
 					try {{ map.setPitch(0); }} catch(e) {{ console.warn('setPitch failed', e); }}
 					try {{ if (map.on) map.on('move', _enforcePitch); }} catch(e) {{}}
 					pitchLocked = true;
-					pitchBtn.textContent = '斜め許可';
+					pitchBtn.textContent = 'Tilt allowed';
 				}}
 				function unlockPitch() {{
 					try {{ if (map.off) map.off('move', _enforcePitch); }} catch(e) {{}}
 					pitchLocked = false;
-					pitchBtn.textContent = '斜め禁止';
+					pitchBtn.textContent = 'Tilt locked';
 				}}
 				pitchBtn.addEventListener('click', function() {{
 					if (!pitchLocked) lockPitch(); else unlockPitch();

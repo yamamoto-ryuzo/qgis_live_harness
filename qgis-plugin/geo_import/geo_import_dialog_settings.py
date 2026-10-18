@@ -41,11 +41,6 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 
 class GeoImportDialogSettings(QDialog, FORM_CLASS):
-    @staticmethod
-    def tr(message):
-        """翻訳用のtr()メソッド"""
-        return QCoreApplication.translate('GeoImport', message)
-    
     def __init__(self, settings, iface, parent=None):
         """Constructor."""
         super(GeoImportDialogSettings, self).__init__(parent)
@@ -95,7 +90,7 @@ class GeoImportDialogSettings(QDialog, FORM_CLASS):
         cache_dir = self.IDC_leCacheDir.text()
         if self.util.check_dir(cache_dir) is False:
             self.util.dlg_warning(
-                self.util.tr(u'py_dlg_set_warn_cache_not_use').format(self.settings.cache_dir)
+                QCoreApplication.translate('GeoImport', u'py_dlg_set_warn_cache_not_use').format(self.settings.cache_dir)
             )
             return
 
@@ -111,14 +106,14 @@ class GeoImportDialogSettings(QDialog, FORM_CLASS):
         QDialog.accept(self)
 
     def help_cache_dir(self):
-        self.util.dlg_information(self.util.tr(u'dlg_set_tool_cache'))
+        self.util.dlg_information(QCoreApplication.translate('GeoImport', u'dlg_set_tool_cache'))
 
     def authcfg_clear(self):
          self.IDC_leAuthCfg.clear()
 
     def authcfg_edit(self):
         dlg = QDialog(None)
-        dlg.setWindowTitle(self.util.tr("Select Authentication"))
+        dlg.setWindowTitle(QCoreApplication.translate('GeoImport', "Select Authentication"))
         layout = QVBoxLayout(dlg)
 
         acs = QgsAuthConfigSelect(dlg)

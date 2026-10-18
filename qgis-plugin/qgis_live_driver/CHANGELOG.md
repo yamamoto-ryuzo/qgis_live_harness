@@ -3,6 +3,36 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
+## [0.12.0] - 2026-10-18
+
+### Added
+
+- 採用言語セット(AGENTS.md)に合わせ de/es/fr/hi/it/pt/ru/zh の
+  翻訳カタログ(`i18n/qgis_live_driver_<lang>.ts`/`.qm`)を追加
+  (各164メッセージ)。ja と合わせ全9言語を同梱。
+
+## [0.11.0] - 2026-10-18
+
+### Added
+
+- **国際化(i18n)対応**: UI文字列を英語ソースに統一し、Qt翻訳
+  (`.ts`/`.qm`)経路を整備。`i18n/qgis_live_driver_ja.ts`/`.qm` を新設
+  (164メッセージ全訳)。`__init__.py` で `QTranslator` を起動時に
+  ロードし、UIロケールに応じて日本語表示に切り替わる。
+  AIパネル・MCP設定ダイアログ・メニュー項目も翻訳対象化
+  (`QCoreApplication.translate` / `QT_TRANSLATE_NOOP` 使用)。
+- `README.md` を英語版に刷新し、日本語ドキュメントを `README_JP.md` に分離。
+
+### Changed
+
+- **ホットリロードの対象を `<repo>/qgis-plugin/` 内のプラグインに限定**
+  (`hot_reload.py`): これまでは plugin.config.json のidを優先し、
+  発見できない場合はロード中の全プラグイン(サードパーティ含む)を
+  候補にしていた。deploy先の各プラグインのrealpathが
+  `<repo>/qgis-plugin/` 配下に解決されるもの(junction配置)だけを
+  候補とし、該当がない環境(-Copy配置や通常利用)では候補なし
+  (「すべて再読込」も非表示)とする
+
 ## [0.10.0] - 2026-10-18
 
 ### Added

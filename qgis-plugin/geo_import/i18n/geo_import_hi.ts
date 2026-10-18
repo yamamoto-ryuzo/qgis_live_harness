@@ -1,278 +1,457 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
 <TS version="2.1" language="hi_IN">
-<context>
-    <name />
-    <message>
-        <source>Current server: {0}</source>
-        <translation type="vanished">वर्तमान सर्वर: {0}</translation>
-    </message>
-    <message>
-        <source>Cache path: {0}</source>
-        <translation type="vanished">कैश पथ: {0}</translation>
-    </message>
-    <message>
-        <source>Failed to get categories: {0}</source>
-        <translation type="vanished">श्रेणियाँ प्राप्त करने में विफल: {0}</translation>
-    </message>
-    <message>
-        <source>Category list is empty. Please check CKAN server or network settings.</source>
-        <translation type="vanished">श्रेणी सूची खाली है। कृपया CKAN सर्वर या नेटवर्क सेटिंग्स जांचें।</translation>
-    </message>
-    <message>
-        <source>Data provider selection</source>
-        <translation type="vanished">डेटा प्रदाता चयन</translation>
-    </message>
-    <message>
-        <source>Plugin version</source>
-        <translation type="vanished">प्लगइन संस्करण</translation>
-    </message>
-    <message>
-        <source>Manual settings</source>
-        <translation type="vanished">मैन्युअल सेटिंग्स</translation>
-    </message>
-    <message>
-        <source>Enter data provider URL</source>
-        <translation type="vanished">डेटा प्रदाता URL दर्ज करें</translation>
-    </message>
-    <message>
-        <source>Test connection</source>
-        <translation type="vanished">कनेक्शन परीक्षण</translation>
-    </message>
-    <message>
-        <source>Add connection</source>
-        <translation type="vanished">कनेक्शन जोड़ें</translation>
-    </message>
-    <message>
-        <source>Provider search</source>
-        <translation type="vanished">प्रदाता खोज</translation>
-    </message>
-    <message>
-        <source>Number of instances</source>
-        <translation type="vanished">इंस्टेंस की संख्या</translation>
-    </message>
-</context>
 <context>
     <name>GeoImport</name>
     <message>
-        <source>&amp;geo_import</source>
-        <translation type="vanished">&amp;Geo Import</translation>
+        <location filename="../geo_import_dialog.py" line="73"/>
+        <location filename="../geo_import_dialog.py" line="80"/>
+        <location filename="../geo_import_dialog.py" line="152"/>
+        <location filename="../geo_import_dialog.py" line="155"/>
+        <location filename="../geo_import_dialog.py" line="199"/>
+        <location filename="../geo_import_dialog.py" line="318"/>
+        <location filename="../geo_import_dialog.py" line="321"/>
+        <location filename="../geo_import_dialog.py" line="1162"/>
+        <location filename="../geo_import_dialog.py" line="1209"/>
+        <location filename="../geo_import_dialog.py" line="1212"/>
+        <source>All</source>
+        <translation type="unfinished">सभी</translation>
     </message>
     <message>
-        <source>geo_import</source>
-        <translation type="vanished">Geo Import</translation>
+        <location filename="../geo_import_dialog.py" line="192"/>
+        <source>Selected: {0} items</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>geo_import_settings</source>
-        <translation type="vanished">Geo Import सेटिंग्स</translation>
+        <location filename="../geo_import_dialog.py" line="263"/>
+        <source>py_dlg_base_page_1_1</source>
+        <translation type="unfinished">py_dlg_base_page_1_1</translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog.py" line="313"/>
+        <location filename="../geo_import_dialog.py" line="349"/>
+        <location filename="../geo_import_dialog.py" line="1257"/>
+        <source>Selected - datasets: {0} / resources: {1}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog.py" line="621"/>
+        <location filename="../geo_import_dialog.py" line="886"/>
+        <source>py_dlg_set_info_empty_local_created</source>
+        <translation type="unfinished">py_dlg_set_info_empty_local_created</translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog.py" line="901"/>
+        <source>py_dlg_set_info_local_read_error_boxdrive</source>
+        <translation type="unfinished">py_dlg_set_info_local_read_error_boxdrive</translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog.py" line="904"/>
+        <source>py_dlg_set_info_local_read_error</source>
+        <translation type="unfinished">py_dlg_set_info_local_read_error</translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog.py" line="932"/>
+        <source>Fetching all CKAN datasets...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog.py" line="932"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog.py" line="933"/>
+        <source>Progress</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog.py" line="942"/>
+        <source>Fetching all CKAN datasets... ({0}/{1})</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog.py" line="1001"/>
+        <source>Current server: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog.py" line="1002"/>
+        <source>Cache path: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog.py" line="1176"/>
+        <source>Results - datasets: {0} / resources: {1}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog_settings.py" line="116"/>
+        <source>Select Authentication</source>
+        <translation type="unfinished">Select Authentication</translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog_disclaimer.py" line="55"/>
+        <source>py_disc_info_html</source>
+        <translation type="unfinished">py_disc_info_html</translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog_dataproviders.py" line="61"/>
+        <source>Browse folder...</source>
+        <translation type="unfinished">Browse folder...</translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog_dataproviders.py" line="262"/>
+        <location filename="../geo_import_dialog_dataproviders.py" line="483"/>
+        <source>py_dlg_data_providers_no_server_selected</source>
+        <translation type="unfinished">py_dlg_data_providers_no_server_selected</translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog_dataproviders.py" line="267"/>
+        <source>py_dlg_data_providers_cannot_delete_sever_from_official_list</source>
+        <translation type="unfinished">py_dlg_data_providers_cannot_delete_sever_from_official_list</translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog_dataproviders.py" line="289"/>
+        <source>Select LOCAL folder</source>
+        <translation type="unfinished">Select LOCAL folder</translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog_dataproviders.py" line="355"/>
+        <source>py_dlg_set_info_local_not_found</source>
+        <translation type="unfinished">py_dlg_set_info_local_not_found</translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog_dataproviders.py" line="420"/>
+        <source>py_dlg_data_providers_custom_server</source>
+        <translation type="unfinished">py_dlg_data_providers_custom_server</translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog_dataproviders.py" line="421"/>
+        <source>py_dlg_data_providers_name_custom_server</source>
+        <translation type="unfinished">py_dlg_data_providers_name_custom_server</translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog_dataproviders.py" line="429"/>
+        <source>py_dlg_data_providers_custom_server_name_exists</source>
+        <translation type="unfinished">py_dlg_data_providers_custom_server_name_exists</translation>
+    </message>
+    <message>
+        <location filename="../util.py" line="734"/>
+        <source>Could not auto-detect CSV delimiter: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../util.py" line="735"/>
+        <source>The file must be clearly separated by comma, semicolon, tab, colon or space.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../util.py" line="809"/>
+        <source>CSV delimiter auto-detection failed: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../util.py" line="809"/>
+        <source>Could not open as UTF-8/CP932/ANSI/Shift_JIS/ISO-8859-1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../util.py" line="818"/>
+        <location filename="../util.py" line="825"/>
+        <source>Failed to load CSV file: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../util.py" line="835"/>
+        <source>QGIS interface unavailable (iface is None). Cannot add CSV layer.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../util.py" line="872"/>
+        <source>An error occurred while processing XML file: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../util.py" line="891"/>
+        <location filename="../xml_attribute_loader.py" line="373"/>
+        <source>Failed to load XML file: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../util.py" line="895"/>
+        <source>An error occurred while loading XML file: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../xml_attribute_loader.py" line="261"/>
+        <source>XML file not found: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../xml_attribute_loader.py" line="267"/>
+        <source>XML file is empty: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../xml_attribute_loader.py" line="272"/>
+        <source>No read permission for XML file: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../xml_attribute_loader.py" line="315"/>
+        <source>Error while loading XML file: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../xml_attribute_loader.py" line="324"/>
+        <source>Could not detect attribute fields in XML file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../xml_attribute_loader.py" line="330"/>
+        <source>Failed to create memory layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../xml_attribute_loader.py" line="348"/>
+        <source>No data extracted from XML file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../xml_attribute_loader.py" line="361"/>
+        <source>XML file loaded as attribute table: {0} ({1} features)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../xml_attribute_loader.py" line="376"/>
+        <source>See the QGIS log panel for detailed error information.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../xml_attribute_loader.py" line="408"/>
+        <source>Cannot detect character encoding of XML file: {0}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../xml_attribute_loader.py" line="421"/>
+        <source>File does not appear to be XML: {0}
+first line: {1}...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../xml_attribute_loader.py" line="450"/>
+        <source>Error during XML pre-check: {0}</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>GeoImportDialogBase</name>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="35" />
+        <location filename="../geo_import_dialog_base.ui" line="35"/>
         <source>dlg_base_title</source>
         <translation>ओपन डेटा (CKAN) ब्राउज़र</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="57" />
+        <location filename="../geo_import_dialog_base.ui" line="57"/>
         <source>dlg_base_search_term</source>
         <translation>खोज शब्द:</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="93" />
-        <location filename="../geo_import_dialog_base.ui" line="216" />
-        <location filename="../geo_import_dialog_base.ui" line="524" />
-        <location filename="../geo_import_dialog_base.ui" line="599" />
+        <location filename="../geo_import_dialog_base.ui" line="93"/>
+        <location filename="../geo_import_dialog_base.ui" line="216"/>
+        <location filename="../geo_import_dialog_base.ui" line="524"/>
+        <location filename="../geo_import_dialog_base.ui" line="599"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="117" />
+        <location filename="../geo_import_dialog_base.ui" line="117"/>
         <source>CSV</source>
         <translation>CSV</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="122" />
+        <location filename="../geo_import_dialog_base.ui" line="122"/>
         <source>GeoJSON</source>
         <translation>GeoJSON</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="127" />
+        <location filename="../geo_import_dialog_base.ui" line="127"/>
         <source>Shapefile</source>
         <translation>Shapefile</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="132" />
+        <location filename="../geo_import_dialog_base.ui" line="132"/>
         <source>KML</source>
         <translation>KML</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="137" />
+        <location filename="../geo_import_dialog_base.ui" line="137"/>
         <source>JSON</source>
         <translation>JSON</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="147" />
+        <location filename="../geo_import_dialog_base.ui" line="147"/>
         <source>dlg_base_btn_strt_srch</source>
         <translation>खोजें</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="157" />
+        <location filename="../geo_import_dialog_base.ui" line="157"/>
         <source>dlg_base_btn_show_all</source>
         <translation>सभी उपलब्ध डेटा सेट सूचीबद्ध करें</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="172" />
+        <location filename="../geo_import_dialog_base.ui" line="172"/>
         <source>dlg_base_filter_to</source>
         <translation>श्रेणी द्वारा खोज सीमित करें:</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="253" />
+        <location filename="../geo_import_dialog_base.ui" line="253"/>
         <source>dlg_base_current_server</source>
         <translation>dlg_base_current_server</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="275" />
+        <location filename="../geo_import_dialog_base.ui" line="275"/>
         <source>dlg_base_lbl_cache_dir</source>
         <translation>dlg_base_lbl_cache_dir</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="307" />
+        <location filename="../geo_import_dialog_base.ui" line="307"/>
         <source>dlg_base_lbl_plugin_version</source>
         <translation>dlg_base_lbl_plugin_version</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="314" />
+        <location filename="../geo_import_dialog_base.ui" line="314"/>
         <source>dlg_base_btn_select_dataprovider</source>
         <translation>dlg_base_btn_select_dataprovider</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="321" />
+        <location filename="../geo_import_dialog_base.ui" line="321"/>
         <source>dlg_base_btn_disclaimer</source>
         <translation>अस्वीकरण</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="354" />
+        <location filename="../geo_import_dialog_base.ui" line="354"/>
         <source>dlg_base_srch_rslt</source>
         <translation>परिणाम:</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="388" />
+        <location filename="../geo_import_dialog_base.ui" line="388"/>
         <source>IDC_lblPage</source>
         <translation>IDC_lblPage</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="412" />
+        <location filename="../geo_import_dialog_base.ui" line="412"/>
         <source>dlg_base_btn_lt</source>
         <translation>&lt;</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="437" />
+        <location filename="../geo_import_dialog_base.ui" line="437"/>
         <source>dlg_base_btn_gt</source>
         <translation>&gt;</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="461" />
+        <location filename="../geo_import_dialog_base.ui" line="461"/>
         <source>dlg_base_descr</source>
         <translation>विवरण:</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="480" />
+        <location filename="../geo_import_dialog_base.ui" line="480"/>
         <source>dlg_base_data_list</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;मिले डेटा:&lt;br /&gt;डाउनलोड के लिए डेटा सेट चुनें।&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="543" />
-        <source>選択中: 0件</source>
-        <translation>選択中: 0件</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog_base.ui" line="555" />
+        <location filename="../geo_import_dialog_base.ui" line="555"/>
         <source>dlg_base_ressource</source>
         <translation>संसाधन URL:</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="667" />
+        <location filename="../geo_import_dialog_base.ui" line="667"/>
         <source>dlg_base_btn_load_data</source>
         <translation>डेटा लोड करें</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="674" />
+        <location filename="../geo_import_dialog_base.ui" line="674"/>
         <source>dlg_base_btn_close</source>
         <translation>बंद करें</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="90" />
+        <location filename="../geo_import_dialog_base.ui" line="90"/>
         <source>dlg_base_ttip_search</source>
         <translation>यहाँ अपना खोज शब्द दर्ज करें।</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="154" />
+        <location filename="../geo_import_dialog_base.ui" line="154"/>
         <source>dlg_base_ttip_show</source>
         <translation>CKAN सर्वर पर उपलब्ध सभी डेटा सेट दिखाएँ</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="213" />
+        <location filename="../geo_import_dialog_base.ui" line="213"/>
         <source>dlg_base_ttip_filter</source>
         <translation>इस श्रेणी के लिए खोज सीमित करने के लिए चेकबॉक्स सक्रिय करें। किसी श्रेणी पर डबल क्लिक करने से उसके सभी डेटा सेट सूचीबद्ध होंगे।</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="409" />
+        <location filename="../geo_import_dialog_base.ui" line="409"/>
         <source>dlg_base_ttip_prev</source>
         <translation>पिछला</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="434" />
+        <location filename="../geo_import_dialog_base.ui" line="434"/>
         <source>dlg_base_ttip_next</source>
         <translation>अगला</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="521" />
+        <location filename="../geo_import_dialog_base.ui" line="521"/>
         <source>dlg_base_ttip_data_list</source>
         <translation>चयनित डेटा सेट डाउनलोड करें और QGIS में खोलने का प्रयास करें। यदि नहीं दिखा सकते हैं, तो उनकी निर्देशिका खुल जाएगी।</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="634" />
+        <location filename="../geo_import_dialog_base.ui" line="543"/>
+        <source>Selected: 0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geo_import_dialog_base.ui" line="634"/>
         <source>dlg_base_ttip_copy</source>
         <translation>क्लिपबोर्ड पर कॉपी करें</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="596" />
+        <location filename="../geo_import_dialog_base.ui" line="596"/>
         <source>dlg_base_ttip_resource</source>
         <translation>चयनित संसाधन का URL</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="104" />
+        <location filename="../geo_import_dialog_base.ui" line="104"/>
         <source>Data Format</source>
         <translation>डेटा प्रारूप</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="112" />
+        <location filename="../geo_import_dialog_base.ui" line="112"/>
         <source>All</source>
         <translation>सभी</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="288" />
+        <location filename="../geo_import_dialog_base.ui" line="288"/>
         <source>Refresh SQLite</source>
         <translation>SQLite रीफ्रेश करें</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="285" />
+        <location filename="../geo_import_dialog_base.ui" line="285"/>
         <source>Refresh all datasets and recreate SQLite cache</source>
         <translation>सभी डेटासेट रीफ्रेश करें और SQLite कैश पुनः बनाएं</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="370" />
+        <location filename="../geo_import_dialog_base.ui" line="370"/>
         <source>Clear Selection</source>
         <translation>चयन साफ़ करें</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="373" />
+        <location filename="../geo_import_dialog_base.ui" line="373"/>
         <source>Clear the selection of search results</source>
         <translation>खोज परिणामों का चयन साफ़ करें</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_base.ui" line="380" />
+        <location filename="../geo_import_dialog_base.ui" line="380"/>
         <source>Select All</source>
         <translation>सभी चुनें</translation>
     </message>
@@ -280,47 +459,47 @@
 <context>
     <name>GeoImportDialogDataProviders</name>
     <message>
-        <location filename="../geo_import_dialog_dataproviders.ui" line="26" />
+        <location filename="../geo_import_dialog_dataproviders.ui" line="26"/>
         <source>dlg_dataproviders_title</source>
         <translation>dlg_dataproviders_title</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_dataproviders.ui" line="38" />
+        <location filename="../geo_import_dialog_dataproviders.ui" line="38"/>
         <source>dlg_dataproviders_grp_manual</source>
         <translation>dlg_dataproviders_grp_manual</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_dataproviders.ui" line="50" />
+        <location filename="../geo_import_dialog_dataproviders.ui" line="50"/>
         <source>dlg_dataproviders_lbl_enter_dataprovider_url</source>
         <translation>dlg_dataproviders_lbl_enter_dataprovider_url</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_dataproviders.ui" line="63" />
+        <location filename="../geo_import_dialog_dataproviders.ui" line="63"/>
         <source>dlg_dataproviders_btn_test_connection</source>
         <translation>dlg_dataproviders_btn_test_connection</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_dataproviders.ui" line="70" />
+        <location filename="../geo_import_dialog_dataproviders.ui" line="70"/>
         <source>dlg_dataproviders_btn_add_connection</source>
         <translation>dlg_dataproviders_btn_add_connection</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_dataproviders.ui" line="77" />
+        <location filename="../geo_import_dialog_dataproviders.ui" line="77"/>
         <source>dlg_dataproviders_btn_browse_local</source>
         <translation>dlg_dataproviders_btn_browse_local</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_dataproviders.ui" line="80" />
+        <location filename="../geo_import_dialog_dataproviders.ui" line="80"/>
         <source>dlg_dataproviders_btn_browse_local_tooltip</source>
         <translation>dlg_dataproviders_btn_browse_local_tooltip</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_dataproviders.ui" line="106" />
+        <location filename="../geo_import_dialog_dataproviders.ui" line="106"/>
         <source>dlg_dataproviders_lbl_search_for_provider</source>
         <translation>dlg_dataproviders_lbl_search_for_provider</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_dataproviders.ui" line="116" />
+        <location filename="../geo_import_dialog_dataproviders.ui" line="116"/>
         <source>dlg_dataproviders_lbl_nr_of_instances</source>
         <translation>dlg_dataproviders_lbl_nr_of_instances</translation>
     </message>
@@ -328,12 +507,12 @@
 <context>
     <name>GeoImportDialogDisclaimer</name>
     <message>
-        <location filename="../geo_import_dialog_disclaimer.ui" line="32" />
+        <location filename="../geo_import_dialog_disclaimer.ui" line="32"/>
         <source>dlg_dsc_dlg_title</source>
         <translation>dlg_dsc_dlg_title</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_disclaimer.ui" line="70" />
+        <location filename="../geo_import_dialog_disclaimer.ui" line="70"/>
         <source>dlg_dsc_title</source>
         <translation>dlg_dsc_title</translation>
     </message>
@@ -341,189 +520,84 @@
 <context>
     <name>GeoImportDialogSettings</name>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="26" />
+        <location filename="../geo_import_dialog_settings.ui" line="26"/>
         <source>dlg_set_title</source>
         <translation>dlg_set_title</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="38" />
+        <location filename="../geo_import_dialog_settings.ui" line="38"/>
         <source>dlg_settings_grp_cache_folder</source>
         <translation>dlg_settings_grp_cache_folder</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="65" />
+        <location filename="../geo_import_dialog_settings.ui" line="65"/>
         <source>dlg_set_tool_cache</source>
         <translation>dlg_set_tool_cache</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="68" />
+        <location filename="../geo_import_dialog_settings.ui" line="68"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="90" />
+        <location filename="../geo_import_dialog_settings.ui" line="90"/>
         <source>dlg_set_cache_path</source>
         <translation>dlg_set_cache_path</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="125" />
+        <location filename="../geo_import_dialog_settings.ui" line="125"/>
         <source>dlg_set_ellipsis</source>
         <translation>dlg_set_ellipsis</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="144" />
+        <location filename="../geo_import_dialog_settings.ui" line="144"/>
         <source>dlg_settings_grp_authentication</source>
         <translation>dlg_settings_grp_authentication</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="150" />
+        <location filename="../geo_import_dialog_settings.ui" line="150"/>
         <source>Authentication</source>
         <translation>Authentication</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="170" />
+        <location filename="../geo_import_dialog_settings.ui" line="170"/>
         <source>Edit</source>
         <translation>Edit</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="177" />
+        <location filename="../geo_import_dialog_settings.ui" line="177"/>
         <source>Clear</source>
         <translation>Clear</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="200" />
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Warning: &lt;/span&gt;if this option is enabled, the same authentication configuration will be implicitely propagated to &lt;span style=" font-weight:600;"&gt;all&lt;/span&gt; OGC layers (WMS, WFS ...) returned by this catalog, this may leak credentials to the result endpoint  if it is not supposed to use the same authentication configuration.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Warning: &lt;/span&gt;if this option is enabled, the same authentication configuration will be implicitely propagated to &lt;span style=" font-weight:600;"&gt;all&lt;/span&gt; OGC layers (WMS, WFS ...) returned by this catalog, this may leak credentials to the result endpoint  if it is not supposed to use the same authentication configuration.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <location filename="../geo_import_dialog_settings.ui" line="200"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Warning: &lt;/span&gt;if this option is enabled, the same authentication configuration will be implicitely propagated to &lt;span style=&quot; font-weight:600;&quot;&gt;all&lt;/span&gt; OGC layers (WMS, WFS ...) returned by this catalog, this may leak credentials to the result endpoint  if it is not supposed to use the same authentication configuration.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Warning: &lt;/span&gt;if this option is enabled, the same authentication configuration will be implicitely propagated to &lt;span style=&quot; font-weight:600;&quot;&gt;all&lt;/span&gt; OGC layers (WMS, WFS ...) returned by this catalog, this may leak credentials to the result endpoint  if it is not supposed to use the same authentication configuration.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="203" />
+        <location filename="../geo_import_dialog_settings.ui" line="203"/>
         <source>Use the same authentication settings for all OGC layers</source>
         <translation>Use the same authentication settings for all OGC layers</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="213" />
+        <location filename="../geo_import_dialog_settings.ui" line="213"/>
         <source>dlg_settings_grpbox_misc</source>
         <translation>dlg_settings_grpbox_misc</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="225" />
+        <location filename="../geo_import_dialog_settings.ui" line="225"/>
         <source>dlg_settings_chkbox_show_debug_info</source>
         <translation>dlg_settings_chkbox_show_debug_info</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="248" />
+        <location filename="../geo_import_dialog_settings.ui" line="248"/>
         <source>dlg_set_btn_save</source>
         <translation>dlg_set_btn_save</translation>
     </message>
     <message>
-        <location filename="../geo_import_dialog_settings.ui" line="255" />
+        <location filename="../geo_import_dialog_settings.ui" line="255"/>
         <source>dlg_set_btn_cancel</source>
         <translation>dlg_set_btn_cancel</translation>
-    </message>
-</context>
-<context>
-    <name>self.util</name>
-    <message>
-        <location filename="../geo_import_dialog.py" line="268" />
-        <source>py_dlg_base_page_1_1</source>
-        <translation>py_dlg_base_page_1_1</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog.py" line="626" />
-        <location filename="../geo_import_dialog.py" line="891" />
-        <source>py_dlg_set_info_empty_local_created</source>
-        <translation>py_dlg_set_info_empty_local_created</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog.py" line="906" />
-        <source>py_dlg_set_info_local_read_error_boxdrive</source>
-        <translation>py_dlg_set_info_local_read_error_boxdrive</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog.py" line="909" />
-        <source>py_dlg_set_info_local_read_error</source>
-        <translation>py_dlg_set_info_local_read_error</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog.py" line="937" />
-        <source>CKAN全件取得中...</source>
-        <translation>CKAN全件取得中...</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog.py" line="937" />
-        <source>キャンセル</source>
-        <translation>キャンセル</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog.py" line="938" />
-        <source>進捗</source>
-        <translation>進捗</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog.py" line="947" />
-        <source>CKAN全件取得中... ({}/{})</source>
-        <translation>CKAN全件取得中... ({}/{})</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog.py" line="1006" />
-        <source>Current server: {0}</source>
-        <translation>Current server: {0}</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog.py" line="1007" />
-        <source>Cache path: {0}</source>
-        <translation>Cache path: {0}</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog_dataproviders.py" line="66" />
-        <source>Browse folder...</source>
-        <translation>Browse folder...</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog_dataproviders.py" line="252" />
-        <location filename="../geo_import_dialog_dataproviders.py" line="473" />
-        <source>py_dlg_data_providers_no_server_selected</source>
-        <translation>py_dlg_data_providers_no_server_selected</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog_dataproviders.py" line="257" />
-        <source>py_dlg_data_providers_cannot_delete_sever_from_official_list</source>
-        <translation>py_dlg_data_providers_cannot_delete_sever_from_official_list</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog_dataproviders.py" line="279" />
-        <source>Select LOCAL folder</source>
-        <translation>Select LOCAL folder</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog_dataproviders.py" line="345" />
-        <source>py_dlg_set_info_local_not_found</source>
-        <translation>py_dlg_set_info_local_not_found</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog_dataproviders.py" line="410" />
-        <source>py_dlg_data_providers_custom_server</source>
-        <translation>py_dlg_data_providers_custom_server</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog_dataproviders.py" line="411" />
-        <source>py_dlg_data_providers_name_custom_server</source>
-        <translation>py_dlg_data_providers_name_custom_server</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog_dataproviders.py" line="419" />
-        <source>py_dlg_data_providers_custom_server_name_exists</source>
-        <translation>py_dlg_data_providers_custom_server_name_exists</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog_disclaimer.py" line="60" />
-        <source>py_disc_info_html</source>
-        <translation>py_disc_info_html</translation>
-    </message>
-    <message>
-        <location filename="../geo_import_dialog_settings.py" line="121" />
-        <source>Select Authentication</source>
-        <translation>Select Authentication</translation>
     </message>
 </context>
 </TS>

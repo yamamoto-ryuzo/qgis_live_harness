@@ -12,6 +12,12 @@
 
 ## 変更履歴
 
+### V2.5.0 国際化(i18n)対応
+- ハードコードされていた日本語UI文字列を英語ソースに変換し、
+  `QCoreApplication.translate('geo_report', ...)` による翻訳呼出に統一。
+- `i18n` カタログを再生成し日本語91メッセージ全訳、`geo_report_ja.qm` を再コンパイル。
+- ログ出力も英語ソース化。
+
 ### V2.4.0 QGIS4以降への対応宣言
 
 - `metadata.txt` の `qgisMinimumVersion` を 3.40 → 4.0 に更新

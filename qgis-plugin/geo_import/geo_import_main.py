@@ -103,7 +103,7 @@ class GeoImport:
 
         # インスタンス属性を宣言
         self.actions = []
-        self.menu = self.util.tr(u'&geo_import')
+        self.menu = QCoreApplication.translate('GeoImport', u'&geo_import')
         self.toolbar = self.iface.addToolBar(u'geo_import')
         self.toolbar.setObjectName(u'geo_import')
 
@@ -200,7 +200,7 @@ class GeoImport:
 
         self.add_action(
             icon_path,
-            text=self.util.tr(u'geo_import'),
+            text=QCoreApplication.translate('GeoImport', u'geo_import'),
             callback=self.run,
             parent=self.iface.mainWindow()
         )
@@ -209,7 +209,7 @@ class GeoImport:
         
         self.add_action(
             icon_settings,
-            text=self.util.tr(u'geo_import_settings'),
+            text=QCoreApplication.translate('GeoImport', u'geo_import_settings'),
             callback=self.open_settings,
             parent=self.iface.mainWindow()
         )
@@ -220,7 +220,7 @@ class GeoImport:
         # 全てのアクションをメニューとツールバーから削除
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.util.tr(u'&geo_import'),
+                QCoreApplication.translate('GeoImport', u'&geo_import'),
                 action)
             self.iface.removeToolBarIcon(action)
 

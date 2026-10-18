@@ -18,6 +18,7 @@ qgis.utils._import フックで禁止されるため、sys.modules shim では�
 import os
 import re
 
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.core import QgsVectorLayer
 
@@ -44,7 +45,9 @@ def _active_vector_layer(iface):
     layer = iface.activeLayer()
     if not isinstance(layer, QgsVectorLayer):
         iface.messageBar().pushCritical(
-            "geo_excel", "ベクターレイヤをアクティブにしてください。"
+            "geo_excel",
+            QCoreApplication.translate(
+                "geo_excel", "Please activate a vector layer."),
         )
         return None
     return layer
@@ -55,16 +58,46 @@ class plugin(object):
         self.iface = iface
         self.actions = []
         self.menu_name = "&geo_excel"
+        self._init_language()
         # qgis_live_driver の bridge_call / describe_plugins 経由で
         # AI・外部制御から使われるAPI (plugins['geo_excel'].bridge)
         self.bridge = GeoExcelBridge(self)
 
+    @staticmethod
+    def tr(message):
+        return QCoreApplication.translate("geo_excel", message)
+
+    def _init_language(self):
+        """QGISの locale/userLocale に合わせて i18n/geo_excel_<lang>.qm を読む。
+
+        ソース文字列は英語。en または未対応言語では翻訳を載せない。
+        """
+        self.translator = None
+        try:
+            raw = QSettings().value("locale/userLocale", None)
+            lang = (str(raw).split("_")[0].split("-")[0].lower()
+                    if raw else "")
+            if not lang or lang == "en":
+                return
+            qm_path = os.path.join(
+                PLUGIN_DIR, "i18n", f"geo_excel_{lang}.qm")
+            if os.path.exists(qm_path):
+                translator = QTranslator()
+                if translator.load(qm_path):
+                    QCoreApplication.installTranslator(translator)
+                    self.translator = translator
+        except Exception:
+            pass
+
     # ---- GUI --------------------------------------------------------------
     def initGui(self):
         entries = (
-            ("一覧帳票を出力 (アクティブレイヤ)", "exportList.py", False),
-            ("単票を出力 (選択地物)", "exportSingle.py", True),
-            ("単票を一括出力 (選択地物または全地物)", "exportSingleBulk.py", False),
+            (self.tr("Export list report (active layer)"),
+             "exportList.py", False),
+            (self.tr("Export single form (selected feature)"),
+             "exportSingle.py", True),
+            (self.tr("Bulk export single forms (selected or all features)"),
+             "exportSingleBulk.py", False),
         )
         for title, script, needs_fid in entries:
             action = QAction(title, self.iface.mainWindow())
@@ -89,7 +122,7 @@ class plugin(object):
             fids = layer.selectedFeatureIds()
             if not fids:
                 self.iface.messageBar().pushCritical(
-                    "geo_excel", "地物を選択してください。"
+                    "geo_excel", self.tr("Please select one or more features.")
                 )
                 return
             for fid in fids:
@@ -122,7 +155,7 @@ class plugin(object):
             QMessageBox.critical(
                 self.iface.mainWindow(),
                 "geo_excel",
-                f"{script_name} の実行に失敗しました:\n{e}",
+                self.tr("Failed to run {0}:\n{1}").format(script_name, e),
             )
             return {"ok": False, "error": str(e), "ns": ns}
         return {"ok": True, "ns": ns}

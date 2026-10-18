@@ -2,7 +2,7 @@
 import os
 import math
 
-from qgis.PyQt.QtCore import QDate, pyqtSignal
+from qgis.PyQt.QtCore import QDate, pyqtSignal, QCoreApplication
 from qgis.PyQt.QtWidgets import QDialog, QTableWidgetItem, QTabWidget, QTableWidget, QHeaderView
 from qgis.PyQt import uic
 
@@ -36,7 +36,7 @@ class ResultDialog(QDialog):
         # add tabWidget to the same grid position as original (row 0, col 0, colspan 6)
         self.gridLayout.addWidget(self.tabWidget, 0, 0, 1, 6)
         # add the original tableWidget as the first tab
-        self.tabWidget.addTab(self.tableWidget, self.tr("Results"))
+        self.tabWidget.addTab(self.tableWidget, QCoreApplication.translate("SearchWidget", "Results"))
         # keep track of per-tab data: list of dicts with fields/features/table
         self._tabs = []
         # map the first tab
@@ -146,7 +146,7 @@ class ResultDialog(QDialog):
             except Exception:
                 pass
 
-        self.setWindowTitle(self.tr("Search Results: {0} items").format(len(features)))
+        self.setWindowTitle(QCoreApplication.translate("SearchWidget", "Search Results: {0} items").format(len(features)))
         max_page = math.ceil(len(features) / self.page_limit) if features else 1
         self.pageBox.setMaximum(max_page)
         self.pageLabel.setText(self.tr(" / {0}").format(max_page))
@@ -273,7 +273,7 @@ class ResultDialog(QDialog):
             except Exception:
                 pass
 
-        self.setWindowTitle(self.tr("Search Results: {0} items").format(total_count))
+        self.setWindowTitle(QCoreApplication.translate("SearchWidget", "Search Results: {0} items").format(total_count))
         # initialize first tab
         self.tabWidget.setCurrentIndex(0)
         # setup paging for first tab
@@ -629,7 +629,7 @@ class ResultDialog(QDialog):
                         for t in self._form_tabs:
                             layer = t.get('layer')
                             try:
-                                name = layer.name() if layer is not None else self.tr('Results')
+                                name = layer.name() if layer is not None else QCoreApplication.translate("SearchWidget", "Results")
                             except Exception:
                                 name = str(layer)
                             table_combo.addItem(str(name))

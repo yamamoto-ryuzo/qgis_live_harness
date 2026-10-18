@@ -41,11 +41,6 @@ FORM_CLASS, _ = uic.loadUiType(
 
 
 class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
-    @staticmethod
-    def tr(message):
-        """翻訳用のtr()メソッド"""
-        return QCoreApplication.translate('GeoImport', message)
-    
     def __init__(self, settings, parent=None):
         """Constructor."""
         super(GeoImportDialogDataProviders, self).__init__(parent)
@@ -63,7 +58,7 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
         self.clickable(self.IDC_lbl_enter_dataprovider_url).connect(self.lbl_clicked_enter_data_provider_url)
         # add a browse action to the manual URL line edit for selecting local folders
         try:
-            browse_action = QAction(self.util.tr('Browse folder...'), self.IDC_leManualUrl)
+            browse_action = QAction(QCoreApplication.translate('GeoImport', 'Browse folder...'), self.IDC_leManualUrl)
             browse_action.triggered.connect(self.select_local_folder)
             # addAction places an action inside the QLineEdit (Qt 5+)
             try:
@@ -196,7 +191,7 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
                 detail = ''
                 if fetch_failures:
                     detail = '\n\n' + '\n'.join(fetch_failures)
-                self.util.dlg_warning(self.util.tr(u'Failed to load any CKAN instances.') + detail)
+                self.util.dlg_warning(QCoreApplication.translate('GeoImport', u'Failed to load any CKAN instances.') + detail)
                 return
 
             # サーバーリストの表示（両方のソース読み込み後に1回だけ行う）
@@ -264,12 +259,12 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
     def delete_custom_server(self):
         self.util.msg_log_debug('delete context menu clicked')
         if self.row_server_selected_in_list == -1:
-            self.util.dlg_information(self.util.tr('py_dlg_data_providers_no_server_selected'))
+            self.util.dlg_information(QCoreApplication.translate('GeoImport', 'py_dlg_data_providers_no_server_selected'))
             return
         server_to_remove_item = self.list_model.item(self.row_server_selected_in_list, 0)
         server_to_remove = server_to_remove_item.data()
         if not server_to_remove.is_custom:
-            self.util.dlg_information(self.util.tr('py_dlg_data_providers_cannot_delete_sever_from_official_list'))
+            self.util.dlg_information(QCoreApplication.translate('GeoImport', 'py_dlg_data_providers_cannot_delete_sever_from_official_list'))
             return
         if server_to_remove.short_title in self.settings.custom_servers:
             self.util.msg_log_debug(u'deleting custom server: {}'.format(server_to_remove))
@@ -291,7 +286,7 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
         cache_dir = self.settings.cache_dir if hasattr(self.settings, 'cache_dir') else ''
         folder = QFileDialog.getExistingDirectory(
             self,
-            self.util.tr('Select LOCAL folder'),
+            QCoreApplication.translate('GeoImport', 'Select LOCAL folder'),
             cache_dir,
             QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontResolveSymlinks
         )
@@ -357,10 +352,10 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
         if local_path:
             # If a local folder is provided, consider existence sufficient for connection test.
             if not os.path.isdir(local_path):
-                self.util.dlg_warning(self.util.tr('py_dlg_set_info_local_not_found').format(local_path))
+                self.util.dlg_warning(QCoreApplication.translate('GeoImport', 'py_dlg_set_info_local_not_found').format(local_path))
                 return
             # Treat existing folder as successful connection (do not require packages.json)
-            self.util.dlg_information(self.util.tr(u'py_dlg_set_info_conn_succs'))
+            self.util.dlg_information(QCoreApplication.translate('GeoImport', u'py_dlg_set_info_conn_succs'))
             return
 
         QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
@@ -371,7 +366,7 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
             self.util.dlg_warning(result)
             return
         else:
-            self.util.dlg_information(self.util.tr(u'py_dlg_set_info_conn_succs'))
+            self.util.dlg_information(QCoreApplication.translate('GeoImport', u'py_dlg_set_info_conn_succs'))
 
     def btn_clicked_add_connection(self):
         self.util.msg_log_debug('btn_clicked_add_connection')
@@ -422,8 +417,8 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
 
         server_name, ok_pressed = QInputDialog.getText(
             self,
-            self.util.tr('py_dlg_data_providers_custom_server'),
-            self.util.tr('py_dlg_data_providers_name_custom_server'),
+            QCoreApplication.translate('GeoImport', 'py_dlg_data_providers_custom_server'),
+            QCoreApplication.translate('GeoImport', 'py_dlg_data_providers_name_custom_server'),
             QLineEdit.EchoMode.Normal,
             ""
         )
@@ -431,7 +426,7 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
             return
 
         if server_name in self.settings.custom_servers:
-            self.util.dlg_warning(self.util.tr('py_dlg_data_providers_custom_server_name_exists').format(server_name))
+            self.util.dlg_warning(QCoreApplication.translate('GeoImport', 'py_dlg_data_providers_custom_server_name_exists').format(server_name))
             return
 
         self.settings.custom_servers[server_name] = {"url": api_url, "type": server_type}
@@ -485,7 +480,7 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
         selected_servers = [s.settings_key for s in self.servers if s.selected]
         if len(selected_servers) < 1:
             self.settings.selected_ckan_servers = ''
-            self.util.dlg_warning(self.util.tr('py_dlg_data_providers_no_server_selected'))
+            self.util.dlg_warning(QCoreApplication.translate('GeoImport', 'py_dlg_data_providers_no_server_selected'))
             return
         else:
             self.util.msg_log_debug(u'selected servers: {}'.format(selected_servers))

@@ -29,6 +29,10 @@ from .theme import apply_theme
 
 
 class plugin(object):
+    def tr(self, message):
+        from qgis.PyQt.QtCore import QCoreApplication
+        return QCoreApplication.translate('plugin', message)
+
     def __init__(self, iface):
         # Ensure compatibility shim is loaded when plugin instance is created.
         # This is defensive: classFactory also attempts to import the shim, but
@@ -41,6 +45,7 @@ class plugin(object):
             # ignore failures; plugin should still attempt to run
             pass
         self.iface = iface
+        self.translator = None
         # GUI-ready flag: set to True at the end of initGui(). Some QGIS
         # signals (projectRead, etc.) may fire before initGui runs; checking
         # this flag avoids noisy warnings when widgets like theme_combobox
@@ -93,10 +98,10 @@ class plugin(object):
             qm_name = f"{lang_code}.qm"
             qm_path = os.path.join(os.path.dirname(__file__), 'i18n', qm_name)
             if os.path.exists(qm_path):
-                translator = QTranslator()
-                loaded = translator.load(qm_path)
+                self.translator = QTranslator()
+                loaded = self.translator.load(qm_path)
                 if loaded:
-                    QCoreApplication.installTranslator(translator)
+                    QCoreApplication.installTranslator(self.translator)
         except Exception as e:
             # エラーは無視（QGIS外実行時など）。開発時はログで確認する。
             try:
@@ -120,10 +125,10 @@ class plugin(object):
 
         # アイコン設定
         icon_path = os.path.join(os.path.dirname(__file__), "icon/qgis-icon.png")
-        self.action = QAction(QIcon(icon_path), "地図検索", self.iface.mainWindow())
-        self.action.setObjectName("地図検索")
+        self.action = QAction(QIcon(icon_path), self.tr("Geo Search"), self.iface.mainWindow())
+        self.action.setObjectName("geo_search")
         self.iface.addToolBarIcon(self.action)
-        self.iface.addPluginToMenu("地図検索", self.action)
+        self.iface.addPluginToMenu(self.tr("Geo Search"), self.action)
         # 追加表示切替アクション（検索アイコンの直後に置く）
         # reload 時に重複して追加されないよう既存チェックを行う
         try:
@@ -142,7 +147,7 @@ class plugin(object):
                         self.additive_theme_action = QAction("", self.iface.mainWindow())
                     self.additive_theme_action.setCheckable(True)
                     self.additive_theme_action.setChecked(False)
-                    self.additive_theme_action.setToolTip("選択したテーマの表示レイヤを現在の表示に追加します（オン：追加表示、オフ：通常上書き）")
+                    self.additive_theme_action.setToolTip(self.tr("Add the visible layers of the selected theme to the current view (on: additive, off: normal overwrite)"))
                     try:
                         # connect to handler that updates internal flag and icon
                         try:
@@ -176,7 +181,7 @@ class plugin(object):
         # テーマ一覧のドロップダウンを作成
         # グループ選択用コンボ（グループを選んでテーマ表示を絞れる）
         self.group_combobox = QComboBox()
-        self.group_combobox.setToolTip("グループを選択して表示するテーマを絞ります（すべて/グループ単位）")
+        self.group_combobox.setToolTip(self.tr("Select a group to filter displayed themes (All / per group)"))
         self.group_combobox.setMinimumWidth(140)
         self.iface.addToolBarWidget(self.group_combobox)
 
@@ -187,7 +192,7 @@ class plugin(object):
         self._suppress_theme_update = False
 
         self.theme_combobox = QComboBox()
-        self.theme_combobox.setToolTip("レイヤの表示/非表示を設定するマップテーマを選択（「テーマ選択」で基本表示に戻す）")
+        self.theme_combobox.setToolTip(self.tr("Select a map theme that sets layer visibility ('Select theme' restores the base view)"))
         self.theme_combobox.setMinimumWidth(180)
 
         # テーマ選択の右側に設定アイコンを表示するためのコンテナウィジェットを作成
@@ -220,7 +225,7 @@ class plugin(object):
                         self.setting_button.setIcon(QIcon(icon_path))
                     except Exception:
                         pass
-                    self.setting_button.setToolTip("テーマ設定")
+                    self.setting_button.setToolTip(self.tr("Theme settings"))
                     # 設定ダイアログを開く処理を接続
                     try:
                         self.setting_button.clicked.connect(self.open_settings_dialog)
@@ -345,7 +350,7 @@ class plugin(object):
         except Exception as e:
             try:
                 from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"テーマ監視エラー: {str(e)}", "GEO-search-plugin", 2)
+                QgsMessageLog.logMessage(f"theme watch error: {e}", "GEO-search-plugin", 2)
             except:
                 pass
 
@@ -439,7 +444,7 @@ class plugin(object):
             self.group_combobox.blockSignals(True)
             self.group_combobox.clear()
             # Placeholder, then only actual groups
-            self.group_combobox.addItem("すべて")
+            self.group_combobox.addItem(self.tr("All"))
             for g in sorted([k for k in grouped.keys() if k is not None]):
                 self.group_combobox.addItem(str(g))
         except Exception:
@@ -460,7 +465,7 @@ class plugin(object):
             except Exception:
                 pass
             # グループ未選択(プレースホルダ 'すべて') の場合は全てのテーマを表示する
-            if not sel or sel == "すべて":
+            if not sel or sel == self.tr("All"):
                 try:
                     themes_to_show = [t for lst in self._theme_groups.values() for t in lst]
                 except Exception:
@@ -475,7 +480,7 @@ class plugin(object):
                 pass
             try:
                 self.theme_combobox.clear()
-                self.theme_combobox.addItem("テーマ選択")
+                self.theme_combobox.addItem(self.tr("Select theme"))
                 for t in themes_to_show:
                     self.theme_combobox.addItem(t)
             finally:
@@ -587,7 +592,7 @@ class plugin(object):
             self.theme_combobox.blockSignals(True)
             self.theme_combobox.clear()
             # 「テーマ選択」というプレースホルダーを追加
-            self.theme_combobox.addItem("テーマ選択")
+            self.theme_combobox.addItem(self.tr("Select theme"))
 
             # マップテーマをグループ化して管理（グループ名は括弧で囲まれた部分を抽出）
             try:
@@ -626,7 +631,7 @@ class plugin(object):
                     # 復元後の group 選択に基づいてテーマを表示
                     cur_group_txt = self._safe_current_text(self.group_combobox)
                     # グループ未選択(プレースホルダ 'すべて') の場合は全てのテーマを表示する
-                    if not cur_group_txt or cur_group_txt == "すべて":
+                    if not cur_group_txt or cur_group_txt == self.tr("All"):
                         themes_to_show = [t for lst in grouped.values() for t in lst]
                     else:
                         themes_to_show = grouped.get(cur_group_txt, [])
@@ -651,13 +656,13 @@ class plugin(object):
                     self.theme_combobox.setCurrentIndex(index)
             
             # デバッグログ
-            QgsMessageLog.logMessage(f"テーマリスト更新: {', '.join(themes)}", "GEO-search-plugin", 0)
+            QgsMessageLog.logMessage(f"theme list updated: {', '.join(themes)}", "GEO-search-plugin", 0)
                 
             self.theme_combobox.blockSignals(False)
         except Exception as e:
             try:
                 from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"テーマコンボボックスの更新エラー: {str(e)}", "GEO-search-plugin", 2)
+                QgsMessageLog.logMessage(f"theme combobox update error: {e}", "GEO-search-plugin", 2)
             except Exception:
                 pass
     
@@ -699,7 +704,7 @@ class plugin(object):
             current_theme_text = self._safe_current_text(self.theme_combobox)
             
             # 「テーマ選択」の場合は何もしない（プレースホルダ選択は無視）
-            if current_theme_text == "テーマ選択" or index <= 0:
+            if current_theme_text == self.tr("Select theme") or index <= 0:
                 # Clear any in-progress flag so the re-entrant guard does not remain set.
                 try:
                     self._suppress_theme_update = False
@@ -769,7 +774,7 @@ class plugin(object):
         except Exception as e:
             try:
                 from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"テーマ適用エラー: {str(e)}", "GEO-search-plugin", 2)
+                QgsMessageLog.logMessage(f"theme apply error: {e}", "GEO-search-plugin", 2)
             except Exception:
                 pass
 
@@ -809,14 +814,14 @@ class plugin(object):
                 # フォールバック: シンプルな QDialog を生成
                 from qgis.PyQt.QtWidgets import QDialog, QVBoxLayout, QLabel, QHBoxLayout, QPushButton
                 dlg = QDialog(parent)
-                dlg.setWindowTitle("Settings")
+                dlg.setWindowTitle(self.tr("Settings"))
                 dlg.setMinimumSize(400, 120)
                 layout = QVBoxLayout(dlg)
-                layout.addWidget(QLabel("Settings dialog: add options here.", dlg))
+                layout.addWidget(QLabel(self.tr("Settings dialog: add options here."), dlg))
                 btn_layout = QHBoxLayout()
                 btn_layout.addStretch()
-                ok_btn = QPushButton("OK", dlg)
-                cancel_btn = QPushButton("Cancel", dlg)
+                ok_btn = QPushButton(self.tr("OK"), dlg)
+                cancel_btn = QPushButton(self.tr("Cancel"), dlg)
                 ok_btn.clicked.connect(dlg.accept)
                 cancel_btn.clicked.connect(dlg.reject)
                 btn_layout.addWidget(ok_btn)
@@ -913,7 +918,7 @@ class plugin(object):
             pass
         try:
             self.iface.removeToolBarIcon(self.action)
-            self.iface.removePluginMenu("地図検索", self.action)
+            self.iface.removePluginMenu(self.tr("Geo Search"), self.action)
         except:
             pass
             
@@ -1548,11 +1553,11 @@ class plugin(object):
             model = self.iface.layerTreeView().layerTreeModel()
             theme_state = theme_collection.createThemeFromCurrentState(root, model)
             theme_collection.insert(theme_name, theme_state)
-            QgsMessageLog.logMessage(f"テーマ「{theme_name}」を保存しました", "GEO-search-plugin", 0)
+            QgsMessageLog.logMessage(f"theme '{theme_name}' saved", "GEO-search-plugin", 0)
             
         except Exception as e:
             from qgis.core import QgsMessageLog
-            QgsMessageLog.logMessage(f"テーマ保存エラー: {str(e)}", "GEO-search-plugin", 2)
+            QgsMessageLog.logMessage(f"theme save error: {e}", "GEO-search-plugin", 2)
             
         self.dialog.show()
 

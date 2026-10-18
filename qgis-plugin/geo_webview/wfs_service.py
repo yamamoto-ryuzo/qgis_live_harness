@@ -94,7 +94,7 @@ class GeoWebViewWFSService:
                 if expired_keys:
                     from qgis.core import QgsMessageLog, Qgis
                     QgsMessageLog.logMessage(
-                        f"🧹 WFS Cache: {len(expired_keys)}個の期限切れエントリを削除",
+                        f"🧹 WFS Cache: removed {len(expired_keys)} expired entries",
                         "geo_webview", Qgis.Info
                     )
         except Exception:
@@ -325,7 +325,7 @@ class GeoWebViewWFSService:
             with self._cache_lock:
                 self._response_cache[cache_key] = (time.time(), response_content, content_type)
                 QgsMessageLog.logMessage(
-                    f"💾 WFS Cache MISS: {type_name} ({len(features)}地物, {elapsed_time}ms) - キャッシュに保存",
+                    f"💾 WFS Cache MISS: {type_name} ({len(features)} features, {elapsed_time}ms) - cached",
                     "geo_webview", Qgis.Info
                 )
             

@@ -37,11 +37,6 @@ FORM_CLASS, _ = uic.loadUiType(
 
 
 class GeoImportDialogDisclaimer(QDialog, FORM_CLASS):
-    @staticmethod
-    def tr(message):
-        """翻訳用のtr()メソッド"""
-        return QCoreApplication.translate('GeoImport', message)
-    
     def __init__(self, settings, parent=None):
         """Constructor."""
         super(GeoImportDialogDisclaimer, self).__init__(parent)
@@ -57,4 +52,4 @@ class GeoImportDialogDisclaimer(QDialog, FORM_CLASS):
         logo_path = self.util.resolve(u'ckan_logo_big.png')
         self.IDC_lblLogo.setPixmap(QtGui.QPixmap(logo_path))
         self.IDC_brInfo.setOpenExternalLinks(True)
-        self.IDC_brInfo.setHtml(self.util.tr('py_disc_info_html'))
+        self.IDC_brInfo.setHtml(QCoreApplication.translate('GeoImport', 'py_disc_info_html'))

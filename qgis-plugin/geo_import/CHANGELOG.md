@@ -1,3 +1,12 @@
+2.6.0 国際化(i18n)対応
+- UI・ログ文字列を英語ソースに統一し、翻訳コンテキストを `GeoImport` に正規化
+  (`Util`/`self.util` 等の不一致コンテキストを解消しカタログが実行時に適用されるようにした)。
+- 表示用文字列「すべて」(formatフィルタ)を `translate('GeoImport', 'All')` に統一し、
+  比較ロジックと表示を一致させた。
+- `i18n` カタログを再生成し日本語113メッセージ全訳、`geo_import_ja.qm` を再コンパイル。
+  他言語(de/en/es/fi/fr/hi/it/pt/ru/zh)は既存訳を継承・英語フォールバック。
+- XML属性テーブルローダ・CSV診断等のユーザー向けメッセージを翻訳対象化。
+
 2.5.0 QGIS4以降への対応宣言
 - `metadata.txt` の `qgisMinimumVersion` を 3.40 → 4.0 に更新
   (QGIS4以降専用。`qgisMaximumVersion=4.99`・`supportsQt6`は継続)

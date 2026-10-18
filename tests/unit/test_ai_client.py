@@ -525,7 +525,7 @@ def test_fmt_tokens_and_label():
     info = ai_client.model_info({"id": "gpt-4o-mini"})
     label = ai_client.model_label(info)
     assert label.startswith("gpt-4o-mini") and "$" in label
-    assert "種別" in ai_client.model_tooltip(info)
+    assert "Kind:" in ai_client.model_tooltip(info)
 
 
 def test_openai_list_model_infos(models_server):
@@ -861,7 +861,7 @@ def test_instruction_tool_roundtrip(tmp_path, monkeypatch):
     monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
     out = ai_client.run_instruction_tool(
         "ai_list_instructions", {"kind": "agents"})
-    assert out == "(なし)"
+    assert out == "(none)"
     out = ai_client.run_instruction_tool(
         "ai_save_instruction",
         {"kind": "skills", "name": "レシピ a",
@@ -894,7 +894,7 @@ def test_instruction_tool_errors(tmp_path, monkeypatch,
         ai_client.run_instruction_tool(
             "ai_delete_instruction",
             {"kind": "skills", "id": "sample-recipe"})
-    assert "削除できません" in str(ei.value)
+    assert "cannot delete" in str(ei.value)
     with pytest.raises(ai_client.ApiError):
         ai_client.run_instruction_tool("ai_nope", {"kind": "agents"})
     # 選択ツールはパネル専用(ファイル層では扱わない)
@@ -1252,7 +1252,7 @@ def test_mcp_oauth_abort(tmp_path, monkeypatch):
           "token_url": "http://127.0.0.1:9/token",
           "client_id": "cid"}
     t0 = time.time()
-    with pytest.raises(ai_client.ApiError, match="中断"):
+    with pytest.raises(ai_client.ApiError, match="aborted"):
         ai_client._oauth_authorize(oc, timeout=60, on_status=None,
                                    is_aborted=lambda: True)
     assert time.time() - t0 < 5          # タイムアウト待ちでない

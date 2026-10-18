@@ -1,5 +1,18 @@
 # CHANGELOG — geo_excel
 
+## 1.5.0
+
+- 採用言語セット(AGENTS.md)に合わせ de/es/fr/hi/it/pt/ru/zh の
+  翻訳カタログ(`.ts`/`.qm`)を追加。ja と合わせ全9言語を同梱。
+
+## 1.4.0
+
+- 国際化(i18n)対応: UI文字列を英語ソースに統一し、
+  `QCoreApplication.translate` で抽出可能な翻訳呼出に変更。
+  `QTranslator` による起動時ロードを追加。
+- `i18n` に日本語カタログを新設し `ja.qm` をコンパイル。
+- `README.md` を英語版に刷新し、日本語ドキュメントを `README_JP.md` に分離。
+
 ## 1.3.0
 
 - `metadata.txt` の `qgisMinimumVersion` を 3.40 → 4.0 に更新

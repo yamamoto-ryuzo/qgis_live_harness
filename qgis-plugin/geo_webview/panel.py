@@ -25,7 +25,7 @@ import os
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QDockWidget, QWidget
-from qgis.PyQt.QtCore import Qt, QSize
+from qgis.PyQt.QtCore import Qt, QSize, QCoreApplication
 from qgis.PyQt.QtGui import QGuiApplication, QIcon
 
 # UIファイルのパスを指定
@@ -71,7 +71,7 @@ class GeoWebViewPanel(QDockWidget):
                 # Create a minimal placeholder UI
                 from qgis.PyQt.QtWidgets import QLabel, QVBoxLayout
                 layout = QVBoxLayout()
-                label = QLabel(self.tr("UI ファイルを読み込めませんでした。プラグインの再インストールを検討してください。"))
+                label = QLabel(self.tr("Could not load the UI file. Please consider reinstalling the plugin."))
                 layout.addWidget(label)
                 self.widget.setLayout(layout)
             except Exception:
@@ -172,61 +172,61 @@ class GeoWebViewPanel(QDockWidget):
         
     def translate_ui(self):
         """UI要素のテキストを翻訳"""
+        # NOTE: lupdate がコンテキスト 'geo_webview' を検出できるよう
+        # ラッパー関数ではなく QCoreApplication.translate を直接呼ぶこと
         from qgis.PyQt.QtCore import QCoreApplication
-        
-        def tr(text):
-            return QCoreApplication.translate('geo_webview', text)
+
         # グループボックスのタイトル
         if hasattr(self.ui, 'groupBox_server'):
-            self.ui.groupBox_server.setTitle(tr("HTTP Server Status"))
+            self.ui.groupBox_server.setTitle(QCoreApplication.translate('geo_webview', "HTTP Server Status"))
         if hasattr(self.ui, 'groupBox_generate'):
-            self.ui.groupBox_generate.setTitle(tr("Generate Permalink"))
+            self.ui.groupBox_generate.setTitle(QCoreApplication.translate('geo_webview', "Generate Permalink"))
         if hasattr(self.ui, 'groupBox_permalink'):
-            self.ui.groupBox_permalink.setTitle(tr("Current Permalink"))
+            self.ui.groupBox_permalink.setTitle(QCoreApplication.translate('geo_webview', "Current Permalink"))
         if hasattr(self.ui, 'groupBox_navigate'):
-            self.ui.groupBox_navigate.setTitle(tr("Navigate to Location"))
+            self.ui.groupBox_navigate.setTitle(QCoreApplication.translate('geo_webview', "Navigate to Location"))
 
         # ラベル
         if hasattr(self.ui, 'label_generate_info'):
-            self.ui.label_generate_info.setText(tr("Generate a permalink for the current map view"))
+            self.ui.label_generate_info.setText(QCoreApplication.translate('geo_webview', "Generate a permalink for the current map view"))
         if hasattr(self.ui, 'label_theme_selection'):
-            self.ui.label_theme_selection.setText(tr("Theme/Layer State:"))
+            self.ui.label_theme_selection.setText(QCoreApplication.translate('geo_webview', "Theme/Layer State:"))
         if hasattr(self.ui, 'label_navigate_info'):
-            self.ui.label_navigate_info.setText(tr("Enter a permalink to navigate"))
+            self.ui.label_navigate_info.setText(QCoreApplication.translate('geo_webview', "Enter a permalink to navigate"))
 
         # Buttons now include the icon/label together; set button texts instead
         if hasattr(self.ui, 'pushButton_google_maps'):
-            self.ui.pushButton_google_maps.setText(tr("🗺️ Google Maps"))
+            self.ui.pushButton_google_maps.setText(QCoreApplication.translate('geo_webview', "🗺️ Google Maps"))
         if hasattr(self.ui, 'pushButton_google_earth'):
-            self.ui.pushButton_google_earth.setText(tr("🌍 Google Earth"))
+            self.ui.pushButton_google_earth.setText(QCoreApplication.translate('geo_webview', "🌍 Google Earth"))
 
         # ボタン
         if hasattr(self.ui, 'pushButton_generate'):
-            self.ui.pushButton_generate.setText(tr("Generate Permalink"))
+            self.ui.pushButton_generate.setText(QCoreApplication.translate('geo_webview', "Generate Permalink"))
         if hasattr(self.ui, 'pushButton_copy'):
-            self.ui.pushButton_copy.setText(tr("URLCopy"))
+            self.ui.pushButton_copy.setText(QCoreApplication.translate('geo_webview', "URLCopy"))
         if hasattr(self.ui, 'pushButton_open'):
-            self.ui.pushButton_open.setText(tr("OpenLayers"))
+            self.ui.pushButton_open.setText(QCoreApplication.translate('geo_webview', "OpenLayers"))
         if hasattr(self.ui, 'pushButton_navigate'):
-            self.ui.pushButton_navigate.setText(tr("Navigate"))
+            self.ui.pushButton_navigate.setText(QCoreApplication.translate('geo_webview', "Navigate"))
 
         # プレースホルダーテキスト
         if hasattr(self.ui, 'lineEdit_permalink'):
-            self.ui.lineEdit_permalink.setPlaceholderText(tr("Generated permalink will appear here"))
+            self.ui.lineEdit_permalink.setPlaceholderText(QCoreApplication.translate('geo_webview', "Generated permalink will appear here"))
         if hasattr(self.ui, 'lineEdit_navigate'):
-            self.ui.lineEdit_navigate.setPlaceholderText(tr("Paste permalink here"))
+            self.ui.lineEdit_navigate.setPlaceholderText(QCoreApplication.translate('geo_webview', "Paste permalink here"))
 
         # コンボボックスの項目
         if hasattr(self.ui, 'comboBox_themes'):
             # 既存の項目をクリアして翻訳済みの項目を追加
             self.ui.comboBox_themes.clear()
-            self.ui.comboBox_themes.addItem(tr("-- No Theme (Position Only) --"))
+            self.ui.comboBox_themes.addItem(QCoreApplication.translate('geo_webview', "-- No Theme (Position Only) --"))
             # ツールチップも翻訳
-            self.ui.comboBox_themes.setToolTip(tr("Select theme option: no theme (position only) or specific theme"))
+            self.ui.comboBox_themes.setToolTip(QCoreApplication.translate('geo_webview', "Select theme option: no theme (position only) or specific theme"))
         # External control checkbox
         if hasattr(self.ui, 'checkBox_external_control'):
-            self.ui.checkBox_external_control.setText(tr("External Control"))
-            self.ui.checkBox_external_control.setToolTip(tr("When enabled, map view can be updated by external URLs"))
+            self.ui.checkBox_external_control.setText(QCoreApplication.translate('geo_webview', "External Control"))
+            self.ui.checkBox_external_control.setToolTip(QCoreApplication.translate('geo_webview', "When enabled, map view can be updated by external URLs"))
     
     def update_server_status(self, port, running):
         """サーバーステータスを更新
@@ -236,10 +236,10 @@ class GeoWebViewPanel(QDockWidget):
             running: サーバーが実行中かどうか
         """
         if running:
-            status_text = f"HTTP Server: Running on http://localhost:{port}"
+            status_text = QCoreApplication.translate('geo_webview', "HTTP Server: Running on http://localhost:{0}").format(port)
             style = "color: green; font-weight: bold;"
         else:
-            status_text = "HTTP Server: Stopped"
+            status_text = QCoreApplication.translate('geo_webview', "HTTP Server: Stopped")
             style = "color: red; font-weight: bold;"
             
         self.label_server_status.setText(status_text)

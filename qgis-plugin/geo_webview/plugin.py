@@ -107,12 +107,12 @@ class GeoWebView:
             self.translator = QTranslator()
             if self.translator.load(locale_path):
                 QCoreApplication.installTranslator(self.translator)
-                print(f"翻訳ファイルをロードしました: {locale_path}")
+                print(f"Translation file loaded: {locale_path}")
             else:
-                print(f"警告: 翻訳ファイルのロードに失敗しました: {locale_path}")
+                print(f"Warning: failed to load translation file: {locale_path}")
                 self.translator = None
         else:
-            print(f"情報: 翻訳ファイルが見つかりません（英語をデフォルト使用）: {locale_path}")
+            print(f"Info: translation file not found (English used by default): {locale_path}")
 
         # プラグインの宣言
         self.actions = []
@@ -359,40 +359,40 @@ class GeoWebView:
                 )
                 
                 # パネルを作成
-                print("パネル作成開始...")
+                print("Creating panel...")
                 self.panel = GeoWebViewPanel(self.iface.mainWindow())
-                print("パネル作成完了")
-                
+                print("Panel created")
+
                 # パネルのボタンにイベントを接続
-                print("ボタンイベント接続開始...")
+                print("Connecting button events...")
                 self.panel.pushButton_generate.clicked.connect(self.on_generate_clicked_panel)
                 self.panel.pushButton_navigate.clicked.connect(self.on_navigate_clicked_panel)
                 self.panel.pushButton_copy.clicked.connect(self.on_copy_clicked_panel)
                 if hasattr(self.panel, 'pushButton_open'):
                     self.panel.pushButton_open.clicked.connect(self.on_open_clicked_panel)
-                    print("pushButton_open接続成功: on_open_clicked_panel")
+                    print("pushButton_open connected: on_open_clicked_panel")
                     self._qgis_log('[DEBUG] pushButton_open connected to on_open_clicked_panel', 'INFO')
                 else:
-                    print("警告: pushButton_openが見つかりません")
+                    print("Warning: pushButton_open not found")
                     self._qgis_log('[DEBUG] WARNING: pushButton_open not found', 'WARNING')
-                
+
                 # Google Maps/Earthボタンのイベントを接続
                 if hasattr(self.panel, 'pushButton_google_maps'):
                     self.panel.pushButton_google_maps.clicked.connect(self.on_google_maps_clicked_panel)
-                    print("Google Mapsボタン接続成功")
+                    print("Google Maps button connected")
                 if hasattr(self.panel, 'pushButton_google_earth'):
                     self.panel.pushButton_google_earth.clicked.connect(self.on_google_earth_clicked_panel)
-                    print("Google Earthボタン接続成功")
-                
+                    print("Google Earth button connected")
+
                 # MapLibreボタンのイベントを接続
                 if hasattr(self.panel, 'pushButton_maplibre'):
-                    print(f"MapLibreボタン発見: {self.panel.pushButton_maplibre}")
+                    print(f"MapLibre button found: {self.panel.pushButton_maplibre}")
                     self.panel.pushButton_maplibre.clicked.connect(self.on_maplibre_clicked_panel)
                     # ボタンを有効化
                     self.panel.pushButton_maplibre.setEnabled(True)
-                    print("MapLibreボタン接続成功")
+                    print("MapLibre button connected")
                 else:
-                    print("警告: pushButton_maplibre が見つかりません")
+                    print("Warning: pushButton_maplibre not found")
                 
                 # Check Access ボタンのイベントを接続
                 if hasattr(self.panel, 'pushButton_check_access'):
@@ -404,14 +404,14 @@ class GeoWebView:
                 if hasattr(self.panel, 'pushButton_port_443'):
                     self.panel.pushButton_port_443.clicked.connect(lambda: self.on_standard_port_clicked(443))
                 
-                print("ボタンイベント接続完了")
-                
+                print("Button events connected")
+
                 # HTTPサーバーの状態を更新
-                print("サーバー状態取得開始...")
+                print("Getting server status...")
                 server_running = self.server_manager.is_server_running()
                 server_port = self.server_manager.get_server_port() or 8089
-                print(f"サーバー状態: running={server_running}, port={server_port}")
-                print("パネル更新開始...")
+                print(f"Server status: running={server_running}, port={server_port}")
+                print("Updating panel...")
                 self.panel.update_server_status(server_port, server_running)
                 # パネルのトグルチェックボックスをサーバー制御に接続
                 try:
@@ -432,7 +432,7 @@ class GeoWebView:
                             pr = self.server_manager.get_server_port() or 8089
                             self.panel.update_server_status(pr, self.server_manager.is_server_running())
                         except Exception as e:
-                            print(f"サーバートグルエラー: {e}")
+                            print(f"Server toggle error: {e}")
 
                     # set_server_toggle_handler はパネル側で提供
                     if hasattr(self.panel, 'set_server_toggle_handler'):
@@ -465,7 +465,7 @@ class GeoWebView:
                                 reply = QMessageBox.question(
                                     self.iface.mainWindow(),
                                     self.tr("geo_webview"),
-                                    self.tr(f"サーバーを停止してポート {new_port} で再起動しますか？"),
+                                    self.tr("Stop the server and restart it on port {0}?").format(new_port),
                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                                     QMessageBox.StandardButton.No
                                 )
@@ -496,7 +496,7 @@ class GeoWebView:
                                 pass
                 except Exception:
                     pass
-                print("パネル更新完了")
+                print("Panel updated")
                 
                 # テーマ一覧を更新
                 self.update_theme_list()
@@ -523,7 +523,7 @@ class GeoWebView:
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()
-            print(f"パネル作成エラーの詳細:\n{error_details}")
+            print(f"Panel creation error details:\n{error_details}")
             QMessageBox.critical(
                 self.iface.mainWindow(),
                 self.tr("geo_webview"),
@@ -827,7 +827,7 @@ class GeoWebView:
                 
         except Exception as e:
             # タブ化に失敗しても継続
-            print(f"パネルのタブ化でエラー: {e}")
+            print(f"Panel tabify error: {e}")
             self.iface.messageBar().pushMessage(
                 self.tr("geo_webview"), 
                 self.tr("Panel displayed on the left side."), 
@@ -1692,7 +1692,7 @@ class GeoWebView:
                         if map_width_m:
                             try:
                                 canvas = self.iface.mapCanvas()
-                                self.iface.messageBar().pushMessage("QMap Permalink", "試行: 中心ベースでスケールを計算します...", duration=3)
+                                self.iface.messageBar().pushMessage("QMap Permalink", self.tr("Trying center-based scale computation..."), duration=3)
                                 computed_scale = self._compute_scale_from_map_width_at_center(parsed_google['lat'], parsed_google['lon'], map_width_m, canvas)
                                 print(f"computed_scale from center: {computed_scale}")
                                 if computed_scale:
@@ -1700,7 +1700,7 @@ class GeoWebView:
                                         self.navigate_to_coordinates(parsed_google['lon'], parsed_google['lat'], computed_scale, None, 'EPSG:4326')
                                         self.iface.messageBar().pushMessage(
                                             "QMap Permalink",
-                                            f"計算したスケールを適用しました（幅約 {map_width_m}m、1:{int(computed_scale)}）。",
+                                            self.tr("Applied the computed scale (width approx. {0} m, 1:{1}).").format(map_width_m, int(computed_scale)),
                                             duration=3
                                         )
                                         return
@@ -1717,7 +1717,7 @@ class GeoWebView:
                                             canvas.refresh()
                                             self.iface.messageBar().pushMessage(
                                                 "QMap Permalink",
-                                                f"座標 ({parsed_google['lon']:.6f}, {parsed_google['lat']:.6f}) に移動しました（スケールは維持されました）。",
+                                                self.tr("Moved to coordinates ({0:.6f}, {1:.6f}) (scale preserved).").format(parsed_google['lon'], parsed_google['lat']),
                                                 duration=3
                                             )
                                             return
@@ -1752,7 +1752,7 @@ class GeoWebView:
                     # 直接移動を実行（scale を優先）
                     self.navigate_to_coordinates(x, y, scale, zoom, crs, rotation, theme_info)
                 else:
-                    raise ValueError("HTTP URLのパラメータからナビゲーションデータを生成できませんでした。")
+                    raise ValueError(self.tr("Could not build navigation data from the HTTP URL parameters."))
                     
             # 従来のカスタムプロトコル形式も維持
             elif permalink_url.startswith('qgis-permalink://'):
@@ -1776,19 +1776,19 @@ class GeoWebView:
                 canvas.refresh()
                 
                 self.iface.messageBar().pushMessage(
-                    "QMap Permalink", 
-                    "パーマリンクから地図ビューに移動しました。", 
+                    "QMap Permalink",
+                    self.tr("Moved the map view from the permalink."),
                     duration=3
                 )
-                
+
             else:
-                raise ValueError("サポートされていないパーマリンクURL形式です。")
-                
+                raise ValueError(self.tr("Unsupported permalink URL format."))
+
         except Exception as e:
             QMessageBox.warning(
                 self.iface.mainWindow(),
-                "QMap Permalink エラー",
-                f"パーマリンクの処理中にエラーが発生しました：\n{str(e)}"
+                self.tr("QMap Permalink Error"),
+                self.tr("An error occurred while processing the permalink:\n{0}").format(e)
             )
     
     def navigate_from_http(self, location_data):
@@ -1818,13 +1818,13 @@ class GeoWebView:
             canvas.refresh()
             
             self.iface.messageBar().pushMessage(
-                "QMap Permalink", 
-                "HTTP経由で地図ビューに移動しました。", 
+                "QMap Permalink",
+                self.tr("Moved the map view via HTTP."),
                 duration=3
             )
-            
+
         except Exception as e:
-            raise Exception(f"HTTP地図移動の処理中にエラーが発生しました: {str(e)}")
+            raise Exception(self.tr("An error occurred while processing the HTTP map move: {0}").format(e))
     
     def navigate_to_coordinates(self, x, y, scale, zoom, crs_auth_id, rotation=None, theme_info=None):
         """座標指定でのナビゲーション処理
@@ -1972,16 +1972,16 @@ class GeoWebView:
                 try:
                     theme_applied = self._apply_theme_from_permalink(theme_info)
                     if theme_applied:
-                        print("テーマが正常に適用されました")
+                        print("Theme applied successfully")
                 except Exception as e:
-                    print(f"テーマ適用エラー: {e}")
-            
+                    print(f"Theme apply error: {e}")
+
             canvas.refresh()
-            
+
             # メッセージを表示
-            message = f"座標 ({x:.6f}, {y:.6f}) に移動しました。"
+            message = self.tr("Moved to coordinates ({0:.6f}, {1:.6f}).").format(x, y)
             if theme_applied:
-                message += " テーマも復元されました。"
+                message += self.tr(" The theme was also restored.")
             
             self.iface.messageBar().pushMessage(
                 "QMap Permalink", 
@@ -1990,7 +1990,7 @@ class GeoWebView:
             )
             
         except Exception as e:
-            raise Exception(f"座標移動の処理中にエラーが発生しました: {str(e)}")
+            raise Exception(self.tr("An error occurred while processing the coordinate move: {0}").format(e))
 
     # パネル用のイベントハンドラ
 
@@ -2017,13 +2017,13 @@ class GeoWebView:
                 # scale を優先して渡す（None の場合は zoom を使う）
                 self.navigate_to_coordinates(x, y, scale, zoom, crs, rotation, theme_info)
                 
-            print(f"ナビゲーション完了: {navigation_data['type']}")
-            
+            print(f"Navigation done: {navigation_data['type']}")
+
         except Exception as e:
-            print(f"ナビゲーション処理エラー: {e}")
+            print(f"Navigation error: {e}")
             self.iface.messageBar().pushMessage(
-                "QMap Permalink エラー", 
-                f"ナビゲーション処理中にエラーが発生しました: {str(e)}", 
+                self.tr("QMap Permalink Error"),
+                self.tr("An error occurred while processing navigation: {0}").format(e),
                 duration=5
             )
     
@@ -2161,26 +2161,26 @@ class GeoWebView:
 
     def on_copy_clicked_panel(self):
         """パネル版：コピーボタンがクリックされた時の処理"""
-        print("コピーボタンがクリックされました")
-        
+        print("Copy button clicked")
+
         # パーマリンクテキストを取得
         if not hasattr(self.panel, 'lineEdit_permalink') or self.panel.lineEdit_permalink is None:
-            print("エラー: lineEdit_permalink が見つかりません")
+            print("Error: lineEdit_permalink not found")
             QMessageBox.warning(
                 self.iface.mainWindow(),
                 "geo_webview",
-                "パーマリンク入力フィールドが見つかりません。"
+                self.tr("The permalink input field was not found.")
             )
             return
-            
+
         permalink_url = self.panel.lineEdit_permalink.text().strip()
-        print(f"パーマリンクURL: {permalink_url}")
-        
+        print(f"Permalink URL: {permalink_url}")
+
         if not permalink_url:
             QMessageBox.warning(
                 self.iface.mainWindow(),
                 "geo_webview",
-                "コピーできるパーマリンクがありません。"
+                self.tr("There is no permalink to copy.")
             )
             return
             
@@ -2201,18 +2201,18 @@ class GeoWebView:
             QThread.msleep(50)
 
         if success:
-            print("クリップボードへのコピー成功")
+            print("Clipboard copy succeeded")
             self.iface.messageBar().pushMessage(
                 "geo_webview",
-                "パーマリンクをクリップボードにコピーしました。",
+                self.tr("Copied the permalink to the clipboard."),
                 duration=3
             )
         else:
-            print("クリップボードへのコピー失敗")
+            print("Clipboard copy failed")
             QMessageBox.warning(
                 self.iface.mainWindow(),
                 "geo_webview",
-                "クリップボードへのコピーに失敗しました。手動でコピーしてください。"
+                self.tr("Failed to copy to the clipboard. Please copy it manually.")
             )
 
     
@@ -2234,29 +2234,29 @@ class GeoWebView:
                         self.panel.lineEdit_permalink.setText(permalink_text)
                 except Exception as e:
                     self.iface.messageBar().pushMessage(
-                        "geo_webview", f"パーマリンク自動生成エラー: {str(e)}", duration=5
+                        "geo_webview", self.tr("Permalink auto-generation error: {0}").format(e), duration=5
                     )
                     return
-            
+
             # 現在の地図ビューから直接ナビゲーションデータを作成
             canvas = self.iface.mapCanvas()
             extent = canvas.extent()
             crs = canvas.mapSettings().destinationCrs()
             scale = canvas.scale()
-            
+
             # 中心点を計算
             center_x = extent.center().x()
             center_y = extent.center().y()
-            
+
             # WGS84座標に変換
             lat, lon = self._convert_to_wgs84(center_x, center_y, crs.authid())
-            
+
             if lat is None or lon is None:
                 self.iface.messageBar().pushMessage(
-                    "QMap Permalink", "座標変換に失敗しました。", duration=3
+                    "QMap Permalink", self.tr("Coordinate conversion failed."), duration=3
                 )
                 return
-            
+
             # HTTPレスポンス用と同じ形式のナビゲーションデータを作成
             navigation_data = {
                 'type': 'coordinates',
@@ -2268,17 +2268,17 @@ class GeoWebView:
                 'crs': crs.authid(),
                 'zoom': self._estimate_zoom_from_scale(scale)
             }
-            
+
             # HTTPレスポンスと同じメソッドでGoogle Maps URLを生成
             google_maps_url = self._build_google_maps_url(navigation_data)
             if google_maps_url:
                 QDesktopServices.openUrl(QUrl(google_maps_url))
                 self.iface.messageBar().pushMessage(
-                    "QMap Permalink", "Google Mapsで開きました。", duration=3
+                    "QMap Permalink", self.tr("Opened in Google Maps."), duration=3
                 )
         except Exception as e:
             self.iface.messageBar().pushMessage(
-                "QMap Permalink", f"Google Maps起動エラー: {str(e)}", duration=5
+                "QMap Permalink", self.tr("Google Maps launch error: {0}").format(e), duration=5
             )
 
     def on_google_earth_clicked_panel(self):
@@ -2298,26 +2298,26 @@ class GeoWebView:
                         self.panel.lineEdit_permalink.setText(permalink_text)
                 except Exception as e:
                     self.iface.messageBar().pushMessage(
-                        "geo_webview", f"パーマリンク自動生成エラー: {str(e)}", duration=5
+                        "geo_webview", self.tr("Permalink auto-generation error: {0}").format(e), duration=5
                     )
                     return
-            
+
             # 現在の地図ビューから直接ナビゲーションデータを作成
             canvas = self.iface.mapCanvas()
             extent = canvas.extent()
             crs = canvas.mapSettings().destinationCrs()
             scale = canvas.scale()
-            
+
             # 中心点を計算
             center_x = extent.center().x()
             center_y = extent.center().y()
-            
+
             # WGS84座標に変換
             lat, lon = self._convert_to_wgs84(center_x, center_y, crs.authid())
-            
+
             if lat is None or lon is None:
                 self.iface.messageBar().pushMessage(
-                    "QMap Permalink", "座標変換に失敗しました。", duration=3
+                    "QMap Permalink", self.tr("Coordinate conversion failed."), duration=3
                 )
                 return
             
@@ -2338,11 +2338,11 @@ class GeoWebView:
             if google_earth_url:
                 QDesktopServices.openUrl(QUrl(google_earth_url))
                 self.iface.messageBar().pushMessage(
-                    "QMap Permalink", "Google Earthで開きました。", duration=3
+                    "QMap Permalink", self.tr("Opened in Google Earth."), duration=3
                 )
         except Exception as e:
             self.iface.messageBar().pushMessage(
-                "QMap Permalink", f"Google Earth起動エラー: {str(e)}", duration=5
+                "QMap Permalink", self.tr("Google Earth launch error: {0}").format(e), duration=5
             )
     
     def on_maplibre_clicked_panel(self):
@@ -2351,7 +2351,7 @@ class GeoWebView:
             # HTTPサーバーが起動しているか確認
             if not self.server_manager.is_server_running():
                 self.iface.messageBar().pushMessage(
-                    "geo_webview", "HTTPサーバーが起動していません。サーバーを起動してください。", duration=5
+                    "geo_webview", self.tr("The HTTP server is not running. Please start the server."), duration=5
                 )
                 return
             
@@ -2373,10 +2373,10 @@ class GeoWebView:
                         self.panel.lineEdit_permalink.setText(permalink_text)
                 except Exception as e:
                     self.iface.messageBar().pushMessage(
-                        "geo_webview", f"パーマリンク自動生成エラー: {str(e)}", duration=5
+                        "geo_webview", self.tr("Permalink auto-generation error: {0}").format(e), duration=5
                     )
                     return
-            
+
             # パーマリンクのパラメータを解析
             from urllib.parse import parse_qs, urlparse
             params = {}
@@ -2404,11 +2404,11 @@ class GeoWebView:
             # ブラウザで開く
             QDesktopServices.openUrl(QUrl(maplibre_url))
             self.iface.messageBar().pushMessage(
-                "geo_webview", "MapLibreで開きました。", duration=3
+                "geo_webview", self.tr("Opened in MapLibre."), duration=3
             )
         except Exception as e:
             self.iface.messageBar().pushMessage(
-                "geo_webview", f"MapLibre起動エラー: {str(e)}", duration=5
+                "geo_webview", self.tr("MapLibre launch error: {0}").format(e), duration=5
             )
     
     def on_check_access_clicked(self):
@@ -2421,7 +2421,7 @@ class GeoWebView:
             from qgis.PyQt.QtWidgets import QMessageBox, QTextEdit, QVBoxLayout, QDialog, QPushButton
             
             dialog = QDialog(self.iface.mainWindow())
-            dialog.setWindowTitle("外部アクセス診断")
+            dialog.setWindowTitle(self.tr("External Access Diagnostics"))
             dialog.setMinimumWidth(600)
             dialog.setMinimumHeight(400)
             
@@ -2435,21 +2435,21 @@ class GeoWebView:
             
             # ファイアウォール警告がある場合、ルール追加ボタンを表示
             if result.get('firewall_warning') and result.get('port'):
-                firewall_btn = QPushButton(f"ファイアウォールルールを追加 (ポート {result['port']}) - 管理者権限が必要")
+                firewall_btn = QPushButton(self.tr("Add firewall rule (port {0}) - administrator rights required").format(result['port']))
                 def add_firewall_rule():
                     # 確認メッセージを表示
                     from qgis.PyQt.QtWidgets import QMessageBox
-                    
+
                     Yes = QMessageBox.StandardButton.Yes
                     No = QMessageBox.StandardButton.No
-                    
+
                     reply = QMessageBox.question(
                         dialog,
-                        "管理者権限の昇格",
-                        f"ポート {result['port']} を許可するファイアウォールルールを追加します。\n\n"
-                        "この操作には管理者権限が必要です。\n"
-                        "Windowsのユーザーアカウント制御(UAC)ダイアログが表示されます。\n\n"
-                        "続行しますか?",
+                        self.tr("Administrator Elevation"),
+                        self.tr("A firewall rule will be added to allow port {0}.\n\n"
+                                "This operation requires administrator rights.\n"
+                                "The Windows User Account Control (UAC) dialog will be shown.\n\n"
+                                "Continue?").format(result['port']),
                         Yes | No,
                         No
                     )
@@ -2459,7 +2459,7 @@ class GeoWebView:
                     
                     # ボタンを一時的に無効化
                     firewall_btn.setEnabled(False)
-                    firewall_btn.setText("実行中...")
+                    firewall_btn.setText(self.tr("Running..."))
                     QApplication.processEvents()  # UI更新
                     
                     # ファイアウォールルールを追加(管理者権限昇格を試みる)
@@ -2467,12 +2467,12 @@ class GeoWebView:
                     
                     # ボタンを再度有効化
                     firewall_btn.setEnabled(True)
-                    firewall_btn.setText(f"ファイアウォールルールを追加 (ポート {result['port']}) - 管理者権限が必要")
-                    
+                    firewall_btn.setText(self.tr("Add firewall rule (port {0}) - administrator rights required").format(result['port']))
+
                     if rule_result['success']:
                         QMessageBox.information(
                             dialog,
-                            "成功",
+                            self.tr("Success"),
                             rule_result['message']
                         )
                         # 再診断して結果を更新
@@ -2480,12 +2480,12 @@ class GeoWebView:
                         text_edit.setPlainText(new_result['message'])
                         # ボタンを無効化
                         firewall_btn.setEnabled(False)
-                        firewall_btn.setText("ルールを追加済み")
+                        firewall_btn.setText(self.tr("Rule added"))
                     elif rule_result.get('admin_required'):
                         # 管理者権限の昇格がキャンセルされた場合
                         from qgis.PyQt.QtWidgets import QTextEdit as AdminTextEdit
                         admin_dialog = QDialog(dialog)
-                        admin_dialog.setWindowTitle("手動での実行が必要")
+                        admin_dialog.setWindowTitle(self.tr("Manual execution required"))
                         admin_dialog.setMinimumWidth(500)
                         admin_dialog.setMinimumHeight(200)
                         
@@ -2497,16 +2497,16 @@ class GeoWebView:
                         admin_layout.addWidget(admin_text)
                         
                         # コマンドをコピーするボタン
-                        copy_cmd_btn = QPushButton("コマンドをコピー")
+                        copy_cmd_btn = QPushButton(self.tr("Copy command"))
                         def copy_command():
                             QApplication.clipboard().setText(rule_result.get('command', ''))
                             self.iface.messageBar().pushMessage(
-                                "QMap Permalink", "コマンドをコピーしました", duration=2
+                                "QMap Permalink", self.tr("Copied the command"), duration=2
                             )
                         copy_cmd_btn.clicked.connect(copy_command)
                         admin_layout.addWidget(copy_cmd_btn)
                         
-                        admin_close_btn = QPushButton("閉じる")
+                        admin_close_btn = QPushButton(self.tr("Close"))
                         admin_close_btn.clicked.connect(admin_dialog.accept)
                         admin_layout.addWidget(admin_close_btn)
                         
@@ -2516,7 +2516,7 @@ class GeoWebView:
                     else:
                         QMessageBox.warning(
                             dialog,
-                            "エラー",
+                            self.tr("Error"),
                             rule_result['message']
                         )
                 
@@ -2525,17 +2525,17 @@ class GeoWebView:
             
             # URLをコピーするボタン(ローカルネットワークURLがある場合)
             if result.get('local_network_url'):
-                copy_btn = QPushButton(f"ネットワークURLをコピー ({result['local_network_url']})")
+                copy_btn = QPushButton(self.tr("Copy network URL ({0})").format(result['local_network_url']))
                 def copy_url():
                     QApplication.clipboard().setText(result['local_network_url'])
                     self.iface.messageBar().pushMessage(
-                        "QMap Permalink", "URLをコピーしました", duration=2
+                        "QMap Permalink", self.tr("Copied the URL"), duration=2
                     )
                 copy_btn.clicked.connect(copy_url)
                 layout.addWidget(copy_btn)
             
             # 閉じるボタン
-            close_btn = QPushButton("閉じる")
+            close_btn = QPushButton(self.tr("Close"))
             close_btn.clicked.connect(dialog.accept)
             layout.addWidget(close_btn)
             
@@ -2547,7 +2547,7 @@ class GeoWebView:
             QMessageBox.warning(
                 self.iface.mainWindow(),
                 "QMap Permalink",
-                f"診断エラー: {str(e)}"
+                self.tr("Diagnostics error: {0}").format(e)
             )
     
     def on_standard_port_clicked(self, port):
@@ -2563,14 +2563,14 @@ class GeoWebView:
             # 管理者権限が必要な警告を表示
             from qgis.PyQt.QtWidgets import QMessageBox
             
-            warning_msg = f"ポート {port} は標準ポートです。\n\n"
+            warning_msg = self.tr("Port {0} is a standard port.\n\n").format(port)
             if port == 80:
-                warning_msg += "このポートでサーバーを起動するには管理者権限が必要です。\n"
+                warning_msg += self.tr("Administrator rights are required to start the server on this port.\n")
             elif port == 443:
-                warning_msg += "このポートでサーバーを起動するには管理者権限が必要です。\n"
-                warning_msg += "また、HTTPSには証明書が必要です（現在未対応）。\n"
-            
-            warning_msg += f"\nポート番号を {port} に設定しますか？"
+                warning_msg += self.tr("Administrator rights are required to start the server on this port.\n")
+                warning_msg += self.tr("HTTPS also requires a certificate (not currently supported).\n")
+
+            warning_msg += self.tr("\nSet the port number to {0}?").format(port)
             
             Yes = QMessageBox.StandardButton.Yes
             No = QMessageBox.StandardButton.No
@@ -2589,14 +2589,14 @@ class GeoWebView:
                 
                 self.iface.messageBar().pushMessage(
                     "QMap Permalink",
-                    f"ポート番号を {port} に設定しました。管理者権限でQGISを再起動してサーバーを起動してください。",
+                    self.tr("Port number set to {0}. Please restart QGIS with administrator rights and start the server.").format(port),
                     duration=5
                 )
         except Exception as e:
             QMessageBox.warning(
                 self.iface.mainWindow(),
                 "QMap Permalink",
-                f"ポート設定エラー: {str(e)}"
+                self.tr("Port configuration error: {0}").format(e)
             )
 
     # テーマ関連のメソッド群
@@ -2634,7 +2634,7 @@ class GeoWebView:
             # QGISが利用できない環境
             return False
         except Exception as e:
-            print(f"テーマ適用エラー: {e}")
+            print(f"Theme apply error: {e}")
             return False
     
 
@@ -2665,12 +2665,12 @@ class GeoWebView:
             for theme_name in sorted(available_themes):
                 self.panel.comboBox_themes.addItem(theme_name)
                 
-            print(f"テーマ一覧を更新: {len(available_themes)} テーマが見つかりました")
-            
+            print(f"Theme list updated: {len(available_themes)} themes found")
+
         except ImportError:
             # QGISが利用できない環境
-            print("QGIS環境が利用できません")
+            print("QGIS environment is not available")
         except Exception as e:
-            print(f"テーマ一覧更新エラー: {e}")
+            print(f"Theme list update error: {e}")
 
 

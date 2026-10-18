@@ -99,9 +99,9 @@ def save_current_state_as_temp_theme(
             try:
                 # Include the temporary theme name in log output for clarity
                 if summary:
-                    log_func(f"[テーマログ　summary] 一時テーマをコレクションに保存しました:  '{tmp_name}' : {summary}", 0)
+                    log_func(f"[theme log summary] saved temp theme to collection:  '{tmp_name}' : {summary}", 0)
                 else:
-                    log_func(f"[テーマログ　else] 一時テーマをコレクションに保存しました '{tmp_name}' ", 0)
+                    log_func(f"[theme log else] saved temp theme to collection '{tmp_name}' ", 0)
             except Exception:
                 pass
 
@@ -199,7 +199,7 @@ def collect_visible_layer_snapshot(root, log_layer_legend_state_func=None, tag: 
             except Exception:
                 continue
     except Exception:
-        messages = ["[テーマログ] レイヤ一覧の取得に失敗しました"]
+        messages = ["[theme log] failed to get layer list"]
 
     # Emit messages using QgsMessageLog when available, otherwise print
     try:
@@ -228,7 +228,7 @@ def collect_visible_layer_snapshot(root, log_layer_legend_state_func=None, tag: 
             try:
                 _visible_layer_snapshots[str(snapshot_name)] = snapshot
                 # also emit a short confirmation message
-                info = f"[テーマログ] visible-layer snapshot '{snapshot_name}' をメモリに保存しました (layers={len(snapshot)})"
+                info = f"[theme log] saved visible-layer snapshot '{snapshot_name}' to memory (layers={len(snapshot)})"
                 try:
                     if QgsMessageLog is not None:
                         QgsMessageLog.logMessage(info, tag, 0)
@@ -296,21 +296,21 @@ def restore_temp_theme(theme_collection, tmp_name: str, root=None, model=None, l
                 theme_collection.applyTheme(tmp_name)
             if log_func is not None:
                 try:
-                    log_func(f"[テーマログ] 一時テーマを適用しました: '{display_name}'", 0)
+                    log_func(f"[theme log] applied temp theme: '{display_name}'", 0)
                 except Exception:
                     pass
             return True
         except Exception as e:
             try:
                 if log_func is not None:
-                    log_func(f"[テーマログ] 一時テーマ '{display_name}' の適用に失敗しました: {short_func(e,200) if short_func is not None else str(e)}", 2)
+                    log_func(f"[theme log] failed to apply temp theme '{display_name}': {short_func(e,200) if short_func is not None else str(e)}", 2)
             except Exception:
                 pass
             return False
     except Exception:
         try:
             if log_func is not None:
-                log_func(f"[テーマログ] restore_temp_theme('{display_name}') の外側で例外が発生しました", 2)
+                log_func(f"[theme log] outer exception in restore_temp_theme('{display_name}')", 2)
         except Exception:
             pass
         return False
@@ -361,7 +361,7 @@ def remove_temp_theme(theme_collection, tmp_name: str, log_func=None):
                     getattr(theme_collection, rem_name)(tmp_name)
                     if log_func is not None:
                         try:
-                            log_func(f"[テーマログ] 一時テーマを削除しました: '{display_name}'", 0)
+                            log_func(f"[theme log] deleted temp theme: '{display_name}'", 0)
                         except Exception:
                             pass
                     return True
@@ -371,7 +371,7 @@ def remove_temp_theme(theme_collection, tmp_name: str, log_func=None):
         try:
             if log_func is not None:
                 try:
-                    log_func(f"[テーマログ] 一時テーマ '{display_name}' の削除で例外が発生しました", 2)
+                    log_func(f"[theme log] exception while deleting temp theme '{display_name}'", 2)
                 except Exception:
                     pass
         except Exception:
@@ -539,7 +539,7 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
                     except Exception:
                         pass
                     try:
-                        _log(f"[テーマログ] 選択テーマを適用しました: '{display_name}'", 0)
+                        _log(f"[theme log] applied selected theme: '{display_name}'", 0)
                     except Exception:
                         pass
                 except Exception:
@@ -547,7 +547,7 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
             except Exception as e:
                 if QgsMessageLog:
                     try:
-                        QgsMessageLog.logMessage(f"テーマ適用エラー(ログ用): {e}", "GEO-search-plugin", 2)
+                        QgsMessageLog.logMessage(f"theme apply error (for log): {e}", "GEO-search-plugin", 2)
                     except Exception:
                         pass
                 return
@@ -578,7 +578,7 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
                     )
             except Exception:
                 try:
-                    _log("[テーマログ] prev_theme 復元の最外部で例外が発生しました", 2)
+                    _log("[theme log] outer exception restoring prev_theme", 2)
                 except Exception:
                     pass
 
@@ -589,12 +589,12 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
                         remove_temp_theme(theme_collection, tmp_prev, log_func=_log)
                     except Exception:
                         try:
-                            _log("[テーマログ] prev temp の削除で例外が発生しました", 2)
+                            _log("[theme log] exception deleting prev temp", 2)
                         except Exception:
                             pass
             except Exception:
                 try:
-                    _log("[テーマログ] prev temp 削除処理で外側の例外が発生しました", 2)
+                    _log("[theme log] outer exception deleting prev temp", 2)
                 except Exception:
                     pass
 
@@ -610,12 +610,12 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
                         collect_visible_layer_reload(tmp_sel, project=project_for_reload, root=root, tag="GEO-search-plugin", log_func=_log)
                     except Exception:
                         try:
-                            _log("[テーマログ] sel snapshot の反映で例外が発生しました", 2)
+                            _log("[theme log] exception applying sel snapshot", 2)
                         except Exception:
                             pass
             except Exception:
                 try:
-                    _log("[テーマログ] sel snapshot 反映処理で外側の例外が発生しました", 2)
+                    _log("[theme log] outer exception applying sel snapshot", 2)
                 except Exception:
                     pass
 
@@ -625,7 +625,7 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
                     remove_temp_theme(theme_collection, tmp_sel, log_func=_log)
             except Exception:
                 try:
-                    _log("[テーマログ] sel temp の削除で例外が発生しました", 2)
+                    _log("[theme log] exception deleting sel temp", 2)
                 except Exception:
                     pass
         return
@@ -635,13 +635,13 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
         theme_collection.applyTheme(theme_name, root, model)
         if QgsMessageLog:
             try:
-                QgsMessageLog.logMessage(f"テーマ '{theme_name}' を適用しました", "GEO-search-plugin", 0)
+                QgsMessageLog.logMessage(f"theme '{theme_name}' applied", "GEO-search-plugin", 0)
             except Exception:
                 pass
     except Exception as e:
         if QgsMessageLog:
             try:
-                QgsMessageLog.logMessage(f"テーマ適用エラー: {str(e)}", "GEO-search-plugin", 2)
+                QgsMessageLog.logMessage(f"theme apply error: {e}", "GEO-search-plugin", 2)
             except Exception:
                 pass
 
@@ -1011,7 +1011,7 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
 
             # Debug: show mapping keys
             try:
-                _dbg(f"[カテゴリ復元] mapping_keys={list(mapping.keys())}")
+                _dbg(f"[category restore] mapping_keys={list(mapping.keys())}")
             except Exception:
                 pass
 
@@ -1116,7 +1116,7 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
 
                 # Debug: per-category info
                 try:
-                    _dbg(f"[カテゴリ復元] label={getattr(cat,'label',None)} val={val} keys={keys_to_try} mapping_has_any={any(k in mapping for k in keys_to_try)}")
+                    _dbg(f"[category restore] label={getattr(cat,'label',None)} val={val} keys={keys_to_try} mapping_has_any={any(k in mapping for k in keys_to_try)}")
                 except Exception:
                     pass
 
@@ -1265,26 +1265,26 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
 
             if QgsCategorizedSymbolRenderer is not None:
                 try:
-                    _dbg(f"[カテゴリ復元] attempting to build new QgsCategorizedSymbolRenderer attr={attr} categories={len(new_categories)}")
+                    _dbg(f"[category restore] attempting to build new QgsCategorizedSymbolRenderer attr={attr} categories={len(new_categories)}")
                     new_renderer = QgsCategorizedSymbolRenderer(attr, new_categories)
                     try:
                         layer.setRenderer(new_renderer)
-                        _dbg("[カテゴリ復元] layer.setRenderer(new_renderer) succeeded")
+                        _dbg("[category restore] layer.setRenderer(new_renderer) succeeded")
                     except Exception as e_set:
-                        _dbg(f"[カテゴリ復元] layer.setRenderer failed first attempt: {e_set}")
+                        _dbg(f"[category restore] layer.setRenderer failed first attempt: {e_set}")
                         try:
                             layer.setRenderer(new_renderer)
-                            _dbg("[カテゴリ復元] layer.setRenderer(new_renderer) succeeded on retry")
+                            _dbg("[category restore] layer.setRenderer(new_renderer) succeeded on retry")
                         except Exception as e_set2:
-                            _dbg(f"[カテゴリ復元] layer.setRenderer failed on retry: {e_set2}")
+                            _dbg(f"[category restore] layer.setRenderer failed on retry: {e_set2}")
                     try:
                         layer.triggerRepaint()
-                        _dbg("[カテゴリ復元] layer.triggerRepaint() called")
+                        _dbg("[category restore] layer.triggerRepaint() called")
                     except Exception as e_rp:
-                        _dbg(f"[カテゴリ復元] layer.triggerRepaint() failed: {e_rp}")
+                        _dbg(f"[category restore] layer.triggerRepaint() failed: {e_rp}")
                     return
                 except Exception as e:
-                    _dbg(f"[カテゴリ復元] building new renderer failed: {e}")
+                    _dbg(f"[category restore] building new renderer failed: {e}")
                     # If building new renderer failed, fall back to relying on
                     # in-place modifications already applied to category objects.
                     pass
@@ -1595,24 +1595,24 @@ def log_layer_legend_state(layer, tag: str = "GEO-search-plugin"):
 
     messages = []
     if not state:
-        messages.append("[凡例状態] レイヤ情報が取得できませんでした")
+        messages.append("[legend state] could not get layer info")
     else:
         lid = state.get('layer_id')
         lname = state.get('layer_name')
         renderer = state.get('renderer')
-        messages.append(f"[凡例状態][layer] id={lid} name='{lname}' renderer={renderer}")
+        messages.append(f"[legend state][layer] id={lid} name='{lname}' renderer={renderer}")
         items = state.get('items', []) or []
         # 可視な凡例項目（visible is True）のみをログ出力
         visible_items = [it for it in items if it.get('visible') is True]
         if not visible_items:
-            messages.append("[凡例状態] 可視な凡例項目はありません")
+            messages.append("[legend state] no visible legend items")
         else:
             for it in visible_items:
                 idx = it.get('index')
                 itype = it.get('type')
                 label = it.get('label')
                 # 表示フラグは True に限定しているため常に True
-                messages.append(f"[凡例状態][item] index={idx} type={itype} label='{label}' visible=True")
+                messages.append(f"[legend state][item] index={idx} type={itype} label='{label}' visible=True")
 
     # Try to use QgsMessageLog if available
     try:
@@ -1660,7 +1660,7 @@ def log_layer_legend_state_by_name(layer_name: str, project=None, tag: str = "GE
             layers = []
 
     if not layers:
-        msg = f"[凡例状態] レイヤ '{layer_name}' が見つかりません"
+        msg = f"[legend state] layer '{layer_name}' not found"
         try:
             from qgis.core import QgsMessageLog
         except Exception:
@@ -1773,7 +1773,7 @@ def collect_visible_layer_reload(snapshot_name: str, project=None, root=None, ta
 
     snap = get_visible_layer_snapshot(snapshot_name)
     if not snap:
-        _logmsg(f"[テーマログ] snapshot '{snapshot_name}' が見つかりません", 1)
+        _logmsg(f"[theme log] snapshot '{snapshot_name}' not found", 1)
         return False
 
     # Try to obtain project instance if not provided
@@ -1827,7 +1827,7 @@ def collect_visible_layer_reload(snapshot_name: str, project=None, root=None, ta
                     layer = None
 
             if layer is None:
-                _logmsg(f"[テーマログ] snapshot のレイヤが見つかりません id={lid} name='{lname}'", 1)
+                _logmsg(f"[theme log] snapshot layer not found id={lid} name='{lname}'", 1)
                 continue
 
             # Try to find layer tree node and set visibility
@@ -1957,9 +1957,9 @@ def collect_visible_layer_reload(snapshot_name: str, project=None, root=None, ta
                                                 try:
                                                     applied_style = _apply_layer_style_by_name(layer, style_name, log_func=_logmsg)
                                                     if applied_style:
-                                                        _logmsg(f"[テーマログ] レイヤ '{lname}' にスタイル '{style_name}' を適用しました", 0)
+                                                        _logmsg(f"[theme log] applied style '{style_name}' to layer '{lname}'", 0)
                                                     else:
-                                                        _logmsg(f"[テーマログ] レイヤ '{lname}' のスタイル '{style_name}' の適用に失敗しました", 1)
+                                                        _logmsg(f"[theme log] failed to apply style '{style_name}' to layer '{lname}'", 1)
                                                 except Exception:
                                                     pass
                                     except Exception:
@@ -1990,7 +1990,7 @@ def collect_visible_layer_reload(snapshot_name: str, project=None, root=None, ta
         except Exception:
             continue
 
-    _logmsg(f"[テーマログ] snapshot '{snapshot_name}' の可視レイヤを現在の表示に反映しました (attempted={applied})", 0)
+    _logmsg(f"[theme log] reflected visible layers of snapshot '{snapshot_name}' into current view (attempted={applied})", 0)
     return True
 
 

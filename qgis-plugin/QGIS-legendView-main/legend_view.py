@@ -304,8 +304,26 @@ class LegendView:
             self.dockwidget.setFloating(False)
             if not self.iface.mainWindow().restoreDockWidget(self.dockwidget):
                 self.iface.addDockWidget(RightDockWidgetArea, self.dockwidget)
+                self.tabifyWithExistingDock()
 
         self.dockwidget.show()
+
+    def tabifyWithExistingDock(self):
+        """Tabify this dock onto an existing dock widget in the same area."""
+        main_window = self.iface.mainWindow()
+        target = None
+        for dock in main_window.findChildren(QDockWidget):
+            if dock is self.dockwidget or dock.isFloating():
+                continue
+            if main_window.dockWidgetArea(dock) != RightDockWidgetArea:
+                continue
+            if dock.isVisible():
+                target = dock
+                break
+            if target is None:
+                target = dock
+        if target is not None:
+            main_window.tabifyDockWidget(target, self.dockwidget)
 
     def checkLoadedProject(self):
         # Do nothing if already active

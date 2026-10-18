@@ -19,6 +19,10 @@ bridge_call コマンド(ファイルJSONL / REST /api/cmd / MCP qgis_bridge_cal
 import inspect
 import json
 
+from qgis.PyQt.QtCore import QCoreApplication
+
+from .constants import DEFAULT_GROUP_NAME
+
 
 def _jsonable(v):
     """QgsFeatureの属性値などをJSON化可能な値に変換する。"""
@@ -47,6 +51,14 @@ def _jsonable(v):
     except Exception:
         return repr(v)
 
+
+def _tr(context, message):
+    """Translate a UI message via the plugin's installed translators."""
+    try:
+        from qgis.PyQt.QtCore import QCoreApplication
+        return QCoreApplication.translate(context, message)
+    except Exception:
+        return message
 
 class GeoSearchBridge:
     """``plugins['geo_search'].bridge`` にぶら下げるAI向けAPI。
@@ -734,7 +746,7 @@ class GeoSearchBridge:
                 try:
                     cmb.blockSignals(True)
                     cmb.setCurrentText(
-                        "自動(無指定)" if v is None else f"1:{v:,}")
+                        QCoreApplication.translate("Dialog", "Auto (unspecified)") if v is None else f"1:{v:,}")
                 except Exception:
                     pass
                 finally:
@@ -778,11 +790,11 @@ class GeoSearchBridge:
         return self._ok({
             "pan_mode": getattr(feat, "pan_mode", None),
             "pan_modes": {
-                "0": "ズームして選択範囲にフィット",
-                "1": "中心へパン（ズーム維持）",
-                "4": "固定縮尺で表示",
-                "5": "アニメーションパン",
-                "6": "選択のみ（ビュー変更なし）",
+                "0": QCoreApplication.translate("Dialog", "Zoom to fit selection"),
+                "1": QCoreApplication.translate("Dialog", "Pan to center (keep zoom)"),
+                "4": QCoreApplication.translate("Dialog", "Show at fixed scale"),
+                "5": QCoreApplication.translate("Dialog", "Animated pan"),
+                "6": QCoreApplication.translate("Dialog", "Select only (no view change)"),
             },
             "fixed_scale": getattr(feat, "fixed_scale", None),
             "show_layer_name": getattr(feat, "show_layer_name", None),
@@ -945,7 +957,7 @@ class GeoSearchBridge:
         if cmb is not None:
             try:
                 txt = cmb.currentText()
-                cur = txt if txt and txt != "テーマ選択" else None
+                cur = txt if txt and txt != QCoreApplication.translate("plugin", "Select theme") else None
             except Exception:
                 pass
         return self._ok({
@@ -1179,7 +1191,7 @@ class GeoSearchBridge:
             return self._err("no active layer")
         layer_name = layer.name() if hasattr(layer, "name") else str(layer)
         tab_def = {
-            "group": "ﾌﾟﾛｼﾞｪｸﾄ検索",
+            "group": DEFAULT_GROUP_NAME,
             "Title": title or layer_name,
             "Layer": {"LayerType": "Name", "Name": layer_name},
             "SearchField": {},

@@ -1,3 +1,14 @@
+# V4.2.0 国際化(i18n)対応
+- UI文字列を英語ソースに統一(`dialog.ui`/`result.ui`・各ダイアログコード)。
+  `self.tr()`/`QCoreApplication.translate` で抽出可能な翻訳呼出に置き換え。
+- `i18n/ja.ts` を再生成し全131メッセージに日本語訳を設定、`ja.qm` を再コンパイル。
+  他言語カタログは既存訳を継承し、未訳分は英語にフォールバック。
+- 表示文字列「すべて」と内部フォーマット値を分離し、保存設定との互換性を維持。
+- `README.md` は英語、`README_JP.md` は日本語の2言語ドキュメント構成を維持。
+- 修正(翻訳導入で顕在化): `resultdialog.py` の `QCoreApplication` 未importによる
+  `NameError`(プラグイン起動失敗)と、`_init_language` の `QTranslator` が
+  ローカル変数でGCされて翻訳が無効化される問題を修正(`self.translator` に保持)。
+
 # V4.1.0 AI/外部制御用ブリッジ(QGIS Live Harness)
 - `bridge.py`(`GeoSearchBridge`)を追加し `plugin.bridge` に配線。`qgis_live_driver` の `bridge_call` コマンド(ファイルJSONL / REST / MCP)から全機能を呼び出せる。
 - メソッド: `pluginInfo` / `status` / `listTabs` / `selectTab` / `search` / `results` / `zoom` / `openDialog` / `closeDialog` / `searchOptions`(pan_mode・fixed_scale・show_layer_name) / `tabOptions`(地番=完全一致|あいまい・字コード、所有者=対象フィールド・一致方式) / `suggest` / `listThemes`・`applyTheme`・`themeAdditive` / `saveUserTheme`・`loadUserTheme` / `getSettings`・`setSettings` / `tabSetting`・`addTabFromCurrentLayer`・`removeTab`・`reloadDialog`。`search` は `options` 引数で検索オプションを事前適用できる。

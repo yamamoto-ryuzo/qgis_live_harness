@@ -83,7 +83,7 @@ class SearchFeature(object):
         if not valid_fields and self.__view_fields:
             try:
                 from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"ViewFields警告: 指定されたフィールドが見つかりません: {self.__view_fields}", "GEO-search-plugin", 1)
+                QgsMessageLog.logMessage(f"ViewFields warning: fields not found: {self.__view_fields}", "GEO-search-plugin", 1)
             except Exception:
                 pass
             return []
@@ -144,7 +144,7 @@ class SearchFeature(object):
         if not valid_fields and self.__view_fields:
             try:
                 from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"ViewFields警告 (レイヤ'{layer.name()}'): 指定されたフィールドが見つかりません: {self.__view_fields}", "GEO-search-plugin", 1)
+                QgsMessageLog.logMessage(f"ViewFields warning (layer '{layer.name()}'): fields not found: {self.__view_fields}", "GEO-search-plugin", 1)
             except Exception:
                 pass
             return []
@@ -155,7 +155,7 @@ class SearchFeature(object):
         """同名の複数レイヤを検索して結果を集約する"""
         try:
             from qgis.core import QgsMessageLog
-            QgsMessageLog.logMessage(f"同名レイヤ検索: {len(layers)}個のレイヤを検索します", "GEO-search-plugin", 0)
+            QgsMessageLog.logMessage(f"same-name layer search: searching {len(layers)} layers", "GEO-search-plugin", 0)
         except Exception:
             pass
             
@@ -171,7 +171,7 @@ class SearchFeature(object):
                 
                 try:
                     from qgis.core import QgsMessageLog
-                    QgsMessageLog.logMessage(f"同名レイヤ検索: レイヤ'{layer.name()}'で{len(features)}件見つかりました", "GEO-search-plugin", 0)
+                    QgsMessageLog.logMessage(f"same-name layer search: layer '{layer.name()}' found {len(features)} features", "GEO-search-plugin", 0)
                 except Exception:
                     pass
                 
@@ -183,7 +183,7 @@ class SearchFeature(object):
             except Exception as e:
                 try:
                     from qgis.core import QgsMessageLog
-                    QgsMessageLog.logMessage(f"同名レイヤ検索エラー: レイヤ'{layer.name()}'でエラー: {e}", "GEO-search-plugin", 1)
+                    QgsMessageLog.logMessage(f"same-name layer search error: layer '{layer.name()}': {e}", "GEO-search-plugin", 1)
                 except Exception:
                     pass
                 continue
@@ -307,7 +307,7 @@ class SearchFeature(object):
             if normalized != value:
                 try:
                     from qgis.core import QgsMessageLog
-                    QgsMessageLog.logMessage(f"検索値正規化: '{value}' -> '{normalized}'", "GEO-search-plugin", 0)
+                    QgsMessageLog.logMessage(f"search value normalized: '{value}' -> '{normalized}'", "GEO-search-plugin", 0)
                 except Exception:
                     pass
             
@@ -316,7 +316,7 @@ class SearchFeature(object):
             # 変換に失敗した場合は元の値を返す
             try:
                 from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"検索値正規化エラー: {e}", "GEO-search-plugin", 1)
+                QgsMessageLog.logMessage(f"search value normalization error: {e}", "GEO-search-plugin", 1)
             except Exception:
                 pass
             return value
@@ -1146,17 +1146,17 @@ class SearchFeature(object):
                 except Exception:
                     pass
             elif theme_name:
-                QgsMessageLog.logMessage(f"テーマ '{theme_name}' が見つかりません", "GEO-search-plugin", 1)
+                QgsMessageLog.logMessage(f"theme '{theme_name}' not found", "GEO-search-plugin", 1)
         except Exception as e:
             try:
                 from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"テーマ適用エラー: {str(e)}", "GEO-search-plugin", 2)
+                QgsMessageLog.logMessage(f"theme apply error: {e}", "GEO-search-plugin", 2)
             except Exception:
                 pass
         except Exception as e:
             try:
                 from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"マップテーマAPIエラー: {str(e)}", "GEO-search-plugin", 2)
+                QgsMessageLog.logMessage(f"map theme API error: {e}", "GEO-search-plugin", 2)
             except Exception:
                 pass
         # Rotation is applied after pan/zoom in zoom_features to ensure it happens after view changes
@@ -1305,13 +1305,13 @@ class SearchTextFeature(SearchFeature):
                     except Exception:
                         value = None
                     try:
-                        QgsMessageLog.logMessage(f"取得した検索値（正規化前）: {value}", "GEO-search-plugin", 0)
+                        QgsMessageLog.logMessage(f"search value (before normalization): {value}", "GEO-search-plugin", 0)
                     except Exception:
                         pass
                     if value:
                         search_value = self.normalize_search_value(value)
                         try:
-                            QgsMessageLog.logMessage(f"取得した検索値（正規化後）: {search_value}", "GEO-search-plugin", 0)
+                            QgsMessageLog.logMessage(f"search value (after normalization): {search_value}", "GEO-search-plugin", 0)
                         except Exception:
                             pass
                         break
@@ -1326,7 +1326,7 @@ class SearchTextFeature(SearchFeature):
         
         if not target_fields:
             try:
-                QgsMessageLog.logMessage(f"検索条件なし: fields={self.fields}", "GEO-search-plugin", 0)
+                QgsMessageLog.logMessage(f"no search condition: fields={self.fields}", "GEO-search-plugin", 0)
             except Exception:
                 pass
             return []
@@ -1344,7 +1344,7 @@ class SearchTextFeature(SearchFeature):
         # ログ出力
         try:
             from qgis.core import QgsMessageLog
-            QgsMessageLog.logMessage(f"SearchTextFeature.search_feature: 実行検索式: {expression_str}", "GEO-search-plugin", 0)
+            QgsMessageLog.logMessage(f"SearchTextFeature.search_feature: search expression: {expression_str}", "GEO-search-plugin", 0)
         except Exception:
             pass
 
@@ -1390,7 +1390,7 @@ class SearchTextFeature(SearchFeature):
                         target_fields.extend(numeric_fields)
                     try:
                         from qgis.core import QgsMessageLog
-                        QgsMessageLog.logMessage(f"全フィールド検索: string_fields={string_fields} numeric_included={is_num}", "GEO-search-plugin", 0)
+                        QgsMessageLog.logMessage(f"all-fields search: string_fields={string_fields} numeric_included={is_num}", "GEO-search-plugin", 0)
                     except Exception:
                         pass
                 break
@@ -1434,7 +1434,7 @@ class SearchTextFeature(SearchFeature):
             except Exception as e:
                 try:
                     from qgis.core import QgsMessageLog
-                    QgsMessageLog.logMessage(f"フィールド処理エラー: {e}", "GEO-search-plugin", 1)
+                    QgsMessageLog.logMessage(f"field processing error: {e}", "GEO-search-plugin", 1)
                 except Exception:
                     pass
                 continue
@@ -1456,7 +1456,7 @@ class SearchTextFeature(SearchFeature):
         # 見つからない場合はNoneを返す
         try:
             from qgis.core import QgsMessageLog
-            QgsMessageLog.logMessage(f"[警告] フィールド名解決失敗: {field_name}", "GEO-search-plugin", 1)
+            QgsMessageLog.logMessage(f"[warning] field name resolution failed: {field_name}", "GEO-search-plugin", 1)
         except Exception:
             pass
         return None
@@ -1653,7 +1653,7 @@ class SearchTextFeature(SearchFeature):
             except Exception as e:
                 try:
                     from qgis.core import QgsMessageLog
-                    QgsMessageLog.logMessage(f"_get_target_fields_for_layer: フィールド処理エラー: {e}", "GEO-search-plugin", 1)
+                    QgsMessageLog.logMessage(f"_get_target_fields_for_layer: field processing error: {e}", "GEO-search-plugin", 1)
                 except Exception:
                     pass
                 continue

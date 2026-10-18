@@ -8,8 +8,70 @@ import math
 import os
 import re
 import concurrent.futures
+from qgis.PyQt.QtCore import QCoreApplication, QSettings
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY, QgsMessageLog, Qgis
 # lazy import http_server inside methods to avoid circular import during QGIS plugin init
+
+# 生成HTMLページのラベル辞書(言語はQGISロケール由来。未対応言語は英語)
+_PAGE_STRINGS = {
+    'en': {
+        'lang': 'en',
+        'title': 'QMap Permalink - Map View',
+        'subtitle': 'Integrated map view by the QGIS plugin - using WMS endpoint',
+        'map_info': '📍 Map Information',
+        'center_x': 'Center (X)',
+        'center_y': 'Center (Y)',
+        'scale': 'Scale',
+        'crs': 'CRS',
+        'rotation': 'Rotation',
+        'image_size': 'Image Size',
+        'controls': '🔧 Controls',
+        'wms_image': '📷 Show WMS Image',
+        'refresh': '🔄 Refresh Map',
+        'copy_link': '🔗 Copy Permalink',
+        'tip_rotate': 'Rotate with north up',
+        'tip_reset': 'Reset north',
+        'copied': 'Permalink copied to clipboard!',
+        'err_title': 'QMap Permalink - Error',
+        'err_failed': 'Failed to generate the permalink page',
+        'back': '🔙 Back',
+        'home': '🏠 Home',
+    },
+    'ja': {
+        'lang': 'ja',
+        'title': 'QMap Permalink - 地図表示',
+        'subtitle': 'QGISプラグインによる統合地図表示 - WMSエンドポイント使用',
+        'map_info': '📍 地図情報',
+        'center_x': '中心座標 (X)',
+        'center_y': '中心座標 (Y)',
+        'scale': '縮尺',
+        'crs': '座標系',
+        'rotation': '回転角度',
+        'image_size': '画像サイズ',
+        'controls': '🔧 コントロール',
+        'wms_image': '📷 WMS画像を表示',
+        'refresh': '🔄 地図を更新',
+        'copy_link': '🔗 パーマリンクをコピー',
+        'tip_rotate': '北向きに回転',
+        'tip_reset': '北向きにリセット',
+        'copied': 'パーマリンクをクリップボードにコピーしました！',
+        'err_title': 'QMap Permalink - エラー',
+        'err_failed': 'パーマリンクページの生成に失敗',
+        'back': '🔙 戻る',
+        'home': '🏠 ホーム',
+    },
+}
+
+
+def _page_lang():
+    """生成HTMLページの言語コード('en'/'ja')を返す。"""
+    try:
+        raw = QSettings().value('locale/userLocale', '') or ''
+        lang = str(raw).split('_')[0].split('-')[0].lower()
+        return lang if lang in _PAGE_STRINGS else 'en'
+    except Exception:
+        return 'en'
+
 
 class GeoWebViewServerManager:
     """geo_webview用HTTPサーバー管理クラス - WMS専用シンプル版
@@ -47,7 +109,7 @@ class GeoWebViewServerManager:
             
             from qgis.core import QgsMessageLog, Qgis
             QgsMessageLog.logMessage(
-                f"💻 検出: CPUコア数={cpu_count}, HTTP並列ワーカー数={workers}",
+                f"💻 Detected: CPU cores={cpu_count}, HTTP parallel workers={workers}",
                 "geo_webview", Qgis.Info
             )
             
@@ -55,7 +117,7 @@ class GeoWebViewServerManager:
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
             QgsMessageLog.logMessage(
-                f"⚠️ ワーカー数自動計算失敗、デフォルト6を使用: {e}",
+                f"⚠️ Worker count auto-calculation failed, using default 6: {e}",
                 "geo_webview", Qgis.Warning
             )
             return 6
@@ -175,7 +237,7 @@ class GeoWebViewServerManager:
                     
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"❌ バージョン取得エラー: {e}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"❌ Version detection error: {e}", "geo_webview", Qgis.Warning)
         
         # デフォルトバージョン（metadata.txtから読み取れない場合）
         return "UNKNOWN"
@@ -225,19 +287,19 @@ class GeoWebViewServerManager:
             self.server_thread.start()
 
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"🚀 QMap Permalink v{self.plugin_version} WMS HTTPサーバーが起動しました: http://localhost:{self.server_port}/wms", "geo_webview", Qgis.Info)
+            QgsMessageLog.logMessage(f"🚀 QMap Permalink v{self.plugin_version} WMS HTTP server started: http://localhost:{self.server_port}/wms", "geo_webview", Qgis.Info)
             self.iface.messageBar().pushMessage(
                 "QMap Permalink",
-                f"WMS HTTPサーバーが起動しました (ポート: {self.server_port})",
+                QCoreApplication.translate("geo_webview", "WMS HTTP server started (port: {0})").format(self.server_port),
                 duration=3
             )
 
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"HTTPサーバーの起動に失敗しました: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"Failed to start HTTP server: {e}", "geo_webview", Qgis.Critical)
             self.iface.messageBar().pushMessage(
-                "QMap Permalink エラー",
-                f"HTTPサーバーの起動に失敗しました: {str(e)}",
+                QCoreApplication.translate("geo_webview", "QMap Permalink Error"),
+                QCoreApplication.translate("geo_webview", "Failed to start HTTP server: {0}").format(e),
                 duration=5
             )
             self._http_running = False
@@ -272,7 +334,7 @@ class GeoWebViewServerManager:
                             pass
                 except Exception as e:
                     from qgis.core import QgsMessageLog, Qgis
-                    QgsMessageLog.logMessage(f"HTTPリクエストのスレッド投入に失敗: {e}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"Failed to dispatch HTTP request to thread pool: {e}", "geo_webview", Qgis.Critical)
                     try:
                         conn.close()
                     except Exception:
@@ -287,7 +349,7 @@ class GeoWebViewServerManager:
                     pass
                 self.http_server = None
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage("HTTPサーバーが停止しました", "geo_webview", Qgis.Info)
+            QgsMessageLog.logMessage("HTTP server stopped", "geo_webview", Qgis.Info)
     
     def stop_http_server(self):
         """HTTPサーバーを停止"""
@@ -327,11 +389,11 @@ class GeoWebViewServerManager:
                 )
 
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage("QMap Permalink HTTPサーバーが停止しました", "geo_webview", Qgis.Info)
-            
+            QgsMessageLog.logMessage("QMap Permalink HTTP server stopped", "geo_webview", Qgis.Info)
+
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"HTTPサーバーの停止中にエラーが発生しました: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"An error occurred while stopping the HTTP server: {e}", "geo_webview", Qgis.Critical)
 
     def _handle_client_connection_safe(self, conn, addr):
         """HTTPリクエストを安全に処理（エラーハンドリング付き）"""
@@ -339,7 +401,7 @@ class GeoWebViewServerManager:
             self._handle_client_connection(conn, addr)
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"HTTPリクエスト処理中にエラー: {e}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"Error while handling HTTP request: {e}", "geo_webview", Qgis.Warning)
         finally:
             try:
                 conn.close()
@@ -951,7 +1013,7 @@ class GeoWebViewServerManager:
             try:
                 from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsPointXY
                 if x is None or y is None:
-                    raise ValueError('x/y パラメータがありません')
+                    raise ValueError('missing x/y parameters')
                 src = QgsCoordinateReferenceSystem(str(crs))
                 tgt = QgsCoordinateReferenceSystem('EPSG:3857')
                 fx = float(x); fy = float(y)
@@ -1634,12 +1696,13 @@ class GeoWebViewServerManager:
         # earlier in the request handling, so no additional special-case is necessary here.
 
         # OpenLayersを使用したHTMLページテンプレート
+        S = _PAGE_STRINGS[_page_lang()]
         html_template = f"""<!DOCTYPE html>
-<html lang="ja">
+<html lang="{S['lang']}">
     <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QMap Permalink - 地図表示</title>
+    <title>{S['title']}</title>
 {head_scripts}
     <style>
         body {{
@@ -1728,7 +1791,7 @@ class GeoWebViewServerManager:
     <div class="container">
         <div class="header">
             <h1>🗺️ QMap Permalink</h1>
-            <p>QGISプラグインによる統合地図表示 - WMSエンドポイント使用</p>
+            <p>{S['subtitle']}</p>
         </div>
         
         <div class="map-container">
@@ -1736,41 +1799,41 @@ class GeoWebViewServerManager:
         </div>
         
         <div class="info-panel">
-            <h3>📍 地図情報</h3>
+            <h3>{S['map_info']}</h3>
             <div class="info-grid">
                 <div class="info-item">
-                    <div class="info-label">中心座標 (X)</div>
+                    <div class="info-label">{S['center_x']}</div>
                     <div class="info-value">{x}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">中心座標 (Y)</div>
+                    <div class="info-label">{S['center_y']}</div>
                     <div class="info-value">{y}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">縮尺</div>
+                    <div class="info-label">{S['scale']}</div>
                     <div class="info-value">1:{scale}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">座標系</div>
+                    <div class="info-label">{S['crs']}</div>
                     <div class="info-value">{crs}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">回転角度</div>
+                    <div class="info-label">{S['rotation']}</div>
                     <div class="info-value">{rotation}°</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">画像サイズ</div>
+                    <div class="info-label">{S['image_size']}</div>
                     <div class="info-value">{width} × {height}</div>
                 </div>
             </div>
         </div>
-        
+
         <div class="controls">
-            <h3>🔧 コントロール</h3>
-            <a href="{wms_url}" target="_blank" class="btn">📷 WMS画像を表示</a>
+            <h3>{S['controls']}</h3>
+            <a href="{wms_url}" target="_blank" class="btn">{S['wms_image']}</a>
             <a href="/wms?SERVICE=WMS&REQUEST=GetCapabilities" target="_blank" class="btn btn-secondary">📋 WMS Capabilities</a>
-            <button onclick="refreshMap()" class="btn">🔄 地図を更新</button>
-            <button onclick="copyPermalink()" class="btn btn-secondary">🔗 パーマリンクをコピー</button>
+            <button onclick="refreshMap()" class="btn">{S['refresh']}</button>
+            <button onclick="copyPermalink()" class="btn btn-secondary">{S['copy_link']}</button>
         </div>
     </div>
 
@@ -1825,8 +1888,8 @@ class GeoWebViewServerManager:
         
         // 北向き矢印コントロールを追加
         map.addControl(new ol.control.Rotate({{
-            tipLabel: '北向きに回転',
-            resetNorthLabel: '北向きにリセット'
+            tipLabel: '{S['tip_rotate']}',
+            resetNorthLabel: '{S['tip_reset']}'
         }}));
         
         // スケールからズームレベルを計算する関数
@@ -1859,7 +1922,7 @@ class GeoWebViewServerManager:
         function copyPermalink() {{
             const permalink = window.location.href;
             navigator.clipboard.writeText(permalink).then(() => {{
-                alert('パーマリンクをクリップボードにコピーしました！');
+                alert('{S['copied']}');
             }}).catch(() => {{
                 // フォールバック
                 const textArea = document.createElement('textarea');
@@ -1868,7 +1931,7 @@ class GeoWebViewServerManager:
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                alert('パーマリンクをクリップボードにコピーしました！');
+                alert('{S['copied']}');
             }});
         }}
         
@@ -1963,12 +2026,13 @@ class GeoWebViewServerManager:
 
     def _generate_error_html_page(self, error_message):
         """エラーページのHTMLを生成"""
+        S = _PAGE_STRINGS[_page_lang()]
         error_html = f"""<!DOCTYPE html>
-<html lang="ja">
+<html lang="{S['lang']}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QMap Permalink - エラー</title>
+    <title>{S['err_title']}</title>
     <style>
         body {{
             margin: 0;
@@ -2019,10 +2083,10 @@ class GeoWebViewServerManager:
 <body>
     <div class="error-container">
         <div class="error-icon">❌</div>
-        <h1 class="error-title">パーマリンクページの生成に失敗</h1>
+        <h1 class="error-title">{S['err_failed']}</h1>
         <p class="error-message">{html.escape(error_message)}</p>
-        <a href="javascript:history.back()" class="btn">🔙 戻る</a>
-        <a href="/" class="btn">🏠 ホーム</a>
+        <a href="javascript:history.back()" class="btn">{S['back']}</a>
+        <a href="/" class="btn">{S['home']}</a>
     </div>
 </body>
 </html>"""
@@ -2676,11 +2740,11 @@ class GeoWebViewServerManager:
                 if port in (80, 443):
                     from qgis.core import QgsMessageLog, Qgis
                     QgsMessageLog.logMessage(
-                        f"ポート {port} のバインドに失敗しました（管理者権限が必要な可能性があります）: {e}",
+                        f"Failed to bind port {port} (administrator rights may be required): {e}",
                         "geo_webview", Qgis.Warning
                     )
                 continue
-        raise RuntimeError(f"ポート範囲 {start_port}-{end_port} で使用可能なポートが見つかりません")
+        raise RuntimeError(f"No available port found in range {start_port}-{end_port}")
 
     def is_server_running(self):
         """サーバーが稼働中かどうかを確認"""
@@ -2723,7 +2787,7 @@ class GeoWebViewServerManager:
             result['port'] = self.get_server_port()
             
             if not result['server_running']:
-                result['message'] = 'HTTPサーバーが起動していません'
+                result['message'] = QCoreApplication.translate('geo_webview', 'The HTTP server is not running')
                 return result
             
             # ローカルIPアドレスを取得
@@ -2790,36 +2854,36 @@ class GeoWebViewServerManager:
             
             # メッセージ生成
             messages = []
-            messages.append(f"✅ サーバーはポート {result['port']} で稼働中")
-            messages.append(f"🏠 ローカル: {result['localhost_url']}")
-            
+            messages.append(QCoreApplication.translate('geo_webview', "✅ Server is running on port {0}").format(result['port']))
+            messages.append(QCoreApplication.translate('geo_webview', "🏠 Local: {0}").format(result['localhost_url']))
+
             if result['local_network_url']:
-                messages.append(f"🌐 ネットワーク: {result['local_network_url']}")
-            
+                messages.append(QCoreApplication.translate('geo_webview', "🌐 Network: {0}").format(result['local_network_url']))
+
             if result['all_ips']:
-                messages.append(f"📡 利用可能なIP: {', '.join(result['all_ips'])}")
-            
+                messages.append(QCoreApplication.translate('geo_webview', "📡 Available IPs: {0}").format(', '.join(result['all_ips'])))
+
             if result['firewall_warning']:
-                messages.append(f"\n⚠️ ファイアウォールがポート {result['port']} をブロックしている可能性があります")
-                messages.append("   外部からアクセスするには、Windowsファイアウォールで")
-                messages.append(f"   ポート {result['port']} (TCP) を許可する必要があります")
-                
+                messages.append(QCoreApplication.translate('geo_webview', "\n⚠️ The firewall may be blocking port {0}").format(result['port']))
+                messages.append(QCoreApplication.translate('geo_webview', "   To allow external access, permit"))
+                messages.append(QCoreApplication.translate('geo_webview', "   port {0} (TCP) in Windows Firewall").format(result['port']))
+
                 # 許可されているポートがあれば表示
                 if allowed_ports:
-                    messages.append(f"\n🔓 ファイアウォールで許可されているポート: {', '.join(map(str, allowed_ports[:10]))}")
+                    messages.append(QCoreApplication.translate('geo_webview', "\n🔓 Ports allowed in the firewall: {0}").format(', '.join(map(str, allowed_ports[:10]))))
                     if len(allowed_ports) > 10:
-                        messages.append(f"   （他 {len(allowed_ports) - 10} 件）")
+                        messages.append(QCoreApplication.translate('geo_webview', "   ({0} more)").format(len(allowed_ports) - 10))
                 else:
-                    messages.append("\n❌ ファイアウォールで許可されているポートが見つかりませんでした")
-                    messages.append("   外部アクセスを有効にするには、Windowsファイアウォールで")
-                    messages.append("   新しいルールを作成してポートを許可してください")
+                    messages.append(QCoreApplication.translate('geo_webview', "\n❌ No ports allowed in the firewall were found"))
+                    messages.append(QCoreApplication.translate('geo_webview', "   To enable external access, create a new rule"))
+                    messages.append(QCoreApplication.translate('geo_webview', "   in Windows Firewall to allow the port"))
             else:
-                messages.append("\n✅ ファイアウォールルールが設定されています")
-            
+                messages.append(QCoreApplication.translate('geo_webview', "\n✅ A firewall rule is configured"))
+
             result['message'] = '\n'.join(messages)
-            
+
         except Exception as e:
-            result['message'] = f'診断中にエラーが発生しました: {str(e)}'
+            result['message'] = QCoreApplication.translate('geo_webview', 'An error occurred during diagnostics: {0}').format(e)
         
         return result
     
@@ -2900,7 +2964,7 @@ class GeoWebViewServerManager:
             
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"ファイアウォールポートスキャンエラー: {e}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"Firewall port scan error: {e}", "geo_webview", Qgis.Warning)
             return []
     
     def add_firewall_rule(self, port, rule_name=None, request_elevation=True):
@@ -2932,7 +2996,7 @@ class GeoWebViewServerManager:
             import subprocess
             
             if platform.system() != 'Windows':
-                result['message'] = 'この機能はWindowsでのみ利用可能です'
+                result['message'] = QCoreApplication.translate('geo_webview', 'This feature is only available on Windows')
                 return result
             
             # ルール名の生成
@@ -2962,7 +3026,7 @@ class GeoWebViewServerManager:
                 
                 if output.returncode == 0:
                     result['success'] = True
-                    result['message'] = f'ファイアウォールルール "{rule_name}" を追加しました'
+                    result['message'] = QCoreApplication.translate('geo_webview', 'Firewall rule "{0}" has been added').format(rule_name)
                     from qgis.core import QgsMessageLog, Qgis
                     QgsMessageLog.logMessage(result['message'], "geo_webview", Qgis.Info)
                 else:
@@ -3029,41 +3093,41 @@ class GeoWebViewServerManager:
                             
                             if verify_output.returncode == 0 and rule_name in verify_output.stdout:
                                 result['success'] = True
-                                result['message'] = f'ファイアウォールルール "{rule_name}" を管理者権限で追加しました'
+                                result['message'] = QCoreApplication.translate('geo_webview', 'Firewall rule "{0}" has been added with administrator rights').format(rule_name)
                                 from qgis.core import QgsMessageLog, Qgis
                                 QgsMessageLog.logMessage(result['message'], "geo_webview", Qgis.Info)
                             else:
                                 # ユーザーがUACをキャンセルした可能性
                                 result['admin_required'] = True
-                                result['message'] = f'管理者権限の昇格がキャンセルされたか、ルールの追加に失敗しました。\n\n手動で実行する場合は以下のコマンドを管理者権限のコマンドプロンプトで実行してください:\n\n{cmd}'
+                                result['message'] = QCoreApplication.translate('geo_webview', 'Administrator elevation was cancelled or adding the rule failed.\n\nTo run manually, execute the following command in an administrator command prompt:\n\n{0}').format(cmd)
                                 result['command'] = cmd
                         except subprocess.TimeoutExpired:
-                            result['message'] = 'ファイアウォールルールの追加がタイムアウトしました(60秒)'
+                            result['message'] = QCoreApplication.translate('geo_webview', 'Adding the firewall rule timed out (60 seconds)')
                             result['command'] = cmd
                         except Exception as elev_e:
-                            result['message'] = f'管理者権限での実行に失敗しました: {str(elev_e)}\n\n手動で実行する場合は以下のコマンドを管理者権限のコマンドプロンプトで実行してください:\n\n{cmd}'
+                            result['message'] = QCoreApplication.translate('geo_webview', 'Execution with administrator rights failed: {0}\n\nTo run manually, execute the following command in an administrator command prompt:\n\n{1}').format(elev_e, cmd)
                             result['command'] = cmd
                             result['admin_required'] = True
                     else:
                         result['admin_required'] = True
-                        result['message'] = f'管理者権限が必要です。\n\n次のコマンドを管理者権限のコマンドプロンプトで実行してください:\n\n{cmd}'
+                        result['message'] = QCoreApplication.translate('geo_webview', 'Administrator rights are required.\n\nExecute the following command in an administrator command prompt:\n\n{0}').format(cmd)
                         result['command'] = cmd
                         from qgis.core import QgsMessageLog, Qgis
-                        QgsMessageLog.logMessage(f"ファイアウォールルール追加に管理者権限が必要: {output.stderr}", "geo_webview", Qgis.Warning)
+                        QgsMessageLog.logMessage(f"Administrator rights required to add firewall rule: {output.stderr}", "geo_webview", Qgis.Warning)
                     
             except subprocess.TimeoutExpired:
-                result['message'] = 'ファイアウォールルールの追加がタイムアウトしました'
+                result['message'] = QCoreApplication.translate('geo_webview', 'Adding the firewall rule timed out')
             except Exception as e:
                 if request_elevation:
-                    result['message'] = f'管理者権限での実行に失敗しました: {str(e)}\n\n手動で実行する場合は以下のコマンドを管理者権限のコマンドプロンプトで実行してください:\n\n{cmd}'
+                    result['message'] = QCoreApplication.translate('geo_webview', 'Execution with administrator rights failed: {0}\n\nTo run manually, execute the following command in an administrator command prompt:\n\n{1}').format(e, cmd)
                     result['command'] = cmd
                 else:
                     result['admin_required'] = True
-                    result['message'] = f'管理者権限が必要です。\n\nエラー: {str(e)}\n\n次のコマンドを管理者権限のコマンドプロンプトで実行してください:\n\n{cmd}'
+                    result['message'] = QCoreApplication.translate('geo_webview', 'Administrator rights are required.\n\nError: {0}\n\nExecute the following command in an administrator command prompt:\n\n{1}').format(e, cmd)
                     result['command'] = cmd
-            
+
         except Exception as e:
-            result['message'] = f'ファイアウォールルールの追加に失敗しました: {str(e)}'
+            result['message'] = QCoreApplication.translate('geo_webview', 'Failed to add the firewall rule: {0}').format(e)
             from qgis.core import QgsMessageLog, Qgis
             QgsMessageLog.logMessage(result['message'], "geo_webview", Qgis.Critical)
         

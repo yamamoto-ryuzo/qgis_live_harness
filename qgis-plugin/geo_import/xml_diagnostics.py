@@ -32,19 +32,19 @@ def diagnose_xml_file(file_path):
         # ファイル存在確認
         result['file_exists'] = os.path.exists(file_path)
         if not result['file_exists']:
-            result['recommendations'].append("ファイルが存在しません")
+            result['recommendations'].append("file does not exist")
             return result
         
         # ファイルサイズ確認
         result['file_size'] = os.path.getsize(file_path)
         if result['file_size'] == 0:
-            result['recommendations'].append("ファイルが空です")
+            result['recommendations'].append("file is empty")
             return result
         
         # 読み取り権限確認
         result['file_readable'] = os.access(file_path, os.R_OK)
         if not result['file_readable']:
-            result['recommendations'].append("ファイルの読み取り権限がありません")
+            result['recommendations'].append("no read permission for file")
             return result
         
         # エンコーディング検出とファイル内容確認
@@ -66,7 +66,7 @@ def diagnose_xml_file(file_path):
                 continue
         
         if result['encoding_detected'] is None:
-            result['recommendations'].append("文字エンコーディングを検出できませんでした")
+            result['recommendations'].append("could not detect character encoding")
             return result
         
         # XML構文チェック
@@ -109,37 +109,37 @@ def diagnose_xml_file(file_path):
             
         except ET.ParseError as e:
             result['xml_error'] = str(e)
-            result['recommendations'].append(f"XML構文エラー: {str(e)}")
+            result['recommendations'].append(f"XML syntax error: {e}")
             
         except ExpatError as e:
             result['xml_error'] = str(e)
-            result['recommendations'].append(f"XML解析エラー: {str(e)}")
+            result['recommendations'].append(f"XML parse error: {e}")
             
         except Exception as e:
             result['xml_error'] = str(e)
-            result['recommendations'].append(f"予期しないエラー: {str(e)}")
+            result['recommendations'].append(f"unexpected error: {e}")
         
         # 推奨事項の追加
         if result['xml_valid']:
             if result['element_count'] < 5:
-                result['recommendations'].append("要素数が少ないため、データが不完全な可能性があります")
+                result['recommendations'].append("few elements found; data may be incomplete")
             else:
-                result['recommendations'].append("XMLファイルは正常に解析できます")
+                result['recommendations'].append("XML file can be parsed successfully")
         else:
             if result['xml_error'] and 'multi-byte encodings are not supported' in result['xml_error']:
-                result['recommendations'].append("マルチバイトエンコーディングの問題です。改善されたXMLローダーを使用してください")
+                result['recommendations'].append("multibyte encoding issue. Use the improved XML loader")
             elif result['xml_error'] and 'encoding' in result['xml_error'].lower():
-                result['recommendations'].append("エンコーディングの問題があります。ファイルの文字コードを確認してください")
+                result['recommendations'].append("encoding issue. Check the file character encoding")
         
         if result['first_lines']:
             first_line = result['first_lines'][0] if result['first_lines'] else ""
             if not first_line.startswith('<?xml'):
-                result['recommendations'].append("XML宣言が見つかりません")
+                result['recommendations'].append("XML declaration not found")
             elif 'Shift_JIS' in first_line or 'shift_jis' in first_line:
-                result['recommendations'].append("Shift_JISエンコーディングが検出されました。改善されたXMLローダーで処理可能です")
+                result['recommendations'].append("Shift_JIS encoding detected. Processable with the improved XML loader")
         
     except Exception as e:
-        result['recommendations'].append(f"診断中にエラーが発生しました: {str(e)}")
+        result['recommendations'].append(f"error during diagnosis: {e}")
     
     return result
 
@@ -150,31 +150,31 @@ def print_diagnosis(file_path):
     
     :param file_path: XMLファイルのパス
     """
-    print(f"=== XML診断結果: {file_path} ===")
+    print(f"=== XML diagnosis: {file_path} ===")
     
     result = diagnose_xml_file(file_path)
     
-    print(f"ファイル存在: {result['file_exists']}")
-    print(f"読み取り可能: {result['file_readable']}")
-    print(f"ファイルサイズ: {result['file_size']} bytes")
-    print(f"検出エンコーディング: {result['encoding_detected']}")
-    print(f"XML妥当性: {result['xml_valid']}")
+    print(f"file exists: {result['file_exists']}")
+    print(f"readable: {result['file_readable']}")
+    print(f"file size: {result['file_size']} bytes")
+    print(f"detected encoding: {result['encoding_detected']}")
+    print(f"XML valid: {result['xml_valid']}")
     
     if result['xml_error']:
-        print(f"XMLエラー: {result['xml_error']}")
+        print(f"XML error: {result['xml_error']}")
     
     if result['root_element']:
-        print(f"ルート要素: {result['root_element']}")
+        print(f"root element: {result['root_element']}")
     
-    print(f"要素数: {result['element_count']}")
+    print(f"element count: {result['element_count']}")
     
     if result['first_lines']:
-        print("ファイルの最初の数行:")
+        print("first lines of file:")
         for i, line in enumerate(result['first_lines'][:5], 1):
             print(f"  {i}: {line[:100]}{'...' if len(line) > 100 else ''}")
     
     if result['recommendations']:
-        print("推奨事項:")
+        print("recommendations:")
         for rec in result['recommendations']:
             print(f"  - {rec}")
     
@@ -187,4 +187,4 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         print_diagnosis(sys.argv[1])
     else:
-        print("使用方法: python xml_diagnostics.py <XMLファイルパス>")
+        print("usage: python xml_diagnostics.py <XML file path>")

@@ -23,16 +23,85 @@
 <context>
     <name>LegendViewDockWidget</name>
     <message>
+        <location filename="../legend_view_dockwidget.py" line="92"/>
         <source>Symbol</source>
-        <translation type="vanished">シンボル</translation>
+        <translation>シンボル</translation>
     </message>
     <message>
+        <location filename="../legend_view_dockwidget.py" line="92"/>
         <source>Legend</source>
-        <translation type="vanished">凡例</translation>
+        <translation>凡例</translation>
     </message>
     <message>
+        <location filename="../legend_view_dockwidget.py" line="172"/>
         <source>Other values</source>
-        <translation type="vanished">その他の値</translation>
+        <translation>その他の値</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget.py" line="438"/>
+        <source>Legend variables</source>
+        <translation>凡例変数</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget.py" line="443"/>
+        <source>Variable</source>
+        <translation>変数</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget.py" line="443"/>
+        <source>Value</source>
+        <translation>値</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget.py" line="465"/>
+        <source>Edit</source>
+        <translation>編集</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget.py" line="466"/>
+        <source>Delete</source>
+        <translation>削除</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget.py" line="467"/>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget.py" line="490"/>
+        <source>Edit variable</source>
+        <translation>変数の編集</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget.py" line="490"/>
+        <source>Value for %s</source>
+        <translation>%s の値</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget.py" line="501"/>
+        <location filename="../legend_view_dockwidget.py" line="530"/>
+        <source>Error</source>
+        <translation>エラー</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget.py" line="501"/>
+        <source>Could not update variable</source>
+        <translation>変数を更新できませんでした</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget.py" line="517"/>
+        <source>Confirm delete</source>
+        <translation>削除の確認</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget.py" line="517"/>
+        <source>Delete variable %s?</source>
+        <translation>変数 %s を削除しますか?</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget.py" line="530"/>
+        <source>Could not remove variable</source>
+        <translation>変数を削除できませんでした</translation>
     </message>
 </context>
 <context>
@@ -55,23 +124,58 @@
     <message>
         <location filename="../legend_view_dockwidget_base.ui" line="48"/>
         <source>Select the currently active layer</source>
-        <translation type="unfinished"></translation>
+        <translation>現在アクティブなレイヤを選択</translation>
     </message>
     <message>
-        <location filename="../legend_view_dockwidget_base.ui" line="65"/>
+        <location filename="../legend_view_dockwidget_base.ui" line="61"/>
+        <source>Register</source>
+        <translation>登録</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget_base.ui" line="64"/>
+        <source>Register the current layer as a project variable (legend_...)</source>
+        <translation>現在のレイヤをプロジェクト変数(legend_...)として登録</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget_base.ui" line="81"/>
         <source>Opacity</source>
         <translation>不透明度</translation>
     </message>
     <message>
-        <location filename="../legend_view_dockwidget_base.ui" line="91"/>
+        <location filename="../legend_view_dockwidget_base.ui" line="94"/>
+        <source>Prio</source>
+        <translation>優先度</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget_base.ui" line="97"/>
+        <source>Priority for the legend variable (numeric)</source>
+        <translation>凡例変数の優先度(数値)</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget_base.ui" line="119"/>
+        <source>Set numeric priority for the legend variable</source>
+        <translation>凡例変数の優先度を数値で設定</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget_base.ui" line="132"/>
+        <source>Vars</source>
+        <translation>変数一覧</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget_base.ui" line="135"/>
+        <source>Show existing legend_ project variables</source>
+        <translation>既存の legend_ プロジェクト変数を表示</translation>
+    </message>
+    <message>
+        <location filename="../legend_view_dockwidget_base.ui" line="161"/>
         <source>Style</source>
         <translation>スタイル</translation>
     </message>
     <message>
-        <location filename="../legend_view_dockwidget_base.ui" line="119"/>
-        <location filename="../legend_view_dockwidget_base.ui" line="124"/>
+        <location filename="../legend_view_dockwidget_base.ui" line="189"/>
+        <location filename="../legend_view_dockwidget_base.ui" line="194"/>
         <source>New Column</source>
-        <translation type="unfinished"></translation>
+        <translation>新規列</translation>
     </message>
 </context>
 </TS>

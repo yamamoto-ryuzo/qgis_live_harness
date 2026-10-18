@@ -8,6 +8,8 @@ from collections import OrderedDict
 
 from qgis.PyQt.QtWidgets import QDialog, QTabWidget, QTextEdit, QVBoxLayout, QPushButton, QHBoxLayout, QMessageBox
 from qgis.PyQt.QtWidgets import QLabel, QGridLayout, QFrame, QCheckBox, QScrollArea, QWidget
+from qgis.PyQt.QtCore import QCoreApplication
+from .constants import DEFAULT_GROUP_NAME
 
 from qgis.PyQt import uic
 from qgis.core import QgsProject
@@ -135,7 +137,7 @@ class SearchDialog(QDialog):
 
     def set_window_title(self, index):
         text = self.tabWidget.tabText(index)
-        self.setWindowTitle(self.tr("Geo Search: ") + text)
+        self.setWindowTitle(QCoreApplication.translate("SearchWidget", "Geo Search: ") + text)
 
     # ID-based project id helpers removed. Matching is done by Title and group when
     # updating/removing entries from project variables.
@@ -358,7 +360,7 @@ class SearchDialog(QDialog):
             # Create standard JSON for the current layer. Do NOT add an 'id' field;
             # matching will be performed by Title+group only.
             standard_json = {
-                "group": "ﾌﾟﾛｼﾞｪｸﾄ検索",
+                "group": DEFAULT_GROUP_NAME,
                 "Title": layer_name,
                 "Layer": {"LayerType": "Name", "Name": layer_name},
                 # empty dict -> SearchWidget will create the All field
@@ -1311,7 +1313,7 @@ class SearchDialog(QDialog):
             
             # 編集ダイアログを作成
             edit_dialog = QDialog(self)
-            edit_dialog.setWindowTitle(self.tr("Edit Tab Settings: {0}").format(resolved_title if 'resolved_title' in locals() and resolved_title else current_tab_title))
+            edit_dialog.setWindowTitle(QCoreApplication.translate("SearchWidget", "Edit Tab Settings: {0}").format(resolved_title if 'resolved_title' in locals() and resolved_title else current_tab_title))
             edit_dialog.setMinimumSize(700, 600)
             
             layout = QVBoxLayout(edit_dialog)
@@ -1400,9 +1402,9 @@ class SearchDialog(QDialog):
             for field_name, field_value in editable_fields.items():
                 # 日本語ラベルを使う（角度/スケールは分かりやすく表示）
                 if field_name == "angle":
-                    label = QLabel(self.tr("Angle (deg):"), edit_dialog)
+                    label = QLabel(QCoreApplication.translate("SearchWidget", "Angle (deg):"), edit_dialog)
                 elif field_name == "scale":
-                    label = QLabel(self.tr("Scale:"), edit_dialog)
+                    label = QLabel(QCoreApplication.translate("SearchWidget", "Scale:"), edit_dialog)
                 else:
                     label = QLabel(self.tr(f"{field_name}:") if isinstance(field_name, str) else field_name, edit_dialog)
                 label.setStyleSheet("font-weight: bold;")
@@ -1461,7 +1463,7 @@ class SearchDialog(QDialog):
                     spin.setSingleStep(5.0)
                     spin.setDecimals(2)
                     # checkbox: 指定しない -> NULL
-                    chk = QCheckBox("指定しない (NULL)", edit_dialog)
+                    chk = QCheckBox(self.tr("Unspecified (NULL)"), edit_dialog)
                     # set initial state based on field_value (None means unspecified)
                     try:
                         if field_value is None:
@@ -1488,7 +1490,7 @@ class SearchDialog(QDialog):
                     from qgis.PyQt.QtWidgets import QPushButton
 
                     # ボタン: 現在の地図回転値を設定
-                    set_current_btn = QPushButton(self.tr("Set current value"), edit_dialog)
+                    set_current_btn = QPushButton(QCoreApplication.translate("SearchWidget", "Set current value"), edit_dialog)
 
                     # capture current chk in default args to avoid late-binding of closure
                     def _set_current_value_captured(btn=None, spin_box=spin, chk=chk):
@@ -1537,7 +1539,7 @@ class SearchDialog(QDialog):
                     spin.setSingleStep(100.0)
                     spin.setDecimals(2)
                     # checkbox: 指定しない -> NULL
-                    chk = QCheckBox("指定しない (NULL)", edit_dialog)
+                    chk = QCheckBox(self.tr("Unspecified (NULL)"), edit_dialog)
                     # set initial state based on field_value (None means unspecified)
                     try:
                         if field_value is None:
@@ -1564,7 +1566,7 @@ class SearchDialog(QDialog):
                     from qgis.PyQt.QtWidgets import QPushButton
 
                     # ボタン: 現在の地図スケールを設定
-                    set_current_btn = QPushButton("現在のスケールを設定", edit_dialog)
+                    set_current_btn = QPushButton(self.tr("Set current scale"), edit_dialog)
 
                     # capture current chk in default args to avoid late-binding of closure
                     def _set_current_scale_captured(btn=None, spin_box=spin, chk=chk):
@@ -1634,7 +1636,7 @@ class SearchDialog(QDialog):
                     current_search_field = {}
                     
                 # フィールド選択ボタン
-                select_search_field_button = QPushButton("検索フィールド選択ウィザード（複数選択可 - OR検索）", edit_dialog)
+                select_search_field_button = QPushButton(QCoreApplication.translate("SearchWidget", "OR search for multiple fields"), edit_dialog)
                 
                 # ボタンクリック時の処理
                 select_search_field_button.clicked.connect(
@@ -1650,7 +1652,7 @@ class SearchDialog(QDialog):
                 searchfield_layout.addStretch()
                 
                 # 補助ラベル
-                search_field_help_label = QLabel("※「SearchField」フィールドを直接編集するか、検索フィールド選択ウィザード（複数選択可 - OR検索）を使用できます", edit_dialog)
+                search_field_help_label = QLabel(self.tr("You can edit the 'SearchField' field directly or use the search field selection wizard (multiple selection - OR search)"), edit_dialog)
                 search_field_help_label.setStyleSheet("color: #555555; font-style: italic;")
                 
                 # レイアウトに追加
@@ -1666,7 +1668,7 @@ class SearchDialog(QDialog):
             
             if viewfields_editor:
                 # フィールド選択ボタン
-                select_fields_button = QPushButton("表示フィールド選択ウィザード", edit_dialog)
+                select_fields_button = QPushButton(self.tr("Display field selection wizard"), edit_dialog)
                 
                 # 現在の値を取得
                 try:
@@ -1690,7 +1692,7 @@ class SearchDialog(QDialog):
                 helper_layout.addStretch()
                 
                 # 補助ラベル
-                help_label = QLabel("※「ViewFields」フィールドを直接編集するか、表示フィールド選択ウィザードを使用できます", edit_dialog)
+                help_label = QLabel(self.tr("You can edit the 'ViewFields' field directly or use the display field selection wizard"), edit_dialog)
                 help_label.setStyleSheet("color: #555555; font-style: italic;")
                 
                 # レイアウトに追加
@@ -1717,7 +1719,7 @@ class SearchDialog(QDialog):
                 row += 1
                 
                 # 読み取り専用ヘッダー
-                readonly_label = QLabel("以下のフィールドは読み取り専用です:", edit_dialog)
+                readonly_label = QLabel(self.tr("The following fields are read-only:"), edit_dialog)
                 readonly_label.setStyleSheet("font-weight: bold; color: #777777;")
                 grid_layout.addWidget(readonly_label, row, 0, 1, 2)
                 row += 1
@@ -1753,7 +1755,7 @@ class SearchDialog(QDialog):
             button_layout = QHBoxLayout()
             
             # 保存ボタン
-            save_button = QPushButton("保存", edit_dialog)
+            save_button = QPushButton(self.tr("Save"), edit_dialog)
             def save_and_close():
                 # すべてのエディタの内容をtab_configに反映し保存（selectThemeも含む）
                 self.save_tab_config_by_fields(
@@ -1768,7 +1770,7 @@ class SearchDialog(QDialog):
             button_layout.addWidget(save_button)
             
             # キャンセルボタン
-            cancel_button = QPushButton("キャンセル", edit_dialog)
+            cancel_button = QPushButton(self.tr("Cancel"), edit_dialog)
             cancel_button.clicked.connect(edit_dialog.reject)
             button_layout.addWidget(cancel_button)
             
@@ -2552,9 +2554,9 @@ class SearchDialog(QDialog):
                 # レイヤーが見つからない場合、現在のフィールドを使用
                 try:
                     from qgis.core import QgsMessageLog
-                    QgsMessageLog.logMessage(f"レイヤー '{layer_name}' が見つかりません。現在のフィールドを使用します。", "GEO-search-plugin", 1)
+                    QgsMessageLog.logMessage(f"Layer '{layer_name}' not found; using current fields.", "GEO-search-plugin", 1)
                 except Exception:
-                    print(f"レイヤー '{layer_name}' が見つかりません。現在のフィールドを使用します。")
+                    print(f"Layer '{layer_name}' not found; using current fields.")
                 
                 # 現在のフィールドが空でない場合は使用
                 if isinstance(current_fields, list) and current_fields:
@@ -2562,13 +2564,13 @@ class SearchDialog(QDialog):
             
             # ダイアログを作成
             fields_dialog = QDialog(dialog)
-            fields_dialog.setWindowTitle(f"表示フィールドの選択: {layer_name}")
+            fields_dialog.setWindowTitle(self.tr("Select display fields: {0}").format(layer_name))
             fields_dialog.setMinimumSize(400, 300)
             
             layout = QVBoxLayout(fields_dialog)
             
             # 説明ラベル
-            info_label = QLabel("表示するフィールドを選択してください:", fields_dialog)
+            info_label = QLabel(self.tr("Select the fields to display:"), fields_dialog)
             layout.addWidget(info_label)
             
             # スクロールエリア
@@ -2598,12 +2600,12 @@ class SearchDialog(QDialog):
             button_layout = QHBoxLayout()
             
             # 保存ボタン
-            save_button = QPushButton("保存", fields_dialog)
+            save_button = QPushButton(self.tr("Save"), fields_dialog)
             save_button.clicked.connect(lambda: self._save_view_fields(checkboxes, fields_dialog, callback))
             button_layout.addWidget(save_button)
             
             # キャンセルボタン
-            cancel_button = QPushButton("キャンセル", fields_dialog)
+            cancel_button = QPushButton(self.tr("Cancel"), fields_dialog)
             cancel_button.clicked.connect(fields_dialog.reject)
             button_layout.addWidget(cancel_button)
             
@@ -2618,7 +2620,7 @@ class SearchDialog(QDialog):
                 QgsMessageLog.logMessage(f"edit_view_fields error: {e}", "GEO-search-plugin", 1)
             except Exception:
                 print(f"edit_view_fields error: {e}")
-            QMessageBox.warning(dialog, "エラー", f"表示フィールドの編集中にエラーが発生しました:\n{str(e)}")
+            QMessageBox.warning(dialog, self.tr("Error"), self.tr("An error occurred while editing display fields:\n{0}").format(e))
             
     def edit_search_field(self, current_search_field, layer_name, dialog, callback):
         """SearchFieldを編集するためのダイアログを表示する"""
@@ -2657,17 +2659,18 @@ class SearchDialog(QDialog):
                             available_fields.append((key, key))  # 別名情報がないのでフィールド名のみ
                 
             # All フィールドを先頭に追加
-            available_fields.insert(0, ("全フィールド検索", "全フィールド検索"))
+            all_fields_label = QCoreApplication.translate("SearchWidget", "Search all fields")
+            available_fields.insert(0, (all_fields_label, all_fields_label))
             
             # ダイアログを作成
             fields_dialog = QDialog(dialog)
-            fields_dialog.setWindowTitle(f"検索フィールドの選択: {layer_name}")
+            fields_dialog.setWindowTitle(self.tr("Select search fields: {0}").format(layer_name))
             fields_dialog.setMinimumSize(400, 300)
             
             layout = QVBoxLayout(fields_dialog)
             
             # 説明ラベル
-            info_label = QLabel("検索に使用するフィールドを選択してください（複数選択可 - OR検索）:", fields_dialog)
+            info_label = QLabel(self.tr("Select the fields to search (multiple selection allowed - OR search):"), fields_dialog)
             layout.addWidget(info_label)
             
             # スクロールエリア
@@ -2719,12 +2722,12 @@ class SearchDialog(QDialog):
             button_layout = QHBoxLayout()
             
             # 保存ボタン
-            save_button = QPushButton("保存", fields_dialog)
+            save_button = QPushButton(self.tr("Save"), fields_dialog)
             save_button.clicked.connect(lambda: self._save_search_field(checkboxes, available_fields, field_aliases, fields_dialog, callback))
             button_layout.addWidget(save_button)
             
             # キャンセルボタン
-            cancel_button = QPushButton("キャンセル", fields_dialog)
+            cancel_button = QPushButton(self.tr("Cancel"), fields_dialog)
             cancel_button.clicked.connect(fields_dialog.reject)
             button_layout.addWidget(cancel_button)
             
@@ -2738,7 +2741,7 @@ class SearchDialog(QDialog):
                 QgsMessageLog.logMessage(f"edit_search_field error: {e}", "GEO-search-plugin", 1)
             except Exception:
                 print(f"edit_search_field error: {e}")
-            QMessageBox.warning(dialog, "エラー", f"検索フィールドの編集中にエラーが発生しました:\n{str(e)}")
+            QMessageBox.warning(dialog, self.tr("Error"), self.tr("An error occurred while editing the search field:\n{0}").format(e))
     
     def _save_search_field(self, checkboxes, available_fields, field_aliases, dialog, callback):
         """選択された検索フィールドを保存する（複数選択対応）"""
@@ -2752,7 +2755,7 @@ class SearchDialog(QDialog):
             # 選択がない場合は全フィールド検索
             if not selected_fields:
                 search_field = {"FieldType": "Text"}
-            elif "全フィールド検索" in selected_fields:
+            elif QCoreApplication.translate("SearchWidget", "Search all fields") in selected_fields:
                 # 「全フィールド検索」が選択されている場合
                 search_field = {"FieldType": "Text", "ViewName": "All", "all": True}
             else:
@@ -2791,7 +2794,7 @@ class SearchDialog(QDialog):
                 QgsMessageLog.logMessage(f"_save_search_field error: {e}", "GEO-search-plugin", 1)
             except Exception:
                 print(f"_save_search_field error: {e}")
-            QMessageBox.warning(dialog, "エラー", f"検索フィールドの保存中にエラーが発生しました:\n{str(e)}")
+            QMessageBox.warning(dialog, self.tr("Error"), self.tr("An error occurred while saving the search field:\n{0}").format(e))
     
     def _toggle_other_checkboxes(self, all_checkbox, checkboxes):
         """「全フィールド検索」チェックボックスが選択された時、他のチェックボックスを無効化する"""
@@ -2799,7 +2802,7 @@ class SearchDialog(QDialog):
             is_checked = all_checkbox.isChecked()
             # 「全フィールド検索」以外のチェックボックスを全て無効化/有効化
             for field_name, checkbox in checkboxes.items():
-                if field_name != "全フィールド検索":
+                if field_name != QCoreApplication.translate("SearchWidget", "Search all fields"):
                     if is_checked:
                         # 「全フィールド検索」がチェックされたら他のチェックを外して無効化
                         checkbox.setChecked(False)
@@ -2842,7 +2845,7 @@ class SearchDialog(QDialog):
                 QgsMessageLog.logMessage(f"_save_view_fields error: {e}", "GEO-search-plugin", 1)
             except Exception:
                 print(f"_save_view_fields error: {e}")
-            QMessageBox.warning(dialog, "エラー", f"表示フィールドの保存中にエラーが発生しました:\n{str(e)}")
+            QMessageBox.warning(dialog, self.tr("Error"), self.tr("An error occurred while saving the display fields:\n{0}").format(e))
                 
     def save_tab_config_by_fields(self, editors, readonly_fields, dialog, all_configs, tab_index, tab_title):
         """各フィールドエディタから値を取得してタブ設定を保存"""
@@ -2923,11 +2926,11 @@ class SearchDialog(QDialog):
                         field_value = json.loads(text)
                         tab_config[field_name] = field_value
                     except Exception as e:
-                        error_messages.append(f"フィールド '{field_name}' のJSONエラー: {str(e)}")
+                        error_messages.append(self.tr("JSON error in field '{0}': {1}").format(field_name, e))
             
             # エラーがあれば表示して終了
             if error_messages:
-                QMessageBox.warning(self, "JSONエラー", "\n".join(error_messages))
+                QMessageBox.warning(self, self.tr("JSON error"), "\n".join(error_messages))
                 return
                 
             # ユーザーが入力したタイトルをそのまま使用する
@@ -2962,7 +2965,7 @@ class SearchDialog(QDialog):
                 QgsMessageLog.logMessage(f"save_tab_config_by_fields error: {e}", "GEO-search-plugin", 1)
             except Exception:
                 print(f"save_tab_config_by_fields error: {e}")
-            QMessageBox.warning(self, "エラー", f"タブ設定の保存中にエラーが発生しました:\n{str(e)}")
+            QMessageBox.warning(self, self.tr("Error"), self.tr("An error occurred while saving the tab settings:\n{0}").format(e))
     
     def _update_config_and_save(self, tab_config, dialog, all_configs, tab_index):
         """設定を更新し、プロジェクト変数に保存する共通処理"""
@@ -3122,6 +3125,6 @@ class SearchDialog(QDialog):
             except Exception:
                 print(f"_update_config_and_save error: {e}")
             try:
-                QMessageBox.warning(dialog, "エラー", f"設定の保存中にエラーが発生しました:\n{str(e)}")
+                QMessageBox.warning(dialog, self.tr("Error"), self.tr("An error occurred while saving the settings:\n{0}").format(e))
             except Exception:
                 pass

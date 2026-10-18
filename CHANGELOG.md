@@ -4,7 +4,35 @@
 フォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.1.0/)、
 バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に準拠します。
 
-## [Unreleased]
+## [1.3.0] - 2026-10-18
+
+### Changed
+
+- **ホットリロードメニューの対象を `qgis-plugin/` 内プラグインに限定**
+  (qgis_live_driver 0.11.0、`hot_reload.py`): 従来は
+  plugin.config.json のid優先・見つからない場合はロード中の全
+  プラグイン(サードパーティ含む)が候補になっていた。deploy先の
+  各プラグインのrealpathが `<repo>/qgis-plugin/` 配下に解決される
+  もの(junction配置)だけを候補とし、該当なしでは「すべて再読込」
+  も非表示にする。注意: `qgis-session.mjs` の deploy 経路
+  (`live:reload` / MCP `qgis_reload` / `ensure`)は `-Copy` 固定の
+  ため、実行するとjunctionが実体コピーに戻り候補は空になる
+  (再有効化は `npm run deploy`)
+- **全プラグインの国際化(i18n)**: `qgis-plugin/` 下の全管理プラグイン
+  (qgis_live_driver/geo_search/geo_webview/geo_report/geo_import/
+  QGIS-legendView-main/geo_excel)のUI・ログ文字列を英語ソースに統一し、
+  Qt翻訳(`.ts`→`.qm`)経路を整備。日本語カタログを全件翻訳済みで
+  再コンパイルし、実行時翻訳を実QGISで検証済み。
+  `AGENTS.md` に「英語ソース+日本語ドキュメント併存」の多言語化
+  方針を明示。詳細は各プラグインのCHANGELOGを参照。
+- **翻訳対象言語を代表9言語に固定**: 採用言語セット
+  (ja/de/es/fr/it/pt/ru/zh/hi。geo_search・geo_report・geo_importが
+  upstreamから継承している既存共通セット)を `AGENTS.md` に明記し、
+  不足していたプラグインにカタログを追加 —
+  geo_excel/geo_webview/qgis_live_driver に de/es/fr/hi/it/pt/ru/zh、
+  QGIS-legendView-main に hi/pt/ru を追加(全プラグイン9言語同梱)。
+  各プラグインのCHANGELOG参照(0.12.0/4.2.0/3.14.0/2.5.0/2.6.0/
+  2.5.0/1.5.0)。
 
 ## [1.2.0] - 2026-10-18
 

@@ -4,6 +4,14 @@ import tempfile
 import time
 import traceback
 
+try:
+    from qgis.PyQt.QtCore import (
+        QCoreApplication, QSettings, QTranslator)
+except ImportError:
+    # QGISの外(unit test等)でimportされる場合はNoneになる。
+    # GUIコードパスはQGIS内でしか走らないため問題ない。
+    QCoreApplication = QSettings = QTranslator = None
+
 
 def _log(msg):
     log = os.environ.get(
@@ -69,9 +77,18 @@ class QgisLivePlugin:
     SETTING_ENABLED = "qgis_live_driver/enabled"
     SETTING_AI_PANEL = "qgis_live_driver/ai_panel_open"
     _MENU_NAME = "QGIS Live Driver"
-    _OWN_ACTION_TEXTS = ("リモート制御 (localhostのみ)", "AI アシスタント",
-                         "ホットリロード",
-                         "ホットリロード (保存で自動反映)")
+    # メニューアクションのソース文字列(英語)。表示時は翻訳される
+    _ACTION_SOURCES = ("Remote Control (localhost only)",
+                       "AI Assistant",
+                       "Hot Reload",
+                       "Hot Reload (auto-apply on save)")
+
+    def _own_action_texts(self):
+        """残存アクション除去用。英語ソースと翻訳後テキストの両方を含める。"""
+        texts = set(self._ACTION_SOURCES)
+        for src in self._ACTION_SOURCES:
+            texts.add(QCoreApplication.translate("qgis_live_driver", src))
+        return texts
 
     def __init__(self, iface):
         self.iface = iface
@@ -83,9 +100,33 @@ class QgisLivePlugin:
         self._ai_panel = None
         self._ai_driver = None
         self._hot_menu = None
+        self._init_language()
         try:
             from .bridge import QgisLiveBridge
             self.bridge = QgisLiveBridge(self)
+        except Exception:
+            pass
+
+    def _init_language(self):
+        """QGISの locale/userLocale に合わせて i18n/qgis_live_driver_<lang>.qm
+        を読む。ソース文字列は英語。en または未対応言語では翻訳を載せない。"""
+        self.translator = None
+        if QCoreApplication is None:
+            return
+        try:
+            raw = QSettings().value("locale/userLocale", None)
+            lang = (str(raw).split("_")[0].split("-")[0].lower()
+                    if raw else "")
+            if not lang or lang == "en":
+                return
+            qm_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "i18n", f"qgis_live_driver_{lang}.qm")
+            if os.path.exists(qm_path):
+                translator = QTranslator()
+                if translator.load(qm_path):
+                    QCoreApplication.installTranslator(translator)
+                    self.translator = translator
         except Exception:
             pass
 
@@ -114,7 +155,7 @@ class QgisLivePlugin:
         if menu is None:
             return
         for a in list(menu.actions()):
-            if a.text() in self._OWN_ACTION_TEXTS:
+            if a.text() in self._own_action_texts():
                 try:
                     menu.removeAction(a)
                     a.deleteLater()
@@ -124,13 +165,16 @@ class QgisLivePlugin:
     def initGui(self):
         from qgis.PyQt.QtWidgets import QAction
         self._sweep_menu_actions()  # 前世代の孤立アクション除去
-        self._ai_action = QAction("AI アシスタント",
-                                  self.iface.mainWindow())
+        self._ai_action = QAction(
+            QCoreApplication.translate("qgis_live_driver", "AI Assistant"),
+            self.iface.mainWindow())
         self._ai_action.triggered.connect(self._open_ai_panel)
         self.iface.addPluginToMenu("QGIS Live Driver", self._ai_action)
 
-        self._action = QAction("リモート制御 (localhostのみ)",
-                               self.iface.mainWindow())
+        self._action = QAction(
+            QCoreApplication.translate(
+                "qgis_live_driver", "Remote Control (localhost only)"),
+            self.iface.mainWindow())
         self._action.setCheckable(True)
         self._action.toggled.connect(self._on_toggle)
         self.iface.addPluginToMenu("QGIS Live Driver", self._action)
@@ -154,7 +198,9 @@ class QgisLivePlugin:
 
     def _build_hot_menu(self):
         from qgis.PyQt.QtWidgets import QMenu
-        menu = QMenu("ホットリロード", self.iface.mainWindow())
+        menu = QMenu(
+            QCoreApplication.translate("qgis_live_driver", "Hot Reload"),
+            self.iface.mainWindow())
         menu.aboutToShow.connect(self._rebuild_hot_menu)
         return menu
 
@@ -170,9 +216,11 @@ class QgisLivePlugin:
                 lambda _checked=False, p=pid: self._hot_reload([p]))
         if ids:
             self._hot_menu.addSeparator()
-        act = self._hot_menu.addAction("すべて再読込")
-        act.triggered.connect(
-            lambda _checked=False: self._hot_reload(ids))
+            act = self._hot_menu.addAction(
+                QCoreApplication.translate(
+                    "qgis_live_driver", "Reload All"))
+            act.triggered.connect(
+                lambda _checked=False: self._hot_reload(ids))
 
     def _dev_plugin_ids(self):
         try:
@@ -267,13 +315,15 @@ class QgisLivePlugin:
             from qgis.PyQt.QtWidgets import QMessageBox
             ret = QMessageBox.warning(
                 self.iface.mainWindow(), "QGIS Live Driver",
-                "ローカル(localhost)のクライアントからQGIS内部を"
-                "遠隔操作できるようになります。\n"
-                "pyeval はQGISプロセス内で任意のPythonを実行します。\n\n"
-                "アクセスは起動ごとのセッショントークンで保護され、"
-                "トークンはユーザ専用ファイルにのみ保存されますが、"
-                "同一ユーザで動くプロセスは信頼できるものだけに"
-                "してください。\n\n有効にしますか?",
+                QCoreApplication.translate(
+                    "qgis_live_driver",
+                    "Local (localhost) clients will be able to remotely "
+                    "control this QGIS process.\n"
+                    "pyeval executes arbitrary Python inside QGIS.\n\n"
+                    "Access is protected by a per-session token stored "
+                    "only in a user-private file, but only trusted "
+                    "processes should run under your account.\n\n"
+                    "Enable it?"),
                 QMessageBox.StandardButton.Yes
                 | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No)

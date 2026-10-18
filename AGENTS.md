@@ -123,8 +123,8 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   外部MCPサーバのツールを `mcp_<サーバ>__<ツール>` で使える。
   さらに **ホットリロード**(`hot_reload.py`):
   `プラグイン > QGIS Live Driver > ホットリロード` サブメニューに
-  開発対象(plugin.config.jsonのid、junction配置時にrealpathから
-  repoを辿って発見。無ければロード中の全プラグイン)を一覧し、
+  開発対象(deploy先の各プラグインのrealpathが <repo>/qgis-plugin/
+  配下に解決されるもの=junction配置のみ。該当なしなら候補なし)を一覧し、
   選んだプラグインを手動で sys.modules掃除+reloadPlugin
   (+open_dialog再表示)する。「すべて再読込」も可
   (qgis_live_driverは最後)。QGIS再起動・deploy不要で、
@@ -303,8 +303,8 @@ npm run live:watch      # 起動中は編集→保存だけでリロードされ
 #   それ以外(本体*.py等を含む) → reload_plugin を自動選択。
 #   --plugin <id> で対象絞込、--debounce <ms> でまとめ待ち調整可
 #   (junction配置前提。-Copy配置は先に deploy:copy)
-# ※QGIS側メニュー「QGIS Live Driver > ホットリロード」からは対象プラグインを
-#   手動選択してreload_pluginできる(自動watchなしの手動版)
+# ※QGIS側メニュー「QGIS Live Driver > ホットリロード」からは対象プラグイン
+#   (qgis-plugin/ 内のもののみ)を手動選択してreload_pluginできる(自動watchなしの手動版)
 
 # 実QGIS内UIを検証(QGIS未起動でも内部でensureして自動起動)
 npm run test:live       # test-results/qgis-live.png にスクショも残る
@@ -325,6 +325,45 @@ npm run verify:qgis     # 別ターミナルでQGIS起動(開きっぱなし)
   CHANGELOG.mdにエントリを追加し metadata.txt の version も上げる**
   (新機能=マイナー、修正=パッチを目安。geo_search/geo_webviewは
   upstreamリポジトリの履歴形式に従う)
+
+## 国際化(i18n)/多言語化(固定方針)
+
+**qgis-plugin/ 下の全プラグインは英語をソース言語とし、
+採用言語セットの翻訳カタログを同梱する。**
+
+- **採用言語(固定)**: ソース言語=英語(en)。翻訳対象は次の9言語:
+  日本語(ja)・ドイツ語(de)・スペイン語(es)・フランス語(fr)・
+  イタリア語(it)・ポルトガル語(pt)・ロシア語(ru)・
+  中国語(zh)・ヒンディー語(hi)
+  (geo_search/geo_report/geo_import が upstream から継承している
+  既存共通セットに合わせた。upstream由来の追加言語 —
+  geo_importのfiやenカタログ等 — はそのまま維持してよい。
+  ロケール属性は `<lang>_<REGION>` 形式: ja_JP/de_DE/es_ES/
+  fr_FR/it_IT/pt_PT/ru_RU/zh_CN/hi_IN)
+- **ソース言語は英語**: UI文字列・ログ・ユーザー向けメッセージは
+  コード内では英語で書く。`.ui` ファイルの文字列も英語
+- **Qt翻訳で多言語化**: `QCoreApplication.translate` / `self.tr()` /
+  `QT_TRANSLATE_NOOP` を使い `lupdate` で抽出可能な形式にする。
+  **カスタムの `tr()` ラッパーやコンテキスト不一致は lupdate が抽出
+  できない/実行時に適用されないため禁止**(コンテキスト名をコードと
+  `.ts` で一致させる)。`i18n/` に言語別 `.ts` を持ち、
+  変更時は `lupdate` で再抽出→`lrelease` で `.qm` を再生成して
+  コミットに含める。プラグイン起動時に `QTranslator` +
+  `QCoreApplication.installTranslator` で `.qm` をロードすること
+- **日本語は翻訳・ドキュメントとして維持**: UIの日本語は
+  `.ts`→`.qm` の翻訳として提供し、日本語ドキュメントは
+  `README_JP.md` 等として `README.md`(英語)と併存させる
+  (upstreamが日英併記README形式を持つプラグインはその形式を維持してよい。
+  README等のドキュメント翻訳はja以外は必須としない)
+- **翻訳しないもの**: 保存済み設定値・プロジェクト変数名・フィールド名・
+  API値・フォーマット種別等のデータドメイン文字列・内部識別子・
+  URLスキーム・外部プロトコル値。表示用文字列とセンチネル/キー値は
+  必ず分離する(例: 表示「All」と比較値の一致を translate 経由で保証)
+- 翻訳カタログの変更は他の機能変更と同様に **プラグインの
+  CHANGELOG.md に記録し metadata.txt の version も上げる**
+- Linguistツール: `C:/Qt/linguist_6.9.1/lupdate.exe` / `lrelease.exe`
+  (QGIS同梱Qtには存在しない。`lupdate` は `.pro` より
+  ソースファイル明示指定が確実)
 
 ## L2の仕組み(重要)
 

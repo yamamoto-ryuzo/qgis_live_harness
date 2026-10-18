@@ -976,7 +976,7 @@ class GeoWebViewWMTSService:
                 # Submit tasks to thread pool
                 from qgis.core import QgsMessageLog, Qgis
                 QgsMessageLog.logMessage(
-                    f"🚀 WMTS Prewarm: {len(tasks)}タイルを並列生成開始",
+                    f"🚀 WMTS Prewarm: generating {len(tasks)} tiles in parallel",
                     "geo_webview", Qgis.Info
                 )
                 

@@ -4,15 +4,17 @@
 開発対象のプラグインを手動で sys.modules 掃除+reloadPlugin
 (+open_dialog再表示)する。QGIS再起動・deployは不要。
 
-候補のプラグインidは、junction配置時は自プラグインのrealpath
-(<repo>/qgis-plugin/<id>)からrepoを辿って plugin.config.json の
-id 順に取る。見つからない場合(-Copy配置や通常利用)はロード中の
-全プラグインを候補にするため、サードパーティプラグインの手動
-リロードとしても使える。
+候補のプラグインidは、deploy先の各プラグインのrealpathが
+<repo>/qgis-plugin/<id> に解決されるもの(junction配置)のみ。
+-Copy配置やサードパーティプラグインは対象にしない。
 """
 
-import json
 import os
+
+try:
+    from qgis.PyQt.QtCore import QCoreApplication
+except ImportError:
+    QCoreApplication = None
 
 CTRL_ID = "qgis_live_driver"
 
@@ -20,30 +22,26 @@ CTRL_ID = "qgis_live_driver"
 def dev_plugin_ids(own_file):
     """ホットリロード候補のプラグインid一覧を返す。
 
-    plugin.config.json が発見できればそのid順(deploy済みのもののみ)、
-    無ければロード中プラグインのid順。
+    deploy先の各プラグインのrealpathが <repo>/qgis-plugin/ 配下に
+    解決されるもの(junction配置)のid順。該当なしなら空。
     """
     deployed_dir = os.path.dirname(os.path.abspath(own_file))
     plugins_root = os.path.dirname(deployed_dir)
+    ids = []
     try:
-        # junction配置: realpathが <repo>/qgis-plugin/<id> を指す
-        repo = os.path.dirname(os.path.dirname(
-            os.path.realpath(deployed_dir)))
-        with open(os.path.join(repo, "plugin.config.json"),
-                  encoding="utf-8") as f:
-            cfg = json.load(f)
-        ids = cfg["id"] if isinstance(cfg["id"], list) else [cfg["id"]]
-        ok = [i for i in ids
-              if os.path.isdir(os.path.join(plugins_root, i))]
-        if ok:
-            return ok
+        for d in os.listdir(plugins_root):
+            p = os.path.join(plugins_root, d)
+            if not os.path.isdir(p):
+                continue
+            try:
+                src = os.path.dirname(os.path.realpath(p))
+            except Exception:
+                continue
+            if os.path.basename(src) == "qgis-plugin":
+                ids.append(d)
     except Exception:
         pass
-    try:
-        import qgis.utils
-        return sorted(qgis.utils.plugins.keys())
-    except Exception:
-        return []
+    return sorted(ids)
 
 
 def reload_plugins(ids, notify=None):
@@ -58,7 +56,11 @@ def reload_plugins(ids, notify=None):
         try:
             from .live_driver import reload_plugin_now
             res = reload_plugin_now(pid)
-            notify("info", f"ホットリロード: {pid}"
-                   + (" (ダイアログ再表示)" if res.get("opened") else ""))
+            notify("info", QCoreApplication.translate(
+                "qgis_live_driver", "Hot Reload: {0}").format(pid)
+                + (QCoreApplication.translate(
+                    "qgis_live_driver", " (dialog reopened)")
+                   if res.get("opened") else ""))
         except Exception:
-            notify("warn", f"ホットリロード失敗: {pid}")
+            notify("warn", QCoreApplication.translate(
+                "qgis_live_driver", "Hot Reload failed: {0}").format(pid))

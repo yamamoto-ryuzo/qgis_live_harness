@@ -28,6 +28,25 @@ import shutil
 import subprocess
 import sys
 
+try:
+    from qgis.PyQt.QtCore import QCoreApplication, QT_TRANSLATE_NOOP
+except ImportError:
+    QCoreApplication = None
+
+    def QT_TRANSLATE_NOOP(ctx, src):  # noqa: N802
+        return src
+
+
+_LBL_DPAPI = QT_TRANSLATE_NOOP(
+    "qgis_live_driver",
+    "Windows DPAPI (encrypted under the user account, "
+    "same mechanism as browser password storage)")
+_LBL_KEYCHAIN = QT_TRANSLATE_NOOP("qgis_live_driver", "macOS Keychain")
+_LBL_FILE = QT_TRANSLATE_NOOP(
+    "qgis_live_driver",
+    "~/.qgis-live/ai-secrets.json (mode 600, plain text; "
+    "no keyring available)")
+
 _SERVICE = "qgis-live-driver"
 
 
@@ -205,12 +224,15 @@ def backend():
 
 def backend_label():
     """UI表示用のバックエンド説明。"""
-    return {
-        "dpapi": "Windows DPAPI (ユーザアカウントに紐付け暗号化。ブラウザのパスワード保存と同じ仕組み)",
-        "keychain": "macOS キーチェーン",
+    src = {
+        "dpapi": _LBL_DPAPI,
+        "keychain": _LBL_KEYCHAIN,
         "secret-tool": "Secret Service (GNOME Keyring / KWallet)",
-        "file": "~/.qgis-live/ai-secrets.json (600権限・平文。キーリング未導入のため)",
+        "file": _LBL_FILE,
     }[backend()]
+    if QCoreApplication is not None:
+        return QCoreApplication.translate("qgis_live_driver", src)
+    return src
 
 
 def set_secret(name, secret):

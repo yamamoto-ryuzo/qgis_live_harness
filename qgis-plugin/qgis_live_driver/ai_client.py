@@ -46,6 +46,32 @@ import webbrowser
 from . import credential_store
 from .mcp_http import TOOLS
 
+try:
+    from qgis.PyQt.QtCore import QCoreApplication, QT_TRANSLATE_NOOP
+except ImportError:
+    QCoreApplication = None
+
+    def QT_TRANSLATE_NOOP(ctx, src):  # noqa: N802
+        return src
+
+
+def tr_label(src):
+    """UI表示用ラベルの実行時翻訳。Qtが無い環境(pytest)では英語のまま。"""
+    if QCoreApplication is not None:
+        return QCoreApplication.translate("qgis_live_driver", src)
+    return src
+
+
+_F_PRICE_TOKENS = QT_TRANSLATE_NOOP(
+    "qgis_live_driver", "Input {0} / Output {1} /1M tokens")
+_F_PRICE_IMG = QT_TRANSLATE_NOOP(
+    "qgis_live_driver", "{0} /image (image generation)")
+_F_KIND = QT_TRANSLATE_NOOP("qgis_live_driver", "Kind: {0}")
+_F_PRICE = QT_TRANSLATE_NOOP("qgis_live_driver", "Price: {0} ({1})")
+_F_CONTEXT = QT_TRANSLATE_NOOP("qgis_live_driver", "Context: {0} tokens")
+_LBL_API_VALUE = QT_TRANSLATE_NOOP("qgis_live_driver", "API value")
+_LBL_REFERENCE = QT_TRANSLATE_NOOP("qgis_live_driver", "reference")
+
 # 1ユーザメッセージに対するツール実行の最大往復数(暴走防止)
 MAX_TOOL_ROUNDS = 25
 
@@ -92,25 +118,37 @@ GITHUB_ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token"
 
 PROVIDERS = {
     "openai": {
-        "label": "OpenAI互換",
+        "label": QT_TRANSLATE_NOOP("qgis_live_driver", "OpenAI-compatible"),
         "base": DEFAULT_BASE_URL,
         "model": DEFAULT_MODEL,
-        "key_hint": "APIキー (ローカルサーバ等では空可)",
-        "endpoint_hint": "https://api.openai.com/v1  または  http://localhost:11434/v1",
+        "key_hint": QT_TRANSLATE_NOOP(
+            "qgis_live_driver",
+            "API key (may be empty for local servers)"),
+        "endpoint_hint": QT_TRANSLATE_NOOP(
+            "qgis_live_driver",
+            "https://api.openai.com/v1  or  http://localhost:11434/v1"),
     },
     "gemini": {
         "label": "Gemini",
         "base": GEMINI_DEFAULT_BASE_URL,
         "model": GEMINI_DEFAULT_MODEL,
-        "key_hint": "Gemini APIキー (AI Studioで発行)",
+        "key_hint": QT_TRANSLATE_NOOP(
+            "qgis_live_driver",
+            "Gemini API key (issued in AI Studio)"),
         "endpoint_hint": "https://generativelanguage.googleapis.com/v1beta",
     },
     "copilot": {
         "label": "GitHub Copilot",
         "base": COPILOT_DEFAULT_BASE,
         "model": COPILOT_DEFAULT_MODEL,
-        "key_hint": "GitHubトークン (Copilot契約必須。「GitHubでサインイン」で自動取得可)",
-        "endpoint_hint": "https://api.githubcopilot.com  (copilot-api等の互換プロキシはそのURL)",
+        "key_hint": QT_TRANSLATE_NOOP(
+            "qgis_live_driver",
+            "GitHub token (Copilot subscription required; can be "
+            "acquired automatically via \"Sign in with GitHub\")"),
+        "endpoint_hint": QT_TRANSLATE_NOOP(
+            "qgis_live_driver",
+            "https://api.githubcopilot.com  (URL of a compatible "
+            "proxy such as copilot-api)"),
     },
 }
 
@@ -118,11 +156,12 @@ PROVIDERS = {
 
 # モデル種別 → 表示ラベル。この順序でコンボをグループ化する。
 MODEL_KINDS = [
-    ("chat_vision", "テキスト (画像入力可)"),
-    ("chat", "テキスト"),
-    ("image", "画像生成"),
-    ("embed", "埋め込み"),
-    ("other", "音声/その他"),
+    ("chat_vision",
+     QT_TRANSLATE_NOOP("qgis_live_driver", "Text (image input)")),
+    ("chat", QT_TRANSLATE_NOOP("qgis_live_driver", "Text")),
+    ("image", QT_TRANSLATE_NOOP("qgis_live_driver", "Image generation")),
+    ("embed", QT_TRANSLATE_NOOP("qgis_live_driver", "Embedding")),
+    ("other", QT_TRANSLATE_NOOP("qgis_live_driver", "Audio/Other")),
 ]
 MODEL_KIND_LABELS = dict(MODEL_KINDS)
 
@@ -265,7 +304,8 @@ def _entry_price(entry, tail):
         if pin is not None or pout is not None:
             pin, pout = pin or 0.0, pout or 0.0
             return (f"{_usd(pin)}/{_usd(pout)}",
-                    f"入力 {_usd(pin)} / 出力 {_usd(pout)} /1Mトークン",
+                    tr_label(_F_PRICE_TOKENS).format(
+                        _usd(pin), _usd(pout)),
                     "api", (pin, pout))
         try:
             pimg = float(pr.get("image"))
@@ -273,11 +313,13 @@ def _entry_price(entry, tail):
             pimg = None
         if pimg:
             return (f"{_usd(pimg)}/img",
-                    f"{_usd(pimg)} /枚(画像生成)", "api", None)
+                    tr_label(_F_PRICE_IMG).format(_usd(pimg)),
+                    "api", None)
     kp = _known_price(tail)
     if kp:
         return (f"{_usd(kp[0])}/{_usd(kp[1])}",
-                f"入力 {_usd(kp[0])} / 出力 {_usd(kp[1])} /1Mトークン",
+                tr_label(_F_PRICE_TOKENS).format(
+                    _usd(kp[0]), _usd(kp[1])),
                 "known", kp)
     return None, None, None, None
 
@@ -344,14 +386,17 @@ def model_label(info):
 def model_tooltip(info):
     """コンボ項目のツールチップ(複数行)。"""
     lines = [info["id"],
-             f"種別: {MODEL_KIND_LABELS.get(info['kind'], info['kind'])}"]
+             tr_label(_F_KIND).format(tr_label(
+                 MODEL_KIND_LABELS.get(info["kind"], info["kind"])))]
     if info.get("price_desc"):
-        src = "API応答値" if info["price_src"] == "api" else "参考値"
-        lines.append(f"価格: {info['price_desc']} ({src})")
+        src = (tr_label(_LBL_API_VALUE) if info["price_src"] == "api"
+               else tr_label(_LBL_REFERENCE))
+        lines.append(
+            tr_label(_F_PRICE).format(info["price_desc"], src))
     if info.get("context"):
         ctx = fmt_tokens(info["context"])
         if ctx:
-            lines.append(f"コンテキスト: {ctx} tokens")
+            lines.append(tr_label(_F_CONTEXT).format(ctx))
     return "\n".join(lines)
 
 SYSTEM_PROMPT = """\
@@ -404,7 +449,7 @@ def provider_defaults(provider):
     try:
         return PROVIDERS[provider]
     except KeyError:
-        raise ApiError(f"未知のプロバイダ: {provider}")
+        raise ApiError(f"Unknown provider: {provider}")
 
 
 # ---- 共通HTTP ----
@@ -422,7 +467,7 @@ def _get_json(url, headers, timeout=30.0):
             pass
         raise ApiError(f"HTTP {e.code}: {detail or e.reason}") from e
     except urllib.error.URLError as e:
-        raise ApiError(f"接続失敗: {e.reason}") from e
+        raise ApiError(f"Connection failed: {e.reason}") from e
 
 
 def _post_json(url, headers, body, timeout=180.0):
@@ -441,7 +486,7 @@ def _post_json(url, headers, body, timeout=180.0):
             pass
         raise ApiError(f"HTTP {e.code}: {detail or e.reason}") from e
     except urllib.error.URLError as e:
-        raise ApiError(f"接続失敗: {e.reason}") from e
+        raise ApiError(f"Connection failed: {e.reason}") from e
 
 
 def _post_form(url, fields, timeout=30.0):
@@ -463,7 +508,7 @@ def _post_form(url, fields, timeout=30.0):
             pass
         raise ApiError(f"HTTP {e.code}: {detail or e.reason}") from e
     except urllib.error.URLError as e:
-        raise ApiError(f"接続失敗: {e.reason}") from e
+        raise ApiError(f"Connection failed: {e.reason}") from e
 
 
 # ---- GitHub Copilot: トークン交換 / OAuthデバイスフロー ----
@@ -495,8 +540,8 @@ def copilot_session(github_token, base):
     u = (base or "").strip().rstrip("/") or COPILOT_DEFAULT_BASE
     if not github_token:
         raise ApiError(
-            "APIキー欄にGitHubトークンを入力するか、"
-            "「GitHubでサインイン」で取得してください")
+            "Enter a GitHub token in the API key field, or acquire one "
+            "via \"Sign in with GitHub\"")
     if u != COPILOT_DEFAULT_BASE:
         return github_token, u
     now = time.time()
@@ -508,7 +553,7 @@ def copilot_session(github_token, base):
             data = _get_json(COPILOT_TOKEN_URL, _gh_headers(github_token))
             tok = data.get("token")
             if not tok:
-                raise ApiError(f"token無し: {str(data)[:200]}")
+                raise ApiError(f"no token: {str(data)[:200]}")
             ent = {
                 "token": tok,
                 "expires_at": float(
@@ -525,8 +570,9 @@ def copilot_session(github_token, base):
                                  _gh_headers(github_token))
             except ApiError as e2:
                 raise ApiError(
-                    "Copilotトークンを取得できません"
-                    " (GitHubトークンが無効かCopilot未契約の可能性): "
+                    "Could not obtain a Copilot token"
+                    " (the GitHub token may be invalid or lack a Copilot "
+                    "subscription): "
                     f"{e1} / {e2}") from e2
             ent = {
                 "token": github_token,
@@ -548,7 +594,7 @@ def github_device_code(scope="read:user"):
     d = _post_form(GITHUB_DEVICE_CODE_URL,
                    {"client_id": GITHUB_CLIENT_ID, "scope": scope})
     if not d.get("device_code") or not d.get("user_code"):
-        raise ApiError(f"デバイスコードの応答が不正: {str(d)[:300]}")
+        raise ApiError(f"Invalid device code response: {str(d)[:300]}")
     return d
 
 
@@ -571,7 +617,7 @@ def openai_models_url(base):
     """base URLをmodels一覧のGET先に正規化する。"""
     u = (base or "").strip().rstrip("/")
     if not u:
-        raise ApiError("APIエンドポイントが未設定です")
+        raise ApiError("API endpoint is not set")
     if u.endswith("/chat/completions"):
         u = u[: -len("/chat/completions")]
     return u + "/models"
@@ -585,7 +631,7 @@ def endpoint_url(base):
     """
     u = (base or "").strip().rstrip("/")
     if not u:
-        raise ApiError("APIエンドポイントが未設定です")
+        raise ApiError("API endpoint is not set")
     if not u.endswith("/chat/completions"):
         u += "/chat/completions"
     return u
@@ -632,7 +678,7 @@ def chat_completions(base, api_key, model, messages, tools=None,
         hdrs["Authorization"] = f"Bearer {api_key}"
     data = _post_json(endpoint_url(base), hdrs, body, timeout)
     if not isinstance(data, dict) or not data.get("choices"):
-        raise ApiError(f"応答形式が不正です: {str(data)[:300]}")
+        raise ApiError(f"Invalid response format: {str(data)[:300]}")
     return data
 
 
@@ -642,7 +688,7 @@ def gemini_models_url(base):
     """base URLをmodels一覧のGET先に正規化する。"""
     u = (base or "").strip().rstrip("/")
     if not u:
-        raise ApiError("APIエンドポイントが未設定です")
+        raise ApiError("API endpoint is not set")
     if ":generateContent" in u:
         u = u.split("/models/")[0]  # /models/<m>:generateContent を切る
     return u + "/models"
@@ -683,7 +729,7 @@ def gemini_url(base, model):
     """generateContentのPOST先URL。"""
     u = (base or "").strip().rstrip("/")
     if not u:
-        raise ApiError("APIエンドポイントが未設定です")
+        raise ApiError("API endpoint is not set")
     if ":generateContent" in u:
         return u
     return f"{u}/models/{model}:generateContent"
@@ -704,7 +750,7 @@ def gemini_generate(base, api_key, model, system, contents,
     if not isinstance(data, dict) or not data.get("candidates"):
         fb = (data or {}).get("promptFeedback") if isinstance(data, dict) else None
         raise ApiError(
-            f"応答形式が不正かブロックされました: "
+            f"Invalid or blocked response: "
             f"{str(fb or data)[:300]}")
     return data
 
@@ -718,7 +764,7 @@ def tool_to_command(name, args):
     引数をそのままマージする。None値の引数は送らない。
     """
     if not (name or "").startswith("qgis_"):
-        raise ApiError(f"不明なツール: {name}")
+        raise ApiError(f"Unknown tool: {name}")
     cmd = {"type": name[len("qgis_"):]}
     cmd.update({k: v for k, v in (args or {}).items() if v is not None})
     return cmd
@@ -746,7 +792,7 @@ def parse_tool_arguments(raw):
         return json.loads(raw or "{}")
     except Exception as e:
         raise ApiError(
-            f"tool argumentsがJSONとして不正: {e}: {str(raw)[:200]}")
+            f"tool arguments are not valid JSON: {e}: {str(raw)[:200]}")
 
 
 def command_from_tool_call(tc):
@@ -1025,7 +1071,7 @@ def save_instruction(kind, name, text):
     """
     safe = re.sub(r'[\\/:*?"<>|\s]+', "_", (name or "").strip())
     if not safe:
-        raise ApiError("名前が空です")
+        raise ApiError("Name is empty")
     d = _kind_dir(kind)
     os.makedirs(d, exist_ok=True)
     p = os.path.join(d, safe + ".md")
@@ -1147,15 +1193,15 @@ def run_instruction_tool(name, args):
     """
     if name == "ai_select_agent":
         # 選択状態はパネル側のUI状態のためここでは扱わない
-        raise ApiError("ai_select_agent はAIパネル上でのみ有効です")
+        raise ApiError("ai_select_agent is only valid on the AI panel")
     a = args or {}
     kind = a.get("kind") or ""
     if kind not in ("agents", "skills"):
-        raise ApiError(f"kind は agents|skills: {kind!r}")
+        raise ApiError(f"kind must be agents|skills: {kind!r}")
     if name == "ai_list_instructions":
         items = list_instruction_files(kind)
         if not items:
-            return "(なし)"
+            return "(none)"
         return "\n".join(
             f"- {i['id']}: {i['title']}"
             + (f" — {i['desc']}" if i.get("desc") else "")
@@ -1165,19 +1211,19 @@ def run_instruction_tool(name, args):
     if name == "ai_read_instruction":
         body = load_instruction(kind, a.get("id") or "")
         if body is None:
-            raise ApiError(f"{kind} '{a.get('id')}' が見つかりません")
+            raise ApiError(f"{kind} '{a.get('id')}' not found")
         return body
     if name == "ai_save_instruction":
         if a.get("text") is None:
-            raise ApiError("text が必須です")
+            raise ApiError("text is required")
         return f"saved: {save_instruction(kind, a.get('name'), a['text'])}"
     if name == "ai_delete_instruction":
         if delete_instruction(kind, a.get("id") or ""):
             return f"deleted: {kind}/{a.get('id')}"
         raise ApiError(
-            f"{kind} '{a.get('id')}' を削除できません"
-            "(存在しないか同梱品)")
-    raise ApiError(f"不明なツール: {name}")
+            f"cannot delete {kind} '{a.get('id')}'"
+            "(does not exist or is bundled)")
+    raise ApiError(f"Unknown tool: {name}")
 
 
 # ---- 外部MCPクライアント(外向き接続) ----
@@ -1217,8 +1263,8 @@ def _resolve_secret_ref(v):
         s = credential_store.get_secret(key)
         if s is None:
             raise ApiError(
-                f"資格情報ストアに '{key}' がありません"
-                "(mcp_servers.json の $store: 参照)")
+                f"'{key}' not found in credential store"
+                "($store: reference in mcp_servers.json)")
         return s
     return v
 
@@ -1232,7 +1278,7 @@ MCP_CONFIG_TEMPLATE = {
         },
         "example-http": {
             "url": "http://localhost:3000/mcp",
-            "headers": {"Authorization": "Bearer <固定トークン>"},
+            "headers": {"Authorization": "Bearer <static token>"},
         },
         "box-http-oauth": {
             "url": "https://mcp.box.com",
@@ -1240,7 +1286,7 @@ MCP_CONFIG_TEMPLATE = {
                 "authorize_url":
                     "https://account.box.com/api/oauth2/authorize",
                 "token_url": "https://api.box.com/oauth2/token",
-                "client_id": "<BoxアプリのClient ID>",
+                "client_id": "<Box app Client ID>",
                 "client_secret": "<Client Secret>",
                 "redirect_uri": "http://127.0.0.1:8020/callback",
             },
@@ -1267,7 +1313,7 @@ def mcp_servers_config():
     except FileNotFoundError:
         return {}
     except Exception as e:
-        raise ApiError(f"mcp_servers.json が読めません: {e}")
+        raise ApiError(f"cannot read mcp_servers.json: {e}")
     servers = d.get("mcpServers") if isinstance(d, dict) else None
     if not isinstance(servers, dict):
         return {}
@@ -1290,10 +1336,10 @@ def mcp_save_config(text):
     try:
         d = json.loads(text)
     except Exception as e:
-        raise ApiError(f"JSONが不正です: {e}")
+        raise ApiError(f"invalid JSON: {e}")
     if not isinstance(d, dict) \
             or not isinstance(d.get("mcpServers"), dict):
-        raise ApiError('{"mcpServers": {...}} 形式にしてください')
+        raise ApiError('use {"mcpServers": {...}} format')
     migrated = False
     for name, conf in d["mcpServers"].items():
         oc = conf.get("oauth") if isinstance(conf, dict) else None
@@ -1305,9 +1351,9 @@ def mcp_save_config(text):
         key = _mcp_secret_key(name, "client_secret")
         if not credential_store.set_secret(key, sec):
             raise ApiError(
-                f"'{name}' のclient_secretを資格情報ストア"
-                f"(backend={credential_store.backend()})へ"
-                "保存できませんでした。平文では保存しません。")
+                f"could not save client_secret for '{name}' to the "
+                f"credential store (backend={credential_store.backend()}); "
+                "not saved in plain text.")
         oc["client_secret"] = MCP_SECRET_REF + key
         migrated = True
     out = (json.dumps(d, ensure_ascii=False, indent=2)
@@ -1353,7 +1399,7 @@ def _mcp_error(m):
     e = m.get("error")
     if isinstance(e, dict):
         e = e.get("message", e)
-    return f"MCPエラー: {e}"
+    return f"MCP error: {e}"
 
 
 def _oauth_request(oc, body, timeout=30.0):
@@ -1363,7 +1409,7 @@ def _oauth_request(oc, body, timeout=30.0):
     """
     turl = oc.get("token_url") or ""
     if not turl:
-        raise ApiError("oauth.token_url が空です")
+        raise ApiError("oauth.token_url is empty")
     cid = _resolve_secret_ref(oc.get("client_id")) or ""
     csec = _resolve_secret_ref(oc.get("client_secret")) or ""
     body = dict(body)
@@ -1390,12 +1436,12 @@ def _oauth_request(oc, body, timeout=30.0):
         except Exception:
             pass
         raise ApiError(
-            f"トークン取得 HTTP {e.code}: {detail or e.reason}") from e
+            f"token fetch HTTP {e.code}: {detail or e.reason}") from e
     except urllib.error.URLError as e:
-        raise ApiError(f"トークン取得の接続失敗: {e.reason}") from e
+        raise ApiError(f"token fetch connection failed: {e.reason}") from e
     tok = d.get("access_token")
     if not tok:
-        raise ApiError(f"トークン応答が不正: {str(d)[:200]}")
+        raise ApiError(f"Invalid token response: {str(d)[:200]}")
     # expires_in から60秒の余裕を持たせて期限を計算
     return {"access_token": tok,
             "refresh_token": d.get("refresh_token"),
@@ -1472,7 +1518,7 @@ def _oauth_authorize(oc, timeout=180.0, on_status=None, is_aborted=None):
     from http.server import BaseHTTPRequestHandler, HTTPServer
     aurl = oc.get("authorize_url") or ""
     if not aurl:
-        raise ApiError("oauth.authorize_url が空です")
+        raise ApiError("oauth.authorize_url is empty")
     redir = oc.get("redirect_uri") or "http://127.0.0.1:8020/callback"
     got = {}
 
@@ -1481,8 +1527,8 @@ def _oauth_authorize(oc, timeout=180.0, on_status=None, is_aborted=None):
             q = urllib.parse.parse_qs(
                 urllib.parse.urlparse(self.path).query)
             got.update({k: v[0] for k, v in q.items()})
-            body = ("<html><body><h3>認証が完了しました。"
-                    "QGIS に戻ってください。</h3></body></html>"
+            body = ("<html><body><h3>Authentication completed. "
+                    "You can return to QGIS.</h3></body></html>"
                     ).encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type",
@@ -1520,31 +1566,31 @@ def _oauth_authorize(oc, timeout=180.0, on_status=None, is_aborted=None):
     try:
         webbrowser.open(aurl + "?" + urllib.parse.urlencode(q))
         host = urllib.parse.urlparse(aurl).netloc
-        hint = (f"失敗する場合はアプリ側の設定を確認:"
-                f" ①Redirect URI「{redir}」の登録"
-                " ②OAuth2標準(authorization_code)が有効か"
-                " ③client_id/secretが一致するか")
+        hint = (f"If it still fails, check the app settings:"
+                f" ①Redirect URI '{redir}' is registered"
+                " ②OAuth2 standard (authorization_code) is enabled"
+                " ③client_id/secret match")
         if on_status:
             on_status(
-                f"ブラウザでOAuth認証を完了してください: {host}。"
+                f"Complete OAuth sign-in in the browser: {host}."
                 + hint)
         deadline = time.time() + timeout
         while "code" not in got and "error" not in got:
             if is_aborted and is_aborted():
-                raise ApiError("OAuth認証を中断しました")
+                raise ApiError("OAuth sign-in aborted")
             if time.time() > deadline:
                 raise ApiError(
-                    "OAuth認証がタイムアウトしました"
-                    "(ブラウザで同意が完了していません)。" + hint)
+                    "OAuth sign-in timed out "
+                    "(consent was not completed in the browser). " + hint)
             time.sleep(0.3)
     finally:
         httpd.shutdown()
         httpd.server_close()
     if got.get("error"):
-        raise ApiError(f"OAuthエラー: {got['error']} "
+        raise ApiError(f"OAuth error: {got['error']} "
                        f"{got.get('error_description') or ''}。" + hint)
     if got.get("state") != state:
-        raise ApiError("OAuth state が一致しません(CSRF対策)")
+        raise ApiError("OAuth state mismatch (CSRF check)")
     try:
         return _oauth_request(oc, {
             "grant_type": "authorization_code",
@@ -1567,7 +1613,7 @@ class _McpHttp:
     def __init__(self, cfg, name="", on_status=None, is_aborted=None):
         self.url = (cfg.get("url") or "").rstrip("/")
         if not self.url:
-            raise ApiError("MCPサーバのurlが空です")
+            raise ApiError("MCP server url is empty")
         self.headers = {str(k): str(_resolve_secret_ref(v) or "")
                         for k, v in (cfg.get("headers") or {}).items()}
         self.oauth = cfg.get("oauth") or None
@@ -1600,7 +1646,7 @@ class _McpHttp:
                     _mcp_token_delete(self.name)   # 再認可へ
         if oc.get("authorize_url"):
             self._status(
-                f"MCP '{self.name}': ブラウザでOAuth認証してください")
+                f"MCP '{self.name}': complete OAuth sign-in in the browser")
             t = _oauth_authorize(oc, on_status=self._status,
                                  is_aborted=self._aborted)
             _mcp_token_save(self.name, t)
@@ -1651,7 +1697,7 @@ class _McpHttp:
                 raise ApiError(
                     f"HTTP {e.code}: {detail or e.reason}") from e
             except urllib.error.URLError as e:
-                raise ApiError(f"接続失敗: {e.reason}") from e
+                raise ApiError(f"Connection failed: {e.reason}") from e
             if status == 202 or not raw.strip():
                 return []                    # 通知応答(空)
             return list(_iter_rpc_msgs(raw, ctype))
@@ -1665,7 +1711,7 @@ class _McpHttp:
                 if "error" in m:
                     raise ApiError(_mcp_error(m))
                 return m.get("result")
-        raise ApiError(f"MCP {method}: 応答が返りませんでした")
+        raise ApiError(f"MCP {method}: no response returned")
 
     def notify(self, method, params):
         try:
@@ -1684,7 +1730,7 @@ class _McpStdio:
     def __init__(self, cfg):
         command = cfg.get("command") or ""
         if not command:
-            raise ApiError("MCPサーバのcommandが空です")
+            raise ApiError("MCP server command is empty")
         exe = shutil.which(command) or command
         env = dict(os.environ)
         env.update({str(k): str(_resolve_secret_ref(v) or "")
@@ -1699,7 +1745,7 @@ class _McpStdio:
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL, env=env, **kw)
         except OSError as e:
-            raise ApiError(f"MCPサーバの起動に失敗: {e}") from e
+            raise ApiError(f"failed to start MCP server: {e}") from e
         self._pending = {}
         self._next = itertools.count(1)
         threading.Thread(target=self._reader, daemon=True).start()
@@ -1718,7 +1764,7 @@ class _McpStdio:
                 slot[1]["res"] = m
                 slot[0].set()
         for ev, box in self._pending.values():   # プロセス終了→全失敗
-            box["res"] = {"error": "MCPサーバが終了しました"}
+            box["res"] = {"error": "MCP server exited"}
             ev.set()
 
     def _send(self, msg):
@@ -1728,7 +1774,7 @@ class _McpStdio:
                 .encode("utf-8"))
             self._p.stdin.flush()
         except Exception as e:
-            raise ApiError(f"MCPサーバへの書込に失敗: {e}") from e
+            raise ApiError(f"failed to write to MCP server: {e}") from e
 
     def request(self, method, params, timeout=30.0):
         mid = next(self._next)
@@ -1739,7 +1785,7 @@ class _McpStdio:
             self._send({"jsonrpc": "2.0", "id": mid, "method": method,
                         "params": params or {}})
             if not ev.wait(timeout):
-                raise ApiError(f"MCP {method}: タイムアウト({timeout}s)")
+                raise ApiError(f"MCP {method}: timeout ({timeout}s)")
             m = box.get("res") or {}
             if "error" in m:
                 raise ApiError(_mcp_error(m))
@@ -1867,7 +1913,7 @@ def run_extra_tool(name, args):
     """外部MCPツールを実行してテキストを返す。"""
     fn = _EXTRA_TOOL_CALLERS.get(name)
     if fn is None:
-        raise ApiError(f"不明な外部ツール: {name}")
+        raise ApiError(f"Unknown external tool: {name}")
     return fn(args or {})
 
 
@@ -1900,7 +1946,7 @@ class OpenAIProvider:
         data = _get_json(openai_models_url(base), headers, timeout)
         items = data.get("data") if isinstance(data, dict) else None
         if not isinstance(items, list):
-            raise ApiError(f"応答形式が不正です: {str(data)[:300]}")
+            raise ApiError(f"Invalid response format: {str(data)[:300]}")
         out = []
         for i in items:
             if not isinstance(i, dict) or not i.get("id"):
@@ -1977,7 +2023,7 @@ class GeminiProvider:
         data = _get_json(gemini_models_url(base), headers, timeout)
         items = data.get("models") if isinstance(data, dict) else None
         if not isinstance(items, list):
-            raise ApiError(f"応答形式が不正です: {str(data)[:300]}")
+            raise ApiError(f"Invalid response format: {str(data)[:300]}")
         out = []
         for m in items:
             name = (m.get("name") or "").split("/")[-1]
@@ -2037,7 +2083,7 @@ class GeminiProvider:
         raw = {"role": "model", "parts": parts}
         if not text and not calls:
             raise ApiError(
-                f"応答が空かブロックされました: finishReason="
+                f"Response empty or blocked: finishReason="
                 f"{cand.get('finishReason')} {str(data)[:200]}")
         return {"text": text, "calls": calls, "raw": raw,
                 "usage": parse_usage(data)}
@@ -2085,7 +2131,7 @@ class CopilotProvider(OpenAIProvider):
             timeout)
         items = data.get("data") if isinstance(data, dict) else None
         if not isinstance(items, list):
-            raise ApiError(f"応答形式が不正です: {str(data)[:300]}")
+            raise ApiError(f"Invalid response format: {str(data)[:300]}")
         out = []
         for m in items:
             if not isinstance(m, dict) or not m.get("id"):
@@ -2125,7 +2171,7 @@ def get_provider(provider):
     try:
         return _PROVIDERS[provider]()
     except KeyError:
-        raise ApiError(f"未知のプロバイダ: {provider}")
+        raise ApiError(f"Unknown provider: {provider}")
 
 
 def list_models(provider, base, key, timeout=30.0):

@@ -701,9 +701,9 @@ class QMapWebMapGenerator:
             "          lat = 180.0 / Math.PI * (2.0 * Math.atan(Math.exp(lat * Math.PI / 180.0)) - Math.PI / 2.0);\n"
             "          var zoom = view.getZoom ? Math.round(view.getZoom()) : 12;\n"
             "          // prefer server-computed URL if available\n"
-            "          if(typeof serverGoogleMapsUrl !== 'undefined' && serverGoogleMapsUrl){ var w = window.open(serverGoogleMapsUrl, '_blank'); if(!w){ alert('ポップアップブロック'); } return; }\n"
+            "          if(typeof serverGoogleMapsUrl !== 'undefined' && serverGoogleMapsUrl){ var w = window.open(serverGoogleMapsUrl, '_blank'); if(!w){ alert('Popup blocked'); } return; }\n"
             "          var url = 'https://www.google.com/maps/@' + encodeURIComponent(lat) + ',' + encodeURIComponent(lon) + ',' + encodeURIComponent(zoom) + 'z';\n"
-            "          var w = window.open(url, '_blank'); if(!w){ alert('ポップアップブロック'); }\n"
+            "          var w = window.open(url, '_blank'); if(!w){ alert('Popup blocked'); }\n"
             "        }catch(e){ console.error(e); }\n"
             "      });\n"
             "    }\n"
@@ -719,10 +719,10 @@ class QMapWebMapGenerator:
             "          var lon = (x / 20037508.34) * 180.0; var lat = (y / 20037508.34) * 180.0;\n"
             "          lat = 180.0 / Math.PI * (2.0 * Math.atan(Math.exp(lat * Math.PI / 180.0)) - Math.PI / 2.0);\n"
             "          // prefer server-computed URL if available\n"
-            "          if(typeof serverGoogleEarthUrl !== 'undefined' && serverGoogleEarthUrl){ var w = window.open(serverGoogleEarthUrl, '_blank'); if(!w){ alert('ポップアップブロック'); } return; }\n"
+            "          if(typeof serverGoogleEarthUrl !== 'undefined' && serverGoogleEarthUrl){ var w = window.open(serverGoogleEarthUrl, '_blank'); if(!w){ alert('Popup blocked'); } return; }\n"
             "          // Use Google Earth Web search link (best-effort)\n"
             "          var url = 'https://earth.google.com/web/search/' + encodeURIComponent(lat) + ',' + encodeURIComponent(lon);\n"
-            "          var w = window.open(url, '_blank'); if(!w){ alert('ポップアップブロック'); }\n"
+            "          var w = window.open(url, '_blank'); if(!w){ alert('Popup blocked'); }\n"
             "        }catch(e){ console.error(e); }\n"
             "      });\n"
             "    }\n"
@@ -752,7 +752,7 @@ class QMapWebMapGenerator:
                                     '    <button id="qmp-open-googleearth" class="qmp-control" title="Open Google Earth">EARTH</button>\n'
                                     '  </div>\n'
                                     '  <div id="qmp-coords" class="qmp-control" aria-live="polite" role="status"></div>\n'
-                                    '  <div id="qmp-cors-warning">WMS の読み込み時に CORS エラーが発生しました。<br>HTML を直接 file:// で開いている場合は、簡易 HTTP サーバで配布するか、WMS 側で Access-Control-Allow-Origin ヘッダを設定してください。</div>\n'
+                                    '  <div id="qmp-cors-warning">A CORS error occurred while loading the WMS.<br>If you opened this HTML directly via file://, serve it with a simple HTTP server or set the Access-Control-Allow-Origin header on the WMS side.</div>\n'
             '  <script>\n'
             f'    const serverPort = {server_port};\n'
             f'    ' + js + '\n'
