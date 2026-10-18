@@ -40,12 +40,97 @@
 キャンバス、メニュー/アクション、<code>qgis.utils.plugins</code> 経由の他プラグイン、
 Processing、QgsSettings、任意widgetの <code>grab()</code> による画像化 等。</p>
 <p>さらに <code>status</code>/<code>open_plugin</code>/<code>reload_plugin</code>/<code>bridge_call</code> のnamedコマンドと、
-<code>plugin_id</code> による他プラグインへのコマンド転送(ハブ機能)を持つ。
-<code>plugin_id</code> 付きの <code>eval</code>/<code>pyeval</code>/<code>screenshot</code>/<code>devreload</code> は
-対象プラグインのLiveDriverへ転送され、結果は呼び出し元に返るため、
-<strong>このドライバ1箇所(またはHTTPポート1本)で全プラグインを制御できる</strong>。
-<code>bridge_call</code> はbridgeメソッドをプロセス内で直接呼ぶため、
-WebChannelを通らずJSレンダラー飢餓中でも動作する。</p>
+<code>plugin_id</code> による他プラグインへのコマンド転送(ハブ機能)を持つ。</p>
+<h2>コマンド</h2>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>動作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pyeval</code></td>
+<td>QGISプロセス内で任意Pythonを同期実行し結果を返す。名前空間に <code>iface</code> / <code>QgsProject</code> / <code>QgsApplication</code> / <code>driver</code> を持つ → <code>iface.activeLayer().name()</code> や <code>QgsProject.instance().mapLayers()</code> 等で内部状態を直接取得・操作できる</td>
+</tr>
+<tr>
+<td><code>screenshot</code></td>
+<td><code>iface.mapCanvas().saveAsImage(path)</code> で地図キャンバスをPNG保存。<code>target:"mainwindow"</code> でQGISメインウィンドウを <code>grab()</code></td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>pid / http_port / live_dir / ロード中プラグインと各driver・view有無を返す(生存確認・一覧用)</td>
+</tr>
+<tr>
+<td><code>open_plugin</code></td>
+<td><code>plugin_id</code> のプラグインをload+startし、<code>open_dialog</code> があれば開く</td>
+</tr>
+<tr>
+<td><code>reload_plugin</code></td>
+<td><code>plugin_id</code> のプラグインを <code>sys.modules</code> 掃除+<code>reloadPlugin</code>+<code>open_dialog</code> でホットリロード(QGIS再起動不要。自プラグイン自身も可)</td>
+</tr>
+<tr>
+<td><code>bridge_call</code></td>
+<td><code>plugin_id</code> + <code>method</code> + <code>args</code> で対象プラグインのbridgeオブジェクトを<strong>プロセス内で直接呼ぶ</strong>。WebChannelを通らないためJSレンダラー飢餓中でも動作する。JSON文字列の返値はパースして返す</td>
+</tr>
+<tr>
+<td><code>eval</code> / <code>devreload</code></td>
+<td>viewを持たないため <strong>unsupported エラーを返す</strong>(ハングしない)。ただし <code>plugin_id</code> を付けると対象プラグインへ転送される(下記)</td>
+</tr>
+</tbody></table>
+<h3>plugin_idルーティング(ハブ機能)</h3>
+<p><code>eval</code> / <code>pyeval</code> / <code>screenshot</code> / <code>devreload</code> に <code>plugin_id</code> を付けると、
+そのプラグインのLiveDriver(<code>plugin.driver</code>/<code>plugin._live</code>)へコマンドが
+転送され、結果は呼び出し元の <code>results.jsonl</code> に返る。
+つまり<strong>このドライバのlive dir / HTTPポート1本で全プラグインを制御できる</strong>。</p>
+<ul>
+<li>転送先ドライバは <code>_handle(cmd, reply)</code> の <code>reply</code> 引数に対応している必要がある(repo同梱の webengine_plugin 版 live_driver.py は対応済み)</li>
+<li><code>pyeval</code> を転送すると対象プラグインの名前空間(その <code>view</code>/<code>driver</code>)で実行される</li>
+</ul>
+<h3>制御可能な範囲(pyeval)</h3>
+<table>
+<thead>
+<tr>
+<th>対象</th>
+<th>pyevalの例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>レイヤー/プロジェクト</td>
+<td><code>iface.addVectorLayer(...)</code> / <code>QgsProject.instance().write()</code></td>
+</tr>
+<tr>
+<td>キャンバス</td>
+<td><code>iface.mapCanvas().setExtent(...)</code> / <code>.refresh()</code></td>
+</tr>
+<tr>
+<td>メニュー/ツールバー</td>
+<td><code>iface.actionZoomIn().trigger()</code>、<code>mainWindow().findChildren(QAction)</code> で全アクション列挙・実行</td>
+</tr>
+<tr>
+<td>他プラグイン</td>
+<td><code>qgis.utils.plugins["&lt;id&gt;"]</code> で他プラグインのオブジェクトに到達</td>
+</tr>
+<tr>
+<td>Processing</td>
+<td><code>processing.run("native:buffer", {...})</code></td>
+</tr>
+<tr>
+<td>設定</td>
+<td><code>QgsSettings().setValue(...)</code></td>
+</tr>
+<tr>
+<td>任意ウィジェットの画像化</td>
+<td><code>widget.grab().save(path)</code>(pyeval経由)</td>
+</tr>
+</tbody></table>
+<p><strong>制約:</strong></p>
+<ul>
+<li><strong>同期GUIスレッド実行</strong> — pyeval実行中はGUIがブロックし、逆に再描画等でGUIビジーの間はポーリングが飢餓する(一時的)</li>
+<li><strong>OSネイティブダイアログ</strong> — Qt外のダイアログはwidget introspection経由の間接操作。Qtモーダルは <code>QApplication.activeModalWidget()</code> で <code>accept()</code>/<code>reject()</code> 可能</li>
+<li><strong>実マウス/実キー</strong> — <code>QMouseEvent</code>/<code>QTest.mouseClick</code> のpostで模倣可能だが座標変換等の下ごしらえが必要</li>
+<li><strong>Python API未露出の内部機能</strong> — 稀だがC++ privateな振る舞いは不可</li>
+</ul>
 <h2>接続面(4系統・全て同じdispatchへ)</h2>
 <ul>
 <li><strong>ファイルJSONL</strong> — <code>commands.jsonl</code> 追記 → QTimerが実行 → <code>results.jsonl</code> 返却。
@@ -86,6 +171,61 @@ GUIスレッドのQTimerがファイルJSONLと同じ要領で実行する(dispa
     LD --&gt; RES
     RES --&gt; APP &amp; LP
 </code></pre>
+<h3>HTTP RESTエンドポイント</h3>
+<table>
+<thead>
+<tr>
+<th>エンドポイント</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GET /api/health</code></td>
+<td><code>{"ok":true,"pid":...,"plugin":"qgis_live_driver"}</code></td>
+</tr>
+<tr>
+<td><code>GET /api/tools</code></td>
+<td>ツール仕様JSON(function calling系AIが読む用)</td>
+</tr>
+<tr>
+<td><code>GET /api/status</code></td>
+<td><code>status</code> コマンドの結果</td>
+</tr>
+<tr>
+<td><code>POST /api/cmd</code></td>
+<td>コマンドJSONをそのままdispatch(<code>{"type":"reload_plugin","plugin_id":"..."}</code> 等すべて有効)</td>
+</tr>
+<tr>
+<td><code>POST /api/pyeval</code></td>
+<td><code>{"code":"...", "plugin_id":"..."}</code> → <code>{"result":...}</code></td>
+</tr>
+<tr>
+<td><code>POST /api/eval</code></td>
+<td><code>{"expression":"...", "plugin_id":"&lt;id&gt;"}</code> → 対象プラグインへ転送(plugin_id無しなら unsupported)</td>
+</tr>
+<tr>
+<td><code>POST /api/screenshot</code></td>
+<td><code>{"path":"...","plugin_id":"...","target":"..."}</code> → PNGバイナリ(Content-Type: image/png)</td>
+</tr>
+<tr>
+<td><code>POST /mcp</code></td>
+<td>MCP JSON-RPC (initialize/tools/list/tools/call/ping)</td>
+</tr>
+</tbody></table>
+<p>MCP tools は <code>qgis_&lt;コマンド種別&gt;</code> の命名で、引数はコマンドJSONの
+キーにそのまま対応する(<code>plugin_id</code> / <code>target</code> / <code>method</code> / <code>args</code> 等)。</p>
+<h3>ファイルプロトコル詳細</h3>
+<p>環境変数 <code>WEBENGINE_LIVE_DIR</code> が設定された状態でQGISが起動すると、
+<code>initGui</code> 時に <code>live_driver.py</code> が起動し
+<code>WEBENGINE_LIVE_DIR/qgis-&lt;pid&gt;/qgis_live_driver/</code> をポーリングする:</p>
+<pre><code>外部アプリ → commands.jsonl に1行1JSONを追記
+           → QTimer(200ms)が読み取り実行
+           → results.jsonl に {id, result|error} を追記で返却</code></pre>
+<ul>
+<li>輸送層はファイルのみ。<strong>言語非依存</strong>(JSON Linesを追記・読取できれば何でもよい)</li>
+<li><code>commands.jsonl</code> は <strong>append-only</strong>。切り詰めるとドライバのoffsetがずれてmid-line読み(JSONDecodeError+コマンド喪失)を起こす</li>
+<li>同一live dirへの同時アクセスは <strong>単一クライアント</strong> 前提</li>
+</ul>
 <h2 id="publish">外部公開(Copilot Studio等からの接続)</h2>
 <p><code>/mcp</code> は Copilot Studio が対応する <strong>Streamable HTTP transport 互換</strong>だが、
 既定では <code>127.0.0.1</code>・認証なしのためクラウドからは到達しない。
@@ -128,9 +268,11 @@ live dir(<code>&lt;WEBENGINE_LIVE_DIR&gt;/qgis-&lt;pid&gt;/qgis_live_driver/</co
 (未設定なら何もしない無害なプラグイン)。</p>
 <blockquote>
 <p><strong>セキュリティ</strong>: <code>pyeval</code> は任意コード実行。<strong>開発専用</strong>であり
-エンドユーザーへの配布物に含めてはいけない。
-HTTPサーバは <code>127.0.0.1</code> のみにバインドする。詳細・制御範囲・制約は
-<a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/qgis_live_driver/README.md">qgis_live_driver/README.md</a> を参照。</p>
+エンドユーザーへの配布物に含めてはいけない(metadata.txtにも <code>Development-only</code> と明記済み)。
+HTTPサーバは <code>127.0.0.1</code> のみにバインドするが、ローカルマシン上の
+任意プロセスからQGIS内部を操作できるためリモート公開は想定しない。
+外部公開する場合は必ず <a href="#publish">上記手順</a> でAPIキー認証を有効にし、
+<code>QGIS_LIVE_TOOLS</code> で <code>pyeval</code> を含まない最小限のツールに絞ること。</p>
 </blockquote>
 <nav class="pager">
   <a href="index.html"><span class="dir">前へ</span><span class="title">概要</span></a>
