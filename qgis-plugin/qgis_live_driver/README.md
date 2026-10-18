@@ -82,16 +82,108 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
   を優先し、無ければ主要モデルの既知価格表(参考値)を使う。
   既定エンドポイント利用時は「取得」前から推奨モデル一覧を表示。
   モデル欄の下に選択中モデルの種別・価格・コンテキスト長も出る
+- **エージェント/スキル(指示書)**: Markdownファイル2系統で振る舞いを拡張:
+  - **`~/.qgis-live/agents/*.md`** — 常時注入の指示書(役割・方針)。
+    パネルの「エージェント」コンボで1件選択するとsystem promptに
+    本文が注入される。「編集」ボタンで作成・編集・削除できる
+    (複数定義して切替可能。チャットごとに選択も記憶される)
+  - **`~/.qgis-live/skills/*.md`** — オンデマンドの手順書。
+    プロンプトにはファイル名+説明の一覧のみ載り、モデルが該当
+    タスク時に `qgis_pyeval` の `open()` で本文を読む
+    (常時注入しないのでトークン節約)。
+    **設定方法はAPI設定の「スキル」行 — 全件がコンボに列挙され
+    (選択不要・全件が自動で一覧に載る)、「編集」ダイアログで
+    作成・編集・削除する**
+  - 両者とも `<plugin>/<kind>/` にプラグイン同梱デフォルトを置け、
+    ユーザ側の同名ファイルが優先される。先頭 `# `行=タイトル、
+    次の非空行=説明文として認識される。
+    同梱例: `skills/qgis-basics.md`(pyevalレシピ)
+  - **AI自身も指示書を編集・選択できる**: `ai_list_instructions` /
+    `ai_read_instruction` / `ai_save_instruction` /
+    `ai_delete_instruction` に加え `ai_select_agent`(選択中
+    エージェントの切替)をモデルに渡す。エージェント一覧は
+    スキルと同様にid+説明がプロンプトに載るため、モデルが
+    タスクに合うエージェントを自律選択できる。保存は常に
+    ユーザ側へ書き、同梱品は同名保存で実質上書き(削除は
+    ユーザ側のみ)。変更後はパネルのコンボも自動で再構築される
+  - **外部AIからも操作できる**: MCP/REST側の `qgis_instruction`
+    ツール(op=list|read|save|delete)で、オーケストレーターが
+    指示書を発見・編集可能(`QGIS_LIVE_TOOLS` の許可対象)
 - **表示**: AI応答はMarkdownレンダリング(見出し/リスト/表/
   コードブロック)。「新しいチャット」で現在の会話を履歴コンボへ
   保存して新規開始。履歴コンボから過去チャットを開くと
-  表示とコンテキストが復元され会話を継続できる(QGIS起動中のみ保持)
+  表示とコンテキストが復元され会話を継続できる。
+  履歴は `~/.qgis-live/chats.json` に永続化され(最新50件)
+  QGIS再起動後も残る。「↓」で表示中チャットをMarkdown保存、
+  「✕」で表示中の履歴チャットを削除できる
+- **中断/再送**: 実行中は「送信」が「中断」に変わり、
+  往復の境界でループを止められる(進行中のAPI応答やツール実行
+  そのものは完了を待つ)。「再送」は最後の質問+応答を取り消して
+  同じ質問を送り直す。長い会話は古いターンから自動で切り詰める
+  (MAX_HISTORY_CHARS)ためコンテキスト過大でAPIエラーにならない。
+  右下にコンテキスト/コスト表示
+  (`ctx 9k/128k (6%) · Σ13k · $0.0023`)。
+  ctx は直近API応答のprompt_tokens実測値(未取得時は~付きで
+  文字数÷3推定)、Σ はチャット毎の累計トークン、$ は
+  価格情報があるモデルでの推定コスト(定額制のCopilot等では
+  Σのみ表示)。usageとともにチャット履歴へ保存される
+- **確認モード**: 「ツール実行の前に確認する」をONにすると
+  各ツール呼び出しで実行可否を都度確認する(任意コード実行の
+  pyevalを自動で回したくない場合に)
 - **ツール**: `mcp_http.TOOLS` と同じセット
   (`qgis_pyeval` / `qgis_screenshot` / `qgis_status` /
   `qgis_eval` / `qgis_devreload` / `qgis_open_plugin` /
-  `qgis_reload_plugin` / `qgis_bridge_call`)をモデルに渡し、
-  戻ってきたtool_callを `driver.submit()` で実行して結果を返す
-  エージェントループ(上限25往復)
+  `qgis_reload_plugin` / `qgis_bridge_call` /
+  `qgis_instruction`)に加え、指示書を
+  読み書きするパネルローカルツール `ai_*`、および外部MCPサーバの
+  ツール `mcp_*` をモデルに渡し、戻ってきたtool_callを
+  `driver.submit()`(qgis_*)またはローカル実行(ai_*/mcp_*)で
+  処理するエージェントループ(上限25往復)
+- **外部MCPサーバ接続**: API設定の「MCP」行→「設定」で
+  `~/.qgis-live/mcp_servers.json` を編集(Claude Desktop互換形式):
+  ```json
+  {"mcpServers": {
+    "fs":  {"command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:/work"]},
+    "api": {"url": "http://localhost:3000/mcp",
+            "headers": {"Authorization": "Bearer ..."}},
+    "box": {"url": "https://mcp.box.com",
+            "oauth": {"authorize_url":
+                        "https://account.box.com/api/oauth2/authorize",
+                      "token_url": "https://api.box.com/oauth2/token",
+                      "client_id": "...", "client_secret": "...",
+                      "redirect_uri": "http://127.0.0.1:8020/callback"}},
+    "ccg": {"url": "https://example.com/mcp",
+            "oauth": {"token_url": "https://example.com/oauth/token",
+                      "client_id": "...", "client_secret": "...",
+                      "extra": {"box_subject_type": "enterprise",
+                                "box_subject_id": "..."}}}
+  }}
+  ```
+  `command`=stdioで子プロセス起動(Windowsではコンソール窓を出さない)、
+  `url`=Streamable HTTP。認証は `headers` で固定値を渡すか、
+  `oauth` で2種類のOAuthを使う:
+  `authorize_url` あり=**authorization_code+PKCE**(初回送信時に
+  ブラウザが開き同意画面、トークンは `~/.qgis-live/mcp_tokens.json`
+  に保存して以降は refresh_token で自動更新。mcp.box.com等の
+  ユーザー同意型サーバ用。redirect_uriはアプリ側に登録が必要)、
+  `authorize_url` 無し=**client_credentials**(client_id+secret、
+  `extra`でプロバイダ固有のformパラメータ)。
+  401で1回リトライ。接続に失敗した場合はエラーと一緒に
+  「①Redirect URIの登録 ②authorization_code有効 ③id/secret一致」
+  の確認ガイドを表示する。
+  mcp.box.com を使う場合はさらに Box側で Business プラン以上、
+  Admin Console での MCP 有効化、Custom App で標準OAuth2
+  (CCGのみのServer Appは不可)が必要。
+  取得トークンは `~/.qgis-live/mcp_tokens.json` に平文保存される
+  (アクセス/refreshトークンを含むため取り扱い注意)。
+  初回送信時に接続・tools/listを行い、
+  各ツールは `mcp_<サーバ>__<ツール>` としてモデルに公開される。
+  設定を保存すると次の送信で再接続される。接続失敗したサーバは
+  チャット欄にエラー表示され他サーバは継続する。
+  注意: QGIS自身のドライバMCPエンドポイントを指定すると、
+  tools/callがGUIスレッドdispatchを経由する自己参照になるため
+  実用上は他サーバを指すこと
 - **リモート制御トグルOFFでも動く**: パネル専用の内部LiveDriver
   (レジストリ・HTTP公開面なし)を使うため、外部公開を有効化せずに
   AI操作だけを試せる

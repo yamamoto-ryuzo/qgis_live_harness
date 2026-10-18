@@ -3,6 +3,60 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
+## [0.7.0] - 2026-10-18
+
+### Added
+
+- **エージェント/スキル(指示書ファイル)**(`ai_client.py`+`ai_panel.py`):
+  `~/.qgis-live/agents/*.md` は常時注入の指示書でパネルのコンボで
+  選択(複数定義・切替・チャットごとの記憶に対応)。
+  `~/.qgis-live/skills/*.md` はオンデマンドの手順書で
+  一覧のみプロンプトに載せ、モデルが `qgis_pyeval` の `open()` で
+  本文を読む(progressive disclosure)。両者とも「編集」ダイアログ
+  (種別コンボでエージェント/スキル切替、編集/表示の2ペイン分割・
+  入力中Markdownのライブプレビュー)から作成/編集/削除でき、
+  `<plugin>/<kind>/` の同梱デフォルトはユーザ側同名ファイルが優先。
+  同梱例として `skills/qgis-basics.md` を追加
+- **AI自身による指示書の編集・選択**(`ai_client.py`):
+  パネルローカルツール `ai_list_instructions` /
+  `ai_read_instruction` / `ai_save_instruction` /
+  `ai_delete_instruction` / `ai_select_agent`(保存は常に
+  ユーザ側、同梱品は削除不可・同名保存で上書き)。
+  エージェント一覧もid+説明+[active]マークでプロンプトに載せ、
+  モデルが自律選択可能。保存依頼時は意図からagents/skillsを
+  判別して理由を案内する指針をプロンプトに明記。
+  外部オーケストレーター向けにMCP/RESTの `qgis_instruction`
+  ツール(op=list|read|save|delete)も公開
+- **外部MCPサーバ接続(MCPクライアント)**(`ai_client.py`):
+  stdlibのみのMCPクライアントを追加。設定は
+  `~/.qgis-live/mcp_servers.json`(Claude Desktop互換)、
+  `command`=stdio子プロセス / `url`=Streamable HTTP(JSON/SSE両対応、
+  Mcp-Session-Id追従)。HTTP側の認証は `headers` 固定値のほか
+  `oauth` で authorization_code+PKCE(authorize_url指定時。
+  ブラウザ同意→localhostコールバック受信→トークンを
+  mcp_tokens.json へ永続化・refresh_token自動更新)と
+  client_credentials(token_urlのみ指定時、client_id/secret、
+  extraでプロバイダ固有formパラメータ)の両方に対応。
+  401で1回リトライ。接続/認証エラー時はアプリ側設定の確認ガイド
+  (Redirect URI登録・authorization_code有効・id/secret一致)を表示。
+  発見ツールは `mcp_<サーバ>__<ツール>` に
+  マングリングしてfunction callingへ混入し、パネルがセッション
+  経由でローカル実行。API設定に「MCP」行(状態表示+設定ダイアログ、
+  ダイアログには接続例BOXと「例をエディタへ挿入」ボタン付き)、
+  保存時に次回送信で再接続。接続失敗はサーバごとに分離して表示
+- **運用機能**(`ai_panel.py`+`ai_client.py`):
+  実行中の中断ボタン(往復境界で停止)、最後の質問の「再送」、
+  ツール実行前の確認モード(チェックONで都度Yes/No)、
+  会話履歴のコンテキスト上限(古いターンから切詰め)、
+  右下の使用量/累計コスト表示(API応答のusage実測値を
+  チャット毎に累積・ctx=直近prompt_tokens実測または文字数推定)、
+  チャット履歴の `~/.qgis-live/chats.json` への永続化(最新50件)、
+  表示中チャットのMarkdown保存(↓)と履歴削除(✕)
+
+### Changed
+
+- API設定の表示切替トグルを⚙アイコンボタンに簡略化
+
 ## [0.6.0] - 2026-10-18
 
 ### Added

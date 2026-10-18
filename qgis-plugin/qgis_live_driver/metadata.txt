@@ -2,7 +2,7 @@
 name=QGIS Live Driver
 description=Localhost-only remote control driver for QGIS (token-authenticated MCP/REST/file API for local AI tools) plus a built-in AI assistant panel for OpenAI-compatible APIs
 about=Exposes QGIS internals to local clients via commands.jsonl/results.jsonl, REST /api/* and MCP Streamable HTTP /mcp on 127.0.0.1 only. All channels require a per-session token stored in user-only files. Disabled by default; enable via the Plugins > QGIS Live Driver menu or WEBENGINE_LIVE_DIR env. pyeval executes arbitrary Python inside QGIS — the trust boundary is the local user account. The AI アシスタント dock (Plugins > QGIS Live Driver > AI アシスタント) connects an OpenAI-compatible, Gemini or GitHub Copilot API and lets the model run the driver's tools via function calling.
-version=0.6.0
+version=0.7.0
 icon=icon.png
 qgisMinimumVersion=4.0
 supportsQt6=yes

@@ -26,9 +26,14 @@ ai_panel のエージェントループはプロバイダ非依存で回る。
 """
 
 import base64
+import hashlib
+import itertools
 import json
 import os
 import re
+import secrets
+import shutil
+import subprocess
 import tempfile
 import threading
 import time
@@ -36,6 +41,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
+import webbrowser
 
 from .mcp_http import TOOLS
 
@@ -44,6 +50,9 @@ MAX_TOOL_ROUNDS = 25
 
 # ツール結果としてモデルに返すテキストの上限(超過分は切り詰め)
 MAX_TOOL_RESULT_CHARS = 6000
+# 会話履歴をプロンプトへ渡す上限(文字数)。超過分は古いターンから
+# 落とす(往復で肥大したコンテキストがAPIエラーになるのを防ぐ)
+MAX_HISTORY_CHARS = 60000
 
 DEFAULT_BASE_URL = "https://api.openai.com/v1"
 DEFAULT_MODEL = "gpt-4o-mini"
@@ -239,7 +248,7 @@ def _known_price(tail):
 
 
 def _entry_price(entry, tail):
-    """価格情報 → (短表記, 説明文, 出典) 。無ければ (None, None, None)。
+    """価格情報 → (短表記, 説明文, 出典, (in,out)/1MのUSD|None) 。
 
     OpenRouter等が pricing.prompt/completion (USD/token) を返せば
     それを使い、無ければ既知価格表(参考値)にフォールバックする。
@@ -256,37 +265,73 @@ def _entry_price(entry, tail):
             pin, pout = pin or 0.0, pout or 0.0
             return (f"{_usd(pin)}/{_usd(pout)}",
                     f"入力 {_usd(pin)} / 出力 {_usd(pout)} /1Mトークン",
-                    "api")
+                    "api", (pin, pout))
         try:
             pimg = float(pr.get("image"))
         except (TypeError, ValueError):
             pimg = None
         if pimg:
             return (f"{_usd(pimg)}/img",
-                    f"{_usd(pimg)} /枚(画像生成)", "api")
+                    f"{_usd(pimg)} /枚(画像生成)", "api", None)
     kp = _known_price(tail)
     if kp:
         return (f"{_usd(kp[0])}/{_usd(kp[1])}",
                 f"入力 {_usd(kp[0])} / 出力 {_usd(kp[1])} /1Mトークン",
-                "known")
-    return None, None, None
+                "known", kp)
+    return None, None, None, None
 
 
 def model_info(entry):
     """list_model_entries()の1要素 → {id, kind, price, price_desc,
-    price_src, context} に正規化する。"""
+    price_src, price_usd, context} に正規化する。"""
     mid = entry["id"]
     tail = mid.split("/")[-1].lower()
-    price, desc, src = _entry_price(entry, tail)
+    price, desc, src, usd = _entry_price(entry, tail)
     return {
         "id": mid,
         "kind": classify_model(mid, entry),
         "price": price,
         "price_desc": desc,
         "price_src": src,          # "api"=エンドポイント応答 / "known"=参考値
+        "price_usd": usd,          # (in_usd, out_usd)/1Mトークン|None
         "context": (entry.get("context_length")
                     or entry.get("input_token_limit")),
     }
+
+
+def usage_cost(info, total):
+    """model_info + 累計usage {"in","out"} → 推定コストUSD|None。
+
+    price_usd は1MトークンあたりのUSD。"known"(参考値)でも計算する。
+    """
+    pr = info.get("price_usd")
+    if not pr:
+        return None
+    return (total.get("in", 0) * pr[0]
+            + total.get("out", 0) * pr[1]) / 1_000_000
+
+
+def parse_usage(data):
+    """API応答のusage → {"in","out"}|None に正規化する。
+
+    OpenAI互換: usage.prompt_tokens/completion_tokens
+    Gemini: usageMetadata.promptTokenCount/candidatesTokenCount
+    (thoughtsTokenCount も出力側に含める)
+    """
+    u = data.get("usage")
+    if isinstance(u, dict):
+        pin = u.get("prompt_tokens")
+        pout = u.get("completion_tokens")
+        if pin is not None or pout is not None:
+            return {"in": pin or 0, "out": pout or 0}
+    m = data.get("usageMetadata")
+    if isinstance(m, dict):
+        pin = m.get("promptTokenCount")
+        pout = ((m.get("candidatesTokenCount") or 0)
+                + (m.get("thoughtsTokenCount") or 0))
+        if pin is not None or pout:
+            return {"in": pin or 0, "out": pout}
+    return None
 
 
 def model_label(info):
@@ -324,6 +369,26 @@ Guidelines:
   window after operations that change the map.
 - `plugin_id` routes eval/pyeval/screenshot to another plugin's live
   driver (e.g. a WebEngine plugin's `view`). Loaded plugin ids: {plugins}
+- `ai_*` tools manage instruction files on this machine:
+  `agents` = persistent instructions injected into your system prompt
+  (one selected at a time), `skills` = on-demand procedural docs listed
+  in the prompt. You may create or update them when the user asks or
+  when a reusable procedure emerges. Save always writes a user file;
+  bundled files can be shadowed by saving the same id but never deleted.
+- When the user asks to save/learn/create instructions, choose the
+  right kind by intent and tell them which you chose and why:
+  - `agents`: requests about how you should always behave — a role,
+    persona, policy, or output style ("be a surveying expert", "always
+    answer with a table", "from now on do X"). Only one is active at
+    a time, so also offer to select it via ai_select_agent.
+  - `skills`: requests to remember a procedure — repeatable steps for
+    a specific task ("remember this workflow", "save how to do X").
+    Skills coexist and are read on demand, so this is the default for
+    task-specific knowledge.
+  If the intent is genuinely ambiguous, ask the user which they want
+  before saving.
+- `mcp_<server>__<tool>` tools (if present) are provided by external
+  MCP servers configured on this machine.
 - Keep each step small and verify the result before moving on.
 - Answer in the user's language.
 """
@@ -525,11 +590,17 @@ def endpoint_url(base):
     return u
 
 
+def _tool_short(name):
+    """ツール名の接頭辞(qgis_|ai_)を剥がした種別名。allowed判定用。"""
+    return name.split("_", 1)[1] if "_" in name else name
+
+
 def openai_tools(allowed=None):
-    """mcp_http.TOOLS をOpenAI function callingスキーマに変換する。"""
+    """mcp_http.TOOLS + INSTRUCTION_TOOLS + 外部MCPツールを
+    OpenAI function callingスキーマに変換する。"""
     out = []
-    for t in TOOLS:
-        if allowed is not None and t["name"][len("qgis_"):] not in allowed:
+    for t in TOOLS + INSTRUCTION_TOOLS + _EXTRA_TOOLS:
+        if allowed is not None and _tool_short(t["name"]) not in allowed:
             continue
         out.append({
             "type": "function",
@@ -593,10 +664,11 @@ def _gemini_schema(s):
 
 
 def gemini_tools(allowed=None):
-    """mcp_http.TOOLS をGemini functionDeclarationsに変換する。"""
+    """mcp_http.TOOLS + INSTRUCTION_TOOLS + 外部MCPツールを
+    Gemini functionDeclarationsに変換する。"""
     decls = []
-    for t in TOOLS:
-        if allowed is not None and t["name"][len("qgis_"):] not in allowed:
+    for t in TOOLS + INSTRUCTION_TOOLS + _EXTRA_TOOLS:
+        if allowed is not None and _tool_short(t["name"]) not in allowed:
             continue
         decls.append({
             "name": t["name"],
@@ -649,6 +721,20 @@ def tool_to_command(name, args):
     cmd = {"type": name[len("qgis_"):]}
     cmd.update({k: v for k, v in (args or {}).items() if v is not None})
     return cmd
+
+
+def trim_history(history, max_chars=MAX_HISTORY_CHARS):
+    """会話履歴を max_chars 以内にする。古いターンから落とし、
+    最新ターンは必ず残る(プロンプト送信時のコンテキスト上限対策)。"""
+    total = 0
+    keep = []
+    for m in reversed(history or []):
+        n = len(m.get("content") or "")
+        if keep and total + n > max_chars:
+            break
+        keep.append(m)
+        total += n
+    return list(reversed(keep))
 
 
 def parse_tool_arguments(raw):
@@ -710,9 +796,946 @@ def image_message_content(path, note=None):
     ]
 
 
-def system_prompt(plugins=None):
+def system_prompt(plugins=None, agent_text=None, skills=None,
+                  agents=None, active_agent=None):
+    """システムプロンプトを組み立てる。
+
+    @param agent_text: エージェント指示書(agents/*.mdの本文)。
+      選択されていれば常時注入される
+    @param skills: list_skills() の一覧。パス+説明のみ載せ、
+      本文はモデルが必要時に qgis_pyeval の open() で読む
+      (progressive disclosureでトークン節約)
+    @param agents: list_agents() の一覧。id+説明のみ載せ、
+      active_agent に [active] を付ける。モデルは
+      ai_select_agent で切替・ai_read_instruction で読取できる
+    """
     plist = ", ".join(sorted(plugins)) if plugins else "(none)"
-    return SYSTEM_PROMPT.format(plugins=plist)
+    p = SYSTEM_PROMPT.format(plugins=plist)
+    if agent_text and agent_text.strip():
+        p += "\n## Agent instructions\n" + agent_text.strip() + "\n"
+    if agents:
+        lines = "\n".join(
+            f"- {a['id']}: {a['desc'] or a['title']}"
+            + (" [active]" if a["id"] == active_agent else "")
+            for a in agents)
+        p += ("\n## Agents\n"
+              "Agent instruction files define persistent behavior. "
+              "The [active] agent's body is already injected above. "
+              "Switch with ai_select_agent, or read one via "
+              "ai_read_instruction and adopt it ad hoc:\n"
+              + lines + "\n")
+    if skills:
+        lines = "\n".join(
+            f"- {s['id']} ({s['path']}): {s['desc']}"
+            for s in skills)
+        p += ("\n## Skills\n"
+              "Skill files are available on this machine. When a task "
+              "matches, read the file via qgis_pyeval open() first:\n"
+              + lines + "\n")
+    return p
+
+
+# ---- エージェント/スキル(指示書ファイル) ----
+# 整理方針:
+#   agents/  = 常時注入される指示書(役割・方針)。UIで1件選択して使う
+#   skills/  = オンデマンドの手順書。一覧だけをプロンプトに載せ、
+#              モデルが該当タスク時に qgis_pyeval で本文を読む
+# 置き場所(ユーザ定義)は ~/.qgis-live/<kind>/ (QGIS_LIVE_REGISTRY準拠)。
+# <plugin>/<kind>/ はプラグイン同梱の読み取り専用デフォルトで、
+# ユーザ側の同名ファイルが優先される(上書き)。
+
+def _registry_dir():
+    return os.environ.get(
+        "QGIS_LIVE_REGISTRY",
+        os.path.join(os.path.expanduser("~"), ".qgis-live"))
+
+
+def agents_dir():
+    return os.path.join(_registry_dir(), "agents")
+
+
+def skills_dir():
+    return os.path.join(_registry_dir(), "skills")
+
+
+def _bundled_dir(kind):
+    """プラグイン同梱のデフォルト <kind> ディレクトリ。"""
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), kind)
+
+
+def _md_head(path):
+    """.md の先頭から (title, desc) を取る。
+
+    最初の '# '行をタイトル、次の非空行を説明文とする。
+    frontmatter的な '---' やコメント行は読み飛ばす。
+    """
+    title = desc = None
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            for raw in f:
+                t = raw.strip()
+                if not t:
+                    if title and desc:
+                        break
+                    continue
+                if t.startswith("#"):
+                    if title is None:
+                        title = t.lstrip("#").strip()
+                    continue
+                if t.startswith("---") or t.startswith("<!--"):
+                    continue
+                desc = t
+                break
+    except Exception:
+        pass
+    return title, desc
+
+
+def list_instruction_files(kind):
+    """"agents"|"skills" の .md を走査する。
+
+    @returns [{id, title, desc, path, builtin}] (id=ファイル名stemで
+      ソート)。bundled→user の順で走査し、同名はユーザ側が上書き。
+    """
+    udir = agents_dir() if kind == "agents" else skills_dir()
+    out = {}
+    for d, builtin in ((_bundled_dir(kind), True), (udir, False)):
+        if not os.path.isdir(d):
+            continue
+        for f in sorted(os.listdir(d)):
+            if not f.lower().endswith(".md"):
+                continue
+            stem = f[:-3]
+            if not builtin or stem not in out:
+                p = os.path.join(d, f)
+                title, desc = _md_head(p)
+                out[stem] = {"id": stem, "path": p, "builtin": builtin,
+                             "title": title or stem, "desc": desc or ""}
+    return [out[k] for k in sorted(out)]
+
+
+def list_agents():
+    """利用可能なエージェント指示書一覧。"""
+    return list_instruction_files("agents")
+
+
+def list_skills():
+    """利用可能なスキル手順書一覧。"""
+    return list_instruction_files("skills")
+
+
+def _kind_dir(kind):
+    return agents_dir() if kind == "agents" else skills_dir()
+
+
+def _kind_list(kind):
+    return list_agents() if kind == "agents" else list_skills()
+
+
+def load_agent(agent_id):
+    """エージェントid → 指示テキスト。未指定/未存在はNone。"""
+    return load_instruction("agents", agent_id)
+
+
+def load_instruction(kind, item_id):
+    """kind("agents"|"skills")のid → 本文。未指定/未存在はNone。"""
+    if not item_id:
+        return None
+    for a in _kind_list(kind):
+        if a["id"] == item_id:
+            try:
+                with open(a["path"], "r", encoding="utf-8") as f:
+                    return f.read()
+            except Exception:
+                return None
+    return None
+
+
+def save_agent(name, text):
+    """ユーザの agents/ に <name>.md として保存しパスを返す。"""
+    return save_instruction("agents", name, text)
+
+
+def save_skill(name, text):
+    """ユーザの skills/ に <name>.md として保存しパスを返す。"""
+    return save_instruction("skills", name, text)
+
+
+def save_instruction(kind, name, text):
+    """ユーザの <kind>/ に <name>.md として保存しパスを返す。
+
+    ファイル名に使えない文字・空白は '_' に置換する。
+    """
+    safe = re.sub(r'[\\/:*?"<>|\s]+', "_", (name or "").strip())
+    if not safe:
+        raise ApiError("名前が空です")
+    d = _kind_dir(kind)
+    os.makedirs(d, exist_ok=True)
+    p = os.path.join(d, safe + ".md")
+    with open(p, "w", encoding="utf-8") as f:
+        f.write(text or "")
+    return p
+
+
+def delete_agent(agent_id):
+    """ユーザ側のエージェントファイルを消す(bundledは消せない)。"""
+    return delete_instruction("agents", agent_id)
+
+
+def delete_skill(skill_id):
+    """ユーザ側のスキルファイルを消す(bundledは消せない)。"""
+    return delete_instruction("skills", skill_id)
+
+
+def delete_instruction(kind, item_id):
+    """ユーザ側の <kind>/<id>.md を消す(bundledは消せない)。"""
+    for a in _kind_list(kind):
+        if a["id"] == item_id and not a["builtin"]:
+            try:
+                os.remove(a["path"])
+                return True
+            except Exception:
+                return False
+    return False
+
+
+# ---- AIローカルツール(指示書の自己編集) ----
+# qgis_* ツールはドライバのコマンドだが、ai_* ツールはパネル側で
+# ローカル実行し、このファイル層に委譲する。
+# mcp_http.TOOLS と同じ {name, description, inputSchema} 形にして
+# openai_tools()/gemini_tools() にそのまま混ぜられるようにする。
+
+_KIND_PROP = {"type": "string", "enum": ["agents", "skills"],
+              "description":
+                  "agents=役割・方針・出力様式など常時注入の指示書"
+                  "(同時に1件のみ有効。人格や「常に〜して」系の依頼向け) / "
+                  "skills=特定タスクの手順・レシピ"
+                  "(複数共存し必要時だけ読まれる。「この手順を覚えて」"
+                  "系の依頼向け)"}
+
+INSTRUCTION_TOOLS = [
+    {
+        "name": "ai_list_instructions",
+        "description":
+            "List agent/skill instruction files on this machine "
+            "(id, title, desc, path, bundled-or-user).",
+        "inputSchema": {"type": "object",
+                        "properties": {"kind": _KIND_PROP},
+                        "required": ["kind"]},
+    },
+    {
+        "name": "ai_read_instruction",
+        "description":
+            "Read the full body of an agent/skill instruction file by id.",
+        "inputSchema": {"type": "object",
+                        "properties": {"kind": _KIND_PROP,
+                                       "id": {"type": "string",
+                                              "description": "ファイル名(stem)"}},
+                        "required": ["kind", "id"]},
+    },
+    {
+        "name": "ai_save_instruction",
+        "description":
+            "Create or overwrite an agent/skill instruction file. Always "
+            "writes the user file (~/.qgis-live/<kind>/<name>.md); a "
+            "user file with a bundled id shadows the bundled one. "
+            "Choose the kind by intent: 'agents' for behavior/persona/"
+            "output-style instructions (only one is active at a time), "
+            "'skills' for task procedures and recipes (many coexist, "
+            "read on demand). Format: first '# ' line = title, next "
+            "non-empty line = description, the rest is the "
+            "instruction body.",
+        "inputSchema": {"type": "object",
+                        "properties": {"kind": _KIND_PROP,
+                                       "name": {"type": "string",
+                                                "description": "ファイル名(stem)"},
+                                       "text": {"type": "string",
+                                                "description": "ファイル本文(Markdown)"}},
+                        "required": ["kind", "name", "text"]},
+    },
+    {
+        "name": "ai_delete_instruction",
+        "description":
+            "Delete a user-side agent/skill instruction file. "
+            "Bundled files cannot be deleted.",
+        "inputSchema": {"type": "object",
+                        "properties": {"kind": _KIND_PROP,
+                                       "id": {"type": "string",
+                                              "description": "ファイル名(stem)"}},
+                        "required": ["kind", "id"]},
+    },
+    {
+        "name": "ai_select_agent",
+        "description":
+            "Switch the active agent instruction injected into your "
+            "system prompt. Pass the agent id, or empty to clear. "
+            "Panel-only: not meaningful for external clients.",
+        "inputSchema": {"type": "object",
+                        "properties": {
+                            "id": {"type": "string",
+                                   "description": "エージェントid(空=解除)"}},
+                        "required": ["id"]},
+    },
+]
+
+INSTRUCTION_TOOL_NAMES = {t["name"] for t in INSTRUCTION_TOOLS}
+
+
+def run_instruction_tool(name, args):
+    """ai_* ツールを実行して結果テキストを返す(パネルローカル実行)。
+
+    @raises ApiError: 未知ツール・引数不正・対象なし
+    """
+    if name == "ai_select_agent":
+        # 選択状態はパネル側のUI状態のためここでは扱わない
+        raise ApiError("ai_select_agent はAIパネル上でのみ有効です")
+    a = args or {}
+    kind = a.get("kind") or ""
+    if kind not in ("agents", "skills"):
+        raise ApiError(f"kind は agents|skills: {kind!r}")
+    if name == "ai_list_instructions":
+        items = list_instruction_files(kind)
+        if not items:
+            return "(なし)"
+        return "\n".join(
+            f"- {i['id']}: {i['title']}"
+            + (f" — {i['desc']}" if i.get("desc") else "")
+            + f" [{'bundled' if i['builtin'] else 'user'}] {i['path']}"
+            for i in items)
+    if name == "ai_read_instruction":
+        body = load_instruction(kind, a.get("id") or "")
+        if body is None:
+            raise ApiError(f"{kind} '{a.get('id')}' が見つかりません")
+        return body
+    if name == "ai_save_instruction":
+        if a.get("text") is None:
+            raise ApiError("text が必須です")
+        return f"saved: {save_instruction(kind, a.get('name'), a['text'])}"
+    if name == "ai_delete_instruction":
+        if delete_instruction(kind, a.get("id") or ""):
+            return f"deleted: {kind}/{a.get('id')}"
+        raise ApiError(
+            f"{kind} '{a.get('id')}' を削除できません"
+            "(存在しないか同梱品)")
+    raise ApiError(f"不明なツール: {name}")
+
+
+# ---- 外部MCPクライアント(外向き接続) ----
+# AIパネルが外部MCPサーバのツールを使うための接続層。
+# 設定は ~/.qgis-live/mcp_servers.json (Claude Desktop互換):
+#   {"mcpServers": {"fs":  {"command": "npx", "args": [...]},
+#                   "api": {"url": "http://localhost:3000/mcp"}}}
+# command=stdio起動 / url=Streamable HTTP。発見ツールは
+# mcp_<server>__<tool> にマングリングしてfunction callingへ混ぜ、
+# _EXTRA_TOOL_CALLERS 経由でパネルがローカル実行する。
+
+MCP_PROTOCOL_VERSION = "2025-03-26"
+
+
+def mcp_config_path():
+    """外部MCPサーバの設定ファイル。"""
+    return os.path.join(_registry_dir(), "mcp_servers.json")
+
+
+MCP_CONFIG_TEMPLATE = {
+    "mcpServers": {
+        "example-stdio": {
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-filesystem",
+                     "C:\\work"],
+        },
+        "example-http": {
+            "url": "http://localhost:3000/mcp",
+            "headers": {"Authorization": "Bearer <固定トークン>"},
+        },
+        "example-http-oauth": {
+            "url": "https://mcp.box.com",
+            "oauth": {
+                "authorize_url":
+                    "https://account.box.com/api/oauth2/authorize",
+                "token_url": "https://api.box.com/oauth2/token",
+                "client_id": "<BoxアプリのClient ID>",
+                "client_secret": "<Client Secret>",
+                "redirect_uri": "http://127.0.0.1:8020/callback",
+            },
+        },
+        "example-http-ccg": {
+            "url": "https://example.com/mcp",
+            "oauth": {
+                "token_url": "https://example.com/oauth/token",
+                "client_id": "<client_id>",
+                "client_secret": "<client_secret>",
+                "extra": {"box_subject_type": "enterprise",
+                          "box_subject_id": "<id>"},
+            },
+        },
+    },
+}
+
+
+def mcp_servers_config():
+    """mcp_servers.json を読み {name: {command|url, ...}} を返す。"""
+    try:
+        with open(mcp_config_path(), "r", encoding="utf-8") as f:
+            d = json.load(f)
+    except FileNotFoundError:
+        return {}
+    except Exception as e:
+        raise ApiError(f"mcp_servers.json が読めません: {e}")
+    servers = d.get("mcpServers") if isinstance(d, dict) else None
+    if not isinstance(servers, dict):
+        return {}
+    return {str(n): c for n, c in servers.items()
+            if isinstance(c, dict) and (c.get("command") or c.get("url"))}
+
+
+def mcp_save_config(text):
+    """設定JSONテキストを検証して mcp_servers.json へ保存する。"""
+    try:
+        d = json.loads(text)
+    except Exception as e:
+        raise ApiError(f"JSONが不正です: {e}")
+    if not isinstance(d, dict) \
+            or not isinstance(d.get("mcpServers"), dict):
+        raise ApiError('{"mcpServers": {...}} 形式にしてください')
+    os.makedirs(os.path.dirname(mcp_config_path()), exist_ok=True)
+    with open(mcp_config_path(), "w", encoding="utf-8") as f:
+        f.write(text)
+
+
+def _loads_rpc(text):
+    """JSON-RPCメッセージ(単一orバッチ)を列挙する。"""
+    try:
+        d = json.loads(text)
+    except Exception:
+        return
+    for m in (d if isinstance(d, list) else [d]):
+        if isinstance(m, dict):
+            yield m
+
+
+def _iter_rpc_msgs(raw, ctype=""):
+    """HTTP応答本文からJSON-RPCメッセージを列挙する。
+
+    application/json は単一/バッチそのまま、text/event-stream は
+    各SSEイベントの data: ペイロード(複数行連結可)が1メッセージ。
+    """
+    if "text/event-stream" in (ctype or ""):
+        data_lines = []
+        for line in raw.splitlines():
+            if line.startswith("data:"):
+                data_lines.append(line[5:].lstrip())
+            elif not line.strip() and data_lines:
+                yield from _loads_rpc("\n".join(data_lines))
+                data_lines = []
+        if data_lines:
+            yield from _loads_rpc("\n".join(data_lines))
+    else:
+        yield from _loads_rpc(raw)
+
+
+def _mcp_error(m):
+    e = m.get("error")
+    if isinstance(e, dict):
+        e = e.get("message", e)
+    return f"MCPエラー: {e}"
+
+
+def _oauth_request(oc, body, timeout=30.0):
+    """トークンエンドポイントへform-encoded POST(RFC 6749 Basic認証)。
+
+    @returns {"access_token","refresh_token"?,"expires_at"} のdict
+    """
+    turl = oc.get("token_url") or ""
+    if not turl:
+        raise ApiError("oauth.token_url が空です")
+    cred = (f"{urllib.parse.quote(oc.get('client_id') or '')}:"
+            f"{urllib.parse.quote(oc.get('client_secret') or '')}")
+    req = urllib.request.Request(
+        turl, data=urllib.parse.urlencode(body).encode("utf-8"),
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json",
+            "Authorization":
+                "Basic " + base64.b64encode(cred.encode()).decode()},
+        method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            d = json.loads(r.read().decode("utf-8", "replace"))
+    except urllib.error.HTTPError as e:
+        detail = ""
+        try:
+            detail = e.read().decode("utf-8", "replace")[:300]
+        except Exception:
+            pass
+        raise ApiError(
+            f"トークン取得 HTTP {e.code}: {detail or e.reason}") from e
+    except urllib.error.URLError as e:
+        raise ApiError(f"トークン取得の接続失敗: {e.reason}") from e
+    tok = d.get("access_token")
+    if not tok:
+        raise ApiError(f"トークン応答が不正: {str(d)[:200]}")
+    # expires_in から60秒の余裕を持たせて期限を計算
+    return {"access_token": tok,
+            "refresh_token": d.get("refresh_token"),
+            "expires_at": (time.time()
+                           + float(d.get("expires_in") or 3600) - 60)}
+
+
+def _oauth_token(oc, timeout=30.0):
+    """client_credentialsでトークン取得 → (access_token, expires_at)。"""
+    body = {"grant_type": "client_credentials"}
+    if oc.get("scope"):
+        body["scope"] = oc["scope"]
+    for k, v in (oc.get("extra") or {}).items():
+        body[str(k)] = str(v)
+    t = _oauth_request(oc, body, timeout)
+    return t["access_token"], t["expires_at"]
+
+
+def _mcp_tokens_path():
+    """OAuthトークンの永続化先。"""
+    return os.path.join(_registry_dir(), "mcp_tokens.json")
+
+
+def _mcp_token_load(name):
+    try:
+        with open(_mcp_tokens_path(), "r", encoding="utf-8") as f:
+            d = json.load(f)
+        t = d.get(name) if isinstance(d, dict) else None
+        return t if isinstance(t, dict) else None
+    except Exception:
+        return None
+
+
+def _mcp_token_save(name, tok):
+    """{access_token, refresh_token?, expires_at} を保存する。"""
+    try:
+        try:
+            with open(_mcp_tokens_path(), "r", encoding="utf-8") as f:
+                d = json.load(f)
+        except Exception:
+            d = {}
+        if not isinstance(d, dict):
+            d = {}
+        d[name] = tok
+        os.makedirs(os.path.dirname(_mcp_tokens_path()), exist_ok=True)
+        with open(_mcp_tokens_path(), "w", encoding="utf-8") as f:
+            json.dump(d, f, indent=1)
+    except Exception:
+        pass                       # 保存失敗は致命的ではない
+
+
+def _mcp_token_delete(name):
+    try:
+        with open(_mcp_tokens_path(), "r", encoding="utf-8") as f:
+            d = json.load(f)
+        if isinstance(d, dict) and name in d:
+            del d[name]
+            with open(_mcp_tokens_path(), "w",
+                      encoding="utf-8") as f:
+                json.dump(d, f, indent=1)
+    except Exception:
+        pass
+
+
+def _oauth_authorize(oc, timeout=180.0, on_status=None):
+    """authorization_code + PKCE でユーザー同意型トークンを取得する。
+
+    ローカルHTTPリスナ(既定 http://127.0.0.1:8020/callback)を立てて
+    ブラウザを開き、コールバックの code をトークンに交換する。
+    oauth.authorize_url が必須。client_secret あれば Basic 認証。
+    @returns _oauth_request() のdict
+    """
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+    aurl = oc.get("authorize_url") or ""
+    if not aurl:
+        raise ApiError("oauth.authorize_url が空です")
+    redir = oc.get("redirect_uri") or "http://127.0.0.1:8020/callback"
+    got = {}
+
+    class _H(BaseHTTPRequestHandler):
+        def do_GET(self):
+            q = urllib.parse.parse_qs(
+                urllib.parse.urlparse(self.path).query)
+            got.update({k: v[0] for k, v in q.items()})
+            body = ("<html><body><h3>認証が完了しました。"
+                    "QGIS に戻ってください。</h3></body></html>"
+                    ).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type",
+                             "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *a):
+            pass
+
+    try:
+        httpd = HTTPServer(
+            ("127.0.0.1", urllib.parse.urlparse(redir).port or 8020),
+            _H)
+    except OSError:
+        # ポート占有時はエフェメラル。redirect_uriもそれに合わせる
+        # (RFC 8252ではloopbackはポート問わず許容)
+        httpd = HTTPServer(("127.0.0.1", 0), _H)
+        redir = (f"http://127.0.0.1:{httpd.server_address[1]}"
+                 "/callback")
+    state = secrets.token_urlsafe(16)
+    ver = secrets.token_urlsafe(64)
+    chal = base64.urlsafe_b64encode(
+        hashlib.sha256(ver.encode()).digest()).rstrip(b"=").decode()
+    q = {"response_type": "code",
+         "client_id": oc.get("client_id") or "",
+         "redirect_uri": redir,
+         "state": state,
+         "code_challenge": chal,
+         "code_challenge_method": "S256"}
+    if oc.get("scope"):
+        q["scope"] = oc["scope"]
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    try:
+        webbrowser.open(aurl + "?" + urllib.parse.urlencode(q))
+        host = urllib.parse.urlparse(aurl).netloc
+        hint = (f"失敗する場合はアプリ側の設定を確認:"
+                f" ①Redirect URI「{redir}」の登録"
+                " ②OAuth2標準(authorization_code)が有効か"
+                " ③client_id/secretが一致するか")
+        if on_status:
+            on_status(
+                f"ブラウザでOAuth認証を完了してください: {host}。"
+                + hint)
+        deadline = time.time() + timeout
+        while "code" not in got and "error" not in got:
+            if time.time() > deadline:
+                raise ApiError(
+                    "OAuth認証がタイムアウトしました"
+                    "(ブラウザで同意が完了していません)。" + hint)
+            time.sleep(0.3)
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+    if got.get("error"):
+        raise ApiError(f"OAuthエラー: {got['error']} "
+                       f"{got.get('error_description') or ''}。" + hint)
+    if got.get("state") != state:
+        raise ApiError("OAuth state が一致しません(CSRF対策)")
+    try:
+        return _oauth_request(oc, {
+            "grant_type": "authorization_code",
+            "code": got["code"],
+            "redirect_uri": redir,
+            "code_verifier": ver}, timeout)
+    except ApiError as e:
+        raise ApiError(f"{e}。{hint}") from e
+
+
+class _McpHttp:
+    """MCP Streamable HTTPクライアント(POST→JSON or SSE)。
+
+    cfg.oauth がある場合はトークンを取得し Authorization: Bearer
+    を付ける。authorize_url あれば authorization_code+PKCE
+    (ブラウザでユーザー同意、トークンは ~/.qgis-live/mcp_tokens.json
+    に永続化し refresh_token で更新)、無ければ client_credentials。
+    """
+
+    def __init__(self, cfg, name="", on_status=None):
+        self.url = (cfg.get("url") or "").rstrip("/")
+        if not self.url:
+            raise ApiError("MCPサーバのurlが空です")
+        self.headers = dict(cfg.get("headers") or {})
+        self.oauth = cfg.get("oauth") or None
+        self.name = name
+        self._status = on_status or (lambda m: None)
+        self._tok, self._tok_exp = None, 0.0
+        self._stale = False       # 401を受けたら保存トークンを疑う
+        self.session_id = None
+        self._next = itertools.count(1)
+
+    def _obtain_token(self, timeout):
+        """access_tokenを解決する: 保存済み→refresh→新規取得。"""
+        oc = self.oauth
+        st = _mcp_token_load(self.name)
+        if st and st.get("access_token"):
+            if not self._stale \
+                    and time.time() < st.get("expires_at", 0):
+                return st["access_token"], st["expires_at"]
+            if st.get("refresh_token"):
+                try:
+                    t = _oauth_request(oc, {
+                        "grant_type": "refresh_token",
+                        "refresh_token": st["refresh_token"]},
+                        timeout)
+                    _mcp_token_save(self.name, t)
+                    self._stale = False
+                    return t["access_token"], t["expires_at"]
+                except ApiError:
+                    _mcp_token_delete(self.name)   # 再認可へ
+        if oc.get("authorize_url"):
+            self._status(
+                f"MCP '{self.name}': ブラウザでOAuth認証してください")
+            t = _oauth_authorize(oc, on_status=self._status)
+            _mcp_token_save(self.name, t)
+        else:
+            tok, exp = _oauth_token(oc, timeout)
+            t = {"access_token": tok, "expires_at": exp}
+            _mcp_token_save(self.name, t)
+        self._stale = False
+        return t["access_token"], t["expires_at"]
+
+    def _auth_headers(self, timeout):
+        if not self.oauth:
+            return {}
+        if not self._tok or time.time() >= self._tok_exp:
+            self._tok, self._tok_exp = self._obtain_token(timeout)
+        return {"Authorization": f"Bearer {self._tok}"}
+
+    def _post(self, msg, timeout):
+        # OAuth利用時は401でトークンを破棄して1回だけ再試行
+        for attempt in range(2 if self.oauth else 1):
+            hdrs = {"Content-Type": "application/json",
+                    "Accept": "application/json, text/event-stream",
+                    **self._auth_headers(timeout), **self.headers}
+            if self.session_id:
+                hdrs["Mcp-Session-Id"] = self.session_id
+            req = urllib.request.Request(
+                self.url, data=json.dumps(msg).encode("utf-8"),
+                headers=hdrs, method="POST")
+            try:
+                with urllib.request.urlopen(req, timeout=timeout) as r:
+                    sid = r.headers.get("Mcp-Session-Id")
+                    if sid:
+                        self.session_id = sid
+                    ctype = r.headers.get("Content-Type", "")
+                    raw = r.read().decode("utf-8", "replace")
+                    status = r.status
+            except urllib.error.HTTPError as e:
+                if e.code == 401 and self.oauth and attempt == 0:
+                    # トークン失効→保存分も疑い、refresh/再認可で再試行
+                    self._tok = None
+                    self._stale = True
+                    continue
+                detail = ""
+                try:
+                    detail = e.read().decode("utf-8", "replace")[:300]
+                except Exception:
+                    pass
+                raise ApiError(
+                    f"HTTP {e.code}: {detail or e.reason}") from e
+            except urllib.error.URLError as e:
+                raise ApiError(f"接続失敗: {e.reason}") from e
+            if status == 202 or not raw.strip():
+                return []                    # 通知応答(空)
+            return list(_iter_rpc_msgs(raw, ctype))
+
+    def request(self, method, params, timeout=30.0):
+        mid = next(self._next)
+        msgs = self._post({"jsonrpc": "2.0", "id": mid, "method": method,
+                           "params": params or {}}, timeout)
+        for m in msgs:
+            if m.get("id") == mid:
+                if "error" in m:
+                    raise ApiError(_mcp_error(m))
+                return m.get("result")
+        raise ApiError(f"MCP {method}: 応答が返りませんでした")
+
+    def notify(self, method, params):
+        try:
+            self._post({"jsonrpc": "2.0", "method": method,
+                        "params": params or {}}, 15.0)
+        except ApiError:
+            pass
+
+    def close(self):
+        pass
+
+
+class _McpStdio:
+    """MCP stdioクライアント(子プロセスと改行区切りJSON-RPC)。"""
+
+    def __init__(self, cfg):
+        command = cfg.get("command") or ""
+        if not command:
+            raise ApiError("MCPサーバのcommandが空です")
+        exe = shutil.which(command) or command
+        env = dict(os.environ)
+        env.update({str(k): str(v)
+                    for k, v in (cfg.get("env") or {}).items()})
+        kw = {}
+        cf = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        if cf:
+            kw["creationflags"] = cf      # コンソール窓を出さない(Windows)
+        try:
+            self._p = subprocess.Popen(
+                [exe] + [str(a) for a in cfg.get("args") or []],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL, env=env, **kw)
+        except OSError as e:
+            raise ApiError(f"MCPサーバの起動に失敗: {e}") from e
+        self._pending = {}
+        self._next = itertools.count(1)
+        threading.Thread(target=self._reader, daemon=True).start()
+
+    def _reader(self):
+        while True:
+            line = self._p.stdout.readline()
+            if not line:
+                break
+            try:
+                m = json.loads(line.decode("utf-8", "replace"))
+            except Exception:
+                continue
+            slot = self._pending.get(m.get("id"))
+            if slot:
+                slot[1]["res"] = m
+                slot[0].set()
+        for ev, box in self._pending.values():   # プロセス終了→全失敗
+            box["res"] = {"error": "MCPサーバが終了しました"}
+            ev.set()
+
+    def _send(self, msg):
+        try:
+            self._p.stdin.write(
+                (json.dumps(msg, ensure_ascii=False) + "\n")
+                .encode("utf-8"))
+            self._p.stdin.flush()
+        except Exception as e:
+            raise ApiError(f"MCPサーバへの書込に失敗: {e}") from e
+
+    def request(self, method, params, timeout=30.0):
+        mid = next(self._next)
+        ev = threading.Event()
+        box = {}
+        self._pending[mid] = (ev, box)
+        try:
+            self._send({"jsonrpc": "2.0", "id": mid, "method": method,
+                        "params": params or {}})
+            if not ev.wait(timeout):
+                raise ApiError(f"MCP {method}: タイムアウト({timeout}s)")
+            m = box.get("res") or {}
+            if "error" in m:
+                raise ApiError(_mcp_error(m))
+            return m.get("result")
+        finally:
+            self._pending.pop(mid, None)
+
+    def notify(self, method, params):
+        try:
+            self._send({"jsonrpc": "2.0", "method": method,
+                        "params": params or {}})
+        except ApiError:
+            pass
+
+    def close(self):
+        try:
+            self._p.terminate()
+        except Exception:
+            pass
+
+
+def _mcp_result_text(r):
+    """tools/call のresultをテキストにする。isErrorはApiError。"""
+    if not isinstance(r, dict):
+        return str(r)
+    parts = [c.get("text", "") for c in r.get("content") or []
+             if isinstance(c, dict) and c.get("type") == "text"]
+    text = "\n".join(p for p in parts if p)
+    if not text:
+        text = json.dumps(r, ensure_ascii=False)
+    if r.get("isError"):
+        raise ApiError(text[:500])
+    return text
+
+
+class McpSession:
+    """接続済みMCPサーバ。tools=TOOL形の一覧, call()で実行。
+
+    transportはcfgで決まる: command→stdio / url→Streamable HTTP。
+    """
+
+    def __init__(self, name, cfg, timeout=30.0, on_status=None):
+        self.name = name
+        self._io = (_McpStdio(cfg) if cfg.get("command")
+                    else _McpHttp(cfg, name=name, on_status=on_status))
+        self._io.request("initialize", {
+            "protocolVersion": MCP_PROTOCOL_VERSION,
+            "capabilities": {},
+            "clientInfo": {"name": "qgis-live-driver",
+                           "version": "0.6"},
+        }, timeout)
+        self._io.notify("notifications/initialized", {})
+        r = self._io.request("tools/list", {}, timeout) or {}
+        self.tools = [t for t in r.get("tools") or [] if t.get("name")]
+
+    def call(self, tool, args, timeout=120.0):
+        r = self._io.request("tools/call",
+                             {"name": tool, "arguments": args or {}},
+                             timeout)
+        return _mcp_result_text(r)
+
+    def close(self):
+        self._io.close()
+
+
+def _safe_name(s):
+    """OpenAIのツール名制約([A-Za-z0-9_-])に寄せる。"""
+    return re.sub(r"[^A-Za-z0-9_-]", "_", s or "")
+
+
+def mcp_discover(timeout=30.0, on_status=None):
+    """設定ファイルの全MCPサーバへ接続しツール一覧を集約する。
+
+    @param on_status: 進行状況コールバック(OAuth認証待ち等をUIへ)
+    @returns {"tools": [mangled TOOL形], "callers": {name: fn},
+              "sessions": {name: McpSession}, "errors": {name: str}}
+    """
+    out = {"tools": [], "callers": {}, "sessions": {}, "errors": {}}
+    for name, cfg in mcp_servers_config().items():
+        try:
+            sess = McpSession(name, cfg, timeout, on_status=on_status)
+        except ApiError as e:
+            out["errors"][name] = str(e)
+            continue
+        except Exception as e:
+            out["errors"][name] = f"{type(e).__name__}: {e}"
+            continue
+        out["sessions"][name] = sess
+        for t in sess.tools:
+            mangled = ("mcp_" + _safe_name(name)
+                       + "__" + _safe_name(t["name"]))[:64]
+            out["tools"].append({
+                "name": mangled,
+                "description":
+                    f"[{name}] {t.get('description') or ''}".strip(),
+                "inputSchema": t.get("inputSchema")
+                or {"type": "object", "properties": {}},
+            })
+            out["callers"][mangled] = (
+                lambda a, _s=sess, _t=t["name"]: _s.call(_t, a))
+    return out
+
+
+_EXTRA_TOOLS = []
+_EXTRA_TOOL_CALLERS = {}
+
+
+def register_extra_tools(tools, callers):
+    """外部MCP由来ツールを openai_tools/gemini_tools に反映する。
+
+    呼び出しはパネルのワーカースレッド側で行う。
+    """
+    _EXTRA_TOOLS[:] = list(tools or [])
+    _EXTRA_TOOL_CALLERS.clear()
+    _EXTRA_TOOL_CALLERS.update(callers or {})
+
+
+def run_extra_tool(name, args):
+    """外部MCPツールを実行してテキストを返す。"""
+    fn = _EXTRA_TOOL_CALLERS.get(name)
+    if fn is None:
+        raise ApiError(f"不明な外部ツール: {name}")
+    return fn(args or {})
 
 
 # ---- プロバイダ抽象化 ----
@@ -782,7 +1805,8 @@ class OpenAIProvider:
                 "args": parse_tool_arguments(fn.get("arguments")),
             })
         return {"text": msg.get("content") or "",
-                "calls": calls, "raw": msg}
+                "calls": calls, "raw": msg,
+                "usage": parse_usage(data)}
 
     def append_exchange(self, msgs, turn, results):
         msgs.append(turn["raw"])
@@ -863,7 +1887,8 @@ class GeminiProvider:
             raise ApiError(
                 f"応答が空かブロックされました: finishReason="
                 f"{cand.get('finishReason')} {str(data)[:200]}")
-        return {"text": text, "calls": calls, "raw": raw}
+        return {"text": text, "calls": calls, "raw": raw,
+                "usage": parse_usage(data)}
 
     def append_exchange(self, msgs, turn, results):
         # モデルのfunctionCallを含むcontentをそのまま積み、

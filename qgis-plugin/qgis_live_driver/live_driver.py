@@ -56,7 +56,7 @@ _AUTO_IDS = itertools.count(1)
 # plugin_id をルーティングではなくコマンド自身の引数として使う種別。
 # これらは常にこのドライバ自身が処理する。
 _LOCAL_TYPES = {"status", "open_plugin", "reload_plugin", "bridge_call",
-                "describe_plugins"}
+                "describe_plugins", "instruction"}
 
 
 def _to_jsonable(v):
@@ -411,6 +411,9 @@ class LiveDriver:
         if ctype == "describe_plugins":
             self._describe_plugins(cid, reply)
             return
+        if ctype == "instruction":
+            self._instruction(cid, cmd, reply)
+            return
         reply({
             "id": cid,
             "error": f"type={ctype} unsupported: qgis_live_driver has no WebEngine view. "
@@ -436,6 +439,50 @@ class LiveDriver:
         fwd = {k: v for k, v in cmd.items() if k != "plugin_id"}
         try:
             return drv._handle(fwd, reply=reply)
+        except Exception:
+            reply({"id": cid, "error": traceback.format_exc()})
+
+    def _instruction(self, cid, cmd, reply):
+        """指示書(agents/skills)の操作。qgis_instructionツールの実体。
+
+        GUI依存を持たないファイルI/Oだが、他コマンドと同じく
+        GUIスレッドのdispatchで処理する(ai_clientは同プラグイン内)。
+        """
+        try:
+            from . import ai_client
+            op = cmd.get("op") or ""
+            kind = cmd.get("kind") or ""
+            if kind not in ("agents", "skills"):
+                reply({"id": cid,
+                       "error": f"kind は agents|skills: {kind!r}"})
+                return
+            if op == "list":
+                reply({"id": cid, "result":
+                       ai_client.list_instruction_files(kind)})
+            elif op == "read":
+                body = ai_client.load_instruction(
+                    kind, cmd.get("id") or "")
+                if body is None:
+                    reply({"id": cid, "error":
+                           f"{kind} '{cmd.get('id')}' not found"})
+                else:
+                    reply({"id": cid, "result": body})
+            elif op == "save":
+                p = ai_client.save_instruction(
+                    kind, cmd.get("name") or "", cmd.get("text") or "")
+                reply({"id": cid, "result": f"saved: {p}"})
+            elif op == "delete":
+                if ai_client.delete_instruction(
+                        kind, cmd.get("id") or ""):
+                    reply({"id": cid, "result":
+                           f"deleted: {kind}/{cmd.get('id')}"})
+                else:
+                    reply({"id": cid, "error":
+                           f"cannot delete {kind} '{cmd.get('id')}' "
+                           "(missing or bundled)"})
+            else:
+                reply({"id": cid,
+                       "error": f"op は list|read|save|delete: {op!r}"})
         except Exception:
             reply({"id": cid, "error": traceback.format_exc()})
 

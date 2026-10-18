@@ -5,6 +5,8 @@
 """
 
 import json
+import os
+import sys
 import threading
 import time
 import urllib.parse
@@ -13,7 +15,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import pytest
 
 from qgis_live_driver import ai_client
-from qgis_live_driver.mcp_http import TOOLS
+from qgis_live_driver.mcp_http import TOOLS, start_http
 
 
 # ---- URL/スキーマ変換 ----
@@ -31,9 +33,11 @@ def test_endpoint_url():
 
 def test_openai_tools_schema():
     tools = ai_client.openai_tools()
-    assert len(tools) == len(TOOLS)
+    assert len(tools) == len(TOOLS) + len(ai_client.INSTRUCTION_TOOLS)
     names = {t["function"]["name"] for t in tools}
     assert {"qgis_pyeval", "qgis_screenshot", "qgis_status"} <= names
+    # AIローカルの指示書ツールも含まれる
+    assert ai_client.INSTRUCTION_TOOL_NAMES <= names
     for t in tools:
         assert t["type"] == "function"
         assert "parameters" in t["function"]
@@ -59,6 +63,22 @@ def test_command_from_tool_call():
     bad = {"function": {"name": "qgis_status", "arguments": "{oops"}}
     with pytest.raises(ai_client.ApiError):
         ai_client.command_from_tool_call(bad)
+
+
+def test_trim_history():
+    """長い履歴は古いターンから落とし、最新ターンは必ず残る。"""
+    h = [{"role": "user", "content": "x" * 100},
+         {"role": "assistant", "content": "y" * 100},
+         {"role": "user", "content": "z" * 100}]
+    out = ai_client.trim_history(h, max_chars=200)
+    # 最新2件(y,z)のみ残る。xは落とされる
+    assert [m["content"][0] for m in out] == ["y", "z"]
+    # 全て収まる場合はそのまま
+    assert ai_client.trim_history(h, max_chars=1000) == h
+    # 1件でも上限超過なら最新ターンは残る
+    big = [{"role": "user", "content": "q" * 500}]
+    assert len(ai_client.trim_history(big, max_chars=10)) == 1
+    assert ai_client.trim_history([]) == []
 
 
 def test_reply_to_text():
@@ -105,7 +125,9 @@ def test_gemini_url():
 
 def test_gemini_tools_schema_uppercase():
     decls = ai_client.gemini_tools()
-    assert len(decls) == len(TOOLS)
+    assert len(decls) == len(TOOLS) + len(ai_client.INSTRUCTION_TOOLS)
+    assert ai_client.INSTRUCTION_TOOL_NAMES <= {
+        d["name"] for d in decls}
     pyeval = next(d for d in decls if d["name"] == "qgis_pyeval")
     params = pyeval["parameters"]
     assert params["type"] == "OBJECT"          # lowercase→UPPERCASE変換
@@ -234,7 +256,8 @@ def test_chat_completions_request(stub_server):
     assert req["auth"] == "Bearer secret-key"
     assert req["body"]["model"] == "mymodel"
     assert req["body"]["tool_choice"] == "auto"
-    assert len(req["body"]["tools"]) == len(TOOLS)
+    assert len(req["body"]["tools"]) == \
+        len(TOOLS) + len(ai_client.INSTRUCTION_TOOLS)
 
 
 def test_chat_completions_no_key(stub_server):
@@ -308,7 +331,8 @@ def test_gemini_generate_request():
         assert body["systemInstruction"]["parts"][0]["text"] == "sys prompt"
         assert body["contents"][0]["parts"][0]["text"] == "hello"
         assert "functionDeclarations" in body["tools"][0]
-        assert len(body["tools"][0]["functionDeclarations"]) == len(TOOLS)
+        assert len(body["tools"][0]["functionDeclarations"]) == \
+            len(TOOLS) + len(ai_client.INSTRUCTION_TOOLS)
     finally:
         httpd.shutdown()
 
@@ -417,6 +441,36 @@ def test_model_info_price():
     # 未知モデルは価格無し・chat判定
     u = ai_client.model_info({"id": "some-local-model"})
     assert u["price"] is None and u["kind"] == "chat"
+
+
+def test_parse_usage_and_cost():
+    # OpenAI形式: usage.prompt_tokens/completion_tokens
+    prov = ai_client.get_provider("openai")
+    data = {"choices": [{"message": {"content": "hi"}}],
+            "usage": {"prompt_tokens": 1200, "completion_tokens": 30}}
+    turn = prov.parse(data)
+    assert turn["usage"] == {"in": 1200, "out": 30}
+    # usageが無い応答ではNone
+    assert ai_client.get_provider("openai").parse(
+        {"choices": [{"message": {"content": "x"}}]})["usage"] is None
+    # Gemini形式: usageMetadata(+thoughtsTokenCountは出力側へ)
+    g = ai_client.get_provider("gemini")
+    gd = {"candidates": [{"content": {"parts": [{"text": "x"}]}}],
+          "usageMetadata": {"promptTokenCount": 500,
+                            "candidatesTokenCount": 40,
+                            "thoughtsTokenCount": 10}}
+    assert g.parse(gd)["usage"] == {"in": 500, "out": 50}
+    # parse_usage単体
+    assert ai_client.parse_usage({}) is None
+    # コスト: price_usd(1Mあたり)×usage
+    info = ai_client.model_info({"id": "openai/gpt-4o-mini", "pricing": {
+        "prompt": "0.00000015", "completion": "0.0000006"}})
+    assert info["price_usd"] == (0.15, 0.6)
+    cost = ai_client.usage_cost(info, {"in": 1_000_000, "out": 500_000})
+    assert cost == pytest.approx(0.15 + 0.30)
+    # 価格不明モデルはNone(Copilot等の定額制もこちら)
+    assert ai_client.usage_cost(
+        ai_client.model_info({"id": "x"}), {"in": 1, "out": 1}) is None
 
 
 def test_fmt_tokens_and_label():
@@ -653,3 +707,408 @@ def test_github_device_flow(copilot_server):
     assert f["device_code"] == ["dc-1"]
     assert f["grant_type"] == [
         "urn:ietf:params:oauth:grant-type:device_code"]
+
+
+# ---- エージェント/スキル(指示書ファイル) ----
+
+def test_agents_roundtrip(tmp_path, monkeypatch):
+    """agents/*.md の作成→一覧→読込→削除。"""
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    assert ai_client.list_agents() == []
+    p = ai_client.save_agent("テスト agent",
+                             "# 地図士\n\n日本語で簡潔に答える")
+    assert p.endswith("テスト_agent.md")  # 空白は_に置換
+    agents = ai_client.list_agents()
+    assert [a["id"] for a in agents] == ["テスト_agent"]
+    a = agents[0]
+    assert a["title"] == "地図士"          # 先頭の # 行
+    assert a["desc"] == "日本語で簡潔に答える"
+    assert not a["builtin"]
+    assert "地図士" in ai_client.load_agent("テスト_agent")
+    assert ai_client.load_agent("nonexistent") is None
+    assert ai_client.load_agent(None) is None
+    assert ai_client.delete_agent("テスト_agent")
+    assert ai_client.list_agents() == []
+
+
+def test_bundled_skill_listed(tmp_path, monkeypatch):
+    """プラグイン同梱のskills/がbuiltinフラグ付きで列挙される。"""
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    s = next(s for s in ai_client.list_skills()
+             if s["id"] == "qgis-basics")
+    assert s["builtin"] and s["title"] and s["desc"]
+
+
+def test_user_skill_overrides_bundled(tmp_path, monkeypatch):
+    """ユーザ側の同名.mdはbundledを上書きする。"""
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    d = ai_client.skills_dir()
+    os.makedirs(d)
+    with open(os.path.join(d, "qgis-basics.md"), "w",
+              encoding="utf-8") as f:
+        f.write("# カスタム\n\n説明X\n")
+    s = next(s for s in ai_client.list_skills()
+             if s["id"] == "qgis-basics")
+    assert not s["builtin"]
+    assert s["title"] == "カスタム"
+
+
+def test_system_prompt_agent_and_skills(tmp_path, monkeypatch):
+    """agent_textは常時注入、skillsはパス+説明のみ載る。"""
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    p = ai_client.system_prompt(["x"], agent_text="Be brief",
+                                skills=ai_client.list_skills())
+    assert "Be brief" in p
+    assert "qgis-basics" in p and "open()" in p
+    # 本文は載らない(ファイルを読ませる方式)
+    assert "QgsProject.instance()" not in p
+
+
+def test_system_prompt_agent_list(tmp_path, monkeypatch):
+    """agents一覧はid+説明のみ載り、選択中は[active]が付く。"""
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    ai_client.save_agent("mapper", "# 地図士\n\n地図デザイン専門")
+    ai_client.save_agent("coder", "# 開発者\n\nコード重視")
+    p = ai_client.system_prompt(
+        ["x"],
+        agent_text=ai_client.load_agent("mapper"),
+        agents=ai_client.list_agents(),
+        active_agent="mapper")
+    assert "## Agents" in p
+    assert "mapper: 地図デザイン専門 [active]" in p
+    assert "coder: コード重視" in p and "[active]" not in \
+        next(l for l in p.splitlines() if "coder" in l)
+    assert "ai_select_agent" in p
+
+
+def test_instruction_tool_roundtrip(tmp_path, monkeypatch):
+    """ai_*ツール: 一覧→保存→読込→削除。"""
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    out = ai_client.run_instruction_tool(
+        "ai_list_instructions", {"kind": "agents"})
+    assert out == "(なし)"
+    out = ai_client.run_instruction_tool(
+        "ai_save_instruction",
+        {"kind": "skills", "name": "レシピ a",
+         "text": "# レシピ\n\n説明\n\n手順"})
+    assert "レシピ_a.md" in out and out.startswith("saved:")
+    out = ai_client.run_instruction_tool(
+        "ai_read_instruction", {"kind": "skills", "id": "レシピ_a"})
+    assert "手順" in out
+    out = ai_client.run_instruction_tool(
+        "ai_delete_instruction", {"kind": "skills", "id": "レシピ_a"})
+    assert "deleted" in out
+    with pytest.raises(ai_client.ApiError):
+        ai_client.run_instruction_tool(
+            "ai_read_instruction", {"kind": "skills", "id": "レシピ_a"})
+
+
+def test_instruction_tool_errors(tmp_path, monkeypatch):
+    """ai_*ツール: 引数不正・同梱品削除はApiError。"""
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    with pytest.raises(ai_client.ApiError):
+        ai_client.run_instruction_tool(
+            "ai_list_instructions", {"kind": "bogus"})
+    with pytest.raises(ai_client.ApiError):
+        ai_client.run_instruction_tool(
+            "ai_save_instruction",
+            {"kind": "agents", "name": "x"})  # text無し
+    # 同梱品は削除できない
+    with pytest.raises(ai_client.ApiError) as ei:
+        ai_client.run_instruction_tool(
+            "ai_delete_instruction",
+            {"kind": "skills", "id": "qgis-basics"})
+    assert "削除できません" in str(ei.value)
+    with pytest.raises(ai_client.ApiError):
+        ai_client.run_instruction_tool("ai_nope", {"kind": "agents"})
+    # 選択ツールはパネル専用(ファイル層では扱わない)
+    with pytest.raises(ai_client.ApiError):
+        ai_client.run_instruction_tool("ai_select_agent", {"id": "x"})
+
+
+# ---- 外部MCPクライアント ----
+
+def test_iter_rpc_msgs_sse():
+    """SSE形式とJSON形式の両方からJSON-RPCを取り出せる。"""
+    raw = ('data: {"jsonrpc":"2.0","id":1,"result":{"a":1}}\n\n'
+           'data: {"jsonrpc":"2.0",\n'
+           'data: "id":2,"result":{"b":2}}\n\n')
+    msgs = list(ai_client._iter_rpc_msgs(raw, "text/event-stream"))
+    assert [m["id"] for m in msgs] == [1, 2]
+    msgs = list(ai_client._iter_rpc_msgs(
+        '{"id":1,"result":{}}', "application/json"))
+    assert msgs[0]["id"] == 1
+
+
+def test_mcp_result_text():
+    r = {"content": [{"type": "text", "text": "a"},
+                     {"type": "text", "text": "b"}]}
+    assert ai_client._mcp_result_text(r) == "a\nb"
+    with pytest.raises(ai_client.ApiError):
+        ai_client._mcp_result_text(
+            {"isError": True,
+             "content": [{"type": "text", "text": "boom"}]})
+
+
+def test_mcp_config_roundtrip(tmp_path, monkeypatch):
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    assert ai_client.mcp_servers_config() == {}      # 未設定は空
+    ai_client.mcp_save_config(json.dumps({"mcpServers": {
+        "fs": {"command": "npx", "args": ["-y", "srv"]},
+        "bad": {"x": 1},                              # command/url無しは除外
+        "api": {"url": "http://localhost:9/mcp"}}}))
+    cfg = ai_client.mcp_servers_config()
+    assert set(cfg) == {"fs", "api"}
+    with pytest.raises(ai_client.ApiError):
+        ai_client.mcp_save_config("{not json")
+    with pytest.raises(ai_client.ApiError):
+        ai_client.mcp_save_config('{"servers": {}}')  # 形式違い
+
+
+class _McpFakeDriver:
+    def submit(self, cmd, timeout=180.0):
+        return {"id": cmd.get("id"), "result": {"echo": cmd.get("type")}}
+
+
+def test_mcp_http_session(tmp_path, monkeypatch):
+    """実MCPサーバ(自前のmcp_http)へのStreamable HTTPセッション。"""
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    httpd, port = start_http(_McpFakeDriver(), api_keys={"k"})
+    try:
+        sess = ai_client.McpSession(
+            "t", {"url": f"http://127.0.0.1:{port}/mcp",
+                  "headers": {"Authorization": "Bearer k"}}, timeout=10)
+        try:
+            names = {t["name"] for t in sess.tools}
+            assert "qgis_status" in names
+            assert "echo" in sess.call("qgis_status", {})
+        finally:
+            sess.close()
+    finally:
+        httpd.shutdown()
+
+
+_STDIO_STUB = (
+    "import sys, json\n"
+    "for line in sys.stdin:\n"
+    "    try:\n"
+    "        m = json.loads(line)\n"
+    "    except Exception:\n"
+    "        continue\n"
+    "    mid, meth = m.get('id'), m.get('method')\n"
+    "    if mid is None:\n"
+    "        continue\n"
+    "    if meth == 'initialize':\n"
+    "        res = {'protocolVersion': '2025-03-26', 'capabilities': {}}\n"
+    "    elif meth == 'tools/list':\n"
+    "        res = {'tools': [{'name': 'echo', 'description': 'd',"
+    " 'inputSchema': {'type': 'object'}"
+    "}]}\n"
+    "    elif meth == 'tools/call':\n"
+    "        res = {'content': [{'type': 'text', 'text':"
+    " 'echo:' + json.dumps(m['params'].get('arguments'))}]}\n"
+    "    else:\n"
+    "        res = {}\n"
+    "    sys.stdout.write(json.dumps("
+    "{'jsonrpc': '2.0', 'id': mid, 'result': res}) + chr(10))\n"
+    "    sys.stdout.flush()\n")
+
+
+def test_mcp_stdio_session():
+    """python子プロセスのstdio MCPスタブと往復できる。"""
+    sess = ai_client.McpSession(
+        "s", {"command": sys.executable,
+              "args": ["-u", "-c", _STDIO_STUB]}, timeout=20)
+    try:
+        assert [t["name"] for t in sess.tools] == ["echo"]
+        assert "echo:" in sess.call("echo", {"t": "hi"})
+    finally:
+        sess.close()
+
+
+def test_mcp_discover(tmp_path, monkeypatch):
+    """設定の各サーバへ接続し、失敗はerrorsへ分離する。"""
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    httpd, port = start_http(_McpFakeDriver(), api_keys={"k"})
+    try:
+        ai_client.mcp_save_config(json.dumps({"mcpServers": {
+            "live": {"url": f"http://127.0.0.1:{port}/mcp",
+                     "headers": {"Authorization": "Bearer k"}},
+            "dead": {"url": "http://127.0.0.1:9/mcp"}}}))
+        r = ai_client.mcp_discover(timeout=5)
+        assert "live" in r["sessions"]
+        assert "dead" in r["errors"]
+        assert any(t["name"].startswith("mcp_live__qgis_")
+                   for t in r["tools"])
+        for s in r["sessions"].values():
+            s.close()
+    finally:
+        httpd.shutdown()
+
+
+class _TokenHandler(BaseHTTPRequestHandler):
+    """OAuth client_credentials用の最小トークンエンドポイント。"""
+
+    def do_POST(self):
+        import base64
+        n = int(self.headers.get("Content-Length") or 0)
+        body = urllib.parse.parse_qs(
+            self.rfile.read(n).decode("utf-8"))
+        auth = self.headers.get("Authorization", "")
+        ok = (body.get("grant_type") == ["client_credentials"]
+              and auth == "Basic " + base64.b64encode(
+                  b"cid:csec").decode()
+              # oauth.extra の追加パラメータがボディへ届くこと
+              and body.get("box_subject_type") == ["enterprise"])
+        out = ({"access_token": "otk", "expires_in": 3600}
+               if ok else {"error": "invalid_client"})
+        data = json.dumps(out).encode()
+        self.send_response(200 if ok else 401)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def log_message(self, *a):
+        pass
+
+
+def test_mcp_http_oauth(tmp_path):
+    """oauth(client_id/secret)でトークンを取りBearer付きでMCP呼出。"""
+    tokd = ThreadingHTTPServer(("127.0.0.1", 0), _TokenHandler)
+    threading.Thread(target=tokd.serve_forever, daemon=True).start()
+    # MCP側は "otk" を要求
+    httpd, port = start_http(_McpFakeDriver(), api_keys={"otk"})
+    try:
+        tport = tokd.server_address[1]
+        sess = ai_client.McpSession(
+            "o", {"url": f"http://127.0.0.1:{port}/mcp",
+                  "oauth": {
+                      "token_url":
+                          f"http://127.0.0.1:{tport}/oauth/token",
+                      "client_id": "cid",
+                      "client_secret": "csec",
+                      "extra": {"box_subject_type": "enterprise"}}},
+            timeout=10)
+        try:
+            assert "qgis_status" in {t["name"] for t in sess.tools}
+            assert sess._io._tok == "otk"
+            assert "echo" in sess.call("qgis_status", {})
+        finally:
+            sess.close()
+    finally:
+        httpd.shutdown()
+        tokd.shutdown()
+
+
+class _AuthCodeTokenHandler(BaseHTTPRequestHandler):
+    """authorization_code交換用の最小トークンエンドポイント。"""
+
+    def do_POST(self):
+        n = int(self.headers.get("Content-Length") or 0)
+        body = urllib.parse.parse_qs(
+            self.rfile.read(n).decode("utf-8"))
+        ok = (body.get("grant_type") == ["authorization_code"]
+              and body.get("code") == ["authcode-1"]
+              and body.get("code_verifier")
+              and body.get("redirect_uri"))
+        out = ({"access_token": "utok", "refresh_token": "rtok",
+                "expires_in": 3600} if ok
+               else {"error": "invalid_grant"})
+        data = json.dumps(out).encode()
+        self.send_response(200 if ok else 400)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def log_message(self, *a):
+        pass
+
+
+def test_mcp_http_oauth_authcode(tmp_path, monkeypatch):
+    """authorization_code+PKCE: ブラウザ同意を模擬しトークン交換→
+    MCP呼出→トークン永続化まで。"""
+    import socket
+    import urllib.request
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    tokd = ThreadingHTTPServer(("127.0.0.1", 0), _AuthCodeTokenHandler)
+    threading.Thread(target=tokd.serve_forever, daemon=True).start()
+    httpd, port = start_http(_McpFakeDriver(), api_keys={"utok"})
+    # 空きポートを拾って redirect_uri に使う
+    s = socket.socket()
+    s.bind(("127.0.0.1", 0))
+    cb_port = s.getsockname()[1]
+    s.close()
+
+    opened = []
+
+    def fake_open(url):
+        opened.append(url)
+        q = urllib.parse.parse_qs(
+            urllib.parse.urlparse(url).query)
+        assert q["code_challenge_method"] == ["S256"]
+        assert q["code_challenge"]
+        # 認可サーバの応答=コールバックへのリダイレクトを模擬
+        urllib.request.urlopen(
+            q["redirect_uri"][0] + "?" + urllib.parse.urlencode(
+                {"code": "authcode-1", "state": q["state"][0]}),
+            timeout=5).read()
+
+    monkeypatch.setattr(ai_client.webbrowser, "open", fake_open)
+    try:
+        tport = tokd.server_address[1]
+        sess = ai_client.McpSession(
+            "o", {"url": f"http://127.0.0.1:{port}/mcp",
+                  "oauth": {
+                      "authorize_url":
+                          f"http://127.0.0.1:{tport}/authorize",
+                      "token_url":
+                          f"http://127.0.0.1:{tport}/oauth/token",
+                      "client_id": "cid",
+                      "client_secret": "csec",
+                      "redirect_uri":
+                          f"http://127.0.0.1:{cb_port}/callback"}},
+            timeout=10)
+        try:
+            assert opened and "authorize" in opened[0]
+            assert sess._io._tok == "utok"
+            assert "echo" in sess.call("qgis_status", {})
+        finally:
+            sess.close()
+        # トークンが永続化され、2回目はブラウザ無しで再利用される
+        saved = ai_client._mcp_token_load("o")
+        assert saved["access_token"] == "utok"
+        assert saved["refresh_token"] == "rtok"
+        opened.clear()
+        sess2 = ai_client.McpSession(
+            "o", {"url": f"http://127.0.0.1:{port}/mcp",
+                  "oauth": {"authorize_url": "x",
+                            "token_url": "x",
+                            "client_id": "cid",
+                            "client_secret": "csec"}},
+            timeout=10)
+        try:
+            assert not opened      # 保存トークン再利用でブラウザ不要
+            assert sess2._io._tok == "utok"
+        finally:
+            sess2.close()
+    finally:
+        httpd.shutdown()
+        tokd.shutdown()
+
+
+def test_extra_tools_register():
+    """外部ツールがopenai_toolsに混ざりrun_extra_toolで実行できる。"""
+    ai_client.register_extra_tools(
+        [{"name": "mcp_x__y", "description": "d",
+          "inputSchema": {"type": "object", "properties": {}}}],
+        {"mcp_x__y": lambda a: f"got:{a.get('v')}"})
+    try:
+        names = {t["function"]["name"] for t in ai_client.openai_tools()}
+        assert "mcp_x__y" in names
+        assert ai_client.run_extra_tool("mcp_x__y", {"v": 1}) == "got:1"
+        with pytest.raises(ai_client.ApiError):
+            ai_client.run_extra_tool("mcp_no", {})
+    finally:
+        ai_client.register_extra_tools([], {})

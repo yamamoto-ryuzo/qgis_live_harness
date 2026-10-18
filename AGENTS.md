@@ -107,7 +107,20 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   パネルの「GitHubでサインイン」はOAuthデバイスフロー)の
   APIを接続すると、モデルが `mcp_http.TOOLS` のツール群を
   `driver.submit()` 経由でループ実行する。リモート制御OFF時は
-  パネル専用の内部ドライバで動く
+  パネル専用の内部ドライバで動く。
+  指示書は2系統のMarkdown: `~/.qgis-live/agents/*.md` は
+  常時注入(パネルで選択・複数対応)、`~/.qgis-live/skills/*.md` は
+  一覧のみプロンプトに載せモデルがpyevalのopen()で読む
+  オンデマンド手順書。同梱デフォルトは `<plugin>/<kind>/` に置き
+  ユーザ側同名ファイルが優先される。指示書自体も
+  `ai_*`(list/read/save/delete_instruction + ai_select_agent)
+  ツールでモデルが編集・選択できる(パネルローカル実行・保存は
+  ユーザ側のみ)。外部オーケストレーター向けには
+  `qgis_instruction`ツール(op=list|read|save|delete)を
+  MCP/RESTで公開している。逆方向としてAIパネル自体が
+  MCPクライアントも持ち、`~/.qgis-live/mcp_servers.json`
+  (Claude Desktop互換、command=stdio/url=Streamable HTTP)の
+  外部MCPサーバのツールを `mcp_<サーバ>__<ツール>` で使える
 - `qgis-plugin/<id>/logic.py` — QGIS非依存の純粋ロジック。pytest対象(WebEngineプラグインの構成)
 - `qgis-plugin/<id>/live_driver.py` — L2検証用。実QGIS内でJS実行を仲介(後述)
 - `qgis-plugin/<id>/ui/` — HTML/CSS/JSフロントエンド。QGIS無しの通常ブラウザでも動く(mock使用)
