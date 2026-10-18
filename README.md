@@ -53,7 +53,8 @@ eval/pyeval/スクショで観測→test:liveで検証」を人間なしで反�
 | [Harnessのプラグイン化](https://yamamoto-ryuzo.github.io/qgis_live_harness/internals.html) | 構造解析:何がDriver側に吸収済みで何が外に残るか |
 
 サイト本体は `docs/` 内のHTMLを直接編集して更新する。
-AIエージェント向け開発手順は [AGENTS.md](AGENTS.md) を参照。
+AIエージェント向け開発手順は [AGENTS.md](AGENTS.md)、
+変更履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
 ## クイックスタート
 

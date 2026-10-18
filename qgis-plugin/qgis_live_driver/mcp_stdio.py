@@ -288,7 +288,7 @@ def _handle(msg):
                 "protocolVersion": msg.get("params", {})
                     .get("protocolVersion", PROTOCOL_VERSION),
                 "capabilities": {"tools": {}},
-                "serverInfo": {"name": "qgis-live", "version": "0.1.0"},
+                "serverInfo": {"name": "qgis-live", "version": "0.2.0"},
             },
         }
     if method == "ping":

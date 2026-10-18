@@ -78,7 +78,7 @@ const err = (e) => ({
   isError: true,
 });
 
-const server = new McpServer({ name: "qgis-live", version: "0.1.0" });
+const server = new McpServer({ name: "qgis-live", version: "1.0.0" });
 
 server.registerTool(
   "qgis_ensure",
