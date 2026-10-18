@@ -60,18 +60,21 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   `geo_report/` `geo_import/` `QGIS-legendView-main/`、および
   Harness生まれの `export_excel/`(下記)を管理する。
   実体はすべてこのrepo内のgit管理対象(Harness側が正本)。
-  upstream同期用junctionは `C:\devin\<repo>/<プラグインsubfolder>` → ここ
-  (geo_report/geo_import)の形式。
-  「repoルート=プラグイン/コンテンツ」構造のupstreamリポジトリ
-  (QGIS-legendView→QGIS-legendView-main、QGIS-exportExcel→export_excel)は
-  subfolder junctionが張れないため、**upstream側の `.git` を
-  `.upstream/<repo>.git` に退避し `core.worktree` を `qgis-plugin/<id>` に
-  向けたgitdir運用**とする。`C:\devin\<repo>` はここへのjunction。
-  upstreamへの status/add/commit/push は
-  `npm run upstream -- <repo> <git引数>`(scripts/upstream-git.ps1)を使う
-  (例: `npm run upstream -- QGIS-legendView status`)。
-  直接叩く場合は `git --git-dir=.upstream/<repo>.git <args>`
-  (core.worktree設定済み)。`C:\devin\<repo>` 上ではgitは使えない点に注意
+  upstream同期の基盤は **repo内の `.upstream/`(gitignore済み・
+  マシンローカル)に集約**し、`C:\devin\<repo>` 側のclone/junctionは
+  置かない。操作は `npm run upstream -- <repo> <git引数>`
+  (scripts/upstream-git.ps1。例: `npm run upstream -- QGIS-legendView status`)
+  が2形式を吸収する:
+  - repo内にプラグインsubfolderを持つupstream(geo_report、geo_import)は
+    `.upstream/<repo>/` にcloneし、subfolderを `qgis-plugin/<id>` への
+    junctionに置き換える(例: `.upstream/geo_report/geo_report` →
+    `qgis-plugin/geo_report`)
+  - 「repoルート=プラグイン/コンテンツ」構造のupstream
+    (QGIS-legendView→QGIS-legendView-main、QGIS-exportExcel→export_excel)は
+    subfolder junctionが張れないため、**upstream側の `.git` を
+    `.upstream/<repo>.git` に退避し `core.worktree` を `qgis-plugin/<id>` に
+    向けたgitdir運用**。直接叩く場合は
+    `git --git-dir=.upstream/<repo>.git <args>`(core.worktree設定済み)
   (旧サンプル `webengine_plugin` は削除済み。
   WebEngineプラグインの構成例はgit履歴を参照)。WebEngineプラグインでは
   QGIS依存は `bridge.py` に閉じ込める。deploy時に `python/plugins/<フォルダ名>` へ配置される。
@@ -79,9 +82,10 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   スクリプト群(プラグインではない)を簡易プラグイン化したもので、
   スクリプト本体は無改変で同梱し `plugin.py` が実行時に
   `[% @layer_id %]`/`[% $id %]` をアクティブレイヤ/選択地物で置換して
-  exec する(PyQt5固定importは qgis.PyQt shimで吸収。実行には
-  win32com+Excelが必要)。upstreamの `C:\devin\QGIS-exportExcel` は
-  通常cloneで維持し、スクリプトの同期はコピーで行う
+  exec する(QGIS4/Qt6では `import PyQt5` がブロックされるため
+  exec直前に `PyQt5`→`qgis.PyQt` へソース書き換え。実行には
+  win32com+Excelが必要)。upstream側は
+  `.upstream/QGIS-exportExcel.git` のgitdir運用
   `qgis_live_driver/` はWebEngineを持たない制御専用プラグイン(pyeval+地図キャンバス
   スクショのみ)で、任意プラグインの遠隔操作基盤として常駐させられる。
   内蔵HTTPサーバ(`/mcp`=MCP Streamable HTTP、`/api/*`=REST)と
@@ -163,10 +167,8 @@ npm run test:unit
 **標準の検証対象プラグインは `geo_search`・`geo_webview`・`geo_report`・
 `geo_import`・`QGIS-legendView-main`**(実体は
 `qgis-plugin/<id>` = このrepoのgit管理対象。
-deploy先 `geo_custom/python/plugins/<id>` および
-upstream用 `C:\devin/<repo>/<id>` はどちらもここへのjunction
-(QGIS-legendView-main/export_excelはupstream構造上 `.upstream/<repo>.git`
-gitdir運用。いずれもHarness側が正本)。Qt Widgetsプラグインでrepo側編集→`reload_plugin`で即反映できる。
+deploy先 `geo_custom/python/plugins/<id>` はここへのjunction。
+upstream同期は `.upstream/` 経由(前述。いずれもHarness側が正本)。Qt Widgetsプラグインでrepo側編集→`reload_plugin`で即反映できる。
 `open_plugin`/`reload_plugin`/
 `status`/`screenshot(mainwindow)` の対象になり、pyevalからは
 `qgis.utils.plugins['<id>']` で `dialog`/`run` 等に直接触れられる。
