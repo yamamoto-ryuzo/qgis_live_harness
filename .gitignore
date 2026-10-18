@@ -5,4 +5,5 @@ dist/
 __pycache__/
 *.pyc
 .pytest_cache/
+.upstream/
 .devin/mcp_config.local.json

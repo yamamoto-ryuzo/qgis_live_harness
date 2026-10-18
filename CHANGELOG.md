@@ -14,9 +14,12 @@
   そのまま配置)を実体git管理で取り込み、`plugin.config.json` の id 配列に
   追加して test:live/live:reload の検証対象にした。
   `C:\devin\geo_report\geo_report`・`C:\devin\geo_import\geo_import` は
-  upstream同期用にここへのjunctionを張った
-  (QGIS-legendViewはrepoルートがプラグインのためjunction不可、
-  `C:\devin\QGIS-legendView` のcloneを維持しコピー同期)。
+  upstream同期用にここへのjunctionを張った。
+  「repoルート=プラグイン」構造のQGIS-legendView/QGIS-exportExcelは
+  upstreamの `.git` を `.upstream/<repo>.git` に退避し `core.worktree` を
+  `qgis-plugin/<id>` に向けるgitdir運用にし、Harness側を正本とした
+  (`C:\devin/<repo>` はここへのjunction。upstream操作は
+  `npm run upstream -- <repo> <git引数>` = scripts/upstream-git.ps1)。
   さらに **`export_excel`** を新設: `QGIS-exportExcel` のレイヤアクション
   用スクリプト群(metadata.txtを持たない非プラグイン)を簡易プラグイン化し、
   プラグインメニューからアクティブレイヤ/選択地物へ実行可能にした。
