@@ -45,7 +45,11 @@
     "py_dlg_set_info_local_not_found": "Локальный кэш не найден: {0}",
     "py_dlg_set_info_local_read_error": "Не удалось прочитать локальный кэш: {0}",
     "py_dlg_set_info_local_read_error_boxdrive": "Не удалось прочитать локальный кэш (BoxDrive): {0}",
-    "py_dlg_set_warn_cache_not_use": "Каталог кэша нельзя использовать"
+    "py_dlg_set_warn_cache_not_use": "Каталог кэша нельзя использовать",
+    "Organization": "Организация",
+    "Author": "Автор",
+    "Maintainer": "Сопровождающий",
+    "License": "Лицензия"
   },
   "GeoImportDialogBase": {
     "?": "?",

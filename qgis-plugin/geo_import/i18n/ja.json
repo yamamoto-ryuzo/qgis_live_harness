@@ -74,7 +74,11 @@
     "py_dlg_set_info_local_not_found": "ローカルキャッシュが見つかりません。",
     "py_dlg_set_info_local_read_error": "ローカルキャッシュの読み込みに失敗しました。",
     "py_dlg_set_info_local_read_error_boxdrive": "ローカルキャッシュの読み込みに失敗しました(BoxDrive)。",
-    "py_dlg_set_warn_cache_not_use": "キャッシュディレクトリを使用できません"
+    "py_dlg_set_warn_cache_not_use": "キャッシュディレクトリを使用できません",
+    "Organization": "組織",
+    "Author": "著者",
+    "Maintainer": "メンテナー",
+    "License": "ライセンス"
   },
   "GeoImportDialogBase": {
     "?": "?",

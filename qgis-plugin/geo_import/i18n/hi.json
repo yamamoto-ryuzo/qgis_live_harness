@@ -45,7 +45,11 @@
     "py_dlg_set_info_local_not_found": "लोकल कैश नहीं मिला: {0}",
     "py_dlg_set_info_local_read_error": "लोकल कैश पढ़ने में विफल: {0}",
     "py_dlg_set_info_local_read_error_boxdrive": "लोकल कैश पढ़ने में विफल (BoxDrive): {0}",
-    "py_dlg_set_warn_cache_not_use": "कैश डायरेक्टरी उपयोग नहीं की जा सकती"
+    "py_dlg_set_warn_cache_not_use": "कैश डायरेक्टरी उपयोग नहीं की जा सकती",
+    "Organization": "संगठन",
+    "Author": "लेखक",
+    "Maintainer": "अनुरक्षक",
+    "License": "लाइसेंस"
   },
   "GeoImportDialogBase": {
     "?": "?",

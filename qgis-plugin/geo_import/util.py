@@ -1054,7 +1054,7 @@ class Util:
 
         Adds the map sheet itself via page[].tile_xyz_template (fallback:
         page[].wms_*), extracts embedded section GeoJSON, and writes a
-        download_links.txt listing downloadData/viewer URLs (no auto-download:
+        download_links.html listing downloadData/viewer URLs (no auto-download:
         the same files are exposed as separate catalog resources).
         """
         try:
@@ -1132,29 +1132,45 @@ class Util:
                     QgsProject.instance().addMapLayer(lyr)
                     added_any = True
 
-            # downloadData/viewerのリンク一覧を保存(自動ダウンロードはしない)
+            # downloadData/viewerのリンク一覧をHTMLで保存(自動ダウンロードはしない)
             try:
-                links_path = os.path.join(target_dir, 'download_links.txt')
+                import html as _html
+                esc = lambda v: _html.escape(u'' if v is None else str(v))
+                rows = []
+                for r in obj.get('downloadData') or []:
+                    if not isinstance(r, dict):
+                        continue
+                    url = (
+                        r.get('@id') or r.get('url')
+                        or r.get('downloadUrl') or r.get('download')
+                    )
+                    if not url:
+                        continue
+                    rows.append(
+                        u'<tr><td>{0}</td><td>{1}</td><td>{2}</td>'
+                        u'<td><a href="{3}">{3}</a></td></tr>'.format(
+                            esc(r.get('data_type')), esc(r.get('title')),
+                            esc(r.get('data_size')), esc(url)))
+                extra = u''
+                if obj.get('@id'):
+                    extra += (
+                        u'Linked Data: <a href="{0}">{0}</a><br/>'
+                    ).format(esc(obj['@id']))
+                if obj.get('viewer_url'):
+                    extra += (
+                        u'Viewer: <a href="{0}">{0}</a><br/>'
+                    ).format(esc(obj['viewer_url']))
+                links_html = (
+                    u'<!doctype html><html><head><meta charset="utf-8"/>'
+                    u'<title>{0}</title></head><body>'
+                    u'<h1>{0}</h1><p>{1}</p>'
+                    u'<table border="1" cellspacing="0" cellpadding="4">'
+                    u'<tr><th>type</th><th>title</th><th>size</th><th>url</th></tr>'
+                    u'{2}</table></body></html>'
+                ).format(esc(title), extra, u''.join(rows))
+                links_path = os.path.join(target_dir, 'download_links.html')
                 with open(links_path, 'w', encoding='utf-8') as lfh:
-                    lfh.write(title + u'\n')
-                    if obj.get('@id'):
-                        lfh.write(u'Linked Data:\t{0}\n'.format(obj['@id']))
-                    if obj.get('viewer_url'):
-                        lfh.write(u'Viewer:\t{0}\n'.format(obj['viewer_url']))
-                    for r in obj.get('downloadData') or []:
-                        if not isinstance(r, dict):
-                            continue
-                        url = (
-                            r.get('@id') or r.get('url')
-                            or r.get('downloadUrl') or r.get('download')
-                        )
-                        if not url:
-                            continue
-                        lfh.write(u'{0}\t{1}\t{2}\t{3}\n'.format(
-                            r.get('data_type') or '',
-                            r.get('title') or '',
-                            r.get('data_size') or '',
-                            url))
+                    lfh.write(links_html)
             except Exception as e:
                 self.msg_log_debug(
                     u'Failed to write download links: {0}'.format(e))

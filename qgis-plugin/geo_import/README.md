@@ -41,6 +41,8 @@ You can search and download datasets from CKAN and other open data portals and u
     - Automatic point geometry creation if latitude/longitude columns exist in CSV
 - UIの一部改善
     - Some UI improvements
+- GSJ(産総研地質調査総合センター)Linked Dataの「マップ情報（JSON）」・TileJSONリソースをXYZ地図タイルレイヤとして直接追加(埋め込み断面図GeoJSONも展開)
+    - GSJ Linked Data "map info (JSON)" and TileJSON resources are added directly as XYZ tile layers (embedded section GeoJSON is also extracted)
 - バージョン・更新履歴は `metadata_yamamoto.txt`, `Changlog_yamamoto.txt` で管理
     - Version and changelog are managed in `metadata_yamamoto.txt` and `Changlog_yamamoto.txt`
 

@@ -15,7 +15,7 @@ homepage=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-pl
 tracker=https://github.com/yamamoto-ryuzo/qgis_live_harness/issues
 repository=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_import
 changelog=
-	2.10.0: 接続失敗したCKANサーバーを赤・取り消し線で明示し失敗を永続記録(横断検索で死んだサーバーが視認可能に)
+	2.10.0: 接続失敗したCKANサーバーを赤・取り消し線で明示し失敗を永続記録(横断検索で死んだサーバーが視認可能に)。GSJ「マップ情報（JSON）」/TileJSONリソースをXYZタイル+断面GeoJSONとして直接読み込み対応(Qt6のqAppクラッシュ修正も同梱)
 	2.9.0: 複数CKANサーバー同時選択による横断検索に対応
 	2.8.0: 翻訳方式をi18n/<lang>.jsonに移行。qgis_live_driverのlayer_orgサービス連携で追加レイヤのグループ整理・命名を標準化
 	2.7.0: カタログ取得のデフォルトをネットワーク直接参照に変更。ローカル一括ダウンロード(SQLiteキャッシュ)はサイトごと/全体で選択可能なオプション化

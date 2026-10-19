@@ -473,12 +473,15 @@
       </widget>
      </item>
      <item>
-      <widget class="QTextEdit" name="IDC_textDetails">
+      <widget class="QTextBrowser" name="IDC_textDetails">
        <property name="minimumSize">
         <size>
          <width>250</width>
          <height>160</height>
         </size>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

@@ -1,4 +1,31 @@
-2.10.0 死んでいるCKANサーバーの明示表示
+2.10.0 死んでいるCKANサーバーの明示表示 + GSJ Linked Data/TileJSON対応強化
+- GSJ Linked Data マップ情報(JSON)対応強化:
+  地質調査総合センターデータカタログの「マップ情報（JSON）」リソース
+  (産総研GSJ Linked Data, data_type=GSJMAP / @type=Gsjmap)を
+  実地図レイヤとして取り込めるようにした。
+  - `page[].tile_xyz_template` で地図本体をXYZタイルレイヤとして追加
+    (無い場合は `wms_name`+`wms_capabilities` のWMSにフォールバック)。
+    レイヤ名は `title_j`/`title_e` 優先、複数page・副題時はサフィックス付与。
+  - `page[].section[].geojson`(JSON文字列で格納)を正しくデコードして
+    .geojson化しベクタレイヤ追加(旧実装は文字列をそのまま
+    json.dumpし無効なファイルになっていた)。
+  - `downloadData` のURLキーを `@id` からも取得(旧実装の
+    url/downloadUrl探索では実JSONで0件)。自動ダウンロードはせず
+    `download_links.html`(リンク付き一覧表)に一覧化(同一ファイルは
+    カタログ側に個別リソースとして存在するため)。
+  - `page[0].bbox` へキャンバスをズーム。
+- TileJSONリソース(`tiles[]`を持つJSON)に対応: `tiles[0]`をXYZレイヤ化
+  (webpのみの場合は `properties.alternate_tile_templates` の
+  png/xyzを優先)。`minzoom`/`maxzoom`をzmin/zmaxに反映、`bounds`へズーム。
+- データセット詳細ペインをHTML化: タイトル見出し+項目テーブル化し、
+  notes内のURL・author/maintainerのメールをリンク化
+  (setOpenExternalLinksで外部ブラウザ/メーラ起動)。
+  新規翻訳キー `Organization`/`Author`/`Maintainer`/`License` を
+  全9言語に登録。
+- Qt6クラッシュ修正: `load_resource_clicked` 内の
+  `QtWidgets.qApp.processEvents()`(Qt5名残・Qt6に存在しない)を
+  `QApplication.processEvents()` に置換(ダウンロード開始時に
+  AttributeErrorで中断していた)。
 - 接続失敗したサーバーを `Settings.server_errors` として
   `ckan_servers.json` に `{url: {error, time}}` で永続記録し、
   セッションをまたいで「死んでいる」状態を明示する。

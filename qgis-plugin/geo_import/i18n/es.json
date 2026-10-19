@@ -45,7 +45,11 @@
     "py_dlg_set_info_local_not_found": "Caché local no encontrada: {0}",
     "py_dlg_set_info_local_read_error": "No se pudo leer la caché local: {0}",
     "py_dlg_set_info_local_read_error_boxdrive": "No se pudo leer la caché local (BoxDrive): {0}",
-    "py_dlg_set_warn_cache_not_use": "No se puede usar el directorio de caché"
+    "py_dlg_set_warn_cache_not_use": "No se puede usar el directorio de caché",
+    "Organization": "Organización",
+    "Author": "Autor",
+    "Maintainer": "Responsable",
+    "License": "Licencia"
   },
   "GeoImportDialogBase": {
     "?": "?",

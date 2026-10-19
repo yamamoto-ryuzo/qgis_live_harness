@@ -45,7 +45,11 @@
     "py_dlg_set_info_local_not_found": "未找到本地缓存: {0}",
     "py_dlg_set_info_local_read_error": "无法读取本地缓存: {0}",
     "py_dlg_set_info_local_read_error_boxdrive": "无法读取本地缓存(BoxDrive): {0}",
-    "py_dlg_set_warn_cache_not_use": "缓存目录不可用"
+    "py_dlg_set_warn_cache_not_use": "缓存目录不可用",
+    "Organization": "组织",
+    "Author": "作者",
+    "Maintainer": "维护者",
+    "License": "许可证"
   },
   "GeoImportDialogBase": {
     "?": "?",

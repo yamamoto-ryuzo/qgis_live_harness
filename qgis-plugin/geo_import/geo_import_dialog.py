@@ -285,6 +285,10 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         icon_path = self.util.resolve(u'icon-copy.png')
         self.IDC_bCopy.setIcon(QtGui.QIcon(icon_path))
 
+        # 詳細ペインはHTML表示(URL/mailtoリンクを外部ブラウザ/メーラで開く)
+        if hasattr(self, 'IDC_textDetails'):
+            self.IDC_textDetails.setOpenExternalLinks(True)
+
         self.cc = CkanConnector(self.settings, self.util)
 
         self.timer = QTimer()
@@ -1452,26 +1456,11 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                 if format_lc in fmt or fmt in format_lc:
                     return True
             return False
-        # 詳細情報はcurrentのみ
+        # 詳細情報はcurrentのみ(HTMLで構造化表示。URLはリンク化)
         if current is not None:
             package = current.data(Qt.ItemDataRole.UserRole)
             if package is not None:
-                org = package.get('organization', {})
-                org_name = org.get('title') or org.get('name') or 'no organization'
-                org_desc = org.get('description', '') if isinstance(org, dict) else ''
-                details_text = (
-                    u'{0}\n\nOrganization: {1}\n{2}\n\nAuthor: {3} <{4}>\nMaintainer: {5} <{6}>\n\nLicense: {7}'.format(
-                        package.get('notes', 'no notes'),
-                        org_name,
-                        org_desc,
-                        package.get('author', 'no author'),
-                        package.get('author_email', 'no author_email'),
-                        package.get('maintainer', 'no maintainer'),
-                        package.get('maintainer_email', 'no maintainer_email'),
-                        package.get('license_id', 'no license_id')
-                    )
-                )
-                self.IDC_textDetails.setText(details_text)
+                self.IDC_textDetails.setHtml(self._details_html(package))
         # リソース一覧は選択状態に応じて毎回再構築（selected_itemsベースで統一）
         selected_items = self.IDC_listResults.selectedItems()
         all_resources = []
@@ -1761,7 +1750,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             download_failed = False
             if do_download is True:
                 QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
-                QtWidgets.qApp.processEvents()
+                QApplication.processEvents()
                 file_size_ok, file_size, hdr_exception = self.cc.get_file_size(url_val)
                 QApplication.restoreOverrideCursor()
                 if not file_size_ok:
@@ -1783,7 +1772,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     self.util.msg_log_error(u'error getting size of response, HEAD request failed: {}'.format(hdr_exception))
                 self.util.msg_log_debug('setting wait cursor')
                 QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
-                QtWidgets.qApp.processEvents()
+                QApplication.processEvents()
                 self.util.msg_log_debug('wait cursor set')
                 ok, err_msg, new_file_name = self.cc.download_resource(
                     url_val
@@ -1919,6 +1908,76 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         if len(res) < 1:
             return None
         return res
+
+    @staticmethod
+    def _escape_html(value):
+        import html as _html
+        return _html.escape(u'' if value is None else str(value))
+
+    @classmethod
+    def _linkify_html(cls, value):
+        """HTMLエスケープした上で markdownリンクと http(s) URLをリンク化する。"""
+        import re as _re
+        pattern = _re.compile(
+            r'\[([^\]]+)\]\((https?://[^\s)]+)\)'
+            r'|(https?://[^\s<>"\'\]\[()]+)')
+
+        def _repl(m):
+            if m.group(3):
+                url = m.group(3)
+                trail = u''
+                while url and url[-1] in u'.,;:!?':
+                    trail = url[-1] + trail
+                    url = url[:-1]
+                return u'<a href="{0}">{0}</a>{1}'.format(url, trail)
+            return u'<a href="{0}">{1}</a>'.format(m.group(2), m.group(1))
+
+        out = pattern.sub(_repl, cls._escape_html(value))
+        return _re.sub(r'\*\*([^*]+)\*\*', r'<b>\1</b>', out)
+
+    @classmethod
+    def _mailto_html(cls, name, email):
+        name_h = cls._escape_html(name)
+        if email:
+            email_h = cls._escape_html(email)
+            return u'{0} &lt;<a href="mailto:{1}">{1}</a>&gt;'.format(name_h, email_h)
+        return name_h
+
+    def _details_html(self, package):
+        """選択データセットの詳細をHTMLで組み立てる(IDC_textDetails用)。"""
+        tr = lambda k: QCoreApplication.translate('GeoImport', k)
+        esc = self._escape_html
+        org = package.get('organization', {})
+        if not isinstance(org, dict):
+            org = {}
+        org_name = org.get('title') or org.get('name') or 'no organization'
+        org_desc = org.get('description', '') if isinstance(org, dict) else ''
+        org_cell = self._linkify_html(org_name)
+        if org_desc:
+            org_cell += u'<br/>' + self._linkify_html(org_desc)
+        title = package.get('title') or package.get('name') or ''
+        notes = self._linkify_html(package.get('notes', 'no notes'))
+        return (
+            u'<h3>{0}</h3>'
+            u'<p>{1}</p>'
+            u'<table border="0" cellspacing="2" cellpadding="0">'
+            u'<tr><td valign="top"><b>{2}:</b></td><td>{3}</td></tr>'
+            u'<tr><td valign="top"><b>{4}:</b></td><td>{5}</td></tr>'
+            u'<tr><td valign="top"><b>{6}:</b></td><td>{7}</td></tr>'
+            u'<tr><td valign="top"><b>{8}:</b></td><td>{9}</td></tr>'
+            u'</table>'
+        ).format(
+            esc(title),
+            notes.replace('\n', u'<br/>'),
+            tr('Organization'), org_cell,
+            tr('Author'), self._mailto_html(
+                package.get('author', 'no author'),
+                package.get('author_email')),
+            tr('Maintainer'), self._mailto_html(
+                package.get('maintainer', 'no maintainer'),
+                package.get('maintainer_email')),
+            tr('License'), esc(package.get('license_id', 'no license_id')),
+        )
 
     def _shorten_path(self, s):
         """ private class to shorten string to 33 chars and place a html-linebreak inside"""
