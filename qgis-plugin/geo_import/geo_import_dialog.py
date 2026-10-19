@@ -2,6 +2,93 @@
 from qgis.PyQt.QtCore import QThread, pyqtSignal
 
 
+def fetch_page_from_db(db_path, format_text, format_lc, current_page, results_limit, search_txt=None, group_names=None):
+    """SQLiteキャッシュDBからフィルタ済みの1ページ分を同期取得する。
+    複数サーバー横断検索ではサーバーごとのDBに対してこの関数を呼びマージする。
+    戻り値: (page_results, result_count, page_count, total_resource_count)"""
+    import sqlite3
+    filtered_results = []
+    result_count = 0
+    total_resource_count = 0
+    try:
+        conn = sqlite3.connect(db_path)
+        c = conn.cursor()
+        # まず全件取得（形式フィルタは後でPython側で）
+        c.execute('SELECT raw_json FROM packages')
+        rows = c.fetchall()
+        import json
+        for row in rows:
+            entry = json.loads(row[0])
+            # カテゴリ（グループ）フィルタ
+            group_match = True
+            if group_names is not None:
+                # entry['groups']はリスト（要素はdictか文字列）
+                entry_groups = [
+                    g.get('name') if isinstance(g, dict) else str(g)
+                    for g in entry.get('groups', [])
+                ]
+                entry_groups = [g for g in entry_groups if g]
+                # 1つでも一致すればOK（OR条件）
+                group_match = any(g in entry_groups for g in group_names)
+            if not group_match:
+                continue
+            # 検索語フィルタ
+            if search_txt:
+                text_fields = []
+                if 'title' in entry and entry['title']:
+                    if isinstance(entry['title'], dict):
+                        text_fields.extend(str(v) for v in entry['title'].values())
+                    else:
+                        text_fields.append(str(entry['title']))
+                if 'notes' in entry and entry['notes']:
+                    text_fields.append(str(entry['notes']))
+                if 'tags' in entry and entry['tags']:
+                    for tag in entry['tags']:
+                        if isinstance(tag, dict) and 'name' in tag:
+                            text_fields.append(str(tag['name']))
+                        elif isinstance(tag, str):
+                            text_fields.append(tag)
+                if 'author' in entry and entry['author']:
+                    text_fields.append(str(entry['author']))
+                if 'maintainer' in entry and entry['maintainer']:
+                    text_fields.append(str(entry['maintainer']))
+                if 'organization' in entry and entry['organization']:
+                    org = entry['organization']
+                    if isinstance(org, dict):
+                        for k in ('name', 'title', 'description'):
+                            v = org.get(k)
+                            if v:
+                                text_fields.append(str(v))
+                search_hit = any(search_txt.lower() in t.lower() for t in text_fields)
+            else:
+                search_hit = True
+            # データ形式フィルタ
+            if format_text == QCoreApplication.translate('GeoImport', 'All'):
+                if search_hit:
+                    filtered_results.append(entry)
+            else:
+                if any(format_lc == (res.get('format','').strip().lower()) for res in entry.get('resources', [])) and search_hit:
+                    filtered_results.append(entry)
+        # 全件分のリソース数を集計（形式フィルタを考慮）
+        if format_text == QCoreApplication.translate('GeoImport', 'All'):
+            total_resource_count = sum(len(entry.get('resources', [])) for entry in filtered_results)
+        else:
+            total_resource_count = sum(
+                len([res for res in entry.get('resources', []) if format_lc == (res.get('format') or '').strip().lower()])
+                for entry in filtered_results
+            )
+        conn.close()
+    except Exception as e:
+        filtered_results = []
+        total_resource_count = 0
+    result_count = len(filtered_results)
+    page_count = max(1, (result_count + results_limit - 1) // results_limit)
+    start_idx = (current_page - 1) * results_limit
+    end_idx = start_idx + results_limit
+    page_results = filtered_results[start_idx:end_idx]
+    return page_results, result_count, page_count, total_resource_count
+
+
 class DataFetchThread(QThread):
     result_ready = pyqtSignal(list, int, int, int)  # (page_results, result_count, page_count, total_resource_count)
 
@@ -16,82 +103,9 @@ class DataFetchThread(QThread):
         self.group_names = group_names  # 追加: グループ名リスト
 
     def run(self):
-        import sqlite3
-        filtered_results = []
-        result_count = 0
-        total_resource_count = 0
-        try:
-            conn = sqlite3.connect(self.db_path)
-            c = conn.cursor()
-            # まず全件取得（形式フィルタは後でPython側で）
-            c.execute('SELECT raw_json FROM packages')
-            rows = c.fetchall()
-            import json
-            for row in rows:
-                entry = json.loads(row[0])
-                # カテゴリ（グループ）フィルタ
-                group_match = True
-                if self.group_names is not None:
-                    # entry['groups']はリスト（各要素はdictで'name'キーあり）
-                    entry_groups = [g['name'] for g in entry.get('groups', []) if 'name' in g]
-                    # 1つでも一致すればOK（OR条件）
-                    group_match = any(g in entry_groups for g in self.group_names)
-                if not group_match:
-                    continue
-                # 検索語フィルタ
-                if self.search_txt:
-                    text_fields = []
-                    if 'title' in entry and entry['title']:
-                        if isinstance(entry['title'], dict):
-                            text_fields.extend(str(v) for v in entry['title'].values())
-                        else:
-                            text_fields.append(str(entry['title']))
-                    if 'notes' in entry and entry['notes']:
-                        text_fields.append(str(entry['notes']))
-                    if 'tags' in entry and entry['tags']:
-                        for tag in entry['tags']:
-                            if isinstance(tag, dict) and 'name' in tag:
-                                text_fields.append(str(tag['name']))
-                            elif isinstance(tag, str):
-                                text_fields.append(tag)
-                    if 'author' in entry and entry['author']:
-                        text_fields.append(str(entry['author']))
-                    if 'maintainer' in entry and entry['maintainer']:
-                        text_fields.append(str(entry['maintainer']))
-                    if 'organization' in entry and entry['organization']:
-                        org = entry['organization']
-                        if isinstance(org, dict):
-                            for k in ('name', 'title', 'description'):
-                                v = org.get(k)
-                                if v:
-                                    text_fields.append(str(v))
-                    search_hit = any(self.search_txt.lower() in t.lower() for t in text_fields)
-                else:
-                    search_hit = True
-                # データ形式フィルタ
-                if self.format_text == QCoreApplication.translate('GeoImport', 'All'):
-                    if search_hit:
-                        filtered_results.append(entry)
-                else:
-                    if any(self.format_lc == (res.get('format','').strip().lower()) for res in entry.get('resources', [])) and search_hit:
-                        filtered_results.append(entry)
-            # 全件分のリソース数を集計（形式フィルタを考慮）
-            if self.format_text == QCoreApplication.translate('GeoImport', 'All'):
-                total_resource_count = sum(len(entry.get('resources', [])) for entry in filtered_results)
-            else:
-                total_resource_count = sum(
-                    len([res for res in entry.get('resources', []) if self.format_lc == (res.get('format') or '').strip().lower()])
-                    for entry in filtered_results
-                )
-            conn.close()
-        except Exception as e:
-            filtered_results = []
-            total_resource_count = 0
-        result_count = len(filtered_results)
-        page_count = max(1, (result_count + self.results_limit - 1) // self.results_limit)
-        start_idx = (self.current_page - 1) * self.results_limit
-        end_idx = start_idx + self.results_limit
-        page_results = filtered_results[start_idx:end_idx]
+        page_results, result_count, page_count, total_resource_count = fetch_page_from_db(
+            self.db_path, self.format_text, self.format_lc, self.current_page,
+            self.results_limit, self.search_txt, self.group_names)
         self.result_ready.emit(page_results, result_count, page_count, total_resource_count)
 # -*- coding: utf-8 -*-
 """
@@ -303,7 +317,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         # ダイアログ起動時に一度全件検索を実施（初期表示）
         # ネットワークモードではコンストラクタ内で同期ネットワーク取得を行わず、
         # 表示後の window_loaded タイマーで初回取得する
-        if self._use_local_cache():
+        if self._all_servers_cached():
             self.list_all_clicked()
 
     def update_resource_checked_count(self, item=None):
@@ -355,13 +369,13 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             pass
         if hasattr(self, 'IDC_lblSelectedCount'):
             self.IDC_lblSelectedCount.setText(QCoreApplication.translate('GeoImport', "Selected - datasets: {0} / resources: {1}").format(len(selected_items), len(all_resources)))
-    def _get_local_server_path(self):
+    def _get_local_server_path(self, url=None):
         """
-        現在のサーバー(ckan_url)がローカルフォルダを指す場合はそのパスを返す。
+        指定サーバー(省略時は現在のckan_url)がローカルフォルダを指す場合はそのパスを返す。
         リモートのCKAN APIサーバーの場合はNone。
         """
         try:
-            server_url = getattr(self.settings, 'ckan_url', '') or ''
+            server_url = url if url is not None else (getattr(self.settings, 'ckan_url', '') or '')
             if not isinstance(server_url, str) or not server_url:
                 return None
             # custom_servers で type=LOCAL のエントリ
@@ -390,36 +404,77 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             pass
         return None
 
-    def _use_local_cache(self):
+    def _use_local_cache(self, url=None):
         """
-        現在のサイトがローカルキャッシュ(SQLite)モードか判定する。
+        指定サイト(省略時は現在のckan_url)がローカルキャッシュ(SQLite)モードか判定する。
         ローカルフォルダ型サーバーは常にTrue。
         """
-        if self._get_local_server_path() is not None:
+        server_url = url if url is not None else (getattr(self.settings, 'ckan_url', '') or '')
+        if self._get_local_server_path(server_url) is not None:
             return True
-        return self.settings.use_local_cache(getattr(self.settings, 'ckan_url', '') or '')
+        return self.settings.use_local_cache(server_url)
+
+    def _active_server_urls(self):
+        """選択中の全カタログサーバー(api_url)一覧。複数選択=横断検索。"""
+        try:
+            urls = self.settings.active_server_urls()
+        except Exception:
+            urls = []
+        if not urls:
+            fallback = getattr(self.settings, 'ckan_url', '') or ''
+            urls = [fallback] if fallback else []
+        return urls
+
+    def _all_servers_cached(self):
+        """選択中の全サーバーがローカルキャッシュ/ローカルフォルダ型ならTrue"""
+        urls = self._active_server_urls()
+        return bool(urls) and all(self._use_local_cache(u) for u in urls)
+
+    def _server_label(self, url):
+        """表示用の短いサーバー名。カスタムサーバー名 > ホスト名 > URL。"""
+        try:
+            for name, info in (self.settings.custom_servers or {}).items():
+                if isinstance(info, dict) and info.get('url') == url:
+                    return name
+                if isinstance(info, str) and info == url:
+                    return name
+        except Exception:
+            pass
+        try:
+            from urllib.parse import urlparse
+            host = urlparse(url).netloc
+            if host:
+                return host.replace('www.', '')
+        except Exception:
+            pass
+        return url
 
     def _sync_local_cache_checkbox(self):
-        """ローカルキャッシュ利用チェックボックスを現在のサイト設定に同期する"""
+        """ローカルキャッシュ利用チェックボックスを選択中サーバー設定に同期する"""
         if not hasattr(self, 'IDC_chkLocalCache'):
             return
-        local_server = self._get_local_server_path() is not None
+        urls = self._active_server_urls()
+        remote_urls = [u for u in urls if self._get_local_server_path(u) is None]
         self.IDC_chkLocalCache.blockSignals(True)
-        self.IDC_chkLocalCache.setChecked(self._use_local_cache())
-        # ローカルフォルダ型サーバーは常にローカル扱いのため変更不可
-        self.IDC_chkLocalCache.setEnabled(not local_server)
+        # リモートサーバーが全てキャッシュ利用ならチェック
+        self.IDC_chkLocalCache.setChecked(
+            bool(remote_urls) and all(self.settings.use_local_cache(u) for u in remote_urls))
+        # リモートサーバーが1つも無い(全てローカルフォルダ型)なら変更不可
+        self.IDC_chkLocalCache.setEnabled(bool(remote_urls))
         self.IDC_chkLocalCache.blockSignals(False)
 
     def local_cache_toggled(self, checked):
-        """サイト単位のローカルキャッシュ利用の切り替え"""
-        if self._get_local_server_path() is not None:
+        """サイト単位のローカルキャッシュ利用の切り替え(複数選択時は全リモートサーバーに適用)"""
+        urls = self._active_server_urls()
+        remote_urls = [u for u in urls if self._get_local_server_path(u) is None]
+        if not remote_urls:
             return  # ローカルフォルダ型は常にローカル(チェックは無効化済み)
-        url = getattr(self.settings, 'ckan_url', '') or ''
-        self.settings.set_local_cache_site(url, bool(checked))
+        for url in remote_urls:
+            self.settings.set_local_cache_site(url, bool(checked))
         self.settings.save()
         if checked:
-            # 既存キャッシュがあればそのまま利用、無ければ一括ダウンロードする
-            if os.path.isfile(self._get_cache_db_path()):
+            # 全リモートサーバーに既存キャッシュがあればそのまま利用、無ければ一括ダウンロード
+            if all(os.path.isfile(self._get_cache_db_path(u)) for u in remote_urls):
                 self.window_loaded()
             else:
                 self.refresh_sqlite_clicked()
@@ -427,9 +482,10 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             # ネットワークモードで再読み込み
             self.window_loaded()
 
-    def _get_cache_db_path(self):
+    def _get_cache_db_path(self, url=None):
         """
-        現在のCKANサーバーURLごとにキャッシュDBファイル名を分けて返す
+        CKANサーバーURLごとにキャッシュDBファイル名を分けて返す。
+        url省略時は従来どおり現在のckan_urlを使用。
         """
         import re, hashlib
         cache_dir = self.settings.cache_dir
@@ -461,7 +517,8 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                         self.util.msg_log_debug(f"using temp directory: {cache_dir}")
                         
         # サーバーURLからファイル名を生成（記号を_に）
-        url = getattr(self.settings, 'ckan_url', 'default')
+        if url is None:
+            url = getattr(self.settings, 'ckan_url', 'default')
         # URLがBoxDriveパスなど長すぎる場合はハッシュ化
         if len(url) > 100 or ('Box' in url and len(url) > 50):
             self.util.msg_log_debug(f"[BoxDrive] hashed long URL: {url}")
@@ -487,18 +544,18 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         self.util.msg_log_debug(f"cache DB path: {db_path}")
         return db_path
 
-    def _create_sqlite_from_local(self, local_path):
+    def _create_sqlite_from_local(self, local_path, server_url=None):
         """Create SQLite cache DB from a local folder (packages.json / packages/* or auto-generate).
         Returns (True, db_path) on success, (False, error_message) on failure.
         """
         try:
             import json, sqlite3, hashlib
-            
+
             # キャッシュディレクトリのパスを取得
-            cache_dir = os.path.dirname(self._get_cache_db_path())
-            
+            cache_dir = os.path.dirname(self._get_cache_db_path(server_url))
+
             # JSONファイル名の生成（URLハッシュ部分を使用）
-            url = getattr(self.settings, 'ckan_url', 'default')
+            url = server_url if server_url is not None else getattr(self.settings, 'ckan_url', 'default')
             url_hash = hashlib.md5(url.encode('utf-8')).hexdigest()[:12]
             json_prefix = f'ckan_cache_{url_hash}'
             cache_packages_path = os.path.join(cache_dir, f'{json_prefix}_packages.json')
@@ -671,7 +728,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     pass
                 # keep all_results as empty list and continue to create DB
 
-            db_path = self._get_cache_db_path()
+            db_path = self._get_cache_db_path(server_url)
             from .save_ckan_to_sqlite import save_ckan_packages_to_sqlite
             save_ckan_packages_to_sqlite(db_path, all_results)
 
@@ -707,19 +764,31 @@ class GeoImportDialog(QDialog, FORM_CLASS):
 
     def refresh_sqlite_clicked(self):
         """
-        全データセットを再取得しSQLiteキャッシュを再作成する（CKAN APIのstartパラメータでページング取得）
+        選択中の全サーバーの全データセットを再取得しSQLiteキャッシュを再作成する
+        （CKAN APIのstartパラメータでページング取得。複数選択時はサーバー毎に実行）
         """
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            for server_url in self._active_server_urls():
+                self._refresh_server_cache(server_url)
+            self.list_all_clicked()
+            self.window_loaded()  # カテゴリ一覧を再表示
+        finally:
+            QApplication.restoreOverrideCursor()
+
+    def _refresh_server_cache(self, server_url):
+        """1サーバー分のキャッシュ再作成。失敗しても他サーバーの処理を継続する。"""
         QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             # 1. APIからカテゴリ取得
             # determine if current server is LOCAL type
-            local_path = self._get_local_server_path()
+            local_path = self._get_local_server_path(server_url)
             server_is_local = local_path is not None
 
             # リモートサイトでローカルキャッシュ未設定の場合、ダウンロード結果を
             # 使えるようこのサイトのローカルキャッシュ利用を有効化する
             if not server_is_local:
-                current_url = getattr(self.settings, 'ckan_url', '') or ''
+                current_url = server_url
                 if not self.settings.use_local_cache(current_url):
                     self.settings.set_local_cache_site(current_url, True)
                     self.settings.save()
@@ -840,7 +909,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                         return pkgs, groups
 
                     # キャッシュディレクトリとJSONファイル名を設定
-                    cache_dir = os.path.dirname(self._get_cache_db_path())
+                    cache_dir = os.path.dirname(self._get_cache_db_path(server_url))
                     import hashlib
                     local_path_hash = hashlib.md5(local_path.encode('utf-8')).hexdigest()[:12]
                     url_hash = local_path_hash
@@ -904,7 +973,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                                 group_result = []
                     # save to sqlite
                     if all_results:
-                        db_path = self._get_cache_db_path()
+                        db_path = self._get_cache_db_path(server_url)
                         from .save_ckan_to_sqlite import save_ckan_packages_to_sqlite
                         save_ckan_packages_to_sqlite(db_path, all_results)
                         conn = sqlite3.connect(db_path)
@@ -915,9 +984,6 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                             c.execute('INSERT INTO groups (raw_json) VALUES (?)', (json.dumps(group),))
                         conn.commit()
                         conn.close()
-                        self.update_format_list(all_results)
-                        self.list_all_clicked()
-                        self.window_loaded()
                         return
                     else:
                         # No generated packages: create empty packages.json in cache and proceed to create an empty DB
@@ -935,9 +1001,8 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                             pass
                         # continue with empty all_results to create empty DB (save_ckan_packages_to_sqlite will create tables)
                 except Exception as e:
-                    QApplication.restoreOverrideCursor()
                     error_msg = str(e)
-                    
+
                     # BOXドライブの場合の特別処理
                     is_box_drive = False
                     if 'Box' in local_path or 'Box Drive' in local_path:
@@ -952,13 +1017,9 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     return
 
             # 1. APIからカテゴリ取得
-            ok, group_result = self.cc.get_groups()
+            ok, group_result = self.cc.get_groups(server_url)
             if ok is False:
-                QApplication.restoreOverrideCursor()
-                self.util.dlg_warning(group_result)
-                return
-            if not group_result:
-                self.list_all_clicked()
+                self._warn_nonmodal(group_result)
                 return
             # 2. ページングで全件取得
             from qgis.PyQt.QtWidgets import QProgressDialog
@@ -969,7 +1030,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             page = 1
             progress = None
             while True:
-                ok, page_result = self.cc.package_search('', None, None, rows=rows_per_page, start=start)
+                ok, page_result = self.cc.package_search('', None, None, rows=rows_per_page, start=start, api_url=server_url)
                 if not ok or 'results' not in page_result:
                     break
                 results = page_result['results']
@@ -1009,7 +1070,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                 from qgis.core import QgsMessageLog, Qgis
                 try:
                     import sqlite3, json
-                    db_path = self._get_cache_db_path()
+                    db_path = self._get_cache_db_path(server_url)
                     QgsMessageLog.logMessage(QCoreApplication.translate('GeoImport', u"Caching data to SQLite has started."), self.util.dlg_caption, Qgis.Info)
                     # --- パッケージ保存 ---
                     from .save_ckan_to_sqlite import save_ckan_packages_to_sqlite
@@ -1028,9 +1089,6 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                 except Exception as e:
                     QgsMessageLog.logMessage(QCoreApplication.translate('GeoImport', u"SQLite save error: {}".format(e)), self.util.dlg_caption, Qgis.Critical)
                     self.util.msg_log_error(QCoreApplication.translate('GeoImport', u"SQLite save error: {}".format(e)))
-                self.update_format_list(all_results)
-                self.list_all_clicked()
-                self.window_loaded()  # カテゴリ一覧を再表示
         finally:
             QApplication.restoreOverrideCursor()
 
@@ -1045,7 +1103,10 @@ class GeoImportDialog(QDialog, FORM_CLASS):
     def window_loaded(self):
         try:
             self.settings.load()
-            self.IDC_lblApiUrl.setText(QCoreApplication.translate('GeoImport', 'Current server: {0}').format(self.settings.ckan_url))
+            _urls = self._active_server_urls()
+            _servers_txt = u' | '.join(
+                u'{0} ({1})'.format(self._server_label(u), u) for u in _urls)
+            self.IDC_lblApiUrl.setText(QCoreApplication.translate('GeoImport', 'Current server: {0}').format(_servers_txt))
             self.IDC_lblCacheDir.setText(QCoreApplication.translate('GeoImport', 'Cache path: {0}').format(self.settings.cache_dir))
             if self.timer is not None:
                 self.timer.stop()
@@ -1059,96 +1120,91 @@ class GeoImportDialog(QDialog, FORM_CLASS):
 
             self.util.msg_log_debug('before get_groups')
 
-            # --- カテゴリリストをSQLiteから取得 ---
+            # --- カテゴリリストを選択中の全サーバーから取得してマージ ---
             import sqlite3, json
             all_results = []
-            # determine if current server is a local folder and get path
-            local_path = self._get_local_server_path()
+            urls = self._active_server_urls()
+            multi = len(urls) > 1
             self._sync_local_cache_checkbox()
-            use_cache = local_path is not None or self.settings.use_local_cache(
-                getattr(self.settings, 'ckan_url', '') or '')
+            # サーバー毎のグループ名集合(横断検索時のカテゴリfq振り分けに使う)
+            self._server_group_names = {}
 
-            def _read_db_and_fill(db_path_local):
-                res_list = []
+            def _read_db(db_path_local):
+                """キャッシュDBから(groups, packages)を読み込む"""
                 try:
                     conn = sqlite3.connect(db_path_local)
                     c = conn.cursor()
-                    # カテゴリリスト取得
-                    c.execute('SELECT raw_json FROM groups')
-                    group_rows = c.fetchall()
-                    if not group_rows:
-                        self.util.msg_log_debug("DB groups table is empty - continuing without group info")
-                    else:
-                        from qgis.PyQt.QtCore import Qt
-                        from qgis.PyQt.QtWidgets import QListWidgetItem
-                        for row in group_rows:
-                            group = json.loads(row[0])
-                            title = group.get('title') or group.get('name', '')
-                            self.util.msg_log_debug(f'Add group: {title}')
-                            item = QListWidgetItem(title)
-                            item.setData(Qt.ItemDataRole.UserRole, group)
-                            item.setCheckState(Qt.CheckState.Unchecked)
-                            self.IDC_listGroup.addItem(item)
-                    # パッケージ一覧取得
+                    try:
+                        c.execute('SELECT raw_json FROM groups')
+                        groups_out = [json.loads(r[0]) for r in c.fetchall()]
+                    except Exception:
+                        groups_out = []
                     c.execute('SELECT raw_json FROM packages')
-                    rows = c.fetchall()
-                    for row in rows:
-                        entry = json.loads(row[0])
-                        res_list.append(entry)
+                    entries = [json.loads(r[0]) for r in c.fetchall()]
                     conn.close()
-                    return True, res_list
+                    return True, groups_out, entries
                 except Exception as e:
                     self.util.msg_log_error(f"DB read error: {e}")
-                    return False, str(e)
+                    return False, str(e), []
+
+            seen_groups = set()
+
+            def _add_groups(groups, url):
+                for group in groups:
+                    # サーバーによってはgroup_listが文字列名のリストを返す
+                    if isinstance(group, str):
+                        group = {'name': group, 'title': group}
+                    gname = group.get('name', '')
+                    self._server_group_names.setdefault(url, set()).add(gname)
+                    if gname in seen_groups:
+                        continue
+                    seen_groups.add(gname)
+                    title = group.get('title') or gname
+                    disp = u'[{0}] {1}'.format(self._server_label(url), title) if multi else title
+                    self.util.msg_log_debug(f'Add group: {disp}')
+                    item = QListWidgetItem(disp)
+                    item.setData(Qt.ItemDataRole.UserRole, group)
+                    item.setCheckState(Qt.CheckState.Unchecked)
+                    self.IDC_listGroup.addItem(item)
 
             # カテゴリ追加時の itemChanged(再検索)発火を抑制
             self.IDC_listGroup.blockSignals(True)
             try:
-                if use_cache:
-                    db_path = self._get_cache_db_path()
-                    ok, result = _read_db_and_fill(db_path)
-                    if ok:
-                        all_results = result
-                    else:
-                        # try to auto-create DB from local folder if available
-                        if local_path:
-                            created, msg = self._create_sqlite_from_local(local_path)
+                for url in urls:
+                    local_path = self._get_local_server_path(url)
+                    use_cache = local_path is not None or self.settings.use_local_cache(url or '')
+                    if use_cache:
+                        db_path = self._get_cache_db_path(url)
+                        ok, groups, entries = _read_db(db_path)
+                        if not ok and local_path:
+                            # ローカルフォルダからDB自動作成を試みる
+                            created, msg = self._create_sqlite_from_local(local_path, url)
                             if created:
-                                # re-read db
-                                ok2, result2 = _read_db_and_fill(db_path)
-                                if ok2:
-                                    all_results = result2
-                                else:
-                                    all_results = None
+                                ok, groups, entries = _read_db(db_path)
                             else:
                                 self.util.msg_log_error(f"Failed to create DB from local: {msg}")
-                                all_results = None
-                        else:
-                            all_results = None
-                else:
-                    # --- ネットワークモード: カテゴリをAPIから直接取得 ---
-                    ok_net, group_result = self.cc.get_groups()
-                    if ok_net is False:
-                        # modalダイアログは非同期タイマ経由の呼出をブロックするため
-                        # messageBarで通知する
-                        self.util.msg_log_error(u'get_groups failed: {0}'.format(group_result))
-                        self.iface.messageBar().pushMessage(
-                            self.settings.DLG_CAPTION, str(group_result), Qgis.Warning)
-                    elif group_result:
-                        for group in group_result:
-                            title = group.get('title') or group.get('name', '')
-                            self.util.msg_log_debug(f'Add group: {title}')
-                            item = QListWidgetItem(title)
-                            item.setData(Qt.ItemDataRole.UserRole, group)
-                            item.setCheckState(Qt.CheckState.Unchecked)
-                            self.IDC_listGroup.addItem(item)
+                        if ok:
+                            _add_groups(groups, url)
+                            all_results.extend(entries)
+                    else:
+                        # --- ネットワークモード: カテゴリをAPIから直接取得 ---
+                        ok_net, group_result = self.cc.get_groups(url)
+                        if ok_net is False:
+                            # modalダイアログは非同期タイマ経由の呼出をブロックするため
+                            # messageBarで通知する
+                            self.util.msg_log_error(u'get_groups failed: {0}'.format(group_result))
+                            self.iface.messageBar().pushMessage(
+                                self.settings.DLG_CAPTION, str(group_result), Qgis.Warning)
+                        elif group_result:
+                            _add_groups(group_result, url)
             finally:
                 self.IDC_listGroup.blockSignals(False)
             self.update_format_list(all_results)
             # 起動時に必ず検索結果を表示
             self.list_all_clicked()
-            if not use_cache:
-                # ネットワークモード: 取得済みの1ページ目から実データ形式をコンボに反映
+            if not self._all_servers_cached():
+                # ネットワークモードのサーバーが含まれる場合:
+                # 取得済みの1ページ目から実データ形式をコンボに反映
                 entries = []
                 for i in range(self.IDC_listResults.count()):
                     pkg = self.IDC_listResults.item(i).data(Qt.ItemDataRole.UserRole)
@@ -1212,37 +1268,63 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                 self.current_page = self.page_count
             self.util.msg_log_debug(u'page is not None, cp:{0} pg:{1}'.format(self.current_page, page))
         QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
-        if not self._use_local_cache():
-            # ネットワークモード: CKAN APIを直接呼んで検索する(ローカルキャッシュ不使用)
-            self._search_package_network()
-            return
-        db_path = self._get_cache_db_path()
+        # 選択中の全サーバーを対象に横断検索(単一選択時は従来どおり1サーバーのみ)
+        self._search_package_all()
+
+    def _search_package_all(self):
+        """横断検索: 選択中の各サーバーに対して検索を実行し結果をマージする。
+        リモートCKANはAPIへ、ローカルキャッシュ/ローカルフォルダ型はSQLite DBへ
+        問い合わせ、同じページ番号の結果を連結して表示する。
+        ネットワーク取得はQgsNetworkAccessManagerのためGUIスレッドで同期実行
+        (WaitCursorは _on_data_ready で解除される)"""
         format_text = self.IDC_comboFormat.currentText() if hasattr(self, 'IDC_comboFormat') else QCoreApplication.translate('GeoImport', 'All')
         format_lc = format_text.lower()
-        results_limit = getattr(self.settings, 'results_limit', 50)
+        rows = getattr(self.settings, 'results_limit', 50) or 50
         # カテゴリ（グループ）フィルタを取得
         group_names = self.__get_selected_groups()
-        # QThreadでデータ取得
-        self.data_thread = DataFetchThread(db_path, format_text, format_lc, self.current_page, results_limit, self.search_txt, group_names)
-        self.data_thread.result_ready.connect(self._on_data_ready)
-        self.data_thread.start()
-
-    def _search_package_network(self):
-        """ネットワークモードの検索: CKAN APIへ直接問い合わせ(QgsNetworkAccessManagerの
-        ためGUIスレッドで同期実行。WaitCursorは _on_data_ready で解除される)"""
-        group_names = self.__get_selected_groups()
-        ok, result = self.cc.package_search(
-            self.search_txt, groups=group_names, page=self.current_page)
-        if not ok:
-            QApplication.restoreOverrideCursor()
-            self._warn_nonmodal(result)
-            return
-        results = result.get('results', []) if isinstance(result, dict) else []
-        count = result.get('count', len(results)) if isinstance(result, dict) else len(results)
-        rows = getattr(self.settings, 'results_limit', 50) or 50
-        page_count = max(1, math.ceil(count / rows))
-        total_resource_count = sum(len(e.get('resources', [])) for e in results)
-        self._on_data_ready(results, count, page_count, total_resource_count)
+        server_groups = getattr(self, '_server_group_names', {}) or {}
+        merged_results = []
+        total_count = 0
+        page_count = 1
+        total_resource_count = 0
+        errors = []
+        for url in self._active_server_urls():
+            # チェックされたカテゴリのうちそのサーバーが持つものだけfqに使う。
+            # 1つも持たないサーバーは絞り込みに合致しないため0件(スキップ)。
+            # グループ情報未取得時(server_groups空)は従来どおり全サーバーにfqを渡す。
+            if group_names is not None and server_groups:
+                eff_groups = [g for g in group_names if g in server_groups.get(url, set())]
+                if not eff_groups:
+                    continue
+            else:
+                eff_groups = group_names
+            if self._use_local_cache(url):
+                db_path = self._get_cache_db_path(url)
+                page_results, count, pages, res_cnt = fetch_page_from_db(
+                    db_path, format_text, format_lc, self.current_page,
+                    rows, self.search_txt, eff_groups)
+            else:
+                ok, result = self.cc.package_search(
+                    self.search_txt, groups=eff_groups, page=self.current_page,
+                    api_url=url)
+                if not ok:
+                    errors.append(u'{0}: {1}'.format(self._server_label(url), result))
+                    continue
+                page_results = result.get('results', []) if isinstance(result, dict) else []
+                count = result.get('count', len(page_results)) if isinstance(result, dict) else len(page_results)
+                pages = max(1, math.ceil(count / rows))
+                res_cnt = sum(len(e.get('resources', [])) for e in page_results)
+            label = self._server_label(url)
+            for e in page_results:
+                e['__server_url'] = url
+                e['__server_label'] = label
+            merged_results.extend(page_results)
+            total_count += count
+            page_count = max(page_count, pages)
+            total_resource_count += res_cnt
+        if errors:
+            self._warn_nonmodal(u'; '.join(errors))
+        self._on_data_ready(merged_results, total_count, page_count, total_resource_count)
 
     def _warn_nonmodal(self, msg):
         """ネットワークモードのエラー通知。modal QMessageBoxだと
@@ -1270,6 +1352,8 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         self.IDC_lblSuchergebnisse.setText(erg_text)
         self.IDC_lblPage.setText(page_text)
         self.IDC_listResults.clear()
+        # 複数サーバー横断時は結果の出自をタイトルに付記する
+        multi_server = len(self._active_server_urls()) > 1
         for entry in page_results:
             title_txt = u'no title available'
             if 'title' not in entry:
@@ -1283,6 +1367,8 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                 title_txt = e[0]
             else:
                 title_txt = e
+            if multi_server and entry.get('__server_label'):
+                title_txt = u'[{0}] {1}'.format(entry['__server_label'], title_txt)
             item = QListWidgetItem(title_txt)
             item.setData(Qt.ItemDataRole.UserRole, entry)
             self.IDC_listResults.addItem(item)

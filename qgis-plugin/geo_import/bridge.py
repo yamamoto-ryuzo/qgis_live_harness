@@ -227,6 +227,7 @@ class GeoImportBridge:
             "page_count": getattr(dlg, "page_count", None),
             "settings": {
                 "ckan_url": getattr(st, "ckan_url", None),
+                "ckan_urls": st.active_server_urls() if hasattr(st, "active_server_urls") else [getattr(st, "ckan_url", None)],
                 "cache_dir": getattr(st, "cache_dir", None),
                 "results_limit": getattr(st, "results_limit", None),
                 "use_local_cache_all": getattr(st, "use_local_cache_all", None),

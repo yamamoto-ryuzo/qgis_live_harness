@@ -22,7 +22,7 @@
     "cc_wrong_api": "Solo la v3 è supportata",
     "geo_import": "geo_import",
     "geo_import_settings": "Impostazioni geo_import",
-    "py_disc_info_html": "Disclaimer",
+    "<html><head/><body><h1>Disclaimer</h1><p>The plugin may not work with all CKAN instances, as metadata is structured differently across platforms. Only servers that use groups or tags are supported. <a href=\"http://docs.ckan.org/en/latest/api/\">CKAN docs</a><br />This plugin only works with API version 3.</p></body></html>": "<html><head/><body><h1>Disclaimer</h1><p>Il plugin potrebbe non funzionare con tutte le istanze CKAN, poiché i metadati sono strutturati in modo diverso a seconda della piattaforma. Sono supportati solo i server che usano groups o tags. <a href=\"http://docs.ckan.org/en/latest/api/\">CKAN docs</a><br />Questo plugin funziona solo con l'API versione 3.</p></body></html>",
     "py_dlg_base_big_file": "La dimensione del file è {0} MB. Scaricare comunque?",
     "py_dlg_base_data_already_loaded": "Il dataset è già caricato. Caricarlo di nuovo?",
     "py_dlg_base_lyr_not_loaded": "Impossibile caricare il layer:<br />{0}<br />{1}",

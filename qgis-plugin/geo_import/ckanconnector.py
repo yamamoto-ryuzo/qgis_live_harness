@@ -39,26 +39,28 @@ class CkanConnector:
             b'User-Agent': b'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'
         }
 
-    def get_groups(self):
+    def get_groups(self, api_url=None):
         # CKANサーバーまたはローカルパスからグループ一覧を取得
+        # api_url省略時は従来どおり settings.ckan_url を対象とする
+        target_url = api_url or self.settings.ckan_url
         # BoxDriveなどの特殊パターンを早期検出して処理
-        if isinstance(self.settings.ckan_url, str) and (
-            'Box' in self.settings.ckan_url or 
-            self.settings.ckan_url.startswith('B:\\') or 
-            'OneDrive' in self.settings.ckan_url or
-            ('Google' in self.settings.ckan_url and 'Drive' in self.settings.ckan_url)
+        if isinstance(target_url, str) and (
+            'Box' in target_url or
+            target_url.startswith('B:\\') or
+            'OneDrive' in target_url or
+            ('Google' in target_url and 'Drive' in target_url)
         ):
             # 詳細なログを出力
-            if 'Box' in self.settings.ckan_url or self.settings.ckan_url.startswith('B:\\'):
-                self.util.msg_log(u'[BoxDrive] detected BoxDrive path: {0}'.format(self.settings.ckan_url))
+            if 'Box' in target_url or target_url.startswith('B:\\'):
+                self.util.msg_log(u'[BoxDrive] detected BoxDrive path: {0}'.format(target_url))
                 self.util.msg_log(u'[BoxDrive] skipping group list fetch')
                 self.util.msg_log(u'[BoxDrive] handling completed for BoxDrive path - returning empty group list')
             else:
-                self.util.msg_log_debug(u'cloud storage path detected (early): {0} - returning empty group list'.format(self.settings.ckan_url))
+                self.util.msg_log_debug(u'cloud storage path detected (early): {0} - returning empty group list'.format(target_url))
             return True, []
-            
+
         # return self.__get_data(self.api, 'group_list?all_fields=true')
-        ok, result = self._validate_ckan_url(self.settings.ckan_url)
+        ok, result = self._validate_ckan_url(target_url)
 
         if not ok:
             self.util.msg_log_error(u'CKAN URL validation failed: {0}'.format(result))
@@ -111,24 +113,26 @@ class CkanConnector:
         self.util.msg_log_debug(u'test: fetching group list')
         return self.__get_data(result, 'action/group_list?all_fields=true')
 
-    def package_search(self, text, groups=None, page=None, rows=None, start=None):
+    def package_search(self, text, groups=None, page=None, rows=None, start=None, api_url=None):
+        # api_url省略時は従来どおり settings.ckan_url を対象とする
+        target_url = api_url or self.settings.ckan_url
         # BoxDriveなどの特殊パターンを早期検出して処理
-        if isinstance(self.settings.ckan_url, str) and (
-            'Box' in self.settings.ckan_url or 
-            self.settings.ckan_url.startswith('B:\\') or 
-            'OneDrive' in self.settings.ckan_url or
-            ('Google' in self.settings.ckan_url and 'Drive' in self.settings.ckan_url)
+        if isinstance(target_url, str) and (
+            'Box' in target_url or
+            target_url.startswith('B:\\') or
+            'OneDrive' in target_url or
+            ('Google' in target_url and 'Drive' in target_url)
         ):
             # 詳細なログを出力
-            if 'Box' in self.settings.ckan_url or self.settings.ckan_url.startswith('B:\\'):
-                self.util.msg_log(u'[BoxDrive] detected BoxDrive path: {0}'.format(self.settings.ckan_url))
+            if 'Box' in target_url or target_url.startswith('B:\\'):
+                self.util.msg_log(u'[BoxDrive] detected BoxDrive path: {0}'.format(target_url))
                 self.util.msg_log(u'[BoxDrive] applying special handling')
                 self.util.msg_log(u'[BoxDrive] skipping processing for BoxDrive path, returning empty result')
             else:
-                self.util.msg_log_debug(u'cloud storage path detected (early): {0} - returning empty search result'.format(self.settings.ckan_url))
+                self.util.msg_log_debug(u'cloud storage path detected (early): {0} - returning empty search result'.format(target_url))
             return True, {'results': [], 'count': 0}
-            
-        ok, result = self._validate_ckan_url(self.settings.ckan_url)
+
+        ok, result = self._validate_ckan_url(target_url)
 
         if not ok:
             self.util.msg_log_error(u'CKAN URL validation failed: {0}'.format(result))

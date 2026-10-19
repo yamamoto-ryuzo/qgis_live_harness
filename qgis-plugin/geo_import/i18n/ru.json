@@ -22,7 +22,7 @@
     "cc_wrong_api": "Поддерживается только v3",
     "geo_import": "geo_import",
     "geo_import_settings": "Настройки geo_import",
-    "py_disc_info_html": "Отказ от ответственности",
+    "<html><head/><body><h1>Disclaimer</h1><p>The plugin may not work with all CKAN instances, as metadata is structured differently across platforms. Only servers that use groups or tags are supported. <a href=\"http://docs.ckan.org/en/latest/api/\">CKAN docs</a><br />This plugin only works with API version 3.</p></body></html>": "<html><head/><body><h1>Отказ от ответственности</h1><p>Плагин может работать не со всеми экземплярами CKAN, так как метаданные структурированы по-разному на разных платформах. Поддерживаются только серверы, использующие groups или tags. <a href=\"http://docs.ckan.org/en/latest/api/\">CKAN docs</a><br />Этот плагин работает только с API версии 3.</p></body></html>",
     "py_dlg_base_big_file": "Размер файла {0} МБ. Всё равно скачать?",
     "py_dlg_base_data_already_loaded": "Набор данных уже загружен. Загрузить снова?",
     "py_dlg_base_lyr_not_loaded": "Не удалось загрузить слой:<br />{0}<br />{1}",

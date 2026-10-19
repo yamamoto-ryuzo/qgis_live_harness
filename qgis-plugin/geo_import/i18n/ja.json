@@ -51,7 +51,7 @@
     "cc_wrong_api": "v3のみサポートされています",
     "geo_import": "geo_import",
     "geo_import_settings": "geo_import 設定",
-    "py_disc_info_html": "免責事項",
+    "<html><head/><body><h1>Disclaimer</h1><p>The plugin may not work with all CKAN instances, as metadata is structured differently across platforms. Only servers that use groups or tags are supported. <a href=\"http://docs.ckan.org/en/latest/api/\">CKAN docs</a><br />This plugin only works with API version 3.</p></body></html>": "<html><head/><body><h1>免責事項</h1><p>このプラグインは、プラットフォームごとにメタデータの構造が異なるため、すべてのCKANで動作するとは限りません。groups または tags を使用するサーバーのみサポートされます。<a href=\"http://docs.ckan.org/en/latest/api/\">CKAN docs</a><br />このプラグインはAPIバージョン3でのみ動作します。</p></body></html>",
     "py_dlg_base_big_file": "ファイルサイズは {0} MB です。ダウンロードしますか。",
     "py_dlg_base_data_already_loaded": "データセットは既に読み込まれています。再度読み込みますか。",
     "py_dlg_base_lyr_not_loaded": "レイヤを読み込めませんでした:<br />{0}<br />{1}",

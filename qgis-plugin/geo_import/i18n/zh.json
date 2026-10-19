@@ -22,7 +22,7 @@
     "cc_wrong_api": "仅支持 v3",
     "geo_import": "geo_import",
     "geo_import_settings": "geo_import 设置",
-    "py_disc_info_html": "免责声明",
+    "<html><head/><body><h1>Disclaimer</h1><p>The plugin may not work with all CKAN instances, as metadata is structured differently across platforms. Only servers that use groups or tags are supported. <a href=\"http://docs.ckan.org/en/latest/api/\">CKAN docs</a><br />This plugin only works with API version 3.</p></body></html>": "<html><head/><body><h1>免责声明</h1><p>由于各平台的元数据结构不同,本插件可能无法在所有 CKAN 实例上正常运行。仅支持使用 groups 或 tags 的服务器。<a href=\"http://docs.ckan.org/en/latest/api/\">CKAN 文档</a><br />本插件仅支持 API 版本 3。</p></body></html>",
     "py_dlg_base_big_file": "文件大小为 {0} MB。仍要下载吗?",
     "py_dlg_base_data_already_loaded": "数据集已加载。要重新加载吗?",
     "py_dlg_base_lyr_not_loaded": "无法加载图层:<br />{0}<br />{1}",

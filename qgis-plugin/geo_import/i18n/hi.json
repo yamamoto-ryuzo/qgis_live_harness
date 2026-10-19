@@ -22,7 +22,7 @@
     "cc_wrong_api": "केवल v3 समर्थित है",
     "geo_import": "geo_import",
     "geo_import_settings": "geo_import सेटिंग्स",
-    "py_disc_info_html": "अस्वीकरण",
+    "<html><head/><body><h1>Disclaimer</h1><p>The plugin may not work with all CKAN instances, as metadata is structured differently across platforms. Only servers that use groups or tags are supported. <a href=\"http://docs.ckan.org/en/latest/api/\">CKAN docs</a><br />This plugin only works with API version 3.</p></body></html>": "<html><head/><body><h1>अस्वीकरण</h1><p>यह प्लगइन सभी CKAN इंस्टेंस के साथ काम नहीं कर सकता, क्योंकि मेटाडेटा प्लेटफ़ॉर्म के अनुसार अलग-अलग संरचित होता है। केवल groups या tags का उपयोग करने वाले सर्वर समर्थित हैं। <a href=\"http://docs.ckan.org/en/latest/api/\">CKAN docs</a><br />यह प्लगइन केवल API संस्करण 3 के साथ काम करता है।</p></body></html>",
     "py_dlg_base_big_file": "फ़ाइल का आकार {0} MB है। फिर भी डाउनलोड करें?",
     "py_dlg_base_data_already_loaded": "डेटासेट पहले से लोड है। फिर से लोड करें?",
     "py_dlg_base_lyr_not_loaded": "लेयर लोड नहीं हो सकी:<br />{0}<br />{1}",

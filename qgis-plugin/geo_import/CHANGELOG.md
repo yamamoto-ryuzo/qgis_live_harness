@@ -1,3 +1,21 @@
+2.9.0 複数CKANサーバー横断検索 + 免責ダイアログ本文の消失を修正
+- 複数CKANサーバー横断検索: データプロバイダ選択ダイアログで複数サーバーの
+  同時選択を許可し、検索を `Settings.selected_ckan_urls`/
+  `active_server_urls()` の全サーバーへ扇出する。
+  `CkanConnector.get_groups`/`package_search` が `api_url` 引数を受け
+  従来の単一 `ckan_url` と後方互換。カテゴリ(group)チェック時は
+  サーバーごとの保有グループでfqを絞り込み、対象グループを1つも
+  持たないサーバーは0件スキップ(緩い和集合ではなく厳密な横断)。
+  `group_list` が文字列名リストを返すサーバーにも対応。
+  bridge `settings` に `ckan_urls`(アクティブURL一覧)を追加
+- 免責ダイアログ本文の消失を修正: `geo_import_dialog_disclaimer.py` の
+  `IDC_brInfo` は `py_disc_info_html` キーで `setHtml` するが、
+  ja/de/es/hi/it/pt/ru/zh は見出し語のみ・fr のみ全文HTML
+  (upstream由来の独語本文)という不整合だった。
+  ソース文字列をプレースホルダキーから実際の英語HTMLに改め、
+  全9言語に全文翻訳を登録。英語フォールバックでも本文が表示される
+  (従来は英語ではキー名 `py_disc_info_html` がそのまま表示された)
+
 2.8.2 カタログ内の未翻訳プレースホルダ値を補完
 - キーがそのまま値に残っていたカタログ項目(画面上にキー名が表示される
   状態)を全9言語で翻訳: `dlg_base_btn_select_dataprovider`/

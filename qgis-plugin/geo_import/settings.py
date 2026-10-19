@@ -16,6 +16,7 @@ class Settings:
         self.request_timeout = 15  # HTTP要求のタイムアウト秒数
         self.ckan_url = None
         self.selected_ckan_servers = ''
+        self.selected_ckan_urls = []  # 複数選択時のアクティブなapi_url一覧(横断検索用)
         self.custom_servers = {}
         self.authcfg = None
         self.cache_dir = None
@@ -77,6 +78,8 @@ class Settings:
                 with open(servers_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     self.selected_ckan_servers = data.get('selected_ckan_servers', '')
+                    loaded_urls = data.get('selected_ckan_urls', [])
+                    self.selected_ckan_urls = loaded_urls if isinstance(loaded_urls, list) else []
                     # 既存データがstrの場合はtype=CKANでラップ
                     loaded_custom = data.get('custom_servers', {})
                     new_custom = {}
@@ -93,10 +96,12 @@ class Settings:
                     self.local_cache_sites = sites if isinstance(sites, list) else []
             except Exception:
                 self.selected_ckan_servers = ''
+                self.selected_ckan_urls = []
                 self.custom_servers = {}
                 self.local_cache_sites = []
         else:
             self.selected_ckan_servers = ''
+            self.selected_ckan_urls = []
             self.custom_servers = {}
             self.local_cache_sites = []
         self.debug = qgis_settings.value(self.KEY_SHOW_DEBUG_INFO, False, bool)
@@ -136,6 +141,7 @@ class Settings:
         # custom_serversの値は{name: {url, type}}形式で保存
         data = {
             'selected_ckan_servers': self.selected_ckan_servers,
+            'selected_ckan_urls': self.selected_ckan_urls if isinstance(self.selected_ckan_urls, list) else [],
             'custom_servers': self.custom_servers,
             'local_cache_sites': self.local_cache_sites if isinstance(self.local_cache_sites, list) else []
         }
@@ -144,6 +150,16 @@ class Settings:
                 json.dump(data, f, ensure_ascii=False, indent=2)
         except Exception as e:
             QgsMessageLog.logMessage(f'Failed to save ckan_servers.json: {e}', self.DLG_CAPTION, Qgis.Warning)
+
+    def active_server_urls(self):
+        """
+        アクティブなカタログサーバー(api_url)の一覧を返す。
+        複数選択時は selected_ckan_urls、未設定/単一選択時は従来の ckan_url にフォールバック。
+        """
+        urls = [u for u in (self.selected_ckan_urls or []) if isinstance(u, str) and u]
+        if urls:
+            return urls
+        return [self.ckan_url] if self.ckan_url else []
 
     def use_local_cache(self, url):
         """
