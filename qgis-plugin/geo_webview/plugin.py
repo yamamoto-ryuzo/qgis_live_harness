@@ -372,6 +372,12 @@ class GeoWebView:
                 else:
                     print("Warning: pushButton_maplibre not found")
                 
+                # KASUGAI Canvasボタンのイベントを接続
+                if getattr(self.panel, 'pushButton_kasugai', None) is not None:
+                    self.panel.pushButton_kasugai.clicked.connect(
+                        self.on_kasugai_clicked_panel)
+                    print("KASUGAI button connected")
+
                 # Check Access ボタンのイベントを接続
                 if hasattr(self.panel, 'pushButton_check_access'):
                     self.panel.pushButton_check_access.clicked.connect(self.on_check_access_clicked)
@@ -2400,6 +2406,59 @@ class GeoWebView:
                 "geo_webview", self.tr("MapLibre launch error: {0}").format(e), duration=5
             )
     
+    def on_kasugai_clicked_panel(self):
+        """パネル版：KASUGAIボタン — 表示中レイヤをKASUGAI Canvas
+        プロジェクト(GeoJSON+.qml+.kasc)として出力し、起動中の
+        KASUGAIローカルサーバへ登録して開く。"""
+        try:
+            from . import kasugai_export
+            result = kasugai_export.export_kasugai_project(self.iface)
+            n_layers = len(result.get('layers') or [])
+            n_tiles = len(result.get('tiles') or [])
+            if not n_layers and not n_tiles:
+                self.iface.messageBar().pushMessage(
+                    "geo_webview",
+                    self.tr("No visible vector/tile layers to export."),
+                    duration=5)
+                return
+
+            # 起動中のKASUGAIローカルサーバがあれば外部プロジェクト登録
+            caps = kasugai_export.detect_kasugai()
+            opened = False
+            if caps:
+                reg = kasugai_export.register_kasugai_project(
+                    result['kasc'])
+                if reg.get('ok'):
+                    # 起動中の画面も切替え(ベストエフォート)
+                    kasugai_export.kasugai_command(
+                        'switchProject', {'projectId': reg['id']})
+                    QDesktopServices.openUrl(QUrl(reg['url']))
+                    opened = True
+
+            if opened:
+                self.iface.messageBar().pushMessage(
+                    "geo_webview",
+                    self.tr("Opened in KASUGAI Canvas "
+                            "({0} layers, {1} tiles).").format(
+                        n_layers, n_tiles),
+                    duration=5)
+            else:
+                # KASUGAI未起動: 出力先フォルダを開く(.kascを開けば連携起動)
+                QDesktopServices.openUrl(
+                    QUrl.fromLocalFile(result['dir']))
+                self.iface.messageBar().pushMessage(
+                    "geo_webview",
+                    self.tr("Exported KASUGAI project to {0} "
+                            "({1} layers, {2} tiles). Open the .kasc "
+                            "file in KASUGAI Canvas.").format(
+                        result['dir'], n_layers, n_tiles),
+                    duration=8)
+        except Exception as e:
+            self.iface.messageBar().pushMessage(
+                "geo_webview",
+                self.tr("KASUGAI export error: {0}").format(e),
+                duration=5)
+
     def on_present_clicked_panel(self):
         """プレゼンテーション共有ページ(/present)をブラウザで開く。"""
         try:

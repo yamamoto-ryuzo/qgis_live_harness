@@ -189,6 +189,9 @@ class GeoWebViewServerManager:
         self.received_history = deque(maxlen=10)
         # MACアドレス解決キャッシュ {ip: (set_of_macs, epoch)}
         self._mac_cache = {}
+        # 独立レンダラ(QgsMapRendererParallelJob)の同時実行はQGISクラッシュを
+        # 引き起こすため直列化する(WMSサービスと共有して全経路を一本化)
+        self._render_lock = getattr(self.wms_service, '_render_lock', None) or threading.Lock()
 
     def _safe_int(self, value, default):
         """文字列から安全にintに変換する。NaNや不正値は default を返す。"""
@@ -256,7 +259,7 @@ class GeoWebViewServerManager:
             self.server_port = self.find_available_port(start_port, end_port)
 
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self._set_reuse_socketopt(server_socket)
             # bind to all interfaces so non-localhost access is possible
             server_socket.bind(('0.0.0.0', self.server_port))
             server_socket.listen(5)
@@ -440,6 +443,12 @@ class GeoWebViewServerManager:
 
             parsed_url = urllib.parse.urlparse(target)
             params = urllib.parse.parse_qs(parsed_url.query)
+            # OGCパラメータ名は大小区別なし(Cesium等は小写で送る)ため、
+            # 大写エイリアスを補完する。既存キーは上書きしない
+            for key in list(params):
+                key_up = key.upper()
+                if key_up != key and key_up not in params:
+                    params[key_up] = params[key]
             # Manually unquote parameter values to handle UTF-8 encoding issues
             for key in params:
                 params[key] = [urllib.parse.unquote_plus(val) for val in params[key]]
@@ -2865,14 +2874,15 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
         from qgis.core import QgsMessageLog, Qgis
 
         try:
-            # WMS独立レンダリング設定を作成
-            map_settings = self._create_wms_map_settings(width, height, bbox, crs, rotation=rotation)
-            if not map_settings:
-                QgsMessageLog.logMessage("❌ Failed to create WMS map settings", "geo_webview", Qgis.Warning)
-                return None
+            # WMS独立レンダリング設定を作成(同時レンダリング防止のため直列化)
+            with self._render_lock:
+                map_settings = self._create_wms_map_settings(width, height, bbox, crs, rotation=rotation)
+                if not map_settings:
+                    QgsMessageLog.logMessage("❌ Failed to create WMS map settings", "geo_webview", Qgis.Warning)
+                    return None
 
-            # 独立したマップレンダラーでPNG画像を生成
-            png_data = self._execute_map_rendering(map_settings)
+                # 独立したマップレンダラーでPNG画像を生成
+                png_data = self._execute_map_rendering(map_settings)
             if png_data:
                 return png_data
             else:
@@ -3180,6 +3190,24 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
         except Exception:
             return '127.0.0.1'
 
+    @staticmethod
+    def _set_reuse_socketopt(sock):
+        """WindowsではSO_EXCLUSIVEADDRUSEでポートの占有を排他化する。
+
+        SO_REUSEADDR はWindowsでは他プロセスによる同一ポートの多重
+        バインド(ポート横取り)を許してしまうため、複数QGISインスタンスが
+        同居する環境で接続が別プロセスへ分散し無応答になる。
+        UnixではSO_REUSEADDR(TIME_WAIT再利用)を維持する。
+        """
+        try:
+            excl = getattr(socket, 'SO_EXCLUSIVEADDRUSE', None)
+            if excl is not None:  # Windows
+                sock.setsockopt(socket.SOL_SOCKET, excl, 1)
+            else:
+                sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        except OSError:
+            pass
+
     def find_available_port(self, start_port, end_port):
         """使用可能なポートを探す
         
@@ -3194,7 +3222,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             try:
                 # test bind on all interfaces
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    self._set_reuse_socketopt(s)
                     s.bind(('0.0.0.0', port))
                     return port
             except OSError as e:

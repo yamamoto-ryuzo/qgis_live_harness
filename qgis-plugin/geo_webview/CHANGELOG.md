@@ -11,6 +11,38 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.17.0] - 2026-10-19 KASUGAI Canvas 連携
+
+- **KASUGAIボタンを追加**。表示中レイヤをKASUGAI Canvasプロジェクト
+  形式(`kasugai_canvas.kasc` + `DATA/*.geojson` + `DATA/*.qml`)として
+  エクスポートする。ベクターレイヤはEPSG:4326のGeoJSONと
+  `.qml`(renderer-v2、KASUGAI側でCesium描画へコンパイルされる)に変換。
+  XYZタイル系ラスタレイヤは `xyz:` 行としてそのまま引き継ぐ。
+  現在のキャンバス中心・縮尺は `cam:` 行(初期カメラ)として出力。
+- **起動中連携**: KASUGAIローカルサーバ(既定port 8510)が稼働していれば
+  `POST /api/projects/register` で生成.kascを外部プロジェクト登録し、
+  `POST /api/command` の `switchProject` で起動中画面を切替えた上で
+  `?project=<id>` をブラウザで開く。未起動時は出力フォルダを開き、
+  .kascの手動オープンを案内する。
+- **bridge**: `kasugaiExport(output_dir, open_app)` メソッドを追加し
+  AI/外部制御からも同一処理を実行可能にした。
+  `getSettings`/`setSettings` に `kasugai_output_path`・`kasugai_port`
+  キーを追加(出力先既定は `<ドキュメント>/kasugai_canvas_qgis`)。
+- 新規モジュール `kasugai_export.py`。UI文字列は全9言語のi18n辞書へ追加。
+- **複数QGISインスタンスのポート多重バインドを修正**: Windows の
+  `SO_REUSEADDR` では同一ポートを複数プロセスがバインドできてしまい、
+  接続が無応答の旧プロセスへ分散してサーバが機能不全になる問題があった。
+  排他バインドに変更し、占有時は `find_available_port` が次ポートへ
+  フォールオーバーするようにした。
+- **OGCパラメータ名の大小区別に対応**: `SERVICE`/`REQUEST`/`LAYERS`/
+  `BBOX`/`SRS` 等を小写で送るクライアント(Cesium 等)のリクエストが
+  `400` になっていた。クエリキーに大写エイリアスを補完して
+  大小区別なしで解釈するようにした(OGC規格準拠)。
+- **WMSレンダリングの直列化**: HTTPハンドラのスレッドプール上で複数の
+  `QgsMapRendererParallelJob` が同時実行されるとQGISがクラッシュする
+  問題を修正(`/map3d` のCesiumタイルバーストで再現)。
+  server_manager / wms_service 両経路を共有ロックで直列化した。
+
 ## [3.16.0] - 2026-10-23 共有/3D/MAC認証機能 + MapLibreナビゲーション修正
 
 - **MapLibre起動時のナビゲーションアドレス書き換えを修正**(issue #18)。

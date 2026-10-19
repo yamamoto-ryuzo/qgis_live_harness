@@ -100,6 +100,8 @@ class GeoWebViewPanel(QDockWidget):
         # Google Maps/Earth用のUI要素
         self.pushButton_google_maps = getattr(self.ui, 'pushButton_google_maps', None)
         self.pushButton_google_earth = getattr(self.ui, 'pushButton_google_earth', None)
+        # KASUGAI Canvas エクスポートボタン
+        self.pushButton_kasugai = getattr(self.ui, 'pushButton_kasugai', None)
         # HTTP server toggle checkbox (added to UI)
         self.checkBox_server_toggle = getattr(self.ui, 'checkBox_server_toggle', None)
         # External control checkbox (new in UI)
@@ -211,6 +213,8 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.pushButton_google_maps.setText(QCoreApplication.translate('geo_webview', "🗺️ Google Maps"))
         if hasattr(self.ui, 'pushButton_google_earth'):
             self.ui.pushButton_google_earth.setText(QCoreApplication.translate('geo_webview', "🌍 Google Earth"))
+        if hasattr(self.ui, 'pushButton_kasugai'):
+            self.ui.pushButton_kasugai.setText(QCoreApplication.translate('geo_webview', "KASUGAI"))
 
         # ボタン
         if hasattr(self.ui, 'pushButton_generate'):

@@ -8,6 +8,7 @@ QGISキャンバスから地図画像を生成し、WMSプロトコルに対応�
 
 import os
 import multiprocessing
+import threading
 from typing import Optional, Dict, Any
 from qgis.core import (
     QgsMapSettings, QgsMapRendererParallelJob, QgsRectangle, 
@@ -54,6 +55,10 @@ class GeoWebViewWMSService:
         self.max_image_dimension = int(max_image_dimension) if max_image_dimension is not None else int(os.environ.get('QMAP_MAX_IMAGE_DIMENSION', 4096))
         # rendering timeout in seconds (used for QgsMapRendererParallelJob wait)
         self.render_timeout_s = int(render_timeout_s) if render_timeout_s is not None else int(os.environ.get('QMAP_RENDER_TIMEOUT_S', 30))
+        # レンダリングはQgsProject/キャンバス設定に触れるため直列化する。
+        # HTTPハンドラはスレッドプールで並列実行されるが、複数の
+        # QgsMapRendererParallelJob の同時実行はQGISクラッシュを引き起こす
+        self._render_lock = threading.Lock()
 
     def _safe_int(self, value, default: int) -> int:
         """文字列から安全にintに変換する。NaNや不正値は default を返す。"""
@@ -391,9 +396,10 @@ class GeoWebViewWMSService:
                 http_server.send_wms_error_response(conn, "InvalidParameterValue", f"Image dimensions too large. Maximum allowed: {max_dimension}x{max_dimension}")
                 return
 
-            # 独立レンダリングで画像を生成
+            # 独立レンダリングで画像を生成(複数スレッド同時レンダリング防止のため直列化)
             try:
-                image_data = self._render_map_image(width, height, bbox, crs, themes, rotation, layers_param, styles_param, labels_param)
+                with self._render_lock:
+                    image_data = self._render_map_image(width, height, bbox, crs, themes, rotation, layers_param, styles_param, labels_param)
 
                 if image_data:
                     from . import http_server

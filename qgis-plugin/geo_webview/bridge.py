@@ -77,6 +77,7 @@ class GeoWebViewBridge:
         "Google Maps/Google Earth で現在位置を開くURLを発行したい",
         "プロジェクトのマップテーマ/ブックマークを一覧・適用したい",
         "WFS公開レイヤの一覧を取得したい",
+        "表示中レイヤをKASUGAI Canvas用に出力・連携したい",
     ]
     METHOD_DOCS = {
         "status": {
@@ -189,6 +190,14 @@ class GeoWebViewBridge:
                 "外部サービスを既定ブラウザで開く。serviceは google_maps /"
                 " google_earth / maplibre / openlayers。",
             "example": {"method": "openExternal", "args": ["maplibre"]},
+        },
+        "kasugaiExport": {
+            "description":
+                "表示中レイヤをKASUGAI Canvasプロジェクト(GeoJSON+.qml"
+                "スタイル+kasugai_canvas.kasc)として出力する。起動中の"
+                "KASUGAIローカルサーバ(port 8510)があれば外部プロジェクト"
+                "登録してブラウザで開く。open_app=Falseで出力のみ。",
+            "example": {"method": "kasugaiExport", "args": []},
         },
         "wfsLayers": {
             "description":
@@ -951,6 +960,63 @@ class GeoWebViewBridge:
             out["path"] = r["path"]
         return self._ok(out)
 
+    # ---------- KASUGAI Canvas 連携 ----------
+
+    def kasugaiExport(self, output_dir=None, open_app=True):
+        """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
+
+        表示中のベクターレイヤを GeoJSON(EPSG:4326)+.qmlスタイルとして
+        DATA/ に書き出し、geojson:行(style=付き)・xyz:行・cam:行を含む
+        kasugai_canvas.kasc を生成する。出力先は output_dir または
+        設定 kasugai_output_path(既定: <ドキュメント>/kasugai_canvas_qgis)。
+
+        open_app=True で起動中のKASUGAIローカルサーバ(port 8510)へ
+        /api/projects/register で登録し、switchProjectコマンドを送って
+        ブラウザで開く。未起動なら出力のみ行う。
+        GUIスレッドで全レイヤを逐次エクスポートするため、大量レイヤでは
+        数秒ブロックする場合がある。
+        """
+        from . import kasugai_export
+        try:
+            result = kasugai_export.export_kasugai_project(
+                self._plugin.iface, out_dir=output_dir or None)
+        except Exception as e:
+            return self._err(f"kasugai export failed: {e}")
+        out = {
+            "dir": result["dir"],
+            "kasc": result["kasc"],
+            "title": result["title"],
+            "layers": result["layers"],
+            "tiles": result["tiles"],
+            "skipped": result["skipped"],
+            "errors": result["errors"],
+        }
+        if not open_app:
+            out["registered"] = False
+            return self._ok(out)
+        caps = kasugai_export.detect_kasugai()
+        if not caps:
+            out["registered"] = False
+            out["note"] = ("kasugai canvas local server not detected "
+                           "(port 8510). open the .kasc file manually.")
+            return self._ok(out)
+        reg = kasugai_export.register_kasugai_project(result["kasc"])
+        out["registered"] = bool(reg.get("ok"))
+        if reg.get("ok"):
+            out["projectId"] = reg["id"]
+            out["url"] = reg["url"]
+            kasugai_export.kasugai_command(
+                "switchProject", {"projectId": reg["id"]})
+            try:
+                self._open_url(reg["url"])
+                out["opened"] = True
+            except Exception as e:
+                out["opened"] = False
+                out["open_error"] = str(e)
+        else:
+            out["register_error"] = reg.get("error")
+        return self._ok(out)
+
     # ---------- WFSレイヤ / 診断 / エンドポイント ----------
 
     def wfsLayers(self, only_visible=False):
@@ -1028,6 +1094,7 @@ class GeoWebViewBridge:
         server = self._server()
         ml = s.value("maplibre_output_path", "__default__")
         ol = s.value("openlayers_output_path", "__default__")
+        from . import kasugai_export
         tmp = tempfile.gettempdir()
         return self._ok({
             "version": getattr(server, "plugin_version", None),
@@ -1037,6 +1104,10 @@ class GeoWebViewBridge:
             "openlayers_output_path": ol,
             "openlayers_output_dir": (os.path.join(tmp, "qmap_openlayers")
                                       if ol == "__default__" else ol),
+            "kasugai_output_path": s.value("kasugai_output_path",
+                                          "__default__"),
+            "kasugai_output_dir": kasugai_export.get_output_dir(),
+            "kasugai_port": kasugai_export.get_kasugai_port(),
             "preferred_port": getattr(server, "preferred_port", None),
             "plugin_dir": getattr(self._plugin, "plugin_dir", None),
         })
@@ -1047,18 +1118,36 @@ class GeoWebViewBridge:
         settings(dict) 対応キー:
           maplibre_output_path / openlayers_output_path:
               出力先ディレクトリ("__default__" で temp に戻す)
+          kasugai_output_path: KASUGAIエクスポート出力先
+              ("__default__" で <ドキュメント>/kasugai_canvas_qgis)
+          kasugai_port: KASUGAIローカルサーバのポート(既定8510)
           port: HTTPサーバ優先ポート(起動中なら再起動)
         """
         from qgis.PyQt.QtCore import QSettings
         settings = dict(settings or {})
-        allowed = {"maplibre_output_path", "openlayers_output_path", "port"}
+        allowed = {"maplibre_output_path", "openlayers_output_path", "port",
+                   "kasugai_output_path", "kasugai_port"}
         unknown = [k for k in settings if k not in allowed]
         if unknown:
             return self._err(f"unknown keys: {unknown} "
                              f"(allowed: {sorted(allowed)})")
         s = QSettings("GeoWebView", "geo_webview")
         applied = {}
-        for key in ("maplibre_output_path", "openlayers_output_path"):
+        for key in ("maplibre_output_path", "openlayers_output_path",
+                    "kasugai_output_path"):
+            if key in settings:
+                s.setValue(key, str(settings[key]))
+                applied[key] = str(settings[key])
+        if "kasugai_port" in settings:
+            try:
+                kp = int(settings["kasugai_port"])
+                if not (1 <= kp <= 65535):
+                    raise ValueError
+            except Exception:
+                return self._err(
+                    f"invalid kasugai_port: {settings['kasugai_port']!r}")
+            s.setValue("kasugai_port", str(kp))
+            applied["kasugai_port"] = kp
             if key in settings:
                 s.setValue(key, str(settings[key]))
                 applied[key] = str(settings[key])
