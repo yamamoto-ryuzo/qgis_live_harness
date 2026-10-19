@@ -3,6 +3,18 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
+## [0.15.1] - Unreleased
+
+### Fixed
+
+- Deploy Modeダイアログのモード切替が、QGIS内のPATHに `powershell` が
+  無い環境(OSGeo4W系の最小PATH)で `[WinError 2]` 失敗する問題を修正。
+  `switch_mode()` が `%SystemRoot%\System32\WindowsPowerShell\v1.0\
+  powershell.exe` のフルパスを優先使用するようになった
+- モードバッジ: 利用モードはテキスト表示から歯車アイコン
+  (`/mActionOptions.svg`)のみの非侵襲表示に変更(ツールチップには
+  モード名を表示)
+
 ## [0.15.0] - 2026-10-19
 
 ### Added
@@ -18,7 +30,8 @@
   GeoSuiteへ移行(geo_excelはツールバー項目を持たない)。
 - **モードバッジ**(ツールバー先頭の常時表示):
   現在のdeployモードを「開発モード/利用モード」等のテキスト
-  ボタンとして常時表示(dev=赤背景白文字で注意喚起、use=緑文字)。
+  ボタンとして常時表示(dev=「開発モード」の赤背景白文字で注意喚起、
+  use=歯車アイコンのみで非侵襲表示)。
   5秒毎に `deploy_state()` で自動更新し、クリックすると
   Deploy Modeダイアログを開く。i18n 9言語対応
 

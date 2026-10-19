@@ -141,9 +141,9 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   同形小ヘルパを各プラグインが持つ)、ドライバ有効中は
   **常時表示が強制**される(toggleViewAction無効化+5秒毎に
   再表示)。先頭にドライバが**モードバッジ**
-  (「開発モード/利用モード」の常時表示、
-  5秒毎に deploy_state で自動更新、クリックでDeploy Mode
-  ダイアログ起動)を載せる。geo_search/geo_webview/geo_report/
+  (開発=「開発モード」の赤背景白文字、利用=歯車アイコンのみで
+  非侵襲表示。5秒毎に deploy_state で自動更新、クリックで
+  Deploy Modeダイアログ起動)を載せる。geo_search/geo_webview/geo_report/
   geo_import/QGIS-legendView-main のツールバー項目は全て
   GeoSuiteに集約済み。新規プラグインのツールバー項目も
   `addToolBarIcon` ではなくGeoSuiteへ載せること。

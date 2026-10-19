@@ -143,7 +143,16 @@ def switch_mode(own_file, mode):
     if not root:
         return False, "repo root not found (qgis_live_mode.json/repo不明)"
     ps1 = os.path.join(root, "scripts", "deploy-plugin.ps1")
-    args = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
+    # QGIS(OSGeo4W系)環境はPATHが最小化され "powershell" を解決できない
+    # ことがあるため、SystemRoot配下のフルパスを優先する
+    exe = "powershell"
+    if os.name == "nt":
+        cand = os.path.join(
+            os.environ.get("SystemRoot", r"C:\Windows"),
+            "System32", "WindowsPowerShell", "v1.0", "powershell.exe")
+        if os.path.isfile(cand):
+            exe = cand
+    args = [exe, "-NoProfile", "-ExecutionPolicy", "Bypass",
             "-File", ps1]
     if mode == "use":
         args.append("-Use")

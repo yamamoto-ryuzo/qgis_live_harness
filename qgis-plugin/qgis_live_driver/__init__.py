@@ -336,15 +336,33 @@ class QgisLivePlugin:
                 "mixed": tr("qgis_live_driver", "Mixed"),
                 "none": tr("qgis_live_driver", "Not deployed"),
             }.get(st["mode"], st["mode"] or "")
-            self._mode_badge.setText(label)
+            from qgis.PyQt.QtGui import QIcon
             self._mode_badge.setToolTip(
-                tr("qgis_live_driver", "Deploy Mode"))
-            # devは赤背景で注意喚起、useは緑文字、それ以外は既定
+                "{0} — {1}".format(
+                    label, tr("qgis_live_driver", "Deploy Mode")))
+            if st["mode"] == "use":
+                # 利用モードは邪魔にならないよう歯車アイコンのみ
+                self._mode_badge.setText("")
+                self._mode_badge.setStyleSheet("")
+                icon = QIcon()
+                try:
+                    from qgis.core import QgsApplication
+                    icon = QgsApplication.getThemeIcon(
+                        "/mActionOptions.svg")
+                except Exception:
+                    pass
+                if icon.isNull():
+                    self._mode_badge.setText("⚙")
+                else:
+                    self._mode_badge.setIcon(icon)
+                return
+            self._mode_badge.setIcon(QIcon())
+            self._mode_badge.setText(label)
+            # devは赤背景で注意喚起、それ以外は既定
             style = {
                 "dev": ("QToolButton { font-weight: bold; color: white; "
                         "background: #c0392b; border-radius: 3px; "
                         "padding: 1px 6px; }"),
-                "use": "QToolButton { font-weight: bold; color: #1a7f37; }",
             }.get(st["mode"], "")
             self._mode_badge.setStyleSheet(style)
         except Exception:
