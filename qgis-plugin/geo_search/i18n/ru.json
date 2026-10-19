@@ -1,4 +1,14 @@
 {
+  "Dialog": {
+    "Could not find corresponding entry to remove.": "Не удалось найти соответствующую запись для удаления.",
+    "Failed to read the JSON file: {0}": "Не удалось прочитать файл JSON: {0}",
+    "Failed to update JSON file: {0}": "Не удалось обновить файл JSON: {0}",
+    "JSON file has unsupported structure; expected {'SearchTabs': [...]} or an array.": "Файл JSON имеет неподдерживаемую структуру; ожидалось {'SearchTabs': [...]} или массив.",
+    "Not found": "Не найдено",
+    "Read error": "Ошибка чтения",
+    "Unsupported format": "Неподдерживаемый формат",
+    "Write error": "Ошибка записи"
+  },
   "SearchWidget": {
     "Angle (deg):": "Угол (град):",
     "Angle: Not specified": "Угол: не указан",

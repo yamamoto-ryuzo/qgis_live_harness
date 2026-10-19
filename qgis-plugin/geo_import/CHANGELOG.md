@@ -1,3 +1,22 @@
+2.8.2 カタログ内の未翻訳プレースホルダ値を補完
+- キーがそのまま値に残っていたカタログ項目(画面上にキー名が表示される
+  状態)を全9言語で翻訳: `dlg_base_btn_select_dataprovider`/
+  `dlg_base_current_server`/`dlg_base_lbl_cache_dir`/
+  `dlg_base_lbl_plugin_version`/`dlg_dataproviders_btn_browse_local` 他、
+  DataProviders/Disclaimer/Settings ダイアログの `dlg_*` キー群と
+  `py_dlg_data_providers_*`/`py_dlg_set_info_*` 系メッセージ。
+- de/es で未翻訳だった `dlg_base_*` キー群と、ja/fr で英語のままだった
+  `All`/`Select All`/`Clear Selection`/`Data Format`/`Refresh SQLite` 等も補完。
+
+2.8.1 カタログ未登録の翻訳キー21件を補完 + Deleteアクション翻訳化
+- `GeoImport` context で translate されていたが全カタログ未登録だった
+  キー形式ソース(cc_api_not_accessible/cc_connection_timeout/
+  cc_download_error/cc_invalid_json/cc_server_fault/cc_url_error/
+  cc_wrong_api/geo_import/&geo_import/geo_import_settings/
+  py_dlg_base_*/py_dlg_set_* 計21件)に全9言語の翻訳を追加。
+- データプロバイダ一覧の `Delete` コンテキストアクションを
+  `QCoreApplication.translate('GeoImport', 'Delete')` 化し登録。
+
 2.8.0 翻訳方式を `i18n/<lang>.json` に移行 + レイヤ整理連携
 - `.ts`/`.qm`・`.pro`・`generate_qm.py`・`update_translations.py`・
   `TRANSLATION.md`・`scripts/*-strings.sh`・i18n補助スクリプト群を廃止。

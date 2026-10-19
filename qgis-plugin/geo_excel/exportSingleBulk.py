@@ -25,7 +25,7 @@ from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
 
-from PyQt5.QtCore import Qt, QDate, QTime, QDateTime
+from PyQt5.QtCore import Qt, QDate, QTime, QDateTime, QCoreApplication
 from PyQt5.QtWidgets import QAction, QMessageBox, QApplication, QProgressDialog
 
 # mmへ単位変換する際に使用
@@ -59,7 +59,7 @@ def get_layer_variable(layer_context_name: str, layer: QgsVectorLayer):
       未定義の場合、メッセージバーにエラーを表示し、空白を返却する。
     """
     if not QgsExpressionContextScope.hasVariable(QgsExpressionContextUtils.layerScope(layer), layer_context_name):
-        iface.messageBar().pushCritical("ERROR", f"{layer_context_name} is not defined!")
+        iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "{0} is not defined!").format(layer_context_name))
         return ""
 
     return QgsExpressionContextScope.variable(QgsExpressionContextUtils.layerScope(layer), layer_context_name)
@@ -95,11 +95,11 @@ def create_expression(text: str):
             return None
         
         if exp.hasEvalError():
-            iface.messageBar().pushCritical("ERROR", f"{text} has eval error:{exp.evalErrorString()}")
+            iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "{0} has eval error: {1}").format(text, exp.evalErrorString()))
             return None
 
         if exp.hasParserError():
-            iface.messageBar().pushCritical("ERROR", f"{text} has parser error:{exp.parserErrorString()}")
+            iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "{0} has parser error: {1}").format(text, exp.parserErrorString()))
             return None
 
         return exp
@@ -610,7 +610,7 @@ def replace_attach(wb, attach_list: list):
                 ws.Range(_address).ClearContents()
 
         except Exception as e:
-            iface.messageBar().pushCritical("ERROR", f"セル【{_address}】に【{str(_str)}】は出力できませんでした。")
+            iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Could not output [{1}] to cell [{0}].").format(_address, str(_str)))
             ret_flg = False
             break
    
@@ -679,7 +679,7 @@ def output_single_report(excel_app, template_path: str, feature: QgsFeature, out
 
     QApplication.processEvents()
     if progress.wasCanceled():
-        cancel_return = QMessageBox.question(iface.mainWindow(), "確認", "処理を中止しますか。", QMessageBox.Ok, QMessageBox.Cancel)
+        cancel_return = QMessageBox.question(iface.mainWindow(), QCoreApplication.translate("geo_excel", "Confirmation"), QCoreApplication.translate("geo_excel", "Abort processing?"), QMessageBox.Ok, QMessageBox.Cancel)
         if cancel_return == QMessageBox.Ok:
             return False
         progress.reset()
@@ -725,7 +725,7 @@ def output_single_report(excel_app, template_path: str, feature: QgsFeature, out
         wb.Close()
 
     except Exception as e:
-        iface.messageBar().pushCritical("ERROR", f"エラー発生: {e}")
+        iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "An error occurred: {0}").format(e))
         success = False
         
     finally:
@@ -748,15 +748,15 @@ def get_raw_variable_for_layer(layer: QgsVectorLayer):
     raw = {}
     template_path = get_layer_variable(TEMPLATE_PATH, layer)
     if not template_path:
-        iface.messageBar().pushCritical("ERROR", f"レイヤ変数'template_path'が未設定です")
+        iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Layer variable '{0}' is not set.").format(TEMPLATE_PATH))
         return None
     output_path_fixed = get_layer_variable(OUTPUT_PATH_FIXED, layer)
     if not output_path_fixed:
-        iface.messageBar().pushCritical("ERROR", f"レイヤ変数'output_path'が未設定です")
+        iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Layer variable '{0}' is not set.").format(OUTPUT_PATH_FIXED))
         return None
     output_path_variable = get_layer_variable(OUTPUT_PATH_VARIABLE, layer)
     if not output_path_variable:
-        iface.messageBar().pushCritical("ERROR", f"レイヤ変数'output_path_variable'が未設定です")
+        iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Layer variable '{0}' is not set.").format(OUTPUT_PATH_VARIABLE))
         return None
 
     raw[TEMPLATE_PATH] = template_path
@@ -839,12 +839,12 @@ while True:
     if dpi_raw:
         # dpiがレイヤ変数に正しく設定されていたら数値変換する
         if not dpi_raw.isdecimal():
-            iface.messageBar().pushCritical("ERROR", f"レイヤ変数 dpi が正しくありません。")
+            iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Layer variable dpi is invalid."))
             break
         dpi = int(dpi_raw)
     else:
         dpi = 200
-        QgsMessageLog.logMessage(f"dpi={dpi}として処理します。")
+        QgsMessageLog.logMessage(f"Using dpi={dpi}.")
 
     raw = get_raw_variable_for_layer(layer)
     if not raw:
@@ -863,7 +863,7 @@ while True:
             # 絶対パスの場合、先頭が\\\\では認識しないため、\\に変換する
             path_ = path_.replace("\\\\\\\\", "\\\\")
             if os.path.isdir(path_) == False:
-                iface.messageBar().pushCritical("ERROR", f"出力先フォルダ\n {path_} \nは存在していません。")
+                iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Output folder\n {0} \ndoes not exist.").format(path_))
                 flg_check_output_folder = False
                 break
         
@@ -876,11 +876,11 @@ while True:
         # 絶対パスの場合、先頭が\\\\では認識しないため、\\に変換する
         path_ = path_.replace("\\\\\\\\", "\\\\")
         if not os.path.isdir(path_):
-            iface.messageBar().pushCritical("ERROR", f"出力先フォルダ\n {path_} \nは存在していません。")
+            iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Output folder\n {0} \ndoes not exist.").format(path_))
             break
         output_path_fixed_for_all = path_
 
-    msg_return = QMessageBox.question(iface.mainWindow(), "確認", f'{featureCount}件の帳票出力を開始します。\n時間がかかりますが処理を続行しますか。', QMessageBox.Ok, QMessageBox.Cancel)
+    msg_return = QMessageBox.question(iface.mainWindow(), QCoreApplication.translate("geo_excel", "Confirmation"), QCoreApplication.translate("geo_excel", "Starting export of {0} reports.\nThis may take a while. Continue?").format(featureCount), QMessageBox.Ok, QMessageBox.Cancel)
     if msg_return == QMessageBox.Cancel:
         break
     
@@ -894,7 +894,7 @@ while True:
     excel_app.ScreenUpdating = False
 
     # 進捗ダイアログ表示
-    progress = QProgressDialog("帳票出力中...", "キャンセル", 0, featureCount, iface.mainWindow())
+    progress = QProgressDialog(QCoreApplication.translate("geo_excel", "Exporting reports..."), QCoreApplication.translate("geo_excel", "Cancel"), 0, featureCount, iface.mainWindow())
     progress.setAutoClose(True)
     progress.setValue(0)
 
@@ -962,4 +962,4 @@ if flg_refresh:
 map_canvas.setCursor(save_cursor)
 
 if excel_result:
-    QMessageBox.information(iface.mainWindow(), "情報", f"{output_path_fixed}に出力しました。")
+    QMessageBox.information(iface.mainWindow(), QCoreApplication.translate("geo_excel", "Information"), QCoreApplication.translate("geo_excel", "Exported to {0}.").format(output_path_fixed))

@@ -134,6 +134,19 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   (+open_dialog再表示)する。「すべて再読込」も可
   (qgis_live_driverは最後)。QGIS再起動・deploy不要で、
   Node側 `npm run live:watch`(自動watch)の手動版に相当する。
+  さらに **GeoSuite共有ツールバー**(`geo_toolbar.py`):
+  管理対象プラグインのツールバー項目を1本の
+  `QToolBar`(objectName="GeoSuite")に集約する。
+  各プラグインは find-or-create で共有し(ドライバ非依存の
+  同形小ヘルパを各プラグインが持つ)、ドライバ有効中は
+  **常時表示が強制**される(toggleViewAction無効化+5秒毎に
+  再表示)。先頭にドライバが**モードバッジ**
+  (「開発モード/利用モード」の常時表示、
+  5秒毎に deploy_state で自動更新、クリックでDeploy Mode
+  ダイアログ起動)を載せる。geo_search/geo_webview/geo_report/
+  geo_import/QGIS-legendView-main のツールバー項目は全て
+  GeoSuiteに集約済み。新規プラグインのツールバー項目も
+  `addToolBarIcon` ではなくGeoSuiteへ載せること。
   さらに **レイヤ整理サービス**(`layer_org.py`):
   プラグイン横断で追加レイヤの表示を標準化する共有プリミティブ。
   `plugins['qgis_live_driver'].layer_org.place_all([(layer, ctx)])`
@@ -301,13 +314,151 @@ REST/MCP `qgis_bridge_call` 全経路で利用可)。
 例(MCP): `qgis_bridge_call pluginId="geo_search" method="search" args=["○○町"]`
 pyevalからも `plugins['geo_search'].bridge.search("○○町")` で直接呼べる。
 コード変更の反映は junction 配置なら `reload_plugin`、
-copy配置なら `npm run deploy` + `reload_plugin`。
+実体dir配置(利用モード)は配置内容が固定のため `reload_plugin` のみ
+(利用版そのものの更新は `npm run deploy:install`)。
+
+## deployの2モード(開発/利用の明示切替)
+
+このリポジトリは「開発」と「利用(通常使用)」の2側面を持ち、
+同じプロファイル内で **deployモードを明示切替する**。
 
 ```powershell
-# QGIS常駐インスタンスを用意(起動済みならアタッチ、未起動ならdeploy+起動を自動化)
+npm run deploy         # 開発モードへ切替(junction配置・repo優先)
+npm run deploy:use     # 利用モードへ切替(退避版の復元。deploy:copy は旧名エイリアス)
+npm run deploy:install # repo現状を利用版として配置(リリース操作)
+npm run deploy:status  # 現在モードの確認(宣言+配置物の実態を表示)
+```
+
+QGIS側からも切替可能: `プラグイン > QGIS Live Driver > Deploy Mode`
+ダイアログ(mode_switch.py)が宣言モードと各プラグインの実配置形態を
+表示し、ボタンで `deploy-plugin.ps1` を起動して切替
+(任意で非ドライバプラグインを即リロード)。GeoSuiteツールバー先頭の
+モードバッジからも同ダイアログを開け、現在モードはバッジに
+常時表示される。markerの `repo` キーで
+実体dir配置中でもスクリプトを解決する。bridge `deployMode()` で
+AIから状態を読取可(切替はUI操作のみ)。
+
+モード宣言は deploy時に `profiles/<profile>/qgis_live_mode.json`
+(`{"mode":"dev"|"use"}`)へ書き出される。harness側はこれを読み、
+マーカーが無い場合は配置物のjunction実態から推定する。
+
+#### 【最強ルール】deployは全てUI操作。AI/自動経路は配置を変更しない
+
+**`deploy-plugin.ps1`(=プラグインフォルダへのあらゆる書込み)は
+AIエージェント・自動スクリプトから一切呼ばない。**
+`qgis-session.mjs` はdeploy経路をコードとして持たない
+(`live:ensure`/`live:reload`/`test:live` はQGIS起動/接続のみ行う)。
+つまり:
+
+- dev→use・use→dev・install 全てのモード遷移はUI操作のみ
+- 開発モードでなければrepo編集の反映経路自体が存在しない
+  (junctionも `WEBENGINE_DEV_SRC` も無い)。非devモードでは
+  AIの操作はMCP系(pyeval/bridge_call/status/screenshot等)のみで、
+  プラグインの内容を変える手段は何もない
+- AIが書き換えてよいのは **repo内の作業ツリーだけ**。
+  `python/plugins/`・`qgis_live_parked/` への書込み経路を
+  新たに作らないこと
+
+- **開発モード(dev) = junction 配置(repo優先・既定)**:
+  `npm run deploy`(UI操作)のみが張る。
+  切替時に `python/plugins/<id>` に既存の実体dir(利用版)があれば
+  **`profiles/<profile>/qgis_live_parked/<id>` へ退避**してから
+  junctionを張る(python/plugins外のためQGISには完全に見えない。
+  `_user`リネーム等でplugins内に残すと別IDプラグインとして
+  認識されてしまうので禁止)。既にjunctionならリンクのみ外して張替
+  (junction削除は `Delete()` でリンクのみ除去。`Remove-Item -Recurse`
+  はPS5.1でリンク先実体を巻き込む危険があるため使わない)。
+  `python/plugins/<id>` が `qgis-plugin/<id>` へのjunctionになり、
+  repo編集がそのままQGIS側のディスク内容になる
+  (import済みモジュールは `reload_plugin` / `live:devreload` で反映)。
+  junction作成に失敗した場合も **自動でcopyには落とさずエラー**とする
+  (deploy-plugin.ps1 の仕様。静かなcopy化を防ぐため)
+- **利用モード(use) = 退避版の復元(UI操作のみ)**:
+  `npm run deploy:use` のみが切り替える。junctionを外し、
+  **`qgis_live_parked/<id>` の退避版があれば復元する(repo copyしない)**。
+  退避も既存実体も無ければ未配置のまま(=そのプラグインは
+  利用されていなかった、という意味)。つまり利用版の中身は常に
+  「過去にインストール/退避されたもの」で、開発サイクルを往復しても
+  上書きされず保全される — 「開発を終えて戻る = 保存した利用版に戻る」。
+- **利用版の新規配置・更新 = `npm run deploy:install`(`-Install`)**:
+  repoの現状を利用版としてcopyするリリース操作(UI操作のみ)。
+  junctionを外し、旧parkedは破棄して新しいcopyを配置する。
+  「利用版を確定コードに更新したい」時はこの経路だけを使う
+  (確定 → `git commit/tag` → `deploy:install` で利用版=正式版として追跡可)。
+  copyを生成する自動経路は意図的に存在させない。
+  開発へ戻るには `npm run deploy` を明示実行する
+  (parkedは plugin ごとに記録され、`deploy:status`/`deployMode()`/
+  Deploy Modeダイアログに `(+parked)` として表示される)
+
+#### 【重要】利用モード中はプラグイン内容を一切更新しない
+
+不用意な変更が運用の支障になるため、利用モードでは
+**あらゆる経路でプラグインの内容(配置ファイル・実行コード)を
+変えない**ことを保証する:
+
+- **ファイル配置**: junctionが存在せず実体dirは物理的に不変。
+  repo編集は利用環境へ届かない
+- **自動deployは存在しない**: `live:ensure`/`live:reload`/`test:live`
+  はQGIS起動/接続のみ行い、配置変更のコード経路自体を持たない。
+  配置済み実体dirのままQGISを起動/アタッチする(=リリース版を
+  そのまま実環境で検証できる)
+- **起動時のdev機構**: harness起動でも `WEBENGINE_DEV_SRC` を
+  立てない(repo側コードが実行時に混入しない)
+- **QGIS内リロード系**: `reload_plugin` は配置済み実体dirを
+  再importするだけで内容は不変。ドライバのホットリロードメニューは
+  junction配置のみを候補にするため use では候補自体が出ない
+- **内容を変えられるのはUI操作のみ**:
+  `npm run deploy`(dev切替。利用版はparkedへ保全)/
+  `deploy:use`(use切替=parked復元。無ければ未配置のまま)/
+  `deploy:install`(リリース=repo現状を利用版として配置)
+
+この保証に反する新規コード経路(プラグイン配置物を書き換える・
+repo側コードをimportする・deployを呼ぶ処理)は追加しないこと。
+
+注意: プロファイルは共有(開発QGISも通常起動QGISも同じ `python/plugins/`
+を見る)ため、**開発モード中**は通常起動のQGISにもrepoのコードが載る。
+これは「開発中はrepo優先」の意図通り。利用モードではjunctionが
+存在しないため、人が普通にQGISを起動しても確定の実体dirで動く。
+
+### 選定理由(共有プロファイルを採る理由)
+
+プロファイル完全分離(`--profile` でdev専用プロファイル化)も検討したが、
+**この環境の目的が「実務利用環境での正確な動作確認」であるため共有を選んだ**:
+
+- **環境忠実度が最大**: 接続設定(PostGIS/WMS等)・認証・共存プラグイン・
+  QGIS4.ini設定まで検証環境と利用環境が物理的に同一になる。
+  別プロファイルは設定差分が「devでは動くが実務では動かない」
+  原因になり得る
+- **配布形態の再現も可能**: `deploy:install`/`deploy:use` で「インストール済み状態」を
+  同一プロファイル内で再現でき、junction(開発中)と実体dir(配布形態)を
+  同じ環境で切替検証できる
+- 分離の主な利点(利用側の保護・設定汚染防止・同時起動の干渉回避)は、
+  **この環境自体が検証対象**である運用では価値が薄い
+
+共有の代償として受け入れる点:
+
+- 開発モード中は利用側にもrepo WIPコードが載る(`deploy:use` の
+  利用モード切替で対処。実体配置はUI操作のみ、use中は自動deployも
+  抑制されるため、気づかないうちにモードが変わることはない)
+- 複数インスタンスの同時起動はQGIS4.iniがlast-writer-wins
+  (意図の違うインスタンスを長時間並走させない)
+- junction作成に失敗する環境では開発deploy自体がエラーになる
+  (copyへ自動フォールバックはしない)。その場合は運用者判断で
+  `deploy:use`/`deploy:install` を使うが、repo編集は届かない点に注意
+
+将来「利用側を開発事故から守りたい」需要が出た場合は、
+`deploy-plugin.ps1 -Profile` + `qgis-bin.exe --profile` の
+明示指定でプロファイル分離へ移行できる(現行スクリプトは
+lastProfile自動検出のため、分離時は両者に `-Profile`/`--profile`
+の明示が必要)。
+
+```powershell
+# QGIS常駐インスタンスを用意(起動済みならアタッチ、未起動なら起動を自動化)
 npm run live:ensure
-#   → live dirが応答すれば再利用、無ければdeploy-plugin.ps1 -Copy +
-#     WEBENGINE_DEV_SRC等のenv付きでQGISを起動してLiveDriver応答までポーリング
+#   → live dirが応答すれば再利用、無ければ
+#     WEBENGINE_DEV_SRC等(devモード時のみ)のenv付きでQGISを起動して
+#     LiveDriver応答までポーリング。deployは一切しない(未配置なら
+#     先に npm run deploy / deploy:install を手動で)
 
 # ★普段のコード反映はこれだけ。bridge.py/logic.py/ui/* の変更を即反映。
 #   deployもreloadPluginも再起動も不要
@@ -316,15 +467,16 @@ npm run live:devreload
 #     WebChannelのbridgeオブジェクトを差し替えてページを再読み込みする
 
 # プラグインの器側(main_plugin.py, live_driver.py等)を変更した時だけこちら
-npm run live:reload     # = deploy -Copy → pyevalで sys.modules掃除+reloadPlugin
-#   + open_dialog し直し。--no-deploy でdeploy省略可( junction配置なら不要)
+npm run live:reload     # = pyevalで sys.modules掃除+reloadPlugin
+#   + open_dialog し直し(deployはしない。junction配置ならrepoコードが反映される)
 
 # ★ホットリロード(watchモード): qgis-plugin/<id> の保存を監視して自動反映
 npm run live:watch      # 起動中は編集→保存だけでリロードされる(Ctrl+Cで終了)
 #   ui/**・bridge.py・logic.pyのみの変更かつ対象がview持ち → devreload、
 #   それ以外(本体*.py等を含む) → reload_plugin を自動選択。
 #   --plugin <id> で対象絞込、--debounce <ms> でまとめ待ち調整可
-#   (junction配置前提。-Copy配置は先に deploy:copy)
+#   (junction配置前提。利用モード(実体配置)ではrepo編集が届かないため
+#    先に `npm run deploy` でjunction化すること)
 # ※QGIS側メニュー「QGIS Live Driver > ホットリロード」からは対象プラグイン
 #   (qgis-plugin/ 内のもののみ)を手動選択してreload_pluginできる(自動watchなしの手動版)
 
@@ -332,7 +484,7 @@ npm run live:watch      # 起動中は編集→保存だけでリロードされ
 npm run test:live       # test-results/qgis-live.png にスクショも残る
 
 # 手動で個別に回したい場合の旧手順も引き続き使える
-npm run deploy          # プラグイン配置(junction既定、失敗時copyにフォールバック)
+npm run deploy          # プラグイン配置(junction固定、失敗時はエラー)
 npm run verify:qgis     # 別ターミナルでQGIS起動(開きっぱなし)
 ```
 

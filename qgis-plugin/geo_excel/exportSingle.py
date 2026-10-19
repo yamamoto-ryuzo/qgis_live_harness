@@ -25,7 +25,7 @@ from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
 
-from PyQt5.QtCore import Qt, QDate, QTime, QDateTime
+from PyQt5.QtCore import Qt, QDate, QTime, QDateTime, QCoreApplication
 from PyQt5.QtWidgets import QAction, QMessageBox, QApplication
 
 # mmへ単位変換する際に使用
@@ -60,7 +60,7 @@ def get_layer_variable(layer_context_name: str, layer: QgsVectorLayer):
       未定義の場合、メッセージバーにエラーを表示し、空白を返却する。
     """
     if not QgsExpressionContextScope.hasVariable(QgsExpressionContextUtils.layerScope(layer), layer_context_name):
-        iface.messageBar().pushCritical("ERROR", f"{layer_context_name} is not defined!")
+        iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "{0} is not defined!").format(layer_context_name))
         return ""
 
     return QgsExpressionContextScope.variable(QgsExpressionContextUtils.layerScope(layer), layer_context_name)
@@ -96,11 +96,11 @@ def create_expression(text: str):
             return None
         
         if exp.hasEvalError():
-            iface.messageBar().pushCritical("ERROR", f"{text} has eval error:{exp.evalErrorString()}")
+            iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "{0} has eval error: {1}").format(text, exp.evalErrorString()))
             return None
 
         if exp.hasParserError():
-            iface.messageBar().pushCritical("ERROR", f"{text} has parser error:{exp.parserErrorString()}")
+            iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "{0} has parser error: {1}").format(text, exp.parserErrorString()))
             return None
 
         return exp
@@ -142,13 +142,13 @@ def get_layer_variable_on_feature(layer_context_name: str, layer: QgsVectorLayer
     ctx = get_layer_variable(layer_context_name, layer)
     if not ctx:
         if noerror==False:
-            iface.messageBar().pushCritical("ERROR", f"レイヤ変数 {layer_context_name} が未設定です。")
+            iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Layer variable {0} is not set.").format(layer_context_name))
         return None
 
     evaluated = variable_based_on_feature(ctx, feature)
     if not evaluated:
         if noerror==False:
-            iface.messageBar().pushCritical("ERROR", f"レイヤ変数 {layer_context_name} が正しくありません。")
+            iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Layer variable {0} is invalid.").format(layer_context_name))
         return None
     
     return evaluated
@@ -624,7 +624,7 @@ def replace_attach(wb, attach_list: list):
                 ws.Range(_address).ClearContents()
 
         except Exception as e:
-            iface.messageBar().pushCritical("ERROR", f"セル【{_address}】に【{str(_str)}】は出力できませんでした。")
+            iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Could not output [{1}] to cell [{0}].").format(_address, str(_str)))
             ret_flg = False
             break
    
@@ -731,7 +731,7 @@ def output_single_report(excel_app, template_path: str, feature: QgsFeature, out
         excel_app.DisplayAlerts = True
 
     except Exception as e:
-        iface.messageBar().pushCritical("ERROR", f"エラー発生: {e}")
+        iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "An error occurred: {0}").format(e))
         success = False
         
     finally:
@@ -755,7 +755,7 @@ def check_same_name_opend(excel_app, book_name: str):
     # 同名のブックが開いていないか確認する
     for wb in excel_app.Workbooks:
         if wb.Name == book_name:
-            iface.messageBar().pushCritical("ERROR", f"同じ名前のブック{book_name} \n が既に開かれています。")
+            iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "A workbook named {0} \n is already open.").format(book_name))
             return False
     
     return True
@@ -778,12 +778,12 @@ while True:
     if dpi_raw:
         # dpiがレイヤ変数に正しく設定されていたら数値変換する
         if not dpi_raw.isdecimal():
-            iface.messageBar().pushCritical("ERROR", f"レイヤ変数 dpi が正しくありません。")
+            iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Layer variable dpi is invalid."))
             break
         dpi = int(dpi_raw)
     else:
         dpi = 200
-        QgsMessageLog.logMessage(f"dpi={dpi}として処理します。")
+        QgsMessageLog.logMessage(f"Using dpi={dpi}.")
 
     # テンプレートファイルパス取得
     template_path = get_layer_variable_on_feature(TEMPLATE_PATH, layer, feature)
@@ -793,12 +793,12 @@ while True:
     # 出力ファイルディレクトリ（ユーザー指定部）パス取得
     output_path_fixed = get_layer_variable_on_feature(OUTPUT_PATH_FIXED, layer, feature)
     if not output_path_fixed:
-        iface.messageBar().pushCritical("ERROR", f"出力先フォルダが設定されていません。")
+        iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Output folder is not set."))
         break
     # 出力ファイルディレクトリ（可変部）パス取得
     output_path_variable = get_layer_variable_on_feature(OUTPUT_PATH_VARIABLE, layer, feature)
     if not output_path_variable:
-        iface.messageBar().pushCritical("ERROR", f"出力先フォルダ(可変部)が設定されていません。")
+        iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Output folder (variable part) is not set."))
         break
     
     # テンプレートファイルの存在チェック
@@ -809,7 +809,7 @@ while True:
         template_path = template_path.replace("\\\\\\\\", "\\\\")
 
     if os.path.exists(template_path) == False:
-        iface.messageBar().pushCritical("ERROR", f"テンプレートファイル\n {template_path} \nが見つかりません。")
+        iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Template file\n {0} \nwas not found.").format(template_path))
         break
 
     # 出力先フォルダ（ユーザー指定部）の存在チェック
@@ -823,7 +823,7 @@ while True:
         output_path_fixed = output_path_fixed.replace("\\\\\\\\", "\\\\")
     
     if not os.path.exists(output_path_fixed):
-        iface.messageBar().pushCritical("ERROR", f"出力先フォルダ\n {output_path_fixed} \nは存在していません。")
+        iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Output folder\n {0} \ndoes not exist.").format(output_path_fixed))
         break
 
     # 出力ファイルパス作成
@@ -832,7 +832,7 @@ while True:
     # 出力先ファイルの存在チェック
     overwrite = False
     if os.path.exists(output_path):
-        msgbox_return = QMessageBox.question(iface.mainWindow(), "確認", f"{output_path} \nは既に存在しています。\n上書きしますか。", QMessageBox.Ok, QMessageBox.Cancel)
+        msgbox_return = QMessageBox.question(iface.mainWindow(), QCoreApplication.translate("geo_excel", "Confirmation"), QCoreApplication.translate("geo_excel", "{0} \nalready exists.\nOverwrite it?").format(output_path), QMessageBox.Ok, QMessageBox.Cancel)
         if msgbox_return == QMessageBox.Cancel:
             break
         overwrite = True
@@ -880,4 +880,4 @@ if flg_refresh:
     map_canvas.refresh()
     
 if excel_result:
-    QMessageBox.information(iface.mainWindow(), "情報", f"{output_path}を出力しました。")
+    QMessageBox.information(iface.mainWindow(), QCoreApplication.translate("geo_excel", "Information"), QCoreApplication.translate("geo_excel", "Exported {0}.").format(output_path))

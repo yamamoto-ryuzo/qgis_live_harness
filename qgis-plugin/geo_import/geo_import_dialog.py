@@ -123,6 +123,7 @@ from qgis.PyQt.QtCore import Qt, QTimer, QCoreApplication
 from qgis.PyQt import QtGui, uic
 from qgis.PyQt import QtWidgets
 from qgis.PyQt.QtWidgets import QApplication, QListWidgetItem, QDialog, QMessageBox
+from qgis.core import Qgis
 from .geo_import_dialog_disclaimer import GeoImportDialogDisclaimer
 from .geo_import_dialog_dataproviders import GeoImportDialogDataProviders
 from .pyperclip import copy
@@ -1128,7 +1129,11 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     # --- ネットワークモード: カテゴリをAPIから直接取得 ---
                     ok_net, group_result = self.cc.get_groups()
                     if ok_net is False:
-                        self.util.dlg_warning(group_result)
+                        # modalダイアログは非同期タイマ経由の呼出をブロックするため
+                        # messageBarで通知する
+                        self.util.msg_log_error(u'get_groups failed: {0}'.format(group_result))
+                        self.iface.messageBar().pushMessage(
+                            self.settings.DLG_CAPTION, str(group_result), Qgis.Warning)
                     elif group_result:
                         for group in group_result:
                             title = group.get('title') or group.get('name', '')
@@ -1230,7 +1235,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             self.search_txt, groups=group_names, page=self.current_page)
         if not ok:
             QApplication.restoreOverrideCursor()
-            self.util.dlg_warning(result)
+            self._warn_nonmodal(result)
             return
         results = result.get('results', []) if isinstance(result, dict) else []
         count = result.get('count', len(results)) if isinstance(result, dict) else len(results)
@@ -1238,6 +1243,21 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         page_count = max(1, math.ceil(count / rows))
         total_resource_count = sum(len(e.get('resources', [])) for e in results)
         self._on_data_ready(results, count, page_count, total_resource_count)
+
+    def _warn_nonmodal(self, msg):
+        """ネットワークモードのエラー通知。modal QMessageBoxだと
+        タイマ/ブリッジ経由の呼出をGUIスレッドごとブロックするため、
+        messageBarとラベル表示で通知する。"""
+        self.util.msg_log_error(u'{0}'.format(msg))
+        try:
+            self.iface.messageBar().pushMessage(
+                self.settings.DLG_CAPTION, str(msg), Qgis.Warning)
+        except Exception:
+            pass
+        try:
+            self.IDC_lblSuchergebnisse.setText(str(msg))
+        except Exception:
+            pass
 
     def _on_data_ready(self, page_results, result_count, page_count, total_resource_count):
         QApplication.restoreOverrideCursor()

@@ -87,8 +87,9 @@ class GeoImportBridge:
         },
         "search": {
             "description":
-                "データセットを検索開始する(非同期)。結果は results() で取得。"
-                "text省略時は全件。",
+                "データセットを検索する。結果は results() で取得。"
+                "text省略時は全件。ネットワークモードではHTTP応答まで"
+                "呼出が戻らない(警告modalは自動応答で吸収しmessagesに返す)。",
             "example": {"method": "search", "args": ["地盤"]},
         },
         "results": {
@@ -278,9 +279,13 @@ class GeoImportBridge:
         else:
             dlg.IDC_lineSearch.setText(str(text))
         dlg.search_txt = "" if text is None else str(text)
-        dlg.suchen()
+        # ネットワークモードでは suchen() が同期HTTPでブロックする。
+        # 失敗時のmodal警告が呼出を返さないよう自動応答で吸収する。
+        with _DialogAutoReply() as cap:
+            dlg.suchen()
         return self._ok({"started": True,
-                         "query": "" if text is None else str(text)})
+                         "query": "" if text is None else str(text),
+                         "messages": cap.messages or None})
 
     def results(self):
         """現在の検索結果一覧とページ情報を返す。"""

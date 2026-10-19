@@ -78,7 +78,7 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
         self.IDC_listProviders.activated.connect(self.server_in_list_activated)
         self.IDC_listProviders.clicked.connect(self.server_in_list_clicked)
         self.IDC_listProviders.setModel(self.list_model)
-        delete_custom_server_action = QAction('Delete', self.IDC_listProviders)
+        delete_custom_server_action = QAction(QCoreApplication.translate('GeoImport', 'Delete'), self.IDC_listProviders)
         delete_custom_server_action.triggered.connect(self.delete_custom_server)
         self.IDC_listProviders.addAction(delete_custom_server_action)
         # self.list_model.setHorizontalHeaderLabels(['CKAN Servers'])

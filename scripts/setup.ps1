@@ -1,7 +1,7 @@
 ﻿# 初回クローン後の環境セットアップスクリプト。
 # 前提ツール(QGIS 4 / Node.js 24+ / Python 3.13+)を確認し、不足していれば
 # winget でインストールした上で、npm install → (任意)playwright install →
-# プラグイン配置(deploy:copy)まで一括実行する。
+# プラグイン配置(deploy、junction)まで一括実行する。
 #
 # 使い方(リポジトリルートで):
 #   powershell -ExecutionPolicy Bypass -File scripts\setup.ps1          # 対話あり
@@ -13,7 +13,7 @@ param(
   [switch]$Yes,            # 確認プロンプトを省略して全てインストール
   [switch]$CheckOnly,      # 確認のみ(インストール・npm install等を行わない)
   [switch]$SkipPlaywright, # npx playwright install を省略(L1テスト不要な場合)
-  [switch]$SkipDeploy      # npm run deploy:copy を省略
+  [switch]$SkipDeploy      # npm run deploy を省略
 )
 
 $ErrorActionPreference = "Stop"
@@ -150,9 +150,26 @@ if ($CheckOnly) {
     }
 
     if (-not $SkipDeploy) {
-      Write-Host "  npm run deploy:copy (プラグインをQGISへ配置) ..."
-      npm run deploy:copy
-      if ($LASTEXITCODE -ne 0) { $issues += "npm run deploy:copy が失敗しました" }
+      # 利用モード(use)中はdeployしない。利用環境のプラグイン内容を
+      # 変えるのはUI操作の deploy/deploy:use/deploy:install のみという規約のため
+      $prof = "default"
+      $profilesIni = Join-Path "$env:APPDATA\QGIS\QGIS4\profiles" "profiles.ini"
+      if (Test-Path $profilesIni) {
+        $m = Select-String -Path $profilesIni -Pattern "lastProfile=(.+)"
+        if ($m) { $prof = $m.Matches.Groups[1].Value.Trim() }
+      }
+      $modeFile = Join-Path "$env:APPDATA\QGIS\QGIS4\profiles\$prof" "qgis_live_mode.json"
+      $isUseMode = $false
+      if (Test-Path $modeFile) {
+        try { $isUseMode = ((Get-Content $modeFile -Raw | ConvertFrom-Json).mode -eq "use") } catch {}
+      }
+      if ($isUseMode) {
+        Write-Host "  利用モード(use)検出: プラグイン配置をスキップします(開発モードへは npm run deploy)"
+      } else {
+        Write-Host "  npm run deploy (プラグインをjunction配置=開発形態) ..."
+        npm run deploy
+        if ($LASTEXITCODE -ne 0) { $issues += "npm run deploy が失敗しました" }
+      }
     }
   } finally {
     Pop-Location

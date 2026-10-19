@@ -6,8 +6,53 @@
 
 ## [Unreleased]
 
+### Added
+
+- **GeoSuite共有ツールバー**: 管理対象プラグインのツールバー項目を
+  1本の `QToolBar`("GeoSuite")に集約(find-or-create方式、
+  `qgis_live_driver/geo_toolbar.py` + 各プラグインの同形ヘルパ)。
+  ツールバー先頭にドライバがモードバッジ(開発モード/利用モードの
+  常時表示、クリックでDeploy Modeダイアログ起動、5秒毎自動更新)を載せ、
+  geo_search/geo_webview/geo_report/geo_import/QGIS-legendView-main の
+  ツールバー項目はプラグインツールバーからGeoSuiteへ移行した
+
 ### Changed
 
+- **deployを「dev/use 明示モード」制に変更**
+  (`scripts/qgis-session.mjs`・`deploy-plugin.ps1`・`setup.ps1`):
+  `ensure`/`reload`/`setup` が `deploy-plugin.ps1 -Copy` を呼んでおり、
+  junction配置を毎回潰して陳腐コピー化していた(repo編集が
+  QGISに届かない状態になる)。`npm run deploy`=開発モード
+  (junction=repo優先)、`npm run deploy:use`=利用モード
+  (退避版の復元、UI操作のみ)に明示分離
+  (`deploy:copy` は旧名エイリアスとして残置)。
+  **さらに安全性の最強ルールとして、自動経路からのdeployを
+  全廃**: `qgis-session.mjs` はdeployのコード経路自体を持たず、
+  `live:ensure`/`live:reload`/`test:live` はQGIS起動/接続のみ行う。
+  プラグインフォルダへの書込み(deploy/deploy:use/deploy:install)
+  は全てUI操作のみとなり、非devモードではAIからプラグイン
+  内容を変える手段が存在しない。
+  deploy時に `profiles/<profile>/qgis_live_mode.json` へモード宣言を
+  書き出し、`npm run deploy:status` で現在モードを確認可能。
+  **dev化時は既存の実体プラグイン(利用版)を
+  `profiles/<profile>/qgis_live_parked/<id>` へ退避**してから
+  junctionを張り、**use化時はjunctionを外して退避版を復元**
+  (退避も既存実体も無ければ未配置のまま=そのプラグインは
+  利用されていなかった)。開発サイクルを往復しても利用版は
+  上書きされず保全される。利用版の新規配置・更新は
+  **`npm run deploy:install`(`-Install`)** のリリース操作のみ
+  (junction解除+旧parked破棄+repo copy、UI操作のみ)。
+  junction削除は `Delete()` でリンクのみ除去(PS5.1の
+  `Remove-Item -Recurse` はリンク先実体を巻き込む危険があるため
+  不使用)。退避版の有無は `deploy:status`/`deployMode()`/
+  Deploy Modeダイアログに `(+parked)` として表示される。
+  **利用モード中は `live:ensure`/`live:reload`/`test:live`/`setup.ps1`
+  の自動deploy自体をスキップ**し、配置済みcopyのまま起動/アタッチする。
+  起動時 `WEBENGINE_DEV_SRC` も立てないため、repo編集・自動deploy・
+  dev機構のいずれでも利用環境のプラグイン内容は変わらない。
+  さらにjunction作成失敗時の自動copyフォールバックを廃止
+  (静かなcopy化を防ぐためエラーに変更)。
+  方針と選定理由はAGENTS.md「deployの2モード」参照
 - **翻訳方式を `i18n/<lang>.json` 1方式に統一**: 全7プラグインの
   翻訳を Qt Linguist(`.ts`→`lrelease`→`.qm`+QTranslator)から
   JSONカタログ(`{context: {英語ソース: 翻訳}}`)へ移行。

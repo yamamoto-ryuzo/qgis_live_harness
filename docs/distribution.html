@@ -42,8 +42,8 @@
   ui/                 製品コード: フロントエンド(パッケージ内に同梱済み)
 </code></pre>
 <ul>
-<li><code>deploy -Copy</code> で生成されるフォルダがほぼ配布形態。
-ui/はパッケージ内にあるためjunction deployでも同梱される</li>
+<li><code>deploy -Install</code>(<code>npm run deploy:install</code>)で生成されるフォルダが
+ほぼ配布形態。ui/はパッケージ内にあるためjunction deployでも同梱される</li>
 <li><code>metadata.txt</code> の <code>name=</code> はQGIS上の表示名。<code>plugin.config.json</code> の
 <code>id</code> がdeploy先ディレクトリ名(=QGISのプラグインID)になる</li>
 <li><code>WEBENGINE_LIVE_DIR</code>/<code>WEBENGINE_DEV_SRC</code> 未設定では

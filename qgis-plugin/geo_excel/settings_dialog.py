@@ -312,7 +312,7 @@ class GeoExcelSettingsDialog(QDialog):
                 settings.generate_template(path, layer, kind)
                 done.append(path)
             except Exception as e:  # noqa: BLE001
-                QMessageBox.warning(self, "geo_excel", f"{path}\n{e}")
+                QMessageBox.warning(self, "geo_excel", QCoreApplication.translate("geo_excel", "Template generation failed: {0}\n{1}").format(path, e))
         if done:
             self.iface.messageBar().pushInfo(
                 "geo_excel",

@@ -12,8 +12,11 @@
     "mcp:qgis": "node scripts/qgis-mcp.mjs",
     "test:unit": "python -m pytest tests/unit -v",
     "deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1",
+    "deploy:status": "powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Status",
     "verify:qgis": "powershell -ExecutionPolicy Bypass -File scripts/verify-in-qgis.ps1",
-    "deploy:copy": "powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy",
+    "deploy:use": "powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Use",
+    "deploy:copy": "powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Use",
+    "deploy:install": "powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Install",
     "upstream": "powershell -ExecutionPolicy Bypass -File scripts/upstream-git.ps1"
   },
   "devDependencies": {

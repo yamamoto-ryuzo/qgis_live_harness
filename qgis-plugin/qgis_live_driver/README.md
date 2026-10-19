@@ -23,7 +23,7 @@ https://yamamoto-ryuzo.github.io/qgis_live_harness/driver.html
 
 ```powershell
 # From this repository (deploys all plugins at once)
-powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
+powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Install
 
 # Or manually: copy this folder to python/plugins/qgis_live_driver/
 # and enable it in the QGIS Plugin Manager
@@ -34,6 +34,11 @@ Two activation paths (OFF and harmless by default):
 - **Menu toggle**: `Plugins > QGIS Live Driver > Remote control (localhost only)`.
   A warning dialog is shown the first time it is enabled; the setting is saved
   to QSettings so it stays enabled on subsequent launches.
+
+The plugin also creates the shared **GeoSuite toolbar** with an always-visible
+deploy-mode badge at its head (Development/Usage; click to open the Deploy Mode
+dialog). Other harness-managed plugins (geo_search etc.) place their toolbar
+items on this same toolbar.
 - **Environment variable**: setting `WEBENGINE_LIVE_DIR` enables it immediately
   at startup (for development; `scripts/verify-in-qgis.ps1` sets this when
   launching QGIS).

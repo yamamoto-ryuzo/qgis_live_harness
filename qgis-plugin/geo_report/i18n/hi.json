@@ -23,6 +23,7 @@
   "geo_report": {
     "Angle:": "कोण:",
     "Apply Properties": "गुण लागू करें",
+    "Apply layout properties": "लेआउट गुण लागू करें",
     "Cancel": "रद्द करें",
     "Error getting information": "जानकारी प्राप्त करने में त्रुटि",
     "Item Name": "आइटम नाम",

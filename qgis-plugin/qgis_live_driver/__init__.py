@@ -82,7 +82,8 @@ class QgisLivePlugin:
     _ACTION_SOURCES = ("Remote Control (localhost only)",
                        "AI Assistant",
                        "Hot Reload",
-                       "Hot Reload (auto-apply on save)")
+                       "Hot Reload (auto-apply on save)",
+                       "Deploy Mode")
 
     def _own_action_texts(self):
         """残存アクション除去用。英語ソースと翻訳後テキストの両方を含める。"""
@@ -101,6 +102,12 @@ class QgisLivePlugin:
         self._ai_panel = None
         self._ai_driver = None
         self._hot_menu = None
+        self._mode_action = None
+        self._geo_tb = None
+        self._mode_badge = None
+        self._mode_badge_action = None
+        self._mode_badge_sep = None
+        self._mode_timer = None
         self._init_language()
         try:
             from .bridge import QgisLiveBridge
@@ -178,6 +185,13 @@ class QgisLivePlugin:
         self.iface.addPluginToMenu("QGIS Live Driver",
                                    self._hot_menu.menuAction())
 
+        self._mode_action = QAction(
+            QCoreApplication.translate("qgis_live_driver", "Deploy Mode"),
+            self.iface.mainWindow())
+        self._mode_action.triggered.connect(self._open_mode_dialog)
+        self.iface.addPluginToMenu("QGIS Live Driver", self._mode_action)
+        self._init_geo_toolbar()
+
         live_base = os.environ.get("WEBENGINE_LIVE_DIR")
         _log(f"qgis_live_driver initGui: live_base={live_base!r}")
         if live_base:
@@ -243,6 +257,98 @@ class QgisLivePlugin:
         except Exception:
             pass
         _log(f"hot_reload {level}: {msg}")
+
+    # ---- deployモード切替 ----
+
+    def _open_mode_dialog(self):
+        try:
+            from .mode_switch import show_dialog
+            show_dialog(self.iface, __file__, notify=self._hot_notify)
+        except Exception:
+            _log("deploy mode dialog failed:\n" + traceback.format_exc())
+        self._refresh_mode_badge()
+
+    # ---- GeoSuite共有ツールバー ----
+
+    def _init_geo_toolbar(self):
+        """GeoSuiteツールバーをfind-or-createし、先頭にモードバッジを載せる。
+
+        バッジは「開発モード/利用モード」の常時表示で、クリックすると
+        Deploy Modeダイアログを開く。他プラグインのツールバー項目は
+        同名ツールバーへ各プラグインが自分で追加する。
+        """
+        try:
+            from qgis.PyQt.QtCore import QTimer
+            from qgis.PyQt.QtWidgets import QToolButton
+            from .geo_toolbar import geo_suite_toolbar
+            self._geo_tb = geo_suite_toolbar(self.iface)
+            # ドライバ稼働中は常時表示を強制(表示/非表示メニューからも
+            # 外せないようtoggleViewActionを無効化。unloadで復帰する)
+            try:
+                tva = self._geo_tb.toggleViewAction()
+                if tva is not None:
+                    tva.setEnabled(False)
+            except Exception:
+                pass
+            self._geo_tb.setVisible(True)
+            self._mode_badge = QToolButton(self._geo_tb)
+            self._mode_badge.setAutoRaise(True)
+            self._mode_badge.clicked.connect(self._open_mode_dialog)
+            # 既存項目があれば先頭へ挿入(リロード順に関わらず常に先頭)
+            acts = self._geo_tb.actions()
+            if acts:
+                self._mode_badge_action = self._geo_tb.insertWidget(
+                    acts[0], self._mode_badge)
+            else:
+                self._mode_badge_action = self._geo_tb.addWidget(
+                    self._mode_badge)
+            # バッジとプラグイン項目の間に区切りを入れる
+            after = self._geo_tb.actions()
+            if len(after) > 1:
+                self._mode_badge_sep = self._geo_tb.insertSeparator(
+                    after[1])
+            else:
+                self._mode_badge_sep = None
+            self._refresh_mode_badge()
+            self._mode_timer = QTimer(self.iface.mainWindow())
+            self._mode_timer.setInterval(5000)
+            self._mode_timer.timeout.connect(self._refresh_mode_badge)
+            self._mode_timer.start()
+        except Exception:
+            _log("GeoSuite toolbar init failed:\n" + traceback.format_exc())
+
+    def _refresh_mode_badge(self):
+        if self._mode_badge is None:
+            return
+        try:
+            if self._geo_tb is not None and not self._geo_tb.isVisible():
+                # 常時表示の強制(何らかの経路で隠された場合に戻す)
+                self._geo_tb.setVisible(True)
+        except Exception:
+            pass
+        try:
+            from .mode_switch import deploy_state
+            st = deploy_state(__file__)
+            tr = QCoreApplication.translate
+            label = {
+                "dev": tr("qgis_live_driver", "Development mode"),
+                "use": tr("qgis_live_driver", "Usage mode"),
+                "mixed": tr("qgis_live_driver", "Mixed"),
+                "none": tr("qgis_live_driver", "Not deployed"),
+            }.get(st["mode"], st["mode"] or "")
+            self._mode_badge.setText(label)
+            self._mode_badge.setToolTip(
+                tr("qgis_live_driver", "Deploy Mode"))
+            # devは赤背景で注意喚起、useは緑文字、それ以外は既定
+            style = {
+                "dev": ("QToolButton { font-weight: bold; color: white; "
+                        "background: #c0392b; border-radius: 3px; "
+                        "padding: 1px 6px; }"),
+                "use": "QToolButton { font-weight: bold; color: #1a7f37; }",
+            }.get(st["mode"], "")
+            self._mode_badge.setStyleSheet(style)
+        except Exception:
+            pass
 
     # ---- AIアシスタントパネル ----
 
@@ -444,7 +550,7 @@ class QgisLivePlugin:
             except Exception:
                 pass
             self._hot_menu = None
-        for action in (self._ai_action, self._action):
+        for action in (self._ai_action, self._action, self._mode_action):
             if action is not None:
                 try:
                     self.iface.removePluginMenu("QGIS Live Driver",
@@ -454,6 +560,37 @@ class QgisLivePlugin:
                     pass
         self._ai_action = None
         self._action = None
+        self._mode_action = None
+        if self._mode_timer is not None:
+            try:
+                self._mode_timer.stop()
+            except Exception:
+                pass
+            self._mode_timer = None
+        for a in (self._mode_badge_sep, self._mode_badge_action):
+            if a is not None:
+                try:
+                    if self._geo_tb is not None:
+                        self._geo_tb.removeAction(a)
+                except Exception:
+                    pass
+        self._mode_badge_sep = None
+        self._mode_badge_action = None
+        if self._mode_badge is not None:
+            try:
+                self._mode_badge.deleteLater()
+            except Exception:
+                pass
+            self._mode_badge = None
+        if self._geo_tb is not None:
+            try:
+                # 常時表示の強制を解除(他プラグインの項目は残る)
+                tva = self._geo_tb.toggleViewAction()
+                if tva is not None:
+                    tva.setEnabled(True)
+            except Exception:
+                pass
+        self._geo_tb = None
         self._sweep_menu_actions()  # 自身以外の残存も掃除
         try:
             self._stop()

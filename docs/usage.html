@@ -71,21 +71,88 @@ powershell -ExecutionPolicy Bypass -File scripts\setup.ps1
 </code></pre>
 <p>手動でセットアップする場合(スクリプトと等価):</p>
 <pre><code class="language-powershell">npm install
-npm run deploy:copy            # 器をQGISプラグインディレクトリへ配置+有効化
+npm run deploy                 # 管理プラグインをQGISプラグインディレクトリへjunction配置+有効化(開発モード)
 npx playwright install         # L1テスト(npm test)を回す場合のみ
 pip install pytest             # ユニットテスト(test:unit)を回す場合のみ
 </code></pre>
 <p>開発対象プラグインは <code>qgis-plugin/&lt;id&gt;/</code> に配置する。
 開発対象の切替は <code>plugin.config.json</code> の <code>id</code> を書き換える。</p>
 <h3>開発ループ</h3>
-<pre><code class="language-powershell">npm run live:ensure     # 常駐QGISを用意(初回は自動でdeploy+起動)
+<pre><code class="language-powershell">npm run live:ensure     # 常駐QGISを用意(起動済みならアタッチ、未起動なら起動)
+                        # ※deployはしない — 未配置なら先に npm run deploy を手動で
 # → bridge.py / logic.py / ui/* を編集
 npm run live:devreload  # repo側コードを即反映(deploy不要)
 npm run test:live       # 実QGIS内で検証(pyevalで内部状態assert含む)
 </code></pre>
 <p>器側(<code>main_plugin.py</code>/<code>live_driver.py</code>等)を変更した時だけ:</p>
-<pre><code class="language-powershell">npm run live:reload     # deploy -Copy + 実行中QGISでホットリロード
+<pre><code class="language-powershell">npm run live:reload     # 実行中QGISでホットリロード(deployはしない)
 </code></pre>
+<h3>deployモード(開発/利用の明示切替)</h3>
+<p>同じQGISプロファイル内で「開発」と「利用(通常使用)」を
+<strong>配置形態で明示切替</strong>する。モード宣言は
+<code>profiles/&lt;profile&gt;/qgis_live_mode.json</code> に記録され、
+現在モードは <code>npm run deploy:status</code>、Driverメニューの
+<code>配置モード</code> ダイアログ(宣言+各プラグインの実配置形態+退避状態)、
+および <strong>GeoSuiteツールバー先頭のモードバッジ</strong>
+(「開発モード/利用モード」の常時表示。開発=赤背景白文字、利用=緑文字。
+クリックでダイアログを開く)で確認できる。
+GeoSuiteは管理対象プラグインのツールバー項目を集約した共有ツールバー。</p>
+<table>
+<thead>
+<tr><th></th><th>開発モード(dev)</th><th>利用モード(use)</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>切替操作</td>
+<td><code>npm run deploy</code> — <strong>UI操作のみ</strong></td>
+<td><code>npm run deploy:use</code> — <strong>UI操作のみ</strong></td>
+</tr>
+<tr>
+<td>配置物</td>
+<td><code>python/plugins/&lt;id&gt;</code> = <code>qgis-plugin/&lt;id&gt;</code> へのjunction</td>
+<td><code>python/plugins/&lt;id&gt;</code> = 実体dir(退避版の復元)</td>
+</tr>
+<tr>
+<td>動くコード</td>
+<td>repoワーキングツリーそのもの(未コミット変更も含む)</td>
+<td><strong>退避版の復元</strong>(退避も既存実体も無ければ未インストールのまま=そのプラグインは利用されていなかった)</td>
+</tr>
+<tr>
+<td>repo編集の影響</td>
+<td>そのままQGISへ届く(<code>reload_plugin</code>/<code>live:devreload</code>で反映)</td>
+<td><strong>一切届かない</strong>(junction自体が存在しない)</td>
+</tr>
+<tr>
+<td>既存利用版の扱い</td>
+<td><code>profiles/&lt;profile&gt;/qgis_live_parked/&lt;id&gt;</code> へ退避(QGIS不可視)</td>
+<td>退避版を<strong>そのまま復元</strong></td>
+</tr>
+<tr>
+<td>repo編集の反映手段</td>
+<td><code>reload_plugin</code> / <code>live:devreload</code> / <code>live:watch</code></td>
+<td>なし(MCP系操作= pyeval/bridge_call/status 等のみ)</td>
+</tr>
+<tr>
+<td>自動処理のdeploy</td>
+<td colspan="2"><strong>存在しない</strong>。live系コマンドはQGIS起動/接続のみ行い、配置変更のコード経路自体を持たない(<code>deploy</code>/<code>deploy:use</code>/<code>deploy:install</code> は全てUI操作)</td>
+</tr>
+</tbody>
+</table>
+<pre><code>利用モード ── npm run deploy ──→  利用版を qgis_live_parked/ へ退避 → junction張付 = 開発モード
+開発モード ── npm run deploy:use  → junction解除 → parked利用版を復元   = 利用モード
+任意      ── npm run deploy:install → repo現状を利用版として配置(旧parked破棄) = 利用モード
+(「開発を終えて戻る」=「保存した利用版に戻る」。開発往復で利用版は上書きされない)</code></pre>
+<blockquote>
+<p><strong>安全性の最強ルール</strong>: <code>deploy-plugin.ps1</code>(プラグインフォルダへの
+あらゆる書込み)はAIエージェント・自動スクリプトから一切呼ばれない。
+<code>qgis-session.mjs</code> はdeployのコード経路自体を持たないため、
+非devモードではAIからプラグイン内容を変える手段が存在しない。
+AIが書き換えるのはrepoの作業ツリーのみである。</p>
+</blockquote>
+<p><strong>利用版の新規インストール/更新(リリース)は別コマンド</strong>:
+<code>npm run deploy:install</code> がrepoの現状を利用版として配置する
+(junction解除・旧parked破棄・repo copy)。確定 → <code>git commit/tag</code> →
+<code>deploy:install</code> の順で実行すれば、利用版=正式リリース版として追跡できる。</p>
 <h3>テスト</h3>
 <pre><code class="language-powershell">npm test               # L1: UI単体E2E(ブラウザ+mock。WebEngineプラグインのみ)
 npm run test:unit      # Pythonロジックのpytest

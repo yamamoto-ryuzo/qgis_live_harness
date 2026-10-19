@@ -1,4 +1,14 @@
 {
+  "Dialog": {
+    "Could not find corresponding entry to remove.": "找不到要删除的对应条目。",
+    "Failed to read the JSON file: {0}": "无法读取 JSON 文件: {0}",
+    "Failed to update JSON file: {0}": "无法更新 JSON 文件: {0}",
+    "JSON file has unsupported structure; expected {'SearchTabs': [...]} or an array.": "JSON 文件结构不受支持;应为 {'SearchTabs': [...]} 或数组。",
+    "Not found": "未找到",
+    "Read error": "读取错误",
+    "Unsupported format": "不支持的格式",
+    "Write error": "写入错误"
+  },
   "SearchWidget": {
     "Angle (deg):": "角度（度）：",
     "Angle: Not specified": "角度: 未指定",

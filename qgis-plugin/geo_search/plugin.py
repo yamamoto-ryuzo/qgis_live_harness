@@ -4,7 +4,7 @@ import json
 import os
 
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QMessageBox, QComboBox, QWidget, QToolButton, QHBoxLayout
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QComboBox, QWidget, QToolButton, QHBoxLayout, QToolBar
 from qgis.core import (
     QgsProject,
     QgsExpressionContextUtils,
@@ -80,6 +80,14 @@ class plugin(object):
             except Exception:
                 pass
 
+    def _geo_toolbar(self):
+        """GeoSuite共有ツールバーをfind-or-createで返す。"""
+        tb = self.iface.mainWindow().findChild(QToolBar, "GeoSuite")
+        if tb is None:
+            tb = self.iface.addToolBar("GeoSuite")
+            tb.setObjectName("GeoSuite")
+        return tb
+
     def initGui(self):
         # プラグイン開始時に動作
         # mark GUI not-ready at start to avoid spurious warnings during init
@@ -97,7 +105,7 @@ class plugin(object):
         icon_path = os.path.join(os.path.dirname(__file__), "icon/qgis-icon.png")
         self.action = QAction(QIcon(icon_path), self.tr("Geo Search"), self.iface.mainWindow())
         self.action.setObjectName("geo_search")
-        self.iface.addToolBarIcon(self.action)
+        self._geo_toolbar().addAction(self.action)
         self.iface.addPluginToMenu(self.tr("Geo Search"), self.action)
         # 追加表示切替アクション（検索アイコンの直後に置く）
         # reload 時に重複して追加されないよう既存チェックを行う
@@ -128,12 +136,9 @@ class plugin(object):
                     except Exception:
                         pass
                     try:
-                        self.iface.addToolBarIcon(self.additive_theme_action)
+                        self._geo_toolbar().addAction(self.additive_theme_action)
                     except Exception:
-                        try:
-                            self.iface.addToolBarWidget(self.additive_theme_action)
-                        except Exception:
-                            pass
+                        pass
                 except Exception:
                     try:
                         self._theme_additive_mode = False
@@ -153,7 +158,7 @@ class plugin(object):
         self.group_combobox = QComboBox()
         self.group_combobox.setToolTip(self.tr("Select a group to filter displayed themes (All / per group)"))
         self.group_combobox.setMinimumWidth(140)
-        self.iface.addToolBarWidget(self.group_combobox)
+        self._geo_toolbar().addWidget(self.group_combobox)
 
         # グループ選択の前回値を保持する（update時に復元するため）
         self._last_group_selected = None
@@ -213,11 +218,11 @@ class plugin(object):
 
                 # ツールバーにはコンテナを追加
                 try:
-                    self.iface.addToolBarWidget(self.theme_widget)
+                    self._geo_toolbar().addWidget(self.theme_widget)
                 except Exception:
                     # fallback to adding combobox directly
                     try:
-                        self.iface.addToolBarWidget(self.theme_combobox)
+                        self._geo_toolbar().addWidget(self.theme_combobox)
                     except Exception:
                         pass
             else:
@@ -241,7 +246,7 @@ class plugin(object):
         except Exception:
             # 保守的に元の方法で追加
             try:
-                self.iface.addToolBarWidget(self.theme_combobox)
+                self._geo_toolbar().addWidget(self.theme_combobox)
             except Exception:
                 pass
 
@@ -887,7 +892,7 @@ class plugin(object):
         except Exception:
             pass
         try:
-            self.iface.removeToolBarIcon(self.action)
+            self._geo_toolbar().removeAction(self.action)
             self.iface.removePluginMenu(self.tr("Geo Search"), self.action)
         except:
             pass
@@ -899,13 +904,7 @@ class plugin(object):
                 self.theme_combobox = None
             # remove theme widget and button if present
             if hasattr(self, 'setting_button') and self.setting_button is not None:
-                try:
-                    try:
-                        self.iface.removeToolBarWidget(self.setting_button)
-                    except Exception:
-                        pass
-                except Exception:
-                    pass
+                pass
                 try:
                     self.setting_button.deleteLater()
                 except Exception:
@@ -915,13 +914,6 @@ class plugin(object):
                 except Exception:
                     pass
             if hasattr(self, 'theme_widget') and self.theme_widget is not None:
-                try:
-                    try:
-                        self.iface.removeToolBarWidget(self.theme_widget)
-                    except Exception:
-                        pass
-                except Exception:
-                    pass
                 try:
                     self.theme_widget.deleteLater()
                 except Exception:
@@ -940,12 +932,9 @@ class plugin(object):
             if hasattr(self, 'additive_theme_action') and self.additive_theme_action is not None:
                 try:
                     try:
-                        self.iface.removeToolBarIcon(self.additive_theme_action)
+                        self._geo_toolbar().removeAction(self.additive_theme_action)
                     except Exception:
-                        try:
-                            self.iface.removeToolBarWidget(self.additive_theme_action)
-                        except Exception:
-                            pass
+                        pass
                 except Exception:
                     pass
                 try:

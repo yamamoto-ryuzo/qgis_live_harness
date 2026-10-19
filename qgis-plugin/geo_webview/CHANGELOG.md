@@ -11,6 +11,25 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.15.1] - 2026-10-19 UI残置文字列の多言語化 + テーマ選択の修正
+
+- `settings_dialog.py` の全UI文字列(ウィンドウ/グループ/ボタン/
+  ツールチップ/ファイルダイアログ/エラー約25件)を
+  `QCoreApplication.translate('geo_webview', ...)` 化。
+- メニュー名 `&geo_webview`・「-- No Theme (Position Only) --」の
+  カタログ未登録を補完。テーマコンボは itemData `__no_theme__` センチネル
+  比較に修正(翻訳後テキストとの不一致で「テーマなし」が実テーマ名として
+  誤認される不具合を解消)。
+- 生成HTMLの残置文字列を `geo_webview.page` カタログへ:
+  webmap_generator の `lang="ja"` 固定を言語コード動的化し、
+  Themes/Bookmarks/Rotate/Open Google Maps/Open Google Earth/Home/
+  Popup blocked/CORS警告を翻訳化。maplibre_generator の
+  title/Layers/Tilt locked・allowed/初期化失敗メッセージ/
+  Select theme・bookmark を `__X__` プレースホルダ置換で翻訳化。
+  同梱スクリプト qmap_postload.js の日本語直書き(斜め許可/禁止)と
+  Select theme/bookmark/Home を `window.QMP_I18N` 注入+英語フォールバック
+  に変更。全9言語で登録。
+
 ## [3.15.0] - 2026-10-19 翻訳方式を `i18n/<lang>.json` に移行
 
 - `.ts`/`.qm` を廃止し、`{"context": {"英語ソース": "翻訳"}}` の

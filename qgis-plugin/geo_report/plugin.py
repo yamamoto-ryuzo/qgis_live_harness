@@ -40,7 +40,7 @@ from qgis.PyQt.QtWidgets import (QAction, QDialog, QVBoxLayout, QListWidget, QLi
                                 QTreeWidget, QTreeWidgetItem, QGroupBox, QLineEdit, 
                                 QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QFormLayout,
                                 QTabWidget, QWidget, QScrollArea, QFileDialog, QMessageBox,
-                                QDockWidget, QTabBar)
+                                QDockWidget, QTabBar, QToolBar)
 from qgis.core import (QgsProject, QgsLayoutManager, QgsLayoutItem, Qgis, QgsLayoutPoint, 
                        QgsLayoutSize, QgsUnitTypes, QgsPointXY, QgsRectangle, QgsGeometry, 
                        QgsWkbTypes, QgsMessageLog)
@@ -397,8 +397,8 @@ class GeoReport:
             action.setWhatsThis(whats_this)
 
         if add_to_toolbar:
-            # Adds plugin icon to Plugins toolbar
-            self.iface.addToolBarIcon(action)
+            # 共有ツールバーGeoSuiteに追加
+            self._geo_toolbar().addAction(action)
 
         if add_to_menu:
             self.iface.addPluginToMenu(
@@ -408,6 +408,14 @@ class GeoReport:
         self.actions.append(action)
 
         return action
+
+    def _geo_toolbar(self):
+        """GeoSuite共有ツールバーをfind-or-createで返す。"""
+        tb = self.iface.mainWindow().findChild(QToolBar, "GeoSuite")
+        if tb is None:
+            tb = self.iface.addToolBar("GeoSuite")
+            tb.setObjectName("GeoSuite")
+        return tb
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
@@ -447,7 +455,7 @@ class GeoReport:
             self.iface.removePluginMenu(
                 self.menu,
                 action)
-            self.iface.removeToolBarIcon(action)
+            self._geo_toolbar().removeAction(action)
         
         # パネルを削除
         if self.dock_widget:
@@ -2188,7 +2196,7 @@ class LayoutSelectorDialog(QDialog):
         
         try:
             # レイアウトの変更を開始
-            self.current_layout.undoStack().beginCommand(self.current_layout, "レイアウトプロパティ一括適用")
+            self.current_layout.undoStack().beginCommand(self.current_layout, QCoreApplication.translate('geo_report', "Apply layout properties"))
             
             applied_count = 0
             current_items = self.get_valid_layout_items()

@@ -12,6 +12,12 @@
 
 ## 変更履歴
 
+### V2.6.1 undoコマンド名の翻訳化
+- レイアウトプロパティ一括適用の undo コマンド名
+  `レイアウトプロパティ一括適用` を
+  `QCoreApplication.translate('geo_report', "Apply layout properties")` 化し、
+  全9言語で登録。
+
 ### V2.6.0 翻訳方式を `i18n/<lang>.json` に移行
 - `.ts`/`.qm` を廃止し、`{"context": {"英語ソース": "翻訳"}}` の
   JSONカタログを新設。`i18n_json.py`(全プラグイン共通ローダ)の

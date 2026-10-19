@@ -24,7 +24,7 @@
 from qgis.PyQt.QtCore import QCoreApplication, Qt, QUrl, QThread, pyqtSignal, QObject
 
 from qgis.PyQt.QtGui import QIcon, QDesktopServices, QClipboard
-from qgis.PyQt.QtWidgets import QAction, QMessageBox, QApplication, QDockWidget
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QApplication, QDockWidget, QToolBar
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY, QgsRectangle
 
 
@@ -241,8 +241,8 @@ class GeoWebView:
             action.setWhatsThis(whats_this)
 
         if add_to_toolbar:
-            # このプラグイン専用のツールバーに追加
-            self.iface.addToolBarIcon(action)
+            # 共有ツールバーGeoSuiteに追加
+            self._geo_toolbar().addAction(action)
 
         if add_to_menu:
             self.iface.addPluginToMenu(
@@ -252,6 +252,14 @@ class GeoWebView:
         self.actions.append(action)
 
         return action
+
+    def _geo_toolbar(self):
+        """GeoSuite共有ツールバーをfind-or-createで返す。"""
+        tb = self.iface.mainWindow().findChild(QToolBar, "GeoSuite")
+        if tb is None:
+            tb = self.iface.addToolBar("GeoSuite")
+            tb.setObjectName("GeoSuite")
+        return tb
 
     def initGui(self):
         """プラグインのGUI要素を作成（プラグイン読み込み時に呼ばれる）"""
@@ -830,7 +838,7 @@ class GeoWebView:
             self.iface.removePluginMenu(
                 self.tr(u'&geo_webview'),
                 action)
-            self.iface.removeToolBarIcon(action)
+            self._geo_toolbar().removeAction(action)
 
         # AI/外部制御用ブリッジを解除
         self.bridge = None
@@ -2009,8 +2017,8 @@ class GeoWebView:
             
             if hasattr(self.panel, 'comboBox_themes'):
                 selected_option = self.panel.comboBox_themes.currentText()
-                
-                if selected_option == "-- No Theme (Position Only) --":
+
+                if self.panel.comboBox_themes.currentData() == "__no_theme__":
                     include_theme = False
                     specific_theme = None
                 elif selected_option:  # 実際のテーマ名が選択された場合
@@ -2628,7 +2636,7 @@ class GeoWebView:
             self.panel.comboBox_themes.clear()
             
             # システムオプションを追加
-            self.panel.comboBox_themes.addItem("-- No Theme (Position Only) --")
+            self.panel.comboBox_themes.addItem(self.tr("-- No Theme (Position Only) --"), "__no_theme__")
             
             # 利用可能なテーマを追加
             available_themes = theme_collection.mapThemes()

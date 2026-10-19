@@ -5,7 +5,7 @@ import shutil
 import tempfile
 import datetime
 
-from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QVariant, QCoreApplication
 
 from qgis.core import QgsProject, QgsFeatureRequest
 
@@ -158,7 +158,7 @@ def remove_entry_from_json_file(path, title=None, src_idx=None, container_key='S
                 if parent is not None:
                     try:
                         from qgis.PyQt.QtWidgets import QMessageBox
-                        QMessageBox.warning(parent, "Read error", f"Failed to read the JSON file: {e}")
+                        QMessageBox.warning(parent, QCoreApplication.translate("Dialog", "Read error"), QCoreApplication.translate("Dialog", "Failed to read the JSON file: {0}").format(e))
                     except Exception:
                         pass
                 return False
@@ -166,7 +166,7 @@ def remove_entry_from_json_file(path, title=None, src_idx=None, container_key='S
         if parent is not None:
             try:
                 from qgis.PyQt.QtWidgets import QMessageBox
-                QMessageBox.warning(parent, "Read error", f"Failed to read the JSON file: {e}")
+                QMessageBox.warning(parent, QCoreApplication.translate("Dialog", "Read error"), QCoreApplication.translate("Dialog", "Failed to read the JSON file: {0}").format(e))
             except Exception:
                 pass
         return False
@@ -182,7 +182,7 @@ def remove_entry_from_json_file(path, title=None, src_idx=None, container_key='S
         if parent is not None:
             try:
                 from qgis.PyQt.QtWidgets import QMessageBox
-                QMessageBox.warning(parent, "Unsupported format", "JSON file has unsupported structure; expected {'SearchTabs': [...]} or an array.")
+                QMessageBox.warning(parent, QCoreApplication.translate("Dialog", "Unsupported format"), QCoreApplication.translate("Dialog", "JSON file has unsupported structure; expected {'SearchTabs': [...]} or an array."))
             except Exception:
                 pass
         return False
@@ -204,7 +204,7 @@ def remove_entry_from_json_file(path, title=None, src_idx=None, container_key='S
         if parent is not None:
             try:
                 from qgis.PyQt.QtWidgets import QMessageBox
-                QMessageBox.information(parent, "Not found", "Could not find corresponding entry to remove.")
+                QMessageBox.information(parent, QCoreApplication.translate("Dialog", "Not found"), QCoreApplication.translate("Dialog", "Could not find corresponding entry to remove."))
             except Exception:
                 pass
         return False
@@ -237,7 +237,7 @@ def remove_entry_from_json_file(path, title=None, src_idx=None, container_key='S
         if parent is not None:
             try:
                 from qgis.PyQt.QtWidgets import QMessageBox
-                QMessageBox.warning(parent, "Write error", f"Failed to update JSON file: {e}")
+                QMessageBox.warning(parent, QCoreApplication.translate("Dialog", "Write error"), QCoreApplication.translate("Dialog", "Failed to update JSON file: {0}").format(e))
             except Exception:
                 pass
         try:

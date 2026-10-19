@@ -21,7 +21,7 @@ https://yamamoto-ryuzo.github.io/qgis_live_harness/driver.html
 
 ```powershell
 # このリポジトリから(全プラグイン一括deploy)
-powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
+powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Install
 
 # または手動: このフォルダを python/plugins/qgis_live_driver/ へコピーし、
 # QGISのプラグイン管理で有効化
@@ -31,6 +31,11 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
 
 - **メニュートグル**: `プラグイン > QGIS Live Driver > リモート制御 (localhostのみ)`。
   初回ON時に警告ダイアログを表示し、QSettingsに保存されるため次回起動から自動有効。
+
+なお本プラグインは **GeoSuite共有ツールバー** を作成し、先頭に
+deployモードバッジ(開発モード/利用モードの常時表示)を載せる。
+クリックするとDeploy Modeダイアログを開く。Harness管理下の
+他プラグイン(geo_search等)のツールバー項目もこのツールバーに集約される。
 - **環境変数**: `WEBENGINE_LIVE_DIR` 設定時は起動時に即座に有効(開発用途。
   `scripts/verify-in-qgis.ps1` が付与して起動する)。
 

@@ -1,7 +1,8 @@
 // 開発中のホットリロード(watchモード)。
 // qgis-plugin/<id>/ の変更を監視し、保存のたびに実行中QGIS内のプラグインを
 // 自動で再読み込みする。QGIS再起動・deployは不要(junction配置が前提。
-// -Copy配置の場合は先に `npm run deploy:copy` しておくこと)。
+// 利用モード(実体配置)ではrepo編集が届かないため、先に `npm run deploy` で
+// junction化しておくこと)。
 //
 // 再読み込み方式は変更ファイルで自動選択:
 //   - ui/**, bridge.py, logic.py のみの変更 かつ 対象がWebEngineプラグイン

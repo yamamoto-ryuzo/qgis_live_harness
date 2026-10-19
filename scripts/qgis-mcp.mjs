@@ -314,9 +314,10 @@ server.registerTool(
   "qgis_reload",
   {
     description:
-      "deploy -Copy 後、実行中QGISでプラグインをホットリロードする(内部は " +
+      "実行中QGISでプラグインをホットリロードする(内部は " +
       "reload_plugin コマンド、旧ドライバ時はpyevalへフォールバック)。 " +
-      "プラグイン器側(main_plugin.py, live_driver.py等)の変更を反映する時に使う。",
+      "プラグイン器側(main_plugin.py, live_driver.py等)の変更を反映する時に使う。 " +
+      "配置変更(deploy)は行わない — junction配置(devモード)が前提",
     inputSchema: {},
   },
   async () => {

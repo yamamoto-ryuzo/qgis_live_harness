@@ -72,6 +72,9 @@ class QgisLiveBridge:
                  "description": "この自己記述を返す"},
                 {"name": "status", "signature": "status()",
                  "description": "ドライバ稼働状態(live_dir/http_port/pid)"},
+                {"name": "deployMode", "signature": "deployMode()",
+                 "description": "deployモード(dev/use)と各プラグインの"
+                                "配置形態(junction/dir)を返す(読取専用)"},
                 {"name": "layerOrgProfiles",
                  "signature": "layerOrgProfiles()",
                  "description": "レイヤ整理プロファイル一覧とアクティブ"
@@ -112,6 +115,20 @@ class QgisLiveBridge:
             "layer_org": (org.active_profile_name()
                           if org is not None else None),
         })
+
+    def deployMode(self):
+        """deployモード(dev/use)と各プラグイン配置形態を返す(読取専用)。
+
+        切替は人が行う操作のため読取のみ公開(切替はメニューの
+        Deploy Mode ダイアログ、または npm run deploy / deploy:use / deploy:install)。
+        """
+        try:
+            from .mode_switch import deploy_state
+            own = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "__init__.py")
+            return self._ok(deploy_state(own))
+        except Exception as e:
+            return self._err(f"deployMode failed: {e}")
 
     # ---- レイヤ整理(layer_org) ----
 

@@ -178,8 +178,8 @@ class LegendView:
             action.setWhatsThis(whats_this)
 
         if add_to_toolbar:
-            # Add to the standard QGIS plugin toolbar
-            self.iface.addToolBarIcon(action)
+            # 共有ツールバーGeoSuiteに追加
+            self._geo_toolbar().addAction(action)
 
         if add_to_menu:
             self.iface.addPluginToMenu(
@@ -190,6 +190,14 @@ class LegendView:
 
         return action
 
+
+    def _geo_toolbar(self):
+        """GeoSuite共有ツールバーをfind-or-createで返す。"""
+        tb = self.iface.mainWindow().findChild(QtWidgets.QToolBar, "GeoSuite")
+        if tb is None:
+            tb = self.iface.addToolBar("GeoSuite")
+            tb.setObjectName("GeoSuite")
+        return tb
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
@@ -232,8 +240,8 @@ class LegendView:
             self.iface.removePluginMenu(
                 self.tr(u'&Legend View'),  # Default to English, will be translated
                 action)
-            self.iface.removeToolBarIcon(action)
-        # No custom toolbar to remove - using standard plugin toolbar
+            self._geo_toolbar().removeAction(action)
+        # No custom toolbar to remove - actions live on shared GeoSuite toolbar
 
     #--------------------------------------------------------------------------
 

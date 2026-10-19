@@ -60,7 +60,7 @@ def update_metadata_version_and_changelog(new_version):
     if changelog_idx is not None:
         insert_idx = changelog_idx + 1
         # 新バージョンのテンプレート履歴を挿入
-        new_lines.insert(insert_idx, f'    Version {new_version}:\n    - (ここに変更内容を記載)\n')
+        new_lines.insert(insert_idx, f'    Version {new_version}:\n    - (describe changes here)\n')
     with open('metadata.txt', 'w', encoding='utf-8') as f:
         f.writelines(new_lines)
 

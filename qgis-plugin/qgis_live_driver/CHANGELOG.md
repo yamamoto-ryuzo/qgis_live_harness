@@ -3,6 +3,47 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
+## [0.15.0] - 2026-10-19
+
+### Added
+
+- **GeoSuite共有ツールバー**(`geo_toolbar.py`):
+  管理対象プラグインのツールバー項目を1本の
+  `QToolBar`(objectName="GeoSuite")に集約する。
+  find-or-create方式のためどのプラグインが先に有効化されても
+  同じツールバーに載る(ドライバ非依存で各プラグインが
+  同形の小ヘルパを持つ)。ドライバ有効中は常時表示を強制
+  (toggleViewAction無効化+定期再表示)。geo_search/geo_webview/geo_report/
+  geo_import/QGIS-legendView-main がプラグインツールバーから
+  GeoSuiteへ移行(geo_excelはツールバー項目を持たない)。
+- **モードバッジ**(ツールバー先頭の常時表示):
+  現在のdeployモードを「開発モード/利用モード」等のテキスト
+  ボタンとして常時表示(dev=赤背景白文字で注意喚起、use=緑文字)。
+  5秒毎に `deploy_state()` で自動更新し、クリックすると
+  Deploy Modeダイアログを開く。i18n 9言語対応
+
+## [0.14.0] - 2026-10-19
+
+### Added
+
+- **Deploy Mode ダイアログ**(`mode_switch.py`):
+  `プラグイン > QGIS Live Driver > Deploy Mode` から
+  deployモードを明示切替できる。開発モード(junction=repo優先)と
+  利用モード(copy=スナップショット)の切替は harness側の
+  `deploy-plugin.ps1` を起動して行い、モード宣言marker
+  `profiles/<profile>/qgis_live_mode.json` の `repo` キーから
+  copy配置中でもスクリプトを解決する。ダイアログは宣言モードと
+  各プラグインの実配置形態(junction/dir/未配置)を一覧表示し、
+  「切替後にプラグインをリロード」(既定ON)で非ドライバの
+  プラグインをその場で反映する。bridgeメソッド `deployMode()`
+  で状態を読取専用で公開(切替自体はUI操作のみ)。
+  dev化時に既存の実体プラグインは `qgis_live_parked/<id>` へ退避され、
+  use化時に復元される(退避無しなら未配置のまま)。利用版の
+  新規配置・更新は「現在のrepoを利用版としてインストール」
+  ボタン(`deploy-plugin.ps1 -Install`=リリース操作)から行う。
+  退避中のプラグインは一覧に `(+parked)` と表示される。
+  UI文字列は9言語カタログへ追加済み
+
 ## [0.13.0] - 2026-10-19
 
 ### Added

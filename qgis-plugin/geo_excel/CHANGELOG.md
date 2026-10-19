@@ -1,5 +1,13 @@
 # CHANGELOG — geo_excel
 
+## 1.7.1
+
+- execスクリプト(exportList/exportSingle/exportSingleBulk)の
+  メッセージバー・QMessageBox・QProgressDialogの日本語直書きを
+  `QCoreApplication.translate("geo_excel", ...)` へ移行(英語ソース化)。
+  テンプレート生成失敗の警告も同様に翻訳化。
+- `geo_excel` context に新規24ソースを全9言語で登録。
+
 ## 1.7.0
 
 - **翻訳方式を `i18n/<lang>.json` に移行**(Harness横断の方針変更)。

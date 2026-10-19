@@ -220,7 +220,7 @@ class GeoWebViewPanel(QDockWidget):
         if hasattr(self.ui, 'comboBox_themes'):
             # 既存の項目をクリアして翻訳済みの項目を追加
             self.ui.comboBox_themes.clear()
-            self.ui.comboBox_themes.addItem(QCoreApplication.translate('geo_webview', "-- No Theme (Position Only) --"))
+            self.ui.comboBox_themes.addItem(QCoreApplication.translate('geo_webview', "-- No Theme (Position Only) --"), "__no_theme__")
             # ツールチップも翻訳
             self.ui.comboBox_themes.setToolTip(QCoreApplication.translate('geo_webview', "Select theme option: no theme (position only) or specific theme"))
         # External control checkbox

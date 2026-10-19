@@ -301,10 +301,37 @@ MCP onboarding wizardを開き、Server URL に <code>https://&lt;トンネルFQ
 <strong>generative orchestration が有効なエージェント</strong>が必要。
 追加後は <code>qgis_status</code> 等がツールとして使える。</p>
 <p>REST面を使う場合は Power Apps カスタムコネクタ経由で <code>/api/*</code> を包む方法もある。</p>
+<h2>Deploy Mode ダイアログ(開発/利用の切替)</h2>
+<p><code>プラグイン &gt; QGIS Live Driver &gt; 配置モード</code> で、Harness管理下の
+deployモードをQGIS内から確認・切替できる(Harnessリポジトリ利用時のみ。
+切替は内部で <code>deploy-plugin.ps1</code> を起動する)。</p>
+<ul>
+<li><strong>状態表示</strong>: 宣言モード(dev/use) + 各管理プラグインの実配置形態
+(junction/dir/未配置)を一覧。利用版が退避中なら <code>(+parked)</code> と表示</li>
+<li><strong>開発モードへ</strong>: 既存の実体プラグイン(利用版)を
+<code>profiles/&lt;profile&gt;/qgis_live_parked/</code> へ退避してからjunctionを張る
+(repo編集が直接届く開発状態)</li>
+<li><strong>利用モードへ</strong>: junctionを外して<strong>退避版をそのまま復元</strong>
+(退避も既存実体も無ければ未配置のまま)</li>
+<li><strong>リリース</strong>: 「現在のrepoを利用版としてインストール」ボタンで
+repoの現状を利用版として配置(旧parkedは破棄)</li>
+<li><strong>「切替後にプラグインをリロード」</strong>(既定ON): 切替直後に非ドライバの
+プラグインを即リロードし、新しい配置のコードを反映する</li>
+</ul>
+<p>切替はUI操作のみ(AIからの書込は不可)。bridgeメソッド <code>deployMode()</code> で
+状態をJSONで読取専用に公開している。詳細な対応関係は
+<a href="usage.html">使い方・deployモード</a> を参照。</p>
+<h3>GeoSuite共有ツールバー</h3>
+<p>管理対象プラグインのツールバー項目は <strong>GeoSuite</strong> ツールバーに
+集約される(どのプラグインが先に有効化されても同じツールバーに載る
+find-or-create方式)。ドライバ有効中は<strong>常時表示が強制</strong>され
+(表示メニューからの非表示化は無効)、先頭には<strong>モードバッジ</strong>
+(「開発モード/利用モード」の常時表示、5秒毎に自動更新)を載せ、
+クリックすると配置モードダイアログを開く。</p>
 <h2>Harnessなしでの単独導入</h2>
 <p>Driverの利用にこのリポジトリは要らない:</p>
 <pre><code class="language-powershell"># このリポジトリからなら一括deploy(任意)
-powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Copy
+powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Install
 
 # 手動でも可: qgis-plugin/qgis_live_driver/ を
 # python/plugins/qgis_live_driver/ へコピーし、QGISのプラグイン管理で有効化

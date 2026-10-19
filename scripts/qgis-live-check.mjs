@@ -4,8 +4,9 @@
 // Playwright/Puppeteerは使えない。代わりにプラグイン側の live_driver.py が
 // ファイル経由でJSを実行する仕組み(live-drive.mjs)を使う。
 //
-// QGIS未起動なら自動でdeploy+起動する(qgis-session.mjs ensure)。
+// QGIS未起動なら自動で起動する(qgis-session.mjs ensure)。
 // 起動済みなら既存インスタンスにアタッチして再利用する。
+// プラグイン配置(deploy)は行わない — 未配置なら先に npm run deploy 等を手動で。
 // 実行: npm run test:live
 
 import { mkdir } from "node:fs/promises";

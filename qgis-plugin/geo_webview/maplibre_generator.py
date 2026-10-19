@@ -31,6 +31,44 @@ try:
 except ImportError:
 	QSettings = None
 
+# JSONカタログ経由の翻訳(生成HTML用・Qt非依存)
+try:
+	from .i18n_json import translate_text as _translate_text, lang_code as _lang_code
+except Exception:
+	_translate_text = None
+	_lang_code = None
+
+
+def _pt(source):
+	"""生成HTML用の文字列を geo_webview.page カタログから翻訳する。"""
+	if _translate_text is None:
+		return source
+	try:
+		return _translate_text(os.path.dirname(os.path.abspath(__file__)), 'geo_webview.page', source)
+	except Exception:
+		return source
+
+
+def _pth(source):
+	"""_pt の結果をHTMLエスケープして返す。"""
+	import html as _html_mod
+	return _html_mod.escape(_pt(source), quote=True)
+
+
+def _ptj(source):
+	"""_pt の結果を JS 文字列リテラル(クォート込み)として返す。"""
+	try:
+		return _jsonmod.dumps(_pt(source), ensure_ascii=False)
+	except Exception:
+		return '""'
+
+
+def _page_lang():
+	try:
+		return _lang_code() if _lang_code is not None else 'en'
+	except Exception:
+		return 'en'
+
 
 def _qgis_log(message, level='info'):
 	"""Log message to QGIS message log when available, otherwise print.
@@ -494,11 +532,11 @@ def open_maplibre_from_permalink(permalink_text, wfs_typename: str = None):
 	wfs_layers_js = _wfs_info['wfs_layers_js']
 
 	html = '''<!doctype html>
-<html>
+<html lang="__LANG__">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>MapLibre Viewer</title>
+  <title>__TITLE__</title>
 	<link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
   <style>html,body,#map{{height:100%;margin:0;padding:0}}#map{{position:fixed;inset:0}}</style>
 </head>
@@ -506,15 +544,15 @@ def open_maplibre_from_permalink(permalink_text, wfs_typename: str = None):
 <div id="map"></div>
 <!-- Theme and Bookmark selectors -->
 <div id="qmp-controls" style="position:absolute;top:10px;left:10px;z-index:1002;display:flex;flex-direction:column;gap:6px;font-family:sans-serif;font-size:13px">
-	<select id="qmp-themes" style="padding:6px 8px;background:#fff;border:1px solid #666;border-radius:4px;cursor:pointer;min-width:150px" title="Select theme"></select>
-	<select id="qmp-bookmarks" style="padding:6px 8px;background:#fff;border:1px solid #666;border-radius:4px;cursor:pointer;min-width:150px" title="Select bookmark"></select>
+	<select id="qmp-themes" style="padding:6px 8px;background:#fff;border:1px solid #666;border-radius:4px;cursor:pointer;min-width:150px" title="__THEME_SEL__"></select>
+	<select id="qmp-bookmarks" style="padding:6px 8px;background:#fff;border:1px solid #666;border-radius:4px;cursor:pointer;min-width:150px" title="__BOOKMARK_SEL__"></select>
 </div>
 <!-- Layer control panel (WMTS layer visibility checkboxes) -->
 <div id="layerControl" style="position:absolute;top:110px;left:10px;z-index:1001;padding:6px;background:#fff;border:1px solid #666;border-radius:4px;max-height:60vh;overflow:auto;font-family:sans-serif;font-size:13px">
-	<div style="font-weight:600;margin-bottom:6px">Layers</div>
+	<div style="font-weight:600;margin-bottom:6px">__LAYERS_LABEL__</div>
 	<!-- checkboxes will be inserted here by script -->
 </div>
-<button id="pitchToggle" style="position:absolute;top:10px;right:10px;z-index:1001;padding:6px 8px;background:#fff;border:1px solid #666;border-radius:4px;cursor:pointer">Tilt locked</button>
+<button id="pitchToggle" style="position:absolute;top:10px;right:10px;z-index:1001;padding:6px 8px;background:#fff;border:1px solid #666;border-radius:4px;cursor:pointer">__TILT_LOCKED__</button>
 <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
 <script>
   console.log('MapLibre script loaded');
@@ -564,12 +602,12 @@ def open_maplibre_from_permalink(permalink_text, wfs_typename: str = None):
 					try {{ map.setPitch(0); }} catch(e) {{ console.warn('setPitch failed', e); }}
 					try {{ if (map.on) map.on('move', _enforcePitch); }} catch(e) {{}}
 					pitchLocked = true;
-					pitchBtn.textContent = 'Tilt allowed';
+					pitchBtn.textContent = __TILT_ALLOWED_JS__;
 				}}
 				function unlockPitch() {{
 					try {{ if (map.off) map.off('move', _enforcePitch); }} catch(e) {{}}
 					pitchLocked = false;
-					pitchBtn.textContent = 'Tilt locked';
+					pitchBtn.textContent = __TILT_LOCKED_JS__;
 				}}
 				pitchBtn.addEventListener('click', function() {{
 					if (!pitchLocked) lockPitch(); else unlockPitch();
@@ -616,9 +654,10 @@ def open_maplibre_from_permalink(permalink_text, wfs_typename: str = None):
     }});
   }} catch (e) {{
     console.error('Failed to initialize map:', e);
-    document.body.innerHTML = '<div style="padding:20px;font-family:sans-serif;"><h2>Map initialization failed</h2><pre>' + e.toString() + '</pre><p>Check browser console (F12) for details.</p></div>';
+    document.body.innerHTML = '<div style="padding:20px;font-family:sans-serif;"><h2>__INIT_FAILED__</h2><pre>' + e.toString() + '</pre><p>__CONSOLE_HINT__</p></div>';
   }}
 </script>
+<script>window.QMP_I18N = {{selectTheme: __SEL_THEME_JS__, selectBookmark: __SEL_BOOKMARK_JS__, home: __HOME_JS__, tiltLocked: __TILT_LOCKED_JS__, tiltAllowed: __TILT_ALLOWED_JS__}};</script>
 __EXTERNAL_SCRIPT_TAGS__
 </body>
 </html>'''
@@ -648,6 +687,21 @@ __EXTERNAL_SCRIPT_TAGS__
 		# Clear inline placeholders (we now use external scripts)
 		html_out = html_out.replace('__WFS_LAYERS_JS__', '')
 		html_out = html_out.replace('__WMTS_LAYERS_JS__', '')
+
+		# Localized UI strings (geo_webview.page catalog)
+		html_out = html_out.replace('__LANG__', _page_lang())
+		html_out = html_out.replace('__TITLE__', _pth('MapLibre Viewer'))
+		html_out = html_out.replace('__THEME_SEL__', _pth('Select theme'))
+		html_out = html_out.replace('__BOOKMARK_SEL__', _pth('Select bookmark'))
+		html_out = html_out.replace('__LAYERS_LABEL__', _pth('Layers'))
+		html_out = html_out.replace('__TILT_LOCKED__', _pth('Tilt locked'))
+		html_out = html_out.replace('__TILT_LOCKED_JS__', _ptj('Tilt locked'))
+		html_out = html_out.replace('__TILT_ALLOWED_JS__', _ptj('Tilt allowed'))
+		html_out = html_out.replace('__INIT_FAILED__', _pth('Map initialization failed'))
+		html_out = html_out.replace('__CONSOLE_HINT__', _pth('Check browser console (F12) for details.'))
+		html_out = html_out.replace('__SEL_THEME_JS__', _ptj('Select theme'))
+		html_out = html_out.replace('__SEL_BOOKMARK_JS__', _ptj('Select bookmark'))
+		html_out = html_out.replace('__HOME_JS__', _ptj('Home'))
 
 		# Get output directory from settings or use default temp directory
 		output_dir = None

@@ -23,6 +23,7 @@
   "geo_report": {
     "Angle:": "Angolo:",
     "Apply Properties": "Applica proprietà",
+    "Apply layout properties": "Applica proprietà del layout",
     "Cancel": "Annulla",
     "Error getting information": "Errore durante il recupero delle informazioni",
     "Item Name": "Nome elemento",

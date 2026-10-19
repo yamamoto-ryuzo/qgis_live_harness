@@ -6,7 +6,7 @@
 
 候補のプラグインidは、deploy先の各プラグインのrealpathが
 <repo>/qgis-plugin/<id> に解決されるもの(junction配置)のみ。
--Copy配置やサードパーティプラグインは対象にしない。
+実体配置(利用モード)やサードパーティプラグインは対象にしない。
 """
 
 import os

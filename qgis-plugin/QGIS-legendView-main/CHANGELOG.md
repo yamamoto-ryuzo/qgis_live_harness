@@ -5,6 +5,12 @@ All notable changes to the QGIS Legend View plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.1] - 2026-10-19
+
+### Changed
+- `create_zip.py` が metadata.txt changelog に挿入する日本語プレースホルダ
+  `(ここに変更内容を記載)` を英語 `(describe changes here)` に変更。
+
 ## [2.6.0] - 2026-10-19
 
 ### Changed

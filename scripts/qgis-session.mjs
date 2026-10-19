@@ -1,19 +1,24 @@
 // 常駐QGISインスタンスとのセッション管理。
 //
-// ensure: 応答するlive dirがあれば再利用。無ければdeployしてverify-in-qgis.ps1で
-//         QGISを起動し、LiveDriverが応答するまで待つ。
+// ensure: 応答するlive dirがあれば再利用。無ければQGISを起動し、
+//         LiveDriverが応答するまで待つ。
 //         → 呼ぶ側は常に「node scripts/qgis-session.mjs ensure」だけでよい。
 //           2回目以降は既存インスタンスにアタッチするため起動コストは初回だけ。
+//         ※プラグインの配置(deploy-plugin.ps1)は一切呼ばない。
+//           プラグインフォルダへの書込みは全てUI操作(deploy/deploy:use/
+//           deploy:install)という安全性の最強ルール。未配置なら
+//           LiveDriverが現れず、タイムアウト時に手動deployを案内する。
 //
-// reload: deploy(-Copy)後、pyevalでプラグインをホットリロードしダイアログを開き直す。
+// reload: pyevalでプラグインをホットリロードしダイアログを開き直す。
+//         junction配置(dev)ならrepoコードがそのまま反映される。
 //         QGIS再起動なしでコード変更を反映できる。
 //
 // 使い方:
 //   node scripts/qgis-session.mjs ensure
-//   node scripts/qgis-session.mjs reload [--no-deploy]
+//   node scripts/qgis-session.mjs reload
 
 import { spawnSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { LivePage, resolveLiveDirs } from "./live-drive.mjs";
@@ -25,7 +30,6 @@ const PLUGIN_IDS = [].concat(JSON.parse(
   readFileSync(join(REPO, "plugin.config.json"), "utf8")
 ).id);
 const LIVE_BASE = process.env.WEBENGINE_LIVE_DIR || join(REPO, "test-results", "live");
-const DEPLOY_PS1 = join(REPO, "scripts", "deploy-plugin.ps1");
 // QGIS_EXE env > C:\Program Files\QGIS<ver>\bin\qgis-bin.exe(最新版優先)
 function resolveQgisExe() {
   if (process.env.QGIS_EXE) return process.env.QGIS_EXE;
@@ -46,20 +50,59 @@ const LOG_PATH = join(REPO, "test-results", "plugin_load.log");
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-function deploy() {
-  const r = spawnSync(
-    "powershell",
-    ["-ExecutionPolicy", "Bypass", "-File", DEPLOY_PS1, "-Copy"],
-    { cwd: REPO, stdio: "inherit" }
-  );
-  if (r.status !== 0) throw new Error("deploy-plugin.ps1 failed");
+// deployモード: "dev"=junction(repo優先) / "use"=実体dir(退避版の復元) / null=未配置
+// deploy-plugin.ps1 が書く宣言マーカーを優先し、無ければ配置物の形態から推定する。
+// この判定は読取専用: launchQgis が DEV_SRC を立てるかの分岐にのみ使う
+const QGIS_USER_ROOT =
+  process.env.QGIS_USER_ROOT ||
+  join(process.env.APPDATA || "", "QGIS", "QGIS4");
+export function currentDeployMode() {
+  try {
+    const ini = readFileSync(
+      join(QGIS_USER_ROOT, "profiles", "profiles.ini"),
+      "utf8"
+    );
+    const profile = (ini.match(/lastProfile=(.+)/)?.[1] || "default").trim();
+    const profileRoot = join(QGIS_USER_ROOT, "profiles", profile);
+    const marker = join(profileRoot, "qgis_live_mode.json");
+    if (existsSync(marker)) {
+      // PowerShellのSet-Content -Encoding UTF8はBOM付きなので剥がす
+      const mode = JSON.parse(
+        readFileSync(marker, "utf8").replace(/^﻿/, "")
+      ).mode;
+      if (mode === "dev" || mode === "use") return mode;
+    }
+    // マーカー無し: 配置物の形態から推定(1つでも実体dirがあればuse)
+    const pluginsDir = join(profileRoot, "python", "plugins");
+    const ids = readdirSync(join(REPO, "qgis-plugin")).filter((d) =>
+      existsSync(join(REPO, "qgis-plugin", d, "metadata.txt"))
+    );
+    let sawLink = false;
+    for (const id of ids) {
+      const p = join(pluginsDir, id);
+      if (!existsSync(p)) continue;
+      if (!lstatSync(p).isSymbolicLink()) return "use";
+      sawLink = true;
+    }
+    return sawLink ? "dev" : null;
+  } catch {
+    return null;
+  }
 }
+
+// ※deploy-plugin.ps1 は一切呼ばない。プラグインフォルダへの書込みは
+//   全てUI操作(npm run deploy / deploy:use / deploy:install)のみ。
+//   自動経路がdeployを呼ぶと、気づかないうちにモード遷移・利用版の
+//   破壊につながるため、コードとして経路自体を持たない。
 
 // verify-in-qgis.ps1 と同等の環境変数でQGISを起動する。
 // nodeのspawn(detached)経由でps1を直接実行するとQGISが起動しないため、
 // powershell -Command + Start-Process で起動する(実機で動作確認済み)。
 // Start-Processは子を即detachして返るためpowershell自体はすぐ終了する。
 function launchQgis(liveBase) {
+  // WEBENGINE_DEV_SRC は dev モード確定時のみ立てる(開発専用機構)。
+  // use/未配置では配置済み実体dirがそのまま動き、repo側コードは載せない
+  const devMode = currentDeployMode() === "dev";
   const ps = [
     `$env:QTWEBENGINE_REMOTE_DEBUGGING='9222'`,
     `$env:QTWEBENGINE_CHROMIUM_FLAGS='--disable-gpu --no-sandbox --disable-gpu-compositing'`,
@@ -67,9 +110,17 @@ function launchQgis(liveBase) {
     `$env:WEBENGINE_LIVE_DIR='${liveBase.replace(/'/g, "''")}'`,
     `$env:WEBENGINE_LOG_PATH='${LOG_PATH.replace(/'/g, "''")}'`,
     // リポジトリ側のbridge/uiを直接読むdevモード(devreloadが有効になる)
-    `$env:WEBENGINE_DEV_SRC='${REPO.replace(/\\/g, "/").replace(/'/g, "''")}'`,
+    ...(devMode
+      ? [`$env:WEBENGINE_DEV_SRC='${REPO.replace(/\\/g, "/").replace(/'/g, "''")}'`]
+      : []),
     `Start-Process -FilePath '${QGIS_EXE}'`,
   ].join("; ");
+  if (!devMode) {
+    console.log(
+      "[ensure] devモード以外のため WEBENGINE_DEV_SRC 未設定で起動" +
+        "(配置済み実体dirが動作。開発は npm run deploy で開発モードへ)"
+    );
+  }
   spawnSync(
     "powershell",
     ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", ps],
@@ -105,8 +156,12 @@ export async function ensureQgis({ liveBase = LIVE_BASE, timeoutMs = 180000 } = 
   const live = await probeAll(liveBase);
   if (live.length) return live;
 
-  console.log("[ensure] no live driver; deploying plugins and launching QGIS...");
-  deploy();
+  const mode = currentDeployMode();
+  console.log(
+    `[ensure] no live driver; launching QGIS ` +
+      `(deploy mode: ${mode || "unknown"}. 未配置なら npm run deploy / ` +
+      `deploy:use / deploy:install を手動で実行してください)`
+  );
   launchQgis(liveBase);
 
   const start = Date.now();
@@ -122,7 +177,9 @@ export async function ensureQgis({ liveBase = LIVE_BASE, timeoutMs = 180000 } = 
   }
   throw new Error(
     `[ensure] live driver did not respond within ${timeoutMs / 1000}s. ` +
-      `Check test-results/plugin_load.log and QGIS startup.`
+      `プラグイン未配置なら npm run deploy(開発)/deploy:install(利用)を ` +
+      `手動で実行してください。test-results/plugin_load.log と ` +
+      `QGIS起動状態も確認`
   );
 }
 
@@ -150,15 +207,11 @@ result = {"loaded": PLUGIN_ID in qgis.utils.plugins,
 `;
 
 /**
- * deploy後、実行中のQGIS内で全プラグインをホットリロードする。
+ * 実行中のQGIS内で全プラグインをホットリロードする。
  * reloadPluginでプラグインインスタンスが作り直され、新しいview+LiveDriverが
  * 同じlive dir(PID不変)を使い始める。
  */
-export async function reloadPlugin({ liveBase = LIVE_BASE, deploy: doDeploy = true } = {}) {
-  if (doDeploy) {
-    console.log("[reload] deploying plugins (-Copy)...");
-    deploy();
-  }
+export async function reloadPlugin({ liveBase = LIVE_BASE } = {}) {
   const dirs = await ensureQgis({ liveBase });
   // 制御プラグインがあればhub経由でreloadできる
   // (対象プラグインにlive dirが無くても reload_plugin→open_dialog で作られる)
@@ -230,11 +283,11 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
       const dirs = await ensureQgis();
       for (const d of dirs) console.log(`live dir: ${d.dir} (${d.pluginId})`);
     } else if (cmd === "reload") {
-      await reloadPlugin({ deploy: !process.argv.includes("--no-deploy") });
+      await reloadPlugin();
     } else if (cmd === "devreload") {
       await devReload();
     } else {
-      console.log("usage: node scripts/qgis-session.mjs <ensure|reload [--no-deploy]|devreload>");
+      console.log("usage: node scripts/qgis-session.mjs <ensure|reload|devreload>");
       process.exit(cmd ? 1 : 0);
     }
   } catch (e) {

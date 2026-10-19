@@ -1,3 +1,9 @@
+# V4.3.1 utils.py のQMessageBox翻訳化
+- `utils.py` の JSON エントリ削除処理の警告/情報/書き込みエラー
+  QMessageBox(英語直書き5箇所)を
+  `QCoreApplication.translate("Dialog", ...)` 化し、
+  `Dialog` context に8ソースを全9言語で登録。
+
 # V4.3.0 翻訳方式を `i18n/<lang>.json` に移行
 - `.ts`/`.qm` を廃止し、`{"context": {"英語ソース": "翻訳"}}` の
   JSONカタログを新設。`i18n_json.py`(全プラグイン共通ローダ)の

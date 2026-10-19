@@ -1,4 +1,14 @@
 {
+  "Dialog": {
+    "Could not find corresponding entry to remove.": "Impossibile trovare la voce corrispondente da rimuovere.",
+    "Failed to read the JSON file: {0}": "Impossibile leggere il file JSON: {0}",
+    "Failed to update JSON file: {0}": "Impossibile aggiornare il file JSON: {0}",
+    "JSON file has unsupported structure; expected {'SearchTabs': [...]} or an array.": "Il file JSON ha una struttura non supportata; atteso {'SearchTabs': [...]} o un array.",
+    "Not found": "Non trovato",
+    "Read error": "Errore di lettura",
+    "Unsupported format": "Formato non supportato",
+    "Write error": "Errore di scrittura"
+  },
   "SearchWidget": {
     "Angle (deg):": "Angolo (gradi):",
     "Angle: Not specified": "Angolo: non specificato",

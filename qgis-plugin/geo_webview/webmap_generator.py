@@ -7,7 +7,40 @@ is constructed with simple string concatenation to avoid brace-escaping
 issues when embedding JavaScript.
 """
 
+import os
 from typing import Any, Dict
+
+try:
+    from .i18n_json import translate_text as _translate_text, lang_code as _lang_code
+except Exception:  # QGIS外・直接import時のフォールバック
+    _translate_text = None
+    _lang_code = None
+
+
+def _pt(source: str) -> str:
+    """生成HTML用の文字列を geo_webview.page カタログから翻訳する。"""
+    if _translate_text is None:
+        return source
+    try:
+        return _translate_text(os.path.dirname(os.path.abspath(__file__)), 'geo_webview.page', source)
+    except Exception:
+        return source
+
+
+def _ptj(source: str) -> str:
+    """_pt の結果を JS 文字列リテラル(クォート込み)として返す。"""
+    try:
+        import json
+        return json.dumps(_pt(source), ensure_ascii=False)
+    except Exception:
+        return '""'
+
+
+def _page_lang() -> str:
+    try:
+        return _lang_code() if _lang_code is not None else 'en'
+    except Exception:
+        return 'en'
 
 
 # Safe logging: prefer QGIS message log when available, fallback to print
@@ -627,7 +660,7 @@ class QMapWebMapGenerator:
             "    function findNearestIdx(deg){ var min=1e9; var idx=0; for(var i=0;i<angles.length;i++){ var a=angles[i]; var d1=Math.abs(a-deg); var d2=Math.abs(a-deg+360); var d3=Math.abs(a-deg-360); var dd=Math.min(d1,d2,d3); if(dd<min){ min=dd; idx=i; } } return {idx:idx, diff:min}; }\n"
             "    function applyAngle(a){ try{ var rad = a * Math.PI / 180; try{ map.getView().animate({ rotation: rad, duration: 200 }); }catch(e){ try{ map.getView().setRotation(rad); }catch(e){} } if(window.wmsSource && typeof window.wmsSource.updateParams === 'function'){ window.wmsSource.updateParams({ 'ANGLE': a }); window.wmsSource.refresh(); } try{ window._getSendAngle = function(){ return a; }; }catch(e){} }catch(e){} }\n"
             "    function ensureButton(){\n"
-            "      try{ var container = document.querySelector('.ol-rotate'); if(!container) return false; var btn = document.getElementById('qmp-rotate-cycle'); if(!btn){ btn = document.createElement('button'); btn.id = 'qmp-rotate-cycle'; btn.className = 'qmp-control'; btn.title = 'Rotate 0/90/180/270'; btn.textContent = '\u27f3'; btn.style.marginTop = '6px'; btn.style.padding = '4px 6px'; btn.style.fontSize = '12px'; btn.style.cursor = 'pointer'; container.parentNode.insertBefore(btn, container.nextSibling); } if(!btn._qmpAttached){ btn._qmpState = btn._qmpState || { lastIdx: null }; btn.addEventListener('click', function(){ try{ var view = map.getView(); var rad = 0; try{ rad = (typeof view.getRotation === 'function') ? view.getRotation() : (view.getRotation ? view.getRotation() : 0); }catch(e){ try{ rad = view.getRotation(); }catch(e){ rad = 0; } } var deg = normDeg(toDeg(rad)); var nearest = findNearestIdx(deg); var nearestIdx = nearest.idx; var nearestDiff = nearest.diff; var tol = 0.0001; if(nearestDiff <= tol){ // already at grid angle -> advance to next\n var next = (nearestIdx + 1) % angles.length; applyAngle(angles[next]); btn._qmpState.lastIdx = next; } else { // not on-grid -> snap to nearest unless last click already snapped to same nearest\n if(btn._qmpState.lastIdx === nearestIdx){ var next2 = (nearestIdx + 1) % angles.length; applyAngle(angles[next2]); btn._qmpState.lastIdx = next2; } else { applyAngle(angles[nearestIdx]); btn._qmpState.lastIdx = nearestIdx; } } }catch(e){} }); btn._qmpAttached = true; } return true; }catch(e){ return false; }\n"
+            "      try{ var container = document.querySelector('.ol-rotate'); if(!container) return false; var btn = document.getElementById('qmp-rotate-cycle'); if(!btn){ btn = document.createElement('button'); btn.id = 'qmp-rotate-cycle'; btn.className = 'qmp-control'; btn.title = " + _ptj('Rotate 0/90/180/270') + "; btn.textContent = '\u27f3'; btn.style.marginTop = '6px'; btn.style.padding = '4px 6px'; btn.style.fontSize = '12px'; btn.style.cursor = 'pointer'; container.parentNode.insertBefore(btn, container.nextSibling); } if(!btn._qmpAttached){ btn._qmpState = btn._qmpState || { lastIdx: null }; btn.addEventListener('click', function(){ try{ var view = map.getView(); var rad = 0; try{ rad = (typeof view.getRotation === 'function') ? view.getRotation() : (view.getRotation ? view.getRotation() : 0); }catch(e){ try{ rad = view.getRotation(); }catch(e){ rad = 0; } } var deg = normDeg(toDeg(rad)); var nearest = findNearestIdx(deg); var nearestIdx = nearest.idx; var nearestDiff = nearest.diff; var tol = 0.0001; if(nearestDiff <= tol){ // already at grid angle -> advance to next\n var next = (nearestIdx + 1) % angles.length; applyAngle(angles[next]); btn._qmpState.lastIdx = next; } else { // not on-grid -> snap to nearest unless last click already snapped to same nearest\n if(btn._qmpState.lastIdx === nearestIdx){ var next2 = (nearestIdx + 1) % angles.length; applyAngle(angles[next2]); btn._qmpState.lastIdx = next2; } else { applyAngle(angles[nearestIdx]); btn._qmpState.lastIdx = nearestIdx; } } }catch(e){} }); btn._qmpAttached = true; } return true; }catch(e){ return false; }\n"
             "    }\n"
             "    if(!ensureButton()){ try{ document.addEventListener('DOMContentLoaded', function(){ try{ ensureButton(); }catch(e){} }); }catch(e){} }\n"
             "  }catch(e){}\n"
@@ -701,9 +734,9 @@ class QMapWebMapGenerator:
             "          lat = 180.0 / Math.PI * (2.0 * Math.atan(Math.exp(lat * Math.PI / 180.0)) - Math.PI / 2.0);\n"
             "          var zoom = view.getZoom ? Math.round(view.getZoom()) : 12;\n"
             "          // prefer server-computed URL if available\n"
-            "          if(typeof serverGoogleMapsUrl !== 'undefined' && serverGoogleMapsUrl){ var w = window.open(serverGoogleMapsUrl, '_blank'); if(!w){ alert('Popup blocked'); } return; }\n"
+            "          if(typeof serverGoogleMapsUrl !== 'undefined' && serverGoogleMapsUrl){ var w = window.open(serverGoogleMapsUrl, '_blank'); if(!w){ alert(" + _ptj('Popup blocked') + "); } return; }\n"
             "          var url = 'https://www.google.com/maps/@' + encodeURIComponent(lat) + ',' + encodeURIComponent(lon) + ',' + encodeURIComponent(zoom) + 'z';\n"
-            "          var w = window.open(url, '_blank'); if(!w){ alert('Popup blocked'); }\n"
+            "          var w = window.open(url, '_blank'); if(!w){ alert(" + _ptj('Popup blocked') + "); }\n"
             "        }catch(e){ console.error(e); }\n"
             "      });\n"
             "    }\n"
@@ -719,10 +752,10 @@ class QMapWebMapGenerator:
             "          var lon = (x / 20037508.34) * 180.0; var lat = (y / 20037508.34) * 180.0;\n"
             "          lat = 180.0 / Math.PI * (2.0 * Math.atan(Math.exp(lat * Math.PI / 180.0)) - Math.PI / 2.0);\n"
             "          // prefer server-computed URL if available\n"
-            "          if(typeof serverGoogleEarthUrl !== 'undefined' && serverGoogleEarthUrl){ var w = window.open(serverGoogleEarthUrl, '_blank'); if(!w){ alert('Popup blocked'); } return; }\n"
+            "          if(typeof serverGoogleEarthUrl !== 'undefined' && serverGoogleEarthUrl){ var w = window.open(serverGoogleEarthUrl, '_blank'); if(!w){ alert(" + _ptj('Popup blocked') + "); } return; }\n"
             "          // Use Google Earth Web search link (best-effort)\n"
             "          var url = 'https://earth.google.com/web/search/' + encodeURIComponent(lat) + ',' + encodeURIComponent(lon);\n"
-            "          var w = window.open(url, '_blank'); if(!w){ alert('Popup blocked'); }\n"
+            "          var w = window.open(url, '_blank'); if(!w){ alert(" + _ptj('Popup blocked') + "); }\n"
             "        }catch(e){ console.error(e); }\n"
             "      });\n"
             "    }\n"
@@ -732,7 +765,7 @@ class QMapWebMapGenerator:
 
         html = (
             '<!doctype html>\n'
-            '<html lang="ja">\n'
+            '<html lang="' + _page_lang() + '">\n'
             '<head>' + '\n'
             '  <meta charset="utf-8">\n'
             '  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">\n'
@@ -743,16 +776,16 @@ class QMapWebMapGenerator:
             '<body>\n'
             '  <div id="map"></div>\n'
             '  <div id="qmp-left-controls">\n'
-            '    <select id="qmp-themes" class="qmp-control" title="Themes">' + (('<option value="__prompt" selected>%s</option>' % ( __import__('html').escape(prompt_theme_text) )) if True else '') + '\n' + (themes_options if 'themes_options' in locals() else '') + '</select>\n'
-            '    <select id="qmp-bookmarks" class="qmp-control" title="Bookmarks">' + (('<option value="__prompt" selected>%s</option>' % ( __import__('html').escape(prompt_text) )) if True else '') + '<option value="__home">Home</option>\n' + (bookmarks_options if 'bookmarks_options' in locals() else '') + '</select>\n'
+            '    <select id="qmp-themes" class="qmp-control" title="' + __import__('html').escape(_pt('Themes')) + '">' + (('<option value="__prompt" selected>%s</option>' % ( __import__('html').escape(prompt_theme_text) )) if True else '') + '\n' + (themes_options if 'themes_options' in locals() else '') + '</select>\n'
+            '    <select id="qmp-bookmarks" class="qmp-control" title="' + __import__('html').escape(_pt('Bookmarks')) + '">' + (('<option value="__prompt" selected>%s</option>' % ( __import__('html').escape(prompt_text) )) if True else '') + '<option value="__home">' + __import__('html').escape(_pt('Home')) + '</option>\n' + (bookmarks_options if 'bookmarks_options' in locals() else '') + '</select>\n'
             '  </div>\n'
                 '  <div id="qmp-right-controls">\n'
                                     '    <button id="qmp-rotate-cycle" class="qmp-control" title="Rotate 0/90/180/270">\u27f3</button>\n'
-                                    '    <button id="qmp-open-googlemaps" class="qmp-control" title="Open Google Maps">MAPS</button>\n'
-                                    '    <button id="qmp-open-googleearth" class="qmp-control" title="Open Google Earth">EARTH</button>\n'
+                                    '    <button id="qmp-open-googlemaps" class="qmp-control" title="' + __import__('html').escape(_pt('Open Google Maps')) + '">MAPS</button>\n'
+                                    '    <button id="qmp-open-googleearth" class="qmp-control" title="' + __import__('html').escape(_pt('Open Google Earth')) + '">EARTH</button>\n'
                                     '  </div>\n'
                                     '  <div id="qmp-coords" class="qmp-control" aria-live="polite" role="status"></div>\n'
-                                    '  <div id="qmp-cors-warning">A CORS error occurred while loading the WMS.<br>If you opened this HTML directly via file://, serve it with a simple HTTP server or set the Access-Control-Allow-Origin header on the WMS side.</div>\n'
+                                    '  <div id="qmp-cors-warning">' + _pt('A CORS error occurred while loading the WMS.<br>If you opened this HTML directly via file://, serve it with a simple HTTP server or set the Access-Control-Allow-Origin header on the WMS side.') + '</div>\n'
             '  <script>\n'
             f'    const serverPort = {server_port};\n'
             f'    ' + js + '\n'

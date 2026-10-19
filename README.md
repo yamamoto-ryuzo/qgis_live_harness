@@ -74,13 +74,13 @@ powershell -ExecutionPolicy Bypass -File scripts\setup.ps1
 ```powershell
 npm install
 npx playwright install   # L1テスト(npm test)を回す場合のみ
-npm run deploy:copy      # 器をQGISプラグインディレクトリへ配置(初回のみ)
+npm run deploy           # 器をQGISプラグインディレクトリへjunction配置(初回のみ)
 ```
 
 セットアップ後の開発ループ:
 
 ```powershell
-npm run live:ensure     # 常駐QGISを用意(初回は自動でdeploy+起動)
+npm run live:ensure     # 常駐QGISを用意(起動のみ。deployはしない)
 # → bridge.py / logic.py / ui/* を編集
 npm run live:devreload  # repo側コードを即反映(deploy不要)
 npm run test:live       # 実QGIS内で検証(pyevalで内部状態assert含む)

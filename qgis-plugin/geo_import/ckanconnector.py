@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import sys
 import string
 
@@ -156,12 +157,14 @@ class CkanConnector:
         self.util.msg_log_debug(u'running package search')
 
         # グループフィルタ(カテゴリ)。複数選択時はOR条件でfqに渡す
+        import urllib.parse
         fq_query = ''
         if groups:
             try:
                 quoted = u' OR '.join(
                     u'"{0}"'.format(str(g).replace('"', '')) for g in groups)
-                fq_query = u'&fq=groups:({0})'.format(quoted)
+                fq_query = u'&fq=' + urllib.parse.quote(
+                    u'groups:({0})'.format(quoted))
             except Exception:
                 fq_query = ''
         self.util.msg_log_debug(u'fq: {0}'.format(fq_query))
@@ -174,10 +177,14 @@ class CkanConnector:
             start_query = ''
         self.util.msg_log_debug(u'start: {0}'.format(start_query))
 
-        # 全文検索クエリを組み立て
+        # 全文検索クエリを組み立て。フィールド指定句(title:/description:等)は
+        # サイトのSolrスキーマ依存で400/409になることがあるため、プレーンな
+        # 全文検索とする(CKANのデフォルトが複数フィールドを横断する)。
+        # Solr特殊文字はエスケープし、URL用にエンコードする。
         if text and text.strip():
-            # タイトル・説明・タグのOR全文検索
-            q = u'({0}) OR description:{0} OR tags:{0}'.format(text)
+            escaped = re.sub(
+                r'([+\-&|!(){}\[\]^"~*?:\\/])', r'\\\1', text.strip())
+            q = urllib.parse.quote(escaped, safe='')
         else:
             q = '*:*'
 
@@ -572,11 +579,12 @@ class CkanConnector:
         self.util.msg_log_debug(u'api request: {0}'.format(url))
         copy(url)
         
-        # 接続確認を先に行う
+        # 接続確認は事前チェックとして行うが、失敗しても実リクエストは試行する
+        # (HEADベースの事前確認は一部サイトで不安定なため、失敗=即中断にすると
+        # 実際にはアクセス可能なサイトが cc_api_not_accessible になる)
         connection_ok, error_message = self.__check_connection(api)
         if not connection_ok:
-            self.util.msg_log_error(u'aborting API request due to failed server connection check: {0}'.format(error_message))
-            return False, QCoreApplication.translate('GeoImport', u'cc_api_not_accessible').format(error_message)
+            self.util.msg_log_warning(u'pre-flight connection check failed, trying request anyway: {0}'.format(error_message))
             
         # 接続確認OKの場合のみデータ取得を実行
         try:

@@ -23,6 +23,7 @@
   "geo_report": {
     "Angle:": "角度：",
     "Apply Properties": "应用属性",
+    "Apply layout properties": "应用布局属性",
     "Cancel": "取消",
     "Error getting information": "获取信息时出错",
     "Item Name": "项名称",
