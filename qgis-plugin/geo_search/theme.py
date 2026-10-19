@@ -2016,10 +2016,13 @@ def save_user_theme(path: str, snapshot=None, project=None, root=None):
 
     if snapshot is None:
         try:
-            snapshot_msgs = collect_visible_layer_snapshot(root)
-            # collect_visible_layer_snapshot returns messages; use in-memory snapshot if set
-            # Instead, call collect_visible_layer_snapshot with no snapshot_name and then read
-            snapshot = get_visible_layer_snapshot(None) or []
+            # collect_visible_layer_snapshot returns log messages; the
+            # structured snapshot is stored in-memory only when a
+            # snapshot_name is given. Use a fixed internal key.
+            collect_visible_layer_snapshot(
+                root, snapshot_name="__user_theme_save__")
+            snapshot = get_visible_layer_snapshot(
+                "__user_theme_save__") or []
         except Exception:
             snapshot = []
 

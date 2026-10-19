@@ -375,6 +375,29 @@ class GeoWebView:
                 # Check Access ボタンのイベントを接続
                 if hasattr(self.panel, 'pushButton_check_access'):
                     self.panel.pushButton_check_access.clicked.connect(self.on_check_access_clicked)
+
+                # 共有/プレゼンテーション/3D/MAC認証のイベントを接続
+                try:
+                    if getattr(self.panel, 'pushButton_present', None) is not None:
+                        self.panel.pushButton_present.clicked.connect(
+                            self.on_present_clicked_panel)
+                    if getattr(self.panel, 'pushButton_map3d', None) is not None:
+                        self.panel.pushButton_map3d.clicked.connect(
+                            self.on_map3d_clicked_panel)
+                    if getattr(self.panel, 'comboBox_received', None) is not None:
+                        self.panel.comboBox_received.currentIndexChanged.connect(
+                            self.on_received_selected)
+                        # 受領履歴を定期ポーリングしてコンボを更新
+                        from qgis.PyQt.QtCore import QTimer
+                        self._received_timer = QTimer(self.panel)
+                        self._received_timer.setInterval(3000)
+                        self._received_timer.timeout.connect(
+                            self._refresh_received_history)
+                        self._received_timer.start()
+                    self._init_mac_auth_ui()
+                except Exception as e:
+                    self._qgis_log(
+                        f'[DEBUG] sharing UI wiring failed: {e}', 'WARNING')
                 
                 # 標準ポートボタンのイベントを接続
                 if hasattr(self.panel, 'pushButton_port_80'):
@@ -2355,30 +2378,18 @@ class GeoWebView:
                     )
                     return
 
-            # パーマリンクのパラメータを解析
-            from urllib.parse import parse_qs, urlparse
-            params = {}
-            if permalink_text:
-                try:
-                    parsed = urlparse(permalink_text)
-                    query_params = parse_qs(parsed.query)
-                    # x, y, scale, crs, rotation パラメータを抽出
-                    for key in ['x', 'y', 'scale', 'crs', 'rotation']:
-                        if key in query_params and query_params[key]:
-                            params[key] = query_params[key][0]
-                except Exception:
-                    pass
-            
-            # MapLibre URLを生成（パラメータ付き）
-            maplibre_url = f"http://localhost:{server_port}/maplibre"
-            if params:
-                param_parts = []
-                for key in ['x', 'y', 'scale', 'crs', 'rotation']:
-                    if key in params:
-                        param_parts.append(f'{key}={params[key]}')
-                if param_parts:
-                    maplibre_url = maplibre_url + '?' + '&'.join(param_parts)
-            
+            # 元のパーマリンクをそのまま維持して /maplibre に渡す。
+            # かつては x/y/scale/crs/rotation だけを抜き出してURLを再構築しており、
+            # テーマ・ブックマーク等の情報が失われ、ナビゲーションアドレスが
+            # 意図せず書き換わっていた(issue #18)。
+            # internal=1 は「パネル側が生成した自前の遷移」としてサーバに伝え、
+            # ナビゲート欄の上書き・受領履歴の対象から外すためのマーカー。
+            from urllib.parse import quote_plus
+            maplibre_url = (
+                f"http://localhost:{server_port}/maplibre"
+                f"?internal=1&permalink={quote_plus(permalink_text)}"
+            )
+
             # ブラウザで開く
             QDesktopServices.openUrl(QUrl(maplibre_url))
             self.iface.messageBar().pushMessage(
@@ -2389,6 +2400,95 @@ class GeoWebView:
                 "geo_webview", self.tr("MapLibre launch error: {0}").format(e), duration=5
             )
     
+    def on_present_clicked_panel(self):
+        """プレゼンテーション共有ページ(/present)をブラウザで開く。"""
+        try:
+            if not self.server_manager.is_server_running():
+                self.iface.messageBar().pushMessage(
+                    "geo_webview",
+                    self.tr("The HTTP server is not running. Please start the server."),
+                    duration=5)
+                return
+            port = self.server_manager.get_server_port() or 8089
+            QDesktopServices.openUrl(
+                QUrl(f"http://localhost:{port}/present"))
+            self.iface.messageBar().pushMessage(
+                "geo_webview",
+                self.tr("Opened the presentation share page."), duration=3)
+        except Exception as e:
+            self.iface.messageBar().pushMessage(
+                "geo_webview",
+                self.tr("Presentation launch error: {0}").format(e), duration=5)
+
+    def on_map3d_clicked_panel(self):
+        """OpenLayers+Cesiumの2画面3Dページ(/map3d)をブラウザで開く。"""
+        try:
+            if not self.server_manager.is_server_running():
+                self.iface.messageBar().pushMessage(
+                    "geo_webview",
+                    self.tr("The HTTP server is not running. Please start the server."),
+                    duration=5)
+                return
+            port = self.server_manager.get_server_port() or 8089
+            QDesktopServices.openUrl(
+                QUrl(f"http://localhost:{port}/map3d?internal=1"))
+            self.iface.messageBar().pushMessage(
+                "geo_webview",
+                self.tr("Opened the 3D (OpenLayers + Cesium) view."), duration=3)
+        except Exception as e:
+            self.iface.messageBar().pushMessage(
+                "geo_webview",
+                self.tr("3D view launch error: {0}").format(e), duration=5)
+
+    def on_received_selected(self, index):
+        """受領履歴コンボの選択をナビゲート欄へコピーする。"""
+        try:
+            combo = getattr(self.panel, 'comboBox_received', None)
+            if combo is None or index <= 0:
+                return
+            url = combo.itemData(index)
+            if url and getattr(self.panel, 'lineEdit_navigate', None) is not None:
+                self.panel.lineEdit_navigate.setText(url)
+        except Exception:
+            pass
+
+    def _refresh_received_history(self):
+        """サーバが受領したパーマリンク履歴をパネルのコンボへ反映する。"""
+        try:
+            combo = getattr(self.panel, 'comboBox_received', None)
+            if combo is None or self.server_manager is None:
+                return
+            entries = list(getattr(
+                self.server_manager, 'received_history', []) or [])
+            self.panel.update_received_history(entries)
+        except Exception:
+            pass
+
+    def _init_mac_auth_ui(self):
+        """MACアドレス認証UIをQSettingsから初期化し変更を保存する。"""
+        try:
+            from qgis.PyQt.QtCore import QSettings
+            s = QSettings('GeoWebView', 'geo_webview')
+            cb = getattr(self.panel, 'checkBox_mac_auth', None)
+            le = getattr(self.panel, 'lineEdit_mac_auth', None)
+            if cb is not None:
+                enabled = str(
+                    s.value('mac_auth_enabled', 'false')).lower() in (
+                        '1', 'true', 'yes', 'on')
+                cb.blockSignals(True)
+                cb.setChecked(enabled)
+                cb.blockSignals(False)
+                cb.stateChanged.connect(
+                    lambda state: s.setValue(
+                        'mac_auth_enabled', 'true' if state else 'false'))
+            if le is not None:
+                le.setText(str(s.value('mac_auth_allowed', '') or ''))
+                le.editingFinished.connect(
+                    lambda: s.setValue(
+                        'mac_auth_allowed', le.text() or ''))
+        except Exception:
+            pass
+
     def on_check_access_clicked(self):
         """外部アクセス診断ボタンがクリックされた時の処理"""
         try:

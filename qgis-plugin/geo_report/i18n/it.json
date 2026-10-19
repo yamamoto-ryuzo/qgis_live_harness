@@ -21,6 +21,7 @@
     "Visible": "Visibile"
   },
   "geo_report": {
+    "Add Standard Layout": "Aggiungi layout standard",
     "Angle:": "Angolo:",
     "Apply Properties": "Applica proprietà",
     "Apply layout properties": "Applica proprietà del layout",
@@ -34,12 +35,15 @@
     "Layout List:": "Elenco layout:",
     "Load Layout": "Carica layout",
     "Modified": "Modificato",
+    "No standard layout templates were found.": "Nessun modello di layout standard trovato.",
     "Refresh Item Info": "Aggiorna informazioni elemento",
     "Save Layout": "Salva layout",
     "Scale:": "Scala:",
+    "Select a standard layout:": "Seleziona un layout standard:",
     "Selected Item Properties:": "Proprietà dell'elemento selezionato:",
     "Show Print Area on Map": "Mostra area di stampa sulla mappa",
     "Size": "Dimensione",
+    "Standard layout added: {}": "Layout standard aggiunto: {}",
     "Type": "Tipo",
     "Visible": "Visibile",
     "bytes": "byte"

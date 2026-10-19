@@ -7,6 +7,7 @@ is constructed with simple string concatenation to avoid brace-escaping
 issues when embedding JavaScript.
 """
 
+import math
 import os
 from typing import Any, Dict
 
@@ -91,6 +92,249 @@ class QMapWebMapGenerator:
 
     def __init__(self, owner: Any = None):
         self.owner = owner
+
+    # ----------------------------------------------------------------------
+    # OpenLayers + Cesium 2画面3Dページ
+    # ----------------------------------------------------------------------
+    def generate_ol_cesium_page(self, navigation_data: Dict[str, Any], server_host: str = 'localhost:8089') -> str:
+        """左にOpenLayers(2D)・右にCesium(3D)を並べた同期ビューページを生成する。
+
+        OL側は /wms の ImageWMS ソース、Cesium側は OSM 背景 + /wms の
+        WebMapServiceImageryProvider オーバーレイ。どちらかのビューが動いた場合、
+        500ms周期で反対側へ位置/ズーム/回転を同期する。
+        navigation_data: x3857/y3857/lon/lat/scale/rotation/zoom を持つdict
+        """
+        try:
+            from .scale_zoom import estimate_zoom_from_scale_maplibre
+        except Exception:
+            estimate_zoom_from_scale_maplibre = None
+
+        # 中心座標(EPSG:3857 / EPSG:4326)
+        x3857 = navigation_data.get('x3857')
+        y3857 = navigation_data.get('y3857')
+        lon = navigation_data.get('lon')
+        lat = navigation_data.get('lat')
+        if x3857 is None or y3857 is None:
+            x3857 = float(navigation_data.get('x') or 0.0)
+            y3857 = float(navigation_data.get('y') or 0.0)
+        if lon is None or lat is None:
+            # EPSG:3857 -> EPSG:4326 の近似逆算
+            lon = math.degrees(float(x3857) / 6378137.0)
+            lat = math.degrees(
+                2.0 * math.atan(math.exp(float(y3857) / 6378137.0))
+                - math.pi / 2.0)
+        scale = navigation_data.get('scale') or 10000
+        zoom = navigation_data.get('zoom')
+        if zoom is None:
+            if estimate_zoom_from_scale_maplibre is not None:
+                zoom = estimate_zoom_from_scale_maplibre(scale)
+            else:
+                zoom = math.log(591657527.591555 / float(scale), 2) - 1
+        rotation_deg = float(navigation_data.get('rotation') or 0.0)
+        rotation_rad = -rotation_deg * math.pi / 180.0
+
+        # scale[m/px換算] -> Cesiumの概算カメラ高さ(FOV=60deg, viewport高600px想定)
+        res = float(scale) * 0.00028
+        height = res * 600.0 / (2.0 * math.tan(math.radians(30.0)))
+        height = max(50.0, min(height, 20000000.0))
+
+        wms_base = 'http://{0}/wms'.format(server_host)
+
+        html_page = u'''<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="initial-scale=1"/>
+<title>geo_webview - OpenLayers + Cesium 3D</title>
+<link rel="stylesheet" href="https://unpkg.com/ol@8.1.0/ol.css"/>
+<script>window.CESIUM_BASE_URL = 'https://unpkg.com/cesium@1.120.0/Build/Cesium/';</script>
+<script src="https://unpkg.com/cesium@1.120.0/Build/Cesium/Cesium.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/cesium@1.120.0/Build/Cesium/Widgets/widgets.css"/>
+<style>
+html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
+#wrap{{display:flex;height:100%;width:100%}}
+#olmap{{flex:1 1 50%;position:relative}}
+#cesium{{flex:1 1 50%;position:relative}}
+#divider{{width:4px;background:#444}}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="olmap"></div>
+  <div id="divider"></div>
+  <div id="cesium"></div>
+</div>
+<script src="https://unpkg.com/ol@8.1.0/dist/ol.js"></script>
+<script>
+(function(){{
+  var X3857 = {x3857}, Y3857 = {y3857};
+  var LON = {lon}, LAT = {lat};
+  var ZOOM = {zoom}, ROT = {rot_rad};
+  var HEIGHT = {height};
+  var WMS = '{wms}';
+
+  // ---- OpenLayers (2D) ----
+  var wmsSource = new ol.source.ImageWMS({{
+    url: WMS,
+    params: {{LAYERS: ''}},
+    ratio: 1,
+    serverType: 'qgis'
+  }});
+  var map = new ol.Map({{
+    target: 'olmap',
+    layers: [new ol.layer.Image({{source: wmsSource}})],
+    view: new ol.View({{
+      center: [X3857, Y3857],
+      zoom: ZOOM,
+      rotation: ROT,
+      projection: 'EPSG:3857'
+    }})
+  }});
+  window.qmap_ol_map = map;
+
+  // ---- Cesium (3D) ----
+  var viewer = null;
+  try {{
+    viewer = new Cesium.Viewer('cesium', {{
+      baseLayer: new Cesium.ImageryLayer(
+        new Cesium.UrlTemplateImageryProvider({{
+          url: 'https://tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png'
+        }})),
+      baseLayerPicker: false, geocoder: false, timeline: false,
+      animation: false, sceneModePicker: false,
+      navigationHelpButton: false, homeButton: false,
+      fullscreenButton: false, infoBox: false
+    }});
+  }} catch (e) {{
+    try {{
+      viewer = new Cesium.Viewer('cesium', {{
+        imageryProvider: new Cesium.UrlTemplateImageryProvider({{
+          url: 'https://tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png'
+        }}),
+        baseLayerPicker: false, geocoder: false, timeline: false,
+        animation: false, sceneModePicker: false
+      }});
+    }} catch (e2) {{ viewer = null; }}
+  }}
+  window.qmap_cesium_viewer = viewer;
+
+  if (viewer) {{
+    // QGIS WMS を3D側へオーバーレイ
+    try {{
+      var provider = new Cesium.WebMapServiceImageryProvider({{
+        url: WMS,
+        layers: '',
+        parameters: {{TRANSPARENT: 'TRUE', FORMAT: 'image/png'}},
+        tileWidth: 512, tileHeight: 512
+      }});
+      viewer.imageryLayers.addImageryProvider(provider);
+    }} catch (e) {{}}
+    // 初期カメラ位置
+    try {{
+      viewer.camera.setView({{
+        destination: Cesium.Cartesian3.fromDegrees(LON, LAT, HEIGHT),
+        orientation: {{
+          heading: -ROT,
+          pitch: -Cesium.Math.PI_OVER_TWO,
+          roll: 0.0
+        }}
+      }});
+    }} catch (e) {{}}
+  }}
+
+  // ---- 双方向同期 (500ms周期、変更があった側を正とする) ----
+  var lastOl = {{c: null, z: null, r: null}};
+  var lastCe = {{lon: null, lat: null, h: null, heading: null}};
+  var applying = false;
+
+  function olSnapshot() {{
+    var v = map.getView();
+    var c = v.getCenter() || [X3857, Y3857];
+    return {{c: c, z: v.getZoom(), r: v.getRotation()}};
+  }}
+  function ceSnapshot() {{
+    if (!viewer) return null;
+    var p = viewer.camera.positionCartographic;
+    return {{
+      lon: Cesium.Math.toDegrees(p.longitude),
+      lat: Cesium.Math.toDegrees(p.latitude),
+      h: p.height,
+      heading: viewer.camera.heading
+    }};
+  }}
+  function eqOl(a, b) {{
+    return a && b && Math.abs(a.c[0]-b.c[0]) < 1e-6 &&
+           Math.abs(a.c[1]-b.c[1]) < 1e-6 &&
+           Math.abs(a.z-b.z) < 1e-6 && Math.abs(a.r-b.r) < 1e-9;
+  }}
+  function eqCe(a, b) {{
+    return a && b && Math.abs(a.lon-b.lon) < 1e-9 &&
+           Math.abs(a.lat-b.lat) < 1e-9 &&
+           Math.abs(a.h-b.h) < 1e-3 && Math.abs(a.heading-b.heading) < 1e-9;
+  }}
+
+  function pushToCesium(s) {{
+    if (!viewer) return;
+    applying = true;
+    try {{
+      var lon = s.c[0] / 20037508.34 * 180.0;
+      var lat = Math.atan(Math.exp(s.c[1] / 20037508.34 * Math.PI)) *
+                360.0 / Math.PI - 90.0;
+      var res = 156543.03392 / Math.pow(2, s.z);
+      var h = res * 600.0 / (2.0 * Math.tan(Math.PI / 6.0));
+      h = Math.max(50, Math.min(h, 20000000));
+      viewer.camera.setView({{
+        destination: Cesium.Cartesian3.fromDegrees(lon, lat, h),
+        orientation: {{
+          heading: -s.r,
+          pitch: -Cesium.Math.PI_OVER_TWO,
+          roll: 0.0
+        }}
+      }});
+      lastCe = ceSnapshot();
+    }} catch (e) {{}}
+    applying = false;
+  }}
+  function pushToOl(s) {{
+    applying = true;
+    try {{
+      var x = s.lon * 20037508.34 / 180.0;
+      var y = Math.log(Math.tan((90 + s.lat) * Math.PI / 360.0)) /
+              (Math.PI / 180.0);
+      y = y * 20037508.34 / 180.0;
+      var res = s.h * (2.0 * Math.tan(Math.PI / 6.0)) / 600.0;
+      var z = Math.log(156543.03392 / res) / Math.LN2;
+      z = Math.max(0, Math.min(z, 24));
+      var v = map.getView();
+      v.setCenter([x, y]);
+      v.setZoom(z);
+      v.setRotation(-s.heading);
+      lastOl = olSnapshot();
+    }} catch (e) {{}}
+    applying = false;
+  }}
+
+  setInterval(function() {{
+    if (applying) return;
+    var ol = olSnapshot();
+    var ce = ceSnapshot();
+    if (!eqOl(ol, lastOl) && lastOl.c !== null) {{
+      pushToCesium(ol); lastOl = olSnapshot();
+    }} else if (ce && lastCe.lon !== null && !eqCe(ce, lastCe)) {{
+      pushToOl(ce); lastCe = ceSnapshot();
+    }} else {{
+      lastOl = ol; if (ce) lastCe = ce;
+    }}
+  }}, 500);
+  lastOl = olSnapshot();
+  if (viewer) lastCe = ceSnapshot();
+}})();
+</script>
+</body>
+</html>'''.format(
+            x3857=x3857, y3857=y3857, lon=lon, lat=lat,
+            zoom=zoom, rot_rad=rotation_rad, height=height, wms=wms_base)
+        return html_page
 
     def generate_wms_based_html_page(self, navigation_data: Dict[str, Any], image_width: int = 800, image_height: int = 600, server_port: int = 8089) -> str:
         """Return a minimal OpenLayers HTML page assuming EPSG:3857.

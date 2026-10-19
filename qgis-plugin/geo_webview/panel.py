@@ -111,7 +111,19 @@ class GeoWebViewPanel(QDockWidget):
         # Standard port buttons (new in UI)
         self.pushButton_port_80 = getattr(self.ui, 'pushButton_port_80', None)
         self.pushButton_port_443 = getattr(self.ui, 'pushButton_port_443', None)
-        
+
+        # 共有/プレゼンテーション/3D/MAC認証の追加UI(動的生成)
+        self.groupBox_sharing = None
+        self.pushButton_present = None
+        self.pushButton_map3d = None
+        self.comboBox_received = None
+        self.checkBox_mac_auth = None
+        self.lineEdit_mac_auth = None
+        try:
+            self._build_sharing_group()
+        except Exception:
+            pass
+
         # ウィジェットを設定
         self.setWidget(self.widget)
         
@@ -272,6 +284,98 @@ class GeoWebViewPanel(QDockWidget):
                 self.checkBox_external_control.blockSignals(False)
         except Exception:
             pass
+
+    def _build_sharing_group(self):
+        """共有/プレゼンテーション関連のウィジェットを動的に追加する。
+
+        .ui ファイルを変更せず、メインの verticalLayout 末尾に
+        groupBox を追加する。利用不可能な環境では何もしない。
+        """
+        from qgis.PyQt.QtWidgets import (
+            QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton,
+            QComboBox, QCheckBox, QLineEdit, QLabel)
+        tr = QCoreApplication.translate
+        group = QGroupBox(tr('geo_webview', 'Sharing / Presentation'))
+        vbox = QVBoxLayout(group)
+
+        row1 = QHBoxLayout()
+        self.pushButton_present = QPushButton(
+            tr('geo_webview', 'Presentation Share'))
+        self.pushButton_present.setToolTip(tr(
+            'geo_webview',
+            'Open a page that mirrors the QGIS canvas for window sharing'))
+        self.pushButton_map3d = QPushButton(
+            tr('geo_webview', '3D (OL+Cesium)'))
+        self.pushButton_map3d.setToolTip(tr(
+            'geo_webview',
+            'Open a two-pane OpenLayers + Cesium synchronized 3D view'))
+        row1.addWidget(self.pushButton_present)
+        row1.addWidget(self.pushButton_map3d)
+        vbox.addLayout(row1)
+
+        self.comboBox_received = QComboBox()
+        self.comboBox_received.setToolTip(tr(
+            'geo_webview',
+            'Permalinks received from clients (latest 10). '
+            'Selecting an entry copies it into the navigate field.'))
+        vbox.addWidget(self.comboBox_received)
+
+        self.checkBox_mac_auth = QCheckBox(
+            tr('geo_webview', 'MAC address authentication'))
+        self.checkBox_mac_auth.setToolTip(tr(
+            'geo_webview',
+            'When enabled, only registered client MAC addresses may access '
+            'the HTTP server.'))
+        vbox.addWidget(self.checkBox_mac_auth)
+        self.lineEdit_mac_auth = QLineEdit()
+        self.lineEdit_mac_auth.setPlaceholderText(tr(
+            'geo_webview',
+            'Allowed MAC addresses (comma separated). Empty = deny all'))
+        vbox.addWidget(self.lineEdit_mac_auth)
+
+        self.groupBox_sharing = group
+        try:
+            layout = self.widget.layout()
+            if layout is not None:
+                layout.addWidget(group)
+        except Exception:
+            pass
+
+    def update_received_history(self, entries):
+        """受領パーマリンク履歴コンボを更新する(選択状態を維持)。"""
+        combo = self.comboBox_received
+        if combo is None:
+            return
+        try:
+            current_url = None
+            if combo.count() > 0 and combo.currentIndex() >= 0:
+                current_url = combo.itemData(combo.currentIndex())
+            combo.blockSignals(True)
+            combo.clear()
+            combo.addItem(
+                QCoreApplication.translate(
+                    'geo_webview', '-- received permalinks --'), None)
+            for ent in entries or []:
+                url = ent.get('url') or ''
+                label = '{0} {1} {2}'.format(
+                    ent.get('time', ''), ent.get('client', ''),
+                    ent.get('ua', '') or url[:60])
+                combo.addItem(label, url)
+            if current_url:
+                idx = combo.findData(current_url)
+                if idx >= 0:
+                    combo.setCurrentIndex(idx)
+                else:
+                    combo.setCurrentIndex(0)
+            else:
+                combo.setCurrentIndex(0)
+        except Exception:
+            pass
+        finally:
+            try:
+                combo.blockSignals(False)
+            except Exception:
+                pass
 
     def set_server_toggle_handler(self, handler):
         """外部からトグルのハンドラを設定する

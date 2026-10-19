@@ -21,6 +21,7 @@
     "Visible": "Visible"
   },
   "geo_report": {
+    "Add Standard Layout": "Ajouter une mise en page standard",
     "Angle:": "Angle :",
     "Apply Properties": "Appliquer les propriétés",
     "Apply layout properties": "Appliquer les propriétés de la mise en page",
@@ -34,12 +35,15 @@
     "Layout List:": "Liste des mises en page :",
     "Load Layout": "Charger la mise en page",
     "Modified": "Modifié",
+    "No standard layout templates were found.": "Aucun modèle de mise en page standard trouvé.",
     "Refresh Item Info": "Actualiser les informations de l'élément",
     "Save Layout": "Enregistrer la mise en page",
     "Scale:": "Échelle :",
+    "Select a standard layout:": "Sélectionnez une mise en page standard :",
     "Selected Item Properties:": "Propriétés de l'élément sélectionné :",
     "Show Print Area on Map": "Afficher la zone d'impression sur la carte",
     "Size": "Taille",
+    "Standard layout added: {}": "Mise en page standard ajoutée : {}",
     "Type": "Type",
     "Visible": "Visible",
     "bytes": "octets"

@@ -157,6 +157,7 @@ Example: the UI shows source labels in the form `[{short}]` or `[{short} #{index
 - `TibanField`: parcel field name
 - `AzaTable`: settings for area codes used in parcel search
 - `angle`: rotation angle (degrees) applied when navigating on search
+- `rotateMode`: set to `"horizontal"` (or `"feature"`/`"target"`) to rotate the map so that the searched feature's principal axis becomes horizontal. `rotateHorizontal: true` enables the same mode (takes precedence over `angle`)
 - `scale`: scale (denominator) applied when navigating on search
 - `selectTheme`: QGIS map theme name to apply when searching
 

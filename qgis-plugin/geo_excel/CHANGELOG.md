@@ -1,5 +1,24 @@
 # CHANGELOG — geo_excel
 
+## 1.8.0
+
+- 変数(@…)および詳細フィルター式対応(upstream issue #1)。
+  各execスクリプトに `make_expression_context`/`excel_value_text`/
+  `evaluate_attach_text` を追加し、式評価を
+  グローバル+プロジェクト+レイヤスコープ+地物を含む
+  QgsExpressionContext で行うように変更。
+  - レイヤ変数内の式(`xlsout_*`)で `@layer_id`・`@project_folder`
+    などの @変数が解決されるようになった
+    (exportSingle: `variable_based_on_feature`、
+    exportSingleBulk: `variable_based_on_feature`/
+    `get_exp_variable_for_feature`/`get_variable_for_feature`、
+    exportList: `get_layer_variable_evaluated`)。
+  - `##Attach::<指定>`・`##ListInsert::<指定>` がフィールド名に
+    一致しない場合、属性テーブルの詳細フィルター(式)と同等の
+    QGIS式として評価されるようになった
+    (例: `"field_a" || '-' || "field_b"`, `@layer_name`)。
+    フィールド名指定時の従来動作(QDate/QTime/QDateTime変換含む)は維持。
+
 ## 1.7.1
 
 - execスクリプト(exportList/exportSingle/exportSingleBulk)の

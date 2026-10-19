@@ -21,6 +21,7 @@
     "Visible": "Видимый"
   },
   "geo_report": {
+    "Add Standard Layout": "Добавить стандартный макет",
     "Angle:": "Угол:",
     "Apply Properties": "Применить свойства",
     "Apply layout properties": "Применить свойства компоновки",
@@ -34,12 +35,15 @@
     "Layout List:": "Список компоновок:",
     "Load Layout": "Загрузить компоновку",
     "Modified": "Изменено",
+    "No standard layout templates were found.": "Стандартные шаблоны макетов не найдены.",
     "Refresh Item Info": "Обновить информацию об элементе",
     "Save Layout": "Сохранить компоновку",
     "Scale:": "Масштаб:",
+    "Select a standard layout:": "Выберите стандартный макет:",
     "Selected Item Properties:": "Свойства выбранного элемента:",
     "Show Print Area on Map": "Показать область печати на карте",
     "Size": "Размер",
+    "Standard layout added: {}": "Стандартный макет добавлен: {}",
     "Type": "Тип",
     "Visible": "Видимый",
     "bytes": "байт"

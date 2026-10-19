@@ -206,27 +206,12 @@ class PrintAreaMoveTool(QgsMapTool):
         angle = 0.0
         if hasattr(self.parent_dialog, 'angle_spin'):
             angle = self.parent_dialog.angle_spin.value()
-        import math
-        theta = math.radians(angle)
-        cos_t = math.cos(theta)
-        sin_t = math.sin(theta)
-        # 中心基準の矩形4頂点を回転
-        local_points = [
-            (-w/2,  h/2),  # 左上
-            ( w/2,  h/2),  # 右上
-            ( w/2, -h/2),  # 右下
-            (-w/2, -h/2),  # 左下
-        ]
-        def rotate_point(x, y):
-            return (
-                new_center.x() + x * cos_t - y * sin_t,
-                new_center.y() + x * sin_t + y * cos_t
-            )
-        rotated_points = [QgsPointXY(*rotate_point(x, y)) for (x, y) in local_points]
-        # 新しい範囲を回転を考慮して計算
-        xs = [pt.x() for pt in rotated_points]
-        ys = [pt.y() for pt in rotated_points]
-        new_extent = QgsRectangle(min(xs), min(ys), max(xs), max(ys))
+        # QgsLayoutItemMapのextentは「回転前の表示領域」を表す。
+        # 回転後の外接矩形(AABB)を渡すと印刷範囲が実表示より大きくなるため、
+        # 回転なしの矩形(中心移動のみ)を設定し、回転はmapRotationに任せる。
+        new_extent = QgsRectangle(
+            new_center.x() - w/2, new_center.y() - h/2,
+            new_center.x() + w/2, new_center.y() + h/2)
         if hasattr(self.map_item, 'setExtent'):
             self.map_item.setExtent(new_extent)
             # 地図内容の回転も維持
@@ -923,54 +908,19 @@ class LayoutSelectorDialog(QDialog):
         left_layout.addWidget(layout_label)
         
         self.layout_list = QListWidget()
-        for qgs_layout in self.layouts:
-            # 最大の地図アイテム(QgsLayoutItemMap)のサイズを取得
-            size_str = ""
-            try:
-                map_items = [item for item in qgs_layout.items() if item.__class__.__name__ == 'QgsLayoutItemMap']
-                if map_items:
-                    # 最大面積の地図アイテムを選ぶ
-                    def map_item_area(m):
-                        if hasattr(m, 'sizeWithUnits'):
-                            s = m.sizeWithUnits()
-                            return s.width() * s.height()
-                        return 0
-                    max_map_item = max(map_items, key=map_item_area)
-                    if hasattr(max_map_item, 'sizeWithUnits'):
-                        s = max_map_item.sizeWithUnits()
-                        width = s.width()
-                        height = s.height()
-                        # 縦横判定
-                        if height >= width:
-                            size_str = f"（{height:.1f}×{width:.1f}mm）"
-                        else:
-                            size_str = f"（{width:.1f}×{height:.1f}mm）"
-                    else:
-                        size_str = ""
-                else:
-                    # 地図アイテムがなければページサイズ
-                    page_collection = qgs_layout.pageCollection()
-                    if page_collection.pageCount() > 0:
-                        page = page_collection.page(0)
-                        width = page.pageSize().width()
-                        height = page.pageSize().height()
-                        if height >= width:
-                            size_str = f"（{height:.1f}×{width:.1f}mm）"
-                        else:
-                            size_str = f"（{width:.1f}×{height:.1f}mm）"
-                    else:
-                        size_str = ""
-            except Exception:
-                size_str = ""
-            item = QListWidgetItem(f"{qgs_layout.name()} {size_str}")
-            item.setData(USER_ROLE, qgs_layout)
-            self.layout_list.addItem(item)
 
         # レイアウト選択時にアイテム情報を更新
         self.layout_list.currentItemChanged.connect(self.on_layout_selected)
         self.layout_list.itemDoubleClicked.connect(self.open_layout_manager)
 
+        self.reload_layout_list()
         left_layout.addWidget(self.layout_list)
+
+        # 標準レイアウト追加ボタン(空のプロジェクト向けにcomposer/*.qptを追加)
+        self.add_std_layout_button = QPushButton(
+            QCoreApplication.translate('geo_report', "Add Standard Layout"))
+        self.add_std_layout_button.clicked.connect(self.add_standard_layout)
+        left_layout.addWidget(self.add_std_layout_button)
 
         # --- スケール入力欄を追加 ---
         scale_layout = QHBoxLayout()
@@ -1146,6 +1096,120 @@ class LayoutSelectorDialog(QDialog):
         if self.layout_list.count() > 0:
             self.layout_list.setCurrentRow(0)
 
+    def _layout_size_str(self, qgs_layout):
+        """レイアウト一覧表示用のサイズ文字列(「297.0×210.0mm」等)を返す"""
+        try:
+            map_items = [item for item in qgs_layout.items() if item.__class__.__name__ == 'QgsLayoutItemMap']
+            if map_items:
+                def map_item_area(m):
+                    if hasattr(m, 'sizeWithUnits'):
+                        s = m.sizeWithUnits()
+                        return s.width() * s.height()
+                    return 0
+                max_map_item = max(map_items, key=map_item_area)
+                if hasattr(max_map_item, 'sizeWithUnits'):
+                    s = max_map_item.sizeWithUnits()
+                    width = s.width()
+                    height = s.height()
+                    if height >= width:
+                        return f"（{height:.1f}×{width:.1f}mm）"
+                    else:
+                        return f"（{width:.1f}×{height:.1f}mm）"
+                return ""
+            page_collection = qgs_layout.pageCollection()
+            if page_collection.pageCount() > 0:
+                page = page_collection.page(0)
+                width = page.pageSize().width()
+                height = page.pageSize().height()
+                if height >= width:
+                    return f"（{height:.1f}×{width:.1f}mm）"
+                else:
+                    return f"（{width:.1f}×{height:.1f}mm）"
+            return ""
+        except Exception:
+            return ""
+
+    def reload_layout_list(self):
+        """プロジェクトのレイアウト一覧を再取得してリストを再構築する"""
+        self.layouts = QgsProject.instance().layoutManager().layouts()
+        self.layout_list.blockSignals(True)
+        self.layout_list.clear()
+        for qgs_layout in self.layouts:
+            size_str = self._layout_size_str(qgs_layout)
+            item = QListWidgetItem(f"{qgs_layout.name()} {size_str}")
+            item.setData(USER_ROLE, qgs_layout)
+            self.layout_list.addItem(item)
+        self.layout_list.blockSignals(False)
+
+    def add_standard_layout(self):
+        """同梱 composer/*.qpt の標準レイアウトをプロジェクトへ追加する"""
+        import glob
+        import os
+        from qgis.core import QgsReadWriteContext, QgsPrintLayout
+        from qgis.PyQt.QtXml import QDomDocument
+        from qgis.PyQt.QtWidgets import QInputDialog
+        composer_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), 'composer')
+        qpt_files = sorted(glob.glob(os.path.join(composer_dir, '*.qpt')))
+        if not qpt_files:
+            QMessageBox.warning(
+                self,
+                QCoreApplication.translate('geo_report', "Add Standard Layout"),
+                QCoreApplication.translate('geo_report', "No standard layout templates were found."))
+            return
+        names = [os.path.splitext(os.path.basename(p))[0] for p in qpt_files]
+        name, ok = QInputDialog.getItem(
+            self,
+            QCoreApplication.translate('geo_report', "Add Standard Layout"),
+            QCoreApplication.translate('geo_report', "Select a standard layout:"),
+            names, 0, False)
+        if not ok or not name:
+            return
+        qpt_path = qpt_files[names.index(name)]
+        try:
+            with open(qpt_path, encoding='utf-8') as f:
+                template_content = f.read()
+            doc = QDomDocument()
+            doc.setContent(template_content)
+            project = QgsProject.instance()
+            layout_manager = project.layoutManager()
+            layout = QgsPrintLayout(project)
+            layout.initializeDefaults()
+            res = layout.loadFromTemplate(doc, QgsReadWriteContext())
+            # QGIS4では(items, ok)タプル、QGIS3ではboolを返す
+            if isinstance(res, (tuple, list)):
+                ok = bool(res[1]) if len(res) > 1 else bool(res[0])
+            else:
+                ok = bool(res)
+            if not ok:
+                raise RuntimeError('loadFromTemplate failed')
+            # 同名レイアウトがあれば連番でユニーク化
+            existing = {l.name() for l in layout_manager.layouts()}
+            new_name = name
+            i = 2
+            while new_name in existing:
+                new_name = f"{name}_{i}"
+                i += 1
+            layout.setName(new_name)
+            layout_manager.addLayout(layout)
+        except Exception as e:
+            QMessageBox.warning(
+                self,
+                QCoreApplication.translate('geo_report', "Add Standard Layout"),
+                QCoreApplication.translate('geo_report', "Import failed") + f": {e}")
+            return
+        self.reload_layout_list()
+        # 追加したレイアウトを選択状態にする
+        for row in range(self.layout_list.count()):
+            it = self.layout_list.item(row)
+            if it is not None and it.data(USER_ROLE) is layout:
+                self.layout_list.setCurrentRow(row)
+                break
+        self.iface.messageBar().pushMessage(
+            QCoreApplication.translate('geo_report', "Information"),
+            QCoreApplication.translate('geo_report', "Standard layout added: {}").format(new_name),
+            level=Qgis.Info, duration=3)
+
     def retranslate_tabs(self):
         """Retranslate tab titles (call on language change)"""
         if hasattr(self, 'tab_widget'):
@@ -1227,10 +1291,17 @@ class LayoutSelectorDialog(QDialog):
         if map_items and hasattr(map_items[0], 'setScale'):
             import math
             # 地図キャンバスの表示範囲
+            # キャンバス回転時は extent() が回転表示領域の外接矩形を返すため、
+            # mapUnitsPerPixel × 画面ピクセル数で実際の表示幅・高さを求める
             canvas = self.iface.mapCanvas()
-            extent = canvas.extent()
-            canvas_width = extent.width()
-            canvas_height = extent.height()
+            try:
+                mupp = canvas.mapSettings().mapUnitsPerPixel()
+                canvas_width = canvas.width() * mupp
+                canvas_height = canvas.height() * mupp
+            except Exception:
+                extent = canvas.extent()
+                canvas_width = extent.width()
+                canvas_height = extent.height()
             # レイアウトのページサイズ（mm）
             try:
                 page_collection = self.current_layout.pageCollection()

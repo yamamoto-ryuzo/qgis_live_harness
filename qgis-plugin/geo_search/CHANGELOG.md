@@ -1,3 +1,19 @@
+# V4.4.0 ユーザーテーマ保存バグ修正 + 検索対象水平回転モード
+- `theme.save_user_theme` が常に空の `entries` を出力するバグを修正
+  (スナップショット名なしで `collect_visible_layer_snapshot` を呼び、
+  存在しない `None` キーを読み戻していたため。内部キー
+  `__user_theme_save__` で保存→読み戻すよう修正)。issue #20 の
+  ユーザーテーマ保存/読込(`.usertheme.json`・設定ダイアログ・
+  bridge `saveUserTheme`/`loadUserTheme`)が実際に機能するようになった。
+- issue #10: 検索時に検索対象を水平に回転するモードを追加。
+  タブ設定で `rotateMode: "horizontal"`(または `"feature"`/`"target"`、
+  もしくは `rotateHorizontal: true`)を指定すると、検索対象地物の
+  全頂点の主成分分析(主軸方位)から水平化に必要な角度を計算し、
+  ナビゲーション後に `canvas.setRotation` で適用する。
+  レイヤCRSとキャンバスCRSが異なる場合は変換してから評価。
+  未指定時は従来の固定値 `angle` 動作。
+- `SEARCH.md`/`SEARCH_JP.md` に `rotateMode` 設定キーを追記。
+
 # V4.3.1 utils.py のQMessageBox翻訳化
 - `utils.py` の JSON エントリ削除処理の警告/情報/書き込みエラー
   QMessageBox(英語直書き5箇所)を

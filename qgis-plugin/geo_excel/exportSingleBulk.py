@@ -64,6 +64,105 @@ def get_layer_variable(layer_context_name: str, layer: QgsVectorLayer):
 
     return QgsExpressionContextScope.variable(QgsExpressionContextUtils.layerScope(layer), layer_context_name)
 
+def make_expression_context(layer: QgsVectorLayer = None, feature: QgsFeature = None):
+    """
+    式評価用のコンテキストを作成する。
+
+    グローバル・プロジェクト・レイヤの各スコープと地物を設定するため、
+    @layer_id や @project_folder などの @変数や、属性テーブルの
+    詳細フィルター（式）で利用できる式がそのまま使える。
+    引数省略時はスクリプト実行時のグローバル layer / feature を使用する。
+
+    Parameters
+      layer -- レイヤ（レイヤスコープを追加する場合に指定）
+      feature -- 地物（地物スコープの式を評価する場合に指定）
+
+    Returns
+      QgsExpressionContext
+    """
+    if layer is None:
+        layer = globals().get('layer')
+    if feature is None:
+        feature = globals().get('feature')
+
+    context = QgsExpressionContext()
+    try:
+        context.appendScope(QgsExpressionContextUtils.globalScope())
+    except Exception:
+        pass
+    try:
+        context.appendScope(QgsExpressionContextUtils.projectScope(QgsProject.instance()))
+    except Exception:
+        pass
+    try:
+        if layer is not None:
+            context.appendScope(QgsExpressionContextUtils.layerScope(layer))
+    except Exception:
+        pass
+    if feature is not None:
+        try:
+            context.setFields(feature.fields())
+        except Exception:
+            pass
+        context.setFeature(feature)
+    return context
+
+def excel_value_text(value):
+    """
+    評価結果をExcel出力用の値に変換する。
+
+    Excelでエラーになる型は文字列に変換する（対象の型：QDate,QTime,QDateTime）
+
+    Parameters
+      value -- 評価結果
+    """
+    if isinstance(value, QDate):
+        return value.toString("yyyy/MM/dd")
+    if isinstance(value, QTime):
+        return value.toString() # フォーマットは不要
+    if isinstance(value, QDateTime):
+        return value.toString("yyyy/MM/dd hh:mm:ss")
+    return value
+
+def evaluate_attach_text(text: str, layer: QgsVectorLayer = None, feature: QgsFeature = None):
+    """
+    ##Attach:: の後に続く指定文字列を評価して結果を返却する。
+
+    フィールド名に一致しない場合は式として評価する。
+    式には属性テーブルの詳細フィルター（式）と同等の記述や
+    @変数（@layer_id 等）が利用できる。
+
+    Parameters
+      text -- フィールド名または式
+      layer -- レイヤ
+      feature -- 地物
+
+    Returns
+      評価結果。フィールドにも式にも一致しない場合は空白を返却する。
+    """
+    if layer is None:
+        layer = globals().get('layer')
+    if feature is None:
+        feature = globals().get('feature')
+    if layer is None or feature is None:
+        return ""
+    try:
+        if feature.fieldNameIndex(text) >= 0:
+            return excel_value_text(feature.attribute(text))
+    except Exception:
+        pass
+    try:
+        exp = QgsExpression(text)
+        if exp.hasParserError():
+            return ""
+        context = make_expression_context(layer, feature)
+        value = exp.evaluate(context)
+        if exp.hasEvalError():
+            return ""
+        return excel_value_text(value)
+    except Exception:
+        return ""
+
 def create_expression(text: str):
     """
     引数の文字列から新しい式を作成するオブジェクトを作成
@@ -104,40 +203,42 @@ def create_expression(text: str):
 
         return exp
 
-def variable_based_on_feature(text: str, feature: QgsFeature):
+def variable_based_on_feature(text: str, feature: QgsFeature, layer: QgsVectorLayer = None):
     """
     地物の属性値を使用して文字列を作成
 
     Parameters
       text -- 文字列
       feature -- 地物
+      layer -- レイヤ（省略時はグローバルのlayer）
 
     Returns
       引数の文字列が式を含んでいる場合、地物の属性値等を使用して新しい文字列を作成する。
+      @変数（@layer_id 等）や詳細フィルター（式）と同等の式が利用できる。
       式を含んでいない場合は引数の文字列をそのまま返却する。
     """
     exp = create_expression(text)
     if exp is None:
         return text
-        
-    context = QgsExpressionContext()
-    context.setFeature(feature)
+
+    context = make_expression_context(layer, feature)
     return exp.evaluate(context)
 
-def get_exp_variable_for_feature(exp: QgsExpression, feature: QgsFeature):
+def get_exp_variable_for_feature(exp: QgsExpression, feature: QgsFeature, layer: QgsVectorLayer = None):
     """
     指定の式に地物を設定し、評価した結果を返却する
 
       Parameters
         exp -- 式
         feature -- 地物
+        layer -- レイヤ（省略時はグローバルのlayer）
 
       Returns
         評価結果
+        （グローバル・プロジェクト・レイヤスコープの @変数が利用可能）
     """
 
-    context = QgsExpressionContext()
-    context.setFeature(feature)
+    context = make_expression_context(layer, feature)
     return exp.evaluate(context)
 
 def contains_text_in_first_cell(ws, text: str):
@@ -183,12 +284,14 @@ def append_attach(ws, cell, attach_list: list):
             # 2023.1.19 QDateエラー修正 end
 
         else:
-            text_info["text"] = ""
+            # フィールド名に一致しない場合は式として評価する
+            # （属性テーブルの詳細フィルター（式）と同等の記述・@変数が利用可能）
+            text_info["text"] = evaluate_attach_text(attach_info[1], layer, feature)
         attach_list.append(text_info)
 
 def find_attach(wb, feature: QgsFeature, attach_list: list):
     """
-    指定ブックの全てのシート内から「##Attach::（地物属性名）」文字列を検索し、その情報をリストに登録。
+    指定ブックの全てのシート内から「##Attach::（地物属性名または式）」文字列を検索し、その情報をリストに登録。
     この処理では地物から属性値をリストに登録するのみでセル値は置換しない。
 
     Parameters
@@ -808,8 +911,7 @@ def get_variable_for_feature(feature: QgsFeature, raw: dict, exp: dict, variable
     
     target_exp = exp.get(variable_name)
 
-    context = QgsExpressionContext()
-    context.setFeature(feature)
+    context = make_expression_context(None, feature)
     return target_exp.evaluate(context)
 
 

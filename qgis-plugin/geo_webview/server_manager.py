@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import socket
 import threading
+import time
 import urllib.parse
 import json
 import html
@@ -8,6 +9,8 @@ import math
 import os
 import re
 import concurrent.futures
+from collections import deque
+from datetime import datetime
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY, QgsMessageLog, Qgis
 from .i18n_json import catalog, lang_code
@@ -180,6 +183,12 @@ class GeoWebViewServerManager:
         self.plugin_version = self._get_plugin_version()
         # 任意のCRSを強制的にEPSG:3857として扱うオプション（デフォルト: False）
         self.force_epsg3857 = False
+
+        # クライアントから受領したパーマリンク履歴(最新10件)
+        # 要素: {'url','client','ua','time'}
+        self.received_history = deque(maxlen=10)
+        # MACアドレス解決キャッシュ {ip: (set_of_macs, epoch)}
+        self._mac_cache = {}
 
     def _safe_int(self, value, default):
         """文字列から安全にintに変換する。NaNや不正値は default を返す。"""
@@ -420,6 +429,15 @@ class GeoWebViewServerManager:
                 http_server.send_http_response(conn, 405, "Method Not Allowed", "Only GET is supported.")
                 return
 
+            # MACアドレス認証モード(設定で有効時のみ): 未登録MACのクライアントは403
+            if not self._mac_auth_check(addr[0] if addr else ''):
+                from . import http_server
+                http_server.send_http_response(
+                    conn, 403, "Forbidden",
+                    "Access denied: client MAC address is not registered.",
+                    "text/plain; charset=utf-8")
+                return
+
             parsed_url = urllib.parse.urlparse(target)
             params = urllib.parse.parse_qs(parsed_url.query)
             # Manually unquote parameter values to handle UTF-8 encoding issues
@@ -434,7 +452,10 @@ class GeoWebViewServerManager:
 
             # ブラウザで読み込まれるページURL（/qgis-map）を受け取ったときだけ
             # パネルのナビゲート欄に表示するためにemitする。
+            # ただしパネル側から生成した自前のページ遷移(internal=1付与)は
+            # ナビゲート欄の上書き・受領履歴の対象外とする。
             try:
+                is_internal = 'internal' in params
                 if parsed_url.path in ('/qgis-map', '/maplibre'):
                     server_port = None
                     try:
@@ -451,20 +472,37 @@ class GeoWebViewServerManager:
                     else:
                         full_url = f'http://{host}{target}'
 
-                    # Emit the full URL for UI if signal available
-                    if hasattr(self, 'navigation_signals') and self.navigation_signals:
+                    if not is_internal:
+                        # 受領履歴に記録(クライアントIP・User-Agent・時刻つき、最大10件)
                         try:
-                            if hasattr(self.navigation_signals, 'request_origin_changed'):
-                                self.navigation_signals.request_origin_changed.emit(full_url)
+                            ua = ''
+                            for hline in request_text.splitlines():
+                                if hline.lower().startswith('user-agent:'):
+                                    ua = hline.split(':', 1)[1].strip()
+                                    break
+                            self.received_history.appendleft({
+                                'url': full_url,
+                                'client': addr[0] if addr else '',
+                                'ua': ua,
+                                'time': datetime.now().isoformat(timespec='seconds'),
+                            })
                         except Exception:
                             pass
 
-                    # main_plugin にも保持（パネル未作成時のフォールバック）
-                    try:
-                        if hasattr(self, 'main_plugin'):
-                            setattr(self.main_plugin, '_last_request_origin', full_url)
-                    except Exception:
-                        pass
+                        # Emit the full URL for UI if signal available
+                        if hasattr(self, 'navigation_signals') and self.navigation_signals:
+                            try:
+                                if hasattr(self.navigation_signals, 'request_origin_changed'):
+                                    self.navigation_signals.request_origin_changed.emit(full_url)
+                            except Exception:
+                                pass
+
+                        # main_plugin にも保持（パネル未作成時のフォールバック）
+                        try:
+                            if hasattr(self, 'main_plugin'):
+                                setattr(self.main_plugin, '_last_request_origin', full_url)
+                        except Exception:
+                            pass
             except Exception:
                 pass
 
@@ -789,6 +827,11 @@ class GeoWebViewServerManager:
                         http_server.send_http_response(conn, 500, "Internal Server Error", error_html, "text/html; charset=utf-8")
                         return
 
+                    # プレゼンテーション追従モード(follow/present指定時):
+                    # /present/state をポーリングしてQGIS側の表示に追従する
+                    if html_content and ('follow' in params or 'present' in params):
+                        html_content = self._inject_follow_script(html_content, 'maplibre')
+
                     from . import http_server
                     http_server.send_http_response(conn, 200, "OK", html_content, "text/html; charset=utf-8")
                 except Exception as e:
@@ -899,6 +942,81 @@ class GeoWebViewServerManager:
                     http_server.send_http_response(conn, 500, "Internal Server Error", f"debug-bookmarks failed: {str(e)}")
                 return
             
+            # クライアントから受領したパーマリンク履歴(JSON)
+            if parsed_url.path == '/received':
+                try:
+                    payload = json.dumps(
+                        {'received': list(self.received_history)},
+                        ensure_ascii=False)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 200, 'OK', payload,
+                        'application/json; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'received failed: {e}', 'text/plain; charset=utf-8')
+                return
+
+            # 現在のキャンバス状態(JSON)。プレゼンテーション追従用
+            if parsed_url.path == '/present/state':
+                try:
+                    payload = json.dumps(
+                        self._canvas_state_dict(), ensure_ascii=False)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 200, 'OK', payload,
+                        'application/json; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'present/state failed: {e}', 'text/plain; charset=utf-8')
+                return
+
+            # 現在のキャンバス表示と同等のPNG(プレゼンテーション共有用)
+            if parsed_url.path == '/screenshot':
+                try:
+                    self._handle_screenshot(conn, params)
+                except Exception as e:
+                    QgsMessageLog.logMessage(
+                        f'❌ screenshot handler error: {e}',
+                        'geo_webview', Qgis.Critical)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'screenshot failed: {e}', 'text/plain; charset=utf-8')
+                return
+
+            # プレゼンテーションページ(地図キャンバスのウィンドウ共有表示)
+            if parsed_url.path == '/present':
+                try:
+                    self._handle_present_page(conn, params)
+                except Exception as e:
+                    QgsMessageLog.logMessage(
+                        f'❌ present handler error: {e}',
+                        'geo_webview', Qgis.Critical)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'present failed: {e}', 'text/plain; charset=utf-8')
+                return
+
+            # OpenLayers+Cesiumの2画面3Dページ
+            if parsed_url.path == '/map3d':
+                try:
+                    self._handle_map3d(conn, params, host)
+                except Exception as e:
+                    QgsMessageLog.logMessage(
+                        f'❌ map3d handler error: {e}',
+                        'geo_webview', Qgis.Critical)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'map3d failed: {e}', 'text/plain; charset=utf-8')
+                return
+
             # --- 静的ファイル配信: favicon.ico, style.json, data.geojson など ---
             import os
             # Support a few well-known static assets. Also allow serving small
@@ -949,9 +1067,373 @@ class GeoWebViewServerManager:
                 conn,
                 404,
                 "Not Found",
-                "Available endpoints: /wms (PNG image), /qgis-map (OpenLayers HTML), /maplibre (MapLibre HTML), /wmts (WMTS tiles), /wfs (WFS service)"
+                "Available endpoints: /wms (PNG image), /qgis-map (OpenLayers HTML), /maplibre (MapLibre HTML), /map3d (OpenLayers+Cesium 3D), /present (shared canvas view), /present/state (canvas JSON), /screenshot (canvas PNG), /received (permalink history), /wmts (WMTS tiles), /wfs (WFS service)"
             )
             return
+
+    # ---------- MACアドレス認証 ----------
+
+    @staticmethod
+    def _norm_mac(value):
+        """MAC表記を 'AA:BB:CC:DD:EE:FF' 大文字に正規化。不正値はNone。"""
+        m = re.sub(r'[^0-9A-Fa-f]', '', str(value))
+        if len(m) != 12:
+            return None
+        return ':'.join(m[i:i + 2] for i in range(0, 12, 2)).upper()
+
+    def _local_macs(self):
+        """このマシンのMACアドレス集合を返す(best-effort)。"""
+        macs = set()
+        try:
+            import uuid
+            n = self._norm_mac(format(uuid.getnode(), '012x'))
+            if n:
+                macs.add(n)
+        except Exception:
+            pass
+        try:
+            import subprocess
+            if os.name == 'nt':
+                out = subprocess.check_output(
+                    ['getmac', '/fo', 'csv', '/nh'], timeout=5)
+                text = out.decode('mbcs', errors='replace')
+                for token in re.findall(
+                        r'(?:[0-9A-Fa-f]{2}[-:]){5}[0-9A-Fa-f]{2}', text):
+                    n = self._norm_mac(token)
+                    if n:
+                        macs.add(n)
+            else:
+                sysd = '/sys/class/net'
+                if os.path.isdir(sysd):
+                    for dev in os.listdir(sysd):
+                        try:
+                            with open(os.path.join(sysd, dev, 'address')) as fh:
+                                n = self._norm_mac(fh.read())
+                                if n:
+                                    macs.add(n)
+                        except Exception:
+                            continue
+        except Exception:
+            pass
+        return macs
+
+    def _arp_lookup(self, ip):
+        """ARPテーブルからリモートIPのMACアドレス集合を返す。"""
+        macs = set()
+        try:
+            import subprocess
+            if os.name == 'nt':
+                out = subprocess.check_output(['arp', '-a'], timeout=5)
+                text = out.decode('mbcs', errors='replace')
+            else:
+                try:
+                    out = subprocess.check_output(
+                        ['ip', 'neigh', 'show'], timeout=5)
+                    text = out.decode(errors='replace')
+                except Exception:
+                    out = subprocess.check_output(['arp', '-a'], timeout=5)
+                    text = out.decode(errors='replace')
+            for line in text.splitlines():
+                if ip in line:
+                    for token in re.findall(
+                            r'(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}', line):
+                        n = self._norm_mac(token)
+                        if n:
+                            macs.add(n)
+        except Exception:
+            pass
+        return macs
+
+    def _resolve_client_macs(self, ip):
+        """クライアントIPのMACアドレス集合(30秒キャッシュ)。"""
+        now = time.time()
+        ent = self._mac_cache.get(ip)
+        if ent and now - ent[1] < 30:
+            return ent[0]
+        macs = set()
+        try:
+            if ip in ('127.0.0.1', '::1') or ip.startswith('::ffff:127.'):
+                macs |= self._local_macs()
+            else:
+                macs |= self._arp_lookup(ip)
+        except Exception:
+            pass
+        self._mac_cache[ip] = (macs, now)
+        return macs
+
+    def _mac_auth_check(self, client_ip):
+        """MAC認証モードの判定。無効時は常にTrue。
+
+        有効時(QSettings geo_webview.mac_auth_enabled)は、クライアントの
+        MACアドレスが mac_auth_allowed(空白/カンマ区切り)に登録済みか判定。
+        """
+        try:
+            from qgis.PyQt.QtCore import QSettings
+            s = QSettings('GeoWebView', 'geo_webview')
+            enabled = str(
+                s.value('mac_auth_enabled', 'false')).lower() in (
+                    '1', 'true', 'yes', 'on')
+            if not enabled:
+                return True
+            raw = s.value('mac_auth_allowed', '') or ''
+            allowed = {
+                self._norm_mac(m) for m in re.split(r'[\s,;]+', str(raw))
+                if self._norm_mac(m)}
+            if not allowed:
+                return False
+            client_macs = {
+                self._norm_mac(m) for m in self._resolve_client_macs(client_ip)
+                if self._norm_mac(m)}
+            return bool(allowed & client_macs)
+        except Exception:
+            # 認証判定で例外が出た場合は安全側(拒否)
+            return False
+
+    # ---------- キャンバス状態 / プレゼンテーション ----------
+
+    def _canvas_state_dict(self):
+        """現在の地図キャンバス状態をJSON化可能なdictで返す。
+
+        x/y/crs はキャンバスCRS、x3857/y3857 はEPSG:3857、lon/lat は
+        EPSG:4326 にそれぞれ変換した中心座標。zoom はscaleからの推定。
+        """
+        canvas = self.iface.mapCanvas()
+        ms = canvas.mapSettings()
+        c = canvas.center()
+        scale = canvas.scale()
+        crs_auth = ms.destinationCrs().authid()
+        rotation = 0.0
+        try:
+            rotation = float(canvas.rotation())
+        except Exception:
+            pass
+        zoom = None
+        try:
+            from .scale_zoom import estimate_zoom_from_scale_maplibre
+            zoom = estimate_zoom_from_scale_maplibre(scale)
+        except Exception:
+            try:
+                from .scale_zoom import estimate_zoom_from_scale
+                zoom = estimate_zoom_from_scale(scale)
+            except Exception:
+                zoom = None
+        lon = lat = x3857 = y3857 = None
+        try:
+            src = QgsCoordinateReferenceSystem(crs_auth)
+            if src.isValid():
+                proj = QgsProject.instance()
+                p4326 = QgsCoordinateTransform(
+                    src, QgsCoordinateReferenceSystem('EPSG:4326'), proj
+                ).transform(QgsPointXY(c.x(), c.y()))
+                lon, lat = p4326.x(), p4326.y()
+                p3857 = QgsCoordinateTransform(
+                    src, QgsCoordinateReferenceSystem('EPSG:3857'), proj
+                ).transform(QgsPointXY(c.x(), c.y()))
+                x3857, y3857 = p3857.x(), p3857.y()
+        except Exception:
+            pass
+        return {
+            'x': c.x(), 'y': c.y(), 'scale': scale, 'crs': crs_auth,
+            'rotation': rotation, 'zoom': zoom,
+            'lon': lon, 'lat': lat, 'x3857': x3857, 'y3857': y3857,
+            'time': datetime.now().isoformat(timespec='seconds'),
+        }
+
+    def _handle_screenshot(self, conn, params):
+        """現在の地図キャンバス表示と同等内容のPNGを返す(回転も反映)。
+
+        QgsMapRendererParallelJob でキャンバスのMapSettingsを複製描画するため
+        GUIスレッドをブロックしない。w/h(またはwidth/height)で出力サイズ指定可。
+        """
+        from . import http_server
+        canvas = self.iface.mapCanvas()
+        from qgis.core import QgsMapSettings
+        from qgis.PyQt.QtCore import QSize, QBuffer, QIODevice, QByteArray
+        ms = QgsMapSettings(canvas.mapSettings())
+        w = self._safe_int(
+            params.get('w', params.get('width', [0]))[0], 0)
+        h = self._safe_int(
+            params.get('h', params.get('height', [0]))[0], 0)
+        if w <= 0 or h <= 0:
+            try:
+                w = int(canvas.width())
+                h = int(canvas.height())
+            except Exception:
+                w, h = 0, 0
+        if w <= 0 or h <= 0:
+            w, h = 800, 600
+        w = min(w, 4096)
+        h = min(h, 4096)
+        ms.setOutputSize(QSize(w, h))
+        image = None
+        try:
+            if self.wms_service is not None:
+                image = self.wms_service._execute_parallel_rendering(ms)
+        except Exception:
+            image = None
+        if image is None or image.isNull():
+            http_server.send_http_response(
+                conn, 500, 'Internal Server Error', 'render failed',
+                'text/plain; charset=utf-8')
+            return
+        ba = QByteArray()
+        buf = QBuffer(ba)
+        buf.open(QIODevice.OpenModeFlag.WriteOnly)
+        try:
+            image.save(buf, 'PNG')
+        finally:
+            try:
+                buf.close()
+            except Exception:
+                pass
+        data = bytes(ba)
+        http_server.send_binary_response(
+            conn, 200, 'OK', data, 'image/png')
+
+    def _handle_present_page(self, conn, params):
+        """地図キャンバスのウィンドウ共有ページ(/screenshot定期更新)を返す。"""
+        from . import http_server
+        interval = self._safe_int(params.get('interval', [1500])[0], 1500)
+        if interval < 250:
+            interval = 250
+        S = _page_strings()
+        html_page = u'''<!doctype html>
+<html lang="{lang}">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="initial-scale=1"/>
+<title>geo_webview - Presentation</title>
+<style>
+html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family:sans-serif}}
+#wrap{{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}}
+#shot{{max-width:100%;max-height:100%}}
+#info{{position:fixed;left:0;right:0;bottom:0;padding:4px 10px;background:rgba(0,0,0,.55);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+</style>
+</head>
+<body>
+<div id="wrap"><img id="shot" alt="loading..."/></div>
+<div id="info">geo_webview presentation</div>
+<script>
+(function(){{
+  var img = document.getElementById('shot');
+  var info = document.getElementById('info');
+  var timer = {interval};
+  function reload(){{
+    var im = new Image();
+    im.onload = function(){{ img.src = im.src; }};
+    im.src = 'screenshot?ts=' + Date.now();
+  }}
+  async function state(){{
+    try{{
+      var r = await fetch('present/state'); var s = await r.json();
+      if(s) info.textContent =
+        'center: ' + (s.lon!=null? s.lon.toFixed(6)+','+s.lat.toFixed(6) : s.x.toFixed(1)+','+s.y.toFixed(1)) +
+        '  scale: 1:' + Math.round(s.scale) +
+        '  rotation: ' + (s.rotation||0).toFixed(1) + '°  crs: ' + s.crs +
+        '  (' + s.time + ')';
+    }}catch(e){{}}
+  }}
+  setInterval(reload, timer);
+  setInterval(state, timer);
+  reload(); state();
+}})();
+</script>
+</body>
+</html>'''.format(lang=S.get('lang', 'en'), interval=interval)
+        http_server.send_http_response(
+            conn, 200, 'OK', html_page, 'text/html; charset=utf-8')
+
+    def _handle_map3d(self, conn, params, host):
+        """OpenLayers+Cesiumの2画面3Dページを返す。"""
+        from . import http_server
+        nav = self._canvas_state_dict()
+        # 明示パラメータがあれば上書き(値はキャンバスCRS基準)
+        for k in ('x', 'y', 'scale', 'rotation'):
+            try:
+                if params.get(k):
+                    nav[k] = float(params[k][0])
+            except Exception:
+                pass
+        if params.get('crs'):
+            nav['crs'] = params['crs'][0]
+        # x/y がパラメータ指定された場合は各系へ変換し直す
+        try:
+            src = QgsCoordinateReferenceSystem(str(nav.get('crs')))
+            if src.isValid() and nav.get('x') is not None:
+                proj = QgsProject.instance()
+                p4326 = QgsCoordinateTransform(
+                    src, QgsCoordinateReferenceSystem('EPSG:4326'), proj
+                ).transform(QgsPointXY(float(nav['x']), float(nav['y'])))
+                nav['lon'], nav['lat'] = p4326.x(), p4326.y()
+                p3857 = QgsCoordinateTransform(
+                    src, QgsCoordinateReferenceSystem('EPSG:3857'), proj
+                ).transform(QgsPointXY(float(nav['x']), float(nav['y'])))
+                nav['x3857'], nav['y3857'] = p3857.x(), p3857.y()
+        except Exception:
+            pass
+        try:
+            from .scale_zoom import estimate_zoom_from_scale_maplibre
+            nav['zoom'] = estimate_zoom_from_scale_maplibre(nav.get('scale'))
+        except Exception:
+            pass
+        html_content = self.webmap_generator.generate_ol_cesium_page(
+            nav, host or f'localhost:{self.server_port}')
+        http_server.send_http_response(
+            conn, 200, 'OK', html_content, 'text/html; charset=utf-8')
+
+    def _inject_follow_script(self, html_content, kind):
+        """生成HTMLにプレゼンテーション追従スクリプトを差し込む。
+
+        kind: 'maplibre' または 'openlayers'。/present/state を定期ポーリングし
+        QGIS側の表示位置・ズーム・回転をクライアント側地図へ強制反映する。
+        """
+        if kind == 'maplibre':
+            js = u'''
+<script>
+(function(){
+  function apply(s){
+    try{
+      var m = window.qmap_map || window.map;
+      if(!m || !s) return;
+      var opt = {};
+      if(typeof s.lon === 'number' && typeof s.lat === 'number') opt.center = [s.lon, s.lat];
+      if(typeof s.zoom === 'number') opt.zoom = s.zoom;
+      if(typeof s.rotation === 'number') opt.bearing = -s.rotation;
+      m.jumpTo(opt);
+    }catch(e){}
+  }
+  async function tick(){
+    try{ var r = await fetch('present/state'); apply(await r.json()); }catch(e){}
+  }
+  setInterval(tick, 1500); tick();
+})();
+</script>
+'''
+        else:
+            js = u'''
+<script>
+(function(){
+  function apply(s){
+    try{
+      var m = (typeof map !== 'undefined') ? map : (window.qmap_ol_map || window.map);
+      if(!m || !s) return;
+      var view = m.getView();
+      if(typeof s.x3857 === 'number' && typeof s.y3857 === 'number') view.setCenter([s.x3857, s.y3857]);
+      if(typeof s.zoom === 'number') view.setZoom(s.zoom);
+      if(typeof s.rotation === 'number') view.setRotation(-s.rotation * Math.PI / 180);
+    }catch(e){}
+  }
+  async function tick(){
+    try{ var r = await fetch('present/state'); apply(await r.json()); }catch(e){}
+  }
+  setInterval(tick, 1500); tick();
+})();
+</script>
+'''
+        idx = html_content.rfind('</body>')
+        if idx >= 0:
+            return html_content[:idx] + js + html_content[idx:]
+        return html_content + js
 
     def _handle_permalink_html_page(self, conn, params):
         """パーマリンクパラメータに基づいてWMSエンドポイントを使用するHTMLページを生成"""
@@ -1007,6 +1489,9 @@ class GeoWebViewServerManager:
 
             # Generate HTML page using converted EPSG:3857 center coordinates
             html_content = self._generate_wms_based_html_page(x3857, y3857, scale, 'EPSG:3857', rotation, width, height)
+            # プレゼンテーション追従モード(follow/present指定時)
+            if html_content and ('follow' in params or 'present' in params):
+                html_content = self._inject_follow_script(html_content, 'openlayers')
             # HTMLレスポンスを送信
             from . import http_server
             http_server.send_http_response(conn, 200, "OK", html_content, "text/html; charset=utf-8")

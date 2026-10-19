@@ -53,6 +53,105 @@ def get_layer_variable(layer_context_name: str, layer: QgsVectorLayer):
 
     return QgsExpressionContextScope.variable(QgsExpressionContextUtils.layerScope(layer), layer_context_name)
 
+def make_expression_context(layer: QgsVectorLayer = None, feature: QgsFeature = None):
+    """
+    式評価用のコンテキストを作成する。
+
+    グローバル・プロジェクト・レイヤの各スコープと地物を設定するため、
+    @layer_id や @project_folder などの @変数や、属性テーブルの
+    詳細フィルター（式）で利用できる式がそのまま使える。
+    引数省略時はスクリプト実行時のグローバル layer / feature を使用する。
+
+    Parameters
+      layer -- レイヤ（レイヤスコープを追加する場合に指定）
+      feature -- 地物（地物スコープの式を評価する場合に指定）
+
+    Returns
+      QgsExpressionContext
+    """
+    if layer is None:
+        layer = globals().get('layer')
+    if feature is None:
+        feature = globals().get('feature')
+
+    context = QgsExpressionContext()
+    try:
+        context.appendScope(QgsExpressionContextUtils.globalScope())
+    except Exception:
+        pass
+    try:
+        context.appendScope(QgsExpressionContextUtils.projectScope(QgsProject.instance()))
+    except Exception:
+        pass
+    try:
+        if layer is not None:
+            context.appendScope(QgsExpressionContextUtils.layerScope(layer))
+    except Exception:
+        pass
+    if feature is not None:
+        try:
+            context.setFields(feature.fields())
+        except Exception:
+            pass
+        context.setFeature(feature)
+    return context
+
+def excel_value_text(value):
+    """
+    評価結果をExcel出力用の値に変換する。
+
+    Excelでエラーになる型は文字列に変換する（対象の型：QDate,QTime,QDateTime）
+
+    Parameters
+      value -- 評価結果
+    """
+    if isinstance(value, QDate):
+        return value.toString("yyyy/MM/dd")
+    if isinstance(value, QTime):
+        return value.toString() # フォーマットは不要
+    if isinstance(value, QDateTime):
+        return value.toString("yyyy/MM/dd hh:mm:ss")
+    return value
+
+def evaluate_attach_text(text: str, layer: QgsVectorLayer = None, feature: QgsFeature = None):
+    """
+    ##ListInsert:: / ##Attach:: の後に続く指定文字列を評価して結果を返却する。
+
+    フィールド名に一致しない場合は式として評価する。
+    式には属性テーブルの詳細フィルター（式）と同等の記述や
+    @変数（@layer_id 等）が利用できる。
+
+    Parameters
+      text -- フィールド名または式
+      layer -- レイヤ
+      feature -- 地物
+
+    Returns
+      評価結果。フィールドにも式にも一致しない場合は空白を返却する。
+    """
+    if layer is None:
+        layer = globals().get('layer')
+    if feature is None:
+        feature = globals().get('feature')
+    if layer is None or feature is None:
+        return ""
+    try:
+        if feature.fieldNameIndex(text) >= 0:
+            return excel_value_text(feature.attribute(text))
+    except Exception:
+        pass
+    try:
+        exp = QgsExpression(text)
+        if exp.hasParserError():
+            return ""
+        context = make_expression_context(layer, feature)
+        value = exp.evaluate(context)
+        if exp.hasEvalError():
+            return ""
+        return excel_value_text(value)
+    except Exception:
+        return ""
+
 def create_expression(text: str):
     """
     引数の文字列から新しい式を作成するオブジェクトを作成
@@ -110,11 +209,17 @@ def get_layer_variable_evaluated(layer_context_name: str, layer: QgsVectorLayer)
     if not ctx:
         return ""
     exp = create_expression(ctx)
-    if exp is None or exp.evaluate() is None:
+    if exp is None:
         # 単一の文字列を返却する
         return ctx
-    
-    return exp.evaluate()
+
+    # グローバル・プロジェクト・レイヤスコープの @変数が利用できるコンテキストで評価する
+    context = make_expression_context(layer)
+    evaluated = exp.evaluate(context)
+    if evaluated is None:
+        return ctx
+
+    return evaluated
 
 def contains_text_in_first_cell(ws, text: str):
     # 最初のセルは結合セルか
@@ -299,7 +404,10 @@ def insert_list_values(ws, layer: QgsVectorLayer, list_insert_list: list, extent
             row = target["row"] - min_row + (idx * row_span)
 
             if feature.fieldNameIndex(target["name"]) < 0:
-                cells_list[row][column] = None
+                # フィールド名に一致しない場合は式として評価する
+                # （属性テーブルの詳細フィルター（式）と同等の記述・@変数が利用可能）
+                expr_value = evaluate_attach_text(target["name"], layer, feature)
+                cells_list[row][column] = None if expr_value in (None, "") else str(expr_value)
                 continue
 
             attr_value = feature.attribute(target["name"])

@@ -157,6 +157,7 @@
 - `TibanField`: 地番属性名
 - `AzaTable`: 地番検索用の字コード設定
 - `angle`: 検索時に適用する回転角度（度）
+- `rotateMode`: `"horizontal"`（または `"feature"`/`"target"`）を指定すると、検索時に検索対象地物の主軸が水平になるよう地図を自動回転します。`rotateHorizontal: true` でも有効化できます（`angle` より優先）
 - `scale`: 検索時に適用する縮尺（分母）
 - `selectTheme`: 検索時に適用する QGIS マップテーマ名
 

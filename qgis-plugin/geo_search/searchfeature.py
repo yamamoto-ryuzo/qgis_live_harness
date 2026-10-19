@@ -838,7 +838,7 @@ class SearchFeature(object):
                         except Exception:
                             pass
                         try:
-                            self._apply_rotation_if_configured(canvas)
+                            self._apply_search_rotation(canvas, features, target_layer)
                         except Exception:
                             pass
                         try:
@@ -866,7 +866,7 @@ class SearchFeature(object):
                                 except Exception:
                                     pass
                                 try:
-                                    self._apply_rotation_if_configured(canvas)
+                                    self._apply_search_rotation(canvas, features, target_layer)
                                 except Exception:
                                     pass
                                 try:
@@ -898,6 +898,149 @@ class SearchFeature(object):
             except Exception:
                 pass
             return
+
+    def _horizontal_rotation_enabled(self):
+        """検索対象を水平に回転するモード(rotateMode='horizontal' 等)が有効か。"""
+        try:
+            s = self.setting or {}
+            mode = str(s.get('rotateMode') or s.get('rotate_mode')
+                       or '').strip().lower()
+            if mode in ('horizontal', 'feature', 'target'):
+                return True
+            return bool(s.get('rotateHorizontal')
+                        or s.get('rotate_horizontal'))
+        except Exception:
+            return False
+
+    def _apply_search_rotation(self, canvas=None, features=None, layer=None):
+        """回転適用の統合入口。
+
+        rotateMode が horizontal/feature/target(または rotateHorizontal 系の
+        真値)なら検索対象地物の主軸が水平になるよう回転する。
+        それ以外は従来どおり固定値 angle を適用する。
+        """
+        try:
+            if self._horizontal_rotation_enabled():
+                try:
+                    if self._apply_horizontal_rotation(canvas, features, layer):
+                        return
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        self._apply_rotation_if_configured(canvas)
+
+    def _apply_horizontal_rotation(self, canvas=None, features=None, layer=None):
+        """検索対象地物の主軸が水平になるようキャンバスを回転する。"""
+        try:
+            if canvas is None:
+                try:
+                    canvas = self.iface.mapCanvas()
+                except Exception:
+                    canvas = None
+            if canvas is None or not features:
+                return False
+            angle = self._dominant_orientation_deg(features, canvas, layer)
+            if angle is None:
+                return False
+            if hasattr(canvas, 'setRotation'):
+                canvas.setRotation(angle)
+            elif hasattr(canvas, 'setMapRotation'):
+                canvas.setMapRotation(angle)
+            else:
+                return False
+            try:
+                canvas.refresh()
+            except Exception:
+                pass
+            try:
+                from qgis.core import QgsMessageLog
+                QgsMessageLog.logMessage(
+                    f"_apply_horizontal_rotation: rotation={angle}",
+                    "GEO-search-plugin", 0)
+            except Exception:
+                pass
+            return True
+        except Exception:
+            return False
+
+    def _dominant_orientation_deg(self, features, canvas=None, layer=None):
+        """地物群の主軸方位から、水平化に必要なキャンバス回転角を返す。
+
+        全地物の全頂点に対して主成分分析(共分散の固有方向)を行い、
+        主軸とx軸のなす角 φ[deg] を求め、 -φ を返す
+        (QGIS setRotation は正=反時計回り)。
+        頂点が不足・等方的(方向性なし)の場合は None。
+        """
+        import math
+        try:
+            from qgis.core import (
+                QgsCoordinateTransform, QgsGeometry, QgsProject)
+        except Exception:
+            QgsCoordinateTransform = None
+            QgsGeometry = None
+            QgsProject = None
+
+        transform = None
+        try:
+            layer = layer or getattr(self, 'layer', None)
+            layer_crs = layer.crs() if layer is not None and hasattr(layer, 'crs') else None
+            canvas_crs = None
+            if canvas is not None:
+                try:
+                    canvas_crs = canvas.mapSettings().destinationCrs()
+                except Exception:
+                    canvas_crs = None
+            if (layer_crs is not None and canvas_crs is not None
+                    and layer_crs != canvas_crs
+                    and QgsCoordinateTransform is not None):
+                transform = QgsCoordinateTransform(
+                    layer_crs, canvas_crs, QgsProject.instance())
+        except Exception:
+            transform = None
+
+        n = 0
+        sx = sy = sxx = sxy = syy = 0.0
+        for f in features or []:
+            try:
+                g = f.geometry() if hasattr(f, 'geometry') else f
+                if g is None:
+                    continue
+                try:
+                    if g.isEmpty():
+                        continue
+                except Exception:
+                    pass
+                if transform is not None and QgsGeometry is not None:
+                    try:
+                        g = QgsGeometry(g)
+                        g.transform(transform)
+                    except Exception:
+                        pass
+                for v in g.vertices():
+                    n += 1
+                    sx += v.x()
+                    sy += v.y()
+                    sxx += v.x() * v.x()
+                    sxy += v.x() * v.y()
+                    syy += v.y() * v.y()
+            except Exception:
+                continue
+        if n < 2:
+            return None
+        mx = sx / n
+        my = sy / n
+        vxx = sxx / n - mx * mx
+        vxy = sxy / n - mx * my
+        vyy = syy / n - my * my
+        # 等方的(方向性が無い)場合は回転しない
+        scale = abs(vxx) + abs(vyy)
+        if scale <= 0:
+            return None
+        if abs(vxy) / scale < 1e-6 and abs(vxx - vyy) / scale < 1e-6:
+            return None
+        phi = 0.5 * math.degrees(math.atan2(2.0 * vxy, vxx - vyy))
+        return -phi
 
     def _apply_rotation_if_configured(self, canvas=None):
         """もし設定に角度があれば、与えられた canvas（または iface.mapCanvas()）に対して回転を適用する。
