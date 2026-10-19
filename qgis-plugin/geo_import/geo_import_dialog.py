@@ -261,6 +261,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         self.iface = iface
         self.main_win = parent
         self.search_txt = ''
+        self._server_errors = {}  # {url: msg} 接続失敗中のサーバー(死んだCKANの明示用)
         self.cur_package = None
         self.result_count = 0
         self.current_page = 1
@@ -448,6 +449,39 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         except Exception:
             pass
         return url
+
+    def _update_server_label(self):
+        """IDC_lblApiUrl を選択中サーバー一覧で更新する。
+        接続失敗が記録されているサーバーは赤・取り消し線+「(Unreachable)」で
+        死んでいることを明示し、ツールチップにエラー内容を出す。"""
+        urls = self._active_server_urls()
+        dead = set(self._server_errors or {})
+        try:
+            for u in urls:
+                if u not in dead and self.settings.server_error(u):
+                    dead.add(u)
+        except Exception:
+            pass
+        unreachable = QCoreApplication.translate('GeoImport', 'Unreachable')
+        import html as _html
+        parts = []
+        tooltips = []
+        for u in urls:
+            entry = u'{0} ({1})'.format(self._server_label(u), u)
+            if u in dead:
+                err = self._server_errors.get(u) or self.settings.server_error(u) or ''
+                parts.append(
+                    u'<span style="color:#cc0000; text-decoration:line-through">{0}</span>'
+                    u' <span style="color:#cc0000">({1})</span>'.format(
+                        _html.escape(entry), unreachable))
+                tooltips.append(u'{0}: {1}'.format(u, err))
+            else:
+                parts.append(_html.escape(entry))
+        self.IDC_lblApiUrl.setText(
+            QCoreApplication.translate('GeoImport', 'Current server: {0}')
+            .format(u' | '.join(parts)))
+        if tooltips:
+            self.IDC_lblApiUrl.setToolTip('\n'.join(tooltips))
 
     def _sync_local_cache_checkbox(self):
         """ローカルキャッシュ利用チェックボックスを選択中サーバー設定に同期する"""
@@ -1103,10 +1137,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
     def window_loaded(self):
         try:
             self.settings.load()
-            _urls = self._active_server_urls()
-            _servers_txt = u' | '.join(
-                u'{0} ({1})'.format(self._server_label(u), u) for u in _urls)
-            self.IDC_lblApiUrl.setText(QCoreApplication.translate('GeoImport', 'Current server: {0}').format(_servers_txt))
+            self._update_server_label()
             self.IDC_lblCacheDir.setText(QCoreApplication.translate('GeoImport', 'Cache path: {0}').format(self.settings.cache_dir))
             if self.timer is not None:
                 self.timer.stop()
@@ -1191,12 +1222,18 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                         ok_net, group_result = self.cc.get_groups(url)
                         if ok_net is False:
                             # modalダイアログは非同期タイマ経由の呼出をブロックするため
-                            # messageBarで通知する
+                            # messageBarで通知する。死んだCKANは記録して明示する
                             self.util.msg_log_error(u'get_groups failed: {0}'.format(group_result))
+                            self._server_errors[url] = str(group_result)
+                            self.settings.record_server_error(url, group_result)
                             self.iface.messageBar().pushMessage(
                                 self.settings.DLG_CAPTION, str(group_result), Qgis.Warning)
-                        elif group_result:
-                            _add_groups(group_result, url)
+                        else:
+                            self._server_errors.pop(url, None)
+                            if self.settings.server_error(url):
+                                self.settings.clear_server_error(url)
+                            if group_result:
+                                _add_groups(group_result, url)
             finally:
                 self.IDC_listGroup.blockSignals(False)
             self.update_format_list(all_results)
@@ -1288,6 +1325,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         page_count = 1
         total_resource_count = 0
         errors = []
+        errors_cleared = False
         for url in self._active_server_urls():
             # チェックされたカテゴリのうちそのサーバーが持つものだけfqに使う。
             # 1つも持たないサーバーは絞り込みに合致しないため0件(スキップ)。
@@ -1308,8 +1346,16 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     self.search_txt, groups=eff_groups, page=self.current_page,
                     api_url=url)
                 if not ok:
+                    # 死んだCKANを記録(セッション表示 + ckan_servers.jsonへ永続化)
+                    self._server_errors[url] = str(result)
+                    self.settings.record_server_error(url, result)
                     errors.append(u'{0}: {1}'.format(self._server_label(url), result))
                     continue
+                # 成功したサーバーの失敗記録を消す
+                self._server_errors.pop(url, None)
+                if self.settings.server_error(url):
+                    self.settings.clear_server_error(url)
+                    errors_cleared = True
                 page_results = result.get('results', []) if isinstance(result, dict) else []
                 count = result.get('count', len(page_results)) if isinstance(result, dict) else len(page_results)
                 pages = max(1, math.ceil(count / rows))
@@ -1324,6 +1370,14 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             total_resource_count += res_cnt
         if errors:
             self._warn_nonmodal(u'; '.join(errors))
+        if errors or errors_cleared:
+            # 失敗記録の追加・回復消去を永続化
+            try:
+                self.settings.save()
+            except Exception:
+                pass
+        # 死んだCKANをサーバーラベルで明示
+        self._update_server_label()
         self._on_data_ready(merged_results, total_count, page_count, total_resource_count)
 
     def _warn_nonmodal(self, msg):
@@ -1347,6 +1401,12 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         self.page_count = page_count
         # 全検索結果分のリソース数を表示
         erg_text = QCoreApplication.translate('GeoImport', "Results - datasets: {0} / resources: {1}").format(self.result_count, total_resource_count)
+        # 死んでいるサーバーがあれば結果ラベルにも明示する
+        if self._server_errors:
+            dead_labels = u', '.join(
+                self._server_label(u) for u in self._server_errors)
+            erg_text += u' / {0}: {1}'.format(
+                QCoreApplication.translate('GeoImport', 'Unreachable'), dead_labels)
         self.util.msg_log_debug(erg_text)
         page_text = QCoreApplication.translate('GeoImport', u'py_dlg_base_page_count').format(self.current_page, self.page_count)
         self.IDC_lblSuchergebnisse.setText(erg_text)

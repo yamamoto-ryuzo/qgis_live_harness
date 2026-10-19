@@ -4,7 +4,7 @@
 name=geo_import
 qgisMinimumVersion=4.0
 qgisMaximumVersion=4.99
-version=2.9.0
+version=2.10.0
 author=yamamoto-ryuzo
 email=ryu@yamakun.net
 description=さまざまなデータセットを検索・追加できるQGISプラグインです / A QGIS plugin to search and add various datasets.
@@ -15,6 +15,8 @@ homepage=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-pl
 tracker=https://github.com/yamamoto-ryuzo/qgis_live_harness/issues
 repository=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_import
 changelog=
+	2.10.0: 接続失敗したCKANサーバーを赤・取り消し線で明示し失敗を永続記録(横断検索で死んだサーバーが視認可能に)
+	2.9.0: 複数CKANサーバー同時選択による横断検索に対応
 	2.8.0: 翻訳方式をi18n/<lang>.jsonに移行。qgis_live_driverのlayer_orgサービス連携で追加レイヤのグループ整理・命名を標準化
 	2.7.0: カタログ取得のデフォルトをネットワーク直接参照に変更。ローカル一括ダウンロード(SQLiteキャッシュ)はサイトごと/全体で選択可能なオプション化
 	2.6.0: 国際化(i18n)対応 — UI・ログ文字列を英語ソースに統一、翻訳コンテキスト正規化

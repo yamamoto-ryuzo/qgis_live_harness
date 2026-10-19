@@ -9,6 +9,8 @@
     "Current server: {0}": "当前服务器: {0}",
     "Delete": "删除",
     "Failed to load any CKAN instances.": "无法加载任何 CKAN 实例。",
+    "Unreachable": "无法访问",
+    "Last connection failed: {0}": "上次连接失败: {0}",
     "SQLite save error: {}": "SQLite 保存错误: {}",
     "Saved {} records to SQLite DB: {}.": "已将 {} 条记录保存到 SQLite 数据库: {}。",
     "Select Authentication": "选择身份验证",

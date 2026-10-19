@@ -1,3 +1,17 @@
+2.10.0 死んでいるCKANサーバーの明示表示
+- 接続失敗したサーバーを `Settings.server_errors` として
+  `ckan_servers.json` に `{url: {error, time}}` で永続記録し、
+  セッションをまたいで「死んでいる」状態を明示する。
+- メインダイアログ: サーバーラベル(IDC_lblApiUrl)で失敗サーバーを
+  赤・取り消し線+「(Unreachable)」表示(ツールチップにエラー内容)、
+  結果ラベルにも「/ Unreachable: <server>」を付記。
+  検索成功時は記録を自動消去(復活検知)。
+- データプロバイダ選択ダイアログ: 前回接続失敗の記録がある
+  サーバー行を赤背景+ツールチップ「Last connection failed: ...」で表示。
+- bridge `status` の `settings` に `server_errors` を追加。
+- 新規翻訳キー `Unreachable` / `Last connection failed: {0}` を
+  全9言語に登録。
+
 2.9.0 複数CKANサーバー横断検索 + 免責ダイアログ本文の消失を修正
 - 複数CKANサーバー横断検索: データプロバイダ選択ダイアログで複数サーバーの
   同時選択を許可し、検索を `Settings.selected_ckan_urls`/

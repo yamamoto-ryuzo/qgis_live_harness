@@ -233,6 +233,7 @@ class GeoImportBridge:
                 "use_local_cache_all": getattr(st, "use_local_cache_all", None),
                 "local_cache_sites": getattr(st, "local_cache_sites", None),
                 "current_site_local_cache": cur_cache,
+                "server_errors": getattr(st, "server_errors", {}) or {},
             },
         })
 

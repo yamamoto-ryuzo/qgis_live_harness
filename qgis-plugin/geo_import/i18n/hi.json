@@ -9,6 +9,8 @@
     "Current server: {0}": "वर्तमान सर्वर: {0}",
     "Delete": "हटाएँ",
     "Failed to load any CKAN instances.": "कोई भी CKAN इंस्टेंस लोड नहीं हो सका।",
+    "Unreachable": "पहुंच योग्य नहीं",
+    "Last connection failed: {0}": "अंतिम कनेक्शन विफल: {0}",
     "SQLite save error: {}": "SQLite सेव त्रुटि: {}",
     "Saved {} records to SQLite DB: {}.": "{} रिकॉर्ड SQLite DB में सेव किए गए: {}।",
     "Select Authentication": "प्रमाणीकरण चुनें",

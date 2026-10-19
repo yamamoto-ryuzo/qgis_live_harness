@@ -22,6 +22,8 @@
     "Failed to load CSV file: {0}": "CSVファイルの読み込みに失敗しました: {0}",
     "Failed to load XML file: {0}": "XMLファイルの読み込みに失敗しました: {0}",
     "Failed to load any CKAN instances.": "CKANインスタンスを読み込めませんでした。",
+    "Unreachable": "接続不可",
+    "Last connection failed: {0}": "前回の接続に失敗しました: {0}",
     "Fetching all CKAN datasets...": "CKAN全件取得中...",
     "Fetching all CKAN datasets... ({0}/{1})": "CKAN全件取得中... ({0}/{1})",
     "File does not appear to be XML: {0}\nfirst line: {1}...": "XMLファイルではないようです: {0}\n最初の行: {1}...",

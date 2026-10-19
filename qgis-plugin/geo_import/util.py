@@ -964,97 +964,210 @@ class Util:
                 self.msg_log_debug(f'GeoJSON not valid or could not be added: {full_path}')
             return True
 
-        # GSJMAP detection: look for keys typical of map pages
-        if isinstance(obj, dict) and ('page' in obj or 'downloadData' in obj or 'pages' in obj):
-            try:
-                # create a subfolder for this gsjmap
-                safe_name = self.safe_filename(os.path.basename(full_path).rsplit('.', 1)[0])
-                target_dir = os.path.join(data_dir, f'gsjmap_{safe_name}')
-                self.create_dir(target_dir)
-                # Extract sections with embedded geojson
-                pages = obj.get('page') or obj.get('pages') or []
-                if isinstance(pages, dict):
-                    pages = [pages]
-                written = 0
-                for p in pages:
-                    sections = p.get('section') or []
-                    if isinstance(sections, dict):
-                        sections = [sections]
-                    for s in sections:
-                        geo = s.get('geojson')
-                        if geo:
-                            out_name = s.get('name') or s.get('title') or f'section_{written}'
-                            out_file = os.path.join(target_dir, self.safe_filename(out_name) + '.geojson')
-                            try:
-                                with open(out_file, 'w', encoding='utf-8') as ofh:
-                                    json.dump(geo, ofh, ensure_ascii=False)
-                                written += 1
-                                self.msg_log_debug(f'Wrote section geojson: {out_file}')
-                            except Exception as e:
-                                self.msg_log_debug(f'Failed to write section geojson: {e}')
-                # If there is downloadData or resources, try to download into target_dir
-                # Minimal approach: look for URLs in obj['downloadData'] or obj['resource']
-                resources = []
-                if isinstance(obj.get('downloadData'), list):
-                    for r in obj.get('downloadData'):
-                        if isinstance(r, dict):
-                            url = r.get('url') or r.get('downloadUrl') or r.get('download')
-                            if url:
-                                resources.append(url)
-                # also check for page-level resources
-                for p in pages:
-                    if isinstance(p, dict):
-                        r = p.get('resource')
-                        if isinstance(r, list):
-                            for it in r:
-                                if isinstance(it, dict):
-                                    url = it.get('url') or it.get('downloadUrl')
-                                    if url:
-                                        resources.append(url)
-                # download resources (best-effort, skip on failure)
-                for url in resources:
-                    try:
-                        import urllib.request
-                        fn = os.path.basename(url.split('?')[0]) or self.safe_filename(url)
-                        dest = os.path.join(target_dir, fn)
-                        if not os.path.exists(dest):
-                            urllib.request.urlretrieve(url, dest)
-                            self.msg_log_debug(f'Downloaded resource: {dest}')
-                    except Exception as e:
-                        self.msg_log_debug(f'Failed to download resource {url}: {e}')
-                # Now scan the target_dir for GIS files and add them
-                added_any = False
-                for root, dirs, files in os.walk(target_dir):
-                    for f in files:
-                        fp = os.path.join(root, f)
-                        lc = f.lower()
-                        if lc.endswith('.geojson') or lc.endswith('.json'):
-                            lyr = self.__add_vector_layer(fp, layer_url + ' - ' + f)
-                            if lyr and lyr.isValid():
-                                QgsProject.instance().addMapLayer(lyr)
-                                added_any = True
-                        elif lc.endswith('.shp') or lc.endswith('.gpkg'):
-                            lyr = self.__add_vector_layer(fp, layer_url + ' - ' + f)
-                            if lyr and lyr.isValid():
-                                QgsProject.instance().addMapLayer(lyr)
-                                added_any = True
-                        elif lc.endswith('.tif') or lc.endswith('.tiff') or lc.endswith('.img'):
-                            lyr = self.__add_raster_layer(fp, layer_url + ' - ' + f)
-                            if lyr and lyr.isValid():
-                                QgsProject.instance().addMapLayer(lyr)
-                                added_any = True
-                if added_any:
-                    self.msg_log_debug(f'GSJMAP: added {written} embedded geojson + resources from {full_path}')
-                else:
-                    self.msg_log_debug(f'GSJMAP: no GIS files auto-added for {full_path} (wrote {written} geojson files)')
-                return True
-            except Exception as e:
-                self.msg_log_debug(f'Error handling GSJMAP JSON: {e}')
-                return False
+        # TileJSON detection (e.g. GSJ 地図タイル情報)
+        if isinstance(obj, dict) and isinstance(obj.get('tiles'), list) and obj['tiles']:
+            return self._handle_tilejson(obj, full_layer_name)
+
+        # GSJMAP detection: 産総研 Linked Data マップ情報 JSON
+        # (data_type=GSJMAP / @type=Gsjmap / page[] / downloadData[])
+        if isinstance(obj, dict) and (
+            obj.get('data_type') == 'GSJMAP'
+            or obj.get('@type') == 'Gsjmap'
+            or 'page' in obj
+            or 'pages' in obj
+            or 'downloadData' in obj
+        ):
+            return self._handle_gsjmap_json(obj, full_path, full_layer_name, data_dir)
 
         # Unknown JSON type: do not auto-open, log and skip
         self.msg_log_debug(f'Unknown JSON type (skipped): {full_path}')
         return True
+
+    def __add_xyz_layer(self, url_template, layer_name, zmin=None, zmax=None):
+        """Add an XYZ tile layer. Returns True when the layer was added."""
+        src = u'type=xyz&url={0}'.format(url_template)
+        if zmin is not None:
+            src += u'&zmin={0}'.format(zmin)
+        if zmax is not None:
+            src += u'&zmax={0}'.format(zmax)
+        lyr = QgsRasterLayer(src, layer_name, 'wms')
+        if lyr is not None and lyr.isValid():
+            QgsProject.instance().addMapLayer(lyr)
+            return True
+        self.msg_log_debug(u'XYZ layer invalid: {0}'.format(url_template))
+        return False
+
+    def _zoom_to_bbox(self, bbox):
+        """Best-effort: zoom the map canvas to a WGS84 bbox [w, s, e, n]."""
+        try:
+            if not bbox or len(bbox) != 4:
+                return
+            from qgis.core import (
+                QgsRectangle,
+                QgsCoordinateReferenceSystem,
+                QgsCoordinateTransform,
+            )
+            rect = QgsRectangle(bbox[0], bbox[1], bbox[2], bbox[3])
+            wgs84 = QgsCoordinateReferenceSystem('EPSG:4326')
+            canvas = iface.mapCanvas()
+            dest_crs = canvas.mapSettings().destinationCrs()
+            if dest_crs.isValid() and dest_crs != wgs84:
+                rect = QgsCoordinateTransform(
+                    wgs84, dest_crs, QgsProject.instance()
+                ).transformBoundingBox(rect)
+            canvas.setExtent(rect)
+            canvas.refresh()
+        except Exception as e:
+            self.msg_log_debug(u'zoom_to_bbox failed: {0}'.format(e))
+
+    def _handle_tilejson(self, obj, full_layer_name):
+        """Handle a TileJSON document: add its tile endpoint as an XYZ layer."""
+        try:
+            url = obj['tiles'][0]
+            # prefer a non-webp alternate when tiles[] itself is webp only
+            if url.lower().split('?')[0].endswith('.webp'):
+                alternates = (obj.get('properties') or {}).get('alternate_tile_templates') or {}
+                for key in ('png', 'xyz'):
+                    for alt in alternates.get(key) or []:
+                        if isinstance(alt, dict) and alt.get('template'):
+                            url = alt['template']
+                            break
+                    else:
+                        continue
+                    break
+            name = obj.get('description') or obj.get('name') or full_layer_name
+            added = self.__add_xyz_layer(
+                url, name,
+                zmin=obj.get('minzoom'),
+                zmax=obj.get('maxzoom'),
+            )
+            if added and obj.get('bounds'):
+                self._zoom_to_bbox(obj['bounds'])
+            self.msg_log_debug(u'TileJSON handled: {0} ({1})'.format(name, url))
+            return True
+        except Exception as e:
+            self.msg_log_debug(u'Error handling TileJSON: {0}'.format(e))
+            return False
+
+    def _handle_gsjmap_json(self, obj, full_path, full_layer_name, data_dir):
+        """Handle a GSJ Linked Data マップ情報(JSON) document.
+
+        Adds the map sheet itself via page[].tile_xyz_template (fallback:
+        page[].wms_*), extracts embedded section GeoJSON, and writes a
+        download_links.txt listing downloadData/viewer URLs (no auto-download:
+        the same files are exposed as separate catalog resources).
+        """
+        try:
+            safe_name = self.safe_filename(
+                os.path.basename(full_path).rsplit('.', 1)[0])
+            target_dir = os.path.join(data_dir, u'gsjmap_{0}'.format(safe_name))
+            self.create_dir(target_dir)
+            title = obj.get('title_j') or obj.get('title_e') or full_layer_name
+            pages = obj.get('page') or obj.get('pages') or []
+            if isinstance(pages, dict):
+                pages = [pages]
+            pages = [p for p in pages if isinstance(p, dict)]
+            added_any = False
+            first_bbox = None
+
+            # 地図タイル(XYZ)またはWMSで地図本体をレイヤ追加
+            for idx, p in enumerate(pages):
+                sub = p.get('sub_title') or p.get('sub_title_e')
+                if len(pages) > 1 or sub:
+                    lyr_name = u'{0} - {1}'.format(title, sub or idx + 1)
+                else:
+                    lyr_name = title
+                xyz = p.get('tile_xyz_template')
+                if xyz and self.__add_xyz_layer(xyz, lyr_name):
+                    added_any = True
+                elif p.get('wms_name') and p.get('wms_capabilities'):
+                    wms_base = p['wms_capabilities'].split('?')[0]
+                    src = (
+                        u'crs=EPSG:4326&format=image/png&layers={0}'
+                        u'&url={1}&styles='
+                    ).format(p['wms_name'], wms_base)
+                    lyr = QgsRasterLayer(src, lyr_name, 'wms')
+                    if lyr is not None and lyr.isValid():
+                        QgsProject.instance().addMapLayer(lyr)
+                        added_any = True
+                if first_bbox is None and p.get('bbox'):
+                    first_bbox = p['bbox']
+
+            # 断面線等の埋め込みGeoJSON(文字列で格納)をファイル化して追加
+            written = []
+            for p in pages:
+                sections = p.get('section') or []
+                if isinstance(sections, dict):
+                    sections = [sections]
+                for s in sections:
+                    if not isinstance(s, dict):
+                        continue
+                    geo = s.get('geojson')
+                    if isinstance(geo, str):
+                        try:
+                            geo = json.loads(geo)
+                        except Exception:
+                            geo = None
+                    if not geo:
+                        continue
+                    out_name = (
+                        s.get('label') or s.get('name') or s.get('title')
+                        or u'section_{0}'.format(len(written))
+                    )
+                    out_file = os.path.join(
+                        target_dir, self.safe_filename(out_name) + '.geojson')
+                    try:
+                        with open(out_file, 'w', encoding='utf-8') as ofh:
+                            json.dump(geo, ofh, ensure_ascii=False)
+                        written.append(out_file)
+                        self.msg_log_debug(
+                            u'Wrote section geojson: {0}'.format(out_file))
+                    except Exception as e:
+                        self.msg_log_debug(
+                            u'Failed to write section geojson: {0}'.format(e))
+            for geo_file in written:
+                lyr = self.__add_vector_layer(
+                    geo_file, title + ' - ' + os.path.basename(geo_file))
+                if lyr is not None and lyr.isValid():
+                    QgsProject.instance().addMapLayer(lyr)
+                    added_any = True
+
+            # downloadData/viewerのリンク一覧を保存(自動ダウンロードはしない)
+            try:
+                links_path = os.path.join(target_dir, 'download_links.txt')
+                with open(links_path, 'w', encoding='utf-8') as lfh:
+                    lfh.write(title + u'\n')
+                    if obj.get('@id'):
+                        lfh.write(u'Linked Data:\t{0}\n'.format(obj['@id']))
+                    if obj.get('viewer_url'):
+                        lfh.write(u'Viewer:\t{0}\n'.format(obj['viewer_url']))
+                    for r in obj.get('downloadData') or []:
+                        if not isinstance(r, dict):
+                            continue
+                        url = (
+                            r.get('@id') or r.get('url')
+                            or r.get('downloadUrl') or r.get('download')
+                        )
+                        if not url:
+                            continue
+                        lfh.write(u'{0}\t{1}\t{2}\t{3}\n'.format(
+                            r.get('data_type') or '',
+                            r.get('title') or '',
+                            r.get('data_size') or '',
+                            url))
+            except Exception as e:
+                self.msg_log_debug(
+                    u'Failed to write download links: {0}'.format(e))
+
+            if first_bbox:
+                self._zoom_to_bbox(first_bbox)
+            self.msg_log_debug(
+                u'GSJMAP: {0} (layers={1}, geojson={2})'.format(
+                    full_path, added_any, len(written)))
+            return True
+        except Exception as e:
+            self.msg_log_debug(u'Error handling GSJMAP JSON: {0}'.format(e))
+            return False
 
     def dlg_information(self, msg):
         QMessageBox.information(self.main_win, self.dlg_caption, msg)

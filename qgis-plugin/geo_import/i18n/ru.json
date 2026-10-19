@@ -9,6 +9,8 @@
     "Current server: {0}": "Текущий сервер: {0}",
     "Delete": "Удалить",
     "Failed to load any CKAN instances.": "Не удалось загрузить экземпляры CKAN.",
+    "Unreachable": "Недоступен",
+    "Last connection failed: {0}": "Последнее подключение не удалось: {0}",
     "SQLite save error: {}": "Ошибка сохранения SQLite: {}",
     "Saved {} records to SQLite DB: {}.": "{} записей сохранено в БД SQLite: {}.",
     "Select Authentication": "Выберите аутентификацию",

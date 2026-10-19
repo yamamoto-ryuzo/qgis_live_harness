@@ -17,6 +17,7 @@ class Settings:
         self.ckan_url = None
         self.selected_ckan_servers = ''
         self.selected_ckan_urls = []  # 複数選択時のアクティブなapi_url一覧(横断検索用)
+        self.server_errors = {}  # {api_url: {"error": msg, "time": iso}} 接続失敗の記録
         self.custom_servers = {}
         self.authcfg = None
         self.cache_dir = None
@@ -80,6 +81,8 @@ class Settings:
                     self.selected_ckan_servers = data.get('selected_ckan_servers', '')
                     loaded_urls = data.get('selected_ckan_urls', [])
                     self.selected_ckan_urls = loaded_urls if isinstance(loaded_urls, list) else []
+                    loaded_errors = data.get('server_errors', {})
+                    self.server_errors = loaded_errors if isinstance(loaded_errors, dict) else {}
                     # 既存データがstrの場合はtype=CKANでラップ
                     loaded_custom = data.get('custom_servers', {})
                     new_custom = {}
@@ -99,11 +102,13 @@ class Settings:
                 self.selected_ckan_urls = []
                 self.custom_servers = {}
                 self.local_cache_sites = []
+                self.server_errors = {}
         else:
             self.selected_ckan_servers = ''
             self.selected_ckan_urls = []
             self.custom_servers = {}
             self.local_cache_sites = []
+            self.server_errors = {}
         self.debug = qgis_settings.value(self.KEY_SHOW_DEBUG_INFO, False, bool)
         self.authcfg = qgis_settings.value(self.KEY_AUTHCFG, '')
         self.auth_propagate = qgis_settings.value(self.KEY_AUTH_PROPAGATE, False, bool)
@@ -143,7 +148,8 @@ class Settings:
             'selected_ckan_servers': self.selected_ckan_servers,
             'selected_ckan_urls': self.selected_ckan_urls if isinstance(self.selected_ckan_urls, list) else [],
             'custom_servers': self.custom_servers,
-            'local_cache_sites': self.local_cache_sites if isinstance(self.local_cache_sites, list) else []
+            'local_cache_sites': self.local_cache_sites if isinstance(self.local_cache_sites, list) else [],
+            'server_errors': self.server_errors if isinstance(self.server_errors, dict) else {}
         }
         try:
             with open(servers_path, 'w', encoding='utf-8') as f:
@@ -160,6 +166,30 @@ class Settings:
         if urls:
             return urls
         return [self.ckan_url] if self.ckan_url else []
+
+    def record_server_error(self, url, message):
+        """サーバーの接続失敗を記録する(死んでいるCKANの明示用)"""
+        if not url:
+            return
+        if not isinstance(self.server_errors, dict):
+            self.server_errors = {}
+        import datetime
+        self.server_errors[url] = {
+            'error': str(message)[:300],
+            'time': datetime.datetime.now().isoformat(timespec='seconds'),
+        }
+
+    def clear_server_error(self, url):
+        """接続成功時にサーバーの失敗記録を消す"""
+        if isinstance(self.server_errors, dict) and url in self.server_errors:
+            del self.server_errors[url]
+
+    def server_error(self, url):
+        """記録された失敗メッセージを返す。無ければNone"""
+        entry = (self.server_errors or {}).get(url)
+        if isinstance(entry, dict):
+            return entry.get('error')
+        return entry
 
     def use_local_cache(self, url):
         """

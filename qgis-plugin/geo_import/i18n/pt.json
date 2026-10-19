@@ -9,6 +9,8 @@
     "Current server: {0}": "Servidor atual: {0}",
     "Delete": "Excluir",
     "Failed to load any CKAN instances.": "Falha ao carregar instâncias CKAN.",
+    "Unreachable": "Inacessível",
+    "Last connection failed: {0}": "A última ligação falhou: {0}",
     "SQLite save error: {}": "Erro ao salvar no SQLite: {}",
     "Saved {} records to SQLite DB: {}.": "{} registros salvos no BD SQLite: {}.",
     "Select Authentication": "Selecionar autenticação",

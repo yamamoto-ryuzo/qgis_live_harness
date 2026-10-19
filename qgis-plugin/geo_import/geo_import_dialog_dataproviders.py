@@ -211,6 +211,12 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
                     if server.api_url is not None:
                         if server.is_custom:
                             i.setBackground(QColor(0, 0, 255, 50))
+                        # 前回接続失敗が記録されているサーバーは赤で明示
+                        err = self.settings.server_error(server.api_url)
+                        if err:
+                            i.setBackground(QColor(255, 0, 0, 40))
+                            i.setToolTip(QCoreApplication.translate(
+                                'GeoImport', 'Last connection failed: {0}').format(err))
                         i.setCheckable(True)
                         i.setCheckState(Qt.CheckState.Checked if server.selected else Qt.CheckState.Unchecked)
                         self.list_model.appendRow(i)
@@ -321,6 +327,12 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
             if result.api_url is not None:
                 if result.is_custom:
                     i.setBackground(QColor(0, 0, 255, 50))
+                # 前回接続失敗が記録されているサーバーは赤で明示
+                err = self.settings.server_error(result.api_url)
+                if err:
+                    i.setBackground(QColor(255, 0, 0, 40))
+                    i.setToolTip(QCoreApplication.translate(
+                        'GeoImport', 'Last connection failed: {0}').format(err))
                 i.setCheckable(True)
                 i.setCheckState(Qt.CheckState.Checked if result.selected else Qt.CheckState.Unchecked)
                 self.list_model.appendRow(i)
