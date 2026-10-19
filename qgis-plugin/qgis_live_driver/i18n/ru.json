@@ -145,6 +145,7 @@
     "Context: {0} tokens": "Контекст: {0} токенов",
     "Current chat": "Текущий чат",
     "Current mode: {0}": "Текущий режим: {0}",
+    "(declared: {0})": "(объявлено: {0})",
     "Deploy Mode": "Режим развёртывания",
     "Deploy mode switched: {0}": "Режим развёртывания переключён: {0}",
     "Development (junction: repository sources)": "Разработка (junction: исходники репозитория)",

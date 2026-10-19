@@ -145,6 +145,7 @@
     "Context: {0} tokens": "संदर्भ: {0} टोकन",
     "Current chat": "वर्तमान चैट",
     "Current mode: {0}": "वर्तमान मोड: {0}",
+    "(declared: {0})": "(घोषित: {0})",
     "Deploy Mode": "डिप्लॉय मोड",
     "Deploy mode switched: {0}": "डिप्लॉय मोड बदला गया: {0}",
     "Development (junction: repository sources)": "डेवलपमेंट (junction: रिपॉज़िटरी स्रोत)",

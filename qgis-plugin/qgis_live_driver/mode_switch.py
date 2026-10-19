@@ -7,6 +7,8 @@
 
 モード宣言は profiles/<profile>/qgis_live_mode.json
 ({"mode":"dev"|"use","repo":"<harness repo>"})に書き出される。
+宣言は意図の記録であり、モード判定は配置実態(junction/dir)が優先
+される(未配置時のみ宣言で補う)。
 実体dir配置(利用モード)でも marker.repo からスクリプトを解決できる。
 dev化時は既存の実体プラグイン(利用版)を profiles/<profile>/
 qgis_live_parked/<id> へ退避してからjunctionを張り、use化時は
@@ -96,9 +98,12 @@ def managed_ids(own_file):
 def deploy_state(own_file):
     """現在のdeploy状態を返す。
 
-    {mode, declared, actual, plugins:{id: junction|dir|missing},
-     repo, profile}
-    mode は宣言marker優先、無ければ配置実態から推定。
+    {mode, declared, actual, diverged, plugins:{id: junction|dir|missing},
+     parked, repo, profile}
+    mode は配置実態(actual)優先。実際に動くコードを決めるのは配置物
+    なので、古い宣言で実態を上書きしない。未配置(none)の時だけ
+    宣言markerで補う(use宣言=自動deploy抑制の意図を残すため)。
+    宣言と実態が食い違う場合 diverged=True。
     """
     proot = profile_root(own_file)
     plugins_root = os.path.join(proot, "python", "plugins")
@@ -126,10 +131,12 @@ def deploy_state(own_file):
         actual = "dev"
     else:
         actual = "use"
+    mode = actual if actual != "none" else (declared or "none")
     return {
-        "mode": declared or actual,
+        "mode": mode,
         "declared": declared,
         "actual": actual,
+        "diverged": declared is not None and declared != mode,
         "plugins": forms,
         "parked": parked,
         "repo": repo_root(own_file),
@@ -227,7 +234,14 @@ def show_dialog(iface, own_file, notify=None):
             "mixed": tr("Mixed"),
             "none": tr("Not deployed"),
         }.get(st["mode"], st["mode"] or "")
-        mode_label.setText(tr("Current mode: {0}").format(label))
+        text = tr("Current mode: {0}").format(label)
+        if st.get("diverged") and st.get("declared"):
+            dlabel = {
+                "dev": tr("Development mode"),
+                "use": tr("Usage mode"),
+            }.get(st["declared"], st["declared"])
+            text += " " + tr("(declared: {0})").format(dlabel)
+        mode_label.setText(text)
         ids = list(st["plugins"])
         table.setRowCount(len(ids))
         for i, pid in enumerate(ids):

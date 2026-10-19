@@ -5,6 +5,14 @@
 
 ## [0.15.1] - Unreleased
 
+### Changed
+
+- deployモード判定を「配置実態(junction/dir)優先」に変更。
+  宣言markerは未配置時の補完と乖離検出(`deploy_state` の
+  `declared`/`diverged`)に使い、古い宣言で実態を上書きしない。
+  Deploy Modeダイアログは宣言と実態が乖離している場合に
+  `(declared: ...)` を併記する
+
 ### Fixed
 
 - Deploy Modeダイアログのモード切替が、QGIS内のPATHに `powershell` が

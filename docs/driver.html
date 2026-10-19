@@ -306,7 +306,8 @@ MCP onboarding wizardを開き、Server URL に <code>https://&lt;トンネルFQ
 deployモードをQGIS内から確認・切替できる(Harnessリポジトリ利用時のみ。
 切替は内部で <code>deploy-plugin.ps1</code> を起動する)。</p>
 <ul>
-<li><strong>状態表示</strong>: 宣言モード(dev/use) + 各管理プラグインの実配置形態
+<li><strong>状態表示</strong>: 現在モード(配置実態優先。宣言と乖離時は
+<code>(declared: ...)</code> を併記) + 各管理プラグインの実配置形態
 (junction/dir/未配置)を一覧。利用版が退避中なら <code>(+parked)</code> と表示</li>
 <li><strong>開発モードへ</strong>: 既存の実体プラグイン(利用版)を
 <code>profiles/&lt;profile&gt;/qgis_live_parked/</code> へ退避してからjunctionを張る

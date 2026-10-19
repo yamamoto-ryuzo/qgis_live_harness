@@ -150,18 +150,39 @@ if ($CheckOnly) {
     }
 
     if (-not $SkipDeploy) {
-      # 利用モード(use)中はdeployしない。利用環境のプラグイン内容を
-      # 変えるのはUI操作の deploy/deploy:use/deploy:install のみという規約のため
+      # 利用モード中はdeployしない。実体dir(利用版)が1つでもあれば
+      # 自動deployで退避・差替えしない(配置実態優先。宣言markerは
+      # 未配置の時だけ補う)。利用環境のプラグイン内容を変えるのは
+      # UI操作の deploy/deploy:use/deploy:install のみという規約のため
       $prof = "default"
       $profilesIni = Join-Path "$env:APPDATA\QGIS\QGIS4\profiles" "profiles.ini"
       if (Test-Path $profilesIni) {
         $m = Select-String -Path $profilesIni -Pattern "lastProfile=(.+)"
         if ($m) { $prof = $m.Matches.Groups[1].Value.Trim() }
       }
-      $modeFile = Join-Path "$env:APPDATA\QGIS\QGIS4\profiles\$prof" "qgis_live_mode.json"
-      $isUseMode = $false
-      if (Test-Path $modeFile) {
-        try { $isUseMode = ((Get-Content $modeFile -Raw | ConvertFrom-Json).mode -eq "use") } catch {}
+      $profileRoot = Join-Path "$env:APPDATA\QGIS\QGIS4\profiles" $prof
+      $pluginsRoot = Join-Path $profileRoot "python\plugins"
+      $sawDir = $false
+      $sawJunction = $false
+      Get-ChildItem (Join-Path $repoRoot "qgis-plugin") -Directory |
+        Where-Object { Test-Path (Join-Path $_.FullName "metadata.txt") } |
+        ForEach-Object {
+          $dst = Join-Path $pluginsRoot $_.Name
+          if (Test-Path $dst) {
+            if ((Get-Item $dst -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) {
+              $sawJunction = $true
+            } else {
+              $sawDir = $true
+            }
+          }
+        }
+      $isUseMode = $sawDir
+      if (-not $sawDir -and -not $sawJunction) {
+        # 未配置: 宣言markerで補う(use宣言中は自動deployしない)
+        $modeFile = Join-Path $profileRoot "qgis_live_mode.json"
+        if (Test-Path $modeFile) {
+          try { $isUseMode = ((Get-Content $modeFile -Raw | ConvertFrom-Json).mode -eq "use") } catch {}
+        }
       }
       if ($isUseMode) {
         Write-Host "  利用モード(use)検出: プラグイン配置をスキップします(開発モードへは npm run deploy)"

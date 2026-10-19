@@ -90,9 +90,11 @@ npm run test:live       # 実QGIS内で検証(pyevalで内部状態assert含む)
 <h3>deployモード(開発/利用の明示切替)</h3>
 <p>同じQGISプロファイル内で「開発」と「利用(通常使用)」を
 <strong>配置形態で明示切替</strong>する。モード宣言は
-<code>profiles/&lt;profile&gt;/qgis_live_mode.json</code> に記録され、
+<code>profiles/&lt;profile&gt;/qgis_live_mode.json</code> に記録される
+(宣言は意図の記録であり、現在モードの判定は<strong>配置実態
+(junction/dir)が優先</strong>。乖離時は宣言も併記される)。
 現在モードは <code>npm run deploy:status</code>、Driverメニューの
-<code>配置モード</code> ダイアログ(宣言+各プラグインの実配置形態+退避状態)、
+<code>配置モード</code> ダイアログ(現在モード+各プラグインの実配置形態+退避状態)、
 および <strong>GeoSuiteツールバー先頭のモードバッジ</strong>
 (開発=「開発モード」の赤背景白文字、利用=歯車アイコンのみで非侵襲。
 クリックでダイアログを開く)で確認できる。

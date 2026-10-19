@@ -18,9 +18,11 @@
 //   node scripts/qgis-session.mjs reload
 
 import { spawnSync } from "node:child_process";
-import { existsSync, lstatSync, readdirSync, readFileSync } from "node:fs";
+import {
+  existsSync, lstatSync, readdirSync, readFileSync, realpathSync,
+} from "node:fs";
 import { fileURLToPath } from "node:url";
-import { join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { LivePage, resolveLiveDirs } from "./live-drive.mjs";
 
 const REPO = fileURLToPath(new URL("../", import.meta.url));
@@ -50,12 +52,26 @@ const LOG_PATH = join(REPO, "test-results", "plugin_load.log");
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// deployモード: "dev"=junction(repo優先) / "use"=実体dir(退避版の復元) / null=未配置
-// deploy-plugin.ps1 が書く宣言マーカーを優先し、無ければ配置物の形態から推定する。
+// deployモード: "dev"=junction(repo優先) / "use"=実体dir(退避版の復元) /
+//   "mixed"=混在 / null=未配置
+// 配置実態を優先し、未配置の時だけ宣言マーカー(deploy-plugin.ps1 が書く)で
+// 補う。実際に動くコードを決めるのは配置物なので、古い宣言で実態を
+// 上書きしない。
 // この判定は読取専用: launchQgis が DEV_SRC を立てるかの分岐にのみ使う
 const QGIS_USER_ROOT =
   process.env.QGIS_USER_ROOT ||
   join(process.env.APPDATA || "", "QGIS", "QGIS4");
+function isJunctionDeployed(p) {
+  // junctionをisSymbolicLinkで拾えないNode版があるため、
+  // realpathがqgis-plugin配下に解決されるかでも判定する
+  try {
+    if (lstatSync(p).isSymbolicLink()) return true;
+  } catch {}
+  try {
+    return basename(dirname(realpathSync(p))) === "qgis-plugin";
+  } catch {}
+  return false;
+}
 export function currentDeployMode() {
   try {
     const ini = readFileSync(
@@ -64,6 +80,20 @@ export function currentDeployMode() {
     );
     const profile = (ini.match(/lastProfile=(.+)/)?.[1] || "default").trim();
     const profileRoot = join(QGIS_USER_ROOT, "profiles", profile);
+    const pluginsDir = join(profileRoot, "python", "plugins");
+    const ids = readdirSync(join(REPO, "qgis-plugin")).filter((d) =>
+      existsSync(join(REPO, "qgis-plugin", d, "metadata.txt"))
+    );
+    const forms = new Set();
+    for (const id of ids) {
+      const p = join(pluginsDir, id);
+      if (!existsSync(p)) continue;
+      forms.add(isJunctionDeployed(p) ? "junction" : "dir");
+    }
+    if (forms.has("junction") && forms.has("dir")) return "mixed";
+    if (forms.has("junction")) return "dev";
+    if (forms.size) return "use";
+    // 未配置: 宣言markerで補う(use宣言=自動deploy抑制の意図を残す)
     const marker = join(profileRoot, "qgis_live_mode.json");
     if (existsSync(marker)) {
       // PowerShellのSet-Content -Encoding UTF8はBOM付きなので剥がす
@@ -72,19 +102,7 @@ export function currentDeployMode() {
       ).mode;
       if (mode === "dev" || mode === "use") return mode;
     }
-    // マーカー無し: 配置物の形態から推定(1つでも実体dirがあればuse)
-    const pluginsDir = join(profileRoot, "python", "plugins");
-    const ids = readdirSync(join(REPO, "qgis-plugin")).filter((d) =>
-      existsSync(join(REPO, "qgis-plugin", d, "metadata.txt"))
-    );
-    let sawLink = false;
-    for (const id of ids) {
-      const p = join(pluginsDir, id);
-      if (!existsSync(p)) continue;
-      if (!lstatSync(p).isSymbolicLink()) return "use";
-      sawLink = true;
-    }
-    return sawLink ? "dev" : null;
+    return null;
   } catch {
     return null;
   }

@@ -145,6 +145,7 @@
     "Context: {0} tokens": "コンテキスト: {0} tokens",
     "Current chat": "現在のチャット",
     "Current mode: {0}": "現在のモード: {0}",
+    "(declared: {0})": "(宣言: {0})",
     "Deploy Mode": "配置モード",
     "Deploy mode switched: {0}": "deployモードを切替えました: {0}",
     "Development (junction: repository sources)": "開発(junction: リポジトリ直結)",

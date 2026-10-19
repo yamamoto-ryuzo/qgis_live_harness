@@ -330,8 +330,9 @@ npm run deploy:status  # 現在モードの確認(宣言+配置物の実態を�
 ```
 
 QGIS側からも切替可能: `プラグイン > QGIS Live Driver > Deploy Mode`
-ダイアログ(mode_switch.py)が宣言モードと各プラグインの実配置形態を
-表示し、ボタンで `deploy-plugin.ps1` を起動して切替
+ダイアログ(mode_switch.py)が現在モードと各プラグインの実配置形態を
+表示し(宣言と実態が乖離していれば宣言も併記)、ボタンで
+`deploy-plugin.ps1` を起動して切替
 (任意で非ドライバプラグインを即リロード)。GeoSuiteツールバー先頭の
 モードバッジからも同ダイアログを開け、現在モードはバッジに
 常時表示される。markerの `repo` キーで
@@ -339,8 +340,12 @@ QGIS側からも切替可能: `プラグイン > QGIS Live Driver > Deploy Mode`
 AIから状態を読取可(切替はUI操作のみ)。
 
 モード宣言は deploy時に `profiles/<profile>/qgis_live_mode.json`
-(`{"mode":"dev"|"use"}`)へ書き出される。harness側はこれを読み、
-マーカーが無い場合は配置物のjunction実態から推定する。
+(`{"mode":"dev"|"use"}`)へ書き出される。**モード判定は配置実態
+(junction/dir)が優先**で、実際に動くコードを決めるのは配置物なので
+古い宣言で実態を上書きしない。宣言は未配置時の補完
+(use宣言=自動deploy抑制の意図を残す)と、乖離検出
+(`deployMode()`/`deploy_state()` の `declared`/`diverged`)の
+記録として使う。
 
 #### 【最強ルール】deployは全てUI操作。AI/自動経路は配置を変更しない
 

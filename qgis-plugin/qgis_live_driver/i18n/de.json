@@ -145,6 +145,7 @@
     "Context: {0} tokens": "Kontext: {0} Token",
     "Current chat": "Aktueller Chat",
     "Current mode: {0}": "Aktueller Modus: {0}",
+    "(declared: {0})": "(deklariert: {0})",
     "Deploy Mode": "Bereitstellungsmodus",
     "Deploy mode switched: {0}": "Bereitstellungsmodus gewechselt: {0}",
     "Development (junction: repository sources)": "Entwicklung (Junction: Repository-Quellen)",

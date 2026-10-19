@@ -53,6 +53,19 @@
   さらにjunction作成失敗時の自動copyフォールバックを廃止
   (静かなcopy化を防ぐためエラーに変更)。
   方針と選定理由はAGENTS.md「deployの2モード」参照
+- **deployモード判定を「配置実態優先」に変更**
+  (`mode_switch.deploy_state`・`qgis-session.mjs currentDeployMode`・
+  `setup.ps1`・`verify-in-qgis.ps1`): これまで宣言marker
+  (`qgis_live_mode.json`)を優先し実態推定はmarker無し時の
+  フォールバックだったが、実際に動くコードを決めるのは
+  配置物(junction/dir)なので実態を優先するようにした。
+  切替スクリプトが途中失敗して古い宣言が残っても表示・
+  DEV_SRC判定・自動deploy抑制が実態に追随する。
+  宣言は未配置時の補完(use宣言=自動deploy抑制の意図)と
+  乖離検出(`deploy_state`/`deployMode()` の `declared`/`diverged`)の
+  記録として残る。合わせて `verify-in-qgis.ps1` も
+  `WEBENGINE_DEV_SRC` をjunction配置確定時のみ立てるよう修正
+  (従来は無条件で、利用配置時にrepo側コードが混入し得た)
 - **翻訳方式を `i18n/<lang>.json` 1方式に統一**: 全7プラグインの
   翻訳を Qt Linguist(`.ts`→`lrelease`→`.qm`+QTranslator)から
   JSONカタログ(`{context: {英語ソース: 翻訳}}`)へ移行。
