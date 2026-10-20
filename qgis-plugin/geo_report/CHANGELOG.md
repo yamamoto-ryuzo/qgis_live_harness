@@ -12,6 +12,28 @@
 
 ## 変更履歴
 
+### V2.8.0 レイアウトマネージャ起動ボタン + 一覧の自動再読込(issue #3)
+- レイアウト一覧の下に「Open Layout Manager」ボタンを追加。
+  `iface.actionLayoutManager()` でQGIS標準のレイアウトマネージャを開き、
+  レイアウトの削除・複製・名前変更ができる(未対応環境では
+  `QgsLayoutManagerDialog` を直接起動するフォールバック付き)。
+- `QgsLayoutManager` の `layoutAdded`/`layoutRemoved`/`layoutRenamed`
+  シグナルを `reload_layout_list()` に接続し、レイアウトマネージャや
+  プロジェクト操作などパネル外での構成変更を一覧へ自動反映する。
+- `reload_layout_list()` は選択中レイアウトを名前で復元する。
+  選択中レイアウトが削除されていた場合は選択解除・ボタン無効化・
+  印刷範囲ラバーバンドの消去を行う(削除済みC++オブジェクト参照対策)。
+- bridgeに `manageLayouts` を追加(モーダルブロック回避のため
+  `QTimer.singleShot` で非同期起動)。「Open Layout Manager」の訳は
+  既存カタログ(MainDialog context)を全9言語で流用。
+- キャンバス自体が回転している場合の印刷範囲表示を修正(issue #2続報):
+  印刷枠(RubberBand)の回転角と `QgsLayoutItemMap.mapRotation` に
+  `canvas.rotation()` を加算し、画面が回転していても印刷枠が
+  見た目上回転していない(画面に沿った)矩形になるようにした。
+  印刷結果も画面表示と同じ向きになる。
+  あわせて QGIS4 で `QgsRubberBand.reset(True)` が TypeError になる
+  呼び出しを `reset()` に修正(消去済み枠が残る問題の防止)。
+
 ### V2.7.1 標準レイアウトをA0〜A4縦横の10種に拡充(issue #1)
 - 同梱 `composer/*.qpt` を A3/A4 の2種(横向き)から、
   A0〜A4(横・従来どおり無印が横向き) + A0縦〜A4縦(縦向き) の全10種に拡充。

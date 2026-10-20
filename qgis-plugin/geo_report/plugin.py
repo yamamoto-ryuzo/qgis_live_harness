@@ -931,11 +931,20 @@ class LayoutSelectorDialog(QDialog):
         self.reload_layout_list()
         left_layout.addWidget(self.layout_list)
 
+        # レイアウトマネージャ等パネル外での追加・削除・名前変更を一覧へ自動反映
+        self._connect_layout_manager_signals()
+
         # 標準レイアウト追加ボタン(空のプロジェクト向けにcomposer/*.qptを追加)
         self.add_std_layout_button = QPushButton(
             QCoreApplication.translate('geo_report', "Add Standard Layout"))
         self.add_std_layout_button.clicked.connect(self.add_standard_layout)
         left_layout.addWidget(self.add_std_layout_button)
+
+        # レイアウトマネージャ起動ボタン(削除・複製・名前変更はQGIS標準機能で行う)
+        self.layout_manager_button = QPushButton(
+            QCoreApplication.translate('geo_report', "Open Layout Manager"))
+        self.layout_manager_button.clicked.connect(self.open_layout_manager_dialog)
+        left_layout.addWidget(self.layout_manager_button)
 
         # --- スケール入力欄を追加 ---
         scale_layout = QHBoxLayout()
@@ -1145,8 +1154,22 @@ class LayoutSelectorDialog(QDialog):
             return ""
 
     def reload_layout_list(self):
-        """プロジェクトのレイアウト一覧を再取得してリストを再構築する"""
+        """プロジェクトのレイアウト一覧を再取得してリストを再構築する。
+
+        選択中レイアウトは名前で復元する。選択中レイアウト自体が
+        削除されていた場合は選択解除・ボタン無効化・印刷範囲を消去する。
+        """
+        # 選択中レイアウト名を保持(削除済みC++オブジェクトはRuntimeError)
+        cur = getattr(self, 'current_layout', None)
+        had_selection = cur is not None
+        prev_name = None
+        if cur is not None:
+            try:
+                prev_name = cur.name()
+            except RuntimeError:
+                prev_name = None
         self.layouts = QgsProject.instance().layoutManager().layouts()
+        restored = False
         self.layout_list.blockSignals(True)
         self.layout_list.clear()
         for qgs_layout in self.layouts:
@@ -1154,7 +1177,73 @@ class LayoutSelectorDialog(QDialog):
             item = QListWidgetItem(f"{qgs_layout.name()} {size_str}")
             item.setData(USER_ROLE, qgs_layout)
             self.layout_list.addItem(item)
+        # QListViewはclear後の再構築で遅延の自動選択を内部キューイングし、
+        # 次のsetCurrentIndex系呼出時にフラッシュされる。ここで抑止状態の
+        # ままフラッシュしておき、遅延発火による意図しない選択を防ぐ
+        self.layout_list.setCurrentItem(None)
+        if prev_name is not None:
+            # 同名レイアウトが残っていれば選択を復元(シグナル抑止で再選択のみ)
+            for row, qgs_layout in enumerate(self.layouts):
+                if qgs_layout.name() == prev_name:
+                    self.layout_list.setCurrentRow(row)
+                    restored = True
+                    break
         self.layout_list.blockSignals(False)
+        if had_selection and not restored:
+            # 選択中レイアウトが削除された → 関連状態を全てクリア
+            self.current_layout = None
+            self._remove_print_area_rubberband()
+            self.clear_item_info()
+            for btn in (self.open_button, self.refresh_button,
+                        self.show_print_area_button, self.save_layout_button,
+                        self.load_layout_button):
+                try:
+                    btn.setEnabled(False)
+                except Exception:
+                    pass
+
+    def _connect_layout_manager_signals(self):
+        """layoutManagerの追加/削除/名前変更シグナルで一覧を自動再読込する"""
+        mgr = QgsProject.instance().layoutManager()
+        if mgr is None:
+            return
+        for sig_name in ("layoutAdded", "layoutRemoved", "layoutRenamed"):
+            try:
+                getattr(mgr, sig_name).connect(self._on_layouts_changed)
+            except Exception:
+                pass
+
+    def _on_layouts_changed(self, *args):
+        """レイアウト構成の変更時に一覧を再読込する"""
+        try:
+            self.reload_layout_list()
+        except RuntimeError:
+            # ダイアログ破棄後にシグナルが来た場合等は何もしない
+            pass
+
+    def open_layout_manager_dialog(self):
+        """QGIS標準レイアウトマネージャ(削除・複製・名前変更が可能)を開く"""
+        opened = False
+        # ifaceのアクション名はQGISバージョンで2系統ある
+        for attr in ("actionShowLayoutManager", "actionLayoutManager"):
+            try:
+                action = getattr(self.iface, attr, None)
+                action = action() if callable(action) else action
+                if action is not None:
+                    action.trigger()
+                    opened = True
+                    break
+            except Exception:
+                continue
+        if not opened:
+            self.iface.messageBar().pushMessage(
+                QCoreApplication.translate('geo_report', "Error"),
+                QCoreApplication.translate('geo_report', "Error: {}").format(
+                    "layout manager action not found"),
+                level=Qgis.Critical, duration=5)
+            return
+        # モーダル閉鎖後(非モーダルなら即時)に一覧を再読込
+        self.reload_layout_list()
 
     def add_standard_layout(self):
         """同梱 composer/*.qpt の標準レイアウトをプロジェクトへ追加する"""

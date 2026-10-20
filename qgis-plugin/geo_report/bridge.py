@@ -42,6 +42,7 @@ class GeoReportBridge:
         "レイアウトアイテム(テキスト/地図/画像)の位置・サイズ・表示を確認・変更したい",
         "レイアウトプロパティをJSONへ保存/復元したい",
         "レイアウトデザイナ(レイアウトマネージャ)を開きたい",
+        "レイアウトを削除・名前変更・複製したい(QGISレイアウトマネージャ)",
     ]
     METHOD_DOCS = {
         "openPanel": {
@@ -115,6 +116,12 @@ class GeoReportBridge:
             "description":
                 "選択中レイアウトをQGISレイアウトデザイナで開く。",
             "example": {"method": "openLayoutManager", "args": []},
+        },
+        "manageLayouts": {
+            "description":
+                "QGIS標準レイアウトマネージャ(レイアウトの削除・名前変更・"
+                "複製が可能)を開く。操作はパネル一覧へ自動反映される。",
+            "example": {"method": "manageLayouts", "args": []},
         },
         "status": {
             "description":
@@ -425,3 +432,13 @@ class GeoReportBridge:
             return self._err("no layout selected")
         dlg.open_layout_manager()
         return self._ok({"layout": dlg.current_layout.name()})
+
+    def manageLayouts(self):
+        """QGISレイアウトマネージャ(削除・名前変更・複製が可能)を開く。"""
+        from qgis.PyQt.QtCore import QTimer
+        dlg = self._ensure_panel()
+        if dlg is None:
+            return self._err("panel could not be opened")
+        # モーダルダイアログなので呼出をブロックしないよう非同期起動する
+        QTimer.singleShot(0, dlg.open_layout_manager_dialog)
+        return self._ok({"launched": True})
