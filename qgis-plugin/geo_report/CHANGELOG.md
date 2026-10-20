@@ -12,6 +12,14 @@
 
 ## 変更履歴
 
+### V2.9.0 角度0度リセットボタン追加(issue #4)
+- 「角度:」ラベルの右に `0°` ボタンを追加。クリックで
+  `angle_spin` を 0.0 にセット(印刷範囲表示中は
+  `valueChanged`→`_refresh_print_area` 経由で即再描画)。
+- ツールチップ `Reset angle to 0°` を新規翻訳キーとして
+  全9言語のi18nカタログに登録。
+- `ui/main_dialog.ui`(未使用のミラー)にも同じボタンを反映。
+
 ### V2.8.1 スケール/角度変更時の印刷範囲消滅を修正(issue #2続報)
 - `scale_spin`/`angle_spin` の `valueChanged` がトグル型の
   `show_print_area_on_map` に直接接続されていたため、表示中に

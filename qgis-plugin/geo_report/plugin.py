@@ -983,6 +983,14 @@ class LayoutSelectorDialog(QDialog):
         angle_layout = QHBoxLayout()
         angle_label = QLabel(QCoreApplication.translate('geo_report', "Angle:"))
         angle_layout.addWidget(angle_label)
+        # 角度を0度へリセットする小ボタン(issue #4)
+        self.angle_reset_button = QPushButton("0°")
+        self.angle_reset_button.setToolTip(
+            QCoreApplication.translate('geo_report', "Reset angle to 0°"))
+        self.angle_reset_button.setFixedWidth(40)
+        self.angle_reset_button.clicked.connect(
+            lambda: self.angle_spin.setValue(0.0))
+        angle_layout.addWidget(self.angle_reset_button)
         self.angle_spin = QDoubleSpinBox()
         self.angle_spin.setDecimals(2)
         self.angle_spin.setRange(-360.0, 360.0)
