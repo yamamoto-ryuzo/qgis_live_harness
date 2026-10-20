@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 description=Layout Item Selector and Pre-edit Tool for efficient layout management and template creation
 description[en]=A comprehensive QGIS plugin for selecting layouts, pre-editing items, and creating reusable templates for efficient map production workflows
 description[ja]=レイアウト選択、アイテム事前編集、テンプレート作成により効率的な地図作成ワークフローを実現するQGISプラグイン
-version=2.8.0
+version=2.8.1
 author=yamamoto-ryuzo
 email=ryu@yamakun.net
 
@@ -18,6 +18,7 @@ about[ja]=このプラグインは、QGISのレイアウト管理を強化し、
 # Uncomment the following line and add your changelog:
 
 changelog=
+    2.8.1: スケール/角度変更で印刷範囲が消える問題を修正。表示中は同じ中心で描き直し、キャンバス回転にも追従(issue #2)
     2.8.0: 「Open Layout Manager」ボタン追加(削除・複製・名前変更はQGISレイアウトマネージャで可能)+パネル外のレイアウト変更を一覧へ自動反映(issue #3)
     2.7.1: 標準レイアウトテンプレートをA0〜A4(横)+A0縦〜A4縦の全10種に拡充(issue #1)
     2.7.0: 「標準レイアウトを追加」ボタン(composer/*.qptを任意タイミングで追加)。回転時の印刷範囲・スケール計算の修正

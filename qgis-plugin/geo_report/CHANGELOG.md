@@ -12,6 +12,18 @@
 
 ## 変更履歴
 
+### V2.8.1 スケール/角度変更時の印刷範囲消滅を修正(issue #2続報)
+- `scale_spin`/`angle_spin` の `valueChanged` がトグル型の
+  `show_print_area_on_map` に直接接続されていたため、表示中に
+  値を変えるたびに印刷範囲が消去(次の変更で再表示)を繰り返していた。
+  新設の `_refresh_print_area` に切り替え、表示中は同じ中心で
+  描き直し、非表示時は何もしない挙動に変更。
+- 再描画はドラッグ移動済みの枠中心を維持し、描き直し時の
+  キャンバス中心への再パンと「Print area removed.」メッセージを抑止。
+- `QgsMapCanvas.rotationChanged` を `_refresh_print_area` に接続し、
+  印刷範囲の表示中にキャンバスを回転しても枠が画面に沿った
+  向き(見た目の回転=角度入力値)を維持するようにした。
+
 ### V2.8.0 レイアウトマネージャ起動ボタン + 一覧の自動再読込(issue #3)
 - レイアウト一覧の下に「Open Layout Manager」ボタンを追加。
   `iface.actionLayoutManager()` でQGIS標準のレイアウトマネージャを開き、

@@ -679,7 +679,7 @@ class GeoReport:
 
 
 class LayoutSelectorDialog(QDialog):
-    def _remove_print_area_rubberband(self):
+    def _remove_print_area_rubberband(self, silent=False):
         # rubberbandが存在する場合のみ削除
         rb = getattr(self, '_print_area_rubberband', None)
         if rb:
@@ -701,8 +701,8 @@ class LayoutSelectorDialog(QDialog):
                     print("[DEBUG] rubberband.reset() executed")
                 except Exception as e:
                     print(f"[DEBUG] rubberband reset failed: {e}")
-                # 削除メッセージを表示
-                if hasattr(self, 'iface') and hasattr(self.iface, 'messageBar'):
+                # 削除メッセージを表示(描き直し時は抑止)
+                if not silent and hasattr(self, 'iface') and hasattr(self.iface, 'messageBar'):
                     self.iface.messageBar().pushMessage(
                         QCoreApplication.translate('geo_report', "Information"), QCoreApplication.translate('geo_report', "Print area removed."), level=Qgis.Info, duration=3
                     )
@@ -902,6 +902,11 @@ class LayoutSelectorDialog(QDialog):
         self.iface = iface
         self.current_layout = None
         self.init_ui()
+        # キャンバス回転時は表示中の印刷枠を描き直し、画面に沿った向きを維持する
+        try:
+            self.iface.mapCanvas().rotationChanged.connect(self._refresh_print_area)
+        except Exception:
+            pass
     
     def init_ui(self):
         """UIを初期化"""
@@ -969,8 +974,8 @@ class LayoutSelectorDialog(QDialog):
         self.scale_spin.setRange(1, 100000000)
         self.scale_spin.setValue(1000.0)
         self.scale_spin.setSingleStep(100.0)  # 実際のステップはstepByで制御
-        # スケール値が変更されたときに印刷範囲を再表示
-        self.scale_spin.valueChanged.connect(self.show_print_area_on_map)
+        # スケール値が変更されたときに印刷範囲を描き直す(表示中のみ)
+        self.scale_spin.valueChanged.connect(self._refresh_print_area)
         scale_layout.addWidget(self.scale_spin)
         left_layout.addLayout(scale_layout)
 
@@ -985,8 +990,8 @@ class LayoutSelectorDialog(QDialog):
         self.angle_spin.setSingleStep(1.0)
         angle_layout.addWidget(self.angle_spin)
         left_layout.addLayout(angle_layout)
-        # 角度値が変更されたときに印刷範囲を再表示
-        self.angle_spin.valueChanged.connect(self.show_print_area_on_map)
+        # 角度値が変更されたときに印刷範囲を描き直す(表示中のみ)
+        self.angle_spin.valueChanged.connect(self._refresh_print_area)
 
         left_panel.setLayout(left_layout)
         left_panel.setMaximumWidth(250)
@@ -1437,9 +1442,10 @@ class LayoutSelectorDialog(QDialog):
                 self._remove_print_area_rubberband()
             self.show_print_area_on_map()
 
-    def show_print_area_on_map(self):
+    def show_print_area_on_map(self, *_args, center=None):
         from qgis.gui import QgsRubberBand
-        """選択中レイアウトの印刷範囲（ページサイズ・スケール考慮）を地図キャンバスに表示/非表示切り替え"""
+        """選択中レイアウトの印刷範囲（ページサイズ・スケール考慮）を地図キャンバスに表示/非表示切り替え。
+        centerにQgsPointXYを渡すとキャンバス中心ではなくその位置に枠を作る(再描画用)。"""
         # 既存のrubberbandがある場合は非表示にして終了（トグル）
         if hasattr(self, '_print_area_rubberband') and self._print_area_rubberband:
             self._remove_print_area_rubberband()
@@ -1504,10 +1510,15 @@ class LayoutSelectorDialog(QDialog):
             height_map = (page_height_mm / 1000.0) * scale
 
         # 画面（地図キャンバス）の中心座標を取得
+        # 再描画(center指定)時はドラッグ移動済みの枠中心を維持する
         canvas = self.iface.mapCanvas()
-        canvas_center = canvas.extent().center()
-        cx = canvas_center.x()
-        cy = canvas_center.y()
+        if center is not None:
+            cx = center.x()
+            cy = center.y()
+        else:
+            canvas_center = canvas.extent().center()
+            cx = canvas_center.x()
+            cy = canvas_center.y()
 
         # キャンバス自体が回転している場合はその角度を加算し、
         # 印刷枠が画面上で回転していない(画面に沿った)矩形になるようにする。
@@ -1567,8 +1578,9 @@ class LayoutSelectorDialog(QDialog):
             if hasattr(m, 'refresh'):
                 m.refresh()
 
-        # 印刷範囲の中心に地図キャンバスを移動
-        canvas.setCenter(QgsPointXY(cx, cy))
+        # 印刷範囲の中心に地図キャンバスを移動（再描画時は現在の表示位置を維持）
+        if center is None:
+            canvas.setCenter(QgsPointXY(cx, cy))
         canvas.refresh()
 
         # QgsRubberBandで回転した矩形を描画
@@ -1602,7 +1614,23 @@ class LayoutSelectorDialog(QDialog):
         
         # ボタンテキストを「非表示」に変更
         self.show_print_area_button.setText(QCoreApplication.translate('geo_report', "Hide Print Area"))
-    
+
+    def _refresh_print_area(self, *_args):
+        """スケール・角度の変更やキャンバス回転時に、表示中の印刷枠を現在の設定で描き直す。
+        印刷枠が非表示なら何もしない(トグルにはしない)。"""
+        rb = getattr(self, '_print_area_rubberband', None)
+        if not rb:
+            return
+        center = None
+        try:
+            geom = rb.asGeometry()
+            if geom:
+                center = geom.centroid().asPoint()
+        except Exception:
+            center = None
+        self._remove_print_area_rubberband(silent=True)
+        self.show_print_area_on_map(center=center)
+
     def load_layout_items(self):
         """レイアウトアイテムを読み込む"""
         if not self.current_layout:
