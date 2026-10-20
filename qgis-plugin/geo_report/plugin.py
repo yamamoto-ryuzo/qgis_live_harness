@@ -206,6 +206,11 @@ class PrintAreaMoveTool(QgsMapTool):
         angle = 0.0
         if hasattr(self.parent_dialog, 'angle_spin'):
             angle = self.parent_dialog.angle_spin.value()
+        # キャンバス自体の回転を加算し、画面上で回転していない矩形にする
+        try:
+            angle += float(self.canvas.rotation())
+        except Exception:
+            pass
         # QgsLayoutItemMapのextentは「回転前の表示領域」を表す。
         # 回転後の外接矩形(AABB)を渡すと印刷範囲が実表示より大きくなるため、
         # 回転なしの矩形(中心移動のみ)を設定し、回転はmapRotationに任せる。
@@ -233,6 +238,11 @@ class PrintAreaMoveTool(QgsMapTool):
         angle = 0.0
         if hasattr(self.parent_dialog, 'angle_spin'):
             angle = self.parent_dialog.angle_spin.value()
+        # キャンバス自体の回転を加算し、画面上で回転していない矩形にする
+        try:
+            angle += float(self.canvas.rotation())
+        except Exception:
+            pass
         theta = math.radians(angle)
         cos_t = math.cos(theta)
         sin_t = math.sin(theta)
@@ -687,8 +697,8 @@ class LayoutSelectorDialog(QDialog):
                         except Exception as e:
                             print(f"[DEBUG] scene.removeItem failed: {e}")
                 try:
-                    rb.reset(True)
-                    print("[DEBUG] rubberband.reset(True) executed")
+                    rb.reset()
+                    print("[DEBUG] rubberband.reset() executed")
                 except Exception as e:
                     print(f"[DEBUG] rubberband reset failed: {e}")
                 # 削除メッセージを表示
@@ -859,6 +869,11 @@ class LayoutSelectorDialog(QDialog):
         angle = 0.0
         if hasattr(self.parent_dialog, 'angle_spin'):
             angle = self.parent_dialog.angle_spin.value()
+        # キャンバス自体の回転を加算し、画面上で回転していない矩形にする
+        try:
+            angle += float(self.canvas.rotation())
+        except Exception:
+            pass
         theta = math.radians(angle)
         cos_t = math.cos(theta)
         sin_t = math.sin(theta)
@@ -1405,6 +1420,14 @@ class LayoutSelectorDialog(QDialog):
         cx = canvas_center.x()
         cy = canvas_center.y()
 
+        # キャンバス自体が回転している場合はその角度を加算し、
+        # 印刷枠が画面上で回転していない(画面に沿った)矩形になるようにする。
+        # mapRotationにも同じ角度が入るため印刷結果は画面表示と同じ向きになる。
+        try:
+            angle += float(canvas.rotation())
+        except Exception:
+            pass
+
         # 矩形の四隅を計算（画面中心基準）
         import math
         from qgis.core import QgsRectangle, QgsPointXY, QgsGeometry
@@ -1477,7 +1500,7 @@ class LayoutSelectorDialog(QDialog):
                             canvas2.scene().removeItem(old_rb)
                         except Exception:
                             pass
-                old_rb.reset(True)
+                old_rb.reset()
             except Exception:
                 pass
         self._print_area_rubberband = rb
