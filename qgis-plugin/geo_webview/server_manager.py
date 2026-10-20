@@ -192,6 +192,8 @@ class GeoWebViewServerManager:
         # 独立レンダラ(QgsMapRendererParallelJob)の同時実行はQGISクラッシュを
         # 引き起こすため直列化する(WMSサービスと共有して全経路を一本化)
         self._render_lock = getattr(self.wms_service, '_render_lock', None) or threading.Lock()
+        # KASUGAIエクスポートは同一出力先へ書き込むため同時実行を直列化する
+        self._kasugai_lock = threading.Lock()
 
     def _safe_int(self, value, default):
         """文字列から安全にintに変換する。NaNや不正値は default を返す。"""
@@ -1012,6 +1014,22 @@ class GeoWebViewServerManager:
                         f'present failed: {e}', 'text/plain; charset=utf-8')
                 return
 
+            # KASUGAI Canvas 連携: 表示中レイヤを .kasc プロジェクトに出力し、
+            # 起動中のKASUGAIへ登録してプロジェクトURLをJSONで返す
+            # (生成ページ右上の KASUGAI ボタンから呼ばれる)
+            if parsed_url.path == '/kasugai':
+                try:
+                    self._handle_kasugai(conn)
+                except Exception as e:
+                    QgsMessageLog.logMessage(
+                        f'❌ kasugai handler error: {e}',
+                        'geo_webview', Qgis.Critical)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'kasugai failed: {e}', 'text/plain; charset=utf-8')
+                return
+
             # OpenLayers+Cesiumの2画面3Dページ
             if parsed_url.path == '/map3d':
                 try:
@@ -1389,6 +1407,49 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             nav, host or f'localhost:{self.server_port}')
         http_server.send_http_response(
             conn, 200, 'OK', html_content, 'text/html; charset=utf-8')
+
+    def _handle_kasugai(self, conn):
+        """表示中レイヤをKASUGAI Canvasプロジェクトとして出力し、
+        起動中のKASUGAIローカルサーバへ登録してプロジェクトURLを返す。
+
+        応答JSON:
+          成功 {ok:true, url:<KASUGAIプロジェクトURL|null>, dir, layers, tiles}
+          失敗 {ok:false, error}
+        url が null の場合はKASUGAI未起動(出力のみ成功)を意味する。
+        """
+        from . import http_server, kasugai_export
+        with self._kasugai_lock:
+            result = kasugai_export.export_kasugai_project(self.iface)
+            n_layers = len(result.get('layers') or [])
+            n_tiles = len(result.get('tiles') or [])
+            if not n_layers and not n_tiles:
+                http_server.send_http_response(
+                    conn, 200, 'OK',
+                    json.dumps(
+                        {'ok': False, 'error': 'no visible vector/tile layers'},
+                        ensure_ascii=False),
+                    'application/json; charset=utf-8')
+                return
+            url = None
+            try:
+                if kasugai_export.detect_kasugai():
+                    reg = kasugai_export.register_kasugai_project(
+                        result['kasc'])
+                    if reg.get('ok'):
+                        kasugai_export.kasugai_command(
+                            'switchProject', {'projectId': reg['id']})
+                        url = reg.get('url')
+            except Exception as e:
+                QgsMessageLog.logMessage(
+                    f'⚠️ KASUGAI registration failed: {e}',
+                    'geo_webview', Qgis.Warning)
+            http_server.send_http_response(
+                conn, 200, 'OK',
+                json.dumps(
+                    {'ok': True, 'url': url, 'dir': result.get('dir'),
+                     'layers': n_layers, 'tiles': n_tiles},
+                    ensure_ascii=False),
+                'application/json; charset=utf-8')
 
     def _inject_follow_script(self, html_content, kind):
         """生成HTMLにプレゼンテーション追従スクリプトを差し込む。

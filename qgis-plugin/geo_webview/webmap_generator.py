@@ -1005,6 +1005,24 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
             "    }\n"
             "  }catch(e){}\n"
             "})();\n"
+            "(function(){\n"
+            "  try{\n"
+            "    var btn = document.getElementById('qmp-open-kasugai');\n"
+            "    if(btn){\n"
+            "      btn.addEventListener('click', function(){\n"
+            "        try{\n"
+            "          btn.disabled = true;\n"
+            "          fetch('kasugai').then(function(r){ return r.json(); }).then(function(j){\n"
+            "            if(j && j.ok && j.url){ var w = window.open(j.url, '_blank'); if(!w){ alert(" + _ptj('Popup blocked') + "); } }\n"
+            "            else if(j && j.ok){ alert(" + _ptj('Exported KASUGAI project to') + " + ' ' + (j.dir || '')); }\n"
+            "            else { alert(" + _ptj('KASUGAI export failed') + " + ': ' + ((j && j.error) || 'unknown')); }\n"
+            "          }).catch(function(e){ alert(" + _ptj('KASUGAI export failed') + " + ': ' + e); })\n"
+            "            .finally(function(){ btn.disabled = false; });\n"
+            "        }catch(e){ console.error(e); btn.disabled = false; }\n"
+            "      });\n"
+            "    }\n"
+            "  }catch(e){}\n"
+            "})();\n"
         )
 
         html = (
@@ -1027,6 +1045,7 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
                                     '    <button id="qmp-rotate-cycle" class="qmp-control" title="Rotate 0/90/180/270">\u27f3</button>\n'
                                     '    <button id="qmp-open-googlemaps" class="qmp-control" title="' + __import__('html').escape(_pt('Open Google Maps')) + '">MAPS</button>\n'
                                     '    <button id="qmp-open-googleearth" class="qmp-control" title="' + __import__('html').escape(_pt('Open Google Earth')) + '">EARTH</button>\n'
+                                    '    <button id="qmp-open-kasugai" class="qmp-control" title="' + __import__('html').escape(_pt('Open in KASUGAI Canvas')) + '">KASUGAI</button>\n'
                                     '  </div>\n'
                                     '  <div id="qmp-coords" class="qmp-control" aria-live="polite" role="status"></div>\n'
                                     '  <div id="qmp-cors-warning">' + _pt('A CORS error occurred while loading the WMS.<br>If you opened this HTML directly via file://, serve it with a simple HTTP server or set the Access-Control-Allow-Origin header on the WMS side.') + '</div>\n'

@@ -29,6 +29,12 @@
   `getSettings`/`setSettings` に `kasugai_output_path`・`kasugai_port`
   キーを追加(出力先既定は `<ドキュメント>/kasugai_canvas_qgis`)。
 - 新規モジュール `kasugai_export.py`。UI文字列は全9言語のi18n辞書へ追加。
+- **生成ページ(/qgis-map)にもKASUGAIボタンを追加**: 右上の
+  MAPS/EARTHと同じ並びに `KASUGAI` ボタンを配置し、クリックで
+  新エンドポイント `GET /kasugai` を呼ぶ。サーバ側でパネルボタンと
+  同一のエクスポート+KASUGAI登録を実行し、起動中ならプロジェクトURLを
+  新タブで開く(未起動時は出力先をアラート表示)。同時リクエストは
+  専用ロックで直列化。
 - **複数QGISインスタンスのポート多重バインドを修正**: Windows の
   `SO_REUSEADDR` では同一ポートを複数プロセスがバインドできてしまい、
   接続が無応答の旧プロセスへ分散してサーバが機能不全になる問題があった。

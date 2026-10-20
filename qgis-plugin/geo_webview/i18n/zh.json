@@ -211,6 +211,9 @@
     "Rotate 0/90/180/270": "旋转 0/90/180/270",
     "Themes": "主题",
     "Tilt allowed": "允许倾斜",
-    "Tilt locked": "倾斜已锁定"
+    "Tilt locked": "倾斜已锁定",
+    "Open in KASUGAI Canvas": "在 KASUGAI Canvas 中打开",
+    "KASUGAI export failed": "导出到 KASUGAI 失败",
+    "Exported KASUGAI project to": "KASUGAI 项目已导出到"
   }
 }

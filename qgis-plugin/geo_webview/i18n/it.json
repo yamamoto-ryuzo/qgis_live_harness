@@ -211,6 +211,9 @@
     "Rotate 0/90/180/270": "Ruota 0/90/180/270",
     "Themes": "Temi",
     "Tilt allowed": "Inclinazione consentita",
-    "Tilt locked": "Inclinazione bloccata"
+    "Tilt locked": "Inclinazione bloccata",
+    "Open in KASUGAI Canvas": "Apri in KASUGAI Canvas",
+    "KASUGAI export failed": "Esportazione KASUGAI non riuscita",
+    "Exported KASUGAI project to": "Progetto KASUGAI esportato in"
   }
 }

@@ -211,6 +211,9 @@
     "Rotate 0/90/180/270": "Поворот 0/90/180/270",
     "Themes": "Темы",
     "Tilt allowed": "Наклон разрешён",
-    "Tilt locked": "Наклон заблокирован"
+    "Tilt locked": "Наклон заблокирован",
+    "Open in KASUGAI Canvas": "Открыть в KASUGAI Canvas",
+    "KASUGAI export failed": "Ошибка экспорта в KASUGAI",
+    "Exported KASUGAI project to": "Проект KASUGAI экспортирован в"
   }
 }

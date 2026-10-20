@@ -231,6 +231,9 @@
     "🔄 Refresh Map": "🔄 地図を更新",
     "🔗 Copy Permalink": "🔗 パーマリンクをコピー",
     "🔙 Back": "🔙 戻る",
-    "🔧 Controls": "🔧 コントロール"
+    "🔧 Controls": "🔧 コントロール",
+    "Open in KASUGAI Canvas": "KASUGAI Canvasで開く",
+    "KASUGAI export failed": "KASUGAIへの出力に失敗しました",
+    "Exported KASUGAI project to": "KASUGAIプロジェクトを出力しました:"
   }
 }
