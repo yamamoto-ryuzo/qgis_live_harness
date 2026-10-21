@@ -38,7 +38,7 @@ from qgis.core import QgsMessageLog, Qgis
 _translator = None
 
 
-def log_message(message, level=Qgis.Info):
+def log_message(message, level=Qgis.MessageLevel.Info):
     """QGIS のログメッセージタブに出力"""
     QgsMessageLog.logMessage(message, 'geo_report', level)
 

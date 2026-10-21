@@ -12,6 +12,14 @@
 
 ## 変更履歴
 
+### V2.9.2 Qt6/Qt6互換性チェック対応
+- plugins.qgis.org の Qt6 compatibility チェックで指摘された
+  非スコープ列挙型35箇所を修正:
+  `Qgis.Info`等→`Qgis.MessageLevel.*`、
+  `QgsWkbTypes.PolygonGeometry`→`QgsWkbTypes.GeometryType.PolygonGeometry`、
+  `QFormLayout.*Role`→`QFormLayout.ItemRole.*`、
+  `QgsUnitTypes.LayoutMillimeters`→`QgsUnitTypes.LayoutUnit.LayoutMillimeters`
+
 ### V2.9.1 plugins.qgis.org セキュリティスキャン対応
 - LOW指摘(try/except/pass|continue、subprocess import)は
   レビュー済みの常套パターンとして同梱 `.bandit` 設定で抑制
