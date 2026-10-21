@@ -34,22 +34,22 @@ KEY_AUTO_APPLY = "geo_excel/auto_apply"
 SCRIPT_VARS = {
     "exportList.py": {
         "required": ["xlsout_list_template_path",
-                      "xlsout_list_output_path_fixed",
-                      "xlsout_list_output_path_variable"],
+                     "xlsout_list_output_path_fixed",
+                     "xlsout_list_output_path_variable"],
         "optional": [],
         "kind": "list",
     },
     "exportSingle.py": {
         "required": ["xlsout_template_path",
-                      "xlsout_output_path_fixed",
-                      "xlsout_output_path_variable"],
+                     "xlsout_output_path_fixed",
+                     "xlsout_output_path_variable"],
         "optional": ["dpi"],
         "kind": "single",
     },
     "exportSingleBulk.py": {
         "required": ["xlsout_template_path",
-                      "xlsout_output_path_fixed",
-                      "xlsout_output_path_variable"],
+                     "xlsout_output_path_fixed",
+                     "xlsout_output_path_variable"],
         "optional": ["dpi"],
         "kind": "single",
     },
@@ -195,8 +195,8 @@ def requirements():
         QCoreApplication.translate("geo_excel", "pywin32 (win32com.client) importable from the QGIS Python"),
         QCoreApplication.translate("geo_excel", "A vector layer (list/bulk: active layer; single: also needs a selected feature)"),
         QCoreApplication.translate("geo_excel", "An Excel template containing placeholders: ##Attach::<field>, "
-           "##ListInsert::<field>, ##AttachFitImage::<theme>::<scale> "
-           "(auto-generated when not configured)"),
+                                   "##ListInsert::<field>, ##AttachFitImage::<theme>::<scale> "
+                                   "(auto-generated when not configured)"),
         QCoreApplication.translate("geo_excel", "Layer variables xlsout_* (set here or in Layer Properties > Variables)"),
         QCoreApplication.translate("geo_excel", "A map theme in the project, when using ##AttachFitImage::"),
     ]

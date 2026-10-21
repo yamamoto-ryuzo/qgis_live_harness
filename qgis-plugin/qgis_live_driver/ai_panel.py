@@ -179,9 +179,9 @@ class AiPanel(QDockWidget):
         # チャットセッション。先頭は常に「現在のチャット」(コンボindexと一致)。
         # 過去チャットは {"title","history","html"} として後ろに積む
         self._sessions = [{"title": QCoreApplication.translate(
-                               "qgis_live_driver", "Current chat"),
-                           "history": self._history, "html": "",
-                           "agent": None}]
+            "qgis_live_driver", "Current chat"),
+            "history": self._history, "html": "",
+            "agent": None}]
         self._open_chat = 0     # 表示中のセッションindex
         self._model_infos = {}  # {id: ai_client.model_info()}
         self._busy = False
@@ -671,10 +671,12 @@ class AiPanel(QDockWidget):
         d = ai_client.PROVIDERS[pid]
         self.w_signin.setVisible(pid == "copilot")
         # 旧キー(プロバイダ無し)からの移行: 新キーが無ければ読む
-        legacy = lambda k, dv: (  # noqa: E731
-            s.value(_SETTING.format(f"{pid}_{k}"), None)
-            if s.value(_SETTING.format(f"{pid}_{k}"), None) is not None
-            else s.value(_SETTING.format(k), dv))
+
+        def legacy(k, dv):
+            return (
+                s.value(_SETTING.format(f"{pid}_{k}"), None)
+                if s.value(_SETTING.format(f"{pid}_{k}"), None) is not None
+                else s.value(_SETTING.format(k), dv))
         ep = legacy("endpoint", d["base"]) if pid == "openai" \
             else s.value(_SETTING.format(f"{pid}_endpoint"), d["base"])
         # APIキーはOS資格情報ストアを優先し、
@@ -2134,7 +2136,7 @@ class _InstructionsDialog(QDialog):
                 self, self.tr("Delete"),
                 self.tr("Delete {0} '{1}'?")
                 .format(self._kind_label(), aid)
-                ) != QMessageBox.StandardButton.Yes:
+        ) != QMessageBox.StandardButton.Yes:
             return
         ai_client.delete_instruction(self._kind(), aid)
         self.reload()

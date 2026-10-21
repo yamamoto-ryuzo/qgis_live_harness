@@ -22,7 +22,6 @@ messages として返す(メッセージバー自体にも表示される)。
 
 import inspect
 import json
-import os
 
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.core import QgsExpressionContextUtils, QgsProject, QgsVectorLayer

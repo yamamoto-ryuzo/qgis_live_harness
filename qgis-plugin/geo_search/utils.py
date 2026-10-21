@@ -10,7 +10,6 @@ from qgis.PyQt.QtCore import QVariant, QCoreApplication
 from qgis.core import QgsProject, QgsFeatureRequest
 
 # テーマ関連ユーティリティは `geo_search.theme` に移動しました。互換のため再エクスポートします。
-from .theme import parse_theme_group, group_themes
 
 
 def name2layer(name):
@@ -182,7 +181,8 @@ def remove_entry_from_json_file(path, title=None, src_idx=None, container_key='S
         if parent is not None:
             try:
                 from qgis.PyQt.QtWidgets import QMessageBox
-                QMessageBox.warning(parent, QCoreApplication.translate("Dialog", "Unsupported format"), QCoreApplication.translate("Dialog", "JSON file has unsupported structure; expected {'SearchTabs': [...]} or an array."))
+                QMessageBox.warning(parent, QCoreApplication.translate("Dialog", "Unsupported format"), QCoreApplication.translate(
+                    "Dialog", "JSON file has unsupported structure; expected {'SearchTabs': [...]} or an array."))
             except Exception:
                 pass
         return False

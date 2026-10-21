@@ -553,6 +553,68 @@ npm run verify:qgis     # 別ターミナルでQGIS起動(開きっぱなし)
   (新機能=マイナー、修正=パッチを目安。geo_search/geo_webviewは
   upstreamリポジトリの履歴形式に従う)
 
+### plugins.qgis.org への配布ZIP
+
+- `python scripts/build-plugin-zip.py <id> [<id>...]`(全対象は `--all`、
+  一覧は `--list`)で `dist/<id>-<version>.zip` を生成。
+  git追跡ファイルのみ同梱(生成物混入防止)。metadata.txt の version が
+  ファイル名に使われるため、**ZIP作成前に version 更新 +
+  `changelog=`・CHANGELOG.md 追記まで完了させること**
+- ZIP作成時は plugins.qgis.org アップロード要件と同じチェックを行う。
+  スクリプトが自動検証する(失敗時はZIPを作らない。`--check`=チェックのみ、
+  `--force`=失敗でも強行、`--skip-net`=リンク疎通省略):
+  - ZIP構造が正しい(トップレベル `<id>/` フォルダ直下に
+    `metadata.txt` と `__init__.py`)
+  - リポジトリが非空で、ZIPと同一ソースを公開している
+    (コンパイル物=__pycache__等を除く。git追跡ファイル基準なので自明だが
+    upstream公開先がある場合はそちらも同期されているか確認)
+  - metadata.txt に意味のある英語 description がある
+  - metadataリンク(homepage/tracker/repository)が全て公開到達可能
+  - そのバージョンを実QGISで動作確認済み
+  - metadata.txt の email が現行であり、プラグイン管理の連絡に
+    応答できることを確認(利用者の同意項目)
+  末尾2項目は機械判定不可のため、スクリプトが手動確認を促す表示を出す。
+- さらに **plugins.qgis.org のセキュリティスキャン相当チェック**も
+  ZIP作成前にローカルで行う
+  (https://plugins.qgis.org/docs/security-scanning )。
+  アップロード後に自動スキャンが走り、CRITICAL指摘があると
+  そのバージョンはダウンロードも承認もブロックされるため、
+  事前に潰しておく:
+  - Blocking(CRITICAL・必須解決):
+    `bandit -r qgis-plugin/<id>`(危険なPythonコードパターン)、
+    `detect-secrets scan`(秘密情報のハードコード混入検出)
+  - Non-blocking(INFO/WARNING・対応推奨): `flake8`、
+    ファイルパーミッション、不審ファイル(実行形式等)の検出
+  - **flake8 対応方針**(全8プラグインで findings=0 済み):
+    - 実害系は実修正する: F821未定義名・F811重複定義・
+      F841未使用変数(代入は `_ =` で副作用温存)・
+      E722 bare except(`except Exception:` に)・F541不要なf接頭辞・
+      E711/E712/E714比較・E741あいまい変数名・W605等
+    - 抑制はZIP同梱の `.flake8` で行い、ルール毎に理由を
+      コメントで明記する。共通は
+      `extend-ignore = E501, W503, W504`
+      (E501=長行慣習・最大~1600字、W503/W504=排他ルール)
+    - upstream/vendored ファイルは per-file-ignores で除外する
+      (geo_excel `export*.py`、geo_import `pyperclip/`、
+      geo_userfunc `functions/user_functions.py`、
+      legendView `qt_compat.py`/星importファイル、
+      geo_report `__init__.py`/`plugin.py` の E402・`.resources` F401 等)
+    - **罠**: `ruff --fix` やIDEのimport整理は副作用import
+      (resources/qt_compat/ユーザー定義exec)を誤削除し得る。
+      機械修正後は必ず `py_compile` と(QGISスタブでの)importを検証する
+    - スキャン対象は `qgis-plugin/<id>` のみ。
+      `qgis-plugin/kasugai_qgis/`(QGISプラグインではないバンドル複製)
+      に autopep8/ruff/正規表現置換をかけないこと
+  - 誤検知・意図的な検出の抑制はZIP同梱の `.bandit` /
+    `.secrets.baseline` / `.flake8` で行える
+    (同梱時は "Validated (configured)" ステータスになる)。
+    一部ルールはアップロード時のスキップ指定でも回避可
+    (詳細は同ドキュメントの Rule Skipping / Config Files)
+  - bandit/flake8 の `-c` 明示より、**各プラグインdirで実行して
+    `.bandit`/`.flake8` を自動検出させる**方が確実。
+    `.bandit`/`.flake8` はgit追跡必須(ZIPは `git ls-files` ベース
+    のためuntrackedだと同梱されない)
+
 ## 国際化(i18n)/多言語化(固定方針)
 
 **qgis-plugin/ 下の全プラグインは英語をソース言語とし、

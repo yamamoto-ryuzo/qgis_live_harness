@@ -5,7 +5,7 @@
    この機能はベクターレイヤのレイヤスコープのアクションとして使用することを想定しています。
    アクションフィールドとして以下を使用します。
      [% @layer_id %] -- レイヤID
-   
+
     レイヤ変数に以下の定義をしていおく必要があります。
       xlsout_list_template_path -- Excelテンプレートブックファイルパス
       xlsout_list_output_path_fixed -- 帳票出力先ディレクトリパス（必ず存在する必要があります）
@@ -35,10 +35,11 @@ TEMPLATE_PATH = "xlsout_list_template_path"
 OUTPUT_PATH_FIXED = "xlsout_list_output_path_fixed"
 OUTPUT_PATH_VARIABLE = "xlsout_list_output_path_variable"
 
+
 def get_layer_variable(layer_context_name: str, layer: QgsVectorLayer):
     """
     レイヤ変数を取得
-    
+
     Parameters
       layer_context_name -- レイヤ変数名
       layer -- レイヤ
@@ -52,6 +53,7 @@ def get_layer_variable(layer_context_name: str, layer: QgsVectorLayer):
         return ""
 
     return QgsExpressionContextScope.variable(QgsExpressionContextUtils.layerScope(layer), layer_context_name)
+
 
 def make_expression_context(layer: QgsVectorLayer = None, feature: QgsFeature = None):
     """
@@ -96,6 +98,7 @@ def make_expression_context(layer: QgsVectorLayer = None, feature: QgsFeature = 
         context.setFeature(feature)
     return context
 
+
 def excel_value_text(value):
     """
     評価結果をExcel出力用の値に変換する。
@@ -108,10 +111,11 @@ def excel_value_text(value):
     if isinstance(value, QDate):
         return value.toString("yyyy/MM/dd")
     if isinstance(value, QTime):
-        return value.toString() # フォーマットは不要
+        return value.toString()  # フォーマットは不要
     if isinstance(value, QDateTime):
         return value.toString("yyyy/MM/dd hh:mm:ss")
     return value
+
 
 def evaluate_attach_text(text: str, layer: QgsVectorLayer = None, feature: QgsFeature = None):
     """
@@ -152,6 +156,7 @@ def evaluate_attach_text(text: str, layer: QgsVectorLayer = None, feature: QgsFe
     except Exception:
         return ""
 
+
 def create_expression(text: str):
     """
     引数の文字列から新しい式を作成するオブジェクトを作成
@@ -174,14 +179,14 @@ def create_expression(text: str):
             if len(exp.referencedFunctions()) > 0:
                 # 使用している関数がある
                 break
-        
+
             if len(exp.referencedVariables()) > 0:
                 # 使用している変数がある
                 break
-            
+
             # ここまで到達したら単一の文字列なのでNoneを返却する
             return None
-        
+
         if exp.hasEvalError():
             iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "{0} has eval error: {1}").format(text, exp.evalErrorString()))
             return None
@@ -191,6 +196,7 @@ def create_expression(text: str):
             return None
 
         return exp
+
 
 def get_layer_variable_evaluated(layer_context_name: str, layer: QgsVectorLayer):
     """
@@ -221,12 +227,13 @@ def get_layer_variable_evaluated(layer_context_name: str, layer: QgsVectorLayer)
 
     return evaluated
 
+
 def contains_text_in_first_cell(ws, text: str):
     # 最初のセルは結合セルか
     if ws.Cells(1).MergeCells:
         first_cell = ws.Cells(1).MergeArea.Cells(1)
     else:
-        first_cell =  ws.Cells(1)
+        first_cell = ws.Cells(1)
 
     first_cell_value = first_cell.Value
     if first_cell_value is None:
@@ -236,8 +243,9 @@ def contains_text_in_first_cell(ws, text: str):
     if text in first_cell_text:
         address = first_cell.Address
         return first_cell
-    
+
     return None
+
 
 def append_list_insert(ws, cell, list_insert_list, extent):
 
@@ -254,13 +262,13 @@ def append_list_insert(ws, cell, list_insert_list, extent):
 
     if len(attach_info) > 1:
 
-        row =  target_cell.Row if merged == False else target_cell.Cells(1).Row
+        row = target_cell.Row if merged == False else target_cell.Cells(1).Row
         column = target_cell.Column if merged == False else target_cell.Cells(1).Column
         row_span = target_cell.Rows.Count
         column_span = target_cell.Columns.Count
 
         if extent["min_row"] == 0 or row < extent["min_row"]:
-            extent["min_row"] = row 
+            extent["min_row"] = row
 
         if extent["min_column"] == 0 or column < extent["min_column"]:
             extent["min_column"] = column
@@ -282,6 +290,7 @@ def append_list_insert(ws, cell, list_insert_list, extent):
 
         list_insert_list.append(list_info)
 
+
 def find_list_insert(ws, list_insert_list: list, extent: dict):
     """
     シート内の##ListInsert::を含むセルから一覧の行として繰り返す情報をリストにする。
@@ -294,14 +303,14 @@ def find_list_insert(ws, list_insert_list: list, extent: dict):
                 min_row -- 最小の行番号
                 max_column -- 最大の列番号
                 max_row -- 最大の行番号
-    
+
       Returns
         なし
     """
-    
+
     # 検索対象文字列
     find_text = "##ListInsert::"
-    
+
     # ##ListInsesrt::範囲を決める変数
     extent["min_column"] = 0
     extent["min_row"] = 0
@@ -334,6 +343,7 @@ def find_list_insert(ws, list_insert_list: list, extent: dict):
             # 初めのセルに戻ったら処理を抜ける
             break
 
+
 def insert_list_values(ws, layer: QgsVectorLayer, list_insert_list: list, extent: dict):
     """
     一覧の行として繰り返す情報リストを元に、レイヤの全地物の情報をシートに出力する.
@@ -356,7 +366,7 @@ def insert_list_values(ws, layer: QgsVectorLayer, list_insert_list: list, extent
         return
 
     data_count = layer.featureCount()
-    
+
     # 繰り返し範囲を決定する
     min_row = extent["min_row"]
     min_column = extent["min_column"]
@@ -364,7 +374,7 @@ def insert_list_values(ws, layer: QgsVectorLayer, list_insert_list: list, extent
     max_column = extent["max_column"]
 
     row_span = max_row - min_row + 1
-    
+
     # 繰り返し範囲の書式と数式を行単位でコピー（行高もコピーするため）
     ws.Range(ws.Cells(min_row, min_column), ws.Cells(max_row, max_column)).EntireRow.Copy()
 
@@ -420,7 +430,7 @@ def insert_list_values(ws, layer: QgsVectorLayer, list_insert_list: list, extent
                 if isinstance(attr_value, QDate):
                     cells_list[row][column] = attr_value.toString("yyyy/MM/dd")
                 elif isinstance(attr_value, QTime):
-                    cells_list[row][column] = attr_value.toString() # フォーマットは不要
+                    cells_list[row][column] = attr_value.toString()  # フォーマットは不要
                 elif isinstance(attr_value, QDateTime):
                     cells_list[row][column] = attr_value.toString("yyyy/MM/dd hh:mm:ss")
                 else:
@@ -433,14 +443,15 @@ def insert_list_values(ws, layer: QgsVectorLayer, list_insert_list: list, extent
     for row_list in cells_list:
         cells_list2.append(tuple(row_list))
 
-    data_range.Value =  tuple(cells_list2)
+    data_range.Value = tuple(cells_list2)
 
     ws.Cells(1).Select()
+
 
 def insert_list(wb, layer: QgsVectorLayer):
     """
     ワークブックの全シートに一覧を作成する
-    
+
       Parameters
         wb -- ワークブック
         layer -- レイヤ
@@ -460,7 +471,7 @@ def insert_list(wb, layer: QgsVectorLayer):
         if len(list_insert_list) <= 0:
             # 見つからなければ次のシートへ
             continue
-        
+
         # ##ListInsesrt::の設定に沿って一覧を出力する
         insert_list_values(ws, layer, list_insert_list, extent)
 
@@ -480,6 +491,7 @@ def check_save_folder(path):
 
     # 再帰的にディレクトリを作成
     os.makedirs(target, exist_ok=True)
+
 
 def output_list_report(excel_app, layer: QgsVectorLayer, template_path: str, output_path: str):
     """
@@ -519,8 +531,9 @@ def output_list_report(excel_app, layer: QgsVectorLayer, template_path: str, out
     except Exception as e:
         iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "An error occurred: {0}").format(e))
         success = False
-        
+
     return success
+
 
 def check_same_name_opend(excel_app, book_name: str):
     """
@@ -539,8 +552,9 @@ def check_same_name_opend(excel_app, book_name: str):
         if wb.Name == book_name:
             iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "A workbook named {0} \n is already open.").format(book_name))
             return False
-    
+
     return True
+
 
 excel_result = False
 
@@ -555,7 +569,7 @@ while True:
         break
     # テンプレートファイルの存在チェック
     if not os.path.isabs(template_path):
-        template_path = os.path.join(os.path.dirname(QgsProject.instance().fileName()), template_path) 
+        template_path = os.path.join(os.path.dirname(QgsProject.instance().fileName()), template_path)
     else:
         # 絶対パスの場合、先頭が\\\\では認識しないため、\\に変換する
         template_path = template_path.replace("\\\\\\\\", "\\\\")
@@ -575,12 +589,12 @@ while True:
     if not output_path_variable:
         iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Output folder (variable part) is not set."))
         break
-    
+
     # 出力先フォルダの存在チェック
     if not os.path.isabs(output_path_fixed):
         # 相対パス
-        projectpath  = QgsProject.instance().fileName(); 
-        projectdirpath = os.path.dirname(str(projectpath)) ; 
+        projectpath = QgsProject.instance().fileName()
+        projectdirpath = os.path.dirname(str(projectpath))
         output_path_fixed = os.path.abspath(os.path.join(projectdirpath, output_path_fixed))
     else:
         # 絶対パスの場合、先頭が\\\\では認識しないため、\\に変換する
@@ -595,16 +609,17 @@ while True:
     # 出力先ファイルの存在チェック
     overwrite = False
     if os.path.exists(output_path):
-        msgbox_return = QMessageBox.question(iface.mainWindow(), QCoreApplication.translate("geo_excel", "Confirmation"), QCoreApplication.translate("geo_excel", "{0} \nalready exists.\nOverwrite it?").format(output_path), QMessageBox.Ok, QMessageBox.Cancel)
+        msgbox_return = QMessageBox.question(iface.mainWindow(), QCoreApplication.translate("geo_excel", "Confirmation"), QCoreApplication.translate(
+            "geo_excel", "{0} \nalready exists.\nOverwrite it?").format(output_path), QMessageBox.Ok, QMessageBox.Cancel)
         if msgbox_return == QMessageBox.Cancel:
             break
         overwrite = True
-        
+
     with OverrideCursor(Qt.WaitCursor):
         # Excelを開く
         try:
             excel_app = win32com.client.GetObject(Class="Excel.Application")
-        except:
+        except Exception:
             excel_app = win32com.client.Dispatch("Excel.Application")
 
         # 同名のブックが開いていないか確認
@@ -620,7 +635,7 @@ while True:
             excel_app.ScreenUpdating = True
 
         excel_app.Visible = True
-        
+
         if excel_app.Workbooks.Count == 0:
             excel_app.Quit()
 

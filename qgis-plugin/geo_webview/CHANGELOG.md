@@ -11,6 +11,24 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.17.1] - 2026-10-21 セキュリティスキャン対応
+
+- netsh ファイアウォール操作4箇所の `shell=True` を除去し、
+  リスト形式の subprocess 呼出しに変更
+  (findstrパイプはPython側regexに置換)
+- キャッシュキー/タイル識別用の md5/sha1 に `usedforsecurity=False`
+  を付与(非セキュリティ用途の明示)
+- KASUGAI検出のHTTP呼出し(`_http_json`)に http/https スキーム
+  検証を追加
+- 0.0.0.0 への bind はLAN共有が本機能の仕様のため `# nosec B104` で明示
+- LOW指摘(try/except/pass|continue、subprocess系監査ヒント、
+  部分パス起動等)はレビュー済みとして同梱 `.bandit` 設定で抑制
+- flake8指摘を整理: `set_extent` 診断出力の未定義変数(cw/ch)を除去、
+  `server_manager` の `QColor` import欠落を修正、
+  `maplibre_generator` のタブ/空白混在インデントを正規化、
+  関数内の冗長な再importを削除、bare `except:` を `except Exception:`
+  に修正。残る長行E501は同梱 `.flake8` 設定で明示抑制
+
 ## [3.17.0] - 2026-10-19 KASUGAI Canvas 連携
 
 - **KASUGAIボタンを追加**。表示中レイヤをKASUGAI Canvasプロジェクト

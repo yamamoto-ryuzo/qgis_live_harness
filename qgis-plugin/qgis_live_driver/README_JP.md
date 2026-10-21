@@ -257,3 +257,14 @@ deployモードバッジ(開発モード/利用モードの常時表示)を載�
 
 ローカルのMCPクライアント(`mcp_stdio.py` 等)はレジストリからトークンを
 自動で読むため、利用側の手順は変わらない。
+
+# 免責事項
+
+本システムは個人のPCで作成・テストされたものです。  
+ご利用によるいかなる損害も責任を負いません。
+
+<p align="center">
+  <a href="https://giphy.com/explore/free-gif" target="_blank">
+    <img src="https://github.com/yamamoto-ryuzo/QGIS_portable_3x/raw/master/imgs/giphy.gif" width="500" title="avvio QGIS">
+  </a>
+</p>

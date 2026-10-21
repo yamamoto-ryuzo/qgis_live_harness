@@ -23,12 +23,10 @@
 
 import os
 from qgis.PyQt.QtCore import Qt, QCoreApplication
-from qgis.PyQt import QtGui, uic
-from qgis.PyQt.QtWidgets import QApplication, QDialog, QFileDialog, QVBoxLayout, QDialogButtonBox
-from collections import OrderedDict
+from qgis.PyQt import uic
+from qgis.PyQt.QtWidgets import QDialog, QFileDialog, QVBoxLayout, QDialogButtonBox
 from .util import Util
 from .ckanconnector import CkanConnector
-import json
 
 try:
     from qgis.gui import QgsAuthConfigSelect
@@ -114,7 +112,7 @@ class GeoImportDialogSettings(QDialog, FORM_CLASS):
         self.util.dlg_information(QCoreApplication.translate('GeoImport', u'dlg_set_tool_cache'))
 
     def authcfg_clear(self):
-         self.IDC_leAuthCfg.clear()
+        self.IDC_leAuthCfg.clear()
 
     def authcfg_edit(self):
         dlg = QDialog(None)

@@ -1,3 +1,20 @@
+2.10.1 plugins.qgis.org セキュリティスキャン対応
+- junction作成の `mklink` 呼出しから `shell=True` を除去
+  (リスト形式で cmd /c を直接起動するためshell解釈を経由しない)
+- XMLパース4箇所(WMS GetCapabilities / 属性XMLローダ /
+  XML診断ツール×2)に DOCTYPE/ENTITY 宣言の拒否ガードを追加
+  (XXE・entity展開攻撃対策)
+- キャッシュキー/ファイル名短縮用の md5/sha1 計8箇所に
+  `usedforsecurity=False` を付与(非セキュリティ用途の明示)
+- LOW指摘(try/except/pass、subprocess系監査ヒント、
+  vendored pyperclip 等)はレビュー済みとして同梱 `.bandit` 設定で抑制
+- flake8指摘を整理: `CkanConnector.__check_connection` の重複
+  デッド定義を削除(後勝ちの有効版を温存)、
+  `httpcall` の `QNR_TIMEOUT_ERROR` 未修飾参照を `self.` 付きに修正、
+  `.format` 引数が出力に反映されないログ4箇所を修正、
+  bare `except:` を `except Exception:` に修正。
+  vendored pyperclip の指摘は同梱 `.flake8` 設定で明示抑制
+
 2.10.0 死んでいるCKANサーバーの明示表示 + GSJ Linked Data/TileJSON対応強化
 - GSJ Linked Data マップ情報(JSON)対応強化:
   地質調査総合センターデータカタログの「マップ情報（JSON）」リソース

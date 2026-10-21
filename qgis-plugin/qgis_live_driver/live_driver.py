@@ -363,6 +363,7 @@ class LiveDriver:
                 break
             # replyが呼ばれた時点で完了。_handleが"async"を返した(eval転送等)は
             # replyが非同期的に後で呼ばれるため、ここでdone.set()しない
+
             def _reply_once(obj, _box=box, _done=done):
                 _box["reply"] = obj
                 _done.set()
@@ -446,10 +447,10 @@ class LiveDriver:
         reply({
             "id": cid,
             "error": f"type={ctype} unsupported: qgis_live_driver has no WebEngine view. "
-                     "pass plugin_id of a WebEngine plugin to route "
-                     "(eval/devreload/screenshot), or use "
-                     "pyeval/status/open_plugin/reload_plugin/bridge_call/"
-                     "describe_plugins",
+            "pass plugin_id of a WebEngine plugin to route "
+            "(eval/devreload/screenshot), or use "
+            "pyeval/status/open_plugin/reload_plugin/bridge_call/"
+            "describe_plugins",
         })
 
     def _forward(self, cid, pid, cmd, reply):
@@ -712,7 +713,7 @@ class LiveDriver:
                 code_obj = compile(code, "<pyeval>", "eval")
             except SyntaxError:
                 code_obj = compile(code, "<pyeval>", "exec")
-            res = eval(code_obj, self._ns)
+            res = eval(code_obj, self._ns)  # nosec B307  # 任意Python実行が本プラグインの主目的
             if res is None:
                 res = self._ns.pop("result", None)
             reply({"id": cid, "result": _to_jsonable(res)})

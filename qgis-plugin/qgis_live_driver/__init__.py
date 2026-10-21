@@ -17,7 +17,7 @@ from .i18n_json import install_translator
 def _log(msg):
     log = os.environ.get(
         "WEBENGINE_LOG_PATH",
-        os.path.join(os.environ.get("TEMP", "/tmp"), "plugin_load.log"),
+        os.path.join(tempfile.gettempdir(), "plugin_load.log"),
     )
     try:
         os.makedirs(os.path.dirname(log), exist_ok=True)

@@ -14,17 +14,19 @@ PRERELEASE = ""
 # Build metadata
 BUILD = ""
 
+
 def get_version():
     """Get the full version string"""
     version = f"{MAJOR}.{MINOR}.{PATCH}"
-    
+
     if PRERELEASE:
         version += f"-{PRERELEASE}"
-    
+
     if BUILD:
         version += f"+{BUILD}"
-    
+
     return version
+
 
 def get_version_info():
     """Get version information as a dictionary"""
@@ -37,9 +39,11 @@ def get_version_info():
         'version': get_version()
     }
 
+
 def is_stable():
     """Check if this is a stable release"""
     return not PRERELEASE
+
 
 def get_compatibility_info():
     """Get QGIS compatibility information"""
@@ -49,6 +53,7 @@ def get_compatibility_info():
         'qt6_support': True,
         'supported_qgis_versions': ['4.0+']
     }
+
 
 # Version string for easy import
 __version__ = get_version()

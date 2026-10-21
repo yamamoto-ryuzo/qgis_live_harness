@@ -23,6 +23,25 @@
   (`/mActionOptions.svg`)のみの非侵襲表示に変更(ツールチップには
   モード名を表示)
 
+### Security
+
+- plugins.qgis.org セキュリティスキャン対応: `urlopen` 全5箇所に
+  `_require_http_scheme` による http/https スキーム検証を追加
+  (file:等のスキームを拒否)
+- ログパスのフォールバックを `/tmp` ハードコードから
+  `tempfile.gettempdir()` に変更
+- `pyeval` の `eval` は任意Python実行が主目的のため
+  `# nosec B307` で明示抑制
+
+### Maintenance
+
+- flake8指摘を整理: bare `except:` を `except Exception:` に修正、
+  `def f(): ...` 単一行定義を展開、未使用変数を整理。
+  残る長行E501は同梱 `.flake8` 設定で明示抑制
+- LOW指摘(try/except/pass、subprocess系監査ヒント、
+  ハードコード文字列の誤検知等)はレビュー済みとして同梱
+  `.bandit` 設定で抑制
+
 ## [0.15.0] - 2026-10-19
 
 ### Added

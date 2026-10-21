@@ -23,10 +23,10 @@
 import json
 import os
 
-from qgis.PyQt import QtGui, uic
-from qgis.PyQt.QtCore import QTimer, Qt, QStringListModel, QModelIndex, QObject, pyqtSignal, QEvent, QCoreApplication
+from qgis.PyQt import uic
+from qgis.PyQt.QtCore import QTimer, Qt, QObject, pyqtSignal, QEvent, QCoreApplication
 from qgis.PyQt.QtGui import QStandardItemModel, QStandardItem, QColor
-from qgis.PyQt.QtWidgets import QDialog, QApplication, QListWidgetItem, QAction, QInputDialog, QLineEdit, QFileDialog
+from qgis.PyQt.QtWidgets import QDialog, QApplication, QAction, QInputDialog, QLineEdit, QFileDialog
 from .ckanconnector import CkanConnector
 from .httpcall import HttpCall
 from .serverinstance import ServerInstance
@@ -87,7 +87,7 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
         self.util.msg_log_debug('GeoImportDialogDataProviders constructor')
         # self.IDC_grpManualDataProvider.collapsed = True
         # self.IDC_grpManualDataProvider.setCollapsed(True)
-        #self.IDC_listProviders.setStyleSheet("QListWidget::item { border-bottom: 1px solid black; }");
+        # self.IDC_listProviders.setStyleSheet("QListWidget::item { border-bottom: 1px solid black; }");
         self.timer = QTimer()
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.window_loaded)
@@ -106,14 +106,14 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
                 self.timer.stop()
                 self.timer = None
             self.list_model.clear()
-            
+
             # 読み込むJSONファイル（複数）
             instances_urls = [
                 'https://raw.githubusercontent.com/ckan/ckan-instances/gh-pages/config/instances.json',
                 # raw.githubusercontent.com expects the branch name directly (not refs/heads/)
                 'https://raw.githubusercontent.com/yamamoto-ryuzo/geo_import/main/resources/instances/instances.json'
             ]
-            
+
             # ローカルのJSONファイルを追加（存在する場合）
             local_instances_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'instances', 'instances.json')
             if os.path.exists(local_instances_path):
@@ -121,7 +121,7 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
                 file_uri = f"file:///{local_instances_path.replace('\\', '/')}"
                 instances_urls.append(file_uri)
                 self.util.msg_log_debug('Found local instances.json: ' + file_uri)
-            
+
             # すべてのサーバーのリスト
             self.servers = []
             # 取得失敗時の情報を集めてダイアログ表示できるようにする
@@ -129,7 +129,7 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
 
             for instances_url in instances_urls:
                 self.util.msg_log_debug('Getting instances from: ' + instances_url)
-                
+
                 # ローカルファイルの場合は直接読み込む
                 if instances_url.startswith('file:///'):
                     try:
@@ -140,17 +140,14 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
                         continue
                     except Exception as e:
                         self.util.msg_log_error(f"Failed to read local file: {str(e)}")
-                
+
                 # リモートファイルの場合はHTTPリクエスト
                 http_call = HttpCall(self.settings, self.util)
                 response = http_call.execute_request(
-                    instances_url
-                    # , headers=self.ua_chrome
-                    , verify=False
-                    , stream=True
-                    # not needed anymore, as we use QgsNetworkAccessManager.instance() now
-                    #, proxies=self.settings.get_proxies()[1]
-                    , timeout=self.settings.request_timeout
+                    instances_url,                    # headers=self.ua_chrome
+                    verify=False, stream=True,                    # not needed anymore, as we use QgsNetworkAccessManager.instance() now
+                    # , proxies=self.settings.get_proxies()[1]
+                    timeout=self.settings.request_timeout
                 )
 
                 if not response.ok:
@@ -180,10 +177,10 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
                     fetch_failures.append(msg)
                     self.util.msg_log_last_exception()
                     continue
-            
+
             # カスタムサーバーを追加
             self.add_custom_servers()
-            
+
             # サーバーがない場合は警告
             if not self.servers:
                 QApplication.restoreOverrideCursor()
@@ -228,7 +225,7 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
         """JSONから読み込んだインスタンス情報を処理"""
         self.settings.load()
         selected_servers = self.settings.selected_ckan_servers.split('|')
-        
+
         for entry in result:
             url_api = None
             if 'url-api' in entry:
@@ -241,22 +238,22 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
             description = entry.get('description', '')
             si = ServerInstance(entry['title'], description, entry['url'], url_api)
             si.selected = True if si.settings_key in selected_servers else False
-            
+
             # 重複チェック（同じURLは追加しない）
             is_duplicate = False
             for existing in self.servers:
                 if existing.url == si.url:
                     is_duplicate = True
                     break
-            
+
             if not is_duplicate:
                 self.servers.append(si)
-    
+
     def add_custom_servers(self):
         """カスタムサーバーを追加"""
         self.settings.load()
         selected_servers = self.settings.selected_ckan_servers.split('|')
-        
+
         self.util.msg_log_debug(u'{} custom servers'.format(len(self.settings.custom_servers)))
         for cs_name, cs_info in self.settings.custom_servers.items():
             # cs_info: {url, type}
@@ -422,7 +419,7 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
             # normalize
             api_url = os.path.abspath(local_path)
             server_type = 'LOCAL'
-        
+
         # If not local, test via CKAN API
         QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         if server_type == 'CKAN':

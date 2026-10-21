@@ -413,11 +413,11 @@ class GeoWebViewBridge:
                              if server_running and port else None),
                 "services": {
                     "wms": server is not None
-                           and getattr(server, "wms_service", None) is not None,
+                    and getattr(server, "wms_service", None) is not None,
                     "wmts": server is not None
-                            and getattr(server, "wmts_service", None) is not None,
+                    and getattr(server, "wmts_service", None) is not None,
                     "wfs": server is not None
-                           and getattr(server, "wfs_service", None) is not None,
+                    and getattr(server, "wfs_service", None) is not None,
                 },
             },
             "canvas": self._canvas_state(),
@@ -454,7 +454,7 @@ class GeoWebViewBridge:
             except Exception:
                 pass
         return self._ok({"visible": bool(panel is not None
-                                          and panel.isVisible())})
+                                         and panel.isVisible())})
 
     # ---------- HTTPサーバ ----------
 
@@ -1105,7 +1105,7 @@ class GeoWebViewBridge:
             "openlayers_output_dir": (os.path.join(tmp, "qmap_openlayers")
                                       if ol == "__default__" else ol),
             "kasugai_output_path": s.value("kasugai_output_path",
-                                          "__default__"),
+                                           "__default__"),
             "kasugai_output_dir": kasugai_export.get_output_dir(),
             "kasugai_port": kasugai_export.get_kasugai_port(),
             "preferred_port": getattr(server, "preferred_port", None),

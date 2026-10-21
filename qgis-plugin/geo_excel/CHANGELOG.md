@@ -1,5 +1,18 @@
 # CHANGELOG — geo_excel
 
+## 1.9.1
+
+- **plugins.qgis.org セキュリティスキャン対応**: bandit指摘への対応。
+  帳票スクリプトの `exec` はプラグインの主目的のため
+  `# nosec B102` で明示抑制
+- geo_userfunc 共有レジストリへの登録成功時に自前の実行メニューが
+  残り二重表示になる問題を修正(登録時は自前メニューを除去)
+- LOW指摘(try/except/pass等)はレビュー済みとして同梱 `.bandit`
+  設定で抑制
+- flake8指摘を整理: bare `except:` を `except Exception:` に修正、
+  不要な `f` 接頭辞を除去。upstream同梱スクリプト(export*.py)
+  由来の残存指摘は同梱 `.flake8` 設定(per-file-ignores)で明示抑制
+
 ## 1.9.0
 
 - **geo_userfunc 共有レジストリ連携**: geo_userfunc がロード済みなら

@@ -48,8 +48,9 @@ class GeoImportDialogDisclaimer(QDialog, FORM_CLASS):
         self.main_win = parent
         self.settings = settings
         self.util = Util(self.settings, self.main_win)
-        
+
         logo_path = self.util.resolve(u'ckan_logo_big.png')
         self.IDC_lblLogo.setPixmap(QtGui.QPixmap(logo_path))
         self.IDC_brInfo.setOpenExternalLinks(True)
-        self.IDC_brInfo.setHtml(QCoreApplication.translate('GeoImport', '<html><head/><body><h1>Disclaimer</h1><p>The plugin may not work with all CKAN instances, as metadata is structured differently across platforms. Only servers that use groups or tags are supported. <a href="http://docs.ckan.org/en/latest/api/">CKAN docs</a><br />This plugin only works with API version 3.</p></body></html>'))
+        self.IDC_brInfo.setHtml(QCoreApplication.translate(
+            'GeoImport', '<html><head/><body><h1>Disclaimer</h1><p>The plugin may not work with all CKAN instances, as metadata is structured differently across platforms. Only servers that use groups or tags are supported. <a href="http://docs.ckan.org/en/latest/api/">CKAN docs</a><br />This plugin only works with API version 3.</p></body></html>'))

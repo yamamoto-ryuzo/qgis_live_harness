@@ -25,6 +25,7 @@ class SearchFeature(object):
         if not hasattr(self, '_layer_setting') or not self._layer_setting:
             return self.iface.activeLayer()
         return self.load_layer(self._layer_setting)
+
     def __init__(self, iface, setting, widget, andor=" And ", page_limit=1000):
         self.iface = iface
         self.setting = setting
@@ -64,7 +65,6 @@ class SearchFeature(object):
         # pan mode (0: default zoom-to-selected). May be set by plugin when dialog is created.
         self.pan_mode = 0
 
-
     @property
     def view_fields(self):
         layer = self.layer
@@ -78,7 +78,7 @@ class SearchFeature(object):
         valid_fields = [
             layer_fields[fid] for fid in setting_fields if fid != -1
         ]
-        
+
         # 指定されたフィールドが存在しない場合は空のリストを返す
         if not valid_fields and self.__view_fields:
             try:
@@ -87,7 +87,7 @@ class SearchFeature(object):
             except Exception:
                 pass
             return []
-        
+
         return valid_fields
 
     @view_fields.setter
@@ -139,7 +139,7 @@ class SearchFeature(object):
         valid_fields = [
             layer_fields[fid] for fid in setting_fields if fid != -1
         ]
-        
+
         # 指定されたフィールドが存在しない場合は空のリストを返す
         if not valid_fields and self.__view_fields:
             try:
@@ -148,7 +148,7 @@ class SearchFeature(object):
             except Exception:
                 pass
             return []
-        
+
         return valid_fields
 
     def _search_multiple_layers_by_name(self, layers):
@@ -158,28 +158,28 @@ class SearchFeature(object):
             QgsMessageLog.logMessage(f"same-name layer search: searching {len(layers)} layers", "GEO-search-plugin", 0)
         except Exception:
             pass
-            
+
         all_features = []
-        all_fields = []
-        
+        _ = []
+
         for layer in layers:
             if not layer or not layer.isValid():
                 continue
-                
+
             try:
                 features = self._search_on_layer(layer)
-                
+
                 try:
                     from qgis.core import QgsMessageLog
                     QgsMessageLog.logMessage(f"same-name layer search: layer '{layer.name()}' found {len(features)} features", "GEO-search-plugin", 0)
                 except Exception:
                     pass
-                
+
                 if features:
                     # レイヤ情報を保持して結果に追加
                     for f in features:
                         all_features.append((None, layer, f))
-                        
+
             except Exception as e:
                 try:
                     from qgis.core import QgsMessageLog
@@ -187,13 +187,13 @@ class SearchFeature(object):
                 except Exception:
                     pass
                 continue
-        
+
         # 結果が見つからない場合
         if not all_features:
             self.result_dialog.set_features([], [])
             self.result_dialog.show()
             return
-        
+
         # レイヤごとに結果をグループ化
         layers_map = []
         for node, layer, feature in all_features:
@@ -207,14 +207,14 @@ class SearchFeature(object):
                     label = f"{layer_name} ({layer_id})"
                 except Exception:
                     label = "Results"
-                    
+
                 # 各レイヤに対してview_fieldsを適用
                 layer_view_fields = self._get_view_fields_for_layer(layer)
                 entry = [layer, layer, label, layer_view_fields, [feature]]
                 layers_map.append(entry)
             else:
                 entry[4].append(feature)
-        
+
         # タブ形式で結果を表示
         self.result_dialog.set_features_by_layer([((e[2], e[1]), e[3], e[4]) for e in layers_map])
         self.result_dialog.show()
@@ -290,19 +290,19 @@ class SearchFeature(object):
 
     def search_feature(self):
         raise NotImplementedError
-    
+
     def normalize_search_value(self, value):
         """検索値を正規化する（全角英数字を半角に変換）"""
         if not value:
             return value
-        
+
         try:
             # jaconvを使用して全角英数字を半角に変換
             # ascii=True: 全角ASCII文字を半角に変換
             # digit=True: 全角数字を半角に変換
             # kana=False: カナ変換は行わない（速度優先）
             normalized = jaconv.z2h(value, ascii=True, digit=True, kana=False)
-            
+
             # ログ出力（デバッグ用、変換があった場合のみ）
             if normalized != value:
                 try:
@@ -310,7 +310,7 @@ class SearchFeature(object):
                     QgsMessageLog.logMessage(f"search value normalized: '{value}' -> '{normalized}'", "GEO-search-plugin", 0)
                 except Exception:
                     pass
-            
+
             return normalized
         except Exception as e:
             # 変換に失敗した場合は元の値を返す
@@ -434,7 +434,6 @@ class SearchFeature(object):
             except Exception:
                 pass
             return
-
 
         # resolve layer to operate on
         target_layer = layer or self.layer
@@ -599,7 +598,7 @@ class SearchFeature(object):
                             pass
                         QgsMessageLog.logMessage(f"zoom_features: feature id={fid} has_geom={has_geom} geom_type={geom_type} centroid={centroid} bbox={bbox_part} wkt={wkt}", "GEO-search-plugin", 0)
                     except Exception:
-                        QgsMessageLog.logMessage(f"zoom_features: failed to inspect a feature in features list", "GEO-search-plugin", 2)
+                        QgsMessageLog.logMessage("zoom_features: failed to inspect a feature in features list", "GEO-search-plugin", 2)
             except Exception:
                 try:
                     from qgis.core import QgsMessageLog
@@ -682,7 +681,7 @@ class SearchFeature(object):
                 from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage(f"zoom_features: mode={mode} canvas_present={canvas is not None}", "GEO-search-plugin", 0)
                 view_changed = False
-                animation_scheduled = False
+                _ = False
 
                 # 0: zoom to selected (default)
                 if mode == 0:
@@ -805,10 +804,11 @@ class SearchFeature(object):
                                         dx = use_bbox.width() * 0.05
                                         dy = use_bbox.height() * 0.05
                                         expanded = QgsRectangle(use_bbox.xMinimum() - dx, use_bbox.yMinimum() - dy,
-                                                                 use_bbox.xMaximum() + dx, use_bbox.yMaximum() + dy)
+                                                                use_bbox.xMaximum() + dx, use_bbox.yMaximum() + dy)
                                         # Log which bbox was used for the final extent and its values
                                         try:
-                                            QgsMessageLog.logMessage(f"zoom_features: animated pan final extent used_bbox={'trans_bbox' if use_bbox is trans_bbox else 'bbox'} expanded={expanded}", "GEO-search-plugin", 0)
+                                            QgsMessageLog.logMessage(
+                                                f"zoom_features: animated pan final extent used_bbox={'trans_bbox' if use_bbox is trans_bbox else 'bbox'} expanded={expanded}", "GEO-search-plugin", 0)
                                         except Exception:
                                             pass
                                         canvas.setExtent(expanded)
@@ -822,7 +822,7 @@ class SearchFeature(object):
                         for s in range(steps):
                             QTimer.singleShot(s * interval, _step)
                         view_changed = True
-                        animation_scheduled = True
+                        _ = True
                     except Exception as e:
                         try:
                             QgsMessageLog.logMessage(f"zoom_features: animated pan failed: {e}", "GEO-search-plugin", 2)
@@ -1092,7 +1092,7 @@ class SearchFeature(object):
             except Exception:
                 try:
                     from qgis.core import QgsMessageLog
-                    QgsMessageLog.logMessage(f"_apply_rotation_if_configured: failed to apply rotation", "GEO-search-plugin", 2)
+                    QgsMessageLog.logMessage("_apply_rotation_if_configured: failed to apply rotation", "GEO-search-plugin", 2)
                 except Exception:
                     pass
         except Exception:
@@ -1210,7 +1210,6 @@ class SearchFeature(object):
                             cur.setItemVisibilityChecked(True)
                         except Exception:
                             try:
-                                from qgis.core import QgsMessageLog
                                 QgsMessageLog.logMessage(f"_ensure_layer_visible: failed to set visibility on node {cur}", "GEO-search-plugin", 1)
                             except Exception:
                                 pass
@@ -1277,7 +1276,7 @@ class SearchFeature(object):
                 apply_theme_name = theme_name
             elif "検索前" in theme_names:
                 apply_theme_name = "検索前"
-            
+
             # テーマを適用（共通ヘルパーを使用）
             if apply_theme_name:
                 root = project.layerTreeRoot()
@@ -1372,6 +1371,8 @@ class SearchFeature(object):
         return layers
 
 # "通常の検索"
+
+
 class SearchTextFeature(SearchFeature):
     def load(self):
         if self.suggest_flg:
@@ -1401,9 +1402,9 @@ class SearchTextFeature(SearchFeature):
         layer = self.layer
         if not layer:
             return []
-        
+
         from qgis.core import QgsMessageLog
-        
+
         # まずダイアログ側からカレントの入力を取得してみる（優先）
         search_value = None
         try:
@@ -1460,20 +1461,20 @@ class SearchTextFeature(SearchFeature):
                         break
             except Exception:
                 search_value = None
-        
+
         if not search_value:
             return []  # 検索値がなければ何も返さない
-        
+
         # 検索対象のフィールドを特定
         target_fields = self._get_target_fields()
-        
+
         if not target_fields:
             try:
                 QgsMessageLog.logMessage(f"no search condition: fields={self.fields}", "GEO-search-plugin", 0)
             except Exception:
                 pass
             return []
-        
+
         # 検索条件を構築（フィールドタイプを確認して数値なら数値比較にする）
         expres_list = []
         for field_name in target_fields:
@@ -1506,11 +1507,11 @@ class SearchTextFeature(SearchFeature):
             request.setLimit(limit)
         features = list(layer.getFeatures(request))
         return features
-        
+
     def _get_target_fields(self):
         """検索対象のフィールドを特定する"""
         target_fields = []
-        
+
         for field, search_widget in zip(self.fields, self.widget.search_widgets):
             # skip invalid field entries
             if not isinstance(field, dict):
@@ -1581,9 +1582,9 @@ class SearchTextFeature(SearchFeature):
                 except Exception:
                     pass
                 continue
-        
+
         return target_fields
-    
+
     def _resolve_field_name(self, field_name):
         """フィールド名を解決する（別名対応）"""
         if not field_name or not self.layer:
@@ -1607,16 +1608,16 @@ class SearchTextFeature(SearchFeature):
     def show_features(self):
         """検索処理: レイヤ名指定の場合は同名の全レイヤを検索、表示レイヤの場合は現在表示中のベクタレイヤを順に検索して集約表示する"""
         # レイヤ名指定で同名の複数レイヤがある場合の処理
-        if (self._layer_setting and 
-            isinstance(self._layer_setting, dict) and 
-            self._layer_setting.get("LayerType") == "Name"):
+        if (self._layer_setting and
+            isinstance(self._layer_setting, dict) and
+                self._layer_setting.get("LayerType") == "Name"):
             layer_name = self._layer_setting.get("Name")
             if layer_name:
                 same_name_layers = self.load_layers_by_name(layer_name)
                 if len(same_name_layers) > 1:
                     # 同名の複数レイヤを検索
                     return self._search_multiple_layers_by_name(same_name_layers)
-        
+
         # 通常の動作（設定レイヤまたはカレントレイヤ）
         if self.title not in ("表示レイヤ", "全レイヤ"):
             return super(SearchTextFeature, self).show_features()
@@ -1679,14 +1680,14 @@ class SearchTextFeature(SearchFeature):
         """既存の search_feature ロジックを再利用して与えたレイヤで検索を実行するヘルパー"""
         if not layer or not layer.isValid():
             return []
-            
+
         # 元のレイヤ設定を一時的に保存
         original_layer = getattr(self, '_layer_setting', None)
-        
+
         try:
             # 一時的にレイヤを変更して統一ロジックを使用
             self._layer_setting = layer
-            
+
             # 検索値を取得して正規化
             search_value = None
             for widget in self.widget.search_widgets:
@@ -1694,16 +1695,16 @@ class SearchTextFeature(SearchFeature):
                 if value:
                     search_value = self.normalize_search_value(value)
                     break
-            
+
             if not search_value:
                 return []
-            
+
             # 統一されたフィールド特定ロジックを使用
             target_fields = self._get_target_fields_for_layer(layer)
-            
+
             if not target_fields:
                 return []
-            
+
             # 統一された検索条件構築ロジックを使用（フィールドタイプに基づく比較）
             expres_list = []
             field_types = {f.name(): f.type() for f in layer.fields()}
@@ -1721,10 +1722,10 @@ class SearchTextFeature(SearchFeature):
                         expres_list.append('"{field}" LIKE \'%{value}%\''.format(field=field_name, value=search_value))
                 else:
                     expres_list.append('"{field}" LIKE \'%{value}%\''.format(field=field_name, value=search_value))
-            
+
             expression_str = self.andor.join(expres_list)
             expression = QgsExpression(expression_str)
-            
+
             if expression.hasEvalError():
                 try:
                     from qgis.core import QgsMessageLog
@@ -1732,31 +1733,31 @@ class SearchTextFeature(SearchFeature):
                 except Exception:
                     pass
                 return []
-            
+
             request = QgsFeatureRequest(expression)
             features = list(layer.getFeatures(request))
-            
+
             try:
                 from qgis.core import QgsMessageLog
                 layer_name = getattr(layer, 'name', lambda: 'None')()
                 QgsMessageLog.logMessage(f"_search_on_layer: layer={layer_name} fields={target_fields} found={len(features)}", "GEO-search-plugin", 0)
             except Exception:
                 pass
-                
+
             return features
-            
+
         finally:
             # 元のレイヤ設定を復元
             self._layer_setting = original_layer
-    
+
     def _get_target_fields_for_layer(self, layer):
         """指定されたレイヤに対して検索対象フィールドを特定する"""
         target_fields = []
-        
+
         for field, search_widget in zip(self.fields, self.widget.search_widgets):
             if not isinstance(field, dict):
                 continue
-            
+
             # 全フィールド検索の場合
             if field == {}:
                 if search_widget.text():
@@ -1773,11 +1774,11 @@ class SearchTextFeature(SearchFeature):
                         numeric_fields = [f.name() for f in layer.fields() if f.type() != 10]
                         target_fields.extend(numeric_fields)
                 break
-            
+
             try:
                 if field.get("all"):
                     continue
-                
+
                 # OR検索フィールド
                 view_name = field.get("ViewName", "")
                 if view_name and view_name.startswith("OR検索:"):
@@ -1792,7 +1793,7 @@ class SearchTextFeature(SearchFeature):
                     field_name = self._resolve_field_name_for_layer(field_name, layer)
                     if field_name:
                         target_fields.append(field_name)
-                        
+
             except Exception as e:
                 try:
                     from qgis.core import QgsMessageLog
@@ -1800,23 +1801,23 @@ class SearchTextFeature(SearchFeature):
                 except Exception:
                     pass
                 continue
-        
+
         return target_fields
-    
+
     def _resolve_field_name_for_layer(self, field_name, layer):
         """指定されたレイヤでフィールド名を解決する"""
         if not field_name or not layer:
             return None
-            
+
         # フィールド名が存在するかチェック
         if layer.fields().indexFromName(field_name) != -1:
             return field_name
-            
+
         # 別名で検索
         for layer_field in layer.fields():
             if layer_field.alias() == field_name:
                 return layer_field.name()
-                
+
         return field_name
 
 
@@ -1867,8 +1868,11 @@ class SearchTibanFeature(SearchTextFeature):
         user = setting.get("User")
         password = setting.get("Password")
         table = setting.get("Table")
-        columns = [f'"{col["Name"]}"' for col in setting.get("Columns", [])]
-        query = f"SELECT {','.join(columns)} FROM \"{table}\""
+
+        def quote_ident(n):
+            return '"' + str(n).replace('"', '""') + '"'
+        columns = [quote_ident(col["Name"]) for col in setting.get("Columns", [])]
+        query = f"SELECT {','.join(columns)} FROM {quote_ident(table)}"  # nosec B608  # 識別子はquote_identでエスケープ済み
         try:
             conn = psycopg2.connect(
                 host=host,
@@ -1928,7 +1932,7 @@ class SearchTibanFeature(SearchTextFeature):
                 continue
             if not value:
                 continue
-            
+
             # 全角英数字を半角に変換
             value = self.normalize_search_value(value)
             # 地番の場合、あいまい検索のフラグ
@@ -1948,7 +1952,7 @@ class SearchTibanFeature(SearchTextFeature):
         if any(regexp_values):
             # 地番値も正規化処理を適用
             normalized_regexp_values = [self.normalize_search_value(v) if v else v for v in regexp_values]
-            
+
             regexp = ""
             for i, value in enumerate(normalized_regexp_values):
                 if i == 0 and value and value.isdigit():
@@ -1963,7 +1967,7 @@ class SearchTibanFeature(SearchTextFeature):
                     regexp += "([^-]*)?"
                 if i == len(normalized_regexp_values) - 1:
                     continue
-                elif not any(normalized_regexp_values[i + 1 :]):
+                elif not any(normalized_regexp_values[i + 1:]):
                     regexp += "(-[^-]*)*"
                     break
                 else:
@@ -2008,7 +2012,7 @@ class SearchOwnerFeature(SearchTextFeature):
             value = search_widget.text()
             if not value:
                 continue
-            
+
             # 全角英数字を半角に変換（既存の処理の前に実行）
             value = self.normalize_search_value(value)
 

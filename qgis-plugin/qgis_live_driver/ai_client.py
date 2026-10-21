@@ -399,6 +399,7 @@ def model_tooltip(info):
             lines.append(tr_label(_F_CONTEXT).format(ctx))
     return "\n".join(lines)
 
+
 SYSTEM_PROMPT = """\
 You are an AI assistant running inside QGIS (a desktop GIS application).
 You operate QGIS through the provided tools. All tools run on the local
@@ -454,10 +455,18 @@ def provider_defaults(provider):
 
 # ---- 共通HTTP ----
 
+def _require_http_scheme(url):
+    """http/https 以外のスキーム(file:等)を拒否する。"""
+    scheme = urllib.parse.urlparse(url).scheme.lower()
+    if scheme not in ("http", "https"):
+        raise ApiError("Unsupported URL scheme: {0}".format(scheme or "(none)"))
+
+
 def _get_json(url, headers, timeout=30.0):
+    _require_http_scheme(url)
     req = urllib.request.Request(url, headers=headers or {}, method="GET")
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
+        with urllib.request.urlopen(req, timeout=timeout) as r:  # nosec B310  # _require_http_schemeでhttp/httpsのみ許可
             return json.loads(r.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         detail = ""
@@ -471,12 +480,13 @@ def _get_json(url, headers, timeout=30.0):
 
 
 def _post_json(url, headers, body, timeout=180.0):
+    _require_http_scheme(url)
     headers = {"Content-Type": "application/json", **(headers or {})}
     req = urllib.request.Request(
         url, data=json.dumps(body).encode("utf-8"),
         headers=headers, method="POST")
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
+        with urllib.request.urlopen(req, timeout=timeout) as r:  # nosec B310  # _require_http_schemeでhttp/httpsのみ許可
             return json.loads(r.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         detail = ""
@@ -491,6 +501,7 @@ def _post_json(url, headers, body, timeout=180.0):
 
 def _post_form(url, fields, timeout=30.0):
     """application/x-www-form-urlencoded でPOSTして応答JSONを返す。"""
+    _require_http_scheme(url)
     body = urllib.parse.urlencode(fields).encode("utf-8")
     req = urllib.request.Request(
         url, data=body, method="POST", headers={
@@ -498,7 +509,7 @@ def _post_form(url, fields, timeout=30.0):
             "Content-Type": "application/x-www-form-urlencoded",
         })
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
+        with urllib.request.urlopen(req, timeout=timeout) as r:  # nosec B310  # _require_http_schemeでhttp/httpsのみ許可
             return json.loads(r.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         detail = ""
@@ -1423,11 +1434,12 @@ def _oauth_request(oc, body, timeout=30.0):
             "Basic " + base64.b64encode(cred.encode()).decode())
     elif cid:
         body.setdefault("client_id", cid)   # public client
+    _require_http_scheme(turl)
     req = urllib.request.Request(
         turl, data=urllib.parse.urlencode(body).encode("utf-8"),
         headers=headers, method="POST")
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
+        with urllib.request.urlopen(req, timeout=timeout) as r:  # nosec B310  # _require_http_schemeでhttp/httpsのみ許可
             d = json.loads(r.read().decode("utf-8", "replace"))
     except urllib.error.HTTPError as e:
         detail = ""
@@ -1672,11 +1684,12 @@ class _McpHttp:
                     **self._auth_headers(timeout), **self.headers}
             if self.session_id:
                 hdrs["Mcp-Session-Id"] = self.session_id
+            _require_http_scheme(self.url)
             req = urllib.request.Request(
                 self.url, data=json.dumps(msg).encode("utf-8"),
                 headers=hdrs, method="POST")
             try:
-                with urllib.request.urlopen(req, timeout=timeout) as r:
+                with urllib.request.urlopen(req, timeout=timeout) as r:  # nosec B310  # _require_http_schemeでhttp/httpsのみ許可
                     sid = r.headers.get("Mcp-Session-Id")
                     if sid:
                         self.session_id = sid

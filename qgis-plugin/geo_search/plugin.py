@@ -4,10 +4,9 @@ import json
 import os
 
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QMessageBox, QComboBox, QWidget, QToolButton, QHBoxLayout, QToolBar
+from qgis.PyQt.QtWidgets import QAction, QComboBox, QWidget, QToolButton, QHBoxLayout, QToolBar
 from qgis.core import (
     QgsProject,
-    QgsExpressionContextUtils,
 )
 """QGIS プラグイン Qt 互換インポート
 
@@ -23,7 +22,6 @@ from .searchfeature import (
     SearchOwnerFeature,
 )
 from .searchdialog import SearchDialog
-from .theme import apply_theme
 
 # TODO: Fieldの確認
 # TODO: 表示テーブルの順番変更
@@ -115,7 +113,7 @@ class plugin(object):
                     try:
                         # prefer custom icons: OFF state 'theme-switch.PNG', ON state 'theme-additive.png'
                         icon_dir = os.path.join(os.path.dirname(__file__), "icon")
-                        on_icon_path = os.path.join(icon_dir, "theme-additive.png")
+                        _ = os.path.join(icon_dir, "theme-additive.png")
                         off_icon_path = os.path.join(icon_dir, "theme-switch.png")
                         fallback_icon_path = os.path.join(icon_dir, "qgis-icon.png")
                         # decide initial icon (start OFF)
@@ -152,7 +150,7 @@ class plugin(object):
                     pass
         except Exception:
             pass
-        
+
         # テーマ一覧のドロップダウンを作成
         # グループ選択用コンボ（グループを選んでテーマ表示を絞れる）
         self.group_combobox = QComboBox()
@@ -263,10 +261,10 @@ class plugin(object):
 
         # 初回更新
         self.update_theme_combobox()
-        
+
         # (以前はテーマの前回選択を内部保持していましたが、
         #  ユーザー操作による自動復元は不要なため削除しました)
-        
+
         # テーマ選択時のイベント接続
         # Note: connect only to `activated` to avoid duplicate calls because
         # `currentIndexChanged` may also fire for programmatic changes.
@@ -279,13 +277,13 @@ class plugin(object):
         self.action.triggered.connect(self.run)
         self.iface.projectRead.connect(self.create_search_dialog)
         self.iface.projectRead.connect(self.update_theme_combobox)
-        
+
         # プロジェクト変数とテーマ変更を検知するための接続
         try:
             # プロジェクト保存時
             QgsProject.instance().projectSaved.connect(self.on_project_saved)
             QgsProject.instance().projectSaved.connect(self.update_theme_combobox)
-            
+
             # テーマコレクションの変更を検知（重要：テーマが追加/削除された時に自動更新）
             project = QgsProject.instance()
             theme_collection = project.mapThemeCollection()
@@ -326,7 +324,7 @@ class plugin(object):
             try:
                 from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage(f"theme watch error: {e}", "GEO-search-plugin", 2)
-            except:
+            except Exception:
                 pass
 
         # AI/外部制御用ブリッジ。qgis_live_driver の bridge_call コマンドが
@@ -358,7 +356,6 @@ class plugin(object):
         except Exception:
             pass
         return ""
-
 
     def _on_additive_toggled(self, checked):
         """Handler for additive_theme_action.toggled
@@ -562,7 +559,7 @@ class plugin(object):
 
             # 現在選択されているテーマを保存（安全に取得）
             current_theme = self._safe_current_text(self.theme_combobox)
-            
+
             # コンボボックスをクリア
             self.theme_combobox.blockSignals(True)
             self.theme_combobox.clear()
@@ -623,16 +620,16 @@ class plugin(object):
                 # フォールバック: グループ化できない場合は従来通り追加
                 for theme in themes:
                     self.theme_combobox.addItem(theme)
-            
+
             # 前回選択されていたテーマがまだ存在するなら、それを選択状態に
             if current_theme in themes:
                 index = self.theme_combobox.findText(current_theme)
                 if index >= 0:
                     self.theme_combobox.setCurrentIndex(index)
-            
+
             # デバッグログ
             QgsMessageLog.logMessage(f"theme list updated: {', '.join(themes)}", "GEO-search-plugin", 0)
-                
+
             self.theme_combobox.blockSignals(False)
         except Exception as e:
             try:
@@ -640,9 +637,7 @@ class plugin(object):
                 QgsMessageLog.logMessage(f"theme combobox update error: {e}", "GEO-search-plugin", 2)
             except Exception:
                 pass
-    
 
-    
     def apply_selected_theme(self, index):
         """選択されたテーマを適用する"""
         # prevent re-entrant/duplicate applies
@@ -677,7 +672,7 @@ class plugin(object):
 
             # 現在のテーマテキストを取得（安全に取得）
             current_theme_text = self._safe_current_text(self.theme_combobox)
-            
+
             # 「テーマ選択」の場合は何もしない（プレースホルダ選択は無視）
             if current_theme_text == self.tr("Select theme") or index <= 0:
                 # Clear any in-progress flag so the re-entrant guard does not remain set.
@@ -690,10 +685,10 @@ class plugin(object):
                 except Exception:
                     pass
                 return
-                
+
             # 選択されたテーマを適用
             theme_name = current_theme_text
-            
+
             # 同じテーマを再選択した場合も適用する
             # (前回と同じ選択でも強制的にテーマを適用)
             root = project.layerTreeRoot()
@@ -703,12 +698,12 @@ class plugin(object):
             # update_theme_combobox が走ると UI 候補が書き換わる可能性があるため
             # 一時的に更新を抑止するフラグを立てる
             try:
-                    self._suppress_theme_update = True
-                    try:
-                        from qgis.core import QgsMessageLog
-                        QgsMessageLog.logMessage(f"apply_selected_theme: set _suppress_theme_update=True (instance={id(self)})", "GEO-search-plugin", 0)
-                    except Exception:
-                        pass
+                self._suppress_theme_update = True
+                try:
+                    from qgis.core import QgsMessageLog
+                    QgsMessageLog.logMessage(f"apply_selected_theme: set _suppress_theme_update=True (instance={id(self)})", "GEO-search-plugin", 0)
+                except Exception:
+                    pass
             except Exception:
                 pass
 
@@ -770,7 +765,6 @@ class plugin(object):
                 except Exception:
                     pass
 
-            import importlib
             parent = None
             try:
                 parent = self.iface.mainWindow()
@@ -845,7 +839,7 @@ class plugin(object):
                 QgsMessageLog.logMessage("_on_theme_collection_changed: update failed", "GEO-search-plugin", 2)
             except Exception:
                 pass
-    
+
     def unload(self):
         # プラグイン終了時に動作（例外処理を追加）
         # mark GUI not-ready to suppress warnings while widgets are being removed
@@ -894,9 +888,9 @@ class plugin(object):
         try:
             self._geo_toolbar().removeAction(self.action)
             self.iface.removePluginMenu(self.tr("Geo Search"), self.action)
-        except:
+        except Exception:
             pass
-            
+
         # コンボボックスの削除も例外処理
         try:
             if hasattr(self, 'theme_combobox'):
@@ -945,7 +939,7 @@ class plugin(object):
                     self.additive_theme_action = None
                 except Exception:
                     pass
-        except:
+        except Exception:
             pass
 
     def create_search_dialog(self):
@@ -956,10 +950,10 @@ class plugin(object):
         flag = 0
 
         # 設定開始
-        input_json = ' {"SearchTabs": [ '
+        _ = ' {"SearchTabs": [ '
         input_json_file = ""
-        input_json_variable = ""
-        
+        _ = ""
+
         # 以前のダイアログが存在する場合は閉じる
         if hasattr(self, 'dialog') and self.dialog:
             try:
@@ -1006,7 +1000,7 @@ class plugin(object):
                     if pv_text and (pv_text.startswith('{') or pv_text.startswith('[')):
                         try:
                             input_json_proj = pv_text
-                            QgsMessageLog.logMessage(f"Loaded project variable GEO-search-plugin from inline JSON (project scope).", "GEO-search-plugin", 0)
+                            QgsMessageLog.logMessage("Loaded project variable GEO-search-plugin from inline JSON (project scope).", "GEO-search-plugin", 0)
                         except Exception:
                             input_json_proj = ''
                     else:
@@ -1058,7 +1052,7 @@ class plugin(object):
         except Exception:
             pass
 
-        env_candidate = None
+        _ = None
         if env_name:
             try:
                 # resolve candidate path: if absolute use it, otherwise attempt project-dir then plugin-dir
@@ -1076,7 +1070,7 @@ class plugin(object):
                     else:
                         candidate = os.path.join(os.path.dirname(__file__), env_name)
 
-                env_candidate = candidate
+                _ = candidate
                 if os.path.exists(candidate):
                     try:
                         with open(candidate, 'r', encoding='utf-8') as f:
@@ -1319,6 +1313,7 @@ class plugin(object):
                     # If the dialog provides a scaleComboBox, propagate its value to features as `fixed_scale`.
                     try:
                         scale_cmb = getattr(self.dialog, 'scaleComboBox', None)
+
                         def _parse_scale_text(t):
                             try:
                                 if t is None:
@@ -1454,29 +1449,29 @@ class plugin(object):
         """検索ダイアログを表示する"""
         # メッセージ表示
         # QMessageBox.information(None, "run", "検索ダイアログ表示", QMessageBox.StandardButton.Yes)
-        
+
         # 現在のレイヤの状態を確認
         try:
             active_layer = self.iface.activeLayer()
             if active_layer:
-                active_layer_name = active_layer.name()
+                _ = active_layer.name()
                 # ログ出力
                 # QMessageBox.information(None, "アクティブレイヤ", active_layer_name, QMessageBox.StandardButton.Yes)
         except Exception:
             pass
-            
+
         # 現在の表示状態をテーマとして保存する
         try:
             from qgis.core import QgsProject, QgsMessageLog
             project = QgsProject.instance()
             theme_collection = project.mapThemeCollection()
-            
+
             # シンプルなテーマ名
             theme_name = "検索前"
-            
+
             # レイヤーツリーを取得
             root = project.layerTreeRoot()
-            
+
             # 最初に既存の同名テーマを削除（あれば）。mapThemes() の返り値は
             # 文字列リストかテーマオブジェクトのリストか環境により異なるため
             # 安全に名前を比較する。
@@ -1507,17 +1502,17 @@ class plugin(object):
                     continue
             if exists:
                 theme_collection.removeMapTheme(theme_name)
-            
+
             # レイヤーツリーモデルを取得してテーマを作成
             model = self.iface.layerTreeView().layerTreeModel()
             theme_state = theme_collection.createThemeFromCurrentState(root, model)
             theme_collection.insert(theme_name, theme_state)
             QgsMessageLog.logMessage(f"theme '{theme_name}' saved", "GEO-search-plugin", 0)
-            
+
         except Exception as e:
             from qgis.core import QgsMessageLog
             QgsMessageLog.logMessage(f"theme save error: {e}", "GEO-search-plugin", 2)
-            
+
         self.dialog.show()
 
     def change_tab_group(self, index):
@@ -1554,7 +1549,6 @@ class plugin(object):
                 self.dialog.searchButton.setEnabled(True)
             except Exception:
                 pass
-
 
     def _invoke_current_feature(self):
         """Wrapper called when search button is pressed.
@@ -1625,17 +1619,17 @@ class plugin(object):
                 QgsMessageLog.logMessage(f"_invoke_current_feature: unexpected error: {e}", "GEO-search-plugin", 2)
             except Exception:
                 print(f"_invoke_current_feature: unexpected error: {e}")
-        
+
     # 以前のイベントフィルタ関連メソッドは不要になったため削除
     # activatedシグナルが同じ項目選択も検出するため、これらのメソッドは不要
     # eventFilter, force_apply_current_theme, _force_apply_themeは削除
-    
+
     def on_project_saved(self):
         """プロジェクトが保存された時の処理"""
         try:
             # プロジェクト変数の変更を確認し、UIを更新
             self.create_search_dialog()
-            
+
             # ダイアログが表示されていれば、再表示する
             if hasattr(self, 'dialog') and self.dialog and self.dialog.isVisible():
                 self.run()

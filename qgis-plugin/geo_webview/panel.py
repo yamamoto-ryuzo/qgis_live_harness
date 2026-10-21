@@ -8,7 +8,7 @@
         begin                : 2025-10-05
         git sha              : $Format:%H$
         copyright            : (C) 2025 by yamamoto-ryuzo
-        email                : 
+        email                :
  ***************************************************************************/
 
 /***************************************************************************
@@ -42,21 +42,21 @@ except Exception:
 
 class GeoWebViewPanel(QDockWidget):
     """geo_webviewのパネルクラス
-    
+
     Qt Designerで作成されたUIファイルを読み込んでドッキング可能なパネルとして表示
     """
-    
+
     def __init__(self, parent=None):
         """コンストラクタ
-        
+
         Args:
             parent: 親ウィジェット
         """
         super(GeoWebViewPanel, self).__init__(parent)
-        
+
         # パネルのタイトルを設定
         self.setWindowTitle("GeoWebView")
-        
+
         # ドッキングエリアを設定（左側を優先、右側も可能）
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea)
 
@@ -96,7 +96,7 @@ class GeoWebViewPanel(QDockWidget):
         self.lineEdit_navigate = getattr(self.ui, 'lineEdit_navigate', None)
         self.label_server_status = getattr(self.ui, 'label_server_status', None)
         self.comboBox_themes = getattr(self.ui, 'comboBox_themes', None)
-        
+
         # Google Maps/Earth用のUI要素
         self.pushButton_google_maps = getattr(self.ui, 'pushButton_google_maps', None)
         self.pushButton_google_earth = getattr(self.ui, 'pushButton_google_earth', None)
@@ -128,16 +128,16 @@ class GeoWebViewPanel(QDockWidget):
 
         # ウィジェットを設定
         self.setWidget(self.widget)
-        
+
         # パネルのサイズを設定（左側パネルに適したサイズ）
         self.setMinimumWidth(250)
         self.setMaximumWidth(400)
-        
+
         # パネルの特徴を設定
         self.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable |
-                        QDockWidget.DockWidgetFeature.DockWidgetFloatable |
-                        QDockWidget.DockWidgetFeature.DockWidgetClosable)
-        
+                         QDockWidget.DockWidgetFeature.DockWidgetFloatable |
+                         QDockWidget.DockWidgetFeature.DockWidgetClosable)
+
         # UI要素を翻訳
         self.translate_ui()
 
@@ -173,7 +173,7 @@ class GeoWebViewPanel(QDockWidget):
 
         # クリップボード関連のシグナルを接続
         try:
-            clipboard = QGuiApplication.clipboard()
+            _ = QGuiApplication.clipboard()
             if self.pushButton_clipboard is not None:
                 # コピー: 現在の permalink テキストをクリップボードへ
                 self.pushButton_clipboard.clicked.connect(self._on_copy_permalink_to_clipboard)
@@ -183,7 +183,7 @@ class GeoWebViewPanel(QDockWidget):
         except Exception:
             # Qt 環境が利用できない場合は無視
             pass
-        
+
     def translate_ui(self):
         """UI要素のテキストを翻訳"""
         # NOTE: i18n/<lang>.json のコンテキスト 'geo_webview' に対応させるため
@@ -243,10 +243,10 @@ class GeoWebViewPanel(QDockWidget):
         if hasattr(self.ui, 'checkBox_external_control'):
             self.ui.checkBox_external_control.setText(QCoreApplication.translate('geo_webview', "External Control"))
             self.ui.checkBox_external_control.setToolTip(QCoreApplication.translate('geo_webview', "When enabled, map view can be updated by external URLs"))
-    
+
     def update_server_status(self, port, running):
         """サーバーステータスを更新
-        
+
         Args:
             port: サーバーポート番号
             running: サーバーが実行中かどうか
@@ -257,10 +257,10 @@ class GeoWebViewPanel(QDockWidget):
         else:
             status_text = QCoreApplication.translate('geo_webview', "HTTP Server: Stopped")
             style = "color: red; font-weight: bold;"
-            
+
         self.label_server_status.setText(status_text)
         self.label_server_status.setStyleSheet(style)
-        
+
         # Update spinBox_port to reflect current port
         try:
             if self.spinBox_port is not None:
@@ -269,7 +269,7 @@ class GeoWebViewPanel(QDockWidget):
                 self.spinBox_port.blockSignals(False)
         except Exception:
             pass
-        
+
         # Keep checkbox in sync if present
         try:
             if self.checkBox_server_toggle is not None:
@@ -297,7 +297,7 @@ class GeoWebViewPanel(QDockWidget):
         """
         from qgis.PyQt.QtWidgets import (
             QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton,
-            QComboBox, QCheckBox, QLineEdit, QLabel)
+            QComboBox, QCheckBox, QLineEdit)
         tr = QCoreApplication.translate
         group = QGroupBox(tr('geo_webview', 'Sharing / Presentation'))
         vbox = QVBoxLayout(group)
@@ -405,7 +405,7 @@ class GeoWebViewPanel(QDockWidget):
             self.checkBox_external_control.stateChanged.connect(lambda state: handler(bool(state)))
         except Exception:
             pass
-    
+
     def set_port_change_handler(self, handler):
         """ポート番号変更のハンドラを設定する
 
@@ -417,7 +417,7 @@ class GeoWebViewPanel(QDockWidget):
             self.spinBox_port.valueChanged.connect(lambda value: handler(int(value)))
         except Exception:
             pass
-    
+
     # --- Clipboard handlers ---
     def _on_copy_permalink_to_clipboard(self):
         """lineEdit_permalink の内容をシステムクリップボードにコピーする"""

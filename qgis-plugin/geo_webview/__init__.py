@@ -8,7 +8,7 @@
                              -------------------
         begin                : 2025-10-05
         copyright            : (C) 2025 by yamamoto-ryuzo
-        email                : 
+        email                :
         git sha              : $Format:%H$
  ***************************************************************************/
 
@@ -28,7 +28,9 @@
 # when they attempt to write diagnostic messages during import. Protect
 # against that by providing a safe fallback as early as possible.
 try:
-    import sys, io, os
+    import sys
+    import io
+    import os
     if getattr(sys, 'stderr', None) is None:
         if getattr(sys, '__stderr__', None) is not None:
             sys.stderr = sys.__stderr__
@@ -60,7 +62,9 @@ def classFactory(iface):  # pylint: disable=invalid-name
     # or GUI apps) may set sys.stderr to None which causes libraries
     # (e.g. numpy) to fail when they attempt to write error messages.
     try:
-        import sys, io, os
+        import sys
+        import io
+        import os
         if getattr(sys, 'stderr', None) is None:
             if getattr(sys, '__stderr__', None) is not None:
                 sys.stderr = sys.__stderr__

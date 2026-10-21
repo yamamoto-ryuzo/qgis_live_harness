@@ -34,10 +34,10 @@ def _sld_header(layer_name: str) -> str:
 
 def _sld_footer() -> str:
     return (
-        f'      </FeatureTypeStyle>\n'
-        f'    </UserStyle>\n'
-        f'  </NamedLayer>\n'
-        f'</StyledLayerDescriptor>'
+        '      </FeatureTypeStyle>\n'
+        '    </UserStyle>\n'
+        '  </NamedLayer>\n'
+        '</StyledLayerDescriptor>'
     )
 
 
@@ -54,8 +54,8 @@ def _escape_xml(s: Optional[str]) -> str:
 
 def _extract_symbol_properties(symbol, geom_type: str):
     """Extract color, stroke, width, size, opacity from symbol or symbol layer.
-    
-    Returns: (color, stroke_color, stroke_width, stroke_opacity, size, opacity, has_brush, 
+
+    Returns: (color, stroke_color, stroke_width, stroke_opacity, size, opacity, has_brush,
               pen_join_style, pen_cap_style, pen_style, point_shape)
     """
     color = None
@@ -81,42 +81,42 @@ def _extract_symbol_properties(symbol, geom_type: str):
                         color = sl.color()
                     except Exception:
                         pass
-                
+
                 # Stroke color
                 if hasattr(sl, 'strokeColor') and callable(sl.strokeColor):
                     try:
                         stroke_color = sl.strokeColor()
                     except Exception:
                         pass
-                
+
                 # Stroke width
                 if hasattr(sl, 'strokeWidth') and callable(sl.strokeWidth):
                     try:
                         stroke_width = sl.strokeWidth()
                     except Exception:
                         pass
-                
+
                 # Stroke opacity (from stroke color alpha)
                 if stroke_color is not None and hasattr(stroke_color, 'alpha') and callable(stroke_color.alpha):
                     try:
                         stroke_opacity = stroke_color.alpha() / 255.0
                     except Exception:
                         pass
-                
+
                 # Size (for points)
                 if hasattr(sl, 'size') and callable(sl.size):
                     try:
                         size = sl.size()
                     except Exception:
                         pass
-                
+
                 # Opacity from fill color alpha
                 if color is not None and hasattr(color, 'alpha') and callable(color.alpha):
                     try:
                         opacity = color.alpha() / 255.0
                     except Exception:
                         pass
-                
+
                 # Pen join style (miter, round, bevel)
                 if hasattr(sl, 'penJoinStyle') and callable(sl.penJoinStyle):
                     try:
@@ -128,7 +128,7 @@ def _extract_symbol_properties(symbol, geom_type: str):
                             pass
                     except Exception:
                         pass
-                
+
                 # Pen cap style (flat, round, square)
                 if hasattr(sl, 'penCapStyle') and callable(sl.penCapStyle):
                     try:
@@ -140,7 +140,7 @@ def _extract_symbol_properties(symbol, geom_type: str):
                             pass
                     except Exception:
                         pass
-                
+
                 # Pen style (solid, dash, dot, etc.)
                 if hasattr(sl, 'penStyle') and callable(sl.penStyle):
                     try:
@@ -152,7 +152,7 @@ def _extract_symbol_properties(symbol, geom_type: str):
                             pass
                     except Exception:
                         pass
-                
+
                 # Point shape (for markers)
                 if geom_type == 'Point':
                     if hasattr(sl, 'shape') and callable(sl.shape):
@@ -166,7 +166,7 @@ def _extract_symbol_properties(symbol, geom_type: str):
                             point_shape = sl.name()
                         except Exception:
                             pass
-                
+
                 # Brush style (for polygons - NoBrush detection)
                 if geom_type == 'Polygon':
                     if hasattr(sl, 'brushStyle') and callable(sl.brushStyle):
@@ -253,7 +253,7 @@ def _extract_symbol_properties(symbol, geom_type: str):
             color = symbol.color()
         except Exception:
             pass
-    
+
     if stroke_color is None:
         try:
             stroke_color = symbol.strokeColor()
@@ -262,7 +262,7 @@ def _extract_symbol_properties(symbol, geom_type: str):
                 stroke_color = symbol.color()
             except Exception:
                 pass
-    
+
     if stroke_width is None:
         try:
             stroke_width = symbol.strokeWidth()
@@ -271,19 +271,19 @@ def _extract_symbol_properties(symbol, geom_type: str):
                 stroke_width = symbol.width()
             except Exception:
                 pass
-    
+
     if size is None:
         try:
             size = symbol.size()
         except Exception:
             pass
-    
+
     if opacity is None:
         try:
             opacity = symbol.opacity()
         except Exception:
             pass
-    
+
     # Final check: color alpha = 0 means no fill
     if has_brush and color is not None:
         try:
@@ -292,68 +292,68 @@ def _extract_symbol_properties(symbol, geom_type: str):
                 color = None
         except Exception:
             pass
-    
+
     return color, stroke_color, stroke_width, stroke_opacity, size, opacity, has_brush, pen_join_style, pen_cap_style, pen_style, point_shape
 
 
 def _build_stroke_params(stroke_color, stroke_width, stroke_opacity, pen_join_style, pen_cap_style, pen_style):
     """Build stroke CssParameter elements including advanced styling.
-    
+
     Returns: formatted string with CssParameter elements
     """
     sc = _escape_xml(stroke_color or '#000000')
     sw = stroke_width if stroke_width is not None else 1
     so = stroke_opacity if (stroke_opacity is not None) else 1.0
-    
+
     stroke_params = f'    <CssParameter name="stroke">{sc}</CssParameter>\n'
     stroke_params += f'    <CssParameter name="stroke-width">{sw}</CssParameter>\n'
     if so < 1.0:
         stroke_params += f'    <CssParameter name="stroke-opacity">{so}</CssParameter>\n'
-    
+
     # Add line join style (using integer values for compatibility)
     if pen_join_style is not None:
         try:
             # Qt.PenJoinStyle.MiterJoin=0, Qt.PenJoinStyle.BevelJoin=64, Qt.PenJoinStyle.RoundJoin=128
             join_val = int(pen_join_style)
             if join_val == 64:  # BevelJoin
-                stroke_params += f'    <CssParameter name="stroke-linejoin">bevel</CssParameter>\n'
+                stroke_params += '    <CssParameter name="stroke-linejoin">bevel</CssParameter>\n'
             elif join_val == 128:  # RoundJoin
-                stroke_params += f'    <CssParameter name="stroke-linejoin">round</CssParameter>\n'
+                stroke_params += '    <CssParameter name="stroke-linejoin">round</CssParameter>\n'
             elif join_val == 0:  # MiterJoin
-                stroke_params += f'    <CssParameter name="stroke-linejoin">mitre</CssParameter>\n'
+                stroke_params += '    <CssParameter name="stroke-linejoin">mitre</CssParameter>\n'
         except Exception:
             pass
-    
+
     # Add line cap style (using integer values for compatibility)
     if pen_cap_style is not None:
         try:
             # Qt.PenCapStyle.FlatCap=0, Qt.PenCapStyle.SquareCap=16, Qt.PenCapStyle.RoundCap=32
             cap_val = int(pen_cap_style)
             if cap_val == 0:  # FlatCap
-                stroke_params += f'    <CssParameter name="stroke-linecap">butt</CssParameter>\n'
+                stroke_params += '    <CssParameter name="stroke-linecap">butt</CssParameter>\n'
             elif cap_val == 16:  # SquareCap
-                stroke_params += f'    <CssParameter name="stroke-linecap">square</CssParameter>\n'
+                stroke_params += '    <CssParameter name="stroke-linecap">square</CssParameter>\n'
             elif cap_val == 32:  # RoundCap
-                stroke_params += f'    <CssParameter name="stroke-linecap">round</CssParameter>\n'
+                stroke_params += '    <CssParameter name="stroke-linecap">round</CssParameter>\n'
         except Exception:
             pass
-    
+
     # Add dash pattern (using integer values for compatibility)
     if pen_style is not None:
         try:
             # Qt.PenStyle.SolidLine=1, Qt.PenStyle.DashLine=2, Qt.PenStyle.DotLine=3, Qt.PenStyle.DashDotLine=4, Qt.PenStyle.DashDotDotLine=5
             style_val = int(pen_style)
             if style_val == 2:  # DashLine
-                stroke_params += f'    <CssParameter name="stroke-dasharray">5 2</CssParameter>\n'
+                stroke_params += '    <CssParameter name="stroke-dasharray">5 2</CssParameter>\n'
             elif style_val == 3:  # DotLine
-                stroke_params += f'    <CssParameter name="stroke-dasharray">1 2</CssParameter>\n'
+                stroke_params += '    <CssParameter name="stroke-dasharray">1 2</CssParameter>\n'
             elif style_val == 4:  # DashDotLine
-                stroke_params += f'    <CssParameter name="stroke-dasharray">5 2 1 2</CssParameter>\n'
+                stroke_params += '    <CssParameter name="stroke-dasharray">5 2 1 2</CssParameter>\n'
             elif style_val == 5:  # DashDotDotLine
-                stroke_params += f'    <CssParameter name="stroke-dasharray">5 2 1 2 1 2</CssParameter>\n'
+                stroke_params += '    <CssParameter name="stroke-dasharray">5 2 1 2 1 2</CssParameter>\n'
         except Exception:
             pass
-    
+
     return stroke_params
 
 
@@ -397,7 +397,7 @@ def _symbol_to_symbolizer(symbol, geom_type: str) -> str:
                 size = 6
             fc = _escape_xml(fill_color or '#000000')
             sc = _escape_xml(stroke_color or '#000000')
-            
+
             # Determine WellKnownName from point_shape
             well_known_name = 'circle'  # default
             if point_shape is not None:
@@ -418,7 +418,7 @@ def _symbol_to_symbolizer(symbol, geom_type: str) -> str:
                         well_known_name = shape_map[point_shape]
                 except Exception:
                     pass
-            
+
             return (
                 f'<PointSymbolizer>\n'
                 f'  <Graphic>\n'
@@ -450,7 +450,7 @@ def _symbol_to_symbolizer(symbol, geom_type: str) -> str:
 
         # Polygon
         fo = opacity if (opacity is not None) else 1.0
-        
+
         # Check if the fill should be included (ブラシなし detection)
         # has_brush was determined earlier by checking brushStyle and alpha
         has_fill = bool(has_brush) and (fill_color is not None) and (fo is None or float(fo) > 0)
@@ -473,10 +473,10 @@ def _symbol_to_symbolizer(symbol, geom_type: str) -> str:
 
         # Build stroke parameters using common function (always build for both branches)
         stroke_params = _build_stroke_params(
-            stroke_color, stroke_width or 1, stroke_opacity, 
+            stroke_color, stroke_width or 1, stroke_opacity,
             pen_join_style, pen_cap_style, pen_style
         )
-        
+
         # Build PolygonSymbolizer with conditional Fill
         if has_fill:
             fc = _escape_xml(fill_color)
@@ -574,7 +574,7 @@ def renderer_to_sld(layer, layer_name: Optional[str] = None) -> str:
         # Single symbol
         if isinstance(renderer, QgsSingleSymbolRenderer):
             sym = renderer.symbol()
-            geom = getattr(sym, 'geometryType', None)
+            _ = getattr(sym, 'geometryType', None)
             # fallback: try to guess from layer geometry
             gtype = 'Polygon'
             try:
@@ -655,6 +655,7 @@ def renderer_to_sld(layer, layer_name: Optional[str] = None) -> str:
         elif isinstance(renderer, QgsRuleBasedRenderer):
             try:
                 root = renderer.rootRule()
+
                 def walk(rule):
                     res = []
                     # rule may have a symbol

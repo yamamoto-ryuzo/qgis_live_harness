@@ -6,7 +6,6 @@ Simple settings dialog for GEO-search-plugin.
 from qgis.PyQt.QtWidgets import QDialog, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QLineEdit
 from qgis.PyQt.QtWidgets import QMessageBox, QFileDialog
 import os
-import re
 from .utils import set_project_variable
 
 
@@ -148,7 +147,7 @@ class SettingsDialog(QDialog):
             try:
                 from . import theme as theme_mod
                 ok = theme_mod.save_user_theme(path)
-            except Exception as ex:
+            except Exception:
                 ok = False
             if ok:
                 QMessageBox.information(self, self.tr("Save User Theme"), self.tr("Saved user theme."))
@@ -156,7 +155,6 @@ class SettingsDialog(QDialog):
                 QMessageBox.warning(self, self.tr("Save User Theme"), self.tr("Failed to save user theme."))
         except Exception as e:
             QMessageBox.warning(self, self.tr("Save User Theme"), str(e))
-
 
     def load_user_theme_dialog(self):
         """Load a user-theme JSON and apply it to the current project."""
@@ -184,7 +182,6 @@ class SettingsDialog(QDialog):
             QMessageBox.information(self, self.tr("Load User Theme"), self.tr("Applied theme to %n layers", None, len(applied)))
         except Exception as e:
             QMessageBox.warning(self, self.tr("Load User Theme"), str(e))
-
 
     def _browse_geo_search_json(self):
         """ファイル選択ダイアログで geo_search_json のファイルを選択する。"""
@@ -264,7 +261,7 @@ class SettingsDialog(QDialog):
             QMessageBox.warning(self, self.tr("geo_search_json"), self.tr("No file selected."))
             return
         try:
-            from qgis.core import QgsProject, QgsExpressionContextUtils, QgsMessageLog
+            from qgis.core import QgsProject, QgsMessageLog
             proj = QgsProject.instance()
             try:
                 # プロジェクトが保存されている場合はプロジェクトディレクトリ基準の相対パスに変換して保存する
@@ -293,7 +290,6 @@ class SettingsDialog(QDialog):
                 try:
                     ok = set_project_variable(proj, 'geo_search_json', save_val)
                     try:
-                        from qgis.core import QgsMessageLog
                         if ok:
                             QgsMessageLog.logMessage(f"Set project variable 'geo_search_json' to: {save_val}", 'GEO-search-plugin', 0)
                         else:
@@ -302,7 +298,7 @@ class SettingsDialog(QDialog):
                         pass
                 except Exception:
                     try:
-                        QgsMessageLog.logMessage(f"Failed to set project variable 'geo_search_json' via helper", 'GEO-search-plugin', 2)
+                        QgsMessageLog.logMessage("Failed to set project variable 'geo_search_json' via helper", 'GEO-search-plugin', 2)
                     except Exception:
                         pass
             except Exception as e:

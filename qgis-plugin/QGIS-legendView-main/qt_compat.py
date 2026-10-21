@@ -11,7 +11,6 @@ from qgis.PyQt.QtWidgets import (QAction, QDockWidget, QTableWidget, QTableWidge
 from qgis.PyQt import QtGui, QtWidgets, uic
 
 
-
 # Alignment constants (Qt6 enum style)
 AlignHCenter = Qt.AlignmentFlag.AlignHCenter
 AlignVCenter = Qt.AlignmentFlag.AlignVCenter

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import (
     QDialog,
     QWidget,
@@ -17,7 +16,6 @@ from qgis.PyQt.QtWidgets import (
     QLayoutItem,
     QAbstractItemView,
 )
-import importlib
 
 
 class SearchWidget(QWidget):

@@ -1,5 +1,18 @@
 # CHANGELOG — geo_userfunc
 
+## 1.0.1
+
+- **plugins.qgis.org セキュリティスキャン対応**:
+  `sources.json` の upstream 更新(`library.py`)と管理ダイアログの
+  URL取得(`manager_dialog.py`)の `urlopen` に http/https スキーム
+  検証を追加(file:等のスキームを拒否)。
+  ユーザーコード実行の `exec` は主目的のため `# nosec B102` で明示抑制
+- LOW指摘(try/except/pass)はレビュー済みとして同梱 `.bandit`
+  設定で抑制
+- flake8指摘を整理: bare `except:` を `except Exception:` に修正、
+  未使用変数を整理。seed同梱の functions/user_functions.py
+  (upstream由来、星importがAPI面)の指摘は同梱 `.flake8` 設定で明示抑制
+
 ## 1.0.0
 
 - 初版。ユーザー定義Pythonコードのライブラリ管理プラグイン

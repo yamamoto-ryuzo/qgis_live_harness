@@ -60,6 +60,7 @@ def _tr(context, message):
     except Exception:
         return message
 
+
 class GeoSearchBridge:
     """``plugins['geo_search'].bridge`` にぶら下げるAI向けAPI。
 
@@ -1182,7 +1183,6 @@ class GeoSearchBridge:
         プロジェクト変数 GEO-search-plugin(インラインJSON)へ追記し、
         ダイアログを再構築する。確認ダイアログは出さない。
         """
-        import os
         from qgis.core import QgsProject, QgsExpressionContextUtils
         from .utils import set_project_variable
         p = self._plugin

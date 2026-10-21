@@ -9,7 +9,9 @@ from qgis.PyQt import uic
 
 UI_FILE = "result.ui"
 
-#検索結果表示ダイアログ
+# 検索結果表示ダイアログ
+
+
 class ResultDialog(QDialog):
     # dialog-level signals to decouple callers from concrete table widgets
     selectionChanged = pyqtSignal()
@@ -89,7 +91,8 @@ class ResultDialog(QDialog):
         features = tab.get("features") or []
         try:
             from qgis.core import QgsMessageLog
-            QgsMessageLog.logMessage(f"move_page: tab_index={idx} tab_layer={getattr(tab.get('layer'), 'name', lambda: None)() if tab.get('layer') else 'None'} features_total={len(features)} page={page}", "GEO-search-plugin", 0)
+            QgsMessageLog.logMessage(
+                f"move_page: tab_index={idx} tab_layer={getattr(tab.get('layer'), 'name', lambda: None)() if tab.get('layer') else 'None'} features_total={len(features)} page={page}", "GEO-search-plugin", 0)
         except Exception:
             pass
         s = (page - 1) * self.page_limit
@@ -179,7 +182,7 @@ class ResultDialog(QDialog):
         self._tabs = []
         # remove all tabs
         while self.tabWidget.count() > 0:
-            widget = self.tabWidget.widget(0)
+            _ = self.tabWidget.widget(0)
             self.tabWidget.removeTab(0)
         total_count = 0
         for layer, fields, features in layers_with_features:
@@ -363,7 +366,8 @@ class ResultDialog(QDialog):
                         feat_type = 'no-features'
                 except Exception:
                     feat_type = str(type(f0))
-                QgsMessageLog.logMessage(f"set_features_by_layer: tab_index={i} layer={getattr(layer, 'name', lambda: layer)()} fields_count={len(fields)} features_count={len(features)} first_feature={feat_type}", "GEO-search-plugin", 0)
+                QgsMessageLog.logMessage(
+                    f"set_features_by_layer: tab_index={i} layer={getattr(layer, 'name', lambda: layer)()} fields_count={len(fields)} features_count={len(features)} first_feature={feat_type}", "GEO-search-plugin", 0)
         except Exception:
             pass
 
@@ -459,7 +463,7 @@ class ResultDialog(QDialog):
                     except Exception:
                         pass
                 else:
-                    from qgis.PyQt.QtWidgets import QWidget, QHBoxLayout, QListWidget, QTextEdit, QListWidgetItem
+                    from qgis.PyQt.QtWidgets import QWidget, QHBoxLayout, QListWidget, QTextEdit
                     container = QWidget(self)
                     layout = QHBoxLayout(container)
                     list_widget = QListWidget(container)
@@ -676,7 +680,7 @@ class ResultDialog(QDialog):
                     try:
                         # if column_combo exists, copy its items
                         top_combo.clear()
-                        cols = []
+                        _ = []
                         try:
                             if column_combo is not None and column_combo.count() > 0:
                                 for i in range(column_combo.count()):
@@ -693,6 +697,7 @@ class ResultDialog(QDialog):
                             top_combo.setVisible(True)
                         except Exception:
                             pass
+
                         def _on_top(idx):
                             try:
                                 if idx < 0:
@@ -819,8 +824,10 @@ class ResultDialog(QDialog):
                                 class _FakeField:
                                     def __init__(self, n):
                                         self._n = n
+
                                     def name(self):
                                         return self._n
+
                                     def displayName(self):
                                         return self._n
                                 fields = [_FakeField(n) for n in attr_names]
@@ -862,7 +869,7 @@ class ResultDialog(QDialog):
             sample_info = []
             for i, feat in enumerate(features[:3]):
                 try:
-                    sample_info.append({ 'id': feat.id(), 'attrs': { (f.name() if hasattr(f, 'name') else str(f)): feat[f.name()] if hasattr(f, 'name') else None for f in fields } })
+                    sample_info.append({'id': feat.id(), 'attrs': {(f.name() if hasattr(f, 'name') else str(f)): feat[f.name()] if hasattr(f, 'name') else None for f in fields}})
                 except Exception:
                     sample_info.append(str(feat))
             QgsMessageLog.logMessage(f"set_feature_items: samples={sample_info}", "GEO-search-plugin", 0)
@@ -1010,7 +1017,7 @@ class ResultDialog(QDialog):
                                 tabs = getattr(self, '_form_tabs', []) or []
                                 if tabs:
                                     flds = tabs[0].get('fields') or []
-                                    names = [ (f.displayName() if hasattr(f, 'displayName') else (f.name() if hasattr(f, 'name') else str(f))) for f in flds ]
+                                    names = [(f.displayName() if hasattr(f, 'displayName') else (f.name() if hasattr(f, 'name') else str(f))) for f in flds]
                                 # fallback derive from features
                                 if not names:
                                     try:

@@ -5,6 +5,20 @@ All notable changes to the QGIS Legend View plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.2] - 2026-10-21
+
+### Security
+- plugins.qgis.org セキュリティスキャン対応: LOW指摘
+  (try/except/pass)はレビュー済みの常套パターンとして
+  同梱 `.bandit` 設定で抑制(ZIP内検出により
+  "Validated (configured)" ステータス想定)
+
+### Maintenance
+- flake8指摘を整理: bare `except:` を `except Exception:` に、
+  `== None`/`not x is None` を `is None`/`is not None` に修正、
+  未使用import除去。残る慣習的指摘(長行E501、qt_compat/
+  resources_rcの星import等)は同梱 `.flake8` 設定で明示抑制
+
 ## [2.6.1] - 2026-10-19
 
 ### Changed

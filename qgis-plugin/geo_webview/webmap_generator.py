@@ -485,6 +485,7 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
                 _display_crs = navigation_data.get('display_crs') or navigation_data.get('displayCRS') or navigation_data.get('display_epsg') or None
             except Exception:
                 _display_crs = None
+
             def _norm_code(v):
                 if v is None:
                     return None
@@ -527,6 +528,7 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
                 except Exception:
                     pass
                 # function to get proj4 from QgsCoordinateReferenceSystem
+
                 def _crs_to_proj4(code):
                     try:
                         crs = qgc.QgsCoordinateReferenceSystem(code)
@@ -598,7 +600,7 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
                                     _qmp_log(f"[QMapPermalink] Found proj4 for {code}: {s}")
                                 else:
                                     # fallback: print WKT
-                                    _qmp_log(f"[QMapPermalink] Found WKT for {code}: {s[:200]}{'...' if len(s)>200 else ''}")
+                                    _qmp_log(f"[QMapPermalink] Found WKT for {code}: {s[:200]}{'...' if len(s) > 200 else ''}")
                             except Exception:
                                 try:
                                     _qmp_log(f"[QMapPermalink] Found definition for {code}")
@@ -630,7 +632,7 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
                                         p2 = _crs_to_proj4(rc)
                                         if p2:
                                             s2 = str(p2).strip()
-                                            _qmp_log(f"[QMapPermalink] Requested CRS {rc} resolved ad-hoc: {s2[:200]}{'...' if len(s2)>200 else ''}")
+                                            _qmp_log(f"[QMapPermalink] Requested CRS {rc} resolved ad-hoc: {s2[:200]}{'...' if len(s2) > 200 else ''}")
                                         else:
                                             _qmp_log(f"[QMapPermalink] Requested CRS {rc} could not be resolved via PyQGIS")
                                     except Exception:
@@ -904,7 +906,8 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
             "    function findNearestIdx(deg){ var min=1e9; var idx=0; for(var i=0;i<angles.length;i++){ var a=angles[i]; var d1=Math.abs(a-deg); var d2=Math.abs(a-deg+360); var d3=Math.abs(a-deg-360); var dd=Math.min(d1,d2,d3); if(dd<min){ min=dd; idx=i; } } return {idx:idx, diff:min}; }\n"
             "    function applyAngle(a){ try{ var rad = a * Math.PI / 180; try{ map.getView().animate({ rotation: rad, duration: 200 }); }catch(e){ try{ map.getView().setRotation(rad); }catch(e){} } if(window.wmsSource && typeof window.wmsSource.updateParams === 'function'){ window.wmsSource.updateParams({ 'ANGLE': a }); window.wmsSource.refresh(); } try{ window._getSendAngle = function(){ return a; }; }catch(e){} }catch(e){} }\n"
             "    function ensureButton(){\n"
-            "      try{ var container = document.querySelector('.ol-rotate'); if(!container) return false; var btn = document.getElementById('qmp-rotate-cycle'); if(!btn){ btn = document.createElement('button'); btn.id = 'qmp-rotate-cycle'; btn.className = 'qmp-control'; btn.title = " + _ptj('Rotate 0/90/180/270') + "; btn.textContent = '\u27f3'; btn.style.marginTop = '6px'; btn.style.padding = '4px 6px'; btn.style.fontSize = '12px'; btn.style.cursor = 'pointer'; container.parentNode.insertBefore(btn, container.nextSibling); } if(!btn._qmpAttached){ btn._qmpState = btn._qmpState || { lastIdx: null }; btn.addEventListener('click', function(){ try{ var view = map.getView(); var rad = 0; try{ rad = (typeof view.getRotation === 'function') ? view.getRotation() : (view.getRotation ? view.getRotation() : 0); }catch(e){ try{ rad = view.getRotation(); }catch(e){ rad = 0; } } var deg = normDeg(toDeg(rad)); var nearest = findNearestIdx(deg); var nearestIdx = nearest.idx; var nearestDiff = nearest.diff; var tol = 0.0001; if(nearestDiff <= tol){ // already at grid angle -> advance to next\n var next = (nearestIdx + 1) % angles.length; applyAngle(angles[next]); btn._qmpState.lastIdx = next; } else { // not on-grid -> snap to nearest unless last click already snapped to same nearest\n if(btn._qmpState.lastIdx === nearestIdx){ var next2 = (nearestIdx + 1) % angles.length; applyAngle(angles[next2]); btn._qmpState.lastIdx = next2; } else { applyAngle(angles[nearestIdx]); btn._qmpState.lastIdx = nearestIdx; } } }catch(e){} }); btn._qmpAttached = true; } return true; }catch(e){ return false; }\n"
+            "      try{ var container = document.querySelector('.ol-rotate'); if(!container) return false; var btn = document.getElementById('qmp-rotate-cycle'); if(!btn){ btn = document.createElement('button'); btn.id = 'qmp-rotate-cycle'; btn.className = 'qmp-control'; btn.title = " + _ptj(
+                'Rotate 0/90/180/270') + "; btn.textContent = '\u27f3'; btn.style.marginTop = '6px'; btn.style.padding = '4px 6px'; btn.style.fontSize = '12px'; btn.style.cursor = 'pointer'; container.parentNode.insertBefore(btn, container.nextSibling); } if(!btn._qmpAttached){ btn._qmpState = btn._qmpState || { lastIdx: null }; btn.addEventListener('click', function(){ try{ var view = map.getView(); var rad = 0; try{ rad = (typeof view.getRotation === 'function') ? view.getRotation() : (view.getRotation ? view.getRotation() : 0); }catch(e){ try{ rad = view.getRotation(); }catch(e){ rad = 0; } } var deg = normDeg(toDeg(rad)); var nearest = findNearestIdx(deg); var nearestIdx = nearest.idx; var nearestDiff = nearest.diff; var tol = 0.0001; if(nearestDiff <= tol){ // already at grid angle -> advance to next\n var next = (nearestIdx + 1) % angles.length; applyAngle(angles[next]); btn._qmpState.lastIdx = next; } else { // not on-grid -> snap to nearest unless last click already snapped to same nearest\n if(btn._qmpState.lastIdx === nearestIdx){ var next2 = (nearestIdx + 1) % angles.length; applyAngle(angles[next2]); btn._qmpState.lastIdx = next2; } else { applyAngle(angles[nearestIdx]); btn._qmpState.lastIdx = nearestIdx; } } }catch(e){} }); btn._qmpAttached = true; } return true; }catch(e){ return false; }\n"
             "    }\n"
             "    if(!ensureButton()){ try{ document.addEventListener('DOMContentLoaded', function(){ try{ ensureButton(); }catch(e){} }); }catch(e){} }\n"
             "  }catch(e){}\n"
@@ -913,57 +916,57 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
 
         # Append bookmark population and interaction script
         js += (
-                "(function(){\n"
-                "  try{\n"
-                "    var themeSel = document.getElementById('qmp-themes');\n"
-                "    try{ var urlParams = (typeof URLSearchParams !== 'undefined') ? new URLSearchParams(window.location.search) : null; }catch(e){ urlParams = null; }\n"
-                "    if(themeSel && Array.isArray(themes) && themes.length){\n"
-                "      try{\n"
-                "        // Avoid duplicating options when server-side already rendered them.\n"
-                "        // If only the prompt option exists (or none), append client-side; otherwise skip.\n"
-                "        if(typeof themeSel.options === 'undefined' || themeSel.options.length <= 1){\n"
-                "          themes.forEach(function(t){ try{ var opt = document.createElement('option'); opt.value = t; opt.text = t; themeSel.appendChild(opt);}catch(e){} });\n"
-                "        }\n"
-                "      }catch(e){}\n"
-                "      try{ var initialTheme = urlParams ? urlParams.get('theme') : null; if(initialTheme && Array.isArray(themes) && themes.indexOf(initialTheme) !== -1){ themeSel.value = initialTheme; if(window.wmsSource && typeof window.wmsSource.updateParams === 'function'){ window.wmsSource.updateParams({ 'theme': initialTheme, 'ANGLE': (typeof _getSendAngle === 'function' ? _getSendAngle() : (typeof rotationDeg !== 'undefined' ? rotationDeg : 0)) }); } } }catch(e){}\n"
-                "      themeSel.addEventListener('change', function(){\n"
-                "        try{\n"
-                "          var sel = this.value;\n"
-                "          if(window.wmsSource && typeof window.wmsSource.updateParams === 'function'){\n"
-                "            if(sel && sel !== '__prompt'){\n"
-                "              window.wmsSource.updateParams({ 'theme': sel, 'ANGLE': (typeof _getSendAngle === 'function' ? _getSendAngle() : (typeof rotationDeg !== 'undefined' ? rotationDeg : 0)) });\n"
-                "            } else {\n"
-                "              window.wmsSource.updateParams({ 'ANGLE': (typeof _getSendAngle === 'function' ? _getSendAngle() : (typeof rotationDeg !== 'undefined' ? rotationDeg : 0)) });\n"
-                "            }\n"
-                "            window.wmsSource.refresh();\n"
-                "          }\n"
-                "          try{\n"
-                "            if(urlParams){\n"
-                "              if(sel && sel !== '__prompt') urlParams.set('theme', sel);\n"
-                "              else urlParams.delete('theme');\n"
-                "              var search = urlParams.toString();\n"
-                "              var newUrl = window.location.origin + window.location.pathname + (search ? ('?' + search) : '') + window.location.hash;\n"
-                "              if(window.history && typeof window.history.replaceState === 'function'){\n"
-                "                window.history.replaceState(null, '', newUrl);\n"
-                "              }\n"
-                "            }\n"
-                "          }catch(e){}\n"
-                "        }catch(e){}\n"
-                "      });\n"
-                "    }\n"
-                "    var sel = document.getElementById('qmp-bookmarks');\n"
-                "    if(sel && Array.isArray(bookmarks) && bookmarks.length){\n"
-                "      try{\n"
-                "        // If server-side already rendered bookmark options (prompt + Home etc.), avoid adding duplicates.\n"
-                "        if(typeof sel.options === 'undefined' || sel.options.length <= 2){\n"
-                "          bookmarks.forEach(function(b,i){ try{ var opt = document.createElement('option'); opt.value = i; opt.text = b.name || ('Bookmark ' + (i+1)); sel.appendChild(opt);}catch(e){} });\n"
-                "        }\n"
-                "      }catch(e){}\n"
-                "      sel.addEventListener('change', function(){ try{ if(this.value === '__home' || this.value === '__prompt'){ map.getView().animate({ center: [inputX, inputY], duration: 600 }); } else { var idx = parseInt(this.value); var b = bookmarks[idx]; if(b){ var bx = parseFloat(b.x || b.orig_x || b.lon || b.lng || 0); var by = parseFloat(b.y || b.orig_y || b.lat || 0); if(isFinite(bx) && isFinite(by)){ map.getView().animate({ center: [bx, by], duration: 600 }); try{ if(window.wmsSource && typeof window.wmsSource.updateParams === 'function'){ var up = { 'x': bx, 'y': by, 'crs': 'EPSG:3857', 'ANGLE': (typeof _getSendAngle === 'function' ? _getSendAngle() : (typeof rotationDeg !== 'undefined' ? rotationDeg : 0)) }; try{ if(typeof mapScale !== 'undefined' && mapScale !== null) up.scale = mapScale; }catch(e){} try{ var currentTheme = (document.getElementById('qmp-themes') ? document.getElementById('qmp-themes').value : null); if(currentTheme && currentTheme !== '__prompt'){ up.theme = currentTheme; } }catch(e){} window.wmsSource.updateParams(up); window.wmsSource.refresh(); } }catch(e){} } } } }catch(e){} try{ this.value = '__prompt'; }catch(e){} });\n"
-                "    }\n"
-                "  }catch(e){}\n"
-                "})();\n"
-            )
+            "(function(){\n"
+            "  try{\n"
+            "    var themeSel = document.getElementById('qmp-themes');\n"
+            "    try{ var urlParams = (typeof URLSearchParams !== 'undefined') ? new URLSearchParams(window.location.search) : null; }catch(e){ urlParams = null; }\n"
+            "    if(themeSel && Array.isArray(themes) && themes.length){\n"
+            "      try{\n"
+            "        // Avoid duplicating options when server-side already rendered them.\n"
+            "        // If only the prompt option exists (or none), append client-side; otherwise skip.\n"
+            "        if(typeof themeSel.options === 'undefined' || themeSel.options.length <= 1){\n"
+            "          themes.forEach(function(t){ try{ var opt = document.createElement('option'); opt.value = t; opt.text = t; themeSel.appendChild(opt);}catch(e){} });\n"
+            "        }\n"
+            "      }catch(e){}\n"
+            "      try{ var initialTheme = urlParams ? urlParams.get('theme') : null; if(initialTheme && Array.isArray(themes) && themes.indexOf(initialTheme) !== -1){ themeSel.value = initialTheme; if(window.wmsSource && typeof window.wmsSource.updateParams === 'function'){ window.wmsSource.updateParams({ 'theme': initialTheme, 'ANGLE': (typeof _getSendAngle === 'function' ? _getSendAngle() : (typeof rotationDeg !== 'undefined' ? rotationDeg : 0)) }); } } }catch(e){}\n"
+            "      themeSel.addEventListener('change', function(){\n"
+            "        try{\n"
+            "          var sel = this.value;\n"
+            "          if(window.wmsSource && typeof window.wmsSource.updateParams === 'function'){\n"
+            "            if(sel && sel !== '__prompt'){\n"
+            "              window.wmsSource.updateParams({ 'theme': sel, 'ANGLE': (typeof _getSendAngle === 'function' ? _getSendAngle() : (typeof rotationDeg !== 'undefined' ? rotationDeg : 0)) });\n"
+            "            } else {\n"
+            "              window.wmsSource.updateParams({ 'ANGLE': (typeof _getSendAngle === 'function' ? _getSendAngle() : (typeof rotationDeg !== 'undefined' ? rotationDeg : 0)) });\n"
+            "            }\n"
+            "            window.wmsSource.refresh();\n"
+            "          }\n"
+            "          try{\n"
+            "            if(urlParams){\n"
+            "              if(sel && sel !== '__prompt') urlParams.set('theme', sel);\n"
+            "              else urlParams.delete('theme');\n"
+            "              var search = urlParams.toString();\n"
+            "              var newUrl = window.location.origin + window.location.pathname + (search ? ('?' + search) : '') + window.location.hash;\n"
+            "              if(window.history && typeof window.history.replaceState === 'function'){\n"
+            "                window.history.replaceState(null, '', newUrl);\n"
+            "              }\n"
+            "            }\n"
+            "          }catch(e){}\n"
+            "        }catch(e){}\n"
+            "      });\n"
+            "    }\n"
+            "    var sel = document.getElementById('qmp-bookmarks');\n"
+            "    if(sel && Array.isArray(bookmarks) && bookmarks.length){\n"
+            "      try{\n"
+            "        // If server-side already rendered bookmark options (prompt + Home etc.), avoid adding duplicates.\n"
+            "        if(typeof sel.options === 'undefined' || sel.options.length <= 2){\n"
+            "          bookmarks.forEach(function(b,i){ try{ var opt = document.createElement('option'); opt.value = i; opt.text = b.name || ('Bookmark ' + (i+1)); sel.appendChild(opt);}catch(e){} });\n"
+            "        }\n"
+            "      }catch(e){}\n"
+            "      sel.addEventListener('change', function(){ try{ if(this.value === '__home' || this.value === '__prompt'){ map.getView().animate({ center: [inputX, inputY], duration: 600 }); } else { var idx = parseInt(this.value); var b = bookmarks[idx]; if(b){ var bx = parseFloat(b.x || b.orig_x || b.lon || b.lng || 0); var by = parseFloat(b.y || b.orig_y || b.lat || 0); if(isFinite(bx) && isFinite(by)){ map.getView().animate({ center: [bx, by], duration: 600 }); try{ if(window.wmsSource && typeof window.wmsSource.updateParams === 'function'){ var up = { 'x': bx, 'y': by, 'crs': 'EPSG:3857', 'ANGLE': (typeof _getSendAngle === 'function' ? _getSendAngle() : (typeof rotationDeg !== 'undefined' ? rotationDeg : 0)) }; try{ if(typeof mapScale !== 'undefined' && mapScale !== null) up.scale = mapScale; }catch(e){} try{ var currentTheme = (document.getElementById('qmp-themes') ? document.getElementById('qmp-themes').value : null); if(currentTheme && currentTheme !== '__prompt'){ up.theme = currentTheme; } }catch(e){} window.wmsSource.updateParams(up); window.wmsSource.refresh(); } }catch(e){} } } } }catch(e){} try{ this.value = '__prompt'; }catch(e){} });\n"
+            "    }\n"
+            "  }catch(e){}\n"
+            "})();\n"
+        )
 
         # Add button handlers that open external viewers (Google Maps / Google Earth)
         js += (
@@ -978,7 +981,8 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
             "          lat = 180.0 / Math.PI * (2.0 * Math.atan(Math.exp(lat * Math.PI / 180.0)) - Math.PI / 2.0);\n"
             "          var zoom = view.getZoom ? Math.round(view.getZoom()) : 12;\n"
             "          // prefer server-computed URL if available\n"
-            "          if(typeof serverGoogleMapsUrl !== 'undefined' && serverGoogleMapsUrl){ var w = window.open(serverGoogleMapsUrl, '_blank'); if(!w){ alert(" + _ptj('Popup blocked') + "); } return; }\n"
+            "          if(typeof serverGoogleMapsUrl !== 'undefined' && serverGoogleMapsUrl){ var w = window.open(serverGoogleMapsUrl, '_blank'); if(!w){ alert(" + _ptj(
+                'Popup blocked') + "); } return; }\n"
             "          var url = 'https://www.google.com/maps/@' + encodeURIComponent(lat) + ',' + encodeURIComponent(lon) + ',' + encodeURIComponent(zoom) + 'z';\n"
             "          var w = window.open(url, '_blank'); if(!w){ alert(" + _ptj('Popup blocked') + "); }\n"
             "        }catch(e){ console.error(e); }\n"
@@ -996,7 +1000,8 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
             "          var lon = (x / 20037508.34) * 180.0; var lat = (y / 20037508.34) * 180.0;\n"
             "          lat = 180.0 / Math.PI * (2.0 * Math.atan(Math.exp(lat * Math.PI / 180.0)) - Math.PI / 2.0);\n"
             "          // prefer server-computed URL if available\n"
-            "          if(typeof serverGoogleEarthUrl !== 'undefined' && serverGoogleEarthUrl){ var w = window.open(serverGoogleEarthUrl, '_blank'); if(!w){ alert(" + _ptj('Popup blocked') + "); } return; }\n"
+            "          if(typeof serverGoogleEarthUrl !== 'undefined' && serverGoogleEarthUrl){ var w = window.open(serverGoogleEarthUrl, '_blank'); if(!w){ alert(" + _ptj(
+                'Popup blocked') + "); } return; }\n"
             "          // Use Google Earth Web search link (best-effort)\n"
             "          var url = 'https://earth.google.com/web/search/' + encodeURIComponent(lat) + ',' + encodeURIComponent(lon);\n"
             "          var w = window.open(url, '_blank'); if(!w){ alert(" + _ptj('Popup blocked') + "); }\n"
@@ -1038,17 +1043,20 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
             '<body>\n'
             '  <div id="map"></div>\n'
             '  <div id="qmp-left-controls">\n'
-            '    <select id="qmp-themes" class="qmp-control" title="' + __import__('html').escape(_pt('Themes')) + '">' + (('<option value="__prompt" selected>%s</option>' % ( __import__('html').escape(prompt_theme_text) )) if True else '') + '\n' + (themes_options if 'themes_options' in locals() else '') + '</select>\n'
-            '    <select id="qmp-bookmarks" class="qmp-control" title="' + __import__('html').escape(_pt('Bookmarks')) + '">' + (('<option value="__prompt" selected>%s</option>' % ( __import__('html').escape(prompt_text) )) if True else '') + '<option value="__home">' + __import__('html').escape(_pt('Home')) + '</option>\n' + (bookmarks_options if 'bookmarks_options' in locals() else '') + '</select>\n'
+            '    <select id="qmp-themes" class="qmp-control" title="' + __import__('html').escape(_pt('Themes')) + '">' + (('<option value="__prompt" selected>%s</option>' % (
+                __import__('html').escape(prompt_theme_text))) if True else '') + '\n' + (themes_options if 'themes_options' in locals() else '') + '</select>\n'
+            '    <select id="qmp-bookmarks" class="qmp-control" title="' + __import__('html').escape(_pt('Bookmarks')) + '">' + (('<option value="__prompt" selected>%s</option>' % (__import__('html').escape(
+                prompt_text))) if True else '') + '<option value="__home">' + __import__('html').escape(_pt('Home')) + '</option>\n' + (bookmarks_options if 'bookmarks_options' in locals() else '') + '</select>\n'
             '  </div>\n'
-                '  <div id="qmp-right-controls">\n'
-                                    '    <button id="qmp-rotate-cycle" class="qmp-control" title="Rotate 0/90/180/270">\u27f3</button>\n'
-                                    '    <button id="qmp-open-googlemaps" class="qmp-control" title="' + __import__('html').escape(_pt('Open Google Maps')) + '">MAPS</button>\n'
-                                    '    <button id="qmp-open-googleearth" class="qmp-control" title="' + __import__('html').escape(_pt('Open Google Earth')) + '">EARTH</button>\n'
-                                    '    <button id="qmp-open-kasugai" class="qmp-control" title="' + __import__('html').escape(_pt('Open in KASUGAI Canvas')) + '">KASUGAI</button>\n'
-                                    '  </div>\n'
-                                    '  <div id="qmp-coords" class="qmp-control" aria-live="polite" role="status"></div>\n'
-                                    '  <div id="qmp-cors-warning">' + _pt('A CORS error occurred while loading the WMS.<br>If you opened this HTML directly via file://, serve it with a simple HTTP server or set the Access-Control-Allow-Origin header on the WMS side.') + '</div>\n'
+            '  <div id="qmp-right-controls">\n'
+            '    <button id="qmp-rotate-cycle" class="qmp-control" title="Rotate 0/90/180/270">\u27f3</button>\n'
+            '    <button id="qmp-open-googlemaps" class="qmp-control" title="' + __import__('html').escape(_pt('Open Google Maps')) + '">MAPS</button>\n'
+            '    <button id="qmp-open-googleearth" class="qmp-control" title="' + __import__('html').escape(_pt('Open Google Earth')) + '">EARTH</button>\n'
+            '    <button id="qmp-open-kasugai" class="qmp-control" title="' + __import__('html').escape(_pt('Open in KASUGAI Canvas')) + '">KASUGAI</button>\n'
+            '  </div>\n'
+            '  <div id="qmp-coords" class="qmp-control" aria-live="polite" role="status"></div>\n'
+            '  <div id="qmp-cors-warning">' +
+            _pt('A CORS error occurred while loading the WMS.<br>If you opened this HTML directly via file://, serve it with a simple HTTP server or set the Access-Control-Allow-Origin header on the WMS side.') + '</div>\n'
             '  <script>\n'
             f'    const serverPort = {server_port};\n'
             f'    ' + js + '\n'
@@ -1072,11 +1080,11 @@ def json_safe(v):
 
 def save_openlayers_html_to_file(html_content: str, server_port: int = 8089) -> str:
     """Save OpenLayers HTML to a file with date-time based folder structure.
-    
+
     Args:
         html_content: The HTML content to save
         server_port: The port number of the QGIS HTTP server (unused, for compatibility)
-    
+
     Returns the file path where the HTML was saved.
     Similar to MapLibre: saves to {base_path}/qmap_openlayers_{timestamp}/index.html
     """
@@ -1084,14 +1092,14 @@ def save_openlayers_html_to_file(html_content: str, server_port: int = 8089) -> 
         import os
         import tempfile
         from datetime import datetime
-        
+
         try:
             from qgis.PyQt.QtCore import QSettings
             settings = QSettings('GeoWebView', 'geo_webview')
             saved_path = settings.value('openlayers_output_path', None)
         except Exception:
             saved_path = None
-        
+
         # Determine output directory
         if saved_path is None or saved_path == '__default__':
             # Use system temp directory with base folder
@@ -1109,11 +1117,11 @@ def save_openlayers_html_to_file(html_content: str, server_port: int = 8089) -> 
                 os.makedirs(output_dir, exist_ok=True)
             except Exception as e:
                 _qmp_log(f'[OpenLayers] Failed to create output directory {output_dir}: {e}', level='WARN')
-        
+
         # Create timestamped subdirectory
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         timestamped_dir = os.path.join(output_dir, f'qmap_openlayers_{timestamp}')
-        
+
         try:
             os.makedirs(timestamped_dir, exist_ok=True)
         except Exception as e:
@@ -1125,12 +1133,12 @@ def save_openlayers_html_to_file(html_content: str, server_port: int = 8089) -> 
             except Exception:
                 _qmp_log('[OpenLayers] Failed to create any output directory', level='ERROR')
                 raise
-        
+
         # Write HTML file
         file_path = os.path.join(timestamped_dir, 'index.html')
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(html_content)
-        
+
         _qmp_log(f'[OpenLayers] HTML saved to {file_path}')
         return file_path
     except Exception as e:

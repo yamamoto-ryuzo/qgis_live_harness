@@ -17,7 +17,6 @@ KASUGAI Canvas は ``geojson: タイトル | DATA/x.geojson | on | style=DATA/x.
 """
 
 import json
-import math
 import os
 import re
 import urllib.error
@@ -174,6 +173,7 @@ def _xyz_layer_info(layer):
         url = params.get('url')
         if not url:
             return None
+
         def _num(name):
             try:
                 return int(params[name])
@@ -319,6 +319,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True):
 
 def _http_json(url, payload=None, timeout=2.0, method=None):
     """小さなJSON HTTP呼び出し。payload無しはGET。"""
+    if urllib.parse.urlparse(url).scheme not in ('http', 'https'):
+        raise ValueError('unsupported URL scheme: {0}'.format(url))
     data = None
     headers = {}
     if payload is not None:
@@ -326,7 +328,7 @@ def _http_json(url, payload=None, timeout=2.0, method=None):
         headers['Content-Type'] = 'application/json'
     req = urllib.request.Request(url, data=data, headers=headers,
                                  method=method)
-    with urllib.request.urlopen(req, timeout=timeout) as res:
+    with urllib.request.urlopen(req, timeout=timeout) as res:  # nosec B310  # 直上でhttp/httpsスキームを検証済み
         body = res.read(65536)
     return json.loads(body.decode('utf-8'))
 

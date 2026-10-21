@@ -1,3 +1,13 @@
+# V4.4.1 plugins.qgis.org セキュリティスキャン対応
+- `get_codes` の PostgreSQL クエリでテーブル/カラム識別子を
+  `"`→`""` エスケープする `quote_ident` を導入
+  (識別子経由のSQLインジェクション対策)
+- LOW指摘(try/except/pass|continue)はレビュー済みの常套パターン
+  として同梱 `.bandit` 設定で抑制
+- flake8指摘を整理: 関数内の冗長な再importを削除、bare `except:`
+  を `except Exception:` に修正、未使用変数を整理。
+  残る長行E501は同梱 `.flake8` 設定で明示抑制
+
 # V4.4.0 ユーザーテーマ保存バグ修正 + 検索対象水平回転モード
 - `theme.save_user_theme` が常に空の `entries` を出力するバグを修正
   (スナップショット名なしで `collect_visible_layer_snapshot` を呼び、

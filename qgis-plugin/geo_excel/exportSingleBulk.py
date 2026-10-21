@@ -6,7 +6,7 @@
    アクションフィールドとして以下を使用します。
      [% @layer_id %] -- レイヤID
      [% $id %] -- 地物ID
-   
+
     レイヤ変数に以下の定義をしていおく必要があります。
       xlsout_template_path -- Excelテンプレートブックファイルパス
       xlsout_output_path_fixed -- 帳票出力先ディレクトリパス（必ず存在する必要があります）
@@ -44,12 +44,13 @@ TEMPLATE_PATH = "xlsout_template_path"
 OUTPUT_PATH_FIXED = "xlsout_output_path_fixed"
 OUTPUT_PATH_VARIABLE = "xlsout_output_path_variable"
 
-DEFAULT_CRS = 30167 # 7系
+DEFAULT_CRS = 30167  # 7系
+
 
 def get_layer_variable(layer_context_name: str, layer: QgsVectorLayer):
     """
     レイヤ変数を取得
-    
+
     Parameters
       layer_context_name -- レイヤ変数名
       layer -- レイヤ
@@ -63,6 +64,7 @@ def get_layer_variable(layer_context_name: str, layer: QgsVectorLayer):
         return ""
 
     return QgsExpressionContextScope.variable(QgsExpressionContextUtils.layerScope(layer), layer_context_name)
+
 
 def make_expression_context(layer: QgsVectorLayer = None, feature: QgsFeature = None):
     """
@@ -107,6 +109,7 @@ def make_expression_context(layer: QgsVectorLayer = None, feature: QgsFeature = 
         context.setFeature(feature)
     return context
 
+
 def excel_value_text(value):
     """
     評価結果をExcel出力用の値に変換する。
@@ -119,10 +122,11 @@ def excel_value_text(value):
     if isinstance(value, QDate):
         return value.toString("yyyy/MM/dd")
     if isinstance(value, QTime):
-        return value.toString() # フォーマットは不要
+        return value.toString()  # フォーマットは不要
     if isinstance(value, QDateTime):
         return value.toString("yyyy/MM/dd hh:mm:ss")
     return value
+
 
 def evaluate_attach_text(text: str, layer: QgsVectorLayer = None, feature: QgsFeature = None):
     """
@@ -163,6 +167,7 @@ def evaluate_attach_text(text: str, layer: QgsVectorLayer = None, feature: QgsFe
     except Exception:
         return ""
 
+
 def create_expression(text: str):
     """
     引数の文字列から新しい式を作成するオブジェクトを作成
@@ -185,14 +190,14 @@ def create_expression(text: str):
             if len(exp.referencedFunctions()) > 0:
                 # 使用している関数がある
                 break
-        
+
             if len(exp.referencedVariables()) > 0:
                 # 使用している変数がある
                 break
-            
+
             # ここまで到達したら単一の文字列なのでNoneを返却する
             return None
-        
+
         if exp.hasEvalError():
             iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "{0} has eval error: {1}").format(text, exp.evalErrorString()))
             return None
@@ -202,6 +207,7 @@ def create_expression(text: str):
             return None
 
         return exp
+
 
 def variable_based_on_feature(text: str, feature: QgsFeature, layer: QgsVectorLayer = None):
     """
@@ -224,6 +230,7 @@ def variable_based_on_feature(text: str, feature: QgsFeature, layer: QgsVectorLa
     context = make_expression_context(layer, feature)
     return exp.evaluate(context)
 
+
 def get_exp_variable_for_feature(exp: QgsExpression, feature: QgsFeature, layer: QgsVectorLayer = None):
     """
     指定の式に地物を設定し、評価した結果を返却する
@@ -241,12 +248,13 @@ def get_exp_variable_for_feature(exp: QgsExpression, feature: QgsFeature, layer:
     context = make_expression_context(layer, feature)
     return exp.evaluate(context)
 
+
 def contains_text_in_first_cell(ws, text: str):
     # 最初のセルは結合セルか
     if ws.Cells(1).MergeCells:
         first_cell = ws.Cells(1).MergeArea.Cells(1)
     else:
-        first_cell =  ws.Cells(1)
+        first_cell = ws.Cells(1)
 
     first_cell_value = first_cell.Value
     if first_cell_value is None:
@@ -256,8 +264,9 @@ def contains_text_in_first_cell(ws, text: str):
     if text in first_cell_text:
         address = first_cell.Address
         return first_cell
-    
+
     return None
+
 
 def append_attach(ws, cell, attach_list: list):
     cell_text = cell.Text
@@ -276,7 +285,7 @@ def append_attach(ws, cell, attach_list: list):
             if isinstance(_val, QDate):
                 text_info["text"] = _val.toString("yyyy/MM/dd")
             elif isinstance(_val, QTime):
-                text_info["text"] = _val.toString() # フォーマットは不要
+                text_info["text"] = _val.toString()  # フォーマットは不要
             elif isinstance(_val, QDateTime):
                 text_info["text"] = _val.toString("yyyy/MM/dd hh:mm:ss")
             else:
@@ -288,6 +297,7 @@ def append_attach(ws, cell, attach_list: list):
             # （属性テーブルの詳細フィルター（式）と同等の記述・@変数が利用可能）
             text_info["text"] = evaluate_attach_text(attach_info[1], layer, feature)
         attach_list.append(text_info)
+
 
 def find_attach(wb, feature: QgsFeature, attach_list: list):
     """
@@ -333,6 +343,7 @@ def find_attach(wb, feature: QgsFeature, attach_list: list):
                 # 初めのセルに戻ったら処理を抜ける
                 break
 
+
 def append_attach_fit_image(ws, cell, attach_list: list, image_dict: dict, tmpdir, default_scale: int):
     attach_info = cell.Text.split("::")
 
@@ -366,7 +377,7 @@ def append_attach_fit_image(ws, cell, attach_list: list, image_dict: dict, tmpdi
         dt_now = datetime.datetime.now()
         now_text = dt_now.strftime('%H%M%S%f')
         image_filepath = os.path.normcase(os.path.join(tmpdir.name, f'{image_key}_{now_text}.png'))
-            # 画像ファイル辞書に追加
+        # 画像ファイル辞書に追加
         image_dict[image_key] = image_filepath
 
     # 画像は後で作成し、貼り付け位置だけ抽出する
@@ -382,6 +393,7 @@ def append_attach_fit_image(ws, cell, attach_list: list, image_dict: dict, tmpdi
     }
 
     attach_list.append(image_info)
+
 
 def find_attach_fit_image(wb, attach_list: list, tmpdir, default_scale: float, dpi: int):
     """
@@ -434,6 +446,7 @@ def find_attach_fit_image(wb, attach_list: list, tmpdir, default_scale: float, d
     # 一括して地図画像ファイルを作成する
     create_map_images(image_dict, dpi)
 
+
 def create_map_images(image_dict: dict, dpi: int):
     """
     地図画像ファイルを一時フォルダに作成する。
@@ -459,7 +472,7 @@ def create_map_images(image_dict: dict, dpi: int):
 
     # テーマを切り替えながら地図画像を作成する
     current_scale = 0
-    
+
     for key in key_sorted:
         key_split = key.split("_")
         theme_name = key_split[0]
@@ -471,18 +484,19 @@ def create_map_images(image_dict: dict, dpi: int):
             current_theme = theme_name
         else:
             current_theme = ""
-        
+
         if current_scale != map_scale:
             # 縮尺を変更する
             map_canvas.zoomScale(map_scale)
             current_scale = map_scale
-        
+
         create_map_image(image_dict.get(key), map_scale, map_width, map_height, dpi, current_theme)
 
     # 状態を復元し仮のテーマを削除する
     restore_from_temp_theme(temp_theme_name, saved_scale)
 
-def create_map_image(filepath: str, map_scale: float, pt_width: float, pt_height: float, dpi: int, theme_name:str):
+
+def create_map_image(filepath: str, map_scale: float, pt_width: float, pt_height: float, dpi: int, theme_name: str):
     """
     地図画像を作成する
 
@@ -529,11 +543,11 @@ def create_map_image(filepath: str, map_scale: float, pt_width: float, pt_height
         if xy_flg:
             center_geometry = QgsGeometry.fromPointXY(QgsPointXY(center.x(), center.y()))
         else:
-            center_geometry = QgsGeometry.fromPointXY(QgsPointXY(center.y(), center.x())) # xyは逆
+            center_geometry = QgsGeometry.fromPointXY(QgsPointXY(center.y(), center.x()))  # xyは逆
 
         coordwgs84 = QgsCoordinateReferenceSystem(int(before_crs))
         coordweb = QgsCoordinateReferenceSystem(DEFAULT_CRS)
-        trans =  QgsCoordinateTransform()
+        trans = QgsCoordinateTransform()
         trans.setSourceCrs(coordwgs84)
         trans.setDestinationCrs(coordweb)
         center_geometry.transform(trans)
@@ -541,10 +555,10 @@ def create_map_image(filepath: str, map_scale: float, pt_width: float, pt_height
 
         # 中心座標から変換した幅と高さの範囲を産出する
         extent = QgsRectangle(
-            center.x() - extent_width/1000,
-            center.y() - extent_height/1000,
-            center.x() + extent_width/1000,
-            center.y() + extent_height/1000
+            center.x() - extent_width / 1000,
+            center.y() - extent_height / 1000,
+            center.x() + extent_width / 1000,
+            center.y() + extent_height / 1000
         )
 
         rect_geom = QgsGeometry.fromRect(extent)
@@ -602,7 +616,7 @@ def create_map_image(filepath: str, map_scale: float, pt_width: float, pt_height
     ms.setLayers(layers)
     ms.setOutputDpi(dpi)
     ms.setBackgroundColor(map_canvas.canvasColor())
-    ms.setOutputSize(QtCore.QSize(int(px_width), int(px_height))) # 2023.1.27 WARNING回避
+    ms.setOutputSize(QtCore.QSize(int(px_width), int(px_height)))  # 2023.1.27 WARNING回避
     ms.setExtent(extent)
 
     render = QgsMapRendererParallelJob(ms)
@@ -616,6 +630,7 @@ def create_map_image(filepath: str, map_scale: float, pt_width: float, pt_height
     render.start()
     render.waitForFinished()
 
+
 def change_theme(theme_name: str):
     """
     テーマ変更
@@ -628,7 +643,7 @@ def change_theme(theme_name: str):
     """
     project = QgsProject.instance()
     col = project.mapThemeCollection()
-    
+
     if not col.hasMapTheme(theme_name):
         # 現プロジェクトに対象の名前のテーマが存在しない場合は実行前の状態で行う
         return False
@@ -641,6 +656,7 @@ def change_theme(theme_name: str):
     # テーマ変更正常終了を返却する
     return True
 
+
 def add_temp_theme_from_current_state():
     """
     現在の状態で仮のテーマを作成する
@@ -651,12 +667,12 @@ def add_temp_theme_from_current_state():
 
     project = QgsProject.instance()
     col = project.mapThemeCollection()
-    
+
     # 現在の状態から仮のテーマを作成する
     root = project.layerTreeRoot()
     model = iface.layerTreeView().layerTreeModel()
     current_state = col.createThemeFromCurrentState(root, model)
-    
+
     # 仮のテーマの名前を作成
     dt_now = datetime.datetime.now()
     now_text = dt_now.strftime('%H%M%S%f')
@@ -664,6 +680,7 @@ def add_temp_theme_from_current_state():
     col.insert(theme_name, current_state)
 
     return theme_name
+
 
 def restore_from_temp_theme(temp_theme_name: str, map_scale: float):
     """
@@ -680,6 +697,7 @@ def restore_from_temp_theme(temp_theme_name: str, map_scale: float):
     QgsProject.instance().mapThemeCollection().removeMapTheme(temp_theme_name)
     # 縮尺を復元する
     iface.mapCanvas().zoomScale(map_scale)
+
 
 def replace_attach(wb, attach_list: list):
     """
@@ -701,7 +719,7 @@ def replace_attach(wb, attach_list: list):
         if current_sheet != info.get("sheet"):
             current_sheet = info.get("sheet")
             ws = wb.Worksheets(current_sheet)
-        
+
         _address = info.get("address")
         _str = info.get("text")
 
@@ -716,9 +734,10 @@ def replace_attach(wb, attach_list: list):
             iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Could not output [{1}] to cell [{0}].").format(_address, str(_str)))
             ret_flg = False
             break
-   
+
     return ret_flg
     # 2023.1.19 QDateエラー修正 end
+
 
 def insert_images(wb, attach_image_list: list):
     """
@@ -741,7 +760,7 @@ def insert_images(wb, attach_image_list: list):
         if current_sheet != info.get("sheet"):
             current_sheet = info.get("sheet")
             ws = wb.Worksheets(current_sheet)
-        
+
         # 作成した画像を挿入
         filepath = info.get("filepath")
         width = info.get("width")
@@ -750,6 +769,7 @@ def insert_images(wb, attach_image_list: list):
             ws.Range(info.get("address")).ClearContents()
             # 指定の縮尺、サイズで作成した地図画像を挿入
             ws.Shapes.AddPicture(filepath, False, True, info.get("left"), info.get("top"), width, height)
+
 
 def check_save_folder(path: str):
     """
@@ -764,6 +784,7 @@ def check_save_folder(path: str):
 
     # 再帰的にディレクトリを作成
     os.makedirs(target, exist_ok=True)
+
 
 def output_single_report(excel_app, template_path: str, feature: QgsFeature, output_path: str, dpi: int, progress: QProgressDialog):
     """
@@ -782,7 +803,8 @@ def output_single_report(excel_app, template_path: str, feature: QgsFeature, out
 
     QApplication.processEvents()
     if progress.wasCanceled():
-        cancel_return = QMessageBox.question(iface.mainWindow(), QCoreApplication.translate("geo_excel", "Confirmation"), QCoreApplication.translate("geo_excel", "Abort processing?"), QMessageBox.Ok, QMessageBox.Cancel)
+        cancel_return = QMessageBox.question(iface.mainWindow(), QCoreApplication.translate("geo_excel", "Confirmation"),
+                                             QCoreApplication.translate("geo_excel", "Abort processing?"), QMessageBox.Ok, QMessageBox.Cancel)
         if cancel_return == QMessageBox.Ok:
             return False
         progress.reset()
@@ -811,7 +833,7 @@ def output_single_report(excel_app, template_path: str, feature: QgsFeature, out
 
         # 全シートの##Attach::を置換
         ret = replace_attach(wb, attach_list)
-        if(ret == False):
+        if (ret == False):
             return False
 
         # 全シートの##AttachFitImage::に画像を挿入
@@ -830,12 +852,13 @@ def output_single_report(excel_app, template_path: str, feature: QgsFeature, out
     except Exception as e:
         iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "An error occurred: {0}").format(e))
         success = False
-        
+
     finally:
         # 使い終わった画像ファイルを一時フォルダごと開放する
         tmpdir.cleanup()
 
     return success
+
 
 def get_raw_variable_for_layer(layer: QgsVectorLayer):
     """
@@ -868,6 +891,7 @@ def get_raw_variable_for_layer(layer: QgsVectorLayer):
 
     return raw
 
+
 def get_exp_variable_for_layer(raw: dict):
     """
     テンプレートファイルパス、出力ファイルパスの辞書から、式として成り立つものを抽出して辞書にして返却する
@@ -892,6 +916,7 @@ def get_exp_variable_for_layer(raw: dict):
 
     return exp
 
+
 def get_variable_for_feature(feature: QgsFeature, raw: dict, exp: dict, variable_name: str):
     """
     レイヤ変数からテンプレートファイルパス、出力ファイルパスを抽出し、文字列あるいは式を評価した結果を返却する
@@ -908,7 +933,7 @@ def get_variable_for_feature(feature: QgsFeature, raw: dict, exp: dict, variable
 
     if not variable_name in exp:
         return raw.get(variable_name)
-    
+
     target_exp = exp.get(variable_name)
 
     context = make_expression_context(None, feature)
@@ -968,7 +993,7 @@ while True:
                 iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "Output folder\n {0} \ndoes not exist.").format(path_))
                 flg_check_output_folder = False
                 break
-        
+
         if not flg_check_output_folder:
             break
 
@@ -982,14 +1007,15 @@ while True:
             break
         output_path_fixed_for_all = path_
 
-    msg_return = QMessageBox.question(iface.mainWindow(), QCoreApplication.translate("geo_excel", "Confirmation"), QCoreApplication.translate("geo_excel", "Starting export of {0} reports.\nThis may take a while. Continue?").format(featureCount), QMessageBox.Ok, QMessageBox.Cancel)
+    msg_return = QMessageBox.question(iface.mainWindow(), QCoreApplication.translate("geo_excel", "Confirmation"), QCoreApplication.translate(
+        "geo_excel", "Starting export of {0} reports.\nThis may take a while. Continue?").format(featureCount), QMessageBox.Ok, QMessageBox.Cancel)
     if msg_return == QMessageBox.Cancel:
         break
-    
+
     # Excelを開く
     try:
         excel_app = win32com.client.GetObject(Class="Excel.Application")
-    except:
+    except Exception:
         excel_app = win32com.client.Dispatch("Excel.Application")
 
     # 更新停止
@@ -1012,7 +1038,7 @@ while True:
     # 全ての地物に対して単票を一括して出力する
     excel_result = True
     for idx, fid in enumerate(fids):
-        
+
         feature = layer.getFeature(fid)
 
         # 中央に対象地物を表示する
@@ -1043,7 +1069,7 @@ while True:
     excel_app.ScreenUpdating = True
 
     excel_app.Visible = True
-    
+
     if excel_app.Workbooks.Count == 0:
         excel_app.Quit()
 

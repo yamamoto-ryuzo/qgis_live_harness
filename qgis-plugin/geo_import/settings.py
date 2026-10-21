@@ -2,7 +2,6 @@
 
 from qgis.PyQt.QtCore import QSettings
 import os
-import configparser
 
 from qgis.core import QgsMessageLog, Qgis
 

@@ -81,7 +81,6 @@ MAPLIBRE_ZOOM_SCALE_REFERENCE = {
 }
 
 
-
 def estimate_zoom_from_scale(scale):
     """Estimate a continuous zoom level from a scale denominator.
 
@@ -278,4 +277,3 @@ def estimate_zoom_from_scale_maplibre(scale):
 
     except (ValueError, TypeError, OverflowError):
         return 16.0
-

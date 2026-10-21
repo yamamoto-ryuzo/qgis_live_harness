@@ -27,36 +27,35 @@ Python コメント（操作説明）は日本語で記述
 UI に表示されるテキストは英語で QCoreApplication.translate('geo_report', ...) でラップ
 """
 
-import os
-import os.path
-import sys
-import subprocess
-import threading
-
-from qgis.PyQt.QtCore import QVariant, QCoreApplication, Qt, QPoint
-from qgis.PyQt.QtGui import QIcon, QColor
-from qgis.PyQt.QtWidgets import (QAction, QDialog, QVBoxLayout, QListWidget, QListWidgetItem, 
-                                QPushButton, QHBoxLayout, QSplitter, QTextEdit, QLabel, 
-                                QTreeWidget, QTreeWidgetItem, QGroupBox, QLineEdit, 
-                                QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QFormLayout,
-                                QTabWidget, QWidget, QScrollArea, QFileDialog, QMessageBox,
-                                QDockWidget, QTabBar, QToolBar)
-from qgis.core import (QgsProject, QgsLayoutManager, QgsLayoutItem, Qgis, QgsLayoutPoint, 
-                       QgsLayoutSize, QgsUnitTypes, QgsPointXY, QgsRectangle, QgsGeometry, 
-                       QgsWkbTypes, QgsMessageLog)
-from qgis.gui import QgsMessageBar, QgsMapTool, QgsRubberBand
+from qgis.gui import QgsMapTool
 import json
+from qgis.PyQt.QtGui import QIcon, QColor
+from qgis.PyQt.QtCore import QCoreApplication, Qt
+from qgis.PyQt.QtWidgets import (QAction, QDialog, QVBoxLayout, QListWidget, QListWidgetItem,
+                                 QPushButton, QHBoxLayout, QSplitter, QTextEdit, QLabel,
+                                 QTreeWidget, QTreeWidgetItem, QLineEdit,
+                                 QSpinBox, QDoubleSpinBox, QCheckBox, QFormLayout,
+                                 QTabWidget, QWidget, QScrollArea, QFileDialog, QMessageBox,
+                                 QDockWidget, QTabBar, QToolBar)
+from qgis.core import (QgsProject, QgsLayoutItem, Qgis, QgsLayoutPoint,
+                       QgsLayoutSize, QgsUnitTypes, QgsPointXY, QgsRectangle, QgsGeometry,
+                       QgsWkbTypes, QgsMessageLog)
+import os.path
+import os
+
 
 # Initialize Qt resources from file resources.py
 try:
     from . import resources
-except ImportError as e:
+except ImportError:
     pass
 
 USER_ROLE = Qt.ItemDataRole.UserRole
 LEFT_DOCK_WIDGET_AREA = Qt.DockWidgetArea.LeftDockWidgetArea
 
 # ログ出力関数
+
+
 def log_message(message, level=Qgis.Info):
     """QGIS のログメッセージタブに出力"""
     QgsMessageLog.logMessage(message, 'geo_report', level)
@@ -67,11 +66,11 @@ class PrintAreaMoveTool(QgsMapTool):
     """
     印刷範囲（RubberBand）をマウスでドラッグして移動できるツール
     """
-    
+
     def __init__(self, canvas, rubberband, map_item, width_map, height_map, iface, parent_dialog):
         """
         初期化
-        
+
         Args:
             canvas: QGIS マップキャンバス
             rubberband: 印刷範囲を表示するゴムバンド
@@ -94,81 +93,6 @@ class PrintAreaMoveTool(QgsMapTool):
         self.orig_center = None
 
     def canvasPressEvent(self, event):
-        """マウス押下時の処理"""
-        pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
-        geom = self.rb.asGeometry()
-        if geom and geom.contains(QgsPointXY(pos)):
-            self.dragging = True
-            self.start_pos = pos
-            self.orig_center = geom.centroid().asPoint()
-        else:
-            self.dragging = False
-
-    def canvasMoveEvent(self, event):
-        """マウス移動時の処理"""
-        if not self.dragging:
-            return
-        pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
-        dx = pos.x() - self.start_pos.x()
-        dy = pos.y() - self.start_pos.y()
-        new_center = QgsPointXY(self.orig_center.x() + dx, self.orig_center.y() + dy)
-        self._move_rubberband(new_center)
-
-    def canvasReleaseEvent(self, event):
-        """マウス放開時の処理"""
-        if not self.dragging:
-            return
-        pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
-        dx = pos.x() - self.start_pos.x()
-        dy = pos.y() - self.start_pos.y()
-        new_center = QgsPointXY(self.orig_center.x() + dx, self.orig_center.y() + dy)
-        try:
-            self._move_rubberband(new_center)
-        except Exception:
-            pass
-        
-        # QgsLayoutItemMap の範囲も更新
-        w = self.width_map
-        h = self.height_map
-        xmin = new_center.x() - w/2
-        xmax = new_center.x() + w/2
-        ymin = new_center.y() - h/2
-        ymax = new_center.y() + h/2
-        new_extent = QgsRectangle(xmin, ymin, xmax, ymax)
-        if hasattr(self.map_item, 'setExtent'):
-            self.map_item.setExtent(new_extent)
-            if hasattr(self.map_item, 'refresh'):
-                self.map_item.refresh()
-        self.dragging = False
-        self.iface.messageBar().pushMessage(
-            QCoreApplication.translate('geo_report', "Information"), QCoreApplication.translate('geo_report', "Print area moved."), level=Qgis.Info, duration=2
-        )
-
-    def _move_rubberband(self, center):
-        """
-        ゴムバンドを移動
-        
-        Args:
-            center: 新しい中心座標
-        """
-        w = self.width_map
-        h = self.height_map
-        xmin = center.x() - w/2
-        xmax = center.x() + w/2
-        ymin = center.y() - h/2
-        ymax = center.y() + h/2
-        points = [
-            QgsPointXY(xmin, ymax),
-            QgsPointXY(xmax, ymax),
-            QgsPointXY(xmax, ymin),
-            QgsPointXY(xmin, ymin),
-            QgsPointXY(xmin, ymax)
-        ]
-        self.rb.setToGeometry(QgsGeometry.fromPolygonXY([points]), None)
-        self.canvas.setMapTool(self.tool)
-
-    def canvasPressEvent(self, event):
-        from qgis.core import QgsPointXY
         pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
         geom = self.rb.asGeometry()
         if geom and geom.contains(QgsPointXY(pos)):
@@ -181,7 +105,6 @@ class PrintAreaMoveTool(QgsMapTool):
     def canvasMoveEvent(self, event):
         if not self.dragging:
             return
-        from qgis.core import QgsPointXY
         pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
         dx = pos.x() - self.start_pos.x()
         dy = pos.y() - self.start_pos.y()
@@ -191,7 +114,6 @@ class PrintAreaMoveTool(QgsMapTool):
     def canvasReleaseEvent(self, event):
         if not self.dragging:
             return
-        from qgis.core import QgsPointXY, QgsRectangle
         pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
         dx = pos.x() - self.start_pos.x()
         dy = pos.y() - self.start_pos.y()
@@ -215,8 +137,8 @@ class PrintAreaMoveTool(QgsMapTool):
         # 回転後の外接矩形(AABB)を渡すと印刷範囲が実表示より大きくなるため、
         # 回転なしの矩形(中心移動のみ)を設定し、回転はmapRotationに任せる。
         new_extent = QgsRectangle(
-            new_center.x() - w/2, new_center.y() - h/2,
-            new_center.x() + w/2, new_center.y() + h/2)
+            new_center.x() - w / 2, new_center.y() - h / 2,
+            new_center.x() + w / 2, new_center.y() + h / 2)
         if hasattr(self.map_item, 'setExtent'):
             self.map_item.setExtent(new_extent)
             # 地図内容の回転も維持
@@ -230,7 +152,6 @@ class PrintAreaMoveTool(QgsMapTool):
         )
 
     def _move_rubberband(self, center):
-        from qgis.core import QgsPointXY, QgsGeometry
         import math
         w = self.width_map
         h = self.height_map
@@ -248,13 +169,14 @@ class PrintAreaMoveTool(QgsMapTool):
         sin_t = math.sin(theta)
         # 中心基準の矩形4頂点
         local_points = [
-            (-w/2,  h/2),  # 左上
-            ( w/2,  h/2),  # 右上
-            ( w/2, -h/2),  # 右下
-            (-w/2, -h/2),  # 左下
-            (-w/2,  h/2),  # 閉じる
+            (-w / 2, h / 2),  # 左上
+            (w / 2, h / 2),  # 右上
+            (w / 2, -h / 2),  # 右下
+            (-w / 2, -h / 2),  # 左下
+            (-w / 2, h / 2),  # 閉じる
         ]
         # 回転行列で回転し、中心座標を加算
+
         def rotate_point(x, y):
             return (
                 center.x() + x * cos_t - y * sin_t,
@@ -262,6 +184,8 @@ class PrintAreaMoveTool(QgsMapTool):
             )
         rotated_points = [QgsPointXY(*rotate_point(x, y)) for (x, y) in local_points]
         self.rb.setToGeometry(QgsGeometry.fromPolygonXY([rotated_points]), None)
+
+
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
@@ -288,6 +212,7 @@ class PrintAreaMoveTool(QgsMapTool):
 
 # 以下は上の統一された imports セクションで既に読み込まれているため削除
 
+
 class GeoReport:
     """QGIS Plugin Implementation."""
 
@@ -308,7 +233,7 @@ class GeoReport:
         self.actions = []
         self.menu = 'geo_report'
         self.first_start = None
-        
+
         # パネルオブジェクト
         self.dialog = None
         self.dock_widget = None
@@ -328,19 +253,17 @@ class GeoReport:
         except Exception:
             pass
 
-
-
     def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
+            self,
+            icon_path,
+            text,
+            callback,
+            enabled_flag=True,
+            add_to_menu=True,
+            add_to_toolbar=True,
+            status_tip=None,
+            whats_this=None,
+            parent=None):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -417,11 +340,11 @@ class GeoReport:
 
         # アイコンパスを設定（リソースパスと代替パス）
         icon_path = ':/plugins/layout_item_selector/icon.png'
-        
+
         # フォールバック用のアイコンパス
         import os
         fallback_icon_path = os.path.join(os.path.dirname(__file__), 'icon.png')
-        
+
         # アイコンが存在するかチェック
         icon = QIcon(icon_path)
         if icon.isNull():
@@ -429,7 +352,7 @@ class GeoReport:
             icon = QIcon(fallback_icon_path)
             if not icon.isNull():
                 icon_path = fallback_icon_path
-        
+
         self.add_action(
             icon_path,
             text=QCoreApplication.translate('geo_report', 'Layout Selection'),
@@ -451,7 +374,7 @@ class GeoReport:
                 self.menu,
                 action)
             self._geo_toolbar().removeAction(action)
-        
+
         # パネルを削除
         if self.dock_widget:
             self.iface.removeDockWidget(self.dock_widget)
@@ -553,7 +476,7 @@ class GeoReport:
                         layout.name = layout_name
                     layout_manager.addLayout(layout)
                     imported += 1
-                except Exception as e:
+                except Exception:
                     self.iface.messageBar().pushMessage(
                         QCoreApplication.translate('geo_report', "Warning"),
                         QCoreApplication.translate('geo_report', "Import failed") + f": {qpt_path}",
@@ -585,16 +508,16 @@ class GeoReport:
                 # レイアウト選択ダイアログを作成
                 self.dialog = LayoutSelectorDialog(layouts, self.iface)
                 log_message("LayoutSelectorDialog created", Qgis.Info)
-                
+
                 # ドックウィジェットを作成（UI 表示名は英語、翻訳対象）
                 # タブ名が長かったため短縮して表示する
                 self.dock_widget = QDockWidget(QCoreApplication.translate('geo_report', "report"), self.iface.mainWindow())
                 self.dock_widget.setWidget(self.dialog)
                 self.dock_widget.setObjectName("GeoReportLayoutSelectorPanel")
-                
+
                 # パネルが閉じられたときに印刷枠を削除
                 self.dock_widget.visibilityChanged.connect(self._on_dock_visibility_changed)
-                
+
                 # 左エリアの既存のドックウィジェットを探してタブ化
                 # 既存の中で「最後に見つかった（表示上は右/上位になる）」パネルをターゲットにする
                 target_dock = None
@@ -625,7 +548,7 @@ class GeoReport:
                         target_dock = max(left_docks, key=_height)
                     except Exception:
                         target_dock = left_docks[0]
-                
+
                 if target_dock:
                     # 既存のドックが見つかった場合、タブ化して追加
                     self.iface.addDockWidget(LEFT_DOCK_WIDGET_AREA, self.dock_widget)
@@ -656,10 +579,10 @@ class GeoReport:
                 else:
                     # 既存のドックがない場合は通常追加
                     self.iface.addDockWidget(LEFT_DOCK_WIDGET_AREA, self.dock_widget)
-                
+
                 # 作成したパネルをアクティブに
                 self.dock_widget.raise_()
-                
+
                 log_message("dock widget created (tabbed)", Qgis.Info)
             else:
                 # 既存のパネルを表示/非表示を切り替え
@@ -669,7 +592,7 @@ class GeoReport:
                     self.dock_widget.show()
                     self.dock_widget.raise_()
                     self.dock_widget.activateWindow()
-                    
+
         except Exception as e:
             import traceback
             error_msg = f"LayoutSelectorDialog creation failed: {e}\n{traceback.format_exc()}"
@@ -709,7 +632,7 @@ class LayoutSelectorDialog(QDialog):
             except Exception as e:
                 print(f"[DEBUG] rubberband removal exception: {e}")
             self._print_area_rubberband = None
-            
+
             # 印刷範囲移動ツールも解除
             if hasattr(self, '_print_area_move_tool'):
                 try:
@@ -784,118 +707,8 @@ class LayoutSelectorDialog(QDialog):
 
 # --- 印刷範囲移動ツール（QgsMapToolサブクラス）をファイル先頭に定義 ---
 
-
-# --- 印刷範囲移動ツール（QgsMapToolサブクラス）をファイル先頭に正しく定義 ---
-
-    """印刷範囲（RubberBand）をマウスでドラッグして移動できるQgsMapToolサブクラス"""
-    def __init__(self, canvas, rubberband, map_item, width_map, height_map, iface, parent_dialog):
-        from qgis.gui import QgsMapTool
-        self.tool = QgsMapTool(canvas)
-        self.canvas = canvas
-        self.rb = rubberband
-        self.map_item = map_item
-        self.width_map = width_map
-        self.height_map = height_map
-        self.iface = iface
-        self.parent_dialog = parent_dialog
-        self.dragging = False
-        self.start_pos = None
-        self.orig_center = None
-        # マウスイベントをバインド
-        self.tool.canvasPressEvent = self.canvasPressEvent
-        self.tool.canvasMoveEvent = self.canvasMoveEvent
-        self.tool.canvasReleaseEvent = self.canvasReleaseEvent
-
-    def activate(self):
-        self.canvas.setMapTool(self.tool)
-
-    def canvasPressEvent(self, event):
-        # rubberbandが存在しない場合は何もしない
-        if not self.rb or not hasattr(self.rb, 'asGeometry'):
-            return
-        from qgis.core import QgsPointXY
-        pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
-        geom = self.rb.asGeometry()
-        if geom and geom.contains(QgsPointXY(pos)):
-            self.dragging = True
-            self.start_pos = pos
-            self.orig_center = geom.centroid().asPoint()
-        else:
-            self.dragging = False
-
-    def canvasMoveEvent(self, event):
-        # rubberbandが存在しない、またはドラッグ中でない場合は何もしない
-        if not self.dragging or not self.rb or not hasattr(self.rb, 'asGeometry'):
-            return
-        from qgis.core import QgsPointXY
-        pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
-        dx = pos.x() - self.start_pos.x()
-        dy = pos.y() - self.start_pos.y()
-        new_center = QgsPointXY(self.orig_center.x() + dx, self.orig_center.y() + dy)
-        self._move_rubberband(new_center)
-
-    def canvasReleaseEvent(self, event):
-        if not self.dragging:
-            return
-        from qgis.core import QgsPointXY, QgsRectangle
-        pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
-        dx = pos.x() - self.start_pos.x()
-        dy = pos.y() - self.start_pos.y()
-        new_center = QgsPointXY(self.orig_center.x() + dx, self.orig_center.y() + dy)
-        self._move_rubberband(new_center)
-        # QgsLayoutItemMapの範囲も更新
-        w = self.width_map
-        h = self.height_map
-        xmin = new_center.x() - w/2
-        xmax = new_center.x() + w/2
-        ymin = new_center.y() - h/2
-        ymax = new_center.y() + h/2
-        new_extent = QgsRectangle(xmin, ymin, xmax, ymax)
-        if hasattr(self.map_item, 'setExtent'):
-            self.map_item.setExtent(new_extent)
-            if hasattr(self.map_item, 'refresh'):
-                self.map_item.refresh()
-        self.dragging = False
-        self.iface.messageBar().pushMessage(
-            QCoreApplication.translate('geo_report', "Information"), QCoreApplication.translate('geo_report', "Print area moved."), level=Qgis.Info, duration=2
-        )
-
-    def _move_rubberband(self, center):
-        import math
-        from qgis.core import QgsPointXY, QgsGeometry
-        w = self.width_map
-        h = self.height_map
-        # 角度（度→ラジアン）
-        angle = 0.0
-        if hasattr(self.parent_dialog, 'angle_spin'):
-            angle = self.parent_dialog.angle_spin.value()
-        # キャンバス自体の回転を加算し、画面上で回転していない矩形にする
-        try:
-            angle += float(self.canvas.rotation())
-        except Exception:
-            pass
-        theta = math.radians(angle)
-        cos_t = math.cos(theta)
-        sin_t = math.sin(theta)
-        # 中心基準の矩形4頂点
-        local_points = [
-            (-w/2,  h/2),  # 左上
-            ( w/2,  h/2),  # 右上
-            ( w/2, -h/2),  # 右下
-            (-w/2, -h/2),  # 左下
-            (-w/2,  h/2),  # 閉じる
-        ]
-        # 回転行列で回転し、中心座標を加算
-        def rotate_point(x, y):
-            return (
-                center.x() + x * cos_t - y * sin_t,
-                center.y() + x * sin_t + y * cos_t
-            )
-        rotated_points = [QgsPointXY(*rotate_point(x, y)) for (x, y) in local_points]
-        self.rb.setToGeometry(QgsGeometry.fromPolygonXY([rotated_points]), None)
-
     """レイアウト選択ダイアログ"""
-    
+
     def __init__(self, layouts, iface):
         super().__init__()
         self.layouts = layouts
@@ -907,26 +720,26 @@ class LayoutSelectorDialog(QDialog):
             self.iface.mapCanvas().rotationChanged.connect(self._refresh_print_area)
         except Exception:
             pass
-    
+
     def init_ui(self):
         """UIを初期化"""
         self.setWindowTitle(QCoreApplication.translate('geo_report', "Layout Selection & Item Management"))
         self.setModal(False)  # モデルレスにして他の操作も可能にする
         # パネル化のためresize()は不要（パネルサイズはQGISが管理）
-        
+
         # メインレイアウト（垂直）
         main_layout = QVBoxLayout()
-        
+
         # 上部：左側（レイアウトリスト）+ 右側（ボタン類 + アイテムリスト）
         top_layout = QHBoxLayout()
-        
+
         # 左側パネル - レイアウトリスト
         left_panel = QWidget()
         left_layout = QVBoxLayout()
-        
+
         layout_label = QLabel(QCoreApplication.translate('geo_report', "Layout List:"))
         left_layout.addWidget(layout_label)
-        
+
         self.layout_list = QListWidget()
 
         # レイアウト選択時にアイテム情報を更新
@@ -955,6 +768,7 @@ class LayoutSelectorDialog(QDialog):
         scale_layout = QHBoxLayout()
         scale_label = QLabel(QCoreApplication.translate('geo_report', "Scale:"))
         scale_layout.addWidget(scale_label)
+
         class ScaleSpinBox(QDoubleSpinBox):
             def stepBy(self, steps):
                 import math
@@ -964,7 +778,7 @@ class LayoutSelectorDialog(QDialog):
                 # 有効数字2桁で丸める
                 if value > 0:
                     digits = int(math.floor(math.log10(abs(value))))
-                    rounded = round(value, -digits+1)
+                    rounded = round(value, -digits + 1)
                 else:
                     rounded = value
                 self.setValue(rounded)
@@ -1003,17 +817,17 @@ class LayoutSelectorDialog(QDialog):
 
         left_panel.setLayout(left_layout)
         left_panel.setMaximumWidth(250)
-        
+
         # 右側パネル - 垂直分割（アイテムリスト + ボタン類）
         right_splitter = QSplitter(Qt.Orientation.Vertical)
-        
+
         # アイテムリスト（上部）
         items_widget = QWidget()
         items_layout = QVBoxLayout()
-        
+
         items_label = QLabel(QCoreApplication.translate('geo_report', "Layout Items:"))
         items_layout.addWidget(items_label)
-        
+
         self.items_tree = QTreeWidget()
         self.items_tree.setHeaderLabels([
             QCoreApplication.translate('geo_report', "Item Name"),
@@ -1028,10 +842,10 @@ class LayoutSelectorDialog(QDialog):
         self.items_tree.setColumnWidth(1, 80)   # タイプ
         self.items_tree.setColumnWidth(2, 60)   # 表示
         items_layout.addWidget(self.items_tree)
-        
+
         items_widget.setLayout(items_layout)
         right_splitter.addWidget(items_widget)
-        
+
         # ボタン類（下部）
         buttons_widget = QWidget()
         button_layout = QVBoxLayout()
@@ -1056,9 +870,9 @@ class LayoutSelectorDialog(QDialog):
         self.load_layout_button.clicked.connect(self.load_layout_properties)
         self.load_layout_button.setEnabled(False)
         button_layout.addWidget(self.load_layout_button)
-        
+
         button_layout.addStretch()
-        
+
         # レポート作成ボタン（最下部、高さ2倍）
         self.open_button = QPushButton(QCoreApplication.translate('geo_report', "Create Report"))
         self.open_button.clicked.connect(self.open_layout_manager)
@@ -1076,7 +890,7 @@ class LayoutSelectorDialog(QDialog):
         # プロパティパネル（下部全幅）- タブ化
         properties_container = QWidget()
         properties_container_layout = QVBoxLayout()
-        
+
         # タブウィジェット
         tab_widget = QTabWidget()
 
@@ -1112,16 +926,16 @@ class LayoutSelectorDialog(QDialog):
             tab_widget.currentChanged.connect(self.on_tab_changed)
         except Exception:
             pass
-        
+
         properties_container_layout.addWidget(tab_widget)
-        
+
         # Apply Properties ボタン
         properties_buttons_layout = QHBoxLayout()
         update_properties_btn = QPushButton(QCoreApplication.translate('geo_report', "Apply Properties"))
         update_properties_btn.clicked.connect(self.update_item_properties)
         properties_buttons_layout.addWidget(update_properties_btn)
         properties_container_layout.addLayout(properties_buttons_layout)
-        
+
         properties_container.setLayout(properties_container_layout)
 
         # メインレイアウトに追加
@@ -1301,7 +1115,7 @@ class LayoutSelectorDialog(QDialog):
             if not ok:
                 raise RuntimeError('loadFromTemplate failed')
             # 同名レイアウトがあれば連番でユニーク化
-            existing = {l.name() for l in layout_manager.layouts()}
+            existing = {ly.name() for ly in layout_manager.layouts()}
             new_name = name
             i = 2
             while new_name in existing:
@@ -1381,7 +1195,7 @@ class LayoutSelectorDialog(QDialog):
                     pass
         except Exception:
             pass
-    
+
     def on_layout_selected(self, current, previous):
         """レイアウトが選択された時の処理"""
         if current is None:
@@ -1393,7 +1207,7 @@ class LayoutSelectorDialog(QDialog):
             self.load_layout_button.setEnabled(False)
             self.clear_item_info()
             return
-            
+
         self.current_layout = current.data(USER_ROLE)
         self.open_button.setEnabled(True)
         self.refresh_button.setEnabled(True)
@@ -1440,7 +1254,7 @@ class LayoutSelectorDialog(QDialog):
             # 有効数字2桁で丸める
             if new_scale > 0:
                 digits = int(math.floor(math.log10(abs(new_scale))))
-                rounded_scale = round(new_scale, -digits+1)
+                rounded_scale = round(new_scale, -digits + 1)
             else:
                 rounded_scale = new_scale
             map_items[0].setScale(rounded_scale)
@@ -1460,7 +1274,7 @@ class LayoutSelectorDialog(QDialog):
             # ボタンテキストを「表示」に変更
             self.show_print_area_button.setText(QCoreApplication.translate('geo_report', "Show Print Area on Map"))
             return
-        
+
         # スケール・角度値を取得
         scale = self.scale_spin.value() if hasattr(self, 'scale_spin') else None
         angle = self.angle_spin.value() if hasattr(self, 'angle_spin') else 0.0
@@ -1489,12 +1303,12 @@ class LayoutSelectorDialog(QDialog):
                 page_height_mm = page.pageSize().height()
             else:
                 return
-        except Exception as e:
+        except Exception:
             return
 
         # mm → m
-        page_width_m = page_width_mm / 1000.0
-        page_height_m = page_height_mm / 1000.0
+        _ = page_width_mm / 1000.0
+        _ = page_height_mm / 1000.0
 
         # 最大の地図アイテム(QgsLayoutItemMap)のサイズから幅・高さを取得し、スケールで地物座標単位に変換
         map_items = [item for item in self.current_layout.items() if item.__class__.__name__ == 'QgsLayoutItemMap']
@@ -1538,7 +1352,6 @@ class LayoutSelectorDialog(QDialog):
 
         # 矩形の四隅を計算（画面中心基準）
         import math
-        from qgis.core import QgsRectangle, QgsPointXY, QgsGeometry
         cx = float(cx)
         cy = float(cy)
         w = width_map
@@ -1549,13 +1362,14 @@ class LayoutSelectorDialog(QDialog):
         sin_t = math.sin(theta)
         # 中心基準の矩形4頂点
         local_points = [
-            (-w/2,  h/2),  # 左上
-            ( w/2,  h/2),  # 右上
-            ( w/2, -h/2),  # 右下
-            (-w/2, -h/2),  # 左下
-            (-w/2,  h/2),  # 閉じる
+            (-w / 2, h / 2),  # 左上
+            (w / 2, h / 2),  # 右上
+            (w / 2, -h / 2),  # 右下
+            (-w / 2, -h / 2),  # 左下
+            (-w / 2, h / 2),  # 閉じる
         ]
         # 回転行列で回転し、中心座標を加算
+
         def rotate_point(x, y):
             return (
                 cx + x * cos_t - y * sin_t,
@@ -1565,14 +1379,14 @@ class LayoutSelectorDialog(QDialog):
 
         # 地図アイテム(QgsLayoutItemMap)をすべて検索し、スケール・回転・印刷範囲を画面中心に設定
         map_items = [item for item in self.current_layout.items() if item.__class__.__name__ == 'QgsLayoutItemMap']
-        
+
         # 画面中心を基準にした印刷範囲を計算（回転なしの矩形）
         xmin = cx - width_map / 2
         xmax = cx + width_map / 2
         ymin = cy - height_map / 2
         ymax = cy + height_map / 2
         new_extent = QgsRectangle(xmin, ymin, xmax, ymax)
-        
+
         for m in map_items:
             # 印刷範囲を画面中心にリセット
             if hasattr(m, 'setExtent'):
@@ -1619,7 +1433,7 @@ class LayoutSelectorDialog(QDialog):
         # 印刷範囲rubberbandをマウスで移動できるようにするツールを有効化（UIには影響しない）
         self._print_area_move_tool = PrintAreaMoveTool(canvas, rb, map_item, width_map, height_map, self.iface, self)
         canvas.setMapTool(self._print_area_move_tool)
-        
+
         # ボタンテキストを「非表示」に変更
         self.show_print_area_button.setText(QCoreApplication.translate('geo_report', "Hide Print Area"))
 
@@ -1643,16 +1457,16 @@ class LayoutSelectorDialog(QDialog):
         """レイアウトアイテムを読み込む"""
         if not self.current_layout:
             return
-            
+
         self.items_tree.clear()
-        
+
         # レイアウトからすべてのアイテムを取得
         items = self.current_layout.items()
-        
+
         # デバッグ情報を追加
         total_items = len(items)
         valid_items = 0
-        
+
         for item in items:
             try:
                 item_class = item.__class__.__name__
@@ -1678,36 +1492,36 @@ class LayoutSelectorDialog(QDialog):
             except Exception as e:
                 print(f"item processing error: {e}")
                 continue
-        
+
         print(f"total items: {total_items}, valid items: {valid_items}")
-        
+
         # アイテムが見つからない場合のメッセージ
         if valid_items == 0 and total_items > 0:
             placeholder_item = QTreeWidgetItem()
             placeholder_item.setText(0, QCoreApplication.translate('geo_report', "No items found ({0} objects detected)").format(total_items))
             placeholder_item.setText(1, QCoreApplication.translate('geo_report', "Information"))
             self.items_tree.addTopLevelItem(placeholder_item)
-    
+
     def refresh_layout_items_with_selection(self, selected_layout_item):
         """選択されたアイテムを保持しながらレイアウトアイテムを更新"""
         # 現在選択されているアイテムのUUIDを保存
         selected_uuid = None
         if selected_layout_item and hasattr(selected_layout_item, 'uuid'):
             selected_uuid = selected_layout_item.uuid()
-        
+
         # アイテム一覧を再読み込み
         self.load_layout_items()
-        
+
         # 選択を復元
         if selected_uuid:
             self.restore_item_selection(selected_uuid)
-    
+
     def restore_item_selection(self, target_uuid):
         """指定されたUUIDのアイテムを選択状態に復元"""
         for i in range(self.items_tree.topLevelItemCount()):
             tree_item = self.items_tree.topLevelItem(i)
             layout_item = tree_item.data(0, USER_ROLE)
-            
+
             if layout_item and hasattr(layout_item, 'uuid'):
                 if layout_item.uuid() == target_uuid:
                     # アイテムを選択
@@ -1716,16 +1530,16 @@ class LayoutSelectorDialog(QDialog):
                     self.load_item_properties(layout_item)
                     print(f"restoring selection: {tree_item.text(0)}")
                     return
-        
+
         print("failed to restore selection: target item not found")
-    
+
     def is_valid_layout_item_relaxed(self, item):
         """より緩い条件でのレイアウトアイテムチェック"""
         try:
             # 基本的なオブジェクトチェック
             if item is None:
                 return False
-            
+
             # 除外すべきクラスをチェック
             class_name = item.__class__.__name__
             excluded_classes = [
@@ -1733,15 +1547,15 @@ class LayoutSelectorDialog(QDialog):
                 'QGraphicsRectItem',
                 'QGraphicsItem'
             ]
-            
+
             if class_name in excluded_classes:
                 return False
-            
+
             # QgsLayoutItemの基本的なチェック
             return hasattr(item, '__class__') and 'QgsLayout' in class_name
-        except:
+        except Exception:
             return False
-    
+
     def get_item_display_name(self, item):
         """アイテムの表示名を取得"""
         try:
@@ -1754,9 +1568,9 @@ class LayoutSelectorDialog(QDialog):
                 return f"Item{item.uuid()[:8]}"
             else:
                 return f"{item.__class__.__name__}"
-        except:
+        except Exception:
             return "Unknown Item"
-    
+
     def get_item_visibility(self, item):
         """アイテムの表示状態を取得"""
         try:
@@ -1764,54 +1578,54 @@ class LayoutSelectorDialog(QDialog):
                 return "Visible" if item.isVisible() else "Hidden"
             else:
                 return "Unknown"
-        except:
+        except Exception:
             return "Unknown"
-    
+
     def get_item_position_size(self, item):
         """アイテムの位置とサイズを取得"""
         try:
             pos_info = "N/A"
             size_info = "N/A"
-            
+
             if hasattr(item, 'positionWithUnits'):
                 pos = item.positionWithUnits()
                 pos_info = f"{pos.x():.1f}, {pos.y():.1f}"
-            
+
             if hasattr(item, 'sizeWithUnits'):
                 size = item.sizeWithUnits()
                 size_info = f"{size.width():.1f}×{size.height():.1f}"
-            
+
             return pos_info, size_info
-        except:
+        except Exception:
             return "N/A", "N/A"
-    
+
     def is_valid_layout_item(self, item):
         """有効なレイアウトアイテムかどうかをチェック"""
         try:
             # QgsLayoutItemかどうかをチェック
             if not isinstance(item, QgsLayoutItem):
                 return False
-                
+
             # 必要なメソッドがあるかチェック
             if not hasattr(item, 'displayName') or not hasattr(item, 'uuid'):
                 return False
-                
+
             # 除外すべきクラスをチェック
             class_name = item.__class__.__name__
             excluded_classes = [
-                'QgsLayoutUndoCommand', 
+                'QgsLayoutUndoCommand',
                 'QgsLayoutItemPage',
                 'QGraphicsRectItem',
                 'QGraphicsItem'
             ]
-            
+
             if class_name in excluded_classes:
                 return False
-                
+
             return True
-        except:
+        except Exception:
             return False
-    
+
     def get_item_type_name(self, item):
         """アイテムタイプの日本語名を取得"""
         try:
@@ -1836,7 +1650,7 @@ class LayoutSelectorDialog(QDialog):
             return type_map.get(type_name, f"Item({type_name})")
         except AttributeError:
             return "Unknown"
-    
+
     def on_item_selected(self, current, previous):
         # タブタイトルも毎回再翻訳（QGISの言語切替時に即時反映したい場合）
         self.retranslate_tabs()
@@ -1844,7 +1658,7 @@ class LayoutSelectorDialog(QDialog):
         if current is None:
             self.clear_properties_form()
             return
-            
+
         item = current.data(0, USER_ROLE)
         if item:
             # すぐにプロパティを表示
@@ -1854,15 +1668,15 @@ class LayoutSelectorDialog(QDialog):
             self.setWindowTitle(QCoreApplication.translate('geo_report', "Layout Selection & Item Management") + f" - {item_name}")
         else:
             self.setWindowTitle(QCoreApplication.translate('geo_report', "Layout Selection & Item Management"))
-    
+
     def load_item_properties(self, item):
         """アイテムのプロパティを読み込む"""
         # プロパティフォームをクリア
         self.clear_properties_form()
-        
+
         if not item:
             return
-        
+
         try:
             # 基本プロパティ
             if hasattr(item, 'uuid'):
@@ -1882,7 +1696,7 @@ class LayoutSelectorDialog(QDialog):
             # 回転
             if hasattr(item, 'itemRotation'):
                 self.add_property_field(QCoreApplication.translate('geo_report', "Rotation Angle"), item.itemRotation(), field_type="double")
-            
+
             # アイテム固有のプロパティ
             if hasattr(item, '__class__'):
                 class_name = item.__class__.__name__
@@ -1892,11 +1706,11 @@ class LayoutSelectorDialog(QDialog):
                     self.add_map_properties(item)
                 elif class_name == 'QgsLayoutItemPicture':
                     self.add_picture_properties(item)
-                    
+
         except AttributeError as e:
             # プロパティにアクセスできない場合のエラーハンドリング
             self.add_property_field(QCoreApplication.translate('geo_report', "Error"), QCoreApplication.translate('geo_report', "Cannot load properties: ") + str(e), readonly=True)
-    
+
     def add_label_properties(self, label_item):
         """ラベルアイテムのプロパティを追加"""
         try:
@@ -1908,7 +1722,7 @@ class LayoutSelectorDialog(QDialog):
                 self.add_property_field(QCoreApplication.translate('geo_report', "Font Size"), font.pointSize(), field_type="int")
         except AttributeError:
             pass
-    
+
     def add_map_properties(self, map_item):
         """地図アイテムのプロパティを追加"""
         try:
@@ -1916,7 +1730,7 @@ class LayoutSelectorDialog(QDialog):
             # 他の地図プロパティも追加可能
         except AttributeError:
             pass
-    
+
     def add_picture_properties(self, picture_item):
         """画像アイテムのプロパティを追加"""
         try:
@@ -1924,7 +1738,7 @@ class LayoutSelectorDialog(QDialog):
             # 他の画像プロパティも追加可能
         except AttributeError:
             pass
-    
+
     def add_property_field(self, label, value, field_type="text", readonly=False):
         """プロパティフィールドを追加"""
         if field_type == "text":
@@ -1958,10 +1772,10 @@ class LayoutSelectorDialog(QDialog):
             widget.setReadOnly(readonly)
             if not readonly:
                 widget.textChanged.connect(self.on_property_changed)
-        
+
         widget.setProperty("property_name", label)
         self.properties_form.addRow(label + ":", widget)
-    
+
     def focus_on_properties(self, item, column):
         """アイテムダブルクリック時にプロパティエリアにフォーカス"""
         # プロパティフォームの最初の編集可能フィールドにフォーカス
@@ -1972,12 +1786,12 @@ class LayoutSelectorDialog(QDialog):
                 if hasattr(widget, 'setFocus') and not widget.isReadOnly() if hasattr(widget, 'isReadOnly') else True:
                     widget.setFocus()
                     break
-    
+
     def on_property_changed(self):
         """プロパティが変更された時の処理（リアルタイム更新のための準備）"""
         # 将来的にリアルタイム更新を実装する場合のプレースホルダー
         pass
-    
+
     def clear_properties_form(self):
         """プロパティフォームをクリア"""
         # QFormLayoutが削除済みの場合は何もしない（Qt6ではqgis.PyQtを使用）
@@ -1993,7 +1807,7 @@ class LayoutSelectorDialog(QDialog):
             child = self.properties_form.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
-    
+
     def update_item_properties(self):
         """アイテムのプロパティを更新"""
         current_item = self.items_tree.currentItem()
@@ -2003,7 +1817,7 @@ class LayoutSelectorDialog(QDialog):
                 level=Qgis.Warning, duration=3
             )
             return
-        
+
         layout_item = current_item.data(0, USER_ROLE)
         if not layout_item or not isinstance(layout_item, QgsLayoutItem):
             self.iface.messageBar().pushMessage(
@@ -2011,27 +1825,27 @@ class LayoutSelectorDialog(QDialog):
                 level=Qgis.Warning, duration=3
             )
             return
-        
+
         try:
             print(f"property update started: {layout_item.__class__.__name__}")
-            
+
             # レイアウトの変更を開始（undo/redoサポート）
             self.current_layout.undoStack().beginCommand(layout_item, QCoreApplication.translate('geo_report', "Update Item Properties"))
-            
+
             # 更新フラグ
             updated = False
-            
+
             # フォームから値を取得して適用
             for i in range(self.properties_form.rowCount()):
                 label_item = self.properties_form.itemAt(i, QFormLayout.LabelRole)
                 field_item = self.properties_form.itemAt(i, QFormLayout.FieldRole)
-                
+
                 if label_item and field_item:
                     label_text = label_item.widget().text().replace(":", "")
                     widget = field_item.widget()
-                    
+
                     print(f"processing property: {label_text}")
-                    
+
                     # プロパティに応じて値を設定
                     if label_text == QCoreApplication.translate('geo_report', "Display Name") and hasattr(layout_item, 'setId'):
                         # 表示名の代わりにIDを設定
@@ -2041,7 +1855,7 @@ class LayoutSelectorDialog(QDialog):
                             layout_item.setId(new_id)
                             updated = True
                             print(f"ID updated: '{old_id}' -> '{new_id}'")
-                            
+
                     elif label_text == QCoreApplication.translate('geo_report', "Visible") and hasattr(layout_item, 'setVisibility'):
                         old_visibility = layout_item.isVisible()
                         new_visibility = widget.isChecked()
@@ -2049,7 +1863,7 @@ class LayoutSelectorDialog(QDialog):
                             layout_item.setVisibility(new_visibility)
                             updated = True
                             print(f"visibility updated: {old_visibility} -> {new_visibility}")
-                            
+
                     elif label_text in [QCoreApplication.translate('geo_report', "X Position (mm)"), QCoreApplication.translate('geo_report', "Y Position (mm)")]:
                         # 位置の更新は座標をまとめて処理
                         if hasattr(layout_item, 'attemptMove'):
@@ -2068,8 +1882,7 @@ class LayoutSelectorDialog(QDialog):
                                     layout_item.attemptMove(new_pos)
                                     updated = True
                                     print(f"Y updated: {pos.y():.2f} -> {new_y}")
-                                    
-                                    
+
                     elif label_text == QCoreApplication.translate('geo_report', "Rotation Angle") and hasattr(layout_item, 'setItemRotation'):
                         old_rotation = layout_item.itemRotation()
                         new_rotation = widget.value()
@@ -2077,7 +1890,7 @@ class LayoutSelectorDialog(QDialog):
                             layout_item.setItemRotation(new_rotation)
                             updated = True
                             print(f"rotation updated: {old_rotation:.2f} -> {new_rotation}")
-                            
+
                     elif label_text == QCoreApplication.translate('geo_report', "Text") and hasattr(layout_item, 'setText'):
                         # ラベルテキストの更新
                         old_text = layout_item.text() if hasattr(layout_item, 'text') else ""
@@ -2086,17 +1899,17 @@ class LayoutSelectorDialog(QDialog):
                             print(f"text update started: '{old_text}' -> '{new_text}'")
                             layout_item.setText(new_text)
                             updated = True
-                            
+
                             # テキスト更新後の特別処理
                             if hasattr(layout_item, 'adjustSizeToText'):
                                 layout_item.adjustSizeToText()
                             if hasattr(layout_item, 'refresh'):
                                 layout_item.refresh()
-                            
+
                             # 更新後のテキストを確認
                             updated_text = layout_item.text() if hasattr(layout_item, 'text') else ""
                             print(f"text update completed: '{updated_text}'")
-                        
+
                     elif label_text == QCoreApplication.translate('geo_report', "Font Size") and hasattr(layout_item, 'setFont'):
                         old_font = layout_item.font()
                         new_size = int(widget.value())
@@ -2106,11 +1919,11 @@ class LayoutSelectorDialog(QDialog):
                             layout_item.setFont(font)
                             updated = True
                             print(f"font size updated: {old_font.pointSize()} -> {new_size}")
-                            
+
                             # フォント変更後の特別な更新処理
                             if hasattr(layout_item, 'adjustSizeToText'):
                                 layout_item.adjustSizeToText()
-                                
+
                     elif label_text == QCoreApplication.translate('geo_report', "Scale") and hasattr(layout_item, 'setScale'):
                         old_scale = layout_item.scale()
                         new_scale = widget.value()
@@ -2118,7 +1931,7 @@ class LayoutSelectorDialog(QDialog):
                             layout_item.setScale(new_scale)
                             updated = True
                             print(f"scale updated: {old_scale} -> {new_scale}")
-                            
+
                     elif label_text == QCoreApplication.translate('geo_report', "Image Path") and hasattr(layout_item, 'setPicturePath'):
                         old_path = layout_item.picturePath()
                         new_path = widget.text()
@@ -2126,7 +1939,7 @@ class LayoutSelectorDialog(QDialog):
                             layout_item.setPicturePath(new_path)
                             updated = True
                             print(f"image path updated: '{old_path}' -> '{new_path}'")
-            
+
             # 更新があった場合のみ処理を続行
             if updated:
                 # アイテム固有の更新処理
@@ -2143,65 +1956,65 @@ class LayoutSelectorDialog(QDialog):
                     # 画像アイテムの特別な更新処理
                     if hasattr(layout_item, 'refresh'):
                         layout_item.refresh()
-                
+
                 # アイテムの再描画を強制
                 if hasattr(layout_item, 'update'):
                     layout_item.update()
                 if hasattr(layout_item, 'invalidateCache'):
                     layout_item.invalidateCache()
-                
+
                 # レイアウト全体を更新
                 self.current_layout.refresh()
                 if hasattr(self.current_layout, 'updateBounds'):
                     self.current_layout.updateBounds()
-                
+
                 # レイアウトの変更を終了
                 self.current_layout.undoStack().endCommand()
-                
+
         # 成功メッセージの表示は削除
-                
+
                 # アイテム一覧を更新（選択を保持）
                 self.refresh_layout_items_with_selection(layout_item)
-                
+
                 print("property update completed")
             else:
                 # 変更がない場合はundoコマンドをキャンセル
                 self.current_layout.undoStack().cancelCommand()
                 # 情報メッセージの表示は削除
                 print("no changes")
-            
+
         except Exception as e:
             # エラーが発生した場合はundoコマンドをキャンセル
             try:
                 self.current_layout.undoStack().cancelCommand()
-            except:
+            except Exception:
                 pass
-            
+
             print(f"property update error: {e}")
             self.iface.messageBar().pushMessage(
                 QCoreApplication.translate('geo_report', "Error"), QCoreApplication.translate('geo_report', "Failed to update properties: {}").format(str(e)),
                 level=Qgis.Critical, duration=5
             )
-    
+
     def save_layout_properties(self):
         """レイアウト全体のアイテムプロパティをファイルに保存"""
         if not self.current_layout:
             return
-        
+
         try:
             # デフォルトフォルダを設定（ホームディレクトリのQGIS_Layoutsフォルダ）
             default_folder = os.path.join(os.path.expanduser("~"), "QGIS_Layouts")
-            
+
             # デフォルトフォルダが存在しない場合は作成
             if not os.path.exists(default_folder):
                 os.makedirs(default_folder)
                 # 情報メッセージの表示は削除
-            
+
             # レイアウト名を取得してデフォルトファイル名を作成
             layout_name = self.current_layout.name()
             default_filename = f"{layout_name}_layout_properties.json"
             default_filepath = os.path.join(default_folder, default_filename)
-            
+
             # ファイル保存ダイアログ
             filename, _ = QFileDialog.getSaveFileName(
                 self,
@@ -2209,46 +2022,46 @@ class LayoutSelectorDialog(QDialog):
                 default_filepath,
                 QCoreApplication.translate('geo_report', "JSON Files (*.json);;All Files (*)")
             )
-            
+
             if not filename:
                 return
-            
+
             # レイアウト全体のプロパティを収集
             layout_properties = self.collect_layout_properties()
-            
+
             # JSONファイルに保存
             with open(filename, 'w', encoding='utf-8') as f:
                 json.dump(layout_properties, f, ensure_ascii=False, indent=2)
-            
+
             # 成功メッセージの表示は削除
-            
+
         except Exception as e:
             self.iface.messageBar().pushMessage(
                 QCoreApplication.translate('geo_report', "Error"), QCoreApplication.translate('geo_report', "Failed to save layout properties: {}").format(str(e)),
                 level=Qgis.Critical, duration=5
             )
-    
+
     def load_layout_properties(self):
         """ファイルからレイアウト全体のプロパティを読み込んで適用"""
         if not self.current_layout:
             return
-        
+
         try:
             # デフォルトフォルダを設定（ホームディレクトリのQGIS_Layoutsフォルダ）
             default_folder = os.path.join(os.path.expanduser("~"), "QGIS_Layouts")
-            
+
             # デフォルトフォルダが存在しない場合は作成
             if not os.path.exists(default_folder):
                 os.makedirs(default_folder)
                 # 情報メッセージの表示は削除
-            
+
             # フォルダ内のJSONファイル一覧を取得
             json_files = []
             if os.path.exists(default_folder):
                 for file in os.listdir(default_folder):
                     if file.lower().endswith('.json'):
                         json_files.append(file)
-            
+
             # ファイルが見つからない場合は通常のファイルダイアログを表示
             if not json_files:
                 filename, _ = QFileDialog.getOpenFileName(
@@ -2257,7 +2070,7 @@ class LayoutSelectorDialog(QDialog):
                     default_folder,
                     QCoreApplication.translate('geo_report', "JSON Files (*.json);;All Files (*)")
                 )
-                
+
                 if not filename:
                     return
             else:
@@ -2266,11 +2079,11 @@ class LayoutSelectorDialog(QDialog):
                 dialog_result = dialog.exec()
                 if dialog_result != QDialog.DialogCode.Accepted:
                     return
-                
+
                 selected_file = dialog.get_selected_file()
                 if not selected_file:
                     return
-                
+
                 # フルパスかファイル名かを判定
                 if os.path.isabs(selected_file):
                     # フルパスの場合はそのまま使用
@@ -2278,41 +2091,42 @@ class LayoutSelectorDialog(QDialog):
                 else:
                     # ファイル名のみの場合はパスを結合
                     filename = os.path.join(default_folder, selected_file)
-            
+
             # JSONファイルから読み込み
             with open(filename, 'r', encoding='utf-8') as f:
                 layout_properties = json.load(f)
-            
+
             # レイアウトプロパティの検証
             if not self.validate_layout_properties(layout_properties):
                 return
-            
+
             # アイテム数の確認
             saved_items_count = len(layout_properties.get('items', []))
             current_items = self.get_valid_layout_items()
             current_items_count = len(current_items)
-            
+
             if saved_items_count != current_items_count:
                 reply = QMessageBox.question(
                     self,
                     QCoreApplication.translate('geo_report', "Item Count Mismatch"),
-                    QCoreApplication.translate('geo_report', "Saved item count ({}) and current layout item count ({}) are different.\n\nDo you want to apply within possible range?").format(saved_items_count, current_items_count),
+                    QCoreApplication.translate('geo_report', "Saved item count ({}) and current layout item count ({}) are different.\n\nDo you want to apply within possible range?").format(
+                        saved_items_count, current_items_count),
                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                     QMessageBox.StandardButton.Yes
                 )
-                
+
                 if reply == QMessageBox.StandardButton.No:
                     return
-            
+
             # レイアウトプロパティを適用
-            applied_count = self.apply_layout_properties(layout_properties)
-            
+            _ = self.apply_layout_properties(layout_properties)
+
             # アイテム一覧を更新
             self.load_layout_items()
             self.load_layout_info()
-            
+
             # 成功メッセージの表示は削除
-            
+
         except FileNotFoundError:
             self.iface.messageBar().pushMessage(
                 QCoreApplication.translate('geo_report', "Error"), QCoreApplication.translate('geo_report', "File not found."),
@@ -2328,18 +2142,18 @@ class LayoutSelectorDialog(QDialog):
                 QCoreApplication.translate('geo_report', "Error"), QCoreApplication.translate('geo_report', "Failed to load layout properties: {}").format(str(e)),
                 level=Qgis.Critical, duration=5
             )
-    
+
     def collect_layout_properties(self):
         """レイアウト全体のプロパティを収集"""
         from datetime import datetime
-        
+
         layout_properties = {
             'layout_name': self.current_layout.name(),
             'save_timestamp': datetime.now().isoformat(),
             'page_count': self.current_layout.pageCollection().pageCount(),
             'items': []
         }
-        
+
         # ページ情報を追加
         pages_info = []
         for i in range(self.current_layout.pageCollection().pageCount()):
@@ -2350,10 +2164,10 @@ class LayoutSelectorDialog(QDialog):
                 'height': page.pageSize().height()
             })
         layout_properties['pages'] = pages_info
-        
+
         # 有効なレイアウトアイテムを取得
         valid_items = self.get_valid_layout_items()
-        
+
         # 各アイテムのプロパティを収集
         for item in valid_items:
             try:
@@ -2364,24 +2178,24 @@ class LayoutSelectorDialog(QDialog):
             except Exception as e:
                 print(f"item property collection error: {e}")
                 continue
-        
+
         print(f"layout properties collected: {len(layout_properties['items'])} items")
         return layout_properties
-    
+
     def get_valid_layout_items(self):
         """有効なレイアウトアイテムのリストを取得"""
         if not self.current_layout:
             return []
-        
+
         items = self.current_layout.items()
         valid_items = []
-        
+
         for item in items:
             if self.is_valid_layout_item_relaxed(item):
                 valid_items.append(item)
-        
+
         return valid_items
-    
+
     def validate_layout_properties(self, layout_properties):
         """レイアウトプロパティファイルの妥当性をチェック"""
         try:
@@ -2390,11 +2204,11 @@ class LayoutSelectorDialog(QDialog):
             for field in required_fields:
                 if field not in layout_properties:
                     return False
-            
+
             # itemsが配列かチェック
             if not isinstance(layout_properties['items'], list):
                 return False
-            
+
             # 各アイテムの基本構造をチェック
             for item_data in layout_properties['items']:
                 if not isinstance(item_data, dict):
@@ -2403,32 +2217,32 @@ class LayoutSelectorDialog(QDialog):
                     return False
                 if 'properties' not in item_data:
                     return False
-            
+
             return True
-        except:
+        except Exception:
             return False
-    
+
     def apply_layout_properties(self, layout_properties):
         """レイアウト全体にプロパティを適用"""
         if not self.current_layout:
             return 0
-        
+
         try:
             # レイアウトの変更を開始
             self.current_layout.undoStack().beginCommand(self.current_layout, QCoreApplication.translate('geo_report', "Apply layout properties"))
-            
+
             applied_count = 0
             current_items = self.get_valid_layout_items()
             saved_items = layout_properties['items']
-            
+
             # アイテムのマッチング方法を選択
             matching_method = self.determine_matching_method(current_items, saved_items)
-            
+
             for i, saved_item_data in enumerate(saved_items):
                 try:
                     # 対応するアイテムを見つける
                     target_item = self.find_matching_item(current_items, saved_item_data, i, matching_method)
-                    
+
                     if target_item:
                         # プロパティを適用
                         self.apply_properties_to_item_silent(target_item, saved_item_data)
@@ -2436,52 +2250,52 @@ class LayoutSelectorDialog(QDialog):
                         print(f"property applied: {target_item.__class__.__name__}")
                     else:
                         print(f"no matching item found: {saved_item_data.get('item_type', 'Unknown')}")
-                        
+
                 except Exception as e:
                     print(f"item property apply error: {e}")
                     continue
-            
+
             # レイアウト全体を更新
             self.current_layout.refresh()
             if hasattr(self.current_layout, 'updateBounds'):
                 self.current_layout.updateBounds()
-            
+
             # 変更を確定
             self.current_layout.undoStack().endCommand()
-            
+
             print(f"layout properties applied: {applied_count}/{len(saved_items)} items")
             return applied_count
-            
+
         except Exception as e:
             try:
                 self.current_layout.undoStack().cancelCommand()
-            except:
+            except Exception:
                 pass
             raise e
-    
+
     def determine_matching_method(self, current_items, saved_items):
         """アイテムのマッチング方法を決定"""
         # UUID によるマッチングを優先
         current_uuids = set()
         saved_uuids = set()
-        
+
         for item in current_items:
             if hasattr(item, 'uuid'):
                 current_uuids.add(item.uuid())
-        
+
         for item_data in saved_items:
             uuid = item_data.get('properties', {}).get('uuid')
             if uuid:
                 saved_uuids.add(uuid)
-        
+
         # UUIDの一致率を計算
         uuid_match_rate = len(current_uuids & saved_uuids) / max(len(current_uuids), len(saved_uuids), 1)
-        
+
         if uuid_match_rate > 0.5:
             return 'uuid'
         else:
             return 'order'  # 順序による対応
-    
+
     def find_matching_item(self, current_items, saved_item_data, index, matching_method):
         """保存されたアイテムデータに対応する現在のアイテムを見つける"""
         if matching_method == 'uuid':
@@ -2491,54 +2305,54 @@ class LayoutSelectorDialog(QDialog):
                 for item in current_items:
                     if hasattr(item, 'uuid') and item.uuid() == saved_uuid:
                         return item
-        
+
         # 順序によるマッチング（フォールバック）
         if index < len(current_items):
             return current_items[index]
-        
+
         # タイプによるマッチング（最後の手段）
         saved_item_type = saved_item_data.get('item_type')
         if saved_item_type:
             for item in current_items:
                 if item.__class__.__name__ == saved_item_type:
                     return item
-        
+
         return None
-    
+
     def apply_properties_to_item_silent(self, item, item_data):
         """アイテムにプロパティを適用（エラーを内部で処理）"""
         try:
             props = item_data['properties']
-            
+
             # 基本プロパティの適用
             if 'id' in props and hasattr(item, 'setId'):
                 new_id = props['id']
                 if new_id and item.id() != new_id:
                     item.setId(new_id)
-            
+
             if 'visible' in props and hasattr(item, 'setVisibility'):
                 new_visibility = props['visible']
                 if item.isVisible() != new_visibility:
                     item.setVisibility(new_visibility)
-            
+
             # 位置の適用
             if 'position' in props and hasattr(item, 'attemptMove'):
                 pos_data = props['position']
                 new_pos = QgsLayoutPoint(pos_data['x'], pos_data['y'], QgsUnitTypes.LayoutMillimeters)
                 item.attemptMove(new_pos)
-            
+
             # サイズの適用
             if 'size' in props and hasattr(item, 'attemptResize'):
                 size_data = props['size']
                 new_size = QgsLayoutSize(size_data['width'], size_data['height'], QgsUnitTypes.LayoutMillimeters)
                 item.attemptResize(new_size)
-            
+
             # 回転の適用
             if 'rotation' in props and hasattr(item, 'setItemRotation'):
                 new_rotation = props['rotation']
                 if abs(item.itemRotation() - new_rotation) > 0.01:
                     item.setItemRotation(new_rotation)
-            
+
             # アイテム固有のプロパティを適用
             item_type = item.__class__.__name__
             if item_type == 'QgsLayoutItemLabel':
@@ -2547,7 +2361,7 @@ class LayoutSelectorDialog(QDialog):
                 self.apply_map_properties(item, props)
             elif item_type == 'QgsLayoutItemPicture':
                 self.apply_picture_properties(item, props)
-            
+
             # アイテムの更新
             if hasattr(item, 'refresh'):
                 item.refresh()
@@ -2555,11 +2369,11 @@ class LayoutSelectorDialog(QDialog):
                 item.update()
             if hasattr(item, 'invalidateCache'):
                 item.invalidateCache()
-            
+
         except Exception as e:
             print(f"item property apply error (silent): {e}")
             # エラーがあっても処理を続行
-    
+
     def apply_label_properties(self, label_item, props):
         """ラベルアイテムにプロパティを適用"""
         updated = False
@@ -2572,12 +2386,12 @@ class LayoutSelectorDialog(QDialog):
                     updated = True
                     if hasattr(label_item, 'adjustSizeToText'):
                         label_item.adjustSizeToText()
-            
+
             if 'font' in props and hasattr(label_item, 'setFont'):
                 font_data = props['font']
                 current_font = label_item.font()
                 new_font = label_item.font()
-                
+
                 font_changed = False
                 if 'family' in font_data and current_font.family() != font_data['family']:
                     new_font.setFamily(font_data['family'])
@@ -2591,18 +2405,18 @@ class LayoutSelectorDialog(QDialog):
                 if 'italic' in font_data and current_font.italic() != font_data['italic']:
                     new_font.setItalic(font_data['italic'])
                     font_changed = True
-                
+
                 if font_changed:
                     label_item.setFont(new_font)
                     updated = True
                     if hasattr(label_item, 'adjustSizeToText'):
                         label_item.adjustSizeToText()
-            
+
         except Exception as e:
             print(f"label property apply error: {e}")
-        
+
         return updated
-    
+
     def apply_map_properties(self, map_item, props):
         """地図アイテムにプロパティを適用"""
         updated = False
@@ -2615,9 +2429,9 @@ class LayoutSelectorDialog(QDialog):
                     updated = True
         except Exception as e:
             print(f"map property apply error: {e}")
-        
+
         return updated
-    
+
     def apply_picture_properties(self, picture_item, props):
         """画像アイテムにプロパティを適用"""
         updated = False
@@ -2630,7 +2444,7 @@ class LayoutSelectorDialog(QDialog):
                     updated = True
         except Exception as e:
             print(f"picture property apply error: {e}")
-        
+
         return updated
 
     def refresh_item_info(self):
@@ -2642,13 +2456,13 @@ class LayoutSelectorDialog(QDialog):
                 QCoreApplication.translate('geo_report', "Information"), QCoreApplication.translate('geo_report', "Item information has been updated."),
                 level=Qgis.Info, duration=2
             )
-    
+
     def clear_item_info(self):
         """アイテム情報をクリア"""
         self.items_tree.clear()
         self.info_text.clear()
         self.clear_properties_form()
-    
+
     def open_layout_manager(self):
         """選択されたレイアウトでレイアウトマネージャを開く"""
         if not self.current_layout:
@@ -2657,20 +2471,20 @@ class LayoutSelectorDialog(QDialog):
                 level=Qgis.Warning, duration=3
             )
             return
-        
+
         # レイアウトマネージャ（デザイナー）を開く
         self.iface.openLayoutDesigner(self.current_layout)
         # パネル化したので、self.accept()を呼ばない（パネルを閉じない）
-    
+
     def load_layout_info(self):
         """レイアウト情報を読み込む"""
         if not self.current_layout:
             self.info_text.clear()
             return
-        
+
         items = self.current_layout.items()
         total_items = len(items)
-        
+
         info_lines = [
             QCoreApplication.translate('geo_report', "Layout Name: ") + f"{self.current_layout.name()}",
             QCoreApplication.translate('geo_report', "Page Count: ") + f"{self.current_layout.pageCollection().pageCount()}",
@@ -2678,17 +2492,17 @@ class LayoutSelectorDialog(QDialog):
             "",
             QCoreApplication.translate('geo_report', "Page Information:")
         ]
-        
+
         # ページ情報
         for i in range(self.current_layout.pageCollection().pageCount()):
             page = self.current_layout.pageCollection().page(i)
-            info_lines.append(QCoreApplication.translate('geo_report', "  Page ") + f"{i+1}: {page.pageSize().width():.1f} x {page.pageSize().height():.1f} mm")
-        
+            info_lines.append(QCoreApplication.translate('geo_report', "  Page ") + f"{i + 1}: {page.pageSize().width():.1f} x {page.pageSize().height():.1f} mm")
+
         info_lines.extend([
             "",
             QCoreApplication.translate('geo_report', "All Objects List:")
         ])
-        
+
         # すべてのアイテム情報（デバッグ用）
         for i, item in enumerate(items):
             try:
@@ -2696,22 +2510,22 @@ class LayoutSelectorDialog(QDialog):
                 has_display_name = hasattr(item, 'displayName')
                 has_uuid = hasattr(item, 'uuid')
                 is_layout_item = isinstance(item, QgsLayoutItem)
-                
-                info_lines.append(f"  {i+1}. {class_name}")
+
+                info_lines.append(f"  {i + 1}. {class_name}")
                 info_lines.append(f"     - QgsLayoutItem: {is_layout_item}")
                 info_lines.append(f"     - displayName: {has_display_name}")
                 info_lines.append(f"     - uuid: {has_uuid}")
-                
+
                 if has_display_name:
                     try:
                         display_name = item.displayName()
                         info_lines.append("     - " + QCoreApplication.translate('geo_report', "Name: ") + f"{display_name}")
-                    except:
+                    except Exception:
                         pass
-                
+
             except Exception as e:
-                info_lines.append(f"  {i+1}. " + QCoreApplication.translate('geo_report', "Error: {0}").format(e))
-        
+                info_lines.append(f"  {i + 1}. " + QCoreApplication.translate('geo_report', "Error: {0}").format(e))
+
         self.info_text.setText("\n".join(info_lines))
 
     def collect_item_properties(self, item):
@@ -2721,7 +2535,7 @@ class LayoutSelectorDialog(QDialog):
             'timestamp': 'Saved at',
             'properties': {}
         }
-        
+
         try:
             # 基本プロパティ
             if hasattr(item, 'uuid'):
@@ -2732,7 +2546,7 @@ class LayoutSelectorDialog(QDialog):
                 properties['properties']['id'] = item.id() or ""
             if hasattr(item, 'isVisible'):
                 properties['properties']['visible'] = item.isVisible()
-            
+
             # 位置とサイズ
             if hasattr(item, 'positionWithUnits'):
                 pos = item.positionWithUnits()
@@ -2741,7 +2555,7 @@ class LayoutSelectorDialog(QDialog):
                     'y': pos.y(),
                     'units': pos.units()
                 }
-            
+
             if hasattr(item, 'sizeWithUnits'):
                 size = item.sizeWithUnits()
                 properties['properties']['size'] = {
@@ -2749,11 +2563,11 @@ class LayoutSelectorDialog(QDialog):
                     'height': size.height(),
                     'units': size.units()
                 }
-            
+
             # 回転
             if hasattr(item, 'itemRotation'):
                 properties['properties']['rotation'] = item.itemRotation()
-            
+
             # アイテム固有のプロパティ
             item_type = item.__class__.__name__
             if item_type == 'QgsLayoutItemLabel':
@@ -2762,12 +2576,12 @@ class LayoutSelectorDialog(QDialog):
                 self.collect_map_properties(item, properties)
             elif item_type == 'QgsLayoutItemPicture':
                 self.collect_picture_properties(item, properties)
-            
+
         except Exception as e:
             print(f"property collection error: {e}")
-        
+
         return properties
-    
+
     def collect_label_properties(self, label_item, properties):
         """ラベルアイテムのプロパティを収集"""
         try:
@@ -2783,7 +2597,7 @@ class LayoutSelectorDialog(QDialog):
                 }
         except Exception as e:
             print(f"label property collection error: {e}")
-    
+
     def collect_map_properties(self, map_item, properties):
         """地図アイテムのプロパティを収集"""
         try:
@@ -2791,7 +2605,7 @@ class LayoutSelectorDialog(QDialog):
                 properties['properties']['scale'] = map_item.scale()
         except Exception as e:
             print(f"map property collection error: {e}")
-    
+
     def collect_picture_properties(self, picture_item, properties):
         """画像アイテムのプロパティを収集"""
         try:
@@ -2803,33 +2617,33 @@ class LayoutSelectorDialog(QDialog):
 
 class LayoutFileSelectDialog(QDialog):
     """レイアウトファイル選択ダイアログ"""
-    
+
     def __init__(self, folder_path, json_files, parent=None):
         super().__init__(parent)
         self.folder_path = folder_path
         self.json_files = json_files
         self.selected_file = None
         self.init_ui()
-    
+
     def init_ui(self):
         """UIを初期化"""
         self.setWindowTitle(QCoreApplication.translate('geo_report', "Select Layout Property File"))
         self.setModal(True)
         self.resize(500, 400)
-        
+
         layout = QVBoxLayout()
-        
+
         # フォルダパス表示
         folder_label = QLabel(QCoreApplication.translate('geo_report', "Folder: ") + self.folder_path)
         folder_label.setWordWrap(True)
         layout.addWidget(folder_label)
-        
+
         # ファイル一覧
         files_label = QLabel(QCoreApplication.translate('geo_report', "Available Layout Property Files:"))
         layout.addWidget(files_label)
-        
+
         self.file_list = QListWidget()
-        
+
         # ファイル情報を表示
         for file in self.json_files:
             try:
@@ -2837,10 +2651,10 @@ class LayoutFileSelectDialog(QDialog):
                 # ファイルの詳細情報を取得
                 file_size = os.path.getsize(file_path)
                 file_time = os.path.getmtime(file_path)
-                
+
                 from datetime import datetime
                 time_str = datetime.fromtimestamp(file_time).strftime("%Y-%m-%d %H:%M")
-                
+
                 # JSONファイルからレイアウト名を取得（可能な場合）
                 layout_name = ""
                 try:
@@ -2848,53 +2662,53 @@ class LayoutFileSelectDialog(QDialog):
                         data = json.load(f)
                         if 'layout_name' in data:
                             layout_name = f" (Layout: {data['layout_name']})"
-                except:
+                except Exception:
                     pass
-                
+
                 # リストアイテムを作成
                 item_text = f"{file}{layout_name}\n  {QCoreApplication.translate('geo_report', 'Size')}: {file_size:,} {QCoreApplication.translate('geo_report', 'bytes')}, {QCoreApplication.translate('geo_report', 'Modified')}: {time_str}"
                 item = QListWidgetItem(item_text)
                 item.setData(USER_ROLE, file)
                 self.file_list.addItem(item)
-                
-            except Exception as e:
+
+            except Exception:
                 # エラーがあってもファイル名だけは表示
                 item = QListWidgetItem(f"{file} ({QCoreApplication.translate('geo_report', 'Error getting information')})")
                 item.setData(USER_ROLE, file)
                 self.file_list.addItem(item)
-        
+
         # ダブルクリックで選択
         self.file_list.itemDoubleClicked.connect(self.on_file_double_clicked)
-        
+
         layout.addWidget(self.file_list)
-        
+
         # ボタン
         button_layout = QHBoxLayout()
-        
+
         self.ok_button = QPushButton(QCoreApplication.translate('geo_report', "Select"))
         self.ok_button.clicked.connect(self.accept)
         self.ok_button.setEnabled(False)
         button_layout.addWidget(self.ok_button)
-        
+
         self.cancel_button = QPushButton(QCoreApplication.translate('geo_report', "Cancel"))
         self.cancel_button.clicked.connect(self.reject)
         button_layout.addWidget(self.cancel_button)
-        
+
         self.browse_button = QPushButton(QCoreApplication.translate('geo_report', "Browse Other Folder..."))
         self.browse_button.clicked.connect(self.browse_other_folder)
         button_layout.addWidget(self.browse_button)
-        
+
         layout.addLayout(button_layout)
-        
+
         # ファイル選択時にOKボタンを有効化
         self.file_list.currentItemChanged.connect(self.on_selection_changed)
-        
+
         self.setLayout(layout)
-        
+
         # 最初のファイルを選択
         if self.file_list.count() > 0:
             self.file_list.setCurrentRow(0)
-    
+
     def on_selection_changed(self, current, previous):
         """選択が変更された時の処理"""
         if current:
@@ -2903,12 +2717,12 @@ class LayoutFileSelectDialog(QDialog):
         else:
             self.selected_file = None
             self.ok_button.setEnabled(False)
-    
+
     def on_file_double_clicked(self, item):
         """ファイルがダブルクリックされた時の処理"""
         self.selected_file = item.data(USER_ROLE)
         self.accept()
-    
+
     def browse_other_folder(self):
         """他のフォルダを参照"""
         filename, _ = QFileDialog.getOpenFileName(
@@ -2917,12 +2731,11 @@ class LayoutFileSelectDialog(QDialog):
             self.folder_path,
             QCoreApplication.translate('geo_report', "JSON Files (*.json);;All Files (*)")
         )
-        
+
         if filename:
             self.selected_file = filename  # フルパスを保存
             self.accept()
-    
+
     def get_selected_file(self):
         """選択されたファイルを取得"""
         return self.selected_file
-

@@ -21,7 +21,7 @@ class SettingsDialog(QtWidgets.QDialog):
 
         # Initialize QSettings for persistent storage
         self.settings = QtCore.QSettings('GeoWebView', 'geo_webview')
-        
+
         # Main layout
         layout = QtWidgets.QVBoxLayout()
 
@@ -45,7 +45,7 @@ class SettingsDialog(QtWidgets.QDialog):
 
         # Buttons layout
         ol_button_layout = QtWidgets.QHBoxLayout()
-        
+
         # Browse button
         ol_btn_browse = QtWidgets.QPushButton(QtCore.QCoreApplication.translate('geo_webview', "Browse..."))
         ol_btn_browse.clicked.connect(self._browse_openlayers_folder)
@@ -83,7 +83,7 @@ class SettingsDialog(QtWidgets.QDialog):
 
         # Buttons layout
         button_layout = QtWidgets.QHBoxLayout()
-        
+
         # Browse button
         btn_browse = QtWidgets.QPushButton(QtCore.QCoreApplication.translate('geo_webview', "Browse..."))
         btn_browse.clicked.connect(self._browse_folder)
@@ -109,8 +109,8 @@ class SettingsDialog(QtWidgets.QDialog):
         # Info label
         info = QtWidgets.QLabel(
             QtCore.QCoreApplication.translate('geo_webview',
-                "When MapLibre/OpenLayers HTML is generated, it will be saved to the selected directory. "
-                "If Default (Temp) is selected, the system temporary directory will be used.")
+                                              "When MapLibre/OpenLayers HTML is generated, it will be saved to the selected directory. "
+                                              "If Default (Temp) is selected, the system temporary directory will be used.")
         )
         info.setWordWrap(True)
         info.setStyleSheet("color: #666;")
@@ -211,16 +211,17 @@ class SettingsDialog(QtWidgets.QDialog):
             path_to_open = os.path.join(temp_dir, 'qmap_maplibre')
         else:
             path_to_open = saved_path
-        
+
         # Normalize path (convert forward slashes to backslashes on Windows)
         path_to_open = os.path.normpath(path_to_open)
-        
+
         # Create folder if it doesn't exist
         if not os.path.exists(path_to_open):
             try:
                 os.makedirs(path_to_open, exist_ok=True)
             except Exception as e:
-                QtWidgets.QMessageBox.warning(self, QtCore.QCoreApplication.translate('geo_webview', "Error"), QtCore.QCoreApplication.translate('geo_webview', "Failed to create folder: {0}").format(e))
+                QtWidgets.QMessageBox.warning(self, QtCore.QCoreApplication.translate('geo_webview', "Error"),
+                                              QtCore.QCoreApplication.translate('geo_webview', "Failed to create folder: {0}").format(e))
                 return
 
         try:
@@ -271,16 +272,17 @@ class SettingsDialog(QtWidgets.QDialog):
             ol_path_to_open = os.path.join(temp_dir, 'qmap_openlayers')
         else:
             ol_path_to_open = ol_saved_path
-        
+
         # Normalize path (convert forward slashes to backslashes on Windows)
         ol_path_to_open = os.path.normpath(ol_path_to_open)
-        
+
         # Create folder if it doesn't exist
         if not os.path.exists(ol_path_to_open):
             try:
                 os.makedirs(ol_path_to_open, exist_ok=True)
             except Exception as e:
-                QtWidgets.QMessageBox.warning(self, QtCore.QCoreApplication.translate('geo_webview', "Error"), QtCore.QCoreApplication.translate('geo_webview', "Failed to create folder: {0}").format(e))
+                QtWidgets.QMessageBox.warning(self, QtCore.QCoreApplication.translate('geo_webview', "Error"),
+                                              QtCore.QCoreApplication.translate('geo_webview', "Failed to create folder: {0}").format(e))
                 return
 
         try:

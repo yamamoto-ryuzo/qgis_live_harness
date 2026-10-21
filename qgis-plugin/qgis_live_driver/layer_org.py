@@ -388,7 +388,7 @@ class LayerOrganizer:
         レイヤ由来の値だけが使われる。
         """
         from qgis.core import QgsProject
-        items = [(l, {}) for l in QgsProject.instance().mapLayers().values()]
+        items = [(ly, {}) for ly in QgsProject.instance().mapLayers().values()]
         return self.place_all(items, profile_name=profile_name, dry=dry)
 
     def describe(self, name=None):

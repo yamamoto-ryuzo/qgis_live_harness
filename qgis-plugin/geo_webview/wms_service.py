@@ -7,14 +7,10 @@ QGISキャンバスから地図画像を生成し、WMSプロトコルに対応�
 """
 
 import os
+import re
 import multiprocessing
 import threading
 from typing import Optional, Dict, Any
-from qgis.core import (
-    QgsMapSettings, QgsMapRendererParallelJob, QgsRectangle, 
-    QgsCoordinateReferenceSystem, QgsCoordinateTransform, 
-    QgsProject, QgsMessageLog, Qgis
-)
 from qgis.PyQt.QtCore import QSize, QEventLoop, QTimer
 
 
@@ -41,7 +37,7 @@ class GeoWebViewWMSService:
         self.webmap_generator = webmap_generator
         self.server_port = server_port
         self.force_epsg3857 = force_epsg3857
-        
+
         # キャッシュ: 頻繁に使用されるレイヤー設定を保持
         self._layer_cache = {}  # {layer_id: {style_name: qml_string}}
         self._theme_cache = {}  # {theme_name: (layers, style_overrides)}
@@ -94,8 +90,6 @@ class GeoWebViewWMSService:
 
     def handle_wms_request(self, conn, params: Dict[str, list], host: Optional[str] = None) -> None:
         """WMSエンドポイントを処理 - パーマリンクパラメータにも対応"""
-        from qgis.core import QgsMessageLog, Qgis
-
 
         # デバッグ情報
 
@@ -138,7 +132,6 @@ class GeoWebViewWMSService:
 
     def _handle_wms_get_capabilities(self, conn, params: Dict[str, list], host: Optional[str] = None) -> None:
         """WMS GetCapabilitiesリクエストを処理 - 動的な地図範囲に対応"""
-        from qgis.core import QgsMessageLog, Qgis
 
         # QGISキャンバスから現在の範囲情報を取得
         extent_info = self._get_canvas_extent_info()
@@ -216,16 +209,16 @@ class GeoWebViewWMSService:
             xml_content += f"      <CRS>{crs}</CRS>\n"
 
         # add geographic bounding box
-        xml_content += f"      <EX_GeographicBoundingBox>\n"
+        xml_content += "      <EX_GeographicBoundingBox>\n"
         xml_content += f"        <westBoundLongitude>{geo_bbox[0]}</westBoundLongitude>\n"
         xml_content += f"        <eastBoundLongitude>{geo_bbox[2]}</eastBoundLongitude>\n"
         xml_content += f"        <southBoundLatitude>{geo_bbox[1]}</southBoundLatitude>\n"
         xml_content += f"        <northBoundLatitude>{geo_bbox[3]}</northBoundLatitude>\n"
-        xml_content += f"      </EX_GeographicBoundingBox>\n"
+        xml_content += "      </EX_GeographicBoundingBox>\n"
 
         # common BoundingBox entries (metric and geographic)
-        xml_content += f"      <BoundingBox CRS=\"EPSG:3857\" minx=\"-20037508.34\" miny=\"-20037508.34\" maxx=\"20037508.34\" maxy=\"20037508.34\"/>\n"
-        xml_content += f"      <BoundingBox CRS=\"EPSG:4326\" minx=\"-180\" miny=\"-90\" maxx=\"180\" maxy=\"90\"/>\n"
+        xml_content += "      <BoundingBox CRS=\"EPSG:3857\" minx=\"-20037508.34\" miny=\"-20037508.34\" maxx=\"20037508.34\" maxy=\"20037508.34\"/>\n"
+        xml_content += "      <BoundingBox CRS=\"EPSG:4326\" minx=\"-180\" miny=\"-90\" maxx=\"180\" maxy=\"90\"/>\n"
 
         # add per-project visible layers as nested Layer entries so clients can see available layer names
         try:
@@ -234,13 +227,13 @@ class GeoWebViewWMSService:
                 try:
                     lname = lyr.name()
                     lid = lyr.id()
-                    xml_content += f"      <Layer>\n"
+                    xml_content += "      <Layer>\n"
                     xml_content += f"        <Name>{lid}</Name>\n"
                     xml_content += f"        <Title>{lname}</Title>\n"
                     # include supported CRS for each layer
                     for crs in supported_crs:
                         xml_content += f"        <CRS>{crs}</CRS>\n"
-                    xml_content += f"      </Layer>\n"
+                    xml_content += "      </Layer>\n"
                 except Exception:
                     continue
         except Exception:
@@ -338,12 +331,12 @@ class GeoWebViewWMSService:
                             try:
                                 coords = [float(x) for x in bbox.split(',')]
                                 if len(coords) == 4:
-                                            rect = QgsRectangle(coords[0], coords[1], coords[2], coords[3])
-                                            transform = QgsCoordinateTransform(src_crs, tgt_crs, QgsProject.instance())
-                                            rect = transform.transformBoundingBox(rect)
-                                            bbox = f"{rect.xMinimum()},{rect.yMinimum()},{rect.xMaximum()},{rect.yMaximum()}"
-                                            # Ensure the CRS variable matches the transformed BBOX coordinates
-                                            crs = 'EPSG:3857'
+                                    rect = QgsRectangle(coords[0], coords[1], coords[2], coords[3])
+                                    transform = QgsCoordinateTransform(src_crs, tgt_crs, QgsProject.instance())
+                                    rect = transform.transformBoundingBox(rect)
+                                    bbox = f"{rect.xMinimum()},{rect.yMinimum()},{rect.xMaximum()},{rect.yMaximum()}"
+                                    # Ensure the CRS variable matches the transformed BBOX coordinates
+                                    crs = 'EPSG:3857'
                             except Exception as e:
                                 QgsMessageLog.logMessage(f"⚠️ Failed to transform BBOX to EPSG:3857: {e}", "geo_webview", Qgis.Warning)
                         else:
@@ -418,7 +411,6 @@ class GeoWebViewWMSService:
                     http_server.send_wms_error_response(conn, "InternalError", "Failed to generate map image")
 
             except Exception as e:
-                from qgis.core import QgsMessageLog, Qgis
                 import traceback
                 QgsMessageLog.logMessage(f"❌ Map image generation error: {e}", "geo_webview", Qgis.Critical)
                 QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
@@ -446,7 +438,7 @@ class GeoWebViewWMSService:
             width = self._safe_int(params.get('width', ['800'])[0], 800)
             height = self._safe_int(params.get('height', ['600'])[0], 600)
             rotation = float(params.get('rotation', ['0'])[0])
-            
+
             # テーマパラメータを取得（パーマリンクから）
             theme = params.get('theme', [''])[0] if 'theme' in params else None
 
@@ -479,7 +471,6 @@ class GeoWebViewWMSService:
             self._handle_wms_get_map_with_bbox(conn, bbox, crs, width, height, theme, rotation, None)
 
         except Exception as e:
-            from qgis.core import QgsMessageLog, Qgis
             import traceback
             QgsMessageLog.logMessage(f"❌ Permalink to WMS conversion error: {e}", "geo_webview", Qgis.Critical)
             QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
@@ -501,7 +492,7 @@ class GeoWebViewWMSService:
             bytes: PNG画像データ（失敗時はNone）
         """
         try:
-            from qgis.core import QgsMessageLog, Qgis, QgsProject
+            from qgis.core import QgsMessageLog, Qgis
 
             QgsMessageLog.logMessage(
                 f"🎨 WMS Independent Rendering: {width}x{height}, BBOX: {bbox}, CRS: {crs}, Themes: {themes}, Rotation: {rotation}°",
@@ -614,7 +605,7 @@ class GeoWebViewWMSService:
                     # 要求されたピクセル密度を計算
                     pixels_per_map_x = float(width) / float(aw)
                     pixels_per_map_y = float(height) / float(ah)
-                    
+
                     # 拡大範囲のレンダリングサイズを計算（丸め誤差を最小化）
                     render_w = max(1, int(bw * pixels_per_map_x + 0.5))
                     render_h = max(1, int(bh * pixels_per_map_y + 0.5))
@@ -934,7 +925,7 @@ class GeoWebViewWMSService:
             map_settings.setOutputDpi(96)
         except Exception:
             pass
-        
+
         # レンダリング最適化設定を適用
         try:
             if hasattr(map_settings, 'setFlag'):
@@ -945,7 +936,7 @@ class GeoWebViewWMSService:
                         map_settings.setFlag(flag, True)
                 except Exception:
                     pass
-                
+
                 # DrawEditingInfo を無効化(編集情報の描画をスキップ)
                 try:
                     flag = getattr(QgsMapSettings, 'DrawEditingInfo', None)
@@ -953,7 +944,7 @@ class GeoWebViewWMSService:
                         map_settings.setFlag(flag, False)
                 except Exception:
                     pass
-                
+
                 # RenderMapTile: タイルレンダリング最適化(タイル境界のクリップを最適化)
                 try:
                     flag = getattr(QgsMapSettings, 'RenderMapTile', None)
@@ -961,7 +952,7 @@ class GeoWebViewWMSService:
                         map_settings.setFlag(flag, True)
                 except Exception:
                     pass
-                
+
                 # Antialiasing: アンチエイリアスを有効化して高品質化(画質優先)
                 try:
                     flag = getattr(QgsMapSettings, 'Antialiasing', None)
@@ -969,7 +960,7 @@ class GeoWebViewWMSService:
                         map_settings.setFlag(flag, True)
                 except Exception:
                     pass
-                
+
                 # HighQualityImageTransforms: 高品質変換を有効化(画質優先)
                 try:
                     flag = getattr(QgsMapSettings, 'HighQualityImageTransforms', None)
@@ -977,15 +968,14 @@ class GeoWebViewWMSService:
                         map_settings.setFlag(flag, True)
                 except Exception:
                     pass
-            
+
             # パスリゾルバを設定してキャッシュ効率化
             if hasattr(map_settings, 'setPathResolver'):
                 try:
-                    from qgis.core import QgsProject
                     map_settings.setPathResolver(QgsProject.instance().pathResolver())
                 except Exception:
                     pass
-            
+
             # SimplifyGeometry: ジオメトリ簡略化を有効化(大きなベクターレイヤーの高速化)
             try:
                 if hasattr(map_settings, 'setSimplifyMethod'):
@@ -997,7 +987,7 @@ class GeoWebViewWMSService:
                     map_settings.setSimplifyMethod(simplify_method)
             except Exception:
                 pass
-                
+
         except Exception as e:
             QgsMessageLog.logMessage(f"⚠️ Rendering optimization setup failed: {e}", "geo_webview", Qgis.Warning)
 
@@ -1099,7 +1089,6 @@ class GeoWebViewWMSService:
                         # Preprocess QML strings: replace is_layer_visible('name') calls
                         # with literal 1/0 according to the requested LAYERS param.
                         try:
-                            import re
                             # raw layer id/name strings requested by the client
                             requested_names = ids if 'ids' in locals() else []
 
@@ -1176,7 +1165,7 @@ class GeoWebViewWMSService:
                     return map_settings
             except Exception:
                 pass
-        
+
         # テーマが指定されている場合(キャッシュを利用)
         if themes:
             # キャッシュをチェック
@@ -1190,29 +1179,29 @@ class GeoWebViewWMSService:
                     "geo_webview", Qgis.Info
                 )
                 return map_settings
-            
+
             map_theme_collection = project.mapThemeCollection()
-            
+
             if themes in map_theme_collection.mapThemes():
                 QgsMessageLog.logMessage(
                     f"🎨 Creating virtual map view for theme: {themes}",
                     "geo_webview", Qgis.Info
                 )
-                
+
                 # テーマの状態を取得
                 theme_record = map_theme_collection.mapThemeState(themes)
-                
+
                 # 仮想マップビューのレイヤーリストとスタイルを準備
                 virtual_layers = []
                 layer_style_overrides = {}
-                
+
                 # 各レイヤーを処理
                 for layer_record in theme_record.layerRecords():
                     layer = layer_record.layer()
-                    
+
                     if not layer or not layer.isValid():
                         continue
-                    
+
                     # 可視性チェック
                     if not layer_record.isVisible:
                         QgsMessageLog.logMessage(
@@ -1220,28 +1209,28 @@ class GeoWebViewWMSService:
                             "geo_webview", Qgis.Info
                         )
                         continue
-                    
+
                     # 可視レイヤーをリストに追加
                     virtual_layers.append(layer)
-                    
+
                     # スタイルの取得と適用
                     style_name = layer_record.currentStyle if not layer_record.usingCurrentStyle else None
-                    
+
                     if style_name:
                         # 特定のスタイルを適用
                         style_manager = layer.styleManager()
                         if style_name in style_manager.styles():
                             # 現在のスタイルを一時保存
                             original_style = style_manager.currentStyle()
-                            
+
                             try:
                                 # 指定スタイルに切り替え
                                 style_manager.setCurrentStyle(style_name)
-                                
+
                                 # スタイルをQML文字列として取得
                                 doc = QDomDocument()
                                 error_msg = layer.exportNamedStyle(doc)
-                                
+
                                 if not error_msg:
                                     qml_string = doc.toString()
                                     layer_style_overrides[layer.id()] = qml_string
@@ -1266,7 +1255,7 @@ class GeoWebViewWMSService:
                         # 現在のスタイルをそのまま使用
                         doc = QDomDocument()
                         error_msg = layer.exportNamedStyle(doc)
-                        
+
                         if not error_msg:
                             qml_string = doc.toString()
                             layer_style_overrides[layer.id()] = qml_string
@@ -1274,10 +1263,10 @@ class GeoWebViewWMSService:
                                 f"✅ '{layer.name()}' -> current style",
                                 "geo_webview", Qgis.Info
                             )
-                
+
                 # 仮想マップビューに設定を適用
                 map_settings.setLayers(virtual_layers)
-                
+
                 if layer_style_overrides:
                     map_settings.setLayerStyleOverrides(layer_style_overrides)
                     QgsMessageLog.logMessage(
@@ -1289,7 +1278,7 @@ class GeoWebViewWMSService:
                         f"🎨 Virtual view: {len(virtual_layers)} layers (no style overrides)",
                         "geo_webview", Qgis.Info
                     )
-                
+
                 # キャッシュに保存
                 self._theme_cache[themes] = (virtual_layers, layer_style_overrides)
             else:
@@ -1363,8 +1352,7 @@ class GeoWebViewWMSService:
                                             # Preprocess QML for canvas layers: replace is_layer_visible('name')
                                             # with 1/0 according to canvas layer names so expressions evaluate server-side.
                                             try:
-                                                import re
-                                                requested_names = [l.name() for l in canvas_layers if l]
+                                                requested_names = [ly.name() for ly in canvas_layers if ly]
 
                                                 def _replace_vis_calls_canvas(qml_text: str) -> str:
                                                     if not isinstance(qml_text, str):
@@ -1490,7 +1478,7 @@ class GeoWebViewWMSService:
 
     def _parse_bbox_to_extent(self, bbox, crs):
         """BBOX文字列をQgsRectangleに変換"""
-        from qgis.core import QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject
+        from qgis.core import QgsRectangle
         try:
             coords = [float(x) for x in bbox.split(',')]
             if len(coords) == 4:
@@ -1505,24 +1493,24 @@ class GeoWebViewWMSService:
         """並列レンダリングを実行"""
         from qgis.core import QgsMapRendererParallelJob, QgsMessageLog, Qgis
         import time
-        
+
         try:
             start_time = time.time()
-            
+
             # レンダリング前のレイヤー情報をログ
             layers = map_settings.layers()
             QgsMessageLog.logMessage(
                 f"🎬 Starting render: {len(layers)} layers, size: {map_settings.outputSize().width()}x{map_settings.outputSize().height()}",
                 "geo_webview", Qgis.Info
             )
-            
+
             # 並列レンダリングジョブを作成
             render_job = QgsMapRendererParallelJob(map_settings)
 
             # イベントループで完了を待つ
             loop = QEventLoop()
             render_job.finished.connect(loop.quit)
-            
+
             render_start = time.time()
             render_job.start()
 
@@ -1537,20 +1525,20 @@ class GeoWebViewWMSService:
                 timer.start(30000)
 
             loop.exec()
-            
+
             render_elapsed = time.time() - render_start
 
             if render_job.isActive():
                 # タイムアウトした場合
                 render_job.cancel()
-                QgsMessageLog.logMessage(f"⚠️ Rendering timeout (30s)", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage("⚠️ Rendering timeout (30s)", "geo_webview", Qgis.Warning)
                 return None
 
             # レンダリング結果を取得
             image = render_job.renderedImage()
-            
+
             total_elapsed = time.time() - start_time
-            
+
             if image and not image.isNull():
                 QgsMessageLog.logMessage(
                     f"✅ Render completed: {render_elapsed:.2f}s (total: {total_elapsed:.2f}s)",
@@ -1569,9 +1557,6 @@ class GeoWebViewWMSService:
             QgsMessageLog.logMessage(f"❌ Parallel rendering error: {e}", "geo_webview", Qgis.Critical)
             QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
             return None
-
-
-
 
     def _save_image_as_png(self, image):
         """QImageをPNGバイトデータに変換"""

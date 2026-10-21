@@ -110,14 +110,14 @@ class GeoExcelSettingsDialog(QDialog):
         self.edit_dpi.setPlaceholderText(QCoreApplication.translate("geo_excel", "200 (script default)"))
         self.edit_dpi.setToolTip(
             QCoreApplication.translate("geo_excel", "DPI for map images embedded by ##AttachFitImage::. "
-               "Empty = 200."))
+                                       "Empty = 200."))
         form.addRow(QCoreApplication.translate("geo_excel", "DPI (map image)"), self.edit_dpi)
 
         self.edit_tpl_list = QLineEdit()
         self.edit_tpl_list.setPlaceholderText(QCoreApplication.translate("geo_excel", "(auto-generate)"))
         self.edit_tpl_list.setToolTip(
             QCoreApplication.translate("geo_excel", "Excel template for the list report. "
-               "Empty = auto-generate from layer fields."))
+                                       "Empty = auto-generate from layer fields."))
         form.addRow(QCoreApplication.translate("geo_excel", "List report template"),
                     self._with_browse(self.edit_tpl_list))
 
@@ -125,7 +125,7 @@ class GeoExcelSettingsDialog(QDialog):
         self.edit_tpl_single.setPlaceholderText(QCoreApplication.translate("geo_excel", "(auto-generate)"))
         self.edit_tpl_single.setToolTip(
             QCoreApplication.translate("geo_excel", "Excel template for single/bulk reports. "
-               "Empty = auto-generate from layer fields."))
+                                       "Empty = auto-generate from layer fields."))
         form.addRow(QCoreApplication.translate("geo_excel", "Single report template"),
                     self._with_browse(self.edit_tpl_single))
 
@@ -152,7 +152,7 @@ class GeoExcelSettingsDialog(QDialog):
             2, QHeaderView.ResizeMode.ResizeToContents)
         self.table.setToolTip(
             QCoreApplication.translate("geo_excel", "Edit values and press Save to write them to the layer. "
-               "Clearing a value removes the variable."))
+                                       "Clearing a value removes the variable."))
         v.addWidget(self.table)
 
         row = QHBoxLayout()

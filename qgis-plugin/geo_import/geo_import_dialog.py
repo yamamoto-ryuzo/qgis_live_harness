@@ -1,4 +1,17 @@
 # データ取得用QThread
+from .util import Util
+from .ckanconnector import CkanConnector
+from .pyperclip import copy
+from .geo_import_dialog_dataproviders import GeoImportDialogDataProviders
+from .geo_import_dialog_disclaimer import GeoImportDialogDisclaimer
+from qgis.core import Qgis
+from qgis.PyQt.QtWidgets import QApplication, QListWidgetItem, QDialog, QMessageBox
+from qgis.PyQt import QtWidgets
+from qgis.PyQt import QtGui, uic
+from qgis.PyQt.QtCore import Qt, QTimer, QCoreApplication
+import sys
+import os
+import math
 from qgis.PyQt.QtCore import QThread, pyqtSignal
 
 
@@ -67,7 +80,7 @@ def fetch_page_from_db(db_path, format_text, format_lc, current_page, results_li
                 if search_hit:
                     filtered_results.append(entry)
             else:
-                if any(format_lc == (res.get('format','').strip().lower()) for res in entry.get('resources', [])) and search_hit:
+                if any(format_lc == (res.get('format', '').strip().lower()) for res in entry.get('resources', [])) and search_hit:
                     filtered_results.append(entry)
         # 全件分のリソース数を集計（形式フィルタを考慮）
         if format_text == QCoreApplication.translate('GeoImport', 'All'):
@@ -78,7 +91,7 @@ def fetch_page_from_db(db_path, format_text, format_lc, current_page, results_li
                 for entry in filtered_results
             )
         conn.close()
-    except Exception as e:
+    except Exception:
         filtered_results = []
         total_resource_count = 0
     result_count = len(filtered_results)
@@ -107,6 +120,8 @@ class DataFetchThread(QThread):
             self.db_path, self.format_text, self.format_lc, self.current_page,
             self.results_limit, self.search_txt, self.group_names)
         self.result_ready.emit(page_results, result_count, page_count, total_resource_count)
+
+
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
@@ -130,20 +145,6 @@ class DataFetchThread(QThread):
  ***************************************************************************/
 """
 
-import math
-import os
-import sys
-from qgis.PyQt.QtCore import Qt, QTimer, QCoreApplication
-from qgis.PyQt import QtGui, uic
-from qgis.PyQt import QtWidgets
-from qgis.PyQt.QtWidgets import QApplication, QListWidgetItem, QDialog, QMessageBox
-from qgis.core import Qgis
-from .geo_import_dialog_disclaimer import GeoImportDialogDisclaimer
-from .geo_import_dialog_dataproviders import GeoImportDialogDataProviders
-from .pyperclip import copy
-from .ckanconnector import CkanConnector
-from .util import Util
-
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'geo_import_dialog_base.ui'))
@@ -151,11 +152,11 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 class GeoImportDialog(QDialog, FORM_CLASS):
     # メインダイアログクラス - データカタログのブラウズと検索を管理
-    
+
     def on_IDC_bSelectAllResources_clicked(self):
         # 全リソース選択ボタンのクリックイベント処理
         self.select_all_resources()
-        
+
     def select_all_resources(self):
         """検索結果リストに表示されているデータセット・リソースのみ全選択・全チェックする"""
         # 検索結果リストの内容をそのまま全選択
@@ -165,6 +166,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         selected_items = self.IDC_listResults.selectedItems() if hasattr(self, 'IDC_listResults') else []
         format_text = self.IDC_comboFormat.currentText() if hasattr(self, 'IDC_comboFormat') else QCoreApplication.translate('GeoImport', 'All')
         format_lc = format_text.lower()
+
         def is_format_match(res):
             if format_text == QCoreApplication.translate('GeoImport', 'All'):
                 return True
@@ -205,6 +207,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             self.IDC_plainTextLink.clear()
         if hasattr(self, 'IDC_lblSelectedCount'):
             self.IDC_lblSelectedCount.setText(QCoreApplication.translate('GeoImport', "Selected: {0} items").format(0))
+
     def update_format_list(self, results):
         """
         データ形式リストを一般的な形式+GISでよく使われる形式の固定リスト＋実データ形式一覧で構成し、手入力もできるようにする
@@ -275,7 +278,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         self.util = Util(self.settings, self.main_win)
 
         self.IDC_lblVersion.setText(self.IDC_lblVersion.text().format(self.settings.version))
-        #self.IDC_lblSuchergebnisse.setText(QCoreApplication.translate('GeoImport', 'py_dlg_base_search_result'))
+        # self.IDC_lblSuchergebnisse.setText(QCoreApplication.translate('GeoImport', 'py_dlg_base_search_result'))
         self.IDC_lblPage.setText(QCoreApplication.translate('GeoImport', 'py_dlg_base_page_1_1'))
 
         # データ形式コンボボックスを手入力可能に
@@ -318,7 +321,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         # --- 全選択ボタンのシグナル接続（存在する場合） ---
         if hasattr(self, 'IDC_bSelectAllResources'):
             self.IDC_bSelectAllResources.clicked.connect(self.select_all_resources)
-        
+
         # ダイアログ起動時に一度全件検索を実施（初期表示）
         # ネットワークモードではコンストラクタ内で同期ネットワーク取得を行わず、
         # 表示後の window_loaded タイマーで初回取得する
@@ -343,6 +346,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         selected_items = self.IDC_listResults.selectedItems()
         format_text = self.IDC_comboFormat.currentText() if hasattr(self, 'IDC_comboFormat') else QCoreApplication.translate('GeoImport', 'All')
         format_lc = format_text.lower()
+
         def is_format_match(res):
             if format_text == QCoreApplication.translate('GeoImport', 'All'):
                 return True
@@ -374,6 +378,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             pass
         if hasattr(self, 'IDC_lblSelectedCount'):
             self.IDC_lblSelectedCount.setText(QCoreApplication.translate('GeoImport', "Selected - datasets: {0} / resources: {1}").format(len(selected_items), len(all_resources)))
+
     def _get_local_server_path(self, url=None):
         """
         指定サーバー(省略時は現在のckan_url)がローカルフォルダを指す場合はそのパスを返す。
@@ -525,7 +530,8 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         CKANサーバーURLごとにキャッシュDBファイル名を分けて返す。
         url省略時は従来どおり現在のckan_urlを使用。
         """
-        import re, hashlib
+        import re
+        import hashlib
         cache_dir = self.settings.cache_dir
         if not cache_dir or not os.path.isdir(cache_dir):
             if sys.platform == 'win32':
@@ -553,31 +559,31 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                         import tempfile
                         cache_dir = tempfile.gettempdir()
                         self.util.msg_log_debug(f"using temp directory: {cache_dir}")
-                        
+
         # サーバーURLからファイル名を生成（記号を_に）
         if url is None:
             url = getattr(self.settings, 'ckan_url', 'default')
         # URLがBoxDriveパスなど長すぎる場合はハッシュ化
         if len(url) > 100 or ('Box' in url and len(url) > 50):
             self.util.msg_log_debug(f"[BoxDrive] hashed long URL: {url}")
-            hash_obj = hashlib.md5(url.encode('utf-8'))
+            hash_obj = hashlib.md5(url.encode('utf-8'), usedforsecurity=False)
             url_hash = hash_obj.hexdigest()[:12]  # 12文字のハッシュ
-            
+
             # 短縮化したURLの識別子を生成（最初の20文字 + ハッシュ）
             url_parts = url.split('/')
             if len(url_parts) > 2:
                 url_id = f"{url_parts[-2][:10]}_{url_parts[-1][:10]}_{url_hash}"
             else:
                 url_id = f"box_{url_hash}"
-                
+
             self.util.msg_log_debug(f"[BoxDrive] hashed URL id: {url_id}")
         else:
             # 通常のURL処理: 記号を_に変換
             url_id = re.sub(r'[^a-zA-Z0-9]', '_', url)
             # 長さ制限
             if len(url_id) > 50:
-                url_id = url_id[:40] + '_' + hashlib.md5(url_id.encode('utf-8')).hexdigest()[:8]
-                
+                url_id = url_id[:40] + '_' + hashlib.md5(url_id.encode('utf-8'), usedforsecurity=False).hexdigest()[:8]
+
         db_path = os.path.join(cache_dir, f'ckan_cache_{url_id}.db')
         self.util.msg_log_debug(f"cache DB path: {db_path}")
         return db_path
@@ -587,18 +593,20 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         Returns (True, db_path) on success, (False, error_message) on failure.
         """
         try:
-            import json, sqlite3, hashlib
+            import json
+            import sqlite3
+            import hashlib
 
             # キャッシュディレクトリのパスを取得
             cache_dir = os.path.dirname(self._get_cache_db_path(server_url))
 
             # JSONファイル名の生成（URLハッシュ部分を使用）
             url = server_url if server_url is not None else getattr(self.settings, 'ckan_url', 'default')
-            url_hash = hashlib.md5(url.encode('utf-8')).hexdigest()[:12]
+            url_hash = hashlib.md5(url.encode('utf-8'), usedforsecurity=False).hexdigest()[:12]
             json_prefix = f'ckan_cache_{url_hash}'
             cache_packages_path = os.path.join(cache_dir, f'{json_prefix}_packages.json')
             cache_groups_path = os.path.join(cache_dir, f'{json_prefix}_groups.json')
-            
+
             # まずキャッシュディレクトリのJSONをチェック
             all_results = []
             if os.path.exists(cache_packages_path):
@@ -608,7 +616,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                         all_results = json.load(f)
                 except Exception as e:
                     self.util.msg_log_error(f"cache JSON load error: {e}")
-            
+
             # キャッシュがない場合はローカルフォルダから読み込み試行
             if not all_results:
                 pkg_json_path = os.path.join(local_path, 'packages.json')
@@ -651,7 +659,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     '.tmp', '.temp', '.bak', '.log', '.cache', '.lock', '.swp', '.swo',
                     '.exe', '.dll', '.so', '.dylib', '.app', '.deb', '.rpm', '.msi'
                 }
-                
+
                 def _should_include_file(filename, filepath):
                     """
                     ファイルをデータベースに含めるかどうかを判定
@@ -659,32 +667,32 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     """
                     fname_lower = filename.lower()
                     ext_lower = os.path.splitext(filename)[1].lower()
-                    
+
                     # 除外ファイル名（完全一致）
                     if fname_lower in exclude_names:
                         return False
-                    
+
                     # 除外拡張子
                     if ext_lower in exclude_extensions:
                         return False
-                    
+
                     # 隠しファイル（Unix系）
                     if filename.startswith('.') and len(filename) > 1:
                         return False
-                    
+
                     # 一時ファイル
                     if filename.startswith('~') or filename.endswith('~'):
                         return False
-                    
+
                     # 空ファイルは除外（0バイト）
                     try:
                         if os.path.getsize(filepath) == 0:
                             return False
-                    except:
+                    except Exception:
                         pass
-                    
+
                     return True
-                
+
                 generated_pkgs = []
                 generated_groups = []
                 # immediate subdirectories -> groups
@@ -869,7 +877,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                             '.tmp', '.temp', '.bak', '.log', '.cache', '.lock', '.swp', '.swo',
                             '.exe', '.dll', '.so', '.dylib', '.app', '.deb', '.rpm', '.msi'
                         }
-                        
+
                         def _should_include_file_refresh(filename, filepath):
                             """
                             ファイルをデータベースに含めるかどうかを判定（refresh用）
@@ -877,32 +885,32 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                             """
                             fname_lower = filename.lower()
                             ext_lower = os.path.splitext(filename)[1].lower()
-                            
+
                             # 除外ファイル名（完全一致）
                             if fname_lower in exclude_names:
                                 return False
-                            
+
                             # 除外拡張子
                             if ext_lower in exclude_extensions:
                                 return False
-                            
+
                             # 隠しファイル（Unix系）
                             if filename.startswith('.') and len(filename) > 1:
                                 return False
-                            
+
                             # 一時ファイル
                             if filename.startswith('~') or filename.endswith('~'):
                                 return False
-                            
+
                             # 空ファイルは除外（0バイト）
                             try:
                                 if os.path.getsize(filepath) == 0:
                                     return False
-                            except:
+                            except Exception:
                                 pass
-                            
+
                             return True
-                        
+
                         # immediate subdirectories -> groups and packages
                         try:
                             for name in os.listdir(folder):
@@ -949,12 +957,12 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     # キャッシュディレクトリとJSONファイル名を設定
                     cache_dir = os.path.dirname(self._get_cache_db_path(server_url))
                     import hashlib
-                    local_path_hash = hashlib.md5(local_path.encode('utf-8')).hexdigest()[:12]
+                    local_path_hash = hashlib.md5(local_path.encode('utf-8'), usedforsecurity=False).hexdigest()[:12]
                     url_hash = local_path_hash
                     json_prefix = f'ckan_cache_{url_hash}'
                     cache_packages_path = os.path.join(cache_dir, f'{json_prefix}_packages.json')
                     cache_groups_path = os.path.join(cache_dir, f'{json_prefix}_groups.json')
-                    
+
                     # Always attempt to auto-generate packages/groups from the local folder
                     generated = []
                     generated_groups = []
@@ -973,7 +981,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     except Exception:
                         generated_pkgs = []
                         generated_groups = []
-                    
+
                     # If we generated groups during auto-generation, save to cache
                     if 'generated_groups' in locals() and generated_groups:
                         try:
@@ -1045,7 +1053,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     is_box_drive = False
                     if 'Box' in local_path or 'Box Drive' in local_path:
                         is_box_drive = True
-                    
+
                     if is_box_drive:
                         # BOXドライブ用のエラーメッセージを表示
                         self.util.dlg_warning(QCoreApplication.translate('GeoImport', 'py_dlg_set_info_local_read_error_boxdrive').format(error_msg))
@@ -1107,7 +1115,8 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             if all_results:
                 from qgis.core import QgsMessageLog, Qgis
                 try:
-                    import sqlite3, json
+                    import sqlite3
+                    import json
                     db_path = self._get_cache_db_path(server_url)
                     QgsMessageLog.logMessage(QCoreApplication.translate('GeoImport', u"Caching data to SQLite has started."), self.util.dlg_caption, Qgis.Info)
                     # --- パッケージ保存 ---
@@ -1129,7 +1138,6 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     self.util.msg_log_error(QCoreApplication.translate('GeoImport', u"SQLite save error: {}".format(e)))
         finally:
             QApplication.restoreOverrideCursor()
-
 
     def showEvent(self, event):
         self.util.msg_log_debug('showevent')
@@ -1156,7 +1164,8 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             self.util.msg_log_debug('before get_groups')
 
             # --- カテゴリリストを選択中の全サーバーから取得してマージ ---
-            import sqlite3, json
+            import sqlite3
+            import json
             all_results = []
             urls = self._active_server_urls()
             multi = len(urls) > 1
@@ -1448,6 +1457,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         self.IDC_plainTextLink.clear()
         format_text = self.IDC_comboFormat.currentText() if hasattr(self, 'IDC_comboFormat') else QCoreApplication.translate('GeoImport', 'All')
         format_lc = format_text.lower()
+
         def is_format_match(res):
             if format_text == QCoreApplication.translate('GeoImport', 'All'):
                 return True
@@ -1598,7 +1608,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                 host = server_url
             import hashlib
             # create a short stable hash from the full server URL to avoid collisions
-            url_hash = hashlib.sha1(server_url.encode('utf-8')).hexdigest()[:8]
+            url_hash = hashlib.sha1(server_url.encode('utf-8'), usedforsecurity=False).hexdigest()[:8]
             safe_host = self.util.safe_filename(host, fallback='server')
             server_dir = f"{safe_host}_{url_hash}"
             # debug log to help diagnose server folder generation
@@ -1650,10 +1660,13 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     if resp.status_code == 200:
                         # レイヤ名を取得
                         try:
-                            root = ET.fromstring(resp.content)
-                            ns = {'wms': 'http://www.opengis.net/wms'}
+                            if b'<!DOCTYPE' in resp.content or b'<!ENTITY' in resp.content:
+                                raise ET.ParseError('DOCTYPE/ENTITY declarations are not allowed')
+                            root = ET.fromstring(resp.content)  # nosec B314  # 直上でDOCTYPE/ENTITYを拒否済み
+                            _ = {'wms': 'http://www.opengis.net/wms'}
                             # WMS 1.3.0/1.1.1両対応
                             # --- 最下層のLayer Nameを再帰的に取得 ---
+
                             def find_leaf_layer_names(elem):
                                 ns_wms = '{http://www.opengis.net/wms}'
                                 result = []
@@ -1747,7 +1760,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                         do_download = True
                     else:
                         do_download = False
-            download_failed = False
+            _ = False
             if do_download is True:
                 QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
                 QApplication.processEvents()
@@ -1775,15 +1788,12 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                 QApplication.processEvents()
                 self.util.msg_log_debug('wait cursor set')
                 ok, err_msg, new_file_name = self.cc.download_resource(
-                    url_val
-                    , resource['format']
-                    , dest_file
-                    , do_delete
+                    url_val, resource['format'], dest_file, do_delete
                 )
                 QApplication.restoreOverrideCursor()
                 if ok is False:
                     self.util.dlg_warning(err_msg)
-                    download_failed = True
+                    _ = True
                 else:
                     if new_file_name:
                         dest_file = new_file_name
@@ -1945,7 +1955,8 @@ class GeoImportDialog(QDialog, FORM_CLASS):
 
     def _details_html(self, package):
         """選択データセットの詳細をHTMLで組み立てる(IDC_textDetails用)。"""
-        tr = lambda k: QCoreApplication.translate('GeoImport', k)
+        def tr(k):
+            return QCoreApplication.translate('GeoImport', k)
         esc = self._escape_html
         org = package.get('organization', {})
         if not isinstance(org, dict):

@@ -1,4 +1,4 @@
-from qgis.PyQt.QtCore import QSettings, qVersion, QCoreApplication
+from qgis.PyQt.QtCore import QSettings, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolBar
 from qgis.core import QgsMessageLog, Qgis
@@ -8,6 +8,7 @@ import os.path
 from .i18n_json import install_translator
 from .settings import Settings
 from .util import Util
+
 
 class GeoImport:
     """QGIS Plugin Implementation."""
@@ -55,18 +56,17 @@ class GeoImport:
         except Exception:
             self.bridge = None
 
-
     def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
+            self,
+            icon_path,
+            text,
+            callback,
+            enabled_flag=True,
+            add_to_menu=True,
+            add_to_toolbar=True,
+            status_tip=None,
+            whats_this=None,
+            parent=None):
         """Add a toolbar icon to the InaSAFE toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -143,9 +143,9 @@ class GeoImport:
             callback=self.run,
             parent=self.iface.mainWindow()
         )
-        
+
         icon_settings = os.path.join(os.path.dirname(__file__), 'icon-settings.png')
-        
+
         self.add_action(
             icon_settings,
             text=QCoreApplication.translate('GeoImport', u'geo_import_settings'),
@@ -167,21 +167,21 @@ class GeoImport:
         """Run method that performs all the real work"""
         # プラグインのメイン処理を実行する
         # データカタログブラウザダイアログを表示し、ユーザーがデータを検索・追加できるようにする
-        
+
         # ダイアログが既に開いているかチェック（二重起動防止）
         is_open = QSettings().value("geo_import/isopen", False)
         # Pythonはほとんど全てをTrueとして扱うため、明示的にboolに変換
         self.util.msg_log_debug(u'isopen: {0}'.format(is_open))
-        
+
         # 文字列比較 - WindowsとLinuxは文字列として、Macはboolとして扱うため
         # 文字列をboolに変換する
         if isinstance(is_open, str):
             is_open = self.util.str2bool(is_open)
-        
+
         if is_open:
             self.util.msg_log_debug(u'Dialog already opened')
             return
-        
+
         # auf URL testen
         dir_check = self.util.check_dir(self.settings.cache_dir)
         api_url_check = self.util.check_api_url(self.settings.ckan_url)
@@ -200,7 +200,7 @@ class GeoImport:
 
             # show the dialog
             self.dlg.show()
-            #self.dlg.open()
+            # self.dlg.open()
             # Run the dialog event loop
             result = self.dlg.exec()
             # See if OK was pressed

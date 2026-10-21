@@ -1,17 +1,20 @@
 from qgis.core import *
 from qgis.gui import *
 
+
 def openProject():
     pass
+
 
 def saveProject():
     pass
 
+
 def closeProject():
     pass
-    
-@qgsfunction(args='auto', group='ユーザー関数')
 
+
+@qgsfunction(args='auto', group='ユーザー関数')
 def zen2han(moji, feature, parent):
 
     # 全角の文字列
@@ -29,10 +32,11 @@ def zen2han(moji, feature, parent):
     HALFWIDTH_ALL = HALFWIDTH_ALPHANUMERIC + HALFWIDTH_PUNCTUATION  # 英数字、記号
 
     # 数字、アルファベットを半角に変換する。
-    conv_map = str.maketrans(FULLWIDTH_ALPHANUMERIC,HALFWIDTH_ALPHANUMERIC)
+    conv_map = str.maketrans(FULLWIDTH_ALPHANUMERIC, HALFWIDTH_ALPHANUMERIC)
 
     moji = moji.translate(conv_map)
     return moji
+
 
 def han2zen(moji, feature, parent):
 
@@ -51,7 +55,7 @@ def han2zen(moji, feature, parent):
     HALFWIDTH_ALL = HALFWIDTH_ALPHANUMERIC + HALFWIDTH_PUNCTUATION  # 英数字、記号
 
     # 数字、アルファベットを全角に変換する。
-    conv_map = str.maketrans(HALFWIDTH_ALPHANUMERIC,FULLWIDTH_ALPHANUMERIC)
+    conv_map = str.maketrans(HALFWIDTH_ALPHANUMERIC, FULLWIDTH_ALPHANUMERIC)
 
     moji = moji.translate(conv_map)
     return moji

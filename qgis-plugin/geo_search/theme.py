@@ -14,6 +14,8 @@
 デフォルト括弧は `【` / `】`。
 """
 from __future__ import annotations
+from datetime import datetime
+import json
 
 import os
 import uuid
@@ -23,6 +25,7 @@ from typing import Iterable, Dict, List, Optional, Tuple
 # In-memory store for visible-layer snapshots (for later restore)
 # Keyed by snapshot name -> list of per-layer dicts
 _visible_layer_snapshots: Dict[str, List[Dict]] = {}
+
 
 def save_current_state_as_temp_theme(
     theme_collection,
@@ -244,8 +247,10 @@ def collect_visible_layer_snapshot(root, log_layer_legend_state_func=None, tag: 
 
     return messages
 
+
 # Backwards-compatible alias: keep old name working
 collect_visible_layer_messages = collect_visible_layer_snapshot
+
 
 def restore_temp_theme(theme_collection, tmp_name: str, root=None, model=None, log_func=None, short_func=None):
     """Apply (restore) a temporary theme by name without removing it.
@@ -303,7 +308,7 @@ def restore_temp_theme(theme_collection, tmp_name: str, root=None, model=None, l
         except Exception as e:
             try:
                 if log_func is not None:
-                    log_func(f"[theme log] failed to apply temp theme '{display_name}': {short_func(e,200) if short_func is not None else str(e)}", 2)
+                    log_func(f"[theme log] failed to apply temp theme '{display_name}': {short_func(e, 200) if short_func is not None else str(e)}", 2)
             except Exception:
                 pass
             return False
@@ -445,7 +450,7 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
                 except Exception:
                     name = None
             if name:
-                parts.append(f"name={_short(name,80)}")
+                parts.append(f"name={_short(name, 80)}")
         except Exception:
             pass
         # try to get layer count
@@ -561,14 +566,12 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
                     sel_saved = False
             except Exception:
                 sel_saved = False
-            
+
             # 凡例ノード（レイヤパネルの表示チェック）のみで判定
             # レイヤパネルで可視になっているレイヤ一覧をスナップショットとして保存
             # collect_visible_layer_snapshot は内部でメッセージ出力とスナップショット保存を行う
             collect_visible_layer_snapshot(root, log_layer_legend_state, snapshot_name=tmp_sel)
- 
- 
- 
+
         finally:
             # 元の状態を復元: コレクションに保存した一時テーマ名で適用する
             try:
@@ -949,6 +952,7 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
             except Exception:
                 pass
     # local logger helper
+
     def _dbg(msg: str, level: int = 0):
         try:
             if callable(log_func):
@@ -1116,7 +1120,7 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
 
                 # Debug: per-category info
                 try:
-                    _dbg(f"[category restore] label={getattr(cat,'label',None)} val={val} keys={keys_to_try} mapping_has_any={any(k in mapping for k in keys_to_try)}")
+                    _dbg(f"[category restore] label={getattr(cat, 'label', None)} val={val} keys={keys_to_try} mapping_has_any={any(k in mapping for k in keys_to_try)}")
                 except Exception:
                     pass
 
@@ -1300,7 +1304,6 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
         pass
 
 
-
 def _apply_graduated_visibility(renderer, items, overwrite_all=False, log_func=None):
     try:
         ranges_fn = getattr(renderer, 'ranges', None)
@@ -1391,7 +1394,6 @@ def _apply_rulebased_visibility(renderer, items, overwrite_all=False, log_func=N
                         continue
     except Exception:
         pass
-
 
 
 def _apply_layer_style_by_name(layer, style_name: str, log_func=None) -> bool:
@@ -1995,8 +1997,6 @@ def collect_visible_layer_reload(snapshot_name: str, project=None, root=None, ta
 
 
 # --- User-theme: JSON ベースの最小限テーマ保存/読込/適用 ------------------------------
-import json
-from datetime import datetime
 
 
 def save_user_theme(path: str, snapshot=None, project=None, root=None):
@@ -2060,7 +2060,6 @@ def save_user_theme(path: str, snapshot=None, project=None, root=None):
         with open(path, "w", encoding="utf-8") as fh:
             json.dump(payload, fh, ensure_ascii=False, indent=2)
         try:
-            from qgis.core import QgsMessageLog
             QgsMessageLog.logMessage(f"Saved user theme to {path}", 'GEO-search-plugin', 0)
         except Exception:
             pass
@@ -2143,7 +2142,6 @@ def apply_user_theme(data: dict, overwrite_legend: bool = False, project=None, l
 
         if layer is None:
             try:
-                from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage(f"User theme: layer not found: id={lid} name={name}", 'GEO-search-plugin', 1)
             except Exception:
                 pass
@@ -2153,7 +2151,7 @@ def apply_user_theme(data: dict, overwrite_legend: bool = False, project=None, l
         style_name = entry.get('style')
         if style_name:
             try:
-                _apply_layer_style_by_name(layer, style_name, log_func=(log_func or (lambda m, l: None)))
+                _apply_layer_style_by_name(layer, style_name, log_func=(log_func or (lambda m, lv: None)))
             except Exception:
                 try:
                     from qgis.core import QgsMessageLog

@@ -29,13 +29,14 @@ QGIS プラグイン初期化モジュール
 イタリア語、ポルトガル語、ロシア語、ヒンディー語）
 """
 
+from .i18n_json import install_translator
 import os
 from qgis.core import QgsMessageLog, Qgis
 
-from .i18n_json import install_translator
 
 # グローバルトランスレータ
 _translator = None
+
 
 def log_message(message, level=Qgis.Info):
     """QGIS のログメッセージタブに出力"""
@@ -59,7 +60,7 @@ def classFactory(iface):  # pylint: disable=invalid-name
 
     Args:
         iface: A QGIS interface instance.
-        
+
     Returns:
         GeoReport plugin instance
     """

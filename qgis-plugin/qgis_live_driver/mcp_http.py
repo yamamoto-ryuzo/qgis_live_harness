@@ -402,7 +402,7 @@ class _Handler(BaseHTTPRequestHandler):
                 "jsonrpc": "2.0", "id": mid,
                 "result": {
                     "protocolVersion": msg.get("params", {})
-                        .get("protocolVersion", PROTOCOL_VERSION),
+                    .get("protocolVersion", PROTOCOL_VERSION),
                     "capabilities": {"tools": {}},
                     "serverInfo": {"name": "qgis-live", "version": "0.2.0"},
                 },

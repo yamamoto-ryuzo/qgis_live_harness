@@ -9,9 +9,9 @@ import json
 import re
 import time
 import threading
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, List
 from qgis.core import (
-    QgsProject, QgsVectorLayer, QgsFeatureRequest, 
+    QgsProject, QgsVectorLayer, QgsFeatureRequest,
     QgsJsonExporter, QgsMessageLog, Qgis, QgsRectangle,
     QgsCoordinateReferenceSystem, QgsCoordinateTransform
 )
@@ -33,7 +33,7 @@ class GeoWebViewWFSService:
         """
         self.iface = iface
         self.server_port = server_port
-        
+
         # レスポンスキャッシュ (Phase 1高速化)
         self._response_cache = {}  # {cache_key: (timestamp, response_data, content_type)}
         self._cache_lock = threading.Lock()
@@ -54,18 +54,18 @@ class GeoWebViewWFSService:
             return str(raw_id).lstrip('_')
         except Exception:
             return str(raw_id)
-    
-    def _get_cache_key(self, layer_id: str, bbox: str, srs_name: str, 
+
+    def _get_cache_key(self, layer_id: str, bbox: str, srs_name: str,
                        max_features: int, output_format: str) -> str:
         """キャッシュキーを生成
-        
+
         Args:
             layer_id: レイヤーID
             bbox: BBOX文字列
             srs_name: SRS名
             max_features: 最大地物数
             output_format: 出力フォーマット
-            
+
         Returns:
             str: キャッシュキー(MD5ハッシュ)
         """
@@ -78,8 +78,8 @@ class GeoWebViewWFSService:
             output_format or 'json'
         ]
         key_string = ':'.join(key_parts)
-        return hashlib.md5(key_string.encode('utf-8')).hexdigest()
-    
+        return hashlib.md5(key_string.encode('utf-8'), usedforsecurity=False).hexdigest()
+
     def _clear_expired_cache(self):
         """期限切れキャッシュをクリア"""
         try:
@@ -92,7 +92,6 @@ class GeoWebViewWFSService:
                 for key in expired_keys:
                     del self._response_cache[key]
                 if expired_keys:
-                    from qgis.core import QgsMessageLog, Qgis
                     QgsMessageLog.logMessage(
                         f"🧹 WFS Cache: removed {len(expired_keys)} expired entries",
                         "geo_webview", Qgis.Info
@@ -102,8 +101,6 @@ class GeoWebViewWFSService:
 
     def handle_wfs_request(self, conn, params: Dict[str, list], host: Optional[str] = None) -> None:
         """WFSエンドポイントを処理"""
-        from qgis.core import QgsMessageLog, Qgis
-
 
         # デバッグ情報
 
@@ -129,7 +126,6 @@ class GeoWebViewWFSService:
 
     def _handle_wfs_get_capabilities(self, conn, params: Dict[str, list], host: Optional[str] = None) -> None:
         """WFS GetCapabilitiesリクエストを処理"""
-        from qgis.core import QgsMessageLog, Qgis
 
         # Determine base host for OnlineResource entries
         try:
@@ -160,17 +156,17 @@ class GeoWebViewWFSService:
             # No WFSLayers defined -> return empty FeatureTypeList
             from . import http_server
             xml_content = (
-                f"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                f"<WFS_Capabilities version=\"2.0.0\" xmlns=\"http://www.opengis.net/wfs/2.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xsi:schemaLocation=\"http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd\">\n"
-                f"  <ServiceIdentification>\n"
-                f"    <Title>QGIS Map Permalink WFS Service</Title>\n"
-                f"    <Abstract>Dynamic WFS service for QGIS vector layers</Abstract>\n"
-                f"    <ServiceType>WFS</ServiceType>\n"
-                f"    <ServiceTypeVersion>2.0.0</ServiceTypeVersion>\n"
-                f"  </ServiceIdentification>\n"
-                f"  <FeatureTypeList>\n"
-                f"  </FeatureTypeList>\n"
-                f"</WFS_Capabilities>"
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                "<WFS_Capabilities version=\"2.0.0\" xmlns=\"http://www.opengis.net/wfs/2.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xsi:schemaLocation=\"http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd\">\n"
+                "  <ServiceIdentification>\n"
+                "    <Title>QGIS Map Permalink WFS Service</Title>\n"
+                "    <Abstract>Dynamic WFS service for QGIS vector layers</Abstract>\n"
+                "    <ServiceType>WFS</ServiceType>\n"
+                "    <ServiceTypeVersion>2.0.0</ServiceTypeVersion>\n"
+                "  </ServiceIdentification>\n"
+                "  <FeatureTypeList>\n"
+                "  </FeatureTypeList>\n"
+                "</WFS_Capabilities>"
             )
             http_server.send_http_response(conn, 200, "OK", xml_content, content_type="text/xml; charset=utf-8")
             return
@@ -183,8 +179,8 @@ class GeoWebViewWFSService:
             # clients can rely on using layer.id() as the authoritative
             # typename. Human-readable titles remain available in <Title>.
             raw_id = layer.id()
-            client_typename = self._client_friendly_typename(raw_id)
-            safe_tag = re.sub(r'[^A-Za-z0-9_]', '_', str(raw_id))
+            _ = self._client_friendly_typename(raw_id)
+            _ = re.sub(r'[^A-Za-z0-9_]', '_', str(raw_id))
             crs = layer.crs().authid() if layer.crs().isValid() else 'EPSG:4326'
             extent = self._get_layer_extent(layer)
 
@@ -266,7 +262,7 @@ class GeoWebViewWFSService:
             if max_features:
                 try:
                     max_features = int(max_features)
-                except:
+                except Exception:
                     max_features = None
 
             bbox = params.get('BBOX', [None])[0]
@@ -278,32 +274,32 @@ class GeoWebViewWFSService:
                 from . import http_server
                 http_server.send_wfs_error_response(conn, "InvalidParameterValue", f"Layer '{type_name}' not found", locator='TYPENAME')
                 return
-            
+
             # 🚀 Phase 1高速化: キャッシュチェック
             cache_key = self._get_cache_key(
-                layer.id(), 
-                bbox or '', 
-                srs_name or '', 
+                layer.id(),
+                bbox or '',
+                srs_name or '',
                 max_features or 0,
                 output_format
             )
-            
+
             with self._cache_lock:
                 if cache_key in self._response_cache:
                     timestamp, cached_data, cached_content_type = self._response_cache[cache_key]
                     if time.time() - timestamp < self._cache_ttl:
                         # キャッシュヒット!
                         QgsMessageLog.logMessage(
-                            f"⚡ WFS Cache HIT: {type_name} (saved ~{int((time.time()-timestamp)*1000)}ms)",
+                            f"⚡ WFS Cache HIT: {type_name} (saved ~{int((time.time() - timestamp) * 1000)}ms)",
                             "geo_webview", Qgis.Info
                         )
                         from . import http_server
                         http_server.send_http_response(
-                            conn, 200, "OK", cached_data, 
+                            conn, 200, "OK", cached_data,
                             content_type=cached_content_type
                         )
                         return
-            
+
             # キャッシュミス: 通常処理
             start_time = time.time()
 
@@ -319,7 +315,7 @@ class GeoWebViewWFSService:
                 # default/fallback to GeoJSON
                 response_content = self._features_to_geojson(features, layer)
                 content_type = "application/json; charset=utf-8"
-            
+
             # 🚀 Phase 1高速化: キャッシュに保存
             elapsed_time = int((time.time() - start_time) * 1000)
             with self._cache_lock:
@@ -328,7 +324,7 @@ class GeoWebViewWFSService:
                     f"💾 WFS Cache MISS: {type_name} ({len(features)} features, {elapsed_time}ms) - cached",
                     "geo_webview", Qgis.Info
                 )
-            
+
             # 期限切れキャッシュのクリーンアップ(10%の確率で実行)
             import random
             if random.random() < 0.1:
@@ -374,8 +370,6 @@ class GeoWebViewWFSService:
             http_server.send_http_response(conn, 200, "OK", schema_xml, content_type="text/xml; charset=utf-8")
 
         except Exception as e:
-            from qgis.core import QgsMessageLog, Qgis
-            import traceback
             QgsMessageLog.logMessage(f"❌ WFS DescribeFeatureType error: {e}", "geo_webview", Qgis.Critical)
             from . import http_server
             http_server.send_http_response(conn, 500, "Internal Server Error", f"WFS DescribeFeatureType failed: {str(e)}")
@@ -385,8 +379,7 @@ class GeoWebViewWFSService:
         from qgis.core import QgsMessageLog, Qgis
 
         try:
-            from qgis.core import QgsMessageLog, Qgis
-            
+
             type_name = params.get('TYPENAME', params.get('TYPENAMES', ['']))[0]
             if not type_name:
                 from . import http_server
@@ -407,8 +400,6 @@ class GeoWebViewWFSService:
             http_server.send_http_response(conn, 200, "OK", sld_xml, content_type="application/vnd.ogc.sld+xml; charset=utf-8")
 
         except Exception as e:
-            from qgis.core import QgsMessageLog, Qgis
-            import traceback
             QgsMessageLog.logMessage(f"❌ WFS GetStyles error: {e}", "geo_webview", Qgis.Critical)
             from . import http_server
             http_server.send_http_response(conn, 500, "Internal Server Error", f"WFS GetStyles failed: {str(e)}")
@@ -505,14 +496,14 @@ class GeoWebViewWFSService:
                 'maxx': extent.xMaximum(),
                 'maxy': extent.yMaximum()
             }
-        except:
+        except Exception:
             return {'minx': -180, 'miny': -90, 'maxx': 180, 'maxy': 90}
 
     def _query_features(self, layer: QgsVectorLayer, bbox: Optional[str] = None,
-                       srs_name: Optional[str] = None, max_features: Optional[int] = None) -> List:
+                        srs_name: Optional[str] = None, max_features: Optional[int] = None) -> List:
         """レイヤーから地物をクエリ(Phase 1最適化版)"""
         request = QgsFeatureRequest()
-        
+
         # 🚀 Phase 1最適化: インデックスを使用した高速検索
         request.setFlags(QgsFeatureRequest.ExactIntersect)
 
@@ -533,13 +524,13 @@ class GeoWebViewWFSService:
                             rect = transform.transformBoundingBox(rect)
 
                     request.setFilterRect(rect)
-            except:
+            except Exception:
                 pass
 
         # 🚀 Phase 1最適化: イテレータを使って効率的に取得
         features = []
         iterator = layer.getFeatures(request)
-        
+
         # 最大地物数制限
         count = 0
         for feature in iterator:
@@ -607,7 +598,8 @@ class GeoWebViewWFSService:
                             try:
                                 if c[0] is None or c[1] is None:
                                     return False
-                                float(c[0]); float(c[1])
+                                float(c[0])
+                                float(c[1])
                                 return True
                             except Exception:
                                 return False
@@ -661,13 +653,13 @@ class GeoWebViewWFSService:
                         feature_json['properties']['label'] = s
                         try:
                             # Log label extraction for debugging in QGIS message log
-                            from qgis.core import QgsMessageLog, Qgis
+                            pass
                         except Exception:
                             pass
             except Exception:
                 # non-fatal
                 pass
-            
+
             # Ensure properties exist
             try:
                 if 'properties' not in feature_json or feature_json['properties'] is None:
@@ -800,7 +792,7 @@ class GeoWebViewWFSService:
         layer_name = re.sub(r'[^A-Za-z0-9_]', '_', str(raw_id))
         crs = layer.crs().authid() if layer.crs().isValid() else 'EPSG:4326'
 
-        gml = f"""<?xml version="1.0" encoding="UTF-8"?>
+        gml = """<?xml version="1.0" encoding="UTF-8"?>
     <wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs"
                    xmlns:gml="http://www.opengis.net/gml"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -920,7 +912,8 @@ class GeoWebViewWFSService:
                 coords = _coords_from_str(ring)
                 if coords:
                     coord_str = ' '.join([f"{x},{y}" for x, y in coords])
-                    members.append(f'<gml:polygonMember><gml:Polygon srsName="{crs}"><gml:outerBoundaryIs><gml:LinearRing><gml:coordinates>{coord_str}</gml:coordinates></gml:LinearRing></gml:outerBoundaryIs></gml:Polygon></gml:polygonMember>')
+                    members.append(
+                        f'<gml:polygonMember><gml:Polygon srsName="{crs}"><gml:outerBoundaryIs><gml:LinearRing><gml:coordinates>{coord_str}</gml:coordinates></gml:LinearRing></gml:outerBoundaryIs></gml:Polygon></gml:polygonMember>')
             if members:
                 return f'<gml:MultiPolygon srsName="{crs}">\n' + '\n'.join(members) + '\n</gml:MultiPolygon>'
             return ''
@@ -952,7 +945,7 @@ class GeoWebViewWFSService:
             safe_prefix = 'layer'
         # ユニークな名前空間URIを作成（ASCIIのみ）
         namespace_uri = f"http://www.opengis.net/{safe_prefix}"
-        
+
         fields = layer.fields()
 
         schema = f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -974,7 +967,7 @@ class GeoWebViewWFSService:
             schema += f"""          <xsd:element name="{field.name()}" type="{field_type}" nillable="true" minOccurs="0"/>
 """
 
-        schema += f"""        </xsd:sequence>
+        schema += """        </xsd:sequence>
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
@@ -1005,7 +998,7 @@ class GeoWebViewWFSService:
         # but keep the human-readable Title elsewhere.
         raw_id = layer.id()
         layer_name = str(raw_id)
-        
+
         # Prefer to delegate complex renderer expansion to a reusable helper
         try:
             from . import sld_renderer
@@ -1093,7 +1086,7 @@ class GeoWebViewWFSService:
             stroke_color = color.name() if color.isValid() else "#000000"
             fill_color = stroke_color
             point_size = size if size > 0 else 6
-            
+
             sld = f"""<?xml version="1.0" encoding="UTF-8"?>
 <StyledLayerDescriptor version="1.1.0" xmlns="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd">
   <NamedLayer>
@@ -1134,7 +1127,7 @@ class GeoWebViewWFSService:
             width = symbol.width()
             stroke_color = color.name() if color.isValid() else "#000000"
             stroke_width = width if width > 0 else 2
-            
+
             sld = f"""<?xml version="1.0" encoding="UTF-8"?>
 <StyledLayerDescriptor version="1.1.0" xmlns="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd">
   <NamedLayer>
@@ -1165,13 +1158,13 @@ class GeoWebViewWFSService:
             fill_color_obj = symbol.color()
             stroke_color_obj = symbol.strokeColor()
             stroke_width = symbol.strokeWidth()
-            
+
             stroke_color = stroke_color_obj.name() if stroke_color_obj.isValid() else "#000000"
             stroke_width = stroke_width if stroke_width > 0 else 1
-            
+
             opacity = symbol.opacity()
             fill_opacity = opacity if opacity >= 0 else 0.5
-            
+
             # ブラシなし（NoBrush）の検出
             has_brush = True
             try:
@@ -1187,7 +1180,7 @@ class GeoWebViewWFSService:
             except Exception as e:
                 from qgis.core import QgsMessageLog, Qgis
                 QgsMessageLog.logMessage(f"⚠️ Failed to check brush style: {e}", "geo_webview", Qgis.Warning)
-            
+
             # アルファ値（透明度）もチェック
             if has_brush and fill_color_obj is not None:
                 try:
@@ -1197,7 +1190,7 @@ class GeoWebViewWFSService:
                             from qgis.core import QgsMessageLog, Qgis
                 except Exception:
                     pass
-            
+
             # ブラシなしの場合はLineSymbolizerのみ（枠線のみ）
             if not has_brush:
                 from qgis.core import QgsMessageLog, Qgis
@@ -1222,11 +1215,11 @@ class GeoWebViewWFSService:
   </NamedLayer>
 </StyledLayerDescriptor>"""
                 return sld
-            
+
             # 通常のポリゴン（塗りつぶしあり）
             fill_color = fill_color_obj.name() if fill_color_obj.isValid() else "#808080"
             from qgis.core import QgsMessageLog, Qgis
-            
+
             sld = f"""<?xml version="1.0" encoding="UTF-8"?>
 <StyledLayerDescriptor version="1.1.0" xmlns="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd">
   <NamedLayer>

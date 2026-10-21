@@ -59,6 +59,7 @@ class plugin(object):
     def __init__(self, iface):
         self.iface = iface
         self.actions = []
+        self.macro_actions = []   # 実行メニュー項目(共有レジストリ登録時は外す)
         self.menu_name = "&geo_excel"
         self._init_language()
         # qgis_live_driver の bridge_call / describe_plugins 経由で
@@ -104,6 +105,12 @@ class plugin(object):
                 callback=lambda ctx, s=script, f=needs_fid:
                     self._macro_run(ctx, s, f),
             )
+        # 登録できたなら自前の実行メニューは外す(二重表示防止。
+        # pull経路=geo_excelが先に自前メニューを作った後でも統一される)
+        self._registered_to_userfunc = True
+        for action in self.macro_actions:
+            self.iface.removePluginMenu(self.menu_name, action)
+        self.macro_actions = []
 
     def _macro_run(self, ctx, script, needs_fid):
         """共有レジストリ経由の実行。ctx の layer/feature を優先し、
@@ -168,7 +175,7 @@ class plugin(object):
                         self._run(s, f)
                 )
                 self.iface.addPluginToMenu(self.menu_name, action)
-                self.actions.append(action)
+                self.macro_actions.append(action)
 
         settings_action = QAction(
             self.tr("Settings..."), self.iface.mainWindow())
@@ -185,9 +192,10 @@ class plugin(object):
                 except Exception:
                     pass
             self._registered_to_userfunc = False
-        for action in self.actions:
+        for action in self.actions + self.macro_actions:
             self.iface.removePluginMenu(self.menu_name, action)
         self.actions = []
+        self.macro_actions = []
         if self._settings_dialog is not None:
             self._settings_dialog.close()
             self._settings_dialog = None
@@ -261,7 +269,7 @@ class plugin(object):
         ns = {"__name__": f"geo_excel.{script_name}", "__file__": path}
         try:
             code = compile(src, path, "exec")
-            exec(code, ns)
+            exec(code, ns)  # nosec B102  # 同梱帳票スクリプトの実行が本プラグインの主目的
         except Exception as e:  # noqa: BLE001 - スクリプト側の失敗をQGISを落とさず通知する
             QMessageBox.critical(
                 self.iface.mainWindow(),
