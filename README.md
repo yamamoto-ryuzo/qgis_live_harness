@@ -130,3 +130,14 @@ GPL系が実質必須。使用コンポーネントの一覧は
   Driverの有効化は `WEBENGINE_LIVE_DIR` env または
   `プラグイン > QGIS Live Driver > リモート制御 (localhostのみ)` トグル。
   配布手順は[プラグイン配布](https://yamamoto-ryuzo.github.io/qgis_live_harness/distribution.html)を参照
+
+# 免責事項
+
+本システムは個人のPCで作成・テストされたものです。  
+ご利用によるいかなる損害も責任を負いません。
+
+<p align="center">
+  <a href="https://giphy.com/explore/free-gif" target="_blank">
+    <img src="https://github.com/yamamoto-ryuzo/QGIS_portable_3x/raw/master/imgs/giphy.gif" width="500" title="avvio QGIS">
+  </a>
+</p>

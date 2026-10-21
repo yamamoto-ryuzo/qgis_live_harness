@@ -19,3 +19,14 @@ QGIS / QField 起動用ランチャー（Rust + AXUM）。v2.0.0 からは Web U
 - サーバー停止後に残ったブラウザタブからのランチャー再起動（`kasugai-qgis:` カスタムプロトコル）
 
 詳細は [GitHub Pages](https://yamamoto-ryuzo.github.io/kasugai_qgis/) を参照してください。
+
+# 免責事項
+
+本システムは個人のPCで作成・テストされたものです。  
+ご利用によるいかなる損害も責任を負いません。
+
+<p align="center">
+  <a href="https://giphy.com/explore/free-gif" target="_blank">
+    <img src="https://github.com/yamamoto-ryuzo/QGIS_portable_3x/raw/master/imgs/giphy.gif" width="500" title="avvio QGIS">
+  </a>
+</p>
