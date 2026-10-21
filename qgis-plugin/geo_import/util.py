@@ -562,7 +562,7 @@ class Util:
         https://github.com/qgis/QGIS/blob/master/src/core/qgslayerdefinition.cpp
         """
         qfile = QFile(file_name)
-        if not qfile.open(QIODevice.ReadOnly):
+        if not qfile.open(QIODevice.OpenModeFlag.ReadOnly):
             return None
         doc = QDomDocument()
         if not doc.setContent(qfile):

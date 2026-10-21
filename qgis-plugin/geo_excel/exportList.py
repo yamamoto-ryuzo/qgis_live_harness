@@ -610,12 +610,12 @@ while True:
     overwrite = False
     if os.path.exists(output_path):
         msgbox_return = QMessageBox.question(iface.mainWindow(), QCoreApplication.translate("geo_excel", "Confirmation"), QCoreApplication.translate(
-            "geo_excel", "{0} \nalready exists.\nOverwrite it?").format(output_path), QMessageBox.Ok, QMessageBox.Cancel)
-        if msgbox_return == QMessageBox.Cancel:
+            "geo_excel", "{0} \nalready exists.\nOverwrite it?").format(output_path), QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Cancel)
+        if msgbox_return == QMessageBox.StandardButton.Cancel:
             break
         overwrite = True
 
-    with OverrideCursor(Qt.WaitCursor):
+    with OverrideCursor(Qt.CursorShape.WaitCursor):
         # Excelを開く
         try:
             excel_app = win32com.client.GetObject(Class="Excel.Application")

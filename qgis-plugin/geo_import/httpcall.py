@@ -236,8 +236,8 @@ class HttpCall:
                 httpStatus = self.reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
                 httpStatusMessage = self.reply.attribute(QNetworkRequest.Attribute.HttpReasonPhraseAttribute)
             except AttributeError:
-                httpStatus = self.reply.attribute(QNetworkRequest.HttpStatusCodeAttribute)
-                httpStatusMessage = self.reply.attribute(QNetworkRequest.HttpReasonPhraseAttribute)
+                httpStatus = self.reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
+                httpStatusMessage = self.reply.attribute(QNetworkRequest.Attribute.HttpReasonPhraseAttribute)
             self.http_call_result.status_code = httpStatus
             self.http_call_result.status_message = httpStatusMessage
             for k, v in self.reply.rawHeaderPairs():

@@ -1918,7 +1918,7 @@ class SearchDialog(QDialog):
         try:
             from qgis.PyQt.QtGui import QFont
             font = QFont("Courier New")
-            font.setStyleHint(QFont.Monospace)
+            font.setStyleHint(QFont.StyleHint.Monospace)
             font.setPointSize(10)
             return font
         except Exception:

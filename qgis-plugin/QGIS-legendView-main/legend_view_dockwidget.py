@@ -24,7 +24,7 @@ from qgis.core import QgsWkbTypes
  ***************************************************************************/
 """
 
-# QMessageBox.information(self,'Message',type(layer).__name__,QMessageBox.Ok)
+# QMessageBox.information(self,'Message',type(layer).__name__,QMessageBox.StandardButton.Ok)
 
 import os
 import re

@@ -1800,16 +1800,16 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                                 geom_type = layer.geometryType() if hasattr(layer, 'geometryType') else None
                                 # 0: Point, 1: Line, 2: Polygon
                                 if geom_type == 0:  # Point
-                                    color = symbol.color().name(QColor.HexArgb) if hasattr(symbol.color(), 'name') else symbol.color().name()
+                                    color = symbol.color().name(QColor.NameFormat.HexArgb) if hasattr(symbol.color(), 'name') else symbol.color().name()
                                 elif geom_type == 1:  # Line
-                                    color = symbol.color().name(QColor.HexArgb) if hasattr(symbol.color(), 'name') else symbol.color().name()
+                                    color = symbol.color().name(QColor.NameFormat.HexArgb) if hasattr(symbol.color(), 'name') else symbol.color().name()
                                 elif geom_type == 2:  # Polygon
                                     if hasattr(symbol, 'fillColor'):
-                                        color = symbol.fillColor().name(QColor.HexArgb) if hasattr(symbol.fillColor(), 'name') else symbol.fillColor().name()
+                                        color = symbol.fillColor().name(QColor.NameFormat.HexArgb) if hasattr(symbol.fillColor(), 'name') else symbol.fillColor().name()
                                     if hasattr(symbol, 'strokeColor'):
-                                        stroke_color = symbol.strokeColor().name(QColor.HexArgb) if hasattr(symbol.strokeColor(), 'name') else symbol.strokeColor().name()
+                                        stroke_color = symbol.strokeColor().name(QColor.NameFormat.HexArgb) if hasattr(symbol.strokeColor(), 'name') else symbol.strokeColor().name()
                                     else:
-                                        stroke_color = symbol.color().name(QColor.HexArgb) if hasattr(symbol.color(), 'name') else symbol.color().name()
+                                        stroke_color = symbol.color().name(QColor.NameFormat.HexArgb) if hasattr(symbol.color(), 'name') else symbol.color().name()
                     except Exception:
                         color = None
                         stroke_color = None
@@ -1966,22 +1966,22 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                             if symbol_layer:
                                 if hasattr(symbol_layer, 'fillColor') and callable(symbol_layer.fillColor):
                                     fill_c = symbol_layer.fillColor()
-                                    color = fill_c.name(QColor.HexArgb) if hasattr(fill_c, 'name') else str(fill_c.name())
+                                    color = fill_c.name(QColor.NameFormat.HexArgb) if hasattr(fill_c, 'name') else str(fill_c.name())
                                 if hasattr(symbol_layer, 'strokeColor') and callable(symbol_layer.strokeColor):
                                     stroke_c = symbol_layer.strokeColor()
-                                    stroke_color = stroke_c.name(QColor.HexArgb) if hasattr(stroke_c, 'name') else str(stroke_c.name())
+                                    stroke_color = stroke_c.name(QColor.NameFormat.HexArgb) if hasattr(stroke_c, 'name') else str(stroke_c.name())
                                 if geom_type == 1 and not color and hasattr(symbol_layer, 'strokeColor') and callable(symbol_layer.strokeColor):
                                     stroke_c = symbol_layer.strokeColor()
-                                    color = stroke_c.name(QColor.HexArgb) if hasattr(stroke_c, 'name') else str(stroke_c.name())
+                                    color = stroke_c.name(QColor.NameFormat.HexArgb) if hasattr(stroke_c, 'name') else str(stroke_c.name())
                                 if geom_type == 0 and not color and hasattr(symbol_layer, 'fillColor') and callable(symbol_layer.fillColor):
                                     fill_c = symbol_layer.fillColor()
-                                    color = fill_c.name(QColor.HexArgb) if hasattr(fill_c, 'name') else str(fill_c.name())
+                                    color = fill_c.name(QColor.NameFormat.HexArgb) if hasattr(fill_c, 'name') else str(fill_c.name())
                             if not color and hasattr(symbol, 'color') and callable(symbol.color):
                                 c = symbol.color()
-                                color = c.name(QColor.HexArgb) if hasattr(c, 'name') else str(c.name())
+                                color = c.name(QColor.NameFormat.HexArgb) if hasattr(c, 'name') else str(c.name())
                             if not stroke_color and hasattr(symbol, 'color') and callable(symbol.color):
                                 c = symbol.color()
-                                stroke_color = c.name(QColor.HexArgb) if hasattr(c, 'name') else str(c.name())
+                                stroke_color = c.name(QColor.NameFormat.HexArgb) if hasattr(c, 'name') else str(c.name())
                         # symbol is None の場合は何もしない
                     except Exception:
                         color = None
@@ -2863,7 +2863,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                             from qgis.PyQt.QtCore import QByteArray, QBuffer, QIODevice
                             byte_array = QByteArray()
                             buffer = QBuffer(byte_array)
-                            # QIODevice.WriteOnly may be namespaced differently in Qt6/PyQt6.
+                            # QIODevice.OpenModeFlag.WriteOnly may be namespaced differently in Qt6/PyQt6.
                             write_mode = getattr(QIODevice, 'WriteOnly', None)
                             if write_mode is None:
                                 om = getattr(QIODevice, 'OpenMode', None) or getattr(QIODevice, 'OpenModeFlag', None)
@@ -3147,7 +3147,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             from qgis.PyQt.QtCore import QByteArray, QBuffer, QIODevice
             byte_array = QByteArray()
             buffer = QBuffer(byte_array)
-            # QIODevice.WriteOnly may be namespaced differently in Qt6/PyQt6.
+            # QIODevice.OpenModeFlag.WriteOnly may be namespaced differently in Qt6/PyQt6.
             write_mode = getattr(QIODevice, 'WriteOnly', None)
             if write_mode is None:
                 om = getattr(QIODevice, 'OpenMode', None) or getattr(QIODevice, 'OpenModeFlag', None)
@@ -3190,7 +3190,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             from qgis.PyQt.QtCore import QByteArray, QBuffer, QIODevice
             byte_array = QByteArray()
             buffer = QBuffer(byte_array)
-            buffer.open(QIODevice.WriteOnly)
+            buffer.open(QIODevice.OpenModeFlag.WriteOnly)
 
             success = image.save(buffer, "PNG")
             if not success:
@@ -3213,12 +3213,12 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             from qgis.PyQt.QtCore import Qt, QByteArray, QBuffer, QIODevice
 
             # 画像を作成
-            image = QImage(width, height, QImage.Format_ARGB32)
+            image = QImage(width, height, QImage.Format.Format_ARGB32)
             image.fill(QColor(240, 240, 240))  # 明るいグレー背景
 
             # ペインターで描画
             painter = QPainter(image)
-            painter.setRenderHint(QPainter.Antialiasing)
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
             # フォントとペンを設定
             font = QFont("Arial", 12)
@@ -3234,7 +3234,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             # PNG形式でバイト配列に変換
             byte_array = QByteArray()
             buffer = QBuffer(byte_array)
-            # QIODevice.WriteOnly may be namespaced differently in Qt6/PyQt6.
+            # QIODevice.OpenModeFlag.WriteOnly may be namespaced differently in Qt6/PyQt6.
             write_mode = getattr(QIODevice, 'WriteOnly', None)
             if write_mode is None:
                 om = getattr(QIODevice, 'OpenMode', None) or getattr(QIODevice, 'OpenModeFlag', None)

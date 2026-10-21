@@ -1,5 +1,13 @@
 # CHANGELOG — geo_excel
 
+## 1.9.2
+
+- **Qt6互換性対応**: 帳票スクリプト(exportList/exportSingle/
+  exportSingleBulk/plugin)の非スコープ列挙型をスコープ化。
+  `QMessageBox.Ok/Cancel`→`StandardButton.*`、`Qt.WaitCursor`→
+  `Qt.CursorShape.WaitCursor` (Qt6では実行時AttributeErrorになる
+  潜在的クラッシュの修正。upstreamスクリプトへの最小限の差分)
+
 ## 1.9.1
 
 - **plugins.qgis.org セキュリティスキャン対応**: bandit指摘への対応。

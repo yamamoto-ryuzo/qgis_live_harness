@@ -804,8 +804,8 @@ def output_single_report(excel_app, template_path: str, feature: QgsFeature, out
     QApplication.processEvents()
     if progress.wasCanceled():
         cancel_return = QMessageBox.question(iface.mainWindow(), QCoreApplication.translate("geo_excel", "Confirmation"),
-                                             QCoreApplication.translate("geo_excel", "Abort processing?"), QMessageBox.Ok, QMessageBox.Cancel)
-        if cancel_return == QMessageBox.Ok:
+                                             QCoreApplication.translate("geo_excel", "Abort processing?"), QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Cancel)
+        if cancel_return == QMessageBox.StandardButton.Ok:
             return False
         progress.reset()
 
@@ -943,7 +943,7 @@ def get_variable_for_feature(feature: QgsFeature, raw: dict, exp: dict, variable
 # マップキャンバスの現在のカーソルを退避し、砂時計にする
 map_canvas = iface.mapCanvas()
 save_cursor = map_canvas.cursor()
-map_canvas.setCursor(Qt.WaitCursor)
+map_canvas.setCursor(Qt.CursorShape.WaitCursor)
 
 while True:
     # 対象レイヤーの全ての地物に関して帳票を出力する
@@ -1008,8 +1008,8 @@ while True:
         output_path_fixed_for_all = path_
 
     msg_return = QMessageBox.question(iface.mainWindow(), QCoreApplication.translate("geo_excel", "Confirmation"), QCoreApplication.translate(
-        "geo_excel", "Starting export of {0} reports.\nThis may take a while. Continue?").format(featureCount), QMessageBox.Ok, QMessageBox.Cancel)
-    if msg_return == QMessageBox.Cancel:
+        "geo_excel", "Starting export of {0} reports.\nThis may take a while. Continue?").format(featureCount), QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Cancel)
+    if msg_return == QMessageBox.StandardButton.Cancel:
         break
 
     # Excelを開く
