@@ -77,23 +77,98 @@ class plugin(object):
         """
         self.translator = install_translator(PLUGIN_DIR)
 
-    # ---- GUI --------------------------------------------------------------
-    def initGui(self):
-        entries = (
-            (self.tr("Export list report (active layer)"),
+    @staticmethod
+    def _entries():
+        """帳票スクリプト定義 (title, script, needs_fid) を返す。"""
+        return (
+            (plugin.tr("Export list report (active layer)"),
              "exportList.py", False),
-            (self.tr("Export single form (selected feature)"),
+            (plugin.tr("Export single form (selected feature)"),
              "exportSingle.py", True),
-            (self.tr("Bulk export single forms (selected or all features)"),
+            (plugin.tr("Bulk export single forms (selected or all features)"),
              "exportSingleBulk.py", False),
         )
-        for title, script, needs_fid in entries:
-            action = QAction(title, self.iface.mainWindow())
-            action.triggered.connect(
-                lambda checked=False, s=script, f=needs_fid: self._run(s, f)
+
+    # ---- geo_userfunc 共有レジストリ連携 ----------------------------------
+    def register_user_functions(self, registry):
+        """geo_userfunc の共有レジストリへ帳票マクロを登録する。
+
+        geo_userfunc が存在すれば、その initGui の探索(pull)または
+        こちらの initGui からの直接呼出し(push)で呼ばれる。
+        """
+        for title, script, needs_fid in self._entries():
+            registry.register_macro(
+                "geo_excel." + script,
+                title=title,
+                plugin_id="geo_excel",
+                callback=lambda ctx, s=script, f=needs_fid:
+                    self._macro_run(ctx, s, f),
             )
-            self.iface.addPluginToMenu(self.menu_name, action)
-            self.actions.append(action)
+
+    def _macro_run(self, ctx, script, needs_fid):
+        """共有レジストリ経由の実行。ctx の layer/feature を優先し、
+        無ければアクティブレイヤ/選択地物にフォールバックする。"""
+        layer = None
+        lid = (ctx or {}).get("layer_id")
+        if lid:
+            layer = QgsProject.instance().mapLayer(str(lid))
+        if not isinstance(layer, QgsVectorLayer):
+            layer = self.iface.activeLayer()
+        if not isinstance(layer, QgsVectorLayer):
+            self.iface.messageBar().pushCritical(
+                "geo_excel",
+                self.tr("Please activate a vector layer."))
+            return {"ok": False, "error": "no active vector layer"}
+
+        fid = (ctx or {}).get("feature_id")
+        if needs_fid:
+            if fid is not None:
+                fids = [int(fid)]
+            else:
+                fids = list(layer.selectedFeatureIds())
+            if not fids:
+                self.iface.messageBar().pushCritical(
+                    "geo_excel",
+                    self.tr("Please select one or more features."))
+                return {"ok": False, "error": "no feature selected"}
+            for f in fids:
+                self._exec_script(script, layer.id(), f)
+        else:
+            self._exec_script(script, layer.id(), fid)
+        return {"ok": True, "script": script, "layer": layer.name()}
+
+    def _userfunc_registry(self):
+        """ロード済みの geo_userfunc の共有レジストリを返す(無ければNone)。"""
+        try:
+            from qgis.utils import plugins
+            uf = plugins.get("geo_userfunc")
+            return getattr(uf, "registry", None) if uf is not None else None
+        except Exception:
+            return None
+
+    # ---- GUI --------------------------------------------------------------
+    def initGui(self):
+        # geo_userfunc が居れば共有レジストリへ登録し、自前の実行メニューは
+        # geo_userfunc 側に集約する(push経路。未ロード時は従来メニュー)
+        registry = self._userfunc_registry()
+        if registry is not None:
+            try:
+                self.register_user_functions(registry)
+                self._registered_to_userfunc = True
+            except Exception:
+                self._registered_to_userfunc = False
+        else:
+            self._registered_to_userfunc = False
+
+        if not self._registered_to_userfunc:
+            for title, script, needs_fid in self._entries():
+                action = QAction(title, self.iface.mainWindow())
+                action.triggered.connect(
+                    lambda checked=False, s=script, f=needs_fid:
+                        self._run(s, f)
+                )
+                self.iface.addPluginToMenu(self.menu_name, action)
+                self.actions.append(action)
 
         settings_action = QAction(
             self.tr("Settings..."), self.iface.mainWindow())
@@ -102,6 +177,14 @@ class plugin(object):
         self.actions.append(settings_action)
 
     def unload(self):
+        if getattr(self, "_registered_to_userfunc", False):
+            registry = self._userfunc_registry()
+            if registry is not None:
+                try:
+                    registry.unregister_plugin("geo_excel")
+                except Exception:
+                    pass
+            self._registered_to_userfunc = False
         for action in self.actions:
             self.iface.removePluginMenu(self.menu_name, action)
         self.actions = []

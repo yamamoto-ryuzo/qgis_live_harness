@@ -1,5 +1,16 @@
 # CHANGELOG — geo_excel
 
+## 1.9.0
+
+- **geo_userfunc 共有レジストリ連携**: geo_userfunc がロード済みなら
+  帳票マクロ(exportList/exportSingle/exportSingleBulk)を
+  `registry.register_macro` で共有レジストリへ登録し、実行メニューを
+  geo_userfunc 側へ集約する(push経路)。geo_userfunc 側の
+  `register_user_functions` 探索(pull)にも対応。
+  geo_userfunc 未ロード時は従来どおり自前メニューにフォールバック。
+  共有実行は `_macro_run(ctx, ...)` で ctx の layer/feature を優先し、
+  無ければアクティブレイヤ/選択地物を使う
+
 ## 1.8.0
 
 - 変数(@…)および詳細フィルター式対応(upstream issue #1)。

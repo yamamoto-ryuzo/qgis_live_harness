@@ -4,7 +4,7 @@ qgisMinimumVersion=4.0
 qgisMaximumVersion=4.99
 description=ベクターレイヤの属性情報をExcel帳票として出力するスクリプト群(QGIS-exportExcel)の簡易プラグインラッパー
 about=QGIS-exportExcel (https://github.com/yamamoto-ryuzo/QGIS-exportExcel) のレイヤアクション用スクリプト(exportList/exportSingle/exportSingleBulk)を、プラグインメニューからアクティブレイヤ・選択地物に対して実行します。実行にはレイヤ変数(xlsout_*)とwin32com(pywin32)及びExcelが必要です。
-version=1.8.0
+version=1.9.0
 author=yamamoto-ryuzo
 email=ryu@yamakun.net
 homepage=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_excel
@@ -12,6 +12,10 @@ tracker=https://github.com/yamamoto-ryuzo/qgis_live_harness/issues
 repository=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_excel
 hasProcessingProvider=no
 changelog=
+    Version 1.9.0:
+    - geo_userfunc の共有レジストリへ帳票マクロを登録
+      (geo_userfunc ロード時は実行メニューを geo_userfunc 側に集約、
+      未ロード時は従来どおり自前メニュー)
     Version 1.6.0:
     - 設定ダイアログを追加(メニュー Settings...)。
       環境チェック(win32com/Excel登録/出力先)・必要物の列挙・

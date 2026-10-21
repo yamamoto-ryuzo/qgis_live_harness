@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Exec(target\\release\\qgis_launcher.exe)",
+      "Exec(cargo check)",
+      "Exec(git diff)",
+      "Exec(Select-Object)",
+      "Exec(Expand-Archive)",
+      "Exec(Copy-Item)",
+      "Exec(git status)",
+      "Exec(Get-Command tar)"
+    ]
+  }
+}

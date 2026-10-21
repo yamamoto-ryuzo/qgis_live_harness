@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Kasugai QGIS ランチャー</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <style>
+    body { font-family: sans-serif; margin: 24px; max-width: 720px; background-color: #ffffff; color: #000000; }
+    h1 { color: #15803d; }
+    label { display: block; margin-top: 12px; font-weight: bold; color: #15803d; }
+    input, select, textarea { width: 100%; padding: 6px; box-sizing: border-box; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; }
+    textarea { height: 120px; }
+    #raw-settings { height: 320px; font-family: monospace; }
+    .row { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+    button { padding: 8px 16px; cursor: pointer; background-color: #22c55e; color: #ffffff; border: none; border-radius: 6px; transition: background-color 0.2s; }
+    button:hover { background-color: #16a34a; }
+    #stop-server { background-color: #ef4444; }
+    #stop-server:hover { background-color: #dc2626; }
+    #status { margin: 16px 0; padding: 8px; background: #f1f5f9; border-radius: 4px; white-space: pre-wrap; }
+    .ok { color: #22c55e; }
+    .err { color: #ef4444; }
+    .tabs { display: flex; gap: 5px; padding: 10px; background: #ffffff; border-bottom: 1px solid #cbd5e1; }
+    .tab-button { padding: 6px 12px; border: none; background: #ffffff; color: #000000; cursor: pointer; border-radius: 6px; }
+    .tab-button.active { background: #22c55e; color: #ffffff; font-weight: bold; border-radius: 6px; }
+    .tab-content { display: none; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); padding: 16px; margin-top: 10px; }
+    .tab-content.active { display: block; }
+    .readonly { background: #f8fafc; }
+    .sub-tabs { display: flex; gap: 5px; padding: 0 10px; background: #ffffff; border-bottom: 1px solid #cbd5e1; margin-bottom: 12px; }
+    .sub-tab-button { padding: 6px 12px; border: none; background: #ffffff; color: #000000; cursor: pointer; border-radius: 6px; }
+    .sub-tab-button.active { background: #22c55e; color: #ffffff; font-weight: bold; border-radius: 6px; }
+    .sub-tab-content { display: none; }
+    .sub-tab-content.active { display: block; }
+    .sub-section { margin-bottom: 12px; }
+    .sub-section label { font-size: 0.9em; color: #15803d; }
+    .sub-array-item { border: 1px solid #cbd5e1; padding: 10px; margin-bottom: 10px; background: #ffffff; border-radius: 4px; }
+    .inline { width: auto; display: inline-block; }
+    .drive-tabs { display: flex; gap: 5px; padding: 0 10px; background: #ffffff; border-bottom: 1px solid #cbd5e1; margin-bottom: 12px; }
+    .drive-tab-button { padding: 6px 12px; border: none; background: #ffffff; color: #000000; cursor: pointer; border-radius: 6px; }
+    .drive-tab-button.active { background: #22c55e; color: #ffffff; font-weight: bold; border-radius: 6px; }
+    .drive-tab-panel { display: none; }
+    .drive-tab-panel.active { display: block; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: #ffffff; padding: 20px; border-radius: 8px; width: 80%; max-width: 600px; }
+    #progress-bar { width: 100%; }
+    #progress-messages { max-height: 200px; overflow-y: auto; font-size: 0.85em; color: #64748b; margin-top: 10px; }
+    #update-banner { display: none; margin: 12px 0; padding: 12px; border: 1px solid #f59e0b; background: #fef3c7; border-radius: 4px; }
+    #update-banner.active { display: block; }
+    #update-banner.blocked { border-color: #ef4444; background: #fee2e2; }
+    #update-banner .notes { font-size: 0.9em; color: #64748b; margin: 6px 0 0; white-space: pre-wrap; }
+    #lang-select { margin-left: auto; width: auto; padding: 2px 8px; }
+    .checkbox-label { display: flex; align-items: center; gap: 8px; font-weight: normal; }
+    .checkbox-label input[type="checkbox"] { width: auto; }
+    #live-status { font-size: 0.85em; color: #64748b; margin: 4px 0 0 0; }
+    #live-status.active { color: #15803d; }
+  </style>
+</head>
+<body>
+  <h1><span data-i18n="app_title">Kasugai QGIS ランチャー</span> <span id="app-version" style="font-size: 0.5em; color: #64748b; margin-left: 12px; font-weight: normal; background: #ffffff; padding: 2px 8px; border-radius: 4px; vertical-align: middle;"></span></h1>
+
+  <div id="update-banner">
+    <strong id="update-title"></strong>
+    <p id="update-notes" class="notes"></p>
+    <div class="row">
+      <button id="update-apply" data-i18n="update_apply_now">今すぐ更新する</button>
+      <button id="update-dismiss" data-i18n="update_dismiss">あとで</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-button active" data-tab="tab-launch" data-i18n="tab_launch">起動</button>
+    <button class="tab-button" data-tab="tab-paths" data-i18n="tab_paths">探索パス</button>
+    <button class="tab-button" data-tab="tab-raw" data-i18n="tab_raw">詳細設定</button>
+    <button class="tab-button" data-tab="tab-maint" data-i18n="tab_maint">設定</button>
+    <select id="lang-select" title="Language / 言語"></select>
+  </div>
+
+  <div id="tab-launch" class="tab-content active">
+    <label data-i18n="label_profile">プロファイル</label>
+    <select id="profile"></select>
+
+    <label data-i18n="label_userrole">ユーザーロール</label>
+    <select id="role">
+      <option value="Viewer">Viewer</option>
+      <option value="Editor">Editor</option>
+      <option value="Administrator">Administrator</option>
+    </select>
+
+    <label data-i18n="label_project">プロジェクト</label>
+    <select id="project-select"></select>
+
+    <label data-i18n="label_project_version">プロジェクトファイルバージョン</label>
+    <input id="project-version" type="text" class="readonly" readonly>
+
+    <label data-i18n="label_qgis_version">QGIS バージョン</label>
+    <select id="qgis"></select>
+
+    <label class="checkbox-label"><input type="checkbox" id="dev-mode"> <span data-i18n="label_dev_mode">開発モード（QGIS Live Harness）</span></label>
+    <div id="live-status"></div>
+
+    <div class="row">
+      <button id="reset" data-i18n="btn_reset_profile">プロファイルを初期化</button>
+      <button id="save-launch" data-i18n="btn_save_launch">起動設定を保存</button>
+      <button id="launch" data-i18n="btn_launch">QGIS を起動</button>
+    </div>
+  </div>
+
+  <div id="tab-paths" class="tab-content">
+    <label data-i18n="label_project_paths">プロジェクト探索パス（改行区切り）</label>
+    <textarea id="project-sources" placeholder="C:\\Box\\projects&#10;またはフォルダパス" data-i18n-ph="ph_project_sources"></textarea>
+    <div class="row">
+      <button id="save-paths" data-i18n="btn_save_paths">探索パスを保存</button>
+      <button id="reload-all" data-i18n="btn_reload_all">設定と一覧を再読み込み</button>
+    </div>
+  </div>
+
+  <div id="tab-raw" class="tab-content">
+    <div class="sub-tabs">
+      <button class="sub-tab-button active" data-tab="sub-localsync" data-i18n="subtab_localsync">local_sync</button>
+      <button class="sub-tab-button" data-tab="sub-drives" data-i18n="subtab_drives">drive_mappings</button>
+      <button class="sub-tab-button" data-tab="sub-aliases" data-i18n="subtab_aliases">path_aliases</button>
+      <button class="sub-tab-button" data-tab="sub-raw" data-i18n="subtab_raw">生 JSON</button>
+    </div>
+
+    <div id="sub-localsync" class="sub-tab-content active">
+      <div class="sub-section">
+        <label>sync_src</label><input type="text" id="raw-sync_src">
+        <label>sync_dst</label><input type="text" id="raw-sync_dst">
+        <label>qfield_version</label><input type="text" id="raw-qfield_version">
+        <label>qgis_version</label><input type="text" id="raw-qgis_version">
+        <label data-i18n="label_exclude_dirs">exclude_dirs（改行区切り）</label><textarea id="raw-exclude_dirs"></textarea>
+        <label>portable_profile_version</label><input type="text" id="raw-portable_profile_version">
+      </div>
+    </div>
+
+    <div id="sub-drives" class="sub-tab-content">
+      <div class="drive-tabs">
+        <button type="button" class="drive-tab-button active" data-drive="raw-drive-0" data-i18n="drive_tab" data-i18n-args='{"n":1}'>ドライブ1</button>
+        <button type="button" class="drive-tab-button" data-drive="raw-drive-1" data-i18n="drive_tab" data-i18n-args='{"n":2}'>ドライブ2</button>
+      </div>
+      <div id="raw-drive-0" class="drive-tab-panel active"></div>
+      <div id="raw-drive-1" class="drive-tab-panel"></div>
+    </div>
+
+    <div id="sub-aliases" class="sub-tab-content">
+      <div id="raw-aliases-list"></div>
+      <button type="button" id="raw-add-alias" data-i18n="btn_add_alias">エイリアスを追加</button>
+    </div>
+
+    <div id="sub-raw" class="sub-tab-content">
+      <label data-i18n="label_raw_json">qgis_settings.json（生 JSON）</label>
+      <textarea id="raw-settings" placeholder='{&#10;  "profile": "geo_custom",&#10;  "project_path": [],&#10;  ...&#10;}'></textarea>
+    </div>
+
+    <div class="row">
+      <button id="save-raw" data-i18n="btn_save_json">JSON 設定を保存</button>
+      <button id="reload-raw" data-i18n="btn_reload">再読み込み</button>
+    </div>
+  </div>
+
+  <div id="tab-maint" class="tab-content">
+    <label data-i18n="label_project_root">ファイル保存先（project_root）※空欄で qgis_settings.json と同じフォルダ</label>
+    <input id="project-root" type="text" placeholder="C:\\work\\qgis_data または相対パス" data-i18n-ph="ph_project_root">
+    <div class="row">
+      <button id="save-project-root" data-i18n="btn_save_project_root">ファイル保存先を保存</button>
+    </div>
+
+    <label data-i18n="label_port">待ち受けポート（qgis_settings.json に保存）</label>
+    <input id="port-setting" type="number" min="1024" max="65535" value="8500">
+    <p style="font-size: small; color: #64748b;" data-i18n="note_port_restart">変更はサーバー再起動後に反映されます。</p>
+
+    <div class="row">
+      <button id="save-port" data-i18n="btn_save_port">ポートを保存</button>
+      <button id="stop-server" data-i18n="btn_stop_server">Axum サーバーを停止</button>
+    </div>
+
+    <div class="row">
+      <button id="check-update" data-i18n="btn_check_update">更新を確認</button>
+    </div>
+  </div>
+
+  <div id="status"></div>
+  <div id="restart-box" style="display:none; margin: 8px 0;">
+    <button id="restart-launcher" data-i18n="btn_restart_launcher">ランチャーを再起動</button>
+  </div>
+
+  <div id="progress-modal" class="modal-overlay">
+    <div class="modal">
+      <h3 data-i18n="progress_resetting">プロファイルを初期化中...</h3>
+      <progress id="progress-bar" value="0" max="100"></progress>
+      <div id="progress-messages"></div>
+    </div>
+  </div>
+
+  <script src="/i18n.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const status = (msg, cls) => {
+      $('status').textContent = msg;
+      $('status').className = cls || '';
+    };
+
+    function showTab(id) {
+      document.querySelectorAll('.tab-button').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === id));
+    }
+
+    document.querySelectorAll('.tab-button').forEach(b => {
+      b.addEventListener('click', () => showTab(b.dataset.tab));
+    });
+
+    async function api(method, path, body) {
+      const opts = { method };
+      if (body !== undefined) {
+        opts.headers = { 'Content-Type': 'application/json' };
+        opts.body = JSON.stringify(body);
+      }
+      let res;
+      try {
+        res = await fetch(path, opts);
+      } catch (e) {
+        // サーバー停止・接続拒否などネットワークレベルの失敗（Failed to fetch 等）
+        const box = $('restart-box');
+        if (box) box.style.display = 'block';
+        throw new Error(t('status_server_unreachable', { msg: e.message }));
+      }
+      if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
+      if (res.headers.get('content-type')?.includes('application/json')) {
+        return await res.json();
+      }
+      return await res.text();
+    }
+
+    let currentSettings = {};
+
+    async function loadSettings() {
+      currentSettings = await api('GET', '/settings');
+      $('project-sources').value = (currentSettings.project_path || []).join('\n');
+      $('profile').value = currentSettings.profile || '';
+      $('role').value = currentSettings.userrole || 'Viewer';
+      $('qgis').value = currentSettings.qgis_executable || '';
+      $('dev-mode').checked = !!currentSettings.dev_mode;
+      $('project-root').value = currentSettings.project_root || '';
+      $('port-setting').value = window.location.port || '8500';
+      loadRawSettings();
+    }
+
+    function loadRawSettings() {
+      $('raw-settings').value = JSON.stringify(currentSettings, null, 2);
+      renderRawForm();
+    }
+
+    function showSubTab(id) {
+      document.querySelectorAll('.sub-tab-button').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+      document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.toggle('active', c.id === id));
+    }
+
+    document.querySelectorAll('.sub-tab-button').forEach(b => {
+      b.addEventListener('click', () => showSubTab(b.dataset.tab));
+    });
+
+    function showDriveTab(id) {
+      document.querySelectorAll('.drive-tab-button').forEach(b => b.classList.toggle('active', b.dataset.drive === id));
+      document.querySelectorAll('.drive-tab-panel').forEach(c => c.classList.toggle('active', c.id === id));
+    }
+
+    document.querySelectorAll('.drive-tab-button').forEach(b => {
+      b.addEventListener('click', () => showDriveTab(b.dataset.drive));
+    });
+
+    function esc(s) {
+      return s == null ? '' : String(s).replace(/"/g, '&quot;');
+    }
+
+    function joinArr(arr) {
+      return (arr || []).join('\n');
+    }
+
+    function splitArr(text) {
+      return text.split('\n').map(x => x.trim()).filter(x => x);
+    }
+
+    function renderLocalSync() {
+      const s = currentSettings.local_sync || {};
+      const root = currentSettings.project_root || '';
+      $('raw-sync_src').value = s.sync_src || root;
+      $('raw-sync_dst').value = s.sync_dst || root;
+      $('raw-qfield_version').value = s.qfield_version || '';
+      $('raw-qgis_version').value = s.qgis_version || '';
+      $('raw-exclude_dirs').value = joinArr(s.exclude_dirs);
+      $('raw-portable_profile_version').value = s.portable_profile_version || '';
+    }
+
+    function renderDrivePanel(idx) {
+      const d = (currentSettings.drive_mappings || [])[idx] || {
+        drive: '', local_cache: '', mode: 'subst', read_only: false, remote: null,
+        robocopy_exclude: [], robocopy_src: null,
+        vfs_cache_max_age: null, vfs_cache_max_size: null, vfs_cache_mode: null,
+        vfs_cache_poll_interval: null, vfs_write_back: null
+      };
+      const c = document.getElementById(`raw-drive-${idx}`);
+      c.innerHTML = `
+        <div class="sub-array-item">
+          <label>drive</label><input type="text" id="raw-drive-${idx}-drive" value="${esc(d.drive)}">
+          <label>local_cache</label><input type="text" id="raw-drive-${idx}-local_cache" value="${esc(d.local_cache)}">
+          <label>mode</label><input type="text" id="raw-drive-${idx}-mode" value="${esc(d.mode)}">
+          <label><input type="checkbox" id="raw-drive-${idx}-read_only" class="inline" ${d.read_only ? 'checked' : ''}> read_only</label>
+          <label>remote</label><input type="text" id="raw-drive-${idx}-remote" value="${d.remote == null ? '' : esc(d.remote)}">
+          <label>robocopy_src</label><input type="text" id="raw-drive-${idx}-robocopy_src" value="${d.robocopy_src == null ? '' : esc(d.robocopy_src)}">
+          <label data-i18n="label_robocopy_exclude">robocopy_exclude（改行区切り）</label><textarea id="raw-drive-${idx}-robocopy_exclude">${joinArr(d.robocopy_exclude)}</textarea>
+          <label>vfs_cache_mode</label><input type="text" id="raw-drive-${idx}-vfs_cache_mode" value="${d.vfs_cache_mode == null ? '' : esc(d.vfs_cache_mode)}">
+        </div>
+      `;
+    }
+
+    function renderDrives() {
+      renderDrivePanel(0);
+      renderDrivePanel(1);
+    }
+
+    function renderAliases() {
+      const c = $('raw-aliases-list');
+      c.innerHTML = '';
+      const aliases = currentSettings.path_aliases || {};
+      let i = 0;
+      for (const [k, v] of Object.entries(aliases)) {
+        const div = document.createElement('div');
+        div.className = 'sub-array-item';
+        div.innerHTML = `
+          <label data-i18n="alias_name">名前</label><input type="text" id="raw-alias-${i}-key" value="${esc(k)}">
+          <label data-i18n="alias_path">パス</label><input type="text" id="raw-alias-${i}-val" value="${esc(v)}">
+          <button type="button" class="raw-remove-alias" data-idx="${i}" data-i18n="btn_remove">削除</button>
+        `;
+        c.appendChild(div);
+        i++;
+      }
+      c.querySelectorAll('.raw-remove-alias').forEach(b => {
+        b.addEventListener('click', () => { removeAliasByIndex(b.dataset.idx); updateFromForm(); });
+      });
+    }
+
+    function removeAliasByIndex(idx) {
+      const keys = Object.keys(currentSettings.path_aliases || {});
+      if (keys[idx]) delete currentSettings.path_aliases[keys[idx]];
+    }
+
+    function renderRawForm() {
+      renderLocalSync();
+      renderDrives();
+      renderAliases();
+      // 動的に生成した要素の data-i18n を反映する
+      if (typeof applyI18n === 'function') applyI18n();
+    }
+
+    function collectLocalSync() {
+      const root = currentSettings.project_root || '';
+      currentSettings.local_sync = {
+        sync_src: $('raw-sync_src').value.trim() || root,
+        sync_dst: $('raw-sync_dst').value.trim() || root,
+        qfield_version: $('raw-qfield_version').value || '',
+        qgis_version: $('raw-qgis_version').value || '',
+        exclude_dirs: splitArr($('raw-exclude_dirs').value),
+        portable_profile_version: $('raw-portable_profile_version').value || ''
+      };
+    }
+
+    function collectDrive(idx) {
+      const c = document.getElementById(`raw-drive-${idx}`);
+      const get = name => {
+        const input = c.querySelector(`#raw-drive-${idx}-${name}`);
+        if (!input) return null;
+        if (input.type === 'checkbox') return input.checked;
+        const v = input.value.trim();
+        return v === '' ? null : v;
+      };
+      const arr = name => {
+        const input = c.querySelector(`#raw-drive-${idx}-${name}`);
+        return input ? splitArr(input.value) : [];
+      };
+      return {
+        drive: get('drive') || '',
+        local_cache: get('local_cache') || '',
+        mode: get('mode') || 'subst',
+        read_only: !!get('read_only'),
+        remote: get('remote'),
+        robocopy_src: get('robocopy_src'),
+        robocopy_exclude: arr('robocopy_exclude'),
+        vfs_cache_max_age: null,
+        vfs_cache_max_size: null,
+        vfs_cache_mode: get('vfs_cache_mode'),
+        vfs_cache_poll_interval: null,
+        vfs_write_back: null
+      };
+    }
+
+    function collectDrives() {
+      const drives = [];
+      const d0 = collectDrive(0);
+      const d1 = collectDrive(1);
+      if (d0.drive) drives.push(d0);
+      if (d1.drive) drives.push(d1);
+      currentSettings.drive_mappings = drives;
+    }
+
+    function collectAliases() {
+      const aliases = {};
+      document.querySelectorAll('#raw-aliases-list .sub-array-item').forEach(el => {
+        const key = el.querySelector('[id$="-key"]').value.trim();
+        const val = el.querySelector('[id$="-val"]').value.trim();
+        if (key) aliases[key] = val;
+      });
+      currentSettings.path_aliases = aliases;
+    }
+
+    function collectRawForm() {
+      collectLocalSync();
+      collectDrives();
+      collectAliases();
+    }
+
+    function updateFromForm() {
+      collectRawForm();
+      $('raw-settings').value = JSON.stringify(currentSettings, null, 2);
+      renderRawForm();
+    }
+
+    function updateFromTextarea() {
+      try {
+        currentSettings = JSON.parse($('raw-settings').value);
+        renderRawForm();
+      } catch (e) { /* 入力中は無視 */ }
+    }
+
+    function addAliasItem() {
+      if (!currentSettings.path_aliases) currentSettings.path_aliases = {};
+      currentSettings.path_aliases[''] = '';
+      updateFromForm();
+    }
+
+    document.getElementById('raw-add-alias').addEventListener('click', addAliasItem);
+    document.getElementById('raw-settings').addEventListener('blur', updateFromTextarea);
+
+    async function loadProfiles() {
+      const list = await api('GET', '/profiles');
+      const sel = $('profile');
+      sel.innerHTML = '';
+      list.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.name;
+        opt.textContent = v.name;
+        sel.appendChild(opt);
+      });
+      if (currentSettings.profile) sel.value = currentSettings.profile;
+    }
+
+    async function loadProjects() {
+      const list = await api('GET', '/projects');
+      const sel = $('project-select');
+      sel.innerHTML = '';
+      list.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.path;
+        opt.textContent = v.display;
+        sel.appendChild(opt);
+      });
+      if (currentSettings.current_project) {
+        sel.value = currentSettings.current_project;
+      } else if (list.length > 0) {
+        sel.selectedIndex = 0;
+      }
+      checkProjectVersion();
+    }
+
+    async function loadQgis() {
+      const list = await api('GET', '/qgis');
+      const sel = $('qgis');
+      sel.innerHTML = '';
+      list.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.path;
+        opt.textContent = v.name;
+        sel.appendChild(opt);
+      });
+      if (currentSettings.qgis_executable) {
+        sel.value = currentSettings.qgis_executable;
+      }
+      // 設定値が選択肢に一致しない場合（8.3 短縮パスなど）や未設定の場合は先頭を選択する
+      if (sel.selectedIndex === -1 && list.length > 0) {
+        sel.selectedIndex = 0;
+      }
+    }
+
+    async function checkProjectVersion() {
+      const path = $('project-select').value;
+      if (!path) {
+        $('project-version').value = '';
+        return;
+      }
+      try {
+        const res = await api('GET', '/project-version?path=' + encodeURIComponent(path));
+        $('project-version').value = res.version || t('version_unavailable');
+      } catch (e) {
+        $('project-version').value = t('version_failed');
+      }
+    }
+
+    async function saveLaunchSettings() {
+      try {
+        const s = { ...currentSettings };
+        s.profile = $('profile').value;
+        s.userrole = $('role').value;
+        s.current_project = $('project-select').value || null;
+        s.qgis_executable = $('qgis').value || null;
+        s.dev_mode = $('dev-mode').checked;
+        await api('POST', '/settings', s);
+        status(t('status_saved_launch'), 'ok');
+      } catch (e) {
+        status(t('status_saved_launch_fail', { msg: e.message }), 'err');
+      }
+    }
+
+    async function saveProjectPaths() {
+      try {
+        const s = { ...currentSettings };
+        s.project_path = $('project-sources').value.split('\n').map(x => x.trim()).filter(x => x);
+        await api('POST', '/settings', s);
+        status(t('status_saved_paths'), 'ok');
+        await loadProjects();
+      } catch (e) {
+        status(t('status_saved_paths_fail', { msg: e.message }), 'err');
+      }
+    }
+
+    async function saveRawSettings() {
+      try {
+        const text = $('raw-settings').value;
+        const parsed = JSON.parse(text);
+        await api('POST', '/settings', parsed);
+        currentSettings = parsed;
+        status(t('status_saved_json'), 'ok');
+        await loadProjects();
+        await loadProfiles();
+        await loadQgis();
+        loadRawSettings();
+      } catch (e) {
+        status(t('status_saved_json_fail', { msg: e.message }), 'err');
+      }
+    }
+
+    // カスタムプロトコル kasugai-qgis: でランチャーの新しいインスタンスを起動する。
+    // サーバーが復旧したらこのタブをリロードして UI を復帰させる。
+    async function restartLauncher() {
+      const box = $('restart-box');
+      if (box) box.style.display = 'none';
+      window.location.href = 'kasugai-qgis://restart';
+      const st = $('status');
+      if (st) status(t('status_restarting'), 'ok');
+      for (let i = 0; i < 90; i++) {
+        await new Promise(r => setTimeout(r, 1000));
+        try {
+          const res = await fetch('/health', { cache: 'no-store' });
+          if (res.ok) { location.reload(); return; }
+        } catch (e) { /* まだ起動していない */ }
+      }
+      if (st) status(t('status_restart_timeout'), 'err');
+      if (box) box.style.display = 'block';
+    }
+
+    // サーバー停止後にタブを閉じる。OS から開かれたタブは window.close() が
+    // ブロックされることが多いため、閉じられなければ案内画面に置き換える。
+    function closeTabAfterServerStop() {
+      setTimeout(() => { try { window.close(); } catch (e) { /* ignore */ } }, 800);
+      setTimeout(() => {
+        const div = document.createElement('div');
+        div.style.cssText = 'font-family:sans-serif;padding:48px;';
+        const h = document.createElement('h2');
+        h.style.color = '#15803d';
+        h.textContent = t('status_server_stopped_close');
+        const btn = document.createElement('button');
+        btn.style.cssText = 'padding:8px 16px;cursor:pointer;background-color:#22c55e;color:#ffffff;border:none;border-radius:6px;margin-top:16px;';
+        btn.textContent = t('btn_restart_launcher');
+        btn.addEventListener('click', () => {
+          btn.disabled = true;
+          btn.textContent = t('status_restarting');
+          restartLauncher();
+        });
+        div.appendChild(h);
+        div.appendChild(btn);
+        document.body.innerHTML = '';
+        document.body.appendChild(div);
+      }, 1400);
+    }
+
+    async function launchQgis() {
+      try {
+        const body = {
+          profile: $('profile').value,
+          project_paths: [$('project-select').value].filter(x => x),
+          executable: $('qgis').value,
+          role: $('role').value,
+          dev_mode: $('dev-mode').checked
+        };
+        const res = await api('POST', '/launch', body);
+        status(t('status_launched'), 'ok');
+        closeTabAfterServerStop();
+      } catch (e) {
+        status(t('status_launch_fail', { msg: e.message }), 'err');
+      }
+    }
+
+    let progressTimer = null;
+
+    function openProgress() {
+      $('progress-modal').classList.add('active');
+      $('progress-bar').value = 0;
+      $('progress-messages').innerHTML = '';
+    }
+
+    function closeProgress() {
+      $('progress-modal').classList.remove('active');
+    }
+
+    function stopProgress() {
+      if (progressTimer) {
+        clearInterval(progressTimer);
+        progressTimer = null;
+      }
+      closeProgress();
+    }
+
+    async function pollProgress() {
+      try {
+        const res = await api('GET', '/progress');
+        const messages = res.messages || [];
+        const msgsDiv = $('progress-messages');
+        msgsDiv.innerHTML = messages.map(m => `<div>${esc(m)}</div>`).join('');
+        msgsDiv.scrollTop = msgsDiv.scrollHeight;
+        const prog = messages.find(m => m.startsWith('PROG:'));
+        if (prog) {
+          const v = parseInt(prog.replace('PROG:', ''), 10);
+          if (!isNaN(v)) $('progress-bar').value = v;
+        }
+        if (messages.some(m => m.startsWith('MSG:done'))) {
+          stopProgress();
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    function startProgress() {
+      openProgress();
+      pollProgress();
+      progressTimer = setInterval(pollProgress, 200);
+    }
+
+    async function resetProfiles() {
+      if (!confirm(t('confirm_reset'))) return;
+      startProgress();
+      try {
+        const res = await api('POST', '/reset');
+        status(t('status_reset_done', { msg: JSON.stringify(res) }), 'ok');
+      } catch (e) {
+        status(t('status_reset_fail', { msg: e.message }), 'err');
+      } finally {
+        stopProgress();
+      }
+    }
+
+    // 更新は「通知のみ」。適用は必ずユーザー操作で行う（自動適用は更新ループの原因になる）。
+    let latestUpdate = null;
+
+    function setVersion(v) {
+      const el = $('app-version');
+      if (el) el.textContent = v ? 'v' + v : '';
+    }
+
+    function showUpdateBanner(res) {
+      latestUpdate = res;
+      const banner = $('update-banner');
+      $('update-title').textContent = res.blocked
+        ? t('update_blocked_title', { version: res.version })
+        : t('update_available_title', { version: res.version, current: res.current });
+      $('update-notes').textContent = res.blocked ? res.blocked_reason : (res.notes || '');
+      $('update-apply').textContent = res.blocked ? t('update_apply_force') : t('update_apply_now');
+      banner.classList.toggle('blocked', !!res.blocked);
+      banner.classList.add('active');
+    }
+
+    function hideUpdateBanner() {
+      $('update-banner').classList.remove('active');
+    }
+
+    // auto=true: 起動直後の自動チェック。更新がない場合は何も表示しない。
+    async function checkUpdate(auto) {
+      try {
+        const res = await api('GET', '/update');
+        setVersion(res.current);
+        if (!res.available) {
+          hideUpdateBanner();
+          if (!auto) status(res.disabled ? t('update_disabled') : t('update_none', { current: res.current }), 'ok');
+          return;
+        }
+        showUpdateBanner(res);
+        if (!auto) status(t('update_available_msg', { version: res.version }), 'ok');
+      } catch (e) {
+        if (!auto) status(t('update_check_failed', { msg: e.message }), 'err');
+      }
+    }
+
+    async function applyUpdate() {
+      if (!latestUpdate) return;
+      const force = !!latestUpdate.blocked;
+      const msg = force
+        ? t('update_confirm_force', { reason: latestUpdate.blocked_reason })
+        : t('update_confirm', { version: latestUpdate.version });
+      if (!confirm(msg)) return;
+      $('update-apply').disabled = true;
+      try {
+        const res = await api('POST', '/update/apply', { force });
+        status(res.message, res.ok ? 'ok' : 'err');
+        if (res.ok) {
+          hideUpdateBanner();
+          closeTabAfterServerStop();
+        }
+      } catch (e) {
+        // 更新が始まるとサーバーが終了するため、通信エラーは想定内
+        status(t('update_started'), 'ok');
+        closeTabAfterServerStop();
+      } finally {
+        $('update-apply').disabled = false;
+      }
+    }
+
+    async function savePort() {
+      try {
+        const s = { ...currentSettings };
+        const port = parseInt($('port-setting').value, 10);
+        if (port < 1024 || port > 65535) throw new Error(t('err_port_range'));
+        s.api_server_port = port;
+        await api('POST', '/settings', s);
+        currentSettings = s;
+        status(t('status_saved_port'), 'ok');
+      } catch (e) {
+        status(t('status_saved_port_fail', { msg: e.message }), 'err');
+      }
+    }
+
+    async function saveProjectRoot() {
+      try {
+        const s = { ...currentSettings };
+        const v = $('project-root').value.trim();
+        s.project_root = v ? v : null;
+        await api('POST', '/settings', s);
+        currentSettings = s;
+        await reloadAll();
+        status(t('status_saved_root'), 'ok');
+      } catch (e) {
+        status(t('status_saved_root_fail', { msg: e.message }), 'err');
+      }
+    }
+
+    async function stopServer() {
+      if (!confirm(t('confirm_stop'))) return;
+      try {
+        await api('POST', '/api/v1/server/stop');
+        status(t('status_stopped'), 'ok');
+      } catch (e) {
+        status(t('status_stop_sent'), 'ok');
+      }
+      closeTabAfterServerStop();
+    }
+
+    // QGIS Live Driver の稼働セッションを表示する。
+    // ~/.qgis-live/<pid>-qgis_live_driver.json のレジストリをサーバー経由で読む。
+    async function refreshLiveStatus() {
+      const el = $('live-status');
+      if (!el) return;
+      try {
+        const sessions = await api('GET', '/live-sessions');
+        const alive = (sessions || []).filter(s => s.alive);
+        if (alive.length > 0) {
+          el.textContent = t('live_session_active', { pid: alive.map(s => s.pid).join(', ') });
+          el.className = 'active';
+        } else {
+          el.textContent = t('live_session_none');
+          el.className = '';
+        }
+      } catch (e) {
+        el.textContent = '';
+        el.className = '';
+      }
+    }
+
+    async function reloadAll() {
+      await loadSettings();
+      await Promise.all([loadProfiles(), loadProjects(), loadQgis()]);
+      status(t('status_reloaded'), 'ok');
+    }
+
+    $('save-launch').addEventListener('click', saveLaunchSettings);
+    $('launch').addEventListener('click', launchQgis);
+    $('save-paths').addEventListener('click', saveProjectPaths);
+    $('reload-all').addEventListener('click', reloadAll);
+    $('save-raw').addEventListener('click', saveRawSettings);
+    $('reload-raw').addEventListener('click', loadRawSettings);
+    $('reset').addEventListener('click', resetProfiles);
+    $('check-update').addEventListener('click', () => checkUpdate(false));
+    $('update-apply').addEventListener('click', applyUpdate);
+    $('update-dismiss').addEventListener('click', hideUpdateBanner);
+    $('save-port').addEventListener('click', savePort);
+    $('save-project-root').addEventListener('click', saveProjectRoot);
+    $('stop-server').addEventListener('click', stopServer);
+    $('restart-launcher').addEventListener('click', restartLauncher);
+    $('project-select').addEventListener('change', checkProjectVersion);
+    $('tab-raw').addEventListener('change', (e) => { if (e.target.id !== 'raw-settings') updateFromForm(); });
+
+    // 言語切替セレクタ（i18n.js で管理）
+    const langSel = $('lang-select');
+    SUPPORTED_LANGUAGES.forEach(l => {
+      const opt = document.createElement('option');
+      opt.value = l.code;
+      opt.textContent = l.label;
+      langSel.appendChild(opt);
+    });
+    langSel.addEventListener('change', () => setLanguage(langSel.value));
+
+    // 動的に生成される要素（data-i18n 付き）を再描画して翻訳を反映する
+    window.onLanguageChanged = () => {
+      renderRawForm();
+      refreshLiveStatus();
+      if (latestUpdate && $('update-banner').classList.contains('active')) {
+        showUpdateBanner(latestUpdate);
+      }
+    };
+
+    (async () => {
+      await initI18n();
+      langSel.value = currentLang;
+      await reloadAll();
+      refreshLiveStatus();
+      setInterval(refreshLiveStatus, 15000);
+      try {
+        const v = await api('GET', '/version');
+        setVersion(v.version);
+      } catch (e) {
+        // フォールバック: /update からも取得する
+      }
+      // 起動時は通知のみ。適用はユーザーが明示的に押したときだけ。
+      checkUpdate(true);
+    })();
+  </script>
+</body>
+</html>
