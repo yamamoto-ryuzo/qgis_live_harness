@@ -36,6 +36,11 @@ DEFAULT_OUTDIR = REPO_ROOT / "dist"
 EXCLUDE_DIRS = {"__pycache__", ".git", ".pytest_cache", "node_modules"}
 EXCLUDE_SUFFIXES = {".pyc", ".pyo"}
 
+# plugins.qgis.org のスキャナが検出する開発者同梱設定ファイル。
+# ZIPに含めると 'Validated (configured)' になり管理者レビュー対象になる
+# ため同梱しない(ローカルでのスキャン/整形用としてのみrepoに残す)。
+EXCLUDE_SCANNER_CONFIGS = {".bandit", ".flake8", ".secrets.baseline"}
+
 
 def list_plugins() -> list[str]:
     """metadata.txt を持つ qgis-plugin 直下のフォルダ名を列挙。"""
@@ -64,6 +69,7 @@ def tracked_files(plugin_id: str) -> list[Path]:
             cwd=REPO_ROOT, capture_output=True, check=True,
         ).stdout
         files = [Path(p.decode("utf-8")) for p in out.split(b"\0") if p]
+        files = [p for p in files if p.name not in EXCLUDE_SCANNER_CONFIGS]
         if files:
             return files
     except Exception:
@@ -73,6 +79,7 @@ def tracked_files(plugin_id: str) -> list[Path]:
         p.relative_to(REPO_ROOT)
         for p in sorted(plugin_dir.rglob("*"))
         if p.is_file()
+        and p.name not in EXCLUDE_SCANNER_CONFIGS
         and not any(part in EXCLUDE_DIRS for part in p.parts)
         and p.suffix.lower() not in EXCLUDE_SUFFIXES
     ]

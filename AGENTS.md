@@ -590,8 +590,9 @@ npm run verify:qgis     # 別ターミナルでQGIS起動(開きっぱなし)
       F841未使用変数(代入は `_ =` で副作用温存)・
       E722 bare except(`except Exception:` に)・F541不要なf接頭辞・
       E711/E712/E714比較・E741あいまい変数名・W605等
-    - 抑制はZIP同梱の `.flake8` で行い、ルール毎に理由を
-      コメントで明記する。共通は
+    - 抑制はプラグインdirの `.flake8` で行い、ルール毎に理由を
+      コメントで明記する(ローカルスキャン専用。ZIPには同梱されない
+      — 後述)。共通は
       `extend-ignore = E501, W503, W504`
       (E501=長行慣習・最大~1600字、W503/W504=排他ルール)
     - upstream/vendored ファイルは per-file-ignores で除外する
@@ -605,15 +606,16 @@ npm run verify:qgis     # 別ターミナルでQGIS起動(開きっぱなし)
     - スキャン対象は `qgis-plugin/<id>` のみ。
       `qgis-plugin/kasugai_qgis/`(QGISプラグインではないバンドル複製)
       に autopep8/ruff/正規表現置換をかけないこと
-  - 誤検知・意図的な検出の抑制はZIP同梱の `.bandit` /
-    `.secrets.baseline` / `.flake8` で行える
-    (同梱時は "Validated (configured)" ステータスになる)。
-    一部ルールはアップロード時のスキップ指定でも回避可
+  - **`.bandit` / `.flake8` / `.secrets.baseline` はZIPに同梱しない**。
+    同梱するとスキャナが "Developer-Supplied Config Files" として検出し
+    "Validated (configured)" になって管理者レビュー対象になるため、
+    `build-plugin-zip.py` がこれらを除外する。repo側には残し、
+    ローカルの `bandit`/`flake8` スキャン用の抑制設定として使う。
+    アップロード側で指摘を消したい場合はコード側の `# nosec` 等の
+    インライン抑制か、アップロード時のルールスキップ指定を使う
     (詳細は同ドキュメントの Rule Skipping / Config Files)
   - bandit/flake8 の `-c` 明示より、**各プラグインdirで実行して
-    `.bandit`/`.flake8` を自動検出させる**方が確実。
-    `.bandit`/`.flake8` はgit追跡必須(ZIPは `git ls-files` ベース
-    のためuntrackedだと同梱されない)
+    `.bandit`/`.flake8` を自動検出させる**方が確実
 
 ## 国際化(i18n)/多言語化(固定方針)
 
