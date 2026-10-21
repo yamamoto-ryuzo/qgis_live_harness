@@ -94,7 +94,7 @@ class GeoWebViewWFSService:
                 if expired_keys:
                     QgsMessageLog.logMessage(
                         f"🧹 WFS Cache: removed {len(expired_keys)} expired entries",
-                        "geo_webview", Qgis.Info
+                        "geo_webview", Qgis.MessageLevel.Info
                     )
         except Exception:
             pass
@@ -291,7 +291,7 @@ class GeoWebViewWFSService:
                         # キャッシュヒット!
                         QgsMessageLog.logMessage(
                             f"⚡ WFS Cache HIT: {type_name} (saved ~{int((time.time() - timestamp) * 1000)}ms)",
-                            "geo_webview", Qgis.Info
+                            "geo_webview", Qgis.MessageLevel.Info
                         )
                         from . import http_server
                         http_server.send_http_response(
@@ -322,7 +322,7 @@ class GeoWebViewWFSService:
                 self._response_cache[cache_key] = (time.time(), response_content, content_type)
                 QgsMessageLog.logMessage(
                     f"💾 WFS Cache MISS: {type_name} ({len(features)} features, {elapsed_time}ms) - cached",
-                    "geo_webview", Qgis.Info
+                    "geo_webview", Qgis.MessageLevel.Info
                 )
 
             # 期限切れキャッシュのクリーンアップ(10%の確率で実行)
@@ -336,8 +336,8 @@ class GeoWebViewWFSService:
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
             import traceback
-            QgsMessageLog.logMessage(f"❌ WFS GetFeature error: {e}", "geo_webview", Qgis.Critical)
-            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ WFS GetFeature error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
+            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
             from . import http_server
             # Return an OWS-style ExceptionReport for better WFS compatibility
             try:
@@ -370,7 +370,7 @@ class GeoWebViewWFSService:
             http_server.send_http_response(conn, 200, "OK", schema_xml, content_type="text/xml; charset=utf-8")
 
         except Exception as e:
-            QgsMessageLog.logMessage(f"❌ WFS DescribeFeatureType error: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ WFS DescribeFeatureType error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
             from . import http_server
             http_server.send_http_response(conn, 500, "Internal Server Error", f"WFS DescribeFeatureType failed: {str(e)}")
 
@@ -400,7 +400,7 @@ class GeoWebViewWFSService:
             http_server.send_http_response(conn, 200, "OK", sld_xml, content_type="application/vnd.ogc.sld+xml; charset=utf-8")
 
         except Exception as e:
-            QgsMessageLog.logMessage(f"❌ WFS GetStyles error: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ WFS GetStyles error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
             from . import http_server
             http_server.send_http_response(conn, 500, "Internal Server Error", f"WFS GetStyles failed: {str(e)}")
 
@@ -609,14 +609,14 @@ class GeoWebViewWFSService:
                 if not geom or 'coordinates' not in geom or not _coords_valid(geom.get('coordinates')):
                     # skip features without valid geometry
                     try:
-                        QgsMessageLog.logMessage(f"⚠️ Skipping feature {feature.id()} due to invalid geometry", "geo_webview", Qgis.Warning)
+                        QgsMessageLog.logMessage(f"⚠️ Skipping feature {feature.id()} due to invalid geometry", "geo_webview", Qgis.MessageLevel.Warning)
                     except Exception:
                         pass
                     continue
             except Exception:
                 # non-fatal: if any unexpected error in geometry handling, skip this feature
                 try:
-                    QgsMessageLog.logMessage(f"⚠️ Skipping feature {feature.id()} due to geometry normalization error", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage(f"⚠️ Skipping feature {feature.id()} due to geometry normalization error", "geo_webview", Qgis.MessageLevel.Warning)
                 except Exception:
                     pass
                 continue
@@ -1032,7 +1032,7 @@ class GeoWebViewWFSService:
         except Exception as e:
             # symbolForFeatureが失敗したら、デフォルトを使用
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"⚠️ symbolForFeature failed for layer {layer_name}: {e}, using default SLD", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"⚠️ symbolForFeature failed for layer {layer_name}: {e}, using default SLD", "geo_webview", Qgis.MessageLevel.Warning)
             return self._generate_default_sld(layer_name)
 
         if symbol is None:
@@ -1179,7 +1179,7 @@ class GeoWebViewWFSService:
                             from qgis.core import QgsMessageLog, Qgis
             except Exception as e:
                 from qgis.core import QgsMessageLog, Qgis
-                QgsMessageLog.logMessage(f"⚠️ Failed to check brush style: {e}", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage(f"⚠️ Failed to check brush style: {e}", "geo_webview", Qgis.MessageLevel.Warning)
 
             # アルファ値（透明度）もチェック
             if has_brush and fill_color_obj is not None:
@@ -1247,5 +1247,5 @@ class GeoWebViewWFSService:
             return sld
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"❌ Failed to generate polygon SLD: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Failed to generate polygon SLD: {e}", "geo_webview", Qgis.MessageLevel.Critical)
             return self._generate_default_sld(layer_name)

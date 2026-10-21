@@ -51,7 +51,7 @@ class Util:
         QgsMessageLog.logMessage(
             f"*** XML collection session started: {session_name} ***",
             self.dlg_caption,
-            Qgis.Info
+            Qgis.MessageLevel.Info
         )
 
     def add_xml_files_to_session(self, xml_files):
@@ -63,7 +63,7 @@ class Util:
             QgsMessageLog.logMessage(
                 f"XML files added: {len(xml_files)} (total: {len(self.global_xml_files)})",
                 self.dlg_caption,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
 
     def finish_xml_collection_session(self):
@@ -74,14 +74,14 @@ class Util:
             QgsMessageLog.logMessage(
                 "XML collection session: nothing to process",
                 self.dlg_caption,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
             return
 
             QgsMessageLog.logMessage(
                 f"*** XML collection session ended: {len(self.global_xml_files)} files merged ***",
                 self.dlg_caption,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
 
         try:
@@ -91,7 +91,7 @@ class Util:
             QgsMessageLog.logMessage(
                 f"merge started: {len(self.global_xml_files)} XML files",
                 self.dlg_caption,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
 
             # XMLファイルのリストをログに記録
@@ -99,7 +99,7 @@ class Util:
                 QgsMessageLog.logMessage(
                     f"  {i}. {xml_file}",
                     self.dlg_caption,
-                    Qgis.Info
+                    Qgis.MessageLevel.Info
                 )
 
             xml_loader = XmlAttributeLoader(iface)
@@ -108,7 +108,7 @@ class Util:
             QgsMessageLog.logMessage(
                 f"merge completed: {len(created_layers) if created_layers else 0} layers created",
                 self.dlg_caption,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
 
             # 作成されたレイヤの確認
@@ -118,19 +118,19 @@ class Util:
                         QgsMessageLog.logMessage(
                             f"created merged XML layer: {layer.name()} ({layer.featureCount()} features)",
                             self.dlg_caption,
-                            Qgis.Info
+                            Qgis.MessageLevel.Info
                         )
                     else:
                         QgsMessageLog.logMessage(
                             "created merged XML layer is invalid",
                             self.dlg_caption,
-                            Qgis.Warning
+                            Qgis.MessageLevel.Warning
                         )
             else:
                 QgsMessageLog.logMessage(
                     "failed to create merged XML layer",
                     self.dlg_caption,
-                    Qgis.Warning
+                    Qgis.MessageLevel.Warning
                 )
 
         except Exception as e:
@@ -139,7 +139,7 @@ class Util:
             QgsMessageLog.logMessage(
                 error_msg,
                 self.dlg_caption,
-                Qgis.Critical
+                Qgis.MessageLevel.Critical
             )
         finally:
             # セッションをリセット
@@ -1211,13 +1211,13 @@ class Util:
 
     def msg_log_debug(self, msg):
         if self.settings.debug is True:
-            QgsMessageLog.logMessage(msg, self.dlg_caption, Qgis.Info)
+            QgsMessageLog.logMessage(msg, self.dlg_caption, Qgis.MessageLevel.Info)
 
     def msg_log_warning(self, msg):
-        QgsMessageLog.logMessage(msg, self.dlg_caption, Qgis.Warning)
+        QgsMessageLog.logMessage(msg, self.dlg_caption, Qgis.MessageLevel.Warning)
 
     def msg_log_error(self, msg):
-        QgsMessageLog.logMessage(msg, self.dlg_caption, Qgis.Critical)
+        QgsMessageLog.logMessage(msg, self.dlg_caption, Qgis.MessageLevel.Critical)
 
     def msg_log_last_exception(self):
         exc_type, exc_value, exc_traceback = sys.exc_info()

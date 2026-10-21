@@ -96,7 +96,7 @@ class GeoWebViewWMTSService:
             cpu_val = str(cpu_count) if cpu_count is not None else 'unknown'
             QgsMessageLog.logMessage(
                 f"WMTS Prewarm workers: {prewarm_workers} (computed: cpu_count()-1, enforced min=6; max_render_workers={max_rw}, cpu_count={cpu_val})",
-                'geo_webview', Qgis.Info
+                'geo_webview', Qgis.MessageLevel.Info
             )
         except Exception:
             # best-effort logging; ignore if QGIS logging not available
@@ -980,7 +980,7 @@ class GeoWebViewWMTSService:
                 from qgis.core import QgsMessageLog, Qgis
                 QgsMessageLog.logMessage(
                     f"🚀 WMTS Prewarm: generating {len(tasks)} tiles in parallel",
-                    "geo_webview", Qgis.Info
+                    "geo_webview", Qgis.MessageLevel.Info
                 )
 
                 for task in tasks:
@@ -991,7 +991,7 @@ class GeoWebViewWMTSService:
                 from qgis.core import QgsMessageLog, Qgis
                 QgsMessageLog.logMessage(
                     f"⚠️ WMTS Prewarm setup failed: {e}",
-                    "geo_webview", Qgis.Warning
+                    "geo_webview", Qgis.MessageLevel.Warning
                 )
         finally:
             # Reset flag after a delay
@@ -1067,7 +1067,7 @@ class GeoWebViewWMTSService:
                 from qgis.core import QgsMessageLog, Qgis
                 QgsMessageLog.logMessage(
                     f"Prewarm tile {z}/{x}/{y} failed: {e}",
-                    "geo_webview", Qgis.Warning
+                    "geo_webview", Qgis.MessageLevel.Warning
                 )
             except Exception:
                 pass

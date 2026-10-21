@@ -32,7 +32,7 @@ PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
 LOG_TAG = "geo_userfunc"
 
 
-def _log(msg, level=Qgis.Warning):
+def _log(msg, level=Qgis.MessageLevel.Warning):
     QgsMessageLog.logMessage(str(msg), LOG_TAG, level)
 
 

@@ -1,3 +1,7 @@
+# V4.4.2 Qt6互換性チェック対応
+- 非スコープ列挙型をスコープ化(Qgis.*→Qgis.MessageLevel.*、
+  qt_compat.py含む2箇所)
+
 # V4.4.1 plugins.qgis.org セキュリティスキャン対応
 - `get_codes` の PostgreSQL クエリでテーブル/カラム識別子を
   `"`→`""` エスケープする `quote_ident` を導入

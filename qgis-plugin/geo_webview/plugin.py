@@ -184,12 +184,12 @@ class GeoWebView:
             from qgis.core import QgsMessageLog, Qgis
             lvl = str(level).lower()
             if lvl == 'warning':
-                sev = Qgis.Warning
+                sev = Qgis.MessageLevel.Warning
             elif lvl == 'critical':
-                sev = Qgis.Critical
+                sev = Qgis.MessageLevel.Critical
             else:
                 # treat everything else as info (including 'debug')
-                sev = Qgis.Info
+                sev = Qgis.MessageLevel.Info
             try:
                 QgsMessageLog.logMessage(str(message), 'geo_webview', sev)
             except Exception:

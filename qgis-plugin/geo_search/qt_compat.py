@@ -52,9 +52,9 @@ try:
         try:
             # map legacy ints to Qgis.MessageLevel
             if isinstance(level, int):
-                level = {0: Qgis.Info, 1: Qgis.Warning, 2: Qgis.Critical}.get(level, level)
+                level = {0: Qgis.MessageLevel.Info, 1: Qgis.MessageLevel.Warning, 2: Qgis.MessageLevel.Critical}.get(level, level)
             if level is None:
-                level = Qgis.Info
+                level = Qgis.MessageLevel.Info
         except Exception:
             # fallback: leave level as-is
             pass

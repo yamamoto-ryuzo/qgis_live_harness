@@ -1097,7 +1097,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     titles = [entry.get('title', 'no title') for entry in results]
                     try:
                         from qgis.core import QgsMessageLog, Qgis
-                        QgsMessageLog.logMessage(f"fetched datasets (page {page}): {titles}", self.util.dlg_caption, Qgis.Info)
+                        QgsMessageLog.logMessage(f"fetched datasets (page {page}): {titles}", self.util.dlg_caption, Qgis.MessageLevel.Info)
                     except Exception:
                         pass
                     QApplication.processEvents()
@@ -1118,7 +1118,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     import sqlite3
                     import json
                     db_path = self._get_cache_db_path(server_url)
-                    QgsMessageLog.logMessage(QCoreApplication.translate('GeoImport', u"Caching data to SQLite has started."), self.util.dlg_caption, Qgis.Info)
+                    QgsMessageLog.logMessage(QCoreApplication.translate('GeoImport', u"Caching data to SQLite has started."), self.util.dlg_caption, Qgis.MessageLevel.Info)
                     # --- パッケージ保存 ---
                     from .save_ckan_to_sqlite import save_ckan_packages_to_sqlite
                     save_ckan_packages_to_sqlite(db_path, all_results)
@@ -1131,10 +1131,10 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                         c.execute('INSERT INTO groups (raw_json) VALUES (?)', (json.dumps(group),))
                     conn.commit()
                     conn.close()
-                    QgsMessageLog.logMessage(QCoreApplication.translate('GeoImport', u"Caching data to SQLite has finished."), self.util.dlg_caption, Qgis.Info)
+                    QgsMessageLog.logMessage(QCoreApplication.translate('GeoImport', u"Caching data to SQLite has finished."), self.util.dlg_caption, Qgis.MessageLevel.Info)
                     self.util.msg_log_debug(QCoreApplication.translate('GeoImport', u"Saved {} records to SQLite DB: {}.").format(len(all_results), db_path))
                 except Exception as e:
-                    QgsMessageLog.logMessage(QCoreApplication.translate('GeoImport', u"SQLite save error: {}".format(e)), self.util.dlg_caption, Qgis.Critical)
+                    QgsMessageLog.logMessage(QCoreApplication.translate('GeoImport', u"SQLite save error: {}".format(e)), self.util.dlg_caption, Qgis.MessageLevel.Critical)
                     self.util.msg_log_error(QCoreApplication.translate('GeoImport', u"SQLite save error: {}".format(e)))
         finally:
             QApplication.restoreOverrideCursor()
@@ -1240,7 +1240,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                             self._server_errors[url] = str(group_result)
                             self.settings.record_server_error(url, group_result)
                             self.iface.messageBar().pushMessage(
-                                self.settings.DLG_CAPTION, str(group_result), Qgis.Warning)
+                                self.settings.DLG_CAPTION, str(group_result), Qgis.MessageLevel.Warning)
                         else:
                             self._server_errors.pop(url, None)
                             if self.settings.server_error(url):
@@ -1400,7 +1400,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         self.util.msg_log_error(u'{0}'.format(msg))
         try:
             self.iface.messageBar().pushMessage(
-                self.settings.DLG_CAPTION, str(msg), Qgis.Warning)
+                self.settings.DLG_CAPTION, str(msg), Qgis.MessageLevel.Warning)
         except Exception:
             pass
         try:

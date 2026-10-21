@@ -211,7 +211,7 @@ def qgis_layer_to_maplibre_style(layer_id: str, source_id: str = None) -> List[D
     # Debug logging
     try:
         from qgis.core import QgsMessageLog, Qgis
-        QgsMessageLog.logMessage(f'🔍 Layer: {layer.name()}, Geometry: {geometry_type}, Renderer: {type(renderer).__name__}', 'QMapPermalink', Qgis.Info)
+        QgsMessageLog.logMessage(f'🔍 Layer: {layer.name()}, Geometry: {geometry_type}, Renderer: {type(renderer).__name__}', 'QMapPermalink', Qgis.MessageLevel.Info)
     except Exception:
         pass
 
@@ -301,8 +301,8 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
     # Debug logging
     try:
         from qgis.core import QgsMessageLog, Qgis
-        geom_name = {QgsWkbTypes.PointGeometry: 'Point', QgsWkbTypes.LineGeometry: 'Line', QgsWkbTypes.PolygonGeometry: 'Polygon'}.get(geometry_type, 'Unknown')
-        QgsMessageLog.logMessage(f'🔍 Converting symbol for {source_id}, geometry={geom_name}, symbol_layers={symbol.symbolLayerCount()}', 'QMapPermalink', Qgis.Info)
+        geom_name = {QgsWkbTypes.GeometryType.PointGeometry: 'Point', QgsWkbTypes.GeometryType.LineGeometry: 'Line', QgsWkbTypes.GeometryType.PolygonGeometry: 'Polygon'}.get(geometry_type, 'Unknown')
+        QgsMessageLog.logMessage(f'🔍 Converting symbol for {source_id}, geometry={geom_name}, symbol_layers={symbol.symbolLayerCount()}', 'QMapPermalink', Qgis.MessageLevel.Info)
     except Exception:
         pass
 
@@ -331,7 +331,7 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
     if symbol.symbolLayerCount() > 0:
         symbol_layer = symbol.symbolLayer(0)
 
-        if geometry_type == QgsWkbTypes.PointGeometry:
+        if geometry_type == QgsWkbTypes.GeometryType.PointGeometry:
             # Point geometry - create circle layer
             paint = {}
             layout = {}
@@ -355,7 +355,7 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
                         paint['circle-stroke-width'] = converted_sw
                         try:
                             from qgis.core import QgsMessageLog, Qgis
-                            QgsMessageLog.logMessage(f'🔍 Point stroke width raw={sw} unit={swu} -> px={converted_sw}', 'QMapPermalink', Qgis.Info)
+                            QgsMessageLog.logMessage(f'🔍 Point stroke width raw={sw} unit={swu} -> px={converted_sw}', 'QMapPermalink', Qgis.MessageLevel.Info)
                         except Exception:
                             pass
                     except Exception:
@@ -369,7 +369,7 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
                     paint['circle-radius'] = px / 2.0
                     try:
                         from qgis.core import QgsMessageLog, Qgis
-                        QgsMessageLog.logMessage(f'🔍 Point size raw={sz} unit={szu} -> diameter_px={px} radius_px={px / 2.0}', 'QMapPermalink', Qgis.Info)
+                        QgsMessageLog.logMessage(f'🔍 Point size raw={sz} unit={szu} -> diameter_px={px} radius_px={px / 2.0}', 'QMapPermalink', Qgis.MessageLevel.Info)
                     except Exception:
                         pass
                 except Exception:
@@ -384,7 +384,7 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
             })
             layer_index += 1
 
-        elif geometry_type == QgsWkbTypes.LineGeometry:
+        elif geometry_type == QgsWkbTypes.GeometryType.LineGeometry:
             # Line geometry
             paint = {}
             layout = {}
@@ -404,7 +404,7 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
                     paint['line-width'] = converted_w
                     try:
                         from qgis.core import QgsMessageLog, Qgis
-                        QgsMessageLog.logMessage(f'🔍 Line width raw={w} unit={wu} -> px={converted_w}', 'QMapPermalink', Qgis.Info)
+                        QgsMessageLog.logMessage(f'🔍 Line width raw={w} unit={wu} -> px={converted_w}', 'QMapPermalink', Qgis.MessageLevel.Info)
                     except Exception:
                         pass
                 except Exception:
@@ -436,7 +436,7 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
             })
             layer_index += 1
 
-        elif geometry_type == QgsWkbTypes.PolygonGeometry:
+        elif geometry_type == QgsWkbTypes.GeometryType.PolygonGeometry:
             # Polygon geometry - may have fill and/or outline
 
             if isinstance(symbol_layer, QgsSimpleFillSymbolLayer):
@@ -452,7 +452,7 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
                         f'🔍 Polygon: fill={fill_color.name() if fill_color.isValid() else "invalid"} '
                         f'alpha={fill_color.alpha()}, stroke={stroke_color.name() if stroke_color.isValid() else "invalid"} '
                         f'alpha={stroke_color.alpha()}, width={symbol_layer.strokeWidth()}',
-                        'QMapPermalink', Qgis.Info
+                        'QMapPermalink', Qgis.MessageLevel.Info
                     )
                 except Exception:
                     pass
@@ -484,7 +484,7 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
                         sw_unit = getattr(symbol_layer, 'strokeWidthUnit', lambda: QgsUnitTypes.RenderMillimeters)()
                         sw_px = _to_px(sw_raw, sw_unit)
                         from qgis.core import QgsMessageLog, Qgis
-                        QgsMessageLog.logMessage(f'🔍 Polygon outline stroke raw={sw_raw} unit={sw_unit} -> px={sw_px}', 'QMapPermalink', Qgis.Info)
+                        QgsMessageLog.logMessage(f'🔍 Polygon outline stroke raw={sw_raw} unit={sw_unit} -> px={sw_px}', 'QMapPermalink', Qgis.MessageLevel.Info)
                     except Exception:
                         pass
 

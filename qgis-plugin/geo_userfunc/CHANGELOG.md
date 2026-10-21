@@ -1,5 +1,10 @@
 # CHANGELOG — geo_userfunc
 
+## 1.0.2
+
+- Qt6互換性チェック対応: 非スコープ列挙型をスコープ化
+  (Qgis.*→Qgis.MessageLevel.* 等2箇所)
+
 ## 1.0.1
 
 - **plugins.qgis.org セキュリティスキャン対応**:

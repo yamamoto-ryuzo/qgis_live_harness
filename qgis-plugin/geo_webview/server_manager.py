@@ -90,7 +90,7 @@ class GeoWebViewServerManager:
             from qgis.core import QgsMessageLog, Qgis
             QgsMessageLog.logMessage(
                 f"💻 Detected: CPU cores={cpu_count}, HTTP parallel workers={workers}",
-                "geo_webview", Qgis.Info
+                "geo_webview", Qgis.MessageLevel.Info
             )
 
             return workers
@@ -98,7 +98,7 @@ class GeoWebViewServerManager:
             from qgis.core import QgsMessageLog, Qgis
             QgsMessageLog.logMessage(
                 f"⚠️ Worker count auto-calculation failed, using default 6: {e}",
-                "geo_webview", Qgis.Warning
+                "geo_webview", Qgis.MessageLevel.Warning
             )
             return 6
 
@@ -132,7 +132,7 @@ class GeoWebViewServerManager:
                 QgsMessageLog.logMessage(
                     f"WMTS service initialization failed: {traceback.format_exc()}",
                     "geo_webview",
-                    Qgis.Warning
+                    Qgis.MessageLevel.Warning
                 )
             except Exception:
                 # 最低限コンソールには表示
@@ -229,7 +229,7 @@ class GeoWebViewServerManager:
 
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"❌ Version detection error: {e}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"❌ Version detection error: {e}", "geo_webview", Qgis.MessageLevel.Warning)
 
         # デフォルトバージョン（metadata.txtから読み取れない場合）
         return "UNKNOWN"
@@ -279,7 +279,7 @@ class GeoWebViewServerManager:
             self.server_thread.start()
 
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"🚀 QMap Permalink v{self.plugin_version} WMS HTTP server started: http://localhost:{self.server_port}/wms", "geo_webview", Qgis.Info)
+            QgsMessageLog.logMessage(f"🚀 QMap Permalink v{self.plugin_version} WMS HTTP server started: http://localhost:{self.server_port}/wms", "geo_webview", Qgis.MessageLevel.Info)
             self.iface.messageBar().pushMessage(
                 "QMap Permalink",
                 QCoreApplication.translate("geo_webview", "WMS HTTP server started (port: {0})").format(self.server_port),
@@ -288,7 +288,7 @@ class GeoWebViewServerManager:
 
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"Failed to start HTTP server: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"Failed to start HTTP server: {e}", "geo_webview", Qgis.MessageLevel.Critical)
             self.iface.messageBar().pushMessage(
                 QCoreApplication.translate("geo_webview", "QMap Permalink Error"),
                 QCoreApplication.translate("geo_webview", "Failed to start HTTP server: {0}").format(e),
@@ -326,7 +326,7 @@ class GeoWebViewServerManager:
                             pass
                 except Exception as e:
                     from qgis.core import QgsMessageLog, Qgis
-                    QgsMessageLog.logMessage(f"Failed to dispatch HTTP request to thread pool: {e}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"Failed to dispatch HTTP request to thread pool: {e}", "geo_webview", Qgis.MessageLevel.Critical)
                     try:
                         conn.close()
                     except Exception:
@@ -341,7 +341,7 @@ class GeoWebViewServerManager:
                     pass
                 self.http_server = None
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage("HTTP server stopped", "geo_webview", Qgis.Info)
+            QgsMessageLog.logMessage("HTTP server stopped", "geo_webview", Qgis.MessageLevel.Info)
 
     def stop_http_server(self):
         """HTTPサーバーを停止"""
@@ -381,11 +381,11 @@ class GeoWebViewServerManager:
                 )
 
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage("QMap Permalink HTTP server stopped", "geo_webview", Qgis.Info)
+            QgsMessageLog.logMessage("QMap Permalink HTTP server stopped", "geo_webview", Qgis.MessageLevel.Info)
 
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"An error occurred while stopping the HTTP server: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"An error occurred while stopping the HTTP server: {e}", "geo_webview", Qgis.MessageLevel.Critical)
 
     def _handle_client_connection_safe(self, conn, addr):
         """HTTPリクエストを安全に処理（エラーハンドリング付き）"""
@@ -393,7 +393,7 @@ class GeoWebViewServerManager:
             self._handle_client_connection(conn, addr)
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"Error while handling HTTP request: {e}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"Error while handling HTTP request: {e}", "geo_webview", Qgis.MessageLevel.Warning)
         finally:
             try:
                 conn.close()
@@ -523,9 +523,9 @@ class GeoWebViewServerManager:
                 try:
                     self.wms_service.handle_wms_request(conn, params, host)
                 except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ WMS handler error: {e}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"❌ WMS handler error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
                     import traceback
-                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
                     from . import http_server
                     http_server.send_http_response(conn, 500, "Internal Server Error", f"WMS processing failed: {str(e)}")
                 return
@@ -535,9 +535,9 @@ class GeoWebViewServerManager:
                 try:
                     self._handle_permalink_html_page(conn, params)
                 except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ OpenLayers HTML page error: {e}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"❌ OpenLayers HTML page error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
                     import traceback
-                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
                     from . import http_server
                     http_server.send_http_response(conn, 500, "Internal Server Error", f"OpenLayers HTML page generation failed: {str(e)}")
                 return
@@ -634,7 +634,7 @@ class GeoWebViewServerManager:
                         mapbox_layers = qgis_layer_to_maplibre_style(raw_id, _wfs_source_id)
                         try:
                             from qgis.core import QgsMessageLog, Qgis
-                            QgsMessageLog.logMessage(f'🎨 Converted to {len(mapbox_layers)} Mapbox layers: {[ml.get("id") for ml in mapbox_layers if isinstance(ml, dict)]}', 'QMapPermalink', Qgis.Info)
+                            QgsMessageLog.logMessage(f'🎨 Converted to {len(mapbox_layers)} Mapbox layers: {[ml.get("id") for ml in mapbox_layers if isinstance(ml, dict)]}', 'QMapPermalink', Qgis.MessageLevel.Info)
                         except Exception:
                             pass
                     except Exception as e:
@@ -802,7 +802,7 @@ class GeoWebViewServerManager:
                             except Exception as e:
                                 # If generator failed (e.g. couldn't parse permalink), attempt a safe fallback
                                 try:
-                                    QgsMessageLog.logMessage(f"⚠️ MapLibre generator failed: {e} - retrying with canvas permalink", "geo_webview", Qgis.Warning)
+                                    QgsMessageLog.logMessage(f"⚠️ MapLibre generator failed: {e} - retrying with canvas permalink", "geo_webview", Qgis.MessageLevel.Warning)
                                 except Exception:
                                     pass
                                 try:
@@ -847,9 +847,9 @@ class GeoWebViewServerManager:
                     from . import http_server
                     http_server.send_http_response(conn, 200, "OK", html_content, "text/html; charset=utf-8")
                 except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ MapLibre HTML page error: {e}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"❌ MapLibre HTML page error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
                     import traceback
-                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
                     from . import http_server
                     http_server.send_http_response(conn, 500, "Internal Server Error", f"MapLibre HTML page generation failed: {str(e)}")
                 return
@@ -870,7 +870,7 @@ class GeoWebViewServerManager:
                                 QgsMessageLog.logMessage(
                                     f"Lazy WMTS service creation failed: {traceback.format_exc()}",
                                     "geo_webview",
-                                    Qgis.Warning
+                                    Qgis.MessageLevel.Warning
                                 )
                             except Exception:
                                 try:
@@ -888,9 +888,9 @@ class GeoWebViewServerManager:
                         from . import http_server
                         http_server.send_http_response(conn, 501, 'Not Implemented', 'WMTS service not available')
                 except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ WMTS delegation error: {e}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"❌ WMTS delegation error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
                     import traceback
-                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
                     from . import http_server
                     http_server.send_http_response(conn, 500, "Internal Server Error", f"WMTS processing failed: {str(e)}")
                 return
@@ -900,9 +900,9 @@ class GeoWebViewServerManager:
                 try:
                     self._handle_wfs_layers(conn, params)
                 except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ wfs-layers handler error: {e}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"❌ wfs-layers handler error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
                     import traceback
-                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
                     from . import http_server
                     http_server.send_http_response(conn, 500, "Internal Server Error", f"wfs-layers failed: {str(e)}")
                 return
@@ -933,9 +933,9 @@ class GeoWebViewServerManager:
                         from . import http_server
                         http_server.send_http_response(conn, 501, 'Not Implemented', 'WFS service not available')
                 except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ WFS delegation error: {e}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"❌ WFS delegation error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
                     import traceback
-                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
                     from . import http_server
                     http_server.send_http_response(conn, 500, "Internal Server Error", f"WFS processing failed: {str(e)}")
                 return
@@ -948,9 +948,9 @@ class GeoWebViewServerManager:
                         from . import http_server
                         http_server.send_http_response(conn, 501, 'Not Implemented', 'debug-bookmarks handler not available')
                 except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ debug-bookmarks handler error: {e}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"❌ debug-bookmarks handler error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
                     import traceback
-                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
                     from . import http_server
                     http_server.send_http_response(conn, 500, "Internal Server Error", f"debug-bookmarks failed: {str(e)}")
                 return
@@ -995,7 +995,7 @@ class GeoWebViewServerManager:
                 except Exception as e:
                     QgsMessageLog.logMessage(
                         f'❌ screenshot handler error: {e}',
-                        'geo_webview', Qgis.Critical)
+                        'geo_webview', Qgis.MessageLevel.Critical)
                     from . import http_server
                     http_server.send_http_response(
                         conn, 500, 'Internal Server Error',
@@ -1009,7 +1009,7 @@ class GeoWebViewServerManager:
                 except Exception as e:
                     QgsMessageLog.logMessage(
                         f'❌ present handler error: {e}',
-                        'geo_webview', Qgis.Critical)
+                        'geo_webview', Qgis.MessageLevel.Critical)
                     from . import http_server
                     http_server.send_http_response(
                         conn, 500, 'Internal Server Error',
@@ -1025,7 +1025,7 @@ class GeoWebViewServerManager:
                 except Exception as e:
                     QgsMessageLog.logMessage(
                         f'❌ kasugai handler error: {e}',
-                        'geo_webview', Qgis.Critical)
+                        'geo_webview', Qgis.MessageLevel.Critical)
                     from . import http_server
                     http_server.send_http_response(
                         conn, 500, 'Internal Server Error',
@@ -1039,7 +1039,7 @@ class GeoWebViewServerManager:
                 except Exception as e:
                     QgsMessageLog.logMessage(
                         f'❌ map3d handler error: {e}',
-                        'geo_webview', Qgis.Critical)
+                        'geo_webview', Qgis.MessageLevel.Critical)
                     from . import http_server
                     http_server.send_http_response(
                         conn, 500, 'Internal Server Error',
@@ -1089,7 +1089,7 @@ class GeoWebViewServerManager:
                     return
 
             # 未対応のエンドポイントは404エラー
-            QgsMessageLog.logMessage(f"❌ Unknown endpoint: {parsed_url.path}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"❌ Unknown endpoint: {parsed_url.path}", "geo_webview", Qgis.MessageLevel.Warning)
             from . import http_server
             # 明示的に利用可能なエンドポイント一覧に /wmts と /wfs を含める
             http_server.send_http_response(
@@ -1444,7 +1444,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             except Exception as e:
                 QgsMessageLog.logMessage(
                     f'⚠️ KASUGAI registration failed: {e}',
-                    'geo_webview', Qgis.Warning)
+                    'geo_webview', Qgis.MessageLevel.Warning)
             http_server.send_http_response(
                 conn, 200, 'OK',
                 json.dumps(
@@ -1572,9 +1572,9 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             http_server.send_http_response(conn, 200, "OK", html_content, "text/html; charset=utf-8")
 
         except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Permalink HTML page generation error: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Permalink HTML page generation error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
             import traceback
-            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
 
             # エラー時はエラーページを返す
             error_html = self._generate_error_html_page(f"Error generating permalink page: {str(e)}")
@@ -1686,7 +1686,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
         except Exception as e:
             try:
                 from qgis.core import QgsMessageLog, Qgis
-                QgsMessageLog.logMessage(f'❌ debug-bookmarks error: {e}', 'QMapPermalink', Qgis.Warning)
+                QgsMessageLog.logMessage(f'❌ debug-bookmarks error: {e}', 'QMapPermalink', Qgis.MessageLevel.Warning)
             except Exception:
                 pass
             from . import http_server
@@ -1854,7 +1854,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
         except Exception as e:
             try:
                 from qgis.core import QgsMessageLog, Qgis
-                QgsMessageLog.logMessage(f'❌ wfs-layers error: {e}', 'QMapPermalink', Qgis.Warning)
+                QgsMessageLog.logMessage(f'❌ wfs-layers error: {e}', 'QMapPermalink', Qgis.MessageLevel.Warning)
             except Exception:
                 pass
             from . import http_server
@@ -2054,7 +2054,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                         mgr = None
 
                 if mgr is None:
-                    QgsMessageLog.logMessage('🔍 Bookmark manager not found (mgr is None)', 'QMapPermalink', Qgis.Warning)
+                    QgsMessageLog.logMessage('🔍 Bookmark manager not found (mgr is None)', 'QMapPermalink', Qgis.MessageLevel.Warning)
 
                 raw = None
                 if mgr is not None:
@@ -2186,7 +2186,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                 # On any issue, don't block page generation; just omit bookmarks
                 try:
                     from qgis.core import QgsMessageLog, Qgis
-                    QgsMessageLog.logMessage('❌ Error while extracting bookmarks; skipping bookmarks', 'QMapPermalink', Qgis.Warning)
+                    QgsMessageLog.logMessage('❌ Error while extracting bookmarks; skipping bookmarks', 'QMapPermalink', Qgis.MessageLevel.Warning)
                 except Exception:
                     pass
 
@@ -2578,7 +2578,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             raise ValueError('No navigation parameters found')
 
         except Exception as e:
-            QgsMessageLog.logMessage(f"Error building navigation_data from params: {e}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"Error building navigation_data from params: {e}", "geo_webview", Qgis.MessageLevel.Warning)
             raise
 
     def _generate_error_html_page(self, error_message):
@@ -2677,7 +2677,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             return bbox
 
         except Exception as e:
-            QgsMessageLog.logMessage(f"❌ BBOX calculation error: {e}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"❌ BBOX calculation error: {e}", "geo_webview", Qgis.MessageLevel.Warning)
             return None
 
     def _handle_wms_get_map_with_bbox(self, conn, bbox, crs, width, height, rotation=0.0):
@@ -2700,7 +2700,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                             bbox = f"{rect.xMinimum()},{rect.yMinimum()},{rect.xMaximum()},{rect.yMaximum()}"
                             crs = 'EPSG:3857'
                     else:
-                        QgsMessageLog.logMessage(f"⚠️ Invalid CRS '{crs}' - forcing to EPSG:3857", "geo_webview", Qgis.Warning)
+                        QgsMessageLog.logMessage(f"⚠️ Invalid CRS '{crs}' - forcing to EPSG:3857", "geo_webview", Qgis.MessageLevel.Warning)
                         crs = 'EPSG:3857'
             except Exception:
                 pass
@@ -2720,7 +2720,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             http_server.send_binary_response(conn, 200, "OK", error_image, "image/png")
 
         except Exception as e:
-            QgsMessageLog.logMessage(f"❌ WMS GetMap with BBOX error: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ WMS GetMap with BBOX error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
             error_image = self._generate_error_image(width, height, f"Error: {str(e)}")
             from . import http_server
             http_server.send_binary_response(conn, 200, "OK", error_image, "image/png")
@@ -2731,7 +2731,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             from qgis.core import QgsMessageLog, Qgis
 
             if not self.webmap_generator:
-                QgsMessageLog.logMessage("❌ WebMapGenerator not available", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage("❌ WebMapGenerator not available", "geo_webview", Qgis.MessageLevel.Warning)
                 return None
 
             # WebMapGeneratorにダミーのナビゲーションデータを渡す
@@ -2758,7 +2758,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                             'crs': crs
                         })
                 except Exception as e:
-                    QgsMessageLog.logMessage(f"⚠️ Failed to parse BBOX: {e}", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage(f"⚠️ Failed to parse BBOX: {e}", "geo_webview", Qgis.MessageLevel.Warning)
 
             # WebMapGeneratorを使って画像を生成
             try:
@@ -2773,16 +2773,16 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                     png_data = base64.b64decode(base64_match.group(1))
                     return png_data
                 else:
-                    QgsMessageLog.logMessage("❌ No base64 image found in WebMapGenerator output", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage("❌ No base64 image found in WebMapGenerator output", "geo_webview", Qgis.MessageLevel.Warning)
                     return None
 
             except Exception as e:
-                QgsMessageLog.logMessage(f"❌ WebMapGenerator generation failed: {e}", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage(f"❌ WebMapGenerator generation failed: {e}", "geo_webview", Qgis.MessageLevel.Warning)
                 return None
 
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"❌ Error in _generate_webmap_png: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Error in _generate_webmap_png: {e}", "geo_webview", Qgis.MessageLevel.Critical)
             return None
 
     def _generate_qgis_map_png(self, width, height, bbox, crs, rotation=0.0):
@@ -2796,7 +2796,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
         try:
             return self._render_map_image(width, height, bbox, crs, rotation)
         except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Error in _generate_qgis_map_png (delegated): {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Error in _generate_qgis_map_png (delegated): {e}", "geo_webview", Qgis.MessageLevel.Critical)
             return None
 
     def _capture_canvas_image(self, width, height):
@@ -2827,7 +2827,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                         try:
                             canvas = self.iface.mapCanvas()
                             if not canvas:
-                                QgsMessageLog.logMessage("❌ No map canvas available (helper)", "geo_webview", Qgis.Warning)
+                                QgsMessageLog.logMessage("❌ No map canvas available (helper)", "geo_webview", Qgis.MessageLevel.Warning)
                                 self.finished.emit(b'')
                                 return
 
@@ -2841,7 +2841,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
 
                             pixmap = canvas.grab()
                             if pixmap.isNull():
-                                QgsMessageLog.logMessage("❌ Failed to grab canvas pixmap (helper)", "geo_webview", Qgis.Warning)
+                                QgsMessageLog.logMessage("❌ Failed to grab canvas pixmap (helper)", "geo_webview", Qgis.MessageLevel.Warning)
                                 self.finished.emit(b'')
                                 return
 
@@ -2856,7 +2856,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
 
                             image = pixmap.toImage()
                             if image.isNull():
-                                QgsMessageLog.logMessage("❌ Failed to convert pixmap to image (helper)", "geo_webview", Qgis.Warning)
+                                QgsMessageLog.logMessage("❌ Failed to convert pixmap to image (helper)", "geo_webview", Qgis.MessageLevel.Warning)
                                 self.finished.emit(b'')
                                 return
 
@@ -2877,7 +2877,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                             buffer.open(write_mode)
                             success = image.save(buffer, "PNG")
                             if not success:
-                                QgsMessageLog.logMessage("❌ Failed to save image as PNG (helper)", "geo_webview", Qgis.Warning)
+                                QgsMessageLog.logMessage("❌ Failed to save image as PNG (helper)", "geo_webview", Qgis.MessageLevel.Warning)
                                 self.finished.emit(b'')
                                 return
 
@@ -2885,7 +2885,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                             self.finished.emit(png_data)
 
                         except Exception as e:
-                            QgsMessageLog.logMessage(f"❌ Exception in helper capture: {e}", "geo_webview", Qgis.Warning)
+                            QgsMessageLog.logMessage(f"❌ Exception in helper capture: {e}", "geo_webview", Qgis.MessageLevel.Warning)
                             try:
                                 self.finished.emit(b'')
                             except Exception:
@@ -2939,12 +2939,12 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
 
             # If capture failed or timed out, fallback to None so caller can try
             # other rendering approaches.
-            QgsMessageLog.logMessage("⚠️ Canvas capture timed out or failed", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage("⚠️ Canvas capture timed out or failed", "geo_webview", Qgis.MessageLevel.Warning)
             return None
 
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"❌ Error in _capture_canvas_image: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Error in _capture_canvas_image: {e}", "geo_webview", Qgis.MessageLevel.Critical)
             return None
 
     def _render_map_image(self, width, height, bbox, crs, rotation=0.0):
@@ -2963,7 +2963,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             with self._render_lock:
                 map_settings = self._create_wms_map_settings(width, height, bbox, crs, rotation=rotation)
                 if not map_settings:
-                    QgsMessageLog.logMessage("❌ Failed to create WMS map settings", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage("❌ Failed to create WMS map settings", "geo_webview", Qgis.MessageLevel.Warning)
                     return None
 
                 # 独立したマップレンダラーでPNG画像を生成
@@ -2971,13 +2971,13 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             if png_data:
                 return png_data
             else:
-                QgsMessageLog.logMessage("❌ Professional WMS rendering failed", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage("❌ Professional WMS rendering failed", "geo_webview", Qgis.MessageLevel.Warning)
                 return None
 
         except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Error in professional WMS rendering: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Error in professional WMS rendering: {e}", "geo_webview", Qgis.MessageLevel.Critical)
             import traceback
-            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
             return None
 
     def _create_wms_map_settings(self, width, height, bbox, crs, rotation=0.0):
@@ -3012,7 +3012,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                 from qgis.core import QgsProject
                 project = QgsProject.instance()
                 map_settings.setLayers(project.mapLayers().values())
-                QgsMessageLog.logMessage("⚠️ No canvas, using all project layers", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage("⚠️ No canvas, using all project layers", "geo_webview", Qgis.MessageLevel.Warning)
 
             # 2. 出力サイズ設定
             from qgis.PyQt.QtCore import QSize
@@ -3022,7 +3022,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             if bbox and crs:
                 success = self._configure_wms_extent_and_crs(map_settings, bbox, crs)
                 if not success:
-                    QgsMessageLog.logMessage("❌ Failed to configure WMS extent/CRS", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage("❌ Failed to configure WMS extent/CRS", "geo_webview", Qgis.MessageLevel.Warning)
                     return None
             else:
                 # デフォルト範囲設定
@@ -3057,7 +3057,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             return map_settings
 
         except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Error creating WMS map settings: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Error creating WMS map settings: {e}", "geo_webview", Qgis.MessageLevel.Critical)
             return None
 
     def _configure_wms_extent_and_crs(self, map_settings, bbox, crs):
@@ -3068,7 +3068,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             # BBOXの解析 (minx,miny,maxx,maxy)
             coords = [float(x) for x in bbox.split(',')]
             if len(coords) != 4:
-                QgsMessageLog.logMessage(f"❌ Invalid BBOX format: {bbox}", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage(f"❌ Invalid BBOX format: {bbox}", "geo_webview", Qgis.MessageLevel.Warning)
                 return False
 
             minx, miny, maxx, maxy = coords
@@ -3077,7 +3077,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             # CRS設定
             target_crs = QgsCoordinateReferenceSystem(crs)
             if not target_crs.isValid():
-                QgsMessageLog.logMessage(f"❌ Invalid CRS: {crs}", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage(f"❌ Invalid CRS: {crs}", "geo_webview", Qgis.MessageLevel.Warning)
                 return False
 
             map_settings.setDestinationCrs(target_crs)
@@ -3086,10 +3086,10 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             return True
 
         except ValueError as e:
-            QgsMessageLog.logMessage(f"❌ Error parsing BBOX coordinates: {e}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"❌ Error parsing BBOX coordinates: {e}", "geo_webview", Qgis.MessageLevel.Warning)
             return False
         except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Error configuring WMS extent/CRS: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Error configuring WMS extent/CRS: {e}", "geo_webview", Qgis.MessageLevel.Critical)
             return False
 
     def _execute_map_rendering(self, map_settings):
@@ -3140,7 +3140,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             # レンダリング結果を取得
             image = job.renderedImage()
             if image.isNull():
-                QgsMessageLog.logMessage("❌ Rendered image is null", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage("❌ Rendered image is null", "geo_webview", Qgis.MessageLevel.Warning)
                 return None
 
             # PNG形式でバイト配列に変換
@@ -3162,16 +3162,16 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
 
             success = image.save(buffer, "PNG")
             if not success:
-                QgsMessageLog.logMessage("❌ Failed to save rendered image as PNG", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage("❌ Failed to save rendered image as PNG", "geo_webview", Qgis.MessageLevel.Warning)
                 return None
 
             png_data = byte_array.data()
             return png_data
 
         except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Error executing map rendering: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Error executing map rendering: {e}", "geo_webview", Qgis.MessageLevel.Critical)
             import traceback
-            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
             return None
 
             # マップレンダリング実行
@@ -3183,7 +3183,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
 
             image = job.renderedImage()
             if image.isNull():
-                QgsMessageLog.logMessage("❌ Rendered image is null", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage("❌ Rendered image is null", "geo_webview", Qgis.MessageLevel.Warning)
                 return None
 
             # PNG形式でバイト配列に変換
@@ -3194,16 +3194,16 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
 
             success = image.save(buffer, "PNG")
             if not success:
-                QgsMessageLog.logMessage("❌ Failed to save image as PNG", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage("❌ Failed to save image as PNG", "geo_webview", Qgis.MessageLevel.Warning)
                 return None
 
             png_data = byte_array.data()
             return png_data
 
         except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Error generating QGIS map PNG: {e}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Error generating QGIS map PNG: {e}", "geo_webview", Qgis.MessageLevel.Critical)
             import traceback
-            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
             return None
 
     def _generate_error_image(self, width, height, error_message):
@@ -3315,7 +3315,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                     from qgis.core import QgsMessageLog, Qgis
                     QgsMessageLog.logMessage(
                         f"Failed to bind port {port} (administrator rights may be required): {e}",
-                        "geo_webview", Qgis.Warning
+                        "geo_webview", Qgis.MessageLevel.Warning
                     )
                 continue
         raise RuntimeError(f"No available port found in range {start_port}-{end_port}")
@@ -3539,7 +3539,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
 
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"Firewall port scan error: {e}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"Firewall port scan error: {e}", "geo_webview", Qgis.MessageLevel.Warning)
             return []
 
     def add_firewall_rule(self, port, rule_name=None, request_elevation=True):
@@ -3605,7 +3605,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                     result['success'] = True
                     result['message'] = QCoreApplication.translate('geo_webview', 'Firewall rule "{0}" has been added').format(rule_name)
                     from qgis.core import QgsMessageLog, Qgis
-                    QgsMessageLog.logMessage(result['message'], "geo_webview", Qgis.Info)
+                    QgsMessageLog.logMessage(result['message'], "geo_webview", Qgis.MessageLevel.Info)
                 else:
                     # 通常権限で失敗した場合、管理者権限で再試行
                     if request_elevation:
@@ -3671,7 +3671,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                                 result['success'] = True
                                 result['message'] = QCoreApplication.translate('geo_webview', 'Firewall rule "{0}" has been added with administrator rights').format(rule_name)
                                 from qgis.core import QgsMessageLog, Qgis
-                                QgsMessageLog.logMessage(result['message'], "geo_webview", Qgis.Info)
+                                QgsMessageLog.logMessage(result['message'], "geo_webview", Qgis.MessageLevel.Info)
                             else:
                                 # ユーザーがUACをキャンセルした可能性
                                 result['admin_required'] = True
@@ -3692,7 +3692,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                             'geo_webview', 'Administrator rights are required.\n\nExecute the following command in an administrator command prompt:\n\n{0}').format(cmd)
                         result['command'] = cmd
                         from qgis.core import QgsMessageLog, Qgis
-                        QgsMessageLog.logMessage(f"Administrator rights required to add firewall rule: {output.stderr}", "geo_webview", Qgis.Warning)
+                        QgsMessageLog.logMessage(f"Administrator rights required to add firewall rule: {output.stderr}", "geo_webview", Qgis.MessageLevel.Warning)
 
             except subprocess.TimeoutExpired:
                 result['message'] = QCoreApplication.translate('geo_webview', 'Adding the firewall rule timed out')
@@ -3710,7 +3710,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
         except Exception as e:
             result['message'] = QCoreApplication.translate('geo_webview', 'Failed to add the firewall rule: {0}').format(e)
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(result['message'], "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(result['message'], "geo_webview", Qgis.MessageLevel.Critical)
 
         return result
 
@@ -3759,7 +3759,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                     continue
 
         try:
-            QgsMessageLog.logMessage(f"Layer-tree hooks attached: {hooked}", 'QMapPermalink', Qgis.Info)
+            QgsMessageLog.logMessage(f"Layer-tree hooks attached: {hooked}", 'QMapPermalink', Qgis.MessageLevel.Info)
         except Exception:
             pass
 
@@ -3805,10 +3805,10 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             # Ensure identity folder/meta exists (idempotent, fast)
             try:
                 h, d = self.wmts_service.ensure_identity(identity_short, identity_raw)
-                QgsMessageLog.logMessage(f"WMTS identity updated/ensured: {identity_short} -> {h}", 'QMapPermalink', Qgis.Info)
+                QgsMessageLog.logMessage(f"WMTS identity updated/ensured: {identity_short} -> {h}", 'QMapPermalink', Qgis.MessageLevel.Info)
             except Exception as e:
                 try:
-                    QgsMessageLog.logMessage(f"WMTS ensure_identity failed: {e}", 'QMapPermalink', Qgis.Warning)
+                    QgsMessageLog.logMessage(f"WMTS ensure_identity failed: {e}", 'QMapPermalink', Qgis.MessageLevel.Warning)
                 except Exception:
                     pass
 

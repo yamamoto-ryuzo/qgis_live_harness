@@ -23,13 +23,13 @@ class GeoImport:
         """
         # 設定クラスを初期化して、プラグイン全体で使用する設定を管理
         self.settings = Settings()
-        QgsMessageLog.logMessage('__init__', self.settings.DLG_CAPTION, Qgis.Info)
+        QgsMessageLog.logMessage('__init__', self.settings.DLG_CAPTION, Qgis.MessageLevel.Info)
         QSettings().setValue("geo_import/isopen", False)
         self.iface = iface
 
         # プラグインディレクトリを初期化し、リソースファイルのパスを構築
         self.plugin_dir = os.path.dirname(__file__)
-        QgsMessageLog.logMessage(u'plugin directory: {}'.format(self.plugin_dir), self.settings.DLG_CAPTION, Qgis.Info)
+        QgsMessageLog.logMessage(u'plugin directory: {}'.format(self.plugin_dir), self.settings.DLG_CAPTION, Qgis.MessageLevel.Info)
 
         # 言語を初期化(i18n/<lang>.json をQGISの言語設定に合わせて載せる)
         self.translator = install_translator(self.plugin_dir)

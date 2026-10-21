@@ -75,13 +75,13 @@ class XmlAttributeLoader:
         QgsMessageLog.logMessage(
             f"*** load_multiple_xml_merged started: {len(xml_file_paths)} files ***",
             LOG_TAG,
-            Qgis.Info
+            Qgis.MessageLevel.Info
         )
         for file_path in xml_file_paths:
             QgsMessageLog.logMessage(
                 f"  file to process: {file_path}",
                 LOG_TAG,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
 
         if not xml_file_paths:
@@ -93,13 +93,13 @@ class XmlAttributeLoader:
         QgsMessageLog.logMessage(
             f"XML grouping result: {len(xml_groups)} types",
             LOG_TAG,
-            Qgis.Info
+            Qgis.MessageLevel.Info
         )
         for xml_type, file_paths in xml_groups.items():
             QgsMessageLog.logMessage(
                 f"  {xml_type}: {len(file_paths)} files",
                 LOG_TAG,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
 
         created_layers = []
@@ -172,13 +172,13 @@ class XmlAttributeLoader:
             QgsMessageLog.logMessage(
                 f"XML processing: {xml_type} - {os.path.basename(file_paths[0])}",
                 LOG_TAG,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
         else:
             QgsMessageLog.logMessage(
                 f"XML merge started: {xml_type} - {len(file_paths)} files",
                 LOG_TAG,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
 
         # 最初のファイルをベースとしてレイヤを作成
@@ -189,7 +189,7 @@ class XmlAttributeLoader:
         QgsMessageLog.logMessage(
             f"base layer created: {file_paths[0]} -> {layer_name}",
             LOG_TAG,
-            Qgis.Info
+            Qgis.MessageLevel.Info
         )
 
         # 残りのファイルを順次マージ
@@ -200,7 +200,7 @@ class XmlAttributeLoader:
                     QgsMessageLog.logMessage(
                         f"merging file {i}: {file_path}",
                         LOG_TAG,
-                        Qgis.Info
+                        Qgis.MessageLevel.Info
                     )
                     self._merge_layer_data(base_layer, temp_layer, file_path)  # フルパスを渡す
 
@@ -209,24 +209,24 @@ class XmlAttributeLoader:
                     QgsMessageLog.logMessage(
                         f"removing temp layer: temp_{i}",
                         LOG_TAG,
-                        Qgis.Info
+                        Qgis.MessageLevel.Info
                     )
 
             except Exception as e:
                 QgsMessageLog.logMessage(
                     f"file merge error: {file_path} - {e}",
                     LOG_TAG,
-                    Qgis.Warning
+                    Qgis.MessageLevel.Warning
                 )
 
         # 完了メッセージ
         if len(file_paths) == 1:
             success_message = f"XML load completed: {layer_name} - {base_layer.featureCount()} features"
-            QgsMessageLog.logMessage(success_message, LOG_TAG, Qgis.Success)
+            QgsMessageLog.logMessage(success_message, LOG_TAG, Qgis.MessageLevel.Success)
             self._show_success(success_message)
         else:
             success_message = f"XML merge completed: {layer_name} - {len(file_paths)} files, {base_layer.featureCount()} features"
-            QgsMessageLog.logMessage(success_message, LOG_TAG, Qgis.Success)
+            QgsMessageLog.logMessage(success_message, LOG_TAG, Qgis.MessageLevel.Success)
             self._show_success(success_message)
 
         # マージされたレイヤをQGISプロジェクトに追加
@@ -250,12 +250,12 @@ class XmlAttributeLoader:
         QgsMessageLog.logMessage(
             f"*** load_xml_as_attribute_table called: {xml_file_path} ***",
             LOG_TAG,
-            Qgis.Info
+            Qgis.MessageLevel.Info
         )
         QgsMessageLog.logMessage(
             f"caller: {caller_info.strip()}",
             LOG_TAG,
-            Qgis.Info
+            Qgis.MessageLevel.Info
         )
 
         try:
@@ -299,7 +299,7 @@ class XmlAttributeLoader:
                 QgsMessageLog.logMessage(
                     f"XML diagnosis - type: {xml_type}, MLIT XML: {is_mlit}, confidence: {confidence:.2f}",
                     LOG_TAG,
-                    Qgis.Info
+                    Qgis.MessageLevel.Info
                 )
 
                 # 高い信頼度の場合は詳細情報も記録
@@ -308,13 +308,13 @@ class XmlAttributeLoader:
                         QgsMessageLog.logMessage(
                             f"detected keywords: {', '.join(details['mlit_keywords'][:3])}",
                             LOG_TAG,
-                            Qgis.Info
+                            Qgis.MessageLevel.Info
                         )
                     if details.get('structure_indicators'):
                         QgsMessageLog.logMessage(
                             f"structure indicators: {', '.join(details['structure_indicators'][:2])}",
                             LOG_TAG,
-                            Qgis.Info
+                            Qgis.MessageLevel.Info
                         )
 
             except Exception as e:
@@ -370,7 +370,7 @@ class XmlAttributeLoader:
             QgsMessageLog.logMessage(
                 f"XML loaded as attribute table: {xml_file_path} -> {layer.name()} ({len(features)} records)",
                 LOG_TAG,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
 
             return layer
@@ -383,7 +383,7 @@ class XmlAttributeLoader:
             QgsMessageLog.logMessage(
                 f"Error loading XML: {str(e)} from file: {xml_file_path}",
                 LOG_TAG,
-                Qgis.Critical
+                Qgis.MessageLevel.Critical
             )
             return None
 
@@ -432,7 +432,7 @@ class XmlAttributeLoader:
                 QgsMessageLog.logMessage(
                     f"DTD declaration found; continuing: {xml_file_path}",
                     LOG_TAG,
-                    Qgis.Info
+                    Qgis.MessageLevel.Info
                 )
 
             # スタイルシート宣言があっても問題ない
@@ -440,14 +440,14 @@ class XmlAttributeLoader:
                 QgsMessageLog.logMessage(
                     f"stylesheet declaration found; continuing: {xml_file_path}",
                     LOG_TAG,
-                    Qgis.Info
+                    Qgis.MessageLevel.Info
                 )
 
             # エンコーディング情報をログに記録
                 QgsMessageLog.logMessage(
                     f"XML encoding detected: {detected_encoding} - {xml_file_path}",
                     LOG_TAG,
-                    Qgis.Info
+                    Qgis.MessageLevel.Info
                 )
 
             return True
@@ -485,7 +485,7 @@ class XmlAttributeLoader:
                     QgsMessageLog.logMessage(
                         f"XML file parsed successfully as {encoding}: {xml_file_path}",
                         LOG_TAG,
-                        Qgis.Info
+                        Qgis.MessageLevel.Info
                     )
                     return tree, root
 
@@ -493,7 +493,7 @@ class XmlAttributeLoader:
                     QgsMessageLog.logMessage(
                         f"XML parse error with encoding {encoding}: {e}",
                         LOG_TAG,
-                        Qgis.Warning
+                        Qgis.MessageLevel.Warning
                     )
                     continue
 
@@ -504,7 +504,7 @@ class XmlAttributeLoader:
                 QgsMessageLog.logMessage(
                     f"read error with encoding {encoding}: {e}",
                     LOG_TAG,
-                    Qgis.Warning
+                    Qgis.MessageLevel.Warning
                 )
                 continue
 
@@ -517,7 +517,7 @@ class XmlAttributeLoader:
         QgsMessageLog.logMessage(
             f"All encoding attempts failed for file: {xml_file_path}",
             LOG_TAG,
-            Qgis.Critical
+            Qgis.MessageLevel.Critical
         )
 
         return None, None
@@ -1047,13 +1047,13 @@ class XmlAttributeLoader:
         """エラーメッセージを表示"""
         if self.iface and self.iface.messageBar():
             self.iface.messageBar().pushMessage(
-                LOG_TAG, message, level=Qgis.Critical, duration=10)
+                LOG_TAG, message, level=Qgis.MessageLevel.Critical, duration=10)
 
     def _show_warning(self, message):
         """警告メッセージを表示"""
         if self.iface and self.iface.messageBar():
             self.iface.messageBar().pushMessage(
-                LOG_TAG, message, level=Qgis.Warning, duration=5)
+                LOG_TAG, message, level=Qgis.MessageLevel.Warning, duration=5)
 
     def _add_source_file_field(self, layer):
         """レイヤーにソースファイルパスフィールドを追加"""
@@ -1078,7 +1078,7 @@ class XmlAttributeLoader:
             QgsMessageLog.logMessage(
                 f"adding fields missing in target: {', '.join([f.name() for f in missing_fields])}",
                 LOG_TAG,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
             provider.addAttributes(missing_fields)
             target_layer.updateFields()
@@ -1118,7 +1118,7 @@ class XmlAttributeLoader:
         QgsMessageLog.logMessage(
             f"merge completed: added {len(features)} records from '{source_file_path}'",
             LOG_TAG,
-            Qgis.Info
+            Qgis.MessageLevel.Info
         )
 
     def _update_source_file_info(self, layer, file_path):
@@ -1140,14 +1140,14 @@ class XmlAttributeLoader:
         QgsMessageLog.logMessage(
             f"updated source file info: set '{file_path}' on {len(features)} records",
             LOG_TAG,
-            Qgis.Info
+            Qgis.MessageLevel.Info
         )
 
     def _show_success(self, message):
         """成功メッセージを表示"""
         if self.iface and self.iface.messageBar():
             self.iface.messageBar().pushMessage(
-                LOG_TAG, message, level=Qgis.Success, duration=3)
+                LOG_TAG, message, level=Qgis.MessageLevel.Success, duration=3)
 
 
 def diagnose_mlit_xml(xml_file_path):

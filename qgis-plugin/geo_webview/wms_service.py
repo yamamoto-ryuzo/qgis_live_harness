@@ -85,7 +85,7 @@ class GeoWebViewWMSService:
             }
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"❌ Failed to get canvas extent info: {e}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"❌ Failed to get canvas extent info: {e}", "geo_webview", Qgis.MessageLevel.Warning)
             return {}
 
     def handle_wms_request(self, conn, params: Dict[str, list], host: Optional[str] = None) -> None:
@@ -295,7 +295,7 @@ class GeoWebViewWMSService:
                     rotation = float(params.get('ANGLE', ['0'])[0])
                 except Exception as e:
                     rotation = 0.0
-                    QgsMessageLog.logMessage(f"⚠️ Invalid ANGLE parameter: {e}, using 0°", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage(f"⚠️ Invalid ANGLE parameter: {e}, using 0°", "geo_webview", Qgis.MessageLevel.Warning)
 
             # Server returns the renderer's output image. Rotation is handled by the renderer.
 
@@ -338,11 +338,11 @@ class GeoWebViewWMSService:
                                     # Ensure the CRS variable matches the transformed BBOX coordinates
                                     crs = 'EPSG:3857'
                             except Exception as e:
-                                QgsMessageLog.logMessage(f"⚠️ Failed to transform BBOX to EPSG:3857: {e}", "geo_webview", Qgis.Warning)
+                                QgsMessageLog.logMessage(f"⚠️ Failed to transform BBOX to EPSG:3857: {e}", "geo_webview", Qgis.MessageLevel.Warning)
                         else:
-                            QgsMessageLog.logMessage(f"⚠️ Invalid source CRS: {original_crs}", "geo_webview", Qgis.Warning)
+                            QgsMessageLog.logMessage(f"⚠️ Invalid source CRS: {original_crs}", "geo_webview", Qgis.MessageLevel.Warning)
                 except Exception as e:
-                    QgsMessageLog.logMessage(f"⚠️ BBOX transformation error: {e}", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage(f"⚠️ BBOX transformation error: {e}", "geo_webview", Qgis.MessageLevel.Warning)
 
             # BBOXが指定されている場合、それを直接使用して画像を生成
             if bbox:
@@ -352,7 +352,7 @@ class GeoWebViewWMSService:
                         self._handle_wms_get_map_with_bbox(conn, bbox, crs, width, height, themes, rotation, layers_param, styles_param, labels_param)
                         return
                 except Exception as e:
-                    QgsMessageLog.logMessage(f"⚠️ Invalid BBOX format: {bbox}, error: {e}", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage(f"⚠️ Invalid BBOX format: {bbox}, error: {e}", "geo_webview", Qgis.MessageLevel.Warning)
 
             # BBOXが指定されていない場合、エラーレスポンスを返す
             from . import http_server
@@ -361,8 +361,8 @@ class GeoWebViewWMSService:
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
             import traceback
-            QgsMessageLog.logMessage(f"❌ WMS GetMap error: {e}", "geo_webview", Qgis.Critical)
-            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ WMS GetMap error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
+            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
             from . import http_server
             http_server.send_http_response(conn, 500, "Internal Server Error", f"WMS GetMap failed: {str(e)}")
 
@@ -412,16 +412,16 @@ class GeoWebViewWMSService:
 
             except Exception as e:
                 import traceback
-                QgsMessageLog.logMessage(f"❌ Map image generation error: {e}", "geo_webview", Qgis.Critical)
-                QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+                QgsMessageLog.logMessage(f"❌ Map image generation error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
+                QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
                 from . import http_server
                 http_server.send_wms_error_response(conn, "InternalError", f"Map generation failed: {str(e)}")
 
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
             import traceback
-            QgsMessageLog.logMessage(f"❌ WMS GetMap with BBOX error: {e}", "geo_webview", Qgis.Critical)
-            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ WMS GetMap with BBOX error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
+            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
             from . import http_server
             http_server.send_http_response(conn, 500, "Internal Server Error", f"WMS GetMap processing failed: {str(e)}")
 
@@ -472,8 +472,8 @@ class GeoWebViewWMSService:
 
         except Exception as e:
             import traceback
-            QgsMessageLog.logMessage(f"❌ Permalink to WMS conversion error: {e}", "geo_webview", Qgis.Critical)
-            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Permalink to WMS conversion error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
+            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
             from . import http_server
             http_server.send_http_response(conn, 500, "Internal Server Error", f"Permalink processing failed: {str(e)}")
 
@@ -496,7 +496,7 @@ class GeoWebViewWMSService:
 
             QgsMessageLog.logMessage(
                 f"🎨 WMS Independent Rendering: {width}x{height}, BBOX: {bbox}, CRS: {crs}, Themes: {themes}, Rotation: {rotation}°",
-                "geo_webview", Qgis.Info
+                "geo_webview", Qgis.MessageLevel.Info
             )
 
             # 1. 現在のキャンバスのマップ設定をベースにする
@@ -515,12 +515,12 @@ class GeoWebViewWMSService:
             # can generate a proper WMS error response. This makes missing/invalid
             # BBOX handling explicit and debuggable.
             if not bbox:
-                QgsMessageLog.logMessage("❌ Missing BBOX for independent rendering", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage("❌ Missing BBOX for independent rendering", "geo_webview", Qgis.MessageLevel.Warning)
                 return None
 
             extent = self._parse_bbox_to_extent(bbox, crs)
             if not extent:
-                QgsMessageLog.logMessage(f"❌ Failed to parse BBOX for independent rendering: {bbox}", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage(f"❌ Failed to parse BBOX for independent rendering: {bbox}", "geo_webview", Qgis.MessageLevel.Warning)
                 return None
 
             # For BBOX requests, prefer a fast path when rotation is zero (or extremely small):
@@ -532,7 +532,7 @@ class GeoWebViewWMSService:
                 # parse original bbox coords
                 coords = [float(x) for x in bbox.split(',')]
                 if len(coords) != 4:
-                    QgsMessageLog.logMessage(f"❌ Invalid BBOX for rotation handling: {bbox}", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage(f"❌ Invalid BBOX for rotation handling: {bbox}", "geo_webview", Qgis.MessageLevel.Warning)
                     return None
                 aminx, aminy, amaxx, amaxy = coords
 
@@ -556,16 +556,16 @@ class GeoWebViewWMSService:
 
                         image = self._execute_parallel_rendering(map_settings)
                         if not image or image.isNull():
-                            QgsMessageLog.logMessage("❌ WMS rendering produced no image (fast path)", "geo_webview", Qgis.Warning)
+                            QgsMessageLog.logMessage("❌ WMS rendering produced no image (fast path)", "geo_webview", Qgis.MessageLevel.Warning)
                             return None
                         png_data = self._save_image_as_png(image)
                         if png_data:
                             return png_data
-                        QgsMessageLog.logMessage("❌ WMS rendering failed (fast path, png conversion)", "geo_webview", Qgis.Warning)
+                        QgsMessageLog.logMessage("❌ WMS rendering failed (fast path, png conversion)", "geo_webview", Qgis.MessageLevel.Warning)
                         return None
                     except Exception as e:
                         from qgis.core import QgsMessageLog, Qgis
-                        QgsMessageLog.logMessage(f"❌ Fast-path rendering error: {e}", "geo_webview", Qgis.Critical)
+                        QgsMessageLog.logMessage(f"❌ Fast-path rendering error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
                         return None
 
                 def _rot(px, py, cx, cy, a):
@@ -596,7 +596,7 @@ class GeoWebViewWMSService:
                 bw = bmaxx - bminx
                 bh = bmaxy - bminy
                 if aw <= 0 or ah <= 0 or bw <= 0 or bh <= 0:
-                    QgsMessageLog.logMessage("❌ Invalid geometry when computing expanded extent for rotation", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage("❌ Invalid geometry when computing expanded extent for rotation", "geo_webview", Qgis.MessageLevel.Warning)
                     return None
 
                 # compute render size so that pixel-per-map-unit matches original requested mapping
@@ -633,7 +633,7 @@ class GeoWebViewWMSService:
                 # perform rendering
                 big_image = self._execute_parallel_rendering(map_settings)
                 if not big_image or big_image.isNull():
-                    QgsMessageLog.logMessage("❌ Rotated rendering produced no image", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage("❌ Rotated rendering produced no image", "geo_webview", Qgis.MessageLevel.Warning)
                     return None
 
                 # Instead of attempting to map rotated coords to pixels (which is fragile
@@ -737,25 +737,25 @@ class GeoWebViewWMSService:
                         # サイズが一致する場合はそのまま使用（画質劣化なし）
                         png_data = self._save_image_as_png(cropped)
                 except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ Rotated image post-processing failed: {e}", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage(f"❌ Rotated image post-processing failed: {e}", "geo_webview", Qgis.MessageLevel.Warning)
                     return None
                 if png_data:
                     return png_data
-                QgsMessageLog.logMessage("❌ Rotated WMS rendering failed (png conversion)", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage("❌ Rotated WMS rendering failed (png conversion)", "geo_webview", Qgis.MessageLevel.Warning)
                 return None
 
             except Exception as e:
                 from qgis.core import QgsMessageLog, Qgis
                 import traceback
-                QgsMessageLog.logMessage(f"❌ Rotated rendering error: {e}", "geo_webview", Qgis.Critical)
-                QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+                QgsMessageLog.logMessage(f"❌ Rotated rendering error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
+                QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
                 return None
 
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
             import traceback
-            QgsMessageLog.logMessage(f"❌ WMS rendering error: {e}", "geo_webview", Qgis.Critical)
-            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ WMS rendering error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
+            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
             return None
         finally:
             # restore any temporary labeling we applied
@@ -795,7 +795,7 @@ class GeoWebViewWMSService:
                                 new_labeling = QgsVectorLayerSimpleLabeling(pal_copy)
                                 layer.setLabeling(new_labeling)
                             else:
-                                QgsMessageLog.logMessage(f"⚠️ No PAL settings in labeling for layer '{layer.name()}'", "geo_webview", Qgis.Warning)
+                                QgsMessageLog.logMessage(f"⚠️ No PAL settings in labeling for layer '{layer.name()}'", "geo_webview", Qgis.MessageLevel.Warning)
                         else:
                             # 試しに QgsPalLayerSettings でラップして適用
                             try:
@@ -804,16 +804,16 @@ class GeoWebViewWMSService:
                                 new_labeling = QgsVectorLayerSimpleLabeling(pal_try)
                                 layer.setLabeling(new_labeling)
                             except Exception:
-                                QgsMessageLog.logMessage(f"⚠️ Unsupported labeling type for layer '{layer.name()}': {type(orig_labeling)}", "geo_webview", Qgis.Warning)
+                                QgsMessageLog.logMessage(f"⚠️ Unsupported labeling type for layer '{layer.name()}': {type(orig_labeling)}", "geo_webview", Qgis.MessageLevel.Warning)
                 except Exception as e:
                     from qgis.core import QgsMessageLog, Qgis
-                    QgsMessageLog.logMessage(f"⚠️ Failed processing layer for label-only rotation: {e}", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage(f"⚠️ Failed processing layer for label-only rotation: {e}", "geo_webview", Qgis.MessageLevel.Warning)
 
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
             import traceback
-            QgsMessageLog.logMessage(f"❌ _apply_label_rotation_only error: {e}", "geo_webview", Qgis.Critical)
-            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ _apply_label_rotation_only error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
+            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
 
         return original_labelings
 
@@ -862,14 +862,14 @@ class GeoWebViewWMSService:
                     layer.setLabeling(labeling)
                     layer.setLabelsEnabled(True)
 
-                    QgsMessageLog.logMessage(f"🔤 Temporarily enabled labels for '{layer.name()}' using field '{field}'", "geo_webview", Qgis.Info)
+                    QgsMessageLog.logMessage(f"🔤 Temporarily enabled labels for '{layer.name()}' using field '{field}'", "geo_webview", Qgis.MessageLevel.Info)
                 except Exception as e:
-                    QgsMessageLog.logMessage(f"⚠️ Failed to apply temporary labeling for layer '{getattr(layer, 'name', lambda: '<unknown>')()}': {e}", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage(f"⚠️ Failed to apply temporary labeling for layer '{getattr(layer, 'name', lambda: '<unknown>')()}': {e}", "geo_webview", Qgis.MessageLevel.Warning)
 
         except Exception as e:
             try:
                 from qgis.core import QgsMessageLog, Qgis
-                QgsMessageLog.logMessage(f"❌ _apply_temporary_labeling error: {e}", "geo_webview", Qgis.Critical)
+                QgsMessageLog.logMessage(f"❌ _apply_temporary_labeling error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
             except Exception:
                 pass
 
@@ -891,7 +891,7 @@ class GeoWebViewWMSService:
                     except Exception:
                         pass
                 except Exception as e:
-                    QgsMessageLog.logMessage(f"⚠️ Failed to restore labeling for layer '{getattr(layer, 'name', lambda: '<unknown>')()}': {e}", "geo_webview", Qgis.Warning)
+                    QgsMessageLog.logMessage(f"⚠️ Failed to restore labeling for layer '{getattr(layer, 'name', lambda: '<unknown>')()}': {e}", "geo_webview", Qgis.MessageLevel.Warning)
         except Exception:
             pass
 
@@ -989,7 +989,7 @@ class GeoWebViewWMSService:
                 pass
 
         except Exception as e:
-            QgsMessageLog.logMessage(f"⚠️ Rendering optimization setup failed: {e}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"⚠️ Rendering optimization setup failed: {e}", "geo_webview", Qgis.MessageLevel.Warning)
 
         # 座標系の設定
         if crs:
@@ -1061,12 +1061,12 @@ class GeoWebViewWMSService:
                                             cache_for_layer[style_name] = qml_string
                                             QgsMessageLog.logMessage(
                                                 f"✅ Applied style '{style_name}' to '{lyr.name()}'",
-                                                "geo_webview", Qgis.Info
+                                                "geo_webview", Qgis.MessageLevel.Info
                                             )
                                         else:
                                             QgsMessageLog.logMessage(
                                                 f"⚠️ Style export failed for '{lyr.name()}': {error_msg}",
-                                                "geo_webview", Qgis.Warning
+                                                "geo_webview", Qgis.MessageLevel.Warning
                                             )
                                     finally:
                                         if original_style is not None:
@@ -1077,12 +1077,12 @@ class GeoWebViewWMSService:
                                 else:
                                     QgsMessageLog.logMessage(
                                         f"⚠️ Style '{style_name}' not found for '{lyr.name()}'",
-                                        "geo_webview", Qgis.Warning
+                                        "geo_webview", Qgis.MessageLevel.Warning
                                     )
                             except Exception as e:
                                 QgsMessageLog.logMessage(
                                     f"⚠️ Applying style '{style_name}' to '{lyr.name()}' failed: {e}",
-                                    "geo_webview", Qgis.Warning
+                                    "geo_webview", Qgis.MessageLevel.Warning
                                 )
 
                     if layer_style_overrides:
@@ -1112,12 +1112,12 @@ class GeoWebViewWMSService:
                                         layer_style_overrides[lid] = new_qml
                                         QgsMessageLog.logMessage(
                                             f"🔧 Rewrote is_layer_visible() in style for layer {lid}",
-                                            "geo_webview", Qgis.Info
+                                            "geo_webview", Qgis.MessageLevel.Info
                                         )
                                 except Exception as e:
                                     QgsMessageLog.logMessage(
                                         f"⚠️ Failed preprocessing QML for layer {lid}: {e}",
-                                        "geo_webview", Qgis.Warning
+                                        "geo_webview", Qgis.MessageLevel.Warning
                                     )
                         except Exception:
                             pass
@@ -1132,7 +1132,7 @@ class GeoWebViewWMSService:
                                 summary = str(type(layer_style_overrides))
                             QgsMessageLog.logMessage(
                                 f"🔍 Applying layerStyleOverrides: keys={summary}, count={len(layer_style_overrides)}",
-                                "geo_webview", Qgis.Info
+                                "geo_webview", Qgis.MessageLevel.Info
                             )
                             map_settings.setLayerStyleOverrides(layer_style_overrides)
                             # attempt to read back what map_settings holds (if supported)
@@ -1145,22 +1145,22 @@ class GeoWebViewWMSService:
                                     cur_summary = str(type(current))
                                 QgsMessageLog.logMessage(
                                     f"🔍 map_settings.layerStyleOverrides() keys={cur_summary}, count={len(current)}",
-                                    "geo_webview", Qgis.Info
+                                    "geo_webview", Qgis.MessageLevel.Info
                                 )
                             except Exception:
                                 QgsMessageLog.logMessage(
                                     "🔍 map_settings.layerStyleOverrides() not readable or unsupported in this QGIS version",
-                                    "geo_webview", Qgis.Warning
+                                    "geo_webview", Qgis.MessageLevel.Warning
                                 )
                         except Exception as e:
                             QgsMessageLog.logMessage(
                                 f"⚠️ Failed to set layerStyleOverrides: {e}",
-                                "geo_webview", Qgis.Warning
+                                "geo_webview", Qgis.MessageLevel.Warning
                             )
 
                     QgsMessageLog.logMessage(
                         f"🎯 Using explicit LAYERS param: {len(resolved_layers)} layers",
-                        "geo_webview", Qgis.Info
+                        "geo_webview", Qgis.MessageLevel.Info
                     )
                     return map_settings
             except Exception:
@@ -1176,7 +1176,7 @@ class GeoWebViewWMSService:
                     map_settings.setLayerStyleOverrides(layer_style_overrides)
                 QgsMessageLog.logMessage(
                     f"💾 Cache hit for theme '{themes}': {len(virtual_layers)} layers",
-                    "geo_webview", Qgis.Info
+                    "geo_webview", Qgis.MessageLevel.Info
                 )
                 return map_settings
 
@@ -1185,7 +1185,7 @@ class GeoWebViewWMSService:
             if themes in map_theme_collection.mapThemes():
                 QgsMessageLog.logMessage(
                     f"🎨 Creating virtual map view for theme: {themes}",
-                    "geo_webview", Qgis.Info
+                    "geo_webview", Qgis.MessageLevel.Info
                 )
 
                 # テーマの状態を取得
@@ -1206,7 +1206,7 @@ class GeoWebViewWMSService:
                     if not layer_record.isVisible:
                         QgsMessageLog.logMessage(
                             f"🚫 Skip hidden: '{layer.name()}'",
-                            "geo_webview", Qgis.Info
+                            "geo_webview", Qgis.MessageLevel.Info
                         )
                         continue
 
@@ -1236,12 +1236,12 @@ class GeoWebViewWMSService:
                                     layer_style_overrides[layer.id()] = qml_string
                                     QgsMessageLog.logMessage(
                                         f"✅ '{layer.name()}' -> style '{style_name}'",
-                                        "geo_webview", Qgis.Info
+                                        "geo_webview", Qgis.MessageLevel.Info
                                     )
                                 else:
                                     QgsMessageLog.logMessage(
                                         f"⚠️ Style export failed for '{layer.name()}': {error_msg}",
-                                        "geo_webview", Qgis.Warning
+                                        "geo_webview", Qgis.MessageLevel.Warning
                                     )
                             finally:
                                 # 元のスタイルに戻す（プロジェクトに影響を与えない）
@@ -1249,7 +1249,7 @@ class GeoWebViewWMSService:
                         else:
                             QgsMessageLog.logMessage(
                                 f"⚠️ Style '{style_name}' not found for '{layer.name()}'",
-                                "geo_webview", Qgis.Warning
+                                "geo_webview", Qgis.MessageLevel.Warning
                             )
                     else:
                         # 現在のスタイルをそのまま使用
@@ -1261,7 +1261,7 @@ class GeoWebViewWMSService:
                             layer_style_overrides[layer.id()] = qml_string
                             QgsMessageLog.logMessage(
                                 f"✅ '{layer.name()}' -> current style",
-                                "geo_webview", Qgis.Info
+                                "geo_webview", Qgis.MessageLevel.Info
                             )
 
                 # 仮想マップビューに設定を適用
@@ -1271,12 +1271,12 @@ class GeoWebViewWMSService:
                     map_settings.setLayerStyleOverrides(layer_style_overrides)
                     QgsMessageLog.logMessage(
                         f"🎨 Virtual view: {len(virtual_layers)} layers, {len(layer_style_overrides)} styles applied",
-                        "geo_webview", Qgis.Info
+                        "geo_webview", Qgis.MessageLevel.Info
                     )
                 else:
                     QgsMessageLog.logMessage(
                         f"🎨 Virtual view: {len(virtual_layers)} layers (no style overrides)",
-                        "geo_webview", Qgis.Info
+                        "geo_webview", Qgis.MessageLevel.Info
                     )
 
                 # キャッシュに保存
@@ -1286,7 +1286,7 @@ class GeoWebViewWMSService:
                 canvas_layers = canvas.mapSettings().layers() if canvas else []
                 QgsMessageLog.logMessage(
                     f"⚠️ Theme '{themes}' not found, using canvas layers: {len(canvas_layers)} layers",
-                    "geo_webview", Qgis.Warning
+                    "geo_webview", Qgis.MessageLevel.Warning
                 )
                 if canvas_layers:
                     map_settings.setLayers(canvas_layers)
@@ -1302,14 +1302,14 @@ class GeoWebViewWMSService:
                     map_settings.setLayers(project_layers)
                     QgsMessageLog.logMessage(
                         f"📋 Fallback to {len(project_layers)} visible project layers",
-                        "geo_webview", Qgis.Info
+                        "geo_webview", Qgis.MessageLevel.Info
                     )
         else:
             # テーマ指定なし：現在のキャンバスレイヤーを使用
             canvas_layers = canvas.mapSettings().layers() if canvas else []
             QgsMessageLog.logMessage(
                 f"🎨 No theme specified, using canvas layers: {len(canvas_layers)} layers found",
-                "geo_webview", Qgis.Info
+                "geo_webview", Qgis.MessageLevel.Info
             )
             if canvas_layers:
                 map_settings.setLayers(canvas_layers)
@@ -1317,7 +1317,7 @@ class GeoWebViewWMSService:
                 layer_names = [layer.name() for layer in canvas_layers if layer]
                 QgsMessageLog.logMessage(
                     f"📋 Canvas layers: {', '.join(layer_names)}",
-                    "geo_webview", Qgis.Info
+                    "geo_webview", Qgis.MessageLevel.Info
                 )
                 # 追加診断: 各レイヤーのラベリング状態と QML に <labeling> が含まれるかをチェック
                 try:
@@ -1372,7 +1372,7 @@ class GeoWebViewWMSService:
                                                     layer_style_overrides[layer.id()] = new_qml
                                                     QgsMessageLog.logMessage(
                                                         f"🔧 Rewrote is_layer_visible() in canvas style for layer {layer.id()}",
-                                                        "geo_webview", Qgis.Info
+                                                        "geo_webview", Qgis.MessageLevel.Info
                                                     )
                                                 else:
                                                     layer_style_overrides[layer.id()] = qml
@@ -1385,10 +1385,10 @@ class GeoWebViewWMSService:
 
                             QgsMessageLog.logMessage(
                                 f"🔎 Layer '{lname}' (id={lid}) labelsEnabled={labels_on} labeling_type={labeling_type} qml_has_labeling={qml_has_labeling}",
-                                "geo_webview", Qgis.Info
+                                "geo_webview", Qgis.MessageLevel.Info
                             )
                         except Exception as e:
-                            QgsMessageLog.logMessage(f"⚠️ Failed diagnosing layer labeling: {e}", "geo_webview", Qgis.Warning)
+                            QgsMessageLog.logMessage(f"⚠️ Failed diagnosing layer labeling: {e}", "geo_webview", Qgis.MessageLevel.Warning)
                     # If we collected style overrides for canvas layers, apply them to map_settings
                     if layer_style_overrides:
                         try:
@@ -1399,7 +1399,7 @@ class GeoWebViewWMSService:
                                 summary = str(type(layer_style_overrides))
                             QgsMessageLog.logMessage(
                                 f"🔍 Applying canvas layerStyleOverrides: keys={summary}, count={len(layer_style_overrides)}",
-                                "geo_webview", Qgis.Info
+                                "geo_webview", Qgis.MessageLevel.Info
                             )
                             map_settings.setLayerStyleOverrides(layer_style_overrides)
                             try:
@@ -1411,21 +1411,21 @@ class GeoWebViewWMSService:
                                     cur_summary = str(type(current))
                                 QgsMessageLog.logMessage(
                                     f"🔍 map_settings.layerStyleOverrides() keys={cur_summary}, count={len(current)}",
-                                    "geo_webview", Qgis.Info
+                                    "geo_webview", Qgis.MessageLevel.Info
                                 )
                             except Exception:
                                 QgsMessageLog.logMessage(
                                     "🔍 map_settings.layerStyleOverrides() not readable or unsupported in this QGIS version",
-                                    "geo_webview", Qgis.Warning
+                                    "geo_webview", Qgis.MessageLevel.Warning
                                 )
                         except Exception as e:
-                            QgsMessageLog.logMessage(f"⚠️ Failed to set canvas layerStyleOverrides: {e}", "geo_webview", Qgis.Warning)
+                            QgsMessageLog.logMessage(f"⚠️ Failed to set canvas layerStyleOverrides: {e}", "geo_webview", Qgis.MessageLevel.Warning)
                 except Exception:
                     pass
             else:
                 QgsMessageLog.logMessage(
                     "⚠️ No layers found in canvas, using project layers",
-                    "geo_webview", Qgis.Warning
+                    "geo_webview", Qgis.MessageLevel.Warning
                 )
                 # フォールバック: プロジェクトの可視レイヤーを使用
                 project_layers = []
@@ -1438,7 +1438,7 @@ class GeoWebViewWMSService:
                 map_settings.setLayers(project_layers)
                 QgsMessageLog.logMessage(
                     f"📋 Using {len(project_layers)} visible project layers",
-                    "geo_webview", Qgis.Info
+                    "geo_webview", Qgis.MessageLevel.Info
                 )
 
         return map_settings
@@ -1464,7 +1464,7 @@ class GeoWebViewWMSService:
             # テーマが指定されていない場合は現在のQGIS表示状態を使用
             from qgis.core import QgsMessageLog, Qgis
             if themes:
-                QgsMessageLog.logMessage(f"⚠️ Theme '{themes}' not found, using current QGIS display settings", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage(f"⚠️ Theme '{themes}' not found, using current QGIS display settings", "geo_webview", Qgis.MessageLevel.Warning)
 
             # プロジェクトのレイヤツリーを走査して可視レイヤを取得
             layer_tree_root = project.layerTreeRoot()
@@ -1486,7 +1486,7 @@ class GeoWebViewWMSService:
                 return QgsRectangle(minx, miny, maxx, maxy)
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"⚠️ Failed to parse BBOX '{bbox}': {e}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"⚠️ Failed to parse BBOX '{bbox}': {e}", "geo_webview", Qgis.MessageLevel.Warning)
         return None
 
     def _execute_parallel_rendering(self, map_settings):
@@ -1501,7 +1501,7 @@ class GeoWebViewWMSService:
             layers = map_settings.layers()
             QgsMessageLog.logMessage(
                 f"🎬 Starting render: {len(layers)} layers, size: {map_settings.outputSize().width()}x{map_settings.outputSize().height()}",
-                "geo_webview", Qgis.Info
+                "geo_webview", Qgis.MessageLevel.Info
             )
 
             # 並列レンダリングジョブを作成
@@ -1531,7 +1531,7 @@ class GeoWebViewWMSService:
             if render_job.isActive():
                 # タイムアウトした場合
                 render_job.cancel()
-                QgsMessageLog.logMessage("⚠️ Rendering timeout (30s)", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage("⚠️ Rendering timeout (30s)", "geo_webview", Qgis.MessageLevel.Warning)
                 return None
 
             # レンダリング結果を取得
@@ -1542,20 +1542,20 @@ class GeoWebViewWMSService:
             if image and not image.isNull():
                 QgsMessageLog.logMessage(
                     f"✅ Render completed: {render_elapsed:.2f}s (total: {total_elapsed:.2f}s)",
-                    "geo_webview", Qgis.Info
+                    "geo_webview", Qgis.MessageLevel.Info
                 )
                 return image
             else:
-                QgsMessageLog.logMessage("⚠️ Rendered image is null", "geo_webview", Qgis.Warning)
+                QgsMessageLog.logMessage("⚠️ Rendered image is null", "geo_webview", Qgis.MessageLevel.Warning)
                 return None
 
         except Exception as e:
             import traceback
-            QgsMessageLog.logMessage(f"❌ Parallel rendering error: {e}", "geo_webview", Qgis.Critical)
-            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Parallel rendering error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
+            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
             return None
-            QgsMessageLog.logMessage(f"❌ Parallel rendering error: {e}", "geo_webview", Qgis.Critical)
-            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.Critical)
+            QgsMessageLog.logMessage(f"❌ Parallel rendering error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
+            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
             return None
 
     def _save_image_as_png(self, image):
@@ -1575,5 +1575,5 @@ class GeoWebViewWMSService:
             return png_bytes
         except Exception as e:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"⚠️ Failed to save image as PNG: {e}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"⚠️ Failed to save image as PNG: {e}", "geo_webview", Qgis.MessageLevel.Warning)
             return None

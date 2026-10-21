@@ -47,7 +47,7 @@ def library_dir():
         QgsApplication.qgisSettingsDirPath(), "python", PLUGIN_ID)
 
 
-def _log(msg, level=Qgis.Warning):
+def _log(msg, level=Qgis.MessageLevel.Warning):
     QgsMessageLog.logMessage(str(msg), LOG_TAG, level)
 
 

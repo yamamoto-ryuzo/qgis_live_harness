@@ -123,7 +123,7 @@ def _extract_symbol_properties(symbol, geom_type: str):
                         pen_join_style = sl.penJoinStyle()
                         try:
                             from qgis.core import QgsMessageLog, Qgis
-                            QgsMessageLog.logMessage(f'🔧 Extracted penJoinStyle: {pen_join_style} (type: {type(pen_join_style).__name__})', 'geo_webview', Qgis.Info)
+                            QgsMessageLog.logMessage(f'🔧 Extracted penJoinStyle: {pen_join_style} (type: {type(pen_join_style).__name__})', 'geo_webview', Qgis.MessageLevel.Info)
                         except Exception:
                             pass
                     except Exception:
@@ -135,7 +135,7 @@ def _extract_symbol_properties(symbol, geom_type: str):
                         pen_cap_style = sl.penCapStyle()
                         try:
                             from qgis.core import QgsMessageLog, Qgis
-                            QgsMessageLog.logMessage(f'🔧 Extracted penCapStyle: {pen_cap_style}', 'geo_webview', Qgis.Info)
+                            QgsMessageLog.logMessage(f'🔧 Extracted penCapStyle: {pen_cap_style}', 'geo_webview', Qgis.MessageLevel.Info)
                         except Exception:
                             pass
                     except Exception:
@@ -147,7 +147,7 @@ def _extract_symbol_properties(symbol, geom_type: str):
                         pen_style = sl.penStyle()
                         try:
                             from qgis.core import QgsMessageLog, Qgis
-                            QgsMessageLog.logMessage(f'🔧 Extracted penStyle: {pen_style}', 'geo_webview', Qgis.Info)
+                            QgsMessageLog.logMessage(f'🔧 Extracted penStyle: {pen_style}', 'geo_webview', Qgis.MessageLevel.Info)
                         except Exception:
                             pass
                     except Exception:
@@ -243,7 +243,7 @@ def _extract_symbol_properties(symbol, geom_type: str):
     except Exception as e:
         try:
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"⚠️ sld_renderer: symbolLayer extraction failed: {e}", "geo_webview", Qgis.Warning)
+            QgsMessageLog.logMessage(f"⚠️ sld_renderer: symbolLayer extraction failed: {e}", "geo_webview", Qgis.MessageLevel.Warning)
         except Exception:
             pass
 
@@ -373,7 +373,7 @@ def _symbol_to_symbolizer(symbol, geom_type: str) -> str:
                 f'📋 Symbol properties for {geom_type}: '
                 f'stroke_color={stroke_color}, stroke_width={stroke_width}, '
                 f'pen_join_style={pen_join_style}, pen_cap_style={pen_cap_style}, pen_style={pen_style}',
-                'geo_webview', Qgis.Info
+                'geo_webview', Qgis.MessageLevel.Info
             )
         except Exception:
             pass
@@ -459,7 +459,7 @@ def _symbol_to_symbolizer(symbol, geom_type: str) -> str:
             from qgis.core import QgsMessageLog, Qgis
             QgsMessageLog.logMessage(
                 f"🧪 Polygon fill decision: fill_color={fill_color}, opacity={opacity}, has_brush={has_brush}, has_fill={has_fill}",
-                "geo_webview", Qgis.Info
+                "geo_webview", Qgis.MessageLevel.Info
             )
         except Exception:
             pass
@@ -565,7 +565,7 @@ def renderer_to_sld(layer, layer_name: Optional[str] = None) -> str:
     if renderer is None:
         # trivial default
         from qgis.core import QgsMessageLog, Qgis
-        QgsMessageLog.logMessage(f"No renderer for layer {ln}, returning default SLD", "geo_webview", Qgis.Warning)
+        QgsMessageLog.logMessage(f"No renderer for layer {ln}, returning default SLD", "geo_webview", Qgis.MessageLevel.Warning)
         return _sld_header(ln) + _rule_xml('default', None, _symbol_to_symbolizer(None, 'Polygon')) + _sld_footer()
 
     rules = []

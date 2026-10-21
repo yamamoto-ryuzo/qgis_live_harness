@@ -1,3 +1,8 @@
+2.10.2 Qt6互換性チェック対応
+- 非スコープ列挙型59箇所をスコープ化:
+  Qgis.*→Qgis.MessageLevel.*(geo_import_dialog/geo_import_main/
+  settings/util/xml_attribute_loader)
+
 2.10.1 plugins.qgis.org セキュリティスキャン対応
 - junction作成の `mklink` 呼出しから `shell=True` を除去
   (リスト形式で cmd /c を直接起動するためshell解釈を経由しない)

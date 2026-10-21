@@ -77,13 +77,13 @@ def _qgis_log(message, level='info'):
         # QGIS logging API
         from qgis.core import QgsMessageLog, Qgis
         if level == 'info':
-            QgsMessageLog.logMessage(str(message), 'QMapPermalink', Qgis.Info)
+            QgsMessageLog.logMessage(str(message), 'QMapPermalink', Qgis.MessageLevel.Info)
         elif level == 'warning':
-            QgsMessageLog.logMessage(str(message), 'QMapPermalink', Qgis.Warning)
+            QgsMessageLog.logMessage(str(message), 'QMapPermalink', Qgis.MessageLevel.Warning)
         elif level == 'critical':
-            QgsMessageLog.logMessage(str(message), 'QMapPermalink', Qgis.Critical)
+            QgsMessageLog.logMessage(str(message), 'QMapPermalink', Qgis.MessageLevel.Critical)
         else:
-            QgsMessageLog.logMessage(str(message), 'QMapPermalink', Qgis.Info)
+            QgsMessageLog.logMessage(str(message), 'QMapPermalink', Qgis.MessageLevel.Info)
     except Exception:
         # fallback to stdout so non-QGIS contexts still see messages
         try:

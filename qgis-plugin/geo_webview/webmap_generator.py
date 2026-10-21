@@ -50,13 +50,13 @@ def _qmp_log(msg: str, level='INFO'):
         # QGIS 3.x: use QgsMessageLog or Qgis
         try:
             from qgis.core import QgsMessageLog, Qgis
-            sev = Qgis.Info
+            sev = Qgis.MessageLevel.Info
             if isinstance(level, str):
                 lvl = level.upper()
                 if lvl == 'WARN' or lvl == 'WARNING':
-                    sev = Qgis.Warning
+                    sev = Qgis.MessageLevel.Warning
                 elif lvl == 'ERROR':
-                    sev = Qgis.Critical
+                    sev = Qgis.MessageLevel.Critical
             try:
                 QgsMessageLog.logMessage(str(msg), 'QMapPermalink', sev)
                 return

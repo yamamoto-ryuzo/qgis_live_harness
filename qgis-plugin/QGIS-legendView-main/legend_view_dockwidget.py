@@ -275,11 +275,11 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 icon = QIcon()  # 代替: 空アイコンまたは適切なアイコンに置き換え
 
             elif isinstance(layer, QgsVectorLayer):
-                if (layer.geometryType() == QgsWkbTypes.PointGeometry):
+                if (layer.geometryType() == QgsWkbTypes.GeometryType.PointGeometry):
                     icon = QIcon()  # 代替: 空アイコンまたは適切なアイコンに置き換え
-                elif (layer.geometryType() == QgsWkbTypes.LineGeometry):
+                elif (layer.geometryType() == QgsWkbTypes.GeometryType.LineGeometry):
                     icon = QIcon()
-                elif (layer.geometryType() == QgsWkbTypes.PolygonGeometry):
+                elif (layer.geometryType() == QgsWkbTypes.GeometryType.PolygonGeometry):
                     icon = QIcon()
             else:
                 continue
