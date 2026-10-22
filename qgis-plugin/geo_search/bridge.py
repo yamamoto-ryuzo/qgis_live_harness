@@ -445,12 +445,30 @@ class GeoSearchBridge:
 
     def _zoom_to_results(self, feat):
         """全結果タブの地物を選択し、結合bboxへズームする。"""
-        from qgis.core import QgsRectangle
+        from qgis.core import (QgsRectangle, QgsCoordinateTransform,
+                               QgsProject)
+        canvas = self._plugin.iface.mapCanvas()
+        try:
+            canvas_crs = canvas.mapSettings().destinationCrs()
+        except Exception:  # nosec B110  # 設計上の許容
+            canvas_crs = None
+        project = QgsProject.instance()
         rd = getattr(feat, "result_dialog", None)
         tabs = getattr(rd, "_tabs", []) if rd is not None else []
         rect = None
         for t in tabs or []:
             layer = t.get("layer")
+            # レイヤCRS→キャンバスCRSの変換(違えば)
+            transform = None
+            if layer is not None and canvas_crs is not None:
+                try:
+                    layer_crs = layer.crs()
+                    if (layer_crs is not None and layer_crs.isValid()
+                            and layer_crs != canvas_crs):
+                        transform = QgsCoordinateTransform(
+                            layer_crs, canvas_crs, project)
+                except Exception:  # nosec B110  # 設計上の許容
+                    transform = None
             ids = []
             for f in (t.get("features") or []):
                 try:
@@ -459,6 +477,8 @@ class GeoSearchBridge:
                     if g is None or g.isEmpty():
                         continue
                     r = g.boundingBox()
+                    if transform is not None:
+                        r = transform.transformBoundingBox(r)
                     if rect is None:
                         rect = QgsRectangle(r)
                     else:
@@ -472,7 +492,6 @@ class GeoSearchBridge:
                     pass
         if rect is None or rect.isNull():
             return False
-        canvas = self._plugin.iface.mapCanvas()
         if rect.width() == 0 and rect.height() == 0:
             canvas.setCenter(rect.center())  # 点のみ: 中心へパン
         else:

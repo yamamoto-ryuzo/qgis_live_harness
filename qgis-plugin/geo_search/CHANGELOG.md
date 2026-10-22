@@ -1,3 +1,15 @@
+# V4.4.5 全レイヤ/表示レイヤ検索が常に0件になる不具合を修正
+- resultdialog.py: `set_features_by_layer` 内でモジュール先頭のimport済み
+  `QCoreApplication` を関数内で再importしていたため、関数スコープの
+  ローカル変数扱いとなり import 行前の使用箇所で UnboundLocalError が
+  発生。例外が show_features の catch に吸収され `set_features([],[])`
+  (空タブ)にフォールバックし、全レイヤ/表示レイヤ検索の結果が常に
+  表示されなかった(選択もズームも不可)のを修正。
+- bridge.py: `_zoom_to_results` がレイヤCRSのbboxをキャンバスCRSへ
+  変換せず `zoomToFeatureExtent` へ渡していたため、CRS不一致
+  (例: レイヤ=EPSG:4326 / キャンバス=EPSG:3857)時に誤った場所へ
+  ズームしていたのを修正(地物ごとに変換してから結合)。
+
 # V4.4.4 ドキュメントのSecret検出対応
 - SEARCH.md/SEARCH_JP.md の接続設定例で Password 値が実値に
   見える文字列("Password"/"パスワード")だったため、シークレット

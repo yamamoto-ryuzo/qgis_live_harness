@@ -288,7 +288,6 @@ class ResultDialog(QDialog):
         self.move_page(1)
         try:
             # force-select each tab to ensure its table and viewport are initialized
-            from qgis.PyQt.QtCore import QCoreApplication
             current = self.tabWidget.currentIndex()
             for i in range(self.tabWidget.count()):
                 try:
