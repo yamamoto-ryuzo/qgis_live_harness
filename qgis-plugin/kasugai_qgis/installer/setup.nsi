@@ -1,10 +1,10 @@
-; kasugai_qgis NSIS インストーラースクリプト
+﻿; kasugai_qgis NSIS インストーラースクリプト
 ; 本体 qgis_launcher.exe と動作に必要なファイル一式をインストール/更新
 ; 使い方: release ビルド後、 makensis.exe setup.nsi でコンパイル
 ;
 ; 2種類のインストーラーを生成できる:
 ;   全体版   : makensis.exe setup.nsi
-;              → kasugai_qgis-setup.exe (EXE + ini/profiles/ProjectFiles 等のデータ一式)
+;              → kasugai_qgis-setup.exe (EXE + ini/profiles/sample_projects 等のデータ一式)
 ;              初期インストールおよび「全体更新」用
 ;   EXEのみ版: makensis.exe /DUPDATE_ONLY setup.nsi
 ;              → kasugai_qgis-update.exe (EXE 本体のみ、データは触らない)
@@ -40,6 +40,9 @@ SetCompressor /SOLID lzma
 
 ; ページ
 !insertmacro MUI_PAGE_WELCOME
+!ifndef UPDATE_ONLY
+!insertmacro MUI_PAGE_COMPONENTS
+!endif
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 
@@ -62,7 +65,8 @@ SetCompressor /SOLID lzma
 ; 強制上書き
 SetOverwrite on
 
-Section "MainSection" SecMain
+Section "kasugai_qgis 本体 (必須)" SecMain
+  SectionIn RO
   SetOutPath "$INSTDIR"
 
   ; 実行中の qgis_launcher.exe を .old にリネームしてから上書き
@@ -93,10 +97,6 @@ Section "MainSection" SecMain
   SetOutPath "$INSTDIR\profiles"
   File /r "..\download\profiles\*.*"
 
-  ; サンプルプロジェクト
-  SetOutPath "$INSTDIR\ProjectFiles"
-  File /r "..\download\ProjectFiles\*.*"
-
   ; 設定例ファイル
   SetOutPath "$INSTDIR"
   File "..\download\qgislocalsync.config.example"
@@ -117,6 +117,24 @@ Section "MainSection" SecMain
   WriteUninstaller "$INSTDIR\uninstall.exe"
 !endif
 SectionEnd
+
+; サンプルプロジェクト（任意コンポーネント。既定は選択。
+; サイレント全体更新では既定どおりインストールされる。
+; 選択を外しても既存の sample_projects フォルダは削除しない）
+!ifndef UPDATE_ONLY
+Section "サンプルプロジェクト" SecSamples
+  SetOutPath "$INSTDIR\sample_projects"
+  File /r "..\download\sample_projects\*.*"
+SectionEnd
+
+; コンポーネントページの説明文
+LangString DESC_SecMain ${LANG_JAPANESE} "ランチャー本体と動作に必要なデータ一式（ini/profiles/設定例）"
+LangString DESC_SecSamples ${LANG_JAPANESE} "SampleProjectFile.qgs など配布サンプルプロジェクト一式"
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecMain} $(DESC_SecMain)
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecSamples} $(DESC_SecSamples)
+!insertmacro MUI_FUNCTION_DESCRIPTION_END
+!endif
 
 ; サイレントインストール完了後は本体を自動起動
 ; サイレント実行＝本体の自動更新から呼ばれたケース。
@@ -172,6 +190,8 @@ Section "Uninstall"
   Delete "$INSTDIR\app_icon.ico"
   RMDir /r "$INSTDIR\ini"
   RMDir /r "$INSTDIR\profiles"
+  RMDir /r "$INSTDIR\sample_projects"
+  ; 旧フォルダ名 ProjectFiles の残存分も削除
   RMDir /r "$INSTDIR\ProjectFiles"
   Delete "$DESKTOP\kasugai_qgis.lnk"
   RMDir /r "$SMPROGRAMS\${PRODUCT_NAME}"

@@ -1,5 +1,23 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+- 起動時の配布プロファイルコピー（`profiles\QGIS4\` → `%APPDATA%\QGIS\QGIS4\`）を「存在しないファイルのみコピー」から常時上書きに変更。プロファイルはシステム管理のため、全体更新で配布物が更新された場合に必ず利用側へ反映される（dev 配置の junction コピー先は従来通り書き込まない）
+- 配布プロジェクトフォルダを `ProjectFiles` → `sample_projects`、サンプルプロジェクトを `ProjectFile.qgs` → `SampleProjectFile.qgs` に改名（同梱 `QGIS4.ini` の Q: 参照・`qgis_settings.json` の既定値も追従）
+- 全体版インストーラーにコンポーネント選択ページを追加し、`sample_projects` を「サンプルプロジェクト」として任意インストールに変更（既定は選択。選択を外しても既存フォルダは削除しない。サイレント全体更新では既定どおりインストール）
+
+### Removed
+- `download/qgis_launcher.exe`：GitHub Pages 直配布時代の名残り（v2.0.1 コミット済みバイナリ）。現行の配布物は `public/` の setup/update/zip で、`download/` はデータペイロードの正本に役割変更済みのため削除
+- `sample_projects/` 内の `3次メッシュ（約1km四方）.gpkg`（対応レイヤ参照は `.qgs` 側で既に除去済み）と QGIS 保存バックアップ `*.qgs~`（インストーラー混入防止）
+
+### Docs
+- `download/README.md` を新規作成：ペイロードの役割・各項目のインストール先での扱い（初回のみ/常時上書き/任意コンポーネント）・編集ルールを明文化
+- `index.md` 整理：プロファイルコピーの「既存はスキップ」記述を常時上書きへ修正、`C:\qgis_launcher\` 例示を `C:\kasugai\kasugai_qgis\` へ、壊れた `qgis_launcher/download/` リンク修正、パッケージ構成を3配布物（setup/update/zip）の実態へ更新、リリース手順を `run.py --bump` フローへ、GUI起動の WebView2 記述を追加
+
+### Added
+- 既存インストール向けの自動移行: 起動時に `<project_root>/ProjectFiles` があれば `sample_projects` へリネーム（新旧両方がある場合は旧側の未配置エントリのみ移し、空なら旧フォルダを削除）。旧ファイル名 `ProjectFile.qgs*` が残っていれば `SampleProjectFile.qgs*` へ整理。`qgis_settings.json` 内の `project_path`/`current_project` に含まれる `ProjectFiles` パス区切りセグメントは読み込み時に `sample_projects` として解決
+
 ## [2.3.0] - 2026-10-22
 
 ### Changed

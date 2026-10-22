@@ -6,7 +6,7 @@ const bad = [
   'recentProjects' + BS + '8' + BS + 'path=',
   'recentProjects' + BS + '10' + BS + 'path=',
 ];
-const replacement = 'Q:/ProjectFiles/ProjectFile.qgs';
+const replacement = 'Q:/sample_projects/SampleProjectFile.qgs';
 
 const buf = fs.readFileSync(src);
 const NL = 10;

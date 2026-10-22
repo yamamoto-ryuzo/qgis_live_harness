@@ -17,6 +17,15 @@ use winreg::enums::*;
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 /// デフォルトの自動更新 JSON エンドポイント URL
 const DEFAULT_UPDATE_URL: &str = "https://yamamoto-ryuzo.github.io/kasugai_qgis/update.json";
+/// 配布プロジェクトフォルダ名。旧名 ProjectFiles から移行。
+const PROJECT_DIR_NAME: &str = "sample_projects";
+/// 旧配布プロジェクトフォルダ名。既存インストールのフォルダ移行と
+/// qgis_settings.json 内の旧パスのエイリアス解決に使用。
+const LEGACY_PROJECT_DIR_NAME: &str = "ProjectFiles";
+/// 旧サンプルプロジェクトのファイル名ステム（ProjectFile.qgs 等）。
+const LEGACY_PROJECT_FILE_STEM: &str = "ProjectFile";
+/// 新サンプルプロジェクトのファイル名ステム（SampleProjectFile.qgs 等）。
+const PROJECT_FILE_STEM: &str = "SampleProjectFile";
 use winreg::RegKey;
 use quick_xml::Reader;
 use quick_xml::events::Event;
@@ -461,6 +470,24 @@ fn get_current_settings(custom_dir: &str) -> QgisSettings {
                     if p.is_string() {
                         let s = p.as_str().unwrap_or("");
                         v["project_path"] = serde_json::Value::Array(vec![serde_json::Value::String(s.to_string())]);
+                    }
+                }
+                // 旧プロジェクトフォルダ名 ProjectFiles → sample_projects のエイリアス。
+                // 既存インストールの qgis_settings.json は上書きされないため読み込み時に正規化する。
+                if let Some(arr) = v.get_mut("project_path").and_then(|p| p.as_array_mut()) {
+                    for e in arr.iter_mut() {
+                        if let Some(s) = e.as_str() {
+                            let r = remap_legacy_project_dir(s);
+                            if r != s {
+                                *e = serde_json::Value::String(r);
+                            }
+                        }
+                    }
+                }
+                if let Some(cp) = v.get("current_project").and_then(|p| p.as_str()) {
+                    let r = remap_legacy_project_dir(cp);
+                    if r != cp {
+                        v["current_project"] = serde_json::Value::String(r);
                     }
                 }
                 // kasugai_qgis_version を数値でも受け付ける（文字列に正規化）
@@ -1277,6 +1304,7 @@ fn main() {
         register_protocol_handler();
         let server_port = args.port.unwrap_or(settings.api_server_port.unwrap_or(8500));
         mount_drive_mappings(&settings.drive_mappings, &settings, None);
+        migrate_legacy_project_dir(&project_root_dir);
         copy_profiles_at_startup(&project_root_dir, None);
         run_local_sync(&settings, &project_root_dir, None);
         // kasugai-qgis:// からの起動(uri 引数あり)は残ったタブ/pane 自身が
@@ -1296,6 +1324,7 @@ fn main() {
 
     // CLI モードでも配布プロファイルをシードする。
     // 未シード環境で --profile が空プロファイルを指すのを防ぐ
+    migrate_legacy_project_dir(&project_root_dir);
     copy_profiles_at_startup(&project_root_dir, None);
 
     // KASUGAI/yr-qgis-launcher 方式のローカル自動同期（CLI モード）
@@ -1808,7 +1837,8 @@ fn mount_drive(m: &RcloneMount, rclone_path: &str, sender: Option<&std::sync::mp
 
 /// EXE 起動時: インストール済みQGIS4のプロファイルフォルダをコピーする
 /// profiles\QGIS4\ → APPDATA\QGIS\QGIS4\
-/// バージョン別フォルダが無い場合は profiles\ 直下を共通フォルダとして使用
+/// バージョン別フォルダが無い場合は profiles\ 直下を共通フォルダとして使用。
+/// プロファイルはシステム管理のため、既存ファイルも常に配布側で上書きする。
 fn copy_profiles_at_startup(settings_dir: &str, sender: Option<&std::sync::mpsc::Sender<String>>) {
     let base_profiles = PathBuf::from(settings_dir).join("profiles");
     if !base_profiles.exists() {
@@ -1870,7 +1900,7 @@ fn copy_profiles_at_startup(settings_dir: &str, sender: Option<&std::sync::mpsc:
         if let Some(s) = sender {
             let _ = s.send(format!("MSG:Copying profiles from {:?} -> {:?}", source, target));
         }
-        let _ = copy_dir_contents_skip(&source, target);
+        let _ = copy_dir_contents(&source, target);
 
         // 進捗を送る（50%〜90% の範囲で割当）
         if let Some(s) = sender {
@@ -1993,6 +2023,60 @@ fn write_global_settings_ini(role: &str) -> Option<PathBuf> {
     }
 }
 
+/// パス文字列中の旧プロジェクトフォルダ名セグメント "ProjectFiles" を
+/// "sample_projects" に置き換える。区切りは / と \ の両方を許容し、
+/// セグメント単位の一致のみ置き換える（ProjectFiles2 等は触らない）。
+fn remap_legacy_project_dir(s: &str) -> String {
+    s.split(['/', '\\'])
+        .map(|seg| if seg == LEGACY_PROJECT_DIR_NAME { PROJECT_DIR_NAME } else { seg })
+        .collect::<Vec<_>>()
+        .join("\\")
+}
+
+/// 旧配布プロジェクトフォルダ `ProjectFiles` を `sample_projects` へ移行する。
+/// - <root>/ProjectFiles のみ存在 → そのままリネーム
+/// - 新旧両方が存在 → 旧側の未配置エントリを新側へ移し、空になれば旧フォルダを削除
+/// - 移行後、旧ファイル名 ProjectFile.qgs* が残っていれば SampleProjectFile.qgs* へ
+///   改名（新名が既に存在する場合は旧名を削除）
+fn migrate_legacy_project_dir(root: &str) {
+    let legacy = PathBuf::from(root).join(LEGACY_PROJECT_DIR_NAME);
+    let new_dir = PathBuf::from(root).join(PROJECT_DIR_NAME);
+    if legacy.is_dir() {
+        if !new_dir.exists() {
+            match fs::rename(&legacy, &new_dir) {
+                Ok(_) => println!("プロジェクトフォルダを移行: {:?} -> {:?}", legacy, new_dir),
+                Err(e) => eprintln!("プロジェクトフォルダ移行失敗 {:?} -> {:?}: {}", legacy, new_dir, e),
+            }
+        } else {
+            if let Ok(entries) = fs::read_dir(&legacy) {
+                for entry in entries.flatten() {
+                    let to = new_dir.join(entry.file_name());
+                    if !to.exists() {
+                        let _ = fs::rename(entry.path(), &to);
+                    }
+                }
+            }
+            // 空になった場合のみ削除される（残ったエントリはユーザー所有とみなす）
+            let _ = fs::remove_dir(&legacy);
+        }
+    }
+    if !new_dir.is_dir() {
+        return;
+    }
+    for suffix in [".qgs", ".qgs.png", ".qgs.qto3settings", "_attachments.zip"] {
+        let old = new_dir.join(format!("{}{}", LEGACY_PROJECT_FILE_STEM, suffix));
+        if !old.is_file() {
+            continue;
+        }
+        let new = new_dir.join(format!("{}{}", PROJECT_FILE_STEM, suffix));
+        if new.exists() {
+            let _ = fs::remove_file(&old);
+        } else {
+            let _ = fs::rename(&old, &new);
+        }
+    }
+}
+
 /// project_path の単一エントリを実際の .qgs/.qgz ファイルパスに解決する。
 /// - .qgs/.qgz 拡張子のパス → そのファイルが存在すれば返す
 /// - フォルダパス            → 直下の .qgs/.qgz を昇順で列挙して最初を返す
@@ -2001,6 +2085,7 @@ fn resolve_project_to_file(path_str: &str, settings_dir: &str) -> Option<PathBuf
     if path_str.is_empty() {
         return None;
     }
+    let path_str = &remap_legacy_project_dir(path_str);
     let pb = PathBuf::from(path_str);
     let lower = path_str.to_lowercase();
     let is_qgis_file = lower.ends_with(".qgs") || lower.ends_with(".qgz");
@@ -2247,7 +2332,9 @@ fn is_reparse_point(path: &PathBuf) -> bool {
         .unwrap_or(false)
 }
 
-fn copy_dir_contents_skip(src: &PathBuf, dst: &PathBuf) -> std::io::Result<()> {
+/// ディレクトリを再帰コピーする。プロファイルはシステム管理のため
+/// 既存ファイルも常に配布側の内容で上書きする。
+fn copy_dir_contents(src: &PathBuf, dst: &PathBuf) -> std::io::Result<()> {
     if !dst.exists() { fs::create_dir_all(dst)?; }
     for entry in fs::read_dir(src)? {
         let entry = entry?;
@@ -2261,9 +2348,9 @@ fn copy_dir_contents_skip(src: &PathBuf, dst: &PathBuf) -> std::io::Result<()> {
                 continue;
             }
             if !to.exists() { fs::create_dir_all(&to)?; }
-            copy_dir_contents_skip(&from, &to)?;
+            copy_dir_contents(&from, &to)?;
         } else if file_type.is_file() {
-            if !to.exists() { fs::copy(&from, &to)?; }
+            fs::copy(&from, &to)?;
         }
     }
     Ok(())

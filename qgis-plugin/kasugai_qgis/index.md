@@ -34,7 +34,7 @@
 
 - プロジェクト（ドロップダウン）
   - 説明: `project_path` に設定された候補（ファイルまたはフォルダ）から起動する `.qgs` / `.qgz` を選択します。
-  - 表示: 「親フォルダ名 - ファイル名」（例: `ProjectFiles - ProjectFile.qgs`）。
+  - 表示: 「親フォルダ名 - ファイル名」（例: `sample_projects - SampleProjectFile.qgs`）。
 
 - プロジェクト・バージョン
   - 説明:  `Project File Version` を表示します。この項目は選択したプロジェクトファイルがどの QGIS バージョンで作成されたかを示します。
@@ -71,7 +71,7 @@
 
 設定基準フォルダ配下の `profiles` フォルダに `QGIS4\` サブフォルダを作成することで、QGIS4 用のプロファイルを自動配信できます。
 
-- **コピーのタイミング**: EXE 起動時に自動実行されます（「Launch QGIS」ボタン押下前）。コピー先にファイルが既に存在する場合はスキップされるため、複数回起動しても無駄なコピーは発生しません。
+- **コピーのタイミング**: EXE 起動時に自動実行されます（「Launch QGIS」ボタン押下前）。プロファイルはシステム管理のため、**コピー先の既存ファイルも常に配布側の内容で上書きされます**。全体更新で届いたプラグイン・設定の更新は次回起動時に確実に反映されます。
 - **Web UI の挙動**: Web UI で起動した場合、起動処理（`SUBST` によるドライブ割当てやプロファイルの配布コピー）はバックグラウンドで実行され、モーダルの進捗ウィンドウ（メッセージ + プログレスバー）で進捗を確認できます。CLI 起動では従来どおりコンソールログのみが出力されます。
 - **備考**: プロファイルの初期化（配布コピー）は設定で `project_root` が指定されている場合はそのディレクトリを基準に行われます。未指定時は設定ファイル所在フォルダ（通常は EXE の親フォルダ）を使用します。
 - **バージョン自動検出**: インストールされている QGIS4 を自動検出し（`ProgramFiles`、`C:\OSGeo4W`、レジストリ等を探索）、`QGIS4\` プロファイルをコピーします。
@@ -88,9 +88,7 @@
       geo_custom/    ← QGIS 4.x 用プロファイル → %APPDATA%\QGIS\QGIS4\ へコピー
 ```
 
-> **注意**: コピー先に既存ファイルがある場合は上書きしません（ユーザーの設定変更を保護）。配信ファイルを更新してユーザー側に反映させたい場合は、コピー先の該当ファイルを削除してから再起動してください。
->
-> ランチャーの Web UI には「Reset Profiles」ボタンがあり、配布プロファイルの再コピーと既存プロファイルの強制削除を一括で実行できます。実行中はメッセージとプログレスバーを備えたモーダル風ウィンドウで進捗を確認でき、完了すると自動で閉じてメインウィンドウに結果が表示されます。大量のファイル削除／コピーを伴う処理のため、完了まで時間がかかる場合があります。
+> **注意**: プロファイルはシステム管理です。コピー先の既存ファイルは起動のたびに配布側の内容で上書きされます（コピーは上書き＋追加で、配布側から削除されたファイルはコピー先に残ります）。コピー先を配布状態へ完全に再構築したい場合は、Web UI の「Reset Profiles」ボタンで既存プロファイルを強制削除してから再コピーできます。実行中はメッセージとプログレスバーを備えたモーダル風ウィンドウで進捗を確認でき、完了すると自動で閉じてメインウィンドウに結果が表示されます。大量のファイル削除／コピーを伴う処理のため、完了まで時間がかかる場合があります。
 
 ### CLI モード
 
@@ -113,7 +111,7 @@ qgis_settings_{USERNAME}.json   ③ユーザー個別オーバーライド（任
 ### ファイル配置例
 
 ```
-C:\qgis_launcher\
+C:\kasugai\kasugai_qgis\
   qgis_settings.json              ← 全員共通のベース設定
   qgis_settings_override.json     ← 全ユーザーに強制適用（任意）
   qgis_settings_yamamoto.json     ← yamamoto ユーザーのみ上書き（任意）
@@ -181,7 +179,7 @@ C:\qgis_launcher\
 }
 ```
 
-サンプルファイル: [qgis_launcher/download/qgis_settings_override.json.example](https://yamamoto-ryuzo.github.io/kasugai_qgis/download/qgis_settings_override.json.example)
+サンプルファイル: [download/qgis_settings_override.json.example](https://yamamoto-ryuzo.github.io/kasugai_qgis/download/qgis_settings_override.json.example)
 ### ユーザーごとの設定オーバーライド（qgis_settings_{USERNAME}.json）
 
 BOX のフォルダ階層はユーザーによって異なる場合があります。`qgis_settings.json` と同じディレクトリに `qgis_settings_{Windowsログイン名}.json` を置くと、全員共通のベース設定を上書きできます。
@@ -189,7 +187,7 @@ BOX のフォルダ階層はユーザーによって異なる場合がありま�
 #### ファイル命名規則
 
 ```
-C:\qgis_launcher\
+C:\kasugai\kasugai_qgis\
   qgis_settings.json              ← 全員共通のベース設定
   qgis_settings_tanaka.json       ← tanaka ユーザーのみ上書き
   qgis_settings_yamamoto.json     ← yamamoto ユーザーのみ上書き
@@ -230,7 +228,7 @@ C:\qgis_launcher\
 }
 ```
 
-サンプルファイル: [qgis_launcher/download/qgis_settings_USERNAME.json.example](qgis_launcher/download/qgis_settings_USERNAME.json.example)
+サンプルファイル: [download/qgis_settings_USERNAME.json.example](download/qgis_settings_USERNAME.json.example)
 
 ---
 ## ユーザーロール制御
@@ -305,7 +303,7 @@ qgis_launcher.exe と同階層/
 - ビルド・実行例:
 
 ```powershell
-cd qgis_launcher
+cd kasugai_qgis
 cargo build --release
 # ランチャー（デフォルトは Web UI を起動）
 cargo run --release
@@ -504,11 +502,13 @@ GNU General Public License v3.0 (GPL-3.0-only) — 詳細は [LICENSE](LICENSE) 
 
 ### 同梱配布する場合のパッケージ構成
 
-```
-配布パッケージの構成例:
-  qgis_launcher.exe
-  qgis_settings.json
-```
+配布物は `public/` に 3 形式あり、いずれも `download/` をデータペイロードの正本としてビルドされます（構成と取り込みルールは `download/README.md` 参照）:
+
+| 配布物 | 内容 | 用途 |
+|---|---|---|
+| `kasugai_qgis-setup.exe` | EXE 本体 + `ini/`・`profiles/`・`sample_projects/`（任意選択）・設定ファイル | 初期インストール・全体更新 |
+| `kasugai_qgis-update.exe` | EXE 本体のみ（データは触らない） | 通常の自動更新 |
+| `kasugai_qgis.zip` | EXE + データ一式（インストーラー無しの展開版） | 実行権限のない環境向け |
 
 ---
 
@@ -556,16 +556,18 @@ C:\kasugai\kasugai_qgis\
   qgis_settings.json      # 全設定の起点
   ini\                    # ユーザーロール制御用（`ini/<role>.ini/xml` 等）
   profiles\               # 配布プロファイル（`%APPDATA%\QGIS\` へコピー元）
-  ProjectFiles\           # サンプルプロジェクト（任意）
+  sample_projects\        # サンプルプロジェクト（任意）
 ```
 
-- `qgis_settings.json` や `ini/`、`profiles/`、`ProjectFiles/` は `qgis_launcher.exe` と同じ階層に置きます。
+- `qgis_settings.json` や `ini/`、`profiles/`、`sample_projects/` は `qgis_launcher.exe` と同じ階層に置きます。
 - 設定ファイルの `project_root` 等が未指定、または相対パスの場合は上記フォルダを基準に解決されます。
-- 配布プロファイルは、インストール先の `profiles\QGIS4\` から `%APPDATA%\QGIS\QGIS4\` へ起動時にコピーされます。
+- 配布プロファイルは、インストール先の `profiles\QGIS4\` から `%APPDATA%\QGIS\QGIS4\` へ起動時にコピーされます（プロファイルはシステム管理のため、既存ファイルも常に上書きされます）。
+- 旧フォルダ名 `ProjectFiles` は起動時に `sample_projects` へ自動移行されます（設定内の `ProjectFiles` を含むパスも読み込み時に `sample_projects` として解決されます）。
 
 ### 起動方法
 
-- **Web UI 起動**: `qgis_launcher.exe` を実行
+- **GUI 起動（既定）**: `qgis_launcher.exe` を実行すると内蔵 WebView2 ウィンドウで Web UI を表示します（WebView2 Runtime 非搭載環境のみ既定ブラウザへフォールバック）。ウィンドウを閉じるとサーバーごと終了します
+- **ヘッドレスサーバー**: `qgis_launcher.exe --server` で Web UI を HTTP API としてのみ提供
   - 既定ポートは `8500`。起動後は `http://127.0.0.1:8500/` にアクセス
   - ポートを変更する場合: `qgis_launcher.exe --port <ポート番号>`
 - **CLI 起動**: `qgis_launcher.exe --cli`
@@ -592,23 +594,26 @@ C:\kasugai\kasugai_qgis\
 
 | 種類 | ファイル | 内容 | 用途 |
 | --- | --- | --- | --- |
-| 全体版 | `kasugai_qgis-setup.exe` | EXE 本体 + ini/profiles/ProjectFiles 等のデータ一式 | 初期インストール・全体更新 |
+| 全体版 | `kasugai_qgis-setup.exe` | EXE 本体 + ini/profiles/sample_projects 等のデータ一式 | 初期インストール・全体更新 |
 | EXEのみ版 | `kasugai_qgis-update.exe` | EXE 本体のみ（既存データは変更しない） | 通常のバージョンアップ |
 
 `update.json` の形式:
 
 ```json
 {
-  "version": "1.4.1",
+  "version": "2.3.0",
   "url": "https://yamamoto-ryuzo.github.io/kasugai_qgis/public/kasugai_qgis-update.exe",
   "full_url": "https://yamamoto-ryuzo.github.io/kasugai_qgis/public/kasugai_qgis-setup.exe",
   "full": false,
-  "notes": "Kasugai QGIS Launcher 1.4.1"
+  "sha256": "<update.exe の SHA-256（16進）>",
+  "full_sha256": "<setup.exe の SHA-256（16進）>",
+  "notes": "Kasugai QGIS Launcher 2.3.0"
 }
 ```
 
 - 通常は `full: false` のままとし、自動更新では `url` の EXE のみ版が使われます（軽量・ユーザーデータに影響なし）
 - データも含めて更新したい特殊なリリースでは `full: true` にすると、`full_url` の全体版がダウンロード・実行されます
+- 全体版のインストール時はコンポーネント選択ページで「サンプルプロジェクト」（`sample_projects/`）の要・不要を選べます（既定は選択。サイレント全体更新では既定どおりインストール。選択を外しても既存フォルダは削除されません）
 
 ### 更新の流れ
 
@@ -620,12 +625,11 @@ C:\kasugai\kasugai_qgis\
 
 ### リリース時の更新手順
 
-1. `Cargo.toml` の `version` を更新
-2. `installer/setup.nsi` の `PRODUCT_VERSION` を更新
-3. `update.json` の `version` を更新（データ込みの全体更新にしたい場合のみ `full: true` を設定）
-4. `cargo build --release`
-5. `cd installer && build.bat` で `..\public\kasugai_qgis-setup.exe`（全体版）、`..\public\kasugai_qgis-update.exe`（EXEのみ版）、`..\public\kasugai_qgis.zip` を生成
-6. GitHub に push して GitHub Pages に反映
+`python run.py` が一連の作業を自動化します（`Cargo.toml` がバージョンの唯一の正で、`setup.nsi` / `update.json` / `qgis_settings.json` へ自動同期されます）:
+
+1. `python run.py --bump X.Y.Z` — バージョン更新 + リリースビルド一式（`cargo build --release`、setup.exe / update.exe / zip 生成、整合性チェック）。データ込みの全体更新にしたい場合のみ `update.json` の `full` を `true` に編集
+2. `CHANGELOG.md` に変更内容を追記しコミット
+3. `python run.py --tag` — git タグ作成 → `git push origin main --follow-tags` → GitHub Pages 反映確認まで自動実行（push 済みなら `python run.py --publish` で Pages デプロイ確認のみ）
 
 ### 注意
 

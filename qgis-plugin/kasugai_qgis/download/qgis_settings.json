@@ -1,6 +1,6 @@
 {
   "box_url": null,
-  "current_project": "Q: -  - ProjectFiles - ProjectFile.qgs",
+  "current_project": "C:\\kasugai\\kasugai_qgis\\sample_projects\\SampleProjectFile.qgs",
   "local_sync": {
     "sync_src": "C:\\kasugai\\kasugai_qgis",
     "sync_dst": "C:\\kasugai\\kasugai_qgis",
@@ -47,7 +47,7 @@
   },
   "profile": "geo_custom",
   "project_path": [
-    "ProjectFiles"
+    "sample_projects"
   ],
   "project_root": "C:\\kasugai\\kasugai_qgis",
   "kasugai_qgis_version": "2.3.0",

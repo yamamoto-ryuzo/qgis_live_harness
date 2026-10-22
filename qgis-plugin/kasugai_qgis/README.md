@@ -13,7 +13,8 @@ QGIS / QField 起動用ランチャー（Rust + AXUM）。v2.0.0 からは Web U
 - ユーザーロール制御（Viewer / Editor / Administrator）
 - クラウドドライブ自動割り当て（`drive_mappings`）
 - ローカル自動同期（`local_sync`）
-- NSIS ベースの自動更新
+- NSIS ベースの自動更新（全体版はサンプルプロジェクトの任意インストール選択つき）
+- 配布プロファイルの起動時自動上書き反映（プロファイルはシステム管理）
 - Tauri サイドカーとして利用可能な AXUM HTTP API（`--server`）
 - QGIS Live Harness 開発モード（`dev_mode` / `--dev`：起動時に `WEBENGINE_*` を注入、`GET /live-sessions` で稼働中の開発セッションを表示）
 - サーバー停止後に残ったブラウザタブ・埋め込みペインからのランチャー再起動（`kasugai-qgis:` カスタムプロトコル）

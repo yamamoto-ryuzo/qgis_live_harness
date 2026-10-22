@@ -37,7 +37,7 @@ copy "..\download\qgis_settings_USERNAME.json.example" "%APP_DIR%\"
 REM copy bundled folders
 xcopy /E /I /Y "..\download\ini" "%APP_DIR%\ini"
 xcopy /E /I /Y "..\download\profiles" "%APP_DIR%\profiles"
-xcopy /E /I /Y "..\download\ProjectFiles" "%APP_DIR%\ProjectFiles"
+xcopy /E /I /Y "..\download\sample_projects" "%APP_DIR%\sample_projects"
 
 REM remove existing ZIP
 if exist "%ZIP_OUT%" del "%ZIP_OUT%"

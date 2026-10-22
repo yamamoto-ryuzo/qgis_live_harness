@@ -344,7 +344,7 @@ def build_zip():
             if src.exists():
                 shutil.copy2(src, stage / name)
 
-        for folder in ["ini", "profiles", "ProjectFiles"]:
+        for folder in ["ini", "profiles", "sample_projects"]:
             src = DOWNLOAD_DIR / folder
             if src.exists():
                 shutil.copytree(src, stage / folder, dirs_exist_ok=True)
