@@ -562,7 +562,6 @@ C:\kasugai\kasugai_qgis\
 - `qgis_settings.json` や `ini/`、`profiles/`、`sample_projects/` は `qgis_launcher.exe` と同じ階層に置きます。
 - 設定ファイルの `project_root` 等が未指定、または相対パスの場合は上記フォルダを基準に解決されます。
 - 配布プロファイルは、インストール先の `profiles\QGIS4\` から `%APPDATA%\QGIS\QGIS4\` へ起動時にコピーされます（プロファイルはシステム管理のため、既存ファイルも常に上書きされます）。
-- 旧フォルダ名 `ProjectFiles` は起動時に `sample_projects` へ自動移行されます（設定内の `ProjectFiles` を含むパスも読み込み時に `sample_projects` として解決されます）。
 
 ### 起動方法
 

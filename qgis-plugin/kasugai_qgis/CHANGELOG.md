@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.4.1] - 2026-10-23
+
+### Removed
+- `ProjectFiles` → `sample_projects` の自動移行処理を削除（`migrate_legacy_project_dir` の起動時フォルダリネーム・`ProjectFile.qgs*` → `SampleProjectFile.qgs*` 改名、`project_path`/`current_project` 内の `ProjectFiles` セグメントの読み替え）。現在のフォルダ・ファイル構成が完成形のため、旧名の自動移行は行わない
+
 ## [2.4.0] - 2026-10-23
 
 ### Changed
