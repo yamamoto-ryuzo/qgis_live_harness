@@ -38,7 +38,7 @@ AI エージェントがこのリポジトリで作業する際のルール。
 - **アプリの翻訳（i18n）の基準言語は英語**とする。`public/i18n/en.json` がフォールバック辞書であり、`t()` はキー未登録時に en の値を返す
 - 新しい翻訳キーを追加するときは `en.json` を正本として先に追加し、全言語の辞書（`public/i18n/*.json`）でキー数を一致させる
 - 対応言語は `public/i18n.js` の `SUPPORTED_LANGUAGES` で管理。言語追加は同配列と辞書ファイルの追加に加え、`src/main.rs` の `/i18n/<lang>.json` 配信ルートの登録が必要（辞書は `include_str!` で EXE に埋め込まれる）
-- UI に文言を追加するときは `data-i18n` / `data-i18n-ph` / `data-i18n-args` 属性、または JS 内で `t('key', {params})` を使う。動的生成要素は描画後に `applyI18n()` を呼ぶ（`renderRawForm()` 内で実施済み）
+- UI に文言を追加するときは `data-i18n` / `data-i18n-ph` / `data-i18n-title` / `data-i18n-args` 属性、または JS 内で `t('key', {params})` を使う。動的生成要素は描画後に `applyI18n()` を呼ぶ（`renderRawForm()` 内で実施済み）
 
 ## リリース手順
 
