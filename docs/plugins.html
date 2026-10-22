@@ -34,34 +34,58 @@
 <p class="lead">このリポジトリで開発・管理している QGIS プラグインの概要とトップページへのリンク集です。</p>
 </header>
 
+<h2>GeoSuite（GEO シリーズ）</h2>
+<p><code>geo_*</code> 系プラグインのうち GeoImport / GeoSearch / GeoWebView / GeoReport は
+<a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a>
+— QGIS デスクトップ + WebGIS フルサイクル ツールスイート — の構成要素です。
+データの取り込み（ローカル / CKAN）→ 検索 → Web 共有 → レポート作成（PNG / PDF / XLSX）までを
+ワンストップで自動化することを目的としたプラグイン群で、次のワークフローを想定しています。</p>
+<p><strong>ローカル / CKAN</strong>
+→ <strong>GeoImport</strong>（自動 GIS 化）
+→ <strong>GeoSearch</strong>（地図内検索）
+→ <strong>GeoWebView</strong>（スタイル込 Web 共有）
+→ <strong>GeoReport</strong>（レイアウト編集・出力＋報告書生成）</p>
+<p>想定シナリオ: 社内報告書作成（Import → Search → WebView → Report）、
+Web 地図公開（WebView でパッケージ化・パーマリンク共有）、
+大量出力（レイアウトテンプレートによる Atlas 的一括出力）。<br>
+スイート全体の詳細: <a href="https://github.com/yamamoto-ryuzo/geo_suite">github.com/yamamoto-ryuzo/geo_suite</a></p>
+
+<h2><code>geo_import</code></h2>
+<p><a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a> 構成要素 — 自動 GIS 化（CKAN / ローカル）担当。
+さまざまなデータセットを検索・追加するデータ取り込みプラグイン。
+追加したレイヤは共有のレイヤ整理サービス（layer_org）へ自動で渡すことができ、
+プロファイルのルールに従ったグループ配置・リネーム・スタイル適用も行います。</p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_import/README.md">qgis-plugin/geo_import/README.md</a> ·
+上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/qgis-data-catalog-integration">qgis-data-catalog-integration</a></p>
+
 <h2><code>geo_search</code></h2>
-<p>地番・所有者名・属性によるマップ検索プラグイン。検索結果はレイヤごとのタブに表示され、
+<p><a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a> 構成要素 — 地図内検索（属性・空間検索）担当。
+地番・所有者名・属性によるマップ検索プラグイン。検索結果はレイヤごとのタブに表示され、
 タブ単位で検索フィールド・表示フィールドを UI 上で設定できます。QGIS レイヤ・ファイル・
 PostGIS データベースに対応し、大量データはページング表示。検索時にマップテーマを切り替える機能
 （「検索前」への復元を含む）や、現在の表示に検索結果を重ねる追加表示モードも備えます。
 日本語・英語 UI 対応、QGIS 4.x（Qt6）対応。</p>
-<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_search/README.md">qgis-plugin/geo_search/README.md</a></p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_search/README.md">qgis-plugin/geo_search/README.md</a> ·
+上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/GEO-search-plugin">GEO-search-plugin</a></p>
 
 <h2><code>geo_webview</code></h2>
-<p>QGIS を軽量な OGC サーバー（WMS/WMTS/WFS）として起動するプラグイン。
+<p><a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a> 構成要素 — スタイル込 Web 共有担当。
+QGIS を軽量な OGC サーバー（WMS/WMTS/WFS）として起動するプラグイン。
 ドッキングパネルからサーバーを起動し、<code>/wms</code>・<code>/wmts</code>・<code>/wfs</code>・
 <code>/qgis-map</code>・<code>/maplibre</code> 等のエンドポイントを公開します。
 地図の表示状態（中心・ズーム・レイヤの表示・テーマ・スタイル）を URL で復元する
 パーマリンク機能も提供します。</p>
-<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/README.md">qgis-plugin/geo_webview/README.md</a></p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/README.md">qgis-plugin/geo_webview/README.md</a> ·
+上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/geo_webview">geo_webview</a></p>
 
 <h2><code>geo_report</code></h2>
-<p>レイアウト管理を強化する帳票プラグイン。プロジェクト内レイアウトの一覧・選択・
+<p><a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a> 構成要素 — レイアウト編集・出力＋報告書生成担当。
+レイアウト管理を強化する帳票プラグイン。プロジェクト内レイアウトの一覧・選択・
 レイアウトマネージャの起動、レイアウトアイテムのプロパティ（位置・サイズ・内容）の事前編集、
 レイアウト全体を JSON テンプレートとして保存して他レイアウトへ一括適用する機能を持ち、
 統一デザインの複数図面・帳票を効率よく作成できます。日本語・英語対応。</p>
-<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_report/README.md">qgis-plugin/geo_report/README.md</a></p>
-
-<h2><code>geo_import</code></h2>
-<p>さまざまなデータセットを検索・追加するデータ取り込みプラグイン。
-追加したレイヤは共有のレイヤ整理サービス（layer_org）へ自動で渡すことができ、
-プロファイルのルールに従ったグループ配置・リネーム・スタイル適用も行います。</p>
-<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_import/README.md">qgis-plugin/geo_import/README.md</a></p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_report/README.md">qgis-plugin/geo_report/README.md</a> ·
+上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector">qgis-layoutitem-selector</a></p>
 
 <h2><code>geo_excel</code></h2>
 <p>QGIS-exportExcel のレイヤアクション用スクリプトを簡易プラグイン化した Excel 帳票連携。
@@ -99,7 +123,9 @@ GeoSuite 共有ツールバー・レイヤ整理サービス（layer_org）も�
 <p>Rust 製の QGIS ランチャー。QGIS プラグインではなく、同じ <code>geo_custom</code> プロファイル
 経由で連携する独立ソフトウェアです。Web UI / CLI / HTTP API から QGIS・QField を起動し、
 ユーザーロール制御・プロファイル配布・ローカル自動同期・NSIS ベースの自動更新を備えます。
-<code>dev_mode</code> で QGIS Live Harness の環境変数を注入して開発モード起動も可能です。</p>
+<code>dev_mode</code> で QGIS Live Harness の環境変数を注入して開発モード起動も可能です。
+GeoSuite の関連ツールとしては、ポータブル QGIS / QField 環境ランチャー
+<a href="https://github.com/yamamoto-ryuzo/yr-qgis-launcher">yr-qgis-launcher</a> もあります。</p>
 <p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/kasugai_qgis/README.md">qgis-plugin/kasugai_qgis/README.md</a></p>
 
 <nav class="pager">
