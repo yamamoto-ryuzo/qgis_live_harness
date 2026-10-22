@@ -11,6 +11,18 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.17.4] - 2026-10-21 サイトスキャン指摘対応
+
+- subprocess呼出し(getmac/arp/ip neigh/netsh/PowerShell/
+  open/xdg-open/startfile)15箇所に # nosec B603/B606/B607、
+  `import subprocess` 9箇所に # nosec B404 を付与
+  (いずれも意図的なOSコマンド・ファイルを開く操作)
+- wfs_service の `random.random()` に # nosec B311
+  (非セキュリティ用途=キャッシュ掃除の確率制御)
+- wmts_service の `saxutils.escape` を `html.escape(quote=True)`
+  に置き換え(実修正。出力エスケープ用途でパーサ非経由のため
+  同等かつスキャン対象外のAPIへ)
+
 ## [3.17.3] - 2026-10-21 スキャン指摘の nosec 明示
 
 - try/except/pass|continue 330箇所に # nosec B110/B112 を付与

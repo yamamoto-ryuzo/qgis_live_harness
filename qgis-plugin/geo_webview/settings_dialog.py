@@ -228,15 +228,15 @@ class SettingsDialog(QtWidgets.QDialog):
             import platform
             if platform.system() == 'Windows':
                 # Use os.startfile for Windows (more reliable)
-                os.startfile(path_to_open)
+                os.startfile(path_to_open)  # nosec B606
             elif platform.system() == 'Darwin':
                 # macOS
-                import subprocess
-                subprocess.Popen(['open', path_to_open])
+                import subprocess  # nosec B404  # 意図的なOSコマンド呼出し
+                subprocess.Popen(['open', path_to_open])  # nosec B603 B607
             else:
                 # Linux
-                import subprocess
-                subprocess.Popen(['xdg-open', path_to_open])
+                import subprocess  # nosec B404  # 意図的なOSコマンド呼出し
+                subprocess.Popen(['xdg-open', path_to_open])  # nosec B603 B607
         except Exception as e:
             QtWidgets.QMessageBox.warning(self, QtCore.QCoreApplication.translate('geo_webview', "Error"), QtCore.QCoreApplication.translate('geo_webview', "Failed to open folder: {0}").format(e))
 
@@ -289,14 +289,14 @@ class SettingsDialog(QtWidgets.QDialog):
             import platform
             if platform.system() == 'Windows':
                 # Use os.startfile for Windows (more reliable)
-                os.startfile(ol_path_to_open)
+                os.startfile(ol_path_to_open)  # nosec B606
             elif platform.system() == 'Darwin':
                 # macOS
-                import subprocess
-                subprocess.Popen(['open', ol_path_to_open])
+                import subprocess  # nosec B404  # 意図的なOSコマンド呼出し
+                subprocess.Popen(['open', ol_path_to_open])  # nosec B603 B607
             else:
                 # Linux
-                import subprocess
-                subprocess.Popen(['xdg-open', ol_path_to_open])
+                import subprocess  # nosec B404  # 意図的なOSコマンド呼出し
+                subprocess.Popen(['xdg-open', ol_path_to_open])  # nosec B603 B607
         except Exception as e:
             QtWidgets.QMessageBox.warning(self, QtCore.QCoreApplication.translate('geo_webview', "Error"), QtCore.QCoreApplication.translate('geo_webview', "Failed to open folder: {0}").format(e))

@@ -327,7 +327,7 @@ class GeoWebViewWFSService:
 
             # 期限切れキャッシュのクリーンアップ(10%の確率で実行)
             import random
-            if random.random() < 0.1:
+            if random.random() < 0.1:  # nosec B311  # 非セキュリティ用途(キャッシュ掃除の確率制御)
                 self._clear_expired_cache()
 
             from . import http_server

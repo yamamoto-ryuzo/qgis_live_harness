@@ -322,15 +322,17 @@ class GeoWebViewWMTSService:
                 # Escape characters that must be XML-escaped when included
                 # inside attribute values (notably '&' in querystrings).
                 try:
-                    from xml.sax import saxutils
-                    tile_url_template_esc = saxutils.escape(tile_url_template, {'"': '&quot;'})
+                    # html.escape はXMLパースを伴わず属性値の
+                    # エスケープに使える(saxutils.escape 相当)
+                    import html
+                    tile_url_template_esc = html.escape(tile_url_template, quote=True)
                     service_metadata_href = f"http://{host}/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
-                    service_metadata_href_esc = saxutils.escape(service_metadata_href, {'"': '&quot;'})
+                    service_metadata_href_esc = html.escape(service_metadata_href, quote=True)
                     # escape the xyz template as well
-                    xyz_tile_url_template_esc = saxutils.escape(xyz_tile_url, {'"': '&quot;'})
+                    xyz_tile_url_template_esc = html.escape(xyz_tile_url, quote=True)
                     # Also provide a classic matrix/row/col ordered template for broader client compatibility
                     matrix_order_template = (f"http://{host}/wmts/{{TileMatrix}}/{{TileRow}}/{{TileCol}}.png" + vqs)
-                    matrix_order_template_esc = saxutils.escape(matrix_order_template, {'"': '&quot;'})
+                    matrix_order_template_esc = html.escape(matrix_order_template, quote=True)
                 except Exception:
                     # fallback: naive replace for ampersand
                     tile_url_template_esc = tile_url_template.replace('&', '&amp;')

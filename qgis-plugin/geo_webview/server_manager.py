@@ -1121,9 +1121,9 @@ class GeoWebViewServerManager:
         except Exception:  # nosec B110  # 設計上の許容
             pass
         try:
-            import subprocess
+            import subprocess  # nosec B404  # 意図的なOSコマンド呼出し
             if os.name == 'nt':
-                out = subprocess.check_output(
+                out = subprocess.check_output(  # nosec B603 B607
                     ['getmac', '/fo', 'csv', '/nh'], timeout=5)
                 text = out.decode('mbcs', errors='replace')
                 for token in re.findall(
@@ -1150,17 +1150,17 @@ class GeoWebViewServerManager:
         """ARPテーブルからリモートIPのMACアドレス集合を返す。"""
         macs = set()
         try:
-            import subprocess
+            import subprocess  # nosec B404  # 意図的なOSコマンド呼出し
             if os.name == 'nt':
-                out = subprocess.check_output(['arp', '-a'], timeout=5)
+                out = subprocess.check_output(['arp', '-a'], timeout=5)  # nosec B603 B607
                 text = out.decode('mbcs', errors='replace')
             else:
                 try:
-                    out = subprocess.check_output(
+                    out = subprocess.check_output(  # nosec B603 B607
                         ['ip', 'neigh', 'show'], timeout=5)
                     text = out.decode(errors='replace')
                 except Exception:
-                    out = subprocess.check_output(['arp', '-a'], timeout=5)
+                    out = subprocess.check_output(['arp', '-a'], timeout=5)  # nosec B603 B607
                     text = out.decode(errors='replace')
             for line in text.splitlines():
                 if ip in line:
@@ -3395,11 +3395,11 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                 import platform
                 if platform.system() == 'Windows':
                     # Windowsファイアウォールルールの確認を試みる
-                    import subprocess
+                    import subprocess  # nosec B404  # 意図的なOSコマンド呼出し
                     try:
                         # netshコマンドでファイアウォールルールを確認
                         import re
-                        output = subprocess.run(
+                        output = subprocess.run(  # nosec B603 B607
                             ['netsh', 'advfirewall', 'firewall', 'show',
                              'rule', 'name=all'],
                             capture_output=True,
@@ -3471,11 +3471,11 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
         """
         allowed_ports = []
         try:
-            import subprocess
+            import subprocess  # nosec B404  # 意図的なOSコマンド呼出し
             import re
 
             # netshコマンドでファイアウォールルールを取得
-            output = subprocess.run(
+            output = subprocess.run(  # nosec B603 B607
                 ['netsh', 'advfirewall', 'firewall', 'show',
                  'rule', 'name=all'],
                 capture_output=True,
@@ -3568,7 +3568,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
 
         try:
             import platform
-            import subprocess
+            import subprocess  # nosec B404  # 意図的なOSコマンド呼出し
 
             if platform.system() != 'Windows':
                 result['message'] = QCoreApplication.translate('geo_webview', 'This feature is only available on Windows')
@@ -3591,7 +3591,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
 
             try:
                 # まず通常権限で試す
-                output = subprocess.run(
+                output = subprocess.run(  # nosec B603 B607
                     ['netsh', 'advfirewall', 'firewall', 'add', 'rule',
                      'name={0}'.format(rule_name), 'dir=in',
                      'action=allow', 'protocol=TCP',
@@ -3646,7 +3646,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                             # PowerShellコマンドを構築
                             ps_cmd = f'Start-Process -FilePath "{netsh_path}" -ArgumentList {args_str} -Verb RunAs -Wait -WindowStyle Hidden'
 
-                            _ = subprocess.run(
+                            _ = subprocess.run(  # nosec B603
                                 [ps_path, '-NoProfile', '-Command', ps_cmd],
                                 capture_output=True,
                                 text=True,
@@ -3659,7 +3659,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                             time.sleep(1)
 
                             # 結果を確認(成功の場合、元のnetshコマンドをもう一度チェック)
-                            verify_output = subprocess.run(
+                            verify_output = subprocess.run(  # nosec B603 B607
                                 ['netsh', 'advfirewall', 'firewall', 'show',
                                  'rule', 'name={0}'.format(rule_name)],
                                 capture_output=True,
