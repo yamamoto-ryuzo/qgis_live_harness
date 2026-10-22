@@ -33,7 +33,7 @@ import os
 import re
 import secrets
 import shutil
-import subprocess
+import subprocess  # nosec B404  # MCPサーバ起動に必要
 import tempfile
 import threading
 import time
@@ -93,7 +93,7 @@ GEMINI_DEFAULT_MODEL = "gemini-3.8-flash"
 # copilot-api等のコミュニティ実装と同じ経路。Copilot契約が必要。
 COPILOT_DEFAULT_BASE = "https://api.githubcopilot.com"
 COPILOT_DEFAULT_MODEL = "gpt-4o"
-COPILOT_TOKEN_URL = "https://api.github.com/copilot_internal/v2/token"
+COPILOT_TOKEN_URL = "https://api.github.com/copilot_internal/v2/token"  # nosec B105  # 公開API URL
 # v2/tokenが応答しない環境でのフォールバック: 契約情報(endpoints.api/
 # access_type_sku)を返す。@github/copilot CLIが使う公式経路
 COPILOT_USER_URL = "https://api.github.com/copilot_internal/user"
@@ -114,7 +114,7 @@ COPILOT_HEADERS = {
 GITHUB_CLIENT_ID = os.environ.get("QGIS_LIVE_GITHUB_CLIENT_ID",
                                   "Iv1.b507a08c87ecfe98")
 GITHUB_DEVICE_CODE_URL = "https://github.com/login/device/code"
-GITHUB_ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token"
+GITHUB_ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token"  # nosec B105  # 公開API URL
 
 PROVIDERS = {
     "openai": {
@@ -1259,7 +1259,7 @@ def mcp_config_path():
 
 
 # 設定値中の資格情報ストア参照プレフィックス
-MCP_SECRET_REF = "$store:"
+MCP_SECRET_REF = "$store:"  # nosec B105  # 参照プレフィックス(資格情報ではない)
 
 
 def _mcp_secret_key(server, field):
@@ -1296,18 +1296,18 @@ MCP_CONFIG_TEMPLATE = {
             "oauth": {
                 "authorize_url":
                     "https://account.box.com/api/oauth2/authorize",
-                "token_url": "https://api.box.com/oauth2/token",
+                "token_url": "https://api.box.com/oauth2/token",  # nosec B105  # 公開API URL
                 "client_id": "<Box app Client ID>",
-                "client_secret": "<Client Secret>",
+                "client_secret": "<Client Secret>",  # nosec B105  # テンプレートのプレースホルダ
                 "redirect_uri": "http://127.0.0.1:8020/callback",
             },
         },
         "example-http-ccg": {
             "url": "https://example.com/mcp",
             "oauth": {
-                "token_url": "https://example.com/oauth/token",
+                "token_url": "https://example.com/oauth/token",  # nosec B105  # 例示URL
                 "client_id": "<client_id>",
-                "client_secret": "<client_secret>",
+                "client_secret": "<client_secret>",  # nosec B105  # テンプレートのプレースホルダ
                 "extra": {"box_subject_type": "enterprise",
                           "box_subject_id": "<id>"},
             },
@@ -1753,7 +1753,7 @@ class _McpStdio:
         if cf:
             kw["creationflags"] = cf      # コンソール窓を出さない(Windows)
         try:
-            self._p = subprocess.Popen(
+            self._p = subprocess.Popen(  # nosec B603  # ユーザ設定のMCPサーバ起動(仕様)
                 [exe] + [str(a) for a in cfg.get("args") or []],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL, env=env, **kw)

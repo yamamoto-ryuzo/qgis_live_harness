@@ -42,6 +42,12 @@
   `# nosec B307` で明示抑制
 - try/except/pass|continue 65箇所に `# nosec B110/B112` を付与
   (設計上の許容を明示。サイトスキャンの指摘対応)
+- subprocessの部分パス起動を解消: `icacls`/`security`/`secret-tool`
+  を `shutil.which()`(無ければ `%SystemRoot%\System32` フォールバック)
+  でフルパス解決するよう変更。意図通りの呼出し(subprocessの
+  リスト引数・ユーザ設定MCPコマンド・検証済みモード引数、および
+  URL/プレースホルダ文字列のB105誤検知)には `# nosec` を付与し、
+  `.bandit` 非適用のスキャンでも指摘が出ないようにした
 
 ### Maintenance
 

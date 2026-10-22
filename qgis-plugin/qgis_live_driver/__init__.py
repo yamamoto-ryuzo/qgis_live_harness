@@ -49,11 +49,15 @@ def _restrict_file(path):
     """トークン等を含むファイルをユーザ限定ACLにする(best-effort)。"""
     try:
         if os.name == "nt":
-            import subprocess
+            import shutil
+            import subprocess  # nosec B404  # icacls実行に必要
             user = os.environ.get("USERNAME") or ""
+            exe = shutil.which("icacls") or os.path.join(
+                os.environ.get("SystemRoot", r"C:\Windows"),
+                "System32", "icacls.exe")
             if user:
-                subprocess.run(
-                    ["icacls", path, "/inheritance:r",
+                subprocess.run(  # nosec B603  # 引数は固定+USERNAMEのみ
+                    [exe, path, "/inheritance:r",
                      "/grant:r", f"{user}:F"],
                     capture_output=True, timeout=10)
         else:

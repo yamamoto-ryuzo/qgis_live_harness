@@ -20,7 +20,7 @@ junction失敗時にcopyへ自動フォールバックしない点はスクリ�
 
 import json
 import os
-import subprocess
+import subprocess  # nosec B404  # deploy-plugin.ps1起動に必要
 
 CTRL_ID = "qgis_live_driver"
 _MARK = "qgis_live_mode.json"
@@ -171,7 +171,7 @@ def switch_mode(own_file, mode):
     if os.name == "nt":
         kw["creationflags"] = getattr(subprocess, "CREATE_NO_WINDOW", 0)
     try:
-        r = subprocess.run(args, **kw)
+        r = subprocess.run(args, **kw)  # nosec B603  # exe/引数はホワイトリスト検証済み固定値
     except Exception as e:
         return False, str(e)
     out = ((r.stdout or "") + (r.stderr or "")).strip()

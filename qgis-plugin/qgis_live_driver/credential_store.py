@@ -25,7 +25,7 @@ import base64
 import json
 import os
 import shutil
-import subprocess
+import subprocess  # nosec B404  # icacls/security/secret-tool実行に必要
 import sys
 
 try:
@@ -61,9 +61,12 @@ def _restrict_file(path):
     try:
         if os.name == "nt":
             user = os.environ.get("USERNAME") or ""
+            exe = shutil.which("icacls") or os.path.join(
+                os.environ.get("SystemRoot", r"C:\Windows"),
+                "System32", "icacls.exe")
             if user:
-                subprocess.run(
-                    ["icacls", path, "/inheritance:r",
+                subprocess.run(  # nosec B603  # 引数は固定+USERNAMEのみ
+                    [exe, path, "/inheritance:r",
                      "/grant:r", f"{user}:F"],
                     capture_output=True, timeout=10)
         else:
@@ -143,8 +146,11 @@ def _dpapi_get(name):
 # ---- macOS keychain (security CLI) ----
 
 def _security(*args, stdin=None):
+    exe = shutil.which("security")
+    if not exe:
+        return 1, ""
     try:
-        r = subprocess.run(["security", *args],
+        r = subprocess.run([exe, *args],  # nosec B603  # 引数は固定フラグ
                            input=stdin, capture_output=True,
                            timeout=15)
         return r.returncode, r.stdout.decode("utf-8", "replace")
@@ -167,8 +173,11 @@ def _keychain_get(name):
 # ---- Linux Secret Service (secret-tool) ----
 
 def _secret_tool(*args, stdin=None):
+    exe = shutil.which("secret-tool")
+    if not exe:
+        return 1, ""
     try:
-        r = subprocess.run(["secret-tool", *args],
+        r = subprocess.run([exe, *args],  # nosec B603  # 引数は固定フラグ
                            input=stdin, capture_output=True,
                            timeout=15)
         return r.returncode, r.stdout.decode("utf-8", "replace")
