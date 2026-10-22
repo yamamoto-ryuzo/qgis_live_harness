@@ -12,6 +12,11 @@
 
 ## 変更履歴
 
+### V2.9.4 翻訳カタログの欠落分を補完
+- i18n/ 各言語JSON(de/es/fr/hi/it/pt/ru/zh)に ja のみに存在した
+  55キーの訳文を追加し、全言語でカタログキー数を一致させた
+  (geo_report コンテキスト=レイアウトアイテム管理ダイアログのUI文言)
+
 ### V2.9.3 try/except/pass の nosec 明示
 - plugins.qgis.org スキャンで指摘された `try/except/pass|continue`
   43箇所に `# nosec B110/B112` を付与(GUIクラッシュ回避の

@@ -45,6 +45,7 @@ AI エージェントがこのリポジトリで作業する際のルール。
 1. `python run.py --bump X.Y.Z` でバージョン更新 + ビルド一式生成（整合性チェックまで自動実行）
    - 「リリース」はバージョンアップを必ず含む。git タグは必須ではない
 2. `CHANGELOG.md` に変更内容を追記。**`README.md` の機能一覧・バージョン記述なども変更があれば必ず更新する**
-3. コミット後、`python run.py --tag` でタグ作成 → `git push origin main --follow-tags` → GitHub Pages ビルドのトリガー → リモート `update.json` のバージョン確認まで自動実行する
-   - push 済みでタグが不要な場合は `python run.py --publish` で push + Pages デプロイ確認のみ実行できる
-   - Pages 反映に数分かかることがあるが、未反映のままではクライアント側の更新チェックが「更新なし」を返すため、確認が取れるまでこのコマンドを完了としない
+3. コミット後、`python run.py --tag` でタグ作成 → `git push origin HEAD --follow-tags` → リモート `update.json` のバージョン確認まで自動実行する
+   - 配信元は harness repo の master を raw.githubusercontent.com 経由で参照するため、push 直後に反映される（GitHub Pages は不要。旧 Pages URL はクライアント・`run.py` 双方で新 URL へ読み替えられる）
+   - push 済みでタグが不要な場合は `python run.py --publish` で push + 反映確認のみ実行できる
+   - CDN キャッシュで反映が遅れることがあるが、未反映のままではクライアント側の更新チェックが「更新なし」を返すため、確認が取れるまでこのコマンドを完了としない

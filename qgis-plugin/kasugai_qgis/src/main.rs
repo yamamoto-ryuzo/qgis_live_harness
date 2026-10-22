@@ -16,7 +16,11 @@ use winreg::enums::*;
 /// 子プロセスのコンソールウィンドウを非表示にする Windows フラグ
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 /// デフォルトの自動更新 JSON エンドポイント URL
-const DEFAULT_UPDATE_URL: &str = "https://yamamoto-ryuzo.github.io/kasugai_qgis/update.json";
+/// （harness repo master の raw 配信。qgis-plugin/kasugai_qgis/update.json が正本）
+const DEFAULT_UPDATE_URL: &str = "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/update.json";
+/// 旧配信元（GitHub Pages）。既存インストールの qgis_settings.json に
+/// 残っている場合は新しい既定 URL へ読み替える。
+const LEGACY_UPDATE_URL: &str = "https://yamamoto-ryuzo.github.io/kasugai_qgis/update.json";
 /// 配布プロジェクトフォルダ名。旧名 ProjectFiles から移行。
 const PROJECT_DIR_NAME: &str = "sample_projects";
 /// 旧配布プロジェクトフォルダ名。既存インストールのフォルダ移行と
@@ -1059,6 +1063,76 @@ fn record_update_attempt(version: &str) {
     save_update_state(&state);
 }
 
+/// 更新ソースの種別。http(s) URL のほか file:// / ローカルパスを受け付ける。
+enum UpdateSource {
+    Http(String),
+    File(PathBuf),
+}
+
+/// URI 内の %XX をデコードする（プロトコル経由でブラウザ等がエンコードしたパス対策）。
+fn percent_decode(s: &str) -> String {
+    let bytes = s.as_bytes();
+    let mut out = Vec::with_capacity(bytes.len());
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i] == b'%' && i + 2 < bytes.len() {
+            if let Ok(v) = u8::from_str_radix(&s[i + 1..i + 3], 16) {
+                out.push(v);
+                i += 3;
+                continue;
+            }
+        }
+        out.push(bytes[i]);
+        i += 1;
+    }
+    String::from_utf8_lossy(&out).into_owned()
+}
+
+/// 更新ソース文字列を分類する。http(s):// 以外は file:// / ローカルパスとして扱う。
+fn parse_update_source(s: &str) -> UpdateSource {
+    let s = s.trim();
+    if s.starts_with("http://") || s.starts_with("https://") {
+        return UpdateSource::Http(s.to_string());
+    }
+    if let Some(rest) = s.strip_prefix("file:///") {
+        // file:///C:/dir/file → C:\dir\file
+        return UpdateSource::File(PathBuf::from(percent_decode(rest).replace('/', "\\")));
+    }
+    if let Some(rest) = s.strip_prefix("file://") {
+        // file://host/share → \\host\share
+        return UpdateSource::File(PathBuf::from(format!("\\\\{}", percent_decode(rest).replace('/', "\\"))));
+    }
+    UpdateSource::File(PathBuf::from(expand_env_vars(s)))
+}
+
+/// update.json を HTTP またはローカルファイルから取得する。
+fn fetch_update_json(source: &UpdateSource) -> Result<serde_json::Value, String> {
+    match source {
+        UpdateSource::Http(url) => update_http_client()?
+            .get(url)
+            .send()
+            .map_err(|e| format!("update.json 取得失敗: {}", e))?
+            .json::<serde_json::Value>()
+            .map_err(|e| format!("update.json パース失敗: {}", e)),
+        UpdateSource::File(path) => {
+            let text = fs::read_to_string(path)
+                .map_err(|e| format!("update.json 読み込み失敗 ({}): {}", path.display(), e))?;
+            serde_json::from_str(&text)
+                .map_err(|e| format!("update.json パース失敗 ({}): {}", path.display(), e))
+        }
+    }
+}
+
+/// ローカルの update.json からの相対パス指定を、json のあるフォルダ基準で解決する。
+fn resolve_artifact_spec(spec: &str, json_dir: Option<&std::path::Path>) -> String {
+    if let (Some(dir), UpdateSource::File(p)) = (json_dir, parse_update_source(spec)) {
+        if !p.is_absolute() {
+            return dir.join(p).to_string_lossy().to_string();
+        }
+    }
+    spec.to_string()
+}
+
 /// 更新チェック・ダウンロード用の HTTP クライアントを生成する（タイムアウト付き）。
 fn update_http_client() -> Result<reqwest::blocking::Client, String> {
     reqwest::blocking::Client::builder()
@@ -1074,6 +1148,8 @@ fn check_nsis_update(settings: &QgisSettings) -> Result<Option<NsisUpdateInfo>, 
         .update_url
         .as_deref()
         .filter(|u| !u.trim().is_empty())
+        // 旧 Pages URL が残っている既存インストールを新配信元へ移行する
+        .map(|u| if u == LEGACY_UPDATE_URL { DEFAULT_UPDATE_URL } else { u })
         .unwrap_or(DEFAULT_UPDATE_URL);
 
     if !settings.update_check.unwrap_or(true) {
@@ -1082,12 +1158,14 @@ fn check_nsis_update(settings: &QgisSettings) -> Result<Option<NsisUpdateInfo>, 
 
     let current = env!("CARGO_PKG_VERSION");
 
-    let client = update_http_client()?;
-    let resp = client.get(update_url)
-        .send()
-        .map_err(|e| format!("update.json 取得失敗: {}", e))?
-        .json::<serde_json::Value>()
-        .map_err(|e| format!("update.json パース失敗: {}", e))?;
+    println!("NSIS更新: 確認先 {}", update_url);
+    let source = parse_update_source(update_url);
+    // ローカルの update.json では url/full_url の相対パスを json の親フォルダ基準で解決する
+    let json_dir = match &source {
+        UpdateSource::File(p) => p.parent().map(|d| d.to_path_buf()),
+        UpdateSource::Http(_) => None,
+    };
+    let resp = fetch_update_json(&source)?;
 
     let version = resp.get("version")
         .and_then(|v| v.as_str())
@@ -1095,7 +1173,9 @@ fn check_nsis_update(settings: &QgisSettings) -> Result<Option<NsisUpdateInfo>, 
     let url = resp.get("url")
         .and_then(|v| v.as_str())
         .ok_or("update.json に url がありません")?;
-    let full_url = resp.get("full_url").and_then(|v| v.as_str()).map(|s| s.to_string());
+    let url = resolve_artifact_spec(url, json_dir.as_deref());
+    let full_url = resp.get("full_url").and_then(|v| v.as_str())
+        .map(|s| resolve_artifact_spec(s, json_dir.as_deref()));
     let full = resp.get("full").and_then(|v| v.as_bool()).unwrap_or(false);
 
     if !version_is_newer(version, current) {
@@ -1105,7 +1185,7 @@ fn check_nsis_update(settings: &QgisSettings) -> Result<Option<NsisUpdateInfo>, 
 
     Ok(Some(NsisUpdateInfo {
         version: version.to_string(),
-        url: url.to_string(),
+        url,
         full_url,
         full,
         signature: resp.get("signature").and_then(|v| v.as_str()).map(|s| s.to_string()),
@@ -1129,6 +1209,18 @@ fn download_installer(url: &str, dest: &std::path::Path) -> Result<(), String> {
     std::fs::write(dest, bytes)
         .map_err(|e| format!("インストーラー書き込み失敗 ({}): {}", dest.display(), e))?;
     Ok(())
+}
+
+/// インストーラーを一時フォルダに取得する。指定は http(s) URL・file://・ローカルパス可。
+fn obtain_installer(spec: &str, dest: &std::path::Path) -> Result<(), String> {
+    match parse_update_source(spec) {
+        UpdateSource::Http(url) => download_installer(&url, dest),
+        UpdateSource::File(src) => {
+            fs::copy(&src, dest)
+                .map_err(|e| format!("インストーラーコピー失敗 ({} → {}): {}", src.display(), dest.display(), e))?;
+            Ok(())
+        }
+    }
 }
 
 
@@ -1193,7 +1285,7 @@ fn prepare_nsis_update(settings: &QgisSettings, force: bool) -> Result<(PathBuf,
     println!("NSIS更新({}): {} → {}", kind, current, info.version);
 
     let temp = std::env::temp_dir().join("kasugai_qgis_setup.exe");
-    download_installer(download_url, &temp)?;
+    obtain_installer(download_url, &temp)?;
 
     // 壊れたダウンロードをインストールすると更新が反映されずループの原因になるため検証する
     if let Some(expected) = expected_sha256.map(|s| s.trim()).filter(|s| !s.is_empty()) {
@@ -1207,6 +1299,62 @@ fn prepare_nsis_update(settings: &QgisSettings, force: bool) -> Result<(PathBuf,
     record_update_attempt(&info.version);
 
     Ok((temp, info.version, kind))
+}
+
+/// `updata:<ソース>` 用の更新適用準備。明示的な指定なのでバージョン比較・
+/// ループガードは行わず、指定されたものをそのまま適用する。
+/// - `.exe` 指定: NSIS インストーラーとして直接実行（sha256 検証なし）
+/// - それ以外: update.json として解釈し、url/full_url のインストーラーを取得。
+///   ローカルの update.json 内の相対パスは json の親フォルダ基準で解決する。
+/// 成功時は (インストーラーのパス, 説明) を返す。
+fn prepare_updata(spec: &str) -> Result<(PathBuf, String), String> {
+    let temp = std::env::temp_dir().join("kasugai_qgis_updata.exe");
+
+    if spec.to_lowercase().ends_with(".exe") {
+        obtain_installer(spec, &temp)?;
+        return Ok((temp, format!("インストーラー {}", spec)));
+    }
+
+    let source = parse_update_source(spec);
+    let json_dir = match &source {
+        UpdateSource::File(p) => p.parent().map(|d| d.to_path_buf()),
+        UpdateSource::Http(_) => None,
+    };
+    let resp = fetch_update_json(&source)?;
+    let version = resp.get("version").and_then(|v| v.as_str()).unwrap_or("?");
+    let url = resp.get("url").and_then(|v| v.as_str())
+        .ok_or("update.json に url がありません")?;
+    let full_url = resp.get("full_url").and_then(|v| v.as_str());
+    let full = resp.get("full").and_then(|v| v.as_bool()).unwrap_or(false);
+    let (spec_sel, sha) = match (full, full_url) {
+        (true, Some(fu)) => (fu, resp.get("full_sha256").and_then(|v| v.as_str())),
+        _ => (url, resp.get("sha256").and_then(|v| v.as_str())),
+    };
+    let spec_sel = resolve_artifact_spec(spec_sel, json_dir.as_deref());
+    obtain_installer(&spec_sel, &temp)?;
+    if let Some(expected) = sha.map(|s| s.trim()).filter(|s| !s.is_empty()) {
+        verify_sha256(&temp, expected)?;
+        println!("updata: SHA-256 検証 OK");
+    }
+    Ok((temp, format!("v{} ({})", version, spec_sel)))
+}
+
+/// `updata:<ソース>` を処理する（CLI 引数・プロトコル URI の共通入口）。
+/// 更新を適用してプロセスを終了する（戻らない）。
+fn run_updata_command(spec: &str) -> ! {
+    // ブラウザ経由では "updata://..." や末尾 "/"、パーセントエンコードが付く場合がある
+    let spec = percent_decode(spec.trim_start_matches('/').trim_end_matches('/'));
+    match prepare_updata(spec.trim()) {
+        Ok((installer, desc)) => {
+            println!("updata: {} を適用します", desc);
+            run_nsis_installer_and_exit(&installer, &current_install_dir().to_string_lossy());
+            std::process::exit(1); // インストーラー起動失敗時のみここに到達する
+        }
+        Err(e) => {
+            eprintln!("updata 失敗 ({}): {}", spec, e);
+            std::process::exit(1);
+        }
+    }
 }
 
 /// ダウンロードしたファイルの SHA-256 を検証する。
@@ -1224,9 +1372,13 @@ fn verify_sha256(path: &std::path::Path, expected: &str) -> Result<(), String> {
 fn main() {
     let args = Args::parse();
 
-    // カスタムプロトコル経由の起動をログに残す（URI 自体はトリガーとしてのみ使用）
+    // カスタムプロトコル経由の起動をログに残す
     if let Some(uri) = &args.uri {
         println!("プロトコル起動: {}", uri);
+        // updata:<ソース> は指定ソースからの更新適用コマンド（適用後に終了）
+        if let Some(spec) = uri.strip_prefix("updata:") {
+            run_updata_command(spec);
+        }
     }
 
     // デバッグ: 検出される QGIS 一覧を出力して終了
@@ -1414,8 +1566,9 @@ fn extract_first_command_token(s: &str) -> Option<&str> {
     }
 }
 
-/// カスタムプロトコル `kasugai-qgis:` を HKCU\Software\Classes に登録する。
-/// サーバー停止後に残ったブラウザタブから、URI 遷移でランチャーを再起動するために使用する。
+/// カスタムプロトコル `kasugai-qgis:` と `updata:` を HKCU\Software\Classes に登録する。
+/// `kasugai-qgis:` はサーバー停止後に残ったブラウザタブからの URI 遷移再起動用、
+/// `updata:` は `updata:<URL|パス>` で指定ソースからの更新適用に使用する。
 /// HKCU 配下のため管理者権限は不要。起動のたびに現在の EXE パスで上書きし、
 /// バージョンアップや移動にも追従する。失敗しても起動は継続する。
 fn register_protocol_handler() {
@@ -1427,30 +1580,32 @@ fn register_protocol_handler() {
         }
     };
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
-    let base = match hkcu.create_subkey(r"Software\Classes\kasugai-qgis") {
-        Ok((k, _)) => k,
-        Err(e) => {
-            eprintln!("プロトコル登録失敗 (Software\\Classes\\kasugai-qgis): {}", e);
-            return;
-        }
-    };
-    if let Err(e) = base.set_value("", &"URL:Kasugai QGIS Launcher".to_string()) {
-        eprintln!("プロトコル登録失敗 (既定値): {}", e);
-        return;
-    }
-    if let Err(e) = base.set_value("URL Protocol", &"".to_string()) {
-        eprintln!("プロトコル登録失敗 (URL Protocol): {}", e);
-        return;
-    }
-    match base.create_subkey(r"shell\open\command") {
-        Ok((cmd, _)) => {
-            // URI は "%1" として渡す。Args の位置引数 uri が受け取る（内容は参照しない）。
-            let command = format!("\"{}\" \"%1\"", exe.display());
-            if let Err(e) = cmd.set_value("", &command) {
-                eprintln!("プロトコル登録失敗 (command): {}", e);
+    for scheme in ["kasugai-qgis", "updata"] {
+        let base = match hkcu.create_subkey(format!(r"Software\Classes\{}", scheme)) {
+            Ok((k, _)) => k,
+            Err(e) => {
+                eprintln!("プロトコル登録失敗 (Software\\Classes\\{}): {}", scheme, e);
+                continue;
             }
+        };
+        if let Err(e) = base.set_value("", &"URL:Kasugai QGIS Launcher".to_string()) {
+            eprintln!("プロトコル登録失敗 ({} 既定値): {}", scheme, e);
+            continue;
         }
-        Err(e) => eprintln!("プロトコル登録失敗 (shell\\open\\command): {}", e),
+        if let Err(e) = base.set_value("URL Protocol", &"".to_string()) {
+            eprintln!("プロトコル登録失敗 ({} URL Protocol): {}", scheme, e);
+            continue;
+        }
+        match base.create_subkey(r"shell\open\command") {
+            Ok((cmd, _)) => {
+                // URI は "%1" として渡す。Args の位置引数 uri が受け取る。
+                let command = format!("\"{}\" \"%1\"", exe.display());
+                if let Err(e) = cmd.set_value("", &command) {
+                    eprintln!("プロトコル登録失敗 ({} command): {}", scheme, e);
+                }
+            }
+            Err(e) => eprintln!("プロトコル登録失敗 ({} shell\\open\\command): {}", scheme, e),
+        }
     }
 }
 

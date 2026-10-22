@@ -1,3 +1,9 @@
+2.10.8 翻訳カタログの欠落分を補完
+- i18n/ 各言語JSON(de/es/fr/hi/it/pt/ru/zh)に ja のみに存在した
+  30キー+frの「All」の訳文を追加し、全言語でカタログキー数を
+  一致させた(GeoImport/GeoImportDialogBase コンテキスト。
+  CSV/XML読込・CKAN取得まわりのエラーメッセージ)
+
 2.10.7 instances.json の正本をharness内へ移動
 - 独自登録CKANインスタンス一覧の配信URLを
   `yamamoto-ryuzo/geo_import`(upstream repoルート)から

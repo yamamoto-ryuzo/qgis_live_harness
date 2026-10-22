@@ -66,9 +66,11 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   ランチャー `dev_mode` が WEBENGINE_* を注入する)。
   upstream `yamamoto-ryuzo/kasugai_qgis` は下記のgitdir運用
   (`.upstream/kasugai_qgis.git`、`npm run upstream -- kasugai_qgis <args>`)だが、
-  **現状は公開・配布用の任意同期先でありコミットはharness側だけで完結する**
-  (upstreamへpushしない限りGitHub Pagesのupdate.jsonは更新されず、
-  配布済みランチャーのauto-updateは「更新なし」を返し続ける点に注意)。
+  **現状は公開用の任意同期先でありコミットはharness側だけで完結する**。
+  auto-update の配信は upstream の GitHub Pages ではなく
+  harness repo 自身の master を raw.githubusercontent.com 経由で使う
+  (`qgis-plugin/kasugai_qgis/update.json` と `public/` が正本。
+  harness の master へ push すれば即配信される)。
   実体はすべてこのrepo内のgit管理対象(Harness側が正本)。
   upstreamリポジトリとの同期基盤は構造で2形式に分かれ、
   `npm run upstream -- <repo> <git引数>`(scripts/upstream-git.ps1。
@@ -86,7 +88,7 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
     向けたgitdir運用**。直接叩く場合は
     `git --git-dir=.upstream/<repo>.git <args>`(core.worktree設定済み)
   なお現存する upstream は `.upstream/kasugai_qgis.git` のみ
-  (kasugai_qgis の GitHub Pages 配信=auto-update に必須のため常設)。
+  (auto-update 配信は harness 側 raw URL へ移行済みのため任意)。
   geo_report/QGIS-exportExcel/QGIS-legendView/geo_import の
   clone/gitdir は撤去済みで Harness側が唯一の正本。
   同期が必要になれば上記手順で再構築する

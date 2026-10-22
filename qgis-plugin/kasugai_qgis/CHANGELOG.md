@@ -1,8 +1,9 @@
 # Changelog
 
-## [Unreleased]
+## [2.4.0] - 2026-10-23
 
 ### Changed
+- 自動更新の配信元を GitHub Pages（`yamamoto-ryuzo.github.io/kasugai_qgis`）から harness repo の `raw.githubusercontent.com`（`qgis_live_harness/master/qgis-plugin/kasugai_qgis`）へ移行。`update.json`・`public/` の setup/update/zip が同一 repo から直接配信され、push 直後に反映される。既存インストールの `qgis_settings.json` に旧 Pages URL が残っている場合は起動時に新 URL へ読み替える（`run.py` 側も同様に読み替え）
 - 起動時の配布プロファイルコピー（`profiles\QGIS4\` → `%APPDATA%\QGIS\QGIS4\`）を「存在しないファイルのみコピー」から常時上書きに変更。プロファイルはシステム管理のため、全体更新で配布物が更新された場合に必ず利用側へ反映される（dev 配置の junction コピー先は従来通り書き込まない）
 - 配布プロジェクトフォルダを `ProjectFiles` → `sample_projects`、サンプルプロジェクトを `ProjectFile.qgs` → `SampleProjectFile.qgs` に改名（同梱 `QGIS4.ini` の Q: 参照・`qgis_settings.json` の既定値も追従）
 - 全体版インストーラーにコンポーネント選択ページを追加し、`sample_projects` を「サンプルプロジェクト」として任意インストールに変更（既定は選択。選択を外しても既存フォルダは削除しない。サイレント全体更新では既定どおりインストール）
@@ -16,6 +17,8 @@
 - `index.md` 整理：プロファイルコピーの「既存はスキップ」記述を常時上書きへ修正、`C:\qgis_launcher\` 例示を `C:\kasugai\kasugai_qgis\` へ、壊れた `qgis_launcher/download/` リンク修正、パッケージ構成を3配布物（setup/update/zip）の実態へ更新、リリース手順を `run.py --bump` フローへ、GUI起動の WebView2 記述を追加
 
 ### Added
+- `updata:` による任意ソースからの更新適用。`qgis_launcher.exe updata:<ソース>`（CLI）または `updata:` カスタムプロトコル（HKCU 登録、`kasugai-qgis:` と同様）から起動できる。`.json` 指定は update.json として解釈（sha256 検証あり）、`.exe` 指定はインストーラーとして直接実行（検証なし）。バージョン比較・ループガードは行わず指定物をそのまま適用
+- 更新ソースのファイル対応: `update_url`・update.json 内の `url`/`full_url` に http(s) のほか `file://`・ローカルパスを指定可能にした。ローカル update.json 内の相対パスは json の親フォルダ基準で解決する（共有フォルダ配布に対応）
 - 既存インストール向けの自動移行: 起動時に `<project_root>/ProjectFiles` があれば `sample_projects` へリネーム（新旧両方がある場合は旧側の未配置エントリのみ移し、空なら旧フォルダを削除）。旧ファイル名 `ProjectFile.qgs*` が残っていれば `SampleProjectFile.qgs*` へ整理。`qgis_settings.json` 内の `project_path`/`current_project` に含まれる `ProjectFiles` パス区切りセグメントは読み込み時に `sample_projects` として解決
 
 ## [2.3.0] - 2026-10-22

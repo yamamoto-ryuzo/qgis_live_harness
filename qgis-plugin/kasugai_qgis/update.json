@@ -1,10 +1,10 @@
 {
-  "version": "2.3.0",
-  "url": "https://yamamoto-ryuzo.github.io/kasugai_qgis/public/kasugai_qgis-update.exe",
-  "full_url": "https://yamamoto-ryuzo.github.io/kasugai_qgis/public/kasugai_qgis-setup.exe",
+  "version": "2.4.0",
+  "url": "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/public/kasugai_qgis-update.exe",
+  "full_url": "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/public/kasugai_qgis-setup.exe",
   "full": false,
   "signature": null,
-  "sha256": "C10957AA1DD514F0DBE7A471ECFB75047843B562A9BA36DA958CE0FEF474FBE8",
-  "notes": "Kasugai QGIS Launcher 2.3.0",
-  "full_sha256": "89F55B3BAA37636BAFCC1AC747875945821E140E252CB5693636BE027DDA0C7C"
+  "sha256": "3921892A41933FD9338164D07ECBD444C0F4047F5E33DBEFE69E773D70A51550",
+  "notes": "Kasugai QGIS Launcher 2.4.0",
+  "full_sha256": "27910F3E27D5C9EFCBD642CE3C6E76E387461ED0B2684555B7207C9097C1553C"
 }

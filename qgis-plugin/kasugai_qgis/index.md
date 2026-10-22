@@ -1,9 +1,9 @@
 # QGIS Launcher (qgis_launcher)
 
-[インストーラーはこちらから](https://yamamoto-ryuzo.github.io/kasugai_qgis/public/kasugai_qgis-setup.exe)
+[インストーラーはこちらから](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/public/kasugai_qgis-setup.exe)
 
-![alt text](https://yamamoto-ryuzo.github.io/kasugai_qgis/images/qgis_launcher.png)
-![alt text](https://yamamoto-ryuzo.github.io/kasugai_qgis/images/qgis_launcher_info.png)
+![alt text](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/images/qgis_launcher.png)
+![alt text](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/images/qgis_launcher_info.png)
 
 > **v2.0.0 以降**: FLTK GUI は削除され、Web UI（ブラウザ）+ AXUM HTTP API に移行しました。本ドキュメントの画面イメージは旧 FLTK 版のものです。
 
@@ -179,7 +179,7 @@ C:\kasugai\kasugai_qgis\
 }
 ```
 
-サンプルファイル: [download/qgis_settings_override.json.example](https://yamamoto-ryuzo.github.io/kasugai_qgis/download/qgis_settings_override.json.example)
+サンプルファイル: [download/qgis_settings_override.json.example](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/download/qgis_settings_override.json.example)
 ### ユーザーごとの設定オーバーライド（qgis_settings_{USERNAME}.json）
 
 BOX のフォルダ階層はユーザーによって異なる場合があります。`qgis_settings.json` と同じディレクトリに `qgis_settings_{Windowsログイン名}.json` を置くと、全員共通のベース設定を上書きできます。
@@ -519,7 +519,7 @@ GNU General Public License v3.0 (GPL-3.0-only) — 詳細は [LICENSE](LICENSE) 
 NSIS インストーラー `kasugai_qgis-setup.exe` を使って、`C:\kasugai\kasugai_qgis\` へ自動的にインストールできます。
 
 1. インストーラーをダウンロード
-   - [kasugai_qgis-setup.exe](https://yamamoto-ryuzo.github.io/kasugai_qgis/public/kasugai_qgis-setup.exe)
+   - [kasugai_qgis-setup.exe](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/public/kasugai_qgis-setup.exe)
 2. ダウンロードした `kasugai_qgis-setup.exe` を実行
    - インストール先はデフォルトで `C:\kasugai\kasugai_qgis\` です
    - インストール先フォルダはインストール時に変更できます
@@ -540,7 +540,7 @@ kasugai_qgis-setup.exe /S /D=C:\kasugai\kasugai_qgis
 インストーラーの実行権限がない場合は、配布用 ZIP を任意のフォルダに展開して使用できます。
 
 1. ZIP をダウンロード
-   - [kasugai_qgis.zip](https://yamamoto-ryuzo.github.io/kasugai_qgis/public/kasugai_qgis.zip)
+   - [kasugai_qgis.zip](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/public/kasugai_qgis.zip)
 2. 任意のユーザー書き込み可能なフォルダ（例: `%USERPROFILE%\kasugai_qgis\` や `%LOCALAPPDATA%\kasugai_qgis\`）に展開
 3. 展開したフォルダ内の `qgis_launcher.exe` をダブルクリックで起動
 
@@ -583,10 +583,12 @@ C:\kasugai\kasugai_qgis\
 
 ```json
 {
-  "update_url": "https://yamamoto-ryuzo.github.io/kasugai_qgis/update.json",
+  "update_url": "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/update.json",
   "update_check": true
 }
 ```
+
+`update_url` には http(s) URL のほか、`file:///C:/...` 形式やローカルパス（例: `"update_url": "Q:\\update.json"`）も指定できます。ローカルの `update.json` 内で `url`/`full_url` を相対パスで書くと、その json と同じフォルダから解決されます（共有フォルダ上のインストーラーを直接使う構成が可能）。
 
 ### 通常更新と全体更新
 
@@ -602,8 +604,8 @@ C:\kasugai\kasugai_qgis\
 ```json
 {
   "version": "2.3.0",
-  "url": "https://yamamoto-ryuzo.github.io/kasugai_qgis/public/kasugai_qgis-update.exe",
-  "full_url": "https://yamamoto-ryuzo.github.io/kasugai_qgis/public/kasugai_qgis-setup.exe",
+  "url": "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/public/kasugai_qgis-update.exe",
+  "full_url": "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/public/kasugai_qgis-setup.exe",
   "full": false,
   "sha256": "<update.exe の SHA-256（16進）>",
   "full_sha256": "<setup.exe の SHA-256（16進）>",
@@ -623,13 +625,28 @@ C:\kasugai\kasugai_qgis\
 4. ダウンロードしたインストーラーを `/S /D=<インストールフォルダ>` でサイレント実行
 5. インストーラーが `qgis_launcher.exe` を上書き後、新しい exe を起動して終了
 
+### `updata:` による任意ソースからの更新
+
+明示的に指定したソースから即座に更新を適用する仕組みです。バージョン比較やループガードは行わず、指定されたものをそのまま適用します。
+
+```powershell
+# CLI から
+qgis_launcher.exe updata:<ソース>
+```
+
+- `<ソース>` が `.json` → `update.json` として解釈（`sha256` があれば検証。`full` フラグで url/full_url を選択）
+- `<ソース>` が `.exe` → NSIS インストーラーとして直接実行（sha256 検証なし）
+- ソースは http(s) URL・`file://`・ローカルパスを指定可（例: `updata:Q:\update.json`、`updata:https://example.com/update.json`）
+
+`updata:` は `kasugai-qgis:` と同様にカスタムプロトコルとして HKCU に登録されるため、ブラウザや他アプリから `updata:<ソース>` を開いて更新を起動することもできます。
+
 ### リリース時の更新手順
 
 `python run.py` が一連の作業を自動化します（`Cargo.toml` がバージョンの唯一の正で、`setup.nsi` / `update.json` / `qgis_settings.json` へ自動同期されます）:
 
 1. `python run.py --bump X.Y.Z` — バージョン更新 + リリースビルド一式（`cargo build --release`、setup.exe / update.exe / zip 生成、整合性チェック）。データ込みの全体更新にしたい場合のみ `update.json` の `full` を `true` に編集
 2. `CHANGELOG.md` に変更内容を追記しコミット
-3. `python run.py --tag` — git タグ作成 → `git push origin main --follow-tags` → GitHub Pages 反映確認まで自動実行（push 済みなら `python run.py --publish` で Pages デプロイ確認のみ）
+3. `python run.py --tag` — git タグ作成 → `git push origin HEAD --follow-tags` → リモート `update.json` の反映確認まで自動実行。配信は `raw.githubusercontent.com` 経由のため push 直後に反映されますが、CDN キャッシュ確認のためポーリングします（push 済みなら `python run.py --publish` で反映確認のみ）
 
 ### 注意
 

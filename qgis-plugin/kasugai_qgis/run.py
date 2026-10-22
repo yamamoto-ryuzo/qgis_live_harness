@@ -23,6 +23,22 @@ INSTALLER_DIR = ROOT / "installer"
 CARGO_TOML = ROOT / "Cargo.toml"
 NSI_FILE = INSTALLER_DIR / "setup.nsi"
 UPDATE_JSON = ROOT / "update.json"
+
+# 配信元 URL。update.json と public/ の配布物は harness repo の master を
+# raw.githubusercontent.com 経由で直接配信する（push 直後に反映、Pages 不要）。
+RAW_BASE_URL = (
+    "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/"
+    "refs/heads/master/qgis-plugin/kasugai_qgis"
+)
+# 旧配信元（GitHub Pages）。設定・update.json に残っている場合は読み替える。
+LEGACY_PAGES_BASE = "https://yamamoto-ryuzo.github.io/kasugai_qgis"
+
+
+def migrate_feed_url(url):
+    """旧 GitHub Pages 配信 URL を raw 配信 URL へ読み替える。"""
+    if url and url.startswith(LEGACY_PAGES_BASE + "/"):
+        return RAW_BASE_URL + url[len(LEGACY_PAGES_BASE):]
+    return url
 SETTINGS_JSON = DOWNLOAD_DIR / "qgis_settings.json"
 ZIP_NAME = f"{PROJECT_NAME}.zip"
 UPDATE_EXE_NAME = f"{PROJECT_NAME}-update.exe"
@@ -113,10 +129,10 @@ def sync_update_json(version):
     data.update(
         {
             "version": version,
-            "url": data.get("url")
-            or f"https://yamamoto-ryuzo.github.io/{PROJECT_NAME}/public/{UPDATE_EXE_NAME}",
-            "full_url": data.get("full_url")
-            or f"https://yamamoto-ryuzo.github.io/{PROJECT_NAME}/public/{SETUP_EXE_NAME}",
+            "url": migrate_feed_url(data.get("url"))
+            or f"{RAW_BASE_URL}/public/{UPDATE_EXE_NAME}",
+            "full_url": migrate_feed_url(data.get("full_url"))
+            or f"{RAW_BASE_URL}/public/{SETUP_EXE_NAME}",
             "full": bool(data.get("full", False)),
             "signature": data.get("signature"),
             "sha256": sha256_of(update_exe),
@@ -169,12 +185,12 @@ def create_git_tag(version):
 
 
 # ---------------------------------------------------------------------------
-# 公開（push + GitHub Pages デプロイ確認）
+# 公開（push + リモート update.json 反映確認）
 #
-# update.json と配布 EXE は GitHub Pages 経由で配信される。
-# push しても Pages のビルドが遅延・スキップされることがあり、その間は
-# 「更新はありません」と表示されてしまうため、--tag 実行時に push →
-# Pages ビルドのトリガー → リモート update.json のバージョン確認まで行う。
+# update.json と配布 EXE は harness repo（origin/master）を
+# raw.githubusercontent.com 経由で配信する。push 直後に反映されるが、
+# CDN キャッシュで古い JSON が残ることがあるため、--tag 実行時に push →
+# リモート update.json のバージョン確認まで行う。
 # ---------------------------------------------------------------------------
 
 
@@ -198,15 +214,20 @@ def get_update_url():
     if SETTINGS_JSON.exists():
         try:
             data = json.loads(SETTINGS_JSON.read_text(encoding="utf-8"))
-            if data.get("update_url"):
-                return data["update_url"]
+            url = migrate_feed_url(data.get("update_url"))
+            if url:
+                return url
         except Exception:
             pass
-    return f"https://yamamoto-ryuzo.github.io/{PROJECT_NAME}/update.json"
+    return f"{RAW_BASE_URL}/update.json"
 
 
 def trigger_pages_build():
-    """gh CLI で GitHub Pages のビルドを手動トリガーする。"""
+    """GitHub Pages 配信時のみ gh CLI で Pages ビルドを手動トリガーする。
+    raw.githubusercontent.com 配信では push だけで反映されるためスキップ。"""
+    if "raw.githubusercontent.com" in get_update_url():
+        print("配信は raw.githubusercontent.com のため Pages ビルドのトリガーは不要です")
+        return
     repo = get_origin_repo()
     if not repo:
         print("WARNING: origin から GitHub リポジトリを特定できません。Pages ビルドのトリガーを省略します。")
@@ -224,11 +245,11 @@ def trigger_pages_build():
         print("WARNING: Pages ビルドのリクエストに失敗しました（自動デプロイを待ちます）")
 
 
-def wait_for_pages_deploy(version, timeout=600, interval=15):
+def wait_for_remote_update(version, timeout=600, interval=15):
     """リモートの update.json が指定バージョンになるまで待機する。"""
     url = get_update_url()
     deadline = time.time() + timeout
-    print(f"GitHub Pages の反映を待ちます: {url}")
+    print(f"リモート update.json の反映を待ちます: {url}")
     while time.time() < deadline:
         try:
             req = f"{url}?nocache={int(time.time())}"
@@ -236,14 +257,14 @@ def wait_for_pages_deploy(version, timeout=600, interval=15):
                 data = json.loads(r.read().decode("utf-8"))
             remote = data.get("version")
             if remote == version:
-                print(f"Pages デプロイ確認 OK: update.json version = {remote}")
+                print(f"リモート反映確認 OK: update.json version = {remote}")
                 return 0
             print(f"  ... まだ {remote}（{version} を待機中）")
         except Exception as e:
             print(f"  ... update.json 取得失敗: {e}")
         time.sleep(interval)
-    print("ERROR: タイムアウト。GitHub Pages に新バージョンが反映されませんでした。")
-    print("       GitHub リポジトリの Pages 設定（main ブランチ / ルート）を確認してください。")
+    print("ERROR: タイムアウト。リモートの update.json に新バージョンが反映されませんでした。")
+    print("       origin への push と配信 URL（qgis_settings.json の update_url）を確認してください。")
     return 1
 
 
@@ -456,9 +477,9 @@ def main():
     parser.add_argument("--sync-plugins", action="store_true",
                         help="download/profiles 同梱プラグインを qgis-plugin/* と同期するのみ")
     parser.add_argument("--tag", action="store_true",
-                        help="git tag vX.Y.Z 作成 → push --follow-tags → Pages デプロイ確認まで実行する")
+                        help="git tag vX.Y.Z 作成 → push --follow-tags → リモート update.json 反映確認まで実行する")
     parser.add_argument("--publish", action="store_true",
-                        help="push --follow-tags → Pages ビルドトリガー → デプロイ確認のみ実行する（タグは作らない）")
+                        help="push --follow-tags → リモート update.json 反映確認のみ実行する（タグは作らない）")
     parser.add_argument("--version", action="version",
                         version=read_cargo_version(),
                         help="現在のバージョンを表示する")
@@ -494,14 +515,14 @@ def main():
             if rc != 0:
                 return rc
         rc = subprocess.run(
-            ["git", "push", "origin", "main", "--follow-tags"], cwd=ROOT
+            ["git", "push", "origin", "HEAD", "--follow-tags"], cwd=ROOT
         ).returncode
         if rc != 0:
             print("ERROR: git push に失敗しました")
             return rc
-        # push だけでは Pages ビルドが走らない/遅れる場合があるため明示的にトリガーする
+        # raw 配信では不要だが、Pages 配信に戻した場合のため残しておく
         trigger_pages_build()
-        return wait_for_pages_deploy(version)
+        return wait_for_remote_update(version)
 
     return cargo_run(extra)
 
