@@ -319,12 +319,9 @@ class QgisLivePlugin:
             self._ai_tb_button.setToolTip(
                 QCoreApplication.translate(
                     "qgis_live_driver", "AI Assistant"))
-            try:
-                from qgis.core import QgsApplication
-                ai_icon = QgsApplication.getThemeIcon(
-                    "/mActionTextAnnotation.svg")
-            except Exception:  # nosec B110  # 設計上の許容
-                ai_icon = QIcon()
+            ai_icon = QIcon(os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "icon_ai.png"))
             if ai_icon.isNull():
                 self._ai_tb_button.setText("AI")
             else:
