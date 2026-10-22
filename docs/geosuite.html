@@ -50,7 +50,11 @@
 <img alt="GeoSuite 全体像2" src="https://github.com/user-attachments/assets/804005dc-2d99-4531-9f50-d70986450a7b"></p>
 
 <h2>ワークフロー概要</h2>
-<pre><code>ローカル/CKAN
+<pre><code>QGIS プロジェクト作成
+    ↓
+geo_userfunc（ユーザー定義コード整備：式関数・フック・マクロ）
+    ↓
+ローカル/CKAN
     ↓
 GeoImport（自動 GIS 化）
     ↓
@@ -63,6 +67,7 @@ GeoWebView（スタイル込 Web 共有）
 <h2>クイックスタート</h2>
 <ol>
 <li>QGIS に各プラグインをインストール（<a href="plugins.html">プラグイン一覧</a>の各トップページを参照）</li>
+<li>プロジェクト作成時に <strong>geo_userfunc</strong> で式関数・プロジェクトフック・マクロを整備</li>
 <li><strong>GeoImport</strong> でデータを登録（CSV / CKAN）</li>
 <li><strong>GeoSearch</strong> で対象範囲を検索・抽出</li>
 <li><strong>GeoWebView</strong> でスタイル付きパッケージ／パーマリンクを生成し共有</li>
@@ -79,6 +84,19 @@ Excel 帳票は <code>geo_excel</code> が担当する形で整理していま�
 <p>各コンポーネントはこのリポジトリの <code>qgis-plugin/</code> で管理されています
 （上流リポジトリは各節を参照）。「実装済み（現状）」と README 上で今後の課題とされている
 「将来の拡張候補」を分離して記載します（確認: 2025-11-30 時点の各 README に基づく）。</p>
+
+<h3>geo_userfunc — プロジェクト作成時のユーザー定義コード整備</h3>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_userfunc/README.md">qgis-plugin/geo_userfunc/README.md</a></p>
+<p><strong>現状</strong></p>
+<ul>
+<li><code>&lt;profile&gt;/python/geo_userfunc/</code> の <code>*.py</code> を AST で型分類するライブラリ管理</li>
+<li><code>@qgsfunction</code> 式関数は式エンジンへ登録（ラベル・凡例・印刷式などプロジェクト内で即利用可）</li>
+<li><code>openProject</code> / <code>saveProject</code> / <code>closeProject</code> はプロジェクト信号へ配線（プロジェクト作成・開閉時の初期化処理に利用）</li>
+<li><code>main(context)</code> はマクロとしてメニュー／bridge から実行</li>
+<li>他プラグインのマクロを一元管理する共有レジストリ（実行メニューの集約）</li>
+<li>AI から関数の発見・作成・登録・検証まで行える bridge と管理ダイアログを内蔵</li>
+</ul>
+<p>GeoSuite の各段で使う式関数や初期化フックをプロジェクト作成時に整える前段のプラグインです。</p>
 
 <h3>GeoImport — 自動 GIS 化（CKAN / ローカル）</h3>
 <p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_import/README.md">qgis-plugin/geo_import/README.md</a> ·

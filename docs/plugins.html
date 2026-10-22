@@ -35,12 +35,14 @@
 </header>
 
 <h2>GeoSuite（GEO シリーズ）</h2>
-<p><code>geo_*</code> 系プラグインのうち GeoImport / GeoSearch / GeoWebView / GeoReport / geo_excel は
+<p><code>geo_*</code> 系プラグインのうち geo_userfunc / GeoImport / GeoSearch / GeoWebView / GeoReport / geo_excel は
 <a href="geosuite.html">GeoSuite</a>
 — QGIS デスクトップ + WebGIS フルサイクル ツールスイート — の構成要素です。
 データの取り込み（ローカル / CKAN）→ 検索 → Web 共有 → 報告書作成（PDF / Excel）までを
 ワンストップで自動化することを目的としたプラグイン群で、次のワークフローを想定しています。</p>
-<p><strong>ローカル / CKAN</strong>
+<p><strong>QGIS プロジェクト作成</strong>
+→ <strong>geo_userfunc</strong>（ユーザー定義コード整備）
+→ <strong>ローカル / CKAN</strong>
 → <strong>GeoImport</strong>（自動 GIS 化）
 → <strong>GeoSearch</strong>（地図内検索）
 → <strong>GeoWebView</strong>（スタイル込 Web 共有）
@@ -54,6 +56,16 @@ Web 地図公開（WebView でパッケージ化・パーマリンク共有）�
 大量出力（レイアウトテンプレートによる Atlas 的一括出力）。<br>
 スイート全体の詳細: <a href="geosuite.html">GeoSuite（このサイト内）</a> ·
   旧リポジトリ: <a href="https://github.com/yamamoto-ryuzo/geo_suite">geo_suite</a>（アーカイブ予定）</p>
+
+<h2><code>geo_userfunc</code></h2>
+<p><a href="geosuite.html">GeoSuite</a> 前段 — プロジェクト作成時のユーザー定義コード整備担当。
+ユーザー定義 Python コードのライブラリ管理プラットフォーム。
+<code>&lt;profile&gt;/python/geo_userfunc/</code> の <code>*.py</code> を AST で型分類し、
+<code>@qgsfunction</code> 式関数は式エンジンへ登録、openProject/saveProject/closeProject は
+プロジェクト信号へ配線、<code>main(context)</code> はマクロとして実行します。
+他プラグインのマクロを一元管理する共有レジストリと、AI から関数の発見・作成・検証まで
+行える bridge を備えます。</p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_userfunc/README.md">qgis-plugin/geo_userfunc/README.md</a></p>
 
 <h2><code>geo_import</code></h2>
 <p><a href="geosuite.html">GeoSuite</a> 構成要素 — 自動 GIS 化（CKAN / ローカル）担当。
@@ -104,15 +116,6 @@ QGIS-exportExcel のレイヤアクション用スクリプトを簡易プラグ
 geo_userfunc の共有レジストリ経由で実行メニューを集約することもできます。</p>
 <p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_excel/README.md">qgis-plugin/geo_excel/README.md</a> ·
 上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/QGIS-exportExcel">QGIS-exportExcel</a></p>
-
-<h2><code>geo_userfunc</code></h2>
-<p>ユーザー定義 Python コードのライブラリ管理プラットフォーム。
-<code>&lt;profile&gt;/python/geo_userfunc/</code> の <code>*.py</code> を AST で型分類し、
-<code>@qgsfunction</code> 式関数は式エンジンへ登録、openProject/saveProject/closeProject は
-プロジェクト信号へ配線、<code>main(context)</code> はマクロとして実行します。
-他プラグインのマクロを一元管理する共有レジストリと、AI から関数の発見・作成・検証まで
-行える bridge を備えます。</p>
-<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_userfunc/README.md">qgis-plugin/geo_userfunc/README.md</a></p>
 
 <h2><code>QGIS-legendView-main</code></h2>
 <p>選択レイヤの凡例をコンパクトに表示するドッキングウィジェット。
