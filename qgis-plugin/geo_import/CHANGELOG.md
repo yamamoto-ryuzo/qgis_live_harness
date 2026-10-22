@@ -1,3 +1,13 @@
+2.10.7 instances.json の正本をharness内へ移動
+- 独自登録CKANインスタンス一覧の配信URLを
+  `yamamoto-ryuzo/geo_import`(upstream repoルート)から
+  `yamamoto-ryuzo/qgis_live_harness` の
+  `qgis-plugin/geo_import/resources/instances/instances.json` へ変更。
+  プラグイン開発の正本がharness側にある現状に合わせ、
+  インスタンス一覧もharness側を正本として一元管理する
+- `resources/instances/instances.json` をプラグイン内に新規同梱
+  (従来はupstream repoルートのみに存在)
+
 2.10.6 PyQt import 修正・レガシー残骸削除
 - vendored pyperclip の Qt クリップボードバックエンドを
   PyQt5/PyQt4 から qgis.PyQt へ変更(QGIS4/Qt6 では PyQt5 の
