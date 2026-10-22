@@ -36,7 +36,7 @@
 
 <h2>GeoSuite（GEO シリーズ）</h2>
 <p><code>geo_*</code> 系プラグインのうち GeoImport / GeoSearch / GeoWebView / GeoReport / geo_excel は
-<a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a>
+<a href="geosuite.html">GeoSuite</a>
 — QGIS デスクトップ + WebGIS フルサイクル ツールスイート — の構成要素です。
 データの取り込み（ローカル / CKAN）→ 検索 → Web 共有 → 報告書作成（PDF / Excel）までを
 ワンストップで自動化することを目的としたプラグイン群で、次のワークフローを想定しています。</p>
@@ -52,10 +52,11 @@
 <p>想定シナリオ: 社内報告書作成（Import → Search → WebView → Report / geo_excel）、
 Web 地図公開（WebView でパッケージ化・パーマリンク共有）、
 大量出力（レイアウトテンプレートによる Atlas 的一括出力）。<br>
-スイート全体の詳細: <a href="https://github.com/yamamoto-ryuzo/geo_suite">github.com/yamamoto-ryuzo/geo_suite</a></p>
+スイート全体の詳細: <a href="geosuite.html">GeoSuite（このサイト内）</a> ·
+  旧リポジトリ: <a href="https://github.com/yamamoto-ryuzo/geo_suite">geo_suite</a>（アーカイブ予定）</p>
 
 <h2><code>geo_import</code></h2>
-<p><a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a> 構成要素 — 自動 GIS 化（CKAN / ローカル）担当。
+<p><a href="geosuite.html">GeoSuite</a> 構成要素 — 自動 GIS 化（CKAN / ローカル）担当。
 さまざまなデータセットを検索・追加するデータ取り込みプラグイン。
 追加したレイヤは共有のレイヤ整理サービス（layer_org）へ自動で渡すことができ、
 プロファイルのルールに従ったグループ配置・リネーム・スタイル適用も行います。</p>
@@ -63,7 +64,7 @@ Web 地図公開（WebView でパッケージ化・パーマリンク共有）�
 上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/qgis-data-catalog-integration">qgis-data-catalog-integration</a></p>
 
 <h2><code>geo_search</code></h2>
-<p><a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a> 構成要素 — 地図内検索（属性・空間検索）担当。
+<p><a href="geosuite.html">GeoSuite</a> 構成要素 — 地図内検索（属性・空間検索）担当。
 地番・所有者名・属性によるマップ検索プラグイン。検索結果はレイヤごとのタブに表示され、
 タブ単位で検索フィールド・表示フィールドを UI 上で設定できます。QGIS レイヤ・ファイル・
 PostGIS データベースに対応し、大量データはページング表示。検索時にマップテーマを切り替える機能
@@ -73,7 +74,7 @@ PostGIS データベースに対応し、大量データはページング表示
 上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/GEO-search-plugin">GEO-search-plugin</a></p>
 
 <h2><code>geo_webview</code></h2>
-<p><a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a> 構成要素 — スタイル込 Web 共有担当。
+<p><a href="geosuite.html">GeoSuite</a> 構成要素 — スタイル込 Web 共有担当。
 QGIS を軽量な OGC サーバー（WMS/WMTS/WFS）として起動するプラグイン。
 ドッキングパネルからサーバーを起動し、<code>/wms</code>・<code>/wmts</code>・<code>/wfs</code>・
 <code>/qgis-map</code>・<code>/maplibre</code> 等のエンドポイントを公開します。
@@ -87,7 +88,7 @@ QGIS を軽量な OGC サーバー（WMS/WMTS/WFS）として起動するプラ�
 印刷用図面・PDF 帳票は GeoReport、Excel で配布・二次加工する報告書は geo_excel が担当します。</p>
 
 <h3><code>geo_report</code> — PNG/PDF 系</h3>
-<p><a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a> 構成要素 — 報告書作成（レイアウト編集・PNG/PDF 出力）担当。
+<p><a href="geosuite.html">GeoSuite</a> 構成要素 — 報告書作成（レイアウト編集・PNG/PDF 出力）担当。
 レイアウト管理を強化する帳票プラグイン。プロジェクト内レイアウトの一覧・選択・
 レイアウトマネージャの起動、レイアウトアイテムのプロパティ（位置・サイズ・内容）の事前編集、
 レイアウト全体を JSON テンプレートとして保存して他レイアウトへ一括適用する機能を持ち、
@@ -96,7 +97,7 @@ QGIS を軽量な OGC サーバー（WMS/WMTS/WFS）として起動するプラ�
 上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector">qgis-layoutitem-selector</a></p>
 
 <h3><code>geo_excel</code> — Excel 系</h3>
-<p><a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a> 構成要素 — 報告書作成（Excel 帳票出力）担当。
+<p><a href="geosuite.html">GeoSuite</a> 構成要素 — 報告書作成（Excel 帳票出力）担当。
 QGIS-exportExcel のレイヤアクション用スクリプトを簡易プラグイン化した Excel 帳票連携。
 プラグインメニューからアクティブレイヤ・選択地物を対象に帳票を実行します。
 レイヤ変数（xlsout_*）と win32com（pywin32）・Excel が必要で、
@@ -140,6 +141,7 @@ GeoSuite の関連ツールとしては、ポータブル QGIS / QField 環境�
 
 <nav class="pager">
   <a href="internals.html"><span class="dir">前へ</span><span class="title">Harnessのプラグイン化</span></a>
+  <a class="next" href="geosuite.html"><span class="dir">次へ</span><span class="title">GeoSuite</span></a>
 </nav>
   </main>
   <aside class="toc"></aside>

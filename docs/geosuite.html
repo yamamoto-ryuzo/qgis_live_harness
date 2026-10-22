@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoSuite | QGIS Live Harness</title>
+<meta name="description" content="GeoSuite — QGIS デスクトップ + WebGIS フルサイクル ツールスイートの概要・ワークフロー・コンポーネント">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="site"><span class="logo">Q</span>QGIS Live Harness</div>
+    <div class="links">
+      <div class="group">はじめに</div>
+      <a class="navlink" href="index.html">概要</a>
+      <a class="navlink" href="usage.html">使い方・セットアップ</a>
+      <a class="navlink" href="security.html">セキュリティ</a>
+      <div class="group">コンポーネント</div>
+      <a class="navlink" href="driver.html">QGIS Live Driver</a>
+      <a class="navlink" href="harness.html">QGIS Live Harness</a>
+      <div class="group">ガイド</div>
+      <a class="navlink" href="distribution.html">プラグイン配布</a>
+      <a class="navlink" href="internals.html">Harnessのプラグイン化</a>
+      <a class="navlink" href="plugins.html">プラグイン一覧</a>
+      <a class="navlink active" href="geosuite.html">GeoSuite</a>
+      <div class="group">リンク</div>
+      <a class="navlink ext" href="https://github.com/yamamoto-ryuzo/qgis_live_harness">GitHub リポジトリ</a>
+    </div>
+  </nav>
+  <div class="content">
+  <main>
+<header class="page-header">
+<p class="eyebrow">スイート</p>
+<h1>GeoSuite — QGIS デスクトップ + WebGIS フルサイクル ツールスイート</h1>
+<p class="lead">GeoSuite は QGIS を中核に、データ取得から検索、Web 共有、出力（報告書生成）までを
+ワンストップで自動化するプラグイン群です。</p>
+</header>
+
+<blockquote>
+<p>このページは <a href="https://github.com/yamamoto-ryuzo/geo_suite">geo_suite リポジトリ</a>
+（アーカイブ予定）の内容を移行・整理したものです。今後はこのページがスイート概要の正となります。</p>
+</blockquote>
+
+<h2>プロジェクト概要</h2>
+<ul>
+<li><strong>自動化対象</strong>: データの取り込み（ローカル / CKAN）→ 検索 → Web 共有 → レポート作成（PNG / PDF / XLSX）</li>
+<li><strong>対象ユーザ</strong>: QGIS を業務で使い、社内共有や Web 公開を簡易化したい組織</li>
+</ul>
+<p><img alt="GeoSuite 全体像1" src="https://github.com/user-attachments/assets/532e200b-e794-484a-9e50-3f19567d6936">
+<img alt="GeoSuite 全体像2" src="https://github.com/user-attachments/assets/804005dc-2d99-4531-9f50-d70986450a7b"></p>
+
+<h2>ワークフロー概要</h2>
+<pre><code>ローカル/CKAN
+    ↓
+GeoImport（自動 GIS 化）
+    ↓
+GeoSearch（地図内検索）
+    ↓
+GeoWebView（スタイル込 Web 共有）
+    ↓
+報告書作成（GeoReport：PNG/PDF ／ geo_excel：Excel 帳票）</code></pre>
+
+<h2>クイックスタート</h2>
+<ol>
+<li>QGIS に各プラグインをインストール（<a href="plugins.html">プラグイン一覧</a>の各トップページを参照）</li>
+<li><strong>GeoImport</strong> でデータを登録（CSV / CKAN）</li>
+<li><strong>GeoSearch</strong> で対象範囲を検索・抽出</li>
+<li><strong>GeoWebView</strong> でスタイル付きパッケージ／パーマリンクを生成し共有</li>
+<li><strong>GeoReport</strong> でレイアウトを適用し、高解像度 PNG/PDF と出力メタデータを取得（Excel 帳票は <strong>geo_excel</strong>）</li>
+</ol>
+<blockquote>
+<p>注: Excel (XLSX) 形式で画像を埋め込んだ「完全自動」報告書生成については各プラグイン README の
+記載に差異があり、GeoReport の機能として確定的に記載されていない部分があります。
+Excel 帳票は <code>geo_excel</code> が担当する形で整理しています（下記コンポーネント参照）。</p>
+</blockquote>
+
+<h2>コンポーネント</h2>
+<p>各コンポーネントはこのリポジトリの <code>qgis-plugin/</code> で管理されています
+（上流リポジトリは各節を参照）。「実装済み（現状）」と README 上で今後の課題とされている
+「将来の拡張候補」を分離して記載します（確認: 2025-11-30 時点の各 README に基づく）。</p>
+
+<h3>GeoImport — 自動 GIS 化（CKAN / ローカル）</h3>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_import/README.md">qgis-plugin/geo_import/README.md</a> ·
+上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/qgis-data-catalog-integration">qgis-data-catalog-integration</a></p>
+<p><strong>現状</strong></p>
+<ul>
+<li>CKAN サーバおよびローカル CKAN 互換フォルダからの検索・取り込み対応</li>
+<li>CSV の区切り文字自動判定、文字コード自動判定（UTF-8 / CP932 等）</li>
+<li>緯度/経度カラムがあれば自動でポイントジオメトリ化</li>
+<li>SQLite ベースのローカルキャッシュによる検索高速化</li>
+</ul>
+<p><strong>将来の拡張候補</strong></p>
+<ul>
+<li>STAC / DCAT によるメタデータ連携と自動インデックス化</li>
+<li>大容量データ取り込み（並列処理・ストリーミング、S3 互換ストレージ対応）</li>
+<li>点群（LAS/LAZ）・3D フィーチャ取り込み（PDAL 統合）</li>
+<li>自動ジオリファレンス・座標系検出の改善、データ品質チェック自動化</li>
+</ul>
+<p><strong>将来の拡張候補（MCP）</strong></p>
+<ul>
+<li>MCP を利用した自動マッピング提案: ファイルサンプル（CSV/Excel の一部行）と目的（住所→ポイント等）を MCP に渡し、モデルが「フィールドマッピング案」「ジオコーディング候補」「座標列推定」を提示するワークフロー</li>
+<li>データ品質と補正の自動提案: MCP の文脈（サンプル・メタ）を基にモデルが欠損／外れ値候補を報告し、修正ルールを提案（ヒト承認フロー付き）</li>
+<li>STAC/メタデータ自動生成: 取り込んだデータの説明文・タグ・用途候補を MCP で生成し、STAC/CKAN 登録用のメタを自動作成</li>
+<li>インポート方針推奨（ポリシー連携）: 組織ポリシー（公開可否・個人情報扱い）を MCP に含め、モデルが安全な取り込み方法を推奨</li>
+<li>メタ・サンプルの埋め込み登録（RAG 連携）: 取り込み時にファイルメタやサンプル記述を分割して埋め込みを生成し Vector DB に登録。以降の検索／QA／自動説明生成で再利用。STAC や CKAN のメタデータを埋め込みに紐付けて <code>context_id</code> で参照可能にする</li>
+</ul>
+
+<h3>GeoSearch — 地図内検索（属性・空間検索）</h3>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_search/README.md">qgis-plugin/geo_search/README.md</a> ·
+上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/GEO-search-plugin">GEO-search-plugin</a></p>
+<p><strong>現状</strong></p>
+<ul>
+<li>地番・所有者・一般属性検索など複数検索タイプに対応</li>
+<li>結果はレイヤ別タブで表示、クリックで地図上にズーム/選択</li>
+<li><code>selectTheme</code> によるテーマ適用、加算表示モード（既存表示を保持しつつ重ね表示）</li>
+<li>Qt5/Qt6（QGIS 3.x）互換対応のための安定化措置</li>
+</ul>
+<p><strong>将来の拡張候補</strong></p>
+<ul>
+<li>PostGIS / Elasticsearch / OpenSearch 等を用いた全文検索強化</li>
+<li>複数データソース横断のフェデレーション検索、空間インデックス最適化</li>
+<li>時系列データ・バージョン管理（履歴検索、差分抽出）</li>
+<li>空間解析を組み込んだフィルタ（バッファ、空間結合、属性スコアリング）</li>
+<li>機械学習を用いた検索補助（クラスタリング、異常検知）</li>
+</ul>
+<p><strong>将来の拡張候補（MCP）</strong></p>
+<ul>
+<li>RAG（文脈＋ドキュメント検索）連携（優先）: 埋め込み検索で社内文書や仕様を参照し、検索結果の信頼度向上や根拠付き回答を提供。実装例: クエリ実行前に Vector DB で <code>top_k=5</code> をフェッチして抜粋をプロンプトに含め、<code>source_refs</code> と <code>confidence</code> を出力に含める</li>
+<li>履歴・変更の参照: 過去クエリや選択状態の埋め込みを使って、類似検索や意図の補完を行う</li>
+</ul>
+
+<h3>GeoWebView — スタイル込 Web 共有</h3>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/README.md">qgis-plugin/geo_webview/README.md</a> ·
+上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/geo_webview">geo_webview</a></p>
+<p><strong>現状</strong></p>
+<ul>
+<li>QGIS の表示状態（中心・ズーム・レイヤ可視性・スタイル）をパーマリンク、HTML/PNG パッケージとして出力</li>
+<li>軽量 HTTP サーバーでの社内配信、WFS による地物提供</li>
+<li>MapLibre / OpenLayers へのスタイル注入（MapLibre 用のスタイル注入フローとフォールバック実装あり）</li>
+<li>高解像度 PNG 出力、Office（Excel/PowerPoint）向け出力テンプレの例示</li>
+</ul>
+<blockquote>
+<p>README 備考: ベクタタイルサーバ（VectorTile）導入は README にて「あきらめた開発」と明記されており、当面は開発保留です。</p>
+</blockquote>
+<p><strong>将来の拡張候補</strong></p>
+<ul>
+<li>QGIS 3D 表示のスナップショット / Cesium・Re:Earth へのエクスポート連携</li>
+<li>点群ビジュアライゼーション（Entwine / Potree / Cesium・Re:Earth 連携）</li>
+<li>OGC API / WebSocket を使ったリアルタイム更新</li>
+<li>ベクタタイル生成・タイルキャッシュ・CDN 配信パターン</li>
+</ul>
+<p><strong>将来の拡張候補（MCP）</strong></p>
+<ul>
+<li>ドキュメント参照による説明文自動生成（RAG）: パッケージに添付する説明や更新履歴を生成する際に、関連する運用マニュアルや過去の公開ノートを埋め込み検索で参照し、根拠付きの説明を作成</li>
+<li>スタイルガイドの埋め込み検索（補助）: 組織のスタイルガイドや過去プロジェクトのスタイル事例を埋め込み化して検索可能にし、スタイル転写案の品質向上に利用</li>
+<li>パッケージ化 / 簡易配布テンプレの提案: 共有対象（社内／公開）やデバイス想定を文脈で渡し、最適な出力（軽量 HTML、PNG 解像度等）をモデルが推奨</li>
+<li>アクセス制御助言: 公開範囲や機密度に基づく配布設定（公開/社内限定/事前承認必須）を MCP が補助し、運用ガイドを生成</li>
+</ul>
+
+<h3>GeoReport — レイアウト編集・出力＋報告書生成</h3>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_report/README.md">qgis-plugin/geo_report/README.md</a> ·
+上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector">qgis-layoutitem-selector</a></p>
+<p><strong>現状</strong></p>
+<ul>
+<li>レイアウトテンプレートの保存・一括適用（JSON ベースのテンプレ化）</li>
+<li>レイアウト内アイテム（地図・凡例・ラベル・画像等）のバッチ編集</li>
+<li>印刷範囲（RubberBand）表示とマウスでの移動・調整</li>
+<li>Atlas 的な複数図面の一括出力、PNG/PDF の高解像度出力</li>
+<li>多言語対応や安定性向上のための改善がドキュメント化</li>
+</ul>
+<p><strong>将来の拡張候補</strong></p>
+<ul>
+<li>3D スナップショット統合（静止画・簡易インタラクティブビュー）</li>
+<li>点群・断面図生成（断面抽出、属性統計、サマリ表）</li>
+<li>Jupyter / Papermill による再現可能なレポート生成フロー</li>
+<li>Excel (XLSX) レポートのテンプレート化（画像埋め込み・注釈自動配置等）</li>
+<li>大量出力のための分散実行と途中再開機能</li>
+</ul>
+<p><strong>将来の拡張候補（MCP）</strong></p>
+<ul>
+<li>過去報告との類似/差分検出（埋め込み検索）: 生成前に過去の報告書・図版を埋め込み検索して類似図版や差分を抽出。差分の自然文サマリや注記候補をモデルが生成して、レビュー用のメタを付与</li>
+<li>出力根拠の添付（source_refs）: 自動生成したキャプションや要約には、参照した資料の <code>source_refs</code> を付与し、説明の出所を追跡可能にする</li>
+</ul>
+
+<h3>geo_excel — Excel 帳票出力</h3>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_excel/README.md">qgis-plugin/geo_excel/README.md</a> ·
+上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/QGIS-exportExcel">QGIS-exportExcel</a></p>
+<p><strong>現状</strong></p>
+<ul>
+<li>QGIS-exportExcel のレイヤアクション用スクリプトをプラグインメニューから実行（アクティブレイヤ・選択地物が対象）</li>
+<li>レイヤ変数（<code>xlsout_*</code>）による帳票・出力先の設定</li>
+<li>geo_userfunc の共有レジストリ経由で実行メニューを他プラグインと集約可能</li>
+<li>実行には win32com（pywin32）と Excel が必要</li>
+</ul>
+
+<h3>将来の拡張候補（MCP）— 共通事項</h3>
+<ul>
+<li>埋め込み / Vector DB 利用によるナレッジ連携: 社内ドキュメントや過去プロジェクトのメタを埋め込み化して、RAG として活用（MCP の <code>context_id</code> をキーに検索）</li>
+</ul>
+
+<h2>想定シナリオ</h2>
+<ul>
+<li><strong>社内報告書作成</strong>: GeoImport → GeoSearch → GeoWebView → GeoReport / geo_excel</li>
+<li><strong>Web 地図公開</strong>: GeoWebView でパッケージ化・パーマリンク共有</li>
+<li><strong>大量出力</strong>: レイアウトテンプレートを用いた一括出力（例: 100 枚の Atlas）</li>
+</ul>
+
+<h2>関連ツール</h2>
+
+<h3>kasugai_qgis — QGIS / QField ランチャー</h3>
+<p>Rust 製の QGIS ランチャーで、GeoSuite プラグインと同じ <code>geo_custom</code> プロファイル経由で連携します。
+Web UI / CLI / HTTP API からの起動、ユーザーロール制御、プロファイル配布、ローカル自動同期、
+NSIS ベースの自動更新を備えます。</p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/kasugai_qgis/README.md">qgis-plugin/kasugai_qgis/README.md</a></p>
+
+<h3>yr-qgis-launcher — ポータブル QGIS・QField 環境ランチャー</h3>
+<p>リポジトリ: <a href="https://github.com/yamamoto-ryuzo/yr-qgis-launcher">yr-qgis-launcher</a></p>
+<p><strong>現状（確認: 2025-11-30）</strong></p>
+<ul>
+<li><code>ProjectFile.exe</code> による指定プロジェクトの直接起動、および権限別 UI / <code>startup.py</code> を用いたレイヤ初期化機能</li>
+<li><code>local-launcher.bat</code> / <code>qgislocalsync.config</code> によるローカル同期（robocopy ベース）と、同期後の自動起動ワークフロー</li>
+<li>ポータブル版 QGIS / QField のバージョン比較による差分同期と管理、組込済みプラグインのサンプル一覧を含む</li>
+<li>Windows バッチ主体の構成のため、展開パスは英数字のみ、改行コード等の運用注意が README に記載されている</li>
+</ul>
+<p><strong>用途</strong>: オフライン/ポータブル環境配布や、BOX 等クラウドストレージからの同期を利用した統一実行環境構築に有用</p>
+
+<h2>貢献・サポートとライセンス</h2>
+<ul>
+<li>バグ報告や機能要望は各プラグインの Issues へ（現行の管理場所はこのリポジトリの <code>qgis-plugin/</code>）</li>
+<li>ドキュメント修正・翻訳や Quickstart の改善は歓迎します</li>
+<li>ライセンス: 各プラグインの README / LICENSE を参照してください</li>
+</ul>
+
+<blockquote>
+<p>免責事項: 本システムは個人のPCで作成・テストされたものです。ご利用によるいかなる損害も責任を負いません。</p>
+</blockquote>
+
+<nav class="pager">
+  <a href="plugins.html"><span class="dir">前へ</span><span class="title">プラグイン一覧</span></a>
+</nav>
+  </main>
+  <aside class="toc"></aside>
+  </div>
+<script type="module" src="assets/site.js"></script>
+</body>
+</html>
