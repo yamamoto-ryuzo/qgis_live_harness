@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>プラグイン一覧 | QGIS Live Harness</title>
-<meta name="description" content="QGIS Live Harness で開発・管理している各プラグインのトップページへのリンク集">
+<meta name="description" content="QGIS Live Harness で開発・管理している各プラグインの概要とトップページへのリンク集">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -31,72 +31,77 @@
 <header class="page-header">
 <p class="eyebrow">プラグイン</p>
 <h1>プラグイン一覧</h1>
-<p class="lead">このリポジトリで開発・管理している QGIS プラグインのトップページへのリンク集です。</p>
+<p class="lead">このリポジトリで開発・管理している QGIS プラグインの概要とトップページへのリンク集です。</p>
 </header>
-<table>
-<thead>
-<tr>
-<th>プラグイン</th>
-<th>概要</th>
-<th>トップページ</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>geo_search</code></td>
-<td>地番・所有者名・属性によるマップ検索。タブ式の結果表示・ページング・検索時のマップテーマ切替に対応</td>
-<td><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_search">qgis-plugin/geo_search</a></td>
-</tr>
-<tr>
-<td><code>geo_webview</code></td>
-<td>QGIS を軽量 OGC サーバー（WMS/WMTS/WFS）として起動し、地図表示状態を外部から復元するパーマリンク機能を提供</td>
-<td><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview">qgis-plugin/geo_webview</a></td>
-</tr>
-<tr>
-<td><code>geo_report</code></td>
-<td>レイアウト管理・テンプレートの一括適用による帳票作成。複数図面の統一デザインを効率化</td>
-<td><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_report">qgis-plugin/geo_report</a></td>
-</tr>
-<tr>
-<td><code>geo_import</code></td>
-<td>さまざまなデータセットを検索・追加できるデータ取り込みプラグイン</td>
-<td><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_import">qgis-plugin/geo_import</a></td>
-</tr>
-<tr>
-<td><code>geo_excel</code></td>
-<td>QGIS-exportExcel 系のレイヤアクションスクリプトをプラグインメニューから実行する Excel 帳票連携</td>
-<td><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_excel">qgis-plugin/geo_excel</a></td>
-</tr>
-<tr>
-<td><code>geo_userfunc</code></td>
-<td>ユーザー定義 Python コード（式関数・プロジェクトフック・マクロ）のライブラリ管理と共有レジストリ</td>
-<td><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_userfunc">qgis-plugin/geo_userfunc</a></td>
-</tr>
-<tr>
-<td><code>QGIS-legendView-main</code></td>
-<td>選択レイヤの凡例をコンパクトに表示するドッキングウィジェット（QGIS 4.x / Qt6 対応）</td>
-<td><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/QGIS-legendView-main">qgis-plugin/QGIS-legendView-main</a></td>
-</tr>
-<tr>
-<td><code>qgis_live_driver</code></td>
-<td>QGIS 内部を外部クライアントへ公開する制御ドライバ（REST / MCP / ファイル JSONL）。この Harness の中核</td>
-<td><a href="driver.html">driver.html（このサイト内）</a> / <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/qgis_live_driver">ソース</a></td>
-</tr>
-</tbody></table>
+
+<h2><code>geo_search</code></h2>
+<p>地番・所有者名・属性によるマップ検索プラグイン。検索結果はレイヤごとのタブに表示され、
+タブ単位で検索フィールド・表示フィールドを UI 上で設定できます。QGIS レイヤ・ファイル・
+PostGIS データベースに対応し、大量データはページング表示。検索時にマップテーマを切り替える機能
+（「検索前」への復元を含む）や、現在の表示に検索結果を重ねる追加表示モードも備えます。
+日本語・英語 UI 対応、QGIS 4.x（Qt6）対応。</p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_search">qgis-plugin/geo_search</a></p>
+
+<h2><code>geo_webview</code></h2>
+<p>QGIS を軽量な OGC サーバー（WMS/WMTS/WFS）として起動するプラグイン。
+ドッキングパネルからサーバーを起動し、<code>/wms</code>・<code>/wmts</code>・<code>/wfs</code>・
+<code>/qgis-map</code>・<code>/maplibre</code> 等のエンドポイントを公開します。
+地図の表示状態（中心・ズーム・レイヤの表示・テーマ・スタイル）を URL で復元する
+パーマリンク機能も提供します。</p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview">qgis-plugin/geo_webview</a></p>
+
+<h2><code>geo_report</code></h2>
+<p>レイアウト管理を強化する帳票プラグイン。プロジェクト内レイアウトの一覧・選択・
+レイアウトマネージャの起動、レイアウトアイテムのプロパティ（位置・サイズ・内容）の事前編集、
+レイアウト全体を JSON テンプレートとして保存して他レイアウトへ一括適用する機能を持ち、
+統一デザインの複数図面・帳票を効率よく作成できます。日本語・英語対応。</p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_report">qgis-plugin/geo_report</a></p>
+
+<h2><code>geo_import</code></h2>
+<p>さまざまなデータセットを検索・追加するデータ取り込みプラグイン。
+追加したレイヤは共有のレイヤ整理サービス（layer_org）へ自動で渡すことができ、
+プロファイルのルールに従ったグループ配置・リネーム・スタイル適用も行います。</p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_import">qgis-plugin/geo_import</a></p>
+
+<h2><code>geo_excel</code></h2>
+<p>QGIS-exportExcel のレイヤアクション用スクリプトを簡易プラグイン化した Excel 帳票連携。
+プラグインメニューからアクティブレイヤ・選択地物を対象に帳票を実行します。
+レイヤ変数（xlsout_*）と win32com（pywin32）・Excel が必要で、
+geo_userfunc の共有レジストリ経由で実行メニューを集約することもできます。</p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_excel">qgis-plugin/geo_excel</a></p>
+
+<h2><code>geo_userfunc</code></h2>
+<p>ユーザー定義 Python コードのライブラリ管理プラットフォーム。
+<code>&lt;profile&gt;/python/geo_userfunc/</code> の <code>*.py</code> を AST で型分類し、
+<code>@qgsfunction</code> 式関数は式エンジンへ登録、openProject/saveProject/closeProject は
+プロジェクト信号へ配線、<code>main(context)</code> はマクロとして実行します。
+他プラグインのマクロを一元管理する共有レジストリと、AI から関数の発見・作成・検証まで
+行える bridge を備えます。</p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_userfunc">qgis-plugin/geo_userfunc</a></p>
+
+<h2><code>QGIS-legendView-main</code></h2>
+<p>選択レイヤの凡例をコンパクトに表示するドッキングウィジェット。
+プロジェクト変数 <code>legend_group_layer_name</code> で表示する凡例を制御します。
+日本語・英語対応、QGIS 4.x（Qt6）対応。</p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/QGIS-legendView-main">qgis-plugin/QGIS-legendView-main</a></p>
+
+<h2><code>qgis_live_driver</code></h2>
+<p>QGIS 内部を外部クライアントへ公開する制御専用プラグインで、この Harness の中核。
+ファイル JSONL・REST <code>/api/*</code>・MCP Streamable HTTP（<code>/mcp</code>）の3経路で
+任意 Python/JS の実行・地図キャンバスのスクリーンショットを提供します
+（localhost 限定・セッショントークン認証）。AI アシスタントパネル・ホットリロード・
+GeoSuite 共有ツールバー・レイヤ整理サービス（layer_org）も内蔵。</p>
+<p>トップページ: <a href="driver.html">driver.html（このサイト内）</a> / <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/qgis_live_driver">ソース qgis-plugin/qgis_live_driver</a></p>
+
 <h2>連携ソフトウェア</h2>
-<table>
-<thead>
-<tr>
-<th>ソフトウェア</th>
-<th>概要</th>
-<th>トップページ</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>kasugai_qgis</code></td>
-<td>Rust 製の QGIS ランチャー。プラグインではなく、同じ <code>geo_custom</code> プロファイル経由で連携する独立ソフトウェア（インストーラー・自動更新つきで配布）</td>
-<td><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/kasugai_qgis">qgis-plugin/kasugai_qgis</a></td>
-</tr>
-</tbody></table>
+
+<h3><code>kasugai_qgis</code></h3>
+<p>Rust 製の QGIS ランチャー。QGIS プラグインではなく、同じ <code>geo_custom</code> プロファイル
+経由で連携する独立ソフトウェアです。Web UI / CLI / HTTP API から QGIS・QField を起動し、
+ユーザーロール制御・プロファイル配布・ローカル自動同期・NSIS ベースの自動更新を備えます。
+<code>dev_mode</code> で QGIS Live Harness の環境変数を注入して開発モード起動も可能です。</p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/kasugai_qgis">qgis-plugin/kasugai_qgis</a></p>
+
 <nav class="pager">
   <a href="internals.html"><span class="dir">前へ</span><span class="title">Harnessのプラグイン化</span></a>
 </nav>
