@@ -35,17 +35,21 @@
 </header>
 
 <h2>GeoSuite（GEO シリーズ）</h2>
-<p><code>geo_*</code> 系プラグインのうち GeoImport / GeoSearch / GeoWebView / GeoReport は
+<p><code>geo_*</code> 系プラグインのうち GeoImport / GeoSearch / GeoWebView / GeoReport / geo_excel は
 <a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a>
 — QGIS デスクトップ + WebGIS フルサイクル ツールスイート — の構成要素です。
-データの取り込み（ローカル / CKAN）→ 検索 → Web 共有 → レポート作成（PNG / PDF / XLSX）までを
+データの取り込み（ローカル / CKAN）→ 検索 → Web 共有 → 報告書作成（PDF / Excel）までを
 ワンストップで自動化することを目的としたプラグイン群で、次のワークフローを想定しています。</p>
 <p><strong>ローカル / CKAN</strong>
 → <strong>GeoImport</strong>（自動 GIS 化）
 → <strong>GeoSearch</strong>（地図内検索）
 → <strong>GeoWebView</strong>（スタイル込 Web 共有）
-→ <strong>GeoReport</strong>（レイアウト編集・出力＋報告書生成）</p>
-<p>想定シナリオ: 社内報告書作成（Import → Search → WebView → Report）、
+→ <strong>報告書作成</strong>（GeoReport：レイアウト編集・PNG/PDF 出力 ／ geo_excel：Excel 帳票出力）</p>
+<p>報告書作成は出力形式で2系統に分かれます。<strong>GeoReport</strong> は QGIS レイアウトを
+テンプレート化して PNG/PDF を高解像度出力する系統、<strong>geo_excel</strong> は
+レイヤデータを Excel 帳票テンプレートへ流し込む系統です。
+用途（印刷用図面・帳票か、Excel で配布・二次加工する報告書か）に応じて使い分けます。</p>
+<p>想定シナリオ: 社内報告書作成（Import → Search → WebView → Report / geo_excel）、
 Web 地図公開（WebView でパッケージ化・パーマリンク共有）、
 大量出力（レイアウトテンプレートによる Atlas 的一括出力）。<br>
 スイート全体の詳細: <a href="https://github.com/yamamoto-ryuzo/geo_suite">github.com/yamamoto-ryuzo/geo_suite</a></p>
@@ -78,8 +82,12 @@ QGIS を軽量な OGC サーバー（WMS/WMTS/WFS）として起動するプラ�
 <p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/README.md">qgis-plugin/geo_webview/README.md</a> ·
 上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/geo_webview">geo_webview</a></p>
 
-<h2><code>geo_report</code></h2>
-<p><a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a> 構成要素 — レイアウト編集・出力＋報告書生成担当。
+<h2>報告書作成</h2>
+<p>GeoSuite の出力ステージを担う2系統のプラグインです。
+印刷用図面・PDF 帳票は GeoReport、Excel で配布・二次加工する報告書は geo_excel が担当します。</p>
+
+<h3><code>geo_report</code> — PNG/PDF 系</h3>
+<p><a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a> 構成要素 — 報告書作成（レイアウト編集・PNG/PDF 出力）担当。
 レイアウト管理を強化する帳票プラグイン。プロジェクト内レイアウトの一覧・選択・
 レイアウトマネージャの起動、レイアウトアイテムのプロパティ（位置・サイズ・内容）の事前編集、
 レイアウト全体を JSON テンプレートとして保存して他レイアウトへ一括適用する機能を持ち、
@@ -87,12 +95,14 @@ QGIS を軽量な OGC サーバー（WMS/WMTS/WFS）として起動するプラ�
 <p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_report/README.md">qgis-plugin/geo_report/README.md</a> ·
 上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector">qgis-layoutitem-selector</a></p>
 
-<h2><code>geo_excel</code></h2>
-<p>QGIS-exportExcel のレイヤアクション用スクリプトを簡易プラグイン化した Excel 帳票連携。
+<h3><code>geo_excel</code> — Excel 系</h3>
+<p><a href="https://github.com/yamamoto-ryuzo/geo_suite">GeoSuite</a> 構成要素 — 報告書作成（Excel 帳票出力）担当。
+QGIS-exportExcel のレイヤアクション用スクリプトを簡易プラグイン化した Excel 帳票連携。
 プラグインメニューからアクティブレイヤ・選択地物を対象に帳票を実行します。
 レイヤ変数（xlsout_*）と win32com（pywin32）・Excel が必要で、
 geo_userfunc の共有レジストリ経由で実行メニューを集約することもできます。</p>
-<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_excel/README.md">qgis-plugin/geo_excel/README.md</a></p>
+<p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_excel/README.md">qgis-plugin/geo_excel/README.md</a> ·
+上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/QGIS-exportExcel">QGIS-exportExcel</a></p>
 
 <h2><code>geo_userfunc</code></h2>
 <p>ユーザー定義 Python コードのライブラリ管理プラットフォーム。
