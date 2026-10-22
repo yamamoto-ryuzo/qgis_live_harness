@@ -36,11 +36,11 @@ def _rewrite_source(src):
     """アクション置換変数と Qt5 固有記法を実行用に書き換える。
 
     - `PyQt5.` / `from PyQt5 import` → `qgis.PyQt`
-    - `Qt.CursorShape.WaitCursor` → `Qt.CursorShape.WaitCursor`
+    - `Qt.WaitCursor` → `Qt.CursorShape.WaitCursor`
       (Qt6で非スコープenumは廃止。Qt5でもスコープ記法は有効)
     """
     src = _PYQT5_RE.sub("qgis.PyQt", src)
-    return src.replace("Qt.CursorShape.WaitCursor", "Qt.CursorShape.WaitCursor")
+    return src.replace("Qt.WaitCursor", "Qt.CursorShape.WaitCursor")
 
 
 def _active_vector_layer(iface):
