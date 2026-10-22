@@ -12,6 +12,12 @@
 
 ## 変更履歴
 
+### V2.9.3 try/except/pass の nosec 明示
+- plugins.qgis.org スキャンで指摘された `try/except/pass|continue`
+  43箇所に `# nosec B110/B112` を付与(GUIクラッシュ回避の
+  設計上許容パターンを明示。`.bandit` はZIP非同梱のため
+  インライン抑制で対応)
+
 ### V2.9.2 Qt6/Qt6互換性チェック対応
 - plugins.qgis.org の Qt6 compatibility チェックで指摘された
   非スコープ列挙型35箇所を修正:

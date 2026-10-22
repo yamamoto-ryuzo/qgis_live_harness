@@ -47,7 +47,7 @@ import os
 # Initialize Qt resources from file resources.py
 try:
     from . import resources
-except ImportError:
+except ImportError:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
     pass
 
 USER_ROLE = Qt.ItemDataRole.UserRole
@@ -131,7 +131,7 @@ class PrintAreaMoveTool(QgsMapTool):
         # キャンバス自体の回転を加算し、画面上で回転していない矩形にする
         try:
             angle += float(self.canvas.rotation())
-        except Exception:
+        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             pass
         # QgsLayoutItemMapのextentは「回転前の表示領域」を表す。
         # 回転後の外接矩形(AABB)を渡すと印刷範囲が実表示より大きくなるため、
@@ -162,7 +162,7 @@ class PrintAreaMoveTool(QgsMapTool):
         # キャンバス自体の回転を加算し、画面上で回転していない矩形にする
         try:
             angle += float(self.canvas.rotation())
-        except Exception:
+        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             pass
         theta = math.radians(angle)
         cos_t = math.cos(theta)
@@ -250,7 +250,7 @@ class GeoReport:
         # 起動ログ
         try:
             log_message('GeoReport plugin initialized')
-        except Exception:
+        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             pass
 
     def add_action(
@@ -361,7 +361,7 @@ class GeoReport:
 
         try:
             log_message('GeoReport plugin GUI registered')
-        except Exception:
+        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             pass
 
         # will be set False in run()
@@ -389,17 +389,17 @@ class GeoReport:
             if hasattr(self, 'dialog') and self.dialog:
                 try:
                     self.dialog._remove_print_area_rubberband()
-                except Exception:
+                except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                     pass
                 try:
                     btn = getattr(self.dialog, 'show_print_area_button', None)
                     if btn and hasattr(btn, 'setText'):
                         btn.setText(QCoreApplication.translate('geo_report', "Show Print Area on Map"))
-                except Exception:
+                except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                     pass
                 try:
                     self.dialog._print_area_visible = False
-                except Exception:
+                except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                     pass
         else:
             # パネルが表示されたときは必ずボタンをHideにして印刷枠を復元する
@@ -409,7 +409,7 @@ class GeoReport:
                     btn = getattr(self.dialog, 'show_print_area_button', None)
                     if btn and hasattr(btn, 'setText'):
                         btn.setText(QCoreApplication.translate('geo_report', "Hide Print Area"))
-                except Exception:
+                except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                     pass
                 try:
                     if not getattr(self.dialog, '_print_area_rubberband', None):
@@ -421,14 +421,14 @@ class GeoReport:
                             except Exception:
                                 try:
                                     self.dialog.show_print_area_on_map()
-                                except Exception:
+                                except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                                     pass
                         else:
                             try:
                                 self.dialog.show_print_area_on_map()
-                            except Exception:
+                            except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                                 pass
-                except Exception:
+                except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                     pass
 
     def run(self):
@@ -527,7 +527,7 @@ class GeoReport:
                     try:
                         if area == LEFT_DOCK_WIDGET_AREA and widget.isVisible():
                             left_docks.append(widget)
-                    except Exception:
+                    except Exception:  # nosec B112  # 例外は握り潰してGUIを継続(設計上の許容)
                         continue
                 if left_docks:
                     # 左側ドック群のうち「高さ（ピクセル）が最大」のウィジェットをターゲットにする
@@ -537,7 +537,7 @@ class GeoReport:
                             h = w.frameGeometry().height()
                             if h:
                                 return h
-                        except Exception:
+                        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                             pass
                         try:
                             return w.size().height()
@@ -566,15 +566,15 @@ class GeoReport:
                                         try:
                                             # move the tab to the rightmost position
                                             tabbar.moveTab(idx, tabbar.count() - 1)
-                                        except Exception:
+                                        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                                             pass
                                         moved = True
                                         break
-                                except Exception:
+                                except Exception:  # nosec B112  # 例外は握り潰してGUIを継続(設計上の許容)
                                     continue
                             if moved:
                                 break
-                    except Exception:
+                    except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                         pass
                 else:
                     # 既存のドックがない場合は通常追加
@@ -658,7 +658,7 @@ class LayoutSelectorDialog(QDialog):
                     canvas.unsetMapTool(None)
                 elif hasattr(canvas, 'setMapTool'):
                     canvas.setMapTool(None)
-        except Exception:
+        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             pass
         # パネルの場合は非表示にするだけで、削除しない
         event.ignore()  # closeイベントを無視（パネル非表示）
@@ -678,7 +678,7 @@ class LayoutSelectorDialog(QDialog):
                     canvas.unsetMapTool(None)
                 elif hasattr(canvas, 'setMapTool'):
                     canvas.setMapTool(None)
-        except Exception:
+        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             pass
         # パネルの場合は非表示にするだけで、削除しない
         if hasattr(self, 'parent') and isinstance(self.parent(), QDockWidget):
@@ -696,7 +696,7 @@ class LayoutSelectorDialog(QDialog):
                     canvas.unsetMapTool(None)
                 elif hasattr(canvas, 'setMapTool'):
                     canvas.setMapTool(None)
-        except Exception:
+        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             pass
         # パネルの場合は非表示にするだけで、削除しない
         if hasattr(self, 'parent') and isinstance(self.parent(), QDockWidget):
@@ -718,7 +718,7 @@ class LayoutSelectorDialog(QDialog):
         # キャンバス回転時は表示中の印刷枠を描き直し、画面に沿った向きを維持する
         try:
             self.iface.mapCanvas().rotationChanged.connect(self._refresh_print_area)
-        except Exception:
+        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             pass
 
     def init_ui(self):
@@ -924,7 +924,7 @@ class LayoutSelectorDialog(QDialog):
         tab_widget.addTab(info_widget, QCoreApplication.translate('geo_report', "Layout Info"))
         try:
             tab_widget.currentChanged.connect(self.on_tab_changed)
-        except Exception:
+        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             pass
 
         properties_container_layout.addWidget(tab_widget)
@@ -1026,7 +1026,7 @@ class LayoutSelectorDialog(QDialog):
                         self.load_layout_button):
                 try:
                     btn.setEnabled(False)
-                except Exception:
+                except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                     pass
 
     def _connect_layout_manager_signals(self):
@@ -1037,14 +1037,14 @@ class LayoutSelectorDialog(QDialog):
         for sig_name in ("layoutAdded", "layoutRemoved", "layoutRenamed"):
             try:
                 getattr(mgr, sig_name).connect(self._on_layouts_changed)
-            except Exception:
+            except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                 pass
 
     def _on_layouts_changed(self, *args):
         """レイアウト構成の変更時に一覧を再読込する"""
         try:
             self.reload_layout_list()
-        except RuntimeError:
+        except RuntimeError:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             # ダイアログ破棄後にシグナルが来た場合等は何もしない
             pass
 
@@ -1060,7 +1060,7 @@ class LayoutSelectorDialog(QDialog):
                     action.trigger()
                     opened = True
                     break
-            except Exception:
+            except Exception:  # nosec B112  # 例外は握り潰してGUIを継続(設計上の許容)
                 continue
         if not opened:
             self.iface.messageBar().pushMessage(
@@ -1158,23 +1158,23 @@ class LayoutSelectorDialog(QDialog):
                 if getattr(self, '_print_area_rubberband', None):
                     try:
                         self._remove_print_area_rubberband()
-                    except Exception:
+                    except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                         pass
                 try:
                     if hasattr(self, 'show_print_area_button'):
                         self.show_print_area_button.setText(QCoreApplication.translate('geo_report', "Show Print Area on Map"))
-                except Exception:
+                except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                     pass
                 try:
                     self._print_area_visible = False
-                except Exception:
+                except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                     pass
             else:
                 # returning to properties tab: set button to Hide and restore
                 try:
                     if hasattr(self, 'show_print_area_button'):
                         self.show_print_area_button.setText(QCoreApplication.translate('geo_report', "Hide Print Area"))
-                except Exception:
+                except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                     pass
                 if not getattr(self, '_print_area_rubberband', None):
                     try:
@@ -1187,13 +1187,13 @@ class LayoutSelectorDialog(QDialog):
                     except Exception:
                         try:
                             self.show_print_area_on_map()
-                        except Exception:
+                        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                             pass
                 try:
                     self._print_area_visible = True
-                except Exception:
+                except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                     pass
-        except Exception:
+        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             pass
 
     def on_layout_selected(self, current, previous):
@@ -1347,7 +1347,7 @@ class LayoutSelectorDialog(QDialog):
         # mapRotationにも同じ角度が入るため印刷結果は画面表示と同じ向きになる。
         try:
             angle += float(canvas.rotation())
-        except Exception:
+        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             pass
 
         # 矩形の四隅を計算（画面中心基準）
@@ -1421,10 +1421,10 @@ class LayoutSelectorDialog(QDialog):
                     if hasattr(canvas2, 'scene'):
                         try:
                             canvas2.scene().removeItem(old_rb)
-                        except Exception:
+                        except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                             pass
                 old_rb.reset()
-            except Exception:
+            except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                 pass
         self._print_area_rubberband = rb
         print(f"[DEBUG] new rubberband created: {rb}")
@@ -1720,7 +1720,7 @@ class LayoutSelectorDialog(QDialog):
             if hasattr(label_item, 'font'):
                 font = label_item.font()
                 self.add_property_field(QCoreApplication.translate('geo_report', "Font Size"), font.pointSize(), field_type="int")
-        except AttributeError:
+        except AttributeError:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             pass
 
     def add_map_properties(self, map_item):
@@ -1728,7 +1728,7 @@ class LayoutSelectorDialog(QDialog):
         try:
             self.add_property_field(QCoreApplication.translate('geo_report', "Scale"), map_item.scale(), field_type="double")
             # 他の地図プロパティも追加可能
-        except AttributeError:
+        except AttributeError:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             pass
 
     def add_picture_properties(self, picture_item):
@@ -1736,7 +1736,7 @@ class LayoutSelectorDialog(QDialog):
         try:
             self.add_property_field(QCoreApplication.translate('geo_report', "Image Path"), picture_item.picturePath())
             # 他の画像プロパティも追加可能
-        except AttributeError:
+        except AttributeError:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
             pass
 
     def add_property_field(self, label, value, field_type="text", readonly=False):
@@ -1987,7 +1987,7 @@ class LayoutSelectorDialog(QDialog):
             # エラーが発生した場合はundoコマンドをキャンセル
             try:
                 self.current_layout.undoStack().cancelCommand()
-            except Exception:
+            except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                 pass
 
             print(f"property update error: {e}")
@@ -2269,7 +2269,7 @@ class LayoutSelectorDialog(QDialog):
         except Exception as e:
             try:
                 self.current_layout.undoStack().cancelCommand()
-            except Exception:
+            except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                 pass
             raise e
 
@@ -2520,7 +2520,7 @@ class LayoutSelectorDialog(QDialog):
                     try:
                         display_name = item.displayName()
                         info_lines.append("     - " + QCoreApplication.translate('geo_report', "Name: ") + f"{display_name}")
-                    except Exception:
+                    except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                         pass
 
             except Exception as e:
@@ -2662,7 +2662,7 @@ class LayoutFileSelectDialog(QDialog):
                         data = json.load(f)
                         if 'layout_name' in data:
                             layout_name = f" (Layout: {data['layout_name']})"
-                except Exception:
+                except Exception:  # nosec B110  # 例外は握り潰してGUIを継続(設計上の許容)
                     pass
 
                 # リストアイテムを作成
