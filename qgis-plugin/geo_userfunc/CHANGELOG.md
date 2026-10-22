@@ -1,5 +1,11 @@
 # CHANGELOG — geo_userfunc
 
+## 1.0.5
+
+- i18n/ に ja.json しか無かった状態から de/es/fr/hi/it/pt/ru/zh
+  の8言語JSONを新規作成し、ja の31キーすべてに訳文を追加
+  (geo_userfunc コンテキスト=関数ライブラリ管理ダイアログのUI文言)
+
 ## 1.0.4
 
 - GeoSuiteツールバーの管理アクションをアイコン表示に変更。
