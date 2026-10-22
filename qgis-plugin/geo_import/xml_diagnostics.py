@@ -4,8 +4,13 @@ XML診断ツール - XMLファイルの問題を診断するためのユーテ�
 """
 
 import os
-# DOCTYPE/ENTITYは _reject_unsafe_xml で拒否済み(expat既定で外部実体も不処理)
-import xml.etree.ElementTree as ET  # nosec B314
+# defusedxml を vendored 同梱し利用(実体宣言/外部参照をパーサ層で拒否)
+# 加えて _reject_unsafe_xml で DOCTYPE/ENTITY を事前拒否
+try:
+    from .defusedxml import ElementTree as ET
+except ImportError:
+    # スタンドアロン実行時(プラグインディレクトリを sys.path に追加)用
+    from defusedxml import ElementTree as ET
 from xml.parsers.expat import ExpatError
 
 
@@ -96,7 +101,7 @@ def diagnose_xml_file(file_path):
 
                     # 文字列からXMLを解析
                     _reject_unsafe_xml(xml_content)
-                    root = ET.fromstring(xml_content)  # nosec B314  # 直上でDOCTYPE/ENTITYを拒否済み
+                    root = ET.fromstring(xml_content)  # 直上でDOCTYPE/ENTITYを拒否済み
                     result['xml_valid'] = True
                     result['root_element'] = root.tag
                     result['element_count'] = len(list(root.iter()))
@@ -113,7 +118,7 @@ def diagnose_xml_file(file_path):
                 with open(file_path, 'rb') as f:
                     raw = f.read()
                 _reject_unsafe_xml(raw)
-                root = ET.fromstring(raw)  # nosec B314  # 直上でDOCTYPE/ENTITYを拒否済み
+                root = ET.fromstring(raw)  # 直上でDOCTYPE/ENTITYを拒否済み
                 result['xml_valid'] = True
                 result['root_element'] = root.tag
                 result['element_count'] = len(list(root.iter()))

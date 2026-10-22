@@ -1648,8 +1648,8 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                 # WMSの場合はGetCapabilitiesで情報取得し、最初のレイヤ名でQGISにレイヤ追加
                 try:
                     import requests
-                    # 直下で DOCTYPE/ENTITY を拒否するため stdlib ET で許容
-                    from xml.etree import ElementTree as ET  # nosec B314
+                    # vendored defusedxml で DOCTYPE/ENTITY/外部参照を拒否
+                    from .defusedxml import ElementTree as ET
                     wms_url = url_val
                     if not wms_url.lower().endswith('?'):
                         if '?' in wms_url:
@@ -1663,7 +1663,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                         try:
                             if b'<!DOCTYPE' in resp.content or b'<!ENTITY' in resp.content:
                                 raise ET.ParseError('DOCTYPE/ENTITY declarations are not allowed')
-                            root = ET.fromstring(resp.content)  # nosec B314  # 直上でDOCTYPE/ENTITYを拒否済み
+                            root = ET.fromstring(resp.content)  # 直上でDOCTYPE/ENTITYを拒否済み
                             _ = {'wms': 'http://www.opengis.net/wms'}
                             # WMS 1.3.0/1.1.1両対応
                             # --- 最下層のLayer Nameを再帰的に取得 ---

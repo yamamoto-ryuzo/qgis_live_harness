@@ -1,3 +1,26 @@
+2.10.5 vendored defusedxml へ切替
+- サイトスキャンの ElementTree 指摘(B405)をコード側で解消。
+  # nosec 抑制ではなく defusedxml 0.7.1 を vendored 同梱し
+  (pyperclip と同じくプラグイン配下に配置)実体宣言・外部参照を
+  パーサ層で拒否する方式へ変更。
+  - defusedxml/ には ElementTree facade のみ同梱
+    (__init__.py/common.py/ElementTree.py/LICENSE)。
+    defuse_stdlib() と他 facade は QGIS との相性問題
+    (stdlib XML monkey-patch が qgis.PyQt.uic.loadUiType を
+    壊す。qgis2web upstream で実害あり)とスキャン指摘回避の
+    ため意図的に除外
+  - 既存の _reject_unsafe_xml 事前ガードも維持(defense in depth。
+    エラー型も従来どおり ParseError で揃える)
+  - xml_attribute_loader._parse_xml_with_encoding は
+    (tree, root) から root 単独返しに変更
+    (defusedxml.ElementTree は ElementTree クラスを
+    再エクスポートしないため。呼出し側は None 判定のみで
+    tree を未使用だった)
+- .bandit に exclude = defusedxml を追加(vendored コードを
+  スキャン対象外に。defusedxml 内部が stdlib xml.* を
+  import するのは facade の性質上当然のため)
+- .flake8 の per-file-ignores に defusedxml/*.py を追加
+
 2.10.4 サイトスキャン指摘対応
 - ElementTree import 3箇所に # nosec B314 を付与
   (全て _reject_unsafe_xml で DOCTYPE/ENTITY を拒否済み。

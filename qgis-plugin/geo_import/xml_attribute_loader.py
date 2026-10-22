@@ -21,8 +21,13 @@
 """
 
 import os
-# DOCTYPE/ENTITYは _reject_unsafe_xml で拒否済み(expat既定で外部実体も不処理)
-import xml.etree.ElementTree as ET  # nosec B314
+# defusedxml を vendored 同梱し利用(実体宣言/外部参照をパーサ層で拒否)
+# 加えて _reject_unsafe_xml で DOCTYPE/ENTITY を事前拒否
+try:
+    from .defusedxml import ElementTree as ET
+except ImportError:
+    # スタンドアロン実行時(プラグインディレクトリを sys.path に追加)用
+    from defusedxml import ElementTree as ET
 from qgis.PyQt.QtCore import QVariant, QCoreApplication
 from qgis.core import (
     QgsVectorLayer,
@@ -289,8 +294,8 @@ class XmlAttributeLoader:
 
             # XMLファイルを適切なエンコーディングで解析
             try:
-                tree, root = self._parse_xml_with_encoding(xml_file_path)
-                if tree is None or root is None:
+                root = self._parse_xml_with_encoding(xml_file_path)
+                if root is None:
                     return None
 
                 # 国土交通省XMLかどうかの詳細診断
@@ -462,7 +467,7 @@ class XmlAttributeLoader:
         適切なエンコーディングでXMLファイルを解析
 
         :param xml_file_path: XMLファイルのパス
-        :return: (tree, root) のタプル、失敗時は (None, None)
+        :return: root 要素、失敗時は None
         """
         # 試行するエンコーディングのリスト
         encodings = ['utf-8', 'utf-8-sig', 'shift_jis', 'cp932', 'iso-2022-jp', 'euc-jp']
@@ -479,16 +484,14 @@ class XmlAttributeLoader:
                 # 文字列からElementTreeオブジェクトを作成
                 try:
                     _reject_unsafe_xml(xml_content)
-                    root = ET.fromstring(xml_content)  # nosec B314  # 直上でDOCTYPE/ENTITYを拒否済み
-                    # ダミーのTreeオブジェクトを作成
-                    tree = ET.ElementTree(root)
+                    root = ET.fromstring(xml_content)  # 直上でDOCTYPE/ENTITYを拒否済み
 
                     QgsMessageLog.logMessage(
                         f"XML file parsed successfully as {encoding}: {xml_file_path}",
                         LOG_TAG,
                         Qgis.MessageLevel.Info
                     )
-                    return tree, root
+                    return root
 
                 except ET.ParseError as e:
                     QgsMessageLog.logMessage(
@@ -521,7 +524,7 @@ class XmlAttributeLoader:
             Qgis.MessageLevel.Critical
         )
 
-        return None, None
+        return None
 
     def _identify_xml_type(self, root, xml_file_path):
         """
@@ -596,8 +599,8 @@ class XmlAttributeLoader:
         """
         try:
             # XMLファイルを解析
-            tree, root = self._parse_xml_with_encoding(xml_file_path)
-            if tree is None or root is None:
+            root = self._parse_xml_with_encoding(xml_file_path)
+            if root is None:
                 return False, "unparseable", 0.0, {}
 
             # 判定結果の詳細を記録
