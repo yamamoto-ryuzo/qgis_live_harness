@@ -97,7 +97,7 @@
   "SearchTabs": [
     {
       "Title": "サンプル",
-      "Layer": { "LayerType": "Database", "DataType": "postgres", "Host": "Host名", "Port": "5432", "Database": "データベース名", "User": "ユーザー名", "Password": "パスワード", "Schema": "public", "Table": "kihonp", "Key": "ogc_fid", "Geometry": "wkb_geometry", "FormatSQL": "format.sql" },
+      "Layer": { "LayerType": "Database", "DataType": "postgres", "Host": "Host名", "Port": "5432", "Database": "データベース名", "User": "ユーザー名", "Password": "...", "Schema": "public", "Table": "kihonp", "Key": "ogc_fid", "Geometry": "wkb_geometry", "FormatSQL": "format.sql" },
       "TibanField": "地番属性",
       "AzaTable": { "DataType": "postgres", "Host": "...", "Port": "5433", "Database": "...", "User": "...", "Password": "...", "Schema": "public", "Table": "コード表_字", "Columns": [ { "Name": "表示する属性名", "View": "表示用名称" } ] },
       "SearchFields": [ { "FieldType": "Text", "ViewName": "検索ダイアログのラベル表示名", "Field": "検索に使用する属性", "KanaHankaku": true } ],

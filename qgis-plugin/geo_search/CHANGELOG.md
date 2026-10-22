@@ -1,3 +1,9 @@
+# V4.4.4 ドキュメントのSecret検出対応
+- SEARCH.md/SEARCH_JP.md の接続設定例で Password 値が実値に
+  見える文字列("Password"/"パスワード")だったため、シークレット
+  スキャンで「Potential Secret Keyword」検出となったのを修正。
+  同ファイル内の他例と同じ "..." プレースホルダに統一
+
 # V4.4.3 try/except/pass の nosec 明示
 - 584箇所に # nosec B110/B112 を付与(設計上の許容を明示)
 
