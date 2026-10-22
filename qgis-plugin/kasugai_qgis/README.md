@@ -1,3 +1,5 @@
+> **QGIS Live Harness の連携ソフトウェア** — [QGIS Live Harness](https://yamamoto-ryuzo.github.io/qgis_live_harness/) · [プラグイン一覧](https://yamamoto-ryuzo.github.io/qgis_live_harness/plugins.html) · [リポジトリ](https://github.com/yamamoto-ryuzo/qgis_live_harness)
+
 # kasugai_qgis
 
 QGIS / QField 起動用ランチャー（Rust + AXUM）。v2.0.0 からは Web UI / HTTP API / CLI で操作します。スタンドアロン起動時の UI は内蔵 WebView2 ウィンドウに `http://127.0.0.1:8500/` を表示します（既定ブラウザ非依存）。
