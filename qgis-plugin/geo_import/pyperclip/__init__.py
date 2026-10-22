@@ -167,14 +167,12 @@ def init_qt_clipboard():
     global QApplication
     # $DISPLAY should exist
 
-    # Try to import from qtpy, but if that fails try PyQt5 then PyQt4
+    # Try to import from qtpy, but if that fails use qgis.PyQt
+    # (PyQt5/PyQt4 direct import is blocked under QGIS4/Qt6)
     try:
         from qtpy.QtWidgets import QApplication
     except Exception:
-        try:
-            from PyQt5.QtWidgets import QApplication
-        except Exception:
-            from PyQt4.QtGui import QApplication
+        from qgis.PyQt.QtWidgets import QApplication
 
     app = QApplication.instance()
     if app is None:
@@ -489,7 +487,7 @@ def determine_clipboard():
     accordingly.
     '''
 
-    global Foundation, AppKit, gtk, qtpy, PyQt4, PyQt5
+    global Foundation, AppKit, gtk, qtpy
 
     # Setup for the CYGWIN platform:
     if 'cygwin' in platform.system().lower():  # Cygwin has a variety of values returned by platform.system(), such as 'CYGWIN_NT-6.1'
@@ -539,16 +537,12 @@ def determine_clipboard():
             # https://pypi.python.org/pypi/QtPy
             import qtpy  # check if qtpy is installed
         except ImportError:
-            # If qtpy isn't installed, fall back on importing PyQt4.
+            # If qtpy isn't installed, fall back on qgis.PyQt
+            # (PyQt5/PyQt4 direct import is blocked under QGIS4/Qt6).
             try:
-                import PyQt5  # check if PyQt5 is installed
-            except ImportError:
-                try:
-                    import PyQt4  # check if PyQt4 is installed
-                except ImportError:  # nosec B110  # 設計上の許容
-                    pass  # We want to fail fast for all non-ImportError exceptions.
-                else:
-                    return init_qt_clipboard()
+                import qgis.PyQt  # check if qgis.PyQt is installed
+            except ImportError:  # nosec B110  # 設計上の許容
+                pass  # We want to fail fast for all non-ImportError exceptions.
             else:
                 return init_qt_clipboard()
         else:
