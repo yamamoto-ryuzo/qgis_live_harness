@@ -284,7 +284,7 @@ struct Args {
     #[arg(long)]
     port: Option<u16>,
 
-    /// 起動後に既定のブラウザで UI を開く
+    /// 起動後に WebView2 ウィンドウで UI を開く(--server と併用時も有効)
     #[arg(long, default_value_t = false)]
     open_browser: bool,
 
@@ -1279,10 +1279,24 @@ fn main() {
         mount_drive_mappings(&settings.drive_mappings, &settings, None);
         copy_profiles_at_startup(&project_root_dir, None);
         run_local_sync(&settings, &project_root_dir, None);
-        run_api_server_sync(server_port, &resolved_settings_dir, &project_root_dir, args.open_browser, update_check_enabled);
+        // kasugai-qgis:// からの起動(uri 引数あり)は残ったタブ/pane 自身が
+        // /health をポーリングして復帰する方式なので、ここではウィンドウを開かず
+        // ヘッドレスサーバーとしてのみ動く
+        let headless = !args.open_browser && (args.server || args.uri.is_some());
+        if headless {
+            // ヘッドレス API サーバーモード(KASUGAI など外部連携用)
+            run_api_server_sync(server_port, &resolved_settings_dir, &project_root_dir, update_check_enabled);
+        } else {
+            // GUI モード: axum をバックグラウンドで動かし、UI は WebView2 ウィンドウで表示
+            run_gui_server(server_port, resolved_settings_dir, project_root_dir, update_check_enabled);
+        }
         return;
     }
 
+
+    // CLI モードでも配布プロファイルをシードする。
+    // 未シード環境で --profile が空プロファイルを指すのを防ぐ
+    copy_profiles_at_startup(&project_root_dir, None);
 
     // KASUGAI/yr-qgis-launcher 方式のローカル自動同期（CLI モード）
     run_local_sync(&settings, &project_root_dir, None);
@@ -2538,12 +2552,112 @@ async fn ui_handler() -> Html<&'static str> {
     Html(UI_HTML)
 }
 
-fn run_api_server_sync(port: u16, settings_dir: &str, project_root_dir: &str, open_browser: bool, update_check_enabled: bool) {
+fn run_api_server_sync(port: u16, settings_dir: &str, project_root_dir: &str, update_check_enabled: bool) {
     let rt = tokio::runtime::Runtime::new().unwrap();
-    rt.block_on(run_api_server(port, settings_dir, project_root_dir, open_browser, update_check_enabled));
+    rt.block_on(run_api_server(port, settings_dir, project_root_dir, update_check_enabled));
 }
 
-async fn run_api_server(port: u16, settings_dir: &str, project_root_dir: &str, open_browser: bool, update_check_enabled: bool) {
+/// GUI モード: axum サーバーをバックグラウンドスレッドで起動し、
+/// メインスレッドでは WebView2 ウィンドウのイベントループを回す。
+/// tao/wry のイベントループはメインスレッドでしか動かないためこの構成。
+/// WebView2 Runtime が無い環境では既定ブラウザへのフォールバックで代替する。
+fn run_gui_server(port: u16, settings_dir: String, project_root_dir: String, update_check_enabled: bool) {
+    std::thread::spawn(move || {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(run_api_server(port, &settings_dir, &project_root_dir, update_check_enabled));
+    });
+
+    if !wait_for_server_ready(port) {
+        eprintln!("サーバーが起動しませんでした (port {})", port);
+        std::process::exit(1);
+    }
+
+    if webview2_runtime_available() {
+        open_webview_window(port);
+        // open_webview_window はイベントループのため戻らない
+    } else {
+        // WebView2 Runtime 非搭載環境への最終フォールバック
+        let _ = opener::open(&format!("http://127.0.0.1:{}/", port));
+        loop {
+            std::thread::park();
+        }
+    }
+}
+
+fn wait_for_server_ready(port: u16) -> bool {
+    let url = format!("http://127.0.0.1:{}/health", port);
+    for _ in 0..120 {
+        if reqwest::blocking::get(&url)
+            .map(|r| r.status().is_success())
+            .unwrap_or(false)
+        {
+            return true;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(500));
+    }
+    false
+}
+
+/// WebView2 Runtime (Evergreen) がインストールされているかをレジストリで確認する
+fn webview2_runtime_available() -> bool {
+    const CLIENT_ID: &str = "{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}";
+    for root in [HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER] {
+        for prefix in [
+            r"SOFTWARE\Microsoft\EdgeUpdate\Clients",
+            r"SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients",
+        ] {
+            let path = format!(r"{}\{}", prefix, CLIENT_ID);
+            if let Ok(key) = RegKey::predef(root).open_subkey(&path) {
+                if let Ok(pv) = key.get_value::<String, _>("pv") {
+                    if !pv.is_empty() && pv != "0.0.0.0" {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    false
+}
+
+fn open_webview_window(port: u16) {
+    use tao::event::{Event, WindowEvent};
+    use tao::event_loop::{ControlFlow, EventLoop};
+    use tao::window::WindowBuilder;
+    use wry::{WebContext, WebViewBuilder};
+
+    let event_loop = EventLoop::new();
+    let window = WindowBuilder::new()
+        .with_title("Kasugai QGIS ランチャー")
+        .with_inner_size(tao::dpi::LogicalSize::new(1200.0, 850.0))
+        .build(&event_loop)
+        .expect("failed to create window");
+
+    // WebView2 のユーザーデータは exe 隣接(Program Files では書けない)ではなく
+    // %LOCALAPPDATA% 配下に置く
+    let data_dir = env::var("LOCALAPPDATA")
+        .map(|d| PathBuf::from(d).join("kasugai_qgis").join("webview2"))
+        .unwrap_or_else(|_| env::temp_dir().join("kasugai_qgis_webview2"));
+    let mut web_context = WebContext::new(Some(data_dir));
+
+    let _webview = WebViewBuilder::new_with_web_context(&mut web_context)
+        .with_url(&format!("http://127.0.0.1:{}/", port))
+        .build(&window)
+        .expect("failed to create WebView2");
+
+    event_loop.run(move |event, _, control_flow| {
+        *control_flow = ControlFlow::Wait;
+        if let Event::WindowEvent {
+            event: WindowEvent::CloseRequested,
+            ..
+        } = event
+        {
+            // ウィンドウを閉じたらサーバースレッドごと終了
+            std::process::exit(0);
+        }
+    });
+}
+
+async fn run_api_server(port: u16, settings_dir: &str, project_root_dir: &str, update_check_enabled: bool) {
     let state = AppState {
         settings_dir: settings_dir.to_string(),
         project_root_dir: project_root_dir.to_string(),
@@ -2603,22 +2717,6 @@ async fn run_api_server(port: u16, settings_dir: &str, project_root_dir: &str, o
             }
         }
     };
-
-    if open_browser {
-        let open_url = format!("http://127.0.0.1:{}/", port);
-        let health_url = format!("http://127.0.0.1:{}/health", port);
-        tokio::spawn(async move {
-            for _ in 0..60 {
-                if let Ok(resp) = reqwest::get(&health_url).await {
-                    if resp.status().is_success() {
-                        let _ = opener::open(&open_url);
-                        break;
-                    }
-                }
-                tokio::time::sleep(std::time::Duration::from_millis(500)).await;
-            }
-        });
-    }
 
     let local_addr = listener.local_addr().unwrap();
     println!("{}", serde_json::json!({ "port": local_addr.port() }));
@@ -2718,6 +2816,25 @@ fn list_live_sessions() -> Vec<serde_json::Value> {
                         .unwrap_or(false)
                 })
                 .unwrap_or(false);
+            if !alive {
+                // 死んだセッションのレジストリを掃除する。
+                // 起動直後のポートバインド待ちを誤削除しないよう十分古いものだけ消す
+                let stale = v
+                    .get("started")
+                    .and_then(|s| s.as_f64())
+                    .map(|s| {
+                        let now = std::time::SystemTime::now()
+                            .duration_since(std::time::UNIX_EPOCH)
+                            .map(|d| d.as_secs_f64())
+                            .unwrap_or(0.0);
+                        now - s > 120.0
+                    })
+                    .unwrap_or(false);
+                if stale {
+                    let _ = fs::remove_file(entry.path());
+                    continue;
+                }
+            }
             if let Some(obj) = v.as_object_mut() {
                 // セッションの認証トークンは API 応答に載せない
                 obj.remove("token");
@@ -2979,6 +3096,40 @@ fn is_qgis_project(path: &std::path::Path) -> bool {
     n.ends_with(".qgs") || n.ends_with(".qgz")
 }
 
+/// `QGIS4` 等のバージョン別コンテナ名かを判定する。
+fn is_qgis_version_container(name: &str) -> bool {
+    name.len() > 4
+        && name.starts_with("QGIS")
+        && name[4..].chars().all(|c| c.is_ascii_digit())
+}
+
+/// dir 直下のディレクトリをプロファイル候補として収集する。
+/// `QGIS{major}` はバージョン別コンテナなので内側の `profiles\` を代わりに列挙する
+/// （copy_profiles_at_startup と同じ規約）。空ディレクトリは除外する。
+fn collect_profile_items(dir: &PathBuf, names: &mut HashSet<String>, out: &mut Vec<ProfileItem>) {
+    let Ok(entries) = fs::read_dir(dir) else { return };
+    for e in entries.flatten() {
+        if !e.file_type().map(|ft| ft.is_dir()).unwrap_or(false) {
+            continue;
+        }
+        let Some(name) = e.file_name().to_str().map(|s| s.to_string()) else {
+            continue;
+        };
+        let path = e.path();
+        if is_qgis_version_container(&name) {
+            let inner = path.join("profiles");
+            collect_profile_items(if inner.exists() { &inner } else { &path }, names, out);
+            continue;
+        }
+        if fs::read_dir(&path).map(|mut r| r.next().is_none()).unwrap_or(true) {
+            continue;
+        }
+        if names.insert(name.clone()) {
+            out.push(ProfileItem { name, path: path.to_string_lossy().to_string() });
+        }
+    }
+}
+
 fn get_available_profiles(settings_dir: &str) -> Vec<ProfileItem> {
     let mut result = Vec::new();
     let mut names = HashSet::new();
@@ -2986,34 +3137,14 @@ fn get_available_profiles(settings_dir: &str) -> Vec<ProfileItem> {
     // 配布プロファイル
     let dist = PathBuf::from(settings_dir).join("profiles");
     if dist.exists() {
-        if let Ok(entries) = fs::read_dir(&dist) {
-            for e in entries.flatten() {
-                if e.file_type().map(|ft| ft.is_dir()).unwrap_or(false) {
-                    if let Some(n) = e.file_name().to_str() {
-                        if names.insert(n.to_string()) {
-                            result.push(ProfileItem { name: n.to_string(), path: e.path().to_string_lossy().to_string() });
-                        }
-                    }
-                }
-            }
-        }
+        collect_profile_items(&dist, &mut names, &mut result);
     }
 
     // システム上の QGIS プロファイル
     for base in qgis_launcher::get_qgis_profile_paths() {
         let probe = base.join("profiles");
         let dir = if probe.exists() { probe } else { base };
-        if let Ok(entries) = fs::read_dir(&dir) {
-            for e in entries.flatten() {
-                if e.file_type().map(|ft| ft.is_dir()).unwrap_or(false) {
-                    if let Some(n) = e.file_name().to_str() {
-                        if names.insert(n.to_string()) {
-                            result.push(ProfileItem { name: n.to_string(), path: e.path().to_string_lossy().to_string() });
-                        }
-                    }
-                }
-            }
-        }
+        collect_profile_items(&dir, &mut names, &mut result);
     }
 
     result.sort_by(|a, b| a.name.cmp(&b.name));

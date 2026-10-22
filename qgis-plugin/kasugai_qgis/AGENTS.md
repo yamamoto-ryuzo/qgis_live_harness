@@ -6,6 +6,7 @@ AI エージェントがこのリポジトリで作業する際のルール。
 
 - Rust (Axum) 製の QGIS ランチャー。`--server` で HTTP API サーバー（既定ポート 8500）と Web UI を提供する
 - Web UI は `public/index.html`。`include_str!` で EXE に埋め込まれるため、UI 変更の反映には再ビルドが必要
+- GUI 起動（`--open-browser` / 引数なし）では axum をバックグラウンドスレッドで立て、メインスレッドの wry/tao イベントループで WebView2 ウィンドウに `http://127.0.0.1:<port>/` を表示する。`--server`（KASUGAI連携）と `kasugai-qgis:` プロトコル起動（uri 位置引数）はヘッドレスのまま。WebView2 Runtime 非搭載時のみ既定ブラウザへフォールバック
 - バージョンは `Cargo.toml` が唯一の正。`run.py` が `setup.nsi` / `update.json` / `qgis_settings.json` に自動同期する
 
 ## QGIS Live Harness 連携

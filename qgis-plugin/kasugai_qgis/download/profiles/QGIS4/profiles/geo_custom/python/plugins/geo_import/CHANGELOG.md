@@ -1,3 +1,18 @@
+2.10.6 PyQt import 修正・レガシー残骸削除
+- vendored pyperclip の Qt クリップボードバックエンドを
+  PyQt5/PyQt4 から qgis.PyQt へ変更(QGIS4/Qt6 では PyQt5 の
+  直接 import がブロックされるため。qtpy 優先は維持)
+- 不要ファイルを削除:
+  - scripts/run-env-linux.sh(QGIS 2.0 時代の Linux 環境設定)
+  - INSTALL_INSTRUCTIONS.md(QGIS 3.x・旧プラグイン名の陳腐化手順書)
+  - future-plan.md(実装と無関係な構想メモ)
+  - packages.json / groups.json(ローカルフォルダ索引のサンプル残骸。
+    プラグイン dir 自身を走査した自動生成物でコードから未参照)
+  - ckan_cache.db(誤コミットされた実行時キャッシュ)
+  - icon64.png(未参照)
+  - zip_ckan_browser_dialog.py(存在しないファイルをzip化する
+    dead dev ツール)
+
 2.10.5 vendored defusedxml へ切替
 - サイトスキャンの ElementTree 指摘(B405)をコード側で解消。
   # nosec 抑制ではなく defusedxml 0.7.1 を vendored 同梱し
