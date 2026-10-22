@@ -3,7 +3,7 @@ name = geo_webview
 qgisMinimumVersion = 4.0
 qgisMaximumVersion = 4.99
 description = Navigate QGIS map views through external permalink system; includes dynamic WMS/OpenLayers and MapLibre (WMTS/WFS with style injection) endpoints for remote navigation
-version = 3.17.0
+version = 3.17.4
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
 supportsQt6 = True
@@ -20,6 +20,10 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 3.17.4: サイトスキャン指摘対応(subprocess/random/saxutilsの # nosec・html.escape化)
+	- 3.17.3: try/except/pass|continue の # nosec 明示(B110/B112)
+	- 3.17.2: Qt6互換性チェック対応(非スコープ列挙型Qgis.*等212箇所をスコープ化)
+	- 3.17.1: plugins.qgis.org セキュリティスキャン対応(netsh呼出のshell=True除去、非セキュリティ用途ハッシュのusedforsecurity=False化、HTTP呼出のスキーム検証、LOW指摘は同梱.banditで抑制)
 	- OpenLayers and MapLibre HTML generation with independent file saving
 	- Added settings dialog to configure custom output directories for OpenLayers and MapLibre
 

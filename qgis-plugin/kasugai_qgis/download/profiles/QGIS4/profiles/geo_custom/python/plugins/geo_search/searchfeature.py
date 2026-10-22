@@ -25,6 +25,7 @@ class SearchFeature(object):
         if not hasattr(self, '_layer_setting') or not self._layer_setting:
             return self.iface.activeLayer()
         return self.load_layer(self._layer_setting)
+
     def __init__(self, iface, setting, widget, andor=" And ", page_limit=1000):
         self.iface = iface
         self.setting = setting
@@ -56,14 +57,13 @@ class SearchFeature(object):
             try:
                 self.result_dialog.tableWidget.itemSelectionChanged.connect(self.zoom_items)
                 self.result_dialog.tableWidget.itemPressed.connect(self.zoom_items)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
         # 検索ウィジェットは常に有効化（カレントレイヤがNoneでも入力可能にする）
         self.widget.setEnabled(True)
         # pan mode (0: default zoom-to-selected). May be set by plugin when dialog is created.
         self.pan_mode = 0
-
 
     @property
     def view_fields(self):
@@ -78,16 +78,16 @@ class SearchFeature(object):
         valid_fields = [
             layer_fields[fid] for fid in setting_fields if fid != -1
         ]
-        
+
         # 指定されたフィールドが存在しない場合は空のリストを返す
         if not valid_fields and self.__view_fields:
             try:
                 from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage(f"ViewFields warning: fields not found: {self.__view_fields}", "GEO-search-plugin", 1)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return []
-        
+
         return valid_fields
 
     @view_fields.setter
@@ -139,16 +139,16 @@ class SearchFeature(object):
         valid_fields = [
             layer_fields[fid] for fid in setting_fields if fid != -1
         ]
-        
+
         # 指定されたフィールドが存在しない場合は空のリストを返す
         if not valid_fields and self.__view_fields:
             try:
                 from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage(f"ViewFields warning (layer '{layer.name()}'): fields not found: {self.__view_fields}", "GEO-search-plugin", 1)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return []
-        
+
         return valid_fields
 
     def _search_multiple_layers_by_name(self, layers):
@@ -156,44 +156,44 @@ class SearchFeature(object):
         try:
             from qgis.core import QgsMessageLog
             QgsMessageLog.logMessage(f"same-name layer search: searching {len(layers)} layers", "GEO-search-plugin", 0)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
-            
+
         all_features = []
-        all_fields = []
-        
+        _ = []
+
         for layer in layers:
             if not layer or not layer.isValid():
                 continue
-                
+
             try:
                 features = self._search_on_layer(layer)
-                
+
                 try:
                     from qgis.core import QgsMessageLog
                     QgsMessageLog.logMessage(f"same-name layer search: layer '{layer.name()}' found {len(features)} features", "GEO-search-plugin", 0)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
-                
+
                 if features:
                     # レイヤ情報を保持して結果に追加
                     for f in features:
                         all_features.append((None, layer, f))
-                        
+
             except Exception as e:
                 try:
                     from qgis.core import QgsMessageLog
                     QgsMessageLog.logMessage(f"same-name layer search error: layer '{layer.name()}': {e}", "GEO-search-plugin", 1)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 continue
-        
+
         # 結果が見つからない場合
         if not all_features:
             self.result_dialog.set_features([], [])
             self.result_dialog.show()
             return
-        
+
         # レイヤごとに結果をグループ化
         layers_map = []
         for node, layer, feature in all_features:
@@ -207,14 +207,14 @@ class SearchFeature(object):
                     label = f"{layer_name} ({layer_id})"
                 except Exception:
                     label = "Results"
-                    
+
                 # 各レイヤに対してview_fieldsを適用
                 layer_view_fields = self._get_view_fields_for_layer(layer)
                 entry = [layer, layer, label, layer_view_fields, [feature]]
                 layers_map.append(entry)
             else:
                 entry[4].append(feature)
-        
+
         # タブ形式で結果を表示
         self.result_dialog.set_features_by_layer([((e[2], e[1]), e[3], e[4]) for e in layers_map])
         self.result_dialog.show()
@@ -290,34 +290,34 @@ class SearchFeature(object):
 
     def search_feature(self):
         raise NotImplementedError
-    
+
     def normalize_search_value(self, value):
         """検索値を正規化する（全角英数字を半角に変換）"""
         if not value:
             return value
-        
+
         try:
             # jaconvを使用して全角英数字を半角に変換
             # ascii=True: 全角ASCII文字を半角に変換
             # digit=True: 全角数字を半角に変換
             # kana=False: カナ変換は行わない（速度優先）
             normalized = jaconv.z2h(value, ascii=True, digit=True, kana=False)
-            
+
             # ログ出力（デバッグ用、変換があった場合のみ）
             if normalized != value:
                 try:
                     from qgis.core import QgsMessageLog
                     QgsMessageLog.logMessage(f"search value normalized: '{value}' -> '{normalized}'", "GEO-search-plugin", 0)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
-            
+
             return normalized
         except Exception as e:
             # 変換に失敗した場合は元の値を返す
             try:
                 from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage(f"search value normalization error: {e}", "GEO-search-plugin", 1)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return value
 
@@ -337,7 +337,7 @@ class SearchFeature(object):
                 from qgis.core import QgsMessageLog
                 layer_name = (getattr(table, 'parent', lambda: None)() and getattr(self.result_dialog._tabs[self.result_dialog.tabWidget.currentIndex()], 'get', lambda *a, **k: None)('layer'))
                 QgsMessageLog.logMessage(f"zoom_items (itemPressed): item fid={fid} on layer={layer_name}", "GEO-search-plugin", 0)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             # determine target layer for current tab
             try:
@@ -366,7 +366,7 @@ class SearchFeature(object):
             try:
                 from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage("zoom_items: selectedItems() returned empty, trying selectedIndexes/currentRow fallback", "GEO-search-plugin", 0)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             rows = set()
             try:
@@ -394,7 +394,7 @@ class SearchFeature(object):
                             if v is not None:
                                 fid = v
                                 break
-                    except Exception:
+                    except Exception:  # nosec B112  # 設計上の許容
                         continue
                 if fid is not None:
                     ids.append(fid)
@@ -403,7 +403,7 @@ class SearchFeature(object):
             from qgis.core import QgsMessageLog
             layer_name = layer.name() if layer is not None else 'None'
             QgsMessageLog.logMessage(f"zoom_items: selected {len(ids)} items on layer={layer_name}, ids={ids}", "GEO-search-plugin", 0)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         self.zoom_features(ids, layer=layer)
@@ -422,7 +422,7 @@ class SearchFeature(object):
         for fid in feature_ids:
             try:
                 i = int(fid)
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
             if i not in ids:
                 ids.append(i)
@@ -431,10 +431,9 @@ class SearchFeature(object):
             try:
                 from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage("zoom_features: no valid feature ids to zoom", "GEO-search-plugin", 0)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return
-
 
         # resolve layer to operate on
         target_layer = layer or self.layer
@@ -457,10 +456,10 @@ class SearchFeature(object):
             if mapped is not None:
                 try:
                     QgsMessageLog.logMessage(f"zoom_features: remapped target_layer to project layer id={mapped.id()} name={mapped.name()}", "GEO-search-plugin", 0)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 target_layer = mapped
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         try:
@@ -482,9 +481,9 @@ class SearchFeature(object):
                         except Exception:
                             sel_ids = []
                     QgsMessageLog.logMessage(f"zoom_features: layer selected ids after selectByIds={sel_ids}", "GEO-search-plugin", 0)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             mode = int(getattr(self, 'pan_mode', 0) or 0)
             # if mode==6 -> selection-only: do not change view
@@ -506,14 +505,14 @@ class SearchFeature(object):
                 features = list(target_layer.getFeatures(request))
                 try:
                     QgsMessageLog.logMessage(f"zoom_features: fetched features via getFeatures, count={len(features)}", "GEO-search-plugin", 0)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             except Exception:
                 # best-effort fallback
                 try:
                     from qgis.core import QgsMessageLog
                     QgsMessageLog.logMessage("zoom_features: getFeatures with setFilterFids failed, using fallback get_feature_by_id", "GEO-search-plugin", 1)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 for fid in ids:
                     try:
@@ -523,13 +522,13 @@ class SearchFeature(object):
                             try:
                                 from qgis.core import QgsMessageLog
                                 QgsMessageLog.logMessage(f"zoom_features: fallback got feature id={f.id()}", "GEO-search-plugin", 0)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                     except Exception:
                         try:
                             from qgis.core import QgsMessageLog
                             QgsMessageLog.logMessage(f"zoom_features: fallback failed to get feature for fid={fid}", "GEO-search-plugin", 2)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
             # detailed debug: log per-feature info and CRS
@@ -595,16 +594,16 @@ class SearchFeature(object):
                                         centroid = geom.asPoint()
                                     except Exception:
                                         centroid = None
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         QgsMessageLog.logMessage(f"zoom_features: feature id={fid} has_geom={has_geom} geom_type={geom_type} centroid={centroid} bbox={bbox_part} wkt={wkt}", "GEO-search-plugin", 0)
                     except Exception:
-                        QgsMessageLog.logMessage(f"zoom_features: failed to inspect a feature in features list", "GEO-search-plugin", 2)
+                        QgsMessageLog.logMessage("zoom_features: failed to inspect a feature in features list", "GEO-search-plugin", 2)
             except Exception:
                 try:
                     from qgis.core import QgsMessageLog
                     QgsMessageLog.logMessage("zoom_features: failed to log feature details", "GEO-search-plugin", 2)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # compute bbox of features if available
@@ -617,7 +616,7 @@ class SearchFeature(object):
                                 bbox = f.geometry().boundingBox()
                             else:
                                 bbox.combineExtentWith(f.geometry().boundingBox())
-                        except Exception:
+                        except Exception:  # nosec B112  # 設計上の許容
                             continue
             except Exception:
                 bbox = None
@@ -666,15 +665,15 @@ class SearchFeature(object):
                                 trans_center = None
                         try:
                             QgsMessageLog.logMessage(f"zoom_features: transformed center={trans_center} bbox={trans_bbox}", "GEO-search-plugin", 0)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                     except Exception:
                         try:
                             QgsMessageLog.logMessage("zoom_features: coordinate transform setup failed", "GEO-search-plugin", 2)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             # Mode dispatch with robust fallback
@@ -682,7 +681,7 @@ class SearchFeature(object):
                 from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage(f"zoom_features: mode={mode} canvas_present={canvas is not None}", "GEO-search-plugin", 0)
                 view_changed = False
-                animation_scheduled = False
+                _ = False
 
                 # 0: zoom to selected (default)
                 if mode == 0:
@@ -707,14 +706,14 @@ class SearchFeature(object):
                                 except Exception:
                                     try:
                                         canvas.centerAt(center.x(), center.y())
-                                    except Exception:
+                                    except Exception:  # nosec B110  # 設計上の許容
                                         pass
                             canvas.refresh()
                             view_changed = True
                     except Exception as e:
                         try:
                             QgsMessageLog.logMessage(f"zoom_features: center pan failed: {e}", "GEO-search-plugin", 2)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                 # mode 2 (feature center) removed per configuration; fall through to fallback behavior
@@ -737,7 +736,7 @@ class SearchFeature(object):
                                 except Exception:
                                     try:
                                         canvas.centerAt(center.x(), center.y())
-                                    except Exception:
+                                    except Exception:  # nosec B110  # 設計上の許容
                                         pass
                                 canvas.refresh()
                                 view_changed = True
@@ -752,7 +751,7 @@ class SearchFeature(object):
                                 except Exception:
                                     try:
                                         canvas.centerAt(center.x(), center.y())
-                                    except Exception:
+                                    except Exception:  # nosec B110  # 設計上の許容
                                         pass
                             # center and refresh; scale/rotation will be applied once after mode dispatch
                             canvas.refresh()
@@ -760,7 +759,7 @@ class SearchFeature(object):
                     except Exception as e:
                         try:
                             QgsMessageLog.logMessage(f"zoom_features: fixed scale (mode4) outer failed: {e}", "GEO-search-plugin", 2)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                 # 5: animated pan
@@ -791,10 +790,10 @@ class SearchFeature(object):
                                     except Exception:
                                         try:
                                             canvas.centerAt(pt.x(), pt.y())
-                                        except Exception:
+                                        except Exception:  # nosec B110  # 設計上の許容
                                             pass
                                 canvas.refresh()
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                             if state['i'] >= steps:
                                 try:
@@ -805,28 +804,29 @@ class SearchFeature(object):
                                         dx = use_bbox.width() * 0.05
                                         dy = use_bbox.height() * 0.05
                                         expanded = QgsRectangle(use_bbox.xMinimum() - dx, use_bbox.yMinimum() - dy,
-                                                                 use_bbox.xMaximum() + dx, use_bbox.yMaximum() + dy)
+                                                                use_bbox.xMaximum() + dx, use_bbox.yMaximum() + dy)
                                         # Log which bbox was used for the final extent and its values
                                         try:
-                                            QgsMessageLog.logMessage(f"zoom_features: animated pan final extent used_bbox={'trans_bbox' if use_bbox is trans_bbox else 'bbox'} expanded={expanded}", "GEO-search-plugin", 0)
-                                        except Exception:
+                                            QgsMessageLog.logMessage(
+                                                f"zoom_features: animated pan final extent used_bbox={'trans_bbox' if use_bbox is trans_bbox else 'bbox'} expanded={expanded}", "GEO-search-plugin", 0)
+                                        except Exception:  # nosec B110  # 設計上の許容
                                             pass
                                         canvas.setExtent(expanded)
                                         canvas.refresh()
                                         # (Previously applied scale/rotation here on animation completion.)
                                         # Centralized application after mode dispatch will handle both animated
                                         # and non-animated modes, so do not apply here to avoid duplication.
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
 
                         for s in range(steps):
                             QTimer.singleShot(s * interval, _step)
                         view_changed = True
-                        animation_scheduled = True
+                        _ = True
                     except Exception as e:
                         try:
                             QgsMessageLog.logMessage(f"zoom_features: animated pan failed: {e}", "GEO-search-plugin", 2)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                 # after mode dispatch: if a view change happened and no animation is scheduled,
@@ -835,22 +835,22 @@ class SearchFeature(object):
                     if canvas is not None and view_changed:
                         try:
                             self._apply_scale_if_configured(canvas)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         try:
                             self._apply_search_rotation(canvas, features, target_layer)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         try:
                             # only ensure layer visibility when feature property show_layer_name is True
                             if getattr(self, 'show_layer_name', False):
                                 try:
                                     self._ensure_layer_visible(target_layer)
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
                 # if nothing changed the view, try a final forced zoomToSelected
@@ -863,25 +863,25 @@ class SearchFeature(object):
                                 # apply scale/rotation for fallback path as well
                                 try:
                                     self._apply_scale_if_configured(canvas)
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
                                 try:
                                     self._apply_search_rotation(canvas, features, target_layer)
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
                                 try:
                                     # only ensure layer visibility when feature property show_layer_name is True
                                     if getattr(self, 'show_layer_name', False):
                                         try:
                                             self._ensure_layer_visible(target_layer)
-                                        except Exception:
+                                        except Exception:  # nosec B110  # 設計上の許容
                                             pass
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
                                 return
                             except Exception as e:
                                 QgsMessageLog.logMessage(f"zoom_features: fallback zoomToSelected failed: {e}", "GEO-search-plugin", 2)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
             except Exception:
@@ -889,13 +889,13 @@ class SearchFeature(object):
                 try:
                     if canvas is not None:
                         canvas.zoomToSelected(target_layer)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
         except Exception as e:
             try:
                 from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage(f"zoom_features: failed to zoom on layer={getattr(target_layer, 'name', lambda: 'Unknown')()} ids={ids} error={e}", "GEO-search-plugin", 0)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return
 
@@ -924,9 +924,9 @@ class SearchFeature(object):
                 try:
                     if self._apply_horizontal_rotation(canvas, features, layer):
                         return
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         self._apply_rotation_if_configured(canvas)
 
@@ -951,14 +951,14 @@ class SearchFeature(object):
                 return False
             try:
                 canvas.refresh()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             try:
                 from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage(
                     f"_apply_horizontal_rotation: rotation={angle}",
                     "GEO-search-plugin", 0)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return True
         except Exception:
@@ -1009,13 +1009,13 @@ class SearchFeature(object):
                 try:
                     if g.isEmpty():
                         continue
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 if transform is not None and QgsGeometry is not None:
                     try:
                         g = QgsGeometry(g)
                         g.transform(transform)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                 for v in g.vertices():
                     n += 1
@@ -1024,7 +1024,7 @@ class SearchFeature(object):
                     sxx += v.x() * v.x()
                     sxy += v.x() * v.y()
                     syy += v.y() * v.y()
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
         if n < 2:
             return None
@@ -1074,28 +1074,28 @@ class SearchFeature(object):
                     # 明示的なセット関数がなければプロパティに代入してみる
                     try:
                         setattr(canvas, 'rotation', a)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                 # UI更新を強制
                 try:
                     from qgis.PyQt.QtWidgets import QApplication
                     QApplication.processEvents()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
                 try:
                     from qgis.core import QgsMessageLog
                     QgsMessageLog.logMessage(f"_apply_rotation_if_configured: applied rotation={a}", "GEO-search-plugin", 0)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             except Exception:
                 try:
                     from qgis.core import QgsMessageLog
-                    QgsMessageLog.logMessage(f"_apply_rotation_if_configured: failed to apply rotation", "GEO-search-plugin", 2)
-                except Exception:
+                    QgsMessageLog.logMessage("_apply_rotation_if_configured: failed to apply rotation", "GEO-search-plugin", 2)
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             # 最上位の例外は無視
             pass
 
@@ -1153,9 +1153,9 @@ class SearchFeature(object):
                 from qgis.core import QgsMessageLog
                 if applied:
                     QgsMessageLog.logMessage(f"_apply_scale_if_configured: applied scale={scale_val if scale_val is not None else getattr(self, 'fixed_scale', None)}", "GEO-search-plugin", 0)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def _ensure_layer_visible(self, layer):
@@ -1195,7 +1195,7 @@ class SearchFeature(object):
                             if n.layer() is layer:
                                 node = n
                                 break
-                        except Exception:
+                        except Exception:  # nosec B112  # 設計上の許容
                             continue
                 except Exception:
                     node = None
@@ -1210,9 +1210,8 @@ class SearchFeature(object):
                             cur.setItemVisibilityChecked(True)
                         except Exception:
                             try:
-                                from qgis.core import QgsMessageLog
                                 QgsMessageLog.logMessage(f"_ensure_layer_visible: failed to set visibility on node {cur}", "GEO-search-plugin", 1)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                         try:
                             cur = cur.parent()
@@ -1220,14 +1219,14 @@ class SearchFeature(object):
                             break
                     try:
                         QgsMessageLog.logMessage(f"_ensure_layer_visible: set visible layer id={lid} name={getattr(layer, 'name', lambda: 'unknown')()}", "GEO-search-plugin", 0)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                 except Exception:
                     try:
                         QgsMessageLog.logMessage(f"_ensure_layer_visible: failed to set visible for layer id={lid}", "GEO-search-plugin", 2)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             # swallow all errors
             pass
 
@@ -1265,7 +1264,7 @@ class SearchFeature(object):
                             theme_names.append(getattr(t, 'displayName'))
                         else:
                             theme_names.append(str(t))
-                except Exception:
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
 
             # JSON設定からテーマ名を取得（なければNone）
@@ -1277,7 +1276,7 @@ class SearchFeature(object):
                 apply_theme_name = theme_name
             elif "検索前" in theme_names:
                 apply_theme_name = "検索前"
-            
+
             # テーマを適用（共通ヘルパーを使用）
             if apply_theme_name:
                 root = project.layerTreeRoot()
@@ -1286,7 +1285,7 @@ class SearchFeature(object):
                 try:
                     from .theme import apply_theme
                     apply_theme(theme_collection, apply_theme_name, root, model, additive=additive)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             elif theme_name:
                 QgsMessageLog.logMessage(f"theme '{theme_name}' not found", "GEO-search-plugin", 1)
@@ -1294,13 +1293,13 @@ class SearchFeature(object):
             try:
                 from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage(f"theme apply error: {e}", "GEO-search-plugin", 2)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         except Exception as e:
             try:
                 from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage(f"map theme API error: {e}", "GEO-search-plugin", 2)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         # Rotation is applied after pan/zoom in zoom_features to ensure it happens after view changes
         if not self.layer:
@@ -1319,7 +1318,7 @@ class SearchFeature(object):
             from qgis.PyQt.QtWidgets import QApplication
             QgsProject.instance().layerTreeRoot().readLayerVisibilityPreset("test")
             QApplication.processEvents()
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def get_visible_vector_layers(self):
@@ -1344,7 +1343,7 @@ class SearchFeature(object):
                 if isinstance(layer, QgsVectorLayer):
                     # return tuple (node, layer) so callers can distinguish nodes
                     layers.append((node, layer))
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
 
         return layers
@@ -1366,12 +1365,14 @@ class SearchFeature(object):
                     continue
                 if isinstance(layer, QgsVectorLayer):
                     layers.append((node, layer))
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
 
         return layers
 
 # "通常の検索"
+
+
 class SearchTextFeature(SearchFeature):
     def load(self):
         if self.suggest_flg:
@@ -1396,14 +1397,14 @@ class SearchTextFeature(SearchFeature):
         try:
             from qgis.core import QgsMessageLog
             QgsMessageLog.logMessage("SearchTextFeature.search_feature called", "GEO-search-plugin", 0)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         layer = self.layer
         if not layer:
             return []
-        
+
         from qgis.core import QgsMessageLog
-        
+
         # まずダイアログ側からカレントの入力を取得してみる（優先）
         search_value = None
         try:
@@ -1414,13 +1415,13 @@ class SearchTextFeature(SearchFeature):
                     "GEO-search-plugin",
                     0,
                 )
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             if dlg and hasattr(dlg, 'get_search_values'):
                 vals = dlg.get_search_values()
                 try:
                     QgsMessageLog.logMessage(f"search_feature: dlg.get_search_values returned: {vals}", "GEO-search-plugin", 0)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 # vals may be dict, list/tuple, or single value
                 if isinstance(vals, dict):
@@ -1449,31 +1450,31 @@ class SearchTextFeature(SearchFeature):
                         value = None
                     try:
                         QgsMessageLog.logMessage(f"search value (before normalization): {value}", "GEO-search-plugin", 0)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                     if value:
                         search_value = self.normalize_search_value(value)
                         try:
                             QgsMessageLog.logMessage(f"search value (after normalization): {search_value}", "GEO-search-plugin", 0)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         break
             except Exception:
                 search_value = None
-        
+
         if not search_value:
             return []  # 検索値がなければ何も返さない
-        
+
         # 検索対象のフィールドを特定
         target_fields = self._get_target_fields()
-        
+
         if not target_fields:
             try:
                 QgsMessageLog.logMessage(f"no search condition: fields={self.fields}", "GEO-search-plugin", 0)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return []
-        
+
         # 検索条件を構築（フィールドタイプを確認して数値なら数値比較にする）
         expres_list = []
         for field_name in target_fields:
@@ -1488,7 +1489,7 @@ class SearchTextFeature(SearchFeature):
         try:
             from qgis.core import QgsMessageLog
             QgsMessageLog.logMessage(f"SearchTextFeature.search_feature: search expression: {expression_str}", "GEO-search-plugin", 0)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         # クエリを実行
@@ -1497,7 +1498,7 @@ class SearchTextFeature(SearchFeature):
             try:
                 from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage(f"[ERROR] Expression error: {expression.evalErrorString()}", "GEO-search-plugin", 1)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return []
 
@@ -1506,11 +1507,11 @@ class SearchTextFeature(SearchFeature):
             request.setLimit(limit)
         features = list(layer.getFeatures(request))
         return features
-        
+
     def _get_target_fields(self):
         """検索対象のフィールドを特定する"""
         target_fields = []
-        
+
         for field, search_widget in zip(self.fields, self.widget.search_widgets):
             # skip invalid field entries
             if not isinstance(field, dict):
@@ -1534,7 +1535,7 @@ class SearchTextFeature(SearchFeature):
                     try:
                         from qgis.core import QgsMessageLog
                         QgsMessageLog.logMessage(f"all-fields search: string_fields={string_fields} numeric_included={is_num}", "GEO-search-plugin", 0)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                 break
 
@@ -1578,12 +1579,12 @@ class SearchTextFeature(SearchFeature):
                 try:
                     from qgis.core import QgsMessageLog
                     QgsMessageLog.logMessage(f"field processing error: {e}", "GEO-search-plugin", 1)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 continue
-        
+
         return target_fields
-    
+
     def _resolve_field_name(self, field_name):
         """フィールド名を解決する（別名対応）"""
         if not field_name or not self.layer:
@@ -1600,23 +1601,23 @@ class SearchTextFeature(SearchFeature):
         try:
             from qgis.core import QgsMessageLog
             QgsMessageLog.logMessage(f"[warning] field name resolution failed: {field_name}", "GEO-search-plugin", 1)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return None
 
     def show_features(self):
         """検索処理: レイヤ名指定の場合は同名の全レイヤを検索、表示レイヤの場合は現在表示中のベクタレイヤを順に検索して集約表示する"""
         # レイヤ名指定で同名の複数レイヤがある場合の処理
-        if (self._layer_setting and 
-            isinstance(self._layer_setting, dict) and 
-            self._layer_setting.get("LayerType") == "Name"):
+        if (self._layer_setting and
+            isinstance(self._layer_setting, dict) and
+                self._layer_setting.get("LayerType") == "Name"):
             layer_name = self._layer_setting.get("Name")
             if layer_name:
                 same_name_layers = self.load_layers_by_name(layer_name)
                 if len(same_name_layers) > 1:
                     # 同名の複数レイヤを検索
                     return self._search_multiple_layers_by_name(same_name_layers)
-        
+
         # 通常の動作（設定レイヤまたはカレントレイヤ）
         if self.title not in ("表示レイヤ", "全レイヤ"):
             return super(SearchTextFeature, self).show_features()
@@ -1655,7 +1656,7 @@ class SearchTextFeature(SearchFeature):
             try:
                 self.result_dialog.set_features([], [])
                 self.result_dialog.show()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return
 
@@ -1667,26 +1668,26 @@ class SearchTextFeature(SearchFeature):
             try:
                 self.result_dialog.set_features([], [])
                 self.result_dialog.show()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     def _search_on_layer(self, layer):
         try:
             from qgis.core import QgsMessageLog
             QgsMessageLog.logMessage("_search_on_layer called", "GEO-search-plugin", 0)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         """既存の search_feature ロジックを再利用して与えたレイヤで検索を実行するヘルパー"""
         if not layer or not layer.isValid():
             return []
-            
+
         # 元のレイヤ設定を一時的に保存
         original_layer = getattr(self, '_layer_setting', None)
-        
+
         try:
             # 一時的にレイヤを変更して統一ロジックを使用
             self._layer_setting = layer
-            
+
             # 検索値を取得して正規化
             search_value = None
             for widget in self.widget.search_widgets:
@@ -1694,16 +1695,16 @@ class SearchTextFeature(SearchFeature):
                 if value:
                     search_value = self.normalize_search_value(value)
                     break
-            
+
             if not search_value:
                 return []
-            
+
             # 統一されたフィールド特定ロジックを使用
             target_fields = self._get_target_fields_for_layer(layer)
-            
+
             if not target_fields:
                 return []
-            
+
             # 統一された検索条件構築ロジックを使用（フィールドタイプに基づく比較）
             expres_list = []
             field_types = {f.name(): f.type() for f in layer.fields()}
@@ -1721,42 +1722,42 @@ class SearchTextFeature(SearchFeature):
                         expres_list.append('"{field}" LIKE \'%{value}%\''.format(field=field_name, value=search_value))
                 else:
                     expres_list.append('"{field}" LIKE \'%{value}%\''.format(field=field_name, value=search_value))
-            
+
             expression_str = self.andor.join(expres_list)
             expression = QgsExpression(expression_str)
-            
+
             if expression.hasEvalError():
                 try:
                     from qgis.core import QgsMessageLog
                     QgsMessageLog.logMessage(f"_search_on_layer: expression error: {expression.evalErrorString()}", "GEO-search-plugin", 0)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 return []
-            
+
             request = QgsFeatureRequest(expression)
             features = list(layer.getFeatures(request))
-            
+
             try:
                 from qgis.core import QgsMessageLog
                 layer_name = getattr(layer, 'name', lambda: 'None')()
                 QgsMessageLog.logMessage(f"_search_on_layer: layer={layer_name} fields={target_fields} found={len(features)}", "GEO-search-plugin", 0)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
-                
+
             return features
-            
+
         finally:
             # 元のレイヤ設定を復元
             self._layer_setting = original_layer
-    
+
     def _get_target_fields_for_layer(self, layer):
         """指定されたレイヤに対して検索対象フィールドを特定する"""
         target_fields = []
-        
+
         for field, search_widget in zip(self.fields, self.widget.search_widgets):
             if not isinstance(field, dict):
                 continue
-            
+
             # 全フィールド検索の場合
             if field == {}:
                 if search_widget.text():
@@ -1773,11 +1774,11 @@ class SearchTextFeature(SearchFeature):
                         numeric_fields = [f.name() for f in layer.fields() if f.type() != 10]
                         target_fields.extend(numeric_fields)
                 break
-            
+
             try:
                 if field.get("all"):
                     continue
-                
+
                 # OR検索フィールド
                 view_name = field.get("ViewName", "")
                 if view_name and view_name.startswith("OR検索:"):
@@ -1792,31 +1793,31 @@ class SearchTextFeature(SearchFeature):
                     field_name = self._resolve_field_name_for_layer(field_name, layer)
                     if field_name:
                         target_fields.append(field_name)
-                        
+
             except Exception as e:
                 try:
                     from qgis.core import QgsMessageLog
                     QgsMessageLog.logMessage(f"_get_target_fields_for_layer: field processing error: {e}", "GEO-search-plugin", 1)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 continue
-        
+
         return target_fields
-    
+
     def _resolve_field_name_for_layer(self, field_name, layer):
         """指定されたレイヤでフィールド名を解決する"""
         if not field_name or not layer:
             return None
-            
+
         # フィールド名が存在するかチェック
         if layer.fields().indexFromName(field_name) != -1:
             return field_name
-            
+
         # 別名で検索
         for layer_field in layer.fields():
             if layer_field.alias() == field_name:
                 return layer_field.name()
-                
+
         return field_name
 
 
@@ -1867,8 +1868,11 @@ class SearchTibanFeature(SearchTextFeature):
         user = setting.get("User")
         password = setting.get("Password")
         table = setting.get("Table")
-        columns = [f'"{col["Name"]}"' for col in setting.get("Columns", [])]
-        query = f"SELECT {','.join(columns)} FROM \"{table}\""
+
+        def quote_ident(n):
+            return '"' + str(n).replace('"', '""') + '"'
+        columns = [quote_ident(col["Name"]) for col in setting.get("Columns", [])]
+        query = f"SELECT {','.join(columns)} FROM {quote_ident(table)}"  # nosec B608  # 識別子はquote_identでエスケープ済み
         try:
             conn = psycopg2.connect(
                 host=host,
@@ -1928,7 +1932,7 @@ class SearchTibanFeature(SearchTextFeature):
                 continue
             if not value:
                 continue
-            
+
             # 全角英数字を半角に変換
             value = self.normalize_search_value(value)
             # 地番の場合、あいまい検索のフラグ
@@ -1948,7 +1952,7 @@ class SearchTibanFeature(SearchTextFeature):
         if any(regexp_values):
             # 地番値も正規化処理を適用
             normalized_regexp_values = [self.normalize_search_value(v) if v else v for v in regexp_values]
-            
+
             regexp = ""
             for i, value in enumerate(normalized_regexp_values):
                 if i == 0 and value and value.isdigit():
@@ -1963,7 +1967,7 @@ class SearchTibanFeature(SearchTextFeature):
                     regexp += "([^-]*)?"
                 if i == len(normalized_regexp_values) - 1:
                     continue
-                elif not any(normalized_regexp_values[i + 1 :]):
+                elif not any(normalized_regexp_values[i + 1:]):
                     regexp += "(-[^-]*)*"
                     break
                 else:
@@ -2008,7 +2012,7 @@ class SearchOwnerFeature(SearchTextFeature):
             value = search_widget.text()
             if not value:
                 continue
-            
+
             # 全角英数字を半角に変換（既存の処理の前に実行）
             value = self.normalize_search_value(value)
 

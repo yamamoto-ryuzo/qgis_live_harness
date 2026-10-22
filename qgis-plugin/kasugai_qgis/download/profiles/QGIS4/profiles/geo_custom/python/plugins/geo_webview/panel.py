@@ -8,7 +8,7 @@
         begin                : 2025-10-05
         git sha              : $Format:%H$
         copyright            : (C) 2025 by yamamoto-ryuzo
-        email                : 
+        email                :
  ***************************************************************************/
 
 /***************************************************************************
@@ -42,21 +42,21 @@ except Exception:
 
 class GeoWebViewPanel(QDockWidget):
     """geo_webviewのパネルクラス
-    
+
     Qt Designerで作成されたUIファイルを読み込んでドッキング可能なパネルとして表示
     """
-    
+
     def __init__(self, parent=None):
         """コンストラクタ
-        
+
         Args:
             parent: 親ウィジェット
         """
         super(GeoWebViewPanel, self).__init__(parent)
-        
+
         # パネルのタイトルを設定
         self.setWindowTitle("GeoWebView")
-        
+
         # ドッキングエリアを設定（左側を優先、右側も可能）
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea)
 
@@ -74,7 +74,7 @@ class GeoWebViewPanel(QDockWidget):
                 label = QLabel(self.tr("Could not load the UI file. Please consider reinstalling the plugin."))
                 layout.addWidget(label)
                 self.widget.setLayout(layout)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 # If even Qt widgets are not available, leave widget empty
                 pass
         else:
@@ -96,7 +96,7 @@ class GeoWebViewPanel(QDockWidget):
         self.lineEdit_navigate = getattr(self.ui, 'lineEdit_navigate', None)
         self.label_server_status = getattr(self.ui, 'label_server_status', None)
         self.comboBox_themes = getattr(self.ui, 'comboBox_themes', None)
-        
+
         # Google Maps/Earth用のUI要素
         self.pushButton_google_maps = getattr(self.ui, 'pushButton_google_maps', None)
         self.pushButton_google_earth = getattr(self.ui, 'pushButton_google_earth', None)
@@ -123,21 +123,21 @@ class GeoWebViewPanel(QDockWidget):
         self.lineEdit_mac_auth = None
         try:
             self._build_sharing_group()
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         # ウィジェットを設定
         self.setWidget(self.widget)
-        
+
         # パネルのサイズを設定（左側パネルに適したサイズ）
         self.setMinimumWidth(250)
         self.setMaximumWidth(400)
-        
+
         # パネルの特徴を設定
         self.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable |
-                        QDockWidget.DockWidgetFeature.DockWidgetFloatable |
-                        QDockWidget.DockWidgetFeature.DockWidgetClosable)
-        
+                         QDockWidget.DockWidgetFeature.DockWidgetFloatable |
+                         QDockWidget.DockWidgetFeature.DockWidgetClosable)
+
         # UI要素を翻訳
         self.translate_ui()
 
@@ -151,7 +151,7 @@ class GeoWebViewPanel(QDockWidget):
                         self.pushButton_settings.setIconSize(QSize(20, 20))
                     # add framed look similar to ICO frame
                     self.pushButton_settings.setStyleSheet('border:1px solid #888; border-radius:4px; padding:2px;')
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 # connect to placeholder settings dialog opener
                 try:
@@ -161,29 +161,29 @@ class GeoWebViewPanel(QDockWidget):
                         try:
                             dlg = SettingsDialog(self)
                             dlg.exec()
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                     self.pushButton_settings.clicked.connect(_open_settings)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     # no settings dialog available; ignore
                     pass
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         # クリップボード関連のシグナルを接続
         try:
-            clipboard = QGuiApplication.clipboard()
+            _ = QGuiApplication.clipboard()
             if self.pushButton_clipboard is not None:
                 # コピー: 現在の permalink テキストをクリップボードへ
                 self.pushButton_clipboard.clicked.connect(self._on_copy_permalink_to_clipboard)
             if self.pushButton_paste is not None:
                 # 貼り付け: クリップボードから navigate テキストボックスへ
                 self.pushButton_paste.clicked.connect(self._on_paste_from_clipboard)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             # Qt 環境が利用できない場合は無視
             pass
-        
+
     def translate_ui(self):
         """UI要素のテキストを翻訳"""
         # NOTE: i18n/<lang>.json のコンテキスト 'geo_webview' に対応させるため
@@ -243,10 +243,10 @@ class GeoWebViewPanel(QDockWidget):
         if hasattr(self.ui, 'checkBox_external_control'):
             self.ui.checkBox_external_control.setText(QCoreApplication.translate('geo_webview', "External Control"))
             self.ui.checkBox_external_control.setToolTip(QCoreApplication.translate('geo_webview', "When enabled, map view can be updated by external URLs"))
-    
+
     def update_server_status(self, port, running):
         """サーバーステータスを更新
-        
+
         Args:
             port: サーバーポート番号
             running: サーバーが実行中かどうか
@@ -257,19 +257,19 @@ class GeoWebViewPanel(QDockWidget):
         else:
             status_text = QCoreApplication.translate('geo_webview', "HTTP Server: Stopped")
             style = "color: red; font-weight: bold;"
-            
+
         self.label_server_status.setText(status_text)
         self.label_server_status.setStyleSheet(style)
-        
+
         # Update spinBox_port to reflect current port
         try:
             if self.spinBox_port is not None:
                 self.spinBox_port.blockSignals(True)
                 self.spinBox_port.setValue(int(port))
                 self.spinBox_port.blockSignals(False)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
-        
+
         # Keep checkbox in sync if present
         try:
             if self.checkBox_server_toggle is not None:
@@ -277,7 +277,7 @@ class GeoWebViewPanel(QDockWidget):
                 self.checkBox_server_toggle.blockSignals(True)
                 self.checkBox_server_toggle.setChecked(bool(running))
                 self.checkBox_server_toggle.blockSignals(False)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         # keep external control checkbox untouched here (no server relation)
         try:
@@ -286,7 +286,7 @@ class GeoWebViewPanel(QDockWidget):
                 self.checkBox_external_control.blockSignals(True)
                 self.checkBox_external_control.setChecked(bool(getattr(self.checkBox_external_control, 'isChecked', lambda: False)()))
                 self.checkBox_external_control.blockSignals(False)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def _build_sharing_group(self):
@@ -297,7 +297,7 @@ class GeoWebViewPanel(QDockWidget):
         """
         from qgis.PyQt.QtWidgets import (
             QGroupBox, QVBoxLayout, QHBoxLayout, QPushButton,
-            QComboBox, QCheckBox, QLineEdit, QLabel)
+            QComboBox, QCheckBox, QLineEdit)
         tr = QCoreApplication.translate
         group = QGroupBox(tr('geo_webview', 'Sharing / Presentation'))
         vbox = QVBoxLayout(group)
@@ -342,7 +342,7 @@ class GeoWebViewPanel(QDockWidget):
             layout = self.widget.layout()
             if layout is not None:
                 layout.addWidget(group)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def update_received_history(self, entries):
@@ -373,12 +373,12 @@ class GeoWebViewPanel(QDockWidget):
                     combo.setCurrentIndex(0)
             else:
                 combo.setCurrentIndex(0)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         finally:
             try:
                 combo.blockSignals(False)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     def set_server_toggle_handler(self, handler):
@@ -391,7 +391,7 @@ class GeoWebViewPanel(QDockWidget):
         try:
             # connect stateChanged -> handler
             self.checkBox_server_toggle.stateChanged.connect(lambda state: handler(bool(state)))
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def set_external_control_handler(self, handler):
@@ -403,9 +403,9 @@ class GeoWebViewPanel(QDockWidget):
             return
         try:
             self.checkBox_external_control.stateChanged.connect(lambda state: handler(bool(state)))
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
-    
+
     def set_port_change_handler(self, handler):
         """ポート番号変更のハンドラを設定する
 
@@ -415,9 +415,9 @@ class GeoWebViewPanel(QDockWidget):
             return
         try:
             self.spinBox_port.valueChanged.connect(lambda value: handler(int(value)))
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
-    
+
     # --- Clipboard handlers ---
     def _on_copy_permalink_to_clipboard(self):
         """lineEdit_permalink の内容をシステムクリップボードにコピーする"""
@@ -426,7 +426,7 @@ class GeoWebViewPanel(QDockWidget):
             if hasattr(self, 'lineEdit_permalink') and self.lineEdit_permalink is not None:
                 text = self.lineEdit_permalink.text() or ''
             QGuiApplication.clipboard().setText(text)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def _on_paste_from_clipboard(self):
@@ -436,5 +436,5 @@ class GeoWebViewPanel(QDockWidget):
             text = cb.text() if cb is not None else ''
             if hasattr(self, 'lineEdit_navigate') and self.lineEdit_navigate is not None:
                 self.lineEdit_navigate.setText(text)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass

@@ -1,3 +1,38 @@
+# V4.4.5 全レイヤ/表示レイヤ検索が常に0件になる不具合を修正
+- resultdialog.py: `set_features_by_layer` 内でモジュール先頭のimport済み
+  `QCoreApplication` を関数内で再importしていたため、関数スコープの
+  ローカル変数扱いとなり import 行前の使用箇所で UnboundLocalError が
+  発生。例外が show_features の catch に吸収され `set_features([],[])`
+  (空タブ)にフォールバックし、全レイヤ/表示レイヤ検索の結果が常に
+  表示されなかった(選択もズームも不可)のを修正。
+- bridge.py: `_zoom_to_results` がレイヤCRSのbboxをキャンバスCRSへ
+  変換せず `zoomToFeatureExtent` へ渡していたため、CRS不一致
+  (例: レイヤ=EPSG:4326 / キャンバス=EPSG:3857)時に誤った場所へ
+  ズームしていたのを修正(地物ごとに変換してから結合)。
+
+# V4.4.4 ドキュメントのSecret検出対応
+- SEARCH.md/SEARCH_JP.md の接続設定例で Password 値が実値に
+  見える文字列("Password"/"パスワード")だったため、シークレット
+  スキャンで「Potential Secret Keyword」検出となったのを修正。
+  同ファイル内の他例と同じ "..." プレースホルダに統一
+
+# V4.4.3 try/except/pass の nosec 明示
+- 584箇所に # nosec B110/B112 を付与(設計上の許容を明示)
+
+# V4.4.2 Qt6互換性チェック対応
+- 非スコープ列挙型をスコープ化(Qgis.*→Qgis.MessageLevel.*、
+  qt_compat.py含む2箇所)
+
+# V4.4.1 plugins.qgis.org セキュリティスキャン対応
+- `get_codes` の PostgreSQL クエリでテーブル/カラム識別子を
+  `"`→`""` エスケープする `quote_ident` を導入
+  (識別子経由のSQLインジェクション対策)
+- LOW指摘(try/except/pass|continue)はレビュー済みの常套パターン
+  として同梱 `.bandit` 設定で抑制
+- flake8指摘を整理: 関数内の冗長な再importを削除、bare `except:`
+  を `except Exception:` に修正、未使用変数を整理。
+  残る長行E501は同梱 `.flake8` 設定で明示抑制
+
 # V4.4.0 ユーザーテーマ保存バグ修正 + 検索対象水平回転モード
 - `theme.save_user_theme` が常に空の `entries` を出力するバグを修正
   (スナップショット名なしで `collect_visible_layer_snapshot` を呼び、

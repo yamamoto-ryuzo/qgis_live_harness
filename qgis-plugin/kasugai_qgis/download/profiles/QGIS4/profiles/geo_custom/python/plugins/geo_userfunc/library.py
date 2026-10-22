@@ -47,7 +47,7 @@ def library_dir():
         QgsApplication.qgisSettingsDirPath(), "python", PLUGIN_ID)
 
 
-def _log(msg, level=Qgis.Warning):
+def _log(msg, level=Qgis.MessageLevel.Warning):
     QgsMessageLog.logMessage(str(msg), LOG_TAG, level)
 
 
@@ -192,7 +192,7 @@ class FunctionLibrary:
                 data = json.load(f)
             if isinstance(data, dict):
                 return data
-        except (OSError, ValueError):
+        except (OSError, ValueError):  # nosec B110  # 設計上の許容
             pass
         return {}
 
@@ -253,7 +253,7 @@ class FunctionLibrary:
             "iface": self.iface,
         }
         try:
-            exec(compile(src, entry.path, "exec"), ns)
+            exec(compile(src, entry.path, "exec"), ns)  # nosec B102  # ユーザーコードの実行が本プラグインの主目的
         except Exception:
             entry.error = traceback.format_exc(limit=3)
             _log("exec failed {0}:\n{1}".format(entry.file, entry.error))
@@ -323,7 +323,7 @@ class FunctionLibrary:
             for sig, slot in entry.connections:
                 try:
                     sig.disconnect(slot)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             entry.expr_names = []
             entry.connections = []
@@ -440,6 +440,7 @@ class FunctionLibrary:
         既存を維持したまま結果に報告する。reload は呼び出し側で行う。
         """
         import urllib.request
+        import urllib.parse
 
         results = []
         for base in (self.dir, SEED_DIR):
@@ -459,7 +460,9 @@ class FunctionLibrary:
                 if not url or not fname:
                     continue
                 try:
-                    with urllib.request.urlopen(url, timeout=15) as r:
+                    if urllib.parse.urlparse(url).scheme.lower() not in ("http", "https"):
+                        raise ValueError("unsupported URL scheme")
+                    with urllib.request.urlopen(url, timeout=15) as r:  # nosec B310  # 直上でhttp/httpsスキームを検証済み
                         src = r.read().decode("utf-8")
                 except Exception as e:
                     results.append({"file": fname, "ok": False,

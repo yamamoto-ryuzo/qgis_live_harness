@@ -7,13 +7,11 @@ Creates a distribution ZIP file for the QGIS Legend View plugin
 
 import os
 import zipfile
-import shutil
 import configparser
-from pathlib import Path
 
 # Import version information
 try:
-    from version import __version__, get_version_info
+    from version import __version__
     PLUGIN_VERSION = __version__
 except ImportError:
     PLUGIN_VERSION = "2.0.1"
@@ -31,6 +29,7 @@ def get_plugin_name_and_version_from_metadata():
         print(f"Warning: Could not read plugin name/version from metadata.txt: {e}")
         return "QGIS-legendView", "0.0.1"  # fallback
 
+
 def bump_version(version_str):
     """Bump patch version (A.B.C → A.B.(C+1))"""
     parts = version_str.strip().split('.')
@@ -42,6 +41,7 @@ def bump_version(version_str):
         return f"{a}.{b}.{c}"
     except Exception:
         return version_str
+
 
 def update_metadata_version_and_changelog(new_version):
     """Update version and prepend new changelog entry to metadata.txt"""
@@ -63,7 +63,6 @@ def update_metadata_version_and_changelog(new_version):
         new_lines.insert(insert_idx, f'    Version {new_version}:\n    - (describe changes here)\n')
     with open('metadata.txt', 'w', encoding='utf-8') as f:
         f.writelines(new_lines)
-
 
 
 def create_plugin_zip():
@@ -129,21 +128,23 @@ def create_plugin_zip():
         print("✗ Error: ZIP file was not created")
         return None
 
+
 def list_zip_contents(zip_name):
     """List contents of the created ZIP file for verification"""
     if not os.path.exists(zip_name):
         print(f"ZIP file {zip_name} not found")
         return
-    
+
     print(f"\nContents of {zip_name}:")
     print("-" * 50)
-    
+
     with zipfile.ZipFile(zip_name, 'r') as zipf:
         for info in zipf.infolist():
             size_kb = round(info.file_size / 1024, 2) if info.file_size > 0 else 0
             print(f"{info.filename:<40} {size_kb:>8} KB")
-    
+
     print("-" * 50)
+
 
 if __name__ == "__main__":
     zip_name = create_plugin_zip()

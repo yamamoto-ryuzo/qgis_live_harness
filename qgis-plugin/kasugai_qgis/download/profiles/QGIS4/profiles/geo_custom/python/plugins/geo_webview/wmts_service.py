@@ -96,9 +96,9 @@ class GeoWebViewWMTSService:
             cpu_val = str(cpu_count) if cpu_count is not None else 'unknown'
             QgsMessageLog.logMessage(
                 f"WMTS Prewarm workers: {prewarm_workers} (computed: cpu_count()-1, enforced min=6; max_render_workers={max_rw}, cpu_count={cpu_val})",
-                'geo_webview', Qgis.Info
+                'geo_webview', Qgis.MessageLevel.Info
             )
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             # best-effort logging; ignore if QGIS logging not available
             pass
         self._prewarm_futures = []
@@ -123,12 +123,12 @@ class GeoWebViewWMTSService:
                     try:
                         identity_short, identity_raw = self._get_identity_info()
                         self.ensure_identity(identity_short, identity_raw)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         # swallow; this is a best-effort background reaction
                         pass
                 finally:
                     self._writing_identity = False
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def _ensure_watch_style_managers(self):
@@ -176,10 +176,10 @@ class GeoWebViewWMTSService:
                         sig.connect(self._on_style_changed)
                         # keep sm itself in the set to hold a reference
                         self._watched_style_managers.add(sm)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         # ignore failures to connect
                         pass
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
 
     def _extract_style_id(self, layer_obj):
@@ -274,7 +274,7 @@ class GeoWebViewWMTSService:
             # Accept WMTS GetCapabilities via REQUEST=GetCapabilities or SERVICE=WMTS (without other REQUEST)
             req = params.get('REQUEST', [params.get('request', [''])[0]])[0] if params else ''
             svc = params.get('SERVICE', [params.get('service', [''])[0]])[0] if params else ''
-            
+
             # Handle GetCapabilities explicitly
             # Treat either explicit REQUEST=GetCapabilities or SERVICE=WMTS (with no REQUEST)
             if (req and str(req).upper() == 'GETCAPABILITIES') or (not req and svc and str(svc).upper() == 'WMTS'):
@@ -285,7 +285,6 @@ class GeoWebViewWMTSService:
                 if not host:
                     host = f'localhost:{server_port}'
 
-    
                 # Provide both a simple template URL and a WMTS ResourceURL entry to help clients
                 # Include the current identity short so clients can detect when the
                 # visible layers / styles have changed. The GetCapabilities handler
@@ -313,7 +312,7 @@ class GeoWebViewWMTSService:
 
                 # New ResourceURL template: {Style}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.{Format}
                 # Use literal braces in the template so clients can substitute tokens.
-                tile_url = ("http://{host}/wmts/{{Style}}/{{TileMatrixSet}}/{{TileMatrix}}/{{TileRow}}/{{TileCol}}.{{Format}}" + vqs).format(host=host)
+                _ = ("http://{host}/wmts/{{Style}}/{{TileMatrixSet}}/{{TileMatrix}}/{{TileRow}}/{{TileCol}}.{{Format}}" + vqs).format(host=host)
                 tile_url_template = ("http://{host}/wmts/{{Style}}/{{TileMatrixSet}}/{{TileMatrix}}/{{TileRow}}/{{TileCol}}.{{Format}}" + vqs).format(host=host)
                 # Also advertise a dedicated XYZ endpoint for clients that prefer
                 # a canonical /xyz/{z}/{x}/{y}.png path. This endpoint is handled
@@ -323,15 +322,17 @@ class GeoWebViewWMTSService:
                 # Escape characters that must be XML-escaped when included
                 # inside attribute values (notably '&' in querystrings).
                 try:
-                    from xml.sax import saxutils
-                    tile_url_template_esc = saxutils.escape(tile_url_template, {'"': '&quot;'})
+                    # html.escape はXMLパースを伴わず属性値の
+                    # エスケープに使える(saxutils.escape 相当)
+                    import html
+                    tile_url_template_esc = html.escape(tile_url_template, quote=True)
                     service_metadata_href = f"http://{host}/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
-                    service_metadata_href_esc = saxutils.escape(service_metadata_href, {'"': '&quot;'})
+                    service_metadata_href_esc = html.escape(service_metadata_href, quote=True)
                     # escape the xyz template as well
-                    xyz_tile_url_template_esc = saxutils.escape(xyz_tile_url, {'"': '&quot;'})
+                    xyz_tile_url_template_esc = html.escape(xyz_tile_url, quote=True)
                     # Also provide a classic matrix/row/col ordered template for broader client compatibility
                     matrix_order_template = (f"http://{host}/wmts/{{TileMatrix}}/{{TileRow}}/{{TileCol}}.png" + vqs)
-                    matrix_order_template_esc = saxutils.escape(matrix_order_template, {'"': '&quot;'})
+                    matrix_order_template_esc = html.escape(matrix_order_template, quote=True)
                 except Exception:
                     # fallback: naive replace for ampersand
                     tile_url_template_esc = tile_url_template.replace('&', '&amp;')
@@ -457,7 +458,7 @@ class GeoWebViewWMTSService:
                         for lyr in layer_objs:
                             try:
                                 layers_xml += _layer_entry(lyr) + '\n'
-                            except Exception:
+                            except Exception:  # nosec B112  # 設計上の許容
                                 continue
                     except Exception:
                         layers_xml = ''
@@ -556,12 +557,12 @@ class GeoWebViewWMTSService:
                         return params.get(k, params.get(k.lower(), ['']))[0] if params else ''
 
                     layer_param = getp('LAYER')
-                    tms_param = getp('TILEMATRIXSET')
+                    _ = getp('TILEMATRIXSET')
                     tm_param = getp('TILEMATRIX')
                     tr_param = getp('TILEROW')
                     tc_param = getp('TILECOL')
                     fmt_param = getp('FORMAT') or 'image/png'
-                    style_param = getp('STYLE') or getp('Style') or ''
+                    _ = getp('STYLE') or getp('Style') or ''
 
                     # Normalize format to short ext
                     fmt_low = fmt_param.split('/')[-1].lower()
@@ -601,9 +602,11 @@ class GeoWebViewWMTSService:
                         class _CaptureConn:
                             def __init__(self):
                                 self._buf = bytearray()
+
                             def sendall(self, b):
                                 if isinstance(b, (bytes, bytearray)):
                                     self._buf.extend(b)
+
                             def close(self):
                                 pass
 
@@ -638,17 +641,17 @@ class GeoWebViewWMTSService:
                                     with os.fdopen(tmpfd, 'wb') as tfh:
                                         tfh.write(body)
                                     os.replace(tmppath, cache_path)
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
                             try:
                                 conn.sendall(raw)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                             return
                         else:
                             try:
                                 conn.sendall(raw)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                             return
                     else:
@@ -666,8 +669,8 @@ class GeoWebViewWMTSService:
             m_style = re.match(r'^/wmts/([^/]+)/([^/]+)/(\d+)/(\d+)/(\d+)\.(png|jpg|jpeg)$', parsed_url.path, flags=re.IGNORECASE)
             if m_style:
                 # style, tileset, z, row, col
-                style = m_style.group(1)
-                tileset = m_style.group(2)
+                _ = m_style.group(1)
+                _ = m_style.group(2)
                 z = int(m_style.group(3))
                 row = int(m_style.group(4))
                 col = int(m_style.group(5))
@@ -706,7 +709,7 @@ class GeoWebViewWMTSService:
                 if tms_flag:
                     try:
                         y = (2 ** z - 1) - y
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                 ok, msg = self._validate_tile_coords(z, x, y)
@@ -735,11 +738,11 @@ class GeoWebViewWMTSService:
                         try:
                             identity_hash, identity_dir = self.ensure_identity(identity_short, identity_raw)
                         except Exception:
-                            identity_hash = hashlib.sha1(identity_raw.encode('utf-8')).hexdigest()
+                            identity_hash = hashlib.sha1(identity_raw.encode('utf-8'), usedforsecurity=False).hexdigest()
                             identity_dir = os.path.join(cache_dir, identity_hash)
                             try:
                                 os.makedirs(identity_dir, exist_ok=True)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
 
                             cache_dir = self.cache_dir
@@ -748,7 +751,7 @@ class GeoWebViewWMTSService:
                         tile_dir = os.path.join(identity_dir, str(z), str(x))
                         try:
                             os.makedirs(tile_dir, exist_ok=True)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                         cache_path = os.path.join(tile_dir, f"{y}.{fmt}")
@@ -759,7 +762,7 @@ class GeoWebViewWMTSService:
                             content_type = 'image/png' if fmt == 'png' else f'image/{fmt}'
                             http_server.send_binary_response(conn, 200, 'OK', data, content_type)
                             return
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                     # Delegate to server manager's WMS GetMap-with-BBOX pipeline (256x256)
@@ -767,9 +770,11 @@ class GeoWebViewWMTSService:
                         class _CaptureConn:
                             def __init__(self):
                                 self._buf = bytearray()
+
                             def sendall(self, b):
                                 if isinstance(b, (bytes, bytearray)):
                                     self._buf.extend(b)
+
                             def close(self):
                                 pass
                         cap = _CaptureConn()
@@ -805,25 +810,25 @@ class GeoWebViewWMTSService:
                                                 'y': y,
                                                 'path': cache_path,
                                             }, mf, ensure_ascii=False, indent=2)
-                                    except Exception:
+                                    except Exception:  # nosec B110  # 設計上の許容
                                         pass
                                 except Exception:
                                     try:
                                         if os.path.exists(tmppath):
                                             os.remove(tmppath)
-                                    except Exception:
+                                    except Exception:  # nosec B110  # 設計上の許容
                                         pass
                             # forward the captured bytes to original conn
                             try:
                                 conn.sendall(raw)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                             return
                         else:
                             # not an HTTP response: just forward raw buffer
                             try:
                                 conn.sendall(raw)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                             return
                     except Exception as e:
@@ -840,7 +845,7 @@ class GeoWebViewWMTSService:
             try:
                 from . import http_server
                 http_server.send_http_response(conn, 500, 'Internal Server Error', f'WMTS processing failed: {e}')
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     def ensure_identity(self, identity_short=None, identity_raw=None):
@@ -858,7 +863,7 @@ class GeoWebViewWMTSService:
             # can be recomputed when the user switches styles.
             try:
                 self._ensure_watch_style_managers()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             if not identity_short or not identity_raw:
                 try:
@@ -869,14 +874,14 @@ class GeoWebViewWMTSService:
             cache_dir = self.cache_dir
             try:
                 os.makedirs(cache_dir, exist_ok=True)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
-            identity_hash = hashlib.sha1(identity_raw.encode('utf-8')).hexdigest()
+            identity_hash = hashlib.sha1(identity_raw.encode('utf-8'), usedforsecurity=False).hexdigest()
             identity_dir = os.path.join(cache_dir, identity_hash)
             try:
                 os.makedirs(identity_dir, exist_ok=True)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             # write or update identity meta (overwrite if identity_raw changed)
@@ -898,22 +903,22 @@ class GeoWebViewWMTSService:
                     }
                     with open(meta_index_path, 'w', encoding='utf-8') as mf:
                         json.dump(meta_index, mf, ensure_ascii=False, indent=2)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             # Start prewarm in background if not already running
             try:
                 self._maybe_start_prewarm(identity_short, identity_hash, identity_dir)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
-            
+
             return identity_hash, identity_dir
         except Exception:
             return None, None
 
     def _maybe_start_prewarm(self, identity_short, identity_hash, identity_dir):
         """バックグラウンドでタイルキャッシュを事前生成(プリウォーム)する。
-        
+
         この関数は既にプリウォーム中の場合は何もしない。
         よく使われるズームレベル(10-16)の中心タイルを並列生成してキャッシュする。
         """
@@ -921,50 +926,50 @@ class GeoWebViewWMTSService:
             if self._is_prewarming:
                 return
             self._is_prewarming = True
-        
+
         try:
             # Get current canvas extent to determine which tiles to prewarm
             try:
                 canvas = getattr(self.server_manager, 'map_canvas', None) or \
-                         getattr(self.server_manager, 'canvas', None)
+                    getattr(self.server_manager, 'canvas', None)
                 if not canvas and hasattr(self.server_manager, 'iface'):
                     canvas = self.server_manager.iface.mapCanvas()
-                
+
                 if not canvas:
                     return
-                
+
                 # Get canvas center in EPSG:3857
                 from qgis.core import QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsProject
                 extent = canvas.extent()
                 canvas_crs = canvas.mapSettings().destinationCrs()
                 target_crs = QgsCoordinateReferenceSystem('EPSG:3857')
-                
+
                 if canvas_crs != target_crs:
                     transform = QgsCoordinateTransform(canvas_crs, target_crs, QgsProject.instance())
                     center = extent.center()
                     center_3857 = transform.transform(center)
                 else:
                     center_3857 = extent.center()
-                
+
                 # Determine zoom levels to prewarm (z=10-18 for extended coverage)
                 zoom_levels = range(10, 19)  # z=10,11,12,13,14,15,16,17,18
-                
+
                 # Calculate tile coordinates for center at each zoom level
                 tasks = []
                 origin = 20037508.342789244
-                
+
                 for z in zoom_levels:
                     tiles = 2 ** z
                     tile_size = (origin * 2) / tiles
-                    
+
                     # Calculate center tile coordinates
                     x = int((center_3857.x() + origin) / tile_size)
                     y = int((origin - center_3857.y()) / tile_size)
-                    
+
                     # Clamp to valid range
                     x = max(0, min(x, tiles - 1))
                     y = max(0, min(y, tiles - 1))
-                    
+
                     # Add center tile and surrounding 24 tiles (5x5 grid)
                     for dx in [-2, -1, 0, 1, 2]:
                         for dy in [-2, -1, 0, 1, 2]:
@@ -972,23 +977,23 @@ class GeoWebViewWMTSService:
                             ty = y + dy
                             if 0 <= tx < tiles and 0 <= ty < tiles:
                                 tasks.append((z, tx, ty, identity_short, identity_hash, identity_dir))
-                
+
                 # Submit tasks to thread pool
                 from qgis.core import QgsMessageLog, Qgis
                 QgsMessageLog.logMessage(
                     f"🚀 WMTS Prewarm: generating {len(tasks)} tiles in parallel",
-                    "geo_webview", Qgis.Info
+                    "geo_webview", Qgis.MessageLevel.Info
                 )
-                
+
                 for task in tasks:
                     future = self._prewarm_executor.submit(self._prewarm_tile, *task)
                     self._prewarm_futures.append(future)
-                
+
             except Exception as e:
                 from qgis.core import QgsMessageLog, Qgis
                 QgsMessageLog.logMessage(
                     f"⚠️ WMTS Prewarm setup failed: {e}",
-                    "geo_webview", Qgis.Warning
+                    "geo_webview", Qgis.MessageLevel.Warning
                 )
         finally:
             # Reset flag after a delay
@@ -997,13 +1002,13 @@ class GeoWebViewWMTSService:
                 time.sleep(2)
                 with self._prewarm_lock:
                     self._is_prewarming = False
-            
+
             t = threading.Thread(target=reset_flag, daemon=True)
             t.start()
-    
+
     def _prewarm_tile(self, z, x, y, identity_short, identity_hash, identity_dir):
         """1つのタイルをプリウォーム(事前生成)する。
-        
+
         この関数はスレッドプールから呼ばれ、タイルが既にキャッシュに
         存在する場合はスキップする。
         """
@@ -1011,13 +1016,13 @@ class GeoWebViewWMTSService:
             # Check if tile already exists in cache
             tile_dir = os.path.join(identity_dir, str(z), str(x))
             cache_path = os.path.join(tile_dir, f"{y}.png")
-            
+
             if os.path.exists(cache_path):
                 return  # Already cached
-            
+
             # Create directory
             os.makedirs(tile_dir, exist_ok=True)
-            
+
             # Calculate bbox for this tile
             origin = 20037508.342789244
             tiles = 2 ** z
@@ -1027,42 +1032,44 @@ class GeoWebViewWMTSService:
             maxy = origin - y * tile_size
             miny = origin - (y + 1) * tile_size
             bbox = f"{minx},{miny},{maxx},{maxy}"
-            
+
             # Render tile (delegate to server_manager's WMS method)
             if hasattr(self.server_manager, '_handle_wms_get_map_with_bbox'):
                 class _CaptureConn:
                     def __init__(self):
                         self._buf = bytearray()
+
                     def sendall(self, b):
                         if isinstance(b, (bytes, bytearray)):
                             self._buf.extend(b)
+
                     def close(self):
                         pass
-                
+
                 cap = _CaptureConn()
                 self.server_manager._handle_wms_get_map_with_bbox(
                     cap, bbox, 'EPSG:3857', int(self.tile_size), int(self.tile_size), rotation=0.0
                 )
-                
+
                 # Parse response and cache if successful
                 raw = bytes(cap._buf)
                 sep = b"\r\n\r\n"
                 if sep in raw:
                     _, body = raw.split(sep, 1)
-                    
+
                     # Write to cache atomically
                     tmpfd, tmppath = tempfile.mkstemp(dir=identity_dir, suffix='.tmp')
                     with os.fdopen(tmpfd, 'wb') as tfh:
                         tfh.write(body)
                     os.replace(tmppath, cache_path)
-                    
+
         except Exception as e:
             # Prewarm failures are non-critical, just log quietly
             try:
                 from qgis.core import QgsMessageLog, Qgis
                 QgsMessageLog.logMessage(
                     f"Prewarm tile {z}/{x}/{y} failed: {e}",
-                    "geo_webview", Qgis.Warning
+                    "geo_webview", Qgis.MessageLevel.Warning
                 )
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass

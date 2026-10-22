@@ -27,7 +27,6 @@ def choose_tile_template() -> str:
     """
     try:
         # existence check for QGIS runtime
-        from qgis.core import QgsApplication  # type: ignore
         # MapLibre requires complete URLs for tile sources.
         # The server manager is instantiated with the plugin and we don't
         # have easy access to its port here; use the default port.
@@ -35,4 +34,3 @@ def choose_tile_template() -> str:
         return f"http://localhost:{port}/wmts/{{z}}/{{x}}/{{y}}.png"
     except Exception:
         return "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-

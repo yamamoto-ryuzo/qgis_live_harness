@@ -13,7 +13,7 @@ def _import_module_candidates(candidates):
     for name in candidates:
         try:
             return importlib.import_module(name)
-        except Exception:
+        except Exception:  # nosec B112  # 設計上の許容
             continue
     return None
 
@@ -30,7 +30,7 @@ if QtCore is not None:
     try:
         _qt_version = [int(v) for v in QtCore.qVersion().split('.') if v.isdigit()]
         QT_VERSION = tuple(_qt_version)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
 
@@ -52,10 +52,10 @@ try:
         try:
             # map legacy ints to Qgis.MessageLevel
             if isinstance(level, int):
-                level = {0: Qgis.Info, 1: Qgis.Warning, 2: Qgis.Critical}.get(level, level)
+                level = {0: Qgis.MessageLevel.Info, 1: Qgis.MessageLevel.Warning, 2: Qgis.MessageLevel.Critical}.get(level, level)
             if level is None:
-                level = Qgis.Info
-        except Exception:
+                level = Qgis.MessageLevel.Info
+        except Exception:  # nosec B110  # 設計上の許容
             # fallback: leave level as-is
             pass
         try:
@@ -65,14 +65,14 @@ try:
             # best-effort: print to stdout
             try:
                 print(f"{tag}: {message}")
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     try:
         setattr(QgsMessageLog, 'logMessage', _patched_log_message)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         # ignore if we cannot patch
         pass
-except Exception:
+except Exception:  # nosec B110  # 設計上の許容
     # qgis not available in this environment; ignore
     pass

@@ -59,15 +59,18 @@ try:
         qt_resource_struct = qt_resource_struct_v1
     else:
         qt_resource_struct = qt_resource_struct_v2
-except:
+except Exception:
     qt_resource_struct = qt_resource_struct_v2
 
 rcc_version = 2
 
+
 def qInitResources():
     QtCore.qRegisterResourceData(rcc_version, qt_resource_struct, qt_resource_name, qt_resource_data)
 
+
 def qCleanupResources():
     QtCore.qUnregisterResourceData(rcc_version, qt_resource_struct, qt_resource_name, qt_resource_data)
+
 
 qInitResources()

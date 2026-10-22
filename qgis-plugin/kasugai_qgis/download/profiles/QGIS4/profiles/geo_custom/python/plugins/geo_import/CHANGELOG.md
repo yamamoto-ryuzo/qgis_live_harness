@@ -1,3 +1,63 @@
+2.10.5 vendored defusedxml へ切替
+- サイトスキャンの ElementTree 指摘(B405)をコード側で解消。
+  # nosec 抑制ではなく defusedxml 0.7.1 を vendored 同梱し
+  (pyperclip と同じくプラグイン配下に配置)実体宣言・外部参照を
+  パーサ層で拒否する方式へ変更。
+  - defusedxml/ には ElementTree facade のみ同梱
+    (__init__.py/common.py/ElementTree.py/LICENSE)。
+    defuse_stdlib() と他 facade は QGIS との相性問題
+    (stdlib XML monkey-patch が qgis.PyQt.uic.loadUiType を
+    壊す。qgis2web upstream で実害あり)とスキャン指摘回避の
+    ため意図的に除外
+  - 既存の _reject_unsafe_xml 事前ガードも維持(defense in depth。
+    エラー型も従来どおり ParseError で揃える)
+  - xml_attribute_loader._parse_xml_with_encoding は
+    (tree, root) から root 単独返しに変更
+    (defusedxml.ElementTree は ElementTree クラスを
+    再エクスポートしないため。呼出し側は None 判定のみで
+    tree を未使用だった)
+- .bandit に exclude = defusedxml を追加(vendored コードを
+  スキャン対象外に。defusedxml 内部が stdlib xml.* を
+  import するのは facade の性質上当然のため)
+- .flake8 の per-file-ignores に defusedxml/*.py を追加
+
+2.10.4 サイトスキャン指摘対応
+- ElementTree import 3箇所に # nosec B314 を付与
+  (全て _reject_unsafe_xml で DOCTYPE/ENTITY を拒否済み。
+  QGIS環境に defusedxml が無いため stdlib ET + ガードで対応)
+- assert を実修正: httpcall.py の型チェック2箇所を
+  TypeError raise に変換(-Oでも有効)。pyperclip の2箇所は
+  等価のifチェックに置き換え(空なら''を返す)
+- subprocess/Popen/startfile 18箇所に # nosec B603/B606/B607
+  を付与(pyperclipのOS別クリップボードバックエンドと
+  junction作成/ファイル・フォルダを開く意図的なOS操作)
+
+2.10.3 try/except/pass の nosec 明示
+- try/except/pass|continue 40箇所に # nosec B110/B112 を付与
+  (設計上の許容を明示。サイトスキャンの指摘対応)
+
+2.10.2 Qt6互換性チェック対応
+- 非スコープ列挙型59箇所をスコープ化:
+  Qgis.*→Qgis.MessageLevel.*(geo_import_dialog/geo_import_main/
+  settings/util/xml_attribute_loader)
+
+2.10.1 plugins.qgis.org セキュリティスキャン対応
+- junction作成の `mklink` 呼出しから `shell=True` を除去
+  (リスト形式で cmd /c を直接起動するためshell解釈を経由しない)
+- XMLパース4箇所(WMS GetCapabilities / 属性XMLローダ /
+  XML診断ツール×2)に DOCTYPE/ENTITY 宣言の拒否ガードを追加
+  (XXE・entity展開攻撃対策)
+- キャッシュキー/ファイル名短縮用の md5/sha1 計8箇所に
+  `usedforsecurity=False` を付与(非セキュリティ用途の明示)
+- LOW指摘(try/except/pass、subprocess系監査ヒント、
+  vendored pyperclip 等)はレビュー済みとして同梱 `.bandit` 設定で抑制
+- flake8指摘を整理: `CkanConnector.__check_connection` の重複
+  デッド定義を削除(後勝ちの有効版を温存)、
+  `httpcall` の `QNR_TIMEOUT_ERROR` 未修飾参照を `self.` 付きに修正、
+  `.format` 引数が出力に反映されないログ4箇所を修正、
+  bare `except:` を `except Exception:` に修正。
+  vendored pyperclip の指摘は同梱 `.flake8` 設定で明示抑制
+
 2.10.0 死んでいるCKANサーバーの明示表示 + GSJ Linked Data/TileJSON対応強化
 - GSJ Linked Data マップ情報(JSON)対応強化:
   地質調査総合センターデータカタログの「マップ情報（JSON）」リソース

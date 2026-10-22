@@ -219,7 +219,7 @@ class GeoUserfuncManagerDialog(QDialog):
         return item.text() if item else None
 
     def _reload(self):
-        d = self._plugin.library.reload()
+        _ = self._plugin.library.reload()
         self._plugin._sync_macro_menu()
         self.refresh()
         self.status.setText(_tr("Reloaded."))
@@ -258,8 +258,14 @@ class GeoUserfuncManagerDialog(QDialog):
         if not ok or not url.strip():
             return
         import urllib.request
+        import urllib.parse
+        url = url.strip()
+        if urllib.parse.urlparse(url).scheme.lower() not in ("http", "https"):
+            QMessageBox.warning(self, "geo_userfunc",
+                                _tr("Only http/https URLs are allowed."))
+            return
         try:
-            with urllib.request.urlopen(url.strip(), timeout=15) as r:
+            with urllib.request.urlopen(url, timeout=15) as r:  # nosec B310  # 直上でhttp/httpsスキームを検証済み
                 src = r.read().decode("utf-8")
         except Exception as e:
             QMessageBox.warning(self, "geo_userfunc", str(e))

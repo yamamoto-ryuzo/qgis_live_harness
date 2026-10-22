@@ -16,14 +16,13 @@ from qgis.PyQt.QtCore import \
     QFile, \
     QFileInfo, \
     QIODevice, \
-    QObject, \
     QSettings, \
     QUrl, \
     QUrlQuery
-    #SIGNAL, \
-    #SLOT
+# SIGNAL, \
+# SLOT
 from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.PyQt.QtXml import QDomNode, QDomElement, QDomDocument, QDomNodeList
+from qgis.PyQt.QtXml import QDomDocument
 
 from qgis.core import QgsMessageLog, QgsVectorLayer, QgsRasterLayer, QgsProviderRegistry
 from qgis.core import QgsLayerTreeGroup, QgsProject
@@ -38,7 +37,7 @@ class Util:
         self.main_win = main_win
         self.dlg_caption = settings.DLG_CAPTION
         self.settings = settings
-        
+
         # グローバルXMLファイル管理用
         self.global_xml_files = []
         self.current_session_name = None
@@ -52,7 +51,7 @@ class Util:
         QgsMessageLog.logMessage(
             f"*** XML collection session started: {session_name} ***",
             self.dlg_caption,
-            Qgis.Info
+            Qgis.MessageLevel.Info
         )
 
     def add_xml_files_to_session(self, xml_files):
@@ -64,7 +63,7 @@ class Util:
             QgsMessageLog.logMessage(
                 f"XML files added: {len(xml_files)} (total: {len(self.global_xml_files)})",
                 self.dlg_caption,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
 
     def finish_xml_collection_session(self):
@@ -75,43 +74,43 @@ class Util:
             QgsMessageLog.logMessage(
                 "XML collection session: nothing to process",
                 self.dlg_caption,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
             return
 
             QgsMessageLog.logMessage(
                 f"*** XML collection session ended: {len(self.global_xml_files)} files merged ***",
                 self.dlg_caption,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
-        
+
         try:
             from .xml_attribute_loader import XmlAttributeLoader
             from qgis.utils import iface
-            
+
             QgsMessageLog.logMessage(
                 f"merge started: {len(self.global_xml_files)} XML files",
                 self.dlg_caption,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
-            
+
             # XMLファイルのリストをログに記録
             for i, xml_file in enumerate(self.global_xml_files, 1):
                 QgsMessageLog.logMessage(
                     f"  {i}. {xml_file}",
                     self.dlg_caption,
-                    Qgis.Info
+                    Qgis.MessageLevel.Info
                 )
-            
+
             xml_loader = XmlAttributeLoader(iface)
             created_layers = xml_loader.load_multiple_xml_merged(self.global_xml_files, self.current_session_name)
-            
+
             QgsMessageLog.logMessage(
                 f"merge completed: {len(created_layers) if created_layers else 0} layers created",
                 self.dlg_caption,
-                Qgis.Info
+                Qgis.MessageLevel.Info
             )
-            
+
             # 作成されたレイヤの確認
             if created_layers:
                 for layer in created_layers:
@@ -119,28 +118,28 @@ class Util:
                         QgsMessageLog.logMessage(
                             f"created merged XML layer: {layer.name()} ({layer.featureCount()} features)",
                             self.dlg_caption,
-                            Qgis.Info
+                            Qgis.MessageLevel.Info
                         )
                     else:
                         QgsMessageLog.logMessage(
                             "created merged XML layer is invalid",
                             self.dlg_caption,
-                            Qgis.Warning
+                            Qgis.MessageLevel.Warning
                         )
             else:
                 QgsMessageLog.logMessage(
                     "failed to create merged XML layer",
                     self.dlg_caption,
-                    Qgis.Warning
+                    Qgis.MessageLevel.Warning
                 )
-                
+
         except Exception as e:
             import traceback
             error_msg = f"XML merge error: {e}\n{traceback.format_exc()}"
             QgsMessageLog.logMessage(
                 error_msg,
                 self.dlg_caption,
-                Qgis.Critical
+                Qgis.MessageLevel.Critical
             )
         finally:
             # セッションをリセット
@@ -164,7 +163,7 @@ class Util:
                             # 絶対パスの場合、UNC形式に変換
                             dir_path = '\\\\?\\' + dir_path
                             self.msg_log(u'[path length] converted to UNC form: {0}'.format(dir_path))
-                
+
                 # ディレクトリ作成
                 os.makedirs(dir_path, exist_ok=True)
                 self.msg_log_debug(u'created directory: {0}'.format(dir_path))
@@ -180,45 +179,45 @@ class Util:
                     return self._create_dir_with_shorter_path(dir_path)
                 return False
         return True
-        
+
     def _create_dir_with_shorter_path(self, dir_path):
         """
         長すぎるパス名の場合、パスを短縮してディレクトリ作成を試みる
         """
         try:
             self.msg_log_warning(u'[path length] path too long; attempting to shorten: {0}'.format(dir_path))
-            
+
             # パスの各コンポーネントに分解
             import hashlib
             path_components = []
             remaining_path = dir_path
-            
+
             while remaining_path and remaining_path != os.path.dirname(remaining_path):
                 base = os.path.basename(remaining_path)
                 remaining_path = os.path.dirname(remaining_path)
-                
+
                 # 各コンポーネントが長すぎる場合は短縮
                 if len(base) > 20:  # 20文字を超えるものは短縮
-                    hash_obj = hashlib.md5(base.encode('utf-8'))
+                    hash_obj = hashlib.md5(base.encode('utf-8'), usedforsecurity=False)
                     hash_str = hash_obj.hexdigest()[:8]
                     short_base = base[:10] + '_' + hash_str  # 先頭10文字 + ハッシュ8文字
                     self.msg_log(u'[path shorten] component shortened: {0} -> {1}'.format(base, short_base))
                     path_components.insert(0, short_base)
                 else:
                     path_components.insert(0, base)
-            
+
             # ルートパス/ドライブを保持
             if remaining_path:
                 path_components.insert(0, remaining_path)
-                
+
             # 新しいパスを構築
             new_path = os.path.join(*path_components)
             self.msg_log(u'[path shorten] new path: {0}'.format(new_path))
-            
+
             # 短縮したパスでディレクトリ作成を試みる
             os.makedirs(new_path, exist_ok=True)
             self.msg_log(u'[path shorten] created directory with shortened path: {0}'.format(new_path))
-            
+
             # 元のパスへのシンボリックリンクを作成（可能な場合）
             try:
                 parent_dir = os.path.dirname(dir_path)
@@ -227,12 +226,12 @@ class Util:
                 # Windowsではjunctionを作成
                 if sys.platform == 'win32':
                     import subprocess
-                    subprocess.call(['cmd', '/c', 'mklink', '/J', dir_path, new_path], 
-                                   shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                    subprocess.call(['cmd', '/c', 'mklink', '/J', dir_path, new_path],  # nosec B603 B607
+                                    stderr=subprocess.PIPE, stdout=subprocess.PIPE)
                     self.msg_log(u'[path shorten] created junction: {0} -> {1}'.format(dir_path, new_path))
             except Exception as e:
                 self.msg_log_warning(u'[path shorten] failed to create link: {0}'.format(e))
-                
+
             return True
         except Exception as e:
             self.msg_log_error(u'[path shorten] failed to create shortened path: {0}'.format(e))
@@ -259,19 +258,21 @@ class Util:
         - Return fallback when resulting name is empty.
         - ファイル名が長すぎる場合はハッシュ化して短縮
         """
-        import re, unicodedata, hashlib
+        import re
+        import unicodedata
+        import hashlib
         try:
             if name is None:
                 name = ''
             name = str(name)
-            
+
             # BoxDriveパスを検出して特別処理
             if 'Box' in name and ('Box Drive' in name or 'BoxDrive' in name) and len(name) > 50:
                 # BoxDriveのパスは特に長くなりやすいので、よりアグレッシブに短縮
                 self.msg_log(u'[BoxDrive] detected BoxDrive path: {0}'.format(name))
-                hash_obj = hashlib.md5(name.encode('utf-8'))
+                hash_obj = hashlib.md5(name.encode('utf-8'), usedforsecurity=False)
                 hash_str = hash_obj.hexdigest()[:12]  # 12文字のハッシュ
-                
+
                 # パスの最後の2つのコンポーネントを保持
                 path_parts = name.split(os.sep)
                 if len(path_parts) >= 2:
@@ -279,12 +280,12 @@ class Util:
                     name = f"Box_{last_parts}_{hash_str}"
                 else:
                     name = f"Box_{path_parts[-1][:15]}_{hash_str}"  # 最後の要素（15文字まで）
-                
+
                 self.msg_log(u'[BoxDrive] shortened BoxDrive path: {0}'.format(name))
             # 通常の長いパス名の場合はハッシュ化して短くする
             elif len(name) > max_len:
                 # オリジナルの名前の先頭部分を保持しつつ、ハッシュを追加
-                hash_obj = hashlib.md5(name.encode('utf-8'))
+                hash_obj = hashlib.md5(name.encode('utf-8'), usedforsecurity=False)
                 hash_str = hash_obj.hexdigest()[:8]  # 8文字のハッシュ
                 prefix_len = max_len - 9  # ハッシュ(8文字) + '_'(1文字) の分を引く
                 name = name[:prefix_len] + '_' + hash_str
@@ -317,9 +318,8 @@ class Util:
 
         return name
 
-
     def check_api_url(self, api_url):
-        if(
+        if (
            not api_url or
            api_url is None or
            api_url.isspace() or
@@ -356,7 +356,7 @@ class Util:
             return False, u'UnicodeDecodeError: {0}'.format(ude)
         except AttributeError as ae:
             return False, u'AttributeError: {0}'.format(ae)
-        except:
+        except Exception:
             self.msg_log_debug(u'Except: {0}'.format(sys.exc_info()[1]))
             return False, u'Except: {0}'.format(sys.exc_info()[1])
 
@@ -395,10 +395,10 @@ class Util:
             )
             geo_files = []
             for file_type in file_types:
-                ### python 3.5
+                # python 3.5
                 # glob_term = os.path.join(data_dir, '**', file_type)
                 # geo_files.extend(glob.glob(glob_term))
-                ### python > 2.2
+                # python > 2.2
                 for root, dir_names, file_names in os.walk(data_dir):
                     for file_name in filter(file_names, file_type):
                         geo_files.append(os.path.join(root, file_name))
@@ -411,13 +411,13 @@ class Util:
                 self.msg_log_debug('len(geo_files)<1')
 #                 return False, u'Keine anzeigbaren Daten gefunden in\n{0}.\n\n\n     ===----!!!TODO!!!----===\n\nBenutzer anbieten Verzeichnis zu öffnen'.format(dir)
                 return False, {"message": "unknown fileytpe", "dir_path": data_dir}
-            
+
             # XMLファイルを別途収集
             xml_files = [f for f in geo_files if f.lower().endswith('.xml') and not os.path.basename(f).lower().endswith('.shp.xml')]
             self.msg_log_debug(f"detected XML files: {len(xml_files)}")
             for xml_file in xml_files:
                 self.msg_log_debug(f"  - {xml_file}")
-            
+
             if xml_files:
                 # セッション管理が有効な場合はセッションに追加
                 if self.current_session_name:
@@ -431,7 +431,7 @@ class Util:
                     self._process_xml_files(xml_files, layer_name)
             else:
                 self.msg_log_debug("no XML files found")
-            
+
             for geo_file in geo_files:
                 if os.path.basename(geo_file).lower().endswith('.shp.xml'):
                     self.msg_log_debug(u'skipping {0}'.format(geo_file))
@@ -456,17 +456,17 @@ class Util:
                         # handler already added necessary layers or logged/skipped appropriately
                         continue
 
-                if(
-                        low_case.endswith('.txt') or
-                        low_case.endswith('.pdf') or
-                        low_case.endswith('.xls') or
-                        low_case.endswith('.xlsx') or
-                        low_case.endswith('.doc') or
-                        low_case.endswith('.docx') or
-                        low_case.endswith('.jpg') or
-                        low_case.endswith('.jpeg') or
-                        low_case.endswith('.png')
-                    ):
+                if (
+                    low_case.endswith('.txt') or
+                    low_case.endswith('.pdf') or
+                    low_case.endswith('.xls') or
+                    low_case.endswith('.xlsx') or
+                    low_case.endswith('.doc') or
+                    low_case.endswith('.docx') or
+                    low_case.endswith('.jpg') or
+                    low_case.endswith('.jpeg') or
+                    low_case.endswith('.png')
+                ):
                     # 非GISファイルは自動で外部アプリで開かずスキップする
                     self.msg_log_debug(f'Skipped non-GIS file (not opened): {full_path}')
                     continue
@@ -475,32 +475,32 @@ class Util:
                         full_path,
                         QgsProject.instance().layerTreeRoot()
                     )
-                elif low_case.endswith('.wmts') or low_case.endswith('.wms'): # for now, we assume it's a WMTS
+                elif low_case.endswith('.wmts') or low_case.endswith('.wms'):  # for now, we assume it's a WMTS
                     self.msg_log_debug(u'Open WM(T)S')
                     self._open_wmts(layer_name, layer_url)
                     continue
-                elif low_case.endswith('.wfs'): # for now, we assume it's a WMTS
+                elif low_case.endswith('.wfs'):  # for now, we assume it's a WMTS
                     self.msg_log_debug(u'Open WFS')
                     self._open_wfs(layer_name, layer_url)
                     continue
                 elif low_case.endswith('.csv'):
-#                     lyr = self.__add_csv_table(full_path, full_layer_name)
+                    #                     lyr = self.__add_csv_table(full_path, full_layer_name)
                     self.msg_log_debug(u'Open CSV')
                     self._open_csv(full_path)
                     continue
                 elif low_case.endswith('.xml'):
                     # XMLファイルは既に_process_xml_filesで処理済みなのでスキップ
                     continue
-                elif(
-                        low_case.endswith('.asc') or
-                        low_case.endswith('.tif') or
-                        low_case.endswith('.tiff') or
-                        low_case.endswith('.img') or
-                        low_case.endswith('.jp2') or
-                        low_case.endswith('.j2k') or
-                        low_case.endswith('.rst') or
-                        low_case.endswith('.dem')
-                    ):
+                elif (
+                    low_case.endswith('.asc') or
+                    low_case.endswith('.tif') or
+                    low_case.endswith('.tiff') or
+                    low_case.endswith('.img') or
+                    low_case.endswith('.jp2') or
+                    low_case.endswith('.j2k') or
+                    low_case.endswith('.rst') or
+                    low_case.endswith('.dem')
+                ):
                     lyr = self.__add_raster_layer(full_path, full_layer_name)
                 else:
                     lyr = self.__add_vector_layer(full_path, full_layer_name)
@@ -517,11 +517,11 @@ class Util:
             return False, u'AttributeError: {}'.format(ae)
         except TypeError as te:
             return False, u'TypeError: {}'.format(te)
-        except:
+        except Exception:
             return False, sys.exc_info()[0]
 
     def __add_vector_layer(self, file_name, full_layer_name):
-        self.msg_log_debug(u'vector layer'.format(file_name))
+        self.msg_log_debug(u'vector layer: {0}'.format(file_name))
         lyr = QgsVectorLayer(
             file_name,
             full_layer_name,
@@ -530,7 +530,7 @@ class Util:
         return lyr
 
     def __add_raster_layer(self, file_name, full_layer_name):
-        self.msg_log_debug(u'raster layer'.format(file_name))
+        self.msg_log_debug(u'raster layer: {0}'.format(file_name))
         lyr = QgsRasterLayer(
             file_name,
             full_layer_name
@@ -538,7 +538,7 @@ class Util:
         return lyr
 
     def __add_csv_table(self, file_name, full_layer_name):
-        self.msg_log_debug(u'csv layer'.format(file_name))
+        self.msg_log_debug(u'csv layer: {0}'.format(file_name))
         # file:///f:/scripts/map/points.csv?delimiter=%s&
         # file:///home/bergw/open-data-ktn-cache-dir/42b67af7-f795-48af-9de0-25c8d777bb50/d5ea898b-2ee7-4b52-9b7d-412826d73e45/schuler-und-klassen-kaernten-gesamt-sj-2014-15.csv?encoding=ISO-8859-1&type=csv&delimiter=;&geomType=none&subsetIndex=no&watchFile=no
         # file:///C:/Users/bergw/_TEMP/open-data-ktn-cache-2/wohnbevgemeinzeljahre-2014-WINDOWS.csv?encoding=windows-1252&type=csv&delimiter=%5Ct;&geomType=none&subsetIndex=no&watchFile=no
@@ -562,7 +562,7 @@ class Util:
         https://github.com/qgis/QGIS/blob/master/src/core/qgslayerdefinition.cpp
         """
         qfile = QFile(file_name)
-        if not qfile.open(QIODevice.ReadOnly):
+        if not qfile.open(QIODevice.OpenModeFlag.ReadOnly):
             return None
         doc = QDomDocument()
         if not doc.setContent(qfile):
@@ -629,7 +629,6 @@ class Util:
         wms_dlg.addRasterLayer.connect(iface.addRasterLayer)
         wms_dlg.show()
 
-
     def _open_wfs(self, name, capabilites_url):
         # Add new HTTPConnection like in source
         # https://github.com/qgis/QGIS/blob/master/src/gui/qgsnewhttpconnection.cpp
@@ -650,7 +649,7 @@ class Util:
             query_string.removeQueryItem('service')
             query_string.removeQueryItem('request')
             query_string.removeQueryItem('format')
-            #also remove VERSION: shouldn't be necessary, but QGIS sometimes seems to append version=1.0.0
+            # also remove VERSION: shouldn't be necessary, but QGIS sometimes seems to append version=1.0.0
             query_string.removeQueryItem('VERSION')
             query_string.removeQueryItem('version')
             url.setQuery(query_string)
@@ -691,7 +690,6 @@ class Util:
         wfs_dlg.addVectorLayer.connect(lambda url: iface.addVectorLayer(url, name, "WFS"))
         wfs_dlg.show()
 
-
     # CSV区切り自動判定失敗時のダイアログ抑制用フラグ（1回目だけ表示）
     _csv_delim_dialog_answer = None
 
@@ -731,14 +729,15 @@ class Util:
                     self.msg_log_debug(f"CSV delimiter auto-detect ambiguous: {delimiter_counts} [{enc}]")
                     # --- 1回目だけダイアログ表示し、以降は抑制 ---
                     if Util._csv_delim_dialog_answer is None:
-                        msg = QCoreApplication.translate('GeoImport', "Could not auto-detect CSV delimiter: {0}").format(full_path) + chr(10) + QCoreApplication.translate('GeoImport', "The file must be clearly separated by comma, semicolon, tab, colon or space.")
+                        msg = QCoreApplication.translate('GeoImport', "Could not auto-detect CSV delimiter: {0}").format(full_path) + chr(
+                            10) + QCoreApplication.translate('GeoImport', "The file must be clearly separated by comma, semicolon, tab, colon or space.")
                         QMessageBox.warning(self.main_win, self.dlg_caption, msg)
                         Util._csv_delim_dialog_answer = True
                     return
                 detected_encoding = enc
                 # 先頭行からカラム名を取得（クォート除去強化＆デバッグ出力追加）
                 header = lines[0] if lines else ''
-                columns = [col.strip().replace('"','').replace("'",'') for col in header.strip().split(delimiter)] if header else []
+                columns = [col.strip().replace('"', '').replace("'", '') for col in header.strip().split(delimiter)] if header else []
                 self.msg_log_debug(f"CSV columns: {columns}")
                 # 緯度経度カラム名候補
                 lat_candidates = ['lat', 'latitude', 'y']
@@ -777,11 +776,12 @@ class Util:
                     lat_col = next((c for c in columns if match_lat_col(c)), None)
                     lon_col = next((c for c in columns if match_lon_col(c)), None)
                 # 日本語カラム名が両方見つかった場合のみ数値判定
+
                 def is_float(s):
                     try:
                         # 前後の空白・クォートを除去してから判定
                         return float(s.strip().strip('"\'')) is not None
-                    except:
+                    except Exception:
                         return False
                 if lat_col and lon_col:
                     lat_idx = columns.index(lat_col)
@@ -806,7 +806,8 @@ class Util:
                 lines = []
                 delimiter_counts = {d: 0 for d in delimiters}
         else:
-            QMessageBox.warning(self.main_win, self.dlg_caption, QCoreApplication.translate('GeoImport', "CSV delimiter auto-detection failed: {0}").format(full_path) + QCoreApplication.translate('GeoImport', "Could not open as UTF-8/CP932/ANSI/Shift_JIS/ISO-8859-1."))
+            QMessageBox.warning(self.main_win, self.dlg_caption, QCoreApplication.translate(
+                'GeoImport', "CSV delimiter auto-detection failed: {0}").format(full_path) + QCoreApplication.translate('GeoImport', "Could not open as UTF-8/CP932/ANSI/Shift_JIS/ISO-8859-1."))
             return
         # QgsVectorLayerのURIにdelimiterとencodingパラメータを付与
         uri = f"file:///{full_path}?delimiter={delimiter}&encoding={detected_encoding}"
@@ -840,17 +841,17 @@ class Util:
             # XMLローダーをインポート（循環インポートを避けるため、ここでインポート）
             from .xml_attribute_loader import XmlAttributeLoader
             from qgis.utils import iface
-            
+
             if not xml_files:
                 return
-            
+
             # XMLローダーを作成
             xml_loader = XmlAttributeLoader(iface)
-            
+
             # 常にマージ処理を使用（単一ファイルでも統一された処理）
             self.msg_log_debug(f"merging XML files: {len(xml_files)} files")
             created_layers = xml_loader.load_multiple_xml_merged(xml_files, base_layer_name)
-            
+
             # 作成されたレイヤの確認（レイヤは既にプロジェクトに追加済み）
             if created_layers:
                 for layer in created_layers:
@@ -859,14 +860,14 @@ class Util:
                         # QGISプロジェクト内での確認
                         project_layer = QgsProject.instance().mapLayer(layer.id())
                         if project_layer:
-                            self.msg_log_debug(f"  -> successfully registered to project")
+                            self.msg_log_debug("  -> successfully registered to project")
                         else:
-                            self.msg_log_debug(f"  -> problem registering to project")
+                            self.msg_log_debug("  -> problem registering to project")
                     else:
                         self.msg_log_debug("created layer is invalid")
             else:
                 self.msg_log_debug("failed to create XML layer")
-                
+
         except Exception as e:
             self.msg_log_debug(f"XML processing error: {e}")
             QMessageBox.warning(self.main_win, self.dlg_caption, QCoreApplication.translate('GeoImport', "An error occurred while processing XML file: {0}").format(e))
@@ -877,34 +878,33 @@ class Util:
             # XMLローダーをインポート（循環インポートを避けるため、ここでインポート）
             from .xml_attribute_loader import XmlAttributeLoader
             from qgis.utils import iface
-            
+
             # XMLローダーを作成
             xml_loader = XmlAttributeLoader(iface)
-            
+
             # XMLファイルを属性テーブルとして読み込み
             layer = xml_loader.load_xml_as_attribute_table(full_path, layer_name)
-            
+
             if layer is not None:
                 self.msg_log_debug(f"added XML file as attribute table: {full_path}")
             else:
                 self.msg_log_debug(f"failed to load XML file: {full_path}")
                 QMessageBox.warning(self.main_win, self.dlg_caption, QCoreApplication.translate('GeoImport', "Failed to load XML file: {0}").format(full_path))
-                
+
         except Exception as e:
             self.msg_log_debug(f"XML attribute load error: {e}")
             QMessageBox.warning(self.main_win, self.dlg_caption, QCoreApplication.translate('GeoImport', "An error occurred while loading XML file: {0}").format(e))
 
-
     def __open_with_system(self, file_name):
         code = None
         if sys.platform.startswith('darwin'):
-            code = subprocess.call(('open', file_name))
+            code = subprocess.call(('open', file_name))  # nosec B603 B607
         elif os.name == 'nt':
-            win_code = os.startfile(file_name)
+            win_code = os.startfile(file_name)  # nosec B606
             if win_code != 0:
                 code = -1
         elif os.name == 'posix':
-            code = subprocess.call(('xdg-open', file_name))
+            code = subprocess.call(('xdg-open', file_name))  # nosec B603 B607
         self.msg_log_debug(u'Exit Code: {0}'.format(code))
         return code
 
@@ -916,14 +916,15 @@ class Util:
                 if data.get('features') is not None:
                     self.msg_log_debug('is_geojson: "features" found')
                     return True
-                elif data.get('type') =="FeatureCollection":
+                elif data.get('type') == "FeatureCollection":
                     self.msg_log_debug('is_geojson: "FeatureCollection" found')
                     return True
                 else:
                     return False
-        except:
-            self.msg_log_debug(u'Error reading json'.format(sys.exc_info()[1]))
+        except Exception:
+            self.msg_log_debug(u'Error reading json: {0}'.format(sys.exc_info()[1]))
             return False
+
     def _safe_load_json(self, file_path):
         """Load JSON from file_path safely and return Python object or None on failure."""
         try:
@@ -1135,7 +1136,9 @@ class Util:
             # downloadData/viewerのリンク一覧をHTMLで保存(自動ダウンロードはしない)
             try:
                 import html as _html
-                esc = lambda v: _html.escape(u'' if v is None else str(v))
+
+                def esc(v):
+                    return _html.escape(u'' if v is None else str(v))
                 rows = []
                 for r in obj.get('downloadData') or []:
                     if not isinstance(r, dict):
@@ -1205,16 +1208,16 @@ class Util:
         互換性のためのエイリアス - msg_log_debugと同じ機能
         """
         self.msg_log_debug(msg)
-        
+
     def msg_log_debug(self, msg):
         if self.settings.debug is True:
-            QgsMessageLog.logMessage(msg, self.dlg_caption, Qgis.Info)
+            QgsMessageLog.logMessage(msg, self.dlg_caption, Qgis.MessageLevel.Info)
 
     def msg_log_warning(self, msg):
-        QgsMessageLog.logMessage(msg, self.dlg_caption, Qgis.Warning)
+        QgsMessageLog.logMessage(msg, self.dlg_caption, Qgis.MessageLevel.Warning)
 
     def msg_log_error(self, msg):
-        QgsMessageLog.logMessage(msg, self.dlg_caption, Qgis.Critical)
+        QgsMessageLog.logMessage(msg, self.dlg_caption, Qgis.MessageLevel.Critical)
 
     def msg_log_last_exception(self):
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -1245,13 +1248,13 @@ class Util:
             .format(os.name, sys.platform, file_path)
         )
         if sys.platform == 'darwin':
-            subprocess.Popen(['open', file_path])
+            subprocess.Popen(['open', file_path])  # nosec B603 B607
         elif sys.platform == 'linux' or sys.platform == 'linux2':
-            subprocess.Popen(['xdg-open', file_path])
+            subprocess.Popen(['xdg-open', file_path])  # nosec B603 B607
         elif os.name == 'nt' or sys.platform == 'win32':
             file_path = os.path.normpath(file_path)
             self.msg_log_debug(u'normalized path: {}'.format(file_path))
-            subprocess.Popen(['explorer', file_path])
+            subprocess.Popen(['explorer', file_path])  # nosec B603 B607
 
     def str2bool(self, v):
         """http://stackoverflow.com/a/715468/1504487"""

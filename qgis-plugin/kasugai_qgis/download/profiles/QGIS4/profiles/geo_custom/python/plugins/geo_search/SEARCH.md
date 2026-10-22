@@ -97,7 +97,7 @@ See `setting.json.sample` in the plugin bundle for examples. Below are the main 
   "SearchTabs": [
     {
       "Title": "Sample",
-      "Layer": { "LayerType": "Database", "DataType": "postgres", "Host": "HostName", "Port": "5432", "Database": "DatabaseName", "User": "UserName", "Password": "Password", "Schema": "public", "Table": "kihonp", "Key": "ogc_fid", "Geometry": "wkb_geometry", "FormatSQL": "format.sql" },
+      "Layer": { "LayerType": "Database", "DataType": "postgres", "Host": "HostName", "Port": "5432", "Database": "DatabaseName", "User": "UserName", "Password": "...", "Schema": "public", "Table": "kihonp", "Key": "ogc_fid", "Geometry": "wkb_geometry", "FormatSQL": "format.sql" },
       "TibanField": "parcel field",
       "AzaTable": { "DataType": "postgres", "Host": "...", "Port": "5433", "Database": "...", "User": "...", "Password": "...", "Schema": "public", "Table": "code_table_area", "Columns": [ { "Name": "display attribute name", "View": "display label" } ] },
       "SearchFields": [ { "FieldType": "Text", "ViewName": "label shown in search dialog", "Field": "attribute used for search", "KanaHankaku": true } ],

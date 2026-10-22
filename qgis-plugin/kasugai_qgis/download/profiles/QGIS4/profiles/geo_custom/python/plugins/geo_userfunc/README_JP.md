@@ -67,3 +67,14 @@ geo_userfunc の initGui がこの規約メソッドを探索して呼びます(
 
 初期同梱: [QGIS_user_function](https://github.com/yamamoto-ryuzo/QGIS_user_function)
 の `python`(`zen2han` 式関数など)を `user_functions.py` として同梱。
+
+# 免責事項
+
+本システムは個人のPCで作成・テストされたものです。  
+ご利用によるいかなる損害も責任を負いません。
+
+<p align="center">
+  <a href="https://giphy.com/explore/free-gif" target="_blank">
+    <img src="https://github.com/yamamoto-ryuzo/QGIS_portable_3x/raw/master/imgs/giphy.gif" width="500" title="avvio QGIS">
+  </a>
+</p>

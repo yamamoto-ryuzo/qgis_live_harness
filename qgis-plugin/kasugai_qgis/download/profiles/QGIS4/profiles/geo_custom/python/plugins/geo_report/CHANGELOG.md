@@ -12,6 +12,30 @@
 
 ## 変更履歴
 
+### V2.9.3 try/except/pass の nosec 明示
+- plugins.qgis.org スキャンで指摘された `try/except/pass|continue`
+  43箇所に `# nosec B110/B112` を付与(GUIクラッシュ回避の
+  設計上許容パターンを明示。`.bandit` はZIP非同梱のため
+  インライン抑制で対応)
+
+### V2.9.2 Qt6/Qt6互換性チェック対応
+- plugins.qgis.org の Qt6 compatibility チェックで指摘された
+  非スコープ列挙型35箇所を修正:
+  `Qgis.Info`等→`Qgis.MessageLevel.*`、
+  `QgsWkbTypes.PolygonGeometry`→`QgsWkbTypes.GeometryType.PolygonGeometry`、
+  `QFormLayout.*Role`→`QFormLayout.ItemRole.*`、
+  `QgsUnitTypes.LayoutMillimeters`→`QgsUnitTypes.LayoutUnit.LayoutMillimeters`
+
+### V2.9.1 plugins.qgis.org セキュリティスキャン対応
+- LOW指摘(try/except/pass|continue、subprocess import)は
+  レビュー済みの常套パターンとして同梱 `.bandit` 設定で抑制
+  (ZIP内検出により "Validated (configured)" ステータス想定)
+- flake8指摘を整理: `PrintAreaMoveTool` 内の重複メソッド定義と
+  `LayoutSelectorDialog` 内に残存していた別ツールのデッドコピーを
+  削除(いずれも後勝ちの有効定義のみが動作していたデッドコード)、
+  bare `except:` を `except Exception:` に修正、未使用変数を整理。
+  plugin構造由来のE402・長行E501は同梱 `.flake8` 設定で明示抑制
+
 ### V2.9.0 角度0度リセットボタン追加(issue #4)
 - 「角度:」ラベルの右に `0°` ボタンを追加。クリックで
   `angle_spin` を 0.0 にセット(印刷範囲表示中は

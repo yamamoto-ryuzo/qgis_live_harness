@@ -20,6 +20,7 @@
 import os
 
 from qgis.PyQt.QtCore import QCoreApplication
+from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolBar
 from qgis.core import QgsMessageLog, Qgis
 
@@ -32,7 +33,7 @@ PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
 LOG_TAG = "geo_userfunc"
 
 
-def _log(msg, level=Qgis.Warning):
+def _log(msg, level=Qgis.MessageLevel.Warning):
     QgsMessageLog.logMessage(str(msg), LOG_TAG, level)
 
 
@@ -71,6 +72,7 @@ class plugin(object):
     # ---- GUI --------------------------------------------------------------
     def initGui(self):
         manager_action = QAction(
+            QIcon(os.path.join(PLUGIN_DIR, "icon.png")),
             self.tr("User function library..."), self.iface.mainWindow())
         manager_action.triggered.connect(self.open_manager)
         self.iface.addPluginToMenu(self.menu_name, manager_action)

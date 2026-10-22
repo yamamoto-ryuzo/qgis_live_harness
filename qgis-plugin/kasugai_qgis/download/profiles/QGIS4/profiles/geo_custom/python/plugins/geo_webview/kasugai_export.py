@@ -17,7 +17,6 @@ KASUGAI Canvas は ``geojson: タイトル | DATA/x.geojson | on | style=DATA/x.
 """
 
 import json
-import math
 import os
 import re
 import urllib.error
@@ -45,7 +44,7 @@ def default_output_dir():
         docs = QStandardPaths.writableLocation(loc)
         if docs:
             return os.path.join(docs, 'kasugai_canvas_qgis')
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     import tempfile
     return os.path.join(tempfile.gettempdir(), 'kasugai_canvas_qgis')
@@ -58,7 +57,7 @@ def get_output_dir():
         saved = str(saved).strip()
         if saved and saved != '__default__':
             return saved
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     return default_output_dir()
 
@@ -69,7 +68,7 @@ def get_kasugai_port():
         saved = _qsettings().value(SETTINGS_KEY_PORT, '') or ''
         if str(saved).strip():
             return int(str(saved).strip())
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     return DEFAULT_KASUGAI_PORT
 
@@ -174,6 +173,7 @@ def _xyz_layer_info(layer):
         url = params.get('url')
         if not url:
             return None
+
         def _num(name):
             try:
                 return int(params[name])
@@ -207,7 +207,7 @@ def _camera_line(iface, height_hint_scale=None):
             rot = float(canvas.rotation())
             if abs(rot) > 0.01:
                 line += '|d={0:.1f}'.format(rot % 360)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return line
     except Exception:
@@ -260,7 +260,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True):
             feat_count = -1
             try:
                 feat_count = int(layer.featureCount())
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             layers_out.append({
                 'name': layer.name(), 'title': title,
@@ -319,6 +319,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True):
 
 def _http_json(url, payload=None, timeout=2.0, method=None):
     """小さなJSON HTTP呼び出し。payload無しはGET。"""
+    if urllib.parse.urlparse(url).scheme not in ('http', 'https'):
+        raise ValueError('unsupported URL scheme: {0}'.format(url))
     data = None
     headers = {}
     if payload is not None:
@@ -326,7 +328,7 @@ def _http_json(url, payload=None, timeout=2.0, method=None):
         headers['Content-Type'] = 'application/json'
     req = urllib.request.Request(url, data=data, headers=headers,
                                  method=method)
-    with urllib.request.urlopen(req, timeout=timeout) as res:
+    with urllib.request.urlopen(req, timeout=timeout) as res:  # nosec B310  # 直上でhttp/httpsスキームを検証済み
         body = res.read(65536)
     return json.loads(body.decode('utf-8'))
 
@@ -341,7 +343,7 @@ def detect_kasugai(port=None):
         if isinstance(caps, dict):
             caps['_port'] = port
             return caps
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     return None
 

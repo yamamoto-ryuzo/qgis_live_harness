@@ -24,20 +24,20 @@
 import re
 
 # Import Qt compatibility module first
-from .qt_compat import QCoreApplication, Qt, QIcon, QAction, QDockWidget, WA_DeleteOnClose, RightDockWidgetArea, translate, QtWidgets, QSize
+from .qt_compat import QCoreApplication, Qt, QIcon, QAction, QDockWidget, WA_DeleteOnClose, RightDockWidgetArea, QtWidgets
 from .i18n_json import install_translator
 
-from qgis.core import QgsSettings, QgsMessageLog, QgsProject, QgsExpressionContextUtils
+from qgis.core import QgsSettings, QgsProject, QgsExpressionContextUtils
 
 # Initialize Qt resources from file resources.py
 from .resources_rc import *
 
 # Import version information
-from .version import __version__, get_version_info, get_compatibility_info
 
 # Import the code for the DockWidget
 from .legend_view_dockwidget import LegendViewDockWidget
 import os.path
+
 
 class LegendView:
     """QGIS Plugin Implementation."""
@@ -63,8 +63,8 @@ class LegendView:
         self.actions = []
         self.menu = self.tr(u'&Legend View')  # Default to English, will be translated
         # No custom toolbar - using standard QGIS plugin toolbar
-        
-        #print "** INITIALIZING LegendView"
+
+        # print "** INITIALIZING LegendView"
 
         self.pluginIsActive = False
         self.dockwidget = None
@@ -91,18 +91,17 @@ class LegendView:
         """QGIS/Qt標準の翻訳APIのみ"""
         return QCoreApplication.translate('LegendView', message)
 
-
     def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
+            self,
+            icon_path,
+            text,
+            callback,
+            enabled_flag=True,
+            add_to_menu=True,
+            add_to_toolbar=True,
+            status_tip=None,
+            whats_this=None,
+            parent=None):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -144,28 +143,28 @@ class LegendView:
 
         # Create icon - simple and reliable approach
         icon = QIcon()
-        
+
         # Try multiple approaches in order of reliability
         import os
-        
+
         # Method 1: File system path (most reliable)
         if icon_path.startswith(':/'):
             file_name = os.path.basename(icon_path)
             file_path = os.path.join(os.path.dirname(__file__), file_name)
         else:
             file_path = icon_path
-            
+
         if os.path.exists(file_path):
             icon = QIcon(file_path)
-        
+
         # Method 2: Resource path (if file system failed)
         if icon.isNull() and icon_path.startswith(':/'):
             icon = QIcon(icon_path)
-        
+
         # Method 3: Create simple fallback icon if both failed
         if icon.isNull():
             icon = self.create_fallback_icon()
-        
+
         # Qt6ではparent=NoneでQAction生成（ツールバー表示対策）
         action = QAction(icon, text)
         action.triggered.connect(callback)
@@ -190,7 +189,6 @@ class LegendView:
 
         return action
 
-
     def _geo_toolbar(self):
         """GeoSuite共有ツールバーをfind-or-createで返す。"""
         tb = self.iface.mainWindow().findChild(QtWidgets.QToolBar, "GeoSuite")
@@ -201,21 +199,21 @@ class LegendView:
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
-        
+
         icon_path = ':/plugins/legend_view/icon.png'
-        
+
         self.add_action(
             icon_path,
             text=self.tr(u'Legend'),
             callback=self.run,
             parent=self.iface.mainWindow())
 
-    #--------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
 
-        #print "** CLOSING LegendView"
+        # print "** CLOSING LegendView"
 
         self.storeState()
 
@@ -227,14 +225,13 @@ class LegendView:
         # Commented next statement since it causes QGIS crashe
         # when closing the docked window:
         self.dockwidget = None
-        
-        self.pluginIsActive = False
 
+        self.pluginIsActive = False
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
 
-        #print "** UNLOAD LegendView"
+        # print "** UNLOAD LegendView"
 
         for action in self.actions:
             self.iface.removePluginMenu(
@@ -243,7 +240,7 @@ class LegendView:
             self._geo_toolbar().removeAction(action)
         # No custom toolbar to remove - actions live on shared GeoSuite toolbar
 
-    #--------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
     def run(self):
         """Run method that loads and starts the plugin"""
@@ -251,12 +248,12 @@ class LegendView:
         if not self.pluginIsActive:
             self.pluginIsActive = True
 
-            #print "** STARTING LegendView"
+            # print "** STARTING LegendView"
 
             # dockwidget may not exist if:
             #    first run of plugin
             #    removed on close (see self.onClosePlugin method)
-            if self.dockwidget == None:
+            if self.dockwidget is None:
                 # Create the dockwidget (after translation) and keep reference
                 self.dockwidget = LegendViewDockWidget(self.iface)
                 self.dockwidget.setAttribute(WA_DeleteOnClose)
@@ -271,7 +268,7 @@ class LegendView:
                 self.dockwidget.activateWindow()
             else:
                 self.dockwidget.raise_()
-                
+
     def onProjectClose(self):
         if self.dockwidget:
             self.dockwidget.close()
@@ -346,24 +343,21 @@ class LegendView:
 
             painter = QPainter(pixmap)
             painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-            
+
             # Draw a simple legend-like icon
             painter.setPen(QPen(QColor(50, 50, 150), 2))
             painter.setBrush(QColor(200, 220, 255))
             painter.drawRect(2, 2, 20, 20)
-            
+
             # Add some lines to represent legend entries
             painter.setPen(QPen(QColor(100, 100, 100), 1))
             painter.drawLine(5, 8, 19, 8)
             painter.drawLine(5, 12, 19, 12)
             painter.drawLine(5, 16, 19, 16)
-            
+
             painter.end()
-            
+
             return QIcon(pixmap)
-        except:
+        except Exception:
             # Return empty icon if even fallback fails
             return QIcon()
-
-
-
