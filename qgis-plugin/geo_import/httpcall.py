@@ -37,8 +37,10 @@ class HttpCall:
 
     def __init__(self, settings, util):
         # 設定とユーティリティクラスのインスタンスを保持
-        assert isinstance(settings, Settings)
-        assert isinstance(util, Util)
+        if not isinstance(settings, Settings):
+            raise TypeError("settings must be a Settings instance")
+        if not isinstance(util, Util):
+            raise TypeError("util must be a Util instance")
         self.settings = settings
         self.util = util
         self.reply = None

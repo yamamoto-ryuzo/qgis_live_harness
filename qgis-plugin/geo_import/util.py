@@ -226,7 +226,7 @@ class Util:
                 # Windowsではjunctionを作成
                 if sys.platform == 'win32':
                     import subprocess
-                    subprocess.call(['cmd', '/c', 'mklink', '/J', dir_path, new_path],
+                    subprocess.call(['cmd', '/c', 'mklink', '/J', dir_path, new_path],  # nosec B603 B607
                                     stderr=subprocess.PIPE, stdout=subprocess.PIPE)
                     self.msg_log(u'[path shorten] created junction: {0} -> {1}'.format(dir_path, new_path))
             except Exception as e:
@@ -898,13 +898,13 @@ class Util:
     def __open_with_system(self, file_name):
         code = None
         if sys.platform.startswith('darwin'):
-            code = subprocess.call(('open', file_name))
+            code = subprocess.call(('open', file_name))  # nosec B603 B607
         elif os.name == 'nt':
-            win_code = os.startfile(file_name)
+            win_code = os.startfile(file_name)  # nosec B606
             if win_code != 0:
                 code = -1
         elif os.name == 'posix':
-            code = subprocess.call(('xdg-open', file_name))
+            code = subprocess.call(('xdg-open', file_name))  # nosec B603 B607
         self.msg_log_debug(u'Exit Code: {0}'.format(code))
         return code
 
@@ -1248,13 +1248,13 @@ class Util:
             .format(os.name, sys.platform, file_path)
         )
         if sys.platform == 'darwin':
-            subprocess.Popen(['open', file_path])
+            subprocess.Popen(['open', file_path])  # nosec B603 B607
         elif sys.platform == 'linux' or sys.platform == 'linux2':
-            subprocess.Popen(['xdg-open', file_path])
+            subprocess.Popen(['xdg-open', file_path])  # nosec B603 B607
         elif os.name == 'nt' or sys.platform == 'win32':
             file_path = os.path.normpath(file_path)
             self.msg_log_debug(u'normalized path: {}'.format(file_path))
-            subprocess.Popen(['explorer', file_path])
+            subprocess.Popen(['explorer', file_path])  # nosec B603 B607
 
     def str2bool(self, v):
         """http://stackoverflow.com/a/715468/1504487"""

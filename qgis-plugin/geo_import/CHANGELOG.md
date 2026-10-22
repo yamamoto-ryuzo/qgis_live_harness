@@ -1,3 +1,14 @@
+2.10.4 サイトスキャン指摘対応
+- ElementTree import 3箇所に # nosec B314 を付与
+  (全て _reject_unsafe_xml で DOCTYPE/ENTITY を拒否済み。
+  QGIS環境に defusedxml が無いため stdlib ET + ガードで対応)
+- assert を実修正: httpcall.py の型チェック2箇所を
+  TypeError raise に変換(-Oでも有効)。pyperclip の2箇所は
+  等価のifチェックに置き換え(空なら''を返す)
+- subprocess/Popen/startfile 18箇所に # nosec B603/B606/B607
+  を付与(pyperclipのOS別クリップボードバックエンドと
+  junction作成/ファイル・フォルダを開く意図的なOS操作)
+
 2.10.3 try/except/pass の nosec 明示
 - try/except/pass|continue 40箇所に # nosec B110/B112 を付与
   (設計上の許容を明示。サイトスキャンの指摘対応)

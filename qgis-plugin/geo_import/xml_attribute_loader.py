@@ -21,7 +21,8 @@
 """
 
 import os
-import xml.etree.ElementTree as ET
+# DOCTYPE/ENTITYは _reject_unsafe_xml で拒否済み(expat既定で外部実体も不処理)
+import xml.etree.ElementTree as ET  # nosec B314
 from qgis.PyQt.QtCore import QVariant, QCoreApplication
 from qgis.core import (
     QgsVectorLayer,

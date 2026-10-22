@@ -1648,7 +1648,8 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                 # WMSの場合はGetCapabilitiesで情報取得し、最初のレイヤ名でQGISにレイヤ追加
                 try:
                     import requests
-                    from xml.etree import ElementTree as ET
+                    # 直下で DOCTYPE/ENTITY を拒否するため stdlib ET で許容
+                    from xml.etree import ElementTree as ET  # nosec B314
                     wms_url = url_val
                     if not wms_url.lower().endswith('?'):
                         if '?' in wms_url:

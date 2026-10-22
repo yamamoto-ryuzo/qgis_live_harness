@@ -80,7 +80,7 @@ else:
 
 
 def _executable_exists(name):
-    return subprocess.call([WHICH_CMD, name],
+    return subprocess.call([WHICH_CMD, name],  # nosec B603
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
 
 
@@ -109,12 +109,12 @@ def init_osx_pbcopy_clipboard():
 
     def copy_osx_pbcopy(text):
         text = _stringifyText(text)  # Converts non-str values to str.
-        p = subprocess.Popen(['pbcopy', 'w'],
+        p = subprocess.Popen(['pbcopy', 'w'],  # nosec B603 B607
                              stdin=subprocess.PIPE, close_fds=True)
         p.communicate(input=text.encode(ENCODING))
 
     def paste_osx_pbcopy():
-        p = subprocess.Popen(['pbpaste', 'r'],
+        p = subprocess.Popen(['pbpaste', 'r'],  # nosec B603 B607
                              stdout=subprocess.PIPE, close_fds=True)
         stdout, stderr = p.communicate()
         return stdout.decode(ENCODING)
@@ -201,7 +201,7 @@ def init_xclip_clipboard():
         selection = DEFAULT_SELECTION
         if primary:
             selection = PRIMARY_SELECTION
-        p = subprocess.Popen(['xclip', '-selection', selection],
+        p = subprocess.Popen(['xclip', '-selection', selection],  # nosec B603 B607
                              stdin=subprocess.PIPE, close_fds=True)
         p.communicate(input=text.encode(ENCODING))
 
@@ -209,7 +209,7 @@ def init_xclip_clipboard():
         selection = DEFAULT_SELECTION
         if primary:
             selection = PRIMARY_SELECTION
-        p = subprocess.Popen(['xclip', '-selection', selection, '-o'],
+        p = subprocess.Popen(['xclip', '-selection', selection, '-o'],  # nosec B603 B607
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,
                              close_fds=True)
@@ -229,7 +229,7 @@ def init_xsel_clipboard():
         selection_flag = DEFAULT_SELECTION
         if primary:
             selection_flag = PRIMARY_SELECTION
-        p = subprocess.Popen(['xsel', selection_flag, '-i'],
+        p = subprocess.Popen(['xsel', selection_flag, '-i'],  # nosec B603 B607
                              stdin=subprocess.PIPE, close_fds=True)
         p.communicate(input=text.encode(ENCODING))
 
@@ -237,7 +237,7 @@ def init_xsel_clipboard():
         selection_flag = DEFAULT_SELECTION
         if primary:
             selection_flag = PRIMARY_SELECTION
-        p = subprocess.Popen(['xsel', selection_flag, '-o'],
+        p = subprocess.Popen(['xsel', selection_flag, '-o'],  # nosec B603 B607
                              stdout=subprocess.PIPE, close_fds=True)
         stdout, stderr = p.communicate()
         return stdout.decode(ENCODING)
@@ -248,14 +248,14 @@ def init_xsel_clipboard():
 def init_klipper_clipboard():
     def copy_klipper(text):
         text = _stringifyText(text)  # Converts non-str values to str.
-        p = subprocess.Popen(
+        p = subprocess.Popen(  # nosec B603 B607
             ['qdbus', 'org.kde.klipper', '/klipper', 'setClipboardContents',
              text.encode(ENCODING)],
             stdin=subprocess.PIPE, close_fds=True)
         p.communicate(input=None)
 
     def paste_klipper():
-        p = subprocess.Popen(
+        p = subprocess.Popen(  # nosec B603 B607
             ['qdbus', 'org.kde.klipper', '/klipper', 'getClipboardContents'],
             stdout=subprocess.PIPE, close_fds=True)
         stdout, stderr = p.communicate()
@@ -264,9 +264,8 @@ def init_klipper_clipboard():
         # TODO: https://github.com/asweigart/pyperclip/issues/43
         clipboardContents = stdout.decode(ENCODING)
         # even if blank, Klipper will append a newline at the end
-        assert len(clipboardContents) > 0
-        # make sure that newline is there
-        assert clipboardContents.endswith('\n')
+        if not clipboardContents:
+            return ''
         if clipboardContents.endswith('\n'):
             clipboardContents = clipboardContents[:-1]
         return clipboardContents
@@ -467,12 +466,12 @@ def init_windows_clipboard():
 def init_wsl_clipboard():
     def copy_wsl(text):
         text = _stringifyText(text)  # Converts non-str values to str.
-        p = subprocess.Popen(['clip.exe'],
+        p = subprocess.Popen(['clip.exe'],  # nosec B603 B607
                              stdin=subprocess.PIPE, close_fds=True)
         p.communicate(input=text.encode(ENCODING))
 
     def paste_wsl():
-        p = subprocess.Popen(['powershell.exe', '-command', 'Get-Clipboard'],
+        p = subprocess.Popen(['powershell.exe', '-command', 'Get-Clipboard'],  # nosec B603 B607
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,
                              close_fds=True)
