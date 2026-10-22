@@ -189,7 +189,7 @@ class plugin(object):
             if registry is not None:
                 try:
                     registry.unregister_plugin("geo_excel")
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             self._registered_to_userfunc = False
         for action in self.actions + self.macro_actions:

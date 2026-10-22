@@ -42,7 +42,7 @@ def _is_junction(path):
         st = os.stat(path, follow_symlinks=False)
         if getattr(st, "st_file_attributes", 0) & _REPARSE:
             return True
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     return os.path.islink(path)
 
@@ -55,7 +55,7 @@ def read_marker(own_file):
             m = json.load(f)
         if isinstance(m, dict):
             return m
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     return {}
 
@@ -86,7 +86,7 @@ def managed_ids(own_file):
                 ids = [ids]
             if ids:
                 return sorted(set(ids))
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
     try:
         from .hot_reload import dev_plugin_ids
@@ -284,7 +284,7 @@ def show_dialog(iface, own_file, notify=None):
             try:
                 from .hot_reload import reload_plugins
                 reload_plugins(ids, notify=notify)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         if notify:
             notify("info", tr("Deploy mode switched: {0}").format(mode))

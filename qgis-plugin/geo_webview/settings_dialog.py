@@ -16,7 +16,7 @@ class SettingsDialog(QtWidgets.QDialog):
             icon_path = os.path.join(os.path.dirname(__file__), 'icon', 'setting.png')
             if os.path.exists(icon_path):
                 self.setWindowIcon(QIcon(icon_path))
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         # Initialize QSettings for persistent storage

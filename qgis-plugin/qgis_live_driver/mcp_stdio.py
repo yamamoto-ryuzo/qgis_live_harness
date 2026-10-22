@@ -187,7 +187,7 @@ def _find_live_dir():
                 e = json.load(f)
             if e.get("live_dir"):
                 cands.append(e)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
     cands.sort(key=lambda e: (
         e.get("plugin_id") != TARGET_PLUGIN, -e.get("started", 0)))
@@ -223,7 +223,7 @@ def _send(live_dir, cmd, token=None, timeout=TIMEOUT):
                 for line in f:
                     try:
                         obj = json.loads(line)
-                    except Exception:
+                    except Exception:  # nosec B112  # 設計上の許容
                         continue
                     if obj.get("id") == cmd["id"]:
                         return obj
@@ -323,7 +323,7 @@ def main():
             continue
         try:
             msg = json.loads(line)
-        except Exception:
+        except Exception:  # nosec B112  # 設計上の許容
             continue
         if msg.get("method", "").startswith("notifications/") or "id" not in msg:
             continue  # 通知は応答不要

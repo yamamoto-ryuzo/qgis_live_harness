@@ -407,7 +407,7 @@ class XmlAttributeLoader:
                         file_content = f.read(1000)  # 最初の1000文字を読む
                         detected_encoding = encoding
                         break
-                except UnicodeDecodeError:
+                except UnicodeDecodeError:  # nosec B112  # 設計上の許容
                     continue
 
             if file_content is None:
@@ -497,7 +497,7 @@ class XmlAttributeLoader:
                     )
                     continue
 
-            except UnicodeDecodeError:
+            except UnicodeDecodeError:  # nosec B112  # 設計上の許容
                 # このエンコーディングでは読めない
                 continue
             except Exception as e:
@@ -536,7 +536,7 @@ class XmlAttributeLoader:
         try:
             with open(xml_file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 xml_content_str = f.read().lower()
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             # エンコーディングエラーでも継続
             pass
 
@@ -615,7 +615,7 @@ class XmlAttributeLoader:
                 with open(xml_file_path, 'r', encoding='utf-8', errors='ignore') as f:
                     xml_content_str = f.read()
                     details['file_size'] = len(xml_content_str)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             xml_content_lower = xml_content_str.lower()

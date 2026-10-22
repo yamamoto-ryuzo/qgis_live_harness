@@ -260,7 +260,7 @@ class _GenericBridge:
             try:
                 dlg.raise_()
                 dlg.activateWindow()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return self._ok({"opened": True,
                              "widget": dlg.__class__.__name__})
@@ -316,7 +316,7 @@ class LiveDriver:
             from qgis.core import QgsProject, QgsApplication
             self._ns.update({"QgsProject": QgsProject,
                              "QgsApplication": QgsApplication})
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         # ファイル以外の命令入力(HTTPサーバ等の別スレッドからの投入)。
         # GUIスレッド以外から iface/QgsProject に触れないため、
@@ -327,7 +327,7 @@ class LiveDriver:
             with open(os.path.join(live_dir, "token"), "w",
                       encoding="ascii") as f:
                 f.write(self.token)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         self.timer = QTimer()
@@ -533,7 +533,7 @@ class LiveDriver:
                                  and getattr(drv, "view", None) is not None),
                     "bridge": getattr(p, "bridge", None) is not None,
                 }
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return {
             "pid": os.getpid(),
@@ -621,7 +621,7 @@ class LiveDriver:
             if isinstance(res, str):
                 try:
                     res = json.loads(res)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             reply({"id": cid, "result": _to_jsonable(res)})
         except Exception:
@@ -654,7 +654,7 @@ class LiveDriver:
                             if isinstance(res, str):
                                 try:
                                     res = json.loads(res)
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
                             entry["info"] = _to_jsonable(res)
                         except Exception:

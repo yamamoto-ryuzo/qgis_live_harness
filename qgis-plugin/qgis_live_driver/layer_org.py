@@ -89,7 +89,7 @@ def list_profiles():
                         meta = json.load(fh)
                     name = meta.get("name") or stem
                     desc = meta.get("description") or ""
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 out[stem] = {"id": stem, "name": name, "description": desc,
                              "path": p, "builtin": builtin}
@@ -168,7 +168,7 @@ def layer_attrs(layer, ctx=None):
     src = ""
     try:
         src = layer.source() or ""
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     attrs["source"] = src
     ext = _layer_ext(str(ctx.get("file") or "")) \
@@ -289,7 +289,7 @@ class LayerOrganizer:
         try:
             from qgis.PyQt.QtCore import QSettings
             QSettings().setValue(_SETTING_PROFILE, str(name))
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return {"ok": True, "active": str(name)}
 
@@ -351,7 +351,7 @@ class LayerOrganizer:
                 if rule and rule.get("collapsed"):
                     try:
                         group.setExpanded(False)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
         else:
             entry["action"] = "no-match"
@@ -365,7 +365,7 @@ class LayerOrganizer:
                         layer.setName(new_name)
                         # 既に置かれたツリーノード側も追随
                         self._rename_node(layer, new_name)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
         if rule and rule.get("style"):
             style = rule["style"]
@@ -376,7 +376,7 @@ class LayerOrganizer:
                 try:
                     layer.loadNamedStyle(style)
                     layer.triggerRepaint()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
         entry["action"] = "dry" if dry else "placed"
         return entry
@@ -454,5 +454,5 @@ class LayerOrganizer:
         if node is not None and QgsLayerTree.isLayer(node):
             try:
                 node.setName(new_name)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass

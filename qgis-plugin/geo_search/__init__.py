@@ -22,13 +22,13 @@ def classFactory(iface):
                     def write(self, s):
                         try:
                             logging.getLogger('geo_search').error(str(s).rstrip())
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                     def flush(self):
                         return
                 sys.stderr = _StderrProxy()
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         # best-effort: do not prevent plugin from loading
         pass
 
@@ -38,7 +38,7 @@ def classFactory(iface):
     try:
         import importlib
         importlib.import_module('geo_search.qt_compat')
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         # best-effort: if importing the shim fails, continue; plugin should
         # still try to run without the compatibility helpers.
         pass

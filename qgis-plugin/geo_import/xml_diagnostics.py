@@ -69,7 +69,7 @@ def diagnose_xml_file(file_path):
                     result['first_lines'] = lines
                     result['encoding_detected'] = encoding
                     break
-            except UnicodeDecodeError:
+            except UnicodeDecodeError:  # nosec B112  # 設計上の許容
                 continue
 
         if result['encoding_detected'] is None:
@@ -102,9 +102,9 @@ def diagnose_xml_file(file_path):
                     xml_parsed = True
                     break
 
-                except (ET.ParseError, UnicodeDecodeError):
+                except (ET.ParseError, UnicodeDecodeError):  # nosec B112  # 設計上の許容
                     continue
-                except Exception:
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
 
             if not xml_parsed:

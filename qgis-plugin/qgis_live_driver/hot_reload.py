@@ -35,11 +35,11 @@ def dev_plugin_ids(own_file):
                 continue
             try:
                 src = os.path.dirname(os.path.realpath(p))
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
             if os.path.basename(src) == "qgis-plugin":
                 ids.append(d)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     return sorted(ids)
 

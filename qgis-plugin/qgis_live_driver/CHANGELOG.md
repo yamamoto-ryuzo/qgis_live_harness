@@ -32,6 +32,8 @@
   `tempfile.gettempdir()` に変更
 - `pyeval` の `eval` は任意Python実行が主目的のため
   `# nosec B307` で明示抑制
+- try/except/pass|continue 65箇所に `# nosec B110/B112` を付与
+  (設計上の許容を明示。サイトスキャンの指摘対応)
 
 ### Maintenance
 

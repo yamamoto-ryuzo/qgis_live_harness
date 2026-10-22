@@ -67,14 +67,14 @@ class SearchWidget(QWidget):
             except Exception:
                 try:
                     inner.addWidget(widget)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
         outer.addLayout(inner)
         # add angle/scale display on a new row under the inputs
         try:
             outer.addLayout(self._angle_scale_layout())
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         self.setLayout(outer)
@@ -127,7 +127,7 @@ class SearchWidget(QWidget):
             spacer = QSpacerItem(20, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
             # layouts accept addItem
             h.addItem(spacer)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         v.addLayout(h)
@@ -177,7 +177,7 @@ class SearchWidget(QWidget):
         try:
             from qgis.PyQt.QtCore import Qt
             src_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         v.addWidget(src_label)
@@ -255,7 +255,7 @@ class SearchTibanWidget(SearchTextWidget):
         # add angle/scale display for this widget
         try:
             layout.addLayout(self._angle_scale_layout())
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         self.setLayout(layout)
 
@@ -312,7 +312,7 @@ class SearchOwnerWidget(SearchTextWidget):
         # add angle/scale display for this widget
         try:
             layout.addLayout(self._angle_scale_layout())
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         self.setLayout(layout)

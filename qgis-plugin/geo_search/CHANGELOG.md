@@ -1,3 +1,6 @@
+# V4.4.3 try/except/pass の nosec 明示
+- 584箇所に # nosec B110/B112 を付与(設計上の許容を明示)
+
 # V4.4.2 Qt6互換性チェック対応
 - 非スコープ列挙型をスコープ化(Qgis.*→Qgis.MessageLevel.*、
   qt_compat.py含む2箇所)

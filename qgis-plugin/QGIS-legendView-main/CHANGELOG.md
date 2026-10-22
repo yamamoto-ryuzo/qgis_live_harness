@@ -5,6 +5,11 @@ All notable changes to the QGIS Legend View plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.4] - 2026-10-21
+
+### Maintenance
+- try/except/pass 5箇所に # nosec B110 を付与(設計上の許容を明示)
+
 ## [2.6.3] - 2026-10-21
 
 ### Fixed

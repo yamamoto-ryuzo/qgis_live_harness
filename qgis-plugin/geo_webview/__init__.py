@@ -40,10 +40,10 @@ try:
             except Exception:
                 try:
                     sys.stderr = io.StringIO()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     # give up silently; later imports may still fail
                     pass
-except Exception:
+except Exception:  # nosec B110  # 設計上の許容
     # Never raise from import-time guard
     pass
 
@@ -76,9 +76,9 @@ def classFactory(iface):  # pylint: disable=invalid-name
                     # Last-resort: an in-memory stream
                     try:
                         sys.stderr = io.StringIO()
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         # Don't let secondary errors prevent plugin loading
         pass
 

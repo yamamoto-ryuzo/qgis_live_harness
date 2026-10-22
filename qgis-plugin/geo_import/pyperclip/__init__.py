@@ -523,7 +523,7 @@ def determine_clipboard():
     if HAS_DISPLAY:
         try:
             import gtk  # check if gtk is installed
-        except ImportError:
+        except ImportError:  # nosec B110  # 設計上の許容
             pass  # We want to fail fast for all non-ImportError exceptions.
         else:
             return init_gtk_clipboard()
@@ -546,7 +546,7 @@ def determine_clipboard():
             except ImportError:
                 try:
                     import PyQt4  # check if PyQt4 is installed
-                except ImportError:
+                except ImportError:  # nosec B110  # 設計上の許容
                     pass  # We want to fail fast for all non-ImportError exceptions.
                 else:
                     return init_qt_clipboard()

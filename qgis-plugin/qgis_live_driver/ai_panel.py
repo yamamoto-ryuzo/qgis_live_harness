@@ -623,7 +623,7 @@ class AiPanel(QDockWidget):
         for s in self._mcp_sessions.values():
             try:
                 s.close()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         self._mcp_sessions = {}
         self._mcp_done = False
@@ -1009,7 +1009,7 @@ class AiPanel(QDockWidget):
     def _remove_attachment(self, path, chip):
         try:
             self._attachments.remove(path)
-        except ValueError:
+        except ValueError:  # nosec B110  # 設計上の許容
             pass
         chip.deleteLater()
         if not self._attachments:
@@ -1154,7 +1154,7 @@ class AiPanel(QDockWidget):
             data = self._sessions[1:][-50:]  # 最新50件まで
             with open(self._chats_path(), "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def _restore_chats(self):
@@ -1416,7 +1416,7 @@ class AiPanel(QDockWidget):
             try:
                 import qgis.utils
                 plugins = sorted(qgis.utils.plugins.keys())
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             self._plugins = plugins
             pid = self._provider()

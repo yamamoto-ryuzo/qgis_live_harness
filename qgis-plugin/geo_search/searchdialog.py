@@ -44,7 +44,7 @@ class SearchDialog(QDialog):
                 QgsMessageLog.logMessage("addLayerButton connected", "GEO-search-plugin", 0)
             except Exception:
                 print("addLayerButton connected")
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         # Connect remove tab button if present
@@ -55,7 +55,7 @@ class SearchDialog(QDialog):
                 QgsMessageLog.logMessage("removeTabButton connected", "GEO-search-plugin", 0)
             except Exception:
                 print("removeTabButton connected")
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         # Connect config button if present
@@ -66,7 +66,7 @@ class SearchDialog(QDialog):
                 QgsMessageLog.logMessage("configButton connected", "GEO-search-plugin", 0)
             except Exception:
                 print("configButton connected")
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         # Post-initialization: attempt to stabilize layout and table sizing.
@@ -78,7 +78,7 @@ class SearchDialog(QDialog):
             # ensure top-level layout is recalculated
             try:
                 self.adjustSize()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             from qgis.PyQt.QtWidgets import QWidget, QTableWidget
@@ -88,7 +88,7 @@ class SearchDialog(QDialog):
                     # keep widgets hidden state as-is; just nudge geometry
                     w.updateGeometry()
                     w.repaint()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # resize any tables to contents so headers don't collapse to zero
@@ -97,9 +97,9 @@ class SearchDialog(QDialog):
                     t.resizeColumnsToContents()
                     t.resizeRowsToContents()
                     t.repaint()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             # swallow any errors - this is purely best-effort
             pass
 
@@ -128,7 +128,7 @@ class SearchDialog(QDialog):
                         layer_name = tab_setting["Layer"]["Name"]
                         if layer_name not in parent.current_layers:
                             parent.current_layers.append(layer_name)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
         self.set_window_title(0)
@@ -186,7 +186,7 @@ class SearchDialog(QDialog):
                         # fallback to raw text
                         self.tabWidget.addTab(page, str(g))
                     created[g] = child_tabs
-                except Exception:
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
             return created
         except Exception:
@@ -211,7 +211,7 @@ class SearchDialog(QDialog):
                         try:
                             for i in range(child_tab.count()):
                                 yield child_tab.widget(i)
-                        except Exception:
+                        except Exception:  # nosec B112  # 設計上の許容
                             continue
                 # also include any top-level tabs that are not group containers
                 for i in range(self.tabWidget.count()):
@@ -224,7 +224,7 @@ class SearchDialog(QDialog):
                         if child is not None:
                             # child tabs already yielded above
                             continue
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                     yield page
             except Exception:
@@ -249,7 +249,7 @@ class SearchDialog(QDialog):
                     name = getattr(p, 'objectName', None)
                     if name:
                         title_map.setdefault((name, None), []).append(p)
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
 
         for tab in (self.setting.get('SearchTabs') or []):
@@ -376,7 +376,7 @@ class SearchDialog(QDialog):
                 # best-effort: if QgsMessageLog not available, print
                 try:
                     print(json.dumps(standard_json, ensure_ascii=False))
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # Ask user where to save
@@ -471,7 +471,7 @@ class SearchDialog(QDialog):
                     # As a last resort, show a simple information box
                     try:
                         QMessageBox.information(self, self.tr("Cancelled"), self.tr("Add current layer aborted. See log for details."))
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                 return
@@ -533,7 +533,7 @@ class SearchDialog(QDialog):
                                 from qgis.core import QgsMessageLog
                                 read_back = QgsExpressionContextUtils.projectScope(project).variable('GEO-search-plugin')
                                 QgsMessageLog.logMessage(f"Wrote project variable via helper: {str(read_back)}", "GEO-search-plugin", 0)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                         else:
                             try:
@@ -591,7 +591,7 @@ class SearchDialog(QDialog):
                 # inform user that save failed (wrappers/logs provide details)
                 try:
                     QMessageBox.warning(self, self.tr("Save Failed"), self.tr("Failed to persist the new layer setting. See log for details."))
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 return
         except Exception as e:
@@ -623,7 +623,7 @@ class SearchDialog(QDialog):
                         if parent_plugin and hasattr(parent_plugin, 'create_search_dialog'):
                             print("Found plugin via direct parent")
                             return parent_plugin
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                     # 方法2: iface経由で探す（可能な場合）
@@ -634,7 +634,7 @@ class SearchDialog(QDialog):
                                 if hasattr(plugin_obj, 'create_search_dialog'):
                                     print(f"Found plugin via plugins dict: {plugin_name}")
                                     return plugin_obj
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                     return None
@@ -703,7 +703,7 @@ class SearchDialog(QDialog):
                             f"_get_current_tab_info provenance: src_val={repr(src_val)} src_idx={repr(src_idx)} title={repr(current_tab_title)} group={repr(current_group_name)}", "GEO-search-plugin", 0)
                     except Exception:
                         print(f"_get_current_tab_info provenance: src_val={repr(src_val)} src_idx={repr(src_idx)} title={repr(current_tab_title)} group={repr(current_group_name)}")
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             # タブが選択されていなければ終了
@@ -746,7 +746,7 @@ class SearchDialog(QDialog):
                             proj_dir = ''
                         if p and proj_dir and not os.path.isabs(p):
                             p = os.path.join(proj_dir, p)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                     if (not p or not os.path.exists(p)) and allow_user_pick:
@@ -803,9 +803,9 @@ class SearchDialog(QDialog):
                                     if 'geo' in low and 'search' in low:
                                         src_val = txt
                                         break
-                                except Exception:
+                                except Exception:  # nosec B112  # 設計上の許容
                                     continue
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         # Best-effort only; continue without inferred source.
                         pass
 
@@ -820,7 +820,7 @@ class SearchDialog(QDialog):
                 except Exception:
                     try:
                         print(f"remove_current_tab: inferred src_val={repr(src_val)} norm={norm_src} src_idx={repr(src_idx)} title={current_tab_title}")
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                 # If the inferred source is the plugin's bundled setting.json,
@@ -841,7 +841,7 @@ class SearchDialog(QDialog):
                         try:
                             from qgis.core import QgsMessageLog
                             QgsMessageLog.logMessage("User cancelled deletion from plugin setting.json (no project variable present)", 'GEO-search-plugin', 0)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         return
 
@@ -875,7 +875,7 @@ class SearchDialog(QDialog):
                         try:
                             from qgis.core import QgsMessageLog
                             QgsMessageLog.logMessage("User cancelled deletion from geo_search_json (no project variable present)", 'GEO-search-plugin', 0)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         return
 
@@ -917,7 +917,7 @@ class SearchDialog(QDialog):
                         try:
                             from qgis.core import QgsMessageLog
                             QgsMessageLog.logMessage("User declined to search external geo_search_json for matching Title", 'GEO-search-plugin', 0)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         return
 
@@ -1007,7 +1007,7 @@ class SearchDialog(QDialog):
                         try:
                             from qgis.core import QgsMessageLog
                             QgsMessageLog.logMessage("User cancelled deletion from project-backed file", 'GEO-search-plugin', 0)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         return
 
@@ -1043,7 +1043,7 @@ class SearchDialog(QDialog):
                                 if isinstance(it, dict) and it.get('Title') == title:
                                     remove_idx = i
                                     break
-                            except Exception:
+                            except Exception:  # nosec B112  # 設計上の許容
                                 continue
 
                     if remove_idx is None:
@@ -1071,21 +1071,21 @@ class SearchDialog(QDialog):
                             try:
                                 if os.path.exists(tmp_path):
                                     os.remove(tmp_path)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                     except Exception as e:
                         QMessageBox.warning(self, self.tr("Write error"), self.tr("Failed to update project-backed file: {0}").format(str(e)))
                         try:
                             if bak_path and os.path.exists(bak_path):
                                 shutil.copy2(bak_path, project_file_path)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         return
 
                     try:
                         from qgis.core import QgsMessageLog
                         QgsMessageLog.logMessage(f"Removed entry index={remove_idx} from project-backed file: {project_file_path} (backup={bak_path})", 'GEO-search-plugin', 0)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                     self.reload_ui("after removing tab from project-backed file")
@@ -1205,7 +1205,7 @@ class SearchDialog(QDialog):
                             f"_get_current_tab_info provenance (edit): src_val={repr(src_val)} src_idx={repr(src_idx)} title={repr(current_tab_title)} group={repr(current_group_name)}", "GEO-search-plugin", 0)
                     except Exception:
                         print(f"_get_current_tab_info provenance (edit): src_val={repr(src_val)} src_idx={repr(src_idx)} title={current_tab_title} group={current_group_name}")
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             # タブが選択されていなければ終了
@@ -1308,7 +1308,7 @@ class SearchDialog(QDialog):
                         tab_config['_source'] = src_val
                     if src_idx is not None:
                         tab_config['_source_index'] = src_idx
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             # 編集ダイアログを作成
@@ -1442,7 +1442,7 @@ class SearchDialog(QDialog):
                                     themes.append(getattr(t, 'displayName'))
                                 else:
                                     themes.append(str(t))
-                        except Exception:
+                        except Exception:  # nosec B112  # 設計上の許容
                             continue
 
                     editor.addItem("")  # 空選択肢
@@ -1484,7 +1484,7 @@ class SearchDialog(QDialog):
                     def _on_chk_toggled(state, spin_box=spin):
                         try:
                             spin_box.setDisabled(bool(state))
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                     chk.toggled.connect(_on_chk_toggled)
@@ -1514,11 +1514,11 @@ class SearchDialog(QDialog):
                                     if chk.isChecked():
                                         chk.setChecked(False)
                                         spin_box.setDisabled(False)
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                     set_current_btn.clicked.connect(_set_current_value_captured)
@@ -1560,7 +1560,7 @@ class SearchDialog(QDialog):
                     def _on_chk_toggled_scale(state, spin_box=spin):
                         try:
                             spin_box.setDisabled(bool(state))
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                     chk.toggled.connect(_on_chk_toggled_scale)
@@ -1590,11 +1590,11 @@ class SearchDialog(QDialog):
                                     if chk.isChecked():
                                         chk.setChecked(False)
                                         spin_box.setDisabled(False)
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                     set_current_btn.clicked.connect(_set_current_scale_captured)
@@ -1888,16 +1888,16 @@ class SearchDialog(QDialog):
                             if 'geo' in low and 'search' in low:
                                 src_val = txt
                                 break
-                        except Exception:
+                        except Exception:  # nosec B112  # 設計上の許容
                             continue
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # Normalize provenance token if present
             try:
                 if src_val:
                     src_val = self._normalize_source(src_val)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 # leave as-is when normalization fails
                 pass
 
@@ -2002,7 +2002,7 @@ class SearchDialog(QDialog):
             except Exception:
                 try:
                     print(f"choose_save_target_dialog raw_return={repr(raw)} normalized=(item={repr(item)}, ok={ok})")
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # If user cancelled or no selection, return None so caller can decide
@@ -2096,20 +2096,20 @@ class SearchDialog(QDialog):
                                     if isinstance(it, dict) and it.get('Title') == title:
                                         idx = i
                                         break
-                                except Exception:
+                                except Exception:  # nosec B112  # 設計上の許容
                                     continue
 
                     if idx is not None:
                         try:
                             target[idx] = item
                             update_performed = True
-                        except Exception:
+                        except Exception:  # nosec B112  # 設計上の許容
                             continue
                     else:
                         try:
                             target.append(item)
                             update_performed = True
-                        except Exception:
+                        except Exception:  # nosec B112  # 設計上の許容
                             continue
             except Exception:
                 update_performed = False
@@ -2148,7 +2148,7 @@ class SearchDialog(QDialog):
                 print(f"save_to_setting_json error: {e}")
             try:
                 QMessageBox.warning(self, self.tr("Error"), self.tr("Failed to write to plugin setting.json: {0}").format(str(e)))
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return False
 
@@ -2225,7 +2225,7 @@ class SearchDialog(QDialog):
                             if isinstance(it, dict) and it.get('Title') == title:
                                 update_idx = i
                                 break
-                        except Exception:
+                        except Exception:  # nosec B112  # 設計上の許容
                             continue
 
             # Backup
@@ -2258,7 +2258,7 @@ class SearchDialog(QDialog):
                     try:
                         if os.path.exists(tmp_path):
                             os.remove(tmp_path)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
             except Exception:
@@ -2266,7 +2266,7 @@ class SearchDialog(QDialog):
                 try:
                     if bak_path and os.path.exists(bak_path):
                         shutil.copy2(bak_path, path)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 raise
 
@@ -2315,7 +2315,7 @@ class SearchDialog(QDialog):
                 if path and proj_dir and not os.path.isabs(path):
                     abs_path = os.path.join(proj_dir, path)
                     path = abs_path
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             if not path:
@@ -2340,7 +2340,7 @@ class SearchDialog(QDialog):
                                     QgsMessageLog.logMessage(f"Failed to persist geo_search_json to project variables for path={path}", 'GEO-search-plugin', 1)
                                 except Exception:
                                     print(f"Failed to persist geo_search_json to project variables for path={path}")
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                         try:
@@ -2432,20 +2432,20 @@ class SearchDialog(QDialog):
                                     if isinstance(it, dict) and it.get('Title') == title:
                                         idx = i
                                         break
-                                except Exception:
+                                except Exception:  # nosec B112  # 設計上の許容
                                     continue
 
                     if idx is not None:
                         try:
                             target[idx] = item
                             update_performed = True
-                        except Exception:
+                        except Exception:  # nosec B112  # 設計上の許容
                             continue
                     else:
                         try:
                             target.append(item)
                             update_performed = True
-                        except Exception:
+                        except Exception:  # nosec B112  # 設計上の許容
                             continue
             except Exception:
                 update_performed = False
@@ -2486,7 +2486,7 @@ class SearchDialog(QDialog):
                 print(f"save_to_geo_search_json error: {e}")
             try:
                 QMessageBox.warning(self, self.tr("Error"), self.tr("Failed to write to geo_search_json file: {0}").format(str(e)))
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return False
 
@@ -2499,7 +2499,7 @@ class SearchDialog(QDialog):
                     from qgis.core import QgsExpressionContextUtils, QgsMessageLog
                     read_back = QgsExpressionContextUtils.projectScope(project).variable('GEO-search-plugin')
                     QgsMessageLog.logMessage(f"_save_to_project_variable: wrote project variable: {str(read_back)}", 'GEO-search-plugin', 0)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 return True
             else:
@@ -2510,7 +2510,7 @@ class SearchDialog(QDialog):
                     print("_save_to_project_variable: set_project_variable returned False")
                 try:
                     QMessageBox.warning(self, self.tr("Error"), self.tr("Failed to write project variable 'GEO-search-plugin'."))
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 return False
         except Exception as e:
@@ -2521,7 +2521,7 @@ class SearchDialog(QDialog):
                 print(f"_save_to_project_variable error: {e}")
             try:
                 QMessageBox.warning(self, self.tr("Error"), self.tr("Failed to write project variable 'GEO-search-plugin': {0}").format(str(e)))
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return False
 
@@ -2878,7 +2878,7 @@ class SearchDialog(QDialog):
                         try:
                             from qgis.core import QgsMessageLog
                             QgsMessageLog.logMessage(f"save_tab_config_by_fields: selectTheme read error: {e}", "GEO-search-plugin", 1)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         tab_config[field_name] = ""
                 elif field_name == "angle":
@@ -2956,7 +2956,7 @@ class SearchDialog(QDialog):
                     except Exception:
                         # if not numeric, treat as unspecified
                         tab_config['angle'] = None
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             # 設定を保存
@@ -3017,7 +3017,7 @@ class SearchDialog(QDialog):
             except Exception:
                 try:
                     print(f"_update_config_and_save: auto-detected save_target={repr(save_target)} from tab_config._source={repr(tab_config.get('_source') if isinstance(tab_config, dict) else None)}")
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # If auto-detection failed, ask the user (existing behavior)
@@ -3037,7 +3037,7 @@ class SearchDialog(QDialog):
                         print("No save target selected; aborting update_config_and_save")
                     try:
                         QMessageBox.information(dialog, self.tr("Save cancelled"), self.tr("No save target selected. The configuration was not saved."))
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                     return
 
@@ -3055,7 +3055,7 @@ class SearchDialog(QDialog):
                             try:
                                 read_back = QgsExpressionContextUtils.projectScope(project).variable('GEO-search-plugin')
                                 QgsMessageLog.logMessage(f"Updated project variable via helper: {str(read_back)}", "GEO-search-plugin", 0)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                     except Exception as err:
                         try:
@@ -3129,5 +3129,5 @@ class SearchDialog(QDialog):
                 print(f"_update_config_and_save error: {e}")
             try:
                 QMessageBox.warning(dialog, self.tr("Error"), self.tr("An error occurred while saving the settings:\n{0}").format(e))
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass

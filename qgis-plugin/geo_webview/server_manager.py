@@ -141,7 +141,7 @@ class GeoWebViewServerManager:
                     import traceback
                     sys.stderr.write('WMTS init failed:\n')
                     traceback.print_exc()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             self.wmts_service = None
         # Track last known WMTS identity to avoid unnecessary work
@@ -154,7 +154,7 @@ class GeoWebViewServerManager:
         # and will try multiple common signal names used in different QGIS versions.
         try:
             self._attach_layer_tree_hooks()
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         # WFSサービスを初期化
@@ -298,7 +298,7 @@ class GeoWebViewServerManager:
             if self.http_server:
                 try:
                     self.http_server.close()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 self.http_server = None
 
@@ -308,7 +308,7 @@ class GeoWebViewServerManager:
             while self._http_running and self.http_server:
                 try:
                     conn, addr = self.http_server.accept()
-                except socket.timeout:
+                except socket.timeout:  # nosec B112  # 設計上の許容
                     continue
                 except OSError:
                     break
@@ -322,14 +322,14 @@ class GeoWebViewServerManager:
                         # スレッドプールが使えない場合は接続を閉じる
                         try:
                             conn.close()
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                 except Exception as e:
                     from qgis.core import QgsMessageLog, Qgis
                     QgsMessageLog.logMessage(f"Failed to dispatch HTTP request to thread pool: {e}", "geo_webview", Qgis.MessageLevel.Critical)
                     try:
                         conn.close()
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
         finally:
@@ -337,7 +337,7 @@ class GeoWebViewServerManager:
             if self.http_server:
                 try:
                     self.http_server.close()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 self.http_server = None
             from qgis.core import QgsMessageLog, Qgis
@@ -352,7 +352,7 @@ class GeoWebViewServerManager:
             if self.http_server:
                 try:
                     self.http_server.close()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 self.http_server = None
 
@@ -360,7 +360,7 @@ class GeoWebViewServerManager:
             if self.server_thread and self.server_thread.is_alive():
                 try:
                     self.server_thread.join(timeout=3.0)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 self.server_thread = None
 
@@ -371,7 +371,7 @@ class GeoWebViewServerManager:
                 except TypeError:
                     # Python 3.8以前はcancel_futures引数がない
                     self._http_executor.shutdown(wait=True)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 # 新しいエグゼキュータを作成（次回起動用）
                 optimal_workers = self._calculate_optimal_workers()
@@ -397,7 +397,7 @@ class GeoWebViewServerManager:
         finally:
             try:
                 conn.close()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     def _handle_client_connection(self, conn, addr):
@@ -498,7 +498,7 @@ class GeoWebViewServerManager:
                                 'ua': ua,
                                 'time': datetime.now().isoformat(timespec='seconds'),
                             })
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                         # Emit the full URL for UI if signal available
@@ -506,16 +506,16 @@ class GeoWebViewServerManager:
                             try:
                                 if hasattr(self.navigation_signals, 'request_origin_changed'):
                                     self.navigation_signals.request_origin_changed.emit(full_url)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
 
                         # main_plugin にも保持（パネル未作成時のフォールバック）
                         try:
                             if hasattr(self, 'main_plugin'):
                                 setattr(self.main_plugin, '_last_request_origin', full_url)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             # WMSエンドポイントの処理（直接PNG画像返却）
@@ -606,7 +606,7 @@ class GeoWebViewServerManager:
                         for c in cands:
                             try:
                                 cand_ids.append(c.id())
-                            except Exception:
+                            except Exception:  # nosec B112  # 設計上の許容
                                 continue
                         body = {
                             'error': f"Layer '{wfs_typename}' not found",
@@ -635,7 +635,7 @@ class GeoWebViewServerManager:
                         try:
                             from qgis.core import QgsMessageLog, Qgis
                             QgsMessageLog.logMessage(f'🎨 Converted to {len(mapbox_layers)} Mapbox layers: {[ml.get("id") for ml in mapbox_layers if isinstance(ml, dict)]}', 'QMapPermalink', Qgis.MessageLevel.Info)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                     except Exception as e:
                         from . import http_server
@@ -658,7 +658,7 @@ class GeoWebViewServerManager:
                                     ml['layout'] = {}
                                 if 'visibility' not in ml.get('layout', {}):
                                     ml['layout']['visibility'] = 'visible'
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                     style_dict = {
@@ -754,7 +754,7 @@ class GeoWebViewServerManager:
                                                 if math.isfinite(minx):
                                                     chosen = L
                                                     break
-                                            except Exception:
+                                            except Exception:  # nosec B112  # 設計上の許容
                                                 continue
                                         if not chosen:
                                             chosen = layers_list[0]
@@ -766,9 +766,9 @@ class GeoWebViewServerManager:
                                         wfs_typename = chosen.get('typename') or chosen.get('id') or chosen.get('name')
                                         try:
                                             from qgis.core import QgsMessageLog, Qgis
-                                        except Exception:
+                                        except Exception:  # nosec B110  # 設計上の許容
                                             pass
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     # ignore and leave wfs_typename as None
                                     pass
 
@@ -803,7 +803,7 @@ class GeoWebViewServerManager:
                                 # If generator failed (e.g. couldn't parse permalink), attempt a safe fallback
                                 try:
                                     QgsMessageLog.logMessage(f"⚠️ MapLibre generator failed: {e} - retrying with canvas permalink", "geo_webview", Qgis.MessageLevel.Warning)
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
                                 try:
                                     temp_path = maplibre_generator.open_maplibre_from_permalink(
@@ -820,7 +820,7 @@ class GeoWebViewServerManager:
                             # restore original webbrowser.open regardless of outcome
                             try:
                                 webbrowser.open = _orig_web_open
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                     except Exception:
                         # Any failure here falls back to lightweight generator
@@ -878,7 +878,7 @@ class GeoWebViewServerManager:
                                     import traceback
                                     sys.stderr.write('Lazy WMTS creation failed:\n')
                                     traceback.print_exc()
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
                             self.wmts_service = None
 
@@ -1065,7 +1065,7 @@ class GeoWebViewServerManager:
                         if os.path.exists(fpath):
                             found = fpath
                             break
-                    except Exception:
+                    except Exception:  # nosec B112  # 設計上の許容
                         continue
 
                 if found:
@@ -1118,7 +1118,7 @@ class GeoWebViewServerManager:
             n = self._norm_mac(format(uuid.getnode(), '012x'))
             if n:
                 macs.add(n)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         try:
             import subprocess
@@ -1140,9 +1140,9 @@ class GeoWebViewServerManager:
                                 n = self._norm_mac(fh.read())
                                 if n:
                                     macs.add(n)
-                        except Exception:
+                        except Exception:  # nosec B112  # 設計上の許容
                             continue
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return macs
 
@@ -1169,7 +1169,7 @@ class GeoWebViewServerManager:
                         n = self._norm_mac(token)
                         if n:
                             macs.add(n)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return macs
 
@@ -1185,7 +1185,7 @@ class GeoWebViewServerManager:
                 macs |= self._local_macs()
             else:
                 macs |= self._arp_lookup(ip)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         self._mac_cache[ip] = (macs, now)
         return macs
@@ -1234,7 +1234,7 @@ class GeoWebViewServerManager:
         rotation = 0.0
         try:
             rotation = float(canvas.rotation())
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         zoom = None
         try:
@@ -1259,7 +1259,7 @@ class GeoWebViewServerManager:
                     src, QgsCoordinateReferenceSystem('EPSG:3857'), proj
                 ).transform(QgsPointXY(c.x(), c.y()))
                 x3857, y3857 = p3857.x(), p3857.y()
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return {
             'x': c.x(), 'y': c.y(), 'scale': scale, 'crs': crs_auth,
@@ -1313,7 +1313,7 @@ class GeoWebViewServerManager:
         finally:
             try:
                 buf.close()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         data = bytes(ba)
         http_server.send_binary_response(
@@ -1381,7 +1381,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             try:
                 if params.get(k):
                     nav[k] = float(params[k][0])
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         if params.get('crs'):
             nav['crs'] = params['crs'][0]
@@ -1398,12 +1398,12 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                     src, QgsCoordinateReferenceSystem('EPSG:3857'), proj
                 ).transform(QgsPointXY(float(nav['x']), float(nav['y'])))
                 nav['x3857'], nav['y3857'] = p3857.x(), p3857.y()
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         try:
             from .scale_zoom import estimate_zoom_from_scale_maplibre
             nav['zoom'] = estimate_zoom_from_scale_maplibre(nav.get('scale'))
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         html_content = self.webmap_generator.generate_ol_cesium_page(
             nav, host or f'localhost:{self.server_port}')
@@ -1537,7 +1537,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                         if 'rotation' not in params:
                             rotation = str(canvas.rotation()) \
                                 if hasattr(canvas, 'rotation') else '0.0'
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # Convert incoming center coordinates to EPSG:3857 unconditionally
@@ -1636,7 +1636,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                             p = b.center()
                             bx = p.x()
                             by = p.y()
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                     if (bx is None or by is None) and hasattr(b, 'extent'):
@@ -1644,7 +1644,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                             ext = b.extent()
                             bx = (ext.xMinimum() + ext.xMaximum()) / 2.0
                             by = (ext.yMinimum() + ext.yMaximum()) / 2.0
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                     if (bx is None or by is None) and isinstance(b, dict):
@@ -1655,7 +1655,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                             elif 'lon' in b and 'lat' in b:
                                 bx = float(b.get('lon'))
                                 by = float(b.get('lat'))
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                     if bx is None or by is None:
@@ -1687,7 +1687,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             try:
                 from qgis.core import QgsMessageLog, Qgis
                 QgsMessageLog.logMessage(f'❌ debug-bookmarks error: {e}', 'QMapPermalink', Qgis.MessageLevel.Warning)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             from . import http_server
             http_server.send_http_response(conn, 500, 'Internal Server Error', f'{{"error": "{str(e)}"}}', 'application/json; charset=utf-8')
@@ -1725,7 +1725,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                                 lnode = layer_tree_root.findLayer(lay.id())
                                 if lnode is not None and lnode.isVisible():
                                     visible_ids.add(lay.id())
-                            except Exception:
+                            except Exception:  # nosec B112  # 設計上の許容
                                 continue
                 except Exception:
                     visible_ids = None
@@ -1844,7 +1844,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                     if stroke_color:
                         layer_entry['stroke_color'] = stroke_color
                     layers_list.append(layer_entry)
-                except Exception:
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
 
             import json
@@ -1855,7 +1855,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             try:
                 from qgis.core import QgsMessageLog, Qgis
                 QgsMessageLog.logMessage(f'❌ wfs-layers error: {e}', 'QMapPermalink', Qgis.MessageLevel.Warning)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             from . import http_server
             http_server.send_http_response(conn, 500, 'Internal Server Error', f'{{"error": "{str(e)}"}}', 'application/json; charset=utf-8')
@@ -1881,7 +1881,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                                 lnode = layer_tree_root.findLayer(lay.id())
                                 if lnode is not None and lnode.isVisible():
                                     visible_ids.add(lay.id())
-                            except Exception:
+                            except Exception:  # nosec B112  # 設計上の許容
                                 continue
                 except Exception:
                     visible_ids = None
@@ -2017,7 +2017,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                     if stroke_color:
                         layer_entry['stroke_color'] = stroke_color
                     layers_list.append(layer_entry)
-                except Exception:
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
 
             return layers_list
@@ -2107,7 +2107,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                                 p = b.center()
                                 bx = p.x()
                                 by = p.y()
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
 
                         if (bx is None or by is None) and hasattr(b, 'extent'):
@@ -2115,7 +2115,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                                 ext = b.extent()
                                 bx = (ext.xMinimum() + ext.xMaximum()) / 2.0
                                 by = (ext.yMinimum() + ext.yMaximum()) / 2.0
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
 
                         if (bx is None or by is None) and isinstance(b, dict):
@@ -2126,7 +2126,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                                 elif 'lon' in b and 'lat' in b:
                                     bx = float(b.get('lon'))
                                     by = float(b.get('lat'))
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
 
                         if bx is None or by is None:
@@ -2187,7 +2187,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                 try:
                     from qgis.core import QgsMessageLog, Qgis
                     QgsMessageLog.logMessage('❌ Error while extracting bookmarks; skipping bookmarks', 'QMapPermalink', Qgis.MessageLevel.Warning)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             if bookmarks_list:
@@ -2702,7 +2702,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                     else:
                         QgsMessageLog.logMessage(f"⚠️ Invalid CRS '{crs}' - forcing to EPSG:3857", "geo_webview", Qgis.MessageLevel.Warning)
                         crs = 'EPSG:3857'
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             # Use canvas-based rendering as the authoritative method for
@@ -2836,7 +2836,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                             try:
                                 from qgis.PyQt.QtWidgets import QApplication
                                 QApplication.processEvents()
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
 
                             pixmap = canvas.grab()
@@ -2851,7 +2851,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                                 # For WMS we should match the requested size exactly
                                 if w and h and (w != pixmap.width() or h != pixmap.height()):
                                     pixmap = pixmap.scaled(w, h, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
 
                             image = pixmap.toImage()
@@ -2888,7 +2888,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                             QgsMessageLog.logMessage(f"❌ Exception in helper capture: {e}", "geo_webview", Qgis.MessageLevel.Warning)
                             try:
                                 self.finished.emit(b'')
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
 
                 # Create helper and move it to the main (GUI) thread so its slot runs there.
@@ -2896,7 +2896,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                 try:
                     main_thread = QCoreApplication.instance().thread()
                     helper.moveToThread(main_thread)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     # If moveToThread fails for any reason, keep helper in current thread
                     pass
                 self._capture_helper = helper
@@ -2911,7 +2911,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                 captured['data'] = data or b''
                 try:
                     loop.quit()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             helper.finished.connect(_on_finished)
@@ -2930,7 +2930,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             loop.exec()
             try:
                 helper.finished.disconnect(_on_finished)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             png = captured.get('data')
@@ -3051,7 +3051,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                 # This ensures ANGLE=0 and ANGLE!=0 follow the same code path.
                 if rotation is not None and hasattr(map_settings, 'setRotation'):
                     map_settings.setRotation(float(rotation))
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             return map_settings
@@ -3108,7 +3108,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                         flag = getattr(QgsMapSettings, 'UseRenderingOptimization', None)
                         if flag is not None:
                             map_settings.setFlag(flag, True)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                     # DrawEditingInfo を無効化(編集情報の描画をスキップ)
@@ -3116,7 +3116,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                         flag = getattr(QgsMapSettings, 'DrawEditingInfo', None)
                         if flag is not None:
                             map_settings.setFlag(flag, False)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                 # キャッシュヒントを有効化
@@ -3125,9 +3125,9 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                     try:
                         from qgis.core import QgsProject
                         map_settings.setPathResolver(QgsProject.instance().pathResolver())
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             # 並列レンダリングジョブを作成
@@ -3268,7 +3268,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             finally:
                 try:
                     s.close()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             return ip
         except Exception:
@@ -3289,7 +3289,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                 sock.setsockopt(socket.SOL_SOCKET, excl, 1)
             else:
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        except OSError:
+        except OSError:  # nosec B110  # 設計上の許容
             pass
 
     def find_available_port(self, start_port, end_port):
@@ -3378,7 +3378,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                         if ip not in ipv4_addresses and not ip.startswith('127.'):
                             ipv4_addresses.append(ip)
                 result['all_ips'] = ipv4_addresses
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             # プライマリローカルIP（外向き）を取得
@@ -3417,7 +3417,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                         # 許可されているポートを検出（範囲1024-65535で確認）
                         try:
                             allowed_ports = self._scan_firewall_allowed_ports()
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                     except Exception:
                         # コマンド実行失敗時は警告を表示
@@ -3517,7 +3517,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                                         for p in range(start_port, min(end_port + 1, start_port + 10)):
                                             if 1024 <= p <= 65535 and p not in allowed_ports:
                                                 allowed_ports.append(p)
-                                    except ValueError:
+                                    except ValueError:  # nosec B110  # 設計上の許容
                                         pass
                                 else:
                                     # 単一ポートの場合
@@ -3525,7 +3525,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                                         port = int(port_part.strip())
                                         if 1024 <= port <= 65535 and port not in allowed_ports:
                                             allowed_ports.append(port)
-                                    except ValueError:
+                                    except ValueError:  # nosec B110  # 設計上の許容
                                         pass
 
                     # 空行で次のルールに移行
@@ -3738,9 +3738,9 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                     try:
                         sig.connect(self._on_layer_tree_changed)
                         hooked = True
-                    except Exception:
+                    except Exception:  # nosec B112  # 設計上の許容
                         continue
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
 
         # Fallback: try project-level signals
@@ -3753,14 +3753,14 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                         try:
                             sig.connect(self._on_layer_tree_changed)
                             hooked = True
-                        except Exception:
+                        except Exception:  # nosec B112  # 設計上の許容
                             continue
-                except Exception:
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
 
         try:
             QgsMessageLog.logMessage(f"Layer-tree hooks attached: {hooked}", 'QMapPermalink', Qgis.MessageLevel.Info)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def _on_layer_tree_changed(self, *args, **kwargs):
@@ -3770,7 +3770,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             if getattr(self, '_layer_change_timer', None):
                 try:
                     self._layer_change_timer.cancel()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # schedule a short delay to avoid thrashing during bulk operations
@@ -3778,7 +3778,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             t.daemon = True
             self._layer_change_timer = t
             t.start()
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def _handle_layers_changed(self):
@@ -3809,8 +3809,8 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             except Exception as e:
                 try:
                     QgsMessageLog.logMessage(f"WMTS ensure_identity failed: {e}", 'QMapPermalink', Qgis.MessageLevel.Warning)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass

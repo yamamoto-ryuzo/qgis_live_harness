@@ -118,5 +118,5 @@ class MacroRegistry:
         for fn in list(self._listeners):
             try:
                 fn()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass

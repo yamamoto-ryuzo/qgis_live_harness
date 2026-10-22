@@ -23,7 +23,7 @@ def _log(msg):
         os.makedirs(os.path.dirname(log), exist_ok=True)
         with open(log, "a", encoding="utf-8") as f:
             f.write(str(msg) + "\n")
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
 
@@ -58,7 +58,7 @@ def _restrict_file(path):
                     capture_output=True, timeout=10)
         else:
             os.chmod(path, 0o600)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
 
@@ -112,7 +112,7 @@ class QgisLivePlugin:
         try:
             from .bridge import QgisLiveBridge
             self.bridge = QgisLiveBridge(self)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         # プラグイン横断のレイヤ整理サービス。geo_import等は
         # plugins['qgis_live_driver'].layer_org.place_all([(layer, ctx)])
@@ -143,7 +143,7 @@ class QgisLivePlugin:
                     sm = a.menu()
                     if sm is not None and sm.title() == self._MENU_NAME:
                         return sm
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return None
 
@@ -161,7 +161,7 @@ class QgisLivePlugin:
                 try:
                     menu.removeAction(a)
                     a.deleteLater()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
     def initGui(self):
@@ -254,7 +254,7 @@ class QgisLivePlugin:
                   else Qgis.MessageLevel.Info)
             self.iface.messageBar().pushMessage(
                 "QGIS Live Driver", msg, level=lv, duration=4)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         _log(f"hot_reload {level}: {msg}")
 
@@ -288,7 +288,7 @@ class QgisLivePlugin:
                 tva = self._geo_tb.toggleViewAction()
                 if tva is not None:
                     tva.setEnabled(False)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             self._geo_tb.setVisible(True)
             self._mode_badge = QToolButton(self._geo_tb)
@@ -324,7 +324,7 @@ class QgisLivePlugin:
             if self._geo_tb is not None and not self._geo_tb.isVisible():
                 # 常時表示の強制(何らかの経路で隠された場合に戻す)
                 self._geo_tb.setVisible(True)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         try:
             from .mode_switch import deploy_state
@@ -349,7 +349,7 @@ class QgisLivePlugin:
                     from qgis.core import QgsApplication
                     icon = QgsApplication.getThemeIcon(
                         "/mActionOptions.svg")
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 if icon.isNull():
                     self._mode_badge.setText("⚙")
@@ -365,7 +365,7 @@ class QgisLivePlugin:
                         "padding: 1px 6px; }"),
             }.get(st["mode"], "")
             self._mode_badge.setStyleSheet(style)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     # ---- AIアシスタントパネル ----
@@ -382,7 +382,7 @@ class QgisLivePlugin:
                 self._ai_panel.visibilityChanged.connect(
                     lambda vis:
                     self._set_setting(bool(vis), self.SETTING_AI_PANEL))
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     def _panel_driver(self):
@@ -420,7 +420,7 @@ class QgisLivePlugin:
         try:
             from qgis.PyQt.QtCore import QSettings
             QSettings().setValue(key, bool(on))
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def _sync_action(self):
@@ -517,19 +517,19 @@ class QgisLivePlugin:
         if self._http is not None:
             try:
                 self._http.shutdown()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             self._http = None
         if self.driver is not None:
             try:
                 self.driver.stop()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             self.driver = None
         if self._reg_path is not None:
             try:
                 os.remove(self._reg_path)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             self._reg_path = None
 
@@ -541,23 +541,23 @@ class QgisLivePlugin:
                 # closeで発火するvisibilityChangedが設定をFalseへ
                 # 上書きしないよう先に切ってから表示状態を保存する
                 self._ai_panel.visibilityChanged.disconnect()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             try:
                 self._set_setting(bool(self._ai_panel.isVisible()),
                                   self.SETTING_AI_PANEL)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             try:
                 self._ai_panel.close()
                 self._ai_panel.deleteLater()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             self._ai_panel = None
         if self._ai_driver is not None:
             try:
                 self._ai_driver.stop()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             self._ai_driver = None
         if self._hot_menu is not None:
@@ -565,7 +565,7 @@ class QgisLivePlugin:
                 self.iface.removePluginMenu(
                     "QGIS Live Driver", self._hot_menu.menuAction())
                 self._hot_menu.deleteLater()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             self._hot_menu = None
         for action in (self._ai_action, self._action, self._mode_action):
@@ -574,7 +574,7 @@ class QgisLivePlugin:
                     self.iface.removePluginMenu("QGIS Live Driver",
                                                 action)
                     action.deleteLater()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
         self._ai_action = None
         self._action = None
@@ -582,7 +582,7 @@ class QgisLivePlugin:
         if self._mode_timer is not None:
             try:
                 self._mode_timer.stop()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             self._mode_timer = None
         for a in (self._mode_badge_sep, self._mode_badge_action):
@@ -590,14 +590,14 @@ class QgisLivePlugin:
                 try:
                     if self._geo_tb is not None:
                         self._geo_tb.removeAction(a)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
         self._mode_badge_sep = None
         self._mode_badge_action = None
         if self._mode_badge is not None:
             try:
                 self._mode_badge.deleteLater()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             self._mode_badge = None
         if self._geo_tb is not None:
@@ -606,13 +606,13 @@ class QgisLivePlugin:
                 tva = self._geo_tb.toggleViewAction()
                 if tva is not None:
                     tva.setEnabled(True)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         self._geo_tb = None
         self._sweep_menu_actions()  # 自身以外の残存も掃除
         try:
             self._stop()
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
 

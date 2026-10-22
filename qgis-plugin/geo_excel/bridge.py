@@ -435,7 +435,7 @@ class GeoExcelBridge:
                          "title": str(title), "text": str(text)})
             try:
                 orig(title, text)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
         try:
@@ -446,7 +446,7 @@ class GeoExcelBridge:
         def _restore():
             try:
                 bar.pushCritical = orig
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
         return _restore

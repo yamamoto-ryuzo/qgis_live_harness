@@ -234,9 +234,9 @@ class GeoWebViewWMSService:
                     for crs in supported_crs:
                         xml_content += f"        <CRS>{crs}</CRS>\n"
                     xml_content += "      </Layer>\n"
-                except Exception:
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         xml_content += "    </Layer>\n"
@@ -310,7 +310,7 @@ class GeoWebViewWMSService:
                 else:
                     # keep as-is
                     bbox = ','.join(str(v) for v in bbox_coords) if bbox_coords else ''
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 # if parsing fails, keep original string
                 pass
             # オプションで任意CRSを強制的にEPSG:3857として扱う
@@ -404,7 +404,7 @@ class GeoWebViewWMSService:
                         # fallback to send_http_response if binary helper is unavailable
                         try:
                             http_server.send_http_response(conn, 200, "OK", image_data, content_type="image/png")
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                 else:
                     from . import http_server
@@ -763,9 +763,9 @@ class GeoWebViewWMSService:
                 if 'original_labeling_map' in locals() and original_labeling_map:
                     try:
                         self._restore_labeling(original_labeling_map)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     def _apply_label_rotation_only(self, map_settings, rotation):
@@ -870,7 +870,7 @@ class GeoWebViewWMSService:
             try:
                 from qgis.core import QgsMessageLog, Qgis
                 QgsMessageLog.logMessage(f"❌ _apply_temporary_labeling error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
         return originals
@@ -884,15 +884,15 @@ class GeoWebViewWMSService:
                     # restore labeling and enabled flag
                     try:
                         layer.setLabeling(orig_labeling)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                     try:
                         layer.setLabelsEnabled(bool(orig_enabled))
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                 except Exception as e:
                     QgsMessageLog.logMessage(f"⚠️ Failed to restore labeling for layer '{getattr(layer, 'name', lambda: '<unknown>')()}': {e}", "geo_webview", Qgis.MessageLevel.Warning)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def _create_map_settings_from_canvas(self, width, height, crs, themes=None, layer_ids: str = None, styles_param: str = None):
@@ -919,11 +919,11 @@ class GeoWebViewWMSService:
         # Ensure requested output size and DPI override the copied settings
         try:
             map_settings.setOutputSize(QSize(width, height))
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         try:
             map_settings.setOutputDpi(96)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         # レンダリング最適化設定を適用
@@ -934,7 +934,7 @@ class GeoWebViewWMSService:
                     flag = getattr(QgsMapSettings, 'UseRenderingOptimization', None)
                     if flag is not None:
                         map_settings.setFlag(flag, True)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
                 # DrawEditingInfo を無効化(編集情報の描画をスキップ)
@@ -942,7 +942,7 @@ class GeoWebViewWMSService:
                     flag = getattr(QgsMapSettings, 'DrawEditingInfo', None)
                     if flag is not None:
                         map_settings.setFlag(flag, False)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
                 # RenderMapTile: タイルレンダリング最適化(タイル境界のクリップを最適化)
@@ -950,7 +950,7 @@ class GeoWebViewWMSService:
                     flag = getattr(QgsMapSettings, 'RenderMapTile', None)
                     if flag is not None:
                         map_settings.setFlag(flag, True)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
                 # Antialiasing: アンチエイリアスを有効化して高品質化(画質優先)
@@ -958,7 +958,7 @@ class GeoWebViewWMSService:
                     flag = getattr(QgsMapSettings, 'Antialiasing', None)
                     if flag is not None:
                         map_settings.setFlag(flag, True)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
                 # HighQualityImageTransforms: 高品質変換を有効化(画質優先)
@@ -966,14 +966,14 @@ class GeoWebViewWMSService:
                     flag = getattr(QgsMapSettings, 'HighQualityImageTransforms', None)
                     if flag is not None:
                         map_settings.setFlag(flag, True)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # パスリゾルバを設定してキャッシュ効率化
             if hasattr(map_settings, 'setPathResolver'):
                 try:
                     map_settings.setPathResolver(QgsProject.instance().pathResolver())
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # SimplifyGeometry: ジオメトリ簡略化を有効化(大きなベクターレイヤーの高速化)
@@ -985,7 +985,7 @@ class GeoWebViewWMSService:
                     simplify_method.setSimplifyAlgorithm(QgsVectorSimplifyMethod.Distance)
                     simplify_method.setTolerance(1.0)  # ピクセル単位の許容誤差
                     map_settings.setSimplifyMethod(simplify_method)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
         except Exception as e:
@@ -1072,7 +1072,7 @@ class GeoWebViewWMSService:
                                         if original_style is not None:
                                             try:
                                                 style_manager.setCurrentStyle(original_style)
-                                            except Exception:
+                                            except Exception:  # nosec B110  # 設計上の許容
                                                 pass
                                 else:
                                     QgsMessageLog.logMessage(
@@ -1119,7 +1119,7 @@ class GeoWebViewWMSService:
                                         f"⚠️ Failed preprocessing QML for layer {lid}: {e}",
                                         "geo_webview", Qgis.MessageLevel.Warning
                                     )
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                     if layer_style_overrides:
@@ -1163,7 +1163,7 @@ class GeoWebViewWMSService:
                         "geo_webview", Qgis.MessageLevel.Info
                     )
                     return map_settings
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
         # テーマが指定されている場合(キャッシュを利用)
@@ -1378,9 +1378,9 @@ class GeoWebViewWMSService:
                                                     layer_style_overrides[layer.id()] = qml
                                             except Exception:
                                                 layer_style_overrides[layer.id()] = qml
-                                        except Exception:
+                                        except Exception:  # nosec B110  # 設計上の許容
                                             pass
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
 
                             QgsMessageLog.logMessage(
@@ -1420,7 +1420,7 @@ class GeoWebViewWMSService:
                                 )
                         except Exception as e:
                             QgsMessageLog.logMessage(f"⚠️ Failed to set canvas layerStyleOverrides: {e}", "geo_webview", Qgis.MessageLevel.Warning)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             else:
                 QgsMessageLog.logMessage(

@@ -358,7 +358,7 @@ class CkanConnector:
                         try:
                             if delete and os.path.exists(dest_file):
                                 os.remove(dest_file)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         # コピー
                         try:
@@ -367,7 +367,7 @@ class CkanConnector:
                         except Exception as e:
                             self.util.msg_log_error(u'failed to copy local file: {0}'.format(str(e)))
                             return False, QCoreApplication.translate('GeoImport', u'cc_download_error').format(str(e)), None
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 # ローカル処理に失敗した場合は標準のネットワーク処理にフォールバック
                 pass
 

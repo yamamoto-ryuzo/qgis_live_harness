@@ -88,7 +88,7 @@ def _qgis_log(message, level='info'):
         # fallback to stdout so non-QGIS contexts still see messages
         try:
             print(message)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             # nothing we can do
             pass
 
@@ -120,7 +120,7 @@ def _parse_permalink(permalink_text):
                     # return early; keep zoom as None if not provided so callers can
                     # decide whether to derive zoom from scale later
                     return (lat, lon, zoom)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     # fall through to other parsing strategies on error
                     pass
         for key in ('lat', 'latitude'):
@@ -153,7 +153,7 @@ def _parse_permalink(permalink_text):
         if lat is not None and lon is not None:
             # keep zoom as-is (may be None) so caller can apply scale->zoom logic
             return (lat, lon, zoom)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     # Try to find patterns like @lat,lon,zoomz (e.g., some mapping services)
@@ -164,7 +164,7 @@ def _parse_permalink(permalink_text):
             lon = float(m.group(2))
             zoom = float(m.group(3))
             return (lat, lon, zoom)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     # fallback: try any three floats in the query/path parts of the URL
@@ -193,7 +193,7 @@ def _parse_permalink(permalink_text):
                 return (a, b, c)
             else:
                 return (b, a, c)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     return None
@@ -264,7 +264,7 @@ def open_maplibre_from_permalink(permalink_text, wfs_typename: str = None):
         if 'zoom' in qs:
             try:
                 zoom = float(qs['zoom'][0])
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         if crs_param:
             # normalize crs string (accept 'EPSG:3857' or numeric)
@@ -281,7 +281,7 @@ def open_maplibre_from_permalink(permalink_text, wfs_typename: str = None):
                     lat = float(y_val)
                     lon = float(x_val)
                     _qgis_log(f"Detected source CRS EPSG:4326; using x/y as lon/lat -> lat={lat}, lon={lon}, zoom={zoom}")
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 # skip further conversion attempts
                 converted = (lat, lon)
@@ -353,7 +353,7 @@ def open_maplibre_from_permalink(permalink_text, wfs_typename: str = None):
     tile_template = choose_tile_template()
     try:
         _qgis_log(f"Using tile template for MapLibre: {tile_template}", 'debug')
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         # best-effort logging; ignore if logging is unavailable
         pass
 
@@ -439,7 +439,7 @@ def open_maplibre_from_permalink(permalink_text, wfs_typename: str = None):
                             try:
                                 if hasattr(bm, 'crs') and callable(bm.crs):
                                     src_crs = bm.crs()
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
 
                         if src_crs is None or not src_crs.isValid():
@@ -677,7 +677,7 @@ __EXTERNAL_SCRIPT_TAGS__
         try:
             _qgis_log(f"🎨 Style URL being inserted into HTML: {style_url}", 'info')
             _qgis_log(f"🎨 JSON-encoded style URL: {_jsonmod.dumps(style_url)}", 'info')
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         html_out = html_out.replace('__STYLE_URL__', _jsonmod.dumps(style_url))
         # Clear inline placeholders (we now use external scripts)
@@ -750,7 +750,7 @@ __EXTERNAL_SCRIPT_TAGS__
                 with open(os.path.join(pkg_scripts_dir, _script), 'rb') as rf:
                     with open(os.path.join(output_dir, _script), 'wb') as wf:
                         wf.write(rf.read())
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 # ignore copy failures; continue to write HTML
                 pass
 

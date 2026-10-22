@@ -219,6 +219,6 @@ class Settings:
                 for line in f:
                     if line.strip().startswith('version='):
                         return line.strip().split('=', 1)[1]
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return ''

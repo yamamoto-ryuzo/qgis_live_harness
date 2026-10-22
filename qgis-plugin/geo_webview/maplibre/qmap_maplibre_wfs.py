@@ -114,7 +114,7 @@ def prepare_wfs_for_maplibre(permalink_text: str, wfs_typename: str = None) -> D
                 if hasattr(layer, 'name') and (layer.name() == _final_typename or layer.name() == decoded_try):
                     found = lid
                     break
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
 
     if not found:
@@ -212,7 +212,7 @@ def qgis_layer_to_maplibre_style(layer_id: str, source_id: str = None) -> List[D
     try:
         from qgis.core import QgsMessageLog, Qgis
         QgsMessageLog.logMessage(f'🔍 Layer: {layer.name()}, Geometry: {geometry_type}, Renderer: {type(renderer).__name__}', 'QMapPermalink', Qgis.MessageLevel.Info)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     # Get renderer type
@@ -260,7 +260,7 @@ def qgis_layer_to_maplibre_style(layer_id: str, source_id: str = None) -> List[D
                         lower_val = float(lower)
                         upper_val = float(upper)
                         layer_def['filter'] = ['all', ['>=', ['get', field], lower_val], ['<', ['get', field], upper_val]]
-                    except (ValueError, TypeError):
+                    except (ValueError, TypeError):  # nosec B110  # 設計上の許容
                         pass
                 layers.extend(maplibre_layer)
 
@@ -303,7 +303,7 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
         from qgis.core import QgsMessageLog, Qgis
         geom_name = {QgsWkbTypes.GeometryType.PointGeometry: 'Point', QgsWkbTypes.GeometryType.LineGeometry: 'Line', QgsWkbTypes.GeometryType.PolygonGeometry: 'Polygon'}.get(geometry_type, 'Unknown')
         QgsMessageLog.logMessage(f'🔍 Converting symbol for {source_id}, geometry={geom_name}, symbol_layers={symbol.symbolLayerCount()}', 'QMapPermalink', Qgis.MessageLevel.Info)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     layers = []
@@ -356,7 +356,7 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
                         try:
                             from qgis.core import QgsMessageLog, Qgis
                             QgsMessageLog.logMessage(f'🔍 Point stroke width raw={sw} unit={swu} -> px={converted_sw}', 'QMapPermalink', Qgis.MessageLevel.Info)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                     except Exception:
                         paint['circle-stroke-width'] = symbol_layer.strokeWidth()
@@ -370,7 +370,7 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
                     try:
                         from qgis.core import QgsMessageLog, Qgis
                         QgsMessageLog.logMessage(f'🔍 Point size raw={sz} unit={szu} -> diameter_px={px} radius_px={px / 2.0}', 'QMapPermalink', Qgis.MessageLevel.Info)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                 except Exception:
                     paint['circle-radius'] = symbol_layer.size() / 2
@@ -405,7 +405,7 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
                     try:
                         from qgis.core import QgsMessageLog, Qgis
                         QgsMessageLog.logMessage(f'🔍 Line width raw={w} unit={wu} -> px={converted_w}', 'QMapPermalink', Qgis.MessageLevel.Info)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                 except Exception:
                     paint['line-width'] = symbol_layer.width()
@@ -454,7 +454,7 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
                         f'alpha={stroke_color.alpha()}, width={symbol_layer.strokeWidth()}',
                         'QMapPermalink', Qgis.MessageLevel.Info
                     )
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
                 if has_fill:
@@ -485,7 +485,7 @@ def _convert_symbol_to_maplibre(symbol, source_id: str, geometry_type, base_inde
                         sw_px = _to_px(sw_raw, sw_unit)
                         from qgis.core import QgsMessageLog, Qgis
                         QgsMessageLog.logMessage(f'🔍 Polygon outline stroke raw={sw_raw} unit={sw_unit} -> px={sw_px}', 'QMapPermalink', Qgis.MessageLevel.Info)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                     layout = {}

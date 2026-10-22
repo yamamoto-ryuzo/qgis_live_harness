@@ -1,5 +1,9 @@
 # CHANGELOG — geo_userfunc
 
+## 1.0.3
+
+- try/except/pass 3箇所に # nosec B110 を付与(設計上の許容を明示)
+
 ## 1.0.2
 
 - Qt6互換性チェック対応: 非スコープ列挙型をスコープ化

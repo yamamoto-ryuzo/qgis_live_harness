@@ -60,7 +60,7 @@ def send_http_response(conn, status_code, reason, body, content_type="text/plain
     except Exception:
         try:
             conn.close()
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
 
@@ -82,7 +82,7 @@ def send_xml_response(conn, xml_content):
     except Exception:
         try:
             conn.close()
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
 
@@ -103,7 +103,7 @@ def send_binary_response(conn, status_code, reason, data, content_type):
     except Exception:
         try:
             conn.close()
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
 

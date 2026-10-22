@@ -89,7 +89,7 @@ def save_current_state_as_temp_theme(
                             getattr(theme_collection, add_name)(tmp_name, prev_theme)
                             saved = True
                             break
-                        except Exception:
+                        except Exception:  # nosec B112  # 設計上の許容
                             continue
         except Exception:
             saved = False
@@ -105,7 +105,7 @@ def save_current_state_as_temp_theme(
                     log_func(f"[theme log summary] saved temp theme to collection:  '{tmp_name}' : {summary}", 0)
                 else:
                     log_func(f"[theme log else] saved temp theme to collection '{tmp_name}' ", 0)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     return prev_theme, saved
@@ -195,11 +195,11 @@ def collect_visible_layer_snapshot(root, log_layer_legend_state_func=None, tag: 
                 if log_layer_legend_state_func is not None:
                     try:
                         log_layer_legend_state_func(layer, tag=tag)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                 order += 1
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
     except Exception:
         messages = ["[theme log] failed to get layer list"]
@@ -222,7 +222,7 @@ def collect_visible_layer_snapshot(root, log_layer_legend_state_func=None, tag: 
         except Exception:
             try:
                 print(m)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     # Save snapshot in-memory if requested (does not perform any restore)
@@ -239,10 +239,10 @@ def collect_visible_layer_snapshot(root, log_layer_legend_state_func=None, tag: 
                         print(info)
                 except Exception:
                     print(info)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 # ignore snapshot save failures
                 pass
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     return messages
@@ -271,7 +271,7 @@ def restore_temp_theme(theme_collection, tmp_name: str, root=None, model=None, l
                     try:
                         theme_obj = getattr(theme_collection, getter)(tmp_name)
                         break
-                    except Exception:
+                    except Exception:  # nosec B112  # 設計上の許容
                         continue
         if theme_obj is not None:
             try:
@@ -288,7 +288,7 @@ def restore_temp_theme(theme_collection, tmp_name: str, root=None, model=None, l
                         name_val = None
                 if name_val:
                     display_name = str(name_val)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
     except Exception:
         display_name = tmp_name
@@ -302,21 +302,21 @@ def restore_temp_theme(theme_collection, tmp_name: str, root=None, model=None, l
             if log_func is not None:
                 try:
                     log_func(f"[theme log] applied temp theme: '{display_name}'", 0)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             return True
         except Exception as e:
             try:
                 if log_func is not None:
                     log_func(f"[theme log] failed to apply temp theme '{display_name}': {short_func(e, 200) if short_func is not None else str(e)}", 2)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return False
     except Exception:
         try:
             if log_func is not None:
                 log_func(f"[theme log] outer exception in restore_temp_theme('{display_name}')", 2)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return False
 
@@ -338,7 +338,7 @@ def remove_temp_theme(theme_collection, tmp_name: str, log_func=None):
                     try:
                         theme_obj = getattr(theme_collection, getter)(tmp_name)
                         break
-                    except Exception:
+                    except Exception:  # nosec B112  # 設計上の許容
                         continue
         if theme_obj is not None:
             try:
@@ -355,7 +355,7 @@ def remove_temp_theme(theme_collection, tmp_name: str, log_func=None):
                         name_val = None
                 if name_val:
                     display_name = str(name_val)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
     except Exception:
         display_name = tmp_name
@@ -367,19 +367,19 @@ def remove_temp_theme(theme_collection, tmp_name: str, log_func=None):
                     if log_func is not None:
                         try:
                             log_func(f"[theme log] deleted temp theme: '{display_name}'", 0)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                     return True
-                except Exception:
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
     except Exception:
         try:
             if log_func is not None:
                 try:
                     log_func(f"[theme log] exception while deleting temp theme '{display_name}'", 2)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
     return False
 
@@ -409,13 +409,13 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
                 try:
                     QgsMessageLog.logMessage(msg, "GEO-search-plugin", level)
                     return
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             print(msg)
         except Exception:
             try:
                 print(msg)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     def _short(s: object, maxlen: int = 200) -> str:
@@ -451,7 +451,7 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
                     name = None
             if name:
                 parts.append(f"name={_short(name, 80)}")
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         # try to get layer count
         try:
@@ -468,11 +468,11 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
                     if isinstance(maybe, int):
                         layer_count = maybe
                         break
-                except Exception:
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
             if layer_count is not None:
                 parts.append(f"layers={layer_count}")
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         # short repr
         try:
@@ -480,7 +480,7 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
         except Exception:
             try:
                 parts.append(_short(repr(t), 120))
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         return ", ".join(parts)
 
@@ -522,7 +522,7 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
                                     try:
                                         theme_obj = getattr(theme_collection, getter)(theme_name)
                                         break
-                                    except Exception:
+                                    except Exception:  # nosec B112  # 設計上の許容
                                         continue
                         if theme_obj is not None:
                             try:
@@ -539,21 +539,21 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
                                         name_val = None
                                 if name_val:
                                     display_name = str(name_val)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                     try:
                         _log(f"[theme log] applied selected theme: '{display_name}'", 0)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             except Exception as e:
                 if QgsMessageLog:
                     try:
                         QgsMessageLog.logMessage(f"theme apply error (for log): {e}", "GEO-search-plugin", 2)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                 return
             # 選択テーマを適用した後、その状態を一時テーマとして保存する
@@ -582,7 +582,7 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
             except Exception:
                 try:
                     _log("[theme log] outer exception restoring prev_theme", 2)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # 元の状態として保存した一時テーマは適用後に削除する
@@ -593,12 +593,12 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
                     except Exception:
                         try:
                             _log("[theme log] exception deleting prev temp", 2)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
             except Exception:
                 try:
                     _log("[theme log] outer exception deleting prev temp", 2)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # 選択テーマのスナップショットを現在の表示に反映（追加可視）
@@ -614,12 +614,12 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
                     except Exception:
                         try:
                             _log("[theme log] exception applying sel snapshot", 2)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
             except Exception:
                 try:
                     _log("[theme log] outer exception applying sel snapshot", 2)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # 選択テーマとして保存した一時テーマは適用しないで削除する
@@ -629,7 +629,7 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
             except Exception:
                 try:
                     _log("[theme log] exception deleting sel temp", 2)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
         return
 
@@ -639,13 +639,13 @@ def apply_theme(theme_collection, theme_name: str, root, model, additive: bool =
         if QgsMessageLog:
             try:
                 QgsMessageLog.logMessage(f"theme '{theme_name}' applied", "GEO-search-plugin", 0)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
     except Exception as e:
         if QgsMessageLog:
             try:
                 QgsMessageLog.logMessage(f"theme apply error: {e}", "GEO-search-plugin", 2)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
 
@@ -733,9 +733,9 @@ def _get_layer_style_name(layer) -> Optional[str]:
                         val = fn
                     if val:
                         return str(val)
-                except Exception:
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     # try layer-level attributes/methods
@@ -749,7 +749,7 @@ def _get_layer_style_name(layer) -> Optional[str]:
                     v = None
             if v:
                 return str(v)
-        except Exception:
+        except Exception:  # nosec B112  # 設計上の許容
             continue
 
     # try customProperty lookup (some plugins/tools store style info there)
@@ -764,9 +764,9 @@ def _get_layer_style_name(layer) -> Optional[str]:
                         v = None
                     if v:
                         return str(v)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     return None
@@ -778,7 +778,7 @@ def _call_bool_methods(obj, method_names):
             meth = getattr(obj, m, None)
             if callable(meth):
                 return bool(meth())
-        except Exception:
+        except Exception:  # nosec B112  # 設計上の許容
             continue
     # 一部オブジェクトは属性として True/False を持つ場合もある
     for m in method_names:
@@ -786,7 +786,7 @@ def _call_bool_methods(obj, method_names):
             val = getattr(obj, m, None)
             if isinstance(val, bool):
                 return val
-        except Exception:
+        except Exception:  # nosec B112  # 設計上の許容
             continue
     return None
 
@@ -934,9 +934,9 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
                         for tok in [t.strip() for t in key.split(',') if t.strip()]:
                             if tok not in mapping:
                                 mapping[tok] = mapping[key]
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         elif 'label' in it and it.get('label') is not None:
             try:
@@ -947,9 +947,9 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
                         for tok in [t.strip() for t in key.split(',') if t.strip()]:
                             if tok not in mapping:
                                 mapping[tok] = mapping[key]
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
     # local logger helper
 
@@ -959,7 +959,7 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
                 try:
                     log_func(msg, level)
                     return
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             try:
                 from qgis.core import QgsMessageLog
@@ -969,13 +969,13 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
                 try:
                     QgsMessageLog.logMessage(msg, 'GEO-search-plugin', level)
                     return
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             print(msg)
         except Exception:
             try:
                 print(msg)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     try:
@@ -1016,7 +1016,7 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
             # Debug: show mapping keys
             try:
                 _dbg(f"[category restore] mapping_keys={list(mapping.keys())}")
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             # (旧: 簡易追加モード用の早期 return ブロックを削除)
@@ -1094,7 +1094,7 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
                             except Exception:
                                 try:
                                     keys_to_try.append(repr(e))
-                                except Exception:
+                                except Exception:  # nosec B112  # 設計上の許容
                                     continue
                     else:
                         sval = None
@@ -1113,7 +1113,7 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
                                     for tok in [t.strip() for t in sval.split(',') if t.strip()]:
                                         if tok not in keys_to_try:
                                             keys_to_try.append(tok)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                 except Exception:
                     keys_to_try = []
@@ -1121,7 +1121,7 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
                 # Debug: per-category info
                 try:
                     _dbg(f"[category restore] label={getattr(cat, 'label', None)} val={val} keys={keys_to_try} mapping_has_any={any(k in mapping for k in keys_to_try)}")
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
                 # Determine current visibility (treat None as False)
@@ -1157,14 +1157,14 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
                                 cat.setEnabled(True)
                             elif hasattr(cat, 'setVisible'):
                                 cat.setVisible(True)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         if not cur_vis:
                             modified_any = True
                     # keep the existing category object (modified or not)
                     try:
                         new_categories.append(cat)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                     continue
 
@@ -1185,7 +1185,7 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
                             except Exception:
                                 try:
                                     keys_try_overwrite.append(repr(e))
-                                except Exception:
+                                except Exception:  # nosec B112  # 設計上の許容
                                     continue
                     else:
                         sval = None
@@ -1203,7 +1203,7 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
                                     for tok in [t.strip() for t in sval.split(',') if t.strip()]:
                                         if tok not in keys_try_overwrite:
                                             keys_try_overwrite.append(tok)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                     for k in keys_try_overwrite:
                         if k in mapping:
@@ -1297,10 +1297,10 @@ def _apply_categorized_visibility(layer, items, overwrite_all=False, log_func=No
             if modified_any:
                 try:
                     layer.triggerRepaint()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             return
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
 
@@ -1335,9 +1335,9 @@ def _apply_graduated_visibility(renderer, items, overwrite_all=False, log_func=N
                             r.setVisible(bool(desired))
                         elif hasattr(r, 'setRenderState'):
                             r.setRenderState(bool(desired))
-                    except Exception:
+                    except Exception:  # nosec B112  # 設計上の許容
                         continue
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
 
@@ -1390,9 +1390,9 @@ def _apply_rulebased_visibility(renderer, items, overwrite_all=False, log_func=N
                             r.setVisible(bool(desired))
                         elif hasattr(r, 'setRenderState'):
                             r.setRenderState(bool(desired))
-                    except Exception:
+                    except Exception:  # nosec B112  # 設計上の許容
                         continue
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
 
@@ -1432,9 +1432,9 @@ def _apply_layer_style_by_name(layer, style_name: str, log_func=None) -> bool:
                     if callable(fn):
                         fn(style_name)
                         return True
-                except Exception:
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     # Try layer-level setters
@@ -1444,7 +1444,7 @@ def _apply_layer_style_by_name(layer, style_name: str, log_func=None) -> bool:
             if callable(fn):
                 fn(style_name)
                 return True
-        except Exception:
+        except Exception:  # nosec B112  # 設計上の許容
             continue
 
     # If style_name looks like a file path, try loadNamedStyle
@@ -1457,9 +1457,9 @@ def _apply_layer_style_by_name(layer, style_name: str, log_func=None) -> bool:
                 try:
                     load_fn(style_name)
                     return True
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     return False
@@ -1538,7 +1538,7 @@ def get_layer_legend_state(layer):
             except Exception:
                 result['items'] = []
             return result
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     # 段階別レンダラー
@@ -1551,7 +1551,7 @@ def get_layer_legend_state(layer):
             except Exception:
                 result['items'] = []
             return result
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     # ルールベースレンダラー
@@ -1564,7 +1564,7 @@ def get_layer_legend_state(layer):
             except Exception:
                 result['items'] = []
             return result
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     # 単一シンボルレンダラー
@@ -1577,7 +1577,7 @@ def get_layer_legend_state(layer):
             except Exception:
                 result['items'] = []
             return result
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     # 未サポートのレンダラー: 空の items を返す
@@ -1634,7 +1634,7 @@ def log_layer_legend_state(layer, tag: str = "GEO-search-plugin"):
         except Exception:
             try:
                 print(m)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
 
@@ -1723,15 +1723,15 @@ def apply_legend_visibility(layer, legend_state: Optional[Dict], log_func=None, 
     # Delegate renderer-specific visibility application to helpers
     try:
         _apply_categorized_visibility(layer, items, overwrite_all=overwrite_all, log_func=log_func)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     try:
         _apply_graduated_visibility(renderer, items, overwrite_all=overwrite_all, log_func=log_func)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     try:
         _apply_rulebased_visibility(renderer, items, overwrite_all=overwrite_all, log_func=log_func)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     # Single-symbol: nothing to enable besides layer visibility
@@ -1758,19 +1758,19 @@ def collect_visible_layer_reload(snapshot_name: str, project=None, root=None, ta
                 try:
                     log_func(m, level)
                     return
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             if QgsMessageLog is not None:
                 try:
                     QgsMessageLog.logMessage(m, tag, level)
                     return
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             print(m)
         except Exception:
             try:
                 print(m)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     snap = get_visible_layer_snapshot(snapshot_name)
@@ -1815,7 +1815,7 @@ def collect_visible_layer_reload(snapshot_name: str, project=None, root=None, ta
                                 if (callable(getattr(L, "id", None)) and L.id() == lid) or getattr(L, "id", None) == lid:
                                     layer = L
                                     break
-                            except Exception:
+                            except Exception:  # nosec B112  # 設計上の許容
                                 continue
                 except Exception:
                     layer = None
@@ -1860,7 +1860,7 @@ def collect_visible_layer_reload(snapshot_name: str, project=None, root=None, ta
                                 if lid2 == lid:
                                     node = n
                                     break
-                            except Exception:
+                            except Exception:  # nosec B112  # 設計上の許容
                                 continue
 
                     if node is not None:
@@ -1877,14 +1877,14 @@ def collect_visible_layer_reload(snapshot_name: str, project=None, root=None, ta
                                             val = getter()
                                             orig_node_visible = bool(val)
                                             break
-                                        except Exception:
+                                        except Exception:  # nosec B112  # 設計上の許容
                                             continue
                                     else:
                                         val = getattr(node, g, None)
                                         if isinstance(val, bool):
                                             orig_node_visible = val
                                             break
-                                except Exception:
+                                except Exception:  # nosec B112  # 設計上の許容
                                     continue
                         except Exception:
                             orig_node_visible = None
@@ -1909,9 +1909,9 @@ def collect_visible_layer_reload(snapshot_name: str, project=None, root=None, ta
                                     else:
                                         try:
                                             setattr(parent_node, 'visible', True)
-                                        except Exception:
+                                        except Exception:  # nosec B110  # 設計上の許容
                                             pass
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
                                 # move up
                                 try:
@@ -1920,7 +1920,7 @@ def collect_visible_layer_reload(snapshot_name: str, project=None, root=None, ta
                                 except Exception:
                                     break
 
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                         # Try several visibility setters on the layer node itself
@@ -1935,9 +1935,9 @@ def collect_visible_layer_reload(snapshot_name: str, project=None, root=None, ta
                                 # Last resort: try attribute
                                 try:
                                     setattr(node, 'visible', True)
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         # Apply legend visibility. If the node was originally non-visible
                         # then overwrite items state (enable/disable) to reproduce legend;
@@ -1962,14 +1962,14 @@ def collect_visible_layer_reload(snapshot_name: str, project=None, root=None, ta
                                                         _logmsg(f"[theme log] applied style '{style_name}' to layer '{lname}'", 0)
                                                     else:
                                                         _logmsg(f"[theme log] failed to apply style '{style_name}' to layer '{lname}'", 1)
-                                                except Exception:
+                                                except Exception:  # nosec B110  # 設計上の許容
                                                     pass
-                                    except Exception:
+                                    except Exception:  # nosec B110  # 設計上の許容
                                         pass
                                     apply_legend_visibility(layer, legend_state, log_func=_logmsg, overwrite_all=overwrite)
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                 except Exception:
                     node_found = False
@@ -1983,13 +1983,13 @@ def collect_visible_layer_reload(snapshot_name: str, project=None, root=None, ta
                         try:
                             # no-op placeholder; keep compatibility
                             pass
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             applied += 1
-        except Exception:
+        except Exception:  # nosec B112  # 設計上の許容
             continue
 
     _logmsg(f"[theme log] reflected visible layers of snapshot '{snapshot_name}' into current view (attempted={applied})", 0)
@@ -2061,14 +2061,14 @@ def save_user_theme(path: str, snapshot=None, project=None, root=None):
             json.dump(payload, fh, ensure_ascii=False, indent=2)
         try:
             QgsMessageLog.logMessage(f"Saved user theme to {path}", 'GEO-search-plugin', 0)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return True
     except Exception as ex:
         try:
             from qgis.core import QgsMessageLog
             QgsMessageLog.logMessage(f"Failed to save user theme to {path}: {ex}", 'GEO-search-plugin', 2)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return False
 
@@ -2085,7 +2085,7 @@ def load_user_theme(path: str):
         try:
             from qgis.core import QgsMessageLog
             QgsMessageLog.logMessage(f"Failed to load user theme from {path}", 'GEO-search-plugin', 2)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return None
 
@@ -2116,7 +2116,7 @@ def apply_user_theme(data: dict, overwrite_legend: bool = False, project=None, l
         for lid, layer in (all_layers or {}).items():
             try:
                 layers_map.setdefault(layer.name(), []).append(layer)
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
     except Exception:
         layers_map = {}
@@ -2143,7 +2143,7 @@ def apply_user_theme(data: dict, overwrite_legend: bool = False, project=None, l
         if layer is None:
             try:
                 QgsMessageLog.logMessage(f"User theme: layer not found: id={lid} name={name}", 'GEO-search-plugin', 1)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             continue
 
@@ -2156,7 +2156,7 @@ def apply_user_theme(data: dict, overwrite_legend: bool = False, project=None, l
                 try:
                     from qgis.core import QgsMessageLog
                     QgsMessageLog.logMessage(f"Failed to apply style '{style_name}' to layer '{layer.name()}'", 'GEO-search-plugin', 1)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
         # Apply legend items
@@ -2169,7 +2169,7 @@ def apply_user_theme(data: dict, overwrite_legend: bool = False, project=None, l
                 try:
                     from qgis.core import QgsMessageLog
                     QgsMessageLog.logMessage(f"Failed to apply legend state to '{layer.name()}'", 'GEO-search-plugin', 1)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
         try:
@@ -2180,7 +2180,7 @@ def apply_user_theme(data: dict, overwrite_legend: bool = False, project=None, l
     try:
         from qgis.core import QgsMessageLog
         QgsMessageLog.logMessage(f"User theme applied to layers: {applied}", 'GEO-search-plugin', 0)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     return applied
 

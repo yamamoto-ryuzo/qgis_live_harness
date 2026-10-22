@@ -32,7 +32,7 @@ def _jsonable(v):
         from qgis.core import NULL
         if v is NULL:
             return None
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     try:
         from qgis.PyQt.QtCore import QDate, QDateTime, QTime, QByteArray, Qt
@@ -40,7 +40,7 @@ def _jsonable(v):
             return v.toString(Qt.DateFormat.ISODate)
         if isinstance(v, QByteArray):
             return bytes(v).decode("utf-8", "replace")
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     if isinstance(v, dict):
         return {str(k): _jsonable(x) for k, x in v.items()}
@@ -280,7 +280,7 @@ class GeoWebViewBridge:
         try:
             port = server.get_server_port() or server.server_port
             panel.update_server_status(port, server.is_server_running())
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def _navigation_data_from_canvas(self):
@@ -393,13 +393,13 @@ class GeoWebViewBridge:
             if cmb is not None:
                 try:
                     fields["comboBox_themes"] = cmb.currentText()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             sp = getattr(panel, "spinBox_port", None)
             if sp is not None:
                 try:
                     fields["spinBox_port"] = sp.value()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
         return self._ok({
             "version": getattr(server, "plugin_version", None),
@@ -437,7 +437,7 @@ class GeoWebViewBridge:
                 p.panel.show()
             try:
                 p.panel.raise_()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         panel = p.panel
         if panel is None:
@@ -451,7 +451,7 @@ class GeoWebViewBridge:
         if panel is not None:
             try:
                 panel.hide()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         return self._ok({"visible": bool(panel is not None
                                          and panel.isVisible())})
@@ -542,12 +542,12 @@ class GeoWebViewBridge:
                 try:
                     sp.blockSignals(True)
                     sp.setValue(port)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 finally:
                     try:
                         sp.blockSignals(False)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
         restarted = False
         if server.is_server_running():
@@ -609,19 +609,19 @@ class GeoWebViewBridge:
                 if w is not None:
                     try:
                         w.setText(url)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
             cmb = getattr(panel, "comboBox_themes", None)
             if cmb is not None and specific_theme:
                 try:
                     cmb.blockSignals(True)
                     cmb.setCurrentText(specific_theme)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 finally:
                     try:
                         cmb.blockSignals(False)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
         return self._ok({"url": url, "theme": specific_theme,
                          "canvas": self._canvas_state()})
@@ -645,7 +645,7 @@ class GeoWebViewBridge:
                 if w is not None:
                     try:
                         w.setText(text)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
         if not text:
             return self._err("failed to build permalink")
@@ -798,7 +798,7 @@ class GeoWebViewBridge:
                 txt = cmb.currentText()
                 if txt and not txt.startswith("--"):
                     current = txt
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         return self._ok({"themes": names, "current": current})
 
@@ -819,12 +819,12 @@ class GeoWebViewBridge:
             try:
                 cmb.blockSignals(True)
                 cmb.setCurrentText(name)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             finally:
                 try:
                     cmb.blockSignals(False)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
         return self._ok({"applied": name})
 

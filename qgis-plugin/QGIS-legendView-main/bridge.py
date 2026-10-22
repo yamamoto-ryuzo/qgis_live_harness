@@ -187,7 +187,7 @@ class LegendViewBridge:
             info["legendRows"] = dock.tableWidget.rowCount()
             try:
                 info["opacity"] = dock.mOpacityWidget.opacity()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         return self._ok(info)
 

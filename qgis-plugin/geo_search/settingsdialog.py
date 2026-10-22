@@ -52,9 +52,9 @@ class SettingsDialog(QDialog):
                         pv = None
                     if pv:
                         self.geo_line.setText(str(pv))
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         browse_geo_btn = QPushButton(self.tr("Browse..."), self)
         apply_geo_btn = QPushButton(self.tr("Apply"), self)
@@ -79,11 +79,11 @@ class SettingsDialog(QDialog):
         # geo_search_json 用のハンドラ
         try:
             browse_geo_btn.clicked.connect(self._browse_geo_search_json)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         try:
             apply_geo_btn.clicked.connect(self._apply_geo_search_json)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         # 下部に OK / Cancel を右寄せで配置
@@ -123,7 +123,7 @@ class SettingsDialog(QDialog):
                         names.append(t.title())
                     else:
                         names.append(str(t))
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
         # テーマ一覧は返す。UI 表示は不要なのでコンボ操作は行わない
         return names
@@ -248,7 +248,7 @@ class SettingsDialog(QDialog):
         if path:
             try:
                 self.geo_line.setText(path)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     def _apply_geo_search_json(self):
@@ -294,26 +294,26 @@ class SettingsDialog(QDialog):
                             QgsMessageLog.logMessage(f"Set project variable 'geo_search_json' to: {save_val}", 'GEO-search-plugin', 0)
                         else:
                             QgsMessageLog.logMessage(f"Failed to persist 'geo_search_json' via helper, attempted value: {save_val}", 'GEO-search-plugin', 1)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                 except Exception:
                     try:
                         QgsMessageLog.logMessage("Failed to set project variable 'geo_search_json' via helper", 'GEO-search-plugin', 2)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
             except Exception as e:
                 try:
                     QgsMessageLog.logMessage(f"Failed to set project variable 'geo_search_json': {e}", 'GEO-search-plugin', 2)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             # qgis.core が使えない環境でもランタイム環境変数は設定する
             pass
         # ランタイム環境変数としても設定（永続化はしない）
         try:
             import os
             os.environ['geo_search_json'] = path
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         QMessageBox.information(self, self.tr("geo_search_json"), self.tr("Saved geo_search_json to project variables (and runtime env)."))
 

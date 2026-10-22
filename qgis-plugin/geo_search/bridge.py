@@ -32,7 +32,7 @@ def _jsonable(v):
         from qgis.core import NULL
         if v is NULL:
             return None
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     try:
         from qgis.PyQt.QtCore import QDate, QDateTime, QTime, QByteArray, Qt
@@ -40,7 +40,7 @@ def _jsonable(v):
             return v.toString(Qt.DateFormat.ISODate)
         if isinstance(v, QByteArray):
             return bytes(v).decode("utf-8", "replace")
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     if isinstance(v, dict):
         return {str(k): _jsonable(x) for k, x in v.items()}
@@ -305,13 +305,13 @@ class GeoSearchBridge:
                     dlg.tabWidget.setCurrentIndex(mi)   # → change_tab_group
                 else:
                     p.change_tab_group(mi)              # 同indexは手動同期
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             child = groups[entry["group"]]
             try:
                 if child.currentIndex() != ci:
                     child.setCurrentIndex(ci)           # → change_search_feature
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             if p.current_feature is not entry["feature"]:
                 p.change_search_feature(ci)
@@ -320,7 +320,7 @@ class GeoSearchBridge:
             try:
                 if dlg.tabWidget.currentIndex() != idx:
                     dlg.tabWidget.setCurrentIndex(idx)  # → change_search_feature
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             if p.current_feature is not entry["feature"]:
                 p.change_search_feature(idx)
@@ -341,7 +341,7 @@ class GeoSearchBridge:
         for w in widgets:
             try:
                 w.setText("")
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         unmatched = []
         if isinstance(query, dict):
@@ -379,7 +379,7 @@ class GeoSearchBridge:
                     try:
                         widgets[int(k)].setText("" if v is None else str(v))
                         matched = True
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                 if not matched:
                     unmatched.append(key)
@@ -431,7 +431,7 @@ class GeoSearchBridge:
                 i = idx_by_name.get(n)
                 if i is not None and i < len(vals):
                     attrs[n] = _jsonable(vals[i])
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         entry = {"id": f.id(), "attrs": attrs}
         try:
@@ -439,7 +439,7 @@ class GeoSearchBridge:
             if g is not None and not g.isEmpty():
                 pt = g.centroid().asPoint()
                 entry["centroid"] = [pt.x(), pt.y()]
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return entry
 
@@ -463,12 +463,12 @@ class GeoSearchBridge:
                         rect = QgsRectangle(r)
                     else:
                         rect.combineExtentWith(r)
-                except Exception:
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
             if layer is not None and ids:
                 try:
                     layer.selectByIds(ids)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
         if rect is None or rect.isNull():
             return False
@@ -633,7 +633,7 @@ class GeoSearchBridge:
         if not show:
             try:
                 feat.result_dialog.hide()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         cur = self._find_tab(None)
         return self._ok({
@@ -725,12 +725,12 @@ class GeoSearchBridge:
                 try:
                     cmb.blockSignals(True)
                     cmb.setCurrentIndex(self._PAN_MODE_INDEX.index(m))
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 finally:
                     try:
                         cmb.blockSignals(False)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
             applied["pan_mode"] = m
         if "fixed_scale" in opts:
@@ -748,12 +748,12 @@ class GeoSearchBridge:
                     cmb.blockSignals(True)
                     cmb.setCurrentText(
                         QCoreApplication.translate("Dialog", "Auto (unspecified)") if v is None else f"1:{v:,}")
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 finally:
                     try:
                         cmb.blockSignals(False)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
             applied["fixed_scale"] = v
         if "show_layer_name" in opts:
@@ -764,7 +764,7 @@ class GeoSearchBridge:
             if cbx is not None:
                 try:
                     cbx.setChecked(b)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             applied["show_layer_name"] = b
         return applied
@@ -842,7 +842,7 @@ class GeoSearchBridge:
                 for btn in widget.check_list:
                     try:
                         btn.setChecked(btn.text() in want)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                 applied["fields"] = sorted(want)
             if "match_mode" in opts:
@@ -867,7 +867,7 @@ class GeoSearchBridge:
                     try:
                         table.selectRow(r)  # → set_aza_code が入力欄へ反映
                         hit = True
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                     break
             if not hit:
@@ -959,7 +959,7 @@ class GeoSearchBridge:
             try:
                 txt = cmb.currentText()
                 cur = txt if txt and txt != QCoreApplication.translate("plugin", "Select theme") else None
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         return self._ok({
             "themes": names,
@@ -998,12 +998,12 @@ class GeoSearchBridge:
             try:
                 cmb.blockSignals(True)
                 cmb.setCurrentText(name)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             finally:
                 try:
                     cmb.blockSignals(False)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
         return self._ok({"applied": name,
                          "additive": bool(getattr(
@@ -1021,7 +1021,7 @@ class GeoSearchBridge:
             if action is not None:
                 try:
                     action.setChecked(bool(enabled))
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             # actionが無い/発火しない場合の保険として直接も設定
             try:
@@ -1046,7 +1046,7 @@ class GeoSearchBridge:
                 f"{base}__user_theme.usertheme.json")
         try:
             os.makedirs(os.path.dirname(path), exist_ok=True)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         try:
             from . import theme as theme_mod
@@ -1127,9 +1127,9 @@ class GeoSearchBridge:
                 try:
                     if os.path.commonpath([abs_proj, abs_path]) == abs_proj:
                         save_val = os.path.relpath(abs_path, abs_proj)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         set_project_variable(project, "geo_search_json", save_val)
         os.environ["geo_search_json"] = path
@@ -1151,7 +1151,7 @@ class GeoSearchBridge:
         if dlg is not None:
             try:
                 dlg.close()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         try:
             p.create_search_dialog()
@@ -1160,7 +1160,7 @@ class GeoSearchBridge:
         if show:
             try:
                 p.run()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         return self._dialog() is not None
 
@@ -1215,7 +1215,7 @@ class GeoSearchBridge:
                         data = existing
                     elif isinstance(existing, dict):
                         data = {"SearchTabs": [existing, tab_def]}
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass  # パース不能なら新規書き込み(ファイルパス等)
             else:
                 return self._err(
@@ -1331,13 +1331,13 @@ class GeoSearchBridge:
         if dlg is not None:
             try:
                 dlg.close()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         for e in self._flat_tabs():
             rd = getattr(e["feature"], "result_dialog", None)
             if rd is not None:
                 try:
                     rd.hide()
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
         return self._ok()

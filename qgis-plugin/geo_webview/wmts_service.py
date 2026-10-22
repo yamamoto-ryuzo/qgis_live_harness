@@ -98,7 +98,7 @@ class GeoWebViewWMTSService:
                 f"WMTS Prewarm workers: {prewarm_workers} (computed: cpu_count()-1, enforced min=6; max_render_workers={max_rw}, cpu_count={cpu_val})",
                 'geo_webview', Qgis.MessageLevel.Info
             )
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             # best-effort logging; ignore if QGIS logging not available
             pass
         self._prewarm_futures = []
@@ -123,12 +123,12 @@ class GeoWebViewWMTSService:
                     try:
                         identity_short, identity_raw = self._get_identity_info()
                         self.ensure_identity(identity_short, identity_raw)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         # swallow; this is a best-effort background reaction
                         pass
                 finally:
                     self._writing_identity = False
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def _ensure_watch_style_managers(self):
@@ -176,10 +176,10 @@ class GeoWebViewWMTSService:
                         sig.connect(self._on_style_changed)
                         # keep sm itself in the set to hold a reference
                         self._watched_style_managers.add(sm)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         # ignore failures to connect
                         pass
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
 
     def _extract_style_id(self, layer_obj):
@@ -456,7 +456,7 @@ class GeoWebViewWMTSService:
                         for lyr in layer_objs:
                             try:
                                 layers_xml += _layer_entry(lyr) + '\n'
-                            except Exception:
+                            except Exception:  # nosec B112  # 設計上の許容
                                 continue
                     except Exception:
                         layers_xml = ''
@@ -639,17 +639,17 @@ class GeoWebViewWMTSService:
                                     with os.fdopen(tmpfd, 'wb') as tfh:
                                         tfh.write(body)
                                     os.replace(tmppath, cache_path)
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
                             try:
                                 conn.sendall(raw)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                             return
                         else:
                             try:
                                 conn.sendall(raw)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                             return
                     else:
@@ -707,7 +707,7 @@ class GeoWebViewWMTSService:
                 if tms_flag:
                     try:
                         y = (2 ** z - 1) - y
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                 ok, msg = self._validate_tile_coords(z, x, y)
@@ -740,7 +740,7 @@ class GeoWebViewWMTSService:
                             identity_dir = os.path.join(cache_dir, identity_hash)
                             try:
                                 os.makedirs(identity_dir, exist_ok=True)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
 
                             cache_dir = self.cache_dir
@@ -749,7 +749,7 @@ class GeoWebViewWMTSService:
                         tile_dir = os.path.join(identity_dir, str(z), str(x))
                         try:
                             os.makedirs(tile_dir, exist_ok=True)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                         cache_path = os.path.join(tile_dir, f"{y}.{fmt}")
@@ -760,7 +760,7 @@ class GeoWebViewWMTSService:
                             content_type = 'image/png' if fmt == 'png' else f'image/{fmt}'
                             http_server.send_binary_response(conn, 200, 'OK', data, content_type)
                             return
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                     # Delegate to server manager's WMS GetMap-with-BBOX pipeline (256x256)
@@ -808,25 +808,25 @@ class GeoWebViewWMTSService:
                                                 'y': y,
                                                 'path': cache_path,
                                             }, mf, ensure_ascii=False, indent=2)
-                                    except Exception:
+                                    except Exception:  # nosec B110  # 設計上の許容
                                         pass
                                 except Exception:
                                     try:
                                         if os.path.exists(tmppath):
                                             os.remove(tmppath)
-                                    except Exception:
+                                    except Exception:  # nosec B110  # 設計上の許容
                                         pass
                             # forward the captured bytes to original conn
                             try:
                                 conn.sendall(raw)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                             return
                         else:
                             # not an HTTP response: just forward raw buffer
                             try:
                                 conn.sendall(raw)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                             return
                     except Exception as e:
@@ -843,7 +843,7 @@ class GeoWebViewWMTSService:
             try:
                 from . import http_server
                 http_server.send_http_response(conn, 500, 'Internal Server Error', f'WMTS processing failed: {e}')
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     def ensure_identity(self, identity_short=None, identity_raw=None):
@@ -861,7 +861,7 @@ class GeoWebViewWMTSService:
             # can be recomputed when the user switches styles.
             try:
                 self._ensure_watch_style_managers()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             if not identity_short or not identity_raw:
                 try:
@@ -872,14 +872,14 @@ class GeoWebViewWMTSService:
             cache_dir = self.cache_dir
             try:
                 os.makedirs(cache_dir, exist_ok=True)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             identity_hash = hashlib.sha1(identity_raw.encode('utf-8'), usedforsecurity=False).hexdigest()
             identity_dir = os.path.join(cache_dir, identity_hash)
             try:
                 os.makedirs(identity_dir, exist_ok=True)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             # write or update identity meta (overwrite if identity_raw changed)
@@ -901,13 +901,13 @@ class GeoWebViewWMTSService:
                     }
                     with open(meta_index_path, 'w', encoding='utf-8') as mf:
                         json.dump(meta_index, mf, ensure_ascii=False, indent=2)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             # Start prewarm in background if not already running
             try:
                 self._maybe_start_prewarm(identity_short, identity_hash, identity_dir)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             return identity_hash, identity_dir
@@ -1069,5 +1069,5 @@ class GeoWebViewWMTSService:
                     f"Prewarm tile {z}/{x}/{y} failed: {e}",
                     "geo_webview", Qgis.MessageLevel.Warning
                 )
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass

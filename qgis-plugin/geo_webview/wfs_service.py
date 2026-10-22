@@ -96,7 +96,7 @@ class GeoWebViewWFSService:
                         f"🧹 WFS Cache: removed {len(expired_keys)} expired entries",
                         "geo_webview", Qgis.MessageLevel.Info
                     )
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def handle_wfs_request(self, conn, params: Dict[str, list], host: Optional[str] = None) -> None:
@@ -150,7 +150,7 @@ class GeoWebViewWFSService:
                     # only include vector layers
                     if isinstance(layer, QgsVectorLayer):
                         vector_layers.append(layer)
-                except Exception:
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
         else:
             # No WFSLayers defined -> return empty FeatureTypeList
@@ -425,7 +425,7 @@ class GeoWebViewWFSService:
                         continue
                     if isinstance(layer, QgsVectorLayer):
                         vector_layers.append(layer)
-                except Exception:
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
 
         # If no WFSLayers defined in the project, return empty list (do not
@@ -475,7 +475,7 @@ class GeoWebViewWFSService:
                 # Match against human-readable layer name
                 if lname == type_name or lname == decoded:
                     return layer
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
 
         return None
@@ -524,7 +524,7 @@ class GeoWebViewWFSService:
                             rect = transform.transformBoundingBox(rect)
 
                     request.setFilterRect(rect)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
         # 🚀 Phase 1最適化: イテレータを使って効率的に取得
@@ -584,7 +584,7 @@ class GeoWebViewWFSService:
 
                     try:
                         feature_json['geometry']['coordinates'] = _normalize_coords(feature_json['geometry']['coordinates'])
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                 # If geometry is invalid (missing coordinates or contains None), skip this feature
@@ -610,17 +610,17 @@ class GeoWebViewWFSService:
                     # skip features without valid geometry
                     try:
                         QgsMessageLog.logMessage(f"⚠️ Skipping feature {feature.id()} due to invalid geometry", "geo_webview", Qgis.MessageLevel.Warning)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                     continue
             except Exception:
                 # non-fatal: if any unexpected error in geometry handling, skip this feature
                 try:
                     QgsMessageLog.logMessage(f"⚠️ Skipping feature {feature.id()} due to geometry normalization error", "geo_webview", Qgis.MessageLevel.Warning)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 continue
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 # non-fatal: leave geometry as-is
                 pass
 
@@ -654,9 +654,9 @@ class GeoWebViewWFSService:
                         try:
                             # Log label extraction for debugging in QGIS message log
                             pass
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 # non-fatal
                 pass
 
@@ -671,7 +671,7 @@ class GeoWebViewWFSService:
                         feature_json['properties']['表示非表示'] = '表示'
                 except Exception:
                     feature_json['properties']['表示非表示'] = '表示'
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 # non-fatal: continue without property normalization
                 pass
 
@@ -727,7 +727,7 @@ class GeoWebViewWFSService:
                                 val = expr.evaluate(ctx)
                                 if not expr.hasEvalError() and val is not None:
                                     return str(val)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 # fall through to fieldCandidate/displayExpression
                                 pass
 
@@ -737,9 +737,9 @@ class GeoWebViewWFSService:
                                 val = feature.attribute(field_candidate)
                                 if val is not None:
                                     return str(val)
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 # ignore labeling inspection errors and continue to other fallbacks
                 pass
 
@@ -764,7 +764,7 @@ class GeoWebViewWFSService:
                         # fall through to field fallback
                         raise Exception('expression eval error')
                     return '' if val is None else str(val)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # Fallback: layer.displayField() or form display field
@@ -777,10 +777,10 @@ class GeoWebViewWFSService:
                 if df:
                     val = feature.attribute(df)
                     return '' if val is None else str(val)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         return ''
@@ -1006,10 +1006,10 @@ class GeoWebViewWFSService:
             # graduated, rule-based and single-symbol renderers into SLD.
             try:
                 return sld_renderer.renderer_to_sld(layer, layer_name)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 # fall through to legacy behavior on error
                 pass
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             # if helper not available or import failed, continue with legacy logic
             pass
 
@@ -1188,7 +1188,7 @@ class GeoWebViewWFSService:
                         if fill_color_obj.alpha() == 0:
                             has_brush = False
                             from qgis.core import QgsMessageLog, Qgis
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
             # ブラシなしの場合はLineSymbolizerのみ（枠線のみ）

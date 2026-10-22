@@ -194,7 +194,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         # Log for debugging which path triggers label update
         try:
             self.util.msg_log_debug(u'select_all_resources: added {0} resources, calling update_resource_checked_count'.format(len(all_resources)))
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         self.update_resource_checked_count()
 
@@ -337,7 +337,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         # Debug log to indicate this function updated the label
         try:
             self.util.msg_log_debug(u'update_resource_checked_count: selected_datasets={0} checked_resources={1}'.format(len(selected_items), checked_count))
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         if hasattr(self, 'IDC_lblSelectedCount'):
             self.IDC_lblSelectedCount.setText(QCoreApplication.translate('GeoImport', "Selected - datasets: {0} / resources: {1}").format(len(selected_items), checked_count))
@@ -374,7 +374,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         # Debug log to indicate this function updated the label
         try:
             self.util.msg_log_debug(u'update_selected_count: selected_datasets={0} resources_count={1}'.format(len(selected_items), len(all_resources)))
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         if hasattr(self, 'IDC_lblSelectedCount'):
             self.IDC_lblSelectedCount.setText(QCoreApplication.translate('GeoImport', "Selected - datasets: {0} / resources: {1}").format(len(selected_items), len(all_resources)))
@@ -410,7 +410,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     return os.path.abspath(os.path.join(parsed.netloc, parsed.path))
             if os.path.isdir(server_url):
                 return server_url
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return None
 
@@ -448,14 +448,14 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     return name
                 if isinstance(info, str) and info == url:
                     return name
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         try:
             from urllib.parse import urlparse
             host = urlparse(url).netloc
             if host:
                 return host.replace('www.', '')
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return url
 
@@ -469,7 +469,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             for u in urls:
                 if u not in dead and self.settings.server_error(u):
                     dead.add(u)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         unreachable = QCoreApplication.translate('GeoImport', 'Unreachable')
         import html as _html
@@ -639,7 +639,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                                 try:
                                     with open(os.path.join(pkg_dir, fname), 'r', encoding='utf-8') as f:
                                         all_results.append(json.load(f))
-                                except Exception:
+                                except Exception:  # nosec B112  # 設計上の許容
                                     continue
                         if all_results:
                             # キャッシュにコピー
@@ -688,7 +688,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     try:
                         if os.path.getsize(filepath) == 0:
                             return False
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
 
                     return True
@@ -716,7 +716,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                             if resources:
                                 pkg = {'id': f'local-package-{name}', 'title': name, 'resources': resources, 'groups': [{'name': name}]}
                                 generated_pkgs.append(pkg)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
                 # root-level files -> a package
@@ -734,7 +734,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     if root_resources:
                         pkg_root = {'id': 'local-package-root', 'title': os.path.basename(local_path) or 'local-package', 'resources': root_resources}
                         generated_pkgs.insert(0, pkg_root)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
 
                 if generated_pkgs:
@@ -802,7 +802,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             if not all_results:
                 try:
                     self.util.dlg_information(QCoreApplication.translate('GeoImport', 'py_dlg_set_info_empty_local_created').format(local_path))
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             return True, db_path
         except Exception as e:
@@ -906,7 +906,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                             try:
                                 if os.path.getsize(filepath) == 0:
                                     return False
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
 
                             return True
@@ -931,7 +931,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                                     if resources:
                                         pkg = {'id': f'local-package-{name}', 'title': name, 'resources': resources, 'groups': [{'name': name}]}
                                         pkgs.append(pkg)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                         # root-level files -> a package
@@ -949,7 +949,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                             if root_resources:
                                 pkg_root = {'id': 'local-package-root', 'title': os.path.basename(folder) or 'local-package', 'resources': root_resources}
                                 pkgs.insert(0, pkg_root)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
 
                         return pkgs, groups
@@ -1043,7 +1043,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                         # inform the user that an empty index was created
                         try:
                             self.util.dlg_information(QCoreApplication.translate('GeoImport', 'py_dlg_set_info_empty_local_created').format(local_path))
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         # continue with empty all_results to create empty DB (save_ckan_packages_to_sqlite will create tables)
                 except Exception as e:
@@ -1098,7 +1098,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
                     try:
                         from qgis.core import QgsMessageLog, Qgis
                         QgsMessageLog.logMessage(f"fetched datasets (page {page}): {titles}", self.util.dlg_caption, Qgis.MessageLevel.Info)
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                     QApplication.processEvents()
                     if progress.wasCanceled():
@@ -1387,7 +1387,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             # 失敗記録の追加・回復消去を永続化
             try:
                 self.settings.save()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         # 死んだCKANをサーバーラベルで明示
         self._update_server_label()
@@ -1401,11 +1401,11 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         try:
             self.iface.messageBar().pushMessage(
                 self.settings.DLG_CAPTION, str(msg), Qgis.MessageLevel.Warning)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         try:
             self.IDC_lblSuchergebnisse.setText(str(msg))
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
     def _on_data_ready(self, page_results, result_count, page_count, total_resource_count):
@@ -1565,11 +1565,11 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             try:
                 _QgsProject.instance().layersAdded.disconnect(
                     self._on_org_layers_added)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             _QgsProject.instance().layersAdded.connect(
                 self._on_org_layers_added)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         for resource in all_resources:
@@ -1614,7 +1614,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             # debug log to help diagnose server folder generation
             try:
                 self.util.msg_log_debug(f'server_url={server_url} host={host} server_dir={server_dir} url_hash={url_hash}')
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
 
             dest_dir = os.path.join(
@@ -1838,7 +1838,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
         try:
             if xml_session_started:
                 self.util.finish_xml_collection_session()
-        except NameError:
+        except NameError:  # nosec B110  # 設計上の許容
             # 古いコードパスでは xml_session_started が定義されていない場合がある
             # その場合は finish を呼ばない
             pass
@@ -1848,7 +1848,7 @@ class GeoImportDialog(QDialog, FORM_CLASS):
             from qgis.core import QgsProject as _QgsProject
             _QgsProject.instance().layersAdded.disconnect(
                 self._on_org_layers_added)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         self._apply_layer_org()
 

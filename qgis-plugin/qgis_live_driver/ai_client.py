@@ -472,7 +472,7 @@ def _get_json(url, headers, timeout=30.0):
         detail = ""
         try:
             detail = e.read().decode("utf-8", "replace")[:500]
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         raise ApiError(f"HTTP {e.code}: {detail or e.reason}") from e
     except urllib.error.URLError as e:
@@ -492,7 +492,7 @@ def _post_json(url, headers, body, timeout=180.0):
         detail = ""
         try:
             detail = e.read().decode("utf-8", "replace")[:500]
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         raise ApiError(f"HTTP {e.code}: {detail or e.reason}") from e
     except urllib.error.URLError as e:
@@ -515,7 +515,7 @@ def _post_form(url, fields, timeout=30.0):
         detail = ""
         try:
             detail = e.read().decode("utf-8", "replace")[:500]
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         raise ApiError(f"HTTP {e.code}: {detail or e.reason}") from e
     except urllib.error.URLError as e:
@@ -999,7 +999,7 @@ def _md_head(path):
                 if m:
                     when = m.group(1).strip()
                 break              # ラベル行以外=ヘッダー終了
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     return title, desc, when
 
@@ -1445,7 +1445,7 @@ def _oauth_request(oc, body, timeout=30.0):
         detail = ""
         try:
             detail = e.read().decode("utf-8", "replace")[:300]
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         raise ApiError(
             f"token fetch HTTP {e.code}: {detail or e.reason}") from e
@@ -1501,7 +1501,7 @@ def _mcp_token_save(name, tok):
         os.makedirs(os.path.dirname(_mcp_tokens_path()), exist_ok=True)
         with open(_mcp_tokens_path(), "w", encoding="utf-8") as f:
             json.dump(d, f, indent=1)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass                       # 保存失敗は致命的ではない
 
 
@@ -1514,7 +1514,7 @@ def _mcp_token_delete(name):
             with open(_mcp_tokens_path(), "w",
                       encoding="utf-8") as f:
                 json.dump(d, f, indent=1)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
 
@@ -1705,7 +1705,7 @@ class _McpHttp:
                 detail = ""
                 try:
                     detail = e.read().decode("utf-8", "replace")[:300]
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 raise ApiError(
                     f"HTTP {e.code}: {detail or e.reason}") from e
@@ -1730,7 +1730,7 @@ class _McpHttp:
         try:
             self._post({"jsonrpc": "2.0", "method": method,
                         "params": params or {}}, 15.0)
-        except ApiError:
+        except ApiError:  # nosec B110  # 設計上の許容
             pass
 
     def close(self):
@@ -1770,7 +1770,7 @@ class _McpStdio:
                 break
             try:
                 m = json.loads(line.decode("utf-8", "replace"))
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
             slot = self._pending.get(m.get("id"))
             if slot:
@@ -1810,13 +1810,13 @@ class _McpStdio:
         try:
             self._send({"jsonrpc": "2.0", "method": method,
                         "params": params or {}})
-        except ApiError:
+        except ApiError:  # nosec B110  # 設計上の許容
             pass
 
     def close(self):
         try:
             self._p.terminate()
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
 

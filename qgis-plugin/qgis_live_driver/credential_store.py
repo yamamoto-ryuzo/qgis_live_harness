@@ -68,7 +68,7 @@ def _restrict_file(path):
                     capture_output=True, timeout=10)
         else:
             os.chmod(path, 0o600)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
 

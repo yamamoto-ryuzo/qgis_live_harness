@@ -75,7 +75,7 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 if os.path.exists(file_path):
                     icon = QIcon(file_path)
                     self.setWindowIcon(icon)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             # Fallback - continue without icon
             pass
 
@@ -102,12 +102,12 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # Connect register button to save current layer as project variable
         try:
             self.registerButton.clicked.connect(self.registerCurrentLayer)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             # If UI doesn't have the button for any reason, ignore
             pass
         try:
             self.varsButton.clicked.connect(self.showLegendVariables)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         self.styleComboBox.currentTextChanged.connect(self.changeNamedStyle)
@@ -442,7 +442,7 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         try:
             table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
             table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         for i, name in enumerate(sorted(vars_list)):

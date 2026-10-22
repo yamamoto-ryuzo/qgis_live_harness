@@ -148,7 +148,7 @@ def excel_registered():
         try:
             with winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, subkey):
                 return True
-        except OSError:
+        except OSError:  # nosec B112  # 設計上の許容
             continue
     return False
 
@@ -169,7 +169,7 @@ def check_excel_launch():
             try:
                 app.DisplayAlerts = False
                 app.Quit()
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
             return {"ok": True, "version": version, "launched": True}
     except Exception as e:

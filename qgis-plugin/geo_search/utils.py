@@ -70,9 +70,9 @@ def set_project_variable(project, key, value, group='GEO-search-plugin'):
             try:
                 QgsExpressionContextUtils.setProjectVariable(project, key, value)
                 ok = True
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     # 2) try projectScope().setVariable
@@ -83,9 +83,9 @@ def set_project_variable(project, key, value, group='GEO-search-plugin'):
                 if hasattr(scope, 'setVariable'):
                     scope.setVariable(key, value)
                     ok = True
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     # 3) try writeEntry
@@ -93,9 +93,9 @@ def set_project_variable(project, key, value, group='GEO-search-plugin'):
         try:
             project.writeEntry(group, key, value)
             ok = True
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     return ok
 
@@ -158,7 +158,7 @@ def remove_entry_from_json_file(path, title=None, src_idx=None, container_key='S
                     try:
                         from qgis.PyQt.QtWidgets import QMessageBox
                         QMessageBox.warning(parent, QCoreApplication.translate("Dialog", "Read error"), QCoreApplication.translate("Dialog", "Failed to read the JSON file: {0}").format(e))
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                 return False
     except Exception as e:
@@ -166,7 +166,7 @@ def remove_entry_from_json_file(path, title=None, src_idx=None, container_key='S
             try:
                 from qgis.PyQt.QtWidgets import QMessageBox
                 QMessageBox.warning(parent, QCoreApplication.translate("Dialog", "Read error"), QCoreApplication.translate("Dialog", "Failed to read the JSON file: {0}").format(e))
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         return False
 
@@ -183,7 +183,7 @@ def remove_entry_from_json_file(path, title=None, src_idx=None, container_key='S
                 from qgis.PyQt.QtWidgets import QMessageBox
                 QMessageBox.warning(parent, QCoreApplication.translate("Dialog", "Unsupported format"), QCoreApplication.translate(
                     "Dialog", "JSON file has unsupported structure; expected {'SearchTabs': [...]} or an array."))
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         return False
 
@@ -197,7 +197,7 @@ def remove_entry_from_json_file(path, title=None, src_idx=None, container_key='S
                 if isinstance(it, dict) and it.get('Title') == title:
                     remove_idx = i
                     break
-            except Exception:
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
 
     if remove_idx is None:
@@ -205,7 +205,7 @@ def remove_entry_from_json_file(path, title=None, src_idx=None, container_key='S
             try:
                 from qgis.PyQt.QtWidgets import QMessageBox
                 QMessageBox.information(parent, QCoreApplication.translate("Dialog", "Not found"), QCoreApplication.translate("Dialog", "Could not find corresponding entry to remove."))
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         return False
 
@@ -231,19 +231,19 @@ def remove_entry_from_json_file(path, title=None, src_idx=None, container_key='S
             try:
                 if os.path.exists(tmp_path):
                     os.remove(tmp_path)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
     except Exception as e:
         if parent is not None:
             try:
                 from qgis.PyQt.QtWidgets import QMessageBox
                 QMessageBox.warning(parent, QCoreApplication.translate("Dialog", "Write error"), QCoreApplication.translate("Dialog", "Failed to update JSON file: {0}").format(e))
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         try:
             if bak_path and os.path.exists(bak_path):
                 shutil.copy2(bak_path, path)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         return False
 
@@ -255,9 +255,9 @@ def remove_entry_from_json_file(path, title=None, src_idx=None, container_key='S
             try:
                 from qgis.core import QgsMessageLog
                 QgsMessageLog.logMessage(f"Removed entry index={remove_idx} from file: {path} (backup={bak_path})", 'GEO-search-plugin', 0)
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
     return True

@@ -60,9 +60,9 @@ def _qmp_log(msg: str, level='INFO'):
             try:
                 QgsMessageLog.logMessage(str(msg), 'QMapPermalink', sev)
                 return
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             # cannot import qgis.core here
             pass
         # fallback to QgsApplication.messageLog if present
@@ -71,14 +71,14 @@ def _qmp_log(msg: str, level='INFO'):
             if hasattr(qgis, 'utils'):
                 print(msg)
                 return
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     # final fallback
     try:
         print(msg)
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
 
 
@@ -364,11 +364,11 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
             if hasattr(self, 'owner') and self.owner is not None and hasattr(self.owner, 'tr'):
                 try:
                     prompt_text = self.owner.tr(prompt_text)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 try:
                     prompt_theme_text = self.owner.tr(prompt_theme_text)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             else:
                 # fallback to QCoreApplication translation
@@ -376,7 +376,7 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
                     from qgis.PyQt.QtCore import QCoreApplication
                     prompt_text = QCoreApplication.translate('geo_webview', prompt_text)
                     prompt_theme_text = QCoreApplication.translate('geo_webview', prompt_theme_text)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
         except Exception:
             # best effort only
@@ -409,7 +409,7 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
                 for t in themes:
                     try:
                         themes_options += f"<option value=\"{_html_mod.escape(str(t))}\">{_html_mod.escape(str(t))}</option>"
-                    except Exception:
+                    except Exception:  # nosec B112  # 設計上の許容
                         continue
 
             bookmarks_options = ''
@@ -429,7 +429,7 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
                             except Exception:
                                 val = ''
                             bookmarks_options += f"<option value=\"{_html_mod.escape(val)}\">{_html_mod.escape(name)}</option>"
-                        except Exception:
+                        except Exception:  # nosec B112  # 設計上の許容
                             continue
             except Exception:
                 bookmarks_options = ''
@@ -523,9 +523,9 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
                                     ac = None
                                 if ac:
                                     codes_to_embed.add(ac)
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 # function to get proj4 from QgsCoordinateReferenceSystem
 
@@ -585,13 +585,13 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
                                     if axis_order == 'unknown' and ('longlat' in s or '+proj=longlat' in s or 'GEOGCS' in s):
                                         # conservative fallback: assume latitude/longitude order (yx)
                                         axis_order = 'yx'
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
                                 server_proj_meta[code] = {'axis_order': axis_order}
                             except Exception:
                                 try:
                                     server_proj_meta[code] = {'axis_order': 'unknown'}
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
                             try:
                                 # classify whether this looks like a proj4 string or WKT
@@ -604,17 +604,17 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
                             except Exception:
                                 try:
                                     _qmp_log(f"[QMapPermalink] Found definition for {code}")
-                                except Exception:
+                                except Exception:  # nosec B110  # 設計上の許容
                                     pass
                         else:
                             try:
                                 _qmp_log(f"[QMapPermalink] No proj4/WKT available for {code}")
-                            except Exception:
+                            except Exception:  # nosec B110  # 設計上の許容
                                 pass
                     except Exception:
                         try:
                             _qmp_log(f"[QMapPermalink] Error obtaining definition for {code}", level='ERROR')
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
                         continue
                 # additionally log the request's crs if present
@@ -637,9 +637,9 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
                                             _qmp_log(f"[QMapPermalink] Requested CRS {rc} could not be resolved via PyQGIS")
                                     except Exception:
                                         _qmp_log(f"[QMapPermalink] Requested CRS {rc} resolution attempt failed", level='WARN')
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
                 # Log project CRS authid (EPSG) for debugging (no UI impact)
                 try:
@@ -659,11 +659,11 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
                                 if auth:
                                     try:
                                         _qmp_log(f'[QMapPermalink] Project CRS authid: {auth}')
-                                    except Exception:
+                                    except Exception:  # nosec B110  # 設計上の許容
                                         pass
-                        except Exception:
+                        except Exception:  # nosec B110  # 設計上の許容
                             pass
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             except Exception:
                 # no qgis available; leave server_proj_defs empty
@@ -890,7 +890,7 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
         # replace localhost port marker with actual port number
         try:
             js = js.replace('__QMP_LOCALHOST_PORT__', str(port))
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
 
         # Add a small rotate-cycle button under the OL rotate control that

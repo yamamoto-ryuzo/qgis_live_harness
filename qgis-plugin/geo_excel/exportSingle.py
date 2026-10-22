@@ -91,21 +91,21 @@ def make_expression_context(layer: QgsVectorLayer = None, feature: QgsFeature = 
     context = QgsExpressionContext()
     try:
         context.appendScope(QgsExpressionContextUtils.globalScope())
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     try:
         context.appendScope(QgsExpressionContextUtils.projectScope(QgsProject.instance()))
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     try:
         if layer is not None:
             context.appendScope(QgsExpressionContextUtils.layerScope(layer))
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     if feature is not None:
         try:
             context.setFields(feature.fields())
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         context.setFeature(feature)
     return context
@@ -154,7 +154,7 @@ def evaluate_attach_text(text: str, layer: QgsVectorLayer = None, feature: QgsFe
     try:
         if feature.fieldNameIndex(text) >= 0:
             return excel_value_text(feature.attribute(text))
-    except Exception:
+    except Exception:  # nosec B110  # 設計上の許容
         pass
     try:
         exp = QgsExpression(text)

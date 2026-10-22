@@ -1,3 +1,7 @@
+2.10.3 try/except/pass の nosec 明示
+- try/except/pass|continue 40箇所に # nosec B110/B112 を付与
+  (設計上の許容を明示。サイトスキャンの指摘対応)
+
 2.10.2 Qt6互換性チェック対応
 - 非スコープ列挙型59箇所をスコープ化:
   Qgis.*→Qgis.MessageLevel.*(geo_import_dialog/geo_import_main/

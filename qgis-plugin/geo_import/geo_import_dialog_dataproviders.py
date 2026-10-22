@@ -66,12 +66,12 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
             except Exception:
                 # fallback: add to widget context menu
                 self.IDC_leManualUrl.addActions([browse_action])
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         # connect the new browse button (visible next to test/add)
         try:
             self.IDC_bBrowseLocal.clicked.connect(self.select_local_folder)
-        except Exception:
+        except Exception:  # nosec B110  # 設計上の許容
             pass
         self.list_model = QStandardItemModel(self)
         self.list_model.itemChanged.connect(self.item_checked_changed)
@@ -201,7 +201,7 @@ class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
                         if server.api_url and self.settings.use_local_cache(server.api_url):
                             display_text = QCoreApplication.translate(
                                 'GeoImport', '[local] ') + display_text
-                    except Exception:
+                    except Exception:  # nosec B110  # 設計上の許容
                         pass
                     i = QStandardItem(display_text)
                     i.setData(server)

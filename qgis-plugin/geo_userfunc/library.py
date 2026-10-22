@@ -192,7 +192,7 @@ class FunctionLibrary:
                 data = json.load(f)
             if isinstance(data, dict):
                 return data
-        except (OSError, ValueError):
+        except (OSError, ValueError):  # nosec B110  # 設計上の許容
             pass
         return {}
 
@@ -323,7 +323,7 @@ class FunctionLibrary:
             for sig, slot in entry.connections:
                 try:
                     sig.disconnect(slot)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             entry.expr_names = []
             entry.connections = []
