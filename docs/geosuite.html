@@ -84,7 +84,9 @@ Excel 帳票は <code>geo_excel</code> が担当する形で整理していま�
 <p>各コンポーネントはこのリポジトリの <code>qgis-plugin/</code> で管理されています
 （上流リポジトリは各節を参照）。「実装済み（現状）」と「将来の拡張候補」を分離して記載します。
 元の geo_suite では将来構想とされていた項目のうち、現在は実現済みのもの
-（PostGIS 対応、OGC サービス公開、Excel 帳票出力、AI/MCP 連携基盤）は現状に移してあります。</p>
+（PostGIS 対応、OGC サービス公開、Excel 帳票出力、AI/MCP 連携基盤）は現状に移してあります。
+また各コンポーネントの「MCP 候補」は、現行の bridge / REST / MCP / AI パネルの
+API 連携で今すぐ実現できるものと、Vector DB 等の基盤を要する真の将来候補に分類し直しています。</p>
 
 <h3>geo_userfunc — プロジェクト作成時のユーザー定義コード整備</h3>
 <p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_userfunc/README.md">qgis-plugin/geo_userfunc/README.md</a></p>
@@ -117,13 +119,17 @@ Excel 帳票は <code>geo_excel</code> が担当する形で整理していま�
 <li>点群（LAS/LAZ）・3D フィーチャ取り込み（PDAL 統合）</li>
 <li>自動ジオリファレンス・座標系検出の改善、データ品質チェック自動化</li>
 </ul>
-<p><strong>将来の拡張候補（MCP）</strong></p>
+<p><strong>MCP / API 連携で現在実現可能</strong></p>
 <ul>
-<li>MCP を利用した自動マッピング提案: ファイルサンプル（CSV/Excel の一部行）と目的（住所→ポイント等）を MCP に渡し、モデルが「フィールドマッピング案」「ジオコーディング候補」「座標列推定」を提示するワークフロー</li>
-<li>データ品質と補正の自動提案: MCP の文脈（サンプル・メタ）を基にモデルが欠損／外れ値候補を報告し、修正ルールを提案（ヒト承認フロー付き）</li>
-<li>STAC/メタデータ自動生成: 取り込んだデータの説明文・タグ・用途候補を MCP で生成し、STAC/CKAN 登録用のメタを自動作成</li>
-<li>インポート方針推奨（ポリシー連携）: 組織ポリシー（公開可否・個人情報扱い）を MCP に含め、モデルが安全な取り込み方法を推奨</li>
-<li>メタ・サンプルの埋め込み登録（RAG 連携）: 取り込み時にファイルメタやサンプル記述を分割して埋め込みを生成し Vector DB に登録。以降の検索／QA／自動説明生成で再利用。STAC や CKAN のメタデータを埋め込みに紐付けて <code>context_id</code> で参照可能にする</li>
+<li>取り込み操作の完全な AI 駆動: <code>search</code> → <code>results</code> → <code>selectResult</code> → <code>loadSelected</code> の bridge メソッドで検索からレイヤ追加まで API だけで完結（MCP <code>qgis_bridge_call</code> 経由）</li>
+<li>自動マッピング提案: <code>pyeval</code> でファイルサンプル（CSV/Excel の先頭行）を読み取り、目的（住所→ポイント等）と合わせてモデルが「フィールドマッピング案」「ジオコーディング候補」「座標列推定」を提示</li>
+<li>データ品質チェック: <code>pyeval</code> で欠損・外れ値候補を集計し、モデルが修正ルールを提案（ヒト承認フロー付き）</li>
+<li>取り込み方針の助言: 公開可否・個人情報の扱いなど組織ポリシーをプロンプトに含め、モデルが安全な取り込み方法を推奨（AI パネル / MCP で実行可）</li>
+</ul>
+<p><strong>将来の拡張候補</strong></p>
+<ul>
+<li>メタ・サンプルの埋め込み登録（RAG 連携）: ファイルメタやサンプル記述を Vector DB に登録し、以降の検索／QA／自動説明生成で再利用（Vector DB 基盤が未導入）</li>
+<li>STAC / CKAN 登録用メタデータの自動生成・連携</li>
 </ul>
 
 <h3>GeoSearch — 地図内検索（属性・空間検索）</h3>
@@ -146,10 +152,15 @@ Excel 帳票は <code>geo_excel</code> が担当する形で整理していま�
 <li>空間解析を組み込んだフィルタ（バッファ、空間結合、属性スコアリング）</li>
 <li>機械学習を用いた検索補助（クラスタリング、異常検知）</li>
 </ul>
-<p><strong>将来の拡張候補（MCP）</strong></p>
+<p><strong>MCP / API 連携で現在実現可能</strong></p>
 <ul>
-<li>RAG（文脈＋ドキュメント検索）連携（優先）: 埋め込み検索で社内文書や仕様を参照し、検索結果の信頼度向上や根拠付き回答を提供。実装例: クエリ実行前に Vector DB で <code>top_k=5</code> をフェッチして抜粋をプロンプトに含め、<code>source_refs</code> と <code>confidence</code> を出力に含める</li>
-<li>履歴・変更の参照: 過去クエリや選択状態の埋め込みを使って、類似検索や意図の補完を行う</li>
+<li>検索の対話的な AI 駆動: <code>search</code> / <code>suggest</code> / <code>searchOptions</code> / <code>tabOptions</code> / <code>results</code> / <code>zoom</code> の bridge で、条件指定・候補提示・絞り込み・地図ズームまで API で完結</li>
+<li>検索意図の補完: 会話の文脈からモデルが類似クエリや次の検索条件を提案（AI パネル / MCP の通常機能として利用可）</li>
+</ul>
+<p><strong>将来の拡張候補</strong></p>
+<ul>
+<li>RAG（文脈＋ドキュメント検索）連携: 埋め込み検索で社内文書や仕様を参照し、<code>source_refs</code> と <code>confidence</code> を付けた根拠付き回答（Vector DB 基盤が未導入）</li>
+<li>過去クエリ・選択状態の埋め込みによる類似検索・意図補完の永続化</li>
 </ul>
 
 <h3>GeoWebView — スタイル込 Web 共有</h3>
@@ -173,12 +184,16 @@ Excel 帳票は <code>geo_excel</code> が担当する形で整理していま�
 <li>OGC API（Features 等の新規格）/ WebSocket を使ったリアルタイム更新（WMS/WMTS/WFS は提供済み）</li>
 <li>ベクタタイル生成・タイルキャッシュ・CDN 配信パターン</li>
 </ul>
-<p><strong>将来の拡張候補（MCP）</strong></p>
+<p><strong>MCP / API 連携で現在実現可能</strong></p>
 <ul>
-<li>ドキュメント参照による説明文自動生成（RAG）: パッケージに添付する説明や更新履歴を生成する際に、関連する運用マニュアルや過去の公開ノートを埋め込み検索で参照し、根拠付きの説明を作成</li>
-<li>スタイルガイドの埋め込み検索（補助）: 組織のスタイルガイドや過去プロジェクトのスタイル事例を埋め込み化して検索可能にし、スタイル転写案の品質向上に利用</li>
-<li>パッケージ化 / 簡易配布テンプレの提案: 共有対象（社内／公開）やデバイス想定を文脈で渡し、最適な出力（軽量 HTML、PNG 解像度等）をモデルが推奨</li>
-<li>アクセス制御助言: 公開範囲や機密度に基づく配布設定（公開/社内限定/事前承認必須）を MCP が補助し、運用ガイドを生成</li>
+<li>共有作業の AI 駆動: <code>startServer</code> / <code>generatePermalink</code> / <code>maplibreUrl</code> / <code>navigate</code> / <code>wfsLayers</code> の bridge で、サーバー起停・URL 生成・ビュー制御・WFS レイヤ確認まで API で完結</li>
+<li>出力・配布設定の推奨: 共有対象（社内／公開）やデバイス想定を文脈で渡し、最適な出力（軽量 HTML、PNG 解像度等）や公開範囲の設定をモデルが提案</li>
+<li>説明文の生成支援: パッケージに添付する説明や更新履歴をモデルが生成（文脈として利用中レイヤ情報を bridge から取得可）</li>
+</ul>
+<p><strong>将来の拡張候補</strong></p>
+<ul>
+<li>運用マニュアルや過去公開ノートの埋め込み検索（RAG）による根拠付き説明文生成</li>
+<li>組織のスタイルガイド・過去プロジェクトのスタイル事例を埋め込み化したスタイル転写案の品質向上</li>
 </ul>
 
 <h3>GeoReport — レイアウト編集・出力＋報告書生成</h3>
@@ -201,10 +216,14 @@ Excel 帳票は <code>geo_excel</code> が担当する形で整理していま�
 <li>Jupyter / Papermill による再現可能なレポート生成フロー</li>
 <li>大量出力のための分散実行と途中再開機能</li>
 </ul>
-<p><strong>将来の拡張候補（MCP）</strong></p>
+<p><strong>MCP / API 連携で現在実現可能</strong></p>
 <ul>
-<li>過去報告との類似/差分検出（埋め込み検索）: 生成前に過去の報告書・図版を埋め込み検索して類似図版や差分を抽出。差分の自然文サマリや注記候補をモデルが生成して、レビュー用のメタを付与</li>
-<li>出力根拠の添付（source_refs）: 自動生成したキャプションや要約には、参照した資料の <code>source_refs</code> を付与し、説明の出所を追跡可能にする</li>
+<li>レイアウト操作の AI 駆動: <code>listLayouts</code> / <code>selectLayout</code> / <code>listItems</code> / <code>itemProperties</code> / <code>setItemProperties</code> / <code>saveLayoutProperties</code> の bridge で、レイアウト選択からアイテム編集・テンプレート保存まで API で完結</li>
+<li>キャプション・要約の生成と <code>source_refs</code> 付与: 参照した資料をプロンプトで明示し、生成文に出所を付記する運用は現在の AI パネルで可能</li>
+</ul>
+<p><strong>将来の拡張候補</strong></p>
+<ul>
+<li>過去報告との類似/差分検出（埋め込み検索）: 過去の報告書・図版を Vector DB に登録して類似図版や差分を抽出し、レビュー用メタを生成（Vector DB 基盤が未導入）</li>
 </ul>
 
 <h3>geo_excel — Excel 帳票出力</h3>
