@@ -85,6 +85,11 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
     `.upstream/<repo>.git` に退避し `core.worktree` を `qgis-plugin/<id>` に
     向けたgitdir運用**。直接叩く場合は
     `git --git-dir=.upstream/<repo>.git <args>`(core.worktree設定済み)
+  なお現存する upstream は `.upstream/kasugai_qgis.git` のみ
+  (kasugai_qgis の GitHub Pages 配信=auto-update に必須のため常設)。
+  geo_report/QGIS-exportExcel/QGIS-legendView/geo_import の
+  clone/gitdir は撤去済みで Harness側が唯一の正本。
+  同期が必要になれば上記手順で再構築する
   (旧サンプル `webengine_plugin` は削除済み。
   WebEngineプラグインの構成例はgit履歴を参照)。WebEngineプラグインでは
   QGIS依存は `bridge.py` に閉じ込める。deploy時に `python/plugins/<フォルダ名>` へ配置される。
@@ -94,8 +99,8 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   `[% @layer_id %]`/`[% $id %]` をアクティブレイヤ/選択地物で置換して
   exec する(QGIS4/Qt6では `import PyQt5` がブロックされるため
   exec直前に `PyQt5`→`qgis.PyQt` へソース書き換え。実行には
-  win32com+Excelが必要)。upstream側は
-  `.upstream/QGIS-exportExcel.git` のgitdir運用。
+  win32com+Excelが必要)。upstream側の
+  `.upstream/QGIS-exportExcel.git` は撤去済み(必要時はgitdir運用で再構築)。
   `geo_excel` は `bridge.py`(`GeoExcelBridge`)を `plugin.bridge` に配線済みで、
   geo_searchと同じく `bridge_call`/`describe_plugins` から利用できる。
   メソッド: `pluginInfo`/`status`/`listScripts`/`layerVariables`/
