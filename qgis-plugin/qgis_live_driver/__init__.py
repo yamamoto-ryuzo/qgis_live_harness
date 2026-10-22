@@ -107,6 +107,8 @@ class QgisLivePlugin:
         self._mode_badge = None
         self._mode_badge_action = None
         self._mode_badge_sep = None
+        self._ai_tb_button = None
+        self._ai_tb_action = None
         self._mode_timer = None
         self._init_language()
         try:
@@ -279,6 +281,7 @@ class QgisLivePlugin:
         """
         try:
             from qgis.PyQt.QtCore import QTimer
+            from qgis.PyQt.QtGui import QIcon
             from qgis.PyQt.QtWidgets import QToolButton
             from .geo_toolbar import geo_suite_toolbar
             self._geo_tb = geo_suite_toolbar(self.iface)
@@ -309,6 +312,31 @@ class QgisLivePlugin:
                     after[1])
             else:
                 self._mode_badge_sep = None
+            # AIアシスタント起動ボタン(バッジ右隣。ツールバーへの
+            # AIエントリ点がないため最低限チャット起動は常駐させる)
+            self._ai_tb_button = QToolButton(self._geo_tb)
+            self._ai_tb_button.setAutoRaise(True)
+            self._ai_tb_button.setToolTip(
+                QCoreApplication.translate(
+                    "qgis_live_driver", "AI Assistant"))
+            try:
+                from qgis.core import QgsApplication
+                ai_icon = QgsApplication.getThemeIcon(
+                    "/mActionTextAnnotation.svg")
+            except Exception:  # nosec B110  # 設計上の許容
+                ai_icon = QIcon()
+            if ai_icon.isNull():
+                self._ai_tb_button.setText("AI")
+            else:
+                self._ai_tb_button.setIcon(ai_icon)
+            self._ai_tb_button.clicked.connect(self._open_ai_panel)
+            after = self._geo_tb.actions()
+            if len(after) > 2:
+                self._ai_tb_action = self._geo_tb.insertWidget(
+                    after[2], self._ai_tb_button)
+            else:
+                self._ai_tb_action = self._geo_tb.addWidget(
+                    self._ai_tb_button)
             self._refresh_mode_badge()
             self._mode_timer = QTimer(self.iface.mainWindow())
             self._mode_timer.setInterval(5000)
@@ -600,6 +628,19 @@ class QgisLivePlugin:
             except Exception:  # nosec B110  # 設計上の許容
                 pass
             self._mode_badge = None
+        if self._ai_tb_action is not None:
+            try:
+                if self._geo_tb is not None:
+                    self._geo_tb.removeAction(self._ai_tb_action)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            self._ai_tb_action = None
+        if self._ai_tb_button is not None:
+            try:
+                self._ai_tb_button.deleteLater()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            self._ai_tb_button = None
         if self._geo_tb is not None:
             try:
                 # 常時表示の強制を解除(他プラグインの項目は残る)
