@@ -1,5 +1,12 @@
 # CHANGELOG — geo_userfunc
 
+## 1.0.4
+
+- GeoSuiteツールバーの管理アクションをアイコン表示に変更。
+  `icon.png`(ƒ(x)グリフ)を同梱してQActionへ設定し、
+  テキスト表示だったツールバーボタンをアイコンボタン化。
+  metadata.txt にも icon= を登録(配布サイト表示用)
+
 ## 1.0.3
 
 - try/except/pass 3箇所に # nosec B110 を付与(設計上の許容を明示)
