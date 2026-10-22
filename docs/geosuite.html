@@ -85,8 +85,9 @@ Excel 帳票は <code>geo_excel</code> が担当する形で整理していま�
 （上流リポジトリは各節を参照）。「実装済み（現状）」と「将来の拡張候補」を分離して記載します。
 元の geo_suite では将来構想とされていた項目のうち、現在は実現済みのもの
 （PostGIS 対応、OGC サービス公開、Excel 帳票出力、AI/MCP 連携基盤）は現状に移してあります。
-また各コンポーネントの「MCP 候補」は、現行の bridge / REST / MCP / AI パネルの
-API 連携で今すぐ実現できるものと、Vector DB 等の基盤を要する真の将来候補に分類し直しています。</p>
+また「MCP 候補」のうち現行の bridge / REST / MCP / AI パネルの API 連携で
+実現できるものは各コンポーネントの「現状」に統合し、
+Vector DB 等の基盤を要するもののみを将来候補として残しています。</p>
 
 <h3>geo_userfunc — プロジェクト作成時のユーザー定義コード整備</h3>
 <p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_userfunc/README.md">qgis-plugin/geo_userfunc/README.md</a></p>
@@ -110,7 +111,8 @@ API 連携で今すぐ実現できるものと、Vector DB 等の基盤を要す
 <li>CSV の区切り文字自動判定、文字コード自動判定（UTF-8 / CP932 等）</li>
 <li>緯度/経度カラムがあれば自動でポイントジオメトリ化</li>
 <li>SQLite ベースのローカルキャッシュによる検索高速化</li>
-<li>bridge 経由の AI/MCP 操作（qgis_live_driver の <code>bridge_call</code> / REST / MCP から検索・取り込み操作が可能）</li>
+<li>bridge 経由の AI/MCP 操作: <code>search</code> → <code>results</code> → <code>selectResult</code> → <code>loadSelected</code> で検索からレイヤ追加まで API で完結</li>
+<li>AI による取り込み支援: <code>pyeval</code> でファイルサンプルを読み取り、フィールドマッピング案・座標列推定・品質チェック・修正ルール・取り込み方針を提案</li>
 </ul>
 <p><strong>将来の拡張候補</strong></p>
 <ul>
@@ -118,13 +120,6 @@ API 連携で今すぐ実現できるものと、Vector DB 等の基盤を要す
 <li>大容量データ取り込み（並列処理・ストリーミング、S3 互換ストレージ対応）</li>
 <li>点群（LAS/LAZ）・3D フィーチャ取り込み（PDAL 統合）</li>
 <li>自動ジオリファレンス・座標系検出の改善、データ品質チェック自動化</li>
-</ul>
-<p><strong>MCP / API 連携で現在実現可能</strong></p>
-<ul>
-<li>取り込み操作の完全な AI 駆動: <code>search</code> → <code>results</code> → <code>selectResult</code> → <code>loadSelected</code> の bridge メソッドで検索からレイヤ追加まで API だけで完結（MCP <code>qgis_bridge_call</code> 経由）</li>
-<li>自動マッピング提案: <code>pyeval</code> でファイルサンプル（CSV/Excel の先頭行）を読み取り、目的（住所→ポイント等）と合わせてモデルが「フィールドマッピング案」「ジオコーディング候補」「座標列推定」を提示</li>
-<li>データ品質チェック: <code>pyeval</code> で欠損・外れ値候補を集計し、モデルが修正ルールを提案（ヒト承認フロー付き）</li>
-<li>取り込み方針の助言: 公開可否・個人情報の扱いなど組織ポリシーをプロンプトに含め、モデルが安全な取り込み方法を推奨（AI パネル / MCP で実行可）</li>
 </ul>
 <p><strong>将来の拡張候補</strong></p>
 <ul>
@@ -142,7 +137,7 @@ API 連携で今すぐ実現できるものと、Vector DB 等の基盤を要す
 <li><code>selectTheme</code> によるテーマ適用、加算表示モード（既存表示を保持しつつ重ね表示）</li>
 <li>QGIS レイヤ・ファイル・PostGIS データベースを検索ソースとして利用可能</li>
 <li>Qt5/Qt6（QGIS 3.x）互換対応のための安定化措置</li>
-<li>bridge 経由の AI/MCP 操作（検索実行・結果の取得）</li>
+<li>bridge 経由の AI/MCP 操作: <code>search</code> / <code>suggest</code> / <code>searchOptions</code> / <code>tabOptions</code> / <code>results</code> / <code>zoom</code> で検索〜候補提示〜絞り込み〜地図ズームまで API で完結。会話文脈からの検索意図補完も可能</li>
 </ul>
 <p><strong>将来の拡張候補</strong></p>
 <ul>
@@ -151,11 +146,6 @@ API 連携で今すぐ実現できるものと、Vector DB 等の基盤を要す
 <li>時系列データ・バージョン管理（履歴検索、差分抽出）</li>
 <li>空間解析を組み込んだフィルタ（バッファ、空間結合、属性スコアリング）</li>
 <li>機械学習を用いた検索補助（クラスタリング、異常検知）</li>
-</ul>
-<p><strong>MCP / API 連携で現在実現可能</strong></p>
-<ul>
-<li>検索の対話的な AI 駆動: <code>search</code> / <code>suggest</code> / <code>searchOptions</code> / <code>tabOptions</code> / <code>results</code> / <code>zoom</code> の bridge で、条件指定・候補提示・絞り込み・地図ズームまで API で完結</li>
-<li>検索意図の補完: 会話の文脈からモデルが類似クエリや次の検索条件を提案（AI パネル / MCP の通常機能として利用可）</li>
 </ul>
 <p><strong>将来の拡張候補</strong></p>
 <ul>
@@ -172,7 +162,7 @@ API 連携で今すぐ実現できるものと、Vector DB 等の基盤を要す
 <li>軽量 HTTP サーバーでの社内配信、WMS / WMTS / WFS の OGC サービスエンドポイント公開</li>
 <li>MapLibre / OpenLayers へのスタイル注入（MapLibre 用のスタイル注入フローとフォールバック実装あり）</li>
 <li>高解像度 PNG 出力、Office（Excel/PowerPoint）向け出力テンプレの例示</li>
-<li>bridge 経由の AI/MCP 操作（パーマリンク生成・サーバー制御・WFS レイヤ情報取得）</li>
+<li>bridge 経由の AI/MCP 操作: <code>startServer</code> / <code>generatePermalink</code> / <code>maplibreUrl</code> / <code>navigate</code> / <code>wfsLayers</code> で共有作業を API で完結。出力形式・公開範囲の推奨や説明文生成も可能</li>
 </ul>
 <blockquote>
 <p>README 備考: ベクタタイルサーバ（VectorTile）導入は README にて「あきらめた開発」と明記されており、当面は開発保留です。</p>
@@ -183,12 +173,6 @@ API 連携で今すぐ実現できるものと、Vector DB 等の基盤を要す
 <li>点群ビジュアライゼーション（Entwine / Potree / Cesium・Re:Earth 連携）</li>
 <li>OGC API（Features 等の新規格）/ WebSocket を使ったリアルタイム更新（WMS/WMTS/WFS は提供済み）</li>
 <li>ベクタタイル生成・タイルキャッシュ・CDN 配信パターン</li>
-</ul>
-<p><strong>MCP / API 連携で現在実現可能</strong></p>
-<ul>
-<li>共有作業の AI 駆動: <code>startServer</code> / <code>generatePermalink</code> / <code>maplibreUrl</code> / <code>navigate</code> / <code>wfsLayers</code> の bridge で、サーバー起停・URL 生成・ビュー制御・WFS レイヤ確認まで API で完結</li>
-<li>出力・配布設定の推奨: 共有対象（社内／公開）やデバイス想定を文脈で渡し、最適な出力（軽量 HTML、PNG 解像度等）や公開範囲の設定をモデルが提案</li>
-<li>説明文の生成支援: パッケージに添付する説明や更新履歴をモデルが生成（文脈として利用中レイヤ情報を bridge から取得可）</li>
 </ul>
 <p><strong>将来の拡張候補</strong></p>
 <ul>
@@ -207,7 +191,7 @@ API 連携で今すぐ実現できるものと、Vector DB 等の基盤を要す
 <li>Atlas 的な複数図面の一括出力、PNG/PDF の高解像度出力</li>
 <li>多言語対応や安定性向上のための改善がドキュメント化</li>
 <li>Excel (XLSX) 帳票出力は姉妹プラグイン geo_excel として実現（下記）</li>
-<li>bridge 経由の AI/MCP 操作</li>
+<li>bridge 経由の AI/MCP 操作: <code>listLayouts</code> / <code>selectLayout</code> / <code>listItems</code> / <code>itemProperties</code> / <code>setItemProperties</code> / <code>saveLayoutProperties</code> でレイアウト選択〜アイテム編集〜テンプレート保存まで API で完結。<code>source_refs</code> 付きキャプション生成も可能</li>
 </ul>
 <p><strong>将来の拡張候補</strong></p>
 <ul>
@@ -215,11 +199,6 @@ API 連携で今すぐ実現できるものと、Vector DB 等の基盤を要す
 <li>点群・断面図生成（断面抽出、属性統計、サマリ表）</li>
 <li>Jupyter / Papermill による再現可能なレポート生成フロー</li>
 <li>大量出力のための分散実行と途中再開機能</li>
-</ul>
-<p><strong>MCP / API 連携で現在実現可能</strong></p>
-<ul>
-<li>レイアウト操作の AI 駆動: <code>listLayouts</code> / <code>selectLayout</code> / <code>listItems</code> / <code>itemProperties</code> / <code>setItemProperties</code> / <code>saveLayoutProperties</code> の bridge で、レイアウト選択からアイテム編集・テンプレート保存まで API で完結</li>
-<li>キャプション・要約の生成と <code>source_refs</code> 付与: 参照した資料をプロンプトで明示し、生成文に出所を付記する運用は現在の AI パネルで可能</li>
 </ul>
 <p><strong>将来の拡張候補</strong></p>
 <ul>
