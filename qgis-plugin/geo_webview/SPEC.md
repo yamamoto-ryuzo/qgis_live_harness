@@ -554,14 +554,73 @@ WMTS キャッシュと identity（V3.1.0）
 - 座標変換は `QgsCoordinateTransform` を利用。プロジェクトによっては外部の proj 定義が必要となる場合がある。
 
 ---
-## 15. セキュリティ・運用上の注意
+## 15. KASUGAI Canvas 連携（送出）
+
+QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェクト
+（`.kasc` + `DATA/`）として書き出す機能。実体は `kasugai_export.py`。
+
+### 起動経路
+
+| 経路 | 呼び出し | 用途 |
+|---|---|---|
+| パネルボタン | `KASUGAI` ボタン (`plugin.py: on_kasugai_clicked_panel`) | 人手操作 |
+| HTTP | `GET http://localhost:8089/kasugai` (server_manager._handle_kasugai) | 外部アプリ・AI からの一発起動。応答は `{ok,url,dir,layers,tiles}` JSON |
+| Bridge | `bridge_call` の `kasugaiExport(output_dir, open_app, native_formats, hidden_as_off, embed_gpkg_style)` | Live Driver 経由の AI 制御（MCP `qgis_bridge_call` / REST `/api/cmd` / JSONL） |
+
+### 出力フォルダ構成
+
+```
+<out_dir>/                    # 既定: <ドキュメント>/kasugai_canvas_qgis
+├─ kasugai_canvas.kasc        # インスペクタ設定(外部プロジェクト登録対象)
+├─ project.json               # {"title": ...}
+└─ DATA/
+   ├─ *.geojson               # 変換が必要だったベクター(EPSG:4326)
+   ├─ *.gpkg                  # ネイティブ参照の GPKG(複製)
+   ├─ *.parquet / *.fgb       # ネイティブ参照の Parquet/FGB(複製)
+   └─ *.qml                   # 各ベクターレイヤの QGIS スタイル
+```
+
+### .kasc 行の生成規則
+
+| QGIS 側 | .kasc 行 | 備考 |
+|---|---|---|
+| GPKG ソース(地理座標系) | `gpkg: グループ/名 | DATA/x.gpkg | on | table=<表> | style=DATA/x.qml` | ファイルを DATA/ へ複製。複数テーブルは1ファイルを共有 |
+| GeoJSON/Parquet/FGB ソース | `geojson:` / `geoparquet:` / `flatgeobuf:` 参照行 | ローカルは複製、http(s) は URL をそのまま記述 |
+| その他ベクター(SHP/PostGIS/WFS/メモリ等)・非地理座標系 | GeoJSON(EPSG:4326)へ変換して `geojson:` 行 | 再投影は warnings に記録 |
+| XYZ タイルラスタ | `xyz:` 行。表示中の**最下段**のみ `base:` 行（既定ベースマップとして既定群の先頭に置く） | zmin/zmax → minZoom=/maxZoom= |
+| WMS・ローカルラスタ等 | 出力せず `skipped` に記録 | |
+| 非表示レイヤ | `hidden_as_off=True` 時のみ `| off` 付きで出力 | 既定(visible_only=True)では除外 |
+| キャンバス | `cam:` 行(中心座標+概算高度+回転) | |
+
+その他: `attr=` に QGIS レイヤの出典(attribution)を引き継ぐ。
+`embed_gpkg_style=True` なら `saveStyleToDatabase` で GPKG の
+`layer_styles` にも既定スタイルを保存する(**元ファイルを更新する**)。
+
+### KASUGAI 側への反映
+
+起動中の KASUGAI ローカルサーバー（`KASUGAI_CANVAS_PORT`、既定 8510）が
+あれば `POST /api/projects/register` で外部プロジェクト登録し、
+`POST /api/command` の `switchProject` で表示を切り替える。
+未起動時は出力のみ（`.kasc` をダブルクリックで関連付け起動＋登録）。
+
+### AI からの操作
+
+- Live Driver の `qgis_bridge_call`（MCP/REST/JSONL）で
+  `kasugaiExport` を呼ぶ — 推奨（引数制御可能・JSON 応答）
+- または `GET /kasugai` を直接 HTTP で呼ぶ
+- KASUGAI 側の WebView プラグイン `qgis-import`
+  （kasugai_canvas `web/PLUGIN/`）の「QGISから取り込み」ボタンも
+  同じ `/kasugai` を呼ぶ薄い実装
+
+---
+## 16. セキュリティ・運用上の注意
 - デフォルトで外部アクセスを許す設計だが、公開環境ではファイアウォールやプロキシでアクセス制御を厳格に行うこと。
 - `External Control` を有効にしていると任意の外部URLで QGIS の表示が書き換わるため、信頼できるネットワーク内または追加の承認フローを用いることを強く推奨。
 - WMS の `GetMap` で大きなレンダ要求が可能なため、認証・リクエストレート制限・サイズ上限を検討する。特に `ANGLE!=0` のリクエストは重い。
 - ログを適切に出力し、受信元IP・タイムスタンプ・実行アクションを残す運用を推奨。
 
 ---
-## 16. テスト・QA 手順
+## 17. テスト・QA 手順
 自動テスト候補:
 - `server_manager.py` のユニットテスト: ポート選定・バインド挙動のモックテスト。
 - URL パーサ（Google Maps/Earth/内部形式）の単体テスト（複数フォーマットのケース）。
@@ -578,17 +637,18 @@ WMTS キャッシュと identity（V3.1.0）
 - CI 環境では `qgis.core` や `PyQt5` が無いため、これらをモックするかローカルでの手動確認が必要。
 
 ---
-## 17. 実装ファイルと責務マッピング
+## 18. 実装ファイルと責務マッピング
 - `plugin.py` — メインプラグインロジック、ユーティリティ関数。
 - `panel.py` — パネル UI 実装（ナビゲート、生成、外部制御トグル等）。
 - `panel_base.ui` — Qt Designer の UI 定義。
 - `server_manager.py` — 組み込み HTTP サーバーの起動/停止・ルーティング（WMS/Map endpoints）。
+- `kasugai_export.py` — KASUGAI Canvas 連携（.kasc+DATA/ 生成、プロジェクト登録、コマンド送信）。
 - `qmap_webmap_generator.py` — OpenLayers / MapLibre HTML テンプレートの生成ロジック。
 - `qmap_wmts_service.py` / `qmap_wms_service.py` — WMS/WMTS 関連のヘルパー（タイル変換、BBOX 計算など）。
 - `panel.py` から `navigate_from_http` / `navigate_to_coordinates` を呼び出す流れ。
 
 ---
-## 18. 変更履歴の要約（V2/V3 ハイライト）
+## 19. 変更履歴の要約（V2/V3 ハイライト）
 - V2.0.0: WMS サポートと外部アクセス（0.0.0.0 バインド）を追加。
 - V2.6.0: 投影定義と軸順情報を生成 HTML に埋め込み、座標表示の精度向上。
 - V2.8.0: External Control の自動ナビゲート追加。

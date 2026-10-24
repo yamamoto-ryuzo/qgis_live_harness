@@ -193,10 +193,13 @@ class GeoWebViewBridge:
         },
         "kasugaiExport": {
             "description":
-                "表示中レイヤをKASUGAI Canvasプロジェクト(GeoJSON+.qml"
-                "スタイル+kasugai_canvas.kasc)として出力する。起動中の"
-                "KASUGAIローカルサーバ(port 8510)があれば外部プロジェクト"
-                "登録してブラウザで開く。open_app=Falseで出力のみ。",
+                "表示中レイヤをKASUGAI Canvasプロジェクト(.kasc+DATA/"
+                "+.qmlスタイル)として出力する。GPKG/GeoJSON/Parquet/FGB"
+                "ソースは変換せず参照、他ベクターはGeoJSON(4326)化。"
+                "起動中のKASUGAIローカルサーバ(port 8510)があれば外部"
+                "プロジェクト登録してブラウザで開く。open_app=Falseで"
+                "出力のみ。hidden_as_off=Trueで非表示レイヤもoff行として"
+                "出力。embed_gpkg_style=TrueでGPKGのlayer_stylesへも保存。",
             "example": {"method": "kasugaiExport", "args": []},
         },
         "wfsLayers": {
@@ -962,13 +965,21 @@ class GeoWebViewBridge:
 
     # ---------- KASUGAI Canvas 連携 ----------
 
-    def kasugaiExport(self, output_dir=None, open_app=True):
+    def kasugaiExport(self, output_dir=None, open_app=True,
+                      native_formats=True, hidden_as_off=False,
+                      embed_gpkg_style=False):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
-        表示中のベクターレイヤを GeoJSON(EPSG:4326)+.qmlスタイルとして
-        DATA/ に書き出し、geojson:行(style=付き)・xyz:行・cam:行を含む
-        kasugai_canvas.kasc を生成する。出力先は output_dir または
-        設定 kasugai_output_path(既定: <ドキュメント>/kasugai_canvas_qgis)。
+        表示中のベクターレイヤを DATA/ へ出力し、.kasc(geojson:/gpkg:/
+        geoparquet:/flatgeobuf: 行+style=.qml・xyz:/base:行・cam:行)を
+        生成する。native_formats=True(既定)で GPKG/GeoJSON/Parquet/FGB
+        ソースは変換せずそのまま参照(ファイルはDATA/へコピー、URLは
+        そのまま記述)し、それ以外のベクターのみGeoJSON(EPSG:4326)へ
+        変換する。hidden_as_off=True で非表示レイヤも ``| off`` 付きで
+        出力。embed_gpkg_style=True で GPKG レイヤのスタイルを
+        layer_styles(useAsDefault)にも保存する(元ファイルへ書き込む)。
+        出力先は output_dir または設定 kasugai_output_path
+        (既定: <ドキュメント>/kasugai_canvas_qgis)。
 
         open_app=True で起動中のKASUGAIローカルサーバ(port 8510)へ
         /api/projects/register で登録し、switchProjectコマンドを送って
@@ -979,7 +990,10 @@ class GeoWebViewBridge:
         from . import kasugai_export
         try:
             result = kasugai_export.export_kasugai_project(
-                self._plugin.iface, out_dir=output_dir or None)
+                self._plugin.iface, out_dir=output_dir or None,
+                native_formats=bool(native_formats),
+                hidden_as_off=bool(hidden_as_off),
+                embed_gpkg_style=bool(embed_gpkg_style))
         except Exception as e:
             return self._err(f"kasugai export failed: {e}")
         out = {
@@ -990,6 +1004,7 @@ class GeoWebViewBridge:
             "tiles": result["tiles"],
             "skipped": result["skipped"],
             "errors": result["errors"],
+            "warnings": result.get("warnings", []),
         }
         if not open_app:
             out["registered"] = False

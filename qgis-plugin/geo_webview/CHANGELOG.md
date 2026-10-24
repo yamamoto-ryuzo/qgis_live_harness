@@ -11,6 +11,47 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.18.1] - 2026-10-24 README の全体構成を見直し
+
+- README.md / README_JP.md を実装済みの連携先構成に合わせて再編成:
+  - 「連携先（対応クライアント）」を2グループに整理 —
+    「独立動作する WebGIS」としてセット開発するクライアント群
+    （OpenLayers / MapLibre GL / KASUGAI Canvas / Re:Earth(geo_suite)）
+    と「その他クライアント・外部サービス」（汎用 OGC クライアント・
+    Google Maps/Earth）に分類。3D GIS は KASUGAI Canvas（主）・
+    Re:Earth（サブ、同じく Cesium ベース）に集約する方針を明記し、
+    内蔵 `/map3d`（Cesium）は簡易プレビューに留める旨を注記
+  - 連携構成（2D: OL主/MapLibreサブ、3D: KASUGAI主/Re:Earthサブ）を
+    今後の開発方針として mermaid 図で明示。Leaflet は対象外とする
+    設計判断も併記
+  - 「クライアント群の共通機能」節を追加 — 視点の引き継ぎ・ラスタ/ベクター
+    配信・スタイル引き継ぎ・レイヤ一覧・テーマ・追従モード・双方向ナビを
+    5クライアント横断の対応表で整理
+  - 「内蔵 Web ビューア」節に `/map3d` `/present` `/screenshot` を追加
+  - 「KASUGAI Canvas 連携」節を新設
+  - 全エンドポイント一覧表（`/qgis-map`〜`/received`）を追加
+  - アーキテクチャ図に `kasugai_export.py` / `bridge.py` を追記
+  - 開発方針に Re:Earth 専用連携の強化を追記
+
+## [3.18.0] - 2026-10-24 KASUGAI Canvas 連携の強化
+
+- `kasugai_export.py` のエクスポートを拡張:
+  - GPKG/GeoJSON/GeoParquet/FlatGeobuf ソースは変換せずネイティブ参照
+    (`gpkg:`+`table=`/`geojson:`/`geoparquet:`/`flatgeobuf:` 行。
+    ローカルファイルは DATA/ へ複製、http(s) は URL 参照)。
+    それ以外のベクターは従来通り GeoJSON(EPSG:4326)へ変換
+    (native_formats=False で従来の全件GeoJSON化に戻せる)
+  - 表示中の最下段 XYZ ラスタを `base:`(既定ベースマップ)として出力
+  - `hidden_as_off=True` で非表示レイヤを `| off` 付きで出力
+    (レイヤツリーのグループ構成ごと引き継げる)
+  - `embed_gpkg_style=True` で GPKG の layer_styles(useAsDefault)へ
+    スタイル保存(QGIS標準「データベースに保存」相当。元ファイル更新)
+  - レイヤの出典(attribution)を `attr=` / base: 出典フィールドへ引き継ぎ
+  - 戻り値に warnings(再投影等の通知)を追加
+- `bridge.py` の `kasugaiExport` に新オプション引数を追加し、
+  応答に warnings を含める(bridge_call/MCP/REST からAIが制御可能)
+- SPEC.md / SPEC_JP.md に「15. KASUGAI Canvas 連携(送出)」節を追加
+
 ## [3.17.5] - 2026-10-22 翻訳カタログの欠落分を補完
 
 - i18n/ 各言語JSON(de/es/fr/hi/it/pt/ru/zh)に ja のみに存在した
