@@ -11,7 +11,8 @@ live dir の commands.jsonl へ追記 → results.jsonl の結果を待ち
 MCP形式でstdoutへ返す。
 
 接続先は ~/.qgis-live/<pid>-<plugin>.json のレジストリから自動検出
-(QGIS側で qgis_live_driver が WEBENGINE_LIVE_DIR 付きで起動している必要あり)。
+(QGIS側で プラグイン > QGIS Live Driver > Remote Control が
+有効になっている必要あり)。
 QGIS_LIVE_PLUGIN で対象プラグインを指定できる(既定: qgis_live_driver)。
 """
 
@@ -144,6 +145,34 @@ TOOLS = [
             "which plugin to use for a task, then invoke it via "
             "qgis_bridge_call.",
         "inputSchema": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "qgis_instruction",
+        "description":
+            "Manage AI instruction files on this machine. kind=agents "
+            "(persistent instructions injected into the assistant's "
+            "system prompt) or skills (on-demand procedural docs). "
+            "op=list|read|save|delete. save writes the user file "
+            "(~/.qgis-live/<kind>/<name>.md); a same-id user file "
+            "shadows the bundled one. delete works on user files only. "
+            "Format: first '# ' line = title, next non-empty line = "
+            "description, rest = body.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "op": {"type": "string",
+                       "enum": ["list", "read", "save", "delete"]},
+                "kind": {"type": "string",
+                         "enum": ["agents", "skills"]},
+                "id": {"type": "string",
+                       "description": "対象ファイル名(stem)。read/delete用"},
+                "name": {"type": "string",
+                         "description": "保存ファイル名(stem)。save用"},
+                "text": {"type": "string",
+                         "description": "ファイル本文(Markdown)。save用"},
+            },
+            "required": ["op", "kind"],
+        },
     },
 ]
 

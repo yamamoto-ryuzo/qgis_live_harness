@@ -85,6 +85,7 @@ class QgisLivePlugin:
     # メニューアクションのソース文字列(英語)。表示時は翻訳される
     _ACTION_SOURCES = ("Remote Control (localhost only)",
                        "AI Assistant",
+                       "Connection Info",
                        "Hot Reload",
                        "Hot Reload (auto-apply on save)",
                        "Deploy Mode")
@@ -107,6 +108,8 @@ class QgisLivePlugin:
         self._ai_driver = None
         self._hot_menu = None
         self._mode_action = None
+        self._conn_action = None
+        self._conn_dlg = None
         self._geo_tb = None
         self._mode_badge = None
         self._mode_badge_action = None
@@ -187,10 +190,19 @@ class QgisLivePlugin:
         self._action.toggled.connect(self._on_toggle)
         self.iface.addPluginToMenu("QGIS Live Driver", self._action)
 
+        self._conn_action = QAction(
+            QCoreApplication.translate(
+                "qgis_live_driver", "Connection Info"),
+            self.iface.mainWindow())
+        self._conn_action.triggered.connect(self._open_conn_info)
+        self.iface.addPluginToMenu("QGIS Live Driver", self._conn_action)
+
         self._hot_menu = self._build_hot_menu()
         self.iface.addPluginToMenu("QGIS Live Driver",
                                    self._hot_menu.menuAction())
 
+        # Deploy Modeダイアログはharness repoの指定経路でもあるため
+        # repo未解決(単体install)でも常に出す
         self._mode_action = QAction(
             QCoreApplication.translate("qgis_live_driver", "Deploy Mode"),
             self.iface.mainWindow())
@@ -236,6 +248,12 @@ class QgisLivePlugin:
                     "qgis_live_driver", "Reload All"))
             act.triggered.connect(
                 lambda _checked=False: self._hot_reload(ids))
+        else:
+            act = self._hot_menu.addAction(
+                QCoreApplication.translate(
+                    "qgis_live_driver",
+                    "(no development plugins)"))
+            act.setEnabled(False)
 
     def _dev_plugin_ids(self):
         try:
@@ -263,6 +281,23 @@ class QgisLivePlugin:
         except Exception:  # nosec B110  # 設計上の許容
             pass
         _log(f"hot_reload {level}: {msg}")
+
+    # ---- 接続情報 ----
+
+    def _open_conn_info(self):
+        """接続情報ダイアログを開く(開いていれば開き直して最新化)。"""
+        try:
+            if self._conn_dlg is not None:
+                try:
+                    self._conn_dlg.close()
+                    self._conn_dlg.deleteLater()
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+            from .connection_info import show_dialog
+            self._conn_dlg = show_dialog(self)
+        except Exception:
+            _log("connection info dialog failed:\n"
+                 + traceback.format_exc())
 
     # ---- deployモード切替 ----
 
@@ -482,6 +517,10 @@ class QgisLivePlugin:
             self._start(self._default_live_base())
             if self.driver is None:
                 self._set_setting(False)
+            else:
+                # 初回利用者が「次に繋ぐ方法」を迷わないよう
+                # 接続情報ダイアログを開く(メニューからも開ける)
+                self._open_conn_info()
         elif not checked and self.driver is not None:
             self._set_setting(False)
             self._stop()
@@ -597,7 +636,15 @@ class QgisLivePlugin:
             except Exception:  # nosec B110  # 設計上の許容
                 pass
             self._hot_menu = None
-        for action in (self._ai_action, self._action, self._mode_action):
+        if self._conn_dlg is not None:
+            try:
+                self._conn_dlg.close()
+                self._conn_dlg.deleteLater()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            self._conn_dlg = None
+        for action in (self._ai_action, self._action, self._conn_action,
+                       self._mode_action):
             if action is not None:
                 try:
                     self.iface.removePluginMenu("QGIS Live Driver",
@@ -607,6 +654,7 @@ class QgisLivePlugin:
                     pass
         self._ai_action = None
         self._action = None
+        self._conn_action = None
         self._mode_action = None
         if self._mode_timer is not None:
             try:

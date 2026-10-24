@@ -27,6 +27,26 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Install
 # QGISのプラグイン管理で有効化
 ```
 
+### クイックスタート(初回)
+
+1. プラグインを導入・有効化(上記)。
+2. `プラグイン > QGIS Live Driver > Remote Control (localhost only)` をONにし
+   警告を承認すると、接続に必要な全情報(MCP URL・トークン・
+   レジストリパス・live dir)を載せた **Connection Info** ダイアログが
+   自動で開く。以降は `プラグイン > QGIS Live Driver > Connection Info`
+   でいつでも開き直せる。
+3. 表示された設定をMCPクライアントへ貼り付ける:
+   - **stdio**(推奨): 同梱 `mcp_stdio.py` を起動し、
+     稼働中QGISセッションを自動検出するためポート/トークン設定は不要。
+   - **Streamable HTTP**: `http://127.0.0.1:<port>/mcp` に
+     表示の `Authorization: Bearer <token>` を付与。
+   - プレーンRESTも `curl` 例として表示される。
+4. (開発のみ) プラグインを `qgis_live_harness` リポジトリへ紐付けるには
+   (Deploy Mode / ホットリロードに必要)、Connection Infoダイアログの
+   **Harnessリポジトリを選択…** または `プラグイン > QGIS Live Driver >
+   Deploy Mode` の **参照…** でリポジトリフォルダを指定する。
+   パスはQSettingsへ保存され、marker・junction自動推定より優先される。
+
 有効化は2経路(既定ではOFF・無害):
 
 - **メニュートグル**: `プラグイン > QGIS Live Driver > リモート制御 (localhostのみ)`。

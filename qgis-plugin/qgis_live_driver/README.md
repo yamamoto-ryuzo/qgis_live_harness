@@ -31,6 +31,27 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Install
 # and enable it in the QGIS Plugin Manager
 ```
 
+### Quick start (first time)
+
+1. Install + enable the plugin (above).
+2. Turn on `Plugins > QGIS Live Driver > Remote Control (localhost only)`
+   and accept the warning — the **Connection Info** dialog opens
+   automatically with everything a client needs (MCP URL, token, registry
+   path, live dir). Reopen it anytime via
+   `Plugins > QGIS Live Driver > Connection Info`.
+3. Paste one of the shown configs into your MCP client:
+   - **stdio** (recommended): spawns the bundled `mcp_stdio.py` and
+     auto-discovers the running QGIS session — no port/token handling.
+   - **Streamable HTTP**: `http://127.0.0.1:<port>/mcp` with the shown
+     `Authorization: Bearer <token>`.
+   - Plain REST is also shown as a `curl` example.
+4. (Development only) To link this plugin to the `qgis_live_harness`
+   repository — required for Deploy Mode / hot reload — click
+   **Locate harness repo…** in the Connection Info dialog or **Browse…**
+   in `Plugins > QGIS Live Driver > Deploy Mode` and select the repo
+   folder. The path is saved to QSettings and used before marker-file or
+   junction auto-detection.
+
 Two activation paths (OFF and harmless by default):
 
 - **Menu toggle**: `Plugins > QGIS Live Driver > Remote control (localhost only)`.

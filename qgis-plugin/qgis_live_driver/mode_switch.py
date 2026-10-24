@@ -25,6 +25,51 @@ import subprocess  # nosec B404  # deploy-plugin.ps1起動に必要
 CTRL_ID = "qgis_live_driver"
 _MARK = "qgis_live_mode.json"
 _REPARSE = 0x400  # FILE_ATTRIBUTE_REPARSE_POINT
+SETTING_REPO = "qgis_live_driver/harness_repo"
+
+
+def _looks_like_repo(path):
+    """harness repoらしさの判定(deployスクリプトの存在を見る)。"""
+    return (os.path.isdir(path)
+            and os.path.isfile(
+                os.path.join(path, "scripts", "deploy-plugin.ps1")))
+
+
+def _settings_repo():
+    """QSettingsで明示指定されたharness repoパスを返す(無効ならNone)。
+
+    単体install(コピー/ZIP)では marker も junction も無いため、
+    ユーザーが Deploy Mode ダイアログ等からフォルダを指定する経路を持つ。
+    """
+    try:
+        from qgis.PyQt.QtCore import QSettings
+        p = str(QSettings().value(SETTING_REPO, "") or "").strip()
+        if p and os.path.isdir(p):
+            return os.path.abspath(p)
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return None
+
+
+def set_repo_path(path):
+    """harness repoパスをQSettingsへ保存する。None/空でクリア。
+
+    @returns (ok, msg)。repoらしくないフォルダは拒否する。
+    """
+    try:
+        from qgis.PyQt.QtCore import QSettings
+        if path:
+            if not _looks_like_repo(path):
+                return False, (
+                    "not a harness repo "
+                    "(scripts/deploy-plugin.ps1 not found): "
+                    + str(path))
+            QSettings().setValue(SETTING_REPO, os.path.abspath(path))
+        else:
+            QSettings().remove(SETTING_REPO)
+        return True, ""
+    except Exception as e:
+        return False, str(e)
 
 
 def profile_root(own_file):
@@ -61,8 +106,14 @@ def read_marker(own_file):
 
 
 def repo_root(own_file):
-    """harnessリポジトリのルートを返す。marker.repo優先、
-    無ければjunctionのrealpath(.../qgis-plugin/<id>)から推定。"""
+    """harnessリポジトリのルートを返す。
+
+    解決順: QSettingsの明示指定 > marker.repo >
+    junctionのrealpath(.../qgis-plugin/<id>)からの推定。
+    """
+    p = _settings_repo()
+    if p:
+        return p
     m = read_marker(own_file).get("repo")
     if m and os.path.isdir(m):
         return m
@@ -182,8 +233,8 @@ def show_dialog(iface, own_file, notify=None):
     """モード切替ダイアログをモーダル表示する。"""
     from qgis.PyQt.QtCore import QCoreApplication, Qt
     from qgis.PyQt.QtWidgets import (
-        QApplication, QCheckBox, QDialog, QDialogButtonBox, QLabel,
-        QMessageBox, QPushButton, QTableWidget, QTableWidgetItem,
+        QApplication, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout,
+        QLabel, QMessageBox, QPushButton, QTableWidget, QTableWidgetItem,
         QVBoxLayout)
 
     def tr(s):
@@ -192,6 +243,15 @@ def show_dialog(iface, own_file, notify=None):
     dlg = QDialog(iface.mainWindow())
     dlg.setWindowTitle(tr("Deploy Mode"))
     lay = QVBoxLayout(dlg)
+    repo_row = QHBoxLayout()
+    repo_row.addWidget(QLabel(tr("Harness repository:"), dlg))
+    repo_label = QLabel(dlg)
+    repo_label.setTextInteractionFlags(
+        Qt.TextInteractionFlag.TextSelectableByMouse)
+    repo_row.addWidget(repo_label, 1)
+    browse_btn = QPushButton(tr("Browse…"), dlg)
+    repo_row.addWidget(browse_btn)
+    lay.addLayout(repo_row)
     mode_label = QLabel(dlg)
     lay.addWidget(mode_label)
     table = QTableWidget(dlg)
@@ -228,6 +288,7 @@ def show_dialog(iface, own_file, notify=None):
 
     def refresh():
         st = deploy_state(own_file)
+        repo_label.setText(st["repo"] or tr("(not configured)"))
         label = {
             "dev": tr("Development (junction: repository sources)"),
             "use": tr("Usage (restored version)"),
@@ -291,6 +352,28 @@ def show_dialog(iface, own_file, notify=None):
         inst_btn.setEnabled(True)
         refresh()
 
+    def do_browse():
+        """harness repoフォルダを選択させてQSettingsへ保存する。
+
+        単体install(marker/junction無し)でもここでrepoを指定すれば、
+        以降「開発モードへ切替」が deploy-plugin.ps1 を実行できる
+        (driver自身も含め junction 化され dev環境へ移行できる)。
+        """
+        from qgis.PyQt.QtWidgets import QFileDialog
+        d = QFileDialog.getExistingDirectory(
+            dlg, tr("Select the qgis_live_harness repository folder"),
+            repo_root(own_file) or "")
+        if not d:
+            return
+        ok, msg = set_repo_path(d)
+        if not ok:
+            QMessageBox.warning(
+                dlg, "QGIS Live Driver",
+                tr("Not a harness repository") + "\n" + msg)
+            return
+        refresh()
+
+    browse_btn.clicked.connect(do_browse)
     dev_btn.clicked.connect(lambda: do_switch("dev"))
     use_btn.clicked.connect(lambda: do_switch("use"))
     inst_btn.clicked.connect(lambda: do_switch("install"))

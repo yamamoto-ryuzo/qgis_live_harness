@@ -12,6 +12,24 @@
   ドックを開く/前面化する。ツールバー上に AI 関連のエントリ点が
   無かったための追加で、メニューからの起動と同じパネルを使う。
   アイコンは同梱 `icon_ai.png`("AI"グリフ)を使用
+- **Connection Infoダイアログ**(新規 `connection_info.py`):
+  `プラグイン > QGIS Live Driver > Connection Info` から開く。
+  MCP URL・REST base・レジストリ/live dir・トークンと、MCPクライアントへ
+  そのまま貼れる設定JSON(stdio shim / Streamable HTTP)・curl例を
+  コピーボタン付きで一覧表示する。リモート制御OFF時は有効化手順のみ表示。
+  トグルON直後にも自動表示され、初回利用者の「次に繋ぐ方法」を案内する
+- **harness repoの指定経路**: 単体install(marker/junction無し)では
+  `repo_root()` がrepoを解決できず Deploy Mode が使えなかったため、
+  QSettings `qgis_live_driver/harness_repo` による明示指定を追加
+  (解決順: QSettings > marker.repo > junction推定)。
+  Deploy Modeダイアログ上部にrepo行+「参照…」ボタン、
+  Connection Infoダイアログにもrepo表示+「選択…」ボタンを設置。
+  指定すれば単体installからでも「開発モードへ切替」で
+  deploy-plugin.ps1 による junction 化へ進める
+- stdio shim(`mcp_stdio.py`)のツール一覧に `qgis_instruction` を追加
+  (HTTP側 `/mcp` と同一。op=list|read|save|delete)
+- ホットリロードメニューが空の時は無効化した
+  「(no development plugins)」プレースホルダを表示
 
 ### Changed
 
@@ -30,6 +48,9 @@
 - モードバッジ: 利用モードはテキスト表示から歯車アイコン
   (`/mActionOptions.svg`)のみの非侵襲表示に変更(ツールチップには
   モード名を表示)
+- `mcp_stdio.py` のdocstringを現仕様に修正
+  (有効化条件を `WEBENGINE_LIVE_DIR` 前提の記述から
+  「Remote Control の有効化」へ)
 
 ### Security
 
