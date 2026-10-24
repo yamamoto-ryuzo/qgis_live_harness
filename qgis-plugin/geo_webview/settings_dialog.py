@@ -106,6 +106,42 @@ class SettingsDialog(QtWidgets.QDialog):
         maplibre_group.setLayout(maplibre_layout)
         layout.addWidget(maplibre_group)
 
+        # KASUGAI Canvas install location (serverless export target)
+        kasugai_group = QtWidgets.QGroupBox(QtCore.QCoreApplication.translate('geo_webview', "KASUGAI Canvas Install Location"))
+        kasugai_layout = QtWidgets.QVBoxLayout()
+
+        kasugai_path_layout = QtWidgets.QHBoxLayout()
+        kasugai_path_label = QtWidgets.QLabel(QtCore.QCoreApplication.translate('geo_webview', "Install Path:"))
+        self.kasugai_install_input = QtWidgets.QLineEdit()
+        self.kasugai_install_input.setReadOnly(True)
+        kasugai_path_layout.addWidget(kasugai_path_label)
+        kasugai_path_layout.addWidget(self.kasugai_install_input)
+        kasugai_layout.addLayout(kasugai_path_layout)
+
+        kasugai_button_layout = QtWidgets.QHBoxLayout()
+        btn_kasugai_browse = QtWidgets.QPushButton(QtCore.QCoreApplication.translate('geo_webview', "Browse..."))
+        btn_kasugai_browse.clicked.connect(self._browse_kasugai_install)
+        kasugai_button_layout.addWidget(btn_kasugai_browse)
+
+        btn_kasugai_clear = QtWidgets.QPushButton(QtCore.QCoreApplication.translate('geo_webview', "Clear"))
+        btn_kasugai_clear.setToolTip(QtCore.QCoreApplication.translate('geo_webview', "Export to the standalone output directory instead"))
+        btn_kasugai_clear.clicked.connect(self._clear_kasugai_install)
+        kasugai_button_layout.addWidget(btn_kasugai_clear)
+        kasugai_button_layout.addStretch()
+        kasugai_layout.addLayout(kasugai_button_layout)
+
+        kasugai_info = QtWidgets.QLabel(
+            QtCore.QCoreApplication.translate('geo_webview',
+                                              "When set, KASUGAI export writes .kasc+DATA/ directly into "
+                                              "<install>/projects/<project>/ so it appears in the Canvas project list.")
+        )
+        kasugai_info.setWordWrap(True)
+        kasugai_info.setStyleSheet("color: #666;")
+        kasugai_layout.addWidget(kasugai_info)
+
+        kasugai_group.setLayout(kasugai_layout)
+        layout.addWidget(kasugai_group)
+
         # Info label
         info = QtWidgets.QLabel(
             QtCore.QCoreApplication.translate('geo_webview',
@@ -176,6 +212,38 @@ class SettingsDialog(QtWidgets.QDialog):
                 self.ol_path_input.setText(QtCore.QCoreApplication.translate('geo_webview', "[Default] {0}").format(ol_default_folder))
                 self._ol_current_path = '__default__'
                 self.settings.setValue('openlayers_output_path', '__default__')
+
+        # KASUGAI Canvas install location
+        install_path = self.settings.value('kasugai_install_path', '') or ''
+        install_path = str(install_path).strip()
+        if install_path and install_path != '__default__' and os.path.isdir(install_path):
+            self.kasugai_install_input.setText(install_path)
+            self._kasugai_install_path = install_path
+        else:
+            self.kasugai_install_input.setText(
+                QtCore.QCoreApplication.translate('geo_webview', "[Not set] export to output directory"))
+            self._kasugai_install_path = ''
+            if install_path and install_path != '__default__':
+                self.settings.setValue('kasugai_install_path', '')
+
+    def _browse_kasugai_install(self):
+        """Select KASUGAI Canvas install directory; export lands in <dir>/projects/."""
+        folder = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            QtCore.QCoreApplication.translate('geo_webview', "Select KASUGAI Canvas Install Directory"),
+            self._kasugai_install_path or tempfile.gettempdir()
+        )
+        if folder:
+            self.kasugai_install_input.setText(folder)
+            self._kasugai_install_path = folder
+            self.settings.setValue('kasugai_install_path', folder)
+
+    def _clear_kasugai_install(self):
+        """Unset install dir: fall back to the standalone output directory."""
+        self.kasugai_install_input.setText(
+            QtCore.QCoreApplication.translate('geo_webview', "[Not set] export to output directory"))
+        self._kasugai_install_path = ''
+        self.settings.setValue('kasugai_install_path', '')
 
     def _browse_folder(self):
         """Open a folder browser dialog to select output directory"""
