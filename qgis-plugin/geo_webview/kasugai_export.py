@@ -66,6 +66,46 @@ def get_output_dir():
     return default_output_dir()
 
 
+def get_kasugai_install_dir():
+    """QSettings の kasugai_install_path（KASUGAI Canvas インストール先）を返す。
+
+    設定済みでディレクトリが存在する場合のみ返し、それ以外は None。
+    空/'__default__' は未設定扱い。
+    """
+    try:
+        saved = (_qsettings().value('kasugai_install_path', '') or '').strip()
+        if saved and saved != '__default__' and os.path.isdir(saved):
+            return saved
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return None
+
+
+def kasugai_projects_dir():
+    """KASUGAI インストール先の projects/ ディレクトリを返す（未設定なら None）。
+
+    <install>/projects/ を優先し、無ければ <install>/web/projects/、
+    どちらも無ければ <install>/projects/ を作成して返す。
+    """
+    install = get_kasugai_install_dir()
+    if not install:
+        return None
+    for cand in (os.path.join(install, 'projects'),
+                 os.path.join(install, 'web', 'projects')):
+        if os.path.isdir(cand):
+            return cand
+    cand = os.path.join(install, 'projects')
+    os.makedirs(cand, exist_ok=True)
+    return cand
+
+
+def project_dir_slug(name):
+    """プロジェクト名から projects/<id>/ 用の安全なスラッグを作る。"""
+    import re as _re
+    slug = _re.sub(r'[^A-Za-z0-9_-]+', '_', str(name or '').strip()).strip('_')
+    return slug or 'qgis_export'
+
+
 def get_kasugai_port():
     """QSettings の kasugai_port(未設定は8510)を返す。"""
     try:

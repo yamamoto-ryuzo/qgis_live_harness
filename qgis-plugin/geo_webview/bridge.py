@@ -996,8 +996,17 @@ class GeoWebViewBridge:
             srv = self._server()
             port = (srv.get_server_port()
                     if srv and srv.is_server_running() else None)
+            # KASUGAI インストール先が登録済みなら projects/<id>/ へ直出力する
+            target_dir = output_dir
+            if not target_dir:
+                proj_dir = kasugai_export.kasugai_projects_dir()
+                if proj_dir:
+                    from qgis.core import QgsProject
+                    base = (QgsProject.instance().baseName() or 'qgis_export')
+                    target_dir = os.path.join(
+                        proj_dir, kasugai_export.project_dir_slug(base))
             result = kasugai_export.export_kasugai_project(
-                self._plugin.iface, out_dir=output_dir or None,
+                self._plugin.iface, out_dir=target_dir or None,
                 native_formats=bool(native_formats),
                 hidden_as_off=bool(hidden_as_off),
                 embed_gpkg_style=bool(embed_gpkg_style),
@@ -1130,6 +1139,9 @@ class GeoWebViewBridge:
             "kasugai_output_path": s.value("kasugai_output_path",
                                            "__default__"),
             "kasugai_output_dir": kasugai_export.get_output_dir(),
+            "kasugai_install_path": s.value("kasugai_install_path", ""),
+            "kasugai_install_dir": kasugai_export.get_kasugai_install_dir(),
+            "kasugai_projects_dir": kasugai_export.kasugai_projects_dir(),
             "kasugai_port": kasugai_export.get_kasugai_port(),
             "preferred_port": getattr(server, "preferred_port", None),
             "plugin_dir": getattr(self._plugin, "plugin_dir", None),
@@ -1144,12 +1156,14 @@ class GeoWebViewBridge:
           kasugai_output_path: KASUGAIエクスポート出力先
               ("__default__" で <ドキュメント>/kasugai_canvas_qgis)
           kasugai_port: KASUGAIローカルサーバのポート(既定8510)
+          kasugai_install_path: KASUGAIインストール先
+              （設定時は <install>/projects/<id>/ へ .kasc+DATA/ を直出力）
           port: HTTPサーバ優先ポート(起動中なら再起動)
         """
         from qgis.PyQt.QtCore import QSettings
         settings = dict(settings or {})
         allowed = {"maplibre_output_path", "openlayers_output_path", "port",
-                   "kasugai_output_path", "kasugai_port"}
+                   "kasugai_output_path", "kasugai_port", "kasugai_install_path"}
         unknown = [k for k in settings if k not in allowed]
         if unknown:
             return self._err(f"unknown keys: {unknown} "
@@ -1157,7 +1171,7 @@ class GeoWebViewBridge:
         s = QSettings("GeoWebView", "geo_webview")
         applied = {}
         for key in ("maplibre_output_path", "openlayers_output_path",
-                    "kasugai_output_path"):
+                    "kasugai_output_path", "kasugai_install_path"):
             if key in settings:
                 s.setValue(key, str(settings[key]))
                 applied[key] = str(settings[key])
