@@ -2,9 +2,9 @@
 chcp 65001 >nul
 cd /d "%~dp0"
 
-REM kasugai_qgis distribution ZIP build batch
+REM qgis_launcher distribution ZIP build batch
 REM Run "cargo build --release" before this script
-REM Output: ..\public\kasugai_qgis.zip
+REM Output: ..\public\qgis_launcher.zip
 
 set "VERSION=1.4.2"
 
@@ -19,9 +19,9 @@ if not exist "..\download\qgis_settings.json" (
     exit /b 1
 )
 
-set "STAGE_DIR=%TEMP%\kasugai_qgis_zip_stage"
-set "APP_DIR=%STAGE_DIR%\kasugai_qgis"
-set "ZIP_OUT=..\public\kasugai_qgis.zip"
+set "STAGE_DIR=%TEMP%\qgis_launcher_zip_stage"
+set "APP_DIR=%STAGE_DIR%\qgis_launcher"
+set "ZIP_OUT=..\public\qgis_launcher.zip"
 
 REM clean stage directory
 if exist "%STAGE_DIR%" rmdir /s /q "%STAGE_DIR%"
@@ -43,7 +43,7 @@ REM remove existing ZIP
 if exist "%ZIP_OUT%" del "%ZIP_OUT%"
 
 REM create ZIP using tar if available, otherwise PowerShell Compress-Archive
-tar -acf "%ZIP_OUT%" -C "%STAGE_DIR%" kasugai_qgis >nul 2>&1
+tar -acf "%ZIP_OUT%" -C "%STAGE_DIR%" qgis_launcher >nul 2>&1
 if errorlevel 1 (
     powershell -NoProfile -Command "Compress-Archive -Path '%APP_DIR%' -DestinationPath '%ZIP_OUT%' -Force" >nul
     if errorlevel 1 (

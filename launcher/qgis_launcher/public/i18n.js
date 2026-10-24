@@ -15,7 +15,7 @@ const SUPPORTED_LANGUAGES = [
   { code: 'ru', label: 'Русский' },
 ];
 const I18N_FALLBACK_LANG = 'en';
-const I18N_STORAGE_KEY = 'kasugai_qgis_lang';
+const I18N_STORAGE_KEY = 'qgis_launcher_lang';
 
 let i18nDict = {};
 let i18nFallback = {};

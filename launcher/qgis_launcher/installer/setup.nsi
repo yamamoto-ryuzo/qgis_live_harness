@@ -1,19 +1,19 @@
-﻿; kasugai_qgis NSIS インストーラースクリプト
+﻿; qgis_launcher NSIS インストーラースクリプト
 ; 本体 qgis_launcher.exe と動作に必要なファイル一式をインストール/更新
 ; 使い方: release ビルド後、 makensis.exe setup.nsi でコンパイル
 ;
 ; 2種類のインストーラーを生成できる:
 ;   全体版   : makensis.exe setup.nsi
-;              → kasugai_qgis-setup.exe (EXE + ini/profiles/sample_projects 等のデータ一式)
+;              → qgis_launcher-setup.exe (EXE + ini/profiles/sample_projects 等のデータ一式)
 ;              初期インストールおよび「全体更新」用
 ;   EXEのみ版: makensis.exe /DUPDATE_ONLY setup.nsi
-;              → kasugai_qgis-update.exe (EXE 本体のみ、データは触らない)
+;              → qgis_launcher-update.exe (EXE 本体のみ、データは触らない)
 ;              通常のバージョンアップ(自動更新)用
 
-!define PRODUCT_NAME "kasugai_qgis"
+!define PRODUCT_NAME "qgis_launcher"
 !define PRODUCT_VERSION "2.4.1"
 !define PRODUCT_PUBLISHER "yamamoto-ryuzo"
-!define PRODUCT_DIR "kasugai_qgis"
+!define PRODUCT_DIR "qgis_launcher"
 
 ; 現代風 UI
 !include "MUI2.nsh"
@@ -22,10 +22,10 @@
 ; 基本情報
 !ifdef UPDATE_ONLY
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION} (本体更新)"
-OutFile "..\public\kasugai_qgis-update.exe"
+OutFile "..\public\qgis_launcher-update.exe"
 !else
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "..\public\kasugai_qgis-setup.exe"
+OutFile "..\public\qgis_launcher-setup.exe"
 !endif
 InstallDir "C:\kasugai\${PRODUCT_DIR}"
 RequestExecutionLevel user
@@ -47,12 +47,12 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_PAGE_INSTFILES
 
 ; 完了ページのチェックボックス設定
-!define MUI_FINISHPAGE_TITLE "kasugai セットアップの完了"
-!define MUI_FINISHPAGE_TEXT "kasugai は、このコンピュータにインストールされました。$\r$\n「完了」をクリックしてセットアップを閉じます。"
+!define MUI_FINISHPAGE_TITLE "QGIS Launcher セットアップの完了"
+!define MUI_FINISHPAGE_TEXT "QGIS Launcher は、このコンピュータにインストールされました。$\r$\n「完了」をクリックしてセットアップを閉じます。"
 !define MUI_FINISHPAGE_TEXT_LARGE
 !define MUI_FINISHPAGE_RUN "$INSTDIR\qgis_launcher.exe"
 !define MUI_FINISHPAGE_RUN_PARAMETERS "--open-browser"
-!define MUI_FINISHPAGE_RUN_TEXT "kasugai を実行(R)"
+!define MUI_FINISHPAGE_RUN_TEXT "QGIS Launcher を実行(R)"
 !define MUI_FINISHPAGE_RUN_CHECKED
 !define MUI_FINISHPAGE_SHOWREADME
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "デスクトップショートカットを作成する"
@@ -65,7 +65,7 @@ SetCompressor /SOLID lzma
 ; 強制上書き
 SetOverwrite on
 
-Section "kasugai_qgis 本体 (必須)" SecMain
+Section "qgis_launcher 本体 (必須)" SecMain
   SectionIn RO
   SetOutPath "$INSTDIR"
 
@@ -106,7 +106,7 @@ Section "kasugai_qgis 本体 (必須)" SecMain
 
   ; スタートメニューショートカット
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
-  CreateShortcut "$SMPROGRAMS\${PRODUCT_NAME}\kasugai_qgis.lnk" "$INSTDIR\qgis_launcher.exe" "--open-browser" "$INSTDIR\qgis_launcher.exe" 0 SW_SHOWNORMAL "" "" "$INSTDIR"
+  CreateShortcut "$SMPROGRAMS\${PRODUCT_NAME}\qgis_launcher.lnk" "$INSTDIR\qgis_launcher.exe" "--open-browser" "$INSTDIR\qgis_launcher.exe" 0 SW_SHOWNORMAL "" "" "$INSTDIR"
 !endif
 
   ; 古いバックアップを削除
@@ -174,7 +174,7 @@ FunctionEnd
 
 ; 完了ページの「デスクトップショートカットを作成する」チェックボックスが選択されたときの処理
 Function CreateDesktopShortcut
-  CreateShortcut "$DESKTOP\kasugai_qgis.lnk" "$INSTDIR\qgis_launcher.exe" "--open-browser" "$INSTDIR\qgis_launcher.exe" 0 SW_SHOWNORMAL "" "" "$INSTDIR"
+  CreateShortcut "$DESKTOP\qgis_launcher.lnk" "$INSTDIR\qgis_launcher.exe" "--open-browser" "$INSTDIR\qgis_launcher.exe" 0 SW_SHOWNORMAL "" "" "$INSTDIR"
 FunctionEnd
 
 ; アンインストール（全体版のみ）
@@ -193,7 +193,7 @@ Section "Uninstall"
   RMDir /r "$INSTDIR\sample_projects"
   ; 旧フォルダ名 ProjectFiles の残存分も削除
   RMDir /r "$INSTDIR\ProjectFiles"
-  Delete "$DESKTOP\kasugai_qgis.lnk"
+  Delete "$DESKTOP\qgis_launcher.lnk"
   RMDir /r "$SMPROGRAMS\${PRODUCT_NAME}"
   RMDir "$INSTDIR"
 SectionEnd

@@ -16,8 +16,8 @@ use winreg::enums::*;
 /// 子プロセスのコンソールウィンドウを非表示にする Windows フラグ
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 /// デフォルトの自動更新 JSON エンドポイント URL
-/// （harness repo master の raw 配信。qgis-plugin/kasugai_qgis/update.json が正本）
-const DEFAULT_UPDATE_URL: &str = "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/update.json";
+/// （harness repo master の raw 配信。launcher/qgis_launcher/update.json が正本）
+const DEFAULT_UPDATE_URL: &str = "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/launcher/qgis_launcher/update.json";
 /// 旧配信元（GitHub Pages）。既存インストールの qgis_settings.json に
 /// 残っている場合は新しい既定 URL へ読み替える。
 const LEGACY_UPDATE_URL: &str = "https://yamamoto-ryuzo.github.io/kasugai_qgis/update.json";
@@ -109,9 +109,9 @@ pub struct QgisSettings {
     /// KASUGA-QGIS ランチャー本体のバージョン。
     /// SYNC_SRC 側の qgis_settings.json に記述しておくことで、配布元のバージョンアップを検知できる。
     #[serde(default)]
-    pub kasugai_qgis_version: Option<String>,
+    pub qgis_launcher_version: Option<String>,
     /// NSIS インストーラー方式の自動更新 JSON エンドポイント URL。
-    /// 例: "https://example.com/kasugai_qgis/update.json"
+    /// 例: "https://example.com/qgis_launcher/update.json"
     #[serde(default)]
     pub update_url: Option<String>,
     /// 自動更新チェックを有効にするか。省略時は update_url が設定されていれば有効。
@@ -125,7 +125,7 @@ pub struct QgisSettings {
     #[serde(default)]
     pub local_sync: Option<LocalSyncConfig>,
     /// 開発モード: QGIS Live Harness の環境変数を QGIS 起動時に注入する。
-    /// このリポジトリが <harness>/qgis-plugin/kasugai_qgis に配置されている場合に有効。
+    /// このリポジトリが <harness>/launcher/qgis_launcher に配置されている場合に有効。
     #[serde(default)]
     pub dev_mode: Option<bool>,
 }
@@ -143,7 +143,7 @@ impl Default for QgisSettings {
             userrole: None,
             current_project: None,
             project_root: None,
-            kasugai_qgis_version: None,
+            qgis_launcher_version: None,
             update_url: None,
             update_check: None,
             api_server_port: None,
@@ -304,7 +304,7 @@ struct Args {
     #[arg(long, default_value_t = false)]
     dev: bool,
 
-    /// カスタムプロトコル (kasugai-qgis://) から起動された場合に渡される URI。
+    /// カスタムプロトコル (qgis-launcher://) から起動された場合に渡される URI。
     /// サーバーモードで起動するためのトリガーとしてのみ使用し、内容は参照しない。
     #[arg(value_name = "URI")]
     uri: Option<String>,
@@ -467,11 +467,11 @@ fn get_current_settings(custom_dir: &str) -> QgisSettings {
                         v["project_path"] = serde_json::Value::Array(vec![serde_json::Value::String(s.to_string())]);
                     }
                 }
-                // kasugai_qgis_version を数値でも受け付ける（文字列に正規化）
-                if let Some(ver) = v.get("kasugai_qgis_version") {
+                // qgis_launcher_version を数値でも受け付ける（文字列に正規化）
+                if let Some(ver) = v.get("qgis_launcher_version") {
                     if ver.is_number() {
                         let s = ver.to_string();
-                        v["kasugai_qgis_version"] = serde_json::Value::String(s);
+                        v["qgis_launcher_version"] = serde_json::Value::String(s);
                     }
                 }
                 match serde_json::from_value::<QgisSettings>(v) {
@@ -612,9 +612,9 @@ fn version_value_as_string(value: &serde_json::Value) -> Option<String> {
 }
 
 /// KASUGA-QGIS ランチャー本体の配布元バージョンを取得する。
-/// まず SYNC_SRC 側の qgis_settings.json を読み、kasugai_qgis_version を優先する。
+/// まず SYNC_SRC 側の qgis_settings.json を読み、qgis_launcher_version を優先する。
 /// SYNC_SRC 側のファイルが無いか値が無ければ、ローカルの qgis_settings.json の値を返す。
-fn resolve_kasugai_qgis_version(settings: &QgisSettings, settings_dir: &str) -> Option<String> {
+fn resolve_qgis_launcher_version(settings: &QgisSettings, settings_dir: &str) -> Option<String> {
     // まずは local_sync / qgislocalsync.config から SYNC_SRC を解決
     let sync_src = resolve_local_sync_config(settings, settings_dir)
         .and_then(|c| c.sync_src)?;
@@ -625,7 +625,7 @@ fn resolve_kasugai_qgis_version(settings: &QgisSettings, settings_dir: &str) -> 
             let fixed = fix_backslashes_in_json(&text);
             match serde_json::from_str::<serde_json::Value>(&fixed) {
                 Ok(value) => {
-                    if let Some(ver) = value.get("kasugai_qgis_version").and_then(version_value_as_string) {
+                    if let Some(ver) = value.get("qgis_launcher_version").and_then(version_value_as_string) {
                         return Some(ver);
                     }
                 }
@@ -635,7 +635,7 @@ fn resolve_kasugai_qgis_version(settings: &QgisSettings, settings_dir: &str) -> 
             }
         }
     }
-    settings.kasugai_qgis_version.clone()
+    settings.qgis_launcher_version.clone()
 }
 
 /// 同期先のバージョンファイルを読み込む。ファイルが無ければ空文字列を返す。
@@ -714,8 +714,8 @@ fn local_sync_needed(settings: &QgisSettings, settings_dir: &str) -> bool {
     }
 
     // KASUGA-QGIS ランチャー本体のバージョン判定
-    if let Some(ver) = resolve_kasugai_qgis_version(settings, settings_dir) {
-        let local_ver = read_version_file(&dst, "LOCAL_KASUGAI_QGIS_VERSION");
+    if let Some(ver) = resolve_qgis_launcher_version(settings, settings_dir) {
+        let local_ver = read_version_file(&dst, "LOCAL_QGIS_LAUNCHER_VERSION");
         if local_ver != ver {
             return true;
         }
@@ -823,8 +823,8 @@ fn run_local_sync(settings: &QgisSettings, settings_dir: &str, sender: Option<&s
     }
 
     // KASUGA-QGIS ランチャー本体のバージョンを記録
-    if let Some(ver) = resolve_kasugai_qgis_version(settings, settings_dir) {
-        write_version_file(&dst, "LOCAL_KASUGAI_QGIS_VERSION", &ver);
+    if let Some(ver) = resolve_qgis_launcher_version(settings, settings_dir) {
+        write_version_file(&dst, "LOCAL_QGIS_LAUNCHER_VERSION", &ver);
     }
 
     let msg = "local_sync: 完了".to_string();
@@ -885,8 +885,8 @@ fn run_robocopy_local(src: &str, dst: &str, exclude: &[String], sender: Option<&
 
 
 /// NSIS インストーラー方式の更新情報。
-/// url は通常更新用（EXE のみの kasugai_qgis-update.exe）、
-/// full_url は全体更新用（データ込みの kasugai_qgis-setup.exe）を指す。
+/// url は通常更新用（EXE のみの qgis_launcher-update.exe）、
+/// full_url は全体更新用（データ込みの qgis_launcher-setup.exe）を指す。
 /// full が true の場合は full_url を使って全体更新を行う。
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
@@ -953,10 +953,10 @@ fn now_epoch_secs() -> u64 {
 
 /// 更新試行記録の保存先。
 /// インストーラーに削除・上書きされないよう、インストール先ではなく
-/// %LOCALAPPDATA%\kasugai_qgis\update_state.json に置く。
+/// %LOCALAPPDATA%\qgis_launcher\update_state.json に置く。
 fn update_state_path() -> Option<PathBuf> {
     let base = env::var("LOCALAPPDATA").ok().filter(|s| !s.trim().is_empty())?;
-    Some(PathBuf::from(base).join("kasugai_qgis").join("update_state.json"))
+    Some(PathBuf::from(base).join("qgis_launcher").join("update_state.json"))
 }
 
 fn load_update_state() -> UpdateState {
@@ -1257,7 +1257,7 @@ fn prepare_nsis_update(settings: &QgisSettings, force: bool) -> Result<(PathBuf,
     };
     println!("NSIS更新({}): {} → {}", kind, current, info.version);
 
-    let temp = std::env::temp_dir().join("kasugai_qgis_setup.exe");
+    let temp = std::env::temp_dir().join("qgis_launcher_setup.exe");
     obtain_installer(download_url, &temp)?;
 
     // 壊れたダウンロードをインストールすると更新が反映されずループの原因になるため検証する
@@ -1281,7 +1281,7 @@ fn prepare_nsis_update(settings: &QgisSettings, force: bool) -> Result<(PathBuf,
 ///   ローカルの update.json 内の相対パスは json の親フォルダ基準で解決する。
 /// 成功時は (インストーラーのパス, 説明) を返す。
 fn prepare_updata(spec: &str) -> Result<(PathBuf, String), String> {
-    let temp = std::env::temp_dir().join("kasugai_qgis_updata.exe");
+    let temp = std::env::temp_dir().join("qgis_launcher_updata.exe");
 
     if spec.to_lowercase().ends_with(".exe") {
         obtain_installer(spec, &temp)?;
@@ -1431,7 +1431,7 @@ fn main() {
         mount_drive_mappings(&settings.drive_mappings, &settings, None);
         copy_profiles_at_startup(&project_root_dir, None);
         run_local_sync(&settings, &project_root_dir, None);
-        // kasugai-qgis:// からの起動(uri 引数あり)は残ったタブ/pane 自身が
+        // qgis-launcher:// からの起動(uri 引数あり)は残ったタブ/pane 自身が
         // /health をポーリングして復帰する方式なので、ここではウィンドウを開かず
         // ヘッドレスサーバーとしてのみ動く
         let headless = !args.open_browser && (args.server || args.uri.is_some());
@@ -1537,8 +1537,8 @@ fn extract_first_command_token(s: &str) -> Option<&str> {
     }
 }
 
-/// カスタムプロトコル `kasugai-qgis:` と `updata:` を HKCU\Software\Classes に登録する。
-/// `kasugai-qgis:` はサーバー停止後に残ったブラウザタブからの URI 遷移再起動用、
+/// カスタムプロトコル `qgis-launcher:` と `updata:` を HKCU\Software\Classes に登録する。
+/// `qgis-launcher:` はサーバー停止後に残ったブラウザタブからの URI 遷移再起動用、
 /// `updata:` は `updata:<URL|パス>` で指定ソースからの更新適用に使用する。
 /// HKCU 配下のため管理者権限は不要。起動のたびに現在の EXE パスで上書きし、
 /// バージョンアップや移動にも追従する。失敗しても起動は継続する。
@@ -1551,7 +1551,7 @@ fn register_protocol_handler() {
         }
     };
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
-    for scheme in ["kasugai-qgis", "updata"] {
+    for scheme in ["qgis-launcher", "updata"] {
         let base = match hkcu.create_subkey(format!(r"Software\Classes\{}", scheme)) {
             Ok((k, _)) => k,
             Err(e) => {
@@ -1559,7 +1559,7 @@ fn register_protocol_handler() {
                 continue;
             }
         };
-        if let Err(e) = base.set_value("", &"URL:Kasugai QGIS Launcher".to_string()) {
+        if let Err(e) = base.set_value("", &"URL:QGIS Launcher".to_string()) {
             eprintln!("プロトコル登録失敗 ({} 既定値): {}", scheme, e);
             continue;
         }
@@ -2197,7 +2197,7 @@ fn resolve_project_to_file(path_str: &str, settings_dir: &str) -> Option<PathBuf
 }
 
 /// QGIS Live Harness のルートを検出する。
-/// KASUGAI_HARNESS_DIR 環境変数、または exe の祖先ディレクトリで
+/// QGIS_LAUNCHER_HARNESS_DIR 環境変数、または exe の祖先ディレクトリで
 /// `qgis-plugin/qgis_live_driver/metadata.txt` を持つものを探す。
 fn detect_harness_root() -> Option<PathBuf> {
     let is_harness = |p: &PathBuf| {
@@ -2206,7 +2206,7 @@ fn detect_harness_root() -> Option<PathBuf> {
             .join("metadata.txt")
             .exists()
     };
-    if let Ok(dir) = env::var("KASUGAI_HARNESS_DIR") {
+    if let Ok(dir) = env::var("QGIS_LAUNCHER_HARNESS_DIR") {
         let p = PathBuf::from(dir);
         if is_harness(&p) {
             return Some(p);
@@ -2300,7 +2300,7 @@ fn build_dev_env(profile_name: &str) -> HashMap<String, String> {
             }
         }
         None => {
-            eprintln!("QGIS Live Harness が見つかりません。KASUGAI_HARNESS_DIR で指定できます。");
+            eprintln!("QGIS Live Harness が見つかりません。QGIS_LAUNCHER_HARNESS_DIR で指定できます。");
         }
     }
     envs
@@ -2785,7 +2785,7 @@ fn open_webview_window(port: u16) {
 
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
-        .with_title("Kasugai QGIS ランチャー")
+        .with_title("QGIS ランチャー")
         .with_inner_size(tao::dpi::LogicalSize::new(1200.0, 850.0))
         .build(&event_loop)
         .expect("failed to create window");
@@ -2793,8 +2793,8 @@ fn open_webview_window(port: u16) {
     // WebView2 のユーザーデータは exe 隣接(Program Files では書けない)ではなく
     // %LOCALAPPDATA% 配下に置く
     let data_dir = env::var("LOCALAPPDATA")
-        .map(|d| PathBuf::from(d).join("kasugai_qgis").join("webview2"))
-        .unwrap_or_else(|_| env::temp_dir().join("kasugai_qgis_webview2"));
+        .map(|d| PathBuf::from(d).join("qgis_launcher").join("webview2"))
+        .unwrap_or_else(|_| env::temp_dir().join("qgis_launcher_webview2"));
     let mut web_context = WebContext::new(Some(data_dir));
 
     let _webview = WebViewBuilder::new_with_web_context(&mut web_context)

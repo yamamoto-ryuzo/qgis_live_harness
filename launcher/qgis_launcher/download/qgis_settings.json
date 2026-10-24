@@ -1,9 +1,9 @@
 {
   "box_url": null,
-  "current_project": "C:\\kasugai\\kasugai_qgis\\sample_projects\\SampleProjectFile.qgs",
+  "current_project": "C:\\kasugai\\qgis_launcher\\sample_projects\\SampleProjectFile.qgs",
   "local_sync": {
-    "sync_src": "C:\\kasugai\\kasugai_qgis",
-    "sync_dst": "C:\\kasugai\\kasugai_qgis",
+    "sync_src": "C:\\kasugai\\qgis_launcher",
+    "sync_dst": "C:\\kasugai\\qgis_launcher",
     "qfield_version": "3.4.2",
     "qgis_version": "3.42.0",
     "exclude_dirs": ["secret-folder", "private-data"],
@@ -12,7 +12,7 @@
   "drive_mappings": [
     {
       "drive": "Q:",
-      "local_cache": "C:\\kasugai\\kasugai_qgis",
+      "local_cache": "C:\\kasugai\\qgis_launcher",
       "mode": "subst",
       "read_only": false,
       "remote": null,
@@ -29,7 +29,7 @@
     },
     {
       "drive": "R:",
-      "local_cache": "C:\\kasugai\\kasugai_qgis",
+      "local_cache": "C:\\kasugai\\qgis_launcher",
       "mode": "subst",
       "read_only": false,
       "remote": null,
@@ -49,9 +49,9 @@
   "project_path": [
     "sample_projects"
   ],
-  "project_root": "C:\\kasugai\\kasugai_qgis",
-  "kasugai_qgis_version": "2.4.1",
-  "update_url": "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/update.json",
+  "project_root": "C:\\kasugai\\qgis_launcher",
+  "qgis_launcher_version": "2.4.1",
+  "update_url": "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/launcher/qgis_launcher/update.json",
   "update_check": true,
   "qgis_executable": "C:\\PROGRA~1\\QGIS 4.0.1\\bin\\qgis.bat",
   "reearth_url": null,

@@ -5,8 +5,8 @@
 
 | ビルド | 取り込み内容 |
 |---|---|
-| `installer/setup.nsi`（全体版 `kasugai_qgis-setup.exe`） | 全ファイル + 全フォルダ |
-| `installer/setup.nsi`（EXEのみ版 `kasugai_qgis-update.exe`、`/DUPDATE_ONLY`） | 何も取り込まない（EXE のみ） |
+| `installer/setup.nsi`（全体版 `qgis_launcher-setup.exe`） | 全ファイル + 全フォルダ |
+| `installer/setup.nsi`（EXEのみ版 `qgis_launcher-update.exe`、`/DUPDATE_ONLY`） | 何も取り込まない（EXE のみ） |
 | `installer/build_zip.bat` / `run.py` の ZIP ステージング | 全ファイル + 全フォルダ |
 
 ## 構成

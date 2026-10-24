@@ -1,9 +1,9 @@
 # QGIS Launcher (qgis_launcher)
 
-[インストーラーはこちらから](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/public/kasugai_qgis-setup.exe)
+[インストーラーはこちらから](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/launcher/qgis_launcher/public/qgis_launcher-setup.exe)
 
-![alt text](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/images/qgis_launcher.png)
-![alt text](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/images/qgis_launcher_info.png)
+![alt text](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/launcher/qgis_launcher/images/qgis_launcher.png)
+![alt text](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/launcher/qgis_launcher/images/qgis_launcher_info.png)
 
 > **v2.0.0 以降**: FLTK GUI は削除され、Web UI（ブラウザ）+ AXUM HTTP API に移行しました。本ドキュメントの画面イメージは旧 FLTK 版のものです。
 
@@ -111,7 +111,7 @@ qgis_settings_{USERNAME}.json   ③ユーザー個別オーバーライド（任
 ### ファイル配置例
 
 ```
-C:\kasugai\kasugai_qgis\
+C:\kasugai\qgis_launcher\
   qgis_settings.json              ← 全員共通のベース設定
   qgis_settings_override.json     ← 全ユーザーに強制適用（任意）
   qgis_settings_yamamoto.json     ← yamamoto ユーザーのみ上書き（任意）
@@ -179,7 +179,7 @@ C:\kasugai\kasugai_qgis\
 }
 ```
 
-サンプルファイル: [download/qgis_settings_override.json.example](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/download/qgis_settings_override.json.example)
+サンプルファイル: [download/qgis_settings_override.json.example](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/launcher/qgis_launcher/download/qgis_settings_override.json.example)
 ### ユーザーごとの設定オーバーライド（qgis_settings_{USERNAME}.json）
 
 BOX のフォルダ階層はユーザーによって異なる場合があります。`qgis_settings.json` と同じディレクトリに `qgis_settings_{Windowsログイン名}.json` を置くと、全員共通のベース設定を上書きできます。
@@ -187,7 +187,7 @@ BOX のフォルダ階層はユーザーによって異なる場合がありま�
 #### ファイル命名規則
 
 ```
-C:\kasugai\kasugai_qgis\
+C:\kasugai\qgis_launcher\
   qgis_settings.json              ← 全員共通のベース設定
   qgis_settings_tanaka.json       ← tanaka ユーザーのみ上書き
   qgis_settings_yamamoto.json     ← yamamoto ユーザーのみ上書き
@@ -303,7 +303,7 @@ qgis_launcher.exe と同階層/
 - ビルド・実行例:
 
 ```powershell
-cd kasugai_qgis
+cd qgis_launcher
 cargo build --release
 # ランチャー（デフォルトは Web UI を起動）
 cargo run --release
@@ -506,9 +506,9 @@ GNU General Public License v3.0 (GPL-3.0-only) — 詳細は [LICENSE](LICENSE) 
 
 | 配布物 | 内容 | 用途 |
 |---|---|---|
-| `kasugai_qgis-setup.exe` | EXE 本体 + `ini/`・`profiles/`・`sample_projects/`（任意選択）・設定ファイル | 初期インストール・全体更新 |
-| `kasugai_qgis-update.exe` | EXE 本体のみ（データは触らない） | 通常の自動更新 |
-| `kasugai_qgis.zip` | EXE + データ一式（インストーラー無しの展開版） | 実行権限のない環境向け |
+| `qgis_launcher-setup.exe` | EXE 本体 + `ini/`・`profiles/`・`sample_projects/`（任意選択）・設定ファイル | 初期インストール・全体更新 |
+| `qgis_launcher-update.exe` | EXE 本体のみ（データは触らない） | 通常の自動更新 |
+| `qgis_launcher.zip` | EXE + データ一式（インストーラー無しの展開版） | 実行権限のない環境向け |
 
 ---
 
@@ -516,12 +516,12 @@ GNU General Public License v3.0 (GPL-3.0-only) — 詳細は [LICENSE](LICENSE) 
 
 ### 初回導入（インストーラー版：推奨）
 
-NSIS インストーラー `kasugai_qgis-setup.exe` を使って、`C:\kasugai\kasugai_qgis\` へ自動的にインストールできます。
+NSIS インストーラー `qgis_launcher-setup.exe` を使って、`C:\kasugai\qgis_launcher\` へ自動的にインストールできます。
 
 1. インストーラーをダウンロード
-   - [kasugai_qgis-setup.exe](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/public/kasugai_qgis-setup.exe)
-2. ダウンロードした `kasugai_qgis-setup.exe` を実行
-   - インストール先はデフォルトで `C:\kasugai\kasugai_qgis\` です
+   - [qgis_launcher-setup.exe](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/launcher/qgis_launcher/public/qgis_launcher-setup.exe)
+2. ダウンロードした `qgis_launcher-setup.exe` を実行
+   - インストール先はデフォルトで `C:\kasugai\qgis_launcher\` です
    - インストール先フォルダはインストール時に変更できます
    - `C:\kasugai` フォルダが存在し、ユーザーが書き込み可能であれば管理者権限は不要です
    - スタートメニューにショートカットが作成されます
@@ -532,7 +532,7 @@ NSIS インストーラー `kasugai_qgis-setup.exe` を使って、`C:\kasugai\k
 コマンドラインから以下のように実行すると、画面を表示せずにインストールできます。
 
 ```batch
-kasugai_qgis-setup.exe /S /D=C:\kasugai\kasugai_qgis
+qgis_launcher-setup.exe /S /D=C:\kasugai\qgis_launcher
 ```
 
 ### ZIP 版（インストール権限がない場合）
@@ -540,8 +540,8 @@ kasugai_qgis-setup.exe /S /D=C:\kasugai\kasugai_qgis
 インストーラーの実行権限がない場合は、配布用 ZIP を任意のフォルダに展開して使用できます。
 
 1. ZIP をダウンロード
-   - [kasugai_qgis.zip](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/public/kasugai_qgis.zip)
-2. 任意のユーザー書き込み可能なフォルダ（例: `%USERPROFILE%\kasugai_qgis\` や `%LOCALAPPDATA%\kasugai_qgis\`）に展開
+   - [qgis_launcher.zip](https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/launcher/qgis_launcher/public/qgis_launcher.zip)
+2. 任意のユーザー書き込み可能なフォルダ（例: `%USERPROFILE%\qgis_launcher\` や `%LOCALAPPDATA%\qgis_launcher\`）に展開
 3. 展開したフォルダ内の `qgis_launcher.exe` をダブルクリックで起動
 
 > 注意: ZIP 版はスタートメニューショートカットを作成しません。必要に応じて手動でショートカットを作成してください。
@@ -551,7 +551,7 @@ kasugai_qgis-setup.exe /S /D=C:\kasugai\kasugai_qgis
 すべての設定、配布プロファイル、ユーザーロール、サンプルプロジェクトは、**インストール先（`qgis_launcher.exe` と同じフォルダ）を起点**として配置・解決されます。
 
 ```
-C:\kasugai\kasugai_qgis\
+C:\kasugai\qgis_launcher\
   qgis_launcher.exe
   qgis_settings.json      # 全設定の起点
   ini\                    # ユーザーロール制御用（`ini/<role>.ini/xml` 等）
@@ -582,7 +582,7 @@ C:\kasugai\kasugai_qgis\
 
 ```json
 {
-  "update_url": "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/update.json",
+  "update_url": "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/launcher/qgis_launcher/update.json",
   "update_check": true
 }
 ```
@@ -595,20 +595,20 @@ C:\kasugai\kasugai_qgis\
 
 | 種類 | ファイル | 内容 | 用途 |
 | --- | --- | --- | --- |
-| 全体版 | `kasugai_qgis-setup.exe` | EXE 本体 + ini/profiles/sample_projects 等のデータ一式 | 初期インストール・全体更新 |
-| EXEのみ版 | `kasugai_qgis-update.exe` | EXE 本体のみ（既存データは変更しない） | 通常のバージョンアップ |
+| 全体版 | `qgis_launcher-setup.exe` | EXE 本体 + ini/profiles/sample_projects 等のデータ一式 | 初期インストール・全体更新 |
+| EXEのみ版 | `qgis_launcher-update.exe` | EXE 本体のみ（既存データは変更しない） | 通常のバージョンアップ |
 
 `update.json` の形式:
 
 ```json
 {
   "version": "2.3.0",
-  "url": "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/public/kasugai_qgis-update.exe",
-  "full_url": "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/qgis-plugin/kasugai_qgis/public/kasugai_qgis-setup.exe",
+  "url": "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/launcher/qgis_launcher/public/qgis_launcher-update.exe",
+  "full_url": "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/refs/heads/master/launcher/qgis_launcher/public/qgis_launcher-setup.exe",
   "full": false,
   "sha256": "<update.exe の SHA-256（16進）>",
   "full_sha256": "<setup.exe の SHA-256（16進）>",
-  "notes": "Kasugai QGIS Launcher 2.3.0"
+  "notes": "QGIS Launcher 2.3.0"
 }
 ```
 
@@ -637,7 +637,7 @@ qgis_launcher.exe updata:<ソース>
 - `<ソース>` が `.exe` → NSIS インストーラーとして直接実行（sha256 検証なし）
 - ソースは http(s) URL・`file://`・ローカルパスを指定可（例: `updata:Q:\update.json`、`updata:https://example.com/update.json`）
 
-`updata:` は `kasugai-qgis:` と同様にカスタムプロトコルとして HKCU に登録されるため、ブラウザや他アプリから `updata:<ソース>` を開いて更新を起動することもできます。
+`updata:` は `qgis-launcher:` と同様にカスタムプロトコルとして HKCU に登録されるため、ブラウザや他アプリから `updata:<ソース>` を開いて更新を起動することもできます。
 
 ### リリース時の更新手順
 

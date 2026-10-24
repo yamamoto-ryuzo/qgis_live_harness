@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Kasugai QGIS ランチャー</title>
+  <title>QGIS ランチャー</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <style>
     body { font-family: sans-serif; margin: 24px; max-width: 720px; background-color: #ffffff; color: #000000; }
@@ -56,7 +56,7 @@
   </style>
 </head>
 <body>
-  <h1><span data-i18n="app_title">Kasugai QGIS ランチャー</span> <span id="app-version" style="font-size: 0.5em; color: #64748b; margin-left: 12px; font-weight: normal; background: #ffffff; padding: 2px 8px; border-radius: 4px; vertical-align: middle;"></span></h1>
+  <h1><span data-i18n="app_title">QGIS ランチャー</span> <span id="app-version" style="font-size: 0.5em; color: #64748b; margin-left: 12px; font-weight: normal; background: #ffffff; padding: 2px 8px; border-radius: 4px; vertical-align: middle;"></span></h1>
 
   <div id="update-banner">
     <strong id="update-title"></strong>
@@ -547,12 +547,12 @@
       }
     }
 
-    // カスタムプロトコル kasugai-qgis: でランチャーの新しいインスタンスを起動する。
+    // カスタムプロトコル qgis-launcher: でランチャーの新しいインスタンスを起動する。
     // サーバーが復旧したらこのタブをリロードして UI を復帰させる。
     async function restartLauncher() {
       const box = $('restart-box');
       if (box) box.style.display = 'none';
-      window.location.href = 'kasugai-qgis://restart';
+      window.location.href = 'qgis-launcher://restart';
       const st = $('status');
       if (st) status(t('status_restarting'), 'ok');
       for (let i = 0; i < 90; i++) {

@@ -2,10 +2,10 @@
 chcp 65001 >nul
 cd /d "%~dp0"
 
-REM kasugai_qgis NSIS installer build batch
+REM qgis_launcher NSIS installer build batch
 REM Run "cargo build --release" before this script
-REM Output: ..\public\kasugai_qgis-setup.exe  (full: EXE + data, for initial install / full update)
-REM         ..\public\kasugai_qgis-update.exe (EXE only, for normal auto-update)
+REM Output: ..\public\qgis_launcher-setup.exe  (full: EXE + data, for initial install / full update)
+REM         ..\public\qgis_launcher-update.exe (EXE only, for normal auto-update)
 
 set "VERSION=1.4.2"
 
@@ -49,7 +49,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo Done: ..\public\kasugai_qgis-setup.exe
+echo Done: ..\public\qgis_launcher-setup.exe
 
 REM Compile update-only installer (EXE only, no data)
 "%MAKENSIS%" /INPUTCHARSET UTF8 /DUPDATE_ONLY setup.nsi
@@ -58,7 +58,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo Done: ..\public\kasugai_qgis-update.exe
+echo Done: ..\public\qgis_launcher-update.exe
 
 REM build distribution ZIP as well
 call build_zip.bat

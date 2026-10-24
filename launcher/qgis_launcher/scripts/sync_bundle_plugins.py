@@ -1,6 +1,6 @@
 """配布バンドルのプラグインを qgis-plugin リポジトリと同期する。
 
-このリポジトリが <harness>/qgis-plugin/kasugai_qgis に配置されている場合、
+このリポジトリが <harness>/launcher/qgis_launcher に配置されている場合、
 兄弟ディレクトリ qgis-plugin/<id> を正本として、
 download/profiles/*/profiles/*/python/plugins/<id> へミラーコピーする。
 
@@ -26,10 +26,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-# kasugai_qgis の1階層上が qgis-plugin ディレクトリ（= プラグイン群の正本）、
-# その1階層上が harness リポジトリルート
-PLUGIN_SRC_ROOT = ROOT.parent
+# launcher/qgis_launcher の2階層上が harness リポジトリルート、
+# その直下の qgis-plugin ディレクトリがプラグイン群の正本
 HARNESS_ROOT = ROOT.parent.parent
+PLUGIN_SRC_ROOT = HARNESS_ROOT / "qgis-plugin"
 PROFILES_ROOT = ROOT / "download" / "profiles"
 
 EXCLUDE_DIRS = {

@@ -7,7 +7,7 @@
 #   C:\devin/<repo>/       → clone(同上。geo_report/geo_importが現行)
 #   .upstream/<repo>.git   → 分離gitdir(git --git-dir で操作)。
 #     「repoルート=プラグイン/コンテンツ」構造でsubfolder junctionが
-#     張れないupstream(QGIS-legendView/QGIS-exportExcel/kasugai_qgis)用。
+#     張れないupstream(QGIS-legendView/QGIS-exportExcel/旧kasugai_qgis(現launcher/qgis_launcher))用。
 #     core.worktree=qgis-plugin/<id> 設定済みで、
 #     Harness側のファイルがそのままworktreeになる
 #

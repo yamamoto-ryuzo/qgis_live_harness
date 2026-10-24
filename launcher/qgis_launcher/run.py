@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 APP_NAME = "qgis_launcher"
-PROJECT_NAME = "kasugai_qgis"
+PROJECT_NAME = "qgis_launcher"
 ROOT = Path(__file__).resolve().parent
 DOWNLOAD_DIR = ROOT / "download"
 PUBLIC_DIR = ROOT / "public"
@@ -28,7 +28,7 @@ UPDATE_JSON = ROOT / "update.json"
 # raw.githubusercontent.com 経由で直接配信する（push 直後に反映、Pages 不要）。
 RAW_BASE_URL = (
     "https://raw.githubusercontent.com/yamamoto-ryuzo/qgis_live_harness/"
-    "refs/heads/master/qgis-plugin/kasugai_qgis"
+    "refs/heads/master/launcher/qgis_launcher"
 )
 # 旧配信元（GitHub Pages）。設定・update.json に残っている場合は読み替える。
 LEGACY_PAGES_BASE = "https://yamamoto-ryuzo.github.io/kasugai_qgis"
@@ -97,11 +97,11 @@ def sync_settings_version(version):
         return
     text = SETTINGS_JSON.read_text(encoding="utf-8")
     new_text, n = re.subn(
-        r'("kasugai_qgis_version"\s*:\s*")[^"]*(")', rf"\g<1>{version}\g<2>", text, count=1
+        r'("qgis_launcher_version"\s*:\s*")[^"]*(")', rf"\g<1>{version}\g<2>", text, count=1
     )
     if n == 1 and new_text != text:
         SETTINGS_JSON.write_text(new_text, encoding="utf-8")
-        print(f"qgis_settings.json: kasugai_qgis_version = {version}")
+        print(f"qgis_settings.json: qgis_launcher_version = {version}")
 
 
 def sync_update_json(version):
@@ -124,7 +124,7 @@ def sync_update_json(version):
 
     notes = data.get("notes") or ""
     if version not in notes:
-        notes = f"Kasugai QGIS Launcher {version}"
+        notes = f"QGIS Launcher {version}"
 
     data.update(
         {
@@ -424,7 +424,7 @@ def run_release(extra=None):
 def sync_bundle_plugins():
     """download/profiles 同梱の repo 管理プラグインを qgis-plugin/* と同期する。
 
-    このリポジトリが <harness>/qgis-plugin/kasugai_qgis に置かれている場合のみ効果あり。
+    このリポジトリが <harness>/launcher/qgis_launcher に置かれている場合のみ効果あり。
     単体 clone 時は同期対象がなくスクリプト側で正常終了する。
     """
     script = ROOT / "scripts" / "sync_bundle_plugins.py"
