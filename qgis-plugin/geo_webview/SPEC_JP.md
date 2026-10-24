@@ -452,6 +452,8 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
    ├─ *.geojson               # 変換が必要だったベクター(EPSG:4326)
    ├─ *.gpkg                  # ネイティブ参照の GPKG(複製)
    ├─ *.parquet / *.fgb       # ネイティブ参照の Parquet/FGB(複製)
+   ├─ *.csv / *.tsv           # duckdb: 参照の区切りテキスト(複製)
+   ├─ <dir>/                  # ローカル 3D Tiles / ローカル XYZ タイルの複製(1GiB 上限)
    └─ *.qml                   # 各ベクターレイヤの QGIS スタイル
 ```
 
@@ -461,15 +463,23 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 |---|---|---|
 | GPKG ソース(地理座標系) | `gpkg: グループ/名 | DATA/x.gpkg | on | table=<表> | style=DATA/x.qml` | ファイルを DATA/ へ複製。複数テーブルは1ファイルを共有 |
 | GeoJSON/Parquet/FGB ソース | `geojson:` / `geoparquet:` / `flatgeobuf:` 参照行 | ローカルは複製、http(s) は URL をそのまま記述 |
+| CSV/TSV(delimitedtext・ogr) | `duckdb: 名 | DATA/x.csv | on | format=csv | lon=<列> | lat=<列>` | ジオメトリ列は `geom=`。delimitedtext は URI の xField/yField/wktField を引き継ぎ、ogr CSV はヘッダから推定。delimitedtext で非地理座標系の場合は GeoJSON 変換 |
+| フィルタ(subsetString)付き GPKG | `gpkg: … | where=<フィルタ>` | ネイティブ参照のままフィルタ維持 |
+| フィルタ付き Parquet | `duckdb: 名 | DATA/x.parquet | on | format=parquet | where=<フィルタ>` | `geoparquet:` には where= が無いため duckdb: に切替 |
+| フィルタ付き GeoJSON/FGB | GeoJSON(EPSG:4326)へ変換して `geojson:` 行 | フィルタを地物に反映して出力 |
+| 3D Tiles レイヤ(QgsTiledSceneLayer) | `3dtiles: グループ/名 | <tileset.json URL or DATA/x/tileset.json> | on` | http(s) は URL 参照、ローカルはディレクトリごと DATA/ へ複製(1GiB 上限・超過は skipped) |
+| XYZ タイルラスタ | `xyz:` 行。表示中の**最下段**のみ `base:` 行（既定ベースマップとして既定群の先頭に置く） | zmin/zmax → minZoom=/maxZoom=。不透明度は opacity=、限定範囲は bbox=西経,南緯,東経,北緯 |
+| XYZ ローカルテンプレート | `xyz:` 行(DATA/<dir>/{z}/{x}/{y}.png) | `file:///…/{z}/{x}/{y}.png` はタイルツリーごと DATA/ へ複製(1GiB 上限・超過は skipped) |
 | その他ベクター(SHP/PostGIS/WFS/メモリ等)・非地理座標系 | GeoJSON(EPSG:4326)へ変換して `geojson:` 行 | 再投影は warnings に記録 |
-| XYZ タイルラスタ | `xyz:` 行。表示中の**最下段**のみ `base:` 行（既定ベースマップとして既定群の先頭に置く） | zmin/zmax → minZoom=/maxZoom= |
-| WMS・ローカルラスタ等 | 出力せず `skipped` に記録 | |
+| 属性テーブルのみ(NoGeometry)・WMS・ローカルラスタ・ベクタータイル・メッシュ・点群・アノテーション等 | 出力せず `skipped` に種別/理由付きで記録 | |
 | 非表示レイヤ | `hidden_as_off=True` 時のみ `| off` 付きで出力 | 既定(visible_only=True)では除外 |
 | キャンバス | `cam:` 行(中心座標+概算高度+回転) | |
 
 その他: `attr=` に QGIS レイヤの出典(attribution)を引き継ぐ。
 `embed_gpkg_style=True` なら `saveStyleToDatabase` で GPKG の
 `layer_styles` にも既定スタイルを保存する(**元ファイルを更新する**)。
+`sql:` 行は QGIS 側に対応する任意クエリソースが無いため出力しない
+（クエリ系は `duckdb:` の宣言的オプションで網羅する）。
 
 ### KASUGAI 側への反映
 

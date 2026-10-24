@@ -6,6 +6,9 @@ QGIS プロジェクトの表示中ベクターレイヤーを GeoJSON + QGISス
 
 KASUGAI Canvas は ``geojson: タイトル | DATA/x.geojson | on | style=DATA/x.qml``
 形式の .kasc 行を読み、.qml の <renderer-v2> を Cesium 描画へコンパイルする。
+ネイティブ参照できるソースは ``gpkg:``/``geojson:``/``geoparquet:``/
+``flatgeobuf:``、CSV/TSV・フィルタ付きソースは ``duckdb:``、
+3D Tiles レイヤは ``3dtiles:``、XYZ タイルは ``xyz:``/``base:`` 行になる。
 ローカルサーバー版(port 8510)が起動していれば
 ``POST /api/projects/register {path: <kasc>}`` で外部プロジェクトとして
 登録でき、そのまま ``?project=<id>`` で開ける(登録フォルダの DATA/ が
@@ -176,27 +179,344 @@ def _copy_to_data(src_path, data_dir, slug, copied):
     return rel
 
 
-def _native_ref(layer, slug, data_dir, copied):
-    """Canvas が直接参照できるソースなら (line_type, ref, table) を返す。
+# DATA/ へ複製するローカルディレクトリツリー(3D Tiles / ローカルXYZタイル)の上限
+_LOCAL_TREE_MAX_BYTES = 1024 ** 3  # 1 GiB
+
+# duckdb: 行へ回せる区切りテキストの拡張子(delimitedtext / ogr 共通)
+_DUCKDB_TEXT_EXTS = ('.csv', '.tsv')
+
+
+def _local_path(s):
+    """file:///・/C:/ 形式・クエリ/パイプ付きURIからローカルパスを取り出す。"""
+    p = urllib.parse.unquote((s or '').split('?')[0].split('|')[0])
+    if p.startswith('file://'):
+        p = p[7:]
+    if re.match(r'^/[A-Za-z]:/', p):
+        p = p[1:]
+    return p
+
+
+def _tree_bytes(path, cap):
+    """ディレクトリ以下の合計バイト数。cap 超過で打ち切り。"""
+    total = 0
+    for _root, _dirs, files in os.walk(path):
+        for fn in files:
+            try:
+                total += os.path.getsize(os.path.join(_root, fn))
+            except OSError:
+                pass
+            if total > cap:
+                return total
+    return total
+
+
+def _copy_tree_to_data(src_dir, data_dir, slug, copied):
+    """ローカルディレクトリを DATA/<slug>/ へ複製し 'DATA/<slug>' を返す。
+
+    既存の同名ディレクトリは(前回エクスポート産物として)置き換える。
+    """
+    src_abs = os.path.abspath(src_dir)
+    if src_abs in copied:
+        return copied[src_abs]
+    dest_abs = os.path.join(data_dir, slug)
+    same = False
+    try:
+        same = os.path.samefile(src_abs, dest_abs)
+    except Exception:  # nosec B110  # 存在しない場合はコピー対象
+        pass
+    if not same:
+        if os.path.isdir(dest_abs):
+            shutil.rmtree(dest_abs)
+        shutil.copytree(src_abs, dest_abs)
+    rel = 'DATA/' + slug
+    copied[src_abs] = rel
+    return rel
+
+
+def _subset_filter(layer):
+    """レイヤのプロバイダフィルタ(subsetString)を where= 値として返す。
+
+    ``|`` を含む式は .kasc 行の区切りと衝突するため None を返す
+    (呼び出し側は GeoJSON 再エクスポートでフィルタを反映する)。
+    """
+    try:
+        raw = (layer.subsetString() or '').strip()
+    except Exception:  # nosec B110  # 設計上の許容
+        return None
+    if not raw or '|' in raw:
+        return None
+    return _kasc_escape(raw) or None
+
+
+def _has_unusable_subset(layer):
+    """subsetString が設定済みだが | を含み where= に変換できないか。"""
+    try:
+        raw = (layer.subsetString() or '').strip()
+    except Exception:  # nosec B110  # 設計上の許容
+        return False
+    return bool(raw and '|' in raw)
+
+
+def _csv_geom_hints(path):
+    """ローカル CSV/TSV のヘッダ行からジオメトリ列・経度/緯度列を推定する。
+
+    戻り値 (geom_col, lon_col, lat_col)。読めなければ (None,None,None)。
+    列名は Canvas 側の自動検出(geometry/geom/wkb/the_geom・lon/lat 慣用名)
+    より広く、明示指定に使える名前(wkt/x/y)も拾う。
+    """
+    try:
+        with open(path, 'rb') as f:
+            raw = f.read(131072)
+    except Exception:  # nosec B110  # 設計上の許容
+        return None, None, None
+    lines = raw.decode('utf-8-sig', errors='replace').splitlines()
+    if not lines:
+        return None, None, None
+    head = lines[0]
+    delim = max((',', ';', '\t', '|'), key=lambda d: head.count(d))
+    names = [c.strip().strip('"').strip("'") for c in head.split(delim)]
+    lower = {n.lower(): n for n in names if n}
+    geom = next((lower[k] for k in
+                 ('geometry', 'geom', 'wkt', 'wkb', 'the_geom')
+                 if k in lower), None)
+    lon = next((lower[k] for k in
+                ('lon', 'lng', 'longitude', 'x') if k in lower), None)
+    lat = next((lower[k] for k in
+                ('lat', 'latitude', 'y') if k in lower), None)
+    return geom, lon, lat
+
+
+def _delimited_params(layer):
+    """delimitedtext プロバイダのソースを (パスorURL, クエリparams) に分解。"""
+    src = layer.source() or ''
+    if '?' in src:
+        path, _, qs = src.partition('?')
+        params = {k.lower(): v for k, v in
+                  urllib.parse.parse_qsl(qs, keep_blank_values=True)}
+    else:
+        path, params = src, {}
+    return path, params
+
+
+def _is_tiled_scene(layer):
+    """QgsTiledSceneLayer(QGIS 3.34+ の 3D Tiles レイヤ)か。"""
+    try:
+        from qgis.core import QgsTiledSceneLayer
+        return isinstance(layer, QgsTiledSceneLayer)
+    except Exception:
+        # 旧バージョン・独自型はプロバイダ名で判定
+        # (QGIS3=tiled_scene / QGIS4=tiledscene・cesiumtiles・esrii3s)
+        try:
+            return (layer.providerType() or '') in (
+                'tiled_scene', 'tiledscene', 'cesiumtiles', 'esrii3s')
+        except Exception:  # nosec B110  # 設計上の許容
+            return False
+
+
+def _tiledscene_ref(layer, slug, data_dir, copied, warnings):
+    """3D Tiles レイヤの参照先を返す。解決できなければ None。
+
+    - http(s)/vsicurl URL → そのまま参照
+    - ローカルの tileset.json(またはそのディレクトリ) → ディレクトリツリーを
+      DATA/<slug>/ へ複製して DATA/<slug>/<basename> を返す
+    """
+    src = layer.source() or ''
+    m = re.search(r'(?:^|&)url=([^&]+)', src)
+    target = urllib.parse.unquote(m.group(1)) if m else src.strip()
+    if not target:
+        return None
+    if target.startswith('/vsicurl/'):
+        target = target[len('/vsicurl/'):]
+    if re.match(r'https?://', target):
+        # Cesium tileset.json のみ対応(Esri i3s 等の SceneServer URL は除外)
+        if target.split('?')[0].lower().endswith('.json'):
+            return target
+        return None
+    path = _local_path(target)
+    if os.path.isdir(path):
+        base_dir, ts_path = path, os.path.join(path, 'tileset.json')
+    else:
+        base_dir, ts_path = os.path.dirname(path) or path, path
+    if not os.path.isfile(ts_path):
+        return None
+    if _tree_bytes(base_dir, _LOCAL_TREE_MAX_BYTES) > _LOCAL_TREE_MAX_BYTES:
+        warnings.append(
+            '{0}: 3dtiles ディレクトリが {1} 超のため複製を中止'.format(
+                layer.name(), _LOCAL_TREE_MAX_BYTES))
+        return None
+    _copy_tree_to_data(base_dir, data_dir, slug, copied)
+    return 'DATA/{0}/{1}'.format(slug, os.path.basename(ts_path))
+
+
+def _local_xyz_template(url, slug, data_dir, copied, warnings):
+    """ローカル XYZ テンプレート(file:///.../{z}/{x}/{y}.png)を DATA/ へ複製。
+
+    戻り値 'DATA/<slug>/{z}/{x}/{y}.png' 形式の参照テンプレート。解決不可・
+    サイズ超過時は None。
+    """
+    path = _local_path(url)
+    if '{z}' not in path:
+        return None
+    base, _, rest = path.partition('{z}')
+    base_dir = base.rstrip('/\\')
+    template = '{z}' + rest
+    if not os.path.isdir(base_dir):
+        return None
+    if _tree_bytes(base_dir, _LOCAL_TREE_MAX_BYTES) > _LOCAL_TREE_MAX_BYTES:
+        warnings.append(
+            '{0}: ローカルタイルツリーが {1} 超のため複製を中止'.format(
+                slug, _LOCAL_TREE_MAX_BYTES))
+        return None
+    _copy_tree_to_data(base_dir, data_dir, slug, copied)
+    return 'DATA/{0}/{1}'.format(slug, template.replace(os.sep, '/'))
+
+
+def _maplayer_opacity(layer):
+    """レイヤ不透明度(0-1)。1.0 または取得不可なら None。"""
+    try:
+        op = float(layer.opacity())
+        return op if 0.0 <= op < 0.999 else None
+    except Exception:  # nosec B110  # 設計上の許容
+        return None
+
+
+def _layer_extent_bbox(layer):
+    """レイヤ範囲を EPSG:4326 の 'w,s,e,n' 文字列に。全域相当/失敗時 None。"""
+    try:
+        from qgis.core import (QgsCoordinateReferenceSystem,
+                               QgsCoordinateTransform, QgsProject)
+        ext = layer.extent()
+        if not ext or not ext.isFinite() or ext.isEmpty():
+            return None
+        crs = layer.crs()
+        if crs and crs.isValid() and crs.authid() != 'EPSG:4326':
+            tr = QgsCoordinateTransform(
+                crs, QgsCoordinateReferenceSystem('EPSG:4326'),
+                QgsProject.instance())
+            ext = tr.transform(ext)
+        w, s, e, n = (ext.xMinimum(), ext.yMinimum(),
+                      ext.xMaximum(), ext.yMaximum())
+        if e - w >= 350.0 or n - s >= 170.0:
+            return None
+        return '{0:.6f},{1:.6f},{2:.6f},{3:.6f}'.format(w, s, e, n)
+    except Exception:
+        return None
+
+
+def _skip_reason(layer):
+    """skipped 記録用の種別文字列(クラス名+プロバイダ)。"""
+    prov = ''
+    try:
+        prov = layer.providerType() or ''
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    cls = type(layer).__name__.replace('Qgs', '')
+    return '{0}({1})'.format(cls, prov) if prov else cls
+
+
+def _duckdb_target_ref(target, slug, data_dir, copied):
+    """duckdb: 参照用に target(URL or ローカルパス)を ref へ変換する。"""
+    if re.match(r'https?://', target):
+        return target
+    path = _local_path(target)
+    if not path or not os.path.exists(path):
+        return None
+    return _copy_to_data(path, data_dir, slug, copied)
+
+
+def _native_ref(layer, slug, data_dir, copied, warnings):
+    """Canvas が直接参照できるソースなら参照辞書を返す。
+
+    戻り値: ``{'type': <kasc行タイプ>, 'ref': <参照>, 'opts': {k: v}}``、
+    または ``{'skip_reason': <理由>}``(表示不能と確定)、不可時は None
+    (呼び出し側で GeoJSON 再エクスポートに回す)。
 
     - http(s) ソース: 拡張子に応じて URL をそのまま参照
     - ローカルファイル: DATA/<slug><ext> へコピーして相対参照
-    地理座標系でない場合は None(呼び出し側で GeoJSON 再エクスポートに回す)。
+    - delimitedtext / .csv,.tsv → ``duckdb:``(lon=/lat=/geom= 付き)
+    - subsetString → gpkg は ``where=``、parquet は ``duckdb:+format=parquet``
+      へ切替、GeoJSON/FGB はフィルタ反映のため GeoJSON 変換へ回す
+    地理座標系でない場合は None(GeoJSON 再エクスポートへ回す)。
     """
     src = layer.source() or ''
+    subset = _subset_filter(layer)
+
+    # delimitedtext プロバイダ(CSV/TSV等) → duckdb:
+    if (layer.providerType() or '') == 'delimitedtext':
+        path, params = _delimited_params(layer)
+        geom = params.get('wktfield') or None
+        lon = params.get('xfield') or None
+        lat = params.get('yfield') or None
+        if not geom and not (lon and lat):
+            return {'skip_reason': 'ジオメトリ列なし(属性テーブル)'}
+        if not _geo_equiv_crs(layer):
+            return None  # 再投影が必要 → GeoJSON 変換
+        ref = _duckdb_target_ref(path, slug, data_dir, copied)
+        if not ref:
+            return None
+        opts = {'format': 'tsv' if path.lower().endswith('.tsv') else 'csv'}
+        if geom:
+            opts['geom'] = geom
+        else:
+            opts['lon'] = lon
+            opts['lat'] = lat
+        if subset:
+            opts['where'] = subset
+        return {'type': 'duckdb', 'ref': ref, 'opts': opts}
+
+    # http(s)/vsicurl ソース → 拡張子で行タイプ決定
     if re.match(r'https?://', src) or src.startswith('/vsicurl/'):
         url = src.replace('/vsicurl/', '')
         low = url.split('?')[0].lower()
-        for ext, kind in (('.gpkg', 'gpkg'), ('.geojson', 'geojson'),
-                          ('.json', 'geojson'), ('.parquet', 'geoparquet'),
-                          ('.fgb', 'flatgeobuf')):
-            if low.endswith(ext):
-                return kind, url, None
-        return None
+        kind, ext = None, None
+        for e, k in (('.gpkg', 'gpkg'), ('.geojson', 'geojson'),
+                     ('.json', 'geojson'), ('.parquet', 'geoparquet'),
+                     ('.fgb', 'flatgeobuf'),
+                     ('.csv', 'duckdb'), ('.tsv', 'duckdb')):
+            if low.endswith(e):
+                kind, ext = k, e
+                break
+        if not kind:
+            return None
+        opts = {}
+        if kind == 'duckdb':
+            opts['format'] = 'tsv' if ext == '.tsv' else 'csv'
+        if subset:
+            if kind in ('gpkg', 'duckdb'):
+                opts['where'] = subset
+            elif kind == 'geoparquet':
+                kind = 'duckdb'
+                opts['format'] = 'parquet'
+                opts['where'] = subset
+            else:
+                # geojson:/flatgeobuf: に where= は無い → GeoJSON 変換で反映
+                return None
+        return {'type': kind, 'ref': url, 'opts': opts}
+
+    # ローカルファイルソース
     src_path = _source_path(layer)
     if not src_path:
         return None
     ext = os.path.splitext(src_path)[1].lower()
+
+    # ogr の区切りテキスト → duckdb:(ヘッダからジオメトリ/経緯度列を推定。
+    # ogr CSV は CRS 情報を持たないため値はそのまま=再投影なし)
+    if ext in _DUCKDB_TEXT_EXTS:
+        geom, lon, lat = _csv_geom_hints(src_path)
+        if not geom and not (lon and lat):
+            return None
+        opts = {'format': 'tsv' if ext == '.tsv' else 'csv'}
+        if geom:
+            opts['geom'] = geom
+        else:
+            opts['lon'] = lon
+            opts['lat'] = lat
+        if subset:
+            opts['where'] = subset
+        return {'type': 'duckdb',
+                'ref': _copy_to_data(src_path, data_dir, slug, copied),
+                'opts': opts}
+
     kinds = {'.gpkg': 'gpkg', '.geojson': 'geojson', '.json': 'geojson',
              '.parquet': 'geoparquet', '.fgb': 'flatgeobuf'}
     kind = kinds.get(ext)
@@ -206,13 +526,23 @@ def _native_ref(layer, slug, data_dir, copied):
     geojson_spec = ext in ('.geojson', '.json')
     if not geojson_spec and not _geo_equiv_crs(layer):
         return None
+    if subset:
+        if kind == 'geoparquet':
+            kind = 'duckdb'
+        elif kind != 'gpkg':
+            # geojson/flatgeobuf は where= 非対応 → GeoJSON 変換で反映
+            return None
     ref = _copy_to_data(src_path, data_dir, slug, copied)
-    table = None
+    opts = {}
+    if kind == 'duckdb':
+        opts['format'] = 'parquet'
     if kind == 'gpkg':
         m = re.search(r'layername=([^|&]+)', src)
         if m:
-            table = urllib.parse.unquote(m.group(1))
-    return kind, ref, table
+            opts['table'] = urllib.parse.unquote(m.group(1))
+    if subset:
+        opts['where'] = subset
+    return {'type': kind, 'ref': ref, 'opts': opts}
 
 
 def _embed_gpkg_style(layer):
@@ -333,14 +663,19 @@ def _attribution(layer):
 
 def export_kasugai_project(iface, out_dir=None, visible_only=True,
                            native_formats=True, hidden_as_off=False,
-                           embed_gpkg_style=False):
+                           embed_gpkg_style=False, reearth_port=None):
     """レイヤツリーを KASUGAI Canvas プロジェクトとして出力する。
 
     引数:
         visible_only: True なら非表示レイヤは出力しない(既定)。
         native_formats: True なら GPKG/GeoJSON/GeoParquet/FlatGeobuf
-            のソース(ローカルファイル・http URL)をそのまま参照し、
-            変換が必要なレイヤのみ GeoJSON(EPSG:4326)へ出力する。
+            ソース(ローカルファイル・http URL)をそのまま参照し、
+            CSV/TSV(delimitedtext 等)は ``duckdb:`` 行(lon=/lat=/geom=)、
+            フィルタ付き GPKG は ``where=`` 付き ``gpkg:``、
+            フィルタ付き Parquet は ``duckdb:+format=parquet+where=``、
+            3D Tiles レイヤは ``3dtiles:``、ローカル XYZ テンプレートは
+            タイルツリー複製の ``xyz:`` 行として出力する。
+            それ以外のベクターのみ GeoJSON(EPSG:4326)へ出力する。
             False なら全ベクターを GeoJSON へ変換する(従来動作)。
         hidden_as_off: True なら非表示レイヤも ``| off`` 付きで出力する
             (visible_only より優先。プロジェクト構成の丸ごと引越し用)。
@@ -390,6 +725,15 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             vis_flag = 'on'
 
         if isinstance(layer, QgsVectorLayer):
+            # ジオメトリを持たない属性テーブルは Canvas で描画できない
+            try:
+                from qgis.core import QgsWkbTypes
+                if layer.wkbType() == QgsWkbTypes.NoGeometry:
+                    skipped.append(
+                        '{0} (属性テーブル)'.format(layer.name()))
+                    continue
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
             slug = _slugify(layer.name() or 'layer', used_names)
             qml_path = os.path.join(data_dir, slug + '.qml')
             style_opt = ''
@@ -404,10 +748,20 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             except Exception:  # nosec B110  # 設計上の許容
                 pass
 
-            native = _native_ref(layer, slug, data_dir,
-                                 copied) if native_formats else None
+            if _has_unusable_subset(layer):
+                warnings.append(
+                    '{0}: フィルタに | を含むためGeoJSON変換'.format(
+                        layer.name()))
+                native = None
+            else:
+                native = _native_ref(layer, slug, data_dir, copied,
+                                     warnings) if native_formats else None
+            if isinstance(native, dict) and native.get('skip_reason'):
+                skipped.append(
+                    '{0} ({1})'.format(layer.name(), native['skip_reason']))
+                continue
             if native:
-                line_type, ref, table = native
+                line_type, ref = native['type'], native['ref']
                 if embed_gpkg_style and line_type == 'gpkg':
                     if _embed_gpkg_style(layer):
                         warnings.append(
@@ -419,8 +773,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                                 layer.name()))
                 line = '{0}: {1} | {2} | {3}'.format(
                     line_type, title, _kasc_escape(ref), vis_flag)
-                if table:
-                    line += ' | table={0}'.format(_kasc_escape(table))
+                for key, val in native.get('opts', {}).items():
+                    line += ' | {0}={1}'.format(key, _kasc_escape(val))
                 line += style_opt
                 attr = _attribution(layer)
                 if attr:
@@ -457,9 +811,40 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 'geojson: {0} | DATA/{1}.geojson | {2}{3}{4}'.format(
                     title, slug, vis_flag, style_opt, attr_opt))
         else:
+            if _is_tiled_scene(layer):
+                slug = _slugify(layer.name() or 'scene', used_names)
+                ref = _tiledscene_ref(layer, slug, data_dir, copied,
+                                      warnings)
+                if ref:
+                    line = '3dtiles: {0} | {1} | {2}'.format(
+                        title, _kasc_escape(ref), vis_flag)
+                    attr = _attribution(layer)
+                    if attr:
+                        line += ' | attr={0}'.format(_kasc_escape(attr))
+                    kasc_lines.append(line)
+                    tiles_out.append({'name': layer.name(), 'url': ref,
+                                      'type': '3dtiles'})
+                else:
+                    skipped.append(
+                        '{0} (3dtiles参照不可)'.format(layer.name()))
+                continue
             xyz = _xyz_layer_info(layer)
             if xyz:
                 url, zmin, zmax = xyz
+                if not re.match(r'https?://', url):
+                    # file:/// 等のローカルタイルテンプレートは DATA/ へ複製
+                    slug = _slugify(layer.name() or 'tiles', used_names)
+                    ref = _local_xyz_template(url, slug, data_dir, copied,
+                                              warnings)
+                    if ref:
+                        url = ref
+                    else:
+                        skipped.append(
+                            '{0} (ローカルタイル複製不可)'.format(
+                                layer.name()))
+                        continue
+                opacity = _maplayer_opacity(layer)
+                bbox = _layer_extent_bbox(layer)
                 if visible and id(layer) == last_xyz_id:
                     # QGIS の最下段タイルはベースマップとして出力
                     line = 'base: {0} | {1}'.format(title, _kasc_escape(url))
@@ -470,6 +855,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                         line += ' | maxZoom={0}'.format(zmax)
                     if zmin is not None:
                         line += ' | minZoom={0}'.format(zmin)
+                    if opacity is not None:
+                        line += ' | opacity={0}'.format(opacity)
                     detected_base = line
                 else:
                     line = 'xyz: {0} | {1} | {2}'.format(
@@ -478,15 +865,29 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                         line += ' | maxZoom={0}'.format(zmax)
                     if zmin is not None:
                         line += ' | minZoom={0}'.format(zmin)
+                    if opacity is not None:
+                        line += ' | opacity={0}'.format(opacity)
+                    if bbox is not None:
+                        line += ' | bbox={0}'.format(bbox)
                     attr = _attribution(layer)
                     if attr:
                         line += ' | attr={0}'.format(_kasc_escape(attr))
                     kasc_lines.append(line)
-                tiles_out.append({'name': layer.name(), 'url': url})
+                tiles_out.append({'name': layer.name(), 'url': url,
+                                  'type': 'xyz'})
             else:
-                skipped.append(layer.name())
+                skipped.append(
+                    '{0} ({1})'.format(layer.name(), _skip_reason(layer)))
 
     cam = _camera_line(iface)
+    if reearth_port:
+        try:
+            _write_reearth_txt(iface, out_dir, int(reearth_port), tree,
+                               visible_only, hidden_as_off, native_formats,
+                               data_dir, copied, used_names,
+                               errors, warnings)
+        except Exception as e:
+            warnings.append('reearth.txt 生成失敗: {0}'.format(e))
     default_bases = [
         'base: 地理院タイル 標準地図 | '
         'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png | '
@@ -521,6 +922,220 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         'tiles': tiles_out, 'skipped': skipped, 'errors': errors,
         'warnings': warnings,
     }
+
+
+def _reearth_native(layer, slug, data_dir, copied, base_url):
+    """geo_suite が解釈できるネイティブ参照を (line_type, url, opts) で返す。
+
+    geo_suite inspector 行の対応タイプ: geojson:/parquet:/flatgeobuf:/
+    duckdb:/csv:(gpkg:/sql: は非対応)。URL は http(s) 必須のため、
+    ローカルファイルは DATA/ へ複製して /export-data/ の絶対URLにする。
+    対象外は None(呼び出し側で GeoJSON 変換へ回す)。
+    """
+    subset = _subset_filter(layer)
+    src = layer.source() or ''
+
+    # delimitedtext → duckdb:
+    if (layer.providerType() or '') == 'delimitedtext':
+        path, params = _delimited_params(layer)
+        geom = params.get('wktfield') or None
+        lon = params.get('xfield') or None
+        lat = params.get('yfield') or None
+        if not geom and not (lon and lat):
+            return None
+        if not _geo_equiv_crs(layer):
+            return None
+        ref = _duckdb_target_ref(path, slug, data_dir, copied)
+        if not ref:
+            return None
+        url = ref if re.match(r'https?://', ref) else base_url + '/export-data/' + urllib.parse.quote(ref)
+        opts = {'format': 'tsv' if path.lower().endswith('.tsv') else 'csv'}
+        if geom:
+            opts['geom'] = geom
+        else:
+            opts['lon'] = lon
+            opts['lat'] = lat
+        if subset:
+            opts['where'] = subset
+        return 'duckdb', url, opts
+
+    if re.match(r'https?://', src) or src.startswith('/vsicurl/'):
+        url = src.replace('/vsicurl/', '')
+        low = url.split('?')[0].lower()
+        kind, ext = None, None
+        for e, k in (('.geojson', 'geojson'), ('.json', 'geojson'),
+                     ('.parquet', 'parquet'), ('.fgb', 'flatgeobuf'),
+                     ('.csv', 'duckdb'), ('.tsv', 'duckdb')):
+            if low.endswith(e):
+                kind, ext = k, e
+                break
+        if not kind:
+            return None
+        opts = {}
+        if kind == 'duckdb':
+            opts['format'] = 'tsv' if ext == '.tsv' else 'csv'
+        if subset and kind == 'duckdb':
+            opts['where'] = subset
+        return kind, url, opts
+
+    src_path = _source_path(layer)
+    if not src_path:
+        return None
+    ext = os.path.splitext(src_path)[1].lower()
+    if ext in _DUCKDB_TEXT_EXTS:
+        geom, lon, lat = _csv_geom_hints(src_path)
+        if not geom and not (lon and lat):
+            return None
+        opts = {'format': 'tsv' if ext == '.tsv' else 'csv'}
+        if geom:
+            opts['geom'] = geom
+        else:
+            opts['lon'] = lon
+            opts['lat'] = lat
+        if subset:
+            opts['where'] = subset
+        ref = _copy_to_data(src_path, data_dir, slug, copied)
+        return 'duckdb', base_url + '/export-data/' + urllib.parse.quote(ref), opts
+    kind = {'.geojson': 'geojson', '.json': 'geojson',
+            '.parquet': 'parquet', '.fgb': 'flatgeobuf'}.get(ext)
+    if not kind:
+        return None
+    geojson_spec = ext in ('.geojson', '.json')
+    if not geojson_spec and not _geo_equiv_crs(layer):
+        return None
+    ref = _copy_to_data(src_path, data_dir, slug, copied)
+    return kind, base_url + '/export-data/' + urllib.parse.quote(ref), {}
+
+
+def _write_reearth_txt(iface, out_dir, port, tree, visible_only,
+                       hidden_as_off, native_formats, data_dir, copied,
+                       used_names, errors, warnings):
+    """Re:Earth geo_suite の inspector テキスト(reearth.txt)を生成する。
+
+    - ベクター: ネイティブ参照可能なら geojson:/parquet:/flatgeobuf:/
+      duckdb: 行、それ以外(gpkg含む)は GeoJSON 変換して geojson: 行。
+      URL は http://localhost:<port>/export-data/<DATA相対> の絶対参照。
+    - XYZ: xyz:/base: 行(.kasc と同じ構文を geo_suite が解釈)。
+    - 3D Tiles: 3dtiles: 行(ローカルは DATA/ 複製 + /export-data URL)。
+    - cam: 行(.kasc と同じ)。
+    """
+    from qgis.core import QgsVectorLayer
+    base_url = 'http://localhost:{0}'.format(port)
+    lines = ['# Exported from QGIS geo_webview -> Re:Earth geo_suite']
+    cam = _camera_line(iface)
+
+    last_xyz = None
+    for layer, _g, vis in tree:
+        if vis and _xyz_layer_info(layer):
+            last_xyz = id(layer)
+    # base: は geo_suite 側が先頭解釈のため後付けせず先に記録
+    base_line = None
+    body = []
+
+    for layer, groups, visible in tree:
+        title = '/'.join(
+            [_kasc_escape(g) for g in groups if g] +
+            [_kasc_escape(layer.name())])
+        if not visible:
+            if hidden_as_off:
+                vis_flag = 'off'
+            elif not visible_only:
+                vis_flag = 'on'
+            else:
+                continue
+        else:
+            vis_flag = 'on'
+
+        if isinstance(layer, QgsVectorLayer):
+            try:
+                from qgis.core import QgsWkbTypes
+                if layer.wkbType() == QgsWkbTypes.NoGeometry:
+                    continue
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            slug = _slugify(layer.name() or 'layer', used_names)
+            style_opt = ''
+            try:
+                qml_path = os.path.join(data_dir, slug + '.qml')
+                _export_qml(layer, qml_path)
+                style_opt = ' | style={0}/export-data/{1}'.format(
+                    base_url, urllib.parse.quote('DATA/{0}.qml'.format(slug)))
+            except Exception as e:
+                errors.append('{0}: reearth qml {1}'.format(layer.name(), e))
+
+            native = None
+            if native_formats and not _has_unusable_subset(layer):
+                native = _reearth_native(layer, slug, data_dir, copied,
+                                         base_url)
+            if native:
+                kind, url, opts = native
+                line = '{0}: {1} | {2} | {3}'.format(
+                    kind, title, _kasc_escape(url), vis_flag)
+                for key, val in opts.items():
+                    line += ' | {0}={1}'.format(key, _kasc_escape(val))
+                line += style_opt
+                attr = _attribution(layer)
+                if attr:
+                    line += ' | attr={0}'.format(_kasc_escape(attr))
+                body.append(line)
+                continue
+            gj_path = os.path.join(data_dir, slug + '.geojson')
+            try:
+                _export_geojson(layer, gj_path)
+            except Exception as e:
+                errors.append('{0}: reearth geojson {1}'.format(
+                    layer.name(), e))
+                continue
+            body.append('geojson: {0} | {1}/export-data/{2} | {3}{4}'.format(
+                title, base_url,
+                urllib.parse.quote('DATA/{0}.geojson'.format(slug)),
+                vis_flag, style_opt))
+        else:
+            if _is_tiled_scene(layer):
+                slug = _slugify(layer.name() or 'scene', used_names)
+                ref = _tiledscene_ref(layer, slug, data_dir, copied,
+                                      warnings)
+                if ref:
+                    url = (ref if re.match(r'https?://', ref)
+                           else base_url + '/export-data/' +
+                           urllib.parse.quote(ref))
+                    body.append('3dtiles: {0} | {1} | {2}'.format(
+                        title, _kasc_escape(url), vis_flag))
+                continue
+            xyz = _xyz_layer_info(layer)
+            if xyz:
+                url, zmin, zmax = xyz
+                if not re.match(r'https?://', url):
+                    slug = _slugify(layer.name() or 'tiles', used_names)
+                    ref = _local_xyz_template(url, slug, data_dir, copied,
+                                              warnings)
+                    if not ref:
+                        continue
+                    url = base_url + '/export-data/' + urllib.parse.quote(
+                        ref, safe='/{}')
+                line = 'xyz: {0} | {1} | {2}'.format(
+                    title, _kasc_escape(url), vis_flag)
+                if zmax is not None:
+                    line += ' | maxZoom={0}'.format(zmax)
+                if zmin is not None:
+                    line += ' | minZoom={0}'.format(zmin)
+                if visible and id(layer) == last_xyz:
+                    line = 'base' + line[len('xyz'):]
+                    base_line = line
+                else:
+                    body.append(line)
+            else:
+                continue  # 対応外は inspector に出さない
+
+    if base_line:
+        lines.append(base_line)
+    if cam:
+        lines.append(cam)
+    lines.extend(body)
+    path = os.path.join(out_dir, 'reearth.txt')
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(lines) + '\n')
+    return path
 
 
 def _http_json(url, payload=None, timeout=2.0, method=None):

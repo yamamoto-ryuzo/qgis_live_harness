@@ -405,7 +405,6 @@ def open_maplibre_from_permalink(permalink_text, wfs_typename: str = None):
                         _qgis_log("Application bookmark manager is None", 'info')
                 except Exception as e:
                     _qgis_log(f"Could not get user bookmarks: {e}", 'warning')
-                    import traceback
                     _qgis_log(traceback.format_exc(), 'warning')
 
                 # Combine both lists
@@ -491,7 +490,6 @@ def open_maplibre_from_permalink(permalink_text, wfs_typename: str = None):
                         _qgis_log(f"  Successfully added bookmark {bookmark_name}")
                     except Exception as e:
                         _qgis_log(f"Error processing bookmark {bookmark_name}: {e}", 'warning')
-                        import traceback
                         _qgis_log(traceback.format_exc(), 'warning')
                 _qgis_log(f"Successfully processed {len(bookmarks_list)} bookmarks from QGIS project", 'info')
 
@@ -500,7 +498,6 @@ def open_maplibre_from_permalink(permalink_text, wfs_typename: str = None):
                     _qgis_log(f"  [{i}] {bm['name']}: lon={bm['lon']:.6f}, lat={bm['lat']:.6f}", 'info')
         except Exception as e:
             _qgis_log(f"Could not get bookmarks from QGIS: {e}", 'warning')
-            import traceback
             _qgis_log(traceback.format_exc(), 'warning')
     except Exception as e:
         _qgis_log(f"Error extracting themes/bookmarks: {e}", 'debug')
@@ -807,6 +804,62 @@ __EXTERNAL_SCRIPT_TAGS__
             script_tags += "<script>\n" + show_js + "\n</script>\n"
         # Note: Do NOT include external <script src="qmap_postload.js"> fallback
         # when post_js is None, as this allows the HTML to work without WFS
+
+        # KASUGAI 形式(.kasc)のデータ取り込みパネル。
+        # webmap_shared/ 配下の共有スクリプトをインライン埋め込みする
+        # (生成HTMLが file:// で開かれても動作するように)。
+        kasc_loader_js = None
+        kasc_panel_js = None
+        try:
+            shared_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'webmap_shared')
+            for _name, _slot in (('kasc_loader.js', 'loader'), ('kasc_panel.js', 'panel')):
+                try:
+                    with open(os.path.join(shared_dir, _name), 'r', encoding='utf-8') as rf:
+                        _content = rf.read()
+                        if _slot == 'loader':
+                            kasc_loader_js = _content
+                        else:
+                            kasc_panel_js = _content
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        if kasc_loader_js and kasc_panel_js:
+            script_tags += "<script>\n" + kasc_loader_js + "\n</script>\n"
+            script_tags += "<script>\n" + kasc_panel_js + "\n</script>\n"
+            _kasc_strings = {
+                'button': _pt('Import'),
+                'panelTitle': _pt('Data import (.kasc)'),
+                'apply': _pt('Apply'),
+                'addFiles': _pt('Add files'),
+                'close': _pt('Close'),
+                'layersTitle': _pt('Imported layers'),
+                'hint': _pt('xyz:/base:/geojson:/geoparquet:/flatgeobuf:/gpkg:/duckdb:/sql:'),
+                'fileHint': _pt('Files: .geojson .json .fgb .parquet .gpkg .csv .tsv .kasc'),
+                'empty': _pt('No imported layers'),
+                'fit': _pt('Fit'),
+                'remove': _pt('Remove'),
+                'unsupported': _pt('Unsupported line skipped'),
+                'loading': _pt('Loading...'),
+                'errorPrefix': _pt('Error'),
+            }
+            script_tags += (
+                "<script>\n"
+                "(function(){\n"
+                "  function _init(){\n"
+                "    try {\n"
+                "      if (window.KascPanel && window.qmap_map) {\n"
+                "        window.KascPanel.init({ engine: 'maplibre', map: window.qmap_map, strings: "
+                + _jsonmod.dumps(_kasc_strings, ensure_ascii=False) +
+                " });\n"
+                "      } else { setTimeout(_init, 300); }\n"
+                "    } catch(e) { console.warn('kasc init failed', e); }\n"
+                "  }\n"
+                "  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _init);\n"
+                "  else _init();\n"
+                "})();\n"
+                "</script>\n"
+            )
 
         html_out = html_out.replace('__EXTERNAL_SCRIPT_TAGS__', script_tags)
         # The template used double-braces ({{ }}) to avoid f-string parsing during

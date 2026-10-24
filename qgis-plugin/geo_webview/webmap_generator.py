@@ -1030,6 +1030,64 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
             "})();\n"
         )
 
+        # KASUGAI 形式(.kasc)のデータ取り込みパネル。
+        # webmap_shared/ 配下の共有スクリプトをインライン埋め込みする
+        # (生成HTMLが file:// で開かれても動作するように)。
+        kasc_scripts = ''
+        try:
+            _shared_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'webmap_shared')
+            _kasc_loader = None
+            _kasc_panel = None
+            for _name in ('kasc_loader.js', 'kasc_panel.js'):
+                try:
+                    with open(os.path.join(_shared_dir, _name), 'r', encoding='utf-8') as rf:
+                        _content = rf.read()
+                        if _name == 'kasc_loader.js':
+                            _kasc_loader = _content
+                        else:
+                            _kasc_panel = _content
+                except Exception:
+                    pass
+            if _kasc_loader and _kasc_panel:
+                import json as _jsonmod2
+                _kasc_strings = {
+                    'button': _pt('Import'),
+                    'panelTitle': _pt('Data import (.kasc)'),
+                    'apply': _pt('Apply'),
+                    'addFiles': _pt('Add files'),
+                    'close': _pt('Close'),
+                    'layersTitle': _pt('Imported layers'),
+                    'hint': _pt('xyz:/base:/geojson:/geoparquet:/flatgeobuf:/gpkg:/duckdb:/sql:'),
+                    'fileHint': _pt('Files: .geojson .json .fgb .parquet .gpkg .csv .tsv .kasc'),
+                    'empty': _pt('No imported layers'),
+                    'fit': _pt('Fit'),
+                    'remove': _pt('Remove'),
+                    'unsupported': _pt('Unsupported line skipped'),
+                    'loading': _pt('Loading...'),
+                    'errorPrefix': _pt('Error'),
+                }
+                kasc_scripts = (
+                    '  <script>\n' + _kasc_loader + '\n  </script>\n'
+                    '  <script>\n' + _kasc_panel + '\n  </script>\n'
+                    '  <script>\n'
+                    '  (function(){\n'
+                    '    function _init(){\n'
+                    '      try {\n'
+                    '        if (window.KascPanel && window.map) {\n'
+                    '          window.KascPanel.init({ engine: "openlayers", map: window.map, strings: '
+                    + _jsonmod2.dumps(_kasc_strings, ensure_ascii=False) +
+                    ', rootStyle: "position:absolute;top:170px;right:10px;z-index:1005;font-family:sans-serif;font-size:13px;text-align:right;" });\n'
+                    '        } else { setTimeout(_init, 300); }\n'
+                    '      } catch(e) { console.warn("kasc init failed", e); }\n'
+                    '    }\n'
+                    '    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", _init);\n'
+                    '    else _init();\n'
+                    '  })();\n'
+                    '  </script>\n'
+                )
+        except Exception:
+            kasc_scripts = ''
+
         html = (
             '<!doctype html>\n'
             '<html lang="' + _page_lang() + '">\n'
@@ -1062,6 +1120,7 @@ html,body{{margin:0;padding:0;height:100%;overflow:hidden}}
             f'    ' + js + '\n'
             "    try{ /* show CORS warning if page loaded via file: */ if(typeof window !== \"undefined\" && window.location && window.location.protocol === 'file:'){ try{ var el=document.getElementById(\"qmp-cors-warning\"); if(el) el.style.display='block'; }catch(e){} } }catch(e){}\n"
             '  </script>\n'
+            + kasc_scripts +
             '</body>\n'
             '</html>\n'
         )

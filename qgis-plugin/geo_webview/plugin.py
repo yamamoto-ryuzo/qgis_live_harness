@@ -2393,7 +2393,11 @@ class GeoWebView:
         KASUGAIローカルサーバへ登録して開く。"""
         try:
             from . import kasugai_export
-            result = kasugai_export.export_kasugai_project(self.iface)
+            port = (self.server_manager.get_server_port()
+                    if self.server_manager
+                    and self.server_manager.is_server_running() else None)
+            result = kasugai_export.export_kasugai_project(
+                self.iface, reearth_port=port)
             n_layers = len(result.get('layers') or [])
             n_tiles = len(result.get('tiles') or [])
             if not n_layers and not n_tiles:

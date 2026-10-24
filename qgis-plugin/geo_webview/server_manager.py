@@ -1046,6 +1046,21 @@ class GeoWebViewServerManager:
                         f'map3d failed: {e}', 'text/plain; charset=utf-8')
                 return
 
+            # /export-data/<rel>: KASUGAI/Re:Earth エクスポート産物(out_dir配下)の配信
+            if parsed_url.path.startswith('/export-data/'):
+                try:
+                    self._handle_export_data(
+                        conn, parsed_url.path[len('/export-data/'):])
+                except Exception as e:
+                    QgsMessageLog.logMessage(
+                        f'❌ export-data error: {e}',
+                        'geo_webview', Qgis.MessageLevel.Critical)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error', str(e),
+                        'text/plain; charset=utf-8')
+                return
+
             # --- 静的ファイル配信: favicon.ico, style.json, data.geojson など ---
             import os
             # Support a few well-known static assets. Also allow serving small
@@ -1410,6 +1425,41 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
         http_server.send_http_response(
             conn, 200, 'OK', html_content, 'text/html; charset=utf-8')
 
+    def _handle_export_data(self, conn, rel):
+        """KASUGAI/Re:Earth エクスポート産物(get_output_dir() 配下)を配信。
+
+        パストラバーサル防止のため出力ディレクトリ外は拒否する。
+        Re:Earth inspector の絶対URL参照や Canvas 外部プロジェクト登録時の
+        DATA/ 直接参照に使う。
+        """
+        import os
+        import urllib.parse
+        from . import http_server, kasugai_export
+        root = os.path.abspath(kasugai_export.get_output_dir())
+        rel_path = urllib.parse.unquote(rel or '').replace('\\', '/')
+        target = os.path.abspath(os.path.join(root, rel_path))
+        if not target.startswith(root + os.sep) or not os.path.isfile(target):
+            http_server.send_http_response(
+                conn, 404, 'Not Found', 'not found',
+                'text/plain; charset=utf-8')
+            return
+        ext = os.path.splitext(target)[1].lower()
+        ctype = {
+            '.geojson': 'application/geo+json; charset=utf-8',
+            '.json': 'application/json; charset=utf-8',
+            '.qml': 'application/xml; charset=utf-8',
+            '.csv': 'text/csv; charset=utf-8',
+            '.tsv': 'text/tab-separated-values; charset=utf-8',
+            '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+            '.parquet': 'application/octet-stream',
+            '.fgb': 'application/octet-stream',
+            '.b3dm': 'application/octet-stream',
+            '.gpkg': 'application/octet-stream',
+        }.get(ext, 'application/octet-stream')
+        with open(target, 'rb') as f:
+            data = f.read()
+        http_server.send_binary_response(conn, 200, 'OK', data, ctype)
+
     def _handle_kasugai(self, conn):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力し、
         起動中のKASUGAIローカルサーバへ登録してプロジェクトURLを返す。
@@ -1421,7 +1471,8 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
         """
         from . import http_server, kasugai_export
         with self._kasugai_lock:
-            result = kasugai_export.export_kasugai_project(self.iface)
+            result = kasugai_export.export_kasugai_project(
+                self.iface, reearth_port=self.get_server_port())
             n_layers = len(result.get('layers') or [])
             n_tiles = len(result.get('tiles') or [])
             if not n_layers and not n_tiles:

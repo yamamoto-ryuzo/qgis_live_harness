@@ -11,6 +11,70 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.20.0] - 2026-10-24 生成ビューアへ KASUGAI 形式データ取り込みパネルを追加
+
+- `webmap_shared/kasc_loader.js` / `kasc_panel.js` を新規追加し、
+  MapLibre(`maplibre_generator.py`)・OpenLayers(`webmap_generator.py`)生成
+  HTML へインライン埋め込み。KASUGAI Canvas(web/app.js)の
+  データ取り込み・レイヤー形式をエンジン非依存で移植
+- 右上の Import ボタンから開くパネルで `.kasc` 設定行の貼り付け適用と
+  ローカルファイル取り込み(.geojson/.json/.fgb/.parquet/.gpkg/.csv/.tsv/.kasc)
+  に対応。取り込みレイヤー一覧で表示切替・範囲移動(Fit)・削除が可能
+- 対応行: `xyz:`/`tile:`/`base:`(opacity/maxZoom/minZoom/tileSize/bbox)、
+  `geojson:`/`layer:`、`geoparquet:`/`parquet:`(hyparquet)、
+  `flatgeobuf:`/`fgb:`(公式JSリーダー)、`gpkg:`/`geopackage:`(sql.js
+  blob Worker・table=/where=/limit=/columns=・GPkgBinaryエンベロープによる
+  bbox判定)、`duckdb:`(DuckDB-Wasm・where=/limit=/geom=/lon=/lat=/format=/
+  columns=/covering=)、`sql:`(任意SELECT・:bboxプレースホルダ)
+- `bbox=auto` のクエリ系レイヤー(duckdb:/gpkg:/:bbox含むsql:)は表示範囲の
+  移動に追従して再クエリする。3dtiles: 行は非対応として通知
+- 生成HTML文字列の翻訳を `geo_webview.page` カタログ(9言語)に追加
+- 修正: 関数内 `import traceback` がモジュールimportをシャドウし、
+  QGIS外での座標変換フォールバックが UnboundLocalError になる不具合を解消
+
+## [3.19.1] - 2026-10-24 README の概要を2サービス構成に再構成
+
+- README.md / README_JP.md の概要を書き換え、供給経路を2サービスとして説明:
+  「サーバレス供給（ファイルエクスポート）」= `.kasc`+`DATA/`/
+  `reearth.txt` のデータパッケージと、それを再生するプレイヤー
+  （KASUGAI Canvas Web 部分＝本命・OL/MapLibre 生成HTML＝経過措置・
+  geo_suite を載せた Re:Earth Visualizer）の組、「OGC 準拠サーバー」=
+  WMS/WMTS/XYZ/WFS によるライブデータの受け皿（データパッケージの
+  `xyz:`/`/wfs`/`/export-data/` 参照を解決）と外部 OGC クライアントへの
+  供給、生成ビューアの `/qgis-map`・`/maplibre` での配信
+
+## [3.19.0] - 2026-10-24 /kasugai 出力の対応レイヤ種別を拡大
+
+- `kasugai_export.py` で KASUGAI Canvas の対応行タイプに合わせて出力を拡大:
+  - CSV/TSV(delimitedtext・ogr) を `duckdb:` 行で出力(`format=`・
+    delimitedtext の xField/yField/wktField → `lon=`/`lat=`/`geom=`、
+    ogr CSV はヘッダから列推定)。delimitedtext で非地理座標系の場合は
+    GeoJSON 再投影に回す
+  - フィルタ(subsetString)付きレイヤ: GPKG は `gpkg:`+`where=`、
+    Parquet は `duckdb:`+`format=parquet`+`where=` でネイティブ参照の
+    ままフィルタ維持。GeoJSON/FGB は `where=` 非対応のためフィルタを
+    反映した GeoJSON 変換へ回す。`|` を含むフィルタは GeoJSON 変換
+  - `QgsTiledSceneLayer`(3D Tiles) を `3dtiles:` 行で出力。
+    http(s) は URL 参照、ローカル tileset はディレクトリごと DATA/ へ複製
+  - `file:///…/{z}/{x}/{y}.png` のローカル XYZ テンプレートは
+    タイルツリーごと DATA/ へ複製して `xyz:` 行(ローカルテンプレート)に
+  - ディレクトリ複製の上限は 1 GiB(超過は warnings + skipped)
+  - XYZ レイヤの不透明度 → `opacity=`、限定された範囲 → `bbox=` を出力
+  - 属性テーブルのみ(NoGeometry)のベクターは `skipped` に記録。
+    skipped の各エントリに種別/理由(例 `RasterLayer(wms)`)を付記
+- `sql:` 行は QGIS 側に任意クエリの相当ソースが無いため出力しない
+- **Re:Earth geo_suite 連携**: `export_kasugai_project` に `reearth_port`
+  引数を追加。HTTPサーバ起動中(`:8089`等)にポートを渡すと `reearth.txt`
+  (geo_suite inspector テキスト)を同時出力する。geo_suite が解釈する
+  `geojson:`/`parquet:`/`flatgeobuf:`/`duckdb:`/`xyz:`/`base:`/`3dtiles:`/
+  `cam:`/`style=` 行を生成(gpkg:/sql: は非対応のため GPKG は GeoJSON 変換)。
+  ローカルファイルは新エンドポイント `GET /export-data/<相対パス>`
+  (出力ディレクトリ配下のみ配信・トラバーサル拒否)経由の絶対URL参照
+- MapLibre/OpenLayers は `/wfs` GeoJSON(全ベクターレイヤ対象)+`/wmts`
+  全体描画で既に全レイヤ種別を網羅済み(変更不要)
+- SPEC.md / SPEC_JP.md §15 の生成規則表を更新、README の
+  「クエリ系記述は未出力」の記述を更新
+
 ## [3.18.1] - 2026-10-24 README の全体構成を見直し
 
 - README.md / README_JP.md を実装済みの連携先構成に合わせて再編成:

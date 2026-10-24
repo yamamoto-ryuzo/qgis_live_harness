@@ -195,11 +195,13 @@ class GeoWebViewBridge:
             "description":
                 "表示中レイヤをKASUGAI Canvasプロジェクト(.kasc+DATA/"
                 "+.qmlスタイル)として出力する。GPKG/GeoJSON/Parquet/FGB"
-                "ソースは変換せず参照、他ベクターはGeoJSON(4326)化。"
-                "起動中のKASUGAIローカルサーバ(port 8510)があれば外部"
-                "プロジェクト登録してブラウザで開く。open_app=Falseで"
-                "出力のみ。hidden_as_off=Trueで非表示レイヤもoff行として"
-                "出力。embed_gpkg_style=TrueでGPKGのlayer_stylesへも保存。",
+                "ソースは変換せず参照、CSV/TSVはduckdb:行、フィルタ付き"
+                "GPKGはwhere=付き、3D Tilesは3dtiles:行、他ベクターは"
+                "GeoJSON(4326)化。起動中のKASUGAIローカルサーバ(port 8510)"
+                "があれば外部プロジェクト登録してブラウザで開く。"
+                "open_app=Falseで出力のみ。hidden_as_off=Trueで非表示レイヤ"
+                "もoff行として出力。embed_gpkg_style=TrueでGPKGの"
+                "layer_stylesへも保存。",
             "example": {"method": "kasugaiExport", "args": []},
         },
         "wfsLayers": {
@@ -971,11 +973,13 @@ class GeoWebViewBridge:
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
         表示中のベクターレイヤを DATA/ へ出力し、.kasc(geojson:/gpkg:/
-        geoparquet:/flatgeobuf: 行+style=.qml・xyz:/base:行・cam:行)を
-        生成する。native_formats=True(既定)で GPKG/GeoJSON/Parquet/FGB
-        ソースは変換せずそのまま参照(ファイルはDATA/へコピー、URLは
-        そのまま記述)し、それ以外のベクターのみGeoJSON(EPSG:4326)へ
-        変換する。hidden_as_off=True で非表示レイヤも ``| off`` 付きで
+        geoparquet:/flatgeobuf:/duckdb: 行+style=.qml・3dtiles:・
+        xyz:/base:行・cam:行)を生成する。native_formats=True(既定)で
+        GPKG/GeoJSON/Parquet/FGB ソースは変換せずそのまま参照
+        (ファイルはDATA/へコピー、URLはそのまま記述)、CSV/TSVは
+        duckdb:行(lon=/lat=/geom=)、フィルタ付きGPKGは where=付き、
+        3D Tilesは3dtiles:行とし、それ以外のベクターのみ
+        GeoJSON(EPSG:4326)へ変換する。hidden_as_off=True で非表示レイヤも ``| off`` 付きで
         出力。embed_gpkg_style=True で GPKG レイヤのスタイルを
         layer_styles(useAsDefault)にも保存する(元ファイルへ書き込む)。
         出力先は output_dir または設定 kasugai_output_path
@@ -989,11 +993,15 @@ class GeoWebViewBridge:
         """
         from . import kasugai_export
         try:
+            srv = self._server()
+            port = (srv.get_server_port()
+                    if srv and srv.is_server_running() else None)
             result = kasugai_export.export_kasugai_project(
                 self._plugin.iface, out_dir=output_dir or None,
                 native_formats=bool(native_formats),
                 hidden_as_off=bool(hidden_as_off),
-                embed_gpkg_style=bool(embed_gpkg_style))
+                embed_gpkg_style=bool(embed_gpkg_style),
+                reearth_port=port)
         except Exception as e:
             return self._err(f"kasugai export failed: {e}")
         out = {
