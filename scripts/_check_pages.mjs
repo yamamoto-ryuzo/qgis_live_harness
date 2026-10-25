@@ -3,7 +3,7 @@ import { chromium } from 'playwright';
 const PORT = process.env.GWV_PORT || 8090;
 const pages = [
   ['present', `http://localhost:${PORT}/present`],
-  ['wfs-layers', `http://localhost:${PORT}/wfs-layers`],
+  ['screenshot', `http://localhost:${PORT}/screenshot`],
   ['debug-bookmarks', `http://localhost:${PORT}/debug-bookmarks`],
 ];
 

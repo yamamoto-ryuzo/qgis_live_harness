@@ -55,7 +55,8 @@ class GeoWebViewPanel(QDockWidget):
         super(GeoWebViewPanel, self).__init__(parent)
 
         # パネルのタイトルを設定
-        self.setWindowTitle("GeoWebView")
+        self.setWindowTitle(QCoreApplication.translate(
+            'geo_webview', "geo_webview — Web Distribution"))
 
         # ドッキングエリアを設定（左側を優先、右側も可能）
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea)
@@ -100,9 +101,11 @@ class GeoWebViewPanel(QDockWidget):
         # Google Maps/Earth用のUI要素
         self.pushButton_google_maps = getattr(self.ui, 'pushButton_google_maps', None)
         self.pushButton_google_earth = getattr(self.ui, 'pushButton_google_earth', None)
-        # KASUGAI Canvas エクスポートボタン
+        # KASUGAI Canvas エクスポート/起動ボタン・エンジン選択
         self.pushButton_kasugai_export = getattr(self.ui, 'pushButton_kasugai_export', None)
+        self.pushButton_kasugai_launch = getattr(self.ui, 'pushButton_kasugai_launch', None)
         self.pushButton_kasugai_folder = getattr(self.ui, 'pushButton_kasugai_folder', None)
+        self.comboBox_engine = getattr(self.ui, 'comboBox_engine', None)
         # HTTP server toggle checkbox (added to UI)
         self.checkBox_server_toggle = getattr(self.ui, 'checkBox_server_toggle', None)
         # External control checkbox (new in UI)
@@ -190,9 +193,25 @@ class GeoWebViewPanel(QDockWidget):
         # ラッパー関数ではなく QCoreApplication.translate を直接呼ぶこと
         from qgis.PyQt.QtCore import QCoreApplication
 
+        # タブタイトル
+        if getattr(self.ui, 'tabWidget_main', None) is not None:
+            for _name, _text in (
+                    ('tab_generate', "Generate"),
+                    ('tab_permalink', "Permalink"),
+                    ('tab_navigate', "Navigate"),
+                    ('tab_share', "Share")):
+                _page = getattr(self.ui, _name, None)
+                if _page is not None:
+                    _idx = self.ui.tabWidget_main.indexOf(_page)
+                    if _idx >= 0:
+                        self.ui.tabWidget_main.setTabText(
+                            _idx, QCoreApplication.translate('geo_webview', _text))
+
         # グループボックスのタイトル
+        if hasattr(self.ui, 'groupBox_webdist'):
+            self.ui.groupBox_webdist.setTitle(QCoreApplication.translate('geo_webview', "Web Distribution (Serverless)"))
         if hasattr(self.ui, 'groupBox_server'):
-            self.ui.groupBox_server.setTitle(QCoreApplication.translate('geo_webview', "HTTP Server Status"))
+            self.ui.groupBox_server.setTitle(QCoreApplication.translate('geo_webview', "HTTP Server"))
         if hasattr(self.ui, 'groupBox_generate'):
             self.ui.groupBox_generate.setTitle(QCoreApplication.translate('geo_webview', "Generate Permalink"))
         if hasattr(self.ui, 'groupBox_permalink'):
@@ -201,6 +220,10 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.groupBox_navigate.setTitle(QCoreApplication.translate('geo_webview', "Navigate to Location"))
 
         # ラベル
+        if hasattr(self.ui, 'label_webdist_info'):
+            self.ui.label_webdist_info.setText(QCoreApplication.translate('geo_webview', "Export the project as a .kasc+DATA/ package. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery."))
+        if hasattr(self.ui, 'label_engine'):
+            self.ui.label_engine.setText(QCoreApplication.translate('geo_webview', "Engine:"))
         if hasattr(self.ui, 'label_generate_info'):
             self.ui.label_generate_info.setText(QCoreApplication.translate('geo_webview', "Generate a permalink for the current map view"))
         if hasattr(self.ui, 'label_theme_selection'):
@@ -219,7 +242,32 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.pushButton_kasugai_export.setText(QCoreApplication.translate('geo_webview', "Export"))
             self.ui.pushButton_kasugai_export.setToolTip(QCoreApplication.translate(
                 'geo_webview',
-                "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs)"))
+                "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs) — files only"))
+        if hasattr(self.ui, 'pushButton_kasugai_launch'):
+            self.ui.pushButton_kasugai_launch.setText(QCoreApplication.translate('geo_webview', "▶ Open"))
+            self.ui.pushButton_kasugai_launch.setToolTip(QCoreApplication.translate(
+                'geo_webview',
+                "Export and open the project in the selected engine (registers with a running KASUGAI Canvas; falls back to local/hosted engines)"))
+        if hasattr(self.ui, 'comboBox_engine'):
+            self.ui.comboBox_engine.setToolTip(QCoreApplication.translate(
+                'geo_webview',
+                "Engine used by the Open button (the exported package plays on all engines)"))
+            # エンジン選択を itemData 付きで再構成(.ui 側の項目は上書き)
+            try:
+                current = self.ui.comboBox_engine.currentData()
+            except Exception:  # nosec B110  # 設計上の許容
+                current = None
+            self.ui.comboBox_engine.blockSignals(True)
+            self.ui.comboBox_engine.clear()
+            self.ui.comboBox_engine.addItem("Cesium (3D)", 'cesium')
+            self.ui.comboBox_engine.addItem("MapLibre", 'maplibre')
+            self.ui.comboBox_engine.addItem("OpenLayers", 'openlayers')
+            self.ui.comboBox_engine.addItem("Leaflet", 'leaflet')
+            if current:
+                idx = self.ui.comboBox_engine.findData(current)
+                if idx >= 0:
+                    self.ui.comboBox_engine.setCurrentIndex(idx)
+            self.ui.comboBox_engine.blockSignals(False)
         if hasattr(self.ui, 'pushButton_kasugai_folder'):
             self.ui.pushButton_kasugai_folder.setText('📁')
             self.ui.pushButton_kasugai_folder.setToolTip(
@@ -257,6 +305,10 @@ class GeoWebViewPanel(QDockWidget):
         if hasattr(self.ui, 'checkBox_external_control'):
             self.ui.checkBox_external_control.setText(QCoreApplication.translate('geo_webview', "External Control"))
             self.ui.checkBox_external_control.setToolTip(QCoreApplication.translate('geo_webview', "When enabled, map view can be updated by external URLs"))
+        # Server enable checkbox (HTTP Server グループ内)
+        if hasattr(self.ui, 'checkBox_server_toggle'):
+            self.ui.checkBox_server_toggle.setText(QCoreApplication.translate('geo_webview', "Enable"))
+            self.ui.checkBox_server_toggle.setToolTip(QCoreApplication.translate('geo_webview', "Start/stop the embedded HTTP server (/kasugai, /export-data/, /present, /screenshot)"))
 
     def update_server_status(self, port, running):
         """サーバーステータスを更新
@@ -347,7 +399,10 @@ class GeoWebViewPanel(QDockWidget):
 
         self.groupBox_sharing = group
         try:
-            layout = self.widget.layout()
+            # タブ化されている場合は Share タブ内へ、無ければメインレイアウト末尾へ
+            _tab = getattr(self.ui, 'tab_share', None)
+            layout = (_tab.layout() if _tab is not None
+                      else self.widget.layout())
             if layout is not None:
                 layout.addWidget(group)
         except Exception:  # nosec B110  # 設計上の許容

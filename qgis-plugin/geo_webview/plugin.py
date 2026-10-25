@@ -349,6 +349,31 @@ class GeoWebView:
                     _folder_btn.clicked.connect(
                         lambda checked=False: self.on_kasugai_open_folder())
 
+                # Web配信: 選択エンジンでエクスポート→登録→ブラウザ起動するボタン
+                _launch_btn = getattr(
+                    self.panel, 'pushButton_kasugai_launch', None)
+                if _launch_btn is not None:
+                    _launch_btn.clicked.connect(
+                        lambda checked=False: self.on_kasugai_launch_clicked())
+                    print("KASUGAI launch button connected")
+
+                # エンジン選択コンボ: 前回値の復元と保存
+                _engine_combo = getattr(
+                    self.panel, 'comboBox_engine', None)
+                if _engine_combo is not None:
+                    try:
+                        from qgis.PyQt.QtCore import QSettings
+                        _saved = str(QSettings('GeoWebView', 'geo_webview').value(
+                            'kasugai_engine', '') or '')
+                        _idx = _engine_combo.findData(_saved) if _saved else -1
+                        _engine_combo.blockSignals(True)
+                        _engine_combo.setCurrentIndex(_idx if _idx >= 0 else 0)
+                        _engine_combo.blockSignals(False)
+                        _engine_combo.currentIndexChanged.connect(
+                            self.on_engine_combo_changed)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+
                 # Check Access ボタンのイベントを接続
                 if hasattr(self.panel, 'pushButton_check_access'):
                     self.panel.pushButton_check_access.clicked.connect(self.on_check_access_clicked)
@@ -1414,7 +1439,7 @@ class GeoWebView:
                         except Exception:
                             raise
 
-            # HTTP形式のURLを処理（新しいWMS形式と古い形式の両方をサポート）
+            # HTTP形式のURLを処理（/qgis-map形式と旧/wms形式の両方をサポート）
             # NOTE: 以前は 'http://localhost:' で始まるURLのみ内部ナビゲーションと見なしていましたが
             # ローカルネットワークのIPやホスト名から来る場合も利用されるため、ホスト名に依存せず
             # スキームが http(s) でパスに /wms または /qgis-map を含む場合は内部ナビゲーションとして扱います。
@@ -2177,6 +2202,61 @@ class GeoWebView:
             self.iface.messageBar().pushMessage(
                 "geo_webview",
                 self.tr("KASUGAI export error: {0}").format(e),
+                duration=5)
+
+    def on_engine_combo_changed(self, index):
+        """Web配信パネルのエンジン選択を QSettings に保存する。"""
+        try:
+            from qgis.PyQt.QtCore import QSettings
+            combo = getattr(self.panel, 'comboBox_engine', None)
+            if combo is None:
+                return
+            engine = combo.itemData(index) or 'cesium'
+            QSettings('GeoWebView', 'geo_webview').setValue(
+                'kasugai_engine', engine)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    def on_kasugai_launch_clicked(self):
+        """パネル版：選択エンジンで エクスポート→Canvas登録→ブラウザ起動 まで
+        一発で行う。bridge の kasugaiExport(open_app=True) を利用し、
+        kasugai/qgis-http/hosted の3段フォールバックもそのまま働く。"""
+        try:
+            engine = 'cesium'
+            combo = getattr(self.panel, 'comboBox_engine', None)
+            if combo is not None and combo.currentData():
+                engine = combo.currentData()
+            if self.bridge is None:
+                from .bridge import GeoWebViewBridge
+                self.bridge = GeoWebViewBridge(self)
+            res = json.loads(
+                self.bridge.kasugaiExport(engine=engine, open_app=True)
+                or '{}')
+            if not res.get('ok'):
+                self.iface.messageBar().pushMessage(
+                    "geo_webview",
+                    self.tr("KASUGAI export failed: {0}").format(
+                        res.get('error', 'unknown error')),
+                    duration=6)
+                return
+            url = res.get('url')
+            if url:
+                self.iface.messageBar().pushMessage(
+                    "geo_webview",
+                    self.tr("Opened the project in {0} ({1}): {2}").format(
+                        engine, res.get('via') or '-', url),
+                    duration=8)
+            else:
+                self.iface.messageBar().pushMessage(
+                    "geo_webview",
+                    self.tr("Exported to {0}. No engine available — "
+                            "open the .kasc file in KASUGAI Canvas.").format(
+                        res.get('dir', '')),
+                    duration=8)
+        except Exception as e:
+            self.iface.messageBar().pushMessage(
+                "geo_webview",
+                self.tr("KASUGAI launch error: {0}").format(e),
                 duration=5)
 
     def on_present_clicked_panel(self):

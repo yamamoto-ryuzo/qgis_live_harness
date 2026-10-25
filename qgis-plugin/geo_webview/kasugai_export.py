@@ -109,7 +109,7 @@ _ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
     u.search = ""; u.hash = "";
     var seg = u.pathname.replace(/[/]+$/, "").split("/").pop().toLowerCase();
     if (ENGINES.indexOf(seg) >= 0) {
-      u.pathname = u.pathname.replace(/[^/]+\/?$/, ENGINE + "/");
+      u.pathname = u.pathname.replace(/[^/]+[/]?$/, ENGINE + "/");
       return u.href;
     }
     return new URL(ENGINE + "/", u).href;
@@ -150,7 +150,7 @@ _ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
         // このフォルダ名を dirhint として渡し、ホスト版の選択UIで案内する
         var dirName = "";
         try {
-          dirName = decodeURIComponent(location.pathname.replace(/\/[^/]*$/, "")
+          dirName = decodeURIComponent(location.pathname.replace(/[/][^/]*$/, "")
             .split("/").filter(Boolean).pop() || "");
         } catch (e) {}
         location.href = engineBase(base) + "?kasc=local" +

@@ -2,17 +2,17 @@
 name = geo_webview
 qgisMinimumVersion = 4.0
 qgisMaximumVersion = 4.99
-description = Navigate QGIS map views through external permalink system; includes WMS/WMTS/WFS (OGC) endpoints and KASUGAI Canvas project export/launch (Cesium/OpenLayers/MapLibre/Leaflet)
-version = 3.28.0
+description = Serverless web distribution of QGIS projects — export .kasc+DATA/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet); permalinks and an embedded HTTP server
+version = 3.29.0
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
 supportsQt6 = True
-about = geo_webview は QGIS を軽量な OGC サーバー（WMS/WMTS/WFS）として起動し、QGIS の地図表示状態を外部から復元するパーマリンク機能を提供します。ドッキング可能なパネルからサーバーを起動し、`/wms`、`/wmts`、`/wfs`、`/maplibre-style`、`/kasugai` 等のエンドポイントを公開します。表示中レイヤは .kasc プロジェクトとして KASUGAI Canvas（Cesium/OpenLayers/MapLibre/Leaflet）で起動できます。詳細な使用法・ユースケースは `README_JP.md` を参照してください。
-about[en] = geo_webview enables instant conversion of QGIS projects into lightweight OGC-compliant map services (WMS/WMTS/WFS) and provides permalink-based navigation of full map states (center, zoom, layer visibility, themes, styles). The plugin runs an embedded HTTP server exposing endpoints such as `/wms`, `/wmts`, `/wfs`, `/maplibre-style` and `/kasugai`. Visible layers can be exported as a .kasc project and launched in KASUGAI Canvas (Cesium/OpenLayers/MapLibre/Leaflet). See README.md / README_JP.md for usage details and deployment scenarios.
+about = geo_webview は開いている QGIS プロジェクトを `.kasc`+`DATA/` パッケージに出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet）で再生する、QGIS のサーバレス Web 配信プラグインです。出力物は静的ホスティングだけで配信できます。パネルの `Export`（ファイル出力）/`▶ Open`（エンジン選択付きで登録・起動）に加え、`/kasugai`・bridge `kasugaiExport` からも呼べます。補助として内蔵 HTTP サーバーが `/export-data/` 配信・`/present`/`/screenshot` 画面共有・パーマリンク受領を提供します。詳細は `README_JP.md` を参照してください。
+about[en] = geo_webview is a serverless web distribution plugin for QGIS: it exports the open project as a `.kasc`+`DATA/` package playable on the KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet), and the output runs on plain static hosting. Available from the panel (`Export` = files only, `▶ Open` = pick an engine, register and launch) as well as `/kasugai` and the `kasugaiExport` bridge. The embedded HTTP server additionally provides `/export-data/` delivery, `/present`/`/screenshot` canvas sharing and permalink reception. See README.md / README_JP.md for usage details and deployment scenarios.
 tracker = https://github.com/yamamoto-ryuzo/qgis_live_harness/issues
 repository = https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview
 homepage = https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview
-tags = permalink,navigation,map,view,link,external,document,excel,pdf,theme,layer,state,style,google,maps,earth,integration,wms,wmts,openlayers,maplibre,webmap,server,http,remote,gis,wms-server,openlayers-map,geo_suite,ogc
+tags = permalink,navigation,map,view,link,external,document,excel,pdf,theme,layer,state,style,google,maps,earth,integration,openlayers,maplibre,webmap,server,http,remote,gis,openlayers-map,geo_suite,cesium,kasugai
 category = Plugins
 license = GPL-3.0
 icon = icon.png
@@ -20,6 +20,7 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 3.29.0: パネルを「Web配信(サーバレス)」最上段の構成へ刷新(エンジン選択コンボ+「▶ Open」で出力→登録→ブラウザ起動、サーバーON/OFFをサーバーグループへ集約)。README/SPECをサーバレスWeb配信・マルチエンジン主軸で再構築。OGCサーバー(WMS/WMTS/XYZ/WFS・/maplibre-style)を全撤去しサーバレス配信へ完全移行(/kasugai・/export-data/・/present・/screenshot・パーマリンクは継続、bridge `wfsLayers` 廃止)。OGC(WMS/WMTS/WFS)サービスは廃止
 	- 3.24.0: プラグイン内生成ビューア(OpenLayers /qgis-map・MapLibre /maplibre・OL+Cesium /map3d)を廃止。パネルにKASUGAI Canvas 4エンジン(Cesium/OpenLayers/MapLibre/Leaflet)起動ボタンを追加し、`/kasugai`・bridge `kasugaiExport`/`openExternal` で engine 指定可能に
 	- 3.17.4: サイトスキャン指摘対応(subprocess/random/saxutilsの # nosec・html.escape化)
 	- 3.17.3: try/except/pass|continue の # nosec 明示(B110/B112)

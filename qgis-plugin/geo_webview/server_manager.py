@@ -4,60 +4,26 @@ import threading
 import time
 import urllib.parse
 import json
-import html
 import os
 import re
 import concurrent.futures
 from collections import deque
 from datetime import datetime
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.PyQt.QtGui import QColor
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY, QgsMessageLog, Qgis
-from .i18n_json import catalog, lang_code
+from .i18n_json import lang_code
 # lazy import http_server inside methods to avoid circular import during QGIS plugin init
-
-# 生成HTMLページのラベル(i18n/<lang>.json の "geo_webview.page" context
-# に翻訳を登録。未登録は英語にフォールバック)
-_PAGE_CONTEXT = 'geo_webview.page'
-_PAGE_EN = {
-    'title': 'QMap Permalink - Map View',
-    'subtitle': 'Integrated map view by the QGIS plugin - using WMS endpoint',
-    'map_info': '📍 Map Information',
-    'center_x': 'Center (X)',
-    'center_y': 'Center (Y)',
-    'scale': 'Scale',
-    'crs': 'CRS',
-    'rotation': 'Rotation',
-    'image_size': 'Image Size',
-    'controls': '🔧 Controls',
-    'wms_image': '📷 Show WMS Image',
-    'refresh': '🔄 Refresh Map',
-    'copy_link': '🔗 Copy Permalink',
-    'tip_rotate': 'Rotate with north up',
-    'tip_reset': 'Reset north',
-    'copied': 'Permalink copied to clipboard!',
-    'err_title': 'QMap Permalink - Error',
-    'err_failed': 'Failed to generate the permalink page',
-    'back': '🔙 Back',
-    'home': '🏠 Home',
-}
-
-
-def _page_strings():
-    """生成HTMLページのラベル辞書を返す。"""
-    lang = lang_code()
-    page = catalog(os.path.dirname(os.path.abspath(__file__)),
-                   lang).get(_PAGE_CONTEXT, {})
-    strings = {key: page.get(en) or en for key, en in _PAGE_EN.items()}
-    strings['lang'] = lang if page else 'en'
-    return strings
 
 
 class GeoWebViewServerManager:
-    """geo_webview用HTTPサーバー管理クラス - WMS専用シンプル版
+    """geo_webview用HTTPサーバー管理クラス
 
-    WMSサーバーの起動・停止・リクエスト処理を担当します。
-    不要なエンドポイント（画像、マップ、タイル）は全て削除されています。
+    内蔵HTTPサーバーの起動・停止・リクエスト処理を担当します。
+    提供エンドポイント: /kasugai(.kascエクスポート)、/export-data/、
+    /present・/present/state・/screenshot(画面共有)、/received(受領履歴)、
+    /<engine>/(KASUGAI Canvas web/ 静的フォールバック)。
+    /qgis-map・旧形式/wms のパーマリンクURLは受領履歴とExternal Control
+    ナビゲートのトリガとしてのみ扱います。
     """
 
     @staticmethod
@@ -114,55 +80,6 @@ class GeoWebViewServerManager:
         self.navigation_signals = navigation_signals
         self.main_plugin = main_plugin
 
-        # WMSサービスを初期化
-        from .wms_service import GeoWebViewWMSService
-        self.wms_service = GeoWebViewWMSService(iface, 8089, False)
-        # WMTSサービスを初期化（サーバマネージャ自身を渡すことで依存を小さくする）
-        try:
-            from .wmts_service import GeoWebViewWMTSService
-            self.wmts_service = GeoWebViewWMTSService(self)
-        except Exception:
-            # 初期化が失敗してもサーバは動作を続けられるように None を許容
-            # ただし失敗理由はログに出しておく (QGIS のメッセージログが使える場合)
-            try:
-                import traceback
-                from qgis.core import QgsMessageLog, Qgis
-                QgsMessageLog.logMessage(
-                    f"WMTS service initialization failed: {traceback.format_exc()}",
-                    "geo_webview",
-                    Qgis.MessageLevel.Warning
-                )
-            except Exception:
-                # 最低限コンソールには表示
-                try:
-                    import sys
-                    import traceback
-                    sys.stderr.write('WMTS init failed:\n')
-                    traceback.print_exc()
-                except Exception:  # nosec B110  # 設計上の許容
-                    pass
-            self.wmts_service = None
-        # Track last known WMTS identity to avoid unnecessary work
-        self._last_wmts_identity_short = None
-        self._last_wmts_identity_raw = None
-        self._layer_change_timer = None
-
-        # Attach layer-tree signals (best-effort) so that when visible layers change
-        # we can ensure a new WMTS identity folder/meta is created. This is defensive
-        # and will try multiple common signal names used in different QGIS versions.
-        try:
-            self._attach_layer_tree_hooks()
-        except Exception:  # nosec B110  # 設計上の許容
-            pass
-
-        # WFSサービスを初期化
-        try:
-            from .wfs_service import GeoWebViewWFSService
-            self.wfs_service = GeoWebViewWFSService(iface, 8089)
-        except Exception:
-            # 初期化が失敗してもサーバは動作を続けられるように None を許容
-            self.wfs_service = None
-
         # HTTPサーバー関連の状態
         self.http_server = None
         self.server_thread = None
@@ -180,17 +97,14 @@ class GeoWebViewServerManager:
 
         # プラグインバージョン情報
         self.plugin_version = self._get_plugin_version()
-        # 任意のCRSを強制的にEPSG:3857として扱うオプション（デフォルト: False）
-        self.force_epsg3857 = False
-
         # クライアントから受領したパーマリンク履歴(最新10件)
         # 要素: {'url','client','ua','time'}
         self.received_history = deque(maxlen=10)
         # MACアドレス解決キャッシュ {ip: (set_of_macs, epoch)}
         self._mac_cache = {}
         # 独立レンダラ(QgsMapRendererParallelJob)の同時実行はQGISクラッシュを
-        # 引き起こすため直列化する(WMSサービスと共有して全経路を一本化)
-        self._render_lock = getattr(self.wms_service, '_render_lock', None) or threading.Lock()
+        # 引き起こすため直列化する(/screenshot の複製描画で使用)
+        self._render_lock = threading.Lock()
         # KASUGAIエクスポートは同一出力先へ書き込むため同時実行を直列化する
         self._kasugai_lock = threading.Lock()
 
@@ -277,10 +191,10 @@ class GeoWebViewServerManager:
             self.server_thread.start()
 
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"🚀 QMap Permalink v{self.plugin_version} WMS HTTP server started: http://localhost:{self.server_port}/wms", "geo_webview", Qgis.MessageLevel.Info)
+            QgsMessageLog.logMessage(f"🚀 geo_webview v{self.plugin_version} HTTP server started: http://localhost:{self.server_port}", "geo_webview", Qgis.MessageLevel.Info)
             self.iface.messageBar().pushMessage(
                 "QMap Permalink",
-                QCoreApplication.translate("geo_webview", "WMS HTTP server started (port: {0})").format(self.server_port),
+                QCoreApplication.translate("geo_webview", "HTTP server started (port: {0})").format(self.server_port),
                 duration=3
             )
 
@@ -399,7 +313,7 @@ class GeoWebViewServerManager:
                 pass
 
     def _handle_client_connection(self, conn, addr):
-        """HTTPリクエストを解析してWMSリクエストを処理"""
+        """HTTPリクエストを解析して各エンドポイントへ振り分ける"""
         # 初期タイムアウト設定（リクエスト読み取り用）
         conn.settimeout(10.0)
 
@@ -455,8 +369,8 @@ class GeoWebViewServerManager:
 
             parsed_url = urllib.parse.urlparse(target)
             params = urllib.parse.parse_qs(parsed_url.query)
-            # OGCパラメータ名は大小区別なし(Cesium等は小写で送る)ため、
-            # 大写エイリアスを補完する。既存キーは上書きしない
+            # パラメータ名は大小区別なしで受け付ける(小写で送る
+            # クライアント対応のため大写エイリアスを補完)。既存キーは上書きしない
             for key in list(params):
                 key_up = key.upper()
                 if key_up != key and key_up not in params:
@@ -494,13 +408,14 @@ class GeoWebViewServerManager:
                         'geo_webview', Qgis.MessageLevel.Warning)
                 return
 
-            # ブラウザ/外部クライアントからパーマリンクURL（/qgis-map）を
-            # 受け取ったときだけパネルのナビゲート欄に表示するためにemitする。
+            # ブラウザ/外部クライアントからパーマリンクURL（/qgis-map、
+            # 旧形式の /wms パーマリンクも互換のため含む）を受け取ったときだけ
+            # パネルのナビゲート欄に表示するためにemitする。
             # ただしパネル側から生成した自前のページ遷移(internal=1付与)は
             # ナビゲート欄の上書き・受領履歴の対象外とする。
             try:
                 is_internal = 'internal' in params
-                if parsed_url.path in ('/qgis-map',):
+                if parsed_url.path in ('/qgis-map', '/wms'):
                     server_port = None
                     try:
                         server_port = self.http_server.getsockname()[1] if self.http_server else self.server_port
@@ -550,251 +465,6 @@ class GeoWebViewServerManager:
             except Exception:  # nosec B110  # 設計上の許容
                 pass
 
-            # WMSエンドポイントの処理（直接PNG画像返却）
-            if parsed_url.path == '/wms':
-                try:
-                    self.wms_service.handle_wms_request(conn, params, host)
-                except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ WMS handler error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-                    import traceback
-                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
-                    from . import http_server
-                    http_server.send_http_response(conn, 500, "Internal Server Error", f"WMS processing failed: {str(e)}")
-                return
-
-            if parsed_url.path in ('/maplibre-style', '/maplibre/style'):
-                try:
-                    # Determine typename (support several param names)
-                    wfs_typename = None
-                    for k in ('typename', 'typenames', 'TYPENAME', 'TYPENAMES', 'layer', 'layers', 'type', 'typeName'):
-                        if k in params and params.get(k):
-                            wfs_typename = params.get(k)[0]
-                            break
-
-                    # If no typename specified, return a base WMTS-only style (no WFS layers)
-                    if not wfs_typename:
-                        # Use the same IDs as the full style path to keep UI toggles consistent
-                        # 動的ホスト名を使用（外部アクセス対応）
-                        base_url = f"http://{host}" if host else f"http://localhost:{self.server_port}"
-                        wmts_tile_url = f"{base_url}/wmts/{{z}}/{{x}}/{{y}}.png"
-                        wmts_base_style = {
-                            "version": 8,
-                            "sources": {
-                                "qmap": {
-                                    "type": "raster",
-                                    "tiles": [wmts_tile_url],
-                                    "tileSize": 256
-                                }
-                            },
-                            "layers": [
-                                {
-                                    "id": "qmap",
-                                    "type": "raster",
-                                    "source": "qmap",
-                                    "minzoom": 0,
-                                    "maxzoom": 22,
-                                    "layout": {"visibility": "visible"}
-                                }
-                            ]
-                        }
-                        payload = json.dumps(wmts_base_style, ensure_ascii=False)
-                        from . import http_server
-                        http_server.send_http_response(conn, 200, 'OK', payload, 'application/json; charset=utf-8')
-                        return
-
-                    # Ensure WFS service exists
-                    if not hasattr(self, 'wfs_service') or self.wfs_service is None:
-                        from . import http_server
-                        http_server.send_http_response(conn, 501, 'Not Implemented', 'WFS service not available', 'text/plain; charset=utf-8')
-                        return
-
-                    # Find layer and try several matching strategies
-                    layer = None
-                    try:
-                        layer = self.wfs_service._find_layer_by_name(wfs_typename)
-                    except Exception:
-                        layer = None
-
-                    if layer is None:
-                        # Strict policy: typename must be the exact QGIS layer.id()
-                        try:
-                            cands = self.wfs_service._get_vector_layers()
-                        except Exception:
-                            cands = []
-                        cand_ids = []
-                        for c in cands:
-                            try:
-                                cand_ids.append(c.id())
-                            except Exception:  # nosec B112  # 設計上の許容
-                                continue
-                        body = {
-                            'error': f"Layer '{wfs_typename}' not found",
-                            'available_typenames': cand_ids
-                        }
-                        payload = json.dumps(body, ensure_ascii=False, indent=2)
-                        from . import http_server
-                        http_server.send_http_response(conn, 404, 'Not Found', payload, 'application/json; charset=utf-8')
-                        return
-
-                    # Convert QGIS layer style directly to Mapbox layers using QGIS API
-                    try:
-                        from .maplibre.qmap_maplibre_wfs import qgis_layer_to_maplibre_style
-                        # create safe source id based on the QGIS layer id (canonical)
-                        try:
-                            raw_id = layer.id()
-                        except Exception:
-                            raw_id = str(wfs_typename)
-                        # Use the QGIS layer's raw id as the canonical typename and
-                        # as the MapLibre source id. Do NOT prefix with 'wfs_'.
-                        # We intentionally keep the raw layer.id() (including
-                        # hyphens or leading underscores) to preserve one-to-one
-                        # correspondence with QGIS objects.
-                        _wfs_source_id = str(raw_id)
-                        mapbox_layers = qgis_layer_to_maplibre_style(raw_id, _wfs_source_id)
-                        try:
-                            from qgis.core import QgsMessageLog, Qgis
-                            QgsMessageLog.logMessage(f'🎨 Converted to {len(mapbox_layers)} Mapbox layers: {[ml.get("id") for ml in mapbox_layers if isinstance(ml, dict)]}', 'QMapPermalink', Qgis.MessageLevel.Info)
-                        except Exception:  # nosec B110  # 設計上の許容
-                            pass
-                    except Exception as e:
-                        from . import http_server
-                        http_server.send_http_response(conn, 500, 'Internal Server Error', f'Failed to convert layer style: {e}', 'text/plain; charset=utf-8')
-                        return
-
-                    # Build MapLibre style JSON with WMTS base and WFS vector layers
-                    # Build style dict
-                    # Use complete URL for tile template (MapLibre requires absolute URLs)
-                    # 動的ホスト名を使用（外部アクセス対応）
-                    base_url = f"http://{host}" if host else f"http://localhost:{self.server_port}"
-                    tile_template = f'{base_url}/wmts/{{z}}/{{x}}/{{y}}.png'
-
-                    # Ensure all mapbox_layers have explicit visibility set to 'visible'
-                    # so that client-side controls can toggle them properly
-                    try:
-                        for ml in mapbox_layers:
-                            if isinstance(ml, dict):
-                                if 'layout' not in ml:
-                                    ml['layout'] = {}
-                                if 'visibility' not in ml.get('layout', {}):
-                                    ml['layout']['visibility'] = 'visible'
-                    except Exception:  # nosec B110  # 設計上の許容
-                        pass
-
-                    style_dict = {
-                        'version': 8,
-                        # use canonical QGIS layer id for the style name (must match typename)
-                        'name': str(raw_id) if layer is not None else str(wfs_typename),
-                        'glyphs': 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
-                        'sources': {
-                            'qmap': {
-                                'type': 'raster',
-                                'tiles': [tile_template],
-                                'tileSize': 256,
-                                'attribution': 'QMapPermalink WMTS'
-                            },
-                            _wfs_source_id: {
-                                'type': 'geojson',
-                                'data': f"{base_url}/wfs?SERVICE=WFS&REQUEST=GetFeature&TYPENAMES={urllib.parse.quote(str(raw_id))}&OUTPUTFORMAT=application/json&MAXFEATURES=1000"
-                            }
-                        },
-                        'layers': [
-                            {'id': 'qmap', 'type': 'raster', 'source': 'qmap', 'minzoom': 0, 'layout': {'visibility': 'visible'}}
-                        ] + mapbox_layers
-                    }
-                    payload = json.dumps(style_dict, ensure_ascii=False, indent=2)
-                    from . import http_server
-                    http_server.send_http_response(conn, 200, 'OK', payload, 'application/json; charset=utf-8')
-                    return
-                except Exception as e:
-                    from . import http_server
-                    http_server.send_http_response(conn, 500, 'Internal Server Error', f'Error in maplibre-style handler: {e}', 'text/plain; charset=utf-8')
-                    return
-
-            # WMTS/XYZ endpoint: delegate to qmap_wmts_service for GetCapabilities and tiles
-            if parsed_url.path.startswith('/wmts') or parsed_url.path.startswith('/xyz'):
-                try:
-                    # lazily create service if missing
-                    if not hasattr(self, 'wmts_service') or self.wmts_service is None:
-                        try:
-                            from .wmts_service import GeoWebViewWMTSService
-                            self.wmts_service = GeoWebViewWMTSService(self)
-                        except Exception:
-                            # Log import/instantiation failure so operator can diagnose
-                            try:
-                                import traceback
-                                from qgis.core import QgsMessageLog, Qgis
-                                QgsMessageLog.logMessage(
-                                    f"Lazy WMTS service creation failed: {traceback.format_exc()}",
-                                    "geo_webview",
-                                    Qgis.MessageLevel.Warning
-                                )
-                            except Exception:
-                                try:
-                                    import sys
-                                    import traceback
-                                    sys.stderr.write('Lazy WMTS creation failed:\n')
-                                    traceback.print_exc()
-                                except Exception:  # nosec B110  # 設計上の許容
-                                    pass
-                            self.wmts_service = None
-
-                    if self.wmts_service:
-                        self.wmts_service.handle_wmts_request(conn, parsed_url, params, host)
-                    else:
-                        from . import http_server
-                        http_server.send_http_response(conn, 501, 'Not Implemented', 'WMTS service not available')
-                except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ WMTS delegation error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-                    import traceback
-                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
-                    from . import http_server
-                    http_server.send_http_response(conn, 500, "Internal Server Error", f"WMTS processing failed: {str(e)}")
-                return
-
-            # Lightweight JSON endpoint to list publishable WFS vector layers
-            if parsed_url.path == '/wfs-layers':
-                try:
-                    self._handle_wfs_layers(conn, params)
-                except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ wfs-layers handler error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-                    import traceback
-                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
-                    from . import http_server
-                    http_server.send_http_response(conn, 500, "Internal Server Error", f"wfs-layers failed: {str(e)}")
-                return
-
-            # WFS endpoint: delegate to qmap_wfs_service for GetCapabilities, GetFeature, DescribeFeatureType, and GetStyles
-            if parsed_url.path.startswith('/wfs') or ('SERVICE' in params and params.get('SERVICE', [''])[0].upper() == 'WFS'):
-                try:
-                    # lazily create service if missing
-                    if not hasattr(self, 'wfs_service') or self.wfs_service is None:
-                        try:
-                            from .wfs_service import GeoWebViewWFSService
-                            self.wfs_service = GeoWebViewWFSService(self.iface, self.server_port)
-                        except Exception:
-                            self.wfs_service = None
-
-                    if self.wfs_service:
-                        # QMapPermalinkWFSService.handle_wfs_request expects (conn, params, host)
-                        # (not parsed_url). Pass parameters accordingly.
-                        try:
-                            self.wfs_service.handle_wfs_request(conn, params, host)
-                        except TypeError:
-                            # Defensive fallback for older/alternate signatures that accept parsed_url
-                            try:
-                                self.wfs_service.handle_wfs_request(conn, parsed_url, params, host)
-                            except Exception:
-                                raise
-                    else:
-                        from . import http_server
-                        http_server.send_http_response(conn, 501, 'Not Implemented', 'WFS service not available')
-                except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ WFS delegation error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-                    import traceback
-                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
-                    from . import http_server
-                    http_server.send_http_response(conn, 500, "Internal Server Error", f"WFS processing failed: {str(e)}")
-                return
             if parsed_url.path == '/debug-bookmarks':
                 try:
                     if hasattr(self, '_handle_debug_bookmarks') and callable(getattr(self, '_handle_debug_bookmarks')):
@@ -935,12 +605,11 @@ class GeoWebViewServerManager:
             # 未対応のエンドポイントは404エラー
             QgsMessageLog.logMessage(f"❌ Unknown endpoint: {parsed_url.path}", "geo_webview", Qgis.MessageLevel.Warning)
             from . import http_server
-            # 明示的に利用可能なエンドポイント一覧に /wmts と /wfs を含める
             http_server.send_http_response(
                 conn,
                 404,
                 "Not Found",
-                "Available endpoints: /wms (PNG image), /present (shared canvas view), /present/state (canvas JSON), /screenshot (canvas PNG), /received (permalink history), /kasugai (KASUGAI Canvas export), /export-data/<rel> (export files), /maplibre-style (Mapbox style JSON for WFS), /wmts (WMTS tiles), /wfs (WFS service), /<engine>/ (KASUGAI Canvas web static fallback)"
+                "Available endpoints: /present (shared canvas view), /present/state (canvas JSON), /screenshot (canvas PNG), /received (permalink history), /kasugai (KASUGAI Canvas export), /export-data/<rel> (export files), /<engine>/ (KASUGAI Canvas web static fallback)"
             )
             return
 
@@ -1140,8 +809,8 @@ class GeoWebViewServerManager:
         ms.setOutputSize(QSize(w, h))
         image = None
         try:
-            if self.wms_service is not None:
-                image = self.wms_service._execute_parallel_rendering(ms)
+            with self._render_lock:
+                image = self._render_map_settings(ms)
         except Exception:
             image = None
         if image is None or image.isNull():
@@ -1163,13 +832,40 @@ class GeoWebViewServerManager:
         http_server.send_binary_response(
             conn, 200, 'OK', data, 'image/png')
 
+    def _render_map_settings(self, map_settings, timeout_s=30):
+        """QgsMapRendererParallelJob で map_settings を複製描画して QImage を返す。
+
+        /screenshot 用。GUIスレッドをブロックしないようイベントループで
+        待機し、timeout_s 秒でタイムアウトする。呼び出し側で
+        self._render_lock を取得して直列化すること。
+        """
+        from qgis.core import QgsMapRendererParallelJob
+        from qgis.PyQt.QtCore import QEventLoop, QTimer
+
+        render_job = QgsMapRendererParallelJob(map_settings)
+        loop = QEventLoop()
+        render_job.finished.connect(loop.quit)
+        render_job.start()
+        timer = QTimer()
+        timer.timeout.connect(loop.quit)
+        timer.setSingleShot(True)
+        timer.start(int(timeout_s * 1000))
+        loop.exec()
+        if render_job.isActive():
+            render_job.cancel()
+            return None
+        image = render_job.renderedImage()
+        if image is None or image.isNull():
+            return None
+        return image
+
     def _handle_present_page(self, conn, params):
         """地図キャンバスのウィンドウ共有ページ(/screenshot定期更新)を返す。"""
         from . import http_server
         interval = self._safe_int(params.get('interval', [1500])[0], 1500)
         if interval < 250:
             interval = 250
-        S = _page_strings()
+        lang = lang_code() or 'en'
         html_page = u'''<!doctype html>
 <html lang="{lang}">
 <head>
@@ -1212,7 +908,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
 }})();
 </script>
 </body>
-</html>'''.format(lang=S.get('lang', 'en'), interval=interval)
+</html>'''.format(lang=lang, interval=interval)
         http_server.send_http_response(
             conn, 200, 'OK', html_page, 'text/html; charset=utf-8')
 
@@ -1537,338 +1233,6 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             from . import http_server
             http_server.send_http_response(conn, 500, 'Internal Server Error', f'{{"error": "{str(e)}"}}', 'application/json; charset=utf-8')
 
-    def _handle_wfs_layers(self, conn, params=None):
-        """Return a JSON list of vector layers that can be exposed via WFS.
-
-        Each item contains: name (normalized for TYPENAME), title, crs, bbox (WGS84)
-        Supports query param 'only-visible' (1/true/yes) to return only layers
-        currently visible in the map canvas.
-        """
-        try:
-            from qgis.core import QgsProject, QgsVectorLayer, QgsCoordinateReferenceSystem, QgsCoordinateTransform
-            layers_list = []
-
-            # parse only-visible param
-            only_visible = False
-            try:
-                if params:
-                    val = params.get('only-visible', params.get('only_visible', params.get('visible', [''])))[0]
-                    if isinstance(val, str) and val.lower() in ('1', 'true', 'yes', 'on'):
-                        only_visible = True
-            except Exception:
-                only_visible = False
-
-            visible_ids = None
-            if only_visible:
-                try:
-                    canvas = self.iface.mapCanvas()
-                    if canvas:
-                        layer_tree_root = QgsProject.instance().layerTreeRoot()
-                        visible_ids = set()
-                        for lay in canvas.layers():
-                            try:
-                                lnode = layer_tree_root.findLayer(lay.id())
-                                if lnode is not None and lnode.isVisible():
-                                    visible_ids.add(lay.id())
-                            except Exception:  # nosec B112  # 設計上の許容
-                                continue
-                except Exception:
-                    visible_ids = None
-
-            # Prefer project-level WFSLayers entry if present (QGIS project OWS/WFS export list)
-            project = QgsProject.instance()
-            try:
-                wfs_ids, ok = project.readListEntry('WFSLayers', '/')
-            except Exception:
-                wfs_ids, ok = ([], False)
-
-            # Determine which layer ids to iterate: require WFSLayers to be present
-            if ok and wfs_ids:
-                candidate_ids = [str(i) for i in wfs_ids]
-            else:
-                # No WFSLayers defined in project -> per request, do NOT fallback to all layers.
-                import json
-                payload = json.dumps({'layers': []}, ensure_ascii=False)
-                from . import http_server
-                http_server.send_http_response(conn, 200, 'OK', payload, 'application/json; charset=utf-8')
-                return
-
-            for lid in candidate_ids:
-                try:
-                    layer = QgsProject.instance().mapLayer(lid)
-                    if not layer:
-                        # skip missing / invalid entries
-                        continue
-
-                    if not isinstance(layer, QgsVectorLayer):
-                        continue
-
-                    if visible_ids is not None and layer.id() not in visible_ids:
-                        continue
-
-                    title = layer.name()
-                    name_norm = title.replace(' ', '_')
-                    crs = layer.crs().authid() if layer.crs().isValid() else 'EPSG:4326'
-
-                    # attempt to get layer extent and convert to WGS84
-
-                    def _sanitize_bbox_val(val):
-                        import math
-                        if val is None or not isinstance(val, (int, float)) or math.isnan(val) or math.isinf(val):
-                            return None
-                        return float(val)
-
-                    try:
-                        extent = layer.extent()
-                        if layer.crs().authid() != 'EPSG:4326':
-                            src = layer.crs()
-                            tgt = QgsCoordinateReferenceSystem('EPSG:4326')
-                            transform = QgsCoordinateTransform(src, tgt, QgsProject.instance())
-                            extent = transform.transformBoundingBox(extent)
-                        bbox = {
-                            'minx': _sanitize_bbox_val(extent.xMinimum()),
-                            'miny': _sanitize_bbox_val(extent.yMinimum()),
-                            'maxx': _sanitize_bbox_val(extent.xMaximum()),
-                            'maxy': _sanitize_bbox_val(extent.yMaximum())
-                        }
-                    except Exception:
-                        bbox = {'minx': -180, 'miny': -90, 'maxx': 180, 'maxy': 90}
-
-                    # レイヤの主色・線色を取得（単一シンボルのみ）
-                    color = None
-                    stroke_color = None
-                    try:
-                        renderer = layer.renderer()
-                        if renderer and renderer.type() == 'singleSymbol':
-                            symbol = renderer.symbol()
-                            if symbol:
-                                geom_type = layer.geometryType() if hasattr(layer, 'geometryType') else None
-                                # 0: Point, 1: Line, 2: Polygon
-                                if geom_type == 0:  # Point
-                                    color = symbol.color().name(QColor.NameFormat.HexArgb) if hasattr(symbol.color(), 'name') else symbol.color().name()
-                                elif geom_type == 1:  # Line
-                                    color = symbol.color().name(QColor.NameFormat.HexArgb) if hasattr(symbol.color(), 'name') else symbol.color().name()
-                                elif geom_type == 2:  # Polygon
-                                    if hasattr(symbol, 'fillColor'):
-                                        color = symbol.fillColor().name(QColor.NameFormat.HexArgb) if hasattr(symbol.fillColor(), 'name') else symbol.fillColor().name()
-                                    if hasattr(symbol, 'strokeColor'):
-                                        stroke_color = symbol.strokeColor().name(QColor.NameFormat.HexArgb) if hasattr(symbol.strokeColor(), 'name') else symbol.strokeColor().name()
-                                    else:
-                                        stroke_color = symbol.color().name(QColor.NameFormat.HexArgb) if hasattr(symbol.color(), 'name') else symbol.color().name()
-                    except Exception:
-                        color = None
-                        stroke_color = None
-
-                    try:
-                        gt = layer.geometryType() if hasattr(layer, 'geometryType') else None
-                        if gt == 0:
-                            geom_type_name = 'Point'
-                        elif gt == 1:
-                            geom_type_name = 'LineString'
-                        elif gt == 2:
-                            geom_type_name = 'Polygon'
-                        elif gt is None:
-                            geom_type_name = 'Unknown'
-                        else:
-                            geom_type_name = str(gt)
-                    except Exception:
-                        geom_type_name = 'Unknown'
-
-                    layer_entry = {
-                        'id': layer.id(),
-                        # canonical typename: use the QGIS layer.id() exactly
-                        'typename': layer.id(),
-                        'name': name_norm,
-                        'title': title,
-                        'crs': crs,
-                        'bbox': bbox,
-                        'geom_type': geom_type_name
-                    }
-                    if color:
-                        layer_entry['color'] = color
-                    if stroke_color:
-                        layer_entry['stroke_color'] = stroke_color
-                    layers_list.append(layer_entry)
-                except Exception:  # nosec B112  # 設計上の許容
-                    continue
-
-            import json
-            payload = json.dumps({'layers': layers_list}, ensure_ascii=False)
-            from . import http_server
-            http_server.send_http_response(conn, 200, 'OK', payload, 'application/json; charset=utf-8')
-        except Exception as e:
-            try:
-                from qgis.core import QgsMessageLog, Qgis
-                QgsMessageLog.logMessage(f'❌ wfs-layers error: {e}', 'QMapPermalink', Qgis.MessageLevel.Warning)
-            except Exception:  # nosec B110  # 設計上の許容
-                pass
-            from . import http_server
-            http_server.send_http_response(conn, 500, 'Internal Server Error', f'{{"error": "{str(e)}"}}', 'application/json; charset=utf-8')
-
-    def _collect_wfs_layers(self, only_visible: bool = False):
-        """内部用: プロジェクトの WFSLayers エントリから publishable なレイヤ情報リストを返す。
-
-        戻り値: list of dict items with keys: name, title, crs, bbox
-        """
-        try:
-            from qgis.core import QgsProject, QgsVectorLayer, QgsCoordinateReferenceSystem, QgsCoordinateTransform
-            layers_list = []
-
-            visible_ids = None
-            if only_visible:
-                try:
-                    canvas = self.iface.mapCanvas()
-                    if canvas:
-                        layer_tree_root = QgsProject.instance().layerTreeRoot()
-                        visible_ids = set()
-                        for lay in canvas.layers():
-                            try:
-                                lnode = layer_tree_root.findLayer(lay.id())
-                                if lnode is not None and lnode.isVisible():
-                                    visible_ids.add(lay.id())
-                            except Exception:  # nosec B112  # 設計上の許容
-                                continue
-                except Exception:
-                    visible_ids = None
-
-            project = QgsProject.instance()
-            try:
-                wfs_ids, ok = project.readListEntry('WFSLayers', '/')
-            except Exception:
-                wfs_ids, ok = ([], False)
-
-            if not (ok and wfs_ids):
-                return []
-
-            for lid in [str(i) for i in wfs_ids]:
-                try:
-                    layer = QgsProject.instance().mapLayer(lid)
-                    if not layer:
-                        continue
-                    if not isinstance(layer, QgsVectorLayer):
-                        continue
-                    if visible_ids is not None and layer.id() not in visible_ids:
-                        continue
-
-                    title = layer.name()
-                    name_norm = title.replace(' ', '_')
-                    crs = layer.crs().authid() if layer.crs().isValid() else 'EPSG:4326'
-
-                    def _sanitize_bbox_val(val):
-                        import math
-                        if val is None or not isinstance(val, (int, float)) or math.isnan(val) or math.isinf(val):
-                            return None
-                        return float(val)
-
-                    try:
-                        extent = layer.extent()
-                        if layer.crs().authid() != 'EPSG:4326':
-                            src = layer.crs()
-                            tgt = QgsCoordinateReferenceSystem('EPSG:4326')
-                            transform = QgsCoordinateTransform(src, tgt, QgsProject.instance())
-                            extent = transform.transformBoundingBox(extent)
-                        bbox = {
-                            'minx': _sanitize_bbox_val(extent.xMinimum()),
-                            'miny': _sanitize_bbox_val(extent.yMinimum()),
-                            'maxx': _sanitize_bbox_val(extent.xMaximum()),
-                            'maxy': _sanitize_bbox_val(extent.yMaximum())
-                        }
-                    except Exception:
-                        bbox = {'minx': None, 'miny': None, 'maxx': None, 'maxy': None}
-
-                    # レイヤの主色・線色を取得（QGISバージョン差異に配慮）
-                    color = None
-                    stroke_color = None
-                    try:
-                        from qgis.PyQt.QtGui import QColor
-                        renderer = layer.renderer()
-                        symbol = None
-                        # categorizedSymbol/ruleBased/gradiented など複数シンボル系にも対応
-                        if renderer:
-                            rtype = renderer.type() if hasattr(renderer, 'type') else ''
-                            if rtype == 'categorizedSymbol' and hasattr(renderer, 'categories'):
-                                cats = renderer.categories()
-                                if cats and hasattr(cats[0], 'symbol'):
-                                    symbol = cats[0].symbol()
-                            elif rtype == 'ruleRenderer' and hasattr(renderer, 'rootRule'):
-                                root = renderer.rootRule()
-                                rules = root.children() if root and hasattr(root, 'children') else []
-                                if rules and hasattr(rules[0], 'symbol'):
-                                    symbol = rules[0].symbol()
-                            elif rtype == 'graduatedSymbol' and hasattr(renderer, 'ranges'):
-                                ranges = renderer.ranges()
-                                if ranges and hasattr(ranges[0], 'symbol'):
-                                    symbol = ranges[0].symbol()
-                            elif hasattr(renderer, 'symbols') and callable(renderer.symbols):
-                                symbols = renderer.symbols()
-                                if symbols:
-                                    symbol = symbols[0]
-                            elif hasattr(renderer, 'symbol') and callable(renderer.symbol):
-                                symbol = renderer.symbol()
-                        if symbol:
-                            geom_type = layer.geometryType() if hasattr(layer, 'geometryType') else None
-                            symbol_layer = symbol.symbolLayer(0) if hasattr(symbol, 'symbolLayer') and callable(symbol.symbolLayer) else None
-                            if symbol_layer:
-                                if hasattr(symbol_layer, 'fillColor') and callable(symbol_layer.fillColor):
-                                    fill_c = symbol_layer.fillColor()
-                                    color = fill_c.name(QColor.NameFormat.HexArgb) if hasattr(fill_c, 'name') else str(fill_c.name())
-                                if hasattr(symbol_layer, 'strokeColor') and callable(symbol_layer.strokeColor):
-                                    stroke_c = symbol_layer.strokeColor()
-                                    stroke_color = stroke_c.name(QColor.NameFormat.HexArgb) if hasattr(stroke_c, 'name') else str(stroke_c.name())
-                                if geom_type == 1 and not color and hasattr(symbol_layer, 'strokeColor') and callable(symbol_layer.strokeColor):
-                                    stroke_c = symbol_layer.strokeColor()
-                                    color = stroke_c.name(QColor.NameFormat.HexArgb) if hasattr(stroke_c, 'name') else str(stroke_c.name())
-                                if geom_type == 0 and not color and hasattr(symbol_layer, 'fillColor') and callable(symbol_layer.fillColor):
-                                    fill_c = symbol_layer.fillColor()
-                                    color = fill_c.name(QColor.NameFormat.HexArgb) if hasattr(fill_c, 'name') else str(fill_c.name())
-                            if not color and hasattr(symbol, 'color') and callable(symbol.color):
-                                c = symbol.color()
-                                color = c.name(QColor.NameFormat.HexArgb) if hasattr(c, 'name') else str(c.name())
-                            if not stroke_color and hasattr(symbol, 'color') and callable(symbol.color):
-                                c = symbol.color()
-                                stroke_color = c.name(QColor.NameFormat.HexArgb) if hasattr(c, 'name') else str(c.name())
-                        # symbol is None の場合は何もしない
-                    except Exception:
-                        color = None
-                        stroke_color = None
-
-                    try:
-                        gt = layer.geometryType() if hasattr(layer, 'geometryType') else None
-                        if gt == 0:
-                            geom_type_name = 'Point'
-                        elif gt == 1:
-                            geom_type_name = 'LineString'
-                        elif gt == 2:
-                            geom_type_name = 'Polygon'
-                        elif gt is None:
-                            geom_type_name = 'Unknown'
-                        else:
-                            geom_type_name = str(gt)
-                    except Exception:
-                        geom_type_name = 'Unknown'
-
-                    layer_entry = {
-                        'id': layer.id(),
-                        # canonical typename: use the QGIS layer.id() exactly
-                        'typename': layer.id(),
-                        'name': name_norm,
-                        'title': title,
-                        'crs': crs,
-                        'bbox': bbox,
-                        'geom_type': geom_type_name
-                    }
-                    if color:
-                        layer_entry['color'] = color
-                    if stroke_color:
-                        layer_entry['stroke_color'] = stroke_color
-                    layers_list.append(layer_entry)
-                except Exception:  # nosec B112  # 設計上の許容
-                    continue
-
-            return layers_list
-        except Exception:
-            return []
-
     def _build_navigation_data_from_params(self, params):
         """互換性用: HTTPパラメータ(dict of lists)から navigation_data を構築して返す
 
@@ -1923,520 +1287,6 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
         except Exception as e:
             QgsMessageLog.logMessage(f"Error building navigation_data from params: {e}", "geo_webview", Qgis.MessageLevel.Warning)
             raise
-
-    def _handle_wms_get_map_with_bbox(self, conn, bbox, crs, width, height, rotation=0.0):
-        """計算されたBBOXでWMS GetMapを処理"""
-        from qgis.core import QgsMessageLog, Qgis
-
-        try:
-            # If requested CRS is not EPSG:3857, transform bbox to EPSG:3857
-            try:
-                if crs and crs.upper() != 'EPSG:3857' and bbox:
-                    from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsRectangle
-                    src_crs = QgsCoordinateReferenceSystem(crs)
-                    tgt_crs = QgsCoordinateReferenceSystem('EPSG:3857')
-                    if src_crs.isValid():
-                        coords = [float(x) for x in bbox.split(',')]
-                        if len(coords) == 4:
-                            rect = QgsRectangle(coords[0], coords[1], coords[2], coords[3])
-                            transform = QgsCoordinateTransform(src_crs, tgt_crs, QgsProject.instance())
-                            rect = transform.transformBoundingBox(rect)
-                            bbox = f"{rect.xMinimum()},{rect.yMinimum()},{rect.xMaximum()},{rect.yMaximum()}"
-                            crs = 'EPSG:3857'
-                    else:
-                        QgsMessageLog.logMessage(f"⚠️ Invalid CRS '{crs}' - forcing to EPSG:3857", "geo_webview", Qgis.MessageLevel.Warning)
-                        crs = 'EPSG:3857'
-            except Exception:  # nosec B110  # 設計上の許容
-                pass
-
-            # Use canvas-based rendering as the authoritative method for
-            # permalink BBOX requests. Rotation handling should be applied
-            # via canvas extent/rotation adjustment if needed.
-            png_data = self._generate_qgis_map_png(width, height, bbox, crs, rotation)
-            if png_data and len(png_data) > 1000:
-                from . import http_server
-                http_server.send_binary_response(conn, 200, "OK", png_data, "image/png")
-                return
-
-            # 最終フォールバック: エラー画像
-            error_image = self._generate_error_image(width, height, "Permalink Rendering Failed")
-            from . import http_server
-            http_server.send_binary_response(conn, 200, "OK", error_image, "image/png")
-
-        except Exception as e:
-            QgsMessageLog.logMessage(f"❌ WMS GetMap with BBOX error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-            error_image = self._generate_error_image(width, height, f"Error: {str(e)}")
-            from . import http_server
-            http_server.send_binary_response(conn, 200, "OK", error_image, "image/png")
-
-    def _generate_qgis_map_png(self, width, height, bbox, crs, rotation=0.0):
-        """Generate PNG using PyQGIS independent renderer only.
-
-        This implementation avoids canvas capture and always uses the
-        independent renderer (QgsMapSettings + QgsMapRendererParallelJob).
-        """
-        from qgis.core import QgsMessageLog, Qgis
-
-        try:
-            return self._render_map_image(width, height, bbox, crs, rotation)
-        except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Error in _generate_qgis_map_png (delegated): {e}", "geo_webview", Qgis.MessageLevel.Critical)
-            return None
-
-    def _capture_canvas_image(self, width, height):
-        """キャンバスから直接画像をキャプチャ"""
-        # Qt GUI operations (like canvas.grab()) must run in the GUI/main thread.
-        # The HTTP server runs in a worker thread, so calling canvas.grab() directly
-        # can cause an access violation. To avoid this we request a capture on the
-        # main thread via a helper QObject that emits a signal when done, and
-        # we wait synchronously (with a timeout) for the result.
-        try:
-            from qgis.core import QgsMessageLog, Qgis
-            from qgis.PyQt.QtCore import QObject, pyqtSignal, pyqtSlot, QEventLoop, QTimer, QCoreApplication
-
-            # Define the helper only once and keep it on the instance.
-            if not hasattr(self, '_capture_helper') or self._capture_helper is None:
-                class _CanvasCaptureHelper(QObject):
-                    request_capture = pyqtSignal(int, int)
-                    finished = pyqtSignal(bytes)
-
-                    def __init__(self, iface):
-                        super().__init__()
-                        self.iface = iface
-                        # connect request -> internal slot which runs in helper's thread
-                        self.request_capture.connect(self._do_capture)
-
-                    @pyqtSlot(int, int)
-                    def _do_capture(self, w, h):
-                        try:
-                            canvas = self.iface.mapCanvas()
-                            if not canvas:
-                                QgsMessageLog.logMessage("❌ No map canvas available (helper)", "geo_webview", Qgis.MessageLevel.Warning)
-                                self.finished.emit(b'')
-                                return
-
-                            # Allow pending paint events to finish so labels/symbols
-                            # complete rendering before grabbing.
-                            try:
-                                from qgis.PyQt.QtWidgets import QApplication
-                                QApplication.processEvents()
-                            except Exception:  # nosec B110  # 設計上の許容
-                                pass
-
-                            pixmap = canvas.grab()
-                            if pixmap.isNull():
-                                QgsMessageLog.logMessage("❌ Failed to grab canvas pixmap (helper)", "geo_webview", Qgis.MessageLevel.Warning)
-                                self.finished.emit(b'')
-                                return
-
-                            # scale if requested size differs
-                            try:
-                                from qgis.PyQt.QtCore import Qt
-                                # For WMS we should match the requested size exactly
-                                if w and h and (w != pixmap.width() or h != pixmap.height()):
-                                    pixmap = pixmap.scaled(w, h, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
-                            except Exception:  # nosec B110  # 設計上の許容
-                                pass
-
-                            image = pixmap.toImage()
-                            if image.isNull():
-                                QgsMessageLog.logMessage("❌ Failed to convert pixmap to image (helper)", "geo_webview", Qgis.MessageLevel.Warning)
-                                self.finished.emit(b'')
-                                return
-
-                            from qgis.PyQt.QtCore import QByteArray, QBuffer, QIODevice
-                            byte_array = QByteArray()
-                            buffer = QBuffer(byte_array)
-                            # QIODevice.OpenModeFlag.WriteOnly may be namespaced differently in Qt6/PyQt6.
-                            write_mode = getattr(QIODevice, 'WriteOnly', None)
-                            if write_mode is None:
-                                om = getattr(QIODevice, 'OpenMode', None) or getattr(QIODevice, 'OpenModeFlag', None)
-                                if om is not None and hasattr(om, 'WriteOnly'):
-                                    write_mode = getattr(om, 'WriteOnly')
-                            if write_mode is None:
-                                try:
-                                    write_mode = int(1)
-                                except Exception:
-                                    write_mode = 1
-                            buffer.open(write_mode)
-                            success = image.save(buffer, "PNG")
-                            if not success:
-                                QgsMessageLog.logMessage("❌ Failed to save image as PNG (helper)", "geo_webview", Qgis.MessageLevel.Warning)
-                                self.finished.emit(b'')
-                                return
-
-                            png_data = byte_array.data()
-                            self.finished.emit(png_data)
-
-                        except Exception as e:
-                            QgsMessageLog.logMessage(f"❌ Exception in helper capture: {e}", "geo_webview", Qgis.MessageLevel.Warning)
-                            try:
-                                self.finished.emit(b'')
-                            except Exception:  # nosec B110  # 設計上の許容
-                                pass
-
-                # Create helper and move it to the main (GUI) thread so its slot runs there.
-                helper = _CanvasCaptureHelper(self.iface)
-                try:
-                    main_thread = QCoreApplication.instance().thread()
-                    helper.moveToThread(main_thread)
-                except Exception:  # nosec B110  # 設計上の許容
-                    # If moveToThread fails for any reason, keep helper in current thread
-                    pass
-                self._capture_helper = helper
-
-            helper = self._capture_helper
-
-            # Prepare an event loop to wait for the capture to finish (with timeout).
-            loop = QEventLoop()
-            captured = {'data': b''}
-
-            def _on_finished(data):
-                captured['data'] = data or b''
-                try:
-                    loop.quit()
-                except Exception:  # nosec B110  # 設計上の許容
-                    pass
-
-            helper.finished.connect(_on_finished)
-
-            # Emit request; because helper lives in GUI thread, the connected slot
-            # will be invoked there. Emission from worker thread is safe and
-            # delivery is queued to the helper's thread.
-            helper.request_capture.emit(int(width), int(height))
-
-            # Safety timeout (5 seconds) to avoid hanging the server thread forever.
-            timer = QTimer()
-            timer.setSingleShot(True)
-            timer.timeout.connect(lambda: loop.quit())
-            timer.start(5000)
-
-            loop.exec()
-            try:
-                helper.finished.disconnect(_on_finished)
-            except Exception:  # nosec B110  # 設計上の許容
-                pass
-
-            png = captured.get('data')
-            if png and len(png) > 0:
-                return png
-
-            # If capture failed or timed out, fallback to None so caller can try
-            # other rendering approaches.
-            QgsMessageLog.logMessage("⚠️ Canvas capture timed out or failed", "geo_webview", Qgis.MessageLevel.Warning)
-            return None
-
-        except Exception as e:
-            from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"❌ Error in _capture_canvas_image: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-            return None
-
-    def _render_map_image(self, width, height, bbox, crs, rotation=0.0):
-        """独立レンダラでPNGを生成する（rotation をサポート）
-
-        Args:
-            width, height: 出力ピクセルサイズ
-            bbox: 'minx,miny,maxx,maxy' 文字列または None
-            crs: CRS文字列（例: 'EPSG:3857'）
-            rotation: 地図回転角度（度単位）。QgsMapSettings の回転サポートがある場合に使用されます。
-        """
-        from qgis.core import QgsMessageLog, Qgis
-
-        try:
-            # WMS独立レンダリング設定を作成(同時レンダリング防止のため直列化)
-            with self._render_lock:
-                map_settings = self._create_wms_map_settings(width, height, bbox, crs, rotation=rotation)
-                if not map_settings:
-                    QgsMessageLog.logMessage("❌ Failed to create WMS map settings", "geo_webview", Qgis.MessageLevel.Warning)
-                    return None
-
-                # 独立したマップレンダラーでPNG画像を生成
-                png_data = self._execute_map_rendering(map_settings)
-            if png_data:
-                return png_data
-            else:
-                QgsMessageLog.logMessage("❌ Professional WMS rendering failed", "geo_webview", Qgis.MessageLevel.Warning)
-                return None
-
-        except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Error in professional WMS rendering: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-            import traceback
-            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
-            return None
-
-    def _create_wms_map_settings(self, width, height, bbox, crs, rotation=0.0):
-        """WMS用の独立したマップ設定を作成 - キャンバスに依存しない
-
-        rotation: 回転角度（度） — map settings が回転をサポートする場合は適用します。
-        """
-        from qgis.core import QgsMapSettings, QgsRectangle, QgsCoordinateReferenceSystem, QgsProject, QgsMessageLog, Qgis
-
-        try:
-            # 新しいマップ設定オブジェクトを作成
-            map_settings = QgsMapSettings()
-
-            # 1. レイヤ設定 - QGISデスクトップの表示状態を踏襲
-            canvas = self.iface.mapCanvas()
-            if canvas:
-                # アクティブなレイヤのみを取得（表示状態を踏襲）
-                visible_layers = []
-                layer_tree_root = QgsProject.instance().layerTreeRoot()
-
-                for layer in canvas.layers():
-                    layer_tree_layer = layer_tree_root.findLayer(layer.id())
-                    # QgsLayerTreeNode implements __len__ (children count), so a leaf
-                    # layer node is falsy — compare with None, not truthiness.
-                    if layer_tree_layer is not None and layer_tree_layer.isVisible():
-                        visible_layers.append(layer)
-
-                map_settings.setLayers(visible_layers)
-                map_settings.setBackgroundColor(canvas.canvasColor())
-            else:
-                # キャンバスが無い場合はプロジェクトの全レイヤを使用
-                from qgis.core import QgsProject
-                project = QgsProject.instance()
-                map_settings.setLayers(project.mapLayers().values())
-                QgsMessageLog.logMessage("⚠️ No canvas, using all project layers", "geo_webview", Qgis.MessageLevel.Warning)
-
-            # 2. 出力サイズ設定
-            from qgis.PyQt.QtCore import QSize
-            map_settings.setOutputSize(QSize(width, height))
-
-            # 3. 座標系と範囲設定 - WMSパラメータに基づく
-            if bbox and crs:
-                success = self._configure_wms_extent_and_crs(map_settings, bbox, crs)
-                if not success:
-                    QgsMessageLog.logMessage("❌ Failed to configure WMS extent/CRS", "geo_webview", Qgis.MessageLevel.Warning)
-                    return None
-            else:
-                # デフォルト範囲設定
-                if canvas:
-                    map_settings.setDestinationCrs(canvas.mapSettings().destinationCrs())
-                    map_settings.setExtent(canvas.extent())
-                else:
-                    # 世界全体をデフォルトに
-                    world_crs = QgsCoordinateReferenceSystem("EPSG:4326")
-                    world_extent = QgsRectangle(-180, -90, 180, 90)
-                    map_settings.setDestinationCrs(world_crs)
-                    map_settings.setExtent(world_extent)
-
-            # 4. 品質設定
-            map_settings.setFlag(QgsMapSettings.Antialiasing, True)
-            map_settings.setFlag(QgsMapSettings.UseAdvancedEffects, True)
-            map_settings.setFlag(QgsMapSettings.ForceVectorOutput, False)
-            map_settings.setFlag(QgsMapSettings.DrawEditingInfo, False)
-
-            # 5. DPI設定
-            map_settings.setOutputDpi(96)
-
-            # 6. 回転（度） - QgsMapSettings には setRotation がある場合に適用
-            try:
-                # Apply rotation when caller provided a rotation value (including 0.0).
-                # This ensures ANGLE=0 and ANGLE!=0 follow the same code path.
-                if rotation is not None and hasattr(map_settings, 'setRotation'):
-                    map_settings.setRotation(float(rotation))
-            except Exception:  # nosec B110  # 設計上の許容
-                pass
-
-            return map_settings
-
-        except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Error creating WMS map settings: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-            return None
-
-    def _configure_wms_extent_and_crs(self, map_settings, bbox, crs):
-        """WMSパラメータに基づいて範囲と座標系を設定"""
-        from qgis.core import QgsRectangle, QgsCoordinateReferenceSystem, QgsMessageLog, Qgis
-
-        try:
-            # BBOXの解析 (minx,miny,maxx,maxy)
-            coords = [float(x) for x in bbox.split(',')]
-            if len(coords) != 4:
-                QgsMessageLog.logMessage(f"❌ Invalid BBOX format: {bbox}", "geo_webview", Qgis.MessageLevel.Warning)
-                return False
-
-            minx, miny, maxx, maxy = coords
-            extent = QgsRectangle(minx, miny, maxx, maxy)
-
-            # CRS設定
-            target_crs = QgsCoordinateReferenceSystem(crs)
-            if not target_crs.isValid():
-                QgsMessageLog.logMessage(f"❌ Invalid CRS: {crs}", "geo_webview", Qgis.MessageLevel.Warning)
-                return False
-
-            map_settings.setDestinationCrs(target_crs)
-            map_settings.setExtent(extent)
-
-            return True
-
-        except ValueError as e:
-            QgsMessageLog.logMessage(f"❌ Error parsing BBOX coordinates: {e}", "geo_webview", Qgis.MessageLevel.Warning)
-            return False
-        except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Error configuring WMS extent/CRS: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-            return False
-
-    def _execute_map_rendering(self, map_settings):
-        """独立したマップレンダラーでPNG画像を生成"""
-        from qgis.core import QgsMapRendererParallelJob, QgsMessageLog, Qgis
-
-        try:
-            # レンダリング最適化設定
-            # キャッシュ有効化とパフォーマンスチューニング
-            try:
-                # UseRenderingOptimization: レンダリング最適化を有効化
-                from qgis.core import QgsMapSettings
-                if hasattr(map_settings, 'setFlag'):
-                    # UseRenderingOptimization (0x0040) を有効化
-                    try:
-                        flag = getattr(QgsMapSettings, 'UseRenderingOptimization', None)
-                        if flag is not None:
-                            map_settings.setFlag(flag, True)
-                    except Exception:  # nosec B110  # 設計上の許容
-                        pass
-
-                    # DrawEditingInfo を無効化(編集情報の描画をスキップ)
-                    try:
-                        flag = getattr(QgsMapSettings, 'DrawEditingInfo', None)
-                        if flag is not None:
-                            map_settings.setFlag(flag, False)
-                    except Exception:  # nosec B110  # 設計上の許容
-                        pass
-
-                # キャッシュヒントを有効化
-                if hasattr(map_settings, 'setPathResolver'):
-                    # パスリゾルバを設定することでキャッシュが効率化される
-                    try:
-                        from qgis.core import QgsProject
-                        map_settings.setPathResolver(QgsProject.instance().pathResolver())
-                    except Exception:  # nosec B110  # 設計上の許容
-                        pass
-            except Exception:  # nosec B110  # 設計上の許容
-                pass
-
-            # 並列レンダリングジョブを作成
-            job = QgsMapRendererParallelJob(map_settings)
-
-            # レンダリング実行
-            job.start()
-            job.waitForFinished()
-
-            # レンダリング結果を取得
-            image = job.renderedImage()
-            if image.isNull():
-                QgsMessageLog.logMessage("❌ Rendered image is null", "geo_webview", Qgis.MessageLevel.Warning)
-                return None
-
-            # PNG形式でバイト配列に変換
-            from qgis.PyQt.QtCore import QByteArray, QBuffer, QIODevice
-            byte_array = QByteArray()
-            buffer = QBuffer(byte_array)
-            # QIODevice.OpenModeFlag.WriteOnly may be namespaced differently in Qt6/PyQt6.
-            write_mode = getattr(QIODevice, 'WriteOnly', None)
-            if write_mode is None:
-                om = getattr(QIODevice, 'OpenMode', None) or getattr(QIODevice, 'OpenModeFlag', None)
-                if om is not None and hasattr(om, 'WriteOnly'):
-                    write_mode = getattr(om, 'WriteOnly')
-            if write_mode is None:
-                try:
-                    write_mode = int(1)
-                except Exception:
-                    write_mode = 1
-            buffer.open(write_mode)
-
-            success = image.save(buffer, "PNG")
-            if not success:
-                QgsMessageLog.logMessage("❌ Failed to save rendered image as PNG", "geo_webview", Qgis.MessageLevel.Warning)
-                return None
-
-            png_data = byte_array.data()
-            return png_data
-
-        except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Error executing map rendering: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-            import traceback
-            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
-            return None
-
-            # マップレンダリング実行
-            from qgis.core import QgsMapRendererParallelJob
-
-            job = QgsMapRendererParallelJob(map_settings)
-            job.start()
-            job.waitForFinished()
-
-            image = job.renderedImage()
-            if image.isNull():
-                QgsMessageLog.logMessage("❌ Rendered image is null", "geo_webview", Qgis.MessageLevel.Warning)
-                return None
-
-            # PNG形式でバイト配列に変換
-            from qgis.PyQt.QtCore import QByteArray, QBuffer, QIODevice
-            byte_array = QByteArray()
-            buffer = QBuffer(byte_array)
-            buffer.open(QIODevice.OpenModeFlag.WriteOnly)
-
-            success = image.save(buffer, "PNG")
-            if not success:
-                QgsMessageLog.logMessage("❌ Failed to save image as PNG", "geo_webview", Qgis.MessageLevel.Warning)
-                return None
-
-            png_data = byte_array.data()
-            return png_data
-
-        except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Error generating QGIS map PNG: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-            import traceback
-            QgsMessageLog.logMessage(f"❌ Traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
-            return None
-
-    def _generate_error_image(self, width, height, error_message):
-        """エラーメッセージ付きの画像を生成"""
-        try:
-            from qgis.PyQt.QtGui import QImage, QPainter, QFont, QColor
-            from qgis.PyQt.QtCore import Qt, QByteArray, QBuffer, QIODevice
-
-            # 画像を作成
-            image = QImage(width, height, QImage.Format.Format_ARGB32)
-            image.fill(QColor(240, 240, 240))  # 明るいグレー背景
-
-            # ペインターで描画
-            painter = QPainter(image)
-            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-            # フォントとペンを設定
-            font = QFont("Arial", 12)
-            painter.setFont(font)
-            painter.setPen(QColor(180, 0, 0))  # 赤色のテキスト
-
-            # エラーメッセージを描画
-            rect = image.rect()
-            painter.drawText(rect, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextWordWrap, f"Error:\n{error_message}")
-
-            painter.end()
-
-            # PNG形式でバイト配列に変換
-            byte_array = QByteArray()
-            buffer = QBuffer(byte_array)
-            # QIODevice.OpenModeFlag.WriteOnly may be namespaced differently in Qt6/PyQt6.
-            write_mode = getattr(QIODevice, 'WriteOnly', None)
-            if write_mode is None:
-                om = getattr(QIODevice, 'OpenMode', None) or getattr(QIODevice, 'OpenModeFlag', None)
-                if om is not None and hasattr(om, 'WriteOnly'):
-                    write_mode = getattr(om, 'WriteOnly')
-            if write_mode is None:
-                try:
-                    write_mode = int(1)
-                except Exception:
-                    write_mode = 1
-            buffer.open(write_mode)
-            image.save(buffer, "PNG")
-
-            return byte_array.data()
-
-        except Exception:
-            # 最小限のPNG画像を返す
-            return b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x01\x00\x00\x00\x01\x00\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\tpHYs\x00\x00\x0b\x13\x00\x00\x0b\x13\x01\x00\x9a\x9c\x18\x00\x00\x00\x16tEXtSoftware\x00www.inkscape.org\x9b\xee<\x1a\x00\x00\x00\x1ftEXtTitle\x00Error Image\x87\x96\xf0\x8e\x00\x00\x00\x12IDATx\x9cc\xf8\x0f\x00\x00\x01\x00\x01\x00\x18\xdd\x8d\xb4\x00\x00\x00\x00IEND\xaeB`\x82'
 
     def _guess_bind_ip(self):
         """サーバの外向きIPv4アドレスを推定して返す（簡易）"""
@@ -2897,104 +1747,3 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             QgsMessageLog.logMessage(result['message'], "geo_webview", Qgis.MessageLevel.Critical)
 
         return result
-
-    def _attach_layer_tree_hooks(self):
-        """Best-effort: attach to layer-tree/project signals to detect changes in
-        the visible layer composition. Different QGIS versions expose different
-        signal names; try a few common ones and connect to a debounced handler.
-        """
-        try:
-            root = QgsProject.instance().layerTreeRoot()
-        except Exception:
-            return
-
-        # Common root signals to try
-        candidate_signals = [
-            'nodeChanged', 'childrenChanged', 'visibilityChanged',
-            'layerOrderChanged', 'addedChildren', 'removedChildren'
-        ]
-
-        hooked = False
-        for sname in candidate_signals:
-            try:
-                sig = getattr(root, sname, None)
-                if sig and hasattr(sig, 'connect'):
-                    try:
-                        sig.connect(self._on_layer_tree_changed)
-                        hooked = True
-                    except Exception:  # nosec B112  # 設計上の許容
-                        continue
-            except Exception:  # nosec B112  # 設計上の許容
-                continue
-
-        # Fallback: try project-level signals
-        if not hooked:
-            proj = QgsProject.instance()
-            for sname in ('layersAdded', 'layersRemoved', 'layersChanged'):
-                try:
-                    sig = getattr(proj, sname, None)
-                    if sig and hasattr(sig, 'connect'):
-                        try:
-                            sig.connect(self._on_layer_tree_changed)
-                            hooked = True
-                        except Exception:  # nosec B112  # 設計上の許容
-                            continue
-                except Exception:  # nosec B112  # 設計上の許容
-                    continue
-
-        try:
-            QgsMessageLog.logMessage(f"Layer-tree hooks attached: {hooked}", 'QMapPermalink', Qgis.MessageLevel.Info)
-        except Exception:  # nosec B110  # 設計上の許容
-            pass
-
-    def _on_layer_tree_changed(self, *args, **kwargs):
-        """Debounce signal events and schedule handling on a short timer."""
-        try:
-            # cancel previous timer if any
-            if getattr(self, '_layer_change_timer', None):
-                try:
-                    self._layer_change_timer.cancel()
-                except Exception:  # nosec B110  # 設計上の許容
-                    pass
-
-            # schedule a short delay to avoid thrashing during bulk operations
-            t = threading.Timer(0.5, self._handle_layers_changed)
-            t.daemon = True
-            self._layer_change_timer = t
-            t.start()
-        except Exception:  # nosec B110  # 設計上の許容
-            pass
-
-    def _handle_layers_changed(self):
-        """Called after a short debounce delay when layer-tree changes are detected.
-        Ensures WMTS identity folder/meta exists for the new composition. Does not
-        attempt expensive pre-rendering by default (low-risk)."""
-        try:
-            if not hasattr(self, 'wmts_service') or self.wmts_service is None:
-                return
-
-            try:
-                identity_short, identity_raw = self.wmts_service._get_identity_info()
-            except Exception:
-                return
-
-            if identity_short == getattr(self, '_last_wmts_identity_short', None):
-                # nothing changed
-                return
-
-            # update last known
-            self._last_wmts_identity_short = identity_short
-            self._last_wmts_identity_raw = identity_raw
-
-            # Ensure identity folder/meta exists (idempotent, fast)
-            try:
-                h, d = self.wmts_service.ensure_identity(identity_short, identity_raw)
-                QgsMessageLog.logMessage(f"WMTS identity updated/ensured: {identity_short} -> {h}", 'QMapPermalink', Qgis.MessageLevel.Info)
-            except Exception as e:
-                try:
-                    QgsMessageLog.logMessage(f"WMTS ensure_identity failed: {e}", 'QMapPermalink', Qgis.MessageLevel.Warning)
-                except Exception:  # nosec B110  # 設計上の許容
-                    pass
-
-        except Exception:  # nosec B110  # 設計上の許容
-            pass

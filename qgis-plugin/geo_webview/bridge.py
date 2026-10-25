@@ -21,7 +21,6 @@ bridge では同等処理を例外送出型の内部実装で行う。
 
 import inspect
 import json
-import os
 import urllib.parse
 
 
@@ -64,21 +63,23 @@ class GeoWebViewBridge:
     # 経由でこれを集約する。メソッド仕様は signature/docstring から
     # 自動生成し、METHOD_DOCS で補足する。
     NAME = "geo_webview (QMap Permalink)"
-    SUMMARY = ("QGIS を軽量 OGC サーバ(WMS/WMTS/WFS)として起動し、"
+    SUMMARY = ("QGIS プロジェクトを .kasc+DATA/ パッケージに出力して"
+               "KASUGAI Canvas(Cesium/MapLibre/OpenLayers/Leaflet)で再生する"
+               "サーバレスWeb配信プラグイン。"
                "地図表示状態(中心/縮尺/回転/テーマ)をパーマリンクURLとして"
-               "生成・復元する。OpenLayers/MapLibre のWeb地図HTML生成や"
-               "Google Maps/Earth 連携URLの発行も行う。")
+               "生成・復元し、Google Maps/Earth 連携URLの発行も行う。"
+               "内蔵HTTPサーバは /kasugai 起動・/export-data/ 配信・"
+               "/present 画面共有・パーマリンク受領を担う。")
     WHEN_TO_USE = [
+        "表示中レイヤをKASUGAI Canvas用に出力・登録・起動したい",
         "現在の地図ビューを共有できるパーマリンクURLを発行したい",
         "パーマリンク/Google Maps/Earth のURLからQGISの地図を移動したい",
         "座標・縮尺・回転・テーマを指定して地図ビューを直接操作したい",
-        "WMS/WMTS/WFS HTTPサーバの起動・停止・ポート変更・状態確認をしたい",
+        "HTTPサーバの起動・停止・ポート変更・状態確認をしたい",
         "外部端末からのアクセス可否(ファイアウォール等)を診断したい",
-        "OpenLayers/MapLibre のHTML地図を生成してブラウザで開きたい",
         "Google Maps/Google Earth で現在位置を開くURLを発行したい",
         "プロジェクトのマップテーマ/ブックマークを一覧・適用したい",
-        "WFS公開レイヤの一覧を取得したい",
-        "表示中レイヤをKASUGAI Canvas用に出力・連携したい",
+        "QGISキャンバスを /present・/screenshot で画面共有したい",
     ]
     METHOD_DOCS = {
         "status": {
@@ -103,7 +104,7 @@ class GeoWebViewBridge:
         },
         "startServer": {
             "description":
-                "WMS/WMTS/WFS HTTPサーバを起動する。port指定時はそのポート"
+                "内蔵HTTPサーバを起動する。port指定時はそのポート"
                 "優先(使用中なら+10まで探索)。起動済みで別ポート指定なら再起動。",
             "example": {"method": "startServer", "args": [8089]},
         },
@@ -217,11 +218,6 @@ class GeoWebViewBridge:
                 "だけで ?kasc= 経由のサーバレス配信になる"
                 "(emit_launchers=Falseで抑制)。",
             "example": {"method": "kasugaiExport", "args": []},
-        },
-        "wfsLayers": {
-            "description":
-                "WFS公開対象レイヤ(typename/bbox/crs/色)の一覧を返す。",
-            "example": {"method": "wfsLayers", "args": []},
         },
         "checkAccess": {
             "description":
@@ -431,14 +427,6 @@ class GeoWebViewBridge:
                 "preferred_port": getattr(server, "preferred_port", None),
                 "base_url": (f"http://localhost:{port}"
                              if server_running and port else None),
-                "services": {
-                    "wms": server is not None
-                    and getattr(server, "wms_service", None) is not None,
-                    "wmts": server is not None
-                    and getattr(server, "wmts_service", None) is not None,
-                    "wfs": server is not None
-                    and getattr(server, "wfs_service", None) is not None,
-                },
             },
             "canvas": self._canvas_state(),
             "fields": fields,
@@ -1114,18 +1102,7 @@ class GeoWebViewBridge:
             out["register_error"] = reg.get("error")
         return self._ok(out)
 
-    # ---------- WFSレイヤ / 診断 / エンドポイント ----------
-
-    def wfsLayers(self, only_visible=False):
-        """WFS公開対象レイヤ(typename/bbox/crs/色/geom_type)の一覧を返す。"""
-        server = self._server()
-        if server is None:
-            return self._err("server_manager not initialized")
-        try:
-            items = server._collect_wfs_layers(only_visible=bool(only_visible))
-        except Exception as e:
-            return self._err(f"collect wfs layers failed: {e}")
-        return self._ok({"layers": _jsonable(items)})
+    # ---------- 診断 / エンドポイント ----------
 
     def checkAccess(self):
         """外部アクセス診断(ファイアウォール含む)を実行し結果を返す。
@@ -1152,27 +1129,24 @@ class GeoWebViewBridge:
         base = f"http://localhost:{port}" if port else \
             f"http://localhost:{getattr(server, 'preferred_port', 8089)}"
         eps = [
-            {"path": "/wms",
-             "url": f"{base}/wms?SERVICE=WMS&REQUEST=GetCapabilities",
-             "description": "WMS (GetCapabilities/GetMap → PNG)"},
-            {"path": "/maplibre-style",
-             "url": f"{base}/maplibre-style?typename=<layer>",
-             "description": "MapLibre style JSON(WFS注入)"},
             {"path": "/kasugai",
              "url": f"{base}/kasugai?engine=cesium|openlayers|maplibre|leaflet",
              "description": "KASUGAI Canvasエクスポート・登録・起動"},
-            {"path": "/wmts",
-             "url": f"{base}/wmts?SERVICE=WMTS&REQUEST=GetCapabilities",
-             "description": "WMTSタイル/GetCapabilities"},
-            {"path": "/xyz/{z}/{x}/{y}.png",
-             "url": f"{base}/xyz/{{z}}/{{x}}/{{y}}.png",
-             "description": "XYZタイル(WMTSのエイリアス)"},
-            {"path": "/wfs",
-             "url": f"{base}/wfs?SERVICE=WFS&REQUEST=GetCapabilities",
-             "description": "WFS (GetCapabilities/GetFeature等)"},
-            {"path": "/wfs-layers",
-             "url": f"{base}/wfs-layers",
-             "description": "WFS公開レイヤ一覧JSON"},
+            {"path": "/export-data/<rel>",
+             "url": f"{base}/export-data/<dir>/kasugai_canvas.kasc",
+             "description": "直近エクスポート物(.kasc+DATA/)の配信"},
+            {"path": "/present",
+             "url": f"{base}/present",
+             "description": "QGISキャンバスのウィンドウ共有ページ"},
+            {"path": "/present/state",
+             "url": f"{base}/present/state",
+             "description": "キャンバス状態JSON(追従モード用)"},
+            {"path": "/screenshot",
+             "url": f"{base}/screenshot",
+             "description": "現在のキャンバス表示PNG"},
+            {"path": "/received",
+             "url": f"{base}/received",
+             "description": "受領パーマリンク履歴JSON"},
         ]
         return self._ok({"running": server.is_server_running(),
                          "port": port, "endpoints": eps})

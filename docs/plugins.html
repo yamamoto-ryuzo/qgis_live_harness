@@ -86,9 +86,10 @@ PostGIS データベースに対応し、大量データはページング表示
 
 <h2><code>geo_webview</code></h2>
 <p><a href="geosuite.html">GeoSuite</a> 構成要素 — スタイル込 Web 共有担当。
-QGIS を軽量な OGC サーバー（WMS/WMTS/WFS）として起動するプラグイン。
-ドッキングパネルからサーバーを起動し、<code>/wms</code>・<code>/wmts</code>・<code>/wfs</code>・
-<code>/qgis-map</code>・<code>/maplibre</code> 等のエンドポイントを公開します。
+開いている QGIS プロジェクトを <code>.kasc</code>+<code>DATA/</code> パッケージに出力し、
+KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet）で再生する
+サーバレス Web 配信プラグイン。内蔵 HTTP サーバーは <code>/kasugai</code>（出力・登録）・
+<code>/export-data/</code>・<code>/present</code>・<code>/screenshot</code>・パーマリンク受領を提供します。
 地図の表示状態（中心・ズーム・レイヤの表示・テーマ・スタイル）を URL で復元する
 パーマリンク機能も提供します。</p>
 <p>トップページ: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/README.md">qgis-plugin/geo_webview/README.md</a> ·

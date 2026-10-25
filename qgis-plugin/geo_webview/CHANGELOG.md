@@ -11,6 +11,68 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.29.0] - 2026-10-26 パネルUIのサーバレスWeb配信主軸化・OGCサーバー全撤去・ドキュメント再構築
+
+- **OGC サービス（WMS/WMTS/XYZ/WFS・`/maplibre-style`）を撤去** —
+  プラグインはサーバレス配信（`.kasc`+`DATA/` 出力＋`/export-data/` 配信）
+  に専念。`/qgis-map`・`/wms` パスはパーマリンク受領/ナビゲート専用として存続。
+  残存エンドポイント: `/kasugai`・`/export-data/`・`/<engine>/`・
+  `/present`・`/present/state`・`/screenshot`・`/received`・`/debug-bookmarks`:
+  - 背景: KASUGAI Canvas 側で `.qml` スタイル復元・`.kasc`+`DATA/` の
+    サーバレス配信が整備完了し、QGIS を OGC サーバー化する経路は
+    役割を終えた（エクスポートはスナップショットのみで、OGC
+    エンドポイントを参照するライブ参照は存在しなかった）
+  - 削除ファイル: `wms_service.py`・`wmts_service.py`・`wfs_service.py`・
+    `sld_renderer.py`・`maplibre/`（QGIS→Mapbox スタイル変換）・
+    `http_server.py` の OWS エラー応答関数
+  - 削除エンドポイント: `/wms`・`/wmts`・`/xyz`・`/wfs`・`/wfs-layers`・
+    `/maplibre-style`・`/maplibre/style`
+  - パーマリンク後方互換: 旧形式 `/wms` パーマリンクは引き続き
+    `/qgis-map` と同様に受領履歴・External Control ナビゲートの
+    トリガとして受理（画像は返さず 404。Office 埋め込み済みの
+    旧リンクでのナビゲートを維持）
+  - `/screenshot`: WMS サービスに委譲していた並列レンダリングを
+    `server_manager._render_map_settings`（QgsMapRendererParallelJob +
+    `_render_lock` 直列化）として内製化
+  - bridge: `wfsLayers` メソッド廃止。`status` の `services` 項目と
+    `endpoints` の OGC エントリを除去。`SUMMARY`/`WHEN_TO_USE` を
+    サーバレス配信主軸に更新
+  - パネル: サーバーグループ名を「HTTP Server / OGC Services」→
+    「HTTP Server」に変更（起動ログ・ツールチップも同様）
+  - i18n: 削除済み生成ページ用文字列カタログ（`geo_webview.page`
+    コンテキスト）を除去し、変更文字列を9言語へ反映
+
+- **パネルを「サーバレスWeb配信」主軸の構成へ刷新**（geo_webview の役割を
+  「QGISプロジェクトのサーバレスWeb配信」へ明確化）:
+  - 最上段に「Web Distribution (Serverless)」グループを新設:
+    説明ラベル + `Engine:` コンボ（cesium/maplibre/openlayers/leaflet、
+    選択は QSettings `kasugai_engine` に保存・次回復元）+
+    `Export`（ファイル出力のみ）/ `▶ Open`（出力→登録→ブラウザ起動）/
+    `📁`（出力フォルダを開く）
+  - `▶ Open` は bridge `kasugaiExport(open_app=True)` を呼び、
+    kasugai/qgis-http/hosted の3段フォールバックとブラウザ起動まで
+    パネルから実行できる（従来は `GET /kasugai`・bridge 経由のみ。
+    結果は messageBar に engine/via/url を表示）
+  - HTTPサーバーの ON/OFF チェックをサーバーグループ
+    （「HTTP Server / OGC Services」に改称）内へ集約
+  - KASUGAI 行を「Current Permalink」グループから Web配信グループへ移動
+  - パーマリンク生成・受信・ナビゲート・共有/プレゼンを
+    `QTabWidget`（Generate / Permalink / Navigate / Share の4タブ）
+    へ集約してパネルをコンパクト化。タブ内のグループ枠と冗長な
+    説明ラベルは廃止し高さを圧縮。Web配信とサーバーグループは
+    常時表示のまま
+  - パネルタイトルを「geo_webview — Web Distribution」へ変更
+- **README.md / README_JP.md をサーバレスWeb配信・マルチエンジン主軸で再構築**
+  - 先頭を「QGISをサーバレスWeb配信するプラグイン」とし、
+    `.kasc`+`DATA/` 出力 → 4エンジン再生 → 静的ホスティングの流れと
+    3段フォールバック、パネル操作を前段に整理。OGCサーバーは補助機能へ再配置
+  - 存在しない `images/image01.png` への壊れた参照を除去
+- **SPEC.md / SPEC_JP.md の陳腐化修正**
+  - v3.24.0 で廃止済みの `/qgis-map`・`/maplibre`・`/map3d` ビューア記述を
+    現行構成へ更新（§1/§2/§4/§14/§17/§18、§15起動経路に `▶ Open` 追加）
+- **metadata.txt**: description/about をサーバレス配信主軸に更新
+- **i18n**: 新規UI文字列を9言語カタログへ追加
+
 ## [3.28.0] - 2026-10-26 ベースマップグループの .kasc/reearth.txt エクスポート対応
 
 - **「背景図」「ベースマップ」「basemap」名のレイヤツリーグループを

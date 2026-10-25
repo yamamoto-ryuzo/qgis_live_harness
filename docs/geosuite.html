@@ -157,10 +157,10 @@ Vector DB 等の基盤を要するもののみを将来候補として残して�
 <p><strong>現状</strong></p>
 <ul>
 <li>QGIS の表示状態（中心・ズーム・レイヤ可視性・スタイル）をパーマリンク、HTML/PNG パッケージとして出力</li>
-<li>軽量 HTTP サーバーでの社内配信、WMS / WMTS / WFS の OGC サービスエンドポイント公開</li>
-<li>MapLibre / OpenLayers へのスタイル注入（MapLibre 用のスタイル注入フローとフォールバック実装あり）</li>
+<li><code>.kasc</code>+<code>DATA/</code> のサーバレス配信（KASUGAI Canvas 4エンジン再生）＋内蔵 HTTP サーバー（<code>/kasugai</code>・<code>/export-data/</code>・<code>/present</code>・<code>/screenshot</code>）での社内配信</li>
+<li>QGIS スタイル(<code>.qml</code>)をパッケージに同梱し、クライアント側コンパイルで復元</li>
 <li>高解像度 PNG 出力、Office（Excel/PowerPoint）向け出力テンプレの例示</li>
-<li>bridge 経由の AI/MCP 操作: <code>startServer</code> / <code>generatePermalink</code> / <code>maplibreUrl</code> / <code>navigate</code> / <code>wfsLayers</code> で共有作業を API で完結。出力形式・公開範囲の推奨や説明文生成も可能</li>
+<li>bridge 経由の AI/MCP 操作: <code>startServer</code> / <code>generatePermalink</code> / <code>kasugaiExport</code> / <code>navigate</code> / <code>endpoints</code> で共有作業を API で完結。出力形式・公開範囲の推奨や説明文生成も可能</li>
 </ul>
 <blockquote>
 <p>README 備考: ベクタタイルサーバ（VectorTile）導入は README にて「あきらめた開発」と明記されており、当面は開発保留です。</p>
@@ -169,7 +169,7 @@ Vector DB 等の基盤を要するもののみを将来候補として残して�
 <ul>
 <li>QGIS 3D 表示のスナップショット / Cesium・Re:Earth へのエクスポート連携</li>
 <li>点群ビジュアライゼーション（Entwine / Potree / Cesium・Re:Earth 連携）</li>
-<li>OGC API（Features 等の新規格）/ WebSocket を使ったリアルタイム更新（WMS/WMTS/WFS は提供済み）</li>
+<li>WebSocket 等を使ったリアルタイム更新（配信はサーバレス <code>.kasc</code>+</code><code>DATA/</code> が主経路）</li>
 <li>ベクタタイル生成・タイルキャッシュ・CDN 配信パターン</li>
 </ul>
 <p><strong>将来の拡張候補</strong></p>
