@@ -35,8 +35,8 @@ import urllib.parse
 import math
 import json
 
-# Optional components: if UI/webmap modules are not present, provide safe defaults
-# Try to import optional UI and webmap generator modules; fall back safely when absent.
+# Optional components: if the panel module is not present, provide safe defaults
+# Try to import the optional UI module; fall back safely when absent.
 try:
     from .panel import GeoWebViewPanel  # type: ignore
     PANEL_AVAILABLE = True
@@ -50,13 +50,6 @@ except Exception:
         PANEL_IMPORT_ERROR = _tb.format_exc()
     except Exception:
         PANEL_IMPORT_ERROR = 'Failed to capture panel import error.'
-
-try:
-    from .webmap_generator import QMapWebMapGenerator  # type: ignore
-    WEBMAP_AVAILABLE = True
-except Exception:
-    QMapWebMapGenerator = None
-    WEBMAP_AVAILABLE = False
 
 from .i18n_json import install_translator
 
@@ -99,25 +92,12 @@ class GeoWebView:
         except Exception:  # nosec B110  # 設計上の許容
             pass
 
-        # WebMap生成器の初期化
-        if WEBMAP_AVAILABLE and QMapWebMapGenerator:
-            # pass plugin instance (self) so the generator can reuse
-            # plugin utilities like _estimate_zoom_from_scale when available
-            try:
-                self.webmap_generator = QMapWebMapGenerator(self)
-            except Exception:
-                # fallback to passing iface if plugin instance cannot be used
-                self.webmap_generator = QMapWebMapGenerator(self.iface)
-        else:
-            self.webmap_generator = None
-
         # HTTPサーバーマネージャー
         from .server_manager import GeoWebViewServerManager
 
         self.server_manager = GeoWebViewServerManager(
             self.iface,
             self.navigation_signals,
-            self.webmap_generator,
             self  # メインプラグインインスタンスを渡す
         )
 
@@ -345,13 +325,6 @@ class GeoWebView:
                 self.panel.pushButton_generate.clicked.connect(self.on_generate_clicked_panel)
                 self.panel.pushButton_navigate.clicked.connect(self.on_navigate_clicked_panel)
                 self.panel.pushButton_copy.clicked.connect(self.on_copy_clicked_panel)
-                if hasattr(self.panel, 'pushButton_open'):
-                    self.panel.pushButton_open.clicked.connect(self.on_open_clicked_panel)
-                    print("pushButton_open connected: on_open_clicked_panel")
-                    self._qgis_log('[DEBUG] pushButton_open connected to on_open_clicked_panel', 'INFO')
-                else:
-                    print("Warning: pushButton_open not found")
-                    self._qgis_log('[DEBUG] WARNING: pushButton_open not found', 'WARNING')
 
                 # Google Maps/Earthボタンのイベントを接続
                 if hasattr(self.panel, 'pushButton_google_maps'):
@@ -361,21 +334,15 @@ class GeoWebView:
                     self.panel.pushButton_google_earth.clicked.connect(self.on_google_earth_clicked_panel)
                     print("Google Earth button connected")
 
-                # MapLibreボタンのイベントを接続
-                if hasattr(self.panel, 'pushButton_maplibre'):
-                    print(f"MapLibre button found: {self.panel.pushButton_maplibre}")
-                    self.panel.pushButton_maplibre.clicked.connect(self.on_maplibre_clicked_panel)
-                    # ボタンを有効化
-                    self.panel.pushButton_maplibre.setEnabled(True)
-                    print("MapLibre button connected")
-                else:
-                    print("Warning: pushButton_maplibre not found")
-
-                # KASUGAI Canvasボタンのイベントを接続
-                if getattr(self.panel, 'pushButton_kasugai', None) is not None:
-                    self.panel.pushButton_kasugai.clicked.connect(
-                        self.on_kasugai_clicked_panel)
-                    print("KASUGAI button connected")
+                # KASUGAI Canvas エンジン起動ボタンのイベントを接続
+                for _engine in ('cesium', 'openlayers', 'maplibre', 'leaflet'):
+                    _btn = getattr(
+                        self.panel, 'pushButton_kasugai_{0}'.format(_engine), None)
+                    if _btn is not None:
+                        _btn.clicked.connect(
+                            lambda checked=False, e=_engine:
+                                self.on_kasugai_engine_clicked(e))
+                        print(f"KASUGAI {_engine} button connected")
 
                 # Check Access ボタンのイベントを接続
                 if hasattr(self.panel, 'pushButton_check_access'):
@@ -386,14 +353,11 @@ class GeoWebView:
                     self.panel.pushButton_save_theme.clicked.connect(
                         self.on_save_theme_clicked_panel)
 
-                # 共有/プレゼンテーション/3D/MAC認証のイベントを接続
+                # 共有/プレゼンテーション/MAC認証のイベントを接続
                 try:
                     if getattr(self.panel, 'pushButton_present', None) is not None:
                         self.panel.pushButton_present.clicked.connect(
                             self.on_present_clicked_panel)
-                    if getattr(self.panel, 'pushButton_map3d', None) is not None:
-                        self.panel.pushButton_map3d.clicked.connect(
-                            self.on_map3d_clicked_panel)
                     if getattr(self.panel, 'comboBox_received', None) is not None:
                         self.panel.comboBox_received.currentIndexChanged.connect(
                             self.on_received_selected)
@@ -541,113 +505,6 @@ class GeoWebView:
                 self.tr("Failed to create panel: {error}").format(error=str(e))
             )
 
-    def on_open_clicked_panel(self):
-        """パネルの 'Open' ボタンが押されたときにOpenLayersマップを生成して保存"""
-        try:
-            self._qgis_log('[OpenLayers] Starting HTML generation...', 'INFO')
-
-            # サーバーポート取得
-            port = self.server_manager.get_server_port() or 8089
-            self._qgis_log(f'[OpenLayers] Server port: {port}', 'INFO')
-
-            # ナビゲーションデータを構築
-            canvas = self.iface.mapCanvas()
-            center = canvas.center()
-            scale = canvas.scale()
-
-            self._qgis_log(f'[OpenLayers] Canvas center: {center.x()}, {center.y()}, scale: {scale}', 'INFO')
-
-            # EPSG:3857に変換
-            from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject
-            canvas_crs = canvas.mapSettings().destinationCrs()
-            target_crs = QgsCoordinateReferenceSystem('EPSG:3857')
-
-            if canvas_crs.authid() != 'EPSG:3857':
-                transform = QgsCoordinateTransform(canvas_crs, target_crs, QgsProject.instance())
-                center_3857 = transform.transform(center)
-                self._qgis_log(f'[OpenLayers] Transformed to EPSG:3857: {center_3857.x()}, {center_3857.y()}', 'INFO')
-            else:
-                center_3857 = center
-                self._qgis_log('[OpenLayers] Already in EPSG:3857', 'INFO')
-
-            # ナビゲーションデータ作成
-            # テーマとブックマークを収集
-            try:
-                themes_list = self._collect_themes()
-            except Exception:
-                themes_list = []
-            try:
-                bookmarks_list = self._collect_bookmarks_epsg3857()
-            except Exception:
-                bookmarks_list = []
-
-            navigation_data = {
-                'x': center_3857.x(),
-                'y': center_3857.y(),
-                'scale': scale,
-                'rotation': canvas.rotation(),
-                'crs': 'EPSG:3857',
-                'bookmarks': bookmarks_list,
-                'themes': themes_list,
-            }
-            self._qgis_log(f"[OpenLayers] Themes collected: {len(themes_list)}", 'INFO')
-            self._qgis_log(f"[OpenLayers] Bookmarks collected: {len(bookmarks_list)}", 'INFO')
-
-            self._qgis_log('[OpenLayers] Generating HTML content...', 'INFO')
-
-            # OpenLayersのHTMLを生成
-            html_content = self.webmap_generator.generate_wms_based_html_page(
-                navigation_data,
-                image_width=800,
-                image_height=600,
-                server_port=port
-            )
-
-            self._qgis_log(f'[OpenLayers] HTML generated, length: {len(html_content)} chars', 'INFO')
-
-            # ファイルに保存
-            from .webmap_generator import save_openlayers_html_to_file
-            self._qgis_log('[OpenLayers] Saving HTML to file...', 'INFO')
-
-            html_path = save_openlayers_html_to_file(html_content, port)
-
-            self._qgis_log(f'[OpenLayers] HTML saved to: {html_path}', 'INFO')
-
-            if not html_path or not os.path.exists(html_path):
-                error_msg = f"Failed to save OpenLayers HTML. Path: {html_path}"
-                self._qgis_log(f'[OpenLayers] ERROR: {error_msg}', 'CRITICAL')
-                QMessageBox.critical(
-                    self.iface.mainWindow(),
-                    self.tr("Error"),
-                    self.tr(error_msg)
-                )
-                return
-
-            # 保存されたHTMLファイルを簡易HTTPサーバ経由でブラウザで開く（file:// 由来のCORS問題を回避）
-            try:
-                html_dir = os.path.dirname(html_path)
-                url = self._serve_static_and_get_url(html_dir)
-                import webbrowser
-                self._qgis_log(f'[OpenLayers] Opening in browser: {url}', 'INFO')
-                webbrowser.open(url)
-                self._qgis_log('[OpenLayers] Successfully opened in browser', 'INFO')
-            except Exception:
-                # フォールバック: 直接 file:// で開く
-                import webbrowser
-                file_url = f"file:///{html_path.replace(os.sep, '/')}"
-                self._qgis_log(f'[OpenLayers] Fallback opening (file://): {file_url}', 'WARNING')
-                webbrowser.open(file_url)
-
-        except Exception as e:
-            import traceback
-            error_details = traceback.format_exc()
-            self._qgis_log(f'[OpenLayers] ERROR: {error_details}', 'CRITICAL')
-            QMessageBox.warning(
-                self.iface.mainWindow(),
-                self.tr('geo_webview'),
-                self.tr(f'Error opening OpenLayers: {str(e)}\n\nSee QGIS log for details.')
-            )
-
     def _collect_themes(self):
         """QGISプロジェクトのテーマ名一覧を取得"""
         try:
@@ -711,70 +568,6 @@ class GeoWebView:
             except Exception:  # nosec B112  # 設計上の許容
                 continue
         return out
-
-    def _serve_static_and_get_url(self, folder_path: str, preferred_port: int = 8091) -> str:
-        """指定フォルダを簡易HTTPサーバで配信し、index.html のURLを返す。
-
-        - Python 標準の SimpleHTTPRequestHandler を使用（別スレッドで起動）
-        - 既にサーバが起動済みの場合は再利用し、最新のフォルダを配信する
-        """
-        try:
-            import threading
-            import socket
-            from http.server import SimpleHTTPRequestHandler
-            from socketserver import TCPServer
-            import functools
-
-            # 既存サーバの停止（フォルダを切り替えるため）
-            try:
-                if hasattr(self, '_static_server') and self._static_server:
-                    self._static_server.shutdown()
-                    self._static_server.server_close()
-                    self._static_server = None
-            except Exception:  # nosec B110  # 設計上の許容
-                pass
-
-            # 使用可能なポートを検索
-            port = None
-            for p in range(preferred_port, preferred_port + 20):
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                    s.settimeout(0.2)
-                    try:
-                        s.bind(('127.0.0.1', p))
-                        port = p
-                        break
-                    except Exception:  # nosec B112  # 設計上の許容
-                        continue
-            if port is None:
-                port = preferred_port
-
-            # ディレクトリを指定してハンドラ生成（chdir不要）
-            # ヘッダに charset=UTF-8 を付与して文字化けを防止
-            class UTF8Handler(SimpleHTTPRequestHandler):
-                extensions_map = SimpleHTTPRequestHandler.extensions_map.copy()
-                extensions_map.update({
-                    '.html': 'text/html; charset=UTF-8',
-                    '.htm': 'text/html; charset=UTF-8',
-                    '.css': 'text/css; charset=UTF-8',
-                    '.js': 'application/javascript; charset=UTF-8',
-                })
-
-            handler = functools.partial(UTF8Handler, directory=folder_path)
-
-            class ReuseTCPServer(TCPServer):
-                allow_reuse_address = True
-
-            server = ReuseTCPServer(('127.0.0.1', port), handler)
-            self._static_server = server
-
-            t = threading.Thread(target=server.serve_forever, name='StaticHTTP', daemon=True)
-            t.start()
-            self._static_server_thread = t
-
-            return f"http://127.0.0.1:{port}/index.html"
-        except Exception as e:
-            self._qgis_log(f"[OpenLayers] Static HTTP server failed: {e}", 'WARNING')
-            raise
 
     def _try_tabify_with_existing_panels(self):
         """既存の左側パネルがあればタブ化を試行"""
@@ -848,14 +641,6 @@ class GeoWebView:
         """プラグインのアンロード時の処理"""
         # HTTPサーバーを停止
         self.server_manager.stop_http_server()
-        # 静的配信サーバを停止
-        try:
-            if hasattr(self, '_static_server') and self._static_server:
-                self._static_server.shutdown()
-                self._static_server.server_close()
-                self._static_server = None
-        except Exception:  # nosec B110  # 設計上の許容
-            pass
 
         # パネルを削除
         if self.panel is not None:
@@ -2338,66 +2123,15 @@ class GeoWebView:
                 "QMap Permalink", self.tr("Google Earth launch error: {0}").format(e), duration=5
             )
 
-    def on_maplibre_clicked_panel(self):
-        """パネル版：MapLibreボタンがクリックされた時の処理"""
-        try:
-            # HTTPサーバーが起動しているか確認
-            if not self.server_manager.is_server_running():
-                self.iface.messageBar().pushMessage(
-                    "geo_webview", self.tr("The HTTP server is not running. Please start the server."), duration=5
-                )
-                return
-
-            # 現在のサーバーポートを取得
-            server_port = self.server_manager.get_server_port() or 8089
-
-            # パーマリンクテキストを取得
-            permalink_text = ''
-            if hasattr(self.panel, 'lineEdit_permalink') and self.panel.lineEdit_permalink is not None:
-                permalink_text = self.panel.lineEdit_permalink.text() or ''
-
-            # パーマリンクがない場合は自動生成
-            if not permalink_text:
-                # パーマリンクが無い場合は自動生成
-                try:
-                    permalink_text = self.generate_permalink(include_theme=False)
-                    # 生成したパーマリンクをパネルに設定
-                    if hasattr(self.panel, 'lineEdit_permalink') and self.panel.lineEdit_permalink is not None:
-                        self.panel.lineEdit_permalink.setText(permalink_text)
-                except Exception as e:
-                    self.iface.messageBar().pushMessage(
-                        "geo_webview", self.tr("Permalink auto-generation error: {0}").format(e), duration=5
-                    )
-                    return
-
-            # 元のパーマリンクをそのまま維持して /maplibre に渡す。
-            # かつては x/y/scale/crs/rotation だけを抜き出してURLを再構築しており、
-            # テーマ・ブックマーク等の情報が失われ、ナビゲーションアドレスが
-            # 意図せず書き換わっていた(issue #18)。
-            # internal=1 は「パネル側が生成した自前の遷移」としてサーバに伝え、
-            # ナビゲート欄の上書き・受領履歴の対象から外すためのマーカー。
-            from urllib.parse import quote_plus
-            maplibre_url = (
-                f"http://localhost:{server_port}/maplibre"
-                f"?internal=1&permalink={quote_plus(permalink_text)}"
-            )
-
-            # ブラウザで開く
-            QDesktopServices.openUrl(QUrl(maplibre_url))
-            self.iface.messageBar().pushMessage(
-                "geo_webview", self.tr("Opened in MapLibre."), duration=3
-            )
-        except Exception as e:
-            self.iface.messageBar().pushMessage(
-                "geo_webview", self.tr("MapLibre launch error: {0}").format(e), duration=5
-            )
-
-    def on_kasugai_clicked_panel(self):
-        """パネル版：KASUGAIボタン — 表示中レイヤをKASUGAI Canvas
-        プロジェクト(GeoJSON+.qml+.kasc)として出力し、起動中の
-        KASUGAIローカルサーバへ登録して開く。"""
+    def on_kasugai_engine_clicked(self, engine):
+        """パネル版：KASUGAI Canvas エンジン起動ボタン — 表示中レイヤを
+        KASUGAI Canvasプロジェクト(GeoJSON+.qml+.kasc)として出力し、
+        起動中のKASUGAIローカルサーバへ登録して指定エンジン
+        (cesium/openlayers/maplibre/leaflet)で開く。"""
         try:
             from . import kasugai_export
+            engine = kasugai_export.normalize_engine(engine) \
+                or kasugai_export.DEFAULT_ENGINE
             port = (self.server_manager.get_server_port()
                     if self.server_manager
                     and self.server_manager.is_server_running() else None)
@@ -2417,7 +2151,7 @@ class GeoWebView:
             opened = False
             if caps:
                 reg = kasugai_export.register_kasugai_project(
-                    result['kasc'])
+                    result['kasc'], engine=engine)
                 if reg.get('ok'):
                     # 起動中の画面も切替え(ベストエフォート)
                     kasugai_export.kasugai_command(
@@ -2428,9 +2162,9 @@ class GeoWebView:
             if opened:
                 self.iface.messageBar().pushMessage(
                     "geo_webview",
-                    self.tr("Opened in KASUGAI Canvas "
-                            "({0} layers, {1} tiles).").format(
-                        n_layers, n_tiles),
+                    self.tr("Opened in KASUGAI Canvas ({0}) "
+                            "({1} layers, {2} tiles).").format(
+                        engine, n_layers, n_tiles),
                     duration=5)
             else:
                 # KASUGAI未起動: 出力先フォルダを開く(.kascを開けば連携起動)
@@ -2468,26 +2202,6 @@ class GeoWebView:
             self.iface.messageBar().pushMessage(
                 "geo_webview",
                 self.tr("Presentation launch error: {0}").format(e), duration=5)
-
-    def on_map3d_clicked_panel(self):
-        """OpenLayers+Cesiumの2画面3Dページ(/map3d)をブラウザで開く。"""
-        try:
-            if not self.server_manager.is_server_running():
-                self.iface.messageBar().pushMessage(
-                    "geo_webview",
-                    self.tr("The HTTP server is not running. Please start the server."),
-                    duration=5)
-                return
-            port = self.server_manager.get_server_port() or 8089
-            QDesktopServices.openUrl(
-                QUrl(f"http://localhost:{port}/map3d?internal=1"))
-            self.iface.messageBar().pushMessage(
-                "geo_webview",
-                self.tr("Opened the 3D (OpenLayers + Cesium) view."), duration=3)
-        except Exception as e:
-            self.iface.messageBar().pushMessage(
-                "geo_webview",
-                self.tr("3D view launch error: {0}").format(e), duration=5)
 
     def on_received_selected(self, index):
         """受領履歴コンボの選択をナビゲート欄へコピーする。"""

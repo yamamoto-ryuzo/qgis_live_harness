@@ -21,7 +21,7 @@ class GeoWebViewWMSService:
     QGISキャンバスから地図画像を生成します。
     """
 
-    def __init__(self, iface, webmap_generator, server_port: int = 8089, force_epsg3857: bool = False,
+    def __init__(self, iface, server_port: int = 8089, force_epsg3857: bool = False,
                  max_render_workers: int = None, max_io_workers: int = None,
                  request_timeout_s: int = None, retry_count: int = None,
                  max_image_dimension: int = None, render_timeout_s: int = None):
@@ -29,12 +29,10 @@ class GeoWebViewWMSService:
 
         Args:
             iface: QGISインターフェース
-            webmap_generator: WebMapGeneratorインスタンス
             server_port: サーバーポート番号
             force_epsg3857: 任意のCRSを強制的にEPSG:3857として扱うかどうか
         """
         self.iface = iface
-        self.webmap_generator = webmap_generator
         self.server_port = server_port
         self.force_epsg3857 = force_epsg3857
 

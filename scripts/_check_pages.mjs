@@ -2,9 +2,6 @@ import { chromium } from 'playwright';
 
 const PORT = process.env.GWV_PORT || 8090;
 const pages = [
-  ['qgis-map', `http://localhost:${PORT}/qgis-map`],
-  ['maplibre', `http://localhost:${PORT}/maplibre`],
-  ['map3d', `http://localhost:${PORT}/map3d`],
   ['present', `http://localhost:${PORT}/present`],
   ['wfs-layers', `http://localhost:${PORT}/wfs-layers`],
   ['debug-bookmarks', `http://localhost:${PORT}/debug-bookmarks`],

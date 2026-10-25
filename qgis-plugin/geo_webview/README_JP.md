@@ -11,13 +11,13 @@ geo_webview は QGIS と Web を連携させるプラグインです。QGIS は 
 
 指定フォルダへ `.kasc`+`DATA/`（レイヤツリー・`.qml` スタイル・視点 `cam:`）を出力する経路。`.kasc` は KASUGAI Canvas のプロジェクト形式で、出力後は QGIS 側サーバーなしで動作し、`.kasc`+`DATA/`+システム一式を切り出して配布できます。Re:Earth Visualizer 向けには `reearth.txt` も出力できます。
 
-再生側のシステム本体は **KASUGAI Canvas 側に整備されています**（Cesium/MapLibre/OpenLayers のマルチエンジン。Web 部分は静的配信で動作、EXE 側が rclone・自動更新・ファイル保存・`.kasc` 関連付けを担当）。KASUGAI のインストール先を登録して `projects/` 直下へ出力する運用を想定しています。KASUGAI 未導入環境向けには、ページ自体がプレイヤーとなる生成 HTML（OpenLayers/MapLibre。`.kasc`/ローカルファイル取込の Import パネル内蔵）を経過措置として出力します。
+再生側のシステム本体は **KASUGAI Canvas 側に整備されています**（Cesium/MapLibre/OpenLayers/Leaflet のマルチエンジン。Web 部分は静的配信で動作、EXE 側が rclone・自動更新・ファイル保存・`.kasc` 関連付けを担当）。KASUGAI のインストール先を登録して `projects/` 直下へ出力する運用を想定しています。プラグイン内蔵の生成 HTML ビューア（旧 `/qgis-map`・`/maplibre`・`/map3d`）は v3.24.0 で廃止され、閲覧は全て KASUGAI Canvas に一本化されました。
 
 KASUGAI Canvas 側のレイアウト（`web/`）:
 
 ```
 web/
-  index.html      エンジン選択リダイレクト（?engine=cesium|maplibre|openlayers、既定 cesium）
+  index.html      エンジン選択リダイレクト（?engine=cesium|maplibre|openlayers|leaflet、既定 cesium）
   cesium/         Cesium フロント（現行アプリ）
   maplibre/       MapLibre フロント（.kasc プレイヤー実装済み: 全ベクター行・wms:/wmts:・QML・duckdb/sql・属性UI・6タブパネル）
   openlayers/     OpenLayers フロント（同上）
@@ -34,7 +34,7 @@ geo_webview が出力する `.kasc`+`DATA/` は `projects/<id>/` の1プロジ�
 
 ### OGC 準拠サーバー
 
-開いている QGIS プロジェクトを標準 OGC サービス（WMS 1.3.0 / WMTS / XYZ / WFS 2.0）として公開する**汎用の**内蔵 HTTP サーバー。生成したビューアページの配信（`/qgis-map`・`/maplibre`）と、データパッケージ内のライブ参照（`xyz:`/WMTS タイル・`/wfs` GeoJSON・`/export-data/`）の受け皿を兼ね、標準準拠のため任意の外部 OGC クライアント（QGIS・ArcGIS・他 WebGIS 等）からもそのまま利用できます。
+開いている QGIS プロジェクトを標準 OGC サービス（WMS 1.3.0 / WMTS / XYZ / WFS 2.0）として公開する**汎用の**内蔵 HTTP サーバー。データパッケージ内のライブ参照（`xyz:`/WMTS タイル・`/wfs` GeoJSON・`/export-data/`）の受け皿であり、標準準拠のため任意の外部 OGC クライアント（QGIS・ArcGIS・他 WebGIS 等）からもそのまま利用できます。
 
 複雑なサーバー構築は不要で、QGIS プロジェクトを開くだけで両方の供給経路がすぐに使えます。
 
@@ -48,7 +48,7 @@ geo_webview が出力する `.kasc`+`DATA/` は `projects/<id>/` の1プロジ�
 
 ## 連携方針（対応クライアント）
 
-geo_webview の連携方針は、プレイヤーを **KASUGAI Canvas に一本化**（Cesium・MapLibre・OpenLayers のマルチエンジン構成。KASUGAI 側で統一開発済み・`?engine=` で切替）し、**Re:Earth Visualizer をサブ**とすることです。生成 OL/MapLibre ページは KASUGAI 未導入環境向けの経過措置、それ以外は汎用 OGC 出力で供給します。
+geo_webview の連携方針は、プレイヤーを **KASUGAI Canvas に一本化**（Cesium・MapLibre・OpenLayers・Leaflet のマルチエンジン構成。KASUGAI 側で統一開発済み・`?engine=` で切替）し、**Re:Earth Visualizer をサブ**とすることです。それ以外は汎用 OGC 出力で供給します。
 
 ### ① セット開発のプレイヤー群
 
@@ -56,11 +56,10 @@ QGIS からエクスポート/配信されたデータ・スタイルを取り�
 
 | 連携先 | 経路 | 連携の形 |
 |---|---|---|
-| **KASUGAI Canvas** | `/kasugai`（`.kasc`+`DATA/`） | **統合プレイヤー（主）**。Cesium エンジン上の独立 WebGIS アプリへ、QGIS レイヤツリーを `.kasc`+`DATA/`（ベクター＋`.qml` スタイル）として出力し、起動中の KASUGAI へ外部プロジェクト登録・表示切替。Web 部分は静的配信で動作し、MapLibre/OpenLayers の 2D フロントも実装済み（`?engine=maplibre|openlayers` で切替・同じ `.kasc`+`DATA/` を再生）。EXE 込みインストールでは rclone・自動更新・ファイル保存・`.kasc` 関連付けも利用可 |
+| **KASUGAI Canvas** | `/kasugai`（`.kasc`+`DATA/`） | **統合プレイヤー（主）**。QGIS レイヤツリーを `.kasc`+`DATA/`（ベクター＋`.qml` スタイル）として出力し、起動中の KASUGAI へ外部プロジェクト登録・表示切替。パネルの4エンジンボタン（Cesium/OpenLayers/MapLibre/Leaflet）または `?engine=` で起動エンジンを選択でき、同じ `.kasc`+`DATA/` を全エンジンで再生。EXE 込みインストールでは rclone・自動更新・ファイル保存・`.kasc` 関連付けも利用可 |
 | **Re:Earth Visualizer（geo_suite）** | `reearth.txt` 出力 ＋ 汎用 OGC 出力 | **サブ**（KASUGAI Canvas と同じ Cesium ベース）。`reearth.txt`（inspector テキスト）に加え `/wfs` の GeoJSON・`/xyz`/`/wmts` タイル・`.qml` スタイルをクライアント側（geo_suite の QML→Re:Earth トランスレータ）が取り込む |
-| **OL/MapLibre 生成ページ** | `/qgis-map`・`/maplibre`（+`/maplibre-style`） | **経過措置**（KASUGAI 未導入環境向けの簡易プレイヤー）。ページ自体がプレイヤーで `.kasc`/ローカルファイル取込パネル内蔵（`wms:`/`wmts:` 行も取込可）。回転・任意CRS・テーマ・スタイル自動変換など OGC サーバー機能のフル活用例でもある |
 
-※3D 表現は Cesium ベースの KASUGAI Canvas（主）・Re:Earth Visualizer（サブ）に集約して開発します。内蔵の `/map3d`（OpenLayers+Cesium 同期ページ）は簡易プレビューに留め、連携先クライアント群からは外しています。
+※3D 表現は Cesium ベースの KASUGAI Canvas（主）・Re:Earth Visualizer（サブ）に集約して開発します。
 
 ### ② その他クライアント・外部サービス
 
@@ -89,12 +88,8 @@ flowchart LR
     subgraph G1["① セット開発のプレイヤー群"]
         direction TB
         subgraph G1_UNI["統合プレイヤー"]
-            KC["KASUGAI Canvas（主）<br>Cesium＋OL/MapLibre マルチエンジン"]
+            KC["KASUGAI Canvas（主）<br>Cesium/OL/MapLibre/Leaflet マルチエンジン"]
             RE["Re:Earth Visualizer geo_suite（サブ）"]
-        end
-        subgraph G1_TMP["経過措置（生成ページ）"]
-            OL["OpenLayers 生成ページ"]
-            ML["MapLibre 生成ページ"]
         end
     end
 
@@ -104,15 +99,13 @@ flowchart LR
     end
 
     QGIS --> GW
-    GW -->|"/qgis-map"| OL
-    GW -->|"/maplibre・/maplibre-style"| ML
     GW -->|"/kasugai（.kasc+DATA/）"| KC
     GW -->|"/wfs・/xyz・.qml"| RE
     GW -->|"/wms・/wmts・/xyz・/wfs"| OC
     GW -->|"URL 生成・パース"| GM
 ```
 
-※Leaflet は 2D 連携の対象外とします（回転・任意 CRS など QGIS 要件を満たせず、機能は OpenLayers の下位互換。軽量埋め込みが必要になった場合のみ `/wms`・`/xyz` を読む薄いページとして後付け可能）。
+※Leaflet も KASUGAI Canvas のエンジンの1つとして利用できます（`?engine=leaflet`。回転・任意 CRS などは OpenLayers エンジンの下位互換）。
 
 ## クライアント群の機能
 
@@ -122,11 +115,11 @@ flowchart LR
 
 クライアントは取り込み方で2つの型に分かれます:
 
-クライアントの取り込み方式は2系統: **宣言型**（クライアント自身が、ローカルパスまたは URL で指定されたファイルを指定形式としてデコードして読む — KASUGAI Canvas・Re:Earth、および生成 OL/MapLibre ページ内蔵の **Import パネル**。同じ `.kasc` 行とローカルファイルを受け付ける）と **サービス型**（サーバーが形式を決めて OGC プロトコルで配信し、クライアントは受領するだけ — MapLibre・OpenLayers の基本レイヤ。ベクターは `/wfs` GeoJSON、ラスタは WMS/WMTS 描画として供給）。
+クライアントの取り込み方式は2系統: **宣言型**（クライアント自身が、ローカルパスまたは URL で指定されたファイルを指定形式としてデコードして読む — KASUGAI Canvas（全エンジン）・Re:Earth。同じ `.kasc` 行とローカルファイルを受け付ける）と **サービス型**（サーバーが形式を決めて OGC プロトコルで配信し、クライアントは受領するだけ — 任意の MapLibre/OpenLayers クライアント。ベクターは `/wfs` GeoJSON、ラスタは WMS/WMTS 描画として供給）。
 
-| 機能 | KASUGAI Canvas | Re:Earth geo_suite | MapLibre（生成ページ） | OpenLayers（生成ページ） |
+| 機能 | KASUGAI Canvas | Re:Earth geo_suite | MapLibre（Canvasエンジン） | OpenLayers（Canvasエンジン） |
 |---|:-:|:-:|:-:|:-:|
-| 取り込み経路 | `.kasc` + `DATA/` ファイル（`/kasugai` エクスポート + `/api/projects/register`） | `reearth.txt` インスペクター出力（`/kasugai` 出力・HTTPサーバ稼働時）・geo_webview の `/wfs` GeoJSON・`/xyz`・`.qml`・`/export-data/` ファイル・Manage タブのファイル取り込み | Import パネル: `.kasc` 行 + ローカルファイル（.geojson/.fgb/.parquet/.gpkg/.csv/.tsv/.kasc） | MapLibre と同じ |
+| 取り込み経路 | `.kasc` + `DATA/` ファイル（`/kasugai` エクスポート + `/api/projects/register`） | `reearth.txt` インスペクター出力（`/kasugai` 出力・HTTPサーバ稼働時）・geo_webview の `/wfs` GeoJSON・`/xyz`・`.qml`・`/export-data/` ファイル・Manage タブのファイル取り込み | `.kasc` 行 + ローカルファイル（.geojson/.fgb/.parquet/.gpkg/.csv/.tsv/.kasc） | MapLibre と同じ |
 | GeoJSON | ✓（`geojson:`） | ✓（`geojson:`） | ✓（`geojson:`/ファイル） | ✓（`geojson:`/ファイル） |
 | GeoPackage | ✓（`gpkg:` Worker・`bbox=auto` クエリ） | ✓（`gpkg:` sql.js・`bbox=auto`・`layer_styles` 埋め込み QML） | ✓（`gpkg:` sql.js Worker・`bbox=auto`） | ✓（`gpkg:` sql.js Worker・`bbox=auto`） |
 | GeoParquet | ✓（`geoparquet:`） | ✓（`parquet:`/`geoparquet:`） | ✓（`geoparquet:` hyparquet） | ✓（`geoparquet:` hyparquet） |
@@ -143,7 +136,7 @@ flowchart LR
 
 | 機能 | KASUGAI Canvas | Re:Earth geo_suite | MapLibre | OpenLayers |
 |---|:-:|:-:|:-:|:-:|
-| 取り込み経路 | — | — | WMTS ラスタ + `/wfs` GeoJSON（`/maplibre`） | `/wms` ラスタ（`/qgis-map`） |
+| 取り込み経路 | — | — | WMTS/WMS ラスタ + `/wfs` GeoJSON（`wms:`/`wmts:` 行・外部 MapLibre クライアントは `/maplibre-style`） | `/wms` ラスタ |
 | GeoJSON | — | — | ✓（`/wfs`） | △（WMS ラスタ描画+GetFeatureInfo） |
 | GeoPackage | — | — | ✓（`/wfs` GeoJSON） | △（WMS ラスタ） |
 | GeoParquet | — | — | ✓（`/wfs` GeoJSON） | △（WMS ラスタ） |
@@ -232,8 +225,8 @@ flowchart LR
 - **ベクターデータ**: 公開レイヤ（`WFSLayers`）を GeoJSON で供給。MapLibre・Re:Earth は `/wfs` 経由、KASUGAI は `DATA/` フォルダのファイルとして受け取る（GPKG/GeoJSON/GeoParquet/FlatGeobuf は変換せずネイティブ参照）
 - **スタイル引き継ぎ**: QGIS レンダラを各クライアント形式へ変換 — WMS/タイルはサーバー側描画で見た目を完全再現、MapLibre は `/maplibre-style` でレイヤ変換、KASUGAI・Re:Earth は `.qml` を渡してクライアント側でコンパイル
 - **レイヤ一覧・表示制御**: `/wfs-layers`（公開レイヤ JSON）を共通のレイヤカタログとして利用。KASUGAI ではレイヤツリーのグループ構成と on/off も引き継ぐ
-- **クエリ系記述**: `/kasugai` はソースが許す範囲で KASUGAI Canvas のクエリ系行を出力する — CSV/TSV（delimitedtext・ogr）は `duckdb:`（`format=`/`lon=`/`lat=`/`geom=`）、フィルタ付き GPKG は `gpkg:`+`where=`、フィルタ付き Parquet は `duckdb:`+`format=parquet`+`where=`。`sql:`（任意 SELECT）は QGIS に相当ソースが無いため出力しない。3D Tiles レイヤ（`QgsTiledSceneLayer`）は `3dtiles:`、ローカル XYZ テンプレート（`file:///…/{z}/{x}/{y}.png`）はタイルツリーごと `DATA/` へ複製して出力する。QGIS の WMS ラスタレイヤ（`type=xyz` 以外）は `wms:` 行（`layers=`/`styles=`/`format=` 付き）として出力し、Canvas 側が GetMap を 256px タイルへ分解して描画する。`wmts:` 行（`{TileMatrix}` 系 RESTful テンプレート・KVP GetTile）も Canvas・生成ビューアで読み込める（geo_webview 自身が WMTS レイヤを `wmts:` として出力はしない）
-- **追従モード**: `?follow`/`?present` 付きで開いた OL/MapLibre ページは `/present/state` をポーリングし、QGIS キャンバスの移動にリアルタイム追従（プレゼン・画面共有用）
+- **クエリ系記述**: `/kasugai` はソースが許す範囲で KASUGAI Canvas のクエリ系行を出力する — CSV/TSV（delimitedtext・ogr）は `duckdb:`（`format=`/`lon=`/`lat=`/`geom=`）、フィルタ付き GPKG は `gpkg:`+`where=`、フィルタ付き Parquet は `duckdb:`+`format=parquet`+`where=`。`sql:`（任意 SELECT）は QGIS に相当ソースが無いため出力しない。3D Tiles レイヤ（`QgsTiledSceneLayer`）は `3dtiles:`、ローカル XYZ テンプレート（`file:///…/{z}/{x}/{y}.png`）はタイルツリーごと `DATA/` へ複製して出力する。QGIS の WMS ラスタレイヤ（`type=xyz` 以外）は `wms:` 行（`layers=`/`styles=`/`format=` 付き）として出力し、Canvas 側が GetMap を 256px タイルへ分解して描画する。`wmts:` 行（`{TileMatrix}` 系 RESTful テンプレート・KVP GetTile）も Canvas 側で読み込める（geo_webview 自身が WMTS レイヤを `wmts:` として出力はしない）
+- **追従モード**: `?follow`/`?present` 付きで開いた Canvas ページ（MapLibre/OpenLayers/Leaflet エンジン）は `/present/state` をポーリングし、QGIS キャンバスの移動にリアルタイム追従（プレゼン・画面共有用）
 - **双方向ナビゲーション**: パーマリンク受信（`/received`）と External Control により、クライアント→QGIS 方向の視点共有も可能。KASUGAI からの逆方向は `qgis-import` プラグインが `/kasugai` を呼ぶ形（取り込みのみ — Canvas 側の編集結果は QGIS へ戻らない）
 
 ## geo_suite との連携
@@ -255,20 +248,14 @@ flowchart LR
 
 ## 主要機能
 
-### 🗺️ 内蔵 Web ビューア
+### 🗺️ 内蔵 Web ページ
 
-サーバー自体が HTML を生成してブラウザへ配信します。URL を開くだけで利用可能。生成ページは `.kasc`/ローカルファイルを取り込む Import パネルも内蔵します（※単独 Web ビューアの開発は KASUGAI Canvas に一本化する方針のため、本機能は経過措置。概要「開発方針」参照）。
+サーバー自体が HTML を生成してブラウザへ配信します。URL を開くだけで利用可能（地図閲覧そのものは KASUGAI Canvas が担います）。
 
 | エンドポイント | 内容 |
 |---|---|
-| `/qgis-map` | OpenLayers 対話地図。`x,y,scale,crs,rotation,theme` クエリで表示状態を指定可能 |
-| `/maplibre` | MapLibre ビューア。テーマ・ブックマーク対応 (v3.6.0)、pitch 切替 UI 付き |
-| `/map3d` | OpenLayers(2D) + Cesium(3D) の同期2画面（簡易プレビュー。3D の主開発対象は KASUGAI Canvas） |
 | `/present` | プレゼン用ページ。`/screenshot` の定期更新で QGIS キャンバスをウィンドウ共有 |
 | `/screenshot` | 現在のキャンバス表示の PNG（回転反映、`w`/`h` でサイズ指定可） |
-
-![OpenLayers表示](images/openlayers.png)
-![MapLibre表示](images/maplibre2.png)
 
 ### 🌐 OGC 標準サービス
 
@@ -290,13 +277,13 @@ flowchart LR
 
 ### � 外部アプリ連携
 
-#### KASUGAI Canvas（Cesium / MapLibre / OpenLayers）
-- パネルの `KASUGAI` ボタンまたは `GET /kasugai` で、表示中レイヤを KASUGAI Canvas プロジェクト（`.kasc`+`DATA/`）として出力
+#### KASUGAI Canvas（Cesium / OpenLayers / MapLibre / Leaflet）
+- パネルの4エンジンボタン（`Cesium` `OpenLayers` `MapLibre` `Leaflet`）または `GET /kasugai?engine=<e>` で、表示中レイヤを KASUGAI Canvas プロジェクト（`.kasc`+`DATA/`）として出力し該当エンジンで起動
 - GPKG/GeoJSON/GeoParquet/FlatGeobuf はネイティブ参照、その他ベクターは GeoJSON(EPSG:4326) に変換。各レイヤの QGIS スタイルは `.qml` として出力。WMS ラスタは `wms:` 行（`layers=`/`styles=`/`format=`）として参照出力
-- 出力した `.kasc`+`DATA/` は Cesium だけでなく MapLibre/OpenLayers フロント（`?engine=maplibre|openlayers`）でもそのまま再生できる（wms:/wmts: を含む2D行を全対応）
+- 出力した `.kasc`+`DATA/` は全エンジン（`?engine=cesium|openlayers|maplibre|leaflet`）でそのまま再生できる（wms:/wmts: を含む2D行を全対応）
 - 起動中の KASUGAI ローカルサーバーへ外部プロジェクト登録 → `switchProject` で表示切替
 - KASUGAI 側の `qgis-import` プラグインからも同機能を呼び出し可能（双方向）
-- AI からは Live Driver 経由の `kasugaiExport` ブリッジで制御可能
+- AI からは Live Driver 経由の `kasugaiExport` ブリッジ（`engine` 引数対応）で制御可能
 
 ### 🔄 パーマリンク・External Control
 
@@ -375,10 +362,7 @@ http://localhost:8089/wfs?SERVICE=WFS&REQUEST=GetFeature&TYPENAME=mylayer&OUTPUT
 
 | パス | 種別 | 内容 |
 |---|---|---|
-| `/qgis-map` | HTML | OpenLayers 対話地図（パーマリンク） |
-| `/maplibre` | HTML | MapLibre ビューア |
 | `/maplibre-style` | JSON | MapLibre スタイル（`?typename=` でレイヤ別） |
-| `/map3d` | HTML | OpenLayers + Cesium 同期2画面（簡易プレビュー） |
 | `/present` | HTML | プレゼン用ウィンドウ共有ページ |
 | `/screenshot` | PNG | 現在のキャンバス画像 |
 | `/wms` | OGC | WMS 1.3.0（GetCapabilities/GetMap/GetFeatureInfo） |
@@ -386,7 +370,7 @@ http://localhost:8089/wfs?SERVICE=WFS&REQUEST=GetFeature&TYPENAME=mylayer&OUTPUT
 | `/xyz/{z}/{x}/{y}.png` | OGC | XYZ タイル（WMTS エイリアス） |
 | `/wfs` | OGC | WFS 2.0（GeoJSON/GML） |
 | `/wfs-layers` | JSON | 公開 WFS レイヤ一覧 |
-| `/kasugai` | JSON | KASUGAI Canvas へエクスポート・登録 |
+| `/kasugai` | JSON | KASUGAI Canvas へエクスポート・登録（`?engine=` で起動エンジン指定可） |
 | `/received` | HTML | 受信パーマリンク履歴 |
 
 ## 主なユースケース
@@ -408,8 +392,8 @@ QGIS で作成した地図データを、調査員のモバイル端末（geo_su
 部署内の地図データを QGIS から配信し、各メンバーがブラウザで閲覧。
 
 ```bash
-# 部署内 LAN で配信
-http://192.168.1.100:8089/qgis-map
+# 部署内 LAN で配信（OGC サービス）
+http://192.168.1.100:8089/wms?SERVICE=WMS&REQUEST=GetCapabilities
 ```
 
 ### 3. 緊急時の臨時地図サーバー
@@ -422,7 +406,7 @@ QGIS Portable + geo_webview + データを USB メモリで配布し、受け取
 
 ### 5. 3D 可視化・プレゼン
 
-`/kasugai` で KASUGAI Canvas（3D GIS の主開発対象）へ持ち出して3D確認・プレゼン資料化、`/present` で会議画面に QGIS 表示を共有。手軽な確認には内蔵の簡易3Dプレビュー `/map3d` も利用可能。
+`/kasugai` で KASUGAI Canvas（3D GIS の主開発対象）へ持ち出して3D確認・プレゼン資料化、`/present` で会議画面に QGIS 表示を共有。
 
 ## WFS 詳細仕様
 
@@ -485,9 +469,6 @@ http://localhost:8089/maplibre-style
 
 # レイヤー別スタイル（WFS + スタイル）
 http://localhost:8089/maplibre-style?typename=layer_name
-
-# MapLibre ビューア
-http://localhost:8089/maplibre
 ```
 
 ### カスタマイズ
@@ -499,11 +480,11 @@ map.setStyle('http://localhost:8089/maplibre-style?typename=roads');
 
 ## KASUGAI Canvas 連携
 
-`/kasugai` エンドポイント（またはパネルの `KASUGAI` ボタン、Live Driver 経由の `kasugaiExport` ブリッジ）で、QGIS プロジェクトを KASUGAI Canvas（Cesium / MapLibre / OpenLayers のマルチエンジン地図アプリ）へ送出します。
+`/kasugai` エンドポイント（またはパネルの4エンジンボタン、Live Driver 経由の `kasugaiExport` ブリッジ）で、QGIS プロジェクトを KASUGAI Canvas（Cesium / OpenLayers / MapLibre / Leaflet のマルチエンジン地図アプリ）へ送出します。
 
 ```bash
-curl "http://localhost:8089/kasugai"
-# → {"ok":true,"url":"http://localhost:8510/?project=...","dir":"...","layers":N,"tiles":M}
+curl "http://localhost:8089/kasugai?engine=openlayers"
+# → {"ok":true,"url":"http://localhost:8510/?project=...&engine=openlayers","dir":"...","layers":N,"tiles":M,"engine":"openlayers"}
 ```
 
 - 出力先: 既定 `<ドキュメント>/kasugai_canvas_qgis`（`.kasc` + `DATA/`）。KASUGAI インストール先を設定で登録すれば `projects/<id>/` 直下への出力も可
@@ -542,8 +523,7 @@ geo_webview/
 ├── wms_service.py         # WMS 実装
 ├── wmts_service.py        # WMTS/XYZ 実装
 ├── wfs_service.py         # WFS 実装
-├── maplibre_generator.py  # MapLibre 変換
-├── webmap_generator.py    # OpenLayers / OL+Cesium 生成
+├── maplibre/              # MapLibre スタイル変換ヘルパ（/maplibre-style 用）
 ├── kasugai_export.py      # KASUGAI Canvas 連携
 └── bridge.py              # AI/外部制御用ブリッジ
 ```

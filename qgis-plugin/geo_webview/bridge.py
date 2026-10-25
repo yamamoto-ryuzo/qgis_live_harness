@@ -125,8 +125,9 @@ class GeoWebViewBridge:
         },
         "generatePermalink": {
             "description":
-                "現在の地図ビューから /qgis-map パーマリンクURLを生成する。"
-                "theme指定でテーマ復元情報を付与。パネルがあれば入力欄にも反映。",
+                "現在の地図ビューから /qgis-map パーマリンクURL(ナビゲーション"
+                "交換形式)を生成する。theme指定でテーマ復元情報を付与。"
+                "パネルがあれば入力欄にも反映。",
             "example": {"method": "generatePermalink", "args": ["概況図"]},
         },
         "navigate": {
@@ -189,22 +190,11 @@ class GeoWebViewBridge:
                 "現在の地図中心・縮尺からGoogle Earth Web URLを返す。",
             "example": {"method": "googleEarthUrl", "args": []},
         },
-        "maplibreUrl": {
-            "description":
-                "現在の地図ビューに対応する /maplibre エンドポイントURLを返す"
-                "(要サーバ起動)。WFS typenameは含めない。",
-            "example": {"method": "maplibreUrl", "args": []},
-        },
-        "openlayersUrl": {
-            "description":
-                "OpenLayers HTMLを生成・保存し、静的HTTPサーバで配信する"
-                "URLを返す。open_browser=Trueで既定ブラウザでも開く。",
-            "example": {"method": "openlayersUrl", "args": [False]},
-        },
         "openExternal": {
             "description":
                 "外部サービスを既定ブラウザで開く。serviceは google_maps /"
-                " google_earth / maplibre / openlayers。",
+                " google_earth / cesium / openlayers / maplibre / leaflet"
+                "(エンジン名はKASUGAI Canvasをそのエンジンで起動する)。",
             "example": {"method": "openExternal", "args": ["maplibre"]},
         },
         "kasugaiExport": {
@@ -215,6 +205,8 @@ class GeoWebViewBridge:
                 "GPKGはwhere=付き、3D Tilesは3dtiles:行、他ベクターは"
                 "GeoJSON(4326)化。起動中のKASUGAIローカルサーバ(port 8510)"
                 "があれば外部プロジェクト登録してブラウザで開く。"
+                "engine=cesium|openlayers|maplibre|leaflet で起動エンジン"
+                "を指定できる(既定 cesium)。"
                 "open_app=Falseで出力のみ。hidden_as_off=Trueで非表示レイヤ"
                 "もoff行として出力。embed_gpkg_style=TrueでGPKGの"
                 "layer_stylesへも保存。QGISブックマークは bookmarks.xml"
@@ -240,16 +232,16 @@ class GeoWebViewBridge:
         },
         "getSettings": {
             "description":
-                "設定(MapLibre/OpenLayers出力先・優先ポート)とプラグイン"
+                "設定(KASUGAI出力先・インストール先・優先ポート)とプラグイン"
                 "バージョンを返す。",
             "example": {"method": "getSettings", "args": []},
         },
         "setSettings": {
             "description":
-                "設定を変更する。対応キー: maplibre_output_path /"
-                " openlayers_output_path('__default__'=temp) / port。",
+                "設定を変更する。対応キー: kasugai_output_path /"
+                " kasugai_install_path / kasugai_port / port。",
             "example": {"method": "setSettings",
-                        "args": [{"maplibre_output_path": "__default__"}]},
+                        "args": [{"kasugai_port": 8510}]},
         },
     }
 
@@ -920,94 +912,24 @@ class GeoWebViewBridge:
             return self._err("google earth url build failed")
         return self._ok({"url": url})
 
-    def maplibreUrl(self):
-        """現在の地図ビューに対応する /maplibre エンドポイントURLを返す。
-
-        サーバ未起動ならエラー(先に startServer を呼ぶ)。
-        """
-        server = self._server()
-        if server is None or not server.is_server_running():
-            return self._err("http server not running (call startServer)")
-        port = server.get_server_port()
-        st = self._canvas_state()
-        if st is None:
-            return self._err("cannot read canvas state")
-        url = (f"http://localhost:{port}/maplibre"
-               f"?x={st['center'][0]:.6f}&y={st['center'][1]:.6f}"
-               f"&scale={st['scale']:.1f}&crs={st['crs']}"
-               f"&rotation={st['rotation']:.2f}")
-        return self._ok({"url": url})
-
-    def openlayersUrl(self, open_browser=False):
-        """OpenLayers HTMLを生成・保存し、静的配信サーバのURLを返す。
-
-        open_browser=True で既定ブラウザでも開く。出力先は設定
-        (openlayers_output_path、既定 temp/qmap_openlayers)に従う。
-        """
-        import os
-        p = self._plugin
-        server = self._server()
-        if getattr(p, "webmap_generator", None) is None:
-            return self._err("webmap_generator not available")
-        port = (server.get_server_port() if server is not None else None) \
-            or getattr(server, "server_port", 8089) or 8089
-        canvas = p.iface.mapCanvas()
-        center, scale = canvas.center(), canvas.scale()
-        from qgis.core import (QgsCoordinateReferenceSystem,
-                               QgsCoordinateTransform, QgsProject)
-        canvas_crs = canvas.mapSettings().destinationCrs()
-        target_crs = QgsCoordinateReferenceSystem("EPSG:3857")
-        if canvas_crs.authid() != "EPSG:3857":
-            tr = QgsCoordinateTransform(canvas_crs, target_crs,
-                                        QgsProject.instance())
-            c3857 = tr.transform(center)
-        else:
-            c3857 = center
-        navigation_data = {
-            "x": c3857.x(), "y": c3857.y(),
-            "scale": scale,
-            "rotation": canvas.rotation(),
-            "crs": "EPSG:3857",
-            "bookmarks": p._collect_bookmarks_epsg3857(),
-            "themes": p._collect_themes(),
-        }
-        html_content = p.webmap_generator.generate_wms_based_html_page(
-            navigation_data, image_width=800, image_height=600,
-            server_port=port)
-        from .webmap_generator import save_openlayers_html_to_file
-        path = save_openlayers_html_to_file(html_content, port)
-        if not path or not os.path.exists(path):
-            return self._err(f"failed to save openlayers html: {path}")
-        try:
-            url = p._serve_static_and_get_url(os.path.dirname(path))
-        except Exception as e:
-            return self._err(f"static server failed: {e} (file: {path})")
-        if open_browser:
-            try:
-                self._open_url(url)
-            except Exception as e:
-                return self._err(f"open browser failed: {e} (url: {url})")
-        return self._ok({"path": path, "url": url,
-                         "opened": bool(open_browser)})
-
     def openExternal(self, service):
         """外部サービスを既定ブラウザで開く。
 
-        service: "google_maps" | "google_earth" | "maplibre" | "openlayers"
+        service: "google_maps" | "google_earth" | KASUGAI Canvas エンジン名
+        ("cesium" | "openlayers" | "maplibre" | "leaflet")
         """
         service = str(service or "").strip().lower()
         if service == "google_maps":
             r = json.loads(self.googleMapsUrl())
         elif service == "google_earth":
             r = json.loads(self.googleEarthUrl())
-        elif service == "maplibre":
-            r = json.loads(self.maplibreUrl())
-        elif service == "openlayers":
-            r = json.loads(self.openlayersUrl(open_browser=False))
+        elif service in ("cesium", "openlayers", "maplibre", "leaflet"):
+            # KASUGAI Canvas: エクスポート・登録・ブラウザ起動まで行う
+            return self.kasugaiExport(engine=service, open_app=True)
         else:
             return self._err("unknown service: {!r} (google_maps/"
-                             "google_earth/maplibre/openlayers)"
-                             .format(service))
+                             "google_earth/cesium/openlayers/maplibre/"
+                             "leaflet)".format(service))
         if not r.get("ok"):
             return self._err(r.get("error", "url build failed"))
         url = r["url"]
@@ -1015,17 +937,14 @@ class GeoWebViewBridge:
             self._open_url(url)
         except Exception as e:
             return self._err(f"open browser failed: {e} (url: {url})")
-        out = {"service": service, "url": url}
-        if r.get("path"):
-            out["path"] = r["path"]
-        return self._ok(out)
+        return self._ok({"service": service, "url": url})
 
     # ---------- KASUGAI Canvas 連携 ----------
 
     def kasugaiExport(self, output_dir=None, open_app=True,
                       native_formats=True, hidden_as_off=False,
                       embed_gpkg_style=False, emit_themes=True,
-                      emit_bookmarks=True):
+                      emit_bookmarks=True, engine=None):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
         表示中のベクターレイヤを DATA/ へ出力し、.kasc(geojson:/gpkg:/
@@ -1050,10 +969,14 @@ class GeoWebViewBridge:
         open_app=True で起動中のKASUGAIローカルサーバ(port 8510)へ
         /api/projects/register で登録し、switchProjectコマンドを送って
         ブラウザで開く。未起動なら出力のみ行う。
+        engine=cesium|openlayers|maplibre|leaflet で起動エンジンを指定
+        できる(既定 cesium、URLの ?engine= パラメータ経由)。
         GUIスレッドで全レイヤを逐次エクスポートするため、大量レイヤでは
         数秒ブロックする場合がある。
         """
         from . import kasugai_export
+        engine = kasugai_export.normalize_engine(engine) \
+            or kasugai_export.DEFAULT_ENGINE
         try:
             srv = self._server()
             port = (srv.get_server_port()
@@ -1098,11 +1021,13 @@ class GeoWebViewBridge:
             out["note"] = ("kasugai canvas local server not detected "
                            "(port 8510). open the .kasc file manually.")
             return self._ok(out)
-        reg = kasugai_export.register_kasugai_project(result["kasc"])
+        reg = kasugai_export.register_kasugai_project(
+            result["kasc"], engine=engine)
         out["registered"] = bool(reg.get("ok"))
         if reg.get("ok"):
             out["projectId"] = reg["id"]
             out["url"] = reg["url"]
+            out["engine"] = engine
             kasugai_export.kasugai_command(
                 "switchProject", {"projectId": reg["id"]})
             try:
@@ -1156,15 +1081,12 @@ class GeoWebViewBridge:
             {"path": "/wms",
              "url": f"{base}/wms?SERVICE=WMS&REQUEST=GetCapabilities",
              "description": "WMS (GetCapabilities/GetMap → PNG)"},
-            {"path": "/qgis-map",
-             "url": f"{base}/qgis-map?x=<x>&y=<y>&scale=<s>&crs=<crs>",
-             "description": "OpenLayers パーマリンクHTMLページ"},
-            {"path": "/maplibre",
-             "url": f"{base}/maplibre",
-             "description": "MapLibre GL 地図HTMLページ"},
             {"path": "/maplibre-style",
              "url": f"{base}/maplibre-style?typename=<layer>",
              "description": "MapLibre style JSON(WFS注入)"},
+            {"path": "/kasugai",
+             "url": f"{base}/kasugai?engine=cesium|openlayers|maplibre|leaflet",
+             "description": "KASUGAI Canvasエクスポート・登録・起動"},
             {"path": "/wmts",
              "url": f"{base}/wmts?SERVICE=WMTS&REQUEST=GetCapabilities",
              "description": "WMTSタイル/GetCapabilities"},
@@ -1185,23 +1107,12 @@ class GeoWebViewBridge:
 
     def getSettings(self):
         """設定(出力先ディレクトリ・優先ポート)とバージョンを返す。"""
-        import os
-        import tempfile
         from qgis.PyQt.QtCore import QSettings
         s = QSettings("GeoWebView", "geo_webview")
         server = self._server()
-        ml = s.value("maplibre_output_path", "__default__")
-        ol = s.value("openlayers_output_path", "__default__")
         from . import kasugai_export
-        tmp = tempfile.gettempdir()
         return self._ok({
             "version": getattr(server, "plugin_version", None),
-            "maplibre_output_path": ml,
-            "maplibre_output_dir": (os.path.join(tmp, "qmap_maplibre")
-                                    if ml == "__default__" else ml),
-            "openlayers_output_path": ol,
-            "openlayers_output_dir": (os.path.join(tmp, "qmap_openlayers")
-                                      if ol == "__default__" else ol),
             "kasugai_output_path": s.value("kasugai_output_path",
                                            "__default__"),
             "kasugai_output_dir": kasugai_export.get_output_dir(),
@@ -1217,8 +1128,6 @@ class GeoWebViewBridge:
         """設定を変更する。
 
         settings(dict) 対応キー:
-          maplibre_output_path / openlayers_output_path:
-              出力先ディレクトリ("__default__" で temp に戻す)
           kasugai_output_path: KASUGAIエクスポート出力先
               ("__default__" で <ドキュメント>/kasugai_canvas_qgis)
           kasugai_port: KASUGAIローカルサーバのポート(既定8510)
@@ -1228,16 +1137,15 @@ class GeoWebViewBridge:
         """
         from qgis.PyQt.QtCore import QSettings
         settings = dict(settings or {})
-        allowed = {"maplibre_output_path", "openlayers_output_path", "port",
-                   "kasugai_output_path", "kasugai_port", "kasugai_install_path"}
+        allowed = {"port", "kasugai_output_path", "kasugai_port",
+                   "kasugai_install_path"}
         unknown = [k for k in settings if k not in allowed]
         if unknown:
             return self._err(f"unknown keys: {unknown} "
                              f"(allowed: {sorted(allowed)})")
         s = QSettings("GeoWebView", "geo_webview")
         applied = {}
-        for key in ("maplibre_output_path", "openlayers_output_path",
-                    "kasugai_output_path", "kasugai_install_path"):
+        for key in ("kasugai_output_path", "kasugai_install_path"):
             if key in settings:
                 s.setValue(key, str(settings[key]))
                 applied[key] = str(settings[key])
@@ -1251,9 +1159,6 @@ class GeoWebViewBridge:
                     f"invalid kasugai_port: {settings['kasugai_port']!r}")
             s.setValue("kasugai_port", str(kp))
             applied["kasugai_port"] = kp
-            if key in settings:
-                s.setValue(key, str(settings[key]))
-                applied[key] = str(settings[key])
         if "port" in settings:
             r = json.loads(self.setPort(settings["port"]))
             if not r.get("ok"):

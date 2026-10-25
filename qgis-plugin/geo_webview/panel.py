@@ -88,9 +88,6 @@ class GeoWebViewPanel(QDockWidget):
         # newly added UI elements
         self.pushButton_clipboard = getattr(self.ui, 'pushButton_clipboard', None)
         self.pushButton_paste = getattr(self.ui, 'pushButton_paste', None)
-        self.pushButton_open = getattr(self.ui, 'pushButton_open', None)
-        # MapLibre button (added in UI)
-        self.pushButton_maplibre = getattr(self.ui, 'pushButton_maplibre', None)
         self.pushButton_settings = getattr(self.ui, 'pushButton_settings', None)
         self.lineEdit_permalink = getattr(self.ui, 'lineEdit_permalink', None)
         self.lineEdit_navigate = getattr(self.ui, 'lineEdit_navigate', None)
@@ -103,8 +100,11 @@ class GeoWebViewPanel(QDockWidget):
         # Google Maps/Earth用のUI要素
         self.pushButton_google_maps = getattr(self.ui, 'pushButton_google_maps', None)
         self.pushButton_google_earth = getattr(self.ui, 'pushButton_google_earth', None)
-        # KASUGAI Canvas エクスポートボタン
-        self.pushButton_kasugai = getattr(self.ui, 'pushButton_kasugai', None)
+        # KASUGAI Canvas エンジン起動ボタン
+        self.pushButton_kasugai_cesium = getattr(self.ui, 'pushButton_kasugai_cesium', None)
+        self.pushButton_kasugai_openlayers = getattr(self.ui, 'pushButton_kasugai_openlayers', None)
+        self.pushButton_kasugai_maplibre = getattr(self.ui, 'pushButton_kasugai_maplibre', None)
+        self.pushButton_kasugai_leaflet = getattr(self.ui, 'pushButton_kasugai_leaflet', None)
         # HTTP server toggle checkbox (added to UI)
         self.checkBox_server_toggle = getattr(self.ui, 'checkBox_server_toggle', None)
         # External control checkbox (new in UI)
@@ -117,10 +117,9 @@ class GeoWebViewPanel(QDockWidget):
         self.pushButton_port_80 = getattr(self.ui, 'pushButton_port_80', None)
         self.pushButton_port_443 = getattr(self.ui, 'pushButton_port_443', None)
 
-        # 共有/プレゼンテーション/3D/MAC認証の追加UI(動的生成)
+        # 共有/プレゼンテーション/MAC認証の追加UI(動的生成)
         self.groupBox_sharing = None
         self.pushButton_present = None
-        self.pushButton_map3d = None
         self.comboBox_received = None
         self.checkBox_mac_auth = None
         self.lineEdit_mac_auth = None
@@ -216,16 +215,23 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.pushButton_google_maps.setText(QCoreApplication.translate('geo_webview', "🗺️ Google Maps"))
         if hasattr(self.ui, 'pushButton_google_earth'):
             self.ui.pushButton_google_earth.setText(QCoreApplication.translate('geo_webview', "🌍 Google Earth"))
-        if hasattr(self.ui, 'pushButton_kasugai'):
-            self.ui.pushButton_kasugai.setText(QCoreApplication.translate('geo_webview', "KASUGAI"))
+        if hasattr(self.ui, 'label_kasugai'):
+            self.ui.label_kasugai.setText(QCoreApplication.translate('geo_webview', "KASUGAI Canvas:"))
+        _kasugai_tool_tip = QCoreApplication.translate(
+            'geo_webview',
+            "Export visible layers and open in KASUGAI Canvas ({engine})")
+        for _eng, _label in (('cesium', 'Cesium'), ('openlayers', 'OpenLayers'),
+                             ('maplibre', 'MapLibre'), ('leaflet', 'Leaflet')):
+            _btn = getattr(self.ui, 'pushButton_kasugai_{0}'.format(_eng), None)
+            if _btn is not None:
+                _btn.setText(QCoreApplication.translate('geo_webview', _label))
+                _btn.setToolTip(_kasugai_tool_tip.format(engine=_label))
 
         # ボタン
         if hasattr(self.ui, 'pushButton_generate'):
             self.ui.pushButton_generate.setText(QCoreApplication.translate('geo_webview', "Generate Permalink"))
         if hasattr(self.ui, 'pushButton_copy'):
             self.ui.pushButton_copy.setText(QCoreApplication.translate('geo_webview', "URLCopy"))
-        if hasattr(self.ui, 'pushButton_open'):
-            self.ui.pushButton_open.setText(QCoreApplication.translate('geo_webview', "OpenLayers"))
         if hasattr(self.ui, 'pushButton_navigate'):
             self.ui.pushButton_navigate.setText(QCoreApplication.translate('geo_webview', "Navigate"))
         if hasattr(self.ui, 'pushButton_save_theme'):
@@ -316,13 +322,7 @@ class GeoWebViewPanel(QDockWidget):
         self.pushButton_present.setToolTip(tr(
             'geo_webview',
             'Open a page that mirrors the QGIS canvas for window sharing'))
-        self.pushButton_map3d = QPushButton(
-            tr('geo_webview', '3D (OL+Cesium)'))
-        self.pushButton_map3d.setToolTip(tr(
-            'geo_webview',
-            'Open a two-pane OpenLayers + Cesium synchronized 3D view'))
         row1.addWidget(self.pushButton_present)
-        row1.addWidget(self.pushButton_map3d)
         vbox.addLayout(row1)
 
         self.comboBox_received = QComboBox()

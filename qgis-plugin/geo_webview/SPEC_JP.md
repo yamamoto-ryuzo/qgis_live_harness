@@ -530,7 +530,7 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 - `panel_base.ui` — Qt Designer の UI 定義。
 - `server_manager.py` — 組み込み HTTP サーバーの起動/停止・ルーティング（WMS/Map endpoints）。
 - `kasugai_export.py` — KASUGAI Canvas 連携（.kasc+DATA/ 生成、プロジェクト登録、コマンド送信）。
-- `qmap_webmap_generator.py` — OpenLayers / MapLibre HTML テンプレートの生成ロジック。
+- `maplibre/qmap_maplibre_wfs.py` — `/maplibre-style` 用のQGIS→Mapboxスタイル変換。
 - `qmap_wmts_service.py` / `qmap_wms_service.py` — WMS/WMTS 関連のヘルパー（タイル変換、BBOX 計算など）。
 - `panel.py` から `navigate_from_http` / `navigate_to_coordinates` を呼び出す流れ。
 

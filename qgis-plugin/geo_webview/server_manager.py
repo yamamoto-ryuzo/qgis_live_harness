@@ -102,23 +102,21 @@ class GeoWebViewServerManager:
             )
             return 6
 
-    def __init__(self, iface, navigation_signals, webmap_generator, main_plugin):
+    def __init__(self, iface, navigation_signals, main_plugin):
         """サーバーマネージャーを初期化
 
         Args:
             iface: QGISインターフェース
             navigation_signals: ナビゲーション用シグナル
-            webmap_generator: WebMapGeneratorインスタンス
             main_plugin: メインプラグインクラスのインスタンス（共通メソッド呼び出し用）
         """
         self.iface = iface
         self.navigation_signals = navigation_signals
         self.main_plugin = main_plugin
-        self.webmap_generator = webmap_generator
 
         # WMSサービスを初期化
         from .wms_service import GeoWebViewWMSService
-        self.wms_service = GeoWebViewWMSService(iface, webmap_generator, 8089, False)
+        self.wms_service = GeoWebViewWMSService(iface, 8089, False)
         # WMTSサービスを初期化（サーバマネージャ自身を渡すことで依存を小さくする）
         try:
             from .wmts_service import GeoWebViewWMTSService
@@ -462,13 +460,13 @@ class GeoWebViewServerManager:
                     host = line.split(':', 1)[1].strip()
                     break
 
-            # ブラウザで読み込まれるページURL（/qgis-map）を受け取ったときだけ
-            # パネルのナビゲート欄に表示するためにemitする。
+            # ブラウザ/外部クライアントからパーマリンクURL（/qgis-map）を
+            # 受け取ったときだけパネルのナビゲート欄に表示するためにemitする。
             # ただしパネル側から生成した自前のページ遷移(internal=1付与)は
             # ナビゲート欄の上書き・受領履歴の対象外とする。
             try:
                 is_internal = 'internal' in params
-                if parsed_url.path in ('/qgis-map', '/maplibre'):
+                if parsed_url.path in ('/qgis-map',):
                     server_port = None
                     try:
                         server_port = self.http_server.getsockname()[1] if self.http_server else self.server_port
@@ -530,19 +528,6 @@ class GeoWebViewServerManager:
                     http_server.send_http_response(conn, 500, "Internal Server Error", f"WMS processing failed: {str(e)}")
                 return
 
-            # OpenLayersパーマリンクエンドポイントの処理（HTMLページ生成、内部で/wmsを参照）
-            if parsed_url.path == '/qgis-map':
-                try:
-                    self._handle_permalink_html_page(conn, params)
-                except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ OpenLayers HTML page error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-                    import traceback
-                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
-                    from . import http_server
-                    http_server.send_http_response(conn, 500, "Internal Server Error", f"OpenLayers HTML page generation failed: {str(e)}")
-                return
-
-            # Dynamic MapLibre style endpoint: return a Mapbox style JSON for a given WFS typename
             if parsed_url.path in ('/maplibre-style', '/maplibre/style'):
                 try:
                     # Determine typename (support several param names)
@@ -690,169 +675,6 @@ class GeoWebViewServerManager:
                     from . import http_server
                     http_server.send_http_response(conn, 500, 'Internal Server Error', f'Error in maplibre-style handler: {e}', 'text/plain; charset=utf-8')
                     return
-
-            # MapLibre パーマリンクエンドポイントの処理（HTMLページ生成）
-            if parsed_url.path == '/maplibre':
-                try:
-                    # Accept multiple parameter formats:
-                    # 1. lat/lon/zoom (WGS84 coordinates)
-                    # 2. x/y/scale/crs/rotation (arbitrary CRS with rotation support)
-                    # 3. permalink (full URL string)
-                    lat = params.get('lat', [None])[0]
-                    lon = params.get('lon', [None])[0]
-                    zoom = params.get('zoom', [None])[0]
-                    x = params.get('x', [None])[0]
-                    y = params.get('y', [None])[0]
-                    scale = params.get('scale', [None])[0]
-                    crs = params.get('crs', [None])[0]
-                    rotation = params.get('rotation', [None])[0]
-                    permalink = params.get('permalink', [None])[0]
-
-                    html_content = None
-
-                    # Prefer QGIS-aware generator when running inside QGIS
-                    try:
-                        # Attempt to use the plugin's maplibre_generator which uses
-                        # QGIS transformation APIs to handle arbitrary CRSs.
-                        from . import maplibre_generator
-                        import webbrowser
-                        import os
-
-                        # /maplibre-style is handled at top-level routing to avoid nested path checks
-                        # Prevent maplibre_generator.open_maplibre_from_permalink from
-                        # actually opening the browser: monkey-patch webbrowser.open.
-                        _orig_web_open = webbrowser.open
-                        try:
-                            webbrowser.open = lambda *a, **k: None
-                            # call generator which writes a temp HTML file and
-                            # returns its path
-                            temp_path = None
-                            # Determine optional WFS typename from outer params (prefer explicit param)
-                            wfs_typename = None
-                            try:
-                                for k in ('typename', 'typenames', 'TYPENAME', 'TYPENAMES', 'layer', 'layers', 'type', 'typeName'):
-                                    if k in params and params.get(k):
-                                        wfs_typename = params.get(k)[0]
-                                        break
-                            except Exception:
-                                wfs_typename = None
-
-                            # If typename not provided by request, try to auto-select
-                            # from the project's /wfs-layers list (prefer layers with
-                            # a finite bbox). This uses the same project-configured
-                            # WFSLayers as the /wfs-layers endpoint.
-                            if not wfs_typename:
-                                try:
-                                    layers_list = self._collect_wfs_layers()
-                                    if layers_list:
-                                        import math
-                                        chosen = None
-                                        for L in layers_list:
-                                            bbox = L.get('bbox', {}) or {}
-                                            try:
-                                                minx = float(bbox.get('minx'))
-                                                if math.isfinite(minx):
-                                                    chosen = L
-                                                    break
-                                            except Exception:  # nosec B112  # 設計上の許容
-                                                continue
-                                        if not chosen:
-                                            chosen = layers_list[0]
-                                        # Use the canonical typename (QGIS layer.id()) when
-                                        # auto-selecting a layer. The /wfs-layers entries
-                                        # expose both 'name' (UI-normalized) and 'typename'
-                                        # (canonical). Prefer 'typename' to avoid generating
-                                        # permalinks that reference human-friendly names.
-                                        wfs_typename = chosen.get('typename') or chosen.get('id') or chosen.get('name')
-                                        try:
-                                            from qgis.core import QgsMessageLog, Qgis
-                                        except Exception:  # nosec B110  # 設計上の許容
-                                            pass
-                                except Exception:  # nosec B110  # 設計上の許容
-                                    # ignore and leave wfs_typename as None
-                                    pass
-
-                            # Try calling generator with provided permalink (if any) and pass typename
-                            try:
-                                if permalink:
-                                    temp_path = maplibre_generator.open_maplibre_from_permalink(permalink, wfs_typename)
-                                elif x is not None and y is not None:
-                                    # Build synthetic permalink from x/y/scale/crs/rotation parameters
-                                    # Use x/y directly (not center_x/center_y) as maplibre_generator expects
-                                    p = f"http://localhost/?x={x}&y={y}"
-                                    if crs is not None:
-                                        p += f"&crs={crs}"
-                                    if scale is not None:
-                                        p += f"&scale={scale}"
-                                    if rotation is not None:
-                                        p += f"&rotation={rotation}"
-                                    temp_path = maplibre_generator.open_maplibre_from_permalink(p, wfs_typename)
-                                elif lat is not None and lon is not None:
-                                    # Build synthetic permalink from lat/lon/zoom parameters
-                                    p = f"http://localhost/?lat={lat}&lon={lon}"
-                                    if zoom is not None:
-                                        p += f"&zoom={zoom}"
-                                    temp_path = maplibre_generator.open_maplibre_from_permalink(p, wfs_typename)
-                                else:
-                                    # Fallback: 現在の地図キャンバスから合成パーマリンクを生成
-                                    # (空パーマリンクは _parse_permalink が必ず失敗させるため)
-                                    canvas_permalink = self._canvas_permalink()
-                                    temp_path = maplibre_generator.open_maplibre_from_permalink(
-                                        canvas_permalink or '', wfs_typename)
-                            except Exception as e:
-                                # If generator failed (e.g. couldn't parse permalink), attempt a safe fallback
-                                try:
-                                    QgsMessageLog.logMessage(f"⚠️ MapLibre generator failed: {e} - retrying with canvas permalink", "geo_webview", Qgis.MessageLevel.Warning)
-                                except Exception:  # nosec B110  # 設計上の許容
-                                    pass
-                                try:
-                                    temp_path = maplibre_generator.open_maplibre_from_permalink(
-                                        self._canvas_permalink() or '', None)
-                                except Exception:
-                                    # re-raise original to be handled by outer exception handler
-                                    raise
-
-                            # Read the generated HTML file and send it
-                            if temp_path and os.path.exists(temp_path):
-                                with open(temp_path, 'r', encoding='utf-8') as f:
-                                    html_content = f.read()
-                        finally:
-                            # restore original webbrowser.open regardless of outcome
-                            try:
-                                webbrowser.open = _orig_web_open
-                            except Exception:  # nosec B110  # 設計上の許容
-                                pass
-                    except Exception:
-                        # Any failure here falls back to lightweight generator
-                        html_content = None
-
-                    if not html_content:
-                        # We assume PyQGIS is available in this simplified unified
-                        # setup. If the QGIS-aware generator failed for any
-                        # reason, return an error page rather than falling back
-                        # to the standalone/lightweight generator which we are
-                        # removing to keep the codebase PyQGIS-centric.
-                        from . import http_server
-                        error_html = self._generate_error_html_page(
-                            "MapLibre HTML generation failed (QGIS-dependent generator failed)."
-                        )
-                        http_server.send_http_response(conn, 500, "Internal Server Error", error_html, "text/html; charset=utf-8")
-                        return
-
-                    # プレゼンテーション追従モード(follow/present指定時):
-                    # /present/state をポーリングしてQGIS側の表示に追従する
-                    if html_content and ('follow' in params or 'present' in params):
-                        html_content = self._inject_follow_script(html_content, 'maplibre')
-
-                    from . import http_server
-                    http_server.send_http_response(conn, 200, "OK", html_content, "text/html; charset=utf-8")
-                except Exception as e:
-                    QgsMessageLog.logMessage(f"❌ MapLibre HTML page error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-                    import traceback
-                    QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
-                    from . import http_server
-                    http_server.send_http_response(conn, 500, "Internal Server Error", f"MapLibre HTML page generation failed: {str(e)}")
-                return
 
             # WMTS/XYZ endpoint: delegate to qmap_wmts_service for GetCapabilities and tiles
             if parsed_url.path.startswith('/wmts') or parsed_url.path.startswith('/xyz'):
@@ -1018,10 +840,10 @@ class GeoWebViewServerManager:
 
             # KASUGAI Canvas 連携: 表示中レイヤを .kasc プロジェクトに出力し、
             # 起動中のKASUGAIへ登録してプロジェクトURLをJSONで返す
-            # (生成ページ右上の KASUGAI ボタンから呼ばれる)
+            # (?engine=cesium|maplibre|openlayers|leaflet で起動エンジン指定可)
             if parsed_url.path == '/kasugai':
                 try:
-                    self._handle_kasugai(conn)
+                    self._handle_kasugai(conn, params)
                 except Exception as e:
                     QgsMessageLog.logMessage(
                         f'❌ kasugai handler error: {e}',
@@ -1030,20 +852,6 @@ class GeoWebViewServerManager:
                     http_server.send_http_response(
                         conn, 500, 'Internal Server Error',
                         f'kasugai failed: {e}', 'text/plain; charset=utf-8')
-                return
-
-            # OpenLayers+Cesiumの2画面3Dページ
-            if parsed_url.path == '/map3d':
-                try:
-                    self._handle_map3d(conn, params, host)
-                except Exception as e:
-                    QgsMessageLog.logMessage(
-                        f'❌ map3d handler error: {e}',
-                        'geo_webview', Qgis.MessageLevel.Critical)
-                    from . import http_server
-                    http_server.send_http_response(
-                        conn, 500, 'Internal Server Error',
-                        f'map3d failed: {e}', 'text/plain; charset=utf-8')
                 return
 
             # /export-data/<rel>: KASUGAI/Re:Earth エクスポート産物(out_dir配下)の配信
@@ -1061,47 +869,22 @@ class GeoWebViewServerManager:
                         'text/plain; charset=utf-8')
                 return
 
-            # --- 静的ファイル配信: favicon.ico, style.json, data.geojson など ---
+            # --- 静的ファイル配信: favicon.ico ---
             import os
-            # Support a few well-known static assets. Also allow serving small
-            # companion scripts stored under maplibre/scripts (qmap_postload.js,
-            # wmts_layers.js) by searching that directory as a fallback.
-            static_files = ["/favicon.ico", "/style.json", "/data.geojson", "/qmap_postload.js", "/wmts_layers.js"]
+            static_files = ["/favicon.ico"]
             if parsed_url.path in static_files:
-                # プラグインディレクトリからファイルを探す
                 plugin_dir = os.path.dirname(os.path.abspath(__file__))
                 fname = parsed_url.path.lstrip("/")
-
-                # Candidate locations: plugin root, then maplibre/scripts
-                candidates = [os.path.join(plugin_dir, fname), os.path.join(plugin_dir, 'maplibre', 'scripts', fname)]
-                found = None
-                for fpath in candidates:
-                    try:
-                        if os.path.exists(fpath):
-                            found = fpath
-                            break
-                    except Exception:  # nosec B112  # 設計上の許容
-                        continue
-
-                if found:
-                    # Content-Type判定
-                    if fname.endswith(".ico"):
-                        content_type = "image/x-icon"
-                    elif fname.endswith(".json"):
-                        content_type = "application/json; charset=utf-8"
-                    elif fname.endswith(".geojson"):
-                        content_type = "application/geo+json; charset=utf-8"
-                    elif fname.endswith(".js"):
-                        content_type = "application/javascript; charset=utf-8"
-                    else:
-                        content_type = "application/octet-stream"
-                    with open(found, "rb") as f:
+                fpath = os.path.join(plugin_dir, fname)
+                if os.path.exists(fpath):
+                    content_type = "image/x-icon" if fname.endswith(".ico") \
+                        else "application/octet-stream"
+                    with open(fpath, "rb") as f:
                         data = f.read()
                     http_server.send_binary_response(conn, 200, "OK", data, content_type)
                     return
-                else:
-                    http_server.send_http_response(conn, 404, "Not Found", f"File not found: {fname}", "text/plain; charset=utf-8")
-                    return
+                http_server.send_http_response(conn, 404, "Not Found", f"File not found: {fname}", "text/plain; charset=utf-8")
+                return
 
             # 未対応のエンドポイントは404エラー
             QgsMessageLog.logMessage(f"❌ Unknown endpoint: {parsed_url.path}", "geo_webview", Qgis.MessageLevel.Warning)
@@ -1111,7 +894,7 @@ class GeoWebViewServerManager:
                 conn,
                 404,
                 "Not Found",
-                "Available endpoints: /wms (PNG image), /qgis-map (OpenLayers HTML), /maplibre (MapLibre HTML), /map3d (OpenLayers+Cesium 3D), /present (shared canvas view), /present/state (canvas JSON), /screenshot (canvas PNG), /received (permalink history), /wmts (WMTS tiles), /wfs (WFS service)"
+                "Available endpoints: /wms (PNG image), /present (shared canvas view), /present/state (canvas JSON), /screenshot (canvas PNG), /received (permalink history), /kasugai (KASUGAI Canvas export), /export-data/<rel> (export files), /maplibre-style (Mapbox style JSON for WFS), /wmts (WMTS tiles), /wfs (WFS service)"
             )
             return
 
@@ -1387,44 +1170,6 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
         http_server.send_http_response(
             conn, 200, 'OK', html_page, 'text/html; charset=utf-8')
 
-    def _handle_map3d(self, conn, params, host):
-        """OpenLayers+Cesiumの2画面3Dページを返す。"""
-        from . import http_server
-        nav = self._canvas_state_dict()
-        # 明示パラメータがあれば上書き(値はキャンバスCRS基準)
-        for k in ('x', 'y', 'scale', 'rotation'):
-            try:
-                if params.get(k):
-                    nav[k] = float(params[k][0])
-            except Exception:  # nosec B110  # 設計上の許容
-                pass
-        if params.get('crs'):
-            nav['crs'] = params['crs'][0]
-        # x/y がパラメータ指定された場合は各系へ変換し直す
-        try:
-            src = QgsCoordinateReferenceSystem(str(nav.get('crs')))
-            if src.isValid() and nav.get('x') is not None:
-                proj = QgsProject.instance()
-                p4326 = QgsCoordinateTransform(
-                    src, QgsCoordinateReferenceSystem('EPSG:4326'), proj
-                ).transform(QgsPointXY(float(nav['x']), float(nav['y'])))
-                nav['lon'], nav['lat'] = p4326.x(), p4326.y()
-                p3857 = QgsCoordinateTransform(
-                    src, QgsCoordinateReferenceSystem('EPSG:3857'), proj
-                ).transform(QgsPointXY(float(nav['x']), float(nav['y'])))
-                nav['x3857'], nav['y3857'] = p3857.x(), p3857.y()
-        except Exception:  # nosec B110  # 設計上の許容
-            pass
-        try:
-            from .scale_zoom import estimate_zoom_from_scale_maplibre
-            nav['zoom'] = estimate_zoom_from_scale_maplibre(nav.get('scale'))
-        except Exception:  # nosec B110  # 設計上の許容
-            pass
-        html_content = self.webmap_generator.generate_ol_cesium_page(
-            nav, host or f'localhost:{self.server_port}')
-        http_server.send_http_response(
-            conn, 200, 'OK', html_content, 'text/html; charset=utf-8')
-
     def _handle_export_data(self, conn, rel):
         """KASUGAI/Re:Earth エクスポート産物(get_output_dir() 配下)を配信。
 
@@ -1460,16 +1205,27 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             data = f.read()
         http_server.send_binary_response(conn, 200, 'OK', data, ctype)
 
-    def _handle_kasugai(self, conn):
+    def _handle_kasugai(self, conn, params=None):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力し、
         起動中のKASUGAIローカルサーバへ登録してプロジェクトURLを返す。
 
+        params['engine'] で起動エンジンを指定できる
+        (cesium|maplibre|openlayers|leaflet、既定 cesium)。
+
         応答JSON:
-          成功 {ok:true, url:<KASUGAIプロジェクトURL|null>, dir, layers, tiles}
+          成功 {ok:true, url:<KASUGAIプロジェクトURL|null>, dir, layers, tiles, engine}
           失敗 {ok:false, error}
         url が null の場合はKASUGAI未起動(出力のみ成功)を意味する。
         """
         from . import http_server, kasugai_export
+        engine = kasugai_export.DEFAULT_ENGINE
+        try:
+            requested = (params or {}).get('engine', [None])[0]
+            if requested:
+                engine = kasugai_export.normalize_engine(requested) \
+                    or kasugai_export.DEFAULT_ENGINE
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
         with self._kasugai_lock:
             result = kasugai_export.export_kasugai_project(
                 self.iface, reearth_port=self.get_server_port())
@@ -1487,7 +1243,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             try:
                 if kasugai_export.detect_kasugai():
                     reg = kasugai_export.register_kasugai_project(
-                        result['kasc'])
+                        result['kasc'], engine=engine)
                     if reg.get('ok'):
                         kasugai_export.kasugai_command(
                             'switchProject', {'projectId': reg['id']})
@@ -1500,137 +1256,10 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                 conn, 200, 'OK',
                 json.dumps(
                     {'ok': True, 'url': url, 'dir': result.get('dir'),
-                     'layers': n_layers, 'tiles': n_tiles},
+                     'layers': n_layers, 'tiles': n_tiles,
+                     'engine': engine},
                     ensure_ascii=False),
                 'application/json; charset=utf-8')
-
-    def _inject_follow_script(self, html_content, kind):
-        """生成HTMLにプレゼンテーション追従スクリプトを差し込む。
-
-        kind: 'maplibre' または 'openlayers'。/present/state を定期ポーリングし
-        QGIS側の表示位置・ズーム・回転をクライアント側地図へ強制反映する。
-        """
-        if kind == 'maplibre':
-            js = u'''
-<script>
-(function(){
-  function apply(s){
-    try{
-      var m = window.qmap_map || window.map;
-      if(!m || !s) return;
-      var opt = {};
-      if(typeof s.lon === 'number' && typeof s.lat === 'number') opt.center = [s.lon, s.lat];
-      if(typeof s.zoom === 'number') opt.zoom = s.zoom;
-      if(typeof s.rotation === 'number') opt.bearing = -s.rotation;
-      m.jumpTo(opt);
-    }catch(e){}
-  }
-  async function tick(){
-    try{ var r = await fetch('present/state'); apply(await r.json()); }catch(e){}
-  }
-  setInterval(tick, 1500); tick();
-})();
-</script>
-'''
-        else:
-            js = u'''
-<script>
-(function(){
-  function apply(s){
-    try{
-      var m = (typeof map !== 'undefined') ? map : (window.qmap_ol_map || window.map);
-      if(!m || !s) return;
-      var view = m.getView();
-      if(typeof s.x3857 === 'number' && typeof s.y3857 === 'number') view.setCenter([s.x3857, s.y3857]);
-      if(typeof s.zoom === 'number') view.setZoom(s.zoom);
-      if(typeof s.rotation === 'number') view.setRotation(-s.rotation * Math.PI / 180);
-    }catch(e){}
-  }
-  async function tick(){
-    try{ var r = await fetch('present/state'); apply(await r.json()); }catch(e){}
-  }
-  setInterval(tick, 1500); tick();
-})();
-</script>
-'''
-        idx = html_content.rfind('</body>')
-        if idx >= 0:
-            return html_content[:idx] + js + html_content[idx:]
-        return html_content + js
-
-    def _handle_permalink_html_page(self, conn, params):
-        """パーマリンクパラメータに基づいてWMSエンドポイントを使用するHTMLページを生成"""
-        from qgis.core import QgsMessageLog, Qgis
-
-        try:
-
-            # パーマリンクパラメータを取得
-            x = params.get('x', [None])[0]
-            y = params.get('y', [None])[0]
-            scale = params.get('scale', [None])[0]
-            crs = params.get('crs', ['EPSG:3857'])[0]
-            rotation = params.get('rotation', ['0.0'])[0]
-            width = params.get('width', ['800'])[0]
-            height = params.get('height', ['600'])[0]
-
-            # x/y 未指定時は現在の地図キャンバスへフォールバック
-            # (以前は暗黙に EPSG:3857 原点(0,0)へ飛んでいた)
-            if x is None or y is None:
-                try:
-                    canvas = self.iface.mapCanvas()
-                    if canvas is not None:
-                        c = canvas.center()
-                        x = str(c.x())
-                        y = str(c.y())
-                        if scale is None:
-                            scale = str(canvas.scale())
-                        crs = canvas.mapSettings().destinationCrs().authid()
-                        if 'rotation' not in params:
-                            rotation = str(canvas.rotation()) \
-                                if hasattr(canvas, 'rotation') else '0.0'
-                except Exception:  # nosec B110  # 設計上の許容
-                    pass
-
-            # Convert incoming center coordinates to EPSG:3857 unconditionally
-            try:
-                from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsPointXY
-                if x is None or y is None:
-                    raise ValueError('missing x/y parameters')
-                src = QgsCoordinateReferenceSystem(str(crs))
-                tgt = QgsCoordinateReferenceSystem('EPSG:3857')
-                fx = float(x)
-                fy = float(y)
-                if src.isValid() and src.authid() != 'EPSG:3857':
-                    transform = QgsCoordinateTransform(src, tgt, QgsProject.instance())
-                    pt = transform.transform(QgsPointXY(fx, fy))
-                    x3857 = str(pt.x())
-                    y3857 = str(pt.y())
-                else:
-                    x3857 = str(fx)
-                    y3857 = str(fy)
-            except Exception:
-                # If transformation fails, fall back to treating the values as already EPSG:3857
-                x3857 = str(x if x is not None else 0)
-                y3857 = str(y if y is not None else 0)
-
-            # Generate HTML page using converted EPSG:3857 center coordinates
-            html_content = self._generate_wms_based_html_page(x3857, y3857, scale, 'EPSG:3857', rotation, width, height)
-            # プレゼンテーション追従モード(follow/present指定時)
-            if html_content and ('follow' in params or 'present' in params):
-                html_content = self._inject_follow_script(html_content, 'openlayers')
-            # HTMLレスポンスを送信
-            from . import http_server
-            http_server.send_http_response(conn, 200, "OK", html_content, "text/html; charset=utf-8")
-
-        except Exception as e:
-            QgsMessageLog.logMessage(f"❌ Permalink HTML page generation error: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-            import traceback
-            QgsMessageLog.logMessage(f"❌ Error traceback: {traceback.format_exc()}", "geo_webview", Qgis.MessageLevel.Critical)
-
-            # エラー時はエラーページを返す
-            error_html = self._generate_error_html_page(f"Error generating permalink page: {str(e)}")
-            from . import http_server
-            http_server.send_http_response(conn, 500, "Internal Server Error", error_html, "text/html; charset=utf-8")
 
     def _handle_debug_bookmarks(self, conn):
         """Return a JSON list of collected bookmarks (for debugging)."""
@@ -2075,508 +1704,6 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
         except Exception:
             return []
 
-    def _generate_wms_based_html_page(self, x, y, scale, crs, rotation, width, height):
-        """WMSエンドポイントを使用するHTMLページを生成（WebMapGeneratorを使用）"""
-
-        try:
-            # WebMapGeneratorを使用してWMSベースのHTMLページを生成
-            navigation_data = {
-                'x': float(x),
-                'y': float(y),
-                'scale': float(scale),
-                'crs': str(crs),
-                'rotation': float(rotation)
-            }
-
-            server_port = self.http_server.getsockname()[1] if self.http_server else 8089
-            # Try to collect QGIS spatial bookmarks and inject into navigation_data
-            bookmarks_list = []
-            try:
-                from qgis.core import QgsProject, QgsMessageLog, Qgis, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY
-
-                # Try common bookmark manager access patterns
-                mgr = None
-                try:
-                    mgr = QgsProject.instance().bookmarkManager()
-                except Exception:
-                    try:
-                        mgr = QgsProject.instance().bookmarks()
-                    except Exception:
-                        mgr = None
-
-                if mgr is None:
-                    QgsMessageLog.logMessage('🔍 Bookmark manager not found (mgr is None)', 'QMapPermalink', Qgis.MessageLevel.Warning)
-
-                raw = None
-                if mgr is not None:
-                    try:
-                        raw = mgr.bookmarks()
-                    except Exception:
-                        try:
-                            raw = mgr.getBookmarks()
-                        except Exception:
-                            raw = None
-
-                if raw is None:
-                    pass
-                else:
-                    try:
-                        _ = len(raw)
-                    except Exception:
-                        _ = 'unknown'
-
-                if raw:
-                    for b in raw:
-                        # Extract name
-                        name = ''
-                        try:
-                            if hasattr(b, 'name'):
-                                name = b.name()
-                            else:
-                                name = str(getattr(b, 'displayName', '') or '')
-                        except Exception:
-                            try:
-                                if isinstance(b, dict) and 'name' in b:
-                                    name = str(b.get('name'))
-                            except Exception:
-                                name = ''
-
-                        # Extract point-like coordinates from common accessors
-                        bx = None
-                        by = None
-                        try:
-                            if hasattr(b, 'point'):
-                                p = b.point()
-                                bx = p.x()
-                                by = p.y()
-                        except Exception:
-                            bx = None
-                            by = None
-
-                        if (bx is None or by is None) and hasattr(b, 'center'):
-                            try:
-                                p = b.center()
-                                bx = p.x()
-                                by = p.y()
-                            except Exception:  # nosec B110  # 設計上の許容
-                                pass
-
-                        if (bx is None or by is None) and hasattr(b, 'extent'):
-                            try:
-                                ext = b.extent()
-                                bx = (ext.xMinimum() + ext.xMaximum()) / 2.0
-                                by = (ext.yMinimum() + ext.yMaximum()) / 2.0
-                            except Exception:  # nosec B110  # 設計上の許容
-                                pass
-
-                        if (bx is None or by is None) and isinstance(b, dict):
-                            try:
-                                if 'x' in b and 'y' in b:
-                                    bx = float(b.get('x'))
-                                    by = float(b.get('y'))
-                                elif 'lon' in b and 'lat' in b:
-                                    bx = float(b.get('lon'))
-                                    by = float(b.get('lat'))
-                            except Exception:  # nosec B110  # 設計上の許容
-                                pass
-
-                        if bx is None or by is None:
-                            # couldn't obtain coordinates for this bookmark
-                            continue
-
-                        # Determine source CRS for bookmark if available
-                        src_crs = None
-                        try:
-                            if hasattr(b, 'crs'):
-                                src_crs = b.crs()
-                        except Exception:
-                            src_crs = None
-
-                        if not src_crs:
-                            try:
-                                src_crs = self.iface.mapCanvas().mapSettings().destinationCrs()
-                            except Exception:
-                                src_crs = QgsCoordinateReferenceSystem('EPSG:3857')
-
-                        # Transform bookmark original coordinates to EPSG:3857 (client expects 3857)
-                        try:
-                            tgt_crs = QgsCoordinateReferenceSystem('EPSG:3857')
-                            transform = QgsCoordinateTransform(src_crs, tgt_crs, QgsProject.instance())
-                            pt = transform.transform(QgsPointXY(bx, by))
-                            lon = float(pt.x())
-                            lat = float(pt.y())
-                        except Exception:
-                            lon = float(bx)
-                            lat = float(by)
-
-                        # determine original source CRS id for potential proj4 registration
-                        src_crs_id = None
-                        try:
-                            if hasattr(src_crs, 'authid'):
-                                src_crs_id = src_crs.authid()
-                            else:
-                                src_crs_id = str(src_crs)
-                        except Exception:
-                            src_crs_id = None
-
-                        # Keep both a client-friendly lon/lat in EPSG:4326 and the
-                        # original bookmark coordinates (orig_x/orig_y) in the
-                        # bookmark's source CRS so the client can request the
-                        # server to render using the original CRS when available.
-                        bookmarks_list.append({
-                            'name': str(name),
-                            # provide bookmark coordinates already in EPSG:3857 for client
-                            'x': lon,
-                            'y': lat,
-                            'crs': 'EPSG:3857',
-                            'src_crs': src_crs_id,
-                            'orig_x': bx,
-                            'orig_y': by
-                        })
-            except Exception:
-                # On any issue, don't block page generation; just omit bookmarks
-                try:
-                    from qgis.core import QgsMessageLog, Qgis
-                    QgsMessageLog.logMessage('❌ Error while extracting bookmarks; skipping bookmarks', 'QMapPermalink', Qgis.MessageLevel.Warning)
-                except Exception:  # nosec B110  # 設計上の許容
-                    pass
-
-            if bookmarks_list:
-                navigation_data['bookmarks'] = bookmarks_list
-
-            # Try to collect available map themes and inject into navigation_data
-            themes_list = []
-            try:
-                from qgis.core import QgsProject
-                project = QgsProject.instance()
-                try:
-                    theme_collection = project.mapThemeCollection()
-                except Exception:
-                    theme_collection = None
-
-                if theme_collection:
-                    try:
-                        available = theme_collection.mapThemes()
-                        # mapThemes() may return dict-like or iterable of names
-                        if isinstance(available, dict):
-                            themes_list = sorted(list(available.keys()))
-                        else:
-                            # ensure list of strings
-                            themes_list = [str(t) for t in available]
-                    except Exception:
-                        themes_list = []
-            except Exception:
-                themes_list = []
-
-            if themes_list:
-                navigation_data['themes'] = themes_list
-
-            # WebMapGeneratorの新しいメソッドを使用
-            html_content = self.webmap_generator.generate_wms_based_html_page(
-                navigation_data,
-                int(width),
-                int(height),
-                server_port
-            )
-
-            return html_content
-
-        except Exception:
-            # フォールバック: シンプルなWMSベースHTMLページ
-            server_port = self.http_server.getsockname()[1] if self.http_server else 8089
-            # Use relative WMS URL so clients use the same origin as the HTML page
-            _ = "/"
-            wms_url = f"/wms?x={x}&y={y}&scale={scale}&crs={crs}&rotation={rotation}&width={width}&height={height}"
-
-        # Build head scripts for OpenLayers using shared utility
-        try:
-            from qmap_permalink.proj_utils import build_ol_proj_head
-            head_scripts = build_ol_proj_head(crs)
-        except Exception:
-            # fallback include
-            head_scripts = (
-                '    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v8.2.0/ol.css" type="text/css">\n'
-                '    <script src="https://cdn.jsdelivr.net/npm/ol@v8.2.0/dist/ol.js"></script>\n'
-            )
-
-        # Projection registration via proj4 is no longer used. The plugin
-        # enforces EPSG:3857 on the client and performs server-side transforms
-        # earlier in the request handling, so no additional special-case is necessary here.
-
-        # OpenLayersを使用したHTMLページテンプレート
-        S = _page_strings()
-        html_template = f"""<!DOCTYPE html>
-<html lang="{S['lang']}">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{S['title']}</title>
-{head_scripts}
-    <style>
-        body {{
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-        }}
-        .container {{
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }}
-        .header {{
-            background: #2c3e50;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }}
-        .map-container {{
-            position: relative;
-            height: 600px;
-            border: 2px solid #ddd;
-        }}
-        #map {{
-            width: 100%;
-            height: 100%;
-        }}
-        .info-panel {{
-            padding: 20px;
-            background: #ecf0f1;
-            border-top: 1px solid #ddd;
-        }}
-        .info-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }}
-        .info-item {{
-            background: white;
-            padding: 15px;
-            border-radius: 5px;
-            border-left: 4px solid #3498db;
-        }}
-        .info-label {{
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }}
-        .info-value {{
-            color: #555;
-            font-family: monospace;
-        }}
-        .controls {{
-            padding: 20px;
-            background: #f8f9fa;
-            border-top: 1px solid #ddd;
-            text-align: center;
-        }}
-        .btn {{
-            padding: 10px 20px;
-            margin: 5px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }}
-        .btn:hover {{
-            background: #2980b9;
-        }}
-        .btn-secondary {{
-            background: #95a5a6;
-        }}
-        .btn-secondary:hover {{
-            background: #7f8c8d;
-        }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🗺️ QMap Permalink</h1>
-            <p>{S['subtitle']}</p>
-        </div>
-
-        <div class="map-container">
-            <div id="map"></div>
-        </div>
-
-        <div class="info-panel">
-            <h3>{S['map_info']}</h3>
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">{S['center_x']}</div>
-                    <div class="info-value">{x}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">{S['center_y']}</div>
-                    <div class="info-value">{y}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">{S['scale']}</div>
-                    <div class="info-value">1:{scale}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">{S['crs']}</div>
-                    <div class="info-value">{crs}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">{S['rotation']}</div>
-                    <div class="info-value">{rotation}°</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">{S['image_size']}</div>
-                    <div class="info-value">{width} × {height}</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="controls">
-            <h3>{S['controls']}</h3>
-            <a href="{wms_url}" target="_blank" class="btn">{S['wms_image']}</a>
-            <a href="/wms?SERVICE=WMS&REQUEST=GetCapabilities" target="_blank" class="btn btn-secondary">📋 WMS Capabilities</a>
-            <button onclick="refreshMap()" class="btn">{S['refresh']}</button>
-            <button onclick="copyPermalink()" class="btn btn-secondary">{S['copy_link']}</button>
-        </div>
-    </div>
-
-    <script>
-        // OpenLayers地図の初期化
-        const centerX = parseFloat('{x}');
-        const centerY = parseFloat('{y}');
-        const mapScale = parseFloat('{scale}');
-        const mapRotation = parseFloat('{rotation}') * Math.PI / 180; // ラジアンに変換
-        const mapCrs = '{crs}';
-
-        // 地図の初期化
-        const map = new ol.Map({{
-            target: 'map',
-            layers: [
-                new ol.layer.Image({{
-                    source: new ol.source.ImageWMS({{
-                        url: '/wms',
-                        params: {{
-                            'x': centerX,
-                            'y': centerY,
-                            'scale': mapScale,
-                            'crs': mapCrs,
-                            'ANGLE': {rotation},
-                            'width': 800,
-                            'height': 600
-                        }},
-                        serverType: 'qgis',
-                        crossOrigin: 'anonymous'
-                    }})
-                }})
-            ],
-            view: new ol.View({{
-                center: [centerX, centerY],
-                zoom: calculateZoomFromScale(mapScale),
-                rotation: mapRotation,
-                projection: mapCrs
-            }})
-        }});
-
-        // Ensure the WMS source receives the initial ANGLE param (degrees)
-        try {{
-            var _wmsSrc = map.getLayers().getArray()[0].getSource();
-            try {{ window.wmsSource = _wmsSrc; }} catch(e) {{}}
-            var _initAngleDeg = 0;
-            try {{ _initAngleDeg = (typeof mapRotation === 'number') ? (mapRotation * 180 / Math.PI) : (parseFloat('{rotation}') || 0); }} catch(e) {{ _initAngleDeg = parseFloat('{rotation}') || 0; }}
-            if(_wmsSrc && typeof _wmsSrc.updateParams === 'function') {{
-                try {{ _wmsSrc.updateParams({{ 'ANGLE': _initAngleDeg }}); }} catch(e) {{}}
-                try {{ _wmsSrc.refresh(); }} catch(e) {{}}
-            }}
-        }} catch(e) {{ /* fail silently */ }}
-
-        // 北向き矢印コントロールを追加
-        map.addControl(new ol.control.Rotate({{
-            tipLabel: '{S['tip_rotate']}',
-            resetNorthLabel: '{S['tip_reset']}'
-        }}));
-
-        // スケールからズームレベルを計算する関数
-        function calculateZoomFromScale(scale) {{
-            // 概算でのズームレベル計算
-            const baseScale = 591657527.591555;
-            return Math.log2(baseScale / scale);
-        }}
-
-        // 地図の回転に合わせてWMSパラメータも更新
-        map.getView().on('change:rotation', function() {{
-            const rotation = map.getView().getRotation();
-            const angleDeg = rotation * 180 / Math.PI;
-            const wmsSource = map.getLayers().getArray()[0].getSource();
-            if(wmsSource && typeof wmsSource.updateParams === 'function'){{
-                wmsSource.updateParams({{ 'ANGLE': angleDeg }});
-                wmsSource.refresh();
-            }}
-        }});
-
-        // 地図を更新する関数
-        function refreshMap() {{
-            map.getView().setCenter([centerX, centerY]);
-            map.getView().setZoom(calculateZoomFromScale(mapScale));
-            // Do not force rotation to 0 here; preserve current view rotation.
-            map.getLayers().getArray()[0].getSource().refresh();
-        }}
-
-        // パーマリンクをコピーする関数
-        function copyPermalink() {{
-            const permalink = window.location.href;
-            navigator.clipboard.writeText(permalink).then(() => {{
-                alert('{S['copied']}');
-            }}).catch(() => {{
-                // フォールバック
-                const textArea = document.createElement('textarea');
-                textArea.value = permalink;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                alert('{S['copied']}');
-            }});
-        }}
-
-        // ページ読み込み完了時の処理
-        document.addEventListener('DOMContentLoaded', function() {{
-            console.log('🗺️ QMap Permalink page loaded');
-            console.log('📍 Center:', centerX, centerY);
-            console.log('📏 Scale:', mapScale);
-            console.log('🔄 Rotation:', '{rotation}°');
-            console.log('🌐 CRS:', mapCrs);
-        }});
-    </script>
-</body>
-</html>"""
-
-        return html_template
-
-    def _canvas_permalink(self):
-        """現在の地図キャンバスから /maplibre 用の合成パーマリンクを生成する。
-
-        maplibre_generator.open_maplibre_from_permalink は空文字列を受理
-        しないため、パラメータ無しリクエスト時のフォールバックに使う。
-        キャンバスが読めない場合は None を返す。
-        """
-        try:
-            canvas = self.iface.mapCanvas()
-            if canvas is None:
-                return None
-            center = canvas.center()
-            scale = canvas.scale()
-            crs = canvas.mapSettings().destinationCrs().authid()
-            rotation = canvas.rotation() if hasattr(canvas, 'rotation') else 0.0
-            return (f"http://localhost/?x={center.x()}&y={center.y()}"
-                    f"&crs={crs}&scale={scale}&rotation={rotation}")
-        except Exception:
-            return None
-
     def _build_navigation_data_from_params(self, params):
         """互換性用: HTTPパラメータ(dict of lists)から navigation_data を構築して返す
 
@@ -2632,105 +1759,6 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             QgsMessageLog.logMessage(f"Error building navigation_data from params: {e}", "geo_webview", Qgis.MessageLevel.Warning)
             raise
 
-    def _generate_error_html_page(self, error_message):
-        """エラーページのHTMLを生成"""
-        S = _page_strings()
-        error_html = f"""<!DOCTYPE html>
-<html lang="{S['lang']}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{S['err_title']}</title>
-    <style>
-        body {{
-            margin: 0;
-            padding: 40px;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }}
-        .error-container {{
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            text-align: center;
-            max-width: 500px;
-        }}
-        .error-icon {{
-            font-size: 4rem;
-            margin-bottom: 20px;
-        }}
-        .error-title {{
-            color: #e74c3c;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }}
-        .error-message {{
-            color: #555;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }}
-        .btn {{
-            padding: 12px 24px;
-            background: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            display: inline-block;
-            margin: 5px;
-        }}
-        .btn:hover {{
-            background: #2980b9;
-        }}
-    </style>
-</head>
-<body>
-    <div class="error-container">
-        <div class="error-icon">❌</div>
-        <h1 class="error-title">{S['err_failed']}</h1>
-        <p class="error-message">{html.escape(error_message)}</p>
-        <a href="javascript:history.back()" class="btn">{S['back']}</a>
-        <a href="/" class="btn">{S['home']}</a>
-    </div>
-</body>
-</html>"""
-        return error_html
-
-    def _calculate_bbox_from_permalink(self, center_x, center_y, scale, width, height, crs):
-        """パーマリンクパラメータからBBOXを計算"""
-        try:
-            from qgis.core import QgsMessageLog, Qgis
-
-            # 画面解像度（DPI）とピクセルあたりのサイズを計算
-            dpi = 96  # 標準DPI
-            meters_per_inch = 0.0254
-            pixels_per_meter = dpi / meters_per_inch
-
-            # スケールから地図単位での表示範囲を計算
-            map_width_m = (width / pixels_per_meter) * scale
-            map_height_m = (height / pixels_per_meter) * scale
-
-            # 中心点から範囲を計算
-            half_width = map_width_m / 2
-            half_height = map_height_m / 2
-
-            minx = center_x - half_width
-            miny = center_y - half_height
-            maxx = center_x + half_width
-            maxy = center_y + half_height
-
-            bbox = f"{minx},{miny},{maxx},{maxy}"
-
-            return bbox
-
-        except Exception as e:
-            QgsMessageLog.logMessage(f"❌ BBOX calculation error: {e}", "geo_webview", Qgis.MessageLevel.Warning)
-            return None
-
     def _handle_wms_get_map_with_bbox(self, conn, bbox, crs, width, height, rotation=0.0):
         """計算されたBBOXでWMS GetMapを処理"""
         from qgis.core import QgsMessageLog, Qgis
@@ -2775,66 +1803,6 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             error_image = self._generate_error_image(width, height, f"Error: {str(e)}")
             from . import http_server
             http_server.send_binary_response(conn, 200, "OK", error_image, "image/png")
-
-    def _generate_webmap_png(self, width, height, bbox, crs):
-        """WebMapGeneratorを使用してPNG画像を生成"""
-        try:
-            from qgis.core import QgsMessageLog, Qgis
-
-            if not self.webmap_generator:
-                QgsMessageLog.logMessage("❌ WebMapGenerator not available", "geo_webview", Qgis.MessageLevel.Warning)
-                return None
-
-            # WebMapGeneratorにダミーのナビゲーションデータを渡す
-            navigation_data = {
-                'type': 'coordinates',
-                'lat': 35.6762,  # 東京駅
-                'lon': 139.6503,
-                'crs': 'EPSG:4326',
-                'scale': 10000,
-                'zoom': 10
-            }
-
-            # WMSパラメータからナビゲーションデータを更新
-            if bbox and crs:
-                try:
-                    coords = [float(x) for x in bbox.split(',')]
-                    if len(coords) == 4:
-                        minx, miny, maxx, maxy = coords
-                        center_lon = (minx + maxx) / 2
-                        center_lat = (miny + maxy) / 2
-                        navigation_data.update({
-                            'lon': center_lon,
-                            'lat': center_lat,
-                            'crs': crs
-                        })
-                except Exception as e:
-                    QgsMessageLog.logMessage(f"⚠️ Failed to parse BBOX: {e}", "geo_webview", Qgis.MessageLevel.Warning)
-
-            # WebMapGeneratorを使って画像を生成
-            try:
-                # generate_qgis_image_map メソッドを使用（HTML文字列を取得）
-                html_content = self.webmap_generator.generate_qgis_image_map(navigation_data, width, height)
-
-                # HTMLコンテンツからbase64画像データを抽出
-                import re
-                base64_match = re.search(r'data:image/png;base64,([A-Za-z0-9+/=]+)', html_content)
-                if base64_match:
-                    import base64
-                    png_data = base64.b64decode(base64_match.group(1))
-                    return png_data
-                else:
-                    QgsMessageLog.logMessage("❌ No base64 image found in WebMapGenerator output", "geo_webview", Qgis.MessageLevel.Warning)
-                    return None
-
-            except Exception as e:
-                QgsMessageLog.logMessage(f"❌ WebMapGenerator generation failed: {e}", "geo_webview", Qgis.MessageLevel.Warning)
-                return None
-
-        except Exception as e:
-            from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"❌ Error in _generate_webmap_png: {e}", "geo_webview", Qgis.MessageLevel.Critical)
-            return None
 
     def _generate_qgis_map_png(self, width, height, bbox, crs, rotation=0.0):
         """Generate PNG using PyQGIS independent renderer only.

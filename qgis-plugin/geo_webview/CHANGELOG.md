@@ -11,6 +11,33 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.24.0] - 2026-10-25 生成ビューア廃止・KASUGAI Canvas エンジン起動
+
+- **プラグイン内生成ビューアを廃止**(KASUGAI Canvas に統一):
+  `/qgis-map`(OpenLayers HTML)・`/maplibre`(MapLibre HTML)・`/map3d`
+  (OL+Cesium 2画面)エンドポイントと、`webmap_generator.py`・
+  `maplibre_generator.py`・`webmap_shared/`・`maplibre/scripts/` を削除。
+  `/qgis-map` のパーマリンクURL形式はナビゲーション交換形式として残存
+  (リクエストは従来通り受領履歴・外部制御のトリガになるが、
+  HTMLページは返さない)
+- パネルの OpenLayers / MapLibre / 3D (OL+Cesium) / KASUGAI ボタンを廃止し、
+  **KASUGAI Canvas 4エンジン起動ボタン**(Cesium / OpenLayers / MapLibre /
+  Leaflet)に置き換え。クリックで .kasc エクスポート→起動中 Canvas へ
+  プロジェクト登録→`?engine=<e>&project=<id>` をブラウザで開く
+- `/kasugai` エンドポイントに `?engine=` パラメータを追加
+- `kasugai_export.py` に `VALID_ENGINES`/`normalize_engine`/
+  `build_kasugai_url` を追加、`register_kasugai_project` が engine を受理
+- bridge: `maplibreUrl`/`openlayersUrl` を削除。`kasugaiExport` に
+  `engine` 引数を追加。`openExternal` は `cesium/openlayers/maplibre/
+  leaflet` を KASUGAI エンジン起動として受理。`getSettings`/`setSettings`
+  から `maplibre_output_path`/`openlayers_output_path` を削除
+- 設定ダイアログから OpenLayers/MapLibre 保存先設定を削除
+  (KASUGAI Canvas インストール先のみ残存)
+- i18n 9言語カタログ更新(+21/-18)、`scripts/_check_pages.mjs` の
+  対象ページを更新
+- 残存する `/maplibre-style`(WFS→MapboxスタイルJSON)は OGC 供給側APIとして
+  継続(`maplibre/qmap_maplibre_wfs|wmts` はそのまま)
+
 ## [3.23.0] - 2026-10-25 QGISブックマークの .kasc エクスポート
 
 - `/kasugai` エクスポートにブックマーク出力を追加(emit_bookmarks=既定True)。

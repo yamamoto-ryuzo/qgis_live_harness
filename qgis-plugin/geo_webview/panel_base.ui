@@ -232,32 +232,6 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_open">
-            <property name="text">
-               <string>OpenLayers</string>
-            </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>25</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-   <item>
-    <widget class="QPushButton" name="pushButton_maplibre">
-     <property name="text">
-      <string>MapLibre</string>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>25</height>
-      </size>
-     </property>
-    </widget>
-   </item>
        </layout>
       </item>
       <item>
@@ -306,26 +280,76 @@
           </property>
          </widget>
         </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_kasugai">
         <item>
-         <widget class="QPushButton" name="pushButton_kasugai">
+         <widget class="QLabel" name="label_kasugai">
           <property name="text">
-           <string>KASUGAI</string>
+           <string>KASUGAI Canvas:</string>
           </property>
-          <property name="enabled">
-           <bool>true</bool>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_kasugai_cesium">
+          <property name="text">
+           <string>Cesium</string>
           </property>
           <property name="toolTip">
-           <string>Export visible layers (GeoJSON + .qml styles) as a KASUGAI Canvas project and open it in KASUGAI</string>
+           <string>Export visible layers and open in KASUGAI Canvas (Cesium)</string>
           </property>
           <property name="minimumSize">
            <size>
-            <width>80</width>
+            <width>0</width>
             <height>25</height>
            </size>
           </property>
-          <property name="maximumSize">
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_kasugai_openlayers">
+          <property name="text">
+           <string>OpenLayers</string>
+          </property>
+          <property name="toolTip">
+           <string>Export visible layers and open in KASUGAI Canvas (OpenLayers)</string>
+          </property>
+          <property name="minimumSize">
            <size>
-            <width>100</width>
+            <width>0</width>
+            <height>25</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_kasugai_maplibre">
+          <property name="text">
+           <string>MapLibre</string>
+          </property>
+          <property name="toolTip">
+           <string>Export visible layers and open in KASUGAI Canvas (MapLibre)</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>25</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_kasugai_leaflet">
+          <property name="text">
+           <string>Leaflet</string>
+          </property>
+          <property name="toolTip">
+           <string>Export visible layers and open in KASUGAI Canvas (Leaflet)</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
             <height>25</height>
            </size>
           </property>

@@ -2,13 +2,13 @@
 name = geo_webview
 qgisMinimumVersion = 4.0
 qgisMaximumVersion = 4.99
-description = Navigate QGIS map views through external permalink system; includes dynamic WMS/OpenLayers and MapLibre (WMTS/WFS with style injection) endpoints for remote navigation
-version = 3.23.0
+description = Navigate QGIS map views through external permalink system; includes WMS/WMTS/WFS (OGC) endpoints and KASUGAI Canvas project export/launch (Cesium/OpenLayers/MapLibre/Leaflet)
+version = 3.24.0
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
 supportsQt6 = True
-about = geo_webview は QGIS を軽量な OGC サーバー（WMS/WMTS/WFS）として起動し、QGIS の地図表示状態を外部から復元するパーマリンク機能を提供します。ドッキング可能なパネルからサーバーを起動し、`/wms`、`/wmts`、`/wfs`、`/qgis-map`、`/maplibre`、`/maplibre-style` 等のエンドポイントを公開します。詳細な使用法・ユースケースは `README_JP.md` を参照してください。
-about[en] = geo_webview enables instant conversion of QGIS projects into lightweight OGC-compliant map services (WMS/WMTS/WFS) and provides permalink-based navigation of full map states (center, zoom, layer visibility, themes, styles). The plugin runs an embedded HTTP server exposing endpoints such as `/wms`, `/wmts`, `/wfs`, `/qgis-map`, `/maplibre` and `/maplibre-style`. See README.md / README_JP.md for usage details and deployment scenarios.
+about = geo_webview は QGIS を軽量な OGC サーバー（WMS/WMTS/WFS）として起動し、QGIS の地図表示状態を外部から復元するパーマリンク機能を提供します。ドッキング可能なパネルからサーバーを起動し、`/wms`、`/wmts`、`/wfs`、`/maplibre-style`、`/kasugai` 等のエンドポイントを公開します。表示中レイヤは .kasc プロジェクトとして KASUGAI Canvas（Cesium/OpenLayers/MapLibre/Leaflet）で起動できます。詳細な使用法・ユースケースは `README_JP.md` を参照してください。
+about[en] = geo_webview enables instant conversion of QGIS projects into lightweight OGC-compliant map services (WMS/WMTS/WFS) and provides permalink-based navigation of full map states (center, zoom, layer visibility, themes, styles). The plugin runs an embedded HTTP server exposing endpoints such as `/wms`, `/wmts`, `/wfs`, `/maplibre-style` and `/kasugai`. Visible layers can be exported as a .kasc project and launched in KASUGAI Canvas (Cesium/OpenLayers/MapLibre/Leaflet). See README.md / README_JP.md for usage details and deployment scenarios.
 tracker = https://github.com/yamamoto-ryuzo/qgis_live_harness/issues
 repository = https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview
 homepage = https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview
@@ -20,6 +20,7 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 3.24.0: プラグイン内生成ビューア(OpenLayers /qgis-map・MapLibre /maplibre・OL+Cesium /map3d)を廃止。パネルにKASUGAI Canvas 4エンジン(Cesium/OpenLayers/MapLibre/Leaflet)起動ボタンを追加し、`/kasugai`・bridge `kasugaiExport`/`openExternal` で engine 指定可能に
 	- 3.17.4: サイトスキャン指摘対応(subprocess/random/saxutilsの # nosec・html.escape化)
 	- 3.17.3: try/except/pass|continue の # nosec 明示(B110/B112)
 	- 3.17.2: Qt6互換性チェック対応(非スコープ列挙型Qgis.*等212箇所をスコープ化)

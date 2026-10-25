@@ -14,6 +14,8 @@ KASUGAI Canvas は ``geojson: タイトル | DATA/x.geojson | on | style=DATA/x.
 登録でき、そのまま ``?project=<id>`` で開ける(登録フォルダの DATA/ が
 そのまま配信される)。``POST /api/command`` の switchProject で
 起動中の画面を切り替えることもできる。
+起動エンジンは ``?engine=cesium|maplibre|openlayers|leaflet``
+(Canvas 側トップが各エンジンへリダイレクトする)で選択できる。
 
 このモジュールは PyQGIS 環境でのみ使用する(ユニットテスト不可)。
 ネットワーク呼び出しは全て短いタイムアウト付きのベストエフォート。
@@ -31,6 +33,16 @@ import urllib.request
 DEFAULT_KASUGAI_PORT = 8510
 SETTINGS_KEY_OUTPUT = 'kasugai_output_path'
 SETTINGS_KEY_PORT = 'kasugai_port'
+
+# KASUGAI Canvas の起動エンジン(web/index.html の engine パラメータと同じ)
+VALID_ENGINES = ('cesium', 'maplibre', 'openlayers', 'leaflet')
+DEFAULT_ENGINE = 'cesium'
+
+
+def normalize_engine(engine):
+    """engine 名を正規化。無効値は None を返す。"""
+    e = str(engine or '').strip().lower()
+    return e if e in VALID_ENGINES else None
 
 
 def _qsettings():
@@ -1380,10 +1392,27 @@ def detect_kasugai(port=None):
     return None
 
 
-def register_kasugai_project(kasc_path, port=None):
+def build_kasugai_url(project_id, engine=None, port=None):
+    """KASUGAI Canvas のプロジェクトURLを構築する。
+
+    engine 指定時は ``?engine=<engine>&project=<id>`` となり、
+    Canvas トップが対応エンジン(cesium/maplibre/openlayers/leaflet)
+    へリダイレクトする。engine=None/無効値は既定(cesium)。
+    """
+    port = int(port or get_kasugai_port())
+    url = 'http://localhost:{0}/?project={1}'.format(
+        port, urllib.parse.quote(str(project_id)))
+    e = normalize_engine(engine)
+    if e:
+        url += '&engine={0}'.format(e)
+    return url
+
+
+def register_kasugai_project(kasc_path, port=None, engine=None):
     """POST /api/projects/register で.kascを外部プロジェクト登録する。
 
     戻り値: {"ok":True,"id":...,"url":...} または {"ok":False,"error":...}
+    engine 指定時は url に ?engine= が付く。
     """
     port = int(port or get_kasugai_port())
     try:
@@ -1393,8 +1422,7 @@ def register_kasugai_project(kasc_path, port=None):
         pid = res.get('id')
         if res.get('ok') and pid:
             return {'ok': True, 'id': pid,
-                    'url': 'http://localhost:{0}/?project={1}'.format(
-                        port, urllib.parse.quote(str(pid)))}
+                    'url': build_kasugai_url(pid, engine, port)}
         return {'ok': False, 'error': str(res)}
     except Exception as e:
         return {'ok': False, 'error': str(e)}
