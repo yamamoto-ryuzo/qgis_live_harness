@@ -96,7 +96,7 @@ _ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
     // ベースの末尾がエンジン名ディレクトリなら差し替え、違えば ENGINE を付ける
     var u = new URL(base, location.href);
     u.search = ""; u.hash = "";
-    var seg = u.pathname.replace(/\/+$/, "").split("/").pop().toLowerCase();
+    var seg = u.pathname.replace(/[/]+$/, "").split("/").pop().toLowerCase();
     if (ENGINES.indexOf(seg) >= 0) {
       u.pathname = u.pathname.replace(/[^/]+\/?$/, ENGINE + "/");
       return u.href;
