@@ -11,6 +11,8 @@ geo_webview は QGIS と Web を連携させるプラグインです。QGIS は 
 
 指定フォルダへ `.kasc`+`DATA/`（レイヤツリー・`.qml` スタイル・視点 `cam:`）を出力する経路。`.kasc` は KASUGAI Canvas のプロジェクト形式で、出力後は QGIS 側サーバーなしで動作し、`.kasc`+`DATA/`+システム一式を切り出して配布できます。Re:Earth Visualizer 向けには `reearth.txt` も出力できます。
 
+同じ場所には各エンジンの起動ページ（`cesium.html`/`maplibre.html`/`openlayers.html`/`leaflet.html`）とリンク一覧の `index.html` も出力されます。各 HTML は `?kasc=<この .kasc のURL>` 付きで対応エンジンへ転送し、エンジン本体（`web/` の中身）を `./ ../ ../../ /` の順に自動探索します（特殊配置は HTML 内の `CANVAS_BASE` で指定）。**出力フォルダとエンジンを同じ静的サーバーへアップするだけでサーバレスの単独WEB配信になります**（Canvas の `?kasc=` 直読みモードを利用）。
+
 再生側のシステム本体は **KASUGAI Canvas 側に整備されています**（Cesium/MapLibre/OpenLayers/Leaflet のマルチエンジン。Web 部分は静的配信で動作、EXE 側が rclone・自動更新・ファイル保存・`.kasc` 関連付けを担当）。KASUGAI のインストール先を登録して `QGIS_projects/`（QGIS連携専用フォルダ）へ出力する運用を想定しています。プラグイン内蔵の生成 HTML ビューア（旧 `/qgis-map`・`/maplibre`・`/map3d`）は v3.24.0 で廃止され、閲覧は全て KASUGAI Canvas に一本化されました。
 
 KASUGAI Canvas 側のレイアウト（`web/`）:

@@ -14,6 +14,8 @@
 
 Writes a `.kasc` + `DATA/` package (layer tree, `.qml` styles, `cam:` view state) to a specified folder. `.kasc` is the KASUGAI Canvas project format — once exported it runs without the QGIS-side server, and the `.kasc`+`DATA/`+system bundle can be cut out and distributed as a unit. A `reearth.txt` for Re:Earth Visualizer can also be emitted.
 
+Engine launcher pages (`cesium.html`/`maplibre.html`/`openlayers.html`/`leaflet.html`) plus an `index.html` link list are written next to the `.kasc`. Each HTML redirects to its engine with `?kasc=<this .kasc URL>` and auto-detects the engine (`./ ../ ../../ /` in order; set `CANVAS_BASE` inside the HTML for custom layouts). **Uploading the export folder together with the engine (`web/` contents) to the same static host gives you a serverless standalone web delivery** (Canvas's `?kasc=` direct-load mode).
+
 The player system itself is **maintained in KASUGAI Canvas** — a multi-engine app (Cesium / MapLibre / OpenLayers / Leaflet; the web part runs on static hosting, the EXE side provides rclone, auto-update, file saving, `.kasc` association). The intended flow is registering the KASUGAI install location and writing `.kasc`+`DATA/` into its `QGIS_projects/` directory (a dedicated folder, separate from Canvas's own `projects/`). The plugin's built-in generated viewers (former `/qgis-map`, `/maplibre`, `/map3d`) were removed in v3.24.0 — viewing is fully consolidated into KASUGAI Canvas.
 
 KASUGAI Canvas-side layout (`web/`):

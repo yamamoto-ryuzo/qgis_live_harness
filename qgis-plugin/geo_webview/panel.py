@@ -105,6 +105,7 @@ class GeoWebViewPanel(QDockWidget):
         self.pushButton_kasugai_openlayers = getattr(self.ui, 'pushButton_kasugai_openlayers', None)
         self.pushButton_kasugai_maplibre = getattr(self.ui, 'pushButton_kasugai_maplibre', None)
         self.pushButton_kasugai_leaflet = getattr(self.ui, 'pushButton_kasugai_leaflet', None)
+        self.pushButton_kasugai_folder = getattr(self.ui, 'pushButton_kasugai_folder', None)
         # HTTP server toggle checkbox (added to UI)
         self.checkBox_server_toggle = getattr(self.ui, 'checkBox_server_toggle', None)
         # External control checkbox (new in UI)
@@ -226,6 +227,12 @@ class GeoWebViewPanel(QDockWidget):
             if _btn is not None:
                 _btn.setText(QCoreApplication.translate('geo_webview', _label))
                 _btn.setToolTip(_kasugai_tool_tip.format(engine=_label))
+        if hasattr(self.ui, 'pushButton_kasugai_folder'):
+            self.ui.pushButton_kasugai_folder.setText('📁')
+            self.ui.pushButton_kasugai_folder.setToolTip(
+                QCoreApplication.translate(
+                    'geo_webview',
+                    "Open the export folder (.kasc / DATA/ / engine launchers)"))
 
         # ボタン
         if hasattr(self.ui, 'pushButton_generate'):

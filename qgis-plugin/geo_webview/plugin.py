@@ -344,6 +344,13 @@ class GeoWebView:
                                 self.on_kasugai_engine_clicked(e))
                         print(f"KASUGAI {_engine} button connected")
 
+                # 出力フォルダ(.kasc/DATA/<engine>.html)を開くボタン
+                _folder_btn = getattr(
+                    self.panel, 'pushButton_kasugai_folder', None)
+                if _folder_btn is not None:
+                    _folder_btn.clicked.connect(
+                        lambda checked=False: self.on_kasugai_open_folder())
+
                 # Check Access ボタンのイベントを接続
                 if hasattr(self.panel, 'pushButton_check_access'):
                     self.panel.pushButton_check_access.clicked.connect(self.on_check_access_clicked)
@@ -2122,6 +2129,21 @@ class GeoWebView:
             self.iface.messageBar().pushMessage(
                 "QMap Permalink", self.tr("Google Earth launch error: {0}").format(e), duration=5
             )
+
+    def on_kasugai_open_folder(self):
+        """KASUGAI 出力フォルダ(.kasc/DATA/<engine>.html/index.html が
+        出力される場所)を OS のファイルマネージャで開く。"""
+        try:
+            from . import kasugai_export
+            out_dir = kasugai_export.preferred_output_dir()
+            os.makedirs(out_dir, exist_ok=True)
+            QDesktopServices.openUrl(
+                QUrl.fromLocalFile(os.path.abspath(out_dir)))
+        except Exception as e:
+            self.iface.messageBar().pushMessage(
+                "geo_webview",
+                self.tr("Failed to open export folder: {0}").format(e),
+                duration=5)
 
     def on_kasugai_engine_clicked(self, engine):
         """パネル版：KASUGAI Canvas エンジン起動ボタン — 表示中レイヤを

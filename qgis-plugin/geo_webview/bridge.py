@@ -211,7 +211,11 @@ class GeoWebViewBridge:
                 "もoff行として出力。embed_gpkg_style=TrueでGPKGの"
                 "layer_stylesへも保存。QGISブックマークは bookmarks.xml"
                 "として出力され bookmark: 行が付く(Canvas側がカメラ"
-                "プリセットへ展開。emit_bookmarks=Falseで抑制)。",
+                "プリセットへ展開。emit_bookmarks=Falseで抑制)。"
+                ".kascと同じ場所に <engine>.html 起動ページ(index.html"
+                "含む)も出力し、フォルダ+エンジンを静的サーバーへ上げる"
+                "だけで ?kasc= 経由のサーバレス配信になる"
+                "(emit_launchers=Falseで抑制)。",
             "example": {"method": "kasugaiExport", "args": []},
         },
         "wfsLayers": {
@@ -944,7 +948,8 @@ class GeoWebViewBridge:
     def kasugaiExport(self, output_dir=None, open_app=True,
                       native_formats=True, hidden_as_off=False,
                       embed_gpkg_style=False, emit_themes=True,
-                      emit_bookmarks=True, engine=None, install=False):
+                      emit_bookmarks=True, emit_launchers=True,
+                      engine=None, install=False):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
         表示中のベクターレイヤを DATA/ へ出力し、.kasc(geojson:/gpkg:/
@@ -963,6 +968,10 @@ class GeoWebViewBridge:
         アプリケーション)を bookmarks.xml(qgis_bookmarks形式・EPSG:4326
         正規化)として出力し bookmark: 行を書く(Canvas 側が読み込んで
         カメラプリセットに展開する)。
+        emit_launchers=True(既定)で .kasc と同じ場所に <engine>.html
+        (cesium/maplibre/openlayers/leaflet)と index.html のエンジン
+        起動ページを出力する。出力フォルダとエンジン(web/ の中身)を
+        同じ静的サーバーへアップすれば ?kasc= 経由でサーバレス動作する。
         出力先は output_dir または設定 kasugai_output_path
         (既定: <ドキュメント>/kasugai_canvas_qgis)。
 
@@ -990,6 +999,7 @@ class GeoWebViewBridge:
                 embed_gpkg_style=bool(embed_gpkg_style),
                 emit_themes=bool(emit_themes),
                 emit_bookmarks=bool(emit_bookmarks),
+                emit_launchers=bool(emit_launchers),
                 reearth_port=port)
         except Exception as e:
             return self._err(f"kasugai export failed: {e}")
@@ -1004,6 +1014,7 @@ class GeoWebViewBridge:
             "warnings": result.get("warnings", []),
             "themes": result.get("themes", []),
             "bookmarks": result.get("bookmarks", 0),
+            "launchers": result.get("launchers", []),
         }
         if not open_app:
             out["registered"] = False

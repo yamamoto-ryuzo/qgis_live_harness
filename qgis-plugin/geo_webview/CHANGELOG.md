@@ -11,6 +11,20 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.25.0] - 2026-10-25 .kasc エクスポートにエンジン起動HTMLを同梱
+
+- `.kasc` エクスポートが `.kasc`・`DATA/` と同じ場所に
+  **エンジン起動HTML**(`cesium.html`/`maplibre.html`/`openlayers.html`/
+  `leaflet.html`)とリンク一覧の `index.html` を出力するようになった
+  (`emit_launchers=False` で抑制)。
+  各HTMLは `?kasc=<この .kasc の絶対URL>` 付きで対応エンジンへ転送し、
+  エンジン本体(`web/` の中身)を `./ ../ ../../ /` の順に自動探索する
+  (配置が特殊なら HTML 内の `CANVAS_BASE` を編集)。
+  出力フォルダとエンジンを同じ静的サーバーへアップするだけで動く、
+  **サーバレスの単独WEB配信**に対応(Canvas 側の `?kasc=` 直読みモード利用)
+- `export_kasugai_project` / bridge `kasugaiExport` に
+  `emit_launchers` 引数を追加。戻り値に `launchers`(出力パス一覧)を追加
+
 ## [3.24.0] - 2026-10-25 生成ビューア廃止・KASUGAI Canvas エンジン起動
 
 - **プラグイン内生成ビューアを廃止**(KASUGAI Canvas に統一):

@@ -44,6 +44,137 @@ KASUGAI_EXE_NAME = 'kasugai_canvas.exe'
 _KASUGAI_UNINSTALL_KEY = (
     r'Software\Microsoft\Windows\CurrentVersion\Uninstall\KASUGAI Canvas')
 
+# .kasc と同じ場所に出力するエンジン起動HTML(サーバレス配布用)。
+# 各HTMLは ?kasc=<.kascの絶対URL> 付きでエンジンへ転送するだけの
+# 自己完結ページ。エンジン本体(web/ の中身)は ./ ../ ../../ / の順に
+# 自動探索し、見つからなければHTML内の CANVAS_BASE を編集してもらう
+_LAUNCHER_ENGINES = ('cesium', 'maplibre', 'openlayers', 'leaflet')
+
+_ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KASUGAI Canvas — __ENGINE__</title>
+<style>
+  body { font-family: system-ui,"Segoe UI","Yu Gothic",sans-serif; margin: 28px; line-height: 1.65; color: #1d2b35; }
+  code { background: #eef2f5; padding: 1px 5px; border-radius: 4px; }
+  #tried a { color: #2c5ea8; }
+  .note { color: #52636d; font-size: 0.9em; }
+</style>
+</head>
+<body>
+<h1 style="font-size:1.15em">KASUGAI Canvas — __ENGINE__</h1>
+<p id="status">エンジンを探しています…</p>
+<div id="notfound" hidden>
+  <p>エンジン（<code>web/</code> の中身）が見つかりませんでした。<br />
+  このフォルダ（<code>__KASC__</code>・<code>DATA/</code>）とエンジンを同じ Web サーバーへ
+  アップしてください。確認した場所:</p>
+  <ul id="tried"></ul>
+  <p class="note">エンジンを別の場所に置く場合は、この HTML 内の
+  <code>CANVAS_BASE</code> にその URL（末尾 <code>/</code> 付き）を設定してください。</p>
+</div>
+<noscript><p>このページには JavaScript が必要です。</p></noscript>
+<script>
+(function () {
+  "use strict";
+  // KASUGAI Canvas エンジン本体（web/ の中身）の配置先。
+  // 内部に cesium/ maplibre/ openlayers/ leaflet/ shared/ がある階層を
+  // 末尾 / 付きで指定する（例: "https://example.com/canvas/"）。
+  // 空 "" のままでは ./ ../ ../../ / の順に __ENGINE__/index.html を自動探索する
+  var CANVAS_BASE = "";
+  var ENGINE = "__ENGINE__";
+  var KASC = "__KASC__";
+  var kascUrl = new URL(KASC, location.href).href;
+  function target(base) {
+    return new URL(ENGINE + "/", base).href + "?kasc=" + encodeURIComponent(kascUrl);
+  }
+  // file:// で開かれた場合はローカルの KASUGAI Canvas(127.0.0.1:8510)へ
+  // .kasc を外部プロジェクト登録し /<engine>/?project=<id> へ転送する。
+  // ブラウザは file:// ページからローカルファイルを fetch できないため
+  // WEB 用の探索は行わない（CANVAS_BASE 指定時はそちら優先）
+  if (!CANVAS_BASE && location.protocol === "file:") {
+    var kascPath = decodeURIComponent(new URL(KASC, location.href).pathname)
+      .replace(/^\\/([A-Za-z]:)/, "$1").replace(/\\//g, "\\\\");
+    function localHelp() {
+      document.getElementById("status").innerHTML =
+        "ローカルの KASUGAI Canvas（<a href='http://127.0.0.1:8510/'>127.0.0.1:8510</a>）に接続できません。" +
+        "アプリを起動してからこのページを再読み込みしてください。" +
+        "（外部 WEB で使う場合は、このフォルダとエンジンを同じサーバーへアップしてください）";
+    }
+    fetch("http://127.0.0.1:8510/api/projects/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: kascPath })
+    }).then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (res) {
+        if (res && res.id) {
+          location.replace("http://127.0.0.1:8510/" + ENGINE + "/?project=" + encodeURIComponent(res.id));
+        } else { localHelp(); }
+      }).catch(localHelp);
+    return;
+  }
+  if (CANVAS_BASE) {
+    location.replace(target(new URL(CANVAS_BASE, location.href)));
+    return;
+  }
+  var bases = ["./", "../", "../../", "/"];
+  var i = 0;
+  function next() {
+    if (i >= bases.length) {
+      document.getElementById("status").hidden = true;
+      document.getElementById("notfound").hidden = false;
+      return;
+    }
+    var base = new URL(bases[i], location.href); i += 1;
+    var probe = new URL(ENGINE + "/index.html", base).href;
+    var li = document.createElement("li");
+    var a = document.createElement("a");
+    a.href = target(base); a.textContent = probe;
+    li.appendChild(a);
+    document.getElementById("tried").appendChild(li);
+    fetch(probe, { method: "HEAD", cache: "no-store" })
+      .then(function (r) { if (r.ok) location.replace(target(base)); else next(); })
+      .catch(function () { next(); });
+  }
+  next();
+})();
+</script>
+</body>
+</html>
+'''
+
+_LAUNCHER_INDEX_HTML = '''<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KASUGAI Canvas プロジェクト — __KASC__</title>
+<style>
+  body { font-family: system-ui,"Segoe UI","Yu Gothic",sans-serif; margin: 28px; line-height: 1.65; color: #1d2b35; }
+  code { background: #eef2f5; padding: 1px 5px; border-radius: 4px; }
+  li { margin: 4px 0; }
+  a { color: #2c5ea8; }
+  .note { color: #52636d; font-size: 0.9em; }
+</style>
+</head>
+<body>
+<h1 style="font-size:1.15em">KASUGAI Canvas プロジェクト</h1>
+<p><code>__KASC__</code> を各エンジンで開きます:</p>
+<ul>
+  <li><a href="cesium.html">Cesium（3D・既定エンジン）</a></li>
+  <li><a href="maplibre.html">MapLibre GL</a></li>
+  <li><a href="openlayers.html">OpenLayers</a></li>
+  <li><a href="leaflet.html">Leaflet</a></li>
+</ul>
+<p class="note">このフォルダとエンジン（web/ の中身）を同じ Web サーバーへ
+アップすればサーバーレスで動作します。エンジンの自動探索に失敗する場合は
+各 HTML 内の <code>CANVAS_BASE</code> を設定してください。</p>
+</body>
+</html>
+'''
+
+
 
 def normalize_engine(engine):
     """engine 名を正規化。無効値は None を返す。"""
@@ -889,10 +1020,41 @@ def _attribution(layer):
         return ''
 
 
+def _write_engine_launchers(out_dir, kasc_name):
+    """.kasc と同じ場所に <engine>.html 起動ページ一式を出力する。
+
+    生成物:
+        cesium.html / maplibre.html / openlayers.html / leaflet.html —
+            同名エンジンへ ``?kasc=<この .kasc の絶対URL>`` 付きで転送する
+            自己完結ランチャー。エンジン本体(web/ の中身)は ./ ../ ../../ /
+            の順に自動探索し、見つからなければHTML内の CANVAS_BASE を
+            編集して使う
+        index.html — 4エンジンへのリンク一覧(フォルダを直接開いた時の案内)
+
+    出力フォルダとエンジンを同じ静的 Web サーバーへアップするだけで
+    動く、サーバレス配布のための部品。
+    """
+    written = []
+    for engine in _LAUNCHER_ENGINES:
+        html = (_ENGINE_LAUNCHER_HTML
+                .replace('__ENGINE__', engine)
+                .replace('__KASC__', kasc_name))
+        path = os.path.join(out_dir, '{0}.html'.format(engine))
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(html)
+        written.append(path)
+    idx_path = os.path.join(out_dir, 'index.html')
+    with open(idx_path, 'w', encoding='utf-8') as f:
+        f.write(_LAUNCHER_INDEX_HTML.replace('__KASC__', kasc_name))
+    written.append(idx_path)
+    return written
+
+
 def export_kasugai_project(iface, out_dir=None, visible_only=True,
                            native_formats=True, hidden_as_off=False,
                            embed_gpkg_style=False, reearth_port=None,
-                           emit_themes=True, emit_bookmarks=True):
+                           emit_themes=True, emit_bookmarks=True,
+                           emit_launchers=True):
     """レイヤツリーを KASUGAI Canvas プロジェクトとして出力する。
 
     引数:
@@ -920,9 +1082,17 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             ブックマークを ``bookmarks.xml``(qgis_bookmarks 形式・
             EPSG:4326 正規化)として出力し ``bookmark:`` 行を書く(既定)。
             Canvas 側ではカメラプリセットUIにそのまま並ぶ。
+        emit_launchers: True なら .kasc と同じ場所に
+            ``<engine>.html``(cesium/maplibre/openlayers/leaflet)と
+            ``index.html`` のエンジン起動ページを出力する(既定)。
+            各HTMLは ``?kasc=<この .kasc の絶対URL>`` 付きでエンジンへ
+            転送し、エンジン本体(web/ の中身)を ./ ../ ../../ / の順に
+            自動探索する。出力フォルダとエンジンを同じ静的サーバーへ
+            アップするだけで動くサーバレス配布の部品。
 
     戻り値: {"dir","kasc","data_dir","layers":[{name,file,features}],
-             "tiles":[...],"skipped":[...],"errors":[...],"warnings":[...]}。
+             "tiles":[...],"skipped":[...],"errors":[...],"warnings":[...],
+             "launchers":[...]}。
     layers が1件も無くても .kasc は出力する。
     """
     from qgis.core import QgsVectorLayer, QgsProject
@@ -1228,12 +1398,20 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
               encoding='utf-8') as f:
         json.dump({'title': project_title}, f, ensure_ascii=False)
 
+    launchers = []
+    if emit_launchers:
+        try:
+            launchers = _write_engine_launchers(
+                out_dir, os.path.basename(kasc_path))
+        except Exception as e:
+            warnings.append('engine launcher html 生成失敗: {0}'.format(e))
+
     return {
         'dir': out_dir, 'kasc': kasc_path, 'data_dir': data_dir,
         'title': project_title, 'layers': layers_out,
         'tiles': tiles_out, 'skipped': skipped, 'errors': errors,
         'warnings': warnings, 'themes': theme_names,
-        'bookmarks': bookmark_count,
+        'bookmarks': bookmark_count, 'launchers': launchers,
     }
 
 
