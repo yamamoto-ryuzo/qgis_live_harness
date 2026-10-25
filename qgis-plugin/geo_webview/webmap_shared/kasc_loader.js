@@ -406,7 +406,7 @@
         return;
       }
 
-      // fly_geojson:/cam:/legend:/info:/plugin:/cloud: 等はレイヤーではないためスキップ
+      // fly_geojson:/cam:/bookmark:/legend:/info:/plugin:/cloud: 等はレイヤーではないためスキップ
       skipped.push({ line: line, reason: 'unsupported line type: ' + type });
     });
     return { items: items, skipped: skipped };

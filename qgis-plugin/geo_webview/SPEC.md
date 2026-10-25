@@ -565,7 +565,7 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 |---|---|---|
 | パネルボタン | `KASUGAI` ボタン (`plugin.py: on_kasugai_clicked_panel`) | 人手操作 |
 | HTTP | `GET http://localhost:8089/kasugai` (server_manager._handle_kasugai) | 外部アプリ・AI からの一発起動。応答は `{ok,url,dir,layers,tiles}` JSON |
-| Bridge | `bridge_call` の `kasugaiExport(output_dir, open_app, native_formats, hidden_as_off, embed_gpkg_style)` | Live Driver 経由の AI 制御（MCP `qgis_bridge_call` / REST `/api/cmd` / JSONL） |
+| Bridge | `bridge_call` の `kasugaiExport(output_dir, open_app, native_formats, hidden_as_off, embed_gpkg_style, emit_themes, emit_bookmarks)` | Live Driver 経由の AI 制御（MCP `qgis_bridge_call` / REST `/api/cmd` / JSONL） |
 
 ### 出力フォルダ構成
 
@@ -600,6 +600,7 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 | 属性テーブルのみ(NoGeometry)・ローカルラスタ・ベクタータイル・メッシュ・点群・アノテーション等 | 出力せず `skipped` に種別/理由付きで記録 | |
 | 非表示レイヤ | `hidden_as_off=True` 時のみ `| off` 付きで出力 | 既定(visible_only=True)では除外 |
 | キャンバス | `cam:` 行(中心座標+概算高度+回転) | |
+| ブックマーク | `bookmarks.xml`(qgis_bookmarks形式・EPSG:4326正規化) + `bookmark:` 行(プロジェクト+アプリケーション両方) | `emit_bookmarks=False` で抑制。Canvas 側が XML を読み込みカメラプリセットへ展開する |
 
 その他: `attr=` に QGIS レイヤの出典(attribution)を引き継ぐ。
 `embed_gpkg_style=True` なら `saveStyleToDatabase` で GPKG の

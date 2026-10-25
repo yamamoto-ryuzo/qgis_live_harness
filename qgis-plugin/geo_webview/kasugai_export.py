@@ -731,6 +731,56 @@ def _camera_line(iface, height_hint_scale=None):
         return None
 
 
+def _export_bookmarks_xml(path):
+    """QGISブックマーク(プロジェクト+アプリケーション)を qgis_bookmarks
+    形式の XML として path へ出力する。
+
+    extent は全て EPSG:4326 へ正規化する(sr_id はQGIS内部srsidで
+    EPSGと一致しないため、参照側が確実に度単位として読めるようにする)。
+    戻り値は書き出した件数。失敗時・0件時は 0(ファイルは作らない)。
+    """
+    try:
+        from qgis.core import (QgsApplication, QgsBookmark,
+                               QgsBookmarkManager,
+                               QgsCoordinateReferenceSystem,
+                               QgsCoordinateTransform, QgsProject,
+                               QgsReferencedRectangle)
+        project = QgsProject.instance()
+        dest = QgsCoordinateReferenceSystem('EPSG:4326')
+        # 変換済みブックマークを集める一時マネージャ(initialize しないので
+        # ファイルへは書き出さない)
+        tmp = QgsBookmarkManager()
+        count = 0
+        for mgr in (project.bookmarkManager(),
+                    QgsApplication.bookmarkManager()):
+            if mgr is None:
+                continue
+            for bm in mgr.bookmarks() or []:
+                try:
+                    ext = bm.extent()
+                    if ext is None or ext.isNull() or ext.isEmpty():
+                        continue
+                    src = ext.crs()
+                    if src is None or not src.isValid():
+                        src = project.crs()
+                    rect = QgsCoordinateTransform(
+                        src, dest, project).transformBoundingBox(ext)
+                    nb = QgsBookmark()
+                    nb.setName(bm.name())
+                    nb.setGroup(bm.group())
+                    nb.setRotation(bm.rotation())
+                    nb.setExtent(QgsReferencedRectangle(rect, dest))
+                    tmp.addBookmark(nb)
+                    count += 1
+                except Exception:  # nosec B112  # 設計上の許容
+                    continue
+        if not count:
+            return 0
+        return count if QgsBookmarkManager.exportToFile(path, [tmp]) else 0
+    except Exception:
+        return 0
+
+
 def _attribution(layer):
     """レイヤの出典(attribution)文字列。失敗時は空文字。"""
     try:
@@ -742,7 +792,7 @@ def _attribution(layer):
 def export_kasugai_project(iface, out_dir=None, visible_only=True,
                            native_formats=True, hidden_as_off=False,
                            embed_gpkg_style=False, reearth_port=None,
-                           emit_themes=True):
+                           emit_themes=True, emit_bookmarks=True):
     """レイヤツリーを KASUGAI Canvas プロジェクトとして出力する。
 
     引数:
@@ -766,6 +816,10 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             テーマが存在する場合、非表示レイヤも ``| off`` で出力しないと
             テーマ側から表示へ戻せないため、hidden_as_off 同等に全レイヤを
             出力する。テーマが無ければ従来どおりの出力。
+        emit_bookmarks: True ならプロジェクト+アプリケーションの
+            ブックマークを ``bookmarks.xml``(qgis_bookmarks 形式・
+            EPSG:4326 正規化)として出力し ``bookmark:`` 行を書く(既定)。
+            Canvas 側ではカメラプリセットUIにそのまま並ぶ。
 
     戻り値: {"dir","kasc","data_dir","layers":[{name,file,features}],
              "tiles":[...],"skipped":[...],"errors":[...],"warnings":[...]}。
@@ -1003,6 +1057,10 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                         '{0} ({1})'.format(layer.name(), _skip_reason(layer)))
 
     cam = _camera_line(iface)
+    bookmark_count = 0
+    if emit_bookmarks:
+        bookmark_count = _export_bookmarks_xml(
+            os.path.join(out_dir, 'bookmarks.xml'))
     if reearth_port:
         try:
             _write_reearth_txt(iface, out_dir, int(reearth_port), tree,
@@ -1031,6 +1089,10 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     ] + bases
     if cam:
         header.append(cam)
+    # QGISブックマーク → bookmarks.xml + bookmark: 行。
+    # Canvas 側が XML を読み込んでカメラプリセットへ展開する
+    if bookmark_count:
+        header.append('bookmark: bookmarks.xml')
 
     # theme: 行(QGIS マップテーマ → Canvas 可視性プリセット)。
     # 表示レイヤは .kasc のレイヤタイトル(groups/名 のパンくず)と一致させる
@@ -1069,6 +1131,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         'title': project_title, 'layers': layers_out,
         'tiles': tiles_out, 'skipped': skipped, 'errors': errors,
         'warnings': warnings, 'themes': theme_names,
+        'bookmarks': bookmark_count,
     }
 
 

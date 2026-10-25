@@ -11,6 +11,19 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.23.0] - 2026-10-25 QGISブックマークの .kasc エクスポート
+
+- `/kasugai` エクスポートにブックマーク出力を追加(emit_bookmarks=既定True)。
+  プロジェクト+アプリケーションのブックマークを `bookmarks.xml`
+  (qgis_bookmarks 形式・extent は EPSG:4326 へ正規化)として出力し、
+  `.kasc` に `bookmark: bookmarks.xml` 行を書く。Canvas 側はこの XML を
+  読み込み各ブックマークをカメラプリセット(Cesium `#camera-presets` /
+  MapLibre・OpenLayers・Leaflet `#cams`)へ展開する。ユーザーがQGIS GUIで
+  エクスポートした任意の bookmarks XML も `bookmark: <path>` で参照可能
+- `kasugaiExport` ブリッジに `emit_bookmarks` 引数を追加
+- `bridge.py` の `kasugaiExport` で `os` 未import による NameError を修正
+  (KASUGAI インストール先が登録済みで output_dir 未指定時のみ顕在化)
+
 ## [3.22.0] - 2026-10-25 マップテーマの保存・削除を追加
 
 - パネルのテーマ選択コンボ直下に「テーマ名入力 + Save Theme ボタン」を追加。

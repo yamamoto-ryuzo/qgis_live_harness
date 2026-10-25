@@ -21,6 +21,7 @@ bridge では同等処理を例外送出型の内部実装で行う。
 
 import inspect
 import json
+import os
 import urllib.parse
 
 
@@ -216,7 +217,9 @@ class GeoWebViewBridge:
                 "があれば外部プロジェクト登録してブラウザで開く。"
                 "open_app=Falseで出力のみ。hidden_as_off=Trueで非表示レイヤ"
                 "もoff行として出力。embed_gpkg_style=TrueでGPKGの"
-                "layer_stylesへも保存。",
+                "layer_stylesへも保存。QGISブックマークは bookmarks.xml"
+                "として出力され bookmark: 行が付く(Canvas側がカメラ"
+                "プリセットへ展開。emit_bookmarks=Falseで抑制)。",
             "example": {"method": "kasugaiExport", "args": []},
         },
         "wfsLayers": {
@@ -1021,7 +1024,8 @@ class GeoWebViewBridge:
 
     def kasugaiExport(self, output_dir=None, open_app=True,
                       native_formats=True, hidden_as_off=False,
-                      embed_gpkg_style=False, emit_themes=True):
+                      embed_gpkg_style=False, emit_themes=True,
+                      emit_bookmarks=True):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
         表示中のベクターレイヤを DATA/ へ出力し、.kasc(geojson:/gpkg:/
@@ -1036,6 +1040,10 @@ class GeoWebViewBridge:
         layer_styles(useAsDefault)にも保存する(元ファイルへ書き込む)。
         emit_themes=True(既定)でマップテーマを theme: 行として出力
         (テーマがある場合は非表示レイヤも | off で自動出力)。
+        emit_bookmarks=True(既定)でQGISブックマーク(プロジェクト+
+        アプリケーション)を bookmarks.xml(qgis_bookmarks形式・EPSG:4326
+        正規化)として出力し bookmark: 行を書く(Canvas 側が読み込んで
+        カメラプリセットに展開する)。
         出力先は output_dir または設定 kasugai_output_path
         (既定: <ドキュメント>/kasugai_canvas_qgis)。
 
@@ -1065,6 +1073,7 @@ class GeoWebViewBridge:
                 hidden_as_off=bool(hidden_as_off),
                 embed_gpkg_style=bool(embed_gpkg_style),
                 emit_themes=bool(emit_themes),
+                emit_bookmarks=bool(emit_bookmarks),
                 reearth_port=port)
         except Exception as e:
             return self._err(f"kasugai export failed: {e}")
@@ -1078,6 +1087,7 @@ class GeoWebViewBridge:
             "errors": result["errors"],
             "warnings": result.get("warnings", []),
             "themes": result.get("themes", []),
+            "bookmarks": result.get("bookmarks", 0),
         }
         if not open_app:
             out["registered"] = False
