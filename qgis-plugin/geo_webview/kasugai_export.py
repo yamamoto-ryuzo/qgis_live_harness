@@ -87,7 +87,7 @@ _ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
   // 設定すると file:// でローカルCanvas未検出時に「ホスト版で開く」
   // （ブラウザのみでローカルフォルダを読む ?kasc=local モード）の
   // 選択肢を表示する
-  var HOSTED_BASE = "https://yamamoto-ryuzo.github.io/kasugai-canvas-web/latest/";
+  var HOSTED_BASE = "__HOSTED_BASE__";
   var ENGINE = "__ENGINE__";
   var KASC = "__KASC__";
   var kascUrl = new URL(KASC, location.href).href;
@@ -174,6 +174,16 @@ _ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
     if (i >= bases.length) {
       document.getElementById("status").hidden = true;
       document.getElementById("notfound").hidden = false;
+      // http(s) 配信時(例: geo_webview 8089)は .kasc がこのサーバ上に
+      // 既にあるため、ホスト版エンジンへ絶対URL付きで直接転送できる
+      if (HOSTED_BASE && location.protocol.indexOf("http") === 0) {
+        var hp = document.createElement("p");
+        var ha = document.createElement("a");
+        ha.href = target(HOSTED_BASE);
+        ha.textContent = "ホスト版エンジンで開く";
+        hp.appendChild(ha);
+        document.getElementById("notfound").appendChild(hp);
+      }
       return;
     }
     var base = new URL(bases[i], location.href); i += 1;
@@ -396,6 +406,65 @@ def get_kasugai_port():
     except Exception:  # nosec B110  # 設計上の許容
         pass
     return DEFAULT_KASUGAI_PORT
+
+
+# ---- ホスト版エンジン(kasugai-canvas-web) ----
+
+KASUGAI_WEB_HOST = (
+    'https://yamamoto-ryuzo.github.io/kasugai-canvas-web/')
+HOSTED_CHANNELS = ('stable', 'unstable')
+SETTINGS_KEY_HOSTED_CHANNEL = 'kasugai_hosted_channel'
+
+
+def get_hosted_channel():
+    """QSettings の kasugai_hosted_channel(未設定は 'stable')を返す。
+
+    'stable'/'unstable' または完全URL(自前ホスト用)を取る。
+    """
+    v = (_qsettings().value(SETTINGS_KEY_HOSTED_CHANNEL, '') or '')
+    return str(v).strip() or 'stable'
+
+
+def hosted_engine_base(channel=None):
+    """ホスト版エンジンのベースURL(末尾/付き)を返す。
+
+    channel に http(s):// 始まりの値を渡すと自前ホストURLとして使う。
+    未知の値は stable にフォールバックする。
+    """
+    ch = str(channel if channel is not None
+             else get_hosted_channel()).strip()
+    if ch.lower().startswith(('http://', 'https://')):
+        return ch if ch.endswith('/') else ch + '/'
+    if ch.lower() not in HOSTED_CHANNELS:
+        ch = 'stable'
+    return '{0}{1}/'.format(KASUGAI_WEB_HOST, ch.lower())
+
+
+def build_hosted_view_url(kasc_path, engine=None, port=None,
+                          channel=None):
+    """ホスト版エンジン + geo_webviewサーバのデータ配信で .kasc を開くURL。
+
+    Canvas未インストール環境向けの最終フォールバック。
+    ホスト版エンジンが /export-data/ 配下の .kasc+DATA/ を
+    http://localhost:<port> から fetch する(サーバ側の
+    OPTIONS/PNA対応が前提)。kasc_path が last_export_dir()
+    配下に無い場合は None。
+    """
+    if not port:
+        return None
+    try:
+        rel = os.path.relpath(kasc_path, last_export_dir())
+    except ValueError:
+        return None
+    rel = rel.replace('\\', '/')
+    if rel.startswith('..'):
+        return None
+    kasc_url = 'http://localhost:{0}/export-data/{1}'.format(
+        int(port), urllib.parse.quote(rel))
+    e = normalize_engine(engine) or DEFAULT_ENGINE
+    return '{0}{1}/?kasc={2}'.format(
+        hosted_engine_base(channel), e,
+        urllib.parse.quote(kasc_url, safe=''))
 
 
 def _slugify(name, used):
@@ -1088,6 +1157,7 @@ def _write_engine_launchers(out_dir, kasc_name):
     for engine in _LAUNCHER_ENGINES:
         html = (_ENGINE_LAUNCHER_HTML
                 .replace('__ENGINE__', engine)
+                .replace('__HOSTED_BASE__', hosted_engine_base())
                 .replace('__KASC__', kasc_name))
         path = os.path.join(out_dir, '{0}.html'.format(engine))
         with open(path, 'w', encoding='utf-8') as f:
@@ -1774,6 +1844,71 @@ def find_kasugai_exe():
         if os.path.isfile(cand):
             return cand
     return None
+
+
+def find_kasugai_web_dir():
+    """インストール済み KASUGAI Canvas の配信用 ``web/`` ディレクトリを返す。
+
+    Canvas サーバ(8510)未起動時に、geo_webview の HTTP サーバが
+    エンジンHTMLを代わりに配信するフォールバックで使う。
+    exe と同階層の ``web/`` を優先し、``<install>/web`` と
+    ``<install>/server/web`` も見る。``web/index.html`` が存在する
+    場合のみ絶対パスを返す（見つからなければ None）。
+    """
+    cands = []
+    exe = find_kasugai_exe()
+    if exe:
+        cands.append(os.path.join(os.path.dirname(exe), 'web'))
+    install = detect_kasugai_install_dir()
+    if install:
+        cands.append(os.path.join(install, 'web'))
+        cands.append(os.path.join(install, 'server', 'web'))
+    for cand in cands:
+        if os.path.isfile(os.path.join(cand, 'index.html')):
+            return os.path.abspath(cand)
+    return None
+
+
+def find_kasugai_engine_dir(engine=None):
+    """インストール済みCanvas web/ 内の ``<engine>/`` ディレクトリを返す。
+
+    マルチエンジン構成(web/cesium/等)のインストールのみ有効。
+    旧単一エンジン構成(web/直下にapp.js)や engine ディレクトリが無い
+    場合は None(?kasc= 再生不可のため hosted フォールバックへ回す)。
+    """
+    web = find_kasugai_web_dir()
+    if not web:
+        return None
+    e = normalize_engine(engine) or DEFAULT_ENGINE
+    d = os.path.join(web, e)
+    if os.path.isfile(os.path.join(d, 'index.html')):
+        return os.path.abspath(d)
+    return None
+
+
+def build_local_view_url(kasc_path, engine=None, port=None):
+    """geo_webview の HTTP サーバ経由で .kasc を開くURLを組み立てる。
+
+    Canvas サーバ(8510)未起動時のフォールバック用。
+    ``http://localhost:<port>/<engine>/?kasc=<export-data配下URL>``。
+    サーバ側でインストール済みCanvasの web/ 配信(エンドポイントに
+    一致しなかったパスの静的解決)が有効なことが前提。
+    kasc_path が last_export_dir() 配下に無い場合は None。
+    """
+    if not port:
+        return None
+    try:
+        rel = os.path.relpath(kasc_path, last_export_dir())
+    except ValueError:
+        return None
+    rel = rel.replace('\\', '/')
+    if rel.startswith('..'):
+        return None
+    kasc_url = 'http://localhost:{0}/export-data/{1}'.format(
+        int(port), urllib.parse.quote(rel))
+    e = normalize_engine(engine) or DEFAULT_ENGINE
+    return 'http://localhost:{0}/{1}/?kasc={2}'.format(
+        int(port), e, urllib.parse.quote(kasc_url, safe=''))
 
 
 def launch_kasugai(kasc_path=None, open_browser=False):

@@ -67,6 +67,35 @@ class SettingsDialog(QtWidgets.QDialog):
         kasugai_group.setLayout(kasugai_layout)
         layout.addWidget(kasugai_group)
 
+        # Hosted engine channel (kasugai-canvas-web)
+        hosted_group = QtWidgets.QGroupBox(QtCore.QCoreApplication.translate('geo_webview', "Hosted Engine (kasugai-canvas-web)"))
+        hosted_layout = QtWidgets.QVBoxLayout()
+        hosted_row = QtWidgets.QHBoxLayout()
+        hosted_label = QtWidgets.QLabel(QtCore.QCoreApplication.translate('geo_webview', "Channel:"))
+        self.kasugai_hosted_combo = QtWidgets.QComboBox()
+        self.kasugai_hosted_combo.setEditable(True)
+        self.kasugai_hosted_combo.addItems(['stable', 'unstable'])
+        self.kasugai_hosted_combo.setToolTip(
+            QtCore.QCoreApplication.translate(
+                'geo_webview',
+                "Engine channel used when KASUGAI Canvas is not installed. "
+                "'stable'/'unstable' or a custom base URL ending with '/'."))
+        self.kasugai_hosted_combo.currentTextChanged.connect(
+            self._hosted_channel_changed)
+        hosted_row.addWidget(hosted_label)
+        hosted_row.addWidget(self.kasugai_hosted_combo)
+        hosted_layout.addLayout(hosted_row)
+        hosted_info = QtWidgets.QLabel(
+            QtCore.QCoreApplication.translate(
+                'geo_webview',
+                "Fallback when KASUGAI Canvas is not installed: the hosted "
+                "engine reads .kasc+DATA/ served by this plugin's HTTP server."))
+        hosted_info.setWordWrap(True)
+        hosted_info.setStyleSheet("color: #666;")
+        hosted_layout.addWidget(hosted_info)
+        hosted_group.setLayout(hosted_layout)
+        layout.addWidget(hosted_group)
+
         layout.addStretch()
 
         # Close button
@@ -109,6 +138,16 @@ class SettingsDialog(QtWidgets.QDialog):
             self._kasugai_install_path = ''
             if install_path and install_path != '__default__':
                 self.settings.setValue('kasugai_install_path', '')
+
+        # Hosted engine channel
+        ch = str(self.settings.value('kasugai_hosted_channel', '')
+                 or '').strip() or 'stable'
+        self.kasugai_hosted_combo.setCurrentText(ch)
+
+    def _hosted_channel_changed(self, text):
+        """ホスト版エンジンのチャンネル変更を保存する。"""
+        self.settings.setValue(
+            'kasugai_hosted_channel', str(text or '').strip() or 'stable')
 
     def _browse_kasugai_install(self):
         """Select KASUGAI Canvas install directory; export lands in <dir>/projects/."""

@@ -292,60 +292,12 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_kasugai_cesium">
+         <widget class="QPushButton" name="pushButton_kasugai_export">
           <property name="text">
-           <string>Cesium</string>
+           <string>Export</string>
           </property>
           <property name="toolTip">
-           <string>Export visible layers and open in KASUGAI Canvas (Cesium)</string>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>25</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_kasugai_openlayers">
-          <property name="text">
-           <string>OpenLayers</string>
-          </property>
-          <property name="toolTip">
-           <string>Export visible layers and open in KASUGAI Canvas (OpenLayers)</string>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>25</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_kasugai_maplibre">
-          <property name="text">
-           <string>MapLibre</string>
-          </property>
-          <property name="toolTip">
-           <string>Export visible layers and open in KASUGAI Canvas (MapLibre)</string>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>25</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_kasugai_leaflet">
-          <property name="text">
-           <string>Leaflet</string>
-          </property>
-          <property name="toolTip">
-           <string>Export visible layers and open in KASUGAI Canvas (Leaflet)</string>
+           <string>Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs)</string>
           </property>
           <property name="minimumSize">
            <size>

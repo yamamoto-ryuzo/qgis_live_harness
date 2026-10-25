@@ -107,6 +107,56 @@ def send_binary_response(conn, status_code, reason, data, content_type):
             pass
 
 
+def send_options_response(conn):
+    """CORS + Private Network Access プリフライト(OPTIONS)応答。
+
+    ホスト版エンジン(https://*.github.io)から http://localhost への
+    fetch は Chrome の Private Network Access 対象となり、プリフライト
+    応答に Access-Control-Allow-Private-Network が必要。
+    """
+    try:
+        header_lines = [
+            "HTTP/1.1 204 No Content",
+            "Access-Control-Allow-Origin: *",
+            "Access-Control-Allow-Methods: GET, HEAD, OPTIONS",
+            "Access-Control-Allow-Headers: *",
+            "Access-Control-Allow-Private-Network: true",
+            "Access-Control-Max-Age: 600",
+            "Content-Length: 0",
+            "Connection: close",
+            "",
+            "",
+        ]
+        header = "\r\n".join(header_lines).encode('utf-8')
+        conn.sendall(header)
+    except Exception:
+        try:
+            conn.close()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+
+def send_head_response(conn, status_code, reason, content_length, content_type):
+    """Send headers only for a HEAD request (no body)."""
+    try:
+        header_lines = [
+            f"HTTP/1.1 {status_code} {reason}",
+            f"Content-Length: {int(content_length)}",
+            f"Content-Type: {content_type}",
+            "Access-Control-Allow-Origin: *",
+            "Connection: close",
+            "",
+            "",
+        ]
+        header = "\r\n".join(header_lines).encode('utf-8')
+        conn.sendall(header)
+    except Exception:
+        try:
+            conn.close()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+
 def send_wms_error_response(conn, error_code, error_message):
     """Send an OWS-style ExceptionReport XML response for WMS errors.
 

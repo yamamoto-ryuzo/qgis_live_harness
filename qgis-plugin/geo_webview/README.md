@@ -61,7 +61,7 @@ Clients that ingest data & styles exported/served from QGIS and play them as ind
 
 | Target | Route | Integration |
 |---|---|---|
-| **KASUGAI Canvas** | `/kasugai` (`.kasc`+`DATA/`) | **Unified player (primary).** A standalone WebGIS app — geo_webview writes the QGIS layer tree as `.kasc`+`DATA/` (vectors + `.qml` styles) and registers it with a running KASUGAI local server, then switches the view. The four panel buttons (Cesium/OpenLayers/MapLibre/Leaflet) or `?engine=` select the launch engine — the same `.kasc`+`DATA/` plays on every engine. An EXE-installed copy also provides rclone, auto-update, file saving and `.kasc` association |
+| **KASUGAI Canvas** | `/kasugai` (`.kasc`+`DATA/`) | **Unified player (primary).** A standalone WebGIS app — geo_webview writes the QGIS layer tree as `.kasc`+`DATA/` (vectors + `.qml` styles) and registers it with a running KASUGAI local server, then switches the view. The panel `Export` button writes the project files only (incl. `index.html` + per-engine launcher HTMLs); `GET /kasugai?engine=` or the `kasugaiExport` bridge also registers and launches a given engine — the same `.kasc`+`DATA/` plays on every engine. An EXE-installed copy also provides rclone, auto-update, file saving and `.kasc` association |
 | **Re:Earth Visualizer (geo_suite)** | `reearth.txt` export + generic OGC output | **Secondary** (Cesium-based like KASUGAI Canvas). `reearth.txt` inspector text plus `/wfs` GeoJSON, `/xyz`/`/wmts` tiles and `.qml` styles are consumed client-side (geo_suite ships a QML→Re:Earth translator) |
 Note: 3D work is consolidated in the Cesium-based clients — KASUGAI Canvas (primary) and Re:Earth Visualizer (secondary).
 
@@ -272,7 +272,7 @@ The server generates and serves the HTML itself — just open the URL (map viewi
 ### 🔗 External app integrations
 
 #### KASUGAI Canvas (Cesium / OpenLayers / MapLibre / Leaflet)
-- Panel engine buttons (`Cesium` `OpenLayers` `MapLibre` `Leaflet`) or `GET /kasugai?engine=<e>` exports visible layers as a KASUGAI Canvas project (`.kasc` + `DATA/`) and launches that engine
+- The panel `Export` button exports visible layers as a KASUGAI Canvas project (`.kasc` + `DATA/` + `index.html` and per-engine launcher HTMLs) without launching; `GET /kasugai?engine=<e>` or the `kasugaiExport` bridge also registers the project and launches that engine
 - GPKG/GeoJSON/GeoParquet/FlatGeobuf referenced natively; other vectors converted to GeoJSON (EPSG:4326). Each layer's QGIS style is exported as `.qml`. WMS rasters are exported as `wms:` reference lines (`layers=`/`styles=`/`format=`)
 - The exported `.kasc`+`DATA/` plays on every engine (`?engine=cesium|openlayers|maplibre|leaflet`) — all 2D line types incl. `wms:`/`wmts:` are supported
 - Registers the project with a running KASUGAI local server and switches its view
@@ -448,7 +448,7 @@ map.setStyle('http://localhost:8089/maplibre-style?typename=roads');
 
 ## KASUGAI Canvas integration
 
-The `/kasugai` endpoint (or the panel engine buttons, or the `kasugaiExport` bridge via Live Driver) exports the QGIS project to KASUGAI Canvas — a multi-engine map app (Cesium / OpenLayers / MapLibre / Leaflet).
+The `/kasugai` endpoint (or the panel `Export` button for file output only, or the `kasugaiExport` bridge via Live Driver) exports the QGIS project to KASUGAI Canvas — a multi-engine map app (Cesium / OpenLayers / MapLibre / Leaflet).
 
 ```bash
 curl "http://localhost:8089/kasugai?engine=openlayers"

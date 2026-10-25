@@ -100,11 +100,8 @@ class GeoWebViewPanel(QDockWidget):
         # Google Maps/Earth用のUI要素
         self.pushButton_google_maps = getattr(self.ui, 'pushButton_google_maps', None)
         self.pushButton_google_earth = getattr(self.ui, 'pushButton_google_earth', None)
-        # KASUGAI Canvas エンジン起動ボタン
-        self.pushButton_kasugai_cesium = getattr(self.ui, 'pushButton_kasugai_cesium', None)
-        self.pushButton_kasugai_openlayers = getattr(self.ui, 'pushButton_kasugai_openlayers', None)
-        self.pushButton_kasugai_maplibre = getattr(self.ui, 'pushButton_kasugai_maplibre', None)
-        self.pushButton_kasugai_leaflet = getattr(self.ui, 'pushButton_kasugai_leaflet', None)
+        # KASUGAI Canvas エクスポートボタン
+        self.pushButton_kasugai_export = getattr(self.ui, 'pushButton_kasugai_export', None)
         self.pushButton_kasugai_folder = getattr(self.ui, 'pushButton_kasugai_folder', None)
         # HTTP server toggle checkbox (added to UI)
         self.checkBox_server_toggle = getattr(self.ui, 'checkBox_server_toggle', None)
@@ -218,15 +215,11 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.pushButton_google_earth.setText(QCoreApplication.translate('geo_webview', "🌍 Google Earth"))
         if hasattr(self.ui, 'label_kasugai'):
             self.ui.label_kasugai.setText(QCoreApplication.translate('geo_webview', "KASUGAI Canvas:"))
-        _kasugai_tool_tip = QCoreApplication.translate(
-            'geo_webview',
-            "Export visible layers and open in KASUGAI Canvas ({engine})")
-        for _eng, _label in (('cesium', 'Cesium'), ('openlayers', 'OpenLayers'),
-                             ('maplibre', 'MapLibre'), ('leaflet', 'Leaflet')):
-            _btn = getattr(self.ui, 'pushButton_kasugai_{0}'.format(_eng), None)
-            if _btn is not None:
-                _btn.setText(QCoreApplication.translate('geo_webview', _label))
-                _btn.setToolTip(_kasugai_tool_tip.format(engine=_label))
+        if hasattr(self.ui, 'pushButton_kasugai_export'):
+            self.ui.pushButton_kasugai_export.setText(QCoreApplication.translate('geo_webview', "Export"))
+            self.ui.pushButton_kasugai_export.setToolTip(QCoreApplication.translate(
+                'geo_webview',
+                "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs)"))
         if hasattr(self.ui, 'pushButton_kasugai_folder'):
             self.ui.pushButton_kasugai_folder.setText('📁')
             self.ui.pushButton_kasugai_folder.setToolTip(

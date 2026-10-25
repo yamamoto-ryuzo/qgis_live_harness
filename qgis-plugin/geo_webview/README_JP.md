@@ -58,7 +58,7 @@ QGIS からエクスポート/配信されたデータ・スタイルを取り�
 
 | 連携先 | 経路 | 連携の形 |
 |---|---|---|
-| **KASUGAI Canvas** | `/kasugai`（`.kasc`+`DATA/`） | **統合プレイヤー（主）**。QGIS レイヤツリーを `.kasc`+`DATA/`（ベクター＋`.qml` スタイル）として出力し、起動中の KASUGAI へ外部プロジェクト登録・表示切替。パネルの4エンジンボタン（Cesium/OpenLayers/MapLibre/Leaflet）または `?engine=` で起動エンジンを選択でき、同じ `.kasc`+`DATA/` を全エンジンで再生。EXE 込みインストールでは rclone・自動更新・ファイル保存・`.kasc` 関連付けも利用可 |
+| **KASUGAI Canvas** | `/kasugai`（`.kasc`+`DATA/`） | **統合プレイヤー（主）**。QGIS レイヤツリーを `.kasc`+`DATA/`（ベクター＋`.qml` スタイル）として出力し、起動中の KASUGAI へ外部プロジェクト登録・表示切替。パネルの `Export` ボタンはファイル出力のみ（`index.html`＋エンジン別起動HTMLを同梱）。起動エンジンの選択は `GET /kasugai?engine=` または `kasugaiExport` ブリッジ側で行い、同じ `.kasc`+`DATA/` を全エンジンで再生。EXE 込みインストールでは rclone・自動更新・ファイル保存・`.kasc` 関連付けも利用可 |
 | **Re:Earth Visualizer（geo_suite）** | `reearth.txt` 出力 ＋ 汎用 OGC 出力 | **サブ**（KASUGAI Canvas と同じ Cesium ベース）。`reearth.txt`（inspector テキスト）に加え `/wfs` の GeoJSON・`/xyz`/`/wmts` タイル・`.qml` スタイルをクライアント側（geo_suite の QML→Re:Earth トランスレータ）が取り込む |
 
 ※3D 表現は Cesium ベースの KASUGAI Canvas（主）・Re:Earth Visualizer（サブ）に集約して開発します。
@@ -280,7 +280,7 @@ flowchart LR
 ### � 外部アプリ連携
 
 #### KASUGAI Canvas（Cesium / OpenLayers / MapLibre / Leaflet）
-- パネルの4エンジンボタン（`Cesium` `OpenLayers` `MapLibre` `Leaflet`）または `GET /kasugai?engine=<e>` で、表示中レイヤを KASUGAI Canvas プロジェクト（`.kasc`+`DATA/`）として出力し該当エンジンで起動
+- パネルの `Export` ボタンは表示中レイヤを KASUGAI Canvas プロジェクト（`.kasc`+`DATA/`＋`index.html`・エンジン別起動HTML）として出力するのみ（起動なし）。`GET /kasugai?engine=<e>` または `kasugaiExport` ブリッジは登録まで行い該当エンジンで起動
 - GPKG/GeoJSON/GeoParquet/FlatGeobuf はネイティブ参照、その他ベクターは GeoJSON(EPSG:4326) に変換。各レイヤの QGIS スタイルは `.qml` として出力。WMS ラスタは `wms:` 行（`layers=`/`styles=`/`format=`）として参照出力
 - 出力した `.kasc`+`DATA/` は全エンジン（`?engine=cesium|openlayers|maplibre|leaflet`）でそのまま再生できる（wms:/wmts: を含む2D行を全対応）
 - 起動中の KASUGAI ローカルサーバーへ外部プロジェクト登録 → `switchProject` で表示切替
@@ -482,7 +482,7 @@ map.setStyle('http://localhost:8089/maplibre-style?typename=roads');
 
 ## KASUGAI Canvas 連携
 
-`/kasugai` エンドポイント（またはパネルの4エンジンボタン、Live Driver 経由の `kasugaiExport` ブリッジ）で、QGIS プロジェクトを KASUGAI Canvas（Cesium / OpenLayers / MapLibre / Leaflet のマルチエンジン地図アプリ）へ送出します。
+`/kasugai` エンドポイント（またはファイル出力のみのパネル `Export` ボタン、Live Driver 経由の `kasugaiExport` ブリッジ）で、QGIS プロジェクトを KASUGAI Canvas（Cesium / OpenLayers / MapLibre / Leaflet のマルチエンジン地図アプリ）へ送出します。
 
 ```bash
 curl "http://localhost:8089/kasugai?engine=openlayers"

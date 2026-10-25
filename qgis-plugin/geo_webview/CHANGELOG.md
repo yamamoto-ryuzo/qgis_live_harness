@@ -11,6 +11,55 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.27.0] - 2026-10-25 Canvas未起動/未インストール時のエンジン配信フォールバック
+
+- **`GET /kasugai`・bridge `kasugaiExport` に3段フォールバックを追加**
+  (応答JSONの `via` で供給元を返す):
+  - `kasugai`: 従来通り Canvas ローカルサーバ(8510)へ登録
+  - `qgis-http`: Canvas 未起動だがインストール済みなら、
+    geo_webview の HTTP サーバが `<install>/web/` のエンジンHTMLを
+    静的配信(エンドポイントに一致しないパスを web/ 配下へ解決)し、
+    `/export-data/` の .kasc+DATA/ と同一オリジンで開く
+  - `hosted`: Canvas 未インストールなら、ホスト版エンジン
+    (kasugai-canvas-web/GitHub Pages)+`/export-data/` のデータ配信で開く
+    (要インターネット)。チャンネルは新設定 `kasugai_hosted_channel`
+    (stable/unstable/カスタムURL、既定 stable、設定ダイアログに選択UI追加)
+- **HTTPサーバに `HEAD`/`OPTIONS` メソッド対応を追加**
+  - HEAD: エンジン起動HTMLの自動探索プローブ(fetch HEAD)用。
+    静的配信(export-data / Canvas web/)のみ応答
+  - OPTIONS: CORS+Private Network Access プリフライト応答
+    (`Access-Control-Allow-Private-Network: true`)。
+    ホスト版エンジン https→localhost:8089 の fetch に必要
+- `/export-data/` の配信 Content-Type に .html/.js/.css/.svg/.wasm/
+  フォント等を追加し、出力したエンジン起動HTMLをブラウザ表示可能に
+- ランチャーHTML(`<engine>.html`)の `HOSTED_BASE` を
+  `kasugai_hosted_channel` 設定連動(`__HOSTED_BASE__`置換)に変更し、
+  エンジン未検出時に「ホスト版エンジンで開く」リンクを表示
+  (http(s)配信時は絶対 .kasc URL付きで直接転送)
+- `kasugai_export.py`: `find_kasugai_web_dir()` /
+  `hosted_engine_base()` / `get_hosted_channel()` /
+  `build_local_view_url()` / `build_hosted_view_url()` を追加
+- bridge `getSettings` に `kasugai_hosted_channel`・
+  `kasugai_hosted_base` を追加、`setSettings` に
+  `kasugai_hosted_channel` キーを追加
+- SPEC/SPEC_JP §15 にフォールバック仕様を追記
+
+## [3.26.0] - 2026-10-25 パネルの KASUGAI ボタンをエクスポート専用に単一化
+
+- パネルの4エンジン起動ボタン(Cesium / OpenLayers / MapLibre / Leaflet)を
+  **単一の `Export` ボタンに集約**。どのボタンも同じ `.kasc`+`DATA/` と
+  全エンジン分の起動HTML(cesium/maplibre/openlayers/leaflet.html +
+  index.html)を出力していたため、ボタン分割の意味がなかった
+- 新ハンドラ `on_kasugai_export_clicked` は **エクスポートのみ**行い、
+  Canvas 起動・プロジェクト登録・未インストール時の Install 案内は
+  行わない(起動・登録は従来通り `GET /kasugai` エンドポイントと
+  bridge `kasugaiExport` が担当)。出力物は 📁 ボタンの出力フォルダか
+  `index.html` から開く
+- `on_kasugai_engine_clicked` / `_offer_kasugai_install` /
+  `_install_kasugai_and_open` を削除
+- i18n 9言語カタログ更新(新規キー追加。「Export」ボタン・ツールチップ・
+  フォルダオープン失敗メッセージ)
+
 ## [3.25.0] - 2026-10-25 .kasc エクスポートにエンジン起動HTMLを同梱
 
 - `.kasc` エクスポートが `.kasc`・`DATA/` と同じ場所に

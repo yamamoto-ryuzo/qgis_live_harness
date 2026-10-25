@@ -243,7 +243,8 @@ class GeoWebViewBridge:
         "setSettings": {
             "description":
                 "設定を変更する。対応キー: kasugai_output_path /"
-                " kasugai_install_path / kasugai_port / port。",
+                " kasugai_install_path / kasugai_port /"
+                " kasugai_hosted_channel / port。",
             "example": {"method": "setSettings",
                         "args": [{"kasugai_port": 8510}]},
         },
@@ -977,7 +978,10 @@ class GeoWebViewBridge:
 
         open_app=True で起動中のKASUGAIローカルサーバ(port 8510)へ
         /api/projects/register で登録し、switchProjectコマンドを送って
-        ブラウザで開く。未起動なら出力のみ行う。
+        ブラウザで開く。Canvas未起動・未検出でも、インストール済みCanvasの
+        web/ が見つかれば geo_webview のHTTPサーバがエンジンHTMLと
+        /export-data/ のデータを配信するフォールバックURL(via:'qgis-http')
+        を返してブラウザで開く。どちらも無理なら出力のみ行う。
         engine=cesium|openlayers|maplibre|leaflet で起動エンジンを指定
         できる(既定 cesium、URLの ?engine= パラメータ経由)。
         GUIスレッドで全レイヤを逐次エクスポートするため、大量レイヤでは
@@ -1035,6 +1039,53 @@ class GeoWebViewBridge:
                 out["install_error"] = str(e)
         if not caps:
             out["registered"] = False
+            # Canvas未起動/未検出のフォールバック: geo_webview のHTTPサーバを
+            # 最小配信サーバとして使い、インストール済みCanvasの web/ と
+            # /export-data/ 配下の .kasc+DATA/ でエンジンを開く
+            try:
+                # 旧単一エンジン構成のインストールは ?kasc= 非対応のため
+                # <engine>/ の存在まで確認する
+                if port and kasugai_export.find_kasugai_engine_dir(engine):
+                    local_url = kasugai_export.build_local_view_url(
+                        result["kasc"], engine=engine, port=port)
+                    if local_url:
+                        out["url"] = local_url
+                        out["via"] = "qgis-http"
+                        out["note"] = (
+                            "kasugai canvas local server not detected; "
+                            "served via geo_webview http server "
+                            "(installed web/ + export-data).")
+                        try:
+                            self._open_url(local_url)
+                            out["opened"] = True
+                        except Exception as e:
+                            out["opened"] = False
+                            out["open_error"] = str(e)
+                        return self._ok(out)
+            except Exception:  # nosec B110  # フォールバック失敗は従来挙動へ
+                pass
+            # 最終フォールバック: ホスト版エンジン(kasugai-canvas-web) +
+            # 本サーバの /export-data/ データ配信。Canvas未インストール環境
+            # でもブラウザで開ける(要インターネット)
+            try:
+                hosted_url = kasugai_export.build_hosted_view_url(
+                    result["kasc"], engine=engine, port=port)
+                if hosted_url:
+                    out["url"] = hosted_url
+                    out["via"] = "hosted"
+                    out["note"] = (
+                        "kasugai canvas not detected; opened via hosted "
+                        "engine (kasugai-canvas-web) + geo_webview "
+                        "export-data.")
+                    try:
+                        self._open_url(hosted_url)
+                        out["opened"] = True
+                    except Exception as e:
+                        out["opened"] = False
+                        out["open_error"] = str(e)
+                    return self._ok(out)
+            except Exception:  # nosec B110  # フォールバック失敗は従来挙動へ
+                pass
             out["note"] = (
                 "kasugai canvas local server not detected (port 8510)."
                 + (" launched via .kasc file association."
@@ -1049,6 +1100,7 @@ class GeoWebViewBridge:
         if reg.get("ok"):
             out["projectId"] = reg["id"]
             out["url"] = reg["url"]
+            out["via"] = "kasugai"
             out["engine"] = engine
             kasugai_export.kasugai_command(
                 "switchProject", {"projectId": reg["id"]})
@@ -1144,6 +1196,10 @@ class GeoWebViewBridge:
             "kasugai_qgis_projects_dir":
                 kasugai_export.kasugai_qgis_projects_dir(),
             "kasugai_port": kasugai_export.get_kasugai_port(),
+            "kasugai_hosted_channel":
+                kasugai_export.get_hosted_channel(),
+            "kasugai_hosted_base":
+                kasugai_export.hosted_engine_base(),
             "preferred_port": getattr(server, "preferred_port", None),
             "plugin_dir": getattr(self._plugin, "plugin_dir", None),
         })
@@ -1157,19 +1213,22 @@ class GeoWebViewBridge:
           kasugai_port: KASUGAIローカルサーバのポート(既定8510)
           kasugai_install_path: KASUGAIインストール先
               （設定時は <install>/QGIS_projects/<id>/ へ .kasc+DATA/ を直出力）
+          kasugai_hosted_channel: ホスト版エンジンのチャンネル
+              (stable/unstable または完全URL。既定 stable)
           port: HTTPサーバ優先ポート(起動中なら再起動)
         """
         from qgis.PyQt.QtCore import QSettings
         settings = dict(settings or {})
         allowed = {"port", "kasugai_output_path", "kasugai_port",
-                   "kasugai_install_path"}
+                   "kasugai_install_path", "kasugai_hosted_channel"}
         unknown = [k for k in settings if k not in allowed]
         if unknown:
             return self._err(f"unknown keys: {unknown} "
                              f"(allowed: {sorted(allowed)})")
         s = QSettings("GeoWebView", "geo_webview")
         applied = {}
-        for key in ("kasugai_output_path", "kasugai_install_path"):
+        for key in ("kasugai_output_path", "kasugai_install_path",
+                    "kasugai_hosted_channel"):
             if key in settings:
                 s.setValue(key, str(settings[key]))
                 applied[key] = str(settings[key])

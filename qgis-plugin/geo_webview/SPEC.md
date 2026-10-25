@@ -563,7 +563,7 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 
 | 経路 | 呼び出し | 用途 |
 |---|---|---|
-| パネルボタン | `KASUGAI` ボタン (`plugin.py: on_kasugai_clicked_panel`) | 人手操作 |
+| パネルボタン | `Export` ボタン (`plugin.py: on_kasugai_export_clicked`) | 人手操作（ファイル出力のみ。Canvas 起動・登録はしない） |
 | HTTP | `GET http://localhost:8089/kasugai` (server_manager._handle_kasugai) | 外部アプリ・AI からの一発起動。応答は `{ok,url,dir,layers,tiles}` JSON |
 | Bridge | `bridge_call` の `kasugaiExport(output_dir, open_app, native_formats, hidden_as_off, embed_gpkg_style, emit_themes, emit_bookmarks)` | Live Driver 経由の AI 制御（MCP `qgis_bridge_call` / REST `/api/cmd` / JSONL） |
 
@@ -613,7 +613,28 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 起動中の KASUGAI ローカルサーバー（`KASUGAI_CANVAS_PORT`、既定 8510）が
 あれば `POST /api/projects/register` で外部プロジェクト登録し、
 `POST /api/command` の `switchProject` で表示を切り替える。
-未起動時は出力のみ（`.kasc` をダブルクリックで関連付け起動＋登録）。
+
+Canvas が使えない場合は次の順でフォールバックする
+（`/kasugai`・`kasugaiExport` とも応答の `via` で供給元を返す）:
+
+| `via` | 条件 | URL |
+|---|---|---|
+| `kasugai` | Canvas 稼働（or exe/関連付けで起動成功） | `http://localhost:8510/<engine>/?project=<id>` |
+| `qgis-http` | Canvas 未起動だが **インストール済み** `web/` あり | `http://localhost:<port>/<engine>/?kasc=<export-data URL>` |
+| `hosted` | Canvas **未インストール**（要インターネット） | `https://yamamoto-ryuzo.github.io/kasugai-canvas-web/<channel>/<engine>/?kasc=<export-data URL>` |
+| `null` | いずれも不可 | 出力のみ成功 |
+
+- `qgis-http`: geo_webview の HTTP サーバーが **エンドポイントに一致しなかった
+  パスをインストール済み Canvas の `web/` 配下へ静的解決**する
+  （`find_kasugai_web_dir()`）。同一オリジンのため混在コンテンツ問題なし
+- `hosted`: エンジン本体は `kasugai-canvas-web`（GitHub Pages）から取得し、
+  `.kasc`+`DATA/` は本サーバーの `/export-data/` から読む。https→localhost
+  の fetch は Chrome Private Network Access 対象のため、サーバーは
+  `OPTIONS` プリフライトに `Access-Control-Allow-Private-Network: true` で
+  応答する。チャンネルは設定 `kasugai_hosted_channel`
+  （`stable`/`unstable`/カスタムURL、既定 `stable`）
+- エンジン起動HTML は `HEAD` メソッドで `<engine>/index.html` を自動探索する
+  ため、サーバーは `HEAD`（静的配信のみ）にも応答する
 
 ### AI からの操作
 

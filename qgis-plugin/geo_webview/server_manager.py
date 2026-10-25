@@ -428,9 +428,20 @@ class GeoWebViewServerManager:
 
             method, target, _ = parts
 
-            if method.upper() != 'GET':
+            # OPTIONS: CORS + Private Network Access プリフライト
+            # (ホスト版エンジン https → localhost への fetch 用)
+            if method.upper() == 'OPTIONS':
                 from . import http_server
-                http_server.send_http_response(conn, 405, "Method Not Allowed", "Only GET is supported.")
+                http_server.send_options_response(conn)
+                return
+
+            # HEAD はエクスポート用ランチャーHTMLのエンジン自動探索
+            # (fetch HEAD で <engine>/index.html を探す)が使うため受け付ける。
+            # 静的配信(export-data / Canvas web/)のみを対象とする
+            head_only = method.upper() == 'HEAD'
+            if method.upper() not in ('GET', 'HEAD'):
+                from . import http_server
+                http_server.send_http_response(conn, 405, "Method Not Allowed", "Only GET, HEAD and OPTIONS are supported.")
                 return
 
             # MACアドレス認証モード(設定で有効時のみ): 未登録MACのクライアントは403
@@ -459,6 +470,29 @@ class GeoWebViewServerManager:
                 if line.lower().startswith('host:'):
                     host = line.split(':', 1)[1].strip()
                     break
+
+            # HEAD は静的配信のみ応答する(エンジン自動探索プローブ用)
+            if head_only:
+                try:
+                    served = False
+                    if parsed_url.path.startswith('/export-data/'):
+                        served = True
+                        self._handle_export_data(
+                            conn, parsed_url.path[len('/export-data/'):],
+                            head_only=True)
+                    else:
+                        served = self._handle_canvas_web(
+                            conn, parsed_url.path, head_only=True)
+                    if not served:
+                        from . import http_server
+                        http_server.send_http_response(
+                            conn, 404, 'Not Found', 'not found',
+                            'text/plain; charset=utf-8')
+                except Exception as e:
+                    QgsMessageLog.logMessage(
+                        f'❌ HEAD handler error: {e}',
+                        'geo_webview', Qgis.MessageLevel.Warning)
+                return
 
             # ブラウザ/外部クライアントからパーマリンクURL（/qgis-map）を
             # 受け取ったときだけパネルのナビゲート欄に表示するためにemitする。
@@ -886,6 +920,18 @@ class GeoWebViewServerManager:
                 http_server.send_http_response(conn, 404, "Not Found", f"File not found: {fname}", "text/plain; charset=utf-8")
                 return
 
+            # --- KASUGAI Canvas web/ 静的配信(フォールバック) ---
+            # Canvas サーバ(8510)未起動時に、インストール済みCanvasの
+            # エンジンHTMLをこのサーバが代わりに配信する。全エンドポイントに
+            # 一致しなかったパスのみ web/ 配下へ解決する
+            try:
+                if self._handle_canvas_web(conn, parsed_url.path):
+                    return
+            except Exception as e:
+                QgsMessageLog.logMessage(
+                    f'❌ canvas web handler error: {e}',
+                    'geo_webview', Qgis.MessageLevel.Critical)
+
             # 未対応のエンドポイントは404エラー
             QgsMessageLog.logMessage(f"❌ Unknown endpoint: {parsed_url.path}", "geo_webview", Qgis.MessageLevel.Warning)
             from . import http_server
@@ -894,7 +940,7 @@ class GeoWebViewServerManager:
                 conn,
                 404,
                 "Not Found",
-                "Available endpoints: /wms (PNG image), /present (shared canvas view), /present/state (canvas JSON), /screenshot (canvas PNG), /received (permalink history), /kasugai (KASUGAI Canvas export), /export-data/<rel> (export files), /maplibre-style (Mapbox style JSON for WFS), /wmts (WMTS tiles), /wfs (WFS service)"
+                "Available endpoints: /wms (PNG image), /present (shared canvas view), /present/state (canvas JSON), /screenshot (canvas PNG), /received (permalink history), /kasugai (KASUGAI Canvas export), /export-data/<rel> (export files), /maplibre-style (Mapbox style JSON for WFS), /wmts (WMTS tiles), /wfs (WFS service), /<engine>/ (KASUGAI Canvas web static fallback)"
             )
             return
 
@@ -1170,13 +1216,55 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
         http_server.send_http_response(
             conn, 200, 'OK', html_page, 'text/html; charset=utf-8')
 
-    def _handle_export_data(self, conn, rel):
+    # 静的配信用 Content-Type 対応表。mimetypes モジュールは
+    # Windows レジストリ依存で .js が text/plain になる環境があるため
+    # 主要型は固定する
+    _STATIC_MIME = {
+        '.html': 'text/html; charset=utf-8',
+        '.htm': 'text/html; charset=utf-8',
+        '.js': 'text/javascript; charset=utf-8',
+        '.mjs': 'text/javascript; charset=utf-8',
+        '.css': 'text/css; charset=utf-8',
+        '.json': 'application/json; charset=utf-8',
+        '.geojson': 'application/geo+json; charset=utf-8',
+        '.kasc': 'application/json; charset=utf-8',
+        '.qml': 'application/xml; charset=utf-8',
+        '.xml': 'application/xml; charset=utf-8',
+        '.csv': 'text/csv; charset=utf-8',
+        '.tsv': 'text/tab-separated-values; charset=utf-8',
+        '.txt': 'text/plain; charset=utf-8',
+        '.svg': 'image/svg+xml',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp',
+        '.ico': 'image/x-icon',
+        '.wasm': 'application/wasm',
+        '.map': 'application/json; charset=utf-8',
+        '.woff': 'font/woff',
+        '.woff2': 'font/woff2',
+        '.ttf': 'font/ttf',
+        '.parquet': 'application/octet-stream',
+        '.fgb': 'application/octet-stream',
+        '.b3dm': 'application/octet-stream',
+        '.gpkg': 'application/octet-stream',
+    }
+
+    @classmethod
+    def _static_content_type(cls, path):
+        return cls._STATIC_MIME.get(
+            os.path.splitext(path)[1].lower(), 'application/octet-stream')
+
+    def _handle_export_data(self, conn, rel, head_only=False):
         """KASUGAI/Re:Earth エクスポート産物(直近の出力先配下)を配信。
 
         パストラバーサル防止のため出力ディレクトリ外は拒否する。
         Re:Earth inspector の絶対URL参照や Canvas プロジェクト登録時の
         DATA/ 直接参照に使う。インストール先 projects/<id>/ に出力した
         場合も last_export_dir() でそちらを配信する。
+        .html/.js/.css 等も正しい Content-Type で返すため、出力された
+        エンジンランチャーHTMLをこのサーバ経由でブラウザ表示できる。
         """
         import os
         import urllib.parse
@@ -1189,22 +1277,49 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                 conn, 404, 'Not Found', 'not found',
                 'text/plain; charset=utf-8')
             return
-        ext = os.path.splitext(target)[1].lower()
-        ctype = {
-            '.geojson': 'application/geo+json; charset=utf-8',
-            '.json': 'application/json; charset=utf-8',
-            '.qml': 'application/xml; charset=utf-8',
-            '.csv': 'text/csv; charset=utf-8',
-            '.tsv': 'text/tab-separated-values; charset=utf-8',
-            '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
-            '.parquet': 'application/octet-stream',
-            '.fgb': 'application/octet-stream',
-            '.b3dm': 'application/octet-stream',
-            '.gpkg': 'application/octet-stream',
-        }.get(ext, 'application/octet-stream')
+        ctype = self._static_content_type(target)
+        if head_only:
+            http_server.send_head_response(
+                conn, 200, 'OK', os.path.getsize(target), ctype)
+            return
         with open(target, 'rb') as f:
             data = f.read()
         http_server.send_binary_response(conn, 200, 'OK', data, ctype)
+
+    def _handle_canvas_web(self, conn, rel_path, head_only=False):
+        """インストール済み KASUGAI Canvas の ``web/`` を静的配信する。
+
+        Canvas サーバ(8510)未起動時に、エクスポート済み .kasc+DATA/ を
+        開くための最小HTTPサーバとして本サーバを使うためのフォールバック。
+        全エンドポイントに一致しなかったパスを web/ 配下へ解決する
+        (例: /cesium/index.html → <install>/web/cesium/index.html)。
+        配信できれば True、見つからなければ False。
+        """
+        from . import http_server, kasugai_export
+        web_root = kasugai_export.find_kasugai_web_dir()
+        if not web_root:
+            return False
+        web_root = os.path.normcase(os.path.abspath(web_root))
+        rel = urllib.parse.unquote(rel_path or '').replace('\\', '/')
+        target = os.path.abspath(
+            os.path.join(web_root, *rel.lstrip('/').split('/')))
+        target_nc = os.path.normcase(target)
+        if target_nc != web_root and \
+                not target_nc.startswith(web_root + os.sep):
+            return False
+        if os.path.isdir(target):
+            target = os.path.join(target, 'index.html')
+        if not os.path.isfile(target):
+            return False
+        ctype = self._static_content_type(target)
+        if head_only:
+            http_server.send_head_response(
+                conn, 200, 'OK', os.path.getsize(target), ctype)
+            return True
+        with open(target, 'rb') as f:
+            data = f.read()
+        http_server.send_binary_response(conn, 200, 'OK', data, ctype)
+        return True
 
     def _handle_kasugai(self, conn, params=None):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力し、
@@ -1214,9 +1329,13 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
         (cesium|maplibre|openlayers|leaflet、既定 cesium)。
 
         応答JSON:
-          成功 {ok:true, url:<KASUGAIプロジェクトURL|null>, dir, layers, tiles, engine}
+          成功 {ok:true, url:<開くURL|null>, via, dir, layers, tiles, engine}
           失敗 {ok:false, error}
-        url が null の場合はKASUGAI未起動(出力のみ成功)を意味する。
+        via は url の供給元: 'kasugai'=Canvasサーバ登録、
+        'qgis-http'=本サーバのCanvas web/静的配信フォールバック、
+        'hosted'=ホスト版エンジン(kasugai-canvas-web)+本サーバの
+        データ配信(Canvas未インストール向け・要インターネット)、
+        null=未起動かつフォールバック不可(出力のみ成功)。
         """
         from . import http_server, kasugai_export
         engine = kasugai_export.DEFAULT_ENGINE
@@ -1243,6 +1362,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                     'application/json; charset=utf-8')
                 return
             url = None
+            via = None
             try:
                 caps, _launched = kasugai_export.ensure_kasugai_running(
                     result['kasc'], pump_events=False)
@@ -1260,14 +1380,47 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                         kasugai_export.kasugai_command(
                             'switchProject', {'projectId': reg['id']})
                         url = reg.get('url')
+                        via = 'kasugai'
             except Exception as e:
                 QgsMessageLog.logMessage(
                     f'⚠️ KASUGAI registration failed: {e}',
                     'geo_webview', Qgis.MessageLevel.Warning)
+            if not url:
+                # Canvas未起動/未検出のフォールバック: このHTTPサーバ自体を
+                # 最小配信サーバとして使い、インストール済みCanvasの web/ と
+                # /export-data/ 配下の .kasc+DATA/ でエンジンを開く
+                try:
+                    # 旧単一エンジン構成のインストールは ?kasc= 非対応のため
+                    # <engine>/ の存在まで確認する
+                    if kasugai_export.find_kasugai_engine_dir(engine):
+                        url = kasugai_export.build_local_view_url(
+                            result['kasc'], engine=engine,
+                            port=self.get_server_port() or self.server_port)
+                        if url:
+                            via = 'qgis-http'
+                except Exception as e:
+                    QgsMessageLog.logMessage(
+                        f'⚠️ KASUGAI static fallback failed: {e}',
+                        'geo_webview', Qgis.MessageLevel.Warning)
+            if not url:
+                # 最終フォールバック: ホスト版エンジン(kasugai-canvas-web)
+                # + 本サーバの /export-data/ データ配信。Canvas未インストール
+                # 環境でもブラウザで開ける(要インターネット)
+                try:
+                    url = kasugai_export.build_hosted_view_url(
+                        result['kasc'], engine=engine,
+                        port=self.get_server_port() or self.server_port)
+                    if url:
+                        via = 'hosted'
+                except Exception as e:
+                    QgsMessageLog.logMessage(
+                        f'⚠️ KASUGAI hosted fallback failed: {e}',
+                        'geo_webview', Qgis.MessageLevel.Warning)
             http_server.send_http_response(
                 conn, 200, 'OK',
                 json.dumps(
-                    {'ok': True, 'url': url, 'dir': result.get('dir'),
+                    {'ok': True, 'url': url, 'via': via,
+                     'dir': result.get('dir'),
                      'layers': n_layers, 'tiles': n_tiles,
                      'engine': engine},
                     ensure_ascii=False),
