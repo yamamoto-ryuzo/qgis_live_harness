@@ -944,7 +944,7 @@ class GeoWebViewBridge:
     def kasugaiExport(self, output_dir=None, open_app=True,
                       native_formats=True, hidden_as_off=False,
                       embed_gpkg_style=False, emit_themes=True,
-                      emit_bookmarks=True, engine=None):
+                      emit_bookmarks=True, engine=None, install=False):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
         表示中のベクターレイヤを DATA/ へ出力し、.kasc(geojson:/gpkg:/
@@ -982,14 +982,7 @@ class GeoWebViewBridge:
             port = (srv.get_server_port()
                     if srv and srv.is_server_running() else None)
             # KASUGAI インストール先が登録済みなら projects/<id>/ へ直出力する
-            target_dir = output_dir
-            if not target_dir:
-                proj_dir = kasugai_export.kasugai_projects_dir()
-                if proj_dir:
-                    from qgis.core import QgsProject
-                    base = (QgsProject.instance().baseName() or 'qgis_export')
-                    target_dir = os.path.join(
-                        proj_dir, kasugai_export.project_dir_slug(base))
+            target_dir = output_dir or kasugai_export.preferred_output_dir()
             result = kasugai_export.export_kasugai_project(
                 self._plugin.iface, out_dir=target_dir or None,
                 native_formats=bool(native_formats),
@@ -1015,11 +1008,29 @@ class GeoWebViewBridge:
         if not open_app:
             out["registered"] = False
             return self._ok(out)
-        caps = kasugai_export.detect_kasugai()
+        caps, launched_default = kasugai_export.ensure_kasugai_running(
+            result["kasc"], pump_events=False)
+        if not caps and install:
+            # 未検出かつ install=True: 配布ZIPを取得・展開してから再試行
+            # (ダウンロードのため数十秒ブロックする場合がある)
+            try:
+                kasugai_export.install_kasugai()
+                out["installed"] = True
+                caps, launched_default = \
+                    kasugai_export.ensure_kasugai_running(
+                        result["kasc"], pump_events=False)
+            except Exception as e:
+                out["installed"] = False
+                out["install_error"] = str(e)
         if not caps:
             out["registered"] = False
-            out["note"] = ("kasugai canvas local server not detected "
-                           "(port 8510). open the .kasc file manually.")
+            out["note"] = (
+                "kasugai canvas local server not detected (port 8510)."
+                + (" launched via .kasc file association."
+                   if launched_default else
+                   " install kasugai canvas or set the install path"
+                   " in plugin settings for auto-launch."
+                   " install=True downloads and installs it."))
             return self._ok(out)
         reg = kasugai_export.register_kasugai_project(
             result["kasc"], engine=engine)
@@ -1119,6 +1130,8 @@ class GeoWebViewBridge:
             "kasugai_install_path": s.value("kasugai_install_path", ""),
             "kasugai_install_dir": kasugai_export.get_kasugai_install_dir(),
             "kasugai_projects_dir": kasugai_export.kasugai_projects_dir(),
+            "kasugai_qgis_projects_dir":
+                kasugai_export.kasugai_qgis_projects_dir(),
             "kasugai_port": kasugai_export.get_kasugai_port(),
             "preferred_port": getattr(server, "preferred_port", None),
             "plugin_dir": getattr(self._plugin, "plugin_dir", None),
@@ -1132,7 +1145,7 @@ class GeoWebViewBridge:
               ("__default__" で <ドキュメント>/kasugai_canvas_qgis)
           kasugai_port: KASUGAIローカルサーバのポート(既定8510)
           kasugai_install_path: KASUGAIインストール先
-              （設定時は <install>/projects/<id>/ へ .kasc+DATA/ を直出力）
+              （設定時は <install>/QGIS_projects/<id>/ へ .kasc+DATA/ を直出力）
           port: HTTPサーバ優先ポート(起動中なら再起動)
         """
         from qgis.PyQt.QtCore import QSettings

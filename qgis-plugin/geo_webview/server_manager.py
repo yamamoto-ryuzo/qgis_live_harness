@@ -1171,16 +1171,17 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             conn, 200, 'OK', html_page, 'text/html; charset=utf-8')
 
     def _handle_export_data(self, conn, rel):
-        """KASUGAI/Re:Earth エクスポート産物(get_output_dir() 配下)を配信。
+        """KASUGAI/Re:Earth エクスポート産物(直近の出力先配下)を配信。
 
         パストラバーサル防止のため出力ディレクトリ外は拒否する。
-        Re:Earth inspector の絶対URL参照や Canvas 外部プロジェクト登録時の
-        DATA/ 直接参照に使う。
+        Re:Earth inspector の絶対URL参照や Canvas プロジェクト登録時の
+        DATA/ 直接参照に使う。インストール先 projects/<id>/ に出力した
+        場合も last_export_dir() でそちらを配信する。
         """
         import os
         import urllib.parse
         from . import http_server, kasugai_export
-        root = os.path.abspath(kasugai_export.get_output_dir())
+        root = os.path.abspath(kasugai_export.last_export_dir())
         rel_path = urllib.parse.unquote(rel or '').replace('\\', '/')
         target = os.path.abspath(os.path.join(root, rel_path))
         if not target.startswith(root + os.sep) or not os.path.isfile(target):
@@ -1228,7 +1229,9 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
             pass
         with self._kasugai_lock:
             result = kasugai_export.export_kasugai_project(
-                self.iface, reearth_port=self.get_server_port())
+                self.iface,
+                out_dir=kasugai_export.preferred_output_dir(),
+                reearth_port=self.get_server_port())
             n_layers = len(result.get('layers') or [])
             n_tiles = len(result.get('tiles') or [])
             if not n_layers and not n_tiles:
@@ -1241,7 +1244,16 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                 return
             url = None
             try:
-                if kasugai_export.detect_kasugai():
+                caps, _launched = kasugai_export.ensure_kasugai_running(
+                    result['kasc'], pump_events=False)
+                if not caps and str(
+                        (params or {}).get('install', [''])[0]
+                        ).lower() in ('1', 'true', 'yes'):
+                    # ?install=1: 未検出なら配布ZIPを取得・展開して再試行
+                    kasugai_export.install_kasugai()
+                    caps, _launched = kasugai_export.ensure_kasugai_running(
+                        result['kasc'], pump_events=False)
+                if caps:
                     reg = kasugai_export.register_kasugai_project(
                         result['kasc'], engine=engine)
                     if reg.get('ok'):

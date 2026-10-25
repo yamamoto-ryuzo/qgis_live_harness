@@ -11,7 +11,7 @@ geo_webview は QGIS と Web を連携させるプラグインです。QGIS は 
 
 指定フォルダへ `.kasc`+`DATA/`（レイヤツリー・`.qml` スタイル・視点 `cam:`）を出力する経路。`.kasc` は KASUGAI Canvas のプロジェクト形式で、出力後は QGIS 側サーバーなしで動作し、`.kasc`+`DATA/`+システム一式を切り出して配布できます。Re:Earth Visualizer 向けには `reearth.txt` も出力できます。
 
-再生側のシステム本体は **KASUGAI Canvas 側に整備されています**（Cesium/MapLibre/OpenLayers/Leaflet のマルチエンジン。Web 部分は静的配信で動作、EXE 側が rclone・自動更新・ファイル保存・`.kasc` 関連付けを担当）。KASUGAI のインストール先を登録して `projects/` 直下へ出力する運用を想定しています。プラグイン内蔵の生成 HTML ビューア（旧 `/qgis-map`・`/maplibre`・`/map3d`）は v3.24.0 で廃止され、閲覧は全て KASUGAI Canvas に一本化されました。
+再生側のシステム本体は **KASUGAI Canvas 側に整備されています**（Cesium/MapLibre/OpenLayers/Leaflet のマルチエンジン。Web 部分は静的配信で動作、EXE 側が rclone・自動更新・ファイル保存・`.kasc` 関連付けを担当）。KASUGAI のインストール先を登録して `QGIS_projects/`（QGIS連携専用フォルダ）へ出力する運用を想定しています。プラグイン内蔵の生成 HTML ビューア（旧 `/qgis-map`・`/maplibre`・`/map3d`）は v3.24.0 で廃止され、閲覧は全て KASUGAI Canvas に一本化されました。
 
 KASUGAI Canvas 側のレイアウト（`web/`）:
 
@@ -487,7 +487,7 @@ curl "http://localhost:8089/kasugai?engine=openlayers"
 # → {"ok":true,"url":"http://localhost:8510/?project=...&engine=openlayers","dir":"...","layers":N,"tiles":M,"engine":"openlayers"}
 ```
 
-- 出力先: 既定 `<ドキュメント>/kasugai_canvas_qgis`（`.kasc` + `DATA/`）。KASUGAI インストール先を設定で登録すれば `projects/<id>/` 直下への出力も可
+- 出力先: KASUGAI インストール先を設定で登録済みなら `<install>/QGIS_projects/<QGISプロジェクト名>/` へ出力（Canvas 本体の `projects/` と分離した QGIS 連携専用フォルダ）。未登録なら既定 `<ドキュメント>/kasugai_canvas_qgis`（`.kasc` + `DATA/`）へ出力。いずれも起動中の Canvas には外部プロジェクトとして登録される
 - GPKG/GeoJSON/GeoParquet/FlatGeobuf はネイティブ参照、その他は GeoJSON(EPSG:4326) へ変換
 - 各ベクターレイヤの QGIS スタイルを `.qml` として同梱（KASUGAI 側が Cesium 描画へコンパイル。MapLibre/OpenLayers フロントでも QML をクライアント側コンパイルして適用）
 - WMS ラスタレイヤ（`type=xyz` 以外）は `wms:` 行（`layers=`/`styles=`/`format=` オプション付き）として出力。`wmts:` 行（RESTful テンプレート・KVP GetTile）も Canvas 側で読み込み可能

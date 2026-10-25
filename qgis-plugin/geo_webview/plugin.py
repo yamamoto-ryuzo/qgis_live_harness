@@ -2136,7 +2136,9 @@ class GeoWebView:
                     if self.server_manager
                     and self.server_manager.is_server_running() else None)
             result = kasugai_export.export_kasugai_project(
-                self.iface, reearth_port=port)
+                self.iface,
+                out_dir=kasugai_export.preferred_output_dir(),
+                reearth_port=port)
             n_layers = len(result.get('layers') or [])
             n_tiles = len(result.get('tiles') or [])
             if not n_layers and not n_tiles:
@@ -2146,8 +2148,11 @@ class GeoWebView:
                     duration=5)
                 return
 
-            # 起動中のKASUGAIローカルサーバがあれば外部プロジェクト登録
-            caps = kasugai_export.detect_kasugai()
+            # 起動中のKASUGAIローカルサーバがあれば外部プロジェクト登録。
+            # 未起動ならインストール済みexe(設定のインストール先/レジストリ)
+            # を --no-browser で起動し、それも無ければ .kasc 関連付けで起動する
+            caps, launched_default = kasugai_export.ensure_kasugai_running(
+                result['kasc'])
             opened = False
             if caps:
                 reg = kasugai_export.register_kasugai_project(
@@ -2156,7 +2161,10 @@ class GeoWebView:
                     # 起動中の画面も切替え(ベストエフォート)
                     kasugai_export.kasugai_command(
                         'switchProject', {'projectId': reg['id']})
-                    QDesktopServices.openUrl(QUrl(reg['url']))
+                    # 関連付け起動で既定エンジンが既に開いている場合は二重オープンしない
+                    if not (launched_default
+                            and engine == kasugai_export.DEFAULT_ENGINE):
+                        QDesktopServices.openUrl(QUrl(reg['url']))
                     opened = True
 
             if opened:
@@ -2166,22 +2174,107 @@ class GeoWebView:
                             "({1} layers, {2} tiles).").format(
                         engine, n_layers, n_tiles),
                     duration=5)
-            else:
-                # KASUGAI未起動: 出力先フォルダを開く(.kascを開けば連携起動)
-                QDesktopServices.openUrl(
-                    QUrl.fromLocalFile(result['dir']))
+            elif launched_default:
+                # .kasc関連付けでCanvas自体は起動したがAPIが応答しない(旧版等)
                 self.iface.messageBar().pushMessage(
                     "geo_webview",
-                    self.tr("Exported KASUGAI project to {0} "
-                            "({1} layers, {2} tiles). Open the .kasc "
-                            "file in KASUGAI Canvas.").format(
-                        result['dir'], n_layers, n_tiles),
-                    duration=8)
+                    self.tr("Launched KASUGAI Canvas via the .kasc file "
+                            "association (default engine)."),
+                    duration=6)
+            else:
+                # KASUGAI未検出/未インストール: 自動インストールの選択肢を提示
+                self._offer_kasugai_install(engine, result)
         except Exception as e:
             self.iface.messageBar().pushMessage(
                 "geo_webview",
                 self.tr("KASUGAI export error: {0}").format(e),
                 duration=5)
+
+    def _offer_kasugai_install(self, engine, result):
+        """KASUGAI Canvas 未検出時: Install ボタン付きメッセージを出し、
+        クリックで配布ZIPをダウンロード→展開→起動→指定エンジンで開く。"""
+        try:
+            from qgis.PyQt.QtWidgets import QPushButton
+            from qgis.core import Qgis
+            item = self.iface.messageBar().createMessage(
+                "geo_webview",
+                self.tr("KASUGAI Canvas is not installed. "
+                        "The project was exported to {0}.").format(
+                    result['dir']))
+            btn = QPushButton(self.tr("Install KASUGAI Canvas"))
+            btn.clicked.connect(
+                lambda checked=False: self._install_kasugai_and_open(
+                    engine, result))
+            item.layout().addWidget(btn)
+            self.iface.messageBar().pushWidget(
+                item, Qgis.MessageLevel.Info)
+        except Exception as e:
+            # メッセージバー操作に失敗した場合はフォルダ表示に退避
+            try:
+                QDesktopServices.openUrl(QUrl.fromLocalFile(result['dir']))
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            self.iface.messageBar().pushMessage(
+                "geo_webview",
+                self.tr("KASUGAI export error: {0}").format(e),
+                duration=5)
+
+    def _install_kasugai_and_open(self, engine, result):
+        """配布ZIPをバックグラウンドで取得・展開し、起動してエンジンで開く。"""
+        from qgis.core import Qgis
+        from . import kasugai_export
+        self.iface.messageBar().pushMessage(
+            "geo_webview",
+            self.tr("Installing KASUGAI Canvas..."),
+            duration=3)
+
+        def _work(task):
+            return kasugai_export.install_kasugai()
+
+        def _done(exc, dest=None):
+            if exc is not None or not dest:
+                err = str(exc) if exc else 'install failed'
+                self.iface.messageBar().pushMessage(
+                    "geo_webview",
+                    self.tr("KASUGAI Canvas install failed: {0}").format(err),
+                    level=Qgis.MessageLevel.Warning, duration=8)
+                return
+            caps, _ld = kasugai_export.ensure_kasugai_running(
+                result['kasc'])
+            opened = False
+            if caps:
+                reg = kasugai_export.register_kasugai_project(
+                    result['kasc'], engine=engine)
+                if reg.get('ok'):
+                    kasugai_export.kasugai_command(
+                        'switchProject', {'projectId': reg['id']})
+                    QDesktopServices.openUrl(QUrl(reg['url']))
+                    opened = True
+            if opened:
+                self.iface.messageBar().pushMessage(
+                    "geo_webview",
+                    self.tr("Installed KASUGAI Canvas and opened the "
+                            "project ({0}).").format(engine),
+                    duration=6)
+            else:
+                QDesktopServices.openUrl(QUrl.fromLocalFile(result['dir']))
+                self.iface.messageBar().pushMessage(
+                    "geo_webview",
+                    self.tr("Installed KASUGAI Canvas to {0}. "
+                            "Open the .kasc file.").format(dest),
+                    duration=8)
+
+        try:
+            from qgis.core import QgsApplication, QgsTask
+            task = QgsTask.fromFunction(
+                'Install KASUGAI Canvas', _work, on_finished=_done)
+            QgsApplication.taskManager().addTask(task)
+        except Exception:
+            # QgsTask が使えない環境では同期的に実行(旧QGIS互換)
+            try:
+                _done(None, _work(None))
+            except Exception as e:
+                _done(e, None)
 
     def on_present_clicked_panel(self):
         """プレゼンテーション共有ページ(/present)をブラウザで開く。"""

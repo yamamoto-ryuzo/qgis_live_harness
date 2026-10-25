@@ -35,6 +35,31 @@
   (KASUGAI Canvas インストール先のみ残存)
 - i18n 9言語カタログ更新(+21/-18)、`scripts/_check_pages.mjs` の
   対象ページを更新
+- **KASUGAI Canvas の連携起動**: 未起動時はインストール済み
+  `kasugai_canvas.exe`（設定のインストール先 → Windows インストーラの
+  レジストリ InstallLocation の順に探索）を `--no-browser` で起動し、
+  サーバー応答を待ってからプロジェクト登録・指定エンジンのURLを開く。
+  exe が見つからなければ `.kasc` ファイル関連付けでの起動を試行し、
+  それでもダメなら出力フォルダを開く従来のフォールバック
+- Canvas 起動URLは `/<engine>/?project=<id>` の実パス形式に変更
+  （トップの `?engine=` リダイレクト非依存。旧版 Canvas でも確実に
+  指定エンジンが開く）
+- **QGIS 連携プロジェクトの出力先を `<install>/QGIS_projects/<id>/` に
+  分離**（Canvas 本体の `projects/` と混在させない専用フォルダ。
+  インストール先未登録時は従来どおり `<Documents>/kasugai_canvas_qgis`。
+  `/export-data/` の配信ルートは実際の出力先へ追従）
+- **インストール先の自動検出**: 設定 `kasugai_install_path` 未登録でも
+  Windows インストーラのレジストリ InstallLocation から検出して
+  `QGIS_projects/` 出力・exe 起動に使う（設定ダイアログは
+  `[Auto-detected]` で表示）
+- **KASUGAI Canvas の自動インストール**: 未検出時はメッセージバーに
+  `Install KASUGAI Canvas` ボタンを表示し、クリックで配布ZIP
+  （公開チャンネルの `download/kasugai_canvas.zip`。`latest.json`
+  経由でURL解決）を `<install>`（既定 `C:\kasugai\kasugai_canvas`、
+  権限が無ければ `%LOCALAPPDATA%\kasugai_canvas`）へ展開・設定登録・
+  起動・指定エンジン表示まで一括実行。bridge は
+  `kasugaiExport(..., install=True)`、`/kasugai` エンドポイントは
+  `?install=1` で同処理をAPI経路からも呼べる
 - 残存する `/maplibre-style`(WFS→MapboxスタイルJSON)は OGC 供給側APIとして
   継続(`maplibre/qmap_maplibre_wfs|wmts` はそのまま)
 

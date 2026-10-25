@@ -14,7 +14,7 @@
 
 Writes a `.kasc` + `DATA/` package (layer tree, `.qml` styles, `cam:` view state) to a specified folder. `.kasc` is the KASUGAI Canvas project format — once exported it runs without the QGIS-side server, and the `.kasc`+`DATA/`+system bundle can be cut out and distributed as a unit. A `reearth.txt` for Re:Earth Visualizer can also be emitted.
 
-The player system itself is **maintained in KASUGAI Canvas** — a multi-engine app (Cesium / MapLibre / OpenLayers / Leaflet; the web part runs on static hosting, the EXE side provides rclone, auto-update, file saving, `.kasc` association). The intended flow is registering the KASUGAI install location and writing `.kasc`+`DATA/` directly into its `projects/` directory. The plugin's built-in generated viewers (former `/qgis-map`, `/maplibre`, `/map3d`) were removed in v3.24.0 — viewing is fully consolidated into KASUGAI Canvas.
+The player system itself is **maintained in KASUGAI Canvas** — a multi-engine app (Cesium / MapLibre / OpenLayers / Leaflet; the web part runs on static hosting, the EXE side provides rclone, auto-update, file saving, `.kasc` association). The intended flow is registering the KASUGAI install location and writing `.kasc`+`DATA/` into its `QGIS_projects/` directory (a dedicated folder, separate from Canvas's own `projects/`). The plugin's built-in generated viewers (former `/qgis-map`, `/maplibre`, `/map3d`) were removed in v3.24.0 — viewing is fully consolidated into KASUGAI Canvas.
 
 KASUGAI Canvas-side layout (`web/`):
 
@@ -453,7 +453,7 @@ curl "http://localhost:8089/kasugai?engine=openlayers"
 # → {"ok":true,"url":"http://localhost:8510/?project=...&engine=openlayers","dir":"...","layers":N,"tiles":M,"engine":"openlayers"}
 ```
 
-- Output: `<Documents>/kasugai_canvas_qgis` by default (`.kasc` + `DATA/`); registering the KASUGAI install location in settings writes directly under `projects/<id>/`
+- Output: when the KASUGAI install location is registered in settings, projects are written to `<install>/QGIS_projects/<QGIS project name>/` (a dedicated folder kept separate from Canvas's own `projects/`); otherwise `<Documents>/kasugai_canvas_qgis` (`.kasc` + `DATA/`). Either way a running Canvas registers it as an external project
 - GPKG/GeoJSON/GeoParquet/FlatGeobuf are referenced natively; other vectors are converted to GeoJSON (EPSG:4326)
 - Each vector layer's QGIS style is bundled as `.qml` (compiled client-side — to Cesium rendering, and on the MapLibre/OpenLayers fronts too)
 - WMS raster layers (non-`type=xyz`) are emitted as `wms:` lines (with `layers=`/`styles=`/`format=`); `wmts:` lines (RESTful templates, KVP GetTile) are also readable on the Canvas side

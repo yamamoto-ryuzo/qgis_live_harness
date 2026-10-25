@@ -25,6 +25,8 @@ import json
 import os
 import re
 import shutil
+import subprocess  # nosec B404  # kasugai_canvas.exe の連携起動用
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -37,6 +39,10 @@ SETTINGS_KEY_PORT = 'kasugai_port'
 # KASUGAI Canvas の起動エンジン(web/index.html の engine パラメータと同じ)
 VALID_ENGINES = ('cesium', 'maplibre', 'openlayers', 'leaflet')
 DEFAULT_ENGINE = 'cesium'
+
+KASUGAI_EXE_NAME = 'kasugai_canvas.exe'
+_KASUGAI_UNINSTALL_KEY = (
+    r'Software\Microsoft\Windows\CurrentVersion\Uninstall\KASUGAI Canvas')
 
 
 def normalize_engine(engine):
@@ -93,13 +99,43 @@ def get_kasugai_install_dir():
     return None
 
 
+def _registry_install_dir():
+    """Windows インストーラが登録するインストール先をレジストリから返す。
+
+    HKCU\\...\\Uninstall\\KASUGAI Canvas\\InstallLocation。
+    未登録・非 Windows は None。
+    """
+    if os.name != 'nt':
+        return None
+    try:
+        import winreg
+        with winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER, _KASUGAI_UNINSTALL_KEY) as key:
+            loc = winreg.QueryValueEx(key, 'InstallLocation')[0]
+        if loc and os.path.isdir(loc):
+            return loc
+    except Exception:  # nosec B110  # レジストリ未登録は正常系
+        pass
+    return None
+
+
+def detect_kasugai_install_dir():
+    """KASUGAI Canvas のインストール先を特定して返す（見つからなければ None）。
+
+    1) QSettings ``kasugai_install_path``（設定で明示登録）
+    2) Windows インストーラのレジストリ InstallLocation（設定未登録でも
+       インストール済みなら一体運用に使う）
+    """
+    return get_kasugai_install_dir() or _registry_install_dir()
+
+
 def kasugai_projects_dir():
     """KASUGAI インストール先の projects/ ディレクトリを返す（未設定なら None）。
 
     <install>/projects/ を優先し、無ければ <install>/web/projects/、
     どちらも無ければ <install>/projects/ を作成して返す。
     """
-    install = get_kasugai_install_dir()
+    install = detect_kasugai_install_dir()
     if not install:
         return None
     for cand in (os.path.join(install, 'projects'),
@@ -109,6 +145,58 @@ def kasugai_projects_dir():
     cand = os.path.join(install, 'projects')
     os.makedirs(cand, exist_ok=True)
     return cand
+
+
+def kasugai_qgis_projects_dir():
+    """QGIS 連携プロジェクト専用の ``<install>/QGIS_projects/`` を返す。
+
+    Canvas 本体の ``projects/``（ユーザー管理）と分離し、QGIS 由来の
+    エクスポートを専用フォルダに置く。Canvas への表示は
+    ``/api/projects/register`` の外部プロジェクト登録経由。
+    インストール先を検出できなければ None（設定未登録でもレジストリ
+    検出で一体運用になる）。ディレクトリは必要時に作成する。
+    """
+    install = detect_kasugai_install_dir()
+    if not install:
+        return None
+    cand = os.path.join(install, 'QGIS_projects')
+    os.makedirs(cand, exist_ok=True)
+    return cand
+
+
+def preferred_output_dir(project_name=None):
+    """QGIS 連携プロジェクトの出力先ディレクトリを決める。
+
+    KASUGAI Canvas のインストール先が登録済みなら
+    ``<install>/QGIS_projects/<QGISプロジェクト名>/`` を返す
+    （Canvas 本体の projects/ と分離した QGIS 連携専用フォルダ。
+    Canvas への表示は外部プロジェクト登録経由）。未登録なら
+    ``get_output_dir()``（既定: ``<Documents>/kasugai_canvas_qgis``）。
+
+    project_name 未指定時は QgsProject.instance().baseName()。
+    """
+    proj_dir = kasugai_qgis_projects_dir()
+    if proj_dir:
+        if not project_name:
+            try:
+                from qgis.core import QgsProject
+                project_name = QgsProject.instance().baseName()
+            except Exception:  # nosec B110  # 設計上の許容
+                project_name = None
+        return os.path.join(
+            proj_dir, project_dir_slug(project_name or 'qgis_export'))
+    return get_output_dir()
+
+
+_last_export_dir = None
+
+
+def last_export_dir():
+    """直近のエクスポート出力先（/export-data/ の配信ルート）。
+
+    セッション内で一度もエクスポートしていなければ get_output_dir()。
+    """
+    return _last_export_dir or get_output_dir()
 
 
 def project_dir_slug(name):
@@ -841,6 +929,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     out_dir = os.path.abspath(out_dir or get_output_dir())
     data_dir = os.path.join(out_dir, 'DATA')
     os.makedirs(data_dir, exist_ok=True)
+    global _last_export_dir
+    _last_export_dir = out_dir
 
     project = QgsProject.instance()
     project_title = os.path.splitext(
@@ -1414,7 +1504,7 @@ def register_kasugai_project(kasc_path, port=None, engine=None):
     """POST /api/projects/register で.kascを外部プロジェクト登録する。
 
     戻り値: {"ok":True,"id":...,"url":...} または {"ok":False,"error":...}
-    engine 指定時は url に ?engine= が付く。
+    engine 指定時は url が /<engine>/?project=<id> 形式になる。
     """
     port = int(port or get_kasugai_port())
     try:
@@ -1440,3 +1530,199 @@ def kasugai_command(name, args=None, port=None):
         return {'ok': bool(res.get('ok')), 'response': res}
     except Exception as e:
         return {'ok': False, 'error': str(e)}
+
+
+def find_kasugai_exe():
+    """起動可能な kasugai_canvas.exe のパスを返す（見つからなければ None）。
+
+    detect_kasugai_install_dir()（設定→レジストリ）で特定した
+    インストール先の ``<dir>/`` と ``<dir>/server/`` を見る。
+    """
+    install = detect_kasugai_install_dir()
+    if not install:
+        return None
+    for cand in (os.path.join(install, KASUGAI_EXE_NAME),
+                 os.path.join(install, 'server', KASUGAI_EXE_NAME)):
+        if os.path.isfile(cand):
+            return cand
+    return None
+
+
+def launch_kasugai(kasc_path=None, open_browser=False):
+    """kasugai_canvas.exe を起動する。起動要求に成功すれば True。
+
+    open_browser=False(既定)では ``--no-browser`` でサーバーのみ起動し、
+    ブラウザは呼び出し側がエンジン付きURLで開く。open_browser=True または
+    .kasc パス指定でのみ exe 既定挙動(ブラウザ自動起動)を利用する。
+    """
+    exe = find_kasugai_exe()
+    if not exe:
+        return False
+    args = [exe]
+    if not open_browser:
+        args.append('--no-browser')
+    if kasc_path:
+        args.append(os.path.abspath(kasc_path))
+    try:
+        subprocess.Popen(  # nosec B603  # 固定exe・シェル非経由
+            args, cwd=os.path.dirname(exe))
+        return True
+    except Exception as e:
+        print(f'⚠️ KASUGAI launch failed: {e}')
+        return False
+
+
+def wait_for_kasugai(timeout=12.0, interval=0.3, pump_events=True):
+    """起動直後のローカルサーバ応答を待つ。応答があれば capabilities。
+
+    pump_events=True のとき待機中に Qt イベントを回して UI を固めない
+    （GUI スレッドからの呼び出し用）。HTTP ハンドラ等の別スレッドでは
+    False を指定すること。
+    """
+    deadline = time.time() + timeout
+    while True:
+        caps = detect_kasugai()
+        if caps or time.time() >= deadline:
+            return caps
+        if pump_events:
+            try:
+                from qgis.PyQt.QtWidgets import QApplication
+                app = QApplication.instance()
+                if app is not None:
+                    app.processEvents()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+        time.sleep(interval)
+
+
+def open_kasc_with_association(kasc_path):
+    """.kasc ファイル関連付け経由で Canvas 起動を要求する（Windows）。
+
+    インストーラが ``.kasc → kasugai_canvas.exe --open-browser %1`` を
+    登録済みなら起動できる。この経路は既定エンジンでブラウザが開く。
+    起動要求ができれば True（起動完了は保証しない）。
+    """
+    if not kasc_path or not hasattr(os, 'startfile'):
+        return False
+    try:
+        os.startfile(os.path.abspath(kasc_path))  # nosec B606
+        return True
+    except OSError:
+        return False
+
+
+def ensure_kasugai_running(kasc_path=None, timeout=12.0,
+                           pump_events=True):
+    """KASUGAI Canvas ローカルサーバを使える状態にして capabilities を返す。
+
+    1. 既に稼働中 → そのまま返す
+    2. インストール済み exe を発見 → ``--no-browser`` で起動して待機
+       （ブラウザは呼び出し側がエンジン付きURLで開く）
+    3. exe 不明・未インストール → kasc_path をファイル関連付けで開いて待機
+       （この経路は既定エンジンのブラウザが exe 側で開かれる）
+
+    戻り値は ``(capabilities or None, opened_default_browser)``。
+    第2戻り値が True のとき、関連付け起動により既定エンジンのタブが
+    既に開かれている可能性が高い（二重オープン防止に利用）。
+    """
+    caps = detect_kasugai()
+    if caps:
+        return caps, False
+    if launch_kasugai():
+        caps = wait_for_kasugai(
+            timeout=timeout, pump_events=pump_events)
+        if caps:
+            return caps, False
+    if open_kasc_with_association(kasc_path):
+        caps = wait_for_kasugai(
+            timeout=timeout, pump_events=pump_events)
+        return caps, True
+    return None, False
+
+
+# ---- 自動インストール（配布ZIPのダウンロード・展開） ----
+
+# 公開チャンネル(main)の配布物を参照する
+KASUGAI_LATEST_JSON_URL = (
+    'https://raw.githubusercontent.com/yamamoto-ryuzo/kasugai_canvas'
+    '/main/download/latest.json')
+KASUGAI_ZIP_FALLBACK_URL = (
+    'https://raw.githubusercontent.com/yamamoto-ryuzo/kasugai_canvas'
+    '/main/download/kasugai_canvas.zip')
+
+
+def kasugai_download_url():
+    """latest.json から配布ZIPのURLを返す（取得失敗時は既定URL）。"""
+    try:
+        meta = _http_json(KASUGAI_LATEST_JSON_URL, timeout=5.0)
+        url = ((meta.get('platforms') or {})
+               .get('windows-x86_64') or {}).get('url')
+        if url and str(url).startswith(('https://', 'http://')):
+            return url
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return KASUGAI_ZIP_FALLBACK_URL
+
+
+def default_install_dir():
+    r"""既定インストール先。インストーラ既定の C:\kasugai\kasugai_canvas
+    を優先し、作成できなければ %LOCALAPPDATA%\kasugai_canvas。"""
+    if os.name == 'nt':
+        cand = r'C:\kasugai\kasugai_canvas'
+        try:
+            os.makedirs(cand, exist_ok=True)
+            return cand
+        except OSError:
+            pass
+    import tempfile
+    base = os.environ.get('LOCALAPPDATA') or tempfile.gettempdir()
+    return os.path.join(base, 'kasugai_canvas')
+
+
+def _safe_extractall(zf, dest_dir):
+    """zip-slip 対策付き extractall。"""
+    dest = os.path.abspath(dest_dir)
+    for member in zf.namelist():
+        target = os.path.abspath(os.path.join(dest, member))
+        if not (target == dest or target.startswith(dest + os.sep)):
+            raise RuntimeError('unsafe path in archive: {0}'.format(member))
+    zf.extractall(dest)
+
+
+def install_kasugai(dest_dir=None):
+    """KASUGAI Canvas の配布ZIPをダウンロード・展開してインストール先を返す。
+
+    dest_dir 既定は default_install_dir()。成功時は
+    ``kasugai_install_path`` 設定へ自動登録する。
+    失敗時は例外を送出（呼び出し側でキャッチして通知する）。
+    ブロッキングするため GUI スレッドではタスク経由で呼ぶこと。
+    """
+    import tempfile
+    import zipfile
+    dest_dir = os.path.abspath(dest_dir or default_install_dir())
+    url = kasugai_download_url()
+    fd, tmp = tempfile.mkstemp(suffix='.zip', prefix='kasugai_canvas_')
+    os.close(fd)
+    try:
+        req = urllib.request.Request(
+            url, headers={'User-Agent': 'geo_webview'})
+        with urllib.request.urlopen(req, timeout=300) as res, \
+                open(tmp, 'wb') as out:  # nosec B310  # https固定URL
+            shutil.copyfileobj(res, out)
+        os.makedirs(dest_dir, exist_ok=True)
+        with zipfile.ZipFile(tmp) as zf:
+            _safe_extractall(zf, dest_dir)
+    finally:
+        try:
+            os.remove(tmp)
+        except OSError:  # nosec B110  # 設計上の許容
+            pass
+    exe = os.path.join(dest_dir, KASUGAI_EXE_NAME)
+    if not os.path.isfile(exe):
+        raise RuntimeError(
+            'kasugai_canvas.exe not found in downloaded archive')
+    try:
+        _qsettings().setValue('kasugai_install_path', dest_dir)
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return dest_dir

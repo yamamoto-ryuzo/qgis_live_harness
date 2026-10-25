@@ -56,8 +56,9 @@ class SettingsDialog(QtWidgets.QDialog):
 
         kasugai_info = QtWidgets.QLabel(
             QtCore.QCoreApplication.translate('geo_webview',
-                                              "When set, KASUGAI export writes .kasc+DATA/ directly into "
-                                              "<install>/projects/<project>/ so it appears in the Canvas project list.")
+                                              "When set, KASUGAI export writes .kasc+DATA/ into "
+                                              "<install>/QGIS_projects/<project>/ (kept separate from Canvas's own projects/) "
+                                              "and registers it via the local API.")
         )
         kasugai_info.setWordWrap(True)
         kasugai_info.setStyleSheet("color: #666;")
@@ -92,8 +93,19 @@ class SettingsDialog(QtWidgets.QDialog):
             self.kasugai_install_input.setText(install_path)
             self._kasugai_install_path = install_path
         else:
-            self.kasugai_install_input.setText(
-                QtCore.QCoreApplication.translate('geo_webview', "[Not set] export to output directory"))
+            # 設定未登録でもレジストリ(インストーラ登録)から検出できれば表示する
+            detected = ''
+            try:
+                from . import kasugai_export
+                detected = kasugai_export._registry_install_dir() or ''
+            except Exception:
+                pass
+            if detected:
+                self.kasugai_install_input.setText(
+                    QtCore.QCoreApplication.translate('geo_webview', "[Auto-detected] {0}").format(detected))
+            else:
+                self.kasugai_install_input.setText(
+                    QtCore.QCoreApplication.translate('geo_webview', "[Not set] export to output directory"))
             self._kasugai_install_path = ''
             if install_path and install_path != '__default__':
                 self.settings.setValue('kasugai_install_path', '')
