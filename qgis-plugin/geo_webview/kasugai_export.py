@@ -87,7 +87,7 @@ _ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
   // 設定すると file:// でローカルCanvas未検出時に「ホスト版で開く」
   // （ブラウザのみでローカルフォルダを読む ?kasc=local モード）の
   // 選択肢を表示する
-  var HOSTED_BASE = "";
+  var HOSTED_BASE = "https://yamamoto-ryuzo.github.io/kasugai-canvas-web/latest/";
   var ENGINE = "__ENGINE__";
   var KASC = "__KASC__";
   var kascUrl = new URL(KASC, location.href).href;
@@ -95,6 +95,7 @@ _ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
   function engineBase(base) {
     // ベースの末尾がエンジン名ディレクトリなら差し替え、違えば ENGINE を付ける
     var u = new URL(base, location.href);
+    u.search = ""; u.hash = "";
     var seg = u.pathname.replace(/\/+$/, "").split("/").pop().toLowerCase();
     if (ENGINES.indexOf(seg) >= 0) {
       u.pathname = u.pathname.replace(/[^/]+\/?$/, ENGINE + "/");
@@ -135,7 +136,14 @@ _ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
         if (!base) return;
         if (!/[\\/]$/.test(base)) base += "/";
         try { localStorage.setItem("kasugai_hosted_base", base); } catch (e) {}
-        location.href = engineBase(base) + "?kasc=local";
+        // このフォルダ名を dirhint として渡し、ホスト版の選択UIで案内する
+        var dirName = "";
+        try {
+          dirName = decodeURIComponent(location.pathname.replace(/\/[^/]*$/, "")
+            .split("/").filter(Boolean).pop() || "");
+        } catch (e) {}
+        location.href = engineBase(base) + "?kasc=local" +
+          (dirName ? "&dirhint=" + encodeURIComponent(dirName) : "");
       };
       row.appendChild(inp); row.appendChild(go);
       var hint = document.createElement("div");
