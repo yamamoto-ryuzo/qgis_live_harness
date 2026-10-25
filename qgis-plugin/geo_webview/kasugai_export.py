@@ -83,6 +83,11 @@ _ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
   // 末尾 / 付きで指定する（例: "https://example.com/canvas/"）。
   // 空 "" のままでは ./ ../ ../../ / の順に __ENGINE__/index.html を自動探索する
   var CANVAS_BASE = "";
+  // 公開ホスト版エンジンの URL（末尾 / 付き。例: "https://example.com/canvas/"）。
+  // 設定すると file:// でローカルCanvas未検出時に「ホスト版で開く」
+  // （ブラウザのみでローカルフォルダを読む ?kasc=local モード）の
+  // 選択肢を表示する
+  var HOSTED_BASE = "";
   var ENGINE = "__ENGINE__";
   var KASC = "__KASC__";
   var kascUrl = new URL(KASC, location.href).href;
@@ -101,6 +106,32 @@ _ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
         "ローカルの KASUGAI Canvas（<a href='http://127.0.0.1:8510/'>127.0.0.1:8510</a>）に接続できません。" +
         "アプリを起動してからこのページを再読み込みしてください。" +
         "（外部 WEB で使う場合は、このフォルダとエンジンを同じサーバーへアップしてください）";
+      // ホスト版で開く: HOSTED_BASE 未設定でも手入力できる。
+      // 入力値は localStorage に保持(file:// 共通オリジンで全ランチャー共有)
+      var row = document.createElement("div");
+      row.style.cssText = "margin-top:10px";
+      var inp = document.createElement("input");
+      inp.placeholder = "ホスト版URL（例: https://example.com/canvas/）";
+      inp.style.cssText = "width:65%;padding:4px";
+      try {
+        inp.value = HOSTED_BASE || localStorage.getItem("kasugai_hosted_base") || "";
+      } catch (e) { inp.value = HOSTED_BASE; }
+      var go = document.createElement("button");
+      go.textContent = "ホスト版で開く";
+      go.style.cssText = "padding:4px 10px;margin-left:4px";
+      go.onclick = function () {
+        var base = inp.value.trim();
+        if (!base) return;
+        if (!/[\\/]$/.test(base)) base += "/";
+        try { localStorage.setItem("kasugai_hosted_base", base); } catch (e) {}
+        location.href = new URL(ENGINE + "/", base).href + "?kasc=local";
+      };
+      row.appendChild(inp); row.appendChild(go);
+      var hint = document.createElement("div");
+      hint.style.cssText = "font-size:11px;color:#667;margin-top:4px";
+      hint.textContent = "ブラウザのみで動作します（このフォルダを選択 → ?kasc=local）";
+      row.appendChild(hint);
+      document.getElementById("status").appendChild(row);
     }
     fetch("http://127.0.0.1:8510/api/projects/register", {
       method: "POST",
