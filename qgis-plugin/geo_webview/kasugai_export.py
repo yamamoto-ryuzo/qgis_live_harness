@@ -14,8 +14,8 @@ KASUGAI Canvas は ``geojson: タイトル | DATA/x.geojson | on | style=DATA/x.
 登録でき、そのまま ``?project=<id>`` で開ける(登録フォルダの DATA/ が
 そのまま配信される)。``POST /api/command`` の switchProject で
 起動中の画面を切り替えることもできる。
-起動エンジンは ``?engine=cesium|maplibre|openlayers|leaflet``
-(Canvas 側トップが各エンジンへリダイレクトする)で選択できる。
+起動エンジンは ``/cesium/`` ``/maplibre/`` ``/openlayers/`` ``/leaflet/``
+の実パスで直接指定できる(``?engine=`` リダイレクトへの依存を避ける)。
 
 このモジュールは PyQGIS 環境でのみ使用する(ユニットテスト不可)。
 ネットワーク呼び出しは全て短いタイムアウト付きのベストエフォート。
@@ -1395,17 +1395,19 @@ def detect_kasugai(port=None):
 def build_kasugai_url(project_id, engine=None, port=None):
     """KASUGAI Canvas のプロジェクトURLを構築する。
 
-    engine 指定時は ``?engine=<engine>&project=<id>`` となり、
-    Canvas トップが対応エンジン(cesium/maplibre/openlayers/leaflet)
-    へリダイレクトする。engine=None/無効値は既定(cesium)。
+    engine 指定時は ``/<engine>/?project=<id>`` 形式
+    (cesium/maplibre/openlayers/leaflet の実パスを直接指す。
+    web/index.html の ?engine= リダイレクトに依存しないため、
+    旧バージョンの Canvas でも確実にそのエンジンが開く)。
+    engine=None/無効値は既定(cesium)の ``/?project=<id>``。
     """
     port = int(port or get_kasugai_port())
-    url = 'http://localhost:{0}/?project={1}'.format(
-        port, urllib.parse.quote(str(project_id)))
+    base = 'http://localhost:{0}'.format(port)
     e = normalize_engine(engine)
     if e:
-        url += '&engine={0}'.format(e)
-    return url
+        base += '/{0}/'.format(e)
+    return '{0}?project={1}'.format(
+        base, urllib.parse.quote(str(project_id)))
 
 
 def register_kasugai_project(kasc_path, port=None, engine=None):
