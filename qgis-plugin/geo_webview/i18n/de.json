@@ -195,7 +195,17 @@
   "🌐 Network: {0}": "🌐 Netzwerk: {0}",
   "🏠 Local: {0}": "🏠 Lokal: {0}",
   "📡 Available IPs: {0}": "📡 Verfügbare IPs: {0}",
-  "🗺️ Google Maps": "🗺️ Google Maps"
+  "🗺️ Google Maps": "🗺️ Google Maps",
+  "Save Theme": "Thema speichern",
+  "New theme name": "Neuer Themenname",
+  "Save the current layer visibility and styles as a map theme": "Aktuelle Layer-Sichtbarkeit und -Stile als Kartenthema speichern",
+  "Theme name is empty.": "Themenname ist leer.",
+  "Theme '{theme}' already exists. Overwrite?": "Thema '{theme}' ist bereits vorhanden. Überschreiben?",
+  "Theme '{theme}' saved.": "Thema '{theme}' gespeichert.",
+  "Theme '{theme}' overwritten.": "Thema '{theme}' überschrieben.",
+  "Theme '{theme}' deleted.": "Thema '{theme}' gelöscht.",
+  "Theme save failed: {error}": "Thema konnte nicht gespeichert werden: {error}",
+  "Theme delete failed: {error}": "Thema konnte nicht gelöscht werden: {error}"
  },
  "geo_webview.page": {
   "A CORS error occurred while loading the WMS.<br>If you opened this HTML directly via file://, serve it with a simple HTTP server or set the Access-Control-Allow-Origin header on the WMS side.": "Beim Laden des WMS ist ein CORS-Fehler aufgetreten.<br>Wenn Sie dieses HTML direkt über file:// geöffnet haben, stellen Sie es über einen einfachen HTTP-Server bereit oder setzen Sie den Access-Control-Allow-Origin-Header auf der WMS-Seite.",

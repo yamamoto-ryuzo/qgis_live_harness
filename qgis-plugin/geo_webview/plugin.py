@@ -381,6 +381,11 @@ class GeoWebView:
                 if hasattr(self.panel, 'pushButton_check_access'):
                     self.panel.pushButton_check_access.clicked.connect(self.on_check_access_clicked)
 
+                # テーマ保存ボタンのイベントを接続
+                if getattr(self.panel, 'pushButton_save_theme', None) is not None:
+                    self.panel.pushButton_save_theme.clicked.connect(
+                        self.on_save_theme_clicked_panel)
+
                 # 共有/プレゼンテーション/3D/MAC認証のイベントを接続
                 try:
                     if getattr(self.panel, 'pushButton_present', None) is not None:
@@ -2761,6 +2766,138 @@ class GeoWebView:
         except Exception as e:
             print(f"Theme apply error: {e}")
             return False
+
+    def save_current_as_theme(self, theme_name):
+        """現在のレイヤツリー状態(表示/非表示・現行スタイル)を
+        マップテーマとしてプロジェクトへ保存する。
+
+        Args:
+            theme_name (str): 保存するテーマ名
+
+        Returns:
+            dict: {"ok": bool, "overwritten": bool, "error": str|None}
+        """
+        from qgis.core import QgsProject, QgsLayerTreeModel
+
+        theme_name = (theme_name or "").strip()
+        if not theme_name:
+            return {"ok": False, "overwritten": False,
+                    "error": "theme name is empty"}
+
+        project = QgsProject.instance()
+        if project is None:
+            return {"ok": False, "overwritten": False,
+                    "error": "no project"}
+
+        try:
+            collection = project.mapThemeCollection()
+            root = project.layerTreeRoot()
+            # 実際のレイヤツリービューのモデルを使い、
+            # 現在のチェック状態・スタイルを採取する
+            model = None
+            try:
+                model = self.iface.layerTreeView().layerTreeModel()
+            except Exception:
+                model = None
+            if model is None:
+                model = QgsLayerTreeModel(root)
+
+            record = collection.createThemeFromCurrentState(root, model)
+            existed = theme_name in collection.mapThemes()
+            collection.insert(theme_name, record)
+            # .qgs への永続化を促す
+            project.setDirty(True)
+
+            # パネルの一覧を更新し、保存したテーマを選択状態にする
+            self.update_theme_list()
+            if self.panel and getattr(self.panel, 'comboBox_themes', None) is not None:
+                cmb = self.panel.comboBox_themes
+                idx = cmb.findText(theme_name)
+                if idx >= 0:
+                    cmb.setCurrentIndex(idx)
+
+            return {"ok": True, "overwritten": existed, "error": None}
+        except Exception as e:
+            return {"ok": False, "overwritten": False, "error": str(e)}
+
+    def delete_theme(self, theme_name):
+        """マップテーマをプロジェクトから削除する。
+
+        Returns:
+            dict: {"ok": bool, "error": str|None}
+        """
+        from qgis.core import QgsProject
+
+        theme_name = (theme_name or "").strip()
+        if not theme_name:
+            return {"ok": False, "error": "theme name is empty"}
+
+        project = QgsProject.instance()
+        if project is None:
+            return {"ok": False, "error": "no project"}
+
+        try:
+            collection = project.mapThemeCollection()
+            if theme_name not in collection.mapThemes():
+                return {"ok": False,
+                        "error": f"theme not found: {theme_name}"}
+            collection.removeMapTheme(theme_name)
+            project.setDirty(True)
+
+            self.update_theme_list()
+            return {"ok": True, "error": None}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    def on_save_theme_clicked_panel(self):
+        """テーマ保存ボタン: 現在の表示状態をマップテーマとして保存"""
+        if not self.panel:
+            return
+
+        name_edit = getattr(self.panel, 'lineEdit_theme_name', None)
+        theme_name = (name_edit.text() or "").strip() if name_edit else ""
+
+        if not theme_name:
+            self.iface.messageBar().pushMessage(
+                "QMap Permalink",
+                self.tr("Theme name is empty."),
+                duration=3
+            )
+            return
+
+        # 同名テーマがあれば上書き確認(ユーザー操作起因のためmodal可)
+        from qgis.core import QgsProject
+        collection = QgsProject.instance().mapThemeCollection()
+        if theme_name in collection.mapThemes():
+            from qgis.PyQt.QtWidgets import QMessageBox
+            reply = QMessageBox.question(
+                self.iface.mainWindow(),
+                "QMap Permalink",
+                self.tr("Theme '{theme}' already exists. Overwrite?").format(
+                    theme=theme_name),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+
+        result = self.save_current_as_theme(theme_name)
+        if result.get("ok"):
+            if result.get("overwritten"):
+                msg = self.tr("Theme '{theme}' overwritten.").format(
+                    theme=theme_name)
+            else:
+                msg = self.tr("Theme '{theme}' saved.").format(
+                    theme=theme_name)
+            self.iface.messageBar().pushMessage(
+                "QMap Permalink", msg, duration=3)
+        else:
+            self.iface.messageBar().pushMessage(
+                "QMap Permalink",
+                self.tr("Theme save failed: {error}").format(
+                    error=result.get("error")),
+                duration=5
+            )
 
     def update_theme_list(self):
         """パネルのテーマ一覧を更新"""

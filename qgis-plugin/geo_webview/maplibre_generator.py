@@ -834,7 +834,7 @@ __EXTERNAL_SCRIPT_TAGS__
                 'addFiles': _pt('Add files'),
                 'close': _pt('Close'),
                 'layersTitle': _pt('Imported layers'),
-                'hint': _pt('xyz:/base:/geojson:/geoparquet:/flatgeobuf:/gpkg:/duckdb:/sql:'),
+                'hint': _pt('xyz:/base:/wms:/wmts:/geojson:/geoparquet:/flatgeobuf:/gpkg:/duckdb:/sql:'),
                 'fileHint': _pt('Files: .geojson .json .fgb .parquet .gpkg .csv .tsv .kasc'),
                 'empty': _pt('No imported layers'),
                 'fit': _pt('Fit'),

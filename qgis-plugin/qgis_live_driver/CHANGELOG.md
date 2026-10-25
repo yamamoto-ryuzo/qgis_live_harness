@@ -14,10 +14,13 @@
   アイコンは同梱 `icon_ai.png`("AI"グリフ)を使用
 - **Connection Infoダイアログ**(新規 `connection_info.py`):
   `プラグイン > QGIS Live Driver > Connection Info` から開く。
-  MCP URL・REST base・レジストリ/live dir・トークンと、MCPクライアントへ
-  そのまま貼れる設定JSON(stdio shim / Streamable HTTP)・curl例を
-  コピーボタン付きで一覧表示する。リモート制御OFF時は有効化手順のみ表示。
-  トグルON直後にも自動表示され、初回利用者の「次に繋ぐ方法」を案内する
+  最上段にHarnessリポジトリ行(パス表示+コピー+「選択…」+「更新」)と
+  リモート制御の状態を常時表示し、内容はタブで分割:
+  `MCP`(エンドポイントURL+stdio/Streamable HTTPの設定JSON)、
+  `REST`(API base+curl例)、`Session`(レジストリ/live dir/トークンを
+  行ごとにコピー可能なフィールドで)。リモート制御OFF時は有効化手順と
+  stdio shim設定のみ表示。トグルON直後にも自動表示され、
+  初回利用者の「次に繋ぐ方法」を案内する
 - **harness repoの指定経路**: 単体install(marker/junction無し)では
   `repo_root()` がrepoを解決できず Deploy Mode が使えなかったため、
   QSettings `qgis_live_driver/harness_repo` による明示指定を追加

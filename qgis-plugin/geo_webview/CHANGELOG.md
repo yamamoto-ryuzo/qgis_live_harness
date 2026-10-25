@@ -11,6 +11,37 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.22.0] - 2026-10-25 マップテーマの保存・削除を追加
+
+- パネルのテーマ選択コンボ直下に「テーマ名入力 + Save Theme ボタン」を追加。
+  現在のレイヤツリー状態(表示/非表示・各レイヤの現行スタイル・凡例ノード
+  展開状態)を `QgsMapThemeCollection` へ QGIS 標準のマップテーマとして
+  保存し、プロジェクトへ setDirty で永続化を促す。同名時は上書き確認を表示
+- `plugin.py` に `save_current_as_theme(name)` / `delete_theme(name)` を追加。
+  保存後は `update_theme_list` でコンボを更新し保存テーマを選択状態にする
+- ブリッジに `saveTheme(name, overwrite=False)` / `deleteTheme(name)` を追加
+  (AI 制御対応。`generatePermalink`/`applyTheme` と併せてテーマの
+  作成・適用・パーマリンク化までを外部から完結できる)
+- i18n 9言語カタログへ新規キー追加(Save Theme 他10件)
+- `/kasugai` エクスポートに `theme:` 行を追加(emit_themes=既定True)。
+  プロジェクトのマップテーマを Canvas の可視性プリセットとして出力し、
+  Canvas 側レイヤーパネルのテーマ選択で適用できる。テーマが存在する場合は
+  非表示レイヤも `| off` で自動出力(テーマ側から表示へ戻せるように)。
+  `kasugaiExport` ブリッジに `emit_themes` 引数を追加
+
+## [3.21.0] - 2026-10-25 .kasc の wms:/wmts: 行対応 + WMS レイヤのエクスポート
+
+- `webmap_shared/kasc_loader.js` / `kasc_panel.js` に `wms:`/`wmts:` 行を追加
+  (KASUGAI Canvas `web/shared/` と同期)。生成ビューアの取り込みパネルでも
+  OGC タイルレイヤーを読めるようにした。`wms:` は GetMap を 256px タイルへ
+  分解(EPSG:3857)、`wmts:` は `{z}/{x}/{y}`・`{TileMatrix}` 系 RESTful
+  テンプレートと KVP GetTile の両方を受け付ける
+- `kasugai_export.py`: QGIS の WMS ラスタレイヤ(providerType `wms`・
+  `type=xyz` 以外)を `wms:` 行で出力するようにした。これまで
+  「参照できないレイヤ」として skipped になっていた WMS レイヤが
+  layers=/styles=/format= オプション付きで Canvas 側へそのまま渡る
+- 生成ビューアの取り込みパネル hint に `wms:`/`wmts:` を追記
+
 ## [3.20.0] - 2026-10-24 生成ビューアへ KASUGAI 形式データ取り込みパネルを追加
 
 - `webmap_shared/kasc_loader.js` / `kasc_panel.js` を新規追加し、

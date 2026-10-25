@@ -663,6 +663,44 @@ def _xyz_layer_info(layer):
         return None
 
 
+def _wms_layer_info(layer):
+    """QGIS の WMS ラスタレイヤ(type=xyz 以外)なら
+    (base_url, layers_csv, styles_csv, format) を返す。
+
+    source URI は ``key=value&key=value`` 形式で、layers=/styles= は
+    繰り返し出る(レイヤ順を保持)。値はパーセントエンコード済み。
+    ``wms:`` 行は GetMap を 256px タイルへ分解して参照するため、
+    エンドポイントURLは生で渡し、レイヤ指定はオプションとして出す。
+    """
+    try:
+        if layer.providerType() not in ('wms',):
+            return None
+        src = layer.source() or ''
+        if 'type=xyz' in src or 'type%3Dxyz' in src.lower():
+            return None
+        params = {}
+        lists = {}
+        for part in src.split('&'):
+            if '=' not in part:
+                continue
+            key, val = part.split('=', 1)
+            key = key.strip().lower()
+            val = urllib.parse.unquote(val.strip())
+            if key in ('layers', 'styles'):
+                lists.setdefault(key, []).append(val)
+            else:
+                params[key] = val
+        url = params.get('url')
+        if not url or not re.match(r'https?://', url):
+            return None
+        return (url,
+                ','.join(lists.get('layers', [])),
+                ','.join(lists.get('styles', [])),
+                params.get('format') or '')
+    except Exception:
+        return None
+
+
 def _camera_line(iface, height_hint_scale=None):
     """現在キャンバスから cam: 行を作る。失敗時 None。"""
     try:
@@ -703,7 +741,8 @@ def _attribution(layer):
 
 def export_kasugai_project(iface, out_dir=None, visible_only=True,
                            native_formats=True, hidden_as_off=False,
-                           embed_gpkg_style=False, reearth_port=None):
+                           embed_gpkg_style=False, reearth_port=None,
+                           emit_themes=True):
     """レイヤツリーを KASUGAI Canvas プロジェクトとして出力する。
 
     引数:
@@ -722,6 +761,11 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         embed_gpkg_style: True なら gpkg: 参照レイヤの現在スタイルを
             QGIS 標準の layer_styles(useAsDefault)へも保存する。
             **元の .gpkg ファイルへ書き込む**点に注意(opt-in)。
+        emit_themes: True ならプロジェクトのマップテーマを ``theme:`` 行
+            (Canvas の可視性プリセット)として出力する(既定)。
+            テーマが存在する場合、非表示レイヤも ``| off`` で出力しないと
+            テーマ側から表示へ戻せないため、hidden_as_off 同等に全レイヤを
+            出力する。テーマが無ければ従来どおりの出力。
 
     戻り値: {"dir","kasc","data_dir","layers":[{name,file,features}],
              "tiles":[...],"skipped":[...],"errors":[...],"warnings":[...]}。
@@ -744,6 +788,18 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
 
     tree = _tree_layers()
 
+    # theme: 行(マップテーマ → Canvas 可視性プリセット)の素材。
+    # テーマが存在する場合、非表示レイヤも | off で出さないとテーマ適用時に
+    # 表示へ戻せないため、hidden_as_off 同等に全レイヤを出力対象にする
+    theme_names = []
+    if emit_themes:
+        try:
+            theme_names = sorted(
+                project.mapThemeCollection().mapThemes() or [])
+        except Exception:
+            theme_names = []
+    export_hidden_off = hidden_as_off or bool(theme_names)
+
     # base: 判定用に表示中の最下段 XYZ を先に特定する
     last_xyz_id = None
     for layer, _groups, vis in tree:
@@ -755,7 +811,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             [_kasc_escape(g) for g in groups if g] +
             [_kasc_escape(layer.name())])
         if not visible:
-            if hidden_as_off:
+            if export_hidden_off:
                 vis_flag = 'off'
             elif not visible_only:
                 vis_flag = 'on'
@@ -916,8 +972,35 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 tiles_out.append({'name': layer.name(), 'url': url,
                                   'type': 'xyz'})
             else:
-                skipped.append(
-                    '{0} ({1})'.format(layer.name(), _skip_reason(layer)))
+                wms = _wms_layer_info(layer)
+                if wms:
+                    url, wms_layers, wms_styles, wms_fmt = wms
+                    line = 'wms: {0} | {1} | {2}'.format(
+                        title, _kasc_escape(url), vis_flag)
+                    if wms_layers:
+                        line += ' | layers={0}'.format(
+                            _kasc_escape(wms_layers))
+                    if wms_styles:
+                        line += ' | styles={0}'.format(
+                            _kasc_escape(wms_styles))
+                    if wms_fmt:
+                        line += ' | format={0}'.format(
+                            _kasc_escape(wms_fmt))
+                    opacity = _maplayer_opacity(layer)
+                    bbox = _layer_extent_bbox(layer)
+                    if opacity is not None:
+                        line += ' | opacity={0}'.format(opacity)
+                    if bbox is not None:
+                        line += ' | bbox={0}'.format(bbox)
+                    attr = _attribution(layer)
+                    if attr:
+                        line += ' | attr={0}'.format(_kasc_escape(attr))
+                    kasc_lines.append(line)
+                    tiles_out.append({'name': layer.name(), 'url': url,
+                                      'type': 'wms'})
+                else:
+                    skipped.append(
+                        '{0} ({1})'.format(layer.name(), _skip_reason(layer)))
 
     cam = _camera_line(iface)
     if reearth_port:
@@ -949,6 +1032,31 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     if cam:
         header.append(cam)
 
+    # theme: 行(QGIS マップテーマ → Canvas 可視性プリセット)。
+    # 表示レイヤは .kasc のレイヤタイトル(groups/名 のパンくず)と一致させる
+    if theme_names:
+        try:
+            collection = project.mapThemeCollection()
+            title_by_id = {}
+            for layer, groups, _vis in tree:
+                title_by_id[layer.id()] = '/'.join(
+                    [_kasc_escape(g) for g in groups if g] +
+                    [_kasc_escape(layer.name())])
+            for name in theme_names:
+                try:
+                    visible_ids = set(
+                        collection.mapThemeVisibleLayerIds(name))
+                    titles = [title_by_id[layer.id()]
+                              for layer, _g, _v in tree
+                              if layer.id() in visible_ids]
+                    kasc_lines.append('theme: {0}{1}'.format(
+                        _kasc_escape(name),
+                        ''.join(' | ' + t for t in titles)))
+                except Exception as e:
+                    warnings.append('theme {0}: {1}'.format(name, e))
+        except Exception as e:
+            warnings.append('theme 行出力失敗: {0}'.format(e))
+
     kasc_path = os.path.join(out_dir, 'kasugai_canvas.kasc')
     with open(kasc_path, 'w', encoding='utf-8') as f:
         f.write('\n'.join(header + kasc_lines) + '\n')
@@ -960,7 +1068,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         'dir': out_dir, 'kasc': kasc_path, 'data_dir': data_dir,
         'title': project_title, 'layers': layers_out,
         'tiles': tiles_out, 'skipped': skipped, 'errors': errors,
-        'warnings': warnings,
+        'warnings': warnings, 'themes': theme_names,
     }
 
 

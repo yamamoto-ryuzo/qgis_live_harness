@@ -153,6 +153,21 @@ class GeoWebViewBridge:
                 "マップテーマをレイヤツリーへ適用し、パネルのコンボも同期する。",
             "example": {"method": "applyTheme", "args": ["概況図"]},
         },
+        "saveTheme": {
+            "description":
+                "現在のレイヤツリー状態(表示/非表示・現行スタイル)を"
+                "マップテーマとしてプロジェクトへ保存する。"
+                "同名がある場合は overwrite=True のときのみ上書き。"
+                "パネルのテーマコンボにも反映される。",
+            "example": {"method": "saveTheme",
+                        "args": [{"name": "概況図", "overwrite": False}]},
+        },
+        "deleteTheme": {
+            "description":
+                "マップテーマをプロジェクトから削除し、"
+                "パネルのテーマコンボを更新する。",
+            "example": {"method": "deleteTheme", "args": ["概況図"]},
+        },
         "listBookmarks": {
             "description":
                 "プロジェクト/ユーザブックマーク一覧(中心をEPSG:3857化)を返す。",
@@ -833,6 +848,43 @@ class GeoWebViewBridge:
                     pass
         return self._ok({"applied": name})
 
+    def saveTheme(self, name=None, overwrite=False):
+        """現在のレイヤツリー状態をマップテーマとして保存する。
+
+        name: テーマ名(dict指定時は {"name": ...} でも可)。
+        overwrite: 同名テーマの上書きを許可するか(既定False)。
+        """
+        if isinstance(name, dict):
+            overwrite = bool(name.get("overwrite", overwrite))
+            name = name.get("name") or name.get("theme") or ""
+        name = (str(name) if name is not None else "").strip()
+        if not name:
+            return self._err("theme name is empty")
+
+        from qgis.core import QgsProject
+        collection = QgsProject.instance().mapThemeCollection()
+        if name in collection.mapThemes() and not overwrite:
+            return self._err(
+                f"theme already exists: {name!r} "
+                "(pass overwrite=True to replace)")
+        result = self._plugin.save_current_as_theme(name)
+        if not result.get("ok"):
+            return self._err(f"save theme failed: {result.get('error')}")
+        return self._ok({"saved": name,
+                         "overwritten": result.get("overwritten", False)})
+
+    def deleteTheme(self, name):
+        """マップテーマを削除する。"""
+        if isinstance(name, dict):
+            name = name.get("name") or name.get("theme") or ""
+        name = (str(name) if name is not None else "").strip()
+        if not name:
+            return self._err("theme name is empty")
+        result = self._plugin.delete_theme(name)
+        if not result.get("ok"):
+            return self._err(result.get("error") or "delete theme failed")
+        return self._ok({"deleted": name})
+
     def listBookmarks(self):
         """プロジェクト/ユーザブックマーク一覧(中心EPSG:3857)を返す。"""
         try:
@@ -969,7 +1021,7 @@ class GeoWebViewBridge:
 
     def kasugaiExport(self, output_dir=None, open_app=True,
                       native_formats=True, hidden_as_off=False,
-                      embed_gpkg_style=False):
+                      embed_gpkg_style=False, emit_themes=True):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
         表示中のベクターレイヤを DATA/ へ出力し、.kasc(geojson:/gpkg:/
@@ -982,6 +1034,8 @@ class GeoWebViewBridge:
         GeoJSON(EPSG:4326)へ変換する。hidden_as_off=True で非表示レイヤも ``| off`` 付きで
         出力。embed_gpkg_style=True で GPKG レイヤのスタイルを
         layer_styles(useAsDefault)にも保存する(元ファイルへ書き込む)。
+        emit_themes=True(既定)でマップテーマを theme: 行として出力
+        (テーマがある場合は非表示レイヤも | off で自動出力)。
         出力先は output_dir または設定 kasugai_output_path
         (既定: <ドキュメント>/kasugai_canvas_qgis)。
 
@@ -1010,6 +1064,7 @@ class GeoWebViewBridge:
                 native_formats=bool(native_formats),
                 hidden_as_off=bool(hidden_as_off),
                 embed_gpkg_style=bool(embed_gpkg_style),
+                emit_themes=bool(emit_themes),
                 reearth_port=port)
         except Exception as e:
             return self._err(f"kasugai export failed: {e}")
@@ -1022,6 +1077,7 @@ class GeoWebViewBridge:
             "skipped": result["skipped"],
             "errors": result["errors"],
             "warnings": result.get("warnings", []),
+            "themes": result.get("themes", []),
         }
         if not open_app:
             out["registered"] = False

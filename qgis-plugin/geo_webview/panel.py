@@ -96,6 +96,9 @@ class GeoWebViewPanel(QDockWidget):
         self.lineEdit_navigate = getattr(self.ui, 'lineEdit_navigate', None)
         self.label_server_status = getattr(self.ui, 'label_server_status', None)
         self.comboBox_themes = getattr(self.ui, 'comboBox_themes', None)
+        # テーマ保存UI(panel_base.ui のテーマ選択行の直下)
+        self.lineEdit_theme_name = getattr(self.ui, 'lineEdit_theme_name', None)
+        self.pushButton_save_theme = getattr(self.ui, 'pushButton_save_theme', None)
 
         # Google Maps/Earth用のUI要素
         self.pushButton_google_maps = getattr(self.ui, 'pushButton_google_maps', None)
@@ -225,6 +228,11 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.pushButton_open.setText(QCoreApplication.translate('geo_webview', "OpenLayers"))
         if hasattr(self.ui, 'pushButton_navigate'):
             self.ui.pushButton_navigate.setText(QCoreApplication.translate('geo_webview', "Navigate"))
+        if hasattr(self.ui, 'pushButton_save_theme'):
+            self.ui.pushButton_save_theme.setText(QCoreApplication.translate('geo_webview', "Save Theme"))
+            self.ui.pushButton_save_theme.setToolTip(QCoreApplication.translate('geo_webview', "Save the current layer visibility and styles as a map theme"))
+        if hasattr(self.ui, 'lineEdit_theme_name'):
+            self.ui.lineEdit_theme_name.setPlaceholderText(QCoreApplication.translate('geo_webview', "New theme name"))
 
         # プレースホルダーテキスト
         if hasattr(self.ui, 'lineEdit_permalink'):

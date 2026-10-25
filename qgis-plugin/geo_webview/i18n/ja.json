@@ -195,7 +195,17 @@
   "🌐 Network: {0}": "🌐 ネットワーク: {0}",
   "🏠 Local: {0}": "🏠 ローカル: {0}",
   "📡 Available IPs: {0}": "📡 利用可能なIP: {0}",
-  "🗺️ Google Maps": "🗺️ Google Maps"
+  "🗺️ Google Maps": "🗺️ Google Maps",
+  "Save Theme": "テーマを保存",
+  "New theme name": "新しいテーマ名",
+  "Save the current layer visibility and styles as a map theme": "現在のレイヤ表示状態とスタイルをマップテーマとして保存",
+  "Theme name is empty.": "テーマ名が空です。",
+  "Theme '{theme}' already exists. Overwrite?": "テーマ '{theme}' は既に存在します。上書きしますか？",
+  "Theme '{theme}' saved.": "テーマ '{theme}' を保存しました。",
+  "Theme '{theme}' overwritten.": "テーマ '{theme}' を上書きしました。",
+  "Theme '{theme}' deleted.": "テーマ '{theme}' を削除しました。",
+  "Theme save failed: {error}": "テーマの保存に失敗しました: {error}",
+  "Theme delete failed: {error}": "テーマの削除に失敗しました: {error}"
  },
  "geo_webview.page": {
   "A CORS error occurred while loading the WMS.<br>If you opened this HTML directly via file://, serve it with a simple HTTP server or set the Access-Control-Allow-Origin header on the WMS side.": "WMSの読み込み中にCORSエラーが発生しました。<br>このHTMLをfile://で直接開いた場合は、簡易HTTPサーバで配信するか、WMS側でAccess-Control-Allow-Originヘッダを設定してください。",

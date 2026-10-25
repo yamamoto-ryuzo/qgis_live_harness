@@ -195,7 +195,17 @@
   "🌐 Network: {0}": "🌐 नेटवर्क: {0}",
   "🏠 Local: {0}": "🏠 स्थानीय: {0}",
   "📡 Available IPs: {0}": "📡 उपलब्ध IP: {0}",
-  "🗺️ Google Maps": "🗺️ Google Maps"
+  "🗺️ Google Maps": "🗺️ Google Maps",
+  "Save Theme": "थीम सहेजें",
+  "New theme name": "नई थीम का नाम",
+  "Save the current layer visibility and styles as a map theme": "वर्तमान लेयर दृश्यता और शैलियों को मानचित्र थीम के रूप में सहेजें",
+  "Theme name is empty.": "थीम का नाम खाली है।",
+  "Theme '{theme}' already exists. Overwrite?": "थीम '{theme}' पहले से मौजूद है। अधिलेखित करें?",
+  "Theme '{theme}' saved.": "थीम '{theme}' सहेजी गई।",
+  "Theme '{theme}' overwritten.": "थीम '{theme}' अधिलेखित हुई।",
+  "Theme '{theme}' deleted.": "थीम '{theme}' हटाई गई।",
+  "Theme save failed: {error}": "थीम सहेजने में विफल: {error}",
+  "Theme delete failed: {error}": "थीम हटाने में विफल: {error}"
  },
  "geo_webview.page": {
   "A CORS error occurred while loading the WMS.<br>If you opened this HTML directly via file://, serve it with a simple HTTP server or set the Access-Control-Allow-Origin header on the WMS side.": "WMS लोड करते समय CORS त्रुटि हुई।<br>यदि आपने यह HTML सीधे file:// से खोला है, तो इसे साधारण HTTP सर्वर से परोसें या WMS साइड पर Access-Control-Allow-Origin हेडर सेट करें।",

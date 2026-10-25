@@ -195,7 +195,17 @@
   "🌐 Network: {0}": "🌐 网络: {0}",
   "🏠 Local: {0}": "🏠 本地: {0}",
   "📡 Available IPs: {0}": "📡 可用 IP: {0}",
-  "🗺️ Google Maps": "🗺️ Google Maps"
+  "🗺️ Google Maps": "🗺️ Google Maps",
+  "Save Theme": "保存主题",
+  "New theme name": "新主题名称",
+  "Save the current layer visibility and styles as a map theme": "将当前图层可见性和样式保存为地图主题",
+  "Theme name is empty.": "主题名称为空。",
+  "Theme '{theme}' already exists. Overwrite?": "主题 '{theme}' 已存在。是否覆盖？",
+  "Theme '{theme}' saved.": "主题 '{theme}' 已保存。",
+  "Theme '{theme}' overwritten.": "主题 '{theme}' 已覆盖。",
+  "Theme '{theme}' deleted.": "主题 '{theme}' 已删除。",
+  "Theme save failed: {error}": "主题保存失败: {error}",
+  "Theme delete failed: {error}": "主题删除失败: {error}"
  },
  "geo_webview.page": {
   "A CORS error occurred while loading the WMS.<br>If you opened this HTML directly via file://, serve it with a simple HTTP server or set the Access-Control-Allow-Origin header on the WMS side.": "加载 WMS 时发生 CORS 错误。<br>如果您直接通过 file:// 打开了此 HTML,请使用简单的 HTTP 服务器提供它,或在 WMS 端设置 Access-Control-Allow-Origin 标头。",
