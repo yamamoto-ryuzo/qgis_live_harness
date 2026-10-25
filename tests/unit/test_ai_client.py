@@ -251,7 +251,9 @@ def test_models_url():
 
 def test_provider_registry():
     assert ai_client.get_provider("openai").id == "openai"
+    assert ai_client.get_provider("anthropic").id == "anthropic"
     assert ai_client.get_provider("gemini").id == "gemini"
+    assert ai_client.get_provider("azure").id == "azure"
     assert ai_client.get_provider("copilot").id == "copilot"
     with pytest.raises(ai_client.ApiError):
         ai_client.get_provider("nope")
@@ -753,6 +755,243 @@ def test_github_device_flow(copilot_server):
     assert f["device_code"] == ["dc-1"]
     assert f["grant_type"] == [
         "urn:ietf:params:oauth:grant-type:device_code"]
+
+
+# ---- Anthropic (Messages API) ----
+
+def test_anthropic_urls():
+    base = "https://api.anthropic.com"
+    assert ai_client.anthropic_messages_url(base) == \
+        "https://api.anthropic.com/v1/messages"
+    assert ai_client.anthropic_messages_url(base + "/v1") == \
+        "https://api.anthropic.com/v1/messages"
+    # 既に /v1/messages まで書かれたURLはそのまま
+    assert ai_client.anthropic_messages_url(base + "/v1/messages") == \
+        "https://api.anthropic.com/v1/messages"
+    assert ai_client.anthropic_models_url(base) == \
+        "https://api.anthropic.com/v1/models"
+    with pytest.raises(ai_client.ApiError):
+        ai_client.anthropic_messages_url(" ")
+
+
+def test_anthropic_tools_schema():
+    tools = ai_client.anthropic_tools()
+    assert len(tools) == len(TOOLS) + len(ai_client.INSTRUCTION_TOOLS)
+    names = {t["name"] for t in tools}
+    assert {"qgis_pyeval", "qgis_screenshot", "qgis_status"} <= names
+    assert ai_client.INSTRUCTION_TOOL_NAMES <= names
+    for t in tools:
+        assert "input_schema" in t
+    filtered = ai_client.anthropic_tools(allowed={"status"})
+    assert [t["name"] for t in filtered] == ["qgis_status"]
+
+
+def test_anthropic_parse_and_exchange(tmp_path):
+    prov = ai_client.get_provider("anthropic")
+    data = {"content": [
+        {"type": "text", "text": "調べます"},
+        {"type": "tool_use", "id": "tu_1",
+         "name": "qgis_status", "input": {}},
+        {"type": "tool_use", "id": "tu_2",
+         "name": "qgis_pyeval", "input": {"code": "1"}}],
+        "stop_reason": "tool_use",
+        "usage": {"input_tokens": 100, "output_tokens": 20}}
+    turn = prov.parse(data)
+    assert turn["text"] == "調べます"
+    assert [c["name"] for c in turn["calls"]] == \
+        ["qgis_status", "qgis_pyeval"]
+    assert turn["calls"][1]["args"] == {"code": "1"}
+    assert turn["usage"] == {"in": 100, "out": 20}
+
+    msgs = []
+    prov.append_exchange(msgs, turn,
+                         [{"text": "ok", "image": None},
+                          {"text": "2", "image": None}])
+    # tool_useを含むassistantターン + tool_resultのuserターン
+    assert msgs[0]["role"] == "assistant"
+    assert msgs[1]["role"] == "user"
+    trs = msgs[1]["content"]
+    assert [t["type"] for t in trs] == ["tool_result", "tool_result"]
+    assert [t["tool_use_id"] for t in trs] == ["tu_1", "tu_2"]
+    assert trs[0]["content"] == "ok"
+
+    # 画像結果はtool_resultのcontentブロック列になる
+    png = tmp_path / "s.png"
+    png.write_bytes(b"\x89PNG fake")
+    msgs = []
+    prov.append_exchange(msgs, {**turn, "calls": turn["calls"][:1]},
+                         [{"text": "shot", "image": str(png)}])
+    c = msgs[1]["content"][0]["content"]
+    assert [p["type"] for p in c] == ["text", "image"]
+    assert c[1]["source"]["media_type"] == "image/png"
+
+
+def test_anthropic_parse_empty():
+    prov = ai_client.get_provider("anthropic")
+    with pytest.raises(ai_client.ApiError):
+        prov.parse({"content": [], "stop_reason": "refusal"})
+
+
+def test_anthropic_build_messages(tmp_path):
+    prov = ai_client.get_provider("anthropic")
+    png = tmp_path / "a.png"
+    png.write_bytes(b"\x89PNG fake")
+    hist = [{"role": "user", "content": "前の", "images": [str(png)]},
+            {"role": "assistant", "content": "了解"}]
+    msgs = prov.build_messages("sys", hist, "これは?", [str(png)])
+    # systemはメッセージ列に入らない(send時に別フィールドで送る)
+    assert all(m["role"] in ("user", "assistant") for m in msgs)
+    assert [p["type"] for p in msgs[0]["content"]] == ["text", "image"]
+    assert msgs[1]["content"] == "了解"   # 画像無しは文字列のまま
+    assert [p["type"] for p in msgs[2]["content"]] == ["text", "image"]
+
+
+class _AnthropicStub(BaseHTTPRequestHandler):
+    def log_message(self, *a):
+        pass
+
+    def do_GET(self):
+        self.server.last_req = {
+            "path": self.path,
+            "key": self.headers.get("x-api-key"),
+            "ver": self.headers.get("anthropic-version"),
+        }
+        resp = {"data": [{"id": "claude-b"}, {"id": "claude-a"}],
+                "has_more": False}
+        raw = json.dumps(resp).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(raw)))
+        self.end_headers()
+        self.wfile.write(raw)
+
+    def do_POST(self):
+        body = self.rfile.read(int(self.headers.get("Content-Length") or 0))
+        self.server.last_req = {
+            "path": self.path,
+            "key": self.headers.get("x-api-key"),
+            "ver": self.headers.get("anthropic-version"),
+            "body": json.loads(body.decode("utf-8")),
+        }
+        resp = {"id": "msg_1", "type": "message",
+                "content": [{"type": "text", "text": "hi"}],
+                "usage": {"input_tokens": 10, "output_tokens": 3}}
+        raw = json.dumps(resp).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(raw)))
+        self.end_headers()
+        self.wfile.write(raw)
+
+
+@pytest.fixture
+def anthropic_server():
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), _AnthropicStub)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    yield httpd
+    httpd.shutdown()
+
+
+def test_anthropic_send_request(anthropic_server):
+    port = anthropic_server.server_address[1]
+    prov = ai_client.get_provider("anthropic")
+    data = prov.send(f"http://127.0.0.1:{port}", "a-key",
+                     "claude-x", "sys prompt",
+                     [{"role": "user", "content": "hello"}])
+    assert prov.parse(data)["text"] == "hi"
+    req = anthropic_server.last_req
+    assert req["path"] == "/v1/messages"
+    assert req["key"] == "a-key"
+    assert req["ver"] == ai_client.ANTHROPIC_VERSION
+    body = req["body"]
+    assert body["model"] == "claude-x"
+    assert body["max_tokens"] == ai_client.ANTHROPIC_MAX_TOKENS
+    assert body["system"] == "sys prompt"
+    assert body["messages"][0]["content"] == "hello"
+    assert body["tool_choice"] == {"type": "auto"}
+    assert all("input_schema" in t for t in body["tools"])
+    assert len(body["tools"]) == \
+        len(TOOLS) + len(ai_client.INSTRUCTION_TOOLS)
+
+
+def test_anthropic_list_models(anthropic_server):
+    port = anthropic_server.server_address[1]
+    models = ai_client.list_models(
+        "anthropic", f"http://127.0.0.1:{port}", "a-key")
+    assert models == ["claude-a", "claude-b"]
+    req = anthropic_server.last_req
+    assert req["path"].startswith("/v1/models")
+    assert req["key"] == "a-key"
+    assert req["ver"] == ai_client.ANTHROPIC_VERSION
+
+
+# ---- Azure OpenAI ----
+
+def test_azure_chat_url():
+    base = "https://res.openai.azure.com/openai/deployments/dep"
+    u = ai_client.azure_chat_url(base)
+    assert u == (base + "/chat/completions?api-version="
+                 + ai_client.AZURE_API_VERSION)
+    # 指定済みapi-versionは尊重
+    u2 = ai_client.azure_chat_url(base + "?api-version=2024-02-01")
+    assert "api-version=2024-02-01" in u2
+    assert "/chat/completions?" in u2
+    # /chat/completionsまで書かれたURLはパス追加しない
+    u3 = ai_client.azure_chat_url(base + "/chat/completions")
+    assert "/chat/completions/chat/completions" not in u3
+    with pytest.raises(ai_client.ApiError):
+        ai_client.azure_chat_url(" ")
+
+
+def test_azure_resource_url():
+    base = ("https://res.openai.azure.com/openai/deployments/dep"
+            "?api-version=2024-02-01")
+    u = ai_client.azure_resource_url(base, "deployments")
+    assert u == ("https://res.openai.azure.com/openai/deployments"
+                 "?api-version=2024-02-01")
+
+
+class _AzureStub(BaseHTTPRequestHandler):
+    def log_message(self, *a):
+        pass
+
+    def do_POST(self):
+        body = self.rfile.read(int(self.headers.get("Content-Length") or 0))
+        self.server.last_req = {
+            "path": self.path,
+            "apikey": self.headers.get("api-key"),
+            "body": json.loads(body.decode("utf-8")),
+        }
+        resp = {"choices": [
+            {"message": {"role": "assistant", "content": "hi"}}]}
+        raw = json.dumps(resp).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(raw)))
+        self.end_headers()
+        self.wfile.write(raw)
+
+
+def test_azure_send_request():
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), _AzureStub)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    try:
+        port = httpd.server_address[1]
+        prov = ai_client.get_provider("azure")
+        data = prov.send(
+            f"http://127.0.0.1:{port}/openai/deployments/dep",
+            "az-key", "dep", "sys",
+            [{"role": "user", "content": "hello"}])
+        assert data["choices"][0]["message"]["content"] == "hi"
+        req = httpd.last_req
+        assert req["path"].startswith(
+            "/openai/deployments/dep/chat/completions?api-version=")
+        assert req["apikey"] == "az-key"
+        assert req["body"]["tool_choice"] == "auto"
+        assert len(req["body"]["tools"]) == \
+            len(TOOLS) + len(ai_client.INSTRUCTION_TOOLS)
+    finally:
+        httpd.shutdown()
 
 
 # ---- エージェント/スキル(指示書ファイル) ----

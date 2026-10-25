@@ -153,8 +153,10 @@ LLM APIを接続してQGISを対話操作するチャット型ドックを開け
 </figure>
 <ul>
 <li><strong>プロバイダ</strong>: OpenAI互換(<code>{base}/chat/completions</code> +
-function calling)とGemini(<code>{base}/models/{model}:generateContent</code> +
-functionDeclarations)。エンドポイントを変えればOllama・LM Studio・
+function calling)・Anthropic(<code>{base}/v1/messages</code>)・
+Gemini(<code>{base}/models/{model}:generateContent</code> +
+functionDeclarations)・Azure OpenAI(deploymentsパス+api-keyヘッダ)・
+GitHub Copilot。エンドポイントを変えればOllama・LM Studio・
 OpenRouter等の互換サーバも使える。設定はプロバイダごとに別保存</li>
 <li><strong>モデル選択</strong>: 編集可コンボ。隣の「取得」ボタンで
 <code>GET {base}/models</code> から利用可能モデル一覧を取り込む

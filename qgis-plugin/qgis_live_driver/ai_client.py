@@ -5,11 +5,20 @@ ai_panel.py(Qt層)から呼ばれる。QGIS/Qtに依存しないためpytest対�
 対応プロバイダ:
   - "openai": OpenAI Chat Completions 互換
     (POST {base}/chat/completions, tools=function calling)。
-    Ollama・LM Studio・OpenRouter等の互換サーバも
-    base URLを変えるだけで使える(例: http://localhost:11434/v1)
+    Ollama・LM Studio・OpenRouter・xAI Grok・Mistral・Groq・
+    DeepSeek等の互換サーバもbase URLを変えるだけで使える
+    (例: http://localhost:11434/v1)。Bedrock/Vertex等も
+    LiteLLM等の互換プロキシ経由なら同じ経路で繋がる
+  - "anthropic": Anthropic Messages API
+    (POST {base}/v1/messages, tools=input_schema。
+    認証は x-api-key + anthropic-version ヘッダ)
   - "gemini": Google Gemini API
     (POST {base}/models/{model}:generateContent, functionDeclarations。
     認証は x-goog-api-key ヘッダ)
+  - "azure": Azure OpenAI Service
+    (Chat CompletionsはOpenAI互換だが認証は api-key ヘッダ、
+    URLは {resource}/openai/deployments/<deployment>/chat/completions
+    ?api-version=…。model欄はデプロイ名)
   - "copilot": GitHub Copilot
     (OpenAI互換の {api}/chat/completions。APIキー欄のGitHubトークンを
     api.github.com/copilot_internal/v2/token で短期トークンに交換し、
@@ -20,8 +29,9 @@ ai_panel.py(Qt層)から呼ばれる。QGIS/Qtに依存しないためpytest対�
 スキーマに変換して使う。実行は LiveDriver.submit() に委譲するため
 このモジュール自体はQGISを触らない。
 
-プロバイダ抽象化: OpenAIProvider/GeminiProvider/CopilotProvider が
-  build_messages / send / parse / append_exchange を実装し、
+プロバイダ抽象化: OpenAIProvider/AnthropicProvider/GeminiProvider/
+AzureOpenAIProvider/CopilotProvider が build_messages / send /
+parse / append_exchange を実装し、
 ai_panel のエージェントループはプロバイダ非依存で回る。
 """
 
@@ -87,6 +97,18 @@ DEFAULT_MODEL = "gpt-4o-mini"
 GEMINI_DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
 GEMINI_DEFAULT_MODEL = "gemini-3.8-flash"
 
+# ---- Anthropic (Messages API) ----
+ANTHROPIC_DEFAULT_BASE = "https://api.anthropic.com"
+ANTHROPIC_DEFAULT_MODEL = "claude-sonnet-4-5"
+ANTHROPIC_VERSION = "2023-06-01"
+# Messages APIはmax_tokens必須。全現行モデルが許容する値を既定にする
+ANTHROPIC_MAX_TOKENS = 8192
+
+# ---- Azure OpenAI ----
+# api-versionクエリ省略時の既定(2024-10-21=GAのv1 API)
+AZURE_API_VERSION = "2024-10-21"
+AZURE_DEFAULT_MODEL = "gpt-4o"
+
 # ---- GitHub Copilot ----
 # GitHub Copilot APIは公開仕様ではなく、VS CodeのCopilot Chatが使う
 # 内部エンドポイント。GitHubトークンを短期トークンに交換して使うのは
@@ -128,6 +150,15 @@ PROVIDERS = {
             "qgis_live_driver",
             "https://api.openai.com/v1  or  http://localhost:11434/v1"),
     },
+    "anthropic": {
+        "label": "Anthropic (Claude)",
+        "base": ANTHROPIC_DEFAULT_BASE,
+        "model": ANTHROPIC_DEFAULT_MODEL,
+        "key_hint": QT_TRANSLATE_NOOP(
+            "qgis_live_driver",
+            "Anthropic API key (issued in the Anthropic Console)"),
+        "endpoint_hint": "https://api.anthropic.com",
+    },
     "gemini": {
         "label": "Gemini",
         "base": GEMINI_DEFAULT_BASE_URL,
@@ -136,6 +167,17 @@ PROVIDERS = {
             "qgis_live_driver",
             "Gemini API key (issued in AI Studio)"),
         "endpoint_hint": "https://generativelanguage.googleapis.com/v1beta",
+    },
+    "azure": {
+        "label": "Azure OpenAI",
+        "base": ("https://<resource>.openai.azure.com"
+                 "/openai/deployments/<deployment>"),
+        "model": AZURE_DEFAULT_MODEL,
+        "key_hint": QT_TRANSLATE_NOOP(
+            "qgis_live_driver",
+            "Azure OpenAI API key (KEY1/KEY2 of the resource)"),
+        "endpoint_hint": ("https://<resource>.openai.azure.com"
+                          "/openai/deployments/<deployment>"),
     },
     "copilot": {
         "label": "GitHub Copilot",
@@ -171,8 +213,12 @@ MODEL_KIND_LABELS = dict(MODEL_KINDS)
 SUGGESTED_MODELS = {
     "openai": ["gpt-5-mini", "gpt-5", "gpt-4.1-mini", "gpt-4.1",
                "gpt-4o-mini", "gpt-4o", "o4-mini"],
+    "anthropic": ["claude-sonnet-4-5", "claude-opus-4-5",
+                  "claude-haiku-4-5", "claude-opus-4-1",
+                  "claude-sonnet-4", "claude-3-7-sonnet"],
     "gemini": ["gemini-3.8-flash", "gemini-3.5-flash",
                "gemini-3.1-flash-lite", "gemini-2.5-pro"],
+    "azure": ["gpt-4o", "gpt-4.1", "gpt-5", "gpt-5-mini", "o4-mini"],
     "copilot": ["gpt-4o", "gpt-4.1", "gpt-5-mini", "gpt-5", "o4-mini",
                 "claude-sonnet-4", "claude-3.7-sonnet", "gemini-2.5-pro"],
 }
@@ -358,6 +404,7 @@ def parse_usage(data):
     """API応答のusage → {"in","out"}|None に正規化する。
 
     OpenAI互換: usage.prompt_tokens/completion_tokens
+    Anthropic: usage.input_tokens/output_tokens
     Gemini: usageMetadata.promptTokenCount/candidatesTokenCount
     (thoughtsTokenCount も出力側に含める)
     """
@@ -365,6 +412,10 @@ def parse_usage(data):
     if isinstance(u, dict):
         pin = u.get("prompt_tokens")
         pout = u.get("completion_tokens")
+        if pin is not None or pout is not None:
+            return {"in": pin or 0, "out": pout or 0}
+        pin = u.get("input_tokens")
+        pout = u.get("output_tokens")
         if pin is not None or pout is not None:
             return {"in": pin or 0, "out": pout or 0}
     m = data.get("usageMetadata")
@@ -764,6 +815,140 @@ def gemini_generate(base, api_key, model, system, contents,
             f"Invalid or blocked response: "
             f"{str(fb or data)[:300]}")
     return data
+
+
+# ---- Anthropic (Messages API) ----
+
+def _anthropic_v1(base):
+    """base URLを /v1 までの形に正規化する。"""
+    u = (base or "").strip().rstrip("/")
+    if not u:
+        raise ApiError("API endpoint is not set")
+    if u.endswith("/messages"):
+        u = u[: -len("/messages")].rstrip("/")
+    elif u.endswith("/models"):
+        u = u[: -len("/models")].rstrip("/")
+    if not u.endswith("/v1"):
+        u += "/v1"
+    return u
+
+
+def anthropic_messages_url(base):
+    """messagesのPOST先URL。"""
+    return _anthropic_v1(base) + "/messages"
+
+
+def anthropic_models_url(base):
+    """models一覧のGET先URL。"""
+    return _anthropic_v1(base) + "/models"
+
+
+def anthropic_headers(api_key):
+    """Messages APIの認証ヘッダ。"""
+    h = {"anthropic-version": ANTHROPIC_VERSION}
+    if api_key:
+        h["x-api-key"] = api_key
+    return h
+
+
+def anthropic_tools(allowed=None):
+    """mcp_http.TOOLS + INSTRUCTION_TOOLS + 外部MCPツールを
+    Anthropic tools(input_schema)に変換する。"""
+    out = []
+    for t in TOOLS + INSTRUCTION_TOOLS + _EXTRA_TOOLS:
+        if allowed is not None and _tool_short(t["name"]) not in allowed:
+            continue
+        out.append({
+            "name": t["name"],
+            "description": t["description"],
+            "input_schema": t["inputSchema"],
+        })
+    return out
+
+
+def anthropic_image_part(path):
+    """PNGファイル→Anthropicのimageブロック(読めなければNone)。"""
+    b64 = image_b64(path)
+    if b64 is None:
+        return None
+    return {"type": "image",
+            "source": {"type": "base64",
+                       "media_type": "image/png",
+                       "data": b64}}
+
+
+def anthropic_content(text, image_paths):
+    """テキスト+画像パス列をAnthropicのcontentにする。
+
+    画像が無い場合は文字列のまま返す(ショートハンド形式)。
+    """
+    imgs = [p for p in
+            (anthropic_image_part(x) for x in image_paths or [])
+            if p is not None]
+    if not imgs:
+        return text or "(empty)"   # 空文字列contentはAPIが拒否する
+    return ([{"type": "text", "text": text}] if text else []) + imgs
+
+
+def anthropic_messages(base, api_key, model, system, messages,
+                       tools=None, timeout=180.0, extra=None):
+    """POST {base}/v1/messages (非ストリーミング)して応答JSONを返す。"""
+    body = {"model": model, "max_tokens": ANTHROPIC_MAX_TOKENS,
+            "messages": messages}
+    if system:
+        body["system"] = system
+    if tools:
+        body["tools"] = tools
+        body["tool_choice"] = {"type": "auto"}
+    if extra:
+        body.update(extra)
+    data = _post_json(anthropic_messages_url(base),
+                      anthropic_headers(api_key), body, timeout)
+    if not isinstance(data, dict) \
+            or not isinstance(data.get("content"), list):
+        raise ApiError(f"Invalid response format: {str(data)[:300]}")
+    return data
+
+
+# ---- Azure OpenAI ----
+
+def azure_chat_url(base):
+    """Azureのbase(deploymentsパス)をchat/completionsのPOST先URLにする。
+
+    api-versionクエリは省略時 AZURE_API_VERSION を既定として付ける。
+    既に /chat/completions や api-version を含むURLはそれを尊重する。
+    """
+    u = (base or "").strip().rstrip("/")
+    if not u:
+        raise ApiError("API endpoint is not set")
+    sp = urllib.parse.urlsplit(u)
+    path = sp.path
+    if "/chat/completions" not in path:
+        path = path.rstrip("/") + "/chat/completions"
+    q = urllib.parse.parse_qsl(sp.query, keep_blank_values=True)
+    if not any(k.lower() == "api-version" for k, _ in q):
+        q.append(("api-version", AZURE_API_VERSION))
+    return urllib.parse.urlunsplit(
+        (sp.scheme, sp.netloc, path, urllib.parse.urlencode(q), ""))
+
+
+def azure_resource_url(base, tail):
+    """{scheme}://{host}/openai/<tail>?api-version=… を作る。
+
+    base中の /openai までのパスと api-version を引き継ぐ
+    (deployments/models等のリソースレベルAPI用)。
+    """
+    u = (base or "").strip()
+    if not u:
+        raise ApiError("API endpoint is not set")
+    sp = urllib.parse.urlsplit(u)
+    i = sp.path.find("/openai")
+    root = sp.path[: i + len("/openai")] if i >= 0 else "/openai"
+    ver = next((v for k, v in urllib.parse.parse_qsl(sp.query)
+                if k.lower() == "api-version"), AZURE_API_VERSION)
+    return urllib.parse.urlunsplit(
+        (sp.scheme, sp.netloc, f"{root}/{tail.lstrip('/')}",
+         f"api-version={urllib.parse.quote(ver)}", ""))
 
 
 # ---- ツール共通 ----
@@ -2025,6 +2210,93 @@ class OpenAIProvider:
                          "content": content})
 
 
+class AnthropicProvider:
+    """Anthropic Messages API。
+
+    systemはトップレベルフィールド、ツールはinput_schema、
+    ツール結果はuserターンのtool_resultブロックで返す形式。
+    """
+    id = "anthropic"
+    label = PROVIDERS["anthropic"]["label"]
+
+    def list_model_entries(self, base, key, timeout=30.0):
+        """GET {base}/v1/models → [{id}, ...] (has_moreでページング)。"""
+        url = anthropic_models_url(base)
+        out = []
+        after = None
+        for _ in range(20):              # ページ上限(暴走防止)
+            u = url + ("&" if "?" in url else "?") + "limit=1000"
+            if after:
+                u += "&after_id=" + urllib.parse.quote(after)
+            data = _get_json(u, anthropic_headers(key), timeout)
+            items = data.get("data") if isinstance(data, dict) else None
+            if not isinstance(items, list):
+                raise ApiError(
+                    f"Invalid response format: {str(data)[:300]}")
+            for m in items:
+                if isinstance(m, dict) and m.get("id"):
+                    out.append({"id": m["id"]})
+            if not data.get("has_more") or not data.get("last_id"):
+                break
+            after = data["last_id"]
+        return sorted(out, key=lambda e: e["id"])
+
+    def list_models(self, base, key, timeout=30.0):
+        return [e["id"] for e in
+                self.list_model_entries(base, key, timeout)]
+
+    def build_messages(self, system, history, user_text,
+                       user_images=None):
+        msgs = []
+        for m in history:
+            msgs.append({
+                "role": m.get("role"),
+                "content": anthropic_content(
+                    m.get("content") or "", m.get("images"))})
+        msgs.append({"role": "user",
+                     "content": anthropic_content(user_text,
+                                                  user_images)})
+        return msgs
+
+    def send(self, base, key, model, system, msgs, timeout=180.0):
+        return anthropic_messages(base, key, model, system, msgs,
+                                  tools=anthropic_tools(),
+                                  timeout=timeout)
+
+    def parse(self, data):
+        blocks = data.get("content") or []
+        text = "".join(b.get("text", "") for b in blocks
+                       if b.get("type") == "text")
+        calls = [{"id": b.get("id"),
+                  "name": b.get("name") or "",
+                  "args": b.get("input") or {}}
+                 for b in blocks if b.get("type") == "tool_use"]
+        if not text and not calls:
+            raise ApiError(
+                f"Response empty or blocked: stop_reason="
+                f"{data.get('stop_reason')} {str(data)[:200]}")
+        return {"text": text, "calls": calls,
+                "raw": {"role": "assistant", "content": blocks},
+                "usage": parse_usage(data)}
+
+    def append_exchange(self, msgs, turn, results):
+        # assistantターン(contentブロック列)の直後に、全tool_resultを
+        # 1つのuserターンへまとめて返す
+        msgs.append(turn["raw"])
+        parts = []
+        for c, r in zip(turn["calls"], results):
+            content = r["text"]
+            if r.get("image"):
+                img = anthropic_image_part(r["image"])
+                if img is not None:
+                    content = ([{"type": "text", "text": r["text"]}]
+                               if r["text"] else []) + [img]
+            parts.append({"type": "tool_result",
+                          "tool_use_id": c.get("id"),
+                          "content": content})
+        msgs.append({"role": "user", "content": parts})
+
+
 class GeminiProvider:
     id = "gemini"
     label = PROVIDERS["gemini"]["label"]
@@ -2175,7 +2447,61 @@ class CopilotProvider(OpenAIProvider):
                                 headers=COPILOT_HEADERS)
 
 
-_PROVIDERS = {"openai": OpenAIProvider, "gemini": GeminiProvider,
+class AzureOpenAIProvider(OpenAIProvider):
+    """Azure OpenAI Service。
+
+    メッセージ形式はOpenAI互換なので build_messages/parse/
+    append_exchange は OpenAIProvider を継承。違いはURLと認証:
+    {resource}/openai/deployments/<deployment>/chat/completions
+    ?api-version=… に api-key ヘッダで送る。model欄はデプロイ名
+    (api-version=2024-10-21以降のv1 APIではmodel指定は任意だが、
+    互換のためデプロイ名をそのまま送る)。
+    """
+    id = "azure"
+    label = PROVIDERS["azure"]["label"]
+
+    def list_model_entries(self, base, key, timeout=30.0):
+        """GET {resource}/openai/deployments → デプロイ名一覧。
+
+        v1 APIのdeployments一覧が使えない環境では /openai/models
+        (基盤モデル名)にフォールバックする。
+        """
+        headers = {"api-key": key} if key else {}
+        try:
+            data = _get_json(azure_resource_url(base, "deployments"),
+                             headers, timeout)
+            items = data.get("data") if isinstance(data, dict) else None
+            out = [{"id": m["id"]} for m in items or []
+                   if isinstance(m, dict) and m.get("id")]
+            if out:
+                return sorted(out, key=lambda e: e["id"])
+        except ApiError:
+            pass                        # /openai/models へフォールバック
+        data = _get_json(azure_resource_url(base, "models"),
+                         headers, timeout)
+        items = data.get("data") if isinstance(data, dict) else None
+        if not isinstance(items, list):
+            raise ApiError(f"Invalid response format: {str(data)[:300]}")
+        return sorted([{"id": m["id"]} for m in items
+                       if isinstance(m, dict) and m.get("id")],
+                      key=lambda e: e["id"])
+
+    def send(self, base, key, model, system, msgs, timeout=180.0):
+        body = {"model": model, "messages": msgs}
+        tools = openai_tools()
+        if tools:
+            body["tools"] = tools
+            body["tool_choice"] = "auto"
+        headers = {"api-key": key} if key else {}
+        data = _post_json(azure_chat_url(base), headers, body, timeout)
+        if not isinstance(data, dict) or not data.get("choices"):
+            raise ApiError(
+                f"Invalid response format: {str(data)[:300]}")
+        return data
+
+
+_PROVIDERS = {"openai": OpenAIProvider, "anthropic": AnthropicProvider,
+              "gemini": GeminiProvider, "azure": AzureOpenAIProvider,
               "copilot": CopilotProvider}
 
 

@@ -1,8 +1,9 @@
 """AIアシスタントドック — LLM APIを接続してQGISを対話操作するUI。
 
 `プラグイン > QGIS Live Driver > AI アシスタント` で開く。
-プロバイダ(OpenAI互換 / Gemini / GitHub Copilot)・エンドポイント・
-APIキー・モデルを設定すると、チャット経由でこのドライバのツール群
+プロバイダ(OpenAI互換 / Anthropic / Gemini / Azure OpenAI /
+GitHub Copilot)・エンドポイント・APIキー・モデルを設定すると、
+チャット経由でこのドライバのツール群
 (qgis_pyeval/qgis_screenshot/...)をfunction callingでループ実行する。
 GitHub Copilot選択時は「GitHubでサインイン」ボタンでOAuthデバイス
 フローによるトークン取得ができる。
@@ -1607,7 +1608,8 @@ class AiPanel(QDockWidget):
                     system = self._build_system(plugins, aid or None)
                     if msgs and msgs[0].get("role") == "system":
                         msgs[0]["content"] = system  # OpenAI形式。
-                        # Geminiはsend時にsystemを別渡しするため変数で追従
+                        # Gemini/Anthropicはsend時にsystemを別渡し
+                        # するため変数で追従
                     self._emit(self.sig_agent_changed, aid or "")
             else:
                 final_text = self.tr(

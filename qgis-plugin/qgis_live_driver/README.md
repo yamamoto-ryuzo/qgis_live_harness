@@ -75,11 +75,23 @@ an LLM API to operate QGIS interactively** (`ai_panel.py` + `ai_client.py`).
   - **OpenAI-compatible**: Chat Completions
     (`POST {base}/chat/completions` + function calling).
     Change the endpoint to use Ollama (`http://localhost:11434/v1`),
-    LM Studio, OpenRouter, or other local/compatible servers.
+    LM Studio, OpenRouter, xAI Grok (`https://api.x.ai/v1`), Mistral,
+    Groq, DeepSeek, or other local/compatible servers. Providers with
+    proprietary APIs such as AWS Bedrock or Vertex AI can also be used
+    through an OpenAI-compatible proxy such as LiteLLM.
+  - **Anthropic (Claude)**: Anthropic Messages API
+    (`POST {base}/v1/messages`, tools = `input_schema`, authenticated
+    via `x-api-key` + `anthropic-version`). Get an API key from the
+    Anthropic Console. Default model: `claude-sonnet-4-5`.
   - **Gemini**: Google Gemini API
     (`POST {base}/models/{model}:generateContent` +
     functionDeclarations, authenticated via `x-goog-api-key`).
     Get an API key from AI Studio. Default model: `gemini-2.5-flash`.
+  - **Azure OpenAI**: Chat Completions on Azure OpenAI Service
+    (`{resource}/openai/deployments/<deployment>/chat/completions
+    ?api-version=…`, authenticated via the `api-key` header). Enter the
+    deployment endpoint and use the deployment name as the model.
+    `api-version` defaults to `2024-10-21` when omitted.
   - **GitHub Copilot**: OpenAI-compatible Copilot API
     (`POST {api}/chat/completions`). **Requires a GitHub Copilot
     subscription.** Enter a GitHub token (`gho_`/`ghu_`/`ghp_`…) in the API

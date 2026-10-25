@@ -7,6 +7,18 @@
 
 ### Added
 
+- AIアシスタントパネルのプロバイダに **Anthropic(Claude)** と
+  **Azure OpenAI** を追加。AnthropicはMessages API
+  (`POST /v1/messages`, `x-api-key`+`anthropic-version`,
+  tools=`input_schema`, tool_use/tool_resultブロック)をネイティブ実装し、
+  モデル一覧は `GET /v1/models` のページング対応、usageは
+  `input_tokens`/`output_tokens` を集計。Azure OpenAIはOpenAI互換の
+  Chat Completionsを `api-key` ヘッダ+
+  `…/openai/deployments/<deployment>/chat/completions?api-version=`
+  (既定 `2024-10-21`)で送り、「取得」は `/openai/deployments` 一覧
+  (不可時は `/openai/models` にフォールバック)。
+  Grok/Mistral/Groq/DeepSeek等は従来どおりOpenAI互換プロバイダの
+  エンドポイント変更で利用可能
 - GeoSuiteツールバーに AI アシスタント(チャット)起動ボタンを追加。
   モードバッジの右隣に常駐し、クリックで既存の AI アシスタント
   ドックを開く/前面化する。ツールバー上に AI 関連のエントリ点が

@@ -69,11 +69,23 @@ deployモードバッジ(開発モード/利用モードの常時表示)を載�
   - **OpenAI互換**: Chat Completions
     (`POST {base}/chat/completions` + function calling)。
     エンドポイントを変えれば Ollama (`http://localhost:11434/v1`)・
-    LM Studio・OpenRouter等のローカル/互換サーバも使える
+    LM Studio・OpenRouter・xAI Grok (`https://api.x.ai/v1`)・
+    Mistral・Groq・DeepSeek等のローカル/互換サーバも使える。
+    AWS Bedrock・Vertex AI等の独自API系も LiteLLM 等の
+    OpenAI互換プロキシ経由なら接続できる
+  - **Anthropic (Claude)**: Anthropic Messages API
+    (`POST {base}/v1/messages`、tools = `input_schema`、
+    認証は `x-api-key` + `anthropic-version`)。
+    APIキーは Anthropic Console で発行。既定モデル `claude-sonnet-4-5`
   - **Gemini**: Google Gemini API
     (`POST {base}/models/{model}:generateContent` +
     functionDeclarations、認証は `x-goog-api-key`)。
     APIキーは AI Studio で発行。既定モデル `gemini-2.5-flash`
+  - **Azure OpenAI**: Azure OpenAI Service の Chat Completions
+    (`{resource}/openai/deployments/<deployment>/chat/completions
+    ?api-version=…`、認証は `api-key` ヘッダ)。
+    エンドポイントにはデプロイ先URLを、モデル欄にはデプロイ名を
+    入れる。`api-version` は省略時 `2024-10-21`
   - **GitHub Copilot**: OpenAI互換のCopilot API
     (`POST {api}/chat/completions`)。**GitHub Copilotの契約が必要**。
     APIキー欄にはGitHubトークン(`gho_`/`ghu_`/`ghp_`…)を入れる。
