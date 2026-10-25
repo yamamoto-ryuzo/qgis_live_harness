@@ -91,8 +91,19 @@ _ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
   var ENGINE = "__ENGINE__";
   var KASC = "__KASC__";
   var kascUrl = new URL(KASC, location.href).href;
+  var ENGINES = ["cesium", "maplibre", "openlayers", "leaflet"];
+  function engineBase(base) {
+    // ベースの末尾がエンジン名ディレクトリなら差し替え、違えば ENGINE を付ける
+    var u = new URL(base, location.href);
+    var seg = u.pathname.replace(/\/+$/, "").split("/").pop().toLowerCase();
+    if (ENGINES.indexOf(seg) >= 0) {
+      u.pathname = u.pathname.replace(/[^/]+\/?$/, ENGINE + "/");
+      return u.href;
+    }
+    return new URL(ENGINE + "/", u).href;
+  }
   function target(base) {
-    return new URL(ENGINE + "/", base).href + "?kasc=" + encodeURIComponent(kascUrl);
+    return engineBase(base) + "?kasc=" + encodeURIComponent(kascUrl);
   }
   // file:// で開かれた場合はローカルの KASUGAI Canvas(127.0.0.1:8510)へ
   // .kasc を外部プロジェクト登録し /<engine>/?project=<id> へ転送する。
@@ -124,7 +135,7 @@ _ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
         if (!base) return;
         if (!/[\\/]$/.test(base)) base += "/";
         try { localStorage.setItem("kasugai_hosted_base", base); } catch (e) {}
-        location.href = new URL(ENGINE + "/", base).href + "?kasc=local";
+        location.href = engineBase(base) + "?kasc=local";
       };
       row.appendChild(inp); row.appendChild(go);
       var hint = document.createElement("div");
