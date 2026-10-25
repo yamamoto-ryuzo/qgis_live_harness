@@ -4,6 +4,7 @@
     " The theme was also restored.": " Тема также была восстановлена.",
     "A firewall rule will be added to allow port {0}.\n\nThis operation requires administrator rights.\nThe Windows User Account Control (UAC) dialog will be shown.\n\nContinue?": "Будет добавлено правило брандмауэра для разрешения порта {0}.\n\nЭта операция требует прав администратора.\nБудет показан диалог контроля учётных записей Windows (UAC).\n\nПродолжить?",
     "Add firewall rule (port {0}) - administrator rights required": "Добавить правило брандмауэра (порт {0}) - требуются права администратора",
+    "Additional names:": "Дополнительные имена:",
     "Administrator Elevation": "Повышение прав администратора",
     "Administrator rights are required to start the server on this port.\n": "Для запуска сервера на этом порту требуются права администратора.\n",
     "An error occurred while processing navigation: {0}": "При обработке навигации произошла ошибка: {0}",
@@ -11,7 +12,9 @@
     "An error occurred while processing the coordinate move: {0}": "При обработке перемещения координат произошла ошибка: {0}",
     "An error occurred while processing the permalink:\n{0}": "При обработке постоянной ссылки произошла ошибка:\n{0}",
     "Applied the computed scale (width approx. {0} m, 1:{1}).": "Применён вычисленный масштаб (ширина примерно {0} м, 1:{1}).",
+    "Basemap Groups": "Группы базовой карты",
     "Close": "Закрыть",
+    "Comma-separated layer-tree group names treated as basemaps (in addition to the built-in 背景図 / ベースマップ / basemap).": "Имена групп дерева слоёв (через запятую), которые считаются базовой картой (в дополнение к встроенным 背景図 / ベースマップ / basemap).",
     "Coordinate conversion failed.": "Ошибка преобразования координат.",
     "Copied the URL": "URL скопирован",
     "Copied the command": "Команда скопирована",
@@ -73,6 +76,8 @@
     "There is no permalink to copy.": "Нет постоянной ссылки для копирования.",
     "Trying center-based scale computation...": "Пробуем вычисление масштаба по центру...",
     "Unsupported permalink URL format.": "Неподдерживаемый формат URL постоянной ссылки.",
+    "XYZ tile layers inside a layer-tree group with one of these names are exported as basemap entries (base:) instead of regular layers. Sub-groups are kept for grouped display.": "XYZ-слои внутри группы с одним из этих имён экспортируются как варианты базовой карты (base:), а не как обычные слои. Подгруппы сохраняются для группированного отображения.",
+    "e.g. 背景, Basemaps, Base Map": "напр. Фон, Basemaps, Base Map",
     "geo_webview": "geo_webview"
   },
   "GeoWebViewPanel": {

@@ -4,6 +4,7 @@
     " The theme was also restored.": " テーマも復元されました。",
     "A firewall rule will be added to allow port {0}.\n\nThis operation requires administrator rights.\nThe Windows User Account Control (UAC) dialog will be shown.\n\nContinue?": "ポート {0} を許可するファイアウォールルールを追加します。\n\nこの操作には管理者権限が必要です。\nWindowsのユーザーアカウント制御(UAC)ダイアログが表示されます。\n\n続行しますか?",
     "Add firewall rule (port {0}) - administrator rights required": "ファイアウォールルールを追加 (ポート {0}) - 管理者権限が必要",
+    "Additional names:": "追加のグループ名:",
     "Administrator Elevation": "管理者権限の昇格",
     "Administrator rights are required to start the server on this port.\n": "このポートでサーバーを起動するには管理者権限が必要です。\n",
     "An error occurred while processing navigation: {0}": "ナビゲーション処理中にエラーが発生しました: {0}",
@@ -11,7 +12,9 @@
     "An error occurred while processing the coordinate move: {0}": "座標移動の処理中にエラーが発生しました: {0}",
     "An error occurred while processing the permalink:\n{0}": "パーマリンクの処理中にエラーが発生しました:\n{0}",
     "Applied the computed scale (width approx. {0} m, 1:{1}).": "計算したスケールを適用しました(幅約 {0}m、1:{1})。",
+    "Basemap Groups": "ベースマップグループ",
     "Close": "閉じる",
+    "Comma-separated layer-tree group names treated as basemaps (in addition to the built-in 背景図 / ベースマップ / basemap).": "ベースマップとして扱うレイヤツリーのグループ名をカンマ区切りで追加します(内蔵の 背景図 / ベースマップ / basemap に加えて適用)。",
     "Coordinate conversion failed.": "座標変換に失敗しました。",
     "Copied the URL": "URLをコピーしました",
     "Copied the command": "コマンドをコピーしました",
@@ -73,6 +76,8 @@
     "There is no permalink to copy.": "コピーできるパーマリンクがありません。",
     "Trying center-based scale computation...": "試行: 中心ベースでスケールを計算します...",
     "Unsupported permalink URL format.": "サポートされていないパーマリンクURL形式です。",
+    "XYZ tile layers inside a layer-tree group with one of these names are exported as basemap entries (base:) instead of regular layers. Sub-groups are kept for grouped display.": "これらの名前のグループ内にある XYZ タイルレイヤは、通常レイヤではなくベースマップ候補(base:)として出力されます。サブグループはグループ化表示用に保持されます。",
+    "e.g. 背景, Basemaps, Base Map": "例: 背景, Basemaps, Base Map",
     "geo_webview": "geo_webview"
   },
   "GeoWebViewPanel": {

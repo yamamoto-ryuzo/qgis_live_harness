@@ -4,6 +4,7 @@
     " The theme was also restored.": " Le thème a également été restauré.",
     "A firewall rule will be added to allow port {0}.\n\nThis operation requires administrator rights.\nThe Windows User Account Control (UAC) dialog will be shown.\n\nContinue?": "Une règle de pare-feu va être ajoutée pour autoriser le port {0}.\n\nCette opération nécessite des droits d'administrateur.\nLa boîte de dialogue de contrôle de compte d'utilisateur (UAC) de Windows s'affichera.\n\nContinuer ?",
     "Add firewall rule (port {0}) - administrator rights required": "Ajouter une règle de pare-feu (port {0}) - droits d'administrateur requis",
+    "Additional names:": "Noms supplémentaires :",
     "Administrator Elevation": "Élévation d'administrateur",
     "Administrator rights are required to start the server on this port.\n": "Des droits d'administrateur sont requis pour démarrer le serveur sur ce port.\n",
     "An error occurred while processing navigation: {0}": "Une erreur s'est produite lors du traitement de la navigation : {0}",
@@ -11,7 +12,9 @@
     "An error occurred while processing the coordinate move: {0}": "Une erreur s'est produite lors du traitement du déplacement des coordonnées : {0}",
     "An error occurred while processing the permalink:\n{0}": "Une erreur s'est produite lors du traitement du permalien :\n{0}",
     "Applied the computed scale (width approx. {0} m, 1:{1}).": "Échelle calculée appliquée (largeur approx. {0} m, 1:{1}).",
+    "Basemap Groups": "Groupes de fond de carte",
     "Close": "Fermer",
+    "Comma-separated layer-tree group names treated as basemaps (in addition to the built-in 背景図 / ベースマップ / basemap).": "Noms de groupes de l'arborescence des couches (séparés par des virgules) traités comme fond de carte (en plus des valeurs intégrées 背景図 / ベースマップ / basemap).",
     "Coordinate conversion failed.": "Échec de la conversion des coordonnées.",
     "Copied the URL": "URL copiée",
     "Copied the command": "Commande copiée",
@@ -73,6 +76,8 @@
     "There is no permalink to copy.": "Il n'y a aucun permalien à copier.",
     "Trying center-based scale computation...": "Tentative de calcul de l'échelle basée sur le centre...",
     "Unsupported permalink URL format.": "Format d'URL de permalien non pris en charge.",
+    "XYZ tile layers inside a layer-tree group with one of these names are exported as basemap entries (base:) instead of regular layers. Sub-groups are kept for grouped display.": "Les couches de tuiles XYZ d'un groupe portant l'un de ces noms sont exportées comme fonds de carte (base:) au lieu de couches normales. Les sous-groupes sont conservés pour l'affichage groupé.",
+    "e.g. 背景, Basemaps, Base Map": "ex. Fond, Basemaps, Base Map",
     "geo_webview": "geo_webview"
   },
   "GeoWebViewPanel": {

@@ -96,6 +96,39 @@ class SettingsDialog(QtWidgets.QDialog):
         hosted_group.setLayout(hosted_layout)
         layout.addWidget(hosted_group)
 
+        # Basemap group names (.kasc / reearth.txt export)
+        bm_group = QtWidgets.QGroupBox(
+            QtCore.QCoreApplication.translate('geo_webview', "Basemap Groups"))
+        bm_layout = QtWidgets.QVBoxLayout()
+        bm_row = QtWidgets.QHBoxLayout()
+        bm_label = QtWidgets.QLabel(
+            QtCore.QCoreApplication.translate('geo_webview', "Additional names:"))
+        self.kasugai_basemap_groups_input = QtWidgets.QLineEdit()
+        self.kasugai_basemap_groups_input.setPlaceholderText(
+            QtCore.QCoreApplication.translate(
+                'geo_webview', "e.g. 背景, Basemaps, Base Map"))
+        self.kasugai_basemap_groups_input.setToolTip(
+            QtCore.QCoreApplication.translate(
+                'geo_webview',
+                "Comma-separated layer-tree group names treated as basemaps "
+                "(in addition to the built-in 背景図 / ベースマップ / basemap)."))
+        self.kasugai_basemap_groups_input.editingFinished.connect(
+            self._basemap_groups_changed)
+        bm_row.addWidget(bm_label)
+        bm_row.addWidget(self.kasugai_basemap_groups_input)
+        bm_layout.addLayout(bm_row)
+        bm_info = QtWidgets.QLabel(
+            QtCore.QCoreApplication.translate(
+                'geo_webview',
+                "XYZ tile layers inside a layer-tree group with one of these "
+                "names are exported as basemap entries (base:) instead of "
+                "regular layers. Sub-groups are kept for grouped display."))
+        bm_info.setWordWrap(True)
+        bm_info.setStyleSheet("color: #666;")
+        bm_layout.addWidget(bm_info)
+        bm_group.setLayout(bm_layout)
+        layout.addWidget(bm_group)
+
         layout.addStretch()
 
         # Close button
@@ -143,6 +176,16 @@ class SettingsDialog(QtWidgets.QDialog):
         ch = str(self.settings.value('kasugai_hosted_channel', '')
                  or '').strip() or 'stable'
         self.kasugai_hosted_combo.setCurrentText(ch)
+
+        # Additional basemap group names
+        self.kasugai_basemap_groups_input.setText(
+            str(self.settings.value('kasugai_basemap_groups', '') or ''))
+
+    def _basemap_groups_changed(self):
+        """追加のベースマップグループ名(カンマ区切り)を保存する。"""
+        self.settings.setValue(
+            'kasugai_basemap_groups',
+            str(self.kasugai_basemap_groups_input.text() or '').strip())
 
     def _hosted_channel_changed(self, text):
         """ホスト版エンジンのチャンネル変更を保存する。"""

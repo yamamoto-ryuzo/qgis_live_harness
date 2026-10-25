@@ -44,6 +44,17 @@ KASUGAI_EXE_NAME = 'kasugai_canvas.exe'
 _KASUGAI_UNINSTALL_KEY = (
     r'Software\Microsoft\Windows\CurrentVersion\Uninstall\KASUGAI Canvas')
 
+# ベースマップ候補群を表すレイヤツリーのグループ名(大小文字不問)。
+# この名前のグループに入っている XYZ レイヤは base: 行として
+# ベースマップ一覧へ登録する(グループ名自体はタイトルに含めず、
+# 配下のサブグループは / 区切りのタイトルとして残し、
+# Canvas 側のベースマップ選択でグループ化表示される)
+# QSettings kasugai_basemap_groups(カンマ区切り)でユーザーが
+# 追加名を登録できる(設定ダイアログの Basemap Groups)
+BASEMAP_GROUP_NAMES = frozenset(
+    ('背景図', 'ベースマップ', 'basemap'))
+SETTINGS_KEY_BASEMAP_GROUPS = 'kasugai_basemap_groups'
+
 # .kasc と同じ場所に出力するエンジン起動HTML(サーバレス配布用)。
 # 各HTMLは ?kasc=<.kascの絶対URL> 付きでエンジンへ転送するだけの
 # 自己完結ページ。エンジン本体(web/ の中身)は ./ ../ ../../ / の順に
@@ -513,6 +524,38 @@ def _tree_layers():
 
     _walk(root, [], True)
     return result
+
+
+def _basemap_group_names():
+    """ベースマップグループ名の集合(小文字)を返す。
+
+    内蔵の BASEMAP_GROUP_NAMES に、QSettings
+    ``kasugai_basemap_groups``(カンマ/読点/改行区切り)でユーザーが
+    追加した名前を加えたもの。
+    """
+    names = set(BASEMAP_GROUP_NAMES)
+    try:
+        extra = _qsettings().value(SETTINGS_KEY_BASEMAP_GROUPS, '') or ''
+    except Exception:  # nosec B110  # QSettings 非依存環境では空扱い
+        extra = ''
+    for part in re.split(r'[,;、，\n\r]+', str(extra)):
+        part = part.strip().lower()
+        if part:
+            names.add(part)
+    return names
+
+
+def _basemap_group_index(groups, names=None):
+    """groups 内でベースマップグループ名に一致する最外側の index を返す。
+
+    names 省略時は _basemap_group_names() を使う。
+    一致するグループが無ければ None。
+    """
+    names = names if names is not None else _basemap_group_names()
+    for i, name in enumerate(groups or []):
+        if (name or '').strip().lower() in names:
+            return i
+    return None
 
 
 def _geo_equiv_crs(layer):
@@ -1190,6 +1233,13 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             False なら全ベクターを GeoJSON へ変換する(従来動作)。
         hidden_as_off: True なら非表示レイヤも ``| off`` 付きで出力する
             (visible_only より優先。プロジェクト構成の丸ごと引越し用)。
+            なお「背景図」「ベースマップ」「basemap」名
+            (設定 ``kasugai_basemap_groups`` で追加可)のグループ内に
+            ある XYZ レイヤは visible_only/hidden_as_off に関わらず
+            全て ``base:`` 行(ベースマップ候補)として出力する。
+            グループ名はタイトルから外し、配下のサブグループのみ
+            ``サブグループ/レイヤ名`` として残す(Canvas 側の
+            ベースマップ選択でグループ化表示される)。
         embed_gpkg_style: True なら gpkg: 参照レイヤの現在スタイルを
             QGIS 標準の layer_styles(useAsDefault)へも保存する。
             **元の .gpkg ファイルへ書き込む**点に注意(opt-in)。
@@ -1231,6 +1281,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     layers_out, tiles_out, skipped, errors, warnings = [], [], [], [], []
     kasc_lines = []
     detected_base = None  # 表示中の最下段 XYZ → base: 行
+    group_bases = []      # ベースマップグループ内 XYZ の base: 行
+    basemap_layer_ids = set()  # base: 行へ回したレイヤ(theme 行から除外)
 
     tree = _tree_layers()
 
@@ -1252,12 +1304,26 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         if vis and _xyz_layer_info(layer):
             last_xyz_id = id(layer)
 
+    # ベースマップグループ名(内蔵+ユーザー追加)はエクスポート中固定
+    basemap_names = _basemap_group_names()
+
     for layer, groups, visible in tree:
+        # 「背景図」「basemap」名のグループはベースマップ候補の入れ物。
+        # 中の XYZ レイヤはレイヤ行ではなく base: 行として登録する
+        # (グループ名はタイトルから外し、配下のサブグループは残す)
+        bm_idx = _basemap_group_index(groups, basemap_names)
         title = '/'.join(
             [_kasc_escape(g) for g in groups if g] +
             [_kasc_escape(layer.name())])
         if not visible:
-            if export_hidden_off:
+            if (bm_idx is not None
+                    and not isinstance(layer, QgsVectorLayer)
+                    and _xyz_layer_info(layer)):
+                # ベースマップ候補は表示状態に関わらず全て登録する
+                # (visible_only/hidden_as_off の対象外。非表示は | off で
+                # 「初期選択しない候補」として出す)
+                vis_flag = 'off'
+            elif export_hidden_off:
                 vis_flag = 'off'
             elif not visible_only:
                 vis_flag = 'on'
@@ -1387,7 +1453,29 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                         continue
                 opacity = _maplayer_opacity(layer)
                 bbox = _layer_extent_bbox(layer)
-                if visible and id(layer) == last_xyz_id:
+                if bm_idx is not None:
+                    # ベースマップグループ内の XYZ → base: 候補として登録。
+                    # グループ名は外し、配下サブグループのみタイトルに残す
+                    base_title = '/'.join(
+                        [_kasc_escape(g)
+                         for g in groups[bm_idx + 1:] if g] +
+                        [_kasc_escape(layer.name())])
+                    line = 'base: {0} | {1}'.format(
+                        base_title, _kasc_escape(url))
+                    attr = _attribution(layer)
+                    if attr:
+                        line += ' | {0}'.format(_kasc_escape(attr))
+                    if zmax is not None:
+                        line += ' | maxZoom={0}'.format(zmax)
+                    if zmin is not None:
+                        line += ' | minZoom={0}'.format(zmin)
+                    if opacity is not None:
+                        line += ' | opacity={0}'.format(opacity)
+                    if not visible:
+                        line += ' | off'
+                    group_bases.append((visible, line))
+                    basemap_layer_ids.add(id(layer))
+                elif visible and id(layer) == last_xyz_id:
                     # QGIS の最下段タイルはベースマップとして出力
                     line = 'base: {0} | {1}'.format(title, _kasc_escape(url))
                     attr = _attribution(layer)
@@ -1474,8 +1562,13 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         'base: OpenStreetMap | https://tile.openstreetmap.org/{z}/{x}/{y}.png | '
         '(c) OpenStreetMap contributors | maxZoom=19',
     ]
+    # ベースマップグループ由来の base: は表示中のものを先に並べ、
+    # 非表示は | off 付きで後ろへ(先頭が Canvas の既定ベースマップ)
+    ordered_group_bases = [line for vis, line in group_bases if vis] + \
+        [line for vis, line in group_bases if not vis]
     # QGIS 側で表示中の XYZ があれば既定ベースマップとして先頭に置く
-    bases = ([detected_base] if detected_base else []) + default_bases
+    bases = ([detected_base] if detected_base else []) + \
+        ordered_group_bases + default_bases
     header = [
         '# Exported from QGIS geo_webview -> KASUGAI Canvas',
     ] + bases
@@ -1493,6 +1586,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             collection = project.mapThemeCollection()
             title_by_id = {}
             for layer, groups, _vis in tree:
+                if id(layer) in basemap_layer_ids:
+                    continue  # base: 行へ回したレイヤはテーマ対象外
                 title_by_id[layer.id()] = '/'.join(
                     [_kasc_escape(g) for g in groups if g] +
                     [_kasc_escape(layer.name())])
@@ -1502,7 +1597,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                         collection.mapThemeVisibleLayerIds(name))
                     titles = [title_by_id[layer.id()]
                               for layer, _g, _v in tree
-                              if layer.id() in visible_ids]
+                              if layer.id() in visible_ids
+                              and layer.id() in title_by_id]
                     kasc_lines.append('theme: {0}{1}'.format(
                         _kasc_escape(name),
                         ''.join(' | ' + t for t in titles)))
@@ -1639,16 +1735,25 @@ def _write_reearth_txt(iface, out_dir, port, tree, visible_only,
     for layer, _g, vis in tree:
         if vis and _xyz_layer_info(layer):
             last_xyz = id(layer)
-    # base: は geo_suite 側が先頭解釈のため後付けせず先に記録
-    base_line = None
+    # base: は geo_suite 側が先頭解釈のため後付けせず先に記録。
+    # ベースマップグループ(背景図/basemap)内の XYZ は .kasc と同じく
+    # 全て base: 行とし、表示中を先頭へ並べる
+    base_lines = []
     body = []
+    basemap_names = _basemap_group_names()
 
     for layer, groups, visible in tree:
+        bm_idx = _basemap_group_index(groups, basemap_names)
         title = '/'.join(
             [_kasc_escape(g) for g in groups if g] +
             [_kasc_escape(layer.name())])
         if not visible:
-            if hidden_as_off:
+            if (bm_idx is not None
+                    and not isinstance(layer, QgsVectorLayer)
+                    and _xyz_layer_info(layer)):
+                # ベースマップ候補は表示状態に関わらず登録(| off 付き)
+                vis_flag = 'off'
+            elif hidden_as_off:
                 vis_flag = 'off'
             elif not visible_only:
                 vis_flag = 'on'
@@ -1724,6 +1829,26 @@ def _write_reearth_txt(iface, out_dir, port, tree, visible_only,
                         continue
                     url = base_url + '/export-data/' + urllib.parse.quote(
                         ref, safe='/{}')
+                if bm_idx is not None:
+                    # ベースマップグループ内の XYZ → base: 行。
+                    # グループ名は外し、配下サブグループのみタイトルに残す
+                    base_title = '/'.join(
+                        [_kasc_escape(g)
+                         for g in groups[bm_idx + 1:] if g] +
+                        [_kasc_escape(layer.name())])
+                    line = 'base: {0} | {1}'.format(
+                        base_title, _kasc_escape(url))
+                    attr = _attribution(layer)
+                    if attr:
+                        line += ' | {0}'.format(_kasc_escape(attr))
+                    if zmax is not None:
+                        line += ' | maxZoom={0}'.format(zmax)
+                    if zmin is not None:
+                        line += ' | minZoom={0}'.format(zmin)
+                    if not visible:
+                        line += ' | off'
+                    base_lines.append((visible, line))
+                    continue
                 line = 'xyz: {0} | {1} | {2}'.format(
                     title, _kasc_escape(url), vis_flag)
                 if zmax is not None:
@@ -1732,14 +1857,14 @@ def _write_reearth_txt(iface, out_dir, port, tree, visible_only,
                     line += ' | minZoom={0}'.format(zmin)
                 if visible and id(layer) == last_xyz:
                     line = 'base' + line[len('xyz'):]
-                    base_line = line
+                    base_lines.append((visible, line))
                 else:
                     body.append(line)
             else:
                 continue  # 対応外は inspector に出さない
 
-    if base_line:
-        lines.append(base_line)
+    for _vis, line in sorted(base_lines, key=lambda e: not e[0]):
+        lines.append(line)
     if cam:
         lines.append(cam)
     lines.extend(body)

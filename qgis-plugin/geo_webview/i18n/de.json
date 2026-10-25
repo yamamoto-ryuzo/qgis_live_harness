@@ -4,6 +4,7 @@
     " The theme was also restored.": " Das Thema wurde ebenfalls wiederhergestellt.",
     "A firewall rule will be added to allow port {0}.\n\nThis operation requires administrator rights.\nThe Windows User Account Control (UAC) dialog will be shown.\n\nContinue?": "Es wird eine Firewall-Regel hinzugefügt, um Port {0} zuzulassen.\n\nDieser Vorgang erfordert Administratorrechte.\nDer Windows-Dialog der Benutzerkontensteuerung (UAC) wird angezeigt.\n\nFortfahren?",
     "Add firewall rule (port {0}) - administrator rights required": "Firewall-Regel hinzufügen (Port {0}) - Administratorrechte erforderlich",
+    "Additional names:": "Zusätzliche Namen:",
     "Administrator Elevation": "Ausführung mit Administratorrechten",
     "Administrator rights are required to start the server on this port.\n": "Zum Starten des Servers auf diesem Port sind Administratorrechte erforderlich.\n",
     "An error occurred while processing navigation: {0}": "Beim Verarbeiten der Navigation ist ein Fehler aufgetreten: {0}",
@@ -11,7 +12,9 @@
     "An error occurred while processing the coordinate move: {0}": "Beim Verarbeiten der Koordinatenverschiebung ist ein Fehler aufgetreten: {0}",
     "An error occurred while processing the permalink:\n{0}": "Beim Verarbeiten des Permalinks ist ein Fehler aufgetreten:\n{0}",
     "Applied the computed scale (width approx. {0} m, 1:{1}).": "Berechneter Maßstab angewendet (Breite ca. {0} m, 1:{1}).",
+    "Basemap Groups": "Basiskarten-Gruppen",
     "Close": "Schließen",
+    "Comma-separated layer-tree group names treated as basemaps (in addition to the built-in 背景図 / ベースマップ / basemap).": "Kommagetrennte Layer-Gruppennamen, die als Basiskarte behandelt werden (zusätzlich zu den eingebauten 背景図 / ベースマップ / basemap).",
     "Coordinate conversion failed.": "Koordinatenumrechnung fehlgeschlagen.",
     "Copied the URL": "URL kopiert",
     "Copied the command": "Befehl kopiert",
@@ -73,6 +76,8 @@
     "There is no permalink to copy.": "Es gibt keinen Permalink zum Kopieren.",
     "Trying center-based scale computation...": "Versuche zentrumsbasierte Maßstabsberechnung...",
     "Unsupported permalink URL format.": "Nicht unterstütztes Permalink-URL-Format.",
+    "XYZ tile layers inside a layer-tree group with one of these names are exported as basemap entries (base:) instead of regular layers. Sub-groups are kept for grouped display.": "XYZ-Kachellayer in einer Gruppe mit einem dieser Namen werden als Basiskarten-Einträge (base:) statt als normale Layer exportiert. Untergruppen bleiben für die gruppierte Anzeige erhalten.",
+    "e.g. 背景, Basemaps, Base Map": "z. B. Hintergrund, Basemaps, Base Map",
     "geo_webview": "geo_webview"
   },
   "GeoWebViewPanel": {
