@@ -11,6 +11,57 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.31.1] - 2026-10-26 README 連携構成図を概要セクションへ移動
+
+- `README_JP.md` / `README.md` の連携構成図（mermaid）を
+  「連携方針」内の `####` 小見出しから `## 概要` 直下の `###` 見出しへ
+  格上げ・移動（`### マルチエンジン` / `### Multi-engine` の前）。
+  重要な全体像が冒頭で把握できる配置に変更
+- 同構成図の表現を概要冒頭のフロー図と統一:
+  QGIS ノードを「レイヤ・スタイル(.qml)・レイヤツリー・視点・テーマ」
+  （EN: layers / .qml styles / layer tree / view / themes）に更新し、
+  geo_webview（QGIS プラグイン）サブグラフ内に
+  「内蔵 HTTP サーバー localhost:8089」（EN: Embedded HTTP server
+  localhost:8089）ノードと、エクスポート一式を固めた
+  「kasugai_canvas.zip」（`.kasc + DATA/ + <engine>.html` bundle。
+  emit_zip 時の出力）ノードを追加し、同ノードから
+  Re:Earth Visualizer geo_suite（サブ）ノードへの辺を引いた
+  （geo_suite の `qgis: <zip URL>` 取り込み経路。
+  エクスポートノードから RE への辺は削除し、RE ノードの詳細は
+  「kasugai_canvas.zip を CMS へアップロード → インスペクタに
+  CMS の URL を qgis: URL で指定」のフロー記述とした）。エンジン本体は KASUGAI Canvas `web/` 側の
+  機能のため、KASUGAI Canvas（主・統合プレイヤー）を再生経路枠内の
+  独立サブグラフとし、「拡張機能: 登録・切替・rclone・自動更新・
+  .kasc 関連付け」と「マルチエンジン: Cesium / MapLibre / OpenLayers /
+  Leaflet」（EN: Multi-engine）をその中に配置。再生経路枠
+  （① エクスポート物の再生経路）はいったん削除し、
+  KCBOX・HOST をトップレベルノードとし（ローカル配信の
+  BR ノードは内蔵 HTTP サーバーノードと重複するため削除）、さらに
+  「kasugai-canvas-web（4エンジンの CDN。GitHub Pages:
+  stable/・unstable/）」を独立ノードとして HOST への
+  エンジン一式配信辺で結線（HOST 内の括弧書きは同ノードへ移動）。
+  内蔵 HTTP サーバーノードから CDN ノードへの辺も追加
+  （ローカル `/<engine>/` フォールバック配信とホスト版の関係）。
+  KCBOX 内のマルチエンジンノードから CDN ノードへの辺も追加
+  （KASUGAI Canvas の4エンジンを CDN が配信する関係）。
+  エクスポートノードから HOST への辺は削除し、
+  HOST の入力は CDN のエンジン一式配信辺のみとした。
+  エクスポートノードから ArcGIS 系ノードへの辺は削除
+  （ArcGIS 側はファイル受け渡しの独自読み込みで、
+  配線なしの独立ノードとして残置）。QGIS ノードの辺は
+  GWBOX（geo_webview サブグラフ）の外枠宛てに変更し、
+  エクスポート・内蔵 HTTP サーバーの2ノードを囲む無題の内枠を追加し、
+  その枠から CDN ノードへの辺を引いた。
+  エクスポートノードから KCBOX への辺は
+  「エクスポート → KASUGAI Canvas 登録・起動」経路として復活。
+  同サブグラフ内の
+  エクスポートノードを実動作どおり
+  「エクスポート .kasc + DATA/ + &lt;engine&gt;.html」
+  （EN: Export .kasc + DATA/ + &lt;engine&gt;.html）とした
+  （reearth.txt は内蔵 HTTP サーバー稼働時のみ出力される条件付き出力のため
+  既定出力からは外し、Re:Earth ノード側の記載に委ねる）。
+  図内の `.kasc+DATA/` 表記も `.kasc + DATA/` に統一
+
 ## [3.31.0] - 2026-10-26 emit_zip 追加＋連携構成図のパッケージ流れを修正
 
 - `kasugai_export.py` / `bridge.py`（`kasugaiExport`）に `emit_zip` 追加:

@@ -34,6 +34,46 @@ GIS データの編集・スタイル設定は QGIS が最適な環境であり�
   受領履歴（`/received`）、Canvas `web/` の静的フォールバックを提供する。
   ※OGC サービス（WMS/WMTS/WFS）は v3.29.0 で廃止
 
+### 連携構成図
+
+```mermaid
+flowchart TB
+    QGIS["QGIS プロジェクト<br>レイヤ・スタイル(.qml)・レイヤツリー・視点・テーマ"]
+
+    subgraph GWBOX["geo_webview（QGIS プラグイン）"]
+        direction LR
+        subgraph FNC["QGIS内蔵HTTPサーバー"]
+            GW["エクスポート<br>.kasc + DATA/ + &lt;engine&gt;.html"]
+            SRV["内蔵 HTTP サーバー localhost:8089"]
+        end
+        ZIP["kasugai_canvas.zip<br>.kasc + DATA/ + &lt;engine&gt;.html の一式"]
+    end
+
+    subgraph KCBOX["KASUGAI Canvas（主・統合プレイヤー）"]
+        direction TB
+        ENG["マルチエンジン<br>Cesium / MapLibre / OpenLayers / Leaflet"]
+        KCF["拡張機能: 登録・切替・rclone・<br>自動更新・.kasc 関連付け"]
+        ENG ~~~ KCF
+    end
+    subgraph WEBBOX["外部HTTPサーバー"]
+        WEB["GitHub Pages / Cloudflare / Vercel 等の静的ホスト"]
+    end
+    subgraph GHBOX["GitHub Pages"]
+        CDN["kasugai-canvas-web<br>4エンジンの CDN<br>GitHub Pages: stable/・unstable/"]
+    end
+    RE["Re:Earth Visualizer geo_suite（サブ）<br>kasugai_canvas.zip を CMS へアップロード →<br>インスペクタに CMS の URL を qgis: URL で指定"]
+
+    AG["ArcGIS 系<br>エクスポート物を独自に読込<br>（.qml スタイル再現・レイヤ表示も実装要件）<br>→ 外部静的ホストで配信"]
+
+    QGIS --> GWBOX
+    GW -.-> KCBOX
+    GW -.->|"パッケージを配置"| WEB
+    ENG -.-> WEB
+    ENG -.-> CDN
+    CDN -.-> FNC
+    ZIP --> RE
+```
+
 ### マルチエンジン
 
 同じ `.kasc`+`DATA/` を4つのエンジンで再生できます（`?engine=` または
@@ -112,33 +152,6 @@ Re:Earth Visualizer は **KASUGAI Canvas と同じ Cesium ベースのサブプ�
 - ③ ArcGIS のセキュリティ（管理環境）内でカスタム WebGIS を動かすなら Enterprise 11.0+ の ExB カスタムウィジェットが唯一の経路 — それ以外はすべて外部ホスト前提のモデルとなり、導入の意義がない
 
 詳細（読み込み側要件・ライセンス形態・最小構成・`arcgis:` 取り込みの注意点）: [geo_webview 連携方針（`INTEGRATION_JP.md`）](INTEGRATION_JP.md#arcgis)
-
-#### 連携構成図
-
-```mermaid
-flowchart TB
-    QGIS["QGIS プロジェクト<br>レイヤ・スタイル・視点"]
-
-    subgraph GWBOX["geo_webview（QGIS プラグイン）"]
-        GW["エクスポート<br>.kasc+DATA/・起動HTML・reearth.txt"]
-    end
-
-    subgraph PLAY["① エクスポート物の再生経路（3ルートとも同一パッケージ・マルチエンジン: Cesium / MapLibre / OpenLayers / Leaflet）"]
-        KC["KASUGAI Canvas（主・統合プレイヤー）<br>拡張機能: 登録・切替・rclone・<br>自動更新・.kasc 関連付け"]
-        BR["ブラウザで即表示（アプリ不要）<br>内蔵 HTTP サーバー localhost:8089 が<br>/export-data/ + /&lt;engine&gt;/ を配信"]
-        HOST["サーバレス WEB 配信（QGIS 不要）<br>.kasc+DATA/+エンジン一式を静的ホストへ<br>（ホスト版 kasugai-canvas-web 含む）"]
-    end
-
-    RE["Re:Earth Visualizer geo_suite（サブ）<br>reearth.txt・/export-data/・.qml"]
-    AG["ArcGIS 系<br>エクスポート物を独自に読込<br>（.qml スタイル再現・レイヤ表示も実装要件）<br>→ 外部静的ホストで配信"]
-
-    QGIS --> GW
-    GW -.-> KC
-    GW --> BR
-    GW -.-> HOST
-    GW --> RE
-    GW --> AG
-```
 
 ## サーバレス配信の流れ
 

@@ -37,6 +37,46 @@ result straight to the Web.
   (`/qgis-map` + legacy `/wms` links → External Control navigation), and
   a static fallback that serves an installed KASUGAI Canvas `web/`.
 
+### Integration architecture
+
+```mermaid
+flowchart TB
+    QGIS["QGIS project<br>layers / .qml styles / layer tree / view / themes"]
+
+    subgraph GWBOX["geo_webview (QGIS plugin)"]
+        direction LR
+        subgraph FNC["QGIS embedded HTTP server"]
+            GW["Export<br>.kasc + DATA/ + &lt;engine&gt;.html"]
+            SRV["Embedded HTTP server localhost:8089"]
+        end
+        ZIP["kasugai_canvas.zip<br>.kasc + DATA/ + &lt;engine&gt;.html bundle"]
+    end
+
+    subgraph KCBOX["KASUGAI Canvas (primary, unified player)"]
+        direction TB
+        ENG["Multi-engine<br>Cesium / MapLibre / OpenLayers / Leaflet"]
+        KCF["Extensions: register - switch - rclone -<br>auto-update - .kasc association"]
+        ENG ~~~ KCF
+    end
+    subgraph WEBBOX["External HTTP server"]
+        WEB["static hosting: GitHub Pages / Cloudflare / Vercel etc."]
+    end
+    subgraph GHBOX["GitHub Pages"]
+        CDN["kasugai-canvas-web<br>4-engine CDN<br>GitHub Pages: stable/ - unstable/"]
+    end
+    RE["Re:Earth Visualizer geo_suite (secondary)<br>upload kasugai_canvas.zip to a CMS →<br>set the CMS URL as the qgis: URL in the inspector"]
+
+    AG["ArcGIS family<br>reads export artifacts on its own<br>(.qml style reproduction + layer display are requirements)<br>→ delivered on external static hosting"]
+
+    QGIS --> GWBOX
+    GW -.-> KCBOX
+    GW -.->|"deploy package"| WEB
+    ENG -.-> WEB
+    ENG -.-> CDN
+    CDN -.-> FNC
+    ZIP --> RE
+```
+
 ### Multi-engine
 
 The same `.kasc`+`DATA/` plays on four engines (switch via `?engine=` or
@@ -137,33 +177,6 @@ Details: [geo_webview integration policy (`INTEGRATION.md`)](INTEGRATION.md#reea
 Details (reading-side requirements, licensing, minimum setup, and
 cautions for `arcgis:` ingestion): [geo_webview integration policy
 (`INTEGRATION.md`)](INTEGRATION.md#arcgis)
-
-#### Integration architecture
-
-```mermaid
-flowchart TB
-    QGIS["QGIS project<br>layers / styles / view state"]
-
-    subgraph GWBOX["geo_webview (QGIS plugin)"]
-        GW["Export<br>.kasc+DATA/ - launcher HTML - reearth.txt"]
-    end
-
-    subgraph PLAY["① Export playback routes (all three: same package - multi-engine: Cesium / MapLibre / OpenLayers / Leaflet)"]
-        KC["KASUGAI Canvas (primary, unified player)<br>extensions: register - switch - rclone -<br>auto-update - .kasc association"]
-        BR["Instant view in a browser (no app needed)<br>embedded HTTP server localhost:8089<br>serves /export-data/ + /&lt;engine&gt;/"]
-        HOST["Serverless web delivery (no QGIS needed)<br>.kasc+DATA/+engine bundle to a static host<br>(incl. hosted kasugai-canvas-web)"]
-    end
-
-    RE["Re:Earth Visualizer geo_suite (secondary)<br>reearth.txt - /export-data/ - .qml"]
-    AG["ArcGIS family<br>reads export artifacts on its own<br>(.qml style reproduction + layer display are requirements)<br>→ delivered on external static hosting"]
-
-    QGIS --> GW
-    GW -.-> KC
-    GW --> BR
-    GW -.-> HOST
-    GW --> RE
-    GW --> AG
-```
 
 ## Serverless delivery flow
 
