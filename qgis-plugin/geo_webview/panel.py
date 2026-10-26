@@ -108,6 +108,8 @@ class GeoWebViewPanel(QDockWidget):
         self.pushButton_kasugai_outdir_reset = getattr(self.ui, 'pushButton_kasugai_outdir_reset', None)
         self._kasugai_outdir_path = ''
         self.comboBox_engine = getattr(self.ui, 'comboBox_engine', None)
+        # CDN(ホスト版エンジン)選択コンボ(▶ WebView のチャンネル)
+        self.comboBox_hosted = getattr(self.ui, 'comboBox_hosted', None)
         # HTTP server toggle checkbox (added to UI)
         self.checkBox_server_toggle = getattr(self.ui, 'checkBox_server_toggle', None)
         # External control checkbox (new in UI)
@@ -207,9 +209,8 @@ class GeoWebViewPanel(QDockWidget):
         # タブタイトル
         if getattr(self.ui, 'tabWidget_main', None) is not None:
             for _name, _text in (
-                    ('tab_generate', "Generate"),
+                    ('tab_theme', "Theme"),
                     ('tab_permalink', "Permalink"),
-                    ('tab_navigate', "Navigate"),
                     ('tab_share', "Share")):
                 _page = getattr(self.ui, _name, None)
                 if _page is not None:
@@ -235,6 +236,11 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.label_webdist_info.setText(QCoreApplication.translate('geo_webview', "Export the project as a .kasc+DATA/ package. Engine launcher HTMLs and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery."))
         if hasattr(self.ui, 'label_engine'):
             self.ui.label_engine.setText(QCoreApplication.translate('geo_webview', "Engine:"))
+        if hasattr(self.ui, 'label_hosted'):
+            self.ui.label_hosted.setText(QCoreApplication.translate('geo_webview', "CDN:"))
+        if hasattr(self.ui, 'comboBox_hosted'):
+            self.ui.comboBox_hosted.setToolTip(QCoreApplication.translate('geo_webview',
+                "Hosted engine channel used by ▶ WebView — 'stable'/'unstable' (kasugai-canvas-web stages) or a custom base URL ending with '/'"))
         if hasattr(self.ui, 'label_generate_info'):
             self.ui.label_generate_info.setText(QCoreApplication.translate('geo_webview', "Generate a permalink for the current map view"))
         if hasattr(self.ui, 'label_theme_selection'):
@@ -255,7 +261,7 @@ class GeoWebViewPanel(QDockWidget):
         if hasattr(self.ui, 'pushButton_kasugai_launch_hosted'):
             self.ui.pushButton_kasugai_launch_hosted.setText(QCoreApplication.translate('geo_webview', "▶ WebView"))
             self.ui.pushButton_kasugai_launch_hosted.setToolTip(QCoreApplication.translate('geo_webview',
-                "Open via serverless WEB delivery — hosted engine (GitHub Pages) + this server's data delivery (no Canvas install needed; requires internet + HTTP server running)"))
+                "Open via serverless WEB delivery — hosted engine (GitHub Pages, channel = CDN combo) + this server's data delivery (no Canvas install needed; requires internet + HTTP server running)"))
         if hasattr(self.ui, 'comboBox_engine'):
             self.ui.comboBox_engine.setToolTip(QCoreApplication.translate(
                 'geo_webview',
@@ -383,15 +389,18 @@ class GeoWebViewPanel(QDockWidget):
         super().resizeEvent(event)
         self._refresh_kasugai_outdir()
 
-    def update_server_status(self, port, running):
+    def update_server_status(self, port, running, network_url=None):
         """サーバーステータスを更新
 
         Args:
             port: サーバーポート番号
             running: サーバーが実行中かどうか
+            network_url: LAN内の他マシンからアクセス可能なURL(あれば併記)
         """
         if running:
             status_text = QCoreApplication.translate('geo_webview', "HTTP Server: Running on http://localhost:{0}").format(port)
+            if network_url:
+                status_text += f" / {network_url}"
             style = "color: green; font-weight: bold;"
         else:
             status_text = QCoreApplication.translate('geo_webview', "HTTP Server: Stopped")

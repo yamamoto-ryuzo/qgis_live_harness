@@ -235,7 +235,7 @@ inside the HTML for custom layouts).
 |---|---|---|
 | `kasugai` | Canvas local server running (default port 8510) | `http://localhost:8510/<engine>/?project=<id>` |
 | `qgis-http` | Canvas installed but not running | this server serves `<install>/web/` statically + `/export-data/` for data |
-| `hosted` | Canvas not installed (needs internet) | hosted engine (kasugai-canvas-web / GitHub Pages, channel = `kasugai_hosted_channel` setting) + `/export-data/` |
+| `hosted` | Canvas not installed (needs internet) | hosted engine (kasugai-canvas-web / GitHub Pages, channel = `kasugai_hosted_channel` setting, selectable in the panel `CDN:` combo) + `/export-data/` |
 | `null` | none available | export only (open the `.kasc` manually) |
 
 ### 4. Publishing serverlessly
@@ -257,8 +257,8 @@ server — serverless `.kasc`+`DATA/` packages are the delivery unit.
 | `/kasugai` | `.kasc`+`DATA/` export + registration (`?engine=` selects the launch engine, `?install=1` fetches Canvas when missing) |
 | `/export-data/<rel>` | Serves the latest export artifacts (.kasc+DATA/ etc.) |
 | `/<engine>/` | Static fallback serving the installed KASUGAI Canvas `web/` |
-| `/present` | Presentation page that window-shares the QGIS canvas via periodic `/screenshot` |
-| `/screenshot` | PNG of the current canvas (rotation applied; `w`/`h` size params) |
+| `/present` | Presentation page that window-shares the QGIS canvas (OpenLayers-based; per-viewer zoom/pan/rotate) |
+| `/screenshot` | PNG of the current canvas (rotation applied; `w`/`h` size params; `extent`/`screen`/`bbox`/`rot` params; `X-Map-Extent`/`X-Map-Corners` response headers) |
 | `/present/state` | Canvas state JSON (for Canvas follow mode) |
 | `/received` | Received permalink history JSON |
 | `/qgis-map` | Permalink path (no page returned — used for reception/navigation; legacy `/wms` permalinks are also accepted) |
@@ -302,9 +302,9 @@ Windows example path:
 | `/kasugai` | JSON | Export & register to KASUGAI Canvas (`?engine=` selects the launch engine, `?install=1` fetches it when missing) |
 | `/export-data/<rel>` | file | Serves export artifacts (.kasc/DATA/) |
 | `/<engine>/` | HTML | Static fallback serving the installed Canvas `web/` |
-| `/present` | HTML | Presentation window-share page |
+| `/present` | HTML | Presentation window-share page (OpenLayers; per-viewer zoom/rotate) |
 | `/present/state` | JSON | Canvas state (follow mode) |
-| `/screenshot` | PNG | Current canvas image |
+| `/screenshot` | PNG | Current canvas image (`extent`/`screen`/`bbox`/`rot` for zoom regions) |
 | `/received` | JSON | Received permalink history |
 | `/qgis-map` | permalink | Permalink path (no page returned — used for reception/navigation; legacy `/wms` permalinks are also accepted) |
 

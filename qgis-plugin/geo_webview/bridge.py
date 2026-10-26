@@ -233,9 +233,43 @@ class GeoWebViewBridge:
             "description":
                 "設定を変更する。対応キー: kasugai_output_path /"
                 " kasugai_install_path / kasugai_port /"
-                " kasugai_hosted_channel / port。",
+                " kasugai_hosted_channel / kasugai_engine /"
+                " mac_auth_enabled / mac_auth_allowed / port。",
             "example": {"method": "setSettings",
                         "args": [{"kasugai_port": 8510}]},
+        },
+        "openExportFolder": {
+            "description":
+                "KASUGAI出力フォルダ(.kasc+DATA/の出力先)を"
+                "OSのファイルマネージャで開く。",
+            "example": {"method": "openExportFolder", "args": []},
+        },
+        "openPresent": {
+            "description":
+                "キャンバス画面共有ページ(/present)をブラウザで開く"
+                "(要HTTPサーバ起動。未起動なら自動起動しない)。"
+                "返すurlは共有前提のLAN IP優先(localhostへフォールバック)。",
+            "example": {"method": "openPresent", "args": []},
+        },
+        "receivedHistory": {
+            "description":
+                "受領パーマリンク履歴(/received。外部から送信された"
+                "パーマリンクURLの履歴、最新10件)を返す。",
+            "example": {"method": "receivedHistory", "args": []},
+        },
+        "addFirewallRule": {
+            "description":
+                "Windowsファイアウォールに受信ルールを追加する。"
+                "管理者権限が必要でUAC昇格ダイアログが出る場合がある"
+                "(port省略時は現在のサーバポート)。",
+            "example": {"method": "addFirewallRule", "args": [8089]},
+        },
+        "macAuth": {
+            "description":
+                "MACアドレス認証を取得/設定する。enabled=True/False、"
+                "allowed=許可MACアドレス文字列。",
+            "example": {"method": "macAuth",
+                        "args": [True, "AA-BB-CC-00-11-22"]},
         },
     }
 
@@ -288,7 +322,9 @@ class GeoWebViewBridge:
             return
         try:
             port = server.get_server_port() or server.server_port
-            panel.update_server_status(port, server.is_server_running())
+            panel.update_server_status(
+                port, server.is_server_running(),
+                network_url=server.get_network_url())
         except Exception:  # nosec B110  # 設計上の許容
             pass
 
@@ -400,6 +436,8 @@ class GeoWebViewBridge:
                 "preferred_port": getattr(server, "preferred_port", None),
                 "base_url": (f"http://localhost:{port}"
                              if server_running and port else None),
+                "network_url": (server.get_network_url()
+                                if server is not None else None),
             },
             "canvas": self._canvas_state(),
             "fields": fields,
@@ -455,6 +493,7 @@ class GeoWebViewBridge:
             "port": port,
             "preferred_port": getattr(server, "preferred_port", None),
             "localhost_url": (f"http://localhost:{port}" if port else None),
+            "network_url": server.get_network_url(),
         }
         if deep:
             try:
@@ -490,7 +529,11 @@ class GeoWebViewBridge:
                              f"(preferred_port={server.preferred_port})")
         return self._ok({"running": True,
                          "port": server.get_server_port(),
-                         "url": f"http://localhost:{server.get_server_port()}"})
+                         "url": (server.get_network_url() or
+                                 f"http://localhost:{server.get_server_port()}"),
+                         "localhost_url":
+                             f"http://localhost:{server.get_server_port()}",
+                         "network_url": server.get_network_url()})
 
     def stopServer(self):
         """HTTPサーバを停止する。"""
@@ -1072,8 +1115,10 @@ class GeoWebViewBridge:
         if server is None:
             return self._err("server_manager not initialized")
         port = server.get_server_port()
-        base = f"http://localhost:{port}" if port else \
+        localhost_base = f"http://localhost:{port}" if port else \
             f"http://localhost:{getattr(server, 'preferred_port', 8089)}"
+        # 共有前提のためLAN IP優先(localhostへフォールバック)
+        base = server.get_network_url() or localhost_base
         eps = [
             {"path": "/kasugai",
              "url": f"{base}/kasugai?engine=cesium|openlayers|maplibre|leaflet",
@@ -1095,7 +1140,10 @@ class GeoWebViewBridge:
              "description": "受領パーマリンク履歴JSON"},
         ]
         return self._ok({"running": server.is_server_running(),
-                         "port": port, "endpoints": eps})
+                         "port": port, "base_url": base,
+                         "localhost_url": localhost_base,
+                         "network_url": server.get_network_url(),
+                         "endpoints": eps})
 
     # ---------- 設定 ----------
 
@@ -1120,6 +1168,9 @@ class GeoWebViewBridge:
                 kasugai_export.get_hosted_channel(),
             "kasugai_hosted_base":
                 kasugai_export.hosted_engine_base(),
+            "kasugai_engine": s.value("kasugai_engine", "cesium"),
+            "mac_auth_enabled": s.value("mac_auth_enabled", "false"),
+            "mac_auth_allowed": s.value("mac_auth_allowed", ""),
             "preferred_port": getattr(server, "preferred_port", None),
             "plugin_dir": getattr(self._plugin, "plugin_dir", None),
         })
@@ -1140,18 +1191,59 @@ class GeoWebViewBridge:
         from qgis.PyQt.QtCore import QSettings
         settings = dict(settings or {})
         allowed = {"port", "kasugai_output_path", "kasugai_port",
-                   "kasugai_install_path", "kasugai_hosted_channel"}
+                   "kasugai_install_path", "kasugai_hosted_channel",
+                   "kasugai_engine", "mac_auth_enabled", "mac_auth_allowed"}
         unknown = [k for k in settings if k not in allowed]
         if unknown:
             return self._err(f"unknown keys: {unknown} "
                              f"(allowed: {sorted(allowed)})")
         s = QSettings("GeoWebView", "geo_webview")
         applied = {}
+        if "kasugai_engine" in settings:
+            eng = str(settings["kasugai_engine"]).strip().lower()
+            from . import kasugai_export as _ke
+            if _ke.normalize_engine(eng) is None:
+                return self._err(
+                    f"invalid kasugai_engine: {eng!r} "
+                    "(cesium/openlayers/maplibre/leaflet)")
+            s.setValue("kasugai_engine", _ke.normalize_engine(eng))
+            applied["kasugai_engine"] = _ke.normalize_engine(eng)
+            panel = self._panel()
+            combo = getattr(panel, "comboBox_engine", None) if panel else None
+            if combo is not None:
+                try:
+                    combo.blockSignals(True)
+                    combo.setCurrentIndex(
+                        max(0, combo.findData(applied["kasugai_engine"])))
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+                finally:
+                    try:
+                        combo.blockSignals(False)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
         for key in ("kasugai_output_path", "kasugai_install_path",
-                    "kasugai_hosted_channel"):
+                    "kasugai_hosted_channel", "mac_auth_allowed"):
             if key in settings:
                 s.setValue(key, str(settings[key]))
                 applied[key] = str(settings[key])
+        if "mac_auth_enabled" in settings:
+            v = 'true' if bool(settings["mac_auth_enabled"]) else 'false'
+            s.setValue("mac_auth_enabled", v)
+            applied["mac_auth_enabled"] = bool(settings["mac_auth_enabled"])
+            panel = self._panel()
+            cb = getattr(panel, "checkBox_mac_auth", None) if panel else None
+            if cb is not None:
+                try:
+                    cb.blockSignals(True)
+                    cb.setChecked(applied["mac_auth_enabled"])
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+                finally:
+                    try:
+                        cb.blockSignals(False)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
         if "kasugai_port" in settings:
             try:
                 kp = int(settings["kasugai_port"])
@@ -1169,3 +1261,104 @@ class GeoWebViewBridge:
             applied["port"] = r.get("preferred_port")
             applied["server_restarted"] = r.get("restarted")
         return self._ok({"applied": applied})
+
+    # ---------- フォルダ / present / 受領履歴 / MAC認証 ----------
+
+    def openExportFolder(self):
+        """KASUGAI出力フォルダをOSのファイルマネージャで開く。"""
+        from qgis.PyQt.QtCore import QUrl
+        from qgis.PyQt.QtGui import QDesktopServices
+        from . import kasugai_export
+        out_dir = kasugai_export.preferred_output_dir()
+        os.makedirs(out_dir, exist_ok=True)
+        QDesktopServices.openUrl(
+            QUrl.fromLocalFile(os.path.abspath(out_dir)))
+        return self._ok({"dir": out_dir})
+
+    def openPresent(self):
+        """キャンバス画面共有ページ(/present)をブラウザで開く。
+
+        共有前提のため返すurlはLAN IP優先(localhostへフォールバック)。
+        """
+        server = self._server()
+        if server is None or not server.is_server_running():
+            return self._err("http server is not running "
+                             "(call startServer first)")
+        port = server.get_server_port() or 8089
+        url = server.get_network_url('/present') or \
+            f"http://localhost:{port}/present"
+        self._open_url(url)
+        return self._ok({"url": url,
+                         "localhost_url": f"http://localhost:{port}/present",
+                         "opened": True})
+
+    def receivedHistory(self):
+        """受領パーマリンク履歴(最新10件)を返す。"""
+        server = self._server()
+        if server is None:
+            return self._err("server_manager not initialized")
+        entries = list(getattr(server, "received_history", []) or [])
+        return self._ok({"received": _jsonable(entries)})
+
+    def addFirewallRule(self, port=None):
+        """Windowsファイアウォールに受信ルールを追加する。
+
+        管理者権限が必要。request_elevation=True のため
+        UAC昇格ダイアログがユーザーに表示される場合がある。
+        """
+        server = self._server()
+        if server is None:
+            return self._err("server_manager not initialized")
+        if port is None:
+            port = server.get_server_port() or \
+                getattr(server, "preferred_port", 8089)
+        try:
+            port = int(port)
+        except Exception:
+            return self._err(f"invalid port: {port!r}")
+        result = server.add_firewall_rule(port, request_elevation=True)
+        if result.get("success"):
+            return self._ok({"port": port,
+                             "message": result.get("message")})
+        out = {"ok": False,
+               "error": result.get("message") or "failed",
+               "admin_required": bool(result.get("admin_required")),
+               "command": result.get("command")}
+        return json.dumps(out, ensure_ascii=False)
+
+    def macAuth(self, enabled=None, allowed=None):
+        """MACアドレス認証を取得/設定する。"""
+        from qgis.PyQt.QtCore import QSettings
+        s = QSettings('GeoWebView', 'geo_webview')
+        if enabled is not None:
+            s.setValue('mac_auth_enabled',
+                       'true' if bool(enabled) else 'false')
+            panel = self._panel()
+            cb = getattr(panel, "checkBox_mac_auth", None) \
+                if panel else None
+            if cb is not None:
+                try:
+                    cb.blockSignals(True)
+                    cb.setChecked(bool(enabled))
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+                finally:
+                    try:
+                        cb.blockSignals(False)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+        if allowed is not None:
+            s.setValue('mac_auth_allowed', str(allowed))
+            panel = self._panel()
+            le = getattr(panel, "lineEdit_mac_auth", None) \
+                if panel else None
+            if le is not None:
+                try:
+                    le.setText(str(allowed))
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+        cur_enabled = str(s.value(
+            'mac_auth_enabled', 'false')).lower() in ('1', 'true', 'yes', 'on')
+        return self._ok({
+            "enabled": cur_enabled,
+            "allowed": str(s.value('mac_auth_allowed', '') or '')})

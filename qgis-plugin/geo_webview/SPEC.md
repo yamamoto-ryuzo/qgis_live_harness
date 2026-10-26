@@ -27,7 +27,7 @@ Purpose and scope
 
 Common behavior:
 - The server attempts ports in the default range `8089-8099` to bind.
-- When exposing externally, bind host to `0.0.0.0` is supported, but operating behind a firewall/reverse-proxy is recommended for production.
+- The server binds to `0.0.0.0`, so LAN sharing is a designed use case. URLs shown to the user — the Presentation Share button, the panel server-status label, the server-start message, and bridge `openPresent`/`serverStatus`/`startServer` responses (`network_url`) — prefer `http://<LAN-IP>:<port>` so external PCs can connect directly; `localhost` is only the fallback when no LAN IP is found. The share button also copies the URL to the clipboard. If an external PC cannot reach the port, use Check Access diagnostics / the firewall-rule button.
 
 3. Permalink format and parameters
 Recommended fields
@@ -90,6 +90,7 @@ v3.30.0. Google Earth links now live on the KASUGAI Canvas side
 13. Rendering (`/screenshot`)
 - `/screenshot` renders the current canvas MapSettings via `QgsMapRendererParallelJob` (canvas rotation included).
 - Output size via `w`/`h` (clamped to 4096 px); rendering is serialized by `_render_lock` and times out after 30 s.
+- Viewer zoom (per-client, stateless): `extent=xmin,ymin,xmax,ymax` renders that canvas-CRS range (literal `setExtent`, for re-rendering a previous `X-Map-Extent`); `screen=xmin,ymin,xmax,ymax` renders the region the client wants on screen — under canvas rotation it is internally converted to the inverse-rotated bounding rect so the rotated image covers the requested screen area; `bbox=cx,cy,fw,fh` renders a fraction-of-image window (center `cx,cy`, size `fw,fh` in 0..1) of a base image — the canvas render by default, or `base=<extent>`+`bw`/`bh` for chained zoom; `rot=<deg>` overrides the render rotation (`rot=0` = north-up image). Response headers: `X-Map-Extent` (actual `setExtent` range) and `X-Map-Corners` (world coordinates of the image's TL/TR/BL corners). `/present` is an OpenLayers (bundled `vendor/ol`) page: renders are requested with `rot=0` and the canvas rotation is reproduced as view rotation, so all gestures stay consistent in the rotated frame; re-renders happen on `moveend`.
 
 14. CRS policy
 - `.kasc` vector exports are normalized to `EPSG:4326` (native GPKG/Parquet/FGB references are handled client-side).
@@ -145,7 +146,7 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 
 | 経路 | 呼び出し | 用途 |
 |---|---|---|
-| パネルボタン | `▶ Canvas` / `▶ WebView` ボタン (`plugin.py: on_kasugai_launch_clicked`) | 人手操作。パネルの `Engine:` コンボで起動エンジンを選択（QSettings `kasugai_engine` に保存）。`▶ Canvas`（route=`kasugai`）は**再エクスポートせず**既存の `.kasc` を登録・ブラウザ起動（未出力時はエクスポートを促すメッセージ）。`▶ WebView`（route=`hosted`）は bridge `kasugaiExport(open_app=True)` と同じく出力→フォールバック→ブラウザ起動まで行う |
+| パネルボタン | `▶ Canvas` / `▶ WebView` ボタン (`plugin.py: on_kasugai_launch_clicked`) | 人手操作。パネルの `Engine:` コンボで起動エンジンを選択（QSettings `kasugai_engine` に保存）。`▶ Canvas`（route=`kasugai`）は**再エクスポートせず**既存の `.kasc` を登録・ブラウザ起動（未出力時はエクスポートを促すメッセージ）。`▶ WebView`（route=`hosted`）は bridge `kasugaiExport(open_app=True)` と同じく出力→フォールバック→ブラウザ起動まで行う。`▶ WebView` 行の `CDN:` コンボ（編集可）でホスト版チャンネルを選択（`stable`/`unstable`/カスタムURL、QSettings `kasugai_hosted_channel` に保存・設定ダイアログと共通） |
 | パネルボタン | `Export` ボタン (`plugin.py: on_kasugai_export_clicked`) | 人手操作（ファイル出力のみ。Canvas 起動・登録はしない） |
 | HTTP | `GET http://localhost:8089/kasugai` (server_manager._handle_kasugai) | 外部アプリ・AI からの一発起動。`?engine=` で起動エンジン指定可。応答は `{ok,url,via,dir,layers,tiles,engine}` JSON |
 | Bridge | `bridge_call` の `kasugaiExport(output_dir, open_app, native_formats, hidden_as_off, embed_gpkg_style, emit_themes, emit_bookmarks, emit_launchers, engine, install, route, use_existing)` | Live Driver 経由の AI 制御（MCP `qgis_bridge_call` / REST `/api/cmd` / JSONL）。`use_existing=True` で再エクスポートせず既存の `.kasc` のみ使用（未出力なら `code=not_exported`） |
@@ -215,7 +216,8 @@ Canvas が使えない場合は次の順でフォールバックする
   の fetch は Chrome Private Network Access 対象のため、サーバーは
   `OPTIONS` プリフライトに `Access-Control-Allow-Private-Network: true` で
   応答する。チャンネルは設定 `kasugai_hosted_channel`
-  （`stable`/`unstable`/カスタムURL、既定 `stable`）
+  （`stable`/`unstable`/カスタムURL、既定 `stable`）で、
+  パネルの `CDN:` コンボまたは設定ダイアログから変更する
 - エンジン起動HTML は `HEAD` メソッドで `<engine>/index.html` を自動探索する
   ため、サーバーは `HEAD`（静的配信のみ）にも応答する
 

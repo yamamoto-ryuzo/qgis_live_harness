@@ -6,13 +6,33 @@ import urllib.parse
 import json
 import os
 import re
+import math
 import concurrent.futures
 from collections import deque
 from datetime import datetime
-from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY, QgsMessageLog, Qgis
+from qgis.PyQt.QtCore import QCoreApplication, QObject, QEvent
+from qgis.core import QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY, QgsMessageLog, Qgis, QgsRectangle
 from .i18n_json import lang_code
 # lazy import http_server inside methods to avoid circular import during QGIS plugin init
+
+
+class _CursorLeaveFilter(QObject):
+    """キャンバスからマウスが出たことを検出するイベントフィルタ。
+
+    xyCoordinates はキャンバス上の移動中のみ発火するため、退出検出には
+    QEvent.Leave を使う。
+    """
+    def __init__(self, on_leave):
+        super().__init__()
+        self._on_leave = on_leave
+
+    def eventFilter(self, obj, event):
+        try:
+            if event.type() == QEvent.Type.Leave:
+                self._on_leave()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        return False
 
 
 class GeoWebViewServerManager:
@@ -105,8 +125,32 @@ class GeoWebViewServerManager:
         # 独立レンダラ(QgsMapRendererParallelJob)の同時実行はQGISクラッシュを
         # 引き起こすため直列化する(/screenshot の複製描画で使用)
         self._render_lock = threading.Lock()
+        # キャンバス上のマウス最終位置(/present のカーソル誇張表示用)
+        self._cursor = None
+        try:
+            canvas = self.iface.mapCanvas()
+            canvas.xyCoordinates.connect(self._on_cursor_xy)
+            self._cursor_leave_filter = _CursorLeaveFilter(
+                self._clear_cursor)
+            canvas.installEventFilter(self._cursor_leave_filter)
+            vp = canvas.viewport()
+            if vp is not None:
+                vp.installEventFilter(self._cursor_leave_filter)
+        except Exception:
+            pass
         # KASUGAIエクスポートは同一出力先へ書き込むため同時実行を直列化する
         self._kasugai_lock = threading.Lock()
+
+    def _on_cursor_xy(self, point):
+        """キャンバス上のマウス移動(GUIスレッド)。最終位置を保持する。"""
+        try:
+            self._cursor = {'x': point.x(), 'y': point.y()}
+        except Exception:
+            self._cursor = None
+
+    def _clear_cursor(self):
+        """キャンバスからマウスが出たのでカーソル表示を消す。"""
+        self._cursor = None
 
     def _safe_int(self, value, default):
         """文字列から安全にintに変換する。NaNや不正値は default を返す。"""
@@ -191,10 +235,14 @@ class GeoWebViewServerManager:
             self.server_thread.start()
 
             from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(f"🚀 geo_webview v{self.plugin_version} HTTP server started: http://localhost:{self.server_port}", "geo_webview", Qgis.MessageLevel.Info)
+            lan_url = self.get_network_url()
+            url_desc = f"http://localhost:{self.server_port}" + (
+                f" / {lan_url}" if lan_url else "")
+            QgsMessageLog.logMessage(f"🚀 geo_webview v{self.plugin_version} HTTP server started: {url_desc}", "geo_webview", Qgis.MessageLevel.Info)
             self.iface.messageBar().pushMessage(
                 "QMap Permalink",
-                QCoreApplication.translate("geo_webview", "HTTP server started (port: {0})").format(self.server_port),
+                QCoreApplication.translate("geo_webview", "HTTP server started (port: {0})").format(self.server_port)
+                + (f"  {lan_url}" if lan_url else ""),
                 duration=3
             )
 
@@ -573,16 +621,17 @@ class GeoWebViewServerManager:
                         'text/plain; charset=utf-8')
                 return
 
-            # --- 静的ファイル配信: favicon.ico ---
+            # --- 静的ファイル配信: favicon.ico + /vendor/(同梱JSライブラリ) ---
             import os
             static_files = ["/favicon.ico"]
-            if parsed_url.path in static_files:
+            if (parsed_url.path in static_files
+                    or parsed_url.path.startswith('/vendor/')):
                 plugin_dir = os.path.dirname(os.path.abspath(__file__))
                 fname = parsed_url.path.lstrip("/")
-                fpath = os.path.join(plugin_dir, fname)
-                if os.path.exists(fpath):
-                    content_type = "image/x-icon" if fname.endswith(".ico") \
-                        else "application/octet-stream"
+                fpath = os.path.normpath(os.path.join(plugin_dir, fname))
+                if (os.path.isfile(fpath)
+                        and fpath.startswith(os.path.normpath(plugin_dir))):
+                    content_type = self._static_content_type(fpath)
                     with open(fpath, "rb") as f:
                         data = f.read()
                     http_server.send_binary_response(conn, 200, "OK", data, content_type)
@@ -774,24 +823,158 @@ class GeoWebViewServerManager:
                 x3857, y3857 = p3857.x(), p3857.y()
         except Exception:  # nosec B110  # 設計上の許容
             pass
+        mupp = 0.0
+        cw = ch = 0
+        try:
+            mupp = float(ms.mapUnitsPerPixel())
+            cw = int(canvas.width())
+            ch = int(canvas.height())
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
         return {
             'x': c.x(), 'y': c.y(), 'scale': scale, 'crs': crs_auth,
             'rotation': rotation, 'zoom': zoom,
             'lon': lon, 'lat': lat, 'x3857': x3857, 'y3857': y3857,
+            'mupp': mupp, 'width': cw, 'height': ch,
+            'cursor': self._cursor,
             'time': datetime.now().isoformat(timespec='seconds'),
         }
+
+    @staticmethod
+    def _parse_floats(text, count):
+        """'a,b,c,...' 形式のクエリ値を float リストへ変換する。
+
+        個数が一致し全て有限値ならリストを返し、それ以外は None。
+        """
+        if text is None:
+            return None
+        try:
+            values = [float(v) for v in str(text).split(',')]
+        except (TypeError, ValueError):
+            return None
+        if len(values) != count:
+            return None
+        for v in values:
+            if v != v or v in (float('inf'), float('-inf')):
+                return None
+        return values
+
+    @staticmethod
+    def _screen_region_to_extent(rect, rot_deg):
+        """回転 rot_deg の描画で、画面上に写したい領域 rect(キャンバスCRS)
+        が収まるよう setExtent に渡すべき軸平行矩形を返す。
+
+        mapToPixel のピクセル→地図座標変換は extent を中心に +rot_deg
+        (反時計回り)回転するため、頂点を逆回転した外接矩形を返す。
+        rect より若干大きい範囲になり得る(包含保証のための安全側)。
+        """
+        cx = rect.center().x()
+        cy = rect.center().y()
+        a = math.radians(-rot_deg)
+        ca, sa = math.cos(a), math.sin(a)
+        xs, ys = [], []
+        for x, y in (
+                (rect.xMinimum(), rect.yMinimum()),
+                (rect.xMaximum(), rect.yMinimum()),
+                (rect.xMaximum(), rect.yMaximum()),
+                (rect.xMinimum(), rect.yMaximum())):
+            dx, dy = x - cx, y - cy
+            xs.append(cx + dx * ca - dy * sa)
+            ys.append(cy + dx * sa + dy * ca)
+        return QgsRectangle(min(xs), min(ys), max(xs), max(ys))
+
+    @staticmethod
+    def _adjust_extent_to_aspect(rect, out_w, out_h):
+        """rect を out_w/out_h のアスペクト比へ拡張して合わせた QgsRectangle を返す。"""
+        if out_w <= 0 or out_h <= 0 or rect.width() <= 0 or rect.height() <= 0:
+            return rect
+        target = out_w / out_h
+        current = rect.width() / rect.height()
+        if abs(current - target) < 1e-9:
+            return rect
+        if current > target:
+            dh = rect.width() / target - rect.height()
+            rect.setYMinimum(rect.yMinimum() - dh / 2.0)
+            rect.setYMaximum(rect.yMaximum() + dh / 2.0)
+        else:
+            dw = rect.height() * target - rect.width()
+            rect.setXMinimum(rect.xMinimum() - dw / 2.0)
+            rect.setXMaximum(rect.xMaximum() + dw / 2.0)
+        return rect
 
     def _handle_screenshot(self, conn, params):
         """現在の地図キャンバス表示と同等内容のPNGを返す(回転も反映)。
 
         QgsMapRendererParallelJob でキャンバスのMapSettingsを複製描画するため
         GUIスレッドをブロックしない。w/h(またはwidth/height)で出力サイズ指定可。
+        視聴者側ズーム用に描画範囲を変えるパラメータを持つ:
+          extent=xmin,ymin,xmax,ymax ... キャンバスCRSの範囲を直接指定
+            (同一描画の再現用。回転はそのまま効く)
+          screen=xmin,ymin,xmax,ymax ... 画面上に見せたい領域をキャンバス
+            CRSで指定。回転時は写る範囲が矩形からずれるため、逆回転した
+            外接矩形へ内部変換して描画する(回転0では extent と同義)
+          bbox=cx,cy,fw,fh ... ベース画像(既定=現在のキャンバス描画)に対する
+            割合座標で、中心(cx,cy)と表示幅高(fw,fh,ともに0..1)を指定する。
+            base=xmin,ymin,xmax,ymax と bw,bh でベース画像を差し替えられる
+            (ズーム表示をさらに拡大・移動する継続操作用。base は直前の
+            X-Map-Extent 値、bw/bh はその画像のピクセルサイズ)。
+        応答ヘッダ:
+          X-Map-Extent ... 実際に setExtent した範囲(キャンバスCRS)
+          X-Map-Corners ... 描画画像の左上/右上/左下の実座標
+            (x,yを6値連結。回転時も画像の写る位置を正確に示す)
         """
         from . import http_server
         canvas = self.iface.mapCanvas()
         from qgis.core import QgsMapSettings
         from qgis.PyQt.QtCore import QSize, QBuffer, QIODevice, QByteArray
         ms = QgsMapSettings(canvas.mapSettings())
+
+        # --- 描画範囲の解決(既定はキャンバスそのまま) ---
+        rect = None
+        bbox = self._parse_floats(params.get('bbox', [None])[0], 4)
+        if bbox is not None:
+            cx, cy, fw, fh = bbox
+            if 0 < fw <= 1.0 and 0 < fh <= 1.0:
+                try:
+                    # ベース画像を再現する MapSettings を組み、ピクセル→
+                    # 地図座標の変換(mapToPixel=回転対応)で範囲を求める
+                    base_ms = QgsMapSettings(ms)
+                    base = self._parse_floats(
+                        params.get('base', [None])[0], 4)
+                    if base is not None:
+                        base_ms.setExtent(QgsRectangle(*base))
+                    bw0 = self._safe_int(params.get('bw', [0])[0], 0)
+                    bh0 = self._safe_int(params.get('bh', [0])[0], 0)
+                    if bw0 > 0 and bh0 > 0:
+                        base_ms.setOutputSize(QSize(bw0, bh0))
+                    w0 = base_ms.outputSize().width()
+                    h0 = base_ms.outputSize().height()
+                    if w0 > 0 and h0 > 0:
+                        ctr = base_ms.mapToPixel().toMapPoint(
+                            cx * w0, cy * h0)
+                        mupp = base_ms.mapUnitsPerPixel()
+                        wm = fw * w0 * mupp
+                        hm = fh * h0 * mupp
+                        rect = QgsRectangle(
+                            ctr.x() - wm / 2.0, ctr.y() - hm / 2.0,
+                            ctr.x() + wm / 2.0, ctr.y() + hm / 2.0)
+                except Exception as e:
+                    QgsMessageLog.logMessage(
+                        f'⚠️ screenshot bbox ignored: {e}',
+                        'geo_webview', Qgis.MessageLevel.Warning)
+        else:
+            ext = self._parse_floats(params.get('extent', [None])[0], 4)
+            if ext is not None and ext[2] > ext[0] and ext[3] > ext[1]:
+                rect = QgsRectangle(*ext)
+            else:
+                scr = self._parse_floats(
+                    params.get('screen', [None])[0], 4)
+                if scr is not None and scr[2] > scr[0] and scr[3] > scr[1]:
+                    rect = QgsRectangle(*scr)
+                    rot = ms.rotation()
+                    if abs(rot) > 1e-9:
+                        rect = self._screen_region_to_extent(rect, rot)
+
         w = self._safe_int(
             params.get('w', params.get('width', [0]))[0], 0)
         h = self._safe_int(
@@ -806,6 +989,15 @@ class GeoWebViewServerManager:
             w, h = 800, 600
         w = min(w, 4096)
         h = min(h, 4096)
+        if rect is not None:
+            ms.setExtent(self._adjust_extent_to_aspect(rect, w, h))
+        # rot=<deg>: 描画回転を明示(既定=キャンバス回転)。0 で北向き描画
+        rot_p = params.get('rot', [None])[0]
+        if rot_p is not None:
+            try:
+                ms.setRotation(float(rot_p))
+            except (TypeError, ValueError):
+                pass
         ms.setOutputSize(QSize(w, h))
         image = None
         try:
@@ -829,8 +1021,22 @@ class GeoWebViewServerManager:
             except Exception:  # nosec B110  # 設計上の許容
                 pass
         data = bytes(ba)
+        rendered = ms.extent()
+        # 画像コーナーの実座標(回転を含む描画位置の正確なアンカー用)
+        m2p = ms.mapToPixel()
+        c_tl = m2p.toMapPoint(0, 0)
+        c_tr = m2p.toMapPoint(w, 0)
+        c_bl = m2p.toMapPoint(0, h)
+        extra_headers = [
+            'X-Map-Extent: {:.6f},{:.6f},{:.6f},{:.6f}'.format(
+                rendered.xMinimum(), rendered.yMinimum(),
+                rendered.xMaximum(), rendered.yMaximum()),
+            'X-Map-Corners: {:.6f},{:.6f},{:.6f},{:.6f},{:.6f},{:.6f}'.format(
+                c_tl.x(), c_tl.y(), c_tr.x(), c_tr.y(), c_bl.x(), c_bl.y()),
+            'Access-Control-Expose-Headers: X-Map-Extent, X-Map-Corners',
+        ]
         http_server.send_binary_response(
-            conn, 200, 'OK', data, 'image/png')
+            conn, 200, 'OK', data, 'image/png', extra_headers)
 
     def _render_map_settings(self, map_settings, timeout_s=30):
         """QgsMapRendererParallelJob で map_settings を複製描画して QImage を返す。
@@ -860,55 +1066,239 @@ class GeoWebViewServerManager:
         return image
 
     def _handle_present_page(self, conn, params):
-        """地図キャンバスのウィンドウ共有ページ(/screenshot定期更新)を返す。"""
+        """地図キャンバスのウィンドウ共有ページ(/screenshot定期更新)を返す。
+
+        OpenLayers ビュー上に北向き描画画像を配置し、視聴者ごとに
+        ドラッグ/ホイール/ピンチ/回転(Alt+Shift+ドラッグ)等地図ライブラリ
+        標準操作で独立ズーム・移動・回転できる。キャンバス回転は
+        ビューの回転として再現されるため、QGIS と同じ見え方になる。
+        操作終了時(moveend)に /screenshot?extent=...&rot=0 で該当範囲を
+        サーバ再描画する。
+        """
         from . import http_server
         interval = self._safe_int(params.get('interval', [1500])[0], 1500)
         if interval < 250:
             interval = 250
         lang = lang_code() or 'en'
         html_page = u'''<!doctype html>
-<html lang="{lang}">
+<html lang="__LANG__">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="initial-scale=1"/>
 <title>geo_webview - Presentation</title>
+<link rel="stylesheet" href="vendor/ol/ol.css"/>
+<script src="vendor/ol/ol.js"></script>
 <style>
-html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family:sans-serif}}
-#wrap{{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}}
-#shot{{max-width:100%;max-height:100%}}
-#info{{position:fixed;left:0;right:0;bottom:0;padding:4px 10px;background:rgba(0,0,0,.55);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+html,body{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family:sans-serif;overflow:hidden}
+#map{position:fixed;inset:0;background:#111}
+.ol-viewport{background:#111}
+#info{position:fixed;left:0;right:0;bottom:0;padding:4px 10px;background:rgba(0,0,0,.55);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;z-index:2000}
+#hint{position:fixed;top:8px;left:10px;padding:2px 8px;background:rgba(0,0,0,.45);border-radius:4px;font-size:11px;opacity:.9;pointer-events:none;z-index:2000}
+/* ナビゲーションツールバー(KASUGAI Canvas OL版と同型の右上配置) */
+.navigation-toolbar{position:fixed;z-index:2000;top:14px;right:14px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:7px 5px;border:1px solid rgba(14,32,64,.12);border-radius:10px;background:rgba(255,255,255,.6);box-shadow:0 8px 18px rgba(10,20,40,.16)}
+.navigation-toolbar button{min-width:42px;min-height:29px;padding:5px 7px;border:1px solid rgba(0,0,0,.08);border-radius:7px;background:linear-gradient(#fff,#f1f4f8);color:#263643;cursor:pointer;font-size:13px}
+.navigation-toolbar button:hover{background:#e7f3f0}
+.compass-button{position:relative;width:64px;height:64px;min-width:64px !important;min-height:64px !important;border-radius:50% !important;transition:transform 180ms ease}
+.compass-button strong{position:absolute;left:50%;top:15px;transform:translateX(-50%);color:#222;font-size:19px}
+.compass-needle{position:absolute;left:50%;top:50%;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:27px solid #e33d3d;transform:translate(-7px,-27px);transform-origin:7px 27px}
+.compass-needle::after{content:"";position:absolute;left:0;top:27px;border-left:7px solid transparent;border-right:7px solid transparent;border-top:27px solid #a82020}
+/* ホバーヒント(コンパスはtransformで回転するため針と別の.nav-itemラッパーに置く) */
+.navigation-toolbar .nav-item{position:relative;display:flex}
+.navigation-toolbar .nav-hint{position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);padding:4px 8px;border-radius:6px;background:rgba(20,30,40,.85);color:#fff;font-size:11px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s}
+.navigation-toolbar .nav-item:hover .nav-hint,.navigation-toolbar .nav-item:focus-within .nav-hint{opacity:1}
+#reset{position:fixed;top:8px;right:10px;padding:6px 12px;background:rgba(0,0,0,.6);color:#fff;border:1px solid #777;border-radius:4px;font-size:12px;cursor:pointer;display:none;z-index:2000}
+#reset:hover{background:rgba(70,70,70,.8)}
 </style>
 </head>
 <body>
-<div id="wrap"><img id="shot" alt="loading..."/></div>
+<div id="map"></div>
+<div id="hint">drag / wheel / pinch: pan &amp; zoom&ensp;·&ensp;Alt+Shift+drag / compass: rotate&ensp;·&ensp;Esc / ⌂: reset</div>
+<aside class="navigation-toolbar" aria-label="Navigation">
+  <span class="nav-item"><button id="nav-compass" class="compass-button" type="button" title="Reset rotation to north"><span class="compass-needle"></span><strong>N</strong></button><span class="nav-hint" role="tooltip">Alt+Shift+drag to rotate</span></span>
+  <span class="nav-item"><button id="nav-home" type="button" title="Reset to shared view">⌂</button><span class="nav-hint" role="tooltip">Back to shared view</span></span>
+</aside>
 <div id="info">geo_webview presentation</div>
 <script>
-(function(){{
-  var img = document.getElementById('shot');
+(function(){
   var info = document.getElementById('info');
-  var timer = {interval};
-  function reload(){{
-    var im = new Image();
-    im.onload = function(){{ img.src = im.src; }};
-    im.src = 'screenshot?ts=' + Date.now();
-  }}
-  async function state(){{
-    try{{
+  var compass = document.getElementById('nav-compass');
+  var timer = __INTERVAL__;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  var proj = new ol.proj.Projection({code: 'canvas', units: 'm'});
+  var view = new ol.View({
+    projection: proj, center: [0, 0], resolution: 1, rotation: 0
+  });
+  var map = new ol.Map({
+    target: 'map',
+    controls: ol.control.defaults.defaults(
+      {zoom: false, rotate: false, attribution: false}),
+    interactions: ol.interaction.defaults.defaults(),
+    layers: [],
+    view: view
+  });
+  var imgLayer = new ol.layer.Image();
+  map.addLayer(imgLayer);
+
+  // --- プレゼンターのマウスカーソル(誇張表示) ---
+  var cursorFeature = new ol.Feature();
+  var cursorSvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">' +
+    '<path d="M5 3 L19 12 L12 13.8 L9 21 Z" fill="#ffdd00" stroke="#111" stroke-width="1.4"/></svg>';
+  var cursorLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({features: [cursorFeature]}),
+    style: new ol.style.Style({
+      image: new ol.style.Icon({
+        src: 'data:image/svg+xml;utf8,' + encodeURIComponent(cursorSvg),
+        anchor: [0.14, 0.08],
+        scale: 1.5
+      })
+    }),
+    updateWhileAnimating: true,
+    updateWhileInteracting: true
+  });
+  map.addLayer(cursorLayer);
+
+  var home = true;          // true=キャンバス共有ビュー追従中
+  var homeRes = 0;          // 追従時の解像度(倍率表示の基準)
+  var program = false;      // プログラム的なビュー移動中フラグ
+  var loading = false;
+  var dirty = false;
+  var gen = 0;              // reset毎に+1(飛行中レスポンスの破棄用)
+  var curUrl = null;        // revoke用objectURL
+  var renderTimer = null;
+  var stateText = '';
+
+  function updateHud(){
+    var z = '';
+    if(!home && homeRes > 0)
+      z = '   [zoom x' + (homeRes / view.getResolution()).toFixed(1) +
+          ' - independent view]';
+    info.textContent = stateText + z;
+  }
+  function setImage(d){
+    if(curUrl) URL.revokeObjectURL(curUrl);
+    curUrl = d.url;
+    imgLayer.setSource(new ol.source.ImageStatic({
+      url: d.url,
+      imageExtent: (d.extent && d.extent.length === 4) ?
+                   d.extent : d.requested,
+      projection: proj
+    }));
+  }
+  var reqExt = null;        // 直近リクエストの extent(ヘッダ欠落時の予備)
+  function loadImage(url, cb){
+    loading = true;
+    fetch(url).then(function(r){
+      if(!r.ok) throw new Error('http ' + r.status);
+      var ext = (r.headers.get('X-Map-Extent') || '').split(',').map(Number);
+      return r.blob().then(function(b){
+        cb({url: URL.createObjectURL(b), extent: ext, requested: reqExt});
+      });
+    }).catch(function(e){
+      // 失敗時は前の画像を保持
+    }).finally(function(){
+      loading = false;
+      if(dirty){ dirty = false; renderView(); }
+    });
+  }
+  // 現在のビュー領域を北向きでサーバ再描画して差し替える
+  function renderView(){
+    if(loading){ dirty = true; return; }
+    var size = map.getSize();
+    if(!size) return;
+    var ext = view.calculateExtent(size);
+    var w = Math.round(size[0] * dpr), h = Math.round(size[1] * dpr);
+    reqExt = ext;
+    var g = gen;
+    loadImage('screenshot?extent=' + ext.join(',') + '&rot=0' +
+              '&w=' + w + '&h=' + h + '&ts=' + Date.now(),
+      function(d){
+        if(g !== gen){ URL.revokeObjectURL(d.url); return; }
+        setImage(d);
+        updateHud();
+      });
+  }
+  function reset(){
+    gen++;
+    home = true;
+    dirty = false;
+    updateHud();
+    pollState(true);
+  }
+
+  // ユーザー操作で独立ビューへ移行(DOMイベントのみ判定。
+  // movestart はプログラム的移動でも非同期発火するため使わない)
+  function userMoved(){
+    if(home){ home = false; updateHud(); }
+  }
+  map.getTargetElement().addEventListener('pointerdown', userMoved);
+  map.getTargetElement().addEventListener('wheel', userMoved);
+  map.getTargetElement().addEventListener('touchstart', userMoved);
+  map.on('moveend', function(){
+    if(renderTimer) clearTimeout(renderTimer);
+    renderTimer = setTimeout(renderView, 150);
+  });
+  map.on('change:size', function(){ renderView(); });
+  document.getElementById('nav-home').addEventListener('click', reset);
+  compass.addEventListener('click', function(){
+    userMoved();
+    view.animate({rotation: 0, duration: 300});
+  });
+  view.on('change:rotation', function(){
+    compass.style.transform =
+      'rotateZ(' + (view.getRotation() * 180 / Math.PI) + 'deg)';
+  });
+  window.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' || e.key === '0') reset();
+    else if(e.key === '+' || e.key === '-' ||
+            e.key.indexOf('Arrow') === 0) userMoved();
+  });
+
+  // キャンバス状態の追従(home時)と情報表示
+  async function pollState(force){
+    try{
       var r = await fetch('present/state'); var s = await r.json();
-      if(s) info.textContent =
+      if(!s) return;
+      stateText =
         'center: ' + (s.lon!=null? s.lon.toFixed(6)+','+s.lat.toFixed(6) : s.x.toFixed(1)+','+s.y.toFixed(1)) +
         '  scale: 1:' + Math.round(s.scale) +
         '  rotation: ' + (s.rotation||0).toFixed(1) + '°  crs: ' + s.crs +
         '  (' + s.time + ')';
-    }}catch(e){{}}
-  }}
-  setInterval(reload, timer);
-  setInterval(state, timer);
-  reload(); state();
-}})();
+      if(s.cursor && s.cursor.x != null)
+        cursorFeature.setGeometry(
+          new ol.geom.Point([s.cursor.x, s.cursor.y]));
+      else
+        cursorFeature.setGeometry(null);
+      if(home && s.mupp > 0){
+        var rot = (s.rotation || 0) * Math.PI / 180;
+        var c = view.getCenter(), res = view.getResolution();
+        var moved = Math.abs(c[0]-s.x) + Math.abs(c[1]-s.y) > s.mupp
+          || Math.abs(res - s.mupp) > s.mupp * 1e-4
+          || Math.abs(view.getRotation() - rot) > 1e-5;
+        if(moved || force){
+          program = true;
+          view.setCenter([s.x, s.y]);
+          view.setResolution(s.mupp);
+          view.setRotation(rot);
+          program = false;
+          homeRes = s.mupp;
+        }
+      }
+      updateHud();
+    }catch(e){}
+  }
+  // カーソル追従は軽量な state ポーリングで高速化、再描画は interval 間隔
+  setInterval(pollState, 350);
+  setInterval(renderView, timer);
+  pollState(true); renderView();
+})();
 </script>
 </body>
-</html>'''.format(lang=lang, interval=interval)
+</html>'''
+        html_page = (html_page
+                     .replace('__LANG__', lang)
+                     .replace('__INTERVAL__', str(interval)))
         http_server.send_http_response(
             conn, 200, 'OK', html_page, 'text/html; charset=utf-8')
 
@@ -1372,6 +1762,23 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
     def get_server_port(self):
         """現在のサーバーポートを取得"""
         return self.server_port if self.is_server_running() else None
+
+    def get_local_ip(self):
+        """LAN内の他マシンから到達可能な自IPv4を返す(取得不能時は127.0.0.1)。"""
+        return self._guess_bind_ip()
+
+    def get_network_url(self, path=''):
+        """LAN内の他マシンからアクセス可能なURL(http://<LAN-IP>:<port><path>)を返す。
+
+        サーバ未起動またはLAN IPが取得できない(127.0.0.1)場合はNone。
+        """
+        port = self.get_server_port()
+        if not port:
+            return None
+        ip = self.get_local_ip()
+        if ip == '127.0.0.1':
+            return None
+        return f"http://{ip}:{port}{path}"
 
     def check_external_access(self):
         """外部からのアクセス可能性を診断

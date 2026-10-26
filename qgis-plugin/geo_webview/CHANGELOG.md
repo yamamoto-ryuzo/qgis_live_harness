@@ -11,6 +11,92 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.35.0] - 2026-10-27 パネルに CDN(ホスト版チャンネル)選択コンボを追加
+
+- Web Distribution パネルの起動行を2行化し、`▶ WebView` 行へ編集可の
+  `CDN:` コンボ(`comboBox_hosted`)を追加。`stable`/`unstable` または
+  末尾 `/` のカスタムベースURLを直接入力でき、選択は QSettings
+  `kasugai_hosted_channel` へ即時保存される(設定ダイアログと同じキー)
+- `▶ WebView`(route=`hosted`)だけでなく `auto` ルート・`/kasugai` の
+  hosted フォールバックも同じチャンネルを使うため、本コンボが
+  hosted 配信全体の CDN 選択として機能する
+- レイアウト: `Engine:` コンボ+`▶ Canvas` を1行目、`CDN:` コンボ+
+  `▶ WebView` を2行目とし、各セレクタと起動ボタンを1対1で対応付けた
+- i18n: `CDN:` ラベルと新ツールチップを9言語カタログへ登録
+
+## [3.34.2] - 2026-10-27 「パーマリンク」タブと「移動」タブを統合
+
+- パネルのタブ構成を「テーマ / パーマリンク / 移動 / 共有」から
+  「テーマ / パーマリンク / 共有」へ変更し、旧「移動」タブの
+  パーマリンク入力・貼り付け・移動ボタンを「パーマリンク」タブ内へ移設。
+  生成→URLコピー→貼り付け→移動が1タブで完結する
+- 統合タブはコンパクト表示: 生成URL欄とURLコピー、入力欄と
+  貼り付け/移動ボタンをそれぞれ1行にまとめ、ボタン高も縮小。
+  移動ブロック先頭の `label_navigate_info`
+  ("Enter a permalink to navigate")がセクション見出しを兼ねる
+  (ラベル文言は既存の翻訳カタログをそのまま利用)
+- ウィジェット名(`lineEdit_navigate`/`pushButton_paste`/`pushButton_navigate`)は
+  維持し、plugin.py/bridge.py からの既存参照は無変更
+
+## [3.34.1] - 2026-10-27 共有URLをLAN IP表示へ(外部PC接続を前提化)
+
+- 「プレゼン共有」ボタン・bridge `openPresent` が開くURLを
+  `http://localhost:<port>/present` から `http://<LAN-IP>:<port>/present` へ変更
+  (LAN IPが取れない環境ではlocalhostへフォールバック)。
+  開いたブラウザのアドレスバーがそのまま他PCへ伝達可能なURLになる。
+  起動時に共有URLをクリップボードへコピーし、messageBarにも表示する
+- パネルのサーバーステータスとサーバー起動時のログ/messageBarに
+  LAN URL(` / http://<LAN-IP>:<port>`)を併記
+- `server_manager` に `get_local_ip()`/`get_network_url(path)` を公開。
+  bridge `status`/`serverStatus`/`startServer`/`openPresent` の応答に
+  `network_url` を追加(openPresent/startServerの `url` はLAN IP優先)
+- 接続性自体は従来どおり 0.0.0.0 bind(LAN共有は本機能の仕様)。
+  外部PCから届かない場合は Check Access の診断と
+  ファイアウォールルール追加ボタンを利用
+- i18n: 9言語カタログに "Opened the presentation share page. Share URL
+  (copied to clipboard): {0}" を追加
+
+## [3.34.0] - 2026-10-27 プレゼン共有をOpenLayers化＋視聴者ごとの独立操作
+
+- /present: 表示をOpenLayers 10.11(同梱 vendor/ol)ベースへ刷新。
+  画面共有は全体範囲のまま、各視聴者がドラッグ/ホイール/ピンチ/
+  ダブルクリック/シフト範囲選択/Alt+Shift+ドラッグ回転等地図ライブラリ
+  標準操作で独立に拡大縮小・移動・回転できる
+  (Reset viewボタン・Esc/0キーで共有ビュー復帰)
+- キャンバス回転は/present/state経由でビューの回転として再現
+  (QGISと同じ見え方・全ジェスチャが回転座標系で整合)。
+  描画画像はrot=0の北向きレンダリングをImageStaticで配置
+- 操作終了時(moveend)のみサーバへ範囲指定の再描画を要求する
+  (_render_lock直列化のため描画回数を抑制)
+- /screenshot: 描画範囲指定パラメータを追加。
+  extent=xmin,ymin,xmax,ymax(setExtentリテラル値・同一描画の再現用)、
+  screen=xmin,ymin,xmax,ymax(画面上に見せたい領域。回転時は逆回転
+  外接矩形へ内部変換)、bbox=cx,cy,fw,fh(ベース画像比、base=/bw/bhで
+  継続ズーム)、rot=<deg>(描画回転の明示・0で北向き)。
+  応答ヘッダ X-Map-Extent(実描画範囲)と X-Map-Corners(画像コーナー
+  実座標)を返す。/present/state に mupp/width/height/cursor を追加
+- /present: プレゼンター側のマウス位置を誇張カーソル(大きな黄色矢印)
+  で表示。キャンバスの xyCoordinates シグナルを /present/state 経由で
+  350ms ポーリングし追従。画面右上は Canvas OL 版と同型の
+  ナビゲーションツールバー(コンパス=北リセット・⌂=共有ビュー復帰、
+  ホバーツールチップ付き)
+
+## [3.33.6] - 2026-10-27 「生成」タブを「テーマ」へ改名＋パーマリンク生成ボタンを移動
+
+- パネルの「生成」タブは実質テーマ選択/保存しか持たなかったため
+  「テーマ」タブへ改名(tab_generate→tab_theme)。
+  「パーマリンク生成」ボタンは「パーマリンク」タブの先頭へ移動し、
+  生成→URL表示→URLコピーが1タブで完結する配置にした
+- i18n: 9言語カタログに "Theme" 訳を追加
+
+## [3.33.5] - 2026-10-27 bridge経由のAI操作を全機能へ拡張
+
+- bridge.py: 出力フォルダ表示(openExportFolder)・画面共有ページ
+  (openPresent)・受領パーマリンク履歴(receivedHistory)・
+  ファイアウォールルール追加(addFirewallRule)・MAC認証(macAuth)を追加。
+  getSettings/setSettingsに kasugai_engine・mac_auth_enabled・
+  mac_auth_allowed キーを追加し、パネルの全操作をbridge_callから可能にした
+
 ## [3.33.4] - 2026-10-27 DATA/ ネイティブ複製の蓄積を解消
 
 - `_copy_to_data` の複製仕様を変更。旧仕様は宛先

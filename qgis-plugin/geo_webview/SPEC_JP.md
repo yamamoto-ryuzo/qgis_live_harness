@@ -28,7 +28,7 @@
 
 共通的な振る舞い:
 - サーバはデフォルトでポート範囲 8089-8099 を試行してバインドする。
-- 外部アクセスを許可する場合はホストを 0.0.0.0 にバインドするが、運用ではファイアウォールで制限推奨。
+- サーバは `0.0.0.0` にバインドし、LAN 共有は本機能の仕様。ユーザーへ見せるURL（プレゼン共有ボタン・パネルのサーバーステータス・起動時メッセージ・bridge `openPresent`/`serverStatus`/`startServer` の `network_url`）は外部PCが接続できるよう `http://<LAN-IP>:<port>` を優先表示し、LAN IP が取れない場合のみ `localhost` へフォールバックする。共有ボタンはURLをクリップボードへもコピーする。外部PCから届かない場合は Check Access 診断・ファイアウォールルール追加ボタンを使う。
 
 ---
 ## 3. パーマリンク形式とパラメータ
@@ -102,6 +102,25 @@ KASUGAI Canvas 側のベースマップコントロールが担う。
 契約（contract）:
 - 入力: `w`/`h`（または `width`/`height`）。省略時はキャンバスサイズ、上限 4096px。
 - 出力: 現在のキャンバス表示と同等の PNG（回転・縮尺・表示中レイヤを反映）。
+- 応答ヘッダ `X-Map-Extent`: 実際に setExtent した範囲（キャンバスCRS、
+  `xmin,ymin,xmax,ymax`）。`X-Map-Corners`: 画像の左上/右上/左下の実座標
+  （x,yを6値連結。回転時も画像の写る位置を正確に示す）。
+
+視聴者ズーム（クライアント単位・ステートレス）:
+- `extent=xmin,ymin,xmax,ymax` — setExtent リテラル値（直前の
+  X-Map-Extent で同一描画を再現する用途）。
+- `screen=xmin,ymin,xmax,ymax` — 画面上に見せたい領域。回転時は
+  逆回転した外接矩形へ内部変換して描画（回転0では extent と同義）。
+- `bbox=cx,cy,fw,fh` — ベース画像（既定=現在のキャンバス描画）に対する
+  割合座標で中心(cx,cy)・表示幅高(fw,fh、0..1)を指定して部分描画。
+  `base=<extent>`+`bw`/`bh` でベース画像を差し替え、ズーム表示を
+  さらに拡大・移動する継続操作ができる（中心計算は `mapToPixel` 経由で
+  回転に対応）。
+- `rot=<deg>` — 描画回転の明示指定（`rot=0` で北向き描画）。
+- `/present` は同梱OpenLayers(`vendor/ol`)ページ。描画は `rot=0` の
+  北向きレンダリングを ImageStatic で配置し、キャンバス回転は
+  `/present/state` 経由でビュー回転として再現するため、全ジェスチャが
+  回転座標系で整合する（再描画は `moveend` 時のみ要求）。
 
 実装:
 - キャンバスの `QgsMapSettings` を複製し `QgsMapRendererParallelJob` で描画する
@@ -129,7 +148,7 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 
 | 経路 | 呼び出し | 用途 |
 |---|---|---|
-| パネルボタン | `▶ Canvas` / `▶ WebView` ボタン (`plugin.py: on_kasugai_launch_clicked`) | 人手操作。パネルの `Engine:` コンボで起動エンジンを選択（QSettings `kasugai_engine` に保存）。`▶ Canvas`（route=`kasugai`）は**再エクスポートせず**既存の `.kasc` を登録・ブラウザ起動（未出力時はエクスポートを促すメッセージ）。`▶ WebView`（route=`hosted`）は bridge `kasugaiExport(open_app=True)` と同じく出力→フォールバック→ブラウザ起動まで行う |
+| パネルボタン | `▶ Canvas` / `▶ WebView` ボタン (`plugin.py: on_kasugai_launch_clicked`) | 人手操作。パネルの `Engine:` コンボで起動エンジンを選択（QSettings `kasugai_engine` に保存）。`▶ Canvas`（route=`kasugai`）は**再エクスポートせず**既存の `.kasc` を登録・ブラウザ起動（未出力時はエクスポートを促すメッセージ）。`▶ WebView`（route=`hosted`）は bridge `kasugaiExport(open_app=True)` と同じく出力→フォールバック→ブラウザ起動まで行う。`▶ WebView` 行の `CDN:` コンボ（編集可）でホスト版チャンネルを選択（`stable`/`unstable`/カスタムURL、QSettings `kasugai_hosted_channel` に保存・設定ダイアログと共通） |
 | パネルボタン | `Export` ボタン (`plugin.py: on_kasugai_export_clicked`) | 人手操作（ファイル出力のみ。Canvas 起動・登録はしない） |
 | HTTP | `GET http://localhost:8089/kasugai` (server_manager._handle_kasugai) | 外部アプリ・AI からの一発起動。`?engine=` で起動エンジン指定可。応答は `{ok,url,via,dir,layers,tiles,engine}` JSON |
 | Bridge | `bridge_call` の `kasugaiExport(output_dir, open_app, native_formats, hidden_as_off, embed_gpkg_style, emit_themes, emit_bookmarks, emit_launchers, engine, install, route, use_existing)` | Live Driver 経由の AI 制御（MCP `qgis_bridge_call` / REST `/api/cmd` / JSONL）。`use_existing=True` で再エクスポートせず既存の `.kasc` のみ使用（未出力なら `code=not_exported`） |
@@ -199,7 +218,8 @@ Canvas が使えない場合は次の順でフォールバックする
   の fetch は Chrome Private Network Access 対象のため、サーバーは
   `OPTIONS` プリフライトに `Access-Control-Allow-Private-Network: true` で
   応答する。チャンネルは設定 `kasugai_hosted_channel`
-  （`stable`/`unstable`/カスタムURL、既定 `stable`）
+  （`stable`/`unstable`/カスタムURL、既定 `stable`）で、
+  パネルの `CDN:` コンボまたは設定ダイアログから変更する
 - エンジン起動HTML は `HEAD` メソッドで `<engine>/index.html` を自動探索する
   ため、サーバーは `HEAD`（静的配信のみ）にも応答する
 

@@ -64,14 +64,22 @@ def send_http_response(conn, status_code, reason, body, content_type="text/plain
             pass
 
 
-def send_binary_response(conn, status_code, reason, data, content_type):
-    """Send a binary HTTP response (images, etc.)."""
+def send_binary_response(conn, status_code, reason, data, content_type, extra_headers=None):
+    """Send a binary HTTP response (images, etc.).
+
+    Args:
+        extra_headers: optional list of additional "Name: value" header lines
+    """
     try:
         header_lines = [
             f"HTTP/1.1 {status_code} {reason}",
             f"Content-Length: {len(data)}",
             f"Content-Type: {content_type}",
             "Access-Control-Allow-Origin: *",
+        ]
+        if extra_headers:
+            header_lines.extend(extra_headers)
+        header_lines += [
             "Connection: close",
             "",
             "",

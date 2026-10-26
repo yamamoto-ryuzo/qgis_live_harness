@@ -3,7 +3,7 @@ name = geo_webview
 qgisMinimumVersion = 4.0
 qgisMaximumVersion = 4.99
 description = Serverless web distribution of QGIS projects — export .kasc+DATA/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet); permalinks and an embedded HTTP server
-version = 3.33.4
+version = 3.35.0
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
 supportsQt6 = True
@@ -20,6 +20,10 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 3.34.2: 「パーマリンク」タブと「移動」タブを「パーマリンク」タブに統合(生成→URLコピー→貼り付け→移動が1タブで完結)
+	- 3.34.1: 共有URLをLAN IP表示へ変更。/present起動・サーバーステータス・起動メッセージが http://<LAN-IP>:<port> を優先表示し、共有URLをクリップボードへコピー(bridge は network_url を返却)。外部PCからの接続を前提とした表示に統一
+	- 3.34.0: /present をOpenLayers化し視聴者ごとの独立ズーム/パン/回転(キャンバス回転はビュー回転で再現、操作終了時にサーバ範囲描画)。/screenshot に extent/screen/bbox/rot パラメータと X-Map-Extent/X-Map-Corners ヘッダを追加
+	- 3.33.6: 「生成」タブを「テーマ」へ改名し、「パーマリンク生成」ボタンを「パーマリンク」タブへ移動(生成→URL表示→コピーが1タブで完結)
 	- 3.33.4: DATA/ へのネイティブ参照コピーを固定名へ変更(同一内容は再利用・異内容は上書き)。エクスポート毎に slug_N.* が複製蓄積していた問題を解消
 	- 3.33.3: 「▶ Canvas」はエクスポートせず既存の .kasc のみ登録・起動。未出力時はメッセージで Export を案内(bridge kasugaiExport に use_existing 追加)
 	- 3.33.2: パネルの Web Distribution グループを「保存行(Export＋保存先フォルダ名＋↺リセット＋📁)」と「起動行(Engine選択＋▶ WebView＋▶ Canvas)」の2行に整理(「Save to:」ラベル廃止)

@@ -213,7 +213,7 @@ HTML 内の `CANVAS_BASE` で指定）。
 |---|---|---|
 | `kasugai` | Canvas ローカルサーバー（既定 port 8510）稼働 | `http://localhost:8510/<engine>/?project=<id>` |
 | `qgis-http` | Canvas はインストール済みだが未起動 | 本サーバーが `<install>/web/` を静的配信＋`/export-data/` でデータ供給 |
-| `hosted` | Canvas 未インストール（要インターネット） | ホスト版エンジン（kasugai-canvas-web / GitHub Pages、チャンネルは設定の `kasugai_hosted_channel`）＋`/export-data/` |
+| `hosted` | Canvas 未インストール（要インターネット） | ホスト版エンジン（kasugai-canvas-web / GitHub Pages、チャンネルは設定の `kasugai_hosted_channel`・パネルの `CDN:` コンボでも選択可）＋`/export-data/` |
 | `null` | いずれも不可 | 出力のみ成功（`.kasc` を手動で開く） |
 
 ### 4. サーバレスとしての公開
@@ -232,9 +232,9 @@ QGIS 内で動く軽量 HTTP サーバー。配信パッケージのライブ参
 | `/kasugai` | .kasc+DATA/ エクスポート＋Canvas 登録・起動（`?engine=`・`?install=1`） |
 | `/export-data/<rel>` | 直近エクスポート物（.kasc/DATA/ 等）の配信 |
 | `/<engine>/` | インストール済み KASUGAI Canvas `web/` の静的配信フォールバック |
-| `/present` | プレゼン用ページ。`/screenshot` の定期更新で QGIS キャンバスをウィンドウ共有 |
+| `/present` | プレゼン用ページ。OpenLayers ベースで QGIS キャンバスをウィンドウ共有（視聴者ごとの独立ズーム/パン/回転、キャンバス回転も再現） |
 | `/present/state` | キャンバス状態 JSON（Canvas 側追従モード用） |
-| `/screenshot` | 現在のキャンバス表示の PNG（回転反映、`w`/`h` でサイズ指定可） |
+| `/screenshot` | 現在のキャンバス表示の PNG（回転反映、`w`/`h` でサイズ指定可。`extent`/`screen`/`bbox`/`rot` でズーム範囲描画、`X-Map-Extent`/`X-Map-Corners` 応答ヘッダ付き） |
 | `/received` | 受領パーマリンク履歴 |
 
 
@@ -279,9 +279,9 @@ QGIS 内で動く軽量 HTTP サーバー。配信パッケージのライブ参
 | `/kasugai` | JSON | KASUGAI Canvas へエクスポート・登録（`?engine=` で起動エンジン、`?install=1` で未インストール時の取得） |
 | `/export-data/<rel>` | file | エクスポート産物（.kasc/DATA/）の配信 |
 | `/<engine>/` | HTML | インストール済み Canvas `web/` の静的配信フォールバック |
-| `/present` | HTML | プレゼン用ウィンドウ共有ページ |
+| `/present` | HTML | プレゼン用ウィンドウ共有ページ（OpenLayers。視聴者ごとの独立ズーム/回転対応） |
 | `/present/state` | JSON | キャンバス状態（追従モード用） |
-| `/screenshot` | PNG | 現在のキャンバス画像 |
+| `/screenshot` | PNG | 現在のキャンバス画像（`extent`/`screen`/`bbox`/`rot` でズーム範囲指定可） |
 | `/received` | HTML | 受信パーマリンク履歴 |
 | `/qgis-map` | permalink | パーマリンクのパス（ページは返さず受領記録・ナビゲートに使う） |
 

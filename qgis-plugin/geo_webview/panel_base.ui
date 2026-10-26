@@ -162,12 +162,12 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_kasugai_launch_hosted">
+         <widget class="QPushButton" name="pushButton_kasugai_launch">
           <property name="text">
-           <string>&#9654; WebView</string>
+           <string>&#9654; Canvas</string>
           </property>
           <property name="toolTip">
-           <string>Open via serverless WEB delivery — hosted engine (GitHub Pages) + this server's data delivery (no Canvas install needed; requires internet + HTTP server running)</string>
+           <string>Open the exported project in KASUGAI Canvas (main integrated player) — registers the existing .kasc with a running Canvas (port 8510) and switches to it. Requires a prior export (Export button)</string>
           </property>
           <property name="minimumSize">
            <size>
@@ -177,13 +177,44 @@
           </property>
          </widget>
         </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_kasugai_hosted">
         <item>
-         <widget class="QPushButton" name="pushButton_kasugai_launch">
+         <widget class="QLabel" name="label_hosted">
           <property name="text">
-           <string>&#9654; Canvas</string>
+           <string>CDN:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox_hosted">
+          <property name="editable">
+           <bool>true</bool>
           </property>
           <property name="toolTip">
-           <string>Open the exported project in KASUGAI Canvas (main integrated player) — registers the existing .kasc with a running Canvas (port 8510) and switches to it. Requires a prior export (Export button)</string>
+           <string>Hosted engine channel used by ▶ WebView — 'stable'/'unstable' (kasugai-canvas-web stages) or a custom base URL ending with '/'</string>
+          </property>
+          <item>
+           <property name="text">
+            <string notr="true">stable</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">unstable</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_kasugai_launch_hosted">
+          <property name="text">
+           <string>&#9654; WebView</string>
+          </property>
+          <property name="toolTip">
+           <string>Open via serverless WEB delivery — hosted engine (GitHub Pages, channel = CDN combo) + this server's data delivery (no Canvas install needed; requires internet + HTTP server running)</string>
           </property>
           <property name="minimumSize">
            <size>
@@ -325,11 +356,11 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab_generate">
+     <widget class="QWidget" name="tab_theme">
       <attribute name="title">
-       <string>Generate</string>
+       <string>Theme</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_tab_generate">
+      <layout class="QVBoxLayout" name="verticalLayout_tab_theme">
        <item>
         <widget class="QLabel" name="label_theme_selection">
          <property name="text">
@@ -371,19 +402,6 @@
         </layout>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_generate">
-         <property name="text">
-          <string>Generate Permalink</string>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>30</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item>
         <spacer name="verticalSpacer_generate">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -404,17 +422,30 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_tab_permalink">
        <item>
-        <widget class="QLineEdit" name="lineEdit_permalink">
-         <property name="placeholderText">
-          <string>Generated permalink will appear here</string>
+        <widget class="QPushButton" name="pushButton_generate">
+         <property name="text">
+          <string>Generate Permalink</string>
          </property>
-         <property name="readOnly">
-          <bool>true</bool>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>24</height>
+          </size>
          </property>
         </widget>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_permalink">
+         <item>
+          <widget class="QLineEdit" name="lineEdit_permalink">
+           <property name="placeholderText">
+            <string>Generated permalink will appear here</string>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QPushButton" name="pushButton_copy">
            <property name="text">
@@ -423,7 +454,7 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>25</height>
+             <height>22</height>
             </size>
            </property>
           </widget>
@@ -431,27 +462,14 @@
         </layout>
        </item>
        <item>
-        <spacer name="verticalSpacer_permalink">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+        <widget class="QLabel" name="label_navigate_info">
+         <property name="text">
+          <string>Enter a permalink to navigate</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
+        </widget>
        </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_navigate">
-      <attribute name="title">
-       <string>Navigate</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_tab_navigate">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_navigate_input">
+        <layout class="QHBoxLayout" name="horizontalLayout_navigate">
          <item>
           <widget class="QLineEdit" name="lineEdit_navigate">
            <property name="placeholderText">
@@ -459,10 +477,6 @@
            </property>
           </widget>
          </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_navigate_buttons">
          <item>
           <widget class="QPushButton" name="pushButton_paste">
            <property name="text">
@@ -470,8 +484,8 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>60</width>
-             <height>25</height>
+             <width>40</width>
+             <height>22</height>
             </size>
            </property>
           </widget>
@@ -484,7 +498,7 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>30</height>
+             <height>22</height>
             </size>
            </property>
           </widget>
@@ -492,7 +506,7 @@
         </layout>
        </item>
        <item>
-        <spacer name="verticalSpacer_navigate">
+        <spacer name="verticalSpacer_permalink">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>

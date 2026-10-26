@@ -387,6 +387,23 @@ class GeoWebView:
                     except Exception:  # nosec B110  # 設計上の許容
                         pass
 
+                # CDN(ホスト版エンジン)選択コンボ: 前回値の復元と保存。
+                # ▶ WebView / auto・/kasugai の hosted フォールバックが使う
+                _hosted_combo = getattr(
+                    self.panel, 'comboBox_hosted', None)
+                if _hosted_combo is not None:
+                    try:
+                        from qgis.PyQt.QtCore import QSettings
+                        _saved = str(QSettings('GeoWebView', 'geo_webview').value(
+                            'kasugai_hosted_channel', '') or '').strip() or 'stable'
+                        _hosted_combo.blockSignals(True)
+                        _hosted_combo.setCurrentText(_saved)
+                        _hosted_combo.blockSignals(False)
+                        _hosted_combo.currentTextChanged.connect(
+                            self.on_hosted_combo_changed)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+
                 # Check Access ボタンのイベントを接続
                 if hasattr(self.panel, 'pushButton_check_access'):
                     self.panel.pushButton_check_access.clicked.connect(self.on_check_access_clicked)
@@ -430,7 +447,9 @@ class GeoWebView:
                 server_port = self.server_manager.get_server_port() or 8089
                 print(f"Server status: running={server_running}, port={server_port}")
                 print("Updating panel...")
-                self.panel.update_server_status(server_port, server_running)
+                self.panel.update_server_status(
+                    server_port, server_running,
+                    network_url=self.server_manager.get_network_url())
                 # パネルのトグルチェックボックスをサーバー制御に接続
                 try:
                     def _toggle_server(checked: bool):
@@ -448,7 +467,9 @@ class GeoWebView:
                                 self.server_manager.stop_http_server()
                             # 更新後の状態をラベルに反映
                             pr = self.server_manager.get_server_port() or 8089
-                            self.panel.update_server_status(pr, self.server_manager.is_server_running())
+                            self.panel.update_server_status(
+                                pr, self.server_manager.is_server_running(),
+                                network_url=self.server_manager.get_network_url())
                         except Exception as e:
                             print(f"Server toggle error: {e}")
 
@@ -492,7 +513,9 @@ class GeoWebView:
                                     self.server_manager.start_http_server(new_port)
                                     # 更新後の状態をパネルに反映
                                     pr = self.server_manager.get_server_port() or new_port
-                                    self.panel.update_server_status(pr, self.server_manager.is_server_running())
+                                    self.panel.update_server_status(
+                                        pr, self.server_manager.is_server_running(),
+                                        network_url=self.server_manager.get_network_url())
                             else:
                                 # サーバーが停止中の場合は、次回起動時に新しいポートを使用
                                 self.server_manager.preferred_port = new_port
@@ -1376,6 +1399,20 @@ class GeoWebView:
         except Exception:  # nosec B110  # 設計上の許容
             pass
 
+    def on_hosted_combo_changed(self, text):
+        """Web配信パネルのCDN(ホスト版チャンネル)選択を QSettings に保存する。
+
+        'stable'/'unstable' または末尾'/'のカスタムベースURLを取る。
+        hosted_engine_base() が起動時に読むため即時反映される。
+        """
+        try:
+            from qgis.PyQt.QtCore import QSettings
+            QSettings('GeoWebView', 'geo_webview').setValue(
+                'kasugai_hosted_channel',
+                str(text or '').strip() or 'stable')
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
     def on_kasugai_launch_clicked(self, route='auto'):
         """パネル版：選択エンジンで エクスポート→登録→ブラウザ起動 まで
         一発で行う。bridge の kasugaiExport(open_app=True) を利用する。
@@ -1450,7 +1487,11 @@ class GeoWebView:
                 duration=5)
 
     def on_present_clicked_panel(self):
-        """プレゼンテーション共有ページ(/present)をブラウザで開く。"""
+        """プレゼンテーション共有ページ(/present)をブラウザで開く。
+
+        共有前提のためLAN IPのURLを優先し、クリップボードへもコピーする
+        (LAN IPが取れない環境ではlocalhostへフォールバック)。
+        """
         try:
             if not self.server_manager.is_server_running():
                 self.iface.messageBar().pushMessage(
@@ -1459,11 +1500,17 @@ class GeoWebView:
                     duration=5)
                 return
             port = self.server_manager.get_server_port() or 8089
-            QDesktopServices.openUrl(
-                QUrl(f"http://localhost:{port}/present"))
+            url = self.server_manager.get_network_url('/present') or \
+                f"http://localhost:{port}/present"
+            QDesktopServices.openUrl(QUrl(url))
+            try:
+                QApplication.clipboard().setText(url)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
             self.iface.messageBar().pushMessage(
                 "geo_webview",
-                self.tr("Opened the presentation share page."), duration=3)
+                self.tr("Opened the presentation share page. Share URL (copied to clipboard): {0}").format(url),
+                duration=5)
         except Exception as e:
             self.iface.messageBar().pushMessage(
                 "geo_webview",
