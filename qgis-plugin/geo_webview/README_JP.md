@@ -42,14 +42,14 @@ flowchart TB
 
     subgraph GWBOX["geo_webview（QGIS プラグイン）"]
         direction LR
-        subgraph FNC["QGIS内蔵HTTPサーバー"]
-            GW["エクスポート<br>.kasc + DATA/ + &lt;engine&gt;.html"]
+        subgraph FNC["【▶ Local】"]
+            GW["【エクスポート】<br>.kasc + DATA/ + &lt;engine&gt;.html"]
             SRV["内蔵 HTTP サーバー localhost:8089"]
         end
-        ZIP["kasugai_canvas.zip<br>.kasc + DATA/ + &lt;engine&gt;.html の一式"]
+        ZIP["【エクスポート】<br>ZIP[.kasc + DATA/ + &lt;engine&gt;.html の一式]"]
     end
 
-    subgraph KCBOX["KASUGAI Canvas（主・統合プレイヤー）"]
+    subgraph KCBOX["【▶ Canvas】"]
         direction TB
         ENG["マルチエンジン<br>Cesium / MapLibre / OpenLayers / Leaflet"]
         KCF["拡張機能: 登録・切替・rclone・<br>自動更新・.kasc 関連付け"]
@@ -58,7 +58,7 @@ flowchart TB
     subgraph WEBBOX["外部HTTPサーバー"]
         WEB["GitHub Pages / Cloudflare / Vercel 等の静的ホスト"]
     end
-    subgraph GHBOX["GitHub Pages"]
+    subgraph GHBOX["【▶ Serverless】"]
         CDN["kasugai-canvas-web<br>4エンジンの CDN<br>GitHub Pages: stable/・unstable/"]
     end
     RE["Re:Earth Visualizer geo_suite（サブ）<br>kasugai_canvas.zip を CMS へアップロード →<br>インスペクタに CMS の URL を qgis: URL で指定"]
@@ -73,6 +73,16 @@ flowchart TB
     CDN -.-> FNC
     ZIP --> RE
 ```
+
+### 機能
+
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;パネルボタン&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 動作 |
+|---|---|
+| 【エクスポート】 | `.kasc + DATA/ + <engine>.html + index.html + kasugai_canvas.zip` を出力。**ファイル出力のみ**、起動・登録は行わない |
+| 【▶ Canvas】 | エクスポート → 稼働中の KASUGAI Canvas ローカルサーバー（:8510）へプロジェクト登録・表示切替・ブラウザ起動。インストール先登録済みなら `projects/<id>/` へ直出力。**Canvas 未起動時はフォールバックなし**（出力のみ） |
+| 【▶ Local】 | 内蔵 HTTP サーバー（:8089）が**ローカルインストール済みの Canvas `web/`** を `/<engine>/` で配信し、`/export-data/` でパッケージを供給して即表示。要: HTTP サーバー稼働 + Canvas `web/` のローカルインストール（kasugai-canvas-web ではない） |
+| 【▶ Serverless】 | ホスト版 `kasugai-canvas-web`（GitHub Pages CDN）のエンジンで開き、データは `:8089/export-data/` から供給。要インターネット・HTTP サーバー稼働（Canvas 未インストールでも可） |
+| 📁 | 出力フォルダを開く |
 
 ### マルチエンジン
 
@@ -136,12 +146,12 @@ QGIS からエクスポート/配信されたデータ・スタイルを取り�
 
 | 連携先 | 経路 | 連携の形 |
 |---|---|---|
-| **Re:Earth Visualizer（geo_suite）** | `reearth.txt` 出力・`/export-data/` | **サブ**（KASUGAI Canvas と同じ Cesium ベース）。下記「Re:Earth Visualizer（geo_suite）への対応方針」参照 |
+| **Re:Earth Visualizer（geo_suite）** | `kasugai_canvas.zip`（`qgis:` インスペクタ行で取込）・`/export-data/` | **サブ**（KASUGAI Canvas と同じ Cesium ベース）。下記「Re:Earth Visualizer（geo_suite）への対応方針」参照 |
 | **ArcGIS 系** | `.kasc`+`DATA/` ファイル受け渡し → ArcGIS 側（SDK）の独自実装を**外部静的ホストで配信**（GitHub Pages/Cloudflare/Vercel/自前サーバ等。ArcGIS Online 上では動作不可） | 下記「ArcGIS 系への対応方針」参照 |
 
 #### Re:Earth Visualizer（geo_suite）への対応方針
 
-Re:Earth Visualizer は **KASUGAI Canvas と同じ Cesium ベースのサブプレイヤー** として位置づけます。geo_webview は `reearth.txt`（inspector テキスト）出力と `/export-data/` 経由のファイル・`.qml` スタイル配信で供給し、QML→Re:Earth への変換はクライアント側（geo_suite 同梱のトランスレータ）が担います。3D 表現は Cesium ベースの KASUGAI Canvas（主）・Re:Earth Visualizer（サブ）に集約して開発します。
+Re:Earth Visualizer は **KASUGAI Canvas と同じ Cesium ベースのサブプレイヤー** として位置づけます。geo_webview は `kasugai_canvas.zip`（エクスポート一式）出力と `/export-data/` 経由のファイル・`.qml` スタイル配信で供給し、取込は geo_suite 側の `qgis:` インスペクタ行（ZIP の URL 指定）が担います。3D 表現は Cesium ベースの KASUGAI Canvas（主）・Re:Earth Visualizer（サブ）に集約して開発します。
 
 詳細: [geo_webview 連携方針（`INTEGRATION_JP.md`）](INTEGRATION_JP.md#reearth)
 
@@ -275,7 +285,7 @@ QGIS 内で動く軽量 HTTP サーバー。配信パッケージのライブ参
 
 ## KASUGAI Canvas エンジン比較
 
-KASUGAI Canvas の4エンジン（Cesium / OpenLayers / MapLibre / Leaflet）の機能比較です。`—` = 非対応、`△` = 部分的対応。すべてのエンジンが同じ `.kasc`+`DATA/` パッケージを読みます（`?engine=` または出力される `<engine>.html` で切替）。Re:Earth geo_suite は別クライアント（`reearth.txt` 経由）のため本表の対象外とし、QGIS 側の共通サービスは末尾にまとめています。
+KASUGAI Canvas の4エンジン（Cesium / OpenLayers / MapLibre / Leaflet）の機能比較です。`—` = 非対応、`△` = 部分的対応。すべてのエンジンが同じ `.kasc`+`DATA/` パッケージを読みます（`?engine=` または出力される `<engine>.html` で切替）。Re:Earth geo_suite は別クライアント（`kasugai_canvas.zip` 経由）のため本表の対象外とし、QGIS 側の共通サービスは末尾にまとめています。
 
 ### データ取り込み・レイヤー形式
 
@@ -370,7 +380,7 @@ KASUGAI Canvas の4エンジン（Cesium / OpenLayers / MapLibre / Leaflet）の
 
 - **視点の引き継ぎ**: `x,y,scale,rotation,crs`（または `lat,lon,zoom`、パーマリンク）で指定した表示状態を各エンジンで再現。`.kasc` の `cam:` 行として書き出す
 - **タイル行**: `.kasc` の `xyz:`/`base:`/`wms:`/`wmts:` 行としてタイル参照を引き継ぐ（外部タイルサービスを参照。geo_webview 自身のタイル配信は v3.29.0 で廃止）
-- **ベクターデータ**: 表示中レイヤを `DATA/` フォルダのファイルとして受け渡す（GPKG/GeoJSON/GeoParquet/FlatGeobuf は変換せずネイティブ参照。reearth.txt は `/export-data/` の URL を記述）
+- **ベクターデータ**: 表示中レイヤを `DATA/` フォルダのファイルとして受け渡す（GPKG/GeoJSON/GeoParquet/FlatGeobuf は変換せずネイティブ参照）
 - **スタイル引き継ぎ**: QGIS レンダラを `.qml` ファイルとして受け渡し、クライアント側でコンパイル（Cesium の entity/primitive 経路・Re:Earth のトランスレータ）
 - **クエリ系記述**: `/kasugai` はソースが許す範囲でクエリ系行を出力する — CSV/TSV（delimitedtext・ogr）は `duckdb:`（`format=`/`lon=`/`lat=`/`geom=`）、フィルタ付き GPKG は `gpkg:`+`where=`、フィルタ付き Parquet は `duckdb:`+`format=parquet`+`where=`。`sql:`（任意 SELECT）は QGIS に相当ソースが無いため出力しない。3D Tiles レイヤ（`QgsTiledSceneLayer`）は `3dtiles:`、ローカル XYZ テンプレート（`file:///…/{z}/{x}/{y}.png`）はタイルツリーごと `DATA/` へ複製。QGIS の WMS ラスタレイヤ（`type=xyz` 以外）は `wms:` 行（`layers=`/`styles=`/`format=` 付き）として出力し、Canvas 側が GetMap を 256px タイルへ分解して描画する
 - **追従モード**: `?follow`/`?present` 付きで開いた Canvas ページ（MapLibre/OpenLayers/Leaflet エンジン）は `/present/state` をポーリングし、QGIS キャンバスの移動にリアルタイム追従（プレゼン・画面共有用）

@@ -96,7 +96,7 @@ class SettingsDialog(QtWidgets.QDialog):
         hosted_group.setLayout(hosted_layout)
         layout.addWidget(hosted_group)
 
-        # Basemap group names (.kasc / reearth.txt export)
+        # Basemap group names (.kasc export)
         bm_group = QtWidgets.QGroupBox(
             QtCore.QCoreApplication.translate('geo_webview', "Basemap Groups"))
         bm_layout = QtWidgets.QVBoxLayout()

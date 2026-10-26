@@ -892,8 +892,7 @@ class GeoWebViewBridge:
                 emit_themes=bool(emit_themes),
                 emit_bookmarks=bool(emit_bookmarks),
                 emit_launchers=bool(emit_launchers),
-                emit_zip=bool(emit_zip),
-                reearth_port=port)
+                emit_zip=bool(emit_zip))
         except Exception as e:
             return self._err(f"kasugai export failed: {e}")
         out = {

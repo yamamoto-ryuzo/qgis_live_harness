@@ -1271,14 +1271,10 @@ class GeoWebView:
         Canvas 連携での起動は GET /kasugai / bridge kasugaiExport 経由。"""
         try:
             from . import kasugai_export
-            port = (self.server_manager.get_server_port()
-                    if self.server_manager
-                    and self.server_manager.is_server_running() else None)
             result = kasugai_export.export_kasugai_project(
                 self.iface,
                 out_dir=kasugai_export.preferred_output_dir(),
-                emit_zip=True,
-                reearth_port=port)
+                emit_zip=True)
             n_layers = len(result.get('layers') or [])
             n_tiles = len(result.get('tiles') or [])
             if not n_layers and not n_tiles:

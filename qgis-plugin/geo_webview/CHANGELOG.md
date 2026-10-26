@@ -11,6 +11,19 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.32.0] - 2026-10-26 reearth.txt 出力を廃止（kasugai_canvas.zip に統一）
+
+- `export_kasugai_project` から `reearth_port` 引数と `reearth.txt`
+  （Re:Earth inspector テキスト）生成を削除。`_write_reearth_txt` /
+  `_reearth_native` を除去。Re:Earth geo_suite への供給は
+  `kasugai_canvas.zip`（`qgis:` インスペクタ行が ZIP の URL で直接
+  取り込む）に一本化
+- 呼び出し側（`plugin.py` Export ボタン・`server_manager.py`
+  `/kasugai`・`bridge.py` `kasugaiExport`）の `reearth_port` 指定を除去
+- パネル説明文（`panel.py`/`panel_base.ui`）・i18n 9言語カタログ・
+  `README`/`INTEGRATION` ドキュメントから reearth.txt 記述を除去
+  （経路は `kasugai_canvas.zip`・`/export-data/` の記載に統一）
+
 ## [3.31.1] - 2026-10-26 README 連携構成図を概要セクションへ移動
 
 - `README_JP.md` / `README.md` の連携構成図（mermaid）を

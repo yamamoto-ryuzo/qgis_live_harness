@@ -96,12 +96,10 @@
     "Enter a permalink to navigate": "Saisissez un permalien pour naviguer",
     "Export": "Exporter",
     "Export and open the project in the selected engine (registers with a running KASUGAI Canvas; falls back to local/hosted engines)": "Exporte et ouvre le projet dans le moteur sélectionné (enregistre dans un KASUGAI Canvas actif ; repli sur les moteurs locaux/hébergés)",
-    "Export the project as a .kasc+DATA/ package. Engine launcher HTMLs, reearth.txt and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery.": "Exporte le projet en paquet .kasc+DATA/. Les HTML de lancement de moteur, reearth.txt et kasugai_canvas.zip (import « qgis: » de geo_suite Re:Earth) sont aussi écrits. Fonctionne sur Cesium / MapLibre / OpenLayers / Leaflet — téléversez avec le moteur sur un hébergement statique pour une diffusion sans serveur.",
     "Export visible layers and open in KASUGAI Canvas (Cesium)": "Exporter les couches visibles et ouvrir dans KASUGAI Canvas (Cesium)",
     "Export visible layers and open in KASUGAI Canvas (Leaflet)": "Exporter les couches visibles et ouvrir dans KASUGAI Canvas (Leaflet)",
     "Export visible layers and open in KASUGAI Canvas (MapLibre)": "Exporter les couches visibles et ouvrir dans KASUGAI Canvas (MapLibre)",
     "Export visible layers and open in KASUGAI Canvas (OpenLayers)": "Exporter les couches visibles et ouvrir dans KASUGAI Canvas (OpenLayers)",
-    "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs + kasugai_canvas.zip; + reearth.txt when the HTTP server is running) — files only": "Exporte les couches visibles en projet KASUGAI Canvas (.kasc + DATA/ + HTML de lancement de moteur + kasugai_canvas.zip ; + reearth.txt si le serveur HTTP est actif) — fichiers uniquement",
     "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs)": "Exporter les couches visibles comme projet KASUGAI Canvas (.kasc + DATA/ + HTML de lancement des moteurs)",
     "External Control": "Contrôle externe",
     "Generate": "Générer",
@@ -138,7 +136,9 @@
     "When enabled, map view can be updated by external URLs": "Lorsqu'il est activé, la vue de la carte peut être mise à jour par des URL externes",
     "color: green; font-weight: bold;": "color: green; font-weight: bold;",
     "▶ Open": "▶ Ouvrir",
-    "📁": "📁"
+    "📁": "📁",
+    "Export the project as a .kasc+DATA/ package. Engine launcher HTMLs and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery.": "Exporte le projet en paquet .kasc+DATA/. Les HTML de lancement de moteur et kasugai_canvas.zip (import « qgis: » de geo_suite Re:Earth) sont aussi écrits. Fonctionne sur Cesium / MapLibre / OpenLayers / Leaflet — téléversez avec le moteur sur un hébergement statique pour une diffusion sans serveur.",
+    "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs + kasugai_canvas.zip) — files only": "Exporte les couches visibles en projet KASUGAI Canvas (.kasc + DATA/ + HTML de lancement de moteur + kasugai_canvas.zip ) — fichiers uniquement"
   },
   "geo_webview": {
     "\n⚠️ The firewall may be blocking port {0}": "\n⚠️ Le pare-feu bloque peut-être le port {0}",
@@ -176,10 +176,8 @@
     "Execution with administrator rights failed: {0}\n\nTo run manually, execute the following command in an administrator command prompt:\n\n{1}": "L'exécution avec des droits d'administrateur a échoué : {0}\n\nPour l'exécuter manuellement, exécutez la commande suivante dans une invite de commandes administrateur :\n\n{1}",
     "Export": "Exporter",
     "Export and open the project in the selected engine (registers with a running KASUGAI Canvas; falls back to local/hosted engines)": "Exporte et ouvre le projet dans le moteur sélectionné (enregistre dans un KASUGAI Canvas actif ; repli sur les moteurs locaux/hébergés)",
-    "Export the project as a .kasc+DATA/ package. Engine launcher HTMLs, reearth.txt and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery.": "Exporte le projet en paquet .kasc+DATA/. Les HTML de lancement de moteur, reearth.txt et kasugai_canvas.zip (import « qgis: » de geo_suite Re:Earth) sont aussi écrits. Fonctionne sur Cesium / MapLibre / OpenLayers / Leaflet — téléversez avec le moteur sur un hébergement statique pour une diffusion sans serveur.",
     "Export to the standalone output directory instead": "Exporter vers le répertoire de sortie autonome à la place",
     "Export visible layers and open in KASUGAI Canvas ({engine})": "Exporter les couches visibles et ouvrir dans KASUGAI Canvas ({engine})",
-    "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs + kasugai_canvas.zip; + reearth.txt when the HTTP server is running) — files only": "Exporte les couches visibles en projet KASUGAI Canvas (.kasc + DATA/ + HTML de lancement de moteur + kasugai_canvas.zip ; + reearth.txt si le serveur HTTP est actif) — fichiers uniquement",
     "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs)": "Exporter les couches visibles comme projet KASUGAI Canvas (.kasc + DATA/ + HTML de lancement des moteurs)",
     "Exported KASUGAI project to {0} ({1} layers, {2} tiles). Open the .kasc file in KASUGAI Canvas.": "Projet KASUGAI exporté vers {0} ({1} couches, {2} tuiles). Ouvrez le fichier .kasc dans KASUGAI Canvas.",
     "External Control": "Contrôle externe",
@@ -256,6 +254,8 @@
     "✅ Server is running on port {0}": "✅ Le serveur est en cours d'exécution sur le port {0}",
     "🌐 Network: {0}": "🌐 Réseau : {0}",
     "🏠 Local: {0}": "🏠 Local : {0}",
-    "📡 Available IPs: {0}": "📡 IP disponibles : {0}"
+    "📡 Available IPs: {0}": "📡 IP disponibles : {0}",
+    "Export the project as a .kasc+DATA/ package. Engine launcher HTMLs and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery.": "Exporte le projet en paquet .kasc+DATA/. Les HTML de lancement de moteur et kasugai_canvas.zip (import « qgis: » de geo_suite Re:Earth) sont aussi écrits. Fonctionne sur Cesium / MapLibre / OpenLayers / Leaflet — téléversez avec le moteur sur un hébergement statique pour une diffusion sans serveur.",
+    "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs + kasugai_canvas.zip) — files only": "Exporte les couches visibles en projet KASUGAI Canvas (.kasc + DATA/ + HTML de lancement de moteur + kasugai_canvas.zip ) — fichiers uniquement"
   }
 }

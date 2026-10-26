@@ -45,14 +45,14 @@ flowchart TB
 
     subgraph GWBOX["geo_webview (QGIS plugin)"]
         direction LR
-        subgraph FNC["QGIS embedded HTTP server"]
-            GW["Export<br>.kasc + DATA/ + &lt;engine&gt;.html"]
+        subgraph FNC["【▶ Local】"]
+            GW["【Export】<br>.kasc + DATA/ + &lt;engine&gt;.html"]
             SRV["Embedded HTTP server localhost:8089"]
         end
-        ZIP["kasugai_canvas.zip<br>.kasc + DATA/ + &lt;engine&gt;.html bundle"]
+        ZIP["【Export】<br>ZIP[.kasc + DATA/ + &lt;engine&gt;.html bundle]"]
     end
 
-    subgraph KCBOX["KASUGAI Canvas (primary, unified player)"]
+    subgraph KCBOX["【▶ Canvas】"]
         direction TB
         ENG["Multi-engine<br>Cesium / MapLibre / OpenLayers / Leaflet"]
         KCF["Extensions: register - switch - rclone -<br>auto-update - .kasc association"]
@@ -61,7 +61,7 @@ flowchart TB
     subgraph WEBBOX["External HTTP server"]
         WEB["static hosting: GitHub Pages / Cloudflare / Vercel etc."]
     end
-    subgraph GHBOX["GitHub Pages"]
+    subgraph GHBOX["【▶ Serverless】"]
         CDN["kasugai-canvas-web<br>4-engine CDN<br>GitHub Pages: stable/ - unstable/"]
     end
     RE["Re:Earth Visualizer geo_suite (secondary)<br>upload kasugai_canvas.zip to a CMS →<br>set the CMS URL as the qgis: URL in the inspector"]
@@ -76,6 +76,16 @@ flowchart TB
     CDN -.-> FNC
     ZIP --> RE
 ```
+
+### Features
+
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Panel button&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Behavior |
+|---|---|
+| 【Export】 | Writes `.kasc + DATA/ + <engine>.html + index.html + kasugai_canvas.zip`. **Files only** — no launch or registration |
+| 【▶ Canvas】 | Export → register the project with a running KASUGAI Canvas local server (:8510), switch the view, open the browser. Writes straight into `projects/<id>/` when the install path is registered. **No fallback when Canvas is not running** (export only) |
+| 【▶ Local】 | The embedded HTTP server (:8089) serves a **locally installed Canvas `web/`** at `/<engine>/` and supplies the package via `/export-data/` for instant viewing. Requires: HTTP server running + a local `web/` install (not kasugai-canvas-web) |
+| 【▶ Serverless】 | Opens via the hosted `kasugai-canvas-web` engine (GitHub Pages CDN) with data supplied from `:8089/export-data/`. Needs internet + HTTP server running (works without a Canvas install) |
+| 📁 | Opens the output folder |
 
 ### Multi-engine
 
@@ -145,16 +155,16 @@ QGIS-side delivery backend for this player.
 
 | Target | Route | Integration |
 |---|---|---|
-| **Re:Earth Visualizer (geo_suite)** | `reearth.txt` export + `/export-data/` | **Secondary** (Cesium-based like KASUGAI Canvas). See "Re:Earth Visualizer (geo_suite) policy" below |
+| **Re:Earth Visualizer (geo_suite)** | `kasugai_canvas.zip` (`qgis:` inspector line import) + `/export-data/` | **Secondary** (Cesium-based like KASUGAI Canvas). See "Re:Earth Visualizer (geo_suite) policy" below |
 | **ArcGIS family** | `.kasc`+`DATA/` file handoff → ArcGIS-side (SDK) custom implementation **delivered from any external static host** (GitHub Pages / Cloudflare / Vercel / own server, etc.; cannot run on ArcGIS Online) | See "ArcGIS policy" below |
 
 #### Re:Earth Visualizer (geo_suite) policy
 
 Re:Earth Visualizer is positioned as the **secondary, Cesium-based player**
-alongside KASUGAI Canvas. geo_webview feeds it via `reearth.txt`
-(inspector text) export plus `/export-data/` file and `.qml` style
-delivery; the QML→Re:Earth translation runs client-side (a translator
-bundled in geo_suite). 3D work is consolidated in the Cesium-based
+alongside KASUGAI Canvas. geo_webview feeds it via the
+`kasugai_canvas.zip` export bundle plus `/export-data/` file and `.qml`
+style delivery; ingestion is handled client-side by geo_suite's `qgis:`
+inspector line (ZIP URL). 3D work is consolidated in the Cesium-based
 clients — KASUGAI Canvas (primary) and Re:Earth Visualizer (secondary).
 
 Details: [geo_webview integration policy (`INTEGRATION.md`)](INTEGRATION.md#reearth)
@@ -234,8 +244,8 @@ inside the HTML for custom layouts).
 **Uploading the export folder together with the engine (`web/` contents)
 to the same static host gives you a serverless standalone web delivery**
 (Canvas's `?kasc=` direct-load mode). The `.kasc`+`DATA/`+system bundle
-can be cut out and distributed as a unit. A `reearth.txt` for Re:Earth
-Visualizer can also be emitted.
+can be cut out and distributed as a unit. `kasugai_canvas.zip` (the
+whole bundle) is also emitted for Re:Earth Visualizer's `qgis:` import.
 
 ## Embedded HTTP server (supporting feature)
 
@@ -301,7 +311,7 @@ Windows example path:
 
 ## KASUGAI Canvas engine comparison
 
-Feature comparison of the four KASUGAI Canvas engines (Cesium / OpenLayers / MapLibre / Leaflet). `—` = not supported, `△` = partial. All engines read the same `.kasc`+`DATA/` package (`?engine=` or the generated `<engine>.html`). Re:Earth geo_suite is a separate client (via `reearth.txt`) and is out of scope here; shared QGIS-side services are summarized at the end.
+Feature comparison of the four KASUGAI Canvas engines (Cesium / OpenLayers / MapLibre / Leaflet). `—` = not supported, `△` = partial. All engines read the same `.kasc`+`DATA/` package (`?engine=` or the generated `<engine>.html`). Re:Earth geo_suite is a separate client (via `kasugai_canvas.zip`) and is out of scope here; shared QGIS-side services are summarized at the end.
 
 ### Data ingestion & layer formats
 
@@ -396,7 +406,7 @@ Services geo_webview provides to all engines above. The per-engine difference is
 
 - **View carryover**: reproduce the specified view (`x,y,scale,rotation,crs` or `lat,lon,zoom`, permalink) in each engine; written as `cam:` lines in `.kasc`
 - **Tile lines**: tile references are emitted as `.kasc` `xyz:`/`base:`/`wms:`/`wmts:` lines (external tile services; geo_webview's own tile serving was removed in v3.29.0)
-- **Vector data**: visible layers are handed over as `DATA/` files (GPKG/GeoJSON/GeoParquet/FlatGeobuf as native references; reearth.txt writes `/export-data/` URLs)
+- **Vector data**: visible layers are handed over as `DATA/` files (GPKG/GeoJSON/GeoParquet/FlatGeobuf as native references)
 - **Style carryover**: QGIS renderers are handed over as `.qml` files and compiled client-side (Cesium entity/primitive path, Re:Earth translator)
 - **Query-type lines**: `/kasugai` emits query lines where the source allows — CSV/TSV (delimitedtext/ogr) → `duckdb:` (`format=`/`lon=`/`lat=`/`geom=`), filtered GPKG → `gpkg:`+`where=`, filtered Parquet → `duckdb:`+`format=parquet`+`where=`. `sql:` (arbitrary SELECT) is not emitted (no QGIS equivalent). 3D Tiles layers (`QgsTiledSceneLayer`) → `3dtiles:`; local XYZ templates (`file:///…/{z}/{x}/{y}.png`) are copied into `DATA/`. QGIS WMS raster layers (other than `type=xyz`) are emitted as `wms:` lines (`layers=`/`styles=`/`format=`), and Canvas splits GetMap into 256px tiles
 - **Follow mode**: Canvas pages opened with `?follow`/`?present` (MapLibre/OpenLayers/Leaflet engines) poll `/present/state` and track QGIS canvas moves in real time (presentations / screen sharing)

@@ -96,12 +96,10 @@
     "Enter a permalink to navigate": "नेविगेट करने के लिए एक परमालिंक दर्ज करें",
     "Export": "निर्यात",
     "Export and open the project in the selected engine (registers with a running KASUGAI Canvas; falls back to local/hosted engines)": "प्रोजेक्ट को निर्यात कर चयनित इंजन में खोलता है (चल रहे KASUGAI Canvas में पंजीकृत; लोकल/होस्टेड इंजन पर फ़ॉलबैक)",
-    "Export the project as a .kasc+DATA/ package. Engine launcher HTMLs, reearth.txt and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery.": "प्रोजेक्ट को .kasc+DATA/ पैकेज के रूप में निर्यात करता है। इंजन लॉन्चर HTML, reearth.txt और kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' आयात) भी लिखे जाते हैं। Cesium / MapLibre / OpenLayers / Leaflet पर चलता है — सर्वरलेस डिलीवरी के लिए इंजन के साथ स्टैटिक होस्ट पर अपलोड करें।",
     "Export visible layers and open in KASUGAI Canvas (Cesium)": "दृश्यमान लेयर निर्यात करें और KASUGAI Canvas (Cesium) में खोलें",
     "Export visible layers and open in KASUGAI Canvas (Leaflet)": "दृश्यमान लेयर निर्यात करें और KASUGAI Canvas (Leaflet) में खोलें",
     "Export visible layers and open in KASUGAI Canvas (MapLibre)": "दृश्यमान लेयर निर्यात करें और KASUGAI Canvas (MapLibre) में खोलें",
     "Export visible layers and open in KASUGAI Canvas (OpenLayers)": "दृश्यमान लेयर निर्यात करें और KASUGAI Canvas (OpenLayers) में खोलें",
-    "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs + kasugai_canvas.zip; + reearth.txt when the HTTP server is running) — files only": "दृश्य परतों को KASUGAI Canvas प्रोजेक्ट के रूप में निर्यात करता है (.kasc + DATA/ + इंजन लॉन्चर HTML + kasugai_canvas.zip; HTTP सर्वर चालू होने पर reearth.txt भी) — केवल फ़ाइलें",
     "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs)": "दृश्यमान लेयरों को KASUGAI Canvas प्रोजेक्ट के रूप में निर्यात करें (.kasc + DATA/ + इंजन लॉन्चर HTML)",
     "External Control": "बाह्य नियंत्रण",
     "Generate": "जनरेट",
@@ -138,7 +136,9 @@
     "When enabled, map view can be updated by external URLs": "सक्षम होने पर, मानचित्र दृश्य को बाह्य URL द्वारा अपडेट किया जा सकता है",
     "color: green; font-weight: bold;": "color: green; font-weight: bold;",
     "▶ Open": "▶ खोलें",
-    "📁": "📁"
+    "📁": "📁",
+    "Export the project as a .kasc+DATA/ package. Engine launcher HTMLs and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery.": "प्रोजेक्ट को .kasc+DATA/ पैकेज के रूप में निर्यात करता है। इंजन लॉन्चर HTML और kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' आयात) भी लिखे जाते हैं। Cesium / MapLibre / OpenLayers / Leaflet पर चलता है — सर्वरलेस डिलीवरी के लिए इंजन के साथ स्टैटिक होस्ट पर अपलोड करें।",
+    "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs + kasugai_canvas.zip) — files only": "दृश्य परतों को KASUGAI Canvas प्रोजेक्ट के रूप में निर्यात करता है (.kasc + DATA/ + इंजन लॉन्चर HTML + kasugai_canvas.zip) — केवल फ़ाइलें"
   },
   "geo_webview": {
     "\n⚠️ The firewall may be blocking port {0}": "\n⚠️ फ़ायरवॉल पोर्ट {0} को ब्लॉक कर सकता है",
@@ -176,10 +176,8 @@
     "Execution with administrator rights failed: {0}\n\nTo run manually, execute the following command in an administrator command prompt:\n\n{1}": "व्यवस्थापक अधिकारों के साथ निष्पादन विफल: {0}\n\nमैन्युअल रूप से चलाने के लिए, व्यवस्थापक कमांड प्रॉम्प्ट में निम्न कमांड निष्पादित करें:\n\n{1}",
     "Export": "निर्यात",
     "Export and open the project in the selected engine (registers with a running KASUGAI Canvas; falls back to local/hosted engines)": "प्रोजेक्ट को निर्यात कर चयनित इंजन में खोलता है (चल रहे KASUGAI Canvas में पंजीकृत; लोकल/होस्टेड इंजन पर फ़ॉलबैक)",
-    "Export the project as a .kasc+DATA/ package. Engine launcher HTMLs, reearth.txt and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery.": "प्रोजेक्ट को .kasc+DATA/ पैकेज के रूप में निर्यात करता है। इंजन लॉन्चर HTML, reearth.txt और kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' आयात) भी लिखे जाते हैं। Cesium / MapLibre / OpenLayers / Leaflet पर चलता है — सर्वरलेस डिलीवरी के लिए इंजन के साथ स्टैटिक होस्ट पर अपलोड करें।",
     "Export to the standalone output directory instead": "इसके बजाय स्टैंडअलोन आउटपुट डायरेक्टरी में निर्यात करें",
     "Export visible layers and open in KASUGAI Canvas ({engine})": "दृश्यमान लेयर निर्यात करें और KASUGAI Canvas ({engine}) में खोलें",
-    "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs + kasugai_canvas.zip; + reearth.txt when the HTTP server is running) — files only": "दृश्य परतों को KASUGAI Canvas प्रोजेक्ट के रूप में निर्यात करता है (.kasc + DATA/ + इंजन लॉन्चर HTML + kasugai_canvas.zip; HTTP सर्वर चालू होने पर reearth.txt भी) — केवल फ़ाइलें",
     "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs)": "दृश्यमान लेयरों को KASUGAI Canvas प्रोजेक्ट के रूप में निर्यात करें (.kasc + DATA/ + इंजन लॉन्चर HTML)",
     "Exported KASUGAI project to {0} ({1} layers, {2} tiles). Open the .kasc file in KASUGAI Canvas.": "KASUGAI प्रोजेक्ट {0} में निर्यात किया गया ({1} परतें, {2} टाइलें)। .kasc फ़ाइल को KASUGAI Canvas में खोलें।",
     "External Control": "बाह्य नियंत्रण",
@@ -256,6 +254,8 @@
     "✅ Server is running on port {0}": "✅ सर्वर पोर्ट {0} पर चल रहा है",
     "🌐 Network: {0}": "🌐 नेटवर्क: {0}",
     "🏠 Local: {0}": "🏠 स्थानीय: {0}",
-    "📡 Available IPs: {0}": "📡 उपलब्ध IP: {0}"
+    "📡 Available IPs: {0}": "📡 उपलब्ध IP: {0}",
+    "Export the project as a .kasc+DATA/ package. Engine launcher HTMLs and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery.": "प्रोजेक्ट को .kasc+DATA/ पैकेज के रूप में निर्यात करता है। इंजन लॉन्चर HTML और kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' आयात) भी लिखे जाते हैं। Cesium / MapLibre / OpenLayers / Leaflet पर चलता है — सर्वरलेस डिलीवरी के लिए इंजन के साथ स्टैटिक होस्ट पर अपलोड करें।",
+    "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs + kasugai_canvas.zip) — files only": "दृश्य परतों को KASUGAI Canvas प्रोजेक्ट के रूप में निर्यात करता है (.kasc + DATA/ + इंजन लॉन्चर HTML + kasugai_canvas.zip) — केवल फ़ाइलें"
   }
 }
