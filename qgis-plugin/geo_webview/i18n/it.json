@@ -31,10 +31,7 @@
     "Failed to copy to the clipboard. Please copy it manually.": "Impossibile copiare negli appunti. Copiarlo manualmente.",
     "Failed to create panel: {error}": "Impossibile creare il pannello: {error}",
     "Failed to generate permalink: {error}": "Impossibile generare il permalink: {error}",
-    "Failed to navigate to Google Maps URL: {error}": "Impossibile navigare all'URL di Google Maps: {error}",
     "Failed to parse or handle the provided HTTP(S) URL.": "Impossibile analizzare o gestire l'URL HTTP(S) fornito.",
-    "Google Earth launch error: {0}": "Errore di avvio di Google Earth: {0}",
-    "Google Maps launch error: {0}": "Errore di avvio di Google Maps: {0}",
     "HTTPS also requires a certificate (not currently supported).\n": "HTTPS richiede anche un certificato (attualmente non supportato).\n",
     "Install KASUGAI Canvas": "Installa KASUGAI Canvas",
     "Installed KASUGAI Canvas and opened the project ({0}).": "KASUGAI Canvas installato e progetto aperto ({0}).",
@@ -51,9 +48,7 @@
     "Moved the map view via HTTP.": "Vista mappa spostata tramite HTTP.",
     "Moved to coordinates ({0:.6f}, {1:.6f}) (scale preserved).": "Spostato alle coordinate ({0:.6f}, {1:.6f}) (scala mantenuta).",
     "Moved to coordinates ({0:.6f}, {1:.6f}).": "Spostato alle coordinate ({0:.6f}, {1:.6f}).",
-    "Navigate supports only internal 'qgis-map' links or Google @-style URLs (e.g. /@lat,lon,220m/).": "Navigate supporta solo link interni 'qgis-map' o URL Google in stile @ (es. /@lat,lon,220m/).",
-    "Opened in Google Earth.": "Aperto in Google Earth.",
-    "Opened in Google Maps.": "Aperto in Google Maps.",
+    "Navigate supports only internal 'qgis-map' links.": "Navigate supporta solo i collegamenti interni 'qgis-map'.",
     "Opened in KASUGAI Canvas ({0}) ({1} layers, {2} tiles).": "Aperto in KASUGAI Canvas ({0}) ({1} layer, {2} tile).",
     "Opened in MapLibre.": "Aperto in MapLibre.",
     "Opened the project in {0} ({1}): {2}": "Progetto aperto in {0} ({1}): {2}",
@@ -143,9 +138,7 @@
     "When enabled, map view can be updated by external URLs": "Se abilitato, la vista mappa può essere aggiornata da URL esterni",
     "color: green; font-weight: bold;": "color: green; font-weight: bold;",
     "▶ Open": "▶ Apri",
-    "🌍 Google Earth": "🌍 Google Earth",
-    "📁": "📁",
-    "🗺️ Google Maps": "🗺️ Google Maps"
+    "📁": "📁"
   },
   "geo_webview": {
     "\n⚠️ The firewall may be blocking port {0}": "\n⚠️ Il firewall potrebbe bloccare la porta {0}",
@@ -261,10 +254,8 @@
     "geo_webview — Web Distribution": "geo_webview — Distribuzione web",
     "▶ Open": "▶ Apri",
     "✅ Server is running on port {0}": "✅ Il server è in esecuzione sulla porta {0}",
-    "🌍 Google Earth": "🌍 Google Earth",
     "🌐 Network: {0}": "🌐 Rete: {0}",
     "🏠 Local: {0}": "🏠 Locale: {0}",
-    "📡 Available IPs: {0}": "📡 IP disponibili: {0}",
-    "🗺️ Google Maps": "🗺️ Google Maps"
+    "📡 Available IPs: {0}": "📡 IP disponibili: {0}"
   }
 }

@@ -98,10 +98,42 @@
         <item>
          <widget class="QPushButton" name="pushButton_kasugai_launch">
           <property name="text">
-           <string>&#9654; Open</string>
+           <string>&#9654; Canvas</string>
           </property>
           <property name="toolTip">
-           <string>Export and open the project in the selected engine (registers with a running KASUGAI Canvas; falls back to local/hosted engines)</string>
+           <string>Open in KASUGAI Canvas (main integrated player) — registers the project with a running Canvas (port 8510) and switches to it</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>25</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_kasugai_launch_local">
+          <property name="text">
+           <string>&#9654; Local</string>
+          </property>
+          <property name="toolTip">
+           <string>Show instantly in a browser via local HTTP delivery — this plugin's server serves the installed Canvas web/ + DATA/ (requires Canvas installed + HTTP server running)</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>25</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_kasugai_launch_hosted">
+          <property name="text">
+           <string>&#9654; Serverless</string>
+          </property>
+          <property name="toolTip">
+           <string>Open via serverless WEB delivery — hosted engine (GitHub Pages) + this server's data delivery (no Canvas install needed; requires internet + HTTP server running)</string>
           </property>
           <property name="minimumSize">
            <size>
@@ -363,54 +395,6 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>25</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_external_buttons">
-         <item>
-          <widget class="QPushButton" name="pushButton_google_maps">
-           <property name="text">
-            <string>🗺️ Google Maps</string>
-           </property>
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
-             <height>25</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_google_earth">
-           <property name="text">
-            <string>🌍 Google Earth</string>
-           </property>
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>120</width>
              <height>25</height>
             </size>
            </property>

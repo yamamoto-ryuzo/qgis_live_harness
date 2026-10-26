@@ -6,13 +6,12 @@ This specification formalizes the features described in the repository README an
 
 Purpose and scope
 - Purpose: Define the expected behavior of the `geo_webview` plugin for implementation, operation and testing.
-- Scope: **serverless web distribution (main feature)** — exporting the open QGIS project as `.kasc`+`DATA/` for the KASUGAI Canvas multi-engine players (Cesium/MapLibre/OpenLayers/Leaflet); the embedded HTTP server (`/kasugai`, `/export-data/`, `/present`, `/screenshot`, permalink reception) as the supporting side; permalink generation/navigation, external integrations (Google Maps/Earth), theme application, External Control behavior, CRS policy, and security/operational considerations.
+- Scope: **serverless web distribution (main feature)** — exporting the open QGIS project as `.kasc`+`DATA/` for the KASUGAI Canvas multi-engine players (Cesium/MapLibre/OpenLayers/Leaflet); the embedded HTTP server (`/kasugai`, `/export-data/`, `/present`, `/screenshot`, permalink reception) as the supporting side; permalink generation/navigation, theme application, External Control behavior, CRS policy, and security/operational considerations.
 
 1. Feature overview
 - **Serverless web distribution (main)**: export the open QGIS project as a `.kasc`+`DATA/` package playable on the KASUGAI Canvas engines (Cesium/MapLibre/OpenLayers/Leaflet). Placing the output plus the engine on a static host delivers the map without any server. Launch routes: panel (`Export` = files only / `▶ Open` = register+launch), `GET /kasugai`, and bridge `kasugaiExport`, with a 3-tier fallback (Canvas registration → static serving by this server → hosted engine). See §15.
 - Embedded HTTP server (supporting): provides `/kasugai` `/export-data/` `/present` `/present/state` `/screenshot` `/received` (OGC services removed in v3.29.0).
 - Permalink generation: create HTTP permalinks for the current QGIS view (center coordinates, scale, rotation, theme, etc.) on the `/qgis-map` path for copying or opening in browsers. `/qgis-map` returns no HTML — it is the URL path used for reception history and External Control navigation (built-in viewers removed in v3.24.0).
-- Google integrations: generate and parse Google Maps (`@lat,lon,zoom`) and Google Earth URLs (`@lat,lon,altitudea,distanced,...`) and convert them into QGIS view updates.
 - Theme support: apply a named map theme on navigation (permalink `theme` parameter) and export theme lines (`.kasc` `theme:`) without altering project files.
 - External Control: accept requests (for example to `/qgis-map` or `/wms`) and, when permitted, navigate QGIS accordingly.
 
@@ -48,7 +47,7 @@ Short form: values can be simplified (e.g. `x=139&y=35&scale=1000.0`) for presen
 
 Conversion rules:
 - `scale` has priority when specified.
-- `zoom` is estimated for Google Maps compatibility, but `scale` takes precedence.
+- `zoom` is estimated for web-map compatibility, but `scale` takes precedence.
 
 4. Web distribution (KASUGAI Canvas export)
 
@@ -69,15 +68,15 @@ were removed in v3.29.0. The plugin focuses on serverless
 distribution (`.kasc`+`DATA/` export plus `/export-data/` serving).
 See git history for the removed implementations.
 
-10. Google Maps / Earth integration (generate & parse)
-Generation
-- Google Maps URL format: `https://www.google.co.jp/maps/@{lat},{lon},{zoom}z`. Zoom is estimated from scale and may be fractional.
-- Google Earth URL format: `https://earth.google.com/web/@{lat},{lon},{alt}a,{distance}d,{y}y,{heading}h,{tilt}t,{roll}r`. Altitude/distance are estimated proportionally from scale.
+## 10. Google Maps / Earth integration (removed in v3.30.0)
 
-Parsing precedence
-- Parse order (highest to lowest): Google Earth `@...a,...d,1y` `y` token → Google Maps `@...,...z` or `m` token → internal `x,y,scale` params → legacy custom schemes.
-
-Note: DPI and OS scaling cause minor differences; environment-specific corrections can be applied.
+The Google Maps / Google Earth URL generation and parsing feature
+(`_build_google_maps_url`, `_build_google_earth_url`,
+`_parse_google_maps_at_url`, `_parse_google_earth_url`, the panel's
+external-launch buttons, and the bridge `googleMapsUrl` /
+`googleEarthUrl` / `openExternal` Google support) was removed in
+v3.30.0. Google Earth links now live on the KASUGAI Canvas side
+(basemap control). See git history for the removed implementations.
 
 11. External Control parsing and behavior
 - When `External Control` is enabled, received URLs are parsed and QGIS is navigated using `navigate_from_http`.
@@ -109,7 +108,6 @@ Manual test steps
 1. Install plugin in QGIS and enable `External Control`.
 2. From another host, request `/qgis-map?x=...&y=...&scale=...` and confirm QGIS navigates.
 3. Confirm `/screenshot` returns a canvas PNG and `/present` opens the share page.
-5. Generate a Google Earth URL and validate resulting behavior.
 
 CI note: QGIS modules (`qgis.core`, `PyQt5`) will not be available in typical CI; mock them where needed.
 
@@ -240,7 +238,7 @@ Canvas が使えない場合は次の順でフォールバックする
 ## 17. テスト・QA 手順
 自動テスト候補:
 - `server_manager.py` のユニットテスト: ポート選定・バインド挙動のモックテスト。
-- URL パーサ（Google Maps/Earth/内部形式）の単体テスト（複数フォーマットのケース）。
+- URL パーサ（内部形式）の単体テスト（複数フォーマットのケース）。
 
 手動テスト手順（QGIS 実環境）:
 1. QGIS を起動しプラグインをインストール。
@@ -248,7 +246,6 @@ Canvas が使えない場合は次の順でフォールバックする
 3. `External Control` を ON にして、別ホスト（または同一ホスト）から `/qgis-map?x=...&y=...&scale=...` にアクセスして QGIS がジャンプすることを確認。
 4. `/screenshot` でキャンバス PNG が返ることを確認。
 5. `/present` ページがブラウザで開くことを確認。
-6. Google Earth URL を生成してブラウザで開き、期待する表示（高度/距離/角度）が得られるか目視確認。
 
 テスト注意:
 - CI 環境では `qgis.core` や `PyQt5` が無いため、これらをモックするかローカルでの手動確認が必要。
@@ -288,5 +285,3 @@ Canvas が使えない場合は次の順でフォールバックする
   `http://localhost:8089/screenshot`
 - KASUGAI エクスポート:
   `http://localhost:8089/kasugai?engine=cesium`
-- Google Earth 例:
-  `https://earth.google.com/web/@35.683709,139.759407,32.0367a,160699.3553d,1y,0h,0t,0r`

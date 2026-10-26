@@ -78,54 +78,72 @@ geo_webview の連携方針は、プレイヤーを **KASUGAI Canvas に一本�
 KASUGAI 側で統一開発済み・`?engine=` で切替）し、
 **Re:Earth Visualizer をサブ**とすることです。
 
+配信ルートは2系統です。**高機能ルート**は起動中の KASUGAI Canvas
+ローカルサーバー（既定 :8510）の専用 API でプロジェクト登録・画面切替
+まで行い、**通常ルート**は内蔵 HTTP サーバーとサーバレス Web 配信で
+Canvas アプリなしでも即座に Web 化します
+（「再生経路（3段フォールバック）」参照）。
+
 #### ① セット開発のプレイヤー群
 
-QGIS からエクスポート/配信されたデータ・スタイルを取り込んで再生するクライアント群。geo_webview はこれらのプレイヤーの QGIS 側受け皿（配信元）として開発を進めています。
+QGIS からエクスポート/配信されたデータ・スタイルを取り込んで再生するクライアント。geo_webview はこのプレイヤーの QGIS 側受け皿（配信元）として開発を進めています。
 
 | 連携先 | 経路 | 連携の形 |
 |---|---|---|
 | **KASUGAI Canvas** | `/kasugai`（`.kasc`+`DATA/`） | **統合プレイヤー（主）**。QGIS レイヤツリーを `.kasc`+`DATA/`（ベクター＋`.qml` スタイル）として出力し、起動中の KASUGAI へ外部プロジェクト登録・表示切替。パネルの `Export` ボタンはファイル出力のみ、`▶ Open` / `GET /kasugai?engine=` / `kasugaiExport` ブリッジは登録・起動まで行い、同じ `.kasc`+`DATA/` を全エンジンで再生。EXE 込みインストールでは rclone・自動更新・ファイル保存・`.kasc` 関連付けも利用可 |
-| **Re:Earth Visualizer（geo_suite）** | `reearth.txt` 出力 | **サブ**（KASUGAI Canvas と同じ Cesium ベース）。`reearth.txt`（inspector テキスト）に加え `/export-data/` のファイル・`.qml` スタイルをクライアント側（geo_suite の QML→Re:Earth トランスレータ）が取り込む |
-
-※3D 表現は Cesium ベースの KASUGAI Canvas（主）・Re:Earth Visualizer（サブ）に集約して開発します。
 
 #### ② その他クライアント・外部サービス
 
 | 連携先 | 経路 | 連携の形 |
 |---|---|---|
-| **Google Maps / Google Earth** | URL 生成・パース | 現在の表示を Google Maps / Earth の URL として生成して外部ブラウザで開く。受信した Google 系 URL は External Control で QGIS ナビゲートへ変換 |
-| **ArcGIS 系** | ファイル/SDK 側対応 | 下記「ArcGIS 系への対応方針」参照 |
+| **Re:Earth Visualizer（geo_suite）** | `reearth.txt` 出力・`/export-data/` | **サブ**（KASUGAI Canvas と同じ Cesium ベース）。下記「Re:Earth Visualizer（geo_suite）への対応方針」参照 |
+| **ArcGIS 系** | `.kasc`+`DATA/` ファイル受け渡し → ArcGIS 側（SDK）の独自実装を**外部静的ホストで配信**（GitHub Pages/Cloudflare/Vercel/自前サーバ等。ArcGIS Online 上では動作不可） | 下記「ArcGIS 系への対応方針」参照 |
+
+#### Re:Earth Visualizer（geo_suite）への対応方針
+
+Re:Earth Visualizer は **KASUGAI Canvas と同じ Cesium ベースのサブプレイヤー** として位置づけます。geo_webview は `reearth.txt`（inspector テキスト）出力と `/export-data/` 経由のファイル・`.qml` スタイル配信で供給し、QML→Re:Earth への変換はクライアント側（geo_suite 同梱のトランスレータ）が担います。3D 表現は Cesium ベースの KASUGAI Canvas（主）・Re:Earth Visualizer（サブ）に集約して開発します。
+
+詳細: [geo_webview 連携方針（`INTEGRATION_JP.md`）](INTEGRATION_JP.md#reearth)
 
 #### ArcGIS 系への対応方針
 
-**ArcGIS Online 上で本系統の機能を動かすことは機能的に不可能です。** ArcGIS Online はカスタムコード（JS アプリ・プラグイン・ExB カスタムウィジェット等）をホスティング・実行する仕組みを持たず、Re:Earth のようなプラグイン拡張経路も存在しないためです。そのため ArcGIS 系との連携は「ArcGIS Online を拡張対象とせず、**サービス・データを読みに行く側（SDK 側）で対応する**」方針とします。
+**ArcGIS Online 上で本系統の機能を動かすことは機能的に不可能**（カスタムコードをホスト・実行する仕組みを持たない）ため、ArcGIS 系との連携は「`.kasc`+`DATA/` 出力物をファイルとして受け渡し、ArcGIS 側が独自に読み込む」方針とします。読み込み側には `.qml` スタイルの引き継ぎとレイヤ表示機能（用途に応じ最小限でも可）を要件とします。
 
-- **QGIS → ArcGIS 側へ供給**: `.kasc`+`DATA/` 出力物はファイルとして受け渡せるほか、`/export-data/` 経由の GeoJSON/XYZ URL を ArcGIS 側から参照可能（※プラグイン自身の OGC サービスは v3.29.0 で廃止）
-- **ArcGIS → 本系統へ取り込み**: ArcGIS のサービスは CesiumJS が公式対応（`ArcGisMapServerImageryProvider`・`ArcGISTiledElevationTerrainProvider`・`I3SDataProvider`（3D Object/Integrated Mesh）・Feature Service の GeoJSON クエリ）。KASUGAI Canvas 側に `.kasc` の行種として `arcgis:` 系を追加し、MapServer/ImageServer/FeatureServer/SceneServer を取り込む方向で拡張する
+配信のための最小構成: **静的ホスト 1 つ（GitHub Pages 等・無料可）＋ ArcGIS Maps SDK for JavaScript 製の `.kasc` プレイヤー実装 ＋ ArcGIS Location Platform アカウント（無料登録）または ArcGIS Online 組織** — Canvas と同じサーバレス配信モデルが成立します。なおデータを加工して AGOL サービスとして公開する経路なら Online 上でも配信できますが、その場合 `.qml` スタイルは引き継げず作り直しになる別モデルです（Online で動かせないのはカスタムコードのアプリ本体と `.kasc` ファイル一式）。
+
+詳細（読み込み側要件・ライセンス形態・最小構成・`arcgis:` 取り込みの注意点）: [geo_webview 連携方針（`INTEGRATION_JP.md`）](INTEGRATION_JP.md#arcgis)
 
 #### 連携構成図
 
 ```mermaid
 flowchart TB
     QGIS["QGIS プロジェクト<br>レイヤ・スタイル・視点"]
-    GW["geo_webview<br>.kasc+DATA/ エクスポート<br>/export-data/ 配信"]
 
-    subgraph G2["② その他クライアント・外部サービス"]
-        GM["Google Maps / Earth"]
+    subgraph GWBOX["geo_webview（QGIS プラグイン）"]
+        GW["エクスポート<br>.kasc+DATA/・起動HTML・reearth.txt"]
+        SRV["内蔵 HTTP サーバー（既定 :8089）<br>/kasugai 起動API・/export-data/ 配信<br>/&lt;engine&gt;/ エンジン静的フォールバック"]
     end
 
-    subgraph G1["① セット開発のプレイヤー群"]
-        direction TB
-        subgraph G1_UNI["統合プレイヤー"]
-            KC["KASUGAI Canvas（主）<br>Cesium/MapLibre/OpenLayers/Leaflet"]
-            RE["Re:Earth Visualizer geo_suite（サブ）"]
-        end
+    subgraph G1["① セット開発のプレイヤー群（高機能ルート：専用API連携）"]
+        KC["KASUGAI Canvas（主・統合プレイヤー）<br>ローカルサーバー :8510<br>Cesium / MapLibre / OpenLayers / Leaflet<br>登録・切替・rclone・自動更新・.kasc 関連付け"]
+    end
+
+    subgraph NORM["通常ルート：ローカル HTTP + WEB 配信（Canvas なしで即時 Web 化）"]
+        BR["ローカル HTTP 配信<br>ブラウザで即表示"]
+        HOST["サーバレス WEB 配信<br>.kasc+DATA/+エンジンを静的ホストへ<br>（ホスト版 kasugai-canvas-web 含む）"]
+    end
+
+    subgraph G2["② その他クライアント・外部サービス"]
+        RE["Re:Earth Visualizer geo_suite（サブ）<br>reearth.txt・/export-data/・.qml"]
+        AG["ArcGIS 系<br>エクスポート物を独自に読込<br>（.qml スタイル再現・レイヤ表示も実装要件）<br>→ 外部静的ホストで配信"]
     end
 
     QGIS --> GW
-    GW -->|"URL 生成・パース"| GM
-    GW -->|"/kasugai（.kasc+DATA/）"| KC
-    GW -->|"reearth.txt・/export-data/・.qml"| RE
+    GW --> SRV
+    SRV -->|"/kasugai → Canvas API（登録・切替）"| KC
+    SRV -->|"エンジン配信 + /export-data/"| BR
+    GW -.->|"パッケージ一式を配置"| HOST
+    GW --> G2
 ```
 
 ## サーバレス配信の流れ
@@ -206,7 +224,6 @@ QGIS 内で動く軽量 HTTP サーバー。配信パッケージのライブ参
 - 現在の地図ビュー（座標・スケール・回転・テーマ・レイヤ状態）を URL で共有
 - `External Control` を ON にすると、外部から受信した URL で QGIS の表示を自動ナビゲート
 - Office ドキュメント（Excel / PowerPoint）への埋め込み、高解像度 PNG エクスポート
-- Google Maps / Google Earth: 現在の表示から Google 系 URL を生成してブラウザで開く。受信した Google 系 URL のパースによるナビゲートもこの仕組みで処理（外部サービス連携の一例）
 
 ## ネットワーク機能
 

@@ -84,49 +84,95 @@ geo_webview's integration policy consolidates the player into
 Leaflet fronts, implemented on the KASUGAI side; switch via `?engine=`) —
 with **Re:Earth Visualizer as secondary**.
 
+There are two delivery routes. The **high-function route** talks to a
+running KASUGAI Canvas local server (default :8510) through its dedicated
+API to register the project and switch the view. The **standard route**
+relies on the embedded HTTP server (`/<engine>/` + `/export-data/`) and
+serverless web delivery, giving instant web output without the Canvas app
+(see "Playback routes (3-tier fallback)").
+
 #### ① Companion players developed alongside geo_webview
 
-Clients that ingest data & styles exported/served from QGIS and play them
-as independent WebGIS. geo_webview is being developed as the QGIS-side
-delivery backend for these players.
+The client that ingests data & styles exported/served from QGIS and plays
+them as an independent WebGIS. geo_webview is being developed as the
+QGIS-side delivery backend for this player.
 
 | Target | Route | Integration |
 |---|---|---|
 | **KASUGAI Canvas** | `/kasugai` (`.kasc`+`DATA/`) | **Unified player (primary).** A standalone WebGIS app — geo_webview writes the QGIS layer tree as `.kasc`+`DATA/` (vectors + `.qml` styles) and registers it with a running KASUGAI local server, then switches the view. The panel `Export` button writes the project files only; `▶ Open` / `GET /kasugai?engine=` / the `kasugaiExport` bridge also register and launch a given engine — the same `.kasc`+`DATA/` plays on every engine. An EXE-installed copy also provides rclone, auto-update, file saving and `.kasc` association |
-| **Re:Earth Visualizer (geo_suite)** | `reearth.txt` export | **Secondary** (Cesium-based like KASUGAI Canvas). `reearth.txt` inspector text references the exported `DATA/` files via `/export-data/` URLs, plus `.qml` styles compiled client-side (geo_suite ships a QML→Re:Earth translator) |
-
-Note: 3D work is consolidated in the Cesium-based clients — KASUGAI Canvas
-(primary) and Re:Earth Visualizer (secondary).
 
 #### ② Other clients & external services
 
 | Target | Route | Integration |
 |---|---|---|
-| **Google Maps / Google Earth** | URL generation & parsing | Generates Google Maps/Earth URLs from the current view and opens them in a browser; received Google URLs are parsed into QGIS navigation via External Control |
+| **Re:Earth Visualizer (geo_suite)** | `reearth.txt` export + `/export-data/` | **Secondary** (Cesium-based like KASUGAI Canvas). See "Re:Earth Visualizer (geo_suite) policy" below |
+| **ArcGIS family** | `.kasc`+`DATA/` file handoff → ArcGIS-side (SDK) custom implementation **delivered from any external static host** (GitHub Pages / Cloudflare / Vercel / own server, etc.; cannot run on ArcGIS Online) | See "ArcGIS policy" below |
+
+#### Re:Earth Visualizer (geo_suite) policy
+
+Re:Earth Visualizer is positioned as the **secondary, Cesium-based player**
+alongside KASUGAI Canvas. geo_webview feeds it via `reearth.txt`
+(inspector text) export plus `/export-data/` file and `.qml` style
+delivery; the QML→Re:Earth translation runs client-side (a translator
+bundled in geo_suite). 3D work is consolidated in the Cesium-based
+clients — KASUGAI Canvas (primary) and Re:Earth Visualizer (secondary).
+
+Details: [geo_webview integration policy (`INTEGRATION.md`)](INTEGRATION.md#reearth)
+
+#### ArcGIS policy
+
+**Running this system's features inside ArcGIS Online is functionally
+impossible** (it provides no mechanism to host or execute custom code),
+so ArcGIS integration is limited to **handing over the `.kasc`+`DATA/`
+output as files for the ArcGIS side to read with its own
+implementation**. The reading side is required to carry over `.qml`
+styles and provide layer display features (a minimal implementation is
+acceptable depending on the use case).
+
+Minimum setup for delivery: **one static host (e.g. GitHub Pages —
+free) + a `.kasc` player built on ArcGIS Maps SDK for JavaScript + an
+ArcGIS Location Platform account (free sign-up) or an ArcGIS Online
+org** — the same serverless delivery model as KASUGAI Canvas works.
+Note that data *can* be delivered on Online itself if converted and
+published as AGOL services — but that is a different model where `.qml`
+styles must be rebuilt (what cannot run on Online is only the
+custom-code app and the `.kasc` file set itself).
+
+Details (reading-side requirements, licensing, minimum setup, and
+cautions for `arcgis:` ingestion): [geo_webview integration policy
+(`INTEGRATION.md`)](INTEGRATION.md#arcgis)
 
 #### Integration architecture
 
 ```mermaid
 flowchart TB
     QGIS["QGIS project<br>layers / styles / view state"]
-    GW["geo_webview<br>.kasc+DATA/ export"]
 
-    subgraph G2["② Other clients & external services"]
-        GM["Google Maps / Earth"]
+    subgraph GWBOX["geo_webview (QGIS plugin)"]
+        GW["Export<br>.kasc+DATA/ - launcher HTML - reearth.txt"]
+        SRV["Embedded HTTP server (default :8089)<br>/kasugai launch API - /export-data/ data<br>/&lt;engine&gt;/ engine static fallback"]
     end
 
-    subgraph G1["① Companion players (co-developed)"]
-        direction TB
-        subgraph G1_UNI["Unified players"]
-            KC["KASUGAI Canvas (primary)<br>Cesium/MapLibre/OpenLayers/Leaflet"]
-            RE["Re:Earth Visualizer geo_suite (secondary)"]
-        end
+    subgraph G1["① Companion players (high-function route: dedicated API)"]
+        KC["KASUGAI Canvas (primary, unified player)<br>local server :8510<br>Cesium / MapLibre / OpenLayers / Leaflet<br>register - switch - rclone - auto-update - .kasc association"]
+    end
+
+    subgraph NORM["Standard route: local HTTP + web delivery (instant web, no Canvas app)"]
+        BR["Local HTTP delivery<br>instant view in a browser"]
+        HOST["Serverless web delivery<br>deploy .kasc+DATA/+engine to a static host<br>(incl. hosted kasugai-canvas-web)"]
+    end
+
+    subgraph G2["② Other clients & external services"]
+        RE["Re:Earth Visualizer geo_suite (secondary)<br>reearth.txt - /export-data/ - .qml"]
+        AG["ArcGIS family<br>reads export artifacts on its own<br>(.qml style reproduction + layer display are requirements)<br>→ delivered on external static hosting"]
     end
 
     QGIS --> GW
-    GW -->|"URL generation / parsing"| GM
-    GW -->|"/kasugai (.kasc+DATA/)"| KC
-    GW -->|"reearth.txt + /export-data/ (.qml)"| RE
+    GW --> SRV
+    SRV -->|"/kasugai → Canvas API (register - switch)"| KC
+    SRV -->|"engine pages + /export-data/"| BR
+    GW -.->|"deploy package"| HOST
+    GW --> G2
 ```
 
 ## Serverless delivery flow
@@ -210,7 +256,6 @@ server — serverless `.kasc`+`DATA/` packages are the delivery unit.
 - Share the current map view (coordinates, scale, rotation, theme, layer state) as a URL
 - With `External Control` enabled, received URLs automatically navigate the QGIS canvas
 - Embed links in Office documents (Excel / PowerPoint); export high-resolution PNGs
-- Google Maps / Google Earth: generate Google URLs from the current view and open in a browser; received Google URLs are parsed for navigation through the same mechanism (an example of external service integration)
 
 ## Network features
 

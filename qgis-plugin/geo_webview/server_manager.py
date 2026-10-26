@@ -1059,10 +1059,22 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                 return
             url = None
             via = None
+            # ?route= で再生経路を明示できる: kasugai / local|qgis-http /
+            # hosted。未指定(auto)は従来どおり3段フォールバック
+            route = str(
+                (params or {}).get('route', ['auto'])[0] or 'auto'
+                ).strip().lower()
+            if route == 'qgis-http':
+                route = 'local'
+            if route not in ('auto', 'kasugai', 'local', 'hosted'):
+                route = 'auto'
             try:
-                caps, _launched = kasugai_export.ensure_kasugai_running(
-                    result['kasc'], pump_events=False)
-                if not caps and str(
+                caps = None
+                _launched = False
+                if route in ('auto', 'kasugai'):
+                    caps, _launched = kasugai_export.ensure_kasugai_running(
+                        result['kasc'], pump_events=False)
+                if not caps and route in ('auto', 'kasugai') and str(
                         (params or {}).get('install', [''])[0]
                         ).lower() in ('1', 'true', 'yes'):
                     # ?install=1: 未検出なら配布ZIPを取得・展開して再試行
@@ -1081,7 +1093,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                 QgsMessageLog.logMessage(
                     f'⚠️ KASUGAI registration failed: {e}',
                     'geo_webview', Qgis.MessageLevel.Warning)
-            if not url:
+            if not url and route in ('auto', 'local'):
                 # Canvas未起動/未検出のフォールバック: このHTTPサーバ自体を
                 # 最小配信サーバとして使い、インストール済みCanvasの web/ と
                 # /export-data/ 配下の .kasc+DATA/ でエンジンを開く
@@ -1098,7 +1110,7 @@ html,body{{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family
                     QgsMessageLog.logMessage(
                         f'⚠️ KASUGAI static fallback failed: {e}',
                         'geo_webview', Qgis.MessageLevel.Warning)
-            if not url:
+            if not url and route in ('auto', 'hosted'):
                 # 最終フォールバック: ホスト版エンジン(kasugai-canvas-web)
                 # + 本サーバの /export-data/ データ配信。Canvas未インストール
                 # 環境でもブラウザで開ける(要インターネット)

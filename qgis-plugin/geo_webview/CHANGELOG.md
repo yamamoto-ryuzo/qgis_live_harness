@@ -11,6 +11,296 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.30.27] - 2026-10-26 INTEGRATION の ArcGIS 節を①〜③節構成に再構築
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の ArcGIS 節を、冒頭まとめの
+  3前提に沿った節構成に全面再編:
+  **① Online ではカスタムコード実行不可（大前提）**＝方針・読み込み側
+  要件・Online 可否表、**② 同等品はデータ構築含め一から**＝実装
+  スコープ・行種可否・採用構成(I3S)・ライセンス表・配信先、
+  **③ 管理環境内は Enterprise ExB のみ**＝Enterprise 唯一ケース・
+  「Online と一体に見える」近似手段。`arcgis:` 注意点は付録節へ
+
+## [3.30.26] - 2026-10-26 INTEGRATION のまとめを①〜③の前提整理に改訂
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の冒頭まとめを3点整理:
+  ① Online 上ではカスタムコード実行不可・本系統の機能は実現不可能
+  （大前提）② 同等品は資産流用不可でデータ構築含め一から開発
+  （3D=I3S 変換前提）③ 管理環境内は Enterprise ExB のみ・それ以外は
+  外部ホスト前提で導入の意義なし
+
+## [3.30.25] - 2026-10-26 INTEGRATION のまとめに大前提（Online では実現不可能）を明示
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の冒頭まとめに「**大前提:
+  ArcGIS Online 上ではカスタムコードを実行できず本系統の機能は実現
+  不可能**」を追記。英語版の「導入の意義がない」未反映分も同期
+
+## [3.30.24] - 2026-10-26 INTEGRATION のまとめ②に「導入の意義がない」を追記
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の冒頭まとめ②を調整:
+  外部ホスト前提のモデルは**導入の意義がない**旨を追記
+
+## [3.30.23] - 2026-10-26 INTEGRATION のまとめを「同等品はデータ構築含め一から」に改訂
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の冒頭まとめ①を再調整:
+  「同等品を作ることが前提」として、Canvas 側のコード資産は SDK が
+  異なり流用できないため**データ構築を含めて一からの開発が必要**
+  と明記（3D=I3S 変換前提・ライブ URL 対象外は従来通り）
+
+## [3.30.22] - 2026-10-26 INTEGRATION のまとめに「資産流用不可・一からの開発」を明記
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の冒頭まとめ①を再調整:
+  同等機能を目指しても Canvas 側のコード資産は SDK が異なり流用
+  できないため**一からの開発が必要**（参照できるのは `.kasc` 仕様と
+  同一 OSS ライブラリのみ）と明記
+
+## [3.30.21] - 2026-10-26 INTEGRATION のまとめを「I3S 変換前提・別システム新規実装」に改訂
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の冒頭まとめを更新:
+  ① 同等機能は直接実現できないが 3D は 3D Tiles→I3S 変換
+  パイプライン経由が前提（ライブ URL は対象外）と明記、
+  ② 実装形態は「マルチエンジンへのエンジン追加」ではなく
+  **ArcGIS SDK で `.kasc`+`DATA/` を読む別システムを一から作る**
+  形である旨を追加
+
+## [3.30.20] - 2026-10-26 INTEGRATION の ArcGIS 節冒頭に2行まとめを追加
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md`: ArcGIS 方針の冒頭に結論の
+  まとめを追加 — ① Cesium 等と同等の機能（特に 3D Tiles 再現）は
+  ArcGIS では不可能（2D ならサブセット可）、② 管理環境内で独自
+  WebGIS を動かすには Enterprise 11.0+ の Portal 内 ExB カスタム
+  ウィジェットのみ
+
+## [3.30.19] - 2026-10-26 INTEGRATION に「ArcGIS セキュリティ内での独自 WebGIS」結論を追記
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md`: Esri 管理環境（Portal）内で
+  独自 WebGIS を公式に動かす経路は **Enterprise 11.0+ の Portal 内 ExB
+  カスタムウィジェットのみ**であり、これが Enterprise が必要になる
+  唯一のケースである旨を明記。組織のネットワーク境界内で完結するだけ
+  なら外部ホストの `.kasc` プレイヤーを顧客のイントラサーバに置くだけ
+  で境界内に入る旨も併記
+
+## [3.30.18] - 2026-10-26 INTEGRATION に「Online と一体に見える」連携手段を追記
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md`: 外部ホストのアプリでも
+  AGOL/Portal への Web アプリアイテム登録・AGOL OAuth サインイン・
+  ExB/StoryMaps/ダッシュボードへの URL 埋め込みで「Online と一体に
+  見える」形にできる旨を追記。マルチエンジンの5番目としての価値は
+  低いが組織連携レベルまで実装すれば ArcGIS 環境の一部として
+  機能する旨を明示
+
+## [3.30.17] - 2026-10-26 3D は完全 ArcGIS 構成（SceneView+I3S 変換）を採用構成に決定
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md`: 「Cesium 並みの実装に必要な
+  組み合わせ」を改定し、**完全 ArcGIS 構成（ArcGIS JS SDK の
+  MapView/SceneView ＋ 3D Tiles→I3S 変換パイプライン→SceneLayer）を
+  採用構成**に決定。CesiumJS ハイブリッドは「ライブ 3D Tiles URL の
+  再現が必要な場合のみ」の代替案に格下げ。`3dtiles:` 行種の実現性も
+  「I3S 変換パイプラインで対応（採用構成）」に更新
+- 英語版 `INTEGRATION.md` に欠落していた「プレイヤー実装のスコープと
+  `.kasc` 行種の対応可否」節（実装コンポーネント表＋行種実現性表）を
+  日本語版と同等に追補
+
+## [3.30.16] - 2026-10-26 INTEGRATION に Cesium 並み実装の組み合わせを明示
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` に「Cesium 並みの実装に必要な
+  組み合わせ」節を追加: 2D のみ=JS Maps SDK(MapView)単体で成立、
+  3D 含めて Cesium 並み=**ArcGIS JS SDK(2D/UI/認証/レンダラ)＋
+  CesiumJS(3D Tiles 描画)のハイブリッド**が現実解（SceneView は OGC
+  3D Tiles 非対応のため純 ArcGIS では不可）、ArcGIS 純度優先なら
+  3D Tiles→I3S 変換パイプライン（loaders.gl tile-converter/Pro SLPK）
+  だがライブ 3D Tiles URL は対象外
+
+## [3.30.15] - 2026-10-26 INTEGRATION に JS Maps SDK の位置づけを補足
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md`: ArcGIS Maps SDK for JavaScript
+  は Leaflet/MapLibre/OpenLayers/CesiumJS と同じカテゴリの Web 地図
+  ライブラリ（Esri 公式・WebGL、MapView/SceneView）であり、構成としては
+  「5番目のエンジン追加」と同等である旨を補足。違いは非 OSS（帰属
+  表示必須）と SceneView の 3D Tiles 非対応の2点
+
+## [3.30.14] - 2026-10-26 「ArcGIS Online で配信できるもの・できないもの」を明示
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の配信先節の前に表を追加:
+  `.kasc` プレイヤー（カスタムコード本体）と `.kasc`+`DATA/` 一式は
+  Online では不可だが、**データを加工して AGOL サービスとして公開する
+  経路は Online 上で配信可能**（ホストフィーチャ/タイル/シーンレイヤ、
+  AGOL 内蔵アプリで配信、要 Creator+・クレジット）。ただし `.qml`
+  スタイルは引き継げない別モデルである旨も明記
+- `README.md` / `README_JP.md` の最小構成行にも同趣旨の補足を追加
+
+## [3.30.13] - 2026-10-26 README の ArcGIS 方針に配信の最小構成を追記
+
+- `README.md` / `README_JP.md` の「ArcGIS 系への対応方針」に、配信の
+  最小構成（静的ホスト1つ＋JS Maps SDK 製 .kasc プレイヤー実装＋
+  Location Platform アカウント or Online 組織）と「Canvas と同じ
+  サーバレス配信モデルが成立する」旨を1行で明記
+
+## [3.30.12] - 2026-10-26 README/INTEGRATION に ArcGIS 配信先を明示
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md`: 「プレイヤー実装のスコープと
+  `.kasc` 行種の対応可否」節を新設。実装コンポーネント（パーサ・参照
+  解決・QML→ArcGIS renderer 変換・ローダー・レイヤ UI・cam/theme・
+  出典表示）と行種ごとの実現性（geojson/xyz/base/wms/wmts=○、
+  gpkg/geoparquet/flatgeobuf/duckdb/sql=△自前ローダー、3dtiles=×）を
+  表で明示
+- `README.md` / `README_JP.md`: ② 連携表の ArcGIS 行の経路を
+  「`.kasc`+`DATA/` 受け渡し → 外部静的ホストで配信（GitHub
+  Pages/Cloudflare/Vercel 等）」に具体化。連携構成図の ArcGIS ノード
+  （README・INTEGRATION 双方）にも「→ 外部静的ホストで配信」を追記
+
+## [3.30.11] - 2026-10-26 INTEGRATION に「Canvas と同じサーバレス配信モデル」を明記
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の配信先節に、ArcGIS 版
+  プレイヤーも Canvas と同じサーバレス配信モデル（静的アプリ＋
+  `.kasc`+`DATA/` を静的ホストへ置くだけ）が成立すること、および
+  再現可能な `.kasc` 行種の制約（`3dtiles:` は非対応等）を明記
+
+## [3.30.10] - 2026-10-26 INTEGRATION の ArcGIS 配信先を具体例付きに明示
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の「配信先」で Web プレイヤーの
+  ホスト先を箇条書きで具体的に列挙: GitHub Pages（kasugai-canvas-web の
+  2チャンネル公開と同型）/ Cloudflare Pages・Workers（kasugai_canvas）/
+  Vercel（geo_suite サイト）/ Netlify / 自前 Web サーバ（IIS・Apache・
+  nginx、イントラ可）/ オブジェクトストレージ+CDN（S3+CloudFront・
+  GCS・Azure）。実装形態別の配信先表はその他（ExB・Pro アドイン・
+  ネイティブ）のみに整理
+
+## [3.30.9] - 2026-10-26 INTEGRATION に ArcGIS 側実装の配信先を追記
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の ArcGIS 節に「配信先」
+  サブセクションを追加: 実装したアプリは ArcGIS Online 上では動かせず
+  必ず外部ホスト（Web プレイヤー=任意の静的ホスト、ExB=自前サーバ、
+  Pro アドイン=.esriAddinX 配布、ネイティブ=インストーラー/ストア）。
+  AGOL/Portal アイテム登録は URL 参照のみ、`.kasc`+`DATA/` との
+  同一オリジン配置が最も簡単な旨を明記
+
+## [3.30.8] - 2026-10-26 連携対応方針の詳細をプラグイン内 INTEGRATION(_JP).md へ移動
+
+- 連携対応方針の詳細を `docs/geo_webview.html` からプラグイン配布物内の
+  **`INTEGRATION_JP.md` / `INTEGRATION.md`（日英ペア）** へ移動し、
+  プラグインの自律管理ドキュメント（README/SPEC と同規約）として配置
+- `docs/geo_webview.html` はプラグインドキュメントへの誘導ページに
+  縮小（ナビ構成は維持）、`plugins.html` からもリンク
+- `README.md` / `README_JP.md` の詳細リンクをプラグイン内ファイルへの
+  相対リンクに変更（`INTEGRATION(_JP).md#reearth` / `#arcgis`）
+
+## [3.30.7] - 2026-10-26 連携対応方針の詳細を docs/geo_webview.html へ集約
+
+- ドキュメントサイトに geo_webview プラグインページ
+  **`docs/geo_webview.html`（外部サービス・クライアント連携方針）** を
+  新設し、ArcGIS 系への対応方針の詳細（読み込み側要件・ライセンス形態・
+  .kasc プレイヤー最小ライセンス・`arcgis:` 取り込みの注意点）と
+  Re:Earth 対応方針・連携構成図を移設。全 docs ページのサイドバーに
+  「geo_webview 連携方針」ナビリンクを追加し、`plugins.html` の
+  geo_webview 節からもリンク（欠落していた GeoSuite ナビリンクも補完）
+- `README.md` / `README_JP.md` の「ArcGIS 系への対応方針」「Re:Earth
+  Visualizer（geo_suite）への対応方針」は概要＋開発ドキュメントへの
+  リンクのみに圧縮
+
+## [3.30.6] - 2026-10-26 ArcGIS 読み込み側のレイヤ表示要件を緩和
+
+- 前版で明記した読み込み側要件のうち「レイヤ表示機能」は**用途に応じて
+  最小限の実装でよい**（他エンジンとの完全同等は必須としない）旨に
+  緩和。`.qml` スタイル引き継ぎは引き続き必須要件
+
+## [3.30.5] - 2026-10-26 ArcGIS 読み込み側の要件にスタイル引き継ぎ・レイヤ表示を明記
+
+- `README.md` / `README_JP.md` の ArcGIS 供給方向に、読み込み側の要件
+  として「`.qml` スタイルの引き継ぎ（QGIS レンダラ → ArcGIS renderer
+  変換）」と「レイヤツリー・表示 ON/OFF・透過・ベースマップ切替・属性
+  ポップアップ等のレイヤ表示機能」の2点を明記。スタイルを捨てた
+  データ取り込みではなく他エンジン同等の再現プレイヤーを目指す方針を
+  明示（連携構成図の ArcGIS ノードにも追記）
+
+## [3.30.4] - 2026-10-26 ArcGIS ライセンス表から「Enterprise 要否」列を撤去
+
+- `README.md` / `README_JP.md` の ArcGIS ライセンス表を「Enterprise が
+  必要か」という要否表示から「各実装形態に必要なライセンス・アカウント」
+  の明示に整理。Enterprise 列・「Enterprise が事実上必須になるケース」
+  の段落・Portal 内ホスト/SOE 等の Enterprise 行を削除し、必要なもの
+  （Pro ライセンス / Location Platform API key / ExB DE + Online
+  アカウント / Runtime Lite 等）のみを列挙
+
+## [3.30.3] - 2026-10-26 .kasc プレイヤーを ArcGIS 側で実装する最小ライセンスを追記
+
+- `README.md` / `README_JP.md` の「ArcGIS 系への対応方針」に、他エンジン
+  相当の `.kasc`+`DATA/` プレイヤーを ArcGIS 側で実装する場合の最小
+  ライセンス表を追記: Web プレイヤー=JS Maps SDK（Online 組織 or
+  Location Platform アカウントで追加購入不要）/ ネイティブ=無償の
+  Runtime Lite / デスクトップ=ArcGIS Pro Basic。いずれも Enterprise 不要
+
+## [3.30.2] - 2026-10-26 ArcGIS サービス取り込みのライセンス注意点を追記
+
+- `README.md` / `README_JP.md` の「ArcGIS 系への対応方針」に、`.kasc` の
+  `arcgis:` 行種で ArcGIS サービス（MapServer/ImageServer/FeatureServer/
+  SceneServer）を取り込む構想に関する**ライセンス注意点**を追記:
+  Esri ホストサービスは非 Esri クライアントからの利用に ArcGIS Location
+  Platform 契約（API key 認証・従量課金）が必須、"Powered by Esri" 帰属
+  表示義務、組織コンテンツ・第三者公開サービスは提供者の利用条件に
+  従う旨を明示（読める≠使える）
+
+## [3.30.1] - 2026-10-26 ArcGIS 対応方針から KASUGAI→ArcGIS 取り込み記述を撤去
+
+- `README.md` / `README_JP.md` の「ArcGIS 系への対応方針」から、KASUGAI
+  Canvas が ArcGIS REST サービス（MapServer/FeatureServer/SceneServer 等）
+  を取り込む方向の記述を削除。連携は **QGIS→ArcGIS への `.kasc`+`DATA/`
+  ファイル受け渡しのみ**とし、読み込みは ArcGIS 側（SDK）の独自実装に
+  委ねる方針を明確化。ライセンス表から「Canvas が ArcGIS REST サービスを
+  読む」行を除去し、表は ArcGIS 側の読み込み実装形態（Pro アドイン /
+  JS Maps SDK / ExB / Portal 内ホスト等）のみを列挙
+
+## [3.30.0] - 2026-10-26 Google Maps / Earth 連携（URL 生成・パース）を撤去
+
+- **Google Maps / Google Earth 連携を全撤去** — 現在の表示から Google
+  Maps / Earth の URL を生成して外部ブラウザで開く機能、および受信した
+  Google 系 URL（`@lat,lon,…z`・`@…a,…d,…y` 形式）をパースして QGIS を
+  ナビゲートする機能を削除。Google Earth へのリンクは KASUGAI Canvas
+  側のベースマップコントロール（🌐 ボタン）に集約した:
+  - パネル: 「🗺️ Google Maps」「🌍 Google Earth」ボタンを削除
+    （`panel_base.ui` の `horizontalLayout_external_buttons` ごと）
+  - `plugin.py`: `_build_google_maps_url` / `_build_google_earth_url` /
+    `_parse_google_maps_at_url` / `_parse_google_earth_url` と、同機能
+    専用だった `_resolve_coordinates` / `_convert_to/from_wgs84` /
+    `_compute_scale_from_map_width` / `_compute_scale_from_map_width_at_center` /
+    `_set_extent_for_map_width` / `_get_screen_dpi` /
+    `on_google_maps_clicked_panel` / `on_google_earth_clicked_panel`
+    を削除。`navigate_to_permalink` / `on_navigate_clicked_panel` 内の
+    Google @ 形式パース経路も撤去（`navigate` は内部 `qgis-map`
+    リンクのみ受理）
+  - `bridge.py`: `googleMapsUrl` / `googleEarthUrl` メソッドを削除。
+    `openExternal` は `google_maps` / `google_earth` を受理せず
+    KASUGAI Canvas エンジン名（cesium/openlayers/maplibre/leaflet）
+    のみに限定。`navigate` も Google URL を受理しない
+  - i18n カタログ（9言語）から Google 関連の翻訳キーを整理
+  - ドキュメント: README（連携方針表・構成図）と SPEC §10 を更新
+    （§10 は撤去済み注記に置換）
+
+## [3.29.2] - 2026-10-26 ArcGIS 対応方針にライセンス形態の整理を追記（README.md へ ArcGIS 節を新設）
+
+- `README_JP.md`「ArcGIS 系への対応方針」に「ライセンス形態との関係」
+  サブセクションを追加。「Online では無理なので Enterprise」は不正確であり、
+  不可能なのは Online 上でのカスタムコード実行のみで両連携方向とも
+  Enterprise を必須としないことを明示。実装形態別（Canvas からの REST
+  読み取り / Pro アドイン / JS Maps SDK カスタムアプリ / ExB カスタム
+  ウィジェット / Portal 内ホスト・SOE 等）の要否を表で整理
+- `README.md`（英語版）に欠落していた ArcGIS 対応方針を新設:
+  ② テーブル行・「ArcGIS policy」サブセクション（ライセンス表含む）・
+  連携構成図に ArcGIS ノードを追加し README_JP.md と同等の記述に同期
+
+## [3.29.1] - 2026-10-26 README 連携構成図の再構成（Re:Earth を②へ移動・ローカルサーバー追加）
+
+- ドキュメント（`README.md` / `README_JP.md`）の「連携方針」節を整理:
+  - Re:Earth Visualizer（geo_suite）を「① セット開発のプレイヤー群」から
+    「② その他クライアント・外部サービス」へ移し、ArcGIS と同様の独立した
+    「対応方針」サブセクションとして記述（① は KASUGAI Canvas のみに一本化）
+  - 連携構成図に内蔵 HTTP サーバー（既定 :8089）ノードを追加し、配信ルートを
+    「高機能ルート（起動中の Canvas ローカルサーバー :8510 の専用 API で
+    登録・切替）」と「通常ルート（ローカル HTTP + サーバレス WEB 配信で
+    Canvas アプリなしで即時 Web 化）」の2系統として明示
+  - ArcGIS 系との連携は「エクスポート物を ArcGIS 側が独自に読み込む」
+    簡易扱いに整理（`/export-data/` の URL 参照案内を撤去）
+
 ## [3.29.0] - 2026-10-26 パネルUIのサーバレスWeb配信主軸化・OGCサーバー全撤去・ドキュメント再構築
 
 - **OGC サービス（WMS/WMTS/XYZ/WFS・`/maplibre-style`）を撤去** —

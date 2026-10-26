@@ -98,9 +98,6 @@ class GeoWebViewPanel(QDockWidget):
         self.lineEdit_theme_name = getattr(self.ui, 'lineEdit_theme_name', None)
         self.pushButton_save_theme = getattr(self.ui, 'pushButton_save_theme', None)
 
-        # Google Maps/Earth用のUI要素
-        self.pushButton_google_maps = getattr(self.ui, 'pushButton_google_maps', None)
-        self.pushButton_google_earth = getattr(self.ui, 'pushButton_google_earth', None)
         # KASUGAI Canvas エクスポート/起動ボタン・エンジン選択
         self.pushButton_kasugai_export = getattr(self.ui, 'pushButton_kasugai_export', None)
         self.pushButton_kasugai_launch = getattr(self.ui, 'pushButton_kasugai_launch', None)
@@ -232,10 +229,6 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.label_navigate_info.setText(QCoreApplication.translate('geo_webview', "Enter a permalink to navigate"))
 
         # Buttons now include the icon/label together; set button texts instead
-        if hasattr(self.ui, 'pushButton_google_maps'):
-            self.ui.pushButton_google_maps.setText(QCoreApplication.translate('geo_webview', "🗺️ Google Maps"))
-        if hasattr(self.ui, 'pushButton_google_earth'):
-            self.ui.pushButton_google_earth.setText(QCoreApplication.translate('geo_webview', "🌍 Google Earth"))
         if hasattr(self.ui, 'label_kasugai'):
             self.ui.label_kasugai.setText(QCoreApplication.translate('geo_webview', "KASUGAI Canvas:"))
         if hasattr(self.ui, 'pushButton_kasugai_export'):
@@ -244,10 +237,17 @@ class GeoWebViewPanel(QDockWidget):
                 'geo_webview',
                 "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs) — files only"))
         if hasattr(self.ui, 'pushButton_kasugai_launch'):
-            self.ui.pushButton_kasugai_launch.setText(QCoreApplication.translate('geo_webview', "▶ Open"))
-            self.ui.pushButton_kasugai_launch.setToolTip(QCoreApplication.translate(
-                'geo_webview',
-                "Export and open the project in the selected engine (registers with a running KASUGAI Canvas; falls back to local/hosted engines)"))
+            self.ui.pushButton_kasugai_launch.setText(QCoreApplication.translate('geo_webview', "▶ Canvas"))
+            self.ui.pushButton_kasugai_launch.setToolTip(QCoreApplication.translate('geo_webview',
+                "Open in KASUGAI Canvas (main integrated player) — registers the project with a running Canvas (port 8510) and switches to it"))
+        if hasattr(self.ui, 'pushButton_kasugai_launch_local'):
+            self.ui.pushButton_kasugai_launch_local.setText(QCoreApplication.translate('geo_webview', "▶ Local"))
+            self.ui.pushButton_kasugai_launch_local.setToolTip(QCoreApplication.translate('geo_webview',
+                "Show instantly in a browser via local HTTP delivery — this plugin's server serves the installed Canvas web/ + DATA/ (requires Canvas installed + HTTP server running)"))
+        if hasattr(self.ui, 'pushButton_kasugai_launch_hosted'):
+            self.ui.pushButton_kasugai_launch_hosted.setText(QCoreApplication.translate('geo_webview', "▶ Serverless"))
+            self.ui.pushButton_kasugai_launch_hosted.setToolTip(QCoreApplication.translate('geo_webview',
+                "Open via serverless WEB delivery — hosted engine (GitHub Pages) + this server's data delivery (no Canvas install needed; requires internet + HTTP server running)"))
         if hasattr(self.ui, 'comboBox_engine'):
             self.ui.comboBox_engine.setToolTip(QCoreApplication.translate(
                 'geo_webview',

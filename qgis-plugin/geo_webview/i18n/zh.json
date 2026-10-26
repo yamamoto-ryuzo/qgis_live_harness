@@ -31,10 +31,7 @@
     "Failed to copy to the clipboard. Please copy it manually.": "复制到剪贴板失败。请手动复制。",
     "Failed to create panel: {error}": "创建面板失败: {error}",
     "Failed to generate permalink: {error}": "生成永久链接失败: {error}",
-    "Failed to navigate to Google Maps URL: {error}": "无法导航到 Google Maps URL: {error}",
     "Failed to parse or handle the provided HTTP(S) URL.": "无法解析或处理所提供的 HTTP(S) URL。",
-    "Google Earth launch error: {0}": "Google Earth 启动错误: {0}",
-    "Google Maps launch error: {0}": "Google Maps 启动错误: {0}",
     "HTTPS also requires a certificate (not currently supported).\n": "HTTPS 还需要证书(目前不支持)。\n",
     "Install KASUGAI Canvas": "安装 KASUGAI Canvas",
     "Installed KASUGAI Canvas and opened the project ({0}).": "已安装 KASUGAI Canvas 并打开项目 ({0})。",
@@ -51,9 +48,7 @@
     "Moved the map view via HTTP.": "已通过 HTTP 移动地图视图。",
     "Moved to coordinates ({0:.6f}, {1:.6f}) (scale preserved).": "已移动到坐标 ({0:.6f}, {1:.6f})(保留比例尺)。",
     "Moved to coordinates ({0:.6f}, {1:.6f}).": "已移动到坐标 ({0:.6f}, {1:.6f})。",
-    "Navigate supports only internal 'qgis-map' links or Google @-style URLs (e.g. /@lat,lon,220m/).": "Navigate 仅支持内部 'qgis-map' 链接或 Google @ 样式 URL(例如 /@lat,lon,220m/)。",
-    "Opened in Google Earth.": "已在 Google Earth 中打开。",
-    "Opened in Google Maps.": "已在 Google Maps 中打开。",
+    "Navigate supports only internal 'qgis-map' links.": "Navigate 仅支持内部 'qgis-map' 链接。",
     "Opened in KASUGAI Canvas ({0}) ({1} layers, {2} tiles).": "已在 KASUGAI Canvas ({0}) 中打开 ({1} 个图层, {2} 个切片)。",
     "Opened in MapLibre.": "已在 MapLibre 中打开。",
     "Opened the project in {0} ({1}): {2}": "已在 {0} 中打开项目（{1}）：{2}",
@@ -143,9 +138,7 @@
     "When enabled, map view can be updated by external URLs": "启用后,地图视图可由外部 URL 更新",
     "color: green; font-weight: bold;": "color: green; font-weight: bold;",
     "▶ Open": "▶ 打开",
-    "🌍 Google Earth": "🌍 Google Earth",
-    "📁": "📁",
-    "🗺️ Google Maps": "🗺️ Google Maps"
+    "📁": "📁"
   },
   "geo_webview": {
     "\n⚠️ The firewall may be blocking port {0}": "\n⚠️ 防火墙可能正在阻止端口 {0}",
@@ -261,10 +254,8 @@
     "geo_webview — Web Distribution": "geo_webview — Web 分发",
     "▶ Open": "▶ 打开",
     "✅ Server is running on port {0}": "✅ 服务器正在端口 {0} 上运行",
-    "🌍 Google Earth": "🌍 Google Earth",
     "🌐 Network: {0}": "🌐 网络: {0}",
     "🏠 Local: {0}": "🏠 本地: {0}",
-    "📡 Available IPs: {0}": "📡 可用 IP: {0}",
-    "🗺️ Google Maps": "🗺️ Google Maps"
+    "📡 Available IPs: {0}": "📡 可用 IP: {0}"
   }
 }

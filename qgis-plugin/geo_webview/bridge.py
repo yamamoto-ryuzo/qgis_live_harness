@@ -67,17 +67,16 @@ class GeoWebViewBridge:
                "KASUGAI Canvas(Cesium/MapLibre/OpenLayers/Leaflet)で再生する"
                "サーバレスWeb配信プラグイン。"
                "地図表示状態(中心/縮尺/回転/テーマ)をパーマリンクURLとして"
-               "生成・復元し、Google Maps/Earth 連携URLの発行も行う。"
+               "生成・復元する。"
                "内蔵HTTPサーバは /kasugai 起動・/export-data/ 配信・"
                "/present 画面共有・パーマリンク受領を担う。")
     WHEN_TO_USE = [
         "表示中レイヤをKASUGAI Canvas用に出力・登録・起動したい",
         "現在の地図ビューを共有できるパーマリンクURLを発行したい",
-        "パーマリンク/Google Maps/Earth のURLからQGISの地図を移動したい",
+        "パーマリンクのURLからQGISの地図を移動したい",
         "座標・縮尺・回転・テーマを指定して地図ビューを直接操作したい",
         "HTTPサーバの起動・停止・ポート変更・状態確認をしたい",
         "外部端末からのアクセス可否(ファイアウォール等)を診断したい",
-        "Google Maps/Google Earth で現在位置を開くURLを発行したい",
         "プロジェクトのマップテーマ/ブックマークを一覧・適用したい",
         "QGISキャンバスを /present・/screenshot で画面共有したい",
     ]
@@ -133,11 +132,11 @@ class GeoWebViewBridge:
         },
         "navigate": {
             "description":
-                "パーマリンク/Google Maps(@lat,lon,…z|…m)/Google Earth"
-                "(@lat,lon,…a,…d,…y)/qgis-permalink:// URLから地図を移動する。"
+                "パーマリンク(/qgis-map・旧/wms)/qgis-permalink:// URLから"
+                "地図を移動する。"
                 "モーダルダイアログは出さず、失敗は ok:false で返す。",
             "example": {"method": "navigate",
-                        "args": ["https://www.google.co.jp/maps/@35.68,139.69,16z"]},
+                        "args": ["http://localhost:8089/qgis-map?x=15573700&y=4258000&scale=5000&crs=EPSG:3857"]},
         },
         "navigateTo": {
             "description":
@@ -181,21 +180,10 @@ class GeoWebViewBridge:
                 "パーマリンクをクリップボードへコピーする。未生成なら自動生成。",
             "example": {"method": "copyPermalink", "args": []},
         },
-        "googleMapsUrl": {
-            "description":
-                "現在の地図中心・縮尺からGoogle Maps URL(@lat,lon,Zz)を返す。",
-            "example": {"method": "googleMapsUrl", "args": []},
-        },
-        "googleEarthUrl": {
-            "description":
-                "現在の地図中心・縮尺からGoogle Earth Web URLを返す。",
-            "example": {"method": "googleEarthUrl", "args": []},
-        },
         "openExternal": {
             "description":
-                "外部サービスを既定ブラウザで開く。serviceは google_maps /"
-                " google_earth / cesium / openlayers / maplibre / leaflet"
-                "(エンジン名はKASUGAI Canvasをそのエンジンで起動する)。",
+                "KASUGAI Canvas を指定エンジンで起動する。serviceは"
+                " cesium / openlayers / maplibre / leaflet。",
             "example": {"method": "openExternal", "args": ["maplibre"]},
         },
         "kasugaiExport": {
@@ -298,26 +286,6 @@ class GeoWebViewBridge:
             panel.update_server_status(port, server.is_server_running())
         except Exception:  # nosec B110  # 設計上の許容
             pass
-
-    def _navigation_data_from_canvas(self):
-        """現在キャンバスからGoogle系/共通ナビゲーションデータを構築する。"""
-        p = self._plugin
-        canvas = p.iface.mapCanvas()
-        extent = canvas.extent()
-        crs = canvas.mapSettings().destinationCrs()
-        scale = canvas.scale()
-        cx, cy = extent.center().x(), extent.center().y()
-        lat, lon = p._convert_to_wgs84(cx, cy, crs.authid())
-        if lat is None or lon is None:
-            return None, "coordinate transform to WGS84 failed"
-        return {
-            "type": "coordinates",
-            "x": cx, "y": cy,
-            "lat": lat, "lon": lon,
-            "scale": scale,
-            "crs": crs.authid(),
-            "zoom": p._estimate_zoom_from_scale(scale),
-        }, None
 
     def _open_url(self, url):
         """既定ブラウザでURLを開く。失敗時は例外。"""
@@ -667,12 +635,11 @@ class GeoWebViewBridge:
     # ---------- ナビゲーション ----------
 
     def navigate(self, url):
-        """パーマリンク/Google URLから地図ビューを移動する(モーダル無し)。
+        """パーマリンクURLから地図ビューを移動する(モーダル無し)。
 
         対応形式:
           - http(s)://…/qgis-map?x=&y=&scale=&crs=&rotation=[&theme=]
-          - Google Maps  : @lat,lon,ZZz / @lat,lon,NNNm
-          - Google Earth : @lat,lon,AAa,DDd,YYy
+          - 旧形式 http(s)://…/wms?…
           - qgis-permalink://<urlencoded JSON>
         失敗時は {"ok": false, "error": ...} を返す(QMessageBoxは出さない)。
         """
@@ -682,41 +649,6 @@ class GeoWebViewBridge:
         url = str(url).strip()
         parsed = urllib.parse.urlparse(url)
         lowered = url.lower()
-
-        # Google Earth Web(@lat,lon,…a,…d[,…y])を最優先で試す
-        if "@" in url:
-            try:
-                pe = p._parse_google_earth_url(url)
-            except Exception:
-                pe = None
-            if pe:
-                p.navigate_to_coordinates(
-                    pe["lon"], pe["lat"], pe.get("scale"), pe.get("zoom"),
-                    "EPSG:4326")
-                return self._ok({"kind": "google_earth", "parsed": _jsonable(pe),
-                                 "canvas": self._canvas_state()})
-            try:
-                pm = p._parse_google_maps_at_url(url)
-            except Exception:
-                pm = None
-            if pm:
-                width_m = pm.get("map_width_m")
-                if width_m:
-                    canvas = p.iface.mapCanvas()
-                    scale = p._compute_scale_from_map_width_at_center(
-                        pm["lat"], pm["lon"], width_m, canvas)
-                    if scale:
-                        p.navigate_to_coordinates(
-                            pm["lon"], pm["lat"], scale, None, "EPSG:4326")
-                        return self._ok({"kind": "google_maps",
-                                         "map_width_m": width_m,
-                                         "scale": scale,
-                                         "canvas": self._canvas_state()})
-                p.navigate_to_coordinates(
-                    pm["lon"], pm["lat"], pm.get("scale"), pm.get("zoom"),
-                    "EPSG:4326")
-                return self._ok({"kind": "google_maps", "parsed": _jsonable(pm),
-                                 "canvas": self._canvas_state()})
 
         # qgis-map / wms 内部パーマリンク(スキーム省略も許容)
         if "/qgis-map" in lowered or "qgis-map?" in lowered or (
@@ -757,8 +689,7 @@ class GeoWebViewBridge:
                              "canvas": self._canvas_state()})
 
         return self._err("unsupported URL format "
-                         "(qgis-map permalink / Google @-style / "
-                         "qgis-permalink://)")
+                         "(qgis-map permalink / qgis-permalink://)")
 
     def navigateTo(self, x=None, y=None, lat=None, lon=None, scale=None,
                    zoom=None, crs=None, rotation=None, theme=None):
@@ -883,54 +814,18 @@ class GeoWebViewBridge:
 
     # ---------- 外部サービスURL ----------
 
-    def googleMapsUrl(self):
-        """現在の地図中心・縮尺から Google Maps URL を返す。"""
-        p = self._plugin
-        nav, err = self._navigation_data_from_canvas()
-        if nav is None:
-            return self._err(err)
-        url = p._build_google_maps_url(nav)
-        if not url:
-            return self._err("google maps url build failed")
-        return self._ok({"url": url})
-
-    def googleEarthUrl(self):
-        """現在の地図中心・縮尺から Google Earth Web URL を返す。"""
-        p = self._plugin
-        nav, err = self._navigation_data_from_canvas()
-        if nav is None:
-            return self._err(err)
-        url = p._build_google_earth_url(nav)
-        if not url:
-            return self._err("google earth url build failed")
-        return self._ok({"url": url})
-
     def openExternal(self, service):
-        """外部サービスを既定ブラウザで開く。
+        """KASUGAI Canvas を指定エンジンで起動する。
 
-        service: "google_maps" | "google_earth" | KASUGAI Canvas エンジン名
+        service: KASUGAI Canvas エンジン名
         ("cesium" | "openlayers" | "maplibre" | "leaflet")
         """
         service = str(service or "").strip().lower()
-        if service == "google_maps":
-            r = json.loads(self.googleMapsUrl())
-        elif service == "google_earth":
-            r = json.loads(self.googleEarthUrl())
-        elif service in ("cesium", "openlayers", "maplibre", "leaflet"):
+        if service in ("cesium", "openlayers", "maplibre", "leaflet"):
             # KASUGAI Canvas: エクスポート・登録・ブラウザ起動まで行う
             return self.kasugaiExport(engine=service, open_app=True)
-        else:
-            return self._err("unknown service: {!r} (google_maps/"
-                             "google_earth/cesium/openlayers/maplibre/"
-                             "leaflet)".format(service))
-        if not r.get("ok"):
-            return self._err(r.get("error", "url build failed"))
-        url = r["url"]
-        try:
-            self._open_url(url)
-        except Exception as e:
-            return self._err(f"open browser failed: {e} (url: {url})")
-        return self._ok({"service": service, "url": url})
+        return self._err("unknown service: {!r} (cesium/openlayers/"
+                         "maplibre/leaflet)".format(service))
 
     # ---------- KASUGAI Canvas 連携 ----------
 
@@ -938,7 +833,7 @@ class GeoWebViewBridge:
                       native_formats=True, hidden_as_off=False,
                       embed_gpkg_style=False, emit_themes=True,
                       emit_bookmarks=True, emit_launchers=True,
-                      engine=None, install=False):
+                      engine=None, install=False, route=None):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
         表示中のベクターレイヤを DATA/ へ出力し、.kasc(geojson:/gpkg:/
@@ -1011,9 +906,21 @@ class GeoWebViewBridge:
         if not open_app:
             out["registered"] = False
             return self._ok(out)
-        caps, launched_default = kasugai_export.ensure_kasugai_running(
-            result["kasc"], pump_events=False)
-        if not caps and install:
+        # 再生経路の明示指定: 'kasugai'(Canvas登録) / 'local'|'qgis-http'
+        # (本サーバ静的配信) / 'hosted'(ホスト版エンジン)。既定 'auto' は
+        # kasugai→qgis-http→hosted の3段フォールバック。
+        route = str(route or 'auto').strip().lower()
+        if route == 'qgis-http':
+            route = 'local'
+        if route not in ('auto', 'kasugai', 'local', 'hosted'):
+            route = 'auto'
+        out["route"] = route
+        caps = None
+        launched_default = False
+        if route in ('auto', 'kasugai'):
+            caps, launched_default = kasugai_export.ensure_kasugai_running(
+                result["kasc"], pump_events=False)
+        if not caps and install and route in ('auto', 'kasugai'):
             # 未検出かつ install=True: 配布ZIPを取得・展開してから再試行
             # (ダウンロードのため数十秒ブロックする場合がある)
             try:
@@ -1033,7 +940,8 @@ class GeoWebViewBridge:
             try:
                 # 旧単一エンジン構成のインストールは ?kasc= 非対応のため
                 # <engine>/ の存在まで確認する
-                if port and kasugai_export.find_kasugai_engine_dir(engine):
+                if route in ('auto', 'local') and port and \
+                        kasugai_export.find_kasugai_engine_dir(engine):
                     local_url = kasugai_export.build_local_view_url(
                         result["kasc"], engine=engine, port=port)
                     if local_url:
@@ -1056,8 +964,10 @@ class GeoWebViewBridge:
             # 本サーバの /export-data/ データ配信。Canvas未インストール環境
             # でもブラウザで開ける(要インターネット)
             try:
-                hosted_url = kasugai_export.build_hosted_view_url(
-                    result["kasc"], engine=engine, port=port)
+                hosted_url = (
+                    kasugai_export.build_hosted_view_url(
+                        result["kasc"], engine=engine, port=port)
+                    if route in ('auto', 'hosted') else None)
                 if hosted_url:
                     out["url"] = hosted_url
                     out["via"] = "hosted"

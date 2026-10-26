@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>geo_webview 連携方針 | QGIS Live Harness</title>
+<meta name="description" content="QGIS プラグイン geo_webview の外部クライアント・サービス連携方針 — 詳細はプラグイン側ドキュメント INTEGRATION(_JP).md に集約">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="site"><span class="logo">Q</span>QGIS Live Harness</div>
+    <div class="links">
+      <div class="group">はじめに</div>
+      <a class="navlink" href="index.html">概要</a>
+      <a class="navlink" href="usage.html">使い方・セットアップ</a>
+      <a class="navlink" href="security.html">セキュリティ</a>
+      <div class="group">コンポーネント</div>
+      <a class="navlink" href="driver.html">QGIS Live Driver</a>
+      <a class="navlink" href="harness.html">QGIS Live Harness</a>
+      <div class="group">ガイド</div>
+      <a class="navlink" href="distribution.html">プラグイン配布</a>
+      <a class="navlink" href="internals.html">Harnessのプラグイン化</a>
+      <a class="navlink" href="plugins.html">プラグイン一覧</a>
+      <a class="navlink" href="geosuite.html">GeoSuite</a>
+      <a class="navlink active" href="geo_webview.html">geo_webview 連携方針</a>
+      <div class="group">リンク</div>
+      <a class="navlink ext" href="https://github.com/yamamoto-ryuzo/qgis_live_harness">GitHub リポジトリ</a>
+    </div>
+  </nav>
+  <div class="content">
+  <main>
+<header class="page-header">
+<p class="eyebrow">プラグイン geo_webview</p>
+<h1>geo_webview — 外部サービス・クライアント連携方針</h1>
+<p class="lead">geo_webview の連携先ごとの対応方針。詳細はプラグイン側のドキュメントに集約しています。</p>
+</header>
+
+<p><a href="plugins.html">geo_webview</a>（QGIS プロジェクトを
+<code>.kasc</code>+<code>DATA/</code> として出力するサーバレス Web 配信プラグイン）の
+連携先ごとの対応方針 — Re:Earth Visualizer（geo_suite）と ArcGIS 系の扱い、
+読み込み側実装の要件、ArcGIS のライセンス形態整理をまとめています。</p>
+
+<p><strong>本文書はプラグイン側で管理しています:</strong></p>
+
+<ul class="cards">
+<li><a class="card" href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/INTEGRATION_JP.md"><b>INTEGRATION_JP.md（日本語）</b><span>連携方針の正本。構成図・Re:Earth/ArcGIS 対応方針・ライセンス表・arcgis: 注意点</span></a></li>
+<li><a class="card" href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/INTEGRATION.md"><b>INTEGRATION.md（English）</b><span>Integration policy — English edition</span></a></li>
+</ul>
+
+<h2>概要</h2>
+<ul>
+<li><strong>KASUGAI Canvas（主）・Re:Earth Visualizer（サブ）</strong>:
+<code>.kasc</code>+<code>DATA/</code>・<code>reearth.txt</code> で供給するセット開発のプレイヤー</li>
+<li><strong>ArcGIS 系</strong>: ArcGIS Online 上でカスタムコードを実行できないため、
+<code>.kasc</code>+<code>DATA/</code> のファイル受け渡しのみとし、読み込みは ArcGIS 側
+（SDK）の独自実装に委ねる方針。読み込み側には <code>.qml</code> スタイルの引き継ぎと
+レイヤ表示機能（用途に応じ最小限でも可）を要件とする</li>
+</ul>
+
+<nav class="pager">
+  <a href="geosuite.html"><span class="dir">前へ</span><span class="title">GeoSuite</span></a>
+  <a class="next" href="plugins.html"><span class="dir">次へ</span><span class="title">プラグイン一覧</span></a>
+</nav>
+  </main>
+  <aside class="toc"></aside>
+  </div>
+<script type="module" src="assets/site.js"></script>
+</body>
+</html>

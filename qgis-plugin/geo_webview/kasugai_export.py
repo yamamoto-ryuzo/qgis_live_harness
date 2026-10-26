@@ -222,25 +222,127 @@ _LAUNCHER_INDEX_HTML = '''<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KASUGAI Canvas プロジェクト — __KASC__</title>
 <style>
-  body { font-family: system-ui,"Segoe UI","Yu Gothic",sans-serif; margin: 28px; line-height: 1.65; color: #1d2b35; }
+  body { font-family: system-ui,"Segoe UI","Yu Gothic",sans-serif; margin: 28px; line-height: 1.65; color: #1d2b35; max-width: 900px; }
   code { background: #eef2f5; padding: 1px 5px; border-radius: 4px; }
-  li { margin: 4px 0; }
+  section { border: 1px solid #d7dfe6; border-radius: 8px; padding: 10px 16px; margin: 14px 0; }
+  h2 { font-size: 1em; margin: 0 0 6px; }
+  ul { margin: 6px 0; padding-left: 20px; }
+  li { margin: 3px 0; }
   a { color: #2c5ea8; }
-  .note { color: #52636d; font-size: 0.9em; }
+  .note { color: #52636d; font-size: 0.88em; }
+  .route-no { display: inline-block; background: #2c5ea8; color: #fff; border-radius: 50%;
+    width: 1.5em; height: 1.5em; text-align: center; line-height: 1.5em; margin-right: 6px; font-size: 0.8em; }
 </style>
 </head>
 <body>
-<h1 style="font-size:1.15em">KASUGAI Canvas プロジェクト</h1>
-<p><code>__KASC__</code> を各エンジンで開きます:</p>
-<ul>
-  <li><a href="cesium.html">Cesium（3D・既定エンジン）</a></li>
-  <li><a href="maplibre.html">MapLibre GL</a></li>
-  <li><a href="openlayers.html">OpenLayers</a></li>
-  <li><a href="leaflet.html">Leaflet</a></li>
-</ul>
-<p class="note">このフォルダとエンジン（web/ の中身）を同じ Web サーバーへ
-アップすればサーバーレスで動作します。エンジンの自動探索に失敗する場合は
-各 HTML 内の <code>CANVAS_BASE</code> を設定してください。</p>
+<h1 style="font-size:1.15em">KASUGAI Canvas プロジェクト — <code>__KASC__</code></h1>
+<p>このエクスポート物（<code>.kasc</code>+<code>DATA/</code>・起動HTML）は3つの経路で表示できます。</p>
+
+<section>
+  <h2><span class="route-no">1</span>KASUGAI Canvas（主・統合プレイヤー）で開く</h2>
+  <p class="note">起動中の Canvas アプリ（127.0.0.1:8510）にプロジェクトを登録して開きます。アプリ未起動なら起動してから再読み込みしてください。</p>
+  <ul id="canvas-links"><li>Canvas に接続しています…</li></ul>
+</section>
+
+<section>
+  <h2><span class="route-no">2</span>ローカル HTTP 配信ブラウザで即表示</h2>
+  <p class="note">QGIS プラグインの HTTP サーバーが、インストール済み Canvas の <code>web/</code> と <code>DATA/</code> を配信します（要 Canvas インストール＋サーバー稼働）。</p>
+  <ul id="local-links"></ul>
+  <p id="local-note" class="note" hidden>このページを <code>http://localhost:8089/export-data/</code> 経由で開くとリンクが有効になります。</p>
+</section>
+
+<section>
+  <h2><span class="route-no">3</span>サーバレス WEB 配信</h2>
+  <p class="note">ホスト版エンジン（GitHub Pages）で開きます。データはプラグインサーバー稼働中のみ有効です。<br />
+  常時公開する場合は <b>このフォルダ一式＋エンジン（web/ の中身）を同じ静的ホストへアップ</b>し、下の起動HTMLを使ってください（エンジンを自動探索します）。</p>
+  <ul id="hosted-links"></ul>
+  <p class="note">パッケージ配置後の起動ページ:
+    <a href="cesium.html">cesium.html</a> / <a href="maplibre.html">maplibre.html</a> /
+    <a href="openlayers.html">openlayers.html</a> / <a href="leaflet.html">leaflet.html</a>
+    （各HTML内の <code>CANVAS_BASE</code> でエンジン位置を指定可）</p>
+</section>
+
+<script>
+(function () {
+  "use strict";
+  var KASC = "__KASC__";
+  var HOSTED_BASE = "__HOSTED_BASE__";
+  var ENGINES = ["cesium", "maplibre", "openlayers", "leaflet"];
+  var LABELS = { cesium: "Cesium（3D・既定）", maplibre: "MapLibre GL", openlayers: "OpenLayers", leaflet: "Leaflet" };
+  var kascUrl = new URL(KASC, location.href).href;
+  var isHttp = /^https?:$/.test(location.protocol);
+  function links(el, make) {
+    var ul = document.getElementById(el);
+    ul.innerHTML = "";
+    ENGINES.forEach(function (e) {
+      var li = document.createElement("li");
+      var a = document.createElement("a");
+      a.href = make(e); a.textContent = LABELS[e];
+      li.appendChild(a); ul.appendChild(li);
+    });
+  }
+  // ① KASUGAI Canvas（主・統合プレイヤー）: 8510 へプロジェクト登録して開く。
+  //    file:// ではパス登録、http(s) では ?kasc= 直読みURLをそのまま使う
+  var cl = document.getElementById("canvas-links");
+  var kascPath = "";
+  try {
+    kascPath = decodeURIComponent(new URL(KASC, location.href).pathname)
+      .replace(/^[/]([A-Za-z]:)/, "$1");
+  } catch (e) {}
+  fetch("http://127.0.0.1:8510/health", { cache: "no-store" })
+    .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+    .then(function () {
+      if (isHttp) {
+        links("canvas-links", function (e) {
+          return "http://127.0.0.1:8510/" + e + "/?kasc=" + encodeURIComponent(kascUrl);
+        });
+      } else {
+        // file://: 登録APIにローカルパスを渡して ?project= で開く
+        return fetch("http://127.0.0.1:8510/api/projects/register", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: kascPath.replace(new RegExp("[/]", "g"), "\\") })
+        }).then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+          .then(function (res) {
+            links("canvas-links", function (e) {
+              return "http://127.0.0.1:8510/" + e + "/?project=" + encodeURIComponent(res.id);
+            });
+          });
+      }
+    })
+    .catch(function () {
+      cl.innerHTML = "<li>Canvas アプリに接続できません（未起動）。起動後にこのページを再読み込みしてください。</li>";
+    });
+  // ② ローカル HTTP 配信: http(s) 配信時のみ有効（geo_webview :8089 等で開いている場合）
+  if (isHttp) {
+    links("local-links", function (e) {
+      return location.origin + "/" + e + "/?kasc=" + encodeURIComponent(kascUrl);
+    });
+  } else {
+    document.getElementById("local-links").innerHTML =
+      "<li>（無効）プラグインの HTTP サーバー経由で開いてください</li>";
+    document.getElementById("local-note").hidden = false;
+  }
+  // ③ サーバレス WEB 配信: http(s) は絶対 .kasc URL、file:// は ?kasc=local
+  //    （ホスト版のフォルダ選択モード）で開く
+  if (HOSTED_BASE) {
+    links("hosted-links", function (e) {
+      if (isHttp) {
+        return HOSTED_BASE + e + "/?kasc=" + encodeURIComponent(kascUrl);
+      }
+      var dirName = "";
+      try {
+        dirName = decodeURIComponent(location.pathname.replace(/[/][^/]*$/, "")
+          .split("/").filter(Boolean).pop() || "");
+      } catch (e2) {}
+      return HOSTED_BASE + e + "/?kasc=local" +
+        (dirName ? "&dirhint=" + encodeURIComponent(dirName) : "");
+    });
+  } else {
+    document.getElementById("hosted-links").innerHTML =
+      "<li>（ホスト版URL未設定）このフォルダとエンジンを静的ホストへアップしてください</li>";
+  }
+})();
+</script>
 </body>
 </html>
 '''
@@ -1191,7 +1293,8 @@ def _write_engine_launchers(out_dir, kasc_name):
             自己完結ランチャー。エンジン本体(web/ の中身)は ./ ../ ../../ /
             の順に自動探索し、見つからなければHTML内の CANVAS_BASE を
             編集して使う
-        index.html — 4エンジンへのリンク一覧(フォルダを直接開いた時の案内)
+        index.html — 3系統の表示経路案内ページ(①KASUGAI Canvas登録
+            ②ローカルHTTP配信で即表示 ③サーバレスWEB配信/パッケージ配置)
 
     出力フォルダとエンジンを同じ静的 Web サーバーへアップするだけで
     動く、サーバレス配布のための部品。
@@ -1208,7 +1311,9 @@ def _write_engine_launchers(out_dir, kasc_name):
         written.append(path)
     idx_path = os.path.join(out_dir, 'index.html')
     with open(idx_path, 'w', encoding='utf-8') as f:
-        f.write(_LAUNCHER_INDEX_HTML.replace('__KASC__', kasc_name))
+        f.write(_LAUNCHER_INDEX_HTML
+                .replace('__KASC__', kasc_name)
+                .replace('__HOSTED_BASE__', hosted_engine_base()))
     written.append(idx_path)
     return written
 

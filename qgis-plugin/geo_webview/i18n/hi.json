@@ -31,10 +31,7 @@
     "Failed to copy to the clipboard. Please copy it manually.": "क्लिपबोर्ड पर कॉपी करने में विफल। कृपया इसे मैन्युअल रूप से कॉपी करें।",
     "Failed to create panel: {error}": "पैनल बनाने में विफल: {error}",
     "Failed to generate permalink: {error}": "परमालिंक बनाने में विफल: {error}",
-    "Failed to navigate to Google Maps URL: {error}": "Google Maps URL पर नेविगेट करने में विफल: {error}",
     "Failed to parse or handle the provided HTTP(S) URL.": "दिए गए HTTP(S) URL को पार्स या संभालने में विफल।",
-    "Google Earth launch error: {0}": "Google Earth प्रारंभ त्रुटि: {0}",
-    "Google Maps launch error: {0}": "Google Maps प्रारंभ त्रुटि: {0}",
     "HTTPS also requires a certificate (not currently supported).\n": "HTTPS के लिए एक प्रमाणपत्र भी आवश्यक है (वर्तमान में समर्थित नहीं)।\n",
     "Install KASUGAI Canvas": "KASUGAI Canvas इंस्टॉल करें",
     "Installed KASUGAI Canvas and opened the project ({0}).": "KASUGAI Canvas इंस्टॉल होकर प्रोजेक्ट खुला ({0})।",
@@ -51,9 +48,7 @@
     "Moved the map view via HTTP.": "HTTP के माध्यम से मानचित्र दृश्य ले जाया गया।",
     "Moved to coordinates ({0:.6f}, {1:.6f}) (scale preserved).": "निर्देशांकों ({0:.6f}, {1:.6f}) पर ले जाया गया (स्केल बनाए रखा गया)।",
     "Moved to coordinates ({0:.6f}, {1:.6f}).": "निर्देशांकों ({0:.6f}, {1:.6f}) पर ले जाया गया।",
-    "Navigate supports only internal 'qgis-map' links or Google @-style URLs (e.g. /@lat,lon,220m/).": "Navigate केवल आंतरिक 'qgis-map' लिंक या Google @-शैली URL का समर्थन करता है (उदा. /@lat,lon,220m/)।",
-    "Opened in Google Earth.": "Google Earth में खोला गया।",
-    "Opened in Google Maps.": "Google Maps में खोला गया।",
+    "Navigate supports only internal 'qgis-map' links.": "Navigate केवल आंतरिक 'qgis-map' लिंक का समर्थन करता है।",
     "Opened in KASUGAI Canvas ({0}) ({1} layers, {2} tiles).": "KASUGAI Canvas ({0}) में खोला गया ({1} लेयर, {2} टाइलें)।",
     "Opened in MapLibre.": "MapLibre में खोला गया।",
     "Opened the project in {0} ({1}): {2}": "प्रोजेक्ट को {0} ({1}) में खोला: {2}",
@@ -143,9 +138,7 @@
     "When enabled, map view can be updated by external URLs": "सक्षम होने पर, मानचित्र दृश्य को बाह्य URL द्वारा अपडेट किया जा सकता है",
     "color: green; font-weight: bold;": "color: green; font-weight: bold;",
     "▶ Open": "▶ खोलें",
-    "🌍 Google Earth": "🌍 Google Earth",
-    "📁": "📁",
-    "🗺️ Google Maps": "🗺️ Google Maps"
+    "📁": "📁"
   },
   "geo_webview": {
     "\n⚠️ The firewall may be blocking port {0}": "\n⚠️ फ़ायरवॉल पोर्ट {0} को ब्लॉक कर सकता है",
@@ -261,10 +254,8 @@
     "geo_webview — Web Distribution": "geo_webview — वेब वितरण",
     "▶ Open": "▶ खोलें",
     "✅ Server is running on port {0}": "✅ सर्वर पोर्ट {0} पर चल रहा है",
-    "🌍 Google Earth": "🌍 Google Earth",
     "🌐 Network: {0}": "🌐 नेटवर्क: {0}",
     "🏠 Local: {0}": "🏠 स्थानीय: {0}",
-    "📡 Available IPs: {0}": "📡 उपलब्ध IP: {0}",
-    "🗺️ Google Maps": "🗺️ Google Maps"
+    "📡 Available IPs: {0}": "📡 उपलब्ध IP: {0}"
   }
 }

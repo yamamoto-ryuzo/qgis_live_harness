@@ -30,9 +30,7 @@ from qgis.core import QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTra
 
 # --- 標準ライブラリのインポート（欠落しているため追加）
 import os
-import re
 import urllib.parse
-import math
 import json
 
 # Optional components: if the panel module is not present, provide safe defaults
@@ -326,14 +324,6 @@ class GeoWebView:
                 self.panel.pushButton_navigate.clicked.connect(self.on_navigate_clicked_panel)
                 self.panel.pushButton_copy.clicked.connect(self.on_copy_clicked_panel)
 
-                # Google Maps/Earthボタンのイベントを接続
-                if hasattr(self.panel, 'pushButton_google_maps'):
-                    self.panel.pushButton_google_maps.clicked.connect(self.on_google_maps_clicked_panel)
-                    print("Google Maps button connected")
-                if hasattr(self.panel, 'pushButton_google_earth'):
-                    self.panel.pushButton_google_earth.clicked.connect(self.on_google_earth_clicked_panel)
-                    print("Google Earth button connected")
-
                 # KASUGAI Canvas エクスポートボタンのイベントを接続
                 _exp_btn = getattr(
                     self.panel, 'pushButton_kasugai_export', None)
@@ -349,13 +339,18 @@ class GeoWebView:
                     _folder_btn.clicked.connect(
                         lambda checked=False: self.on_kasugai_open_folder())
 
-                # Web配信: 選択エンジンでエクスポート→登録→ブラウザ起動するボタン
-                _launch_btn = getattr(
-                    self.panel, 'pushButton_kasugai_launch', None)
-                if _launch_btn is not None:
-                    _launch_btn.clicked.connect(
-                        lambda checked=False: self.on_kasugai_launch_clicked())
-                    print("KASUGAI launch button connected")
+                # Web配信: 選択エンジンでエクスポート→登録→ブラウザ起動するボタン。
+                # 3系統: Canvas登録(主プレイヤー)/ローカルHTTP即表示/サーバレスWEB
+                for _btn_name, _route in (
+                        ('pushButton_kasugai_launch', 'kasugai'),
+                        ('pushButton_kasugai_launch_local', 'local'),
+                        ('pushButton_kasugai_launch_hosted', 'hosted')):
+                    _btn = getattr(self.panel, _btn_name, None)
+                    if _btn is not None:
+                        _btn.clicked.connect(
+                            lambda checked=False, r=_route:
+                            self.on_kasugai_launch_clicked(r))
+                        print(f"KASUGAI launch button connected: {_btn_name}")
 
                 # エンジン選択コンボ: 前回値の復元と保存
                 _engine_combo = getattr(
@@ -690,225 +685,8 @@ class GeoWebView:
         # AI/外部制御用ブリッジを解除
         self.bridge = None
 
-    # 純粋にHTTPサーバー関連のメソッドは qmap_permalink_server_manager.py に移動しました
-    # _build_google_maps_url, _build_google_earth_url, _estimate_zoom_from_scale, _convert_to_wgs84 は
-    # メインファイルでも使用されるため、こちらに残しています
-
-    def _build_google_maps_url(self, navigation_data):
-        """ナビゲーションデータからGoogle Maps用URLを生成
-
-        Google Maps用は zoom が必要。zoom が与えられなければ scale から推定する。
-        最終フォールバックは zoom=16 とする。
-        """
-        try:
-            if navigation_data.get('type') == 'coordinates':
-                lat, lon = self._resolve_coordinates(navigation_data)
-                if lat is None or lon is None:
-                    return None
-                # zoom が無ければ scale から推定し、無ければデフォルト16を使う
-                zoom_value = navigation_data.get('zoom')
-                if zoom_value is None:
-                    zoom_value = self._estimate_zoom_from_scale(navigation_data.get('scale'))
-                if zoom_value is None:
-                    zoom_value = 16.0
-                # 小数点レベルのズームをサポート（最大2桁まで）
-                zoom_formatted = f"{float(zoom_value):.2f}".rstrip('0').rstrip('.')
-                return f"https://www.google.co.jp/maps/@{lat:.6f},{lon:.6f},{zoom_formatted}z"
-
-            if navigation_data.get('type') == 'location':
-                lat = navigation_data.get('lat')
-                lon = navigation_data.get('lon')
-                zoom_value = navigation_data.get('zoom')
-
-                if lat is None or lon is None:
-                    try:
-                        decoded = urllib.parse.unquote(navigation_data['location'])
-                        data = json.loads(decoded)
-                    except Exception:
-                        data = {}
-
-                    if data:
-                        center_lat = data.get('center_wgs84_lat')
-                        center_lon = data.get('center_wgs84_lon')
-                        if center_lat is not None and center_lon is not None:
-                            lat = float(center_lat)
-                            lon = float(center_lon)
-                        else:
-                            center_x = data.get('center_x')
-                            center_y = data.get('center_y')
-                            crs_authid = data.get('center_crs') or data.get('crs')
-                            if center_x is not None and center_y is not None and crs_authid:
-                                lat, lon = self._convert_to_wgs84(center_x, center_y, crs_authid)
-                        if zoom_value is None:
-                            zoom_value = self._estimate_zoom_from_scale(data.get('scale'))
-
-                if (lat is None or lon is None) and navigation_data.get('center_x') is not None:
-                    crs_authid = navigation_data.get('crs')
-                    lat, lon = self._convert_to_wgs84(
-                        navigation_data.get('center_x'),
-                        navigation_data.get('center_y'),
-                        crs_authid,
-                    )
-
-                if lat is None or lon is None:
-                    return None
-
-                if zoom_value is None:
-                    zoom_value = 16.0
-
-                # 小数点レベルのズームをサポート（最大2桁まで）
-                zoom_formatted = f"{float(zoom_value):.2f}".rstrip('0').rstrip('.')
-                return f"https://www.google.co.jp/maps/@{lat:.6f},{lon:.6f},{zoom_formatted}z"
-
-        except Exception:
-            return None
-
-        return None
-
-    def _build_google_earth_url(self, navigation_data):
-        """ナビゲーションデータからGoogle Earth用URLを生成
-
-        Google Earth Web版用のURL形式: https://earth.google.com/web/@lat,lon,altitude,heading,tilt,roll
-        Google Mapsと同じスケール変換を使用してより正確な高度を計算します。
-        """
-        try:
-            if navigation_data.get('type') == 'coordinates':
-                lat, lon = self._resolve_coordinates(navigation_data)
-                if lat is None or lon is None:
-                    return None
-
-                # Google Mapsと同じズームレベル推定を使用
-                zoom_value = navigation_data.get('zoom')
-                if zoom_value is None:
-                    zoom_value = self._estimate_zoom_from_scale(navigation_data.get('scale'))
-                if zoom_value is None:
-                    zoom_value = 16.0
-
-                # Google Earth用の正確なパラメータ計算（実測値に基づく）
-                # 実測分析: 1:15695スケール → 距離5554m、高度22m
-                if navigation_data.get('scale'):
-                    scale_value = navigation_data['scale']
-                else:
-                    # ズームレベルからスケールを逆算
-                    estimated_scale = self._estimate_scale_from_zoom(zoom_value)
-                    scale_value = estimated_scale
-
-                # 実測データに基づくGoogle Earth用パラメータ計算
-                # 実測値: 1:15695スケール → 高度32m、距離160699m、1y角度
-                if scale_value:
-                    # 実測基準値
-                    reference_scale = 15695.0
-                    reference_altitude = 32.03670052  # 実測高度
-                    reference_distance = 160699.35527964  # 実測距離
-
-                    # スケールに比例した高度計算（実測データベース）
-                    altitude = reference_altitude * (scale_value / reference_scale) ** 0.5
-                    altitude = max(10.0, min(2000.0, altitude))
-
-                    # スケールに比例した距離計算（実測データベース）
-                    distance = reference_distance * (scale_value / reference_scale)
-                    distance = max(100.0, min(500000.0, distance))
-                else:
-                    altitude = 100.0
-                    distance = 50000.0
-
-                # 実測に基づくGoogle Earth URL形式（1y角度で適切な表示）
-                return f"https://earth.google.com/web/@{lat:.6f},{lon:.6f},{altitude:.8f}a,{distance:.8f}d,1y,0h,0t,0r"
-
-            if navigation_data.get('type') == 'location':
-                lat = navigation_data.get('lat')
-                lon = navigation_data.get('lon')
-                zoom_value = navigation_data.get('zoom')
-
-                if lat is None or lon is None:
-                    try:
-                        decoded = urllib.parse.unquote(navigation_data['location'])
-                        data = json.loads(decoded)
-                    except Exception:
-                        data = {}
-
-                    if data:
-                        center_lat = data.get('center_wgs84_lat')
-                        center_lon = data.get('center_wgs84_lon')
-                        if center_lat is not None and center_lon is not None:
-                            lat = float(center_lat)
-                            lon = float(center_lon)
-                        else:
-                            center_x = data.get('center_x')
-                            center_y = data.get('center_y')
-                            crs_authid = data.get('center_crs') or data.get('crs')
-                            if center_x is not None and center_y is not None and crs_authid:
-                                lat, lon = self._convert_to_wgs84(center_x, center_y, crs_authid)
-                        if zoom_value is None:
-                            zoom_value = self._estimate_zoom_from_scale(data.get('scale'))
-
-                if (lat is None or lon is None) and navigation_data.get('center_x') is not None:
-                    crs_authid = navigation_data.get('crs')
-                    lat, lon = self._convert_to_wgs84(
-                        navigation_data.get('center_x'),
-                        navigation_data.get('center_y'),
-                        crs_authid,
-                    )
-
-                if lat is None or lon is None:
-                    return None
-
-                if zoom_value is None:
-                    zoom_value = 16.0
-
-                # Google Earth用の正確なパラメータ計算（実測值に基づく）
-                scale_value = navigation_data.get('scale')
-                if not scale_value and 'location' in navigation_data:
-                    try:
-                        decoded = urllib.parse.unquote(navigation_data['location'])
-                        data = json.loads(decoded)
-                        scale_value = data.get('scale')
-                    except Exception:  # nosec B110  # 設計上の許容
-                        pass
-
-                if scale_value:
-                    # 実測データに基づくGoogle Earth用パラメータ計算
-                    # 実測値: 1:15695スケール → 高度32m、距離160699m、1y角度
-                    reference_scale = 15695.0
-                    reference_altitude = 32.03670052  # 実測高度
-                    reference_distance = 160699.35527964  # 実測距離
-
-                    # スケールに比例した高度計算（実測データベース）
-                    altitude = reference_altitude * (scale_value / reference_scale) ** 0.5
-                    altitude = max(10.0, min(2000.0, altitude))
-
-                    # スケールに比例した距離計算（実測データベース）
-                    distance = reference_distance * (scale_value / reference_scale)
-                    distance = max(100.0, min(500000.0, distance))
-                else:
-                    altitude = 100.0
-                    distance = 50000.0
-
-                # 実測に基づくGoogle Earth URL形式（1y角度で適切な表示）
-                return f"https://earth.google.com/web/@{lat:.6f},{lon:.6f},{altitude:.8f}a,{distance:.8f}d,1y,0h,0t,0r"
-
-        except Exception:
-            return None
-
-        return None
-
-    def _resolve_coordinates(self, navigation_data):
-        """ナビゲーションデータからWGS84座標を求める"""
-        lat = navigation_data.get('lat')
-        lon = navigation_data.get('lon')
-        if lat is not None and lon is not None:
-            return float(lat), float(lon)
-
-        x = navigation_data.get('x')
-        y = navigation_data.get('y')
-        crs_authid = navigation_data.get('crs')
-        if x is None or y is None or crs_authid is None:
-            return None, None
-
-        return self._convert_to_wgs84(x, y, crs_authid)
-
     def _estimate_zoom_from_scale(self, scale):
-        """スケール値からGoogle Maps用ズームレベルを推定（連続値対応改良版）
+        """スケール値からWebマップ用ズームレベルを推定（連続値対応改良版）
 
         固定テーブル方式をベースに、テーブル間の中間値を線形補間で計算し、
         小数点レベルでの詳細なズームレベル推定を可能にします。
@@ -926,167 +704,6 @@ class GeoWebView:
                 pass
             return 16.0
 
-    def _parse_google_maps_at_url(self, url):
-        """Google Maps の @lat,lon,XXXm または @lat,lon,ZZz 形式を解析する
-
-        戻り値: {'lat': float, 'lon': float, 'zoom': float or None, 'scale': float or None}
-        解析できなければ None を返す。
-        """
-        try:
-            parsed = urllib.parse.urlparse(url)
-            path = parsed.path or ''
-
-            # Quick direct match: @lat,lon,NNNm (common simple form). This handles
-            # cases like '/@35.6778996,139.6960404,883m/' quickly without token-splitting.
-            try:
-                m_quick = re.search(r'@([-0-9.]+),([-0-9.]+),([0-9.]+)m(?=[/,%s]|$)' % (r'\s'), url)
-                if m_quick:
-                    lat = float(m_quick.group(1))
-                    lon = float(m_quick.group(2))
-                    map_width_m = float(m_quick.group(3))
-                    return {'lat': lat, 'lon': lon, 'zoom': None, 'scale': None, 'map_width_m': map_width_m}
-            except Exception:  # nosec B110  # 設計上の許容
-                # ignore and continue with the more flexible parser below
-                pass
-
-            # パス中の @lat,lon[,rest] を探す（rest は省略可能）
-            m = re.search(r'@([-0-9.]+),([-0-9.]+)(?:,([^/\s]+))?', path)
-            if not m:
-                # 一部の Google URL はパスではなく完全URLに @ を含むことがある
-                # その場合は raw URL 全体を検索する
-                m = re.search(r'@([-0-9.]+),([-0-9.]+)(?:,([^/\s]+))?', url)
-            if not m:
-                return None
-
-            lat = float(m.group(1))
-            lon = float(m.group(2))
-            rest = m.group(3) if m.lastindex and m.lastindex >= 3 else None
-
-            zoom = None
-            scale = None
-            map_width_m = None
-
-            # rest の例: '220m', '16z', '16.00z', '15.5z', '220m,15z' など
-            # 複数トークンがある場合は順序に依存せず 'm' と 'z' を探索する
-            if rest:
-                # split by comma and inspect each token
-                tokens = [t.strip() for t in rest.split(',') if t.strip()]
-                for tok in tokens:
-                    m2 = re.match(r'^([0-9.]+)(m|z)?', tok, re.IGNORECASE)
-                    if not m2:
-                        continue
-                    try:
-                        val = float(m2.group(1))
-                    except Exception:  # nosec B112  # 設計上の許容
-                        continue
-                    suf = (m2.group(2) or '').lower()
-
-                    # if suffix is 'z' or absent, treat as zoom
-                    if suf == 'z' or suf == '':
-                        # prefer first zoom seen
-                        if zoom is None:
-                            try:
-                                zoom = float(val)
-                                try:
-                                    scale = self._estimate_scale_from_zoom(zoom)
-                                except Exception:
-                                    scale = None
-                            except Exception:
-                                zoom = None
-                    elif suf == 'm':
-                        # prefer first map_width_m seen
-                        if map_width_m is None:
-                            try:
-                                map_width_m = float(val)
-                            except Exception:
-                                map_width_m = None
-
-            result = {'lat': lat, 'lon': lon, 'zoom': zoom, 'scale': scale}
-            # attach map_width_m if set
-            try:
-                if 'map_width_m' in locals() and map_width_m is not None:
-                    result['map_width_m'] = map_width_m
-            except Exception:  # nosec B110  # 設計上の許容
-                pass
-            return result
-        except Exception:
-            return None
-
-    def _parse_google_earth_url(self, url):
-        """Google Earth Web の @lat,lon,altitudea,distanced,... 形式を解析する
-
-        戻り値: {'lat': float, 'lon': float, 'zoom': float, 'scale': float, 'altitude': float, 'distance': float}
-        解析できなければ None を返す。
-        """
-        try:
-            # 例: https://earth.google.com/web/@35.80234294,139.52998754,48.51663142a,501601.82953767d,1y,...
-            # Capture optional 'y' token which Google Earth uses (e.g. '1y')
-            # Format examples:
-            #  - @lat,lon,altitudea,distanced,1y,...
-            #  - @lat,lon,altitudea,distanced,...
-            m = re.search(r'@([-0-9.]+),([-0-9.]+),([0-9.]+(?:\.[0-9]+)?)a,([0-9.]+(?:\.[0-9]+)?)d(?:,([0-9.]+(?:\.[0-9]+)?)y)?', url)
-            if not m:
-                return None
-
-            lat = float(m.group(1))
-            lon = float(m.group(2))
-            altitude = float(m.group(3))
-            distance = float(m.group(4))
-
-            y_token = None
-            try:
-                if m.lastindex and m.lastindex >= 5 and m.group(5):
-                    y_token = float(m.group(5))
-            except Exception:
-                y_token = None
-
-            zoom_est = None
-            scale_est = None
-            try:
-                # If an explicit distance token is present, invert the same model
-                # used in _build_google_earth_url. That builder uses a sqrt scaling
-                # (distance = reference_distance * sqrt(scale / reference_scale)),
-                # so the algebraic inverse is: scale = reference_scale * (distance / reference_distance) ** 2
-                if distance is not None and float(distance) > 0:
-                    try:
-                        d = float(distance)
-                        reference_scale = 15695.0
-                        reference_distance = 160699.35527964
-                        if reference_distance != 0:
-                            scale_est = float(reference_scale * (d / reference_distance) ** 2)
-                        else:
-                            scale_est = None
-                        if scale_est and scale_est > 0:
-                            zoom_est = float(self._estimate_zoom_from_scale(scale_est))
-                        else:
-                            zoom_est = None
-                    except Exception:
-                        scale_est = None
-                        zoom_est = None
-                elif y_token and y_token > 0:
-                    # Defensive fallback: interpret y_token as meters-per-pixel (m/px)
-                    try:
-                        dpi = float(self._get_screen_dpi())
-                    except Exception:
-                        dpi = 96.0
-                    scale_candidate = float(y_token) * float(dpi) / 0.0254
-                    if scale_candidate > 50.0 and scale_candidate < 100000000.0:
-                        scale_est = float(scale_candidate)
-                        zoom_est = float(self._estimate_zoom_from_scale(scale_est))
-                    else:
-                        scale_est = None
-                        zoom_est = None
-                else:
-                    zoom_est = None
-                    scale_est = None
-            except Exception:
-                zoom_est = None
-                scale_est = None
-
-            return {'lat': lat, 'lon': lon, 'zoom': zoom_est, 'scale': scale_est, 'altitude': altitude, 'distance': distance}
-        except Exception:
-            return None
-
     def _estimate_scale_from_zoom(self, zoom_level):
         """ズームレベルからスケール値を逆算（小数点対応版）
 
@@ -1103,227 +720,6 @@ class GeoWebView:
             return float(estimate_scale_from_zoom(zoom_level))
         except Exception:
             return 20000.0
-
-    def _convert_to_wgs84(self, x, y, source_crs_authid):
-        """任意座標をWGS84へ変換"""
-        try:
-            source_crs = QgsCoordinateReferenceSystem(str(source_crs_authid))
-            if not source_crs.isValid():
-                return None, None
-            target_crs = QgsCoordinateReferenceSystem("EPSG:4326")
-            transform = QgsCoordinateTransform(source_crs, target_crs, QgsProject.instance())
-            point = transform.transform(QgsPointXY(float(x), float(y)))
-            return float(point.y()), float(point.x())
-        except Exception:
-            return None, None
-
-    def _convert_wgs84_to_crs(self, lat, lon, target_crs_authid):
-        """WGS84 座標 (lat, lon) を target CRS の座標に変換して返す (x, y) 形式
-
-        Returns (x, y) or (None, None) on error.
-        """
-        try:
-            source_crs = QgsCoordinateReferenceSystem('EPSG:4326')
-            target_crs = QgsCoordinateReferenceSystem(str(target_crs_authid))
-            if not target_crs.isValid():
-                return None, None
-            transform = QgsCoordinateTransform(source_crs, target_crs, QgsProject.instance())
-            pt = transform.transform(QgsPointXY(float(lon), float(lat)))
-            return float(pt.x()), float(pt.y())
-        except Exception:
-            return None, None
-
-    def _compute_scale_from_map_width(self, center_lat, map_width_m, target_crs_authid=None):
-        """地球上の map_width_m (表示横幅メートル) を QGIS の scale に換算する簡易計算
-
-        アプローチ:
-        - WGS84 の中心緯度から経度方向の地球上の長さ（1度あたりのメートル）を計算
-        - 表示横幅 map_width_m を度に変換し、目的座標系での地図単位とピクセル幅からスケールを推定
-        - ここでは簡易的に: scale = (map_width_map_units) / (map_units_per_pixel) を目標とするが、
-          map_units_per_pixel は実行時のキャンバスから取得する必要があるため、呼び出し側で最終換算を行う。
-
-        Returns estimated_scale_meters_per_map_unit (approx) or None.
-        """
-        try:
-            # Earth radius approximation
-            R = 6378137.0
-            # length of one degree longitude at given latitude
-            lat_rad = math.radians(float(center_lat))
-            meters_per_deg_lon = (math.pi / 180.0) * R * math.cos(lat_rad)
-            # map_width_m divided by meters_per_deg_lon -> degrees of longitude
-            deg_width = float(map_width_m) / meters_per_deg_lon if meters_per_deg_lon != 0 else None
-            return {'deg_width': deg_width, 'meters_per_deg_lon': meters_per_deg_lon}
-        except Exception:
-            return None
-
-    def _get_screen_dpi(self):
-        """Attempt to obtain the current screen DPI via Qt (logical or physical DPI).
-
-        Returns a float DPI value. Falls back to 96.0 if no reliable value can be obtained.
-        """
-        try:
-            # Prefer the QApplication primary screen if available
-            app = QApplication.instance()
-            screen = None
-            if app:
-                try:
-                    screen = app.primaryScreen()
-                except Exception:
-                    screen = None
-
-            # Fallback: try to get the main window's screen
-            if not screen:
-                try:
-                    mw = getattr(self, 'iface', None) and self.iface.mainWindow()
-                    if mw:
-                        screen = mw.screen()
-                except Exception:
-                    screen = None
-
-            if screen:
-                # Prefer logical DPI (accounts for OS scaling). Try several getters defensively.
-                try:
-                    dpi = screen.logicalDotsPerInch()
-                    if dpi and dpi > 0:
-                        return float(dpi)
-                except Exception:  # nosec B110  # 設計上の許容
-                    pass
-                try:
-                    dpi = screen.logicalDotsPerInchX()
-                    if dpi and dpi > 0:
-                        return float(dpi)
-                except Exception:  # nosec B110  # 設計上の許容
-                    pass
-                try:
-                    dpi = screen.physicalDotsPerInch()
-                    if dpi and dpi > 0:
-                        return float(dpi)
-                except Exception:  # nosec B110  # 設計上の許容
-                    pass
-        except Exception:  # nosec B110  # 設計上の許容
-            pass
-        # final fallback
-        return 96.0
-
-    def _set_extent_for_map_width(self, center_lat, center_lon, map_width_m, canvas):
-        """Set the canvas extent so that the horizontal map width (in meters) is approximately map_width_m.
-
-        Approach:
-        - Compute degree longitude width at center latitude from map_width_m.
-        - Convert left/right WGS84 points to destination CRS (map units) and compute map width in map units.
-        - Use canvas aspect ratio to compute map height in map units.
-        - Build QgsRectangle around center in destination CRS and setExtent.
-
-        Returns True on success, False on failure.
-        """
-        try:
-            # destination CRS of canvas
-            dest_crs = canvas.mapSettings().destinationCrs()
-
-            # meters per degree longitude at latitude
-            R = 6378137.0
-            lat_rad = math.radians(float(center_lat))
-            meters_per_deg_lon = (math.pi / 180.0) * R * math.cos(lat_rad)
-            if meters_per_deg_lon == 0:
-                return False
-
-            deg_width = float(map_width_m) / meters_per_deg_lon
-
-            lon_left = float(center_lon) - deg_width / 2.0
-            lon_right = float(center_lon) + deg_width / 2.0
-
-            # convert center and left/right to destination CRS
-            cx, cy = self._convert_wgs84_to_crs(float(center_lat), float(center_lon), dest_crs.authid())
-            lx, ly = self._convert_wgs84_to_crs(float(center_lat), lon_left, dest_crs.authid())
-            rx, ry = self._convert_wgs84_to_crs(float(center_lat), lon_right, dest_crs.authid())
-            if cx is None or lx is None or rx is None:
-                return False
-
-            map_width_map_units = abs(rx - lx)
-            # Diagnostic logging
-            try:
-                print(
-                    f"_set_extent_for_map_width diagnostics: center=({center_lat},{center_lon}), deg_width={deg_width}, meters_per_deg_lon={meters_per_deg_lon}, x_left={lx}, x_right={rx}, map_width_map_units={map_width_map_units}")
-                try:
-                    self.iface.messageBar().pushMessage("QMap Permalink", f"set_extent diagnostics: map_width_map_units={map_width_map_units}", duration=6)
-                except Exception:  # nosec B110  # 設計上の許容
-                    pass
-            except Exception:  # nosec B110  # 設計上の許容
-                pass
-            if map_width_map_units <= 0:
-                return False
-
-            # use canvas aspect ratio to compute map height in map units
-            cw = float(canvas.size().width())
-            ch = float(canvas.size().height())
-            if cw <= 0 or ch <= 0:
-                return False
-            aspect = ch / cw
-            map_height_map_units = map_width_map_units * aspect
-
-            half_w = map_width_map_units / 2.0
-            half_h = map_height_map_units / 2.0
-
-            extent = QgsRectangle(cx - half_w, cy - half_h, cx + half_w, cy + half_h)
-
-            canvas.setDestinationCrs(dest_crs)
-            canvas.setExtent(extent)
-            canvas.refresh()
-            return True
-        except Exception:
-            return False
-
-    def _compute_scale_from_map_width_at_center(self, center_lat, center_lon, map_width_m, canvas):
-        """Estimate a scale denominator by computing target map units width around center and
-        using current canvas.mapUnitsPerPixel() or fallback to meters-per-pixel + DPI method.
-
-        Returns scale_denominator (float) or None.
-        """
-        try:
-            dest_crs = canvas.mapSettings().destinationCrs()
-            # meters per degree lon at latitude
-            R = 6378137.0
-            lat_rad = math.radians(float(center_lat))
-            meters_per_deg_lon = (math.pi / 180.0) * R * math.cos(lat_rad)
-            if meters_per_deg_lon == 0:
-                return None
-
-            deg_width = float(map_width_m) / meters_per_deg_lon
-
-            lon_left = float(center_lon) - deg_width / 2.0
-            lon_right = float(center_lon) + deg_width / 2.0
-
-            x_left, y_left = self._convert_wgs84_to_crs(float(center_lat), lon_left, dest_crs.authid())
-            x_right, y_right = self._convert_wgs84_to_crs(float(center_lat), lon_right, dest_crs.authid())
-            if x_left is None or x_right is None:
-                return None
-
-            map_width_map_units = abs(x_right - x_left)
-
-            # prefer to use current mapUnitsPerPixel and current scale
-            try:
-                current_map_units_per_pixel = canvas.mapUnitsPerPixel()
-                current_scale = canvas.scale()
-                if current_map_units_per_pixel and current_scale:
-                    target_map_units_per_pixel = map_width_map_units / float(canvas.size().width())
-                    scale_denominator = float(current_scale) * (target_map_units_per_pixel / float(current_map_units_per_pixel))
-                    if scale_denominator > 0:
-                        return float(scale_denominator)
-            except Exception:  # nosec B110  # 設計上の許容
-                pass
-
-            # fallback to DPI method
-            try:
-                dpi = float(self._get_screen_dpi())
-            except Exception:
-                dpi = 96.0
-            meters_per_pixel = map_width_map_units / float(canvas.size().width())
-            scale_denominator = meters_per_pixel * dpi / 0.0254
-            if scale_denominator > 0:
-                return float(scale_denominator)
-            return None
-        except Exception:
-            return None
 
     def generate_permalink(self, include_theme=True, specific_theme=None):
         """現在の地図ビューからパーマリンクを生成
@@ -1347,9 +743,6 @@ class GeoWebView:
             (extent.xMinimum() + extent.xMaximum()) / 2.0,
             (extent.yMinimum() + extent.yMaximum()) / 2.0,
         )
-
-        # スケールからズームレベルを推定（Web標準対応でより正確）
-        _ = self._estimate_zoom_from_scale(scale)
 
         # 基本パラメータを構築
         x_val = f"{center_point.x():.6f}"
@@ -1388,19 +781,14 @@ class GeoWebView:
             permalink_url: パーマリンクURL
         """
         try:
-            # Normalize: if the input lacks a URL scheme but looks like a host/path (e.g. "google.co.jp/.." or "www.google.co.jp/.."),
-            # try to prepend https:// so urllib.parse can parse netloc/path correctly. This also allows handling inputs
-            # like 'google.co.jp/maps/@lat,lon,...' which users may paste without scheme.
             parsed_temp = urllib.parse.urlparse(permalink_url)
-            # If the input lacks a URL scheme, only auto-prepend 'https://' when it appears to be an
-            # internal qgis-map request (contains 'qgis-map?'). Otherwise keep the raw string and
-            # allow Google @-style detection below to run. This avoids accidentally treating arbitrary
-            # host/path strings as full URLs and respects the user's instruction.
+            # スキーム省略の内部 qgis-map リクエスト（'qgis-map?' を含む）には
+            # https:// を補って urlparse できるようにする。それ以外は生の
+            # 文字列のまま扱う
             if not parsed_temp.scheme:
                 if 'qgis-map?' in permalink_url:
                     try:
-                        permalink_url_with_scheme = 'https://' + permalink_url
-                        parsed_url = urllib.parse.urlparse(permalink_url_with_scheme)
+                        parsed_url = urllib.parse.urlparse('https://' + permalink_url)
                     except Exception:
                         parsed_url = parsed_temp
                 else:
@@ -1408,141 +796,15 @@ class GeoWebView:
             else:
                 parsed_url = parsed_temp
 
-            # If still no recognizable scheme but the string contains a Google/Earth @-format, try parsing it directly
-            if not parsed_url.scheme:
-                # Prefer Google Earth Web format first
-                try:
-                    parsed_earth = self._parse_google_earth_url(permalink_url)
-                    if parsed_earth:
-                        try:
-                            # parsed_earth includes estimated scale/zoom when possible
-                            self.navigate_to_coordinates(parsed_earth['lon'], parsed_earth['lat'], parsed_earth.get('scale'), parsed_earth.get('zoom'), 'EPSG:4326')
-                            try:
-                                dbg = f"Parsed Google Earth @ data: {parsed_earth}"
-                                print(dbg)
-                                self.iface.messageBar().pushMessage("QMap Permalink", dbg, duration=5)
-                            except Exception:  # nosec B110  # 設計上の許容
-                                pass
-                            return
-                        except Exception:
-                            raise
-                except Exception:  # nosec B110  # 設計上の許容
-                    # ignore and fall back to maps parsing
-                    pass
-
-                if self._parse_google_maps_at_url(permalink_url):
-                    parsed_google = self._parse_google_maps_at_url(permalink_url)
-                    if parsed_google:
-                        try:
-                            self.navigate_to_coordinates(parsed_google['lon'], parsed_google['lat'], parsed_google.get('scale'), parsed_google.get('zoom'), 'EPSG:4326')
-                            return
-                        except Exception:
-                            raise
-
             # HTTP形式のURLを処理（/qgis-map形式と旧/wms形式の両方をサポート）
             # NOTE: 以前は 'http://localhost:' で始まるURLのみ内部ナビゲーションと見なしていましたが
             # ローカルネットワークのIPやホスト名から来る場合も利用されるため、ホスト名に依存せず
             # スキームが http(s) でパスに /wms または /qgis-map を含む場合は内部ナビゲーションとして扱います。
             scheme = (parsed_url.scheme or '').lower()
-            scheme = (parsed_url.scheme or '').lower()
             path = parsed_url.path or ''
 
-            # If the URL is an HTTP(S) URL that targets internal endpoints OR contains a Google @lat,lon pattern,
-            # handle it internally (do not require opening a browser).
-            contains_google_at = False
-            try:
-                if '@' in path or '@' in parsed_url.query:
-                    contains_google_at = True
-            except Exception:
-                contains_google_at = False
-
-            if scheme in ('http', 'https') and (('/wms' in path or '/qgis-map' in path) or contains_google_at):
+            if scheme in ('http', 'https') and ('/wms' in path or '/qgis-map' in path):
                 # HTTP URLから直接実行（ブラウザを経由しない）
-                # If this is a Google @ style URL, try parsing coordinates first
-                if contains_google_at:
-                    # Try Google Earth Web format first
-                    parsed_earth = None
-                    try:
-                        parsed_earth = self._parse_google_earth_url(permalink_url)
-                    except Exception:
-                        parsed_earth = None
-
-                    if parsed_earth:
-                        # Use estimated scale/zoom from Earth distance -> zoom inversion
-                        try:
-                            dbg = f"Parsed Google Earth @ data: {parsed_earth}"
-                            print(dbg)
-                            try:
-                                self.iface.messageBar().pushMessage("QMap Permalink", dbg, duration=5)
-                            except Exception:  # nosec B110  # 設計上の許容
-                                pass
-                            self.navigate_to_coordinates(parsed_earth['lon'], parsed_earth['lat'], parsed_earth.get('scale'), parsed_earth.get('zoom'), 'EPSG:4326')
-                            return
-                        except Exception as e:
-                            print(f"navigate_to_coordinates with parsed Earth data failed: {e}")
-
-                    # Fallback to Google Maps @ parser
-                    parsed_google = self._parse_google_maps_at_url(permalink_url)
-                    # Debug: inform if parser found a map_width_m
-                    try:
-                        if parsed_google and parsed_google.get('map_width_m') is not None:
-                            dbg = f"Detected map_width_m: {parsed_google.get('map_width_m')} (lat={parsed_google.get('lat')}, lon={parsed_google.get('lon')})"
-                            print(dbg)
-                            try:
-                                self.iface.messageBar().pushMessage("QMap Permalink", dbg, duration=5)
-                            except Exception:  # nosec B110  # 設計上の許容
-                                pass
-                        else:
-                            # also print parsed_google for visibility
-                            dbg = f"Parsed Google @ data: {parsed_google}"
-                            print(dbg)
-                    except Exception:  # nosec B110  # 設計上の許容
-                        pass
-                    if parsed_google:
-                        # If map_width_m was provided (e.g. '1763m'), use a single, reliable path:
-                        # compute a scale based on center and apply it via navigate_to_coordinates.
-                        map_width_m = parsed_google.get('map_width_m')
-                        if map_width_m:
-                            try:
-                                canvas = self.iface.mapCanvas()
-                                self.iface.messageBar().pushMessage("QMap Permalink", self.tr("Trying center-based scale computation..."), duration=3)
-                                computed_scale = self._compute_scale_from_map_width_at_center(parsed_google['lat'], parsed_google['lon'], map_width_m, canvas)
-                                print(f"computed_scale from center: {computed_scale}")
-                                if computed_scale:
-                                    try:
-                                        self.navigate_to_coordinates(parsed_google['lon'], parsed_google['lat'], computed_scale, None, 'EPSG:4326')
-                                        self.iface.messageBar().pushMessage(
-                                            "QMap Permalink",
-                                            self.tr("Applied the computed scale (width approx. {0} m, 1:{1}).").format(map_width_m, int(computed_scale)),
-                                            duration=3
-                                        )
-                                        return
-                                    except Exception as e:
-                                        print(f"navigate_to_coordinates with computed scale failed: {e}")
-                                else:
-                                    # Could not compute scale: fall back to center-only move and inform user
-                                    try:
-                                        canvas = self.iface.mapCanvas()
-                                        dest_crs = canvas.mapSettings().destinationCrs()
-                                        cx, cy = self._convert_wgs84_to_crs(parsed_google['lat'], parsed_google['lon'], dest_crs.authid())
-                                        if cx is not None and cy is not None:
-                                            canvas.setCenter(QgsPointXY(float(cx), float(cy)))
-                                            canvas.refresh()
-                                            self.iface.messageBar().pushMessage(
-                                                "QMap Permalink",
-                                                self.tr("Moved to coordinates ({0:.6f}, {1:.6f}) (scale preserved).").format(parsed_google['lon'], parsed_google['lat']),
-                                                duration=3
-                                            )
-                                            return
-                                    except Exception:  # nosec B110  # 設計上の許容
-                                        pass
-                            except Exception as e:
-                                print(f"map_width handling failed: {e}")
-
-                        # Fallback: Use parsed scale/zoom if map_width_m wasn't provided or handling failed
-                        self.navigate_to_coordinates(parsed_google['lon'], parsed_google['lat'], parsed_google.get('scale'), parsed_google.get('zoom'), 'EPSG:4326')
-                        return
-
                 params = urllib.parse.parse_qs(parsed_url.query)
 
                 # パラメータをナビゲーションデータへ変換して処理（location または coordinates をサポート）
@@ -1891,24 +1153,6 @@ class GeoWebView:
                 self.tr("Please enter a permalink URL.")
             )
             return
-        # If the user pasted a raw Google @-style path like '/@lat,lon,1763m/' or
-        # '@lat,lon,1763m' (possibly without scheme), prefer to treat it as an
-        # internal Google-style navigation and pass directly to the internal
-        # parser/navigator. This avoids panel-level heuristics opening a browser
-        # or rejecting the input before the plugin can parse map_width (m) etc.
-        try:
-            if '@' in permalink_url and self._parse_google_maps_at_url(permalink_url):
-                # Delegate to the central navigate_to_permalink which contains the
-                # canonical handling for Google @-style strings (including map_width -> scale).
-                try:
-                    self.navigate_to_permalink(permalink_url)
-                    return
-                except Exception:  # nosec B110  # 設計上の許容
-                    # Fall through to the normal handling below on error
-                    pass
-        except Exception:  # nosec B110  # 設計上の許容
-            # Be defensive: ignore parser errors here and continue with regular flow
-            pass
         # Parse URL and decide:
         # - If it's an http(s) URL pointing to localhost and contains
         #   internal endpoints (/wms or /qgis-map), route to internal navigation.
@@ -1924,29 +1168,8 @@ class GeoWebView:
                 self.navigate_to_permalink(permalink_url)
                 return
 
-            # If the URL is a Google Maps URL, try to parse the @lat,lon,... form and navigate internally
-            lowered_url = permalink_url.lower()
-            # Simplified Google detection: if the input contains a coordinate-style '/@' path,
-            # a '/maps/' path segment, or the string 'google.' treat it as a Google Maps URL.
-            # This keeps the logic simple and ensures inputs like 'maps/@35.8080979,...' are
-            # correctly routed.
-            # Simplify Google detection: only treat strings that contain an @lat,lon pattern
-            # (e.g. @35.8080979,139.5289801) as Google @-style input.
-            if re.search(r'@[-0-9.]+,[-0-9.]+', lowered_url):
-                try:
-                    self.navigate_to_permalink(permalink_url)
-                    return
-                except Exception as e:
-                    QMessageBox.critical(
-                        self.iface.mainWindow(),
-                        self.tr("QMap Permalink"),
-                        self.tr("Failed to navigate to Google Maps URL: {error}").format(error=str(e))
-                    )
-                    return
-
-            # (Old HTTP-specific handling removed: navigation now prioritizes '/qgis-map' earlier,
-            # and Google @-style URLs are handled above. External HTTP(S) links are not opened by
-            # Navigate; use the Open button.)
+            # (Old HTTP-specific handling removed: navigation now prioritizes '/qgis-map' earlier.
+            # External HTTP(S) links are not opened by Navigate; use the Open button.)
 
         except Exception:
             # Parsing failed — do NOT fallback to internal navigation for HTTP(S).
@@ -1961,12 +1184,12 @@ class GeoWebView:
                 return
             # Otherwise allow non-http schemes to be handled by the existing fallback
 
-        # Strict mode: if the input was not recognized as qgis-map or Google @-style,
+        # Strict mode: if the input was not recognized as qgis-map,
         # show an error and do not attempt fallback navigation.
         QMessageBox.critical(
             self.iface.mainWindow(),
             self.tr("QMap Permalink"),
-            self.tr("Navigate supports only internal 'qgis-map' links or Google @-style URLs (e.g. /@lat,lon,220m/).")
+            self.tr("Navigate supports only internal 'qgis-map' links.")
         )
 
     def on_copy_clicked_panel(self):
@@ -2023,134 +1246,6 @@ class GeoWebView:
                 self.iface.mainWindow(),
                 "geo_webview",
                 self.tr("Failed to copy to the clipboard. Please copy it manually.")
-            )
-
-    def on_google_maps_clicked_panel(self):
-        """パネル版：Google Mapsボタンがクリックされた時の処理"""
-        try:
-            # パーマリンクが存在しない場合は自動生成
-            permalink_text = ''
-            if hasattr(self.panel, 'lineEdit_permalink') and self.panel.lineEdit_permalink is not None:
-                permalink_text = self.panel.lineEdit_permalink.text().strip() or ''
-
-            if not permalink_text:
-                # パーマリンクが無い場合は自動生成
-                try:
-                    permalink_text = self.generate_permalink(include_theme=False)
-                    # 生成したパーマリンクをパネルに設定
-                    if hasattr(self.panel, 'lineEdit_permalink') and self.panel.lineEdit_permalink is not None:
-                        self.panel.lineEdit_permalink.setText(permalink_text)
-                except Exception as e:
-                    self.iface.messageBar().pushMessage(
-                        "geo_webview", self.tr("Permalink auto-generation error: {0}").format(e), duration=5
-                    )
-                    return
-
-            # 現在の地図ビューから直接ナビゲーションデータを作成
-            canvas = self.iface.mapCanvas()
-            extent = canvas.extent()
-            crs = canvas.mapSettings().destinationCrs()
-            scale = canvas.scale()
-
-            # 中心点を計算
-            center_x = extent.center().x()
-            center_y = extent.center().y()
-
-            # WGS84座標に変換
-            lat, lon = self._convert_to_wgs84(center_x, center_y, crs.authid())
-
-            if lat is None or lon is None:
-                self.iface.messageBar().pushMessage(
-                    "QMap Permalink", self.tr("Coordinate conversion failed."), duration=3
-                )
-                return
-
-            # HTTPレスポンス用と同じ形式のナビゲーションデータを作成
-            navigation_data = {
-                'type': 'coordinates',
-                'x': center_x,
-                'y': center_y,
-                'lat': lat,
-                'lon': lon,
-                'scale': scale,
-                'crs': crs.authid(),
-                'zoom': self._estimate_zoom_from_scale(scale)
-            }
-
-            # HTTPレスポンスと同じメソッドでGoogle Maps URLを生成
-            google_maps_url = self._build_google_maps_url(navigation_data)
-            if google_maps_url:
-                QDesktopServices.openUrl(QUrl(google_maps_url))
-                self.iface.messageBar().pushMessage(
-                    "QMap Permalink", self.tr("Opened in Google Maps."), duration=3
-                )
-        except Exception as e:
-            self.iface.messageBar().pushMessage(
-                "QMap Permalink", self.tr("Google Maps launch error: {0}").format(e), duration=5
-            )
-
-    def on_google_earth_clicked_panel(self):
-        """パネル版：Google Earthボタンがクリックされた時の処理"""
-        try:
-            # パーマリンクが存在しない場合は自動生成
-            permalink_text = ''
-            if hasattr(self.panel, 'lineEdit_permalink') and self.panel.lineEdit_permalink is not None:
-                permalink_text = self.panel.lineEdit_permalink.text().strip() or ''
-
-            if not permalink_text:
-                # パーマリンクが無い場合は自動生成
-                try:
-                    permalink_text = self.generate_permalink(include_theme=False)
-                    # 生成したパーマリンクをパネルに設定
-                    if hasattr(self.panel, 'lineEdit_permalink') and self.panel.lineEdit_permalink is not None:
-                        self.panel.lineEdit_permalink.setText(permalink_text)
-                except Exception as e:
-                    self.iface.messageBar().pushMessage(
-                        "geo_webview", self.tr("Permalink auto-generation error: {0}").format(e), duration=5
-                    )
-                    return
-
-            # 現在の地図ビューから直接ナビゲーションデータを作成
-            canvas = self.iface.mapCanvas()
-            extent = canvas.extent()
-            crs = canvas.mapSettings().destinationCrs()
-            scale = canvas.scale()
-
-            # 中心点を計算
-            center_x = extent.center().x()
-            center_y = extent.center().y()
-
-            # WGS84座標に変換
-            lat, lon = self._convert_to_wgs84(center_x, center_y, crs.authid())
-
-            if lat is None or lon is None:
-                self.iface.messageBar().pushMessage(
-                    "QMap Permalink", self.tr("Coordinate conversion failed."), duration=3
-                )
-                return
-
-            # HTTPレスポンス用と同じ形式のナビゲーションデータを作成
-            navigation_data = {
-                'type': 'coordinates',
-                'x': center_x,
-                'y': center_y,
-                'lat': lat,
-                'lon': lon,
-                'scale': scale,
-                'crs': crs.authid(),
-                'zoom': self._estimate_zoom_from_scale(scale)
-            }
-
-            # HTTPレスポンスと同じメソッドでGoogle Earth URLを生成
-            google_earth_url = self._build_google_earth_url(navigation_data)
-            if google_earth_url:
-                QDesktopServices.openUrl(QUrl(google_earth_url))
-                self.iface.messageBar().pushMessage(
-                    "QMap Permalink", self.tr("Opened in Google Earth."), duration=3
-                )
-        except Exception as e:
-            self.iface.messageBar().pushMessage(
-                "QMap Permalink", self.tr("Google Earth launch error: {0}").format(e), duration=5
             )
 
     def on_kasugai_open_folder(self):
@@ -2217,10 +1312,12 @@ class GeoWebView:
         except Exception:  # nosec B110  # 設計上の許容
             pass
 
-    def on_kasugai_launch_clicked(self):
-        """パネル版：選択エンジンで エクスポート→Canvas登録→ブラウザ起動 まで
-        一発で行う。bridge の kasugaiExport(open_app=True) を利用し、
-        kasugai/qgis-http/hosted の3段フォールバックもそのまま働く。"""
+    def on_kasugai_launch_clicked(self, route='auto'):
+        """パネル版：選択エンジンで エクスポート→登録→ブラウザ起動 まで
+        一発で行う。bridge の kasugaiExport(open_app=True) を利用する。
+        route は 'kasugai'(Canvas登録=主プレイヤー) / 'local'(本サーバの
+        ローカルHTTP配信で即表示) / 'hosted'(サーバレスWEB=ホスト版
+        エンジン) / 'auto'(3段フォールバック)。"""
         try:
             engine = 'cesium'
             combo = getattr(self.panel, 'comboBox_engine', None)
@@ -2230,7 +1327,8 @@ class GeoWebView:
                 from .bridge import GeoWebViewBridge
                 self.bridge = GeoWebViewBridge(self)
             res = json.loads(
-                self.bridge.kasugaiExport(engine=engine, open_app=True)
+                self.bridge.kasugaiExport(
+                    engine=engine, open_app=True, route=route)
                 or '{}')
             if not res.get('ok'):
                 self.iface.messageBar().pushMessage(
@@ -2247,11 +1345,25 @@ class GeoWebView:
                         engine, res.get('via') or '-', url),
                     duration=8)
             else:
+                route_reasons = {
+                    'kasugai': self.tr(
+                        "KASUGAI Canvas is not running (port 8510). "
+                        "Start the Canvas app and try again."),
+                    'local': self.tr(
+                        "Local delivery unavailable — the HTTP server is "
+                        "stopped or no installed Canvas web/ was found."),
+                    'hosted': self.tr(
+                        "Serverless delivery unavailable — the HTTP server "
+                        "must be running to serve DATA/."),
+                }
                 self.iface.messageBar().pushMessage(
                     "geo_webview",
-                    self.tr("Exported to {0}. No engine available — "
-                            "open the .kasc file in KASUGAI Canvas.").format(
-                        res.get('dir', '')),
+                    self.tr("Exported to {0}. {1}").format(
+                        res.get('dir', ''),
+                        route_reasons.get(
+                            route,
+                            self.tr("No engine available — open the .kasc "
+                                    "file in KASUGAI Canvas."))),
                     duration=8)
         except Exception as e:
             self.iface.messageBar().pushMessage(

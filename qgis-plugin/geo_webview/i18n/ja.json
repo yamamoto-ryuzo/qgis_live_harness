@@ -31,10 +31,7 @@
     "Failed to copy to the clipboard. Please copy it manually.": "クリップボードへのコピーに失敗しました。手動でコピーしてください。",
     "Failed to create panel: {error}": "パネルの作成に失敗しました: {error}",
     "Failed to generate permalink: {error}": "パーマリンクの生成に失敗しました: {error}",
-    "Failed to navigate to Google Maps URL: {error}": "Google Maps URLへの移動に失敗しました: {error}",
     "Failed to parse or handle the provided HTTP(S) URL.": "指定されたHTTP(S) URLの解析または処理に失敗しました。",
-    "Google Earth launch error: {0}": "Google Earth起動エラー: {0}",
-    "Google Maps launch error: {0}": "Google Maps起動エラー: {0}",
     "HTTPS also requires a certificate (not currently supported).\n": "また、HTTPSには証明書が必要です(現在未対応)。\n",
     "Install KASUGAI Canvas": "KASUGAI Canvas をインストール",
     "Installed KASUGAI Canvas and opened the project ({0}).": "KASUGAI Canvas をインストールし、プロジェクトを開きました ({0})。",
@@ -51,9 +48,7 @@
     "Moved the map view via HTTP.": "HTTP経由で地図ビューに移動しました。",
     "Moved to coordinates ({0:.6f}, {1:.6f}) (scale preserved).": "座標 ({0:.6f}, {1:.6f}) に移動しました(スケールは維持されました)。",
     "Moved to coordinates ({0:.6f}, {1:.6f}).": "座標 ({0:.6f}, {1:.6f}) に移動しました。",
-    "Navigate supports only internal 'qgis-map' links or Google @-style URLs (e.g. /@lat,lon,220m/).": "移動は内部 'qgis-map' リンクまたは Google @ 形式URL(例: /@lat,lon,220m/)のみサポートしています。",
-    "Opened in Google Earth.": "Google Earthで開きました。",
-    "Opened in Google Maps.": "Google Mapsで開きました。",
+    "Navigate supports only internal 'qgis-map' links.": "移動は内部 'qgis-map' リンクのみサポートしています。",
     "Opened in KASUGAI Canvas ({0}) ({1} layers, {2} tiles).": "KASUGAI Canvas ({0}) で開きました ({1} レイヤ, {2} タイル)。",
     "Opened in MapLibre.": "MapLibreで開きました。",
     "Opened the project in {0} ({1}): {2}": "プロジェクトを {0} で開きました（{1}）: {2}",
@@ -143,9 +138,7 @@
     "When enabled, map view can be updated by external URLs": "有効にすると外部URLから地図ビューを更新できます",
     "color: green; font-weight: bold;": "color: green; font-weight: bold;",
     "▶ Open": "▶ 開く",
-    "🌍 Google Earth": "🌍 Google Earth",
-    "📁": "📁",
-    "🗺️ Google Maps": "🗺️ Google Maps"
+    "📁": "📁"
   },
   "geo_webview": {
     "\n⚠️ The firewall may be blocking port {0}": "\n⚠️ ファイアウォールがポート {0} をブロックしている可能性があります",
@@ -261,10 +254,8 @@
     "geo_webview — Web Distribution": "geo_webview — Web配信",
     "▶ Open": "▶ 開く",
     "✅ Server is running on port {0}": "✅ サーバーはポート {0} で稼働中",
-    "🌍 Google Earth": "🌍 Google Earth",
     "🌐 Network: {0}": "🌐 ネットワーク: {0}",
     "🏠 Local: {0}": "🏠 ローカル: {0}",
-    "📡 Available IPs: {0}": "📡 利用可能なIP: {0}",
-    "🗺️ Google Maps": "🗺️ Google Maps"
+    "📡 Available IPs: {0}": "📡 利用可能なIP: {0}"
   }
 }

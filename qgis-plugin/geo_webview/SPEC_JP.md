@@ -5,13 +5,12 @@
 
 ## 目的と範囲
 - 目的: geo_webview プラグインの機能を明確に仕様化し、実装・運用・テストの基準を定める。
-- 範囲: サーバレス Web 配信（`.kasc`+`DATA/` エクスポート＝**主機能**）、組み込みHTTPサーバー（`/kasugai`・`/export-data/`・`/present`・`/screenshot`・パーマリンク受領＝補助）、パーマリンク生成・ナビゲート、外部連携（Google Maps/Earth）、テーマ適用、External Control の挙動、投影（CRS）ポリシー、セキュリティ/運用上の注意。
+- 範囲: サーバレス Web 配信（`.kasc`+`DATA/` エクスポート＝**主機能**）、組み込みHTTPサーバー（`/kasugai`・`/export-data/`・`/present`・`/screenshot`・パーマリンク受領＝補助）、パーマリンク生成・ナビゲート、テーマ適用、External Control の挙動、投影（CRS）ポリシー、セキュリティ/運用上の注意。
 
 ## 1. 機能概要
 - **サーバレス Web 配信（主機能）**: 開いている QGIS プロジェクトを `.kasc`+`DATA/` パッケージとして出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet）で再生する。出力物＋エンジンを静的ホストへ置くだけで配信できる。起動経路はパネル（`Export`=ファイル出力のみ / `▶ Open`=登録・起動まで）・`GET /kasugai`・bridge `kasugaiExport` の3系統で、Canvas登録→本サーバ静的配信→ホスト版エンジンの3段フォールバックを持つ（§15）。
 - 組み込み HTTP サーバー（補助）: `/kasugai` `/export-data/` `/present` `/present/state` `/screenshot` `/received` を提供（v3.29.0 で OGC サービスは廃止）。
 - パーマリンク生成: QGIS の現在表示（中心座標、scale、rotation、theme など）を HTTP パーマリンク（`/qgis-map` パス）として生成・コピー・開く。`/qgis-map` は HTML を返さず、受領記録・External Control ナビゲートの URL パスとして使う（v3.24.0 でプラグイン内蔵ビューアは廃止）。
-- Google 連携: Google Maps（@lat,lon,zoom）と Google Earth（@lat,lon,altitudea,distanced,...）のURLを生成。受信したこれらのURLをパースして QGIS 表示に変換可能。
 - Theme サポート: `theme` パラメータのマップテーマをナビゲーション時に適用し、`.kasc` へ `theme:` 行として出力（プロジェクト自体は変更しない）。
 - External Control: 外部からの `/qgis-map` や `/wms` を含むリクエストを受け、許可された場合に自動で QGIS をナビゲートする。
 - レンダリング: `/screenshot` は現在のキャンバス MapSettings（回転含む）を `QgsMapRendererParallelJob` で複製描画し PNG を返す（`w`/`h` 指定・4096px クランプ・`_render_lock` 直列化・30秒タイムアウト）。
@@ -51,7 +50,7 @@ http://localhost:8089/qgis-map?x=139.01234&y=35.12345&scale=1000.0&rotation=0.00
 
 変換ルール:
 - `scale` 指定があれば優先して適用。
-- `zoom` は内部推定（Google Maps 用の推定）で用いるが、基本は `scale` を優先。
+- `zoom` は内部推定（Web マップ用の推定）で用いるが、基本は `scale` を優先。
 
 ---
 ## 4. Web 配信（KASUGAI Canvas エクスポート）
@@ -73,18 +72,15 @@ WMS / WMTS・XYZ / WFS・`/maplibre-style` の各エンドポイントと関連�
 旧実装の詳細は git 履歴を参照。
 
 
-## 10. Google Maps / Google Earth 連携（生成とパース）
-生成
-- Google Maps: `https://www.google.co.jp/maps/@{lat},{lon},{zoom}z` を生成。`zoom` は scale→zoom の推定を使う（小数点ズームを許容）。
-- Google Earth: `https://earth.google.com/web/@{lat},{lon},{alt}a,{distance}d,{y}y,{heading}h,{tilt}t,{roll}r` を生成。実測データ（例: scale 15695 -> altitude 32.04m, distance 160699m, 1y）を基準に比例計算して `altitude` と `distance` を決定。
+## 10. Google Maps / Google Earth 連携（v3.30.0 で廃止）
 
-パース（受信）
-- 優先度(高→低): Google Earth の `@...a,...d,1y` の `y` トークン → Google Maps の `@...,...m` / `...z` → 内部クエリパラメータ (`x,y,scale`) → 旧カスタムスキーム。
-- Google Earth の `y`（m/px）があれば、画面 DPI を用いてスケールをより正確に逆算する。
-- Google Maps の `m`（地表幅）トークンがあれば、キャンバス幅（ピクセル）に基づき scale を推定する。`zoom` のみなら `_estimate_scale_from_zoom` を使う。
-
-注意:
-- DPI / OS スケーリングの差異により微小な差が出るため、必要なら環境依存パラメータで補正可能。
+Google Maps / Google Earth の URL 生成・パース機能
+（`_build_google_maps_url`・`_build_google_earth_url`・
+`_parse_google_maps_at_url`・`_parse_google_earth_url`・パネルの外部
+起動ボタン・bridge の `googleMapsUrl`/`googleEarthUrl`/`openExternal`
+の Google 対応）は v3.30.0 で撤去。Google Earth へのリンクは
+KASUGAI Canvas 側のベースマップコントロールが担う。
+旧実装の詳細は git 履歴を参照。
 
 ---
 ## 11. External Control（外部制御）のパース優先度と挙動
@@ -226,7 +222,7 @@ Canvas が使えない場合は次の順でフォールバックする
 ## 17. テスト・QA 手順
 自動テスト候補:
 - `server_manager.py` のユニットテスト: ポート選定・バインド挙動のモックテスト。
-- URL パーサ（Google Maps/Earth/内部形式）の単体テスト（複数フォーマットのケース）。
+- URL パーサ（内部形式）の単体テスト（複数フォーマットのケース）。
 - `wmts` タイル座標→BBOX 変換のユニットテスト。
 
 手動テスト手順（QGIS 実環境）:
@@ -235,7 +231,6 @@ Canvas が使えない場合は次の順でフォールバックする
 3. `External Control` を ON にして、別ホスト（または同一ホスト）から `/qgis-map?x=...&y=...&scale=...` にアクセスして QGIS がジャンプすることを確認。
 4. `/screenshot` でキャンバス PNG が返ることを確認。
 5. `/present` ページがブラウザで開くことを確認。
-6. Google Earth URL を生成してブラウザで開き、期待する表示（高度/距離/角度）が得られるか目視確認。
 
 テスト注意:
 - CI 環境では `qgis.core` や `PyQt5` が無いため、これらをモックするかローカルでの手動確認が必要。
