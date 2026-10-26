@@ -11,6 +11,15 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.30.29] - 2026-10-26 INTEGRATION から「（大前提）」表記を除去
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の冒頭まとめ①および節見出し
+  から「（大前提）」表記を除去
+
+## [3.30.28] - 2026-10-26 INTEGRATION の冒頭まとめを箇条書き化
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の冒頭まとめ①〜③を箇条書きに整形
+
 ## [3.30.27] - 2026-10-26 INTEGRATION の ArcGIS 節を①〜③節構成に再構築
 
 - `INTEGRATION_JP.md` / `INTEGRATION.md` の ArcGIS 節を、冒頭まとめの

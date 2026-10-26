@@ -56,21 +56,24 @@ repository](https://github.com/yamamoto-ryuzo/ReEarth_GeoSuite). For the
 <a id="arcgis"></a>
 ## ArcGIS policy
 
-**Summary**: ① **Running custom code on ArcGIS Online is impossible —
-this system's features cannot be realized there** (the fundamental
-premise). ② To build an equivalent of engines like Cesium on
-ArcGIS — **the Canvas-side code assets cannot be reused (different
-SDK), so development from scratch including data construction is
-required** (3D presupposes the 3D Tiles→I3S conversion pipeline; live
-3D Tiles URLs out of scope; only the `.kasc` spec and the same OSS
-libraries can be carried over). ③ Running a custom WebGIS inside the
-ArcGIS-managed environment requires Enterprise 11.0+ in-portal ExB
-custom widgets — the only route; everything else follows the
-external-hosting model and offers no significance for adoption.
+**Summary**:
+
+- ① **Running custom code on ArcGIS Online is impossible — this
+  system's features cannot be realized there** 
+- ② To build an equivalent of engines like Cesium on ArcGIS — **the
+  Canvas-side code assets cannot be reused (different SDK), so
+  development from scratch including data construction is required**
+  (3D presupposes the 3D Tiles→I3S conversion pipeline; live 3D Tiles
+  URLs out of scope; only the `.kasc` spec and the same OSS libraries
+  can be carried over)
+- ③ Running a custom WebGIS inside the ArcGIS-managed environment
+  requires Enterprise 11.0+ in-portal ExB custom widgets — the only
+  route; everything else follows the external-hosting model and offers
+  no significance for adoption
 
 
 
-### 1. ArcGIS Online cannot run custom code (fundamental premise)
+### 1. ArcGIS Online cannot run custom code
 
 **Running this system's features inside ArcGIS Online is functionally
 impossible.** ArcGIS Online provides no mechanism to host or execute
