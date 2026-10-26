@@ -80,7 +80,7 @@ flowchart TB
 |---|---|
 | 【エクスポート】 | `.kasc + DATA/ + <engine>.html + index.html + kasugai_canvas.zip` を出力。**ファイル出力のみ**、起動・登録は行わない |
 | 【▶ WebView】 | ホスト版 `kasugai-canvas-web`（GitHub Pages CDN）のエンジンで開き、データは `:8089/export-data/` から供給。要インターネット・HTTP サーバー稼働（Canvas 未インストールでも可） |
-| 【▶ Canvas】 | エクスポート → 稼働中の KASUGAI Canvas ローカルサーバー（:8510）へプロジェクト登録・表示切替・ブラウザ起動。インストール先登録済みなら `projects/<id>/` へ直出力。**Canvas 未起動時はフォールバックなし**（出力のみ） |
+| 【▶ Canvas】 | **エクスポート済み**のプロジェクトを稼働中の KASUGAI Canvas ローカルサーバー（:8510）へ登録・表示切替・ブラウザ起動。**エクスポートは行わない** — 未出力の場合は Export を先に実行するようメッセージで案内。Canvas 未起動時はフォールバックなし |
 | 📁 | 出力フォルダを開く |
 
 ### マルチエンジン

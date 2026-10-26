@@ -36,7 +36,7 @@
   （`C:\kasugai\kasugai_canvas\QGIS_projects\<プロジェクト名>`）。
   `QgsProject.fileNameChanged` でプロジェクト名変更時も表示を追従
 
-## [3.32.3] - 2026-10-26 「▶ Canvas」未インストール時グレーアウト
+## [3.32.3] - 2026-10-26 「▶ Canvas」未インストール時グレーアウト＋既存出力再利用
 
 - `pushButton_kasugai_launch`（「▶ Canvas」起動ボタン）を
   KASUGAI Canvas 未インストール時は無効化（グレーアウト）するよう変更。
@@ -46,6 +46,10 @@
 - 再判定タイミング: パネル生成時・ドック再表示時
   （`visibilityChanged`）・設定ダイアログ終了時。無効時のツールチップに
   「アプリをインストールするか設定でインストール先を指定」を案内
+- 「▶ Canvas」ボタンは再エクスポートせず出力先の既存 `.kasc` のみを
+  使うよう変更（bridge `kasugaiExport` に `use_existing` 追加、
+  `kasugai_export.existing_export()` 新設）。未出力なら
+  `code=not_exported` を返し、パネルは「先にエクスポート」を案内
 
 ## [3.32.2] - 2026-10-26 ▶ Local ボタンを廃止
 

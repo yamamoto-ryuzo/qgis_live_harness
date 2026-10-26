@@ -145,10 +145,10 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 
 | 経路 | 呼び出し | 用途 |
 |---|---|---|
-| パネルボタン | `▶ Open` ボタン (`plugin.py: on_kasugai_launch_clicked`) | 人手操作。パネルの `Engine:` コンボで起動エンジンを選択（QSettings `kasugai_engine` に保存）し、bridge `kasugaiExport(open_app=True)` と同じく登録・フォールバック・ブラウザ起動まで行う |
+| パネルボタン | `▶ Canvas` / `▶ WebView` ボタン (`plugin.py: on_kasugai_launch_clicked`) | 人手操作。パネルの `Engine:` コンボで起動エンジンを選択（QSettings `kasugai_engine` に保存）。`▶ Canvas`（route=`kasugai`）は**再エクスポートせず**既存の `.kasc` を登録・ブラウザ起動（未出力時はエクスポートを促すメッセージ）。`▶ WebView`（route=`hosted`）は bridge `kasugaiExport(open_app=True)` と同じく出力→フォールバック→ブラウザ起動まで行う |
 | パネルボタン | `Export` ボタン (`plugin.py: on_kasugai_export_clicked`) | 人手操作（ファイル出力のみ。Canvas 起動・登録はしない） |
 | HTTP | `GET http://localhost:8089/kasugai` (server_manager._handle_kasugai) | 外部アプリ・AI からの一発起動。`?engine=` で起動エンジン指定可。応答は `{ok,url,via,dir,layers,tiles,engine}` JSON |
-| Bridge | `bridge_call` の `kasugaiExport(output_dir, open_app, native_formats, hidden_as_off, embed_gpkg_style, emit_themes, emit_bookmarks, emit_launchers, engine, install)` | Live Driver 経由の AI 制御（MCP `qgis_bridge_call` / REST `/api/cmd` / JSONL） |
+| Bridge | `bridge_call` の `kasugaiExport(output_dir, open_app, native_formats, hidden_as_off, embed_gpkg_style, emit_themes, emit_bookmarks, emit_launchers, engine, install, route, use_existing)` | Live Driver 経由の AI 制御（MCP `qgis_bridge_call` / REST `/api/cmd` / JSONL）。`use_existing=True` で再エクスポートせず既存の `.kasc` のみ使用（未出力なら `code=not_exported`） |
 
 ### 出力フォルダ構成
 
@@ -242,7 +242,7 @@ Canvas が使えない場合は次の順でフォールバックする
 
 手動テスト手順（QGIS 実環境）:
 1. QGIS を起動しプラグインをインストール。
-2. パネルの `Engine:` でエンジンを選び `▶ Open` を押し、`.kasc`+`DATA/` が出力されてブラウザでそのエンジンが開くことを確認（`/kasugai` と同じ3段フォールバックが働く）。
+2. `Export` で `.kasc`+`DATA/` を出力し、パネルの `Engine:` でエンジンを選び `▶ Canvas` を押してブラウザでそのエンジンが開くことを確認（未出力時はエクスポートを促すメッセージが出る）。`▶ WebView` は出力→ブラウザ起動まで一発で行う（`/kasugai` と同じフォールバックが働く）。
 3. `External Control` を ON にして、別ホスト（または同一ホスト）から `/qgis-map?x=...&y=...&scale=...` にアクセスして QGIS がジャンプすることを確認。
 4. `/screenshot` でキャンバス PNG が返ることを確認。
 5. `/present` ページがブラウザで開くことを確認。

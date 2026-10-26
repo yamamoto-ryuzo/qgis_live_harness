@@ -83,7 +83,7 @@ flowchart TB
 |---|---|
 | 【Export】 | Writes `.kasc + DATA/ + <engine>.html + index.html + kasugai_canvas.zip`. **Files only** — no launch or registration |
 | 【▶ WebView】 | Opens via the hosted `kasugai-canvas-web` engine (GitHub Pages CDN) with data supplied from `:8089/export-data/`. Needs internet + HTTP server running (works without a Canvas install) |
-| 【▶ Canvas】 | Export → register the project with a running KASUGAI Canvas local server (:8510), switch the view, open the browser. Writes straight into `projects/<id>/` when the install path is registered. **No fallback when Canvas is not running** (export only) |
+| 【▶ Canvas】 | Registers the **already-exported** project with a running KASUGAI Canvas local server (:8510), switches the view, opens the browser. **Does not export** — if nothing has been exported yet, a message prompts you to use Export first. No fallback when Canvas is not running |
 | 📁 | Opens the output folder |
 
 ### Multi-engine
