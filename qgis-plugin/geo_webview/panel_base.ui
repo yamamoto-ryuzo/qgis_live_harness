@@ -130,7 +130,7 @@
         <item>
          <widget class="QPushButton" name="pushButton_kasugai_launch_hosted">
           <property name="text">
-           <string>&#9654; Serverless</string>
+           <string>&#9654; WebView</string>
           </property>
           <property name="toolTip">
            <string>Open via serverless WEB delivery — hosted engine (GitHub Pages) + this server's data delivery (no Canvas install needed; requires internet + HTTP server running)</string>

@@ -58,7 +58,7 @@ flowchart TB
     subgraph WEBBOX["外部HTTPサーバー"]
         WEB["GitHub Pages / Cloudflare / Vercel 等の静的ホスト"]
     end
-    subgraph GHBOX["【▶ Serverless】"]
+    subgraph GHBOX["【▶ WebView】"]
         CDN["kasugai-canvas-web<br>4エンジンの CDN<br>GitHub Pages: stable/・unstable/"]
     end
     RE["Re:Earth Visualizer geo_suite（サブ）<br>kasugai_canvas.zip を CMS へアップロード →<br>インスペクタに CMS の URL を qgis: URL で指定"]
@@ -81,7 +81,7 @@ flowchart TB
 | 【エクスポート】 | `.kasc + DATA/ + <engine>.html + index.html + kasugai_canvas.zip` を出力。**ファイル出力のみ**、起動・登録は行わない |
 | 【▶ Canvas】 | エクスポート → 稼働中の KASUGAI Canvas ローカルサーバー（:8510）へプロジェクト登録・表示切替・ブラウザ起動。インストール先登録済みなら `projects/<id>/` へ直出力。**Canvas 未起動時はフォールバックなし**（出力のみ） |
 | 【▶ Local】 | 内蔵 HTTP サーバー（:8089）が**ローカルインストール済みの Canvas `web/`** を `/<engine>/` で配信し、`/export-data/` でパッケージを供給して即表示。要: HTTP サーバー稼働 + Canvas `web/` のローカルインストール（kasugai-canvas-web ではない） |
-| 【▶ Serverless】 | ホスト版 `kasugai-canvas-web`（GitHub Pages CDN）のエンジンで開き、データは `:8089/export-data/` から供給。要インターネット・HTTP サーバー稼働（Canvas 未インストールでも可） |
+| 【▶ WebView】 | ホスト版 `kasugai-canvas-web`（GitHub Pages CDN）のエンジンで開き、データは `:8089/export-data/` から供給。要インターネット・HTTP サーバー稼働（Canvas 未インストールでも可） |
 | 📁 | 出力フォルダを開く |
 
 ### マルチエンジン

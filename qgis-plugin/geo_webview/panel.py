@@ -245,7 +245,7 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.pushButton_kasugai_launch_local.setToolTip(QCoreApplication.translate('geo_webview',
                 "Show instantly in a browser via local HTTP delivery — this plugin's server serves the installed Canvas web/ + DATA/ (requires Canvas installed + HTTP server running)"))
         if hasattr(self.ui, 'pushButton_kasugai_launch_hosted'):
-            self.ui.pushButton_kasugai_launch_hosted.setText(QCoreApplication.translate('geo_webview', "▶ Serverless"))
+            self.ui.pushButton_kasugai_launch_hosted.setText(QCoreApplication.translate('geo_webview', "▶ WebView"))
             self.ui.pushButton_kasugai_launch_hosted.setToolTip(QCoreApplication.translate('geo_webview',
                 "Open via serverless WEB delivery — hosted engine (GitHub Pages) + this server's data delivery (no Canvas install needed; requires internet + HTTP server running)"))
         if hasattr(self.ui, 'comboBox_engine'):
