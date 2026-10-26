@@ -1,0 +1,49 @@
+# Security checks for this repository (workspace-wide convention).
+# Install once:  python -m pip install pre-commit && python -m pre_commit install
+# Manual run:    python -m pre_commit run --all-files
+#
+# - detect-private-key / detect-secrets : block committed secrets
+#   (.secrets.baseline records the accepted snapshot; regenerate with
+#    detect-secrets scan > .secrets.baseline)
+# - bandit -lll  : HIGH-severity Python findings only (plugins.qgis.org
+#   "blocking" equivalent; MEDIUM/LOW idioms are not blocked)
+# - cargo audit / npm audit : dependency vulnerabilities, run only when
+#   manifests change (scripts/security_audit.py)
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: detect-private-key
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: '(\.secrets\.baseline|package-lock\.json|Cargo\.lock)$'
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.9.4
+    hooks:
+      - id: bandit
+        args: ['-lll']
+        # plugins.qgis.org scan scope is qgis-plugin/; scripts/tests share
+        # the same blocking rule. Bundled copies under launcher/download
+        # are mirrors of qgis-plugin or third-party code and are excluded.
+        files: '^(qgis-plugin|scripts|tests|launcher/qgis_launcher/scripts)/'
+        exclude: '^launcher/qgis_launcher/download/'
+
+  - repo: local
+    hooks:
+      - id: cargo-audit
+        name: cargo audit (qgis_launcher)
+        entry: python scripts/security_audit.py --cargo launcher/qgis_launcher
+        language: system
+        pass_filenames: false
+        files: '^launcher/qgis_launcher/Cargo\.(toml|lock)$'
+      - id: npm-audit
+        name: npm audit
+        entry: python scripts/security_audit.py --npm .
+        language: system
+        pass_filenames: false
+        files: '^package(-lock)?\.json$'
