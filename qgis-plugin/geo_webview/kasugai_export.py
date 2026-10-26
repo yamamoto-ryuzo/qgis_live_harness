@@ -514,9 +514,10 @@ _last_export_dir = None
 def last_export_dir():
     """直近のエクスポート出力先（/export-data/ の配信ルート）。
 
-    セッション内で一度もエクスポートしていなければ get_output_dir()。
+    セッション内で一度もエクスポートしていなければ preferred_output_dir()
+    （実際の出力先と同じ規則: 設定→Canvasインストール先→Documents）。
     """
-    return _last_export_dir or get_output_dir()
+    return _last_export_dir or preferred_output_dir()
 
 
 def existing_export(output_dir=None):
@@ -723,8 +724,26 @@ def _source_path(layer):
     return cand if cand and os.path.exists(cand) else None
 
 
+def _same_data_copy(src_abs, dest_abs):
+    """DATA/ 内の既存コピーがソースと同一内容か(サイズ+mtime一致)。
+
+    copy2 はソースの mtime を保持するため、過去エクスポートの複製は
+    この条件に一致する。一致すれば再コピー不要(複製の蓄積防止)。
+    """
+    try:
+        s, d = os.stat(src_abs), os.stat(dest_abs)
+    except OSError:
+        return False
+    return s.st_size == d.st_size and s.st_mtime == d.st_mtime
+
+
 def _copy_to_data(src_path, data_dir, slug, copied):
-    """ローカルファイルを DATA/<slug><ext> へコピーし 'DATA/...' を返す。"""
+    """ローカルファイルを DATA/<slug><ext> へコピーし 'DATA/...' を返す。
+
+    宛先は常に固定名 ``<slug><ext>``。既存が同一内容なら再利用、
+    異なる内容なら上書きする(旧仕様の ``<slug>_N<ext>`` 連番複製は
+    エクスポート毎に DATA/ が肥大化するため廃止)。
+    """
     src_abs = os.path.abspath(src_path)
     if src_abs in copied:
         return copied[src_abs]
@@ -735,12 +754,7 @@ def _copy_to_data(src_path, data_dir, slug, copied):
         same = os.path.samefile(src_abs, dest_abs)
     except Exception:  # nosec B110  # 存在しない場合はコピー対象
         pass
-    if not same:
-        i = 2
-        while os.path.exists(dest_abs):
-            dest_abs = os.path.join(data_dir,
-                                    '{0}_{1}{2}'.format(slug, i, ext))
-            i += 1
+    if not same and not _same_data_copy(src_abs, dest_abs):
         shutil.copy2(src_abs, dest_abs)
     rel = 'DATA/' + os.path.basename(dest_abs)
     copied[src_abs] = rel
