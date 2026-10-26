@@ -5,6 +5,11 @@ All notable changes to the QGIS Legend View plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.6] - 2026-10-27
+- bridge.py: legend_*変数の編集/削除(setLegendVariable/
+  deleteLegendVariable)・任意レイヤ登録(registerLayer)・コンボ再構築
+  (refresh)を追加し、変数ダイアログの全操作をbridge_callから可能にした
+
 ## [2.6.5] - 2026-10-22
 
 ### Fixed

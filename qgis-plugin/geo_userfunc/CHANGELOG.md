@@ -1,5 +1,12 @@
 # CHANGELOG — geo_userfunc
 
+## 1.0.6
+
+- bridge.py: URLからの関数取得(fetchFromUrl)・sources.json管理
+  (listSources/addSource/removeSource)・ライブラリフォルダ表示
+  (openLibraryDir)を追加し、管理ダイアログの全操作を
+  bridge_callから可能にした
+
 ## 1.0.5
 
 - i18n/ に ja.json しか無かった状態から de/es/fr/hi/it/pt/ru/zh

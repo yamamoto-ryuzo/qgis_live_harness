@@ -1,3 +1,10 @@
+2.10.9 bridge経由のAI操作を全機能へ拡張
+- bridge.py: ページング(nextPage/prevPage/gotoPage)・カテゴリフィルタ
+  (listGroups/checkGroups)・形式フィルタ(formatFilter)・ローカルキャッシュ
+  (localCache/refreshCache)・複数選択(selectResults)・詳細(datasetDetails)・
+  リンク(link)・データプロバイダ(openProviders/listServers/selectServers/
+  addServer/removeServer/testServer)・再読込(reload)・免責(openDisclaimer)・
+  設定(getSettings/setSettings)を追加し、UIの全操作をbridge_callから可能にした
 2.10.8 翻訳カタログの欠落分を補完
 - i18n/ 各言語JSON(de/es/fr/hi/it/pt/ru/zh)に ja のみに存在した
   30キー+frの「All」の訳文を追加し、全言語でカタログキー数を

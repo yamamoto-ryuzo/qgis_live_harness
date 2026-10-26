@@ -1,5 +1,11 @@
 # CHANGELOG — geo_excel
 
+## 1.9.4
+
+- bridge.py: 既定設定の保存(setSettings)と自動テンプレート再生成
+  (regenerateTemplates)を追加し、設定ダイアログの全操作を
+  bridge_callから可能にした
+
 ## 1.9.3
 
 - try/except/pass|continue 20箇所に # nosec B110/B112 を付与

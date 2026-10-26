@@ -3,6 +3,15 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
+## [0.15.2] - Unreleased
+
+### Added
+- bridge.py: AIパネル(openAiPanel)・接続情報(openConnInfo)・
+  Deploy Modeダイアログ(openDeployMode)・ホットリロード
+  (listDevPlugins/hotReload)・リモート制御切替(remoteControl)を
+  bridgeメソッドとして追加し、ドライバ自身の全機能を
+  bridge_callからも操作可能にした
+
 ## [0.15.1] - Unreleased
 
 ### Added

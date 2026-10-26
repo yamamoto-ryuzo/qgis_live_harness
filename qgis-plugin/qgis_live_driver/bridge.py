@@ -93,6 +93,28 @@ class QgisLiveBridge:
                  "signature": "placeLayer(layer_id=None, ctx=None)",
                  "description": "単一レイヤをルールへ配置"
                                 "(省略時=アクティブレイヤ)"},
+                {"name": "openAiPanel",
+                 "signature": "openAiPanel()",
+                 "description": "AIアシスタントパネル(ドック)を開く"},
+                {"name": "openConnInfo",
+                 "signature": "openConnInfo()",
+                 "description": "接続情報ダイアログ(MCP/REST接続先)を開く"},
+                {"name": "openDeployMode",
+                 "signature": "openDeployMode()",
+                 "description": "Deploy Mode切替ダイアログを開く"
+                                "(切替はダイアログ上のUI操作)"},
+                {"name": "listDevPlugins",
+                 "signature": "listDevPlugins()",
+                 "description": "ホットリロード対象(junction配置の開発中"
+                                "プラグインID)を返す"},
+                {"name": "hotReload",
+                 "signature": "hotReload(plugin_ids=None)",
+                 "description": "開発中プラグインをsys.modules掃除+"
+                                "reloadPluginで即再読込(省略時=全対象)"},
+                {"name": "remoteControl",
+                 "signature": "remoteControl(enabled=None)",
+                 "description": "リモート制御(ファイルJSONL/HTTP面)の"
+                                "有効状態を取得/設定する"},
             ],
         })
 
@@ -197,3 +219,78 @@ class QgisLiveBridge:
             return self._err("no layer (pass layer_id or activate one)")
         rep = org.place_all([(layer, dict(ctx or {}))])
         return self._ok(rep)
+
+    # ---- ドライバ自身のUI/運用 ----
+
+    def openAiPanel(self):
+        """AIアシスタントパネルを開く。"""
+        self._plugin._open_ai_panel()
+        panel = getattr(self._plugin, "_ai_panel", None)
+        return self._ok({"opened": panel is not None,
+                         "visible": bool(panel is not None
+                                         and panel.isVisible())})
+
+    def openConnInfo(self):
+        """接続情報ダイアログを開く。"""
+        self._plugin._open_conn_info()
+        return self._ok({"opened": True})
+
+    def openDeployMode(self):
+        """Deploy Mode切替ダイアログを開く(切替はUI操作のみ)。"""
+        from qgis.PyQt.QtCore import QTimer
+        QTimer.singleShot(0, self._plugin._open_mode_dialog)
+        return self._ok({"launched": True})
+
+    def listDevPlugins(self):
+        """ホットリロード対象(開発モード配置のプラグインID)を返す。"""
+        try:
+            from .hot_reload import dev_plugin_ids
+            own = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "__init__.py")
+            return self._ok({"plugin_ids": dev_plugin_ids(own)})
+        except Exception as e:
+            return self._err(f"dev_plugin_ids failed: {e}")
+
+    def hotReload(self, plugin_ids=None):
+        """開発中プラグインを再読込する(省略時=全対象、driverは最後)。
+
+        junction配置(repo優先)のみ対象。reload_pluginコマンドより
+        sys.modules掃除込みの完全再読込になる。
+        """
+        try:
+            from .hot_reload import dev_plugin_ids, reload_plugins
+            own = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "__init__.py")
+            ids = plugin_ids or dev_plugin_ids(own)
+            if isinstance(ids, str):
+                ids = [ids]
+            reload_plugins(list(ids), notify=None)
+            return self._ok({"reloaded": list(ids)})
+        except Exception as e:
+            return self._err(f"hotReload failed: {e}")
+
+    def remoteControl(self, enabled=None):
+        """リモート制御の有効状態を取得/設定する。
+
+        enabled=TrueでファイルJSONL/HTTP面を開始、Falseで停止。
+        有効化時の確認ダイアログは出さない(呼出側の判断で実行)。
+        注意:Falseにすると以後の遠隔コマンドは届かなくなる。
+        """
+        p = self._plugin
+        if enabled is not None:
+            if enabled and p.driver is None:
+                p._set_setting(True)
+                p._start(p._default_live_base())
+                if p.driver is None:
+                    p._set_setting(False)
+            elif not enabled and p.driver is not None:
+                p._set_setting(False)
+                p._stop()
+            try:
+                p._sync_action()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+        d = p.driver
+        return self._ok({"enabled": d is not None,
+                         "live_dir": getattr(d, "dir", None),
+                         "http_port": getattr(d, "http_port", None)})

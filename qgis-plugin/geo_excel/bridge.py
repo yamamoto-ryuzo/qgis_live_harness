@@ -169,6 +169,20 @@ class GeoExcelBridge:
             "description": "設定ダイアログを開く。",
             "example": {"method": "openSettings", "args": []},
         },
+        "setSettings": {
+            "description":
+                "既定設定を保存する。対応キー: output_dir/dpi/"
+                "template_list/template_single/auto_apply。",
+            "example": {"method": "setSettings",
+                        "args": [{"output_dir": "C:/out", "dpi": "300"}]},
+        },
+        "regenerateTemplates": {
+            "description":
+                "対象レイヤ(既定=アクティブ)の自動生成テンプレートを"
+                "再生成する(ユーザー指定テンプレートは上書きしない)。"
+                "生成後に不足変数へ既定値を適用する。",
+            "example": {"method": "regenerateTemplates", "args": []},
+        },
     }
 
     def __init__(self, plugin):
@@ -406,6 +420,59 @@ class GeoExcelBridge:
         """設定ダイアログを開く。"""
         dlg = self._plugin.open_settings()
         return self._ok({"opened": dlg is not None})
+
+    def setSettings(self, settings=None):
+        """既定設定を保存する(output_dir/dpi/テンプレート/auto_apply)。"""
+        settings = dict(settings or {})
+        allowed = {"output_dir", "dpi", "template_list", "template_single",
+                   "auto_apply"}
+        unknown = [k for k in settings if k not in allowed]
+        if unknown:
+            return self._err(f"unknown keys: {unknown} "
+                             f"(allowed: {sorted(allowed)})")
+        applied = {}
+        for k, v in settings.items():
+            if k == "auto_apply":
+                v = bool(v)
+            elif v is not None:
+                v = str(v)
+            applied[k] = v
+        _settings.save_settings(
+            output_dir_value=applied.get("output_dir"),
+            dpi=applied.get("dpi"),
+            template_list=applied.get("template_list"),
+            template_single=applied.get("template_single"),
+            auto_apply=applied.get("auto_apply"))
+        return self._ok({"applied": applied,
+                         "settings": _settings.current_settings()})
+
+    def regenerateTemplates(self, layer_id=None):
+        """自動生成テンプレートを再生成し不足変数へ既定値を適用する。"""
+        layer = self._layer(layer_id)
+        if layer is None:
+            return self._err("vector layer not found or not active")
+        done, skipped, errors = [], [], []
+        for kind in ("list", "single"):
+            if _settings.configured_template(kind):
+                skipped.append(kind)
+                continue  # ユーザー指定テンプレートは上書きしない
+            path = _settings.generated_template_path(kind, layer)
+            try:
+                _settings.generate_template(path, layer, kind)
+                done.append(path)
+            except Exception as e:
+                errors.append({"kind": kind, "error": str(e)})
+        applied, apply_errors = {}, []
+        for f in list(_settings.SCRIPT_VARS):
+            rep = _settings.ensure_layer_variables(layer, f)
+            applied.update(rep["applied"])
+            apply_errors.extend(rep["errors"])
+        if errors:
+            return self._err(
+                f"template generation failed: {errors}")
+        return self._ok({"generated": done, "skipped": skipped,
+                         "applied": applied, "errors": apply_errors,
+                         "variables": self._variables(layer)})
 
     # ---------- 実行環境 ----------
 

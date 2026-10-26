@@ -3,6 +3,12 @@
 バージョン表記: VA.B.C
 - 例: V2.0.0（A=2, B=0, C=0）
 
+## V2.9.5 bridge経由のAI操作を全機能へ拡張
+- bridge.py: 標準レイアウト(listStandardLayouts/addStandardLayout)・
+  再読込(refresh)・レイアウト情報(layoutInfo)・保存済みプロパティ一覧
+  (listPropertyFiles)・レイアウト操作(removeLayout/renameLayout/
+  duplicateLayout/createLayout)を追加
+
 ## バージョン番号の意味
 - **A**: QGIS本体のバージョンアップに伴う本体の修正
 - **B**: UIの変更（プラグインの追加等含む）、本体の機能追加
