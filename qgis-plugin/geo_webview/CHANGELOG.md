@@ -11,13 +11,15 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
-## [3.32.1] - 2026-10-26 ▶ Serverless ボタンを ▶ WebView へ改名
+## [3.32.2] - 2026-10-26 ▶ Local ボタンを ▶ WebView へ改名
 
-- ホスト版 `kasugai-canvas-web`（GitHub Pages CDN）エンジンで開く
-  起動ボタンのラベルを `▶ Serverless` → `▶ WebView` に変更
-  （geo_webview 名の由来どおり、ブラウザ WebView で開くサービス。
-  route=`hosted` の内部名は変更なし）。パネル `panel.py` /
-  `panel_base.ui` の表示文字列と README 連携構成図・機能表を同期
+- 内蔵 HTTP サーバー（:8089）でローカルインストール済み Canvas `web/` を
+  配信して開く起動ボタンのラベルを `▶ Local` → `▶ WebView` に変更
+  （geo_webview 名の由来どおり、ローカル WebView で開く本来の機能。
+  route=`local` の内部名は変更なし）。ホスト版
+  `kasugai-canvas-web`（GitHub Pages CDN）で開くルートは
+  `▶ Serverless` のまま。パネル `panel.py` / `panel_base.ui` の
+  表示文字列と README 連携構成図・機能表を同期
 
 ## [3.32.0] - 2026-10-26 reearth.txt 出力を廃止（kasugai_canvas.zip に統一）
 

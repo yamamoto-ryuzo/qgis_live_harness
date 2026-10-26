@@ -114,7 +114,7 @@
         <item>
          <widget class="QPushButton" name="pushButton_kasugai_launch_local">
           <property name="text">
-           <string>&#9654; Local</string>
+           <string>&#9654; WebView</string>
           </property>
           <property name="toolTip">
            <string>Show instantly in a browser via local HTTP delivery — this plugin's server serves the installed Canvas web/ + DATA/ (requires Canvas installed + HTTP server running)</string>
@@ -130,7 +130,7 @@
         <item>
          <widget class="QPushButton" name="pushButton_kasugai_launch_hosted">
           <property name="text">
-           <string>&#9654; WebView</string>
+           <string>&#9654; Serverless</string>
           </property>
           <property name="toolTip">
            <string>Open via serverless WEB delivery — hosted engine (GitHub Pages) + this server's data delivery (no Canvas install needed; requires internet + HTTP server running)</string>
