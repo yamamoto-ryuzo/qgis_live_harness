@@ -207,7 +207,9 @@ class GeoWebViewBridge:
                 "だけで ?kasc= 経由のサーバレス配信になる"
                 "(emit_launchers=Falseで抑制)。"
                 "emit_zip=True で出力一式を kasugai_canvas.zip に固める"
-                "(Re:Earth geo_suite の 'qgis:' インスペクタ行が直接取込可)。",
+                "(Re:Earth geo_suite の 'qgis:' インスペクタ行が直接取込可)。"
+                "use_existing=True で再エクスポートせず既存の .kasc のみ"
+                "使用(未出力なら code=not_exported)。",
             "example": {"method": "kasugaiExport", "args": []},
         },
         "checkAccess": {

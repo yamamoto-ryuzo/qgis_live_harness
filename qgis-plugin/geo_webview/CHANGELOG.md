@@ -11,6 +11,34 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.33.3] - 2026-10-26 「▶ Canvas」は既存エクスポート物のみで起動
+
+- `pushButton_kasugai_launch`（「▶ Canvas」ボタン、route=`kasugai`）の
+  動作からエクスポートを削除し、エクスポート済みの `.kasc` のみを
+  Canvas 登録・表示切替・ブラウザ起動するよう変更。未出力の場合は
+  メッセージバーで「先に Export を実行」を案内して終了する
+  （Canvas 未起動時のフォールバック無しは従来どおり。
+  `▶ WebView`・`GET /kasugai`・bridge 既定は従来どおり出力も行う）
+- bridge `kasugaiExport` に `use_existing` 引数を追加: True で
+  再エクスポートせず `preferred_output_dir()` 配下の既存
+  `kasugai_canvas.kasc` を使用。未出力なら
+  `{"ok": false, "code": "not_exported"}` を返す
+- `kasugai_export.py` に `existing_export()` を追加（既存の出力物を
+  検出し `_last_export_dir` も更新して `/export-data/` の配信ルートにする）
+- 「▶ Canvas」ツールチップを「要事前エクスポート」に更新し
+  i18n 9言語カタログへ新規キー追加
+
+## [3.33.2] - 2026-10-26 Web Distribution パネルを保存/起動の2行に整理
+
+- `groupBox_webdist` 内のレイアウトを再編。保存系と起動系を分離:
+  - **保存行**: `Export` ＋ 保存先フォルダ名（`pushButton_kasugai_outdir`、
+    クリックでフォルダ選択）＋ `↺` 既定リセット ＋ `📁` フォルダを開く
+  - **起動行**: `Engine:` コンボ ＋ `▶ WebView` ＋ `▶ Canvas`
+- 「Save to:」ラベル（`label_kasugai_outdir`）を廃止
+  （保存先ボタンのツールチップで代替）。保存先ボタンの高さを
+  行内の他ボタンと同じ 25px に統一
+- 機能・ハンドラに変更なし（ウィジェット名・シグナル配線は既存のまま）
+
 ## [3.33.1] - 2026-10-26 「▶ WebView」が起動しない不具合を修正
 
 - `pushButton_kasugai_launch_hosted`（「▶ WebView」）がクリックしても

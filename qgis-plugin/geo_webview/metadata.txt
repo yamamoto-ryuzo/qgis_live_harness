@@ -3,7 +3,7 @@ name = geo_webview
 qgisMinimumVersion = 4.0
 qgisMaximumVersion = 4.99
 description = Serverless web distribution of QGIS projects — export .kasc+DATA/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet); permalinks and an embedded HTTP server
-version = 3.33.1
+version = 3.33.3
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
 supportsQt6 = True
@@ -20,6 +20,8 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 3.33.3: 「▶ Canvas」はエクスポートせず既存の .kasc のみ登録・起動。未出力時はメッセージで Export を案内(bridge kasugaiExport に use_existing 追加)
+	- 3.33.2: パネルの Web Distribution グループを「保存行(Export＋保存先フォルダ名＋↺リセット＋📁)」と「起動行(Engine選択＋▶ WebView＋▶ Canvas)」の2行に整理(「Save to:」ラベル廃止)
 	- 3.33.1: 「▶ WebView」ボタンが動作しない不具合を修正(panel.py に pushButton_kasugai_launch_hosted の属性エイリアスが無く clicked 未接続だった問題)
 	- 3.32.3: 「▶ Canvas」ボタンを KASUGAI Canvas 未インストール時はグレーアウト(設定でインストール先登録 or インストーラ登録検出で有効化、パネル再表示/設定ダイアログ後に再判定)
 	- 3.29.0: パネルを「Web配信(サーバレス)」最上段の構成へ刷新(エンジン選択コンボ+「▶ Open」で出力→登録→ブラウザ起動、サーバーON/OFFをサーバーグループへ集約)。README/SPECをサーバレスWeb配信・マルチエンジン主軸で再構築。OGCサーバー(WMS/WMTS/XYZ/WFS・/maplibre-style)を全撤去しサーバレス配信へ完全移行(/kasugai・/export-data/・/present・/screenshot・パーマリンクは継続、bridge `wfsLayers` 廃止)。OGC(WMS/WMTS/WFS)サービスは廃止

@@ -282,9 +282,6 @@ class GeoWebViewPanel(QDockWidget):
                 QCoreApplication.translate(
                     'geo_webview',
                     "Open the export folder (.kasc / DATA/ / engine launchers / kasugai_canvas.zip)"))
-        if hasattr(self.ui, 'label_kasugai_outdir'):
-            self.ui.label_kasugai_outdir.setText(
-                QCoreApplication.translate('geo_webview', "Save to:"))
         if hasattr(self.ui, 'pushButton_kasugai_outdir_reset'):
             self.ui.pushButton_kasugai_outdir_reset.setToolTip(
                 QCoreApplication.translate(

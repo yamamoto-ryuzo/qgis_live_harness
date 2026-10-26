@@ -81,7 +81,6 @@ flowchart TB
 | 【エクスポート】 | `.kasc + DATA/ + <engine>.html + index.html + kasugai_canvas.zip` を出力。**ファイル出力のみ**、起動・登録は行わない |
 | 【▶ WebView】 | ホスト版 `kasugai-canvas-web`（GitHub Pages CDN）のエンジンで開き、データは `:8089/export-data/` から供給。要インターネット・HTTP サーバー稼働（Canvas 未インストールでも可） |
 | 【▶ Canvas】 | **エクスポート済み**のプロジェクトを稼働中の KASUGAI Canvas ローカルサーバー（:8510）へ登録・表示切替・ブラウザ起動。**エクスポートは行わない** — 未出力の場合は Export を先に実行するようメッセージで案内。Canvas 未起動時はフォールバックなし |
-| 📁 | 出力フォルダを開く |
 
 ### マルチエンジン
 
@@ -168,12 +167,16 @@ Re:Earth Visualizer は **KASUGAI Canvas と同じ Cesium ベースのサブプ�
 
 パネル最上段の「Web Distribution」グループで操作します。
 
+保存行（Export＋保存先）と起動行（Engine選択＋▶ボタン）に分かれています。
+
 | 操作 | 動作 |
 |---|---|
-| `Engine:` コンボ | 起動エンジンを選択（Cesium/MapLibre/OpenLayers/Leaflet。選択は QSettings `kasugai_engine` に保存） |
 | `Export` ボタン | `.kasc`+`DATA/`＋`index.html`＋エンジン別起動HTMLを**ファイル出力のみ**（起動なし） |
-| `▶ Open` ボタン | エクスポート → Canvas 登録 → 選択エンジンでブラウザ起動まで一発実行 |
+| 保存先フォルダ名 | 現在の出力先を中央省略で表示。クリックでフォルダ選択して変更。`↺` で既定（Canvas インストール先／ドキュメント）にリセット |
 | `📁` ボタン | 出力フォルダをファイルマネージャで開く |
+| `Engine:` コンボ | 起動エンジンを選択（Cesium/MapLibre/OpenLayers/Leaflet。選択は QSettings `kasugai_engine` に保存） |
+| `▶ WebView` ボタン | エクスポート → ホスト版エンジン（GitHub Pages）でブラウザ起動まで一発実行（要 HTTP サーバー・インターネット） |
+| `▶ Canvas` ボタン | **エクスポート済み**の `.kasc` を稼働中の Canvas（:8510）へ登録・ブラウザ起動（再エクスポートしない。未出力時は Export を促す） |
 
 API 経由でも同じ機能を呼べます:
 
