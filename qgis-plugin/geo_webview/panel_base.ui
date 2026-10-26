@@ -101,7 +101,7 @@
            <string>&#9654; Canvas</string>
           </property>
           <property name="toolTip">
-           <string>Open in KASUGAI Canvas (main integrated player) — registers the project with a running Canvas (port 8510) and switches to it</string>
+           <string>Open the exported project in KASUGAI Canvas (main integrated player) — registers the existing .kasc with a running Canvas (port 8510) and switches to it. Requires a prior export (Export button)</string>
           </property>
           <property name="minimumSize">
            <size>
@@ -145,6 +145,61 @@
            <size>
             <width>32</width>
             <height>25</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_kasugai_outdir">
+        <item>
+         <widget class="QLabel" name="label_kasugai_outdir">
+          <property name="text">
+           <string>Save to:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_kasugai_outdir">
+          <property name="text">
+           <string notr="true">…</string>
+          </property>
+          <property name="toolTip">
+           <string>Export destination folder — click to choose a different folder</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">text-align:left; padding:1px 4px; border:1px solid #ccc; border-radius:3px;</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>22</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_kasugai_outdir_reset">
+          <property name="text">
+           <string notr="true">↺</string>
+          </property>
+          <property name="toolTip">
+           <string>Reset to the default destination (KASUGAI Canvas install or Documents)</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>24</width>
+            <height>22</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>28</width>
+            <height>22</height>
            </size>
           </property>
          </widget>

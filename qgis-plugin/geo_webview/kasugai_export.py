@@ -388,6 +388,14 @@ def get_output_dir():
     return default_output_dir()
 
 
+def set_output_dir(path):
+    """パネル等で選択した出力先を QSettings に保存する。
+
+    空文字/'__default__' を渡すと既定(インストール先/ドキュメント)に戻る。
+    """
+    _qsettings().setValue(SETTINGS_KEY_OUTPUT, (path or '').strip())
+
+
 def get_kasugai_install_dir():
     """QSettings の kasugai_install_path（KASUGAI Canvas インストール先）を返す。
 
@@ -471,14 +479,22 @@ def kasugai_qgis_projects_dir():
 def preferred_output_dir(project_name=None):
     """QGIS 連携プロジェクトの出力先ディレクトリを決める。
 
-    KASUGAI Canvas のインストール先が登録済みなら
-    ``<install>/QGIS_projects/<QGISプロジェクト名>/`` を返す
+    パネル等で出力先(kasugai_output_path)を明示している場合はそれを
+    最優先で使う。未設定なら KASUGAI Canvas のインストール先が
+    登録済みのとき ``<install>/QGIS_projects/<QGISプロジェクト名>/``
     （Canvas 本体の projects/ と分離した QGIS 連携専用フォルダ。
-    Canvas への表示は外部プロジェクト登録経由）。未登録なら
-    ``get_output_dir()``（既定: ``<Documents>/kasugai_canvas_qgis``）。
+    Canvas への表示は外部プロジェクト登録経由）、未登録なら
+    ``default_output_dir()``（``<Documents>/kasugai_canvas_qgis``）。
 
     project_name 未指定時は QgsProject.instance().baseName()。
     """
+    try:
+        saved = str(
+            _qsettings().value(SETTINGS_KEY_OUTPUT, '') or '').strip()
+        if saved and saved != '__default__':
+            return saved
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
     proj_dir = kasugai_qgis_projects_dir()
     if proj_dir:
         if not project_name:
@@ -489,7 +505,7 @@ def preferred_output_dir(project_name=None):
                 project_name = None
         return os.path.join(
             proj_dir, project_dir_slug(project_name or 'qgis_export'))
-    return get_output_dir()
+    return default_output_dir()
 
 
 _last_export_dir = None
@@ -501,6 +517,23 @@ def last_export_dir():
     セッション内で一度もエクスポートしていなければ get_output_dir()。
     """
     return _last_export_dir or get_output_dir()
+
+
+def existing_export(output_dir=None):
+    """既にエクスポート済みの ``kasugai_canvas.kasc`` を探す。
+
+    output_dir 未指定時は preferred_output_dir() と同じ規則で出力先を
+    決める。見つかれば ``(dir, kasc_path)`` を返し、_last_export_dir も
+    更新して /export-data/ の配信ルートとして使えるようにする。
+    未エクスポートなら None。
+    """
+    global _last_export_dir
+    out_dir = os.path.abspath(output_dir or preferred_output_dir())
+    kasc = os.path.join(out_dir, 'kasugai_canvas.kasc')
+    if not os.path.isfile(kasc):
+        return None
+    _last_export_dir = out_dir
+    return out_dir, kasc
 
 
 def project_dir_slug(name):

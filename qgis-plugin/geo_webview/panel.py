@@ -101,7 +101,12 @@ class GeoWebViewPanel(QDockWidget):
         # KASUGAI Canvas エクスポート/起動ボタン・エンジン選択
         self.pushButton_kasugai_export = getattr(self.ui, 'pushButton_kasugai_export', None)
         self.pushButton_kasugai_launch = getattr(self.ui, 'pushButton_kasugai_launch', None)
+        self.pushButton_kasugai_launch_hosted = getattr(self.ui, 'pushButton_kasugai_launch_hosted', None)
         self.pushButton_kasugai_folder = getattr(self.ui, 'pushButton_kasugai_folder', None)
+        # 保存先表示(クリックでフォルダ選択)と既定リセット
+        self.pushButton_kasugai_outdir = getattr(self.ui, 'pushButton_kasugai_outdir', None)
+        self.pushButton_kasugai_outdir_reset = getattr(self.ui, 'pushButton_kasugai_outdir_reset', None)
+        self._kasugai_outdir_path = ''
         self.comboBox_engine = getattr(self.ui, 'comboBox_engine', None)
         # HTTP server toggle checkbox (added to UI)
         self.checkBox_server_toggle = getattr(self.ui, 'checkBox_server_toggle', None)
@@ -141,6 +146,13 @@ class GeoWebViewPanel(QDockWidget):
         # UI要素を翻訳
         self.translate_ui()
 
+        # KASUGAI Canvas 未インストール時は「▶ Canvas」をグレーアウト。
+        # ドックの再表示時にも再判定し、インストール/設定後に有効化されるようにする
+        try:
+            self.visibilityChanged.connect(self._on_visibility_changed)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
         # 設定ボタンのアイコンを読み込み、枠付きスタイルを適用
         try:
             if self.pushButton_settings is not None:
@@ -161,6 +173,8 @@ class GeoWebViewPanel(QDockWidget):
                         try:
                             dlg = SettingsDialog(self)
                             dlg.exec()
+                            # インストール先の登録/解除を「▶ Canvas」に即反映
+                            self.update_canvas_launch_state()
                         except Exception:  # nosec B110  # 設計上の許容
                             pass
 
@@ -238,8 +252,6 @@ class GeoWebViewPanel(QDockWidget):
                 "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs + kasugai_canvas.zip) — files only"))
         if hasattr(self.ui, 'pushButton_kasugai_launch'):
             self.ui.pushButton_kasugai_launch.setText(QCoreApplication.translate('geo_webview', "▶ Canvas"))
-            self.ui.pushButton_kasugai_launch.setToolTip(QCoreApplication.translate('geo_webview',
-                "Open in KASUGAI Canvas (main integrated player) — registers the project with a running Canvas (port 8510) and switches to it"))
         if hasattr(self.ui, 'pushButton_kasugai_launch_hosted'):
             self.ui.pushButton_kasugai_launch_hosted.setText(QCoreApplication.translate('geo_webview', "▶ WebView"))
             self.ui.pushButton_kasugai_launch_hosted.setToolTip(QCoreApplication.translate('geo_webview',
@@ -270,6 +282,14 @@ class GeoWebViewPanel(QDockWidget):
                 QCoreApplication.translate(
                     'geo_webview',
                     "Open the export folder (.kasc / DATA/ / engine launchers / kasugai_canvas.zip)"))
+        if hasattr(self.ui, 'label_kasugai_outdir'):
+            self.ui.label_kasugai_outdir.setText(
+                QCoreApplication.translate('geo_webview', "Save to:"))
+        if hasattr(self.ui, 'pushButton_kasugai_outdir_reset'):
+            self.ui.pushButton_kasugai_outdir_reset.setToolTip(
+                QCoreApplication.translate(
+                    'geo_webview',
+                    "Reset to the default destination (KASUGAI Canvas install or Documents)"))
 
         # ボタン
         if hasattr(self.ui, 'pushButton_generate'):
@@ -305,6 +325,66 @@ class GeoWebViewPanel(QDockWidget):
         if hasattr(self.ui, 'checkBox_server_toggle'):
             self.ui.checkBox_server_toggle.setText(QCoreApplication.translate('geo_webview', "Enable"))
             self.ui.checkBox_server_toggle.setToolTip(QCoreApplication.translate('geo_webview', "Start/stop the embedded HTTP server (/kasugai, /export-data/, /present, /screenshot)"))
+
+        # 「▶ Canvas」の有効/無効とツールチップをインストール状態に合わせる
+        self.update_canvas_launch_state()
+
+    def _on_visibility_changed(self, visible):
+        if visible:
+            self.update_canvas_launch_state()
+
+    def update_canvas_launch_state(self):
+        """KASUGAI Canvas のインストール状態を「▶ Canvas」ボタンに反映する。
+
+        インストール先が検出できない(設定未登録かつインストーラ登録なし)
+        場合はボタンを無効化し、理由をツールチップで示す。検出自体が
+        失敗した場合は従来どおり有効のままにする。
+        """
+        btn = getattr(self.ui, 'pushButton_kasugai_launch', None)
+        if btn is None:
+            return
+        try:
+            from . import kasugai_export
+            installed = bool(kasugai_export.detect_kasugai_install_dir())
+        except Exception:  # nosec B110  # 設計上の許容
+            installed = True
+        btn.setEnabled(installed)
+        if installed:
+            btn.setToolTip(QCoreApplication.translate(
+                'geo_webview',
+                "Open the exported project in KASUGAI Canvas (main integrated player) — registers the existing .kasc with a running Canvas (port 8510) and switches to it. Requires a prior export (Export button)"))
+        else:
+            btn.setToolTip(QCoreApplication.translate(
+                'geo_webview',
+                "KASUGAI Canvas is not installed — install the app or set the install path in Settings to enable this button"))
+
+    def set_kasugai_outdir(self, path):
+        """保存先表示ボタンの内容を更新する。path はフルパス。"""
+        self._kasugai_outdir_path = path or ''
+        self._refresh_kasugai_outdir()
+
+    def _refresh_kasugai_outdir(self):
+        """保存先ボタンの表示を中央省略パス+フルパスツールチップにする。"""
+        btn = getattr(self, 'pushButton_kasugai_outdir', None)
+        if btn is None:
+            return
+        path = self._kasugai_outdir_path or ''
+        try:
+            fm = btn.fontMetrics()
+            w = btn.width() if btn.width() > 40 else 200
+            elide = getattr(getattr(Qt, 'TextElideMode', Qt), 'ElideMiddle')
+            btn.setText(fm.elidedText(path or '—', elide, w - 12))
+        except Exception:  # nosec B110  # 設計上の許容
+            btn.setText(path or '—')
+        btn.setToolTip(
+            QCoreApplication.translate(
+                'geo_webview',
+                "Export destination folder — click to choose a different folder")
+            + "\n" + path)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._refresh_kasugai_outdir()
 
     def update_server_status(self, port, running):
         """サーバーステータスを更新

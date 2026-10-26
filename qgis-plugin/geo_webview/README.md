@@ -45,7 +45,7 @@ flowchart TB
 
     subgraph GWBOX["geo_webview (QGIS plugin)"]
         direction LR
-        subgraph FNC["【▶ Local】"]
+        subgraph FNC["【▶ WebView】"]
             GW["【Export】<br>.kasc + DATA/ + &lt;engine&gt;.html"]
             SRV["Embedded HTTP server localhost:8089"]
         end
@@ -61,7 +61,7 @@ flowchart TB
     subgraph WEBBOX["External HTTP server"]
         WEB["static hosting: GitHub Pages / Cloudflare / Vercel etc."]
     end
-    subgraph GHBOX["【▶ WebView】"]
+    subgraph GHBOX["GitHubPages"]
         CDN["kasugai-canvas-web<br>4-engine CDN<br>GitHub Pages: stable/ - unstable/"]
     end
     RE["Re:Earth Visualizer geo_suite (secondary)<br>upload kasugai_canvas.zip to a CMS →<br>set the CMS URL as the qgis: URL in the inspector"]
@@ -82,8 +82,8 @@ flowchart TB
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Panel button&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Behavior |
 |---|---|
 | 【Export】 | Writes `.kasc + DATA/ + <engine>.html + index.html + kasugai_canvas.zip`. **Files only** — no launch or registration |
-| 【▶ Canvas】 | Export → register the project with a running KASUGAI Canvas local server (:8510), switch the view, open the browser. Writes straight into `projects/<id>/` when the install path is registered. **No fallback when Canvas is not running** (export only) |
 | 【▶ WebView】 | Opens via the hosted `kasugai-canvas-web` engine (GitHub Pages CDN) with data supplied from `:8089/export-data/`. Needs internet + HTTP server running (works without a Canvas install) |
+| 【▶ Canvas】 | Export → register the project with a running KASUGAI Canvas local server (:8510), switch the view, open the browser. Writes straight into `projects/<id>/` when the install path is registered. **No fallback when Canvas is not running** (export only) |
 | 📁 | Opens the output folder |
 
 ### Multi-engine

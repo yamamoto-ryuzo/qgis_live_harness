@@ -3,7 +3,7 @@ name = geo_webview
 qgisMinimumVersion = 4.0
 qgisMaximumVersion = 4.99
 description = Serverless web distribution of QGIS projects — export .kasc+DATA/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet); permalinks and an embedded HTTP server
-version = 3.32.2
+version = 3.33.1
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
 supportsQt6 = True
@@ -20,6 +20,8 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 3.33.1: 「▶ WebView」ボタンが動作しない不具合を修正(panel.py に pushButton_kasugai_launch_hosted の属性エイリアスが無く clicked 未接続だった問題)
+	- 3.32.3: 「▶ Canvas」ボタンを KASUGAI Canvas 未インストール時はグレーアウト(設定でインストール先登録 or インストーラ登録検出で有効化、パネル再表示/設定ダイアログ後に再判定)
 	- 3.29.0: パネルを「Web配信(サーバレス)」最上段の構成へ刷新(エンジン選択コンボ+「▶ Open」で出力→登録→ブラウザ起動、サーバーON/OFFをサーバーグループへ集約)。README/SPECをサーバレスWeb配信・マルチエンジン主軸で再構築。OGCサーバー(WMS/WMTS/XYZ/WFS・/maplibre-style)を全撤去しサーバレス配信へ完全移行(/kasugai・/export-data/・/present・/screenshot・パーマリンクは継続、bridge `wfsLayers` 廃止)。OGC(WMS/WMTS/WFS)サービスは廃止
 	- 3.24.0: プラグイン内生成ビューア(OpenLayers /qgis-map・MapLibre /maplibre・OL+Cesium /map3d)を廃止。パネルにKASUGAI Canvas 4エンジン(Cesium/OpenLayers/MapLibre/Leaflet)起動ボタンを追加し、`/kasugai`・bridge `kasugaiExport`/`openExternal` で engine 指定可能に
 	- 3.17.4: サイトスキャン指摘対応(subprocess/random/saxutilsの # nosec・html.escape化)

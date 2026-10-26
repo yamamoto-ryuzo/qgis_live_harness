@@ -339,6 +339,25 @@ class GeoWebView:
                     _folder_btn.clicked.connect(
                         lambda checked=False: self.on_kasugai_open_folder())
 
+                # 保存先表示ボタン: クリックでフォルダ選択して出力先変更、
+                # ↺で既定(Canvasインストール先/<ドキュメント>)に戻す
+                _outdir_btn = getattr(
+                    self.panel, 'pushButton_kasugai_outdir', None)
+                if _outdir_btn is not None:
+                    _outdir_btn.clicked.connect(
+                        lambda checked=False: self.on_kasugai_outdir_browse())
+                _outdir_reset = getattr(
+                    self.panel, 'pushButton_kasugai_outdir_reset', None)
+                if _outdir_reset is not None:
+                    _outdir_reset.clicked.connect(
+                        lambda checked=False: self.on_kasugai_outdir_reset())
+                self.update_kasugai_outdir_display()
+                try:
+                    QgsProject.instance().fileNameChanged.connect(
+                        lambda *a: self.update_kasugai_outdir_display())
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+
                 # Web配信: 選択エンジンでエクスポート→登録→ブラウザ起動するボタン。
                 # 3系統: Canvas登録(主プレイヤー)/ローカルHTTP即表示/サーバレスWEB
                 for _btn_name, _route in (
@@ -1262,6 +1281,54 @@ class GeoWebView:
                 self.tr("Failed to open export folder: {0}").format(e),
                 duration=5)
 
+    def update_kasugai_outdir_display(self):
+        """パネルの保存先表示を現在の出力先に合わせる。"""
+        try:
+            from . import kasugai_export
+            setter = getattr(self.panel, 'set_kasugai_outdir', None)
+            if setter is not None:
+                setter(kasugai_export.preferred_output_dir())
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    def on_kasugai_outdir_browse(self):
+        """保存先表示のクリック — フォルダ選択でエクスポート出力先を変更。
+        選択は kasugai_output_path に保存され既定(Canvasインストール先/
+        <ドキュメント>)より優先される。"""
+        try:
+            from qgis.PyQt.QtWidgets import QFileDialog
+            from . import kasugai_export
+            folder = QFileDialog.getExistingDirectory(
+                self.iface.mainWindow(),
+                self.tr("Select Export Destination Folder"),
+                kasugai_export.preferred_output_dir())
+            if not folder:
+                return
+            kasugai_export.set_output_dir(folder)
+            self.update_kasugai_outdir_display()
+            self.iface.messageBar().pushMessage(
+                "geo_webview",
+                self.tr("Export destination set to {0}").format(folder),
+                duration=5)
+        except Exception as e:
+            self.iface.messageBar().pushMessage(
+                "geo_webview",
+                self.tr("Failed to set export destination: {0}").format(e),
+                duration=5)
+
+    def on_kasugai_outdir_reset(self):
+        """保存先を既定(Canvasインストール先/<ドキュメント>)に戻す。"""
+        try:
+            from . import kasugai_export
+            kasugai_export.set_output_dir('')
+            self.update_kasugai_outdir_display()
+            self.iface.messageBar().pushMessage(
+                "geo_webview",
+                self.tr("Export destination reset to the default"),
+                duration=5)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
     def on_kasugai_export_clicked(self):
         """パネル版：KASUGAI エクスポートボタン — 表示中レイヤを
         KASUGAI Canvasプロジェクト(.kasc+DATA/+エンジン起動HTML)として
@@ -1314,7 +1381,9 @@ class GeoWebView:
         一発で行う。bridge の kasugaiExport(open_app=True) を利用する。
         route は 'kasugai'(Canvas登録=主プレイヤー) / 'local'(本サーバの
         ローカルHTTP配信で即表示) / 'hosted'(サーバレスWEB=ホスト版
-        エンジン) / 'auto'(3段フォールバック)。"""
+        エンジン) / 'auto'(3段フォールバック)。
+        'kasugai'(「▶ Canvas」ボタン)は再エクスポートせず既存の出力物
+        だけを使い、未出力ならエクスポートを促すメッセージを出す。"""
         try:
             engine = 'cesium'
             combo = getattr(self.panel, 'comboBox_engine', None)
@@ -1325,9 +1394,17 @@ class GeoWebView:
                 self.bridge = GeoWebViewBridge(self)
             res = json.loads(
                 self.bridge.kasugaiExport(
-                    engine=engine, open_app=True, route=route)
+                    engine=engine, open_app=True, route=route,
+                    use_existing=(route == 'kasugai'))
                 or '{}')
             if not res.get('ok'):
+                if res.get('code') == 'not_exported':
+                    self.iface.messageBar().pushMessage(
+                        "geo_webview",
+                        self.tr("The project has not been exported yet. "
+                                "Use the Export button to export it first."),
+                        duration=8)
+                    return
                 self.iface.messageBar().pushMessage(
                     "geo_webview",
                     self.tr("KASUGAI export failed: {0}").format(
@@ -1353,15 +1430,19 @@ class GeoWebView:
                         "Serverless delivery unavailable — the HTTP server "
                         "must be running to serve DATA/."),
                 }
-                self.iface.messageBar().pushMessage(
-                    "geo_webview",
-                    self.tr("Exported to {0}. {1}").format(
+                if route == 'kasugai':
+                    # エクスポート済みの出力物を使う経路なので
+                    # 「出力しました」は付けない
+                    msg = route_reasons['kasugai']
+                else:
+                    msg = self.tr("Exported to {0}. {1}").format(
                         res.get('dir', ''),
                         route_reasons.get(
                             route,
                             self.tr("No engine available — open the .kasc "
-                                    "file in KASUGAI Canvas."))),
-                    duration=8)
+                                    "file in KASUGAI Canvas.")))
+                self.iface.messageBar().pushMessage(
+                    "geo_webview", msg, duration=8)
         except Exception as e:
             self.iface.messageBar().pushMessage(
                 "geo_webview",

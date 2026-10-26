@@ -21,6 +21,7 @@ bridge では同等処理を例外送出型の内部実装で行う。
 
 import inspect
 import json
+import os
 import urllib.parse
 
 
@@ -835,7 +836,8 @@ class GeoWebViewBridge:
                       native_formats=True, hidden_as_off=False,
                       embed_gpkg_style=False, emit_themes=True,
                       emit_bookmarks=True, emit_launchers=True,
-                      emit_zip=False, engine=None, install=False, route=None):
+                      emit_zip=False, engine=None, install=False, route=None,
+                      use_existing=False):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
         表示中のベクターレイヤを DATA/ へ出力し、.kasc(geojson:/gpkg:/
@@ -863,6 +865,9 @@ class GeoWebViewBridge:
         直接取り込める(/export-data/kasugai_canvas.zip でも取得可)。
         出力先は output_dir または設定 kasugai_output_path
         (既定: <ドキュメント>/kasugai_canvas_qgis)。
+        use_existing=True で再エクスポートせず出力先の既存 .kasc のみを
+        使う(パネル「▶ Canvas」ボタン経路)。未出力なら
+        {"ok": false, "code": "not_exported"} を返す。
 
         open_app=True で起動中のKASUGAIローカルサーバ(port 8510)へ
         /api/projects/register で登録し、switchProjectコマンドを送って
@@ -884,30 +889,53 @@ class GeoWebViewBridge:
                     if srv and srv.is_server_running() else None)
             # KASUGAI インストール先が登録済みなら projects/<id>/ へ直出力する
             target_dir = output_dir or kasugai_export.preferred_output_dir()
-            result = kasugai_export.export_kasugai_project(
-                self._plugin.iface, out_dir=target_dir or None,
-                native_formats=bool(native_formats),
-                hidden_as_off=bool(hidden_as_off),
-                embed_gpkg_style=bool(embed_gpkg_style),
-                emit_themes=bool(emit_themes),
-                emit_bookmarks=bool(emit_bookmarks),
-                emit_launchers=bool(emit_launchers),
-                emit_zip=bool(emit_zip))
+            if use_existing:
+                # 再エクスポートせず既存の出力物のみ使う。未出力なら
+                # code=not_exported で返し、呼び出し側が「先に
+                # エクスポート」を案内する
+                found = kasugai_export.existing_export(target_dir)
+                if not found:
+                    return json.dumps({
+                        "ok": False,
+                        "code": "not_exported",
+                        "error": "no exported project at {0}".format(
+                            target_dir),
+                        "dir": target_dir,
+                    }, ensure_ascii=False)
+                result = {"dir": found[0], "kasc": found[1]}
+                try:
+                    pj = os.path.join(result["dir"], 'project.json')
+                    if os.path.isfile(pj):
+                        with open(pj, encoding='utf-8') as f:
+                            result["title"] = json.load(f).get('title')
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+            else:
+                result = kasugai_export.export_kasugai_project(
+                    self._plugin.iface, out_dir=target_dir or None,
+                    native_formats=bool(native_formats),
+                    hidden_as_off=bool(hidden_as_off),
+                    embed_gpkg_style=bool(embed_gpkg_style),
+                    emit_themes=bool(emit_themes),
+                    emit_bookmarks=bool(emit_bookmarks),
+                    emit_launchers=bool(emit_launchers),
+                    emit_zip=bool(emit_zip))
         except Exception as e:
             return self._err(f"kasugai export failed: {e}")
         out = {
             "dir": result["dir"],
             "kasc": result["kasc"],
-            "title": result["title"],
-            "layers": result["layers"],
-            "tiles": result["tiles"],
-            "skipped": result["skipped"],
-            "errors": result["errors"],
+            "title": result.get("title"),
+            "layers": result.get("layers", []),
+            "tiles": result.get("tiles", []),
+            "skipped": result.get("skipped", []),
+            "errors": result.get("errors", []),
             "warnings": result.get("warnings", []),
             "themes": result.get("themes", []),
             "bookmarks": result.get("bookmarks", 0),
             "launchers": result.get("launchers", []),
             "zip": result.get("zip"),
+            "use_existing": bool(use_existing),
         }
         if not open_app:
             out["registered"] = False

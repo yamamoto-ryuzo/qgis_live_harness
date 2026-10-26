@@ -11,6 +11,42 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.33.1] - 2026-10-26 「▶ WebView」が起動しない不具合を修正
+
+- `pushButton_kasugai_launch_hosted`（「▶ WebView」）がクリックしても
+  何も起きない不具合を修正。`plugin.py` 側は
+  `getattr(self.panel, 'pushButton_kasugai_launch_hosted')` で接続するが、
+  `panel.py` が `self` へ属性エイリアスしていなかったため
+  `clicked` シグナルが未接続だった（ボタン追加の 3.30.27 以降ずっと
+  無効）。`panel.py` にエイリアス1行を追加して解消
+
+## [3.33.0] - 2026-10-26 エクスポート保存先の表示・変更UI
+
+- パネルの KASUGAI ボタン行直下に保存先表示を追加
+  （`label_kasugai_outdir` + `pushButton_kasugai_outdir` +
+  `pushButton_kasugai_outdir_reset`）。現在の出力先を中央省略で
+  常時表示し、クリックでフォルダ選択 → `kasugai_output_path` に
+  保存、↺ ボタンで既定にリセット
+- `preferred_output_dir()` の優先順位を変更:
+  明示設定の `kasugai_output_path` ＞
+  `<install>/QGIS_projects/<QGISプロジェクト名>/`
+  （Canvas インストール先検出時の既定）＞
+  `<ドキュメント>/kasugai_canvas_qgis`
+- 既定は従来どおり Canvas インストール先
+  （`C:\kasugai\kasugai_canvas\QGIS_projects\<プロジェクト名>`）。
+  `QgsProject.fileNameChanged` でプロジェクト名変更時も表示を追従
+
+## [3.32.3] - 2026-10-26 「▶ Canvas」未インストール時グレーアウト
+
+- `pushButton_kasugai_launch`（「▶ Canvas」起動ボタン）を
+  KASUGAI Canvas 未インストール時は無効化（グレーアウト）するよう変更。
+  判定は `kasugai_export.detect_kasugai_install_dir()`（QSettings
+  `kasugai_install_path` → インストーラのレジストリ InstallLocation）
+  で、検出失敗時は従来どおり有効のまま
+- 再判定タイミング: パネル生成時・ドック再表示時
+  （`visibilityChanged`）・設定ダイアログ終了時。無効時のツールチップに
+  「アプリをインストールするか設定でインストール先を指定」を案内
+
 ## [3.32.2] - 2026-10-26 ▶ Local ボタンを廃止
 
 - `pushButton_kasugai_launch_local`（route=`local` の起動ボタン）を
