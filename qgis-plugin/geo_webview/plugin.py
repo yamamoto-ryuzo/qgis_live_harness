@@ -343,7 +343,6 @@ class GeoWebView:
                 # 3系統: Canvas登録(主プレイヤー)/ローカルHTTP即表示/サーバレスWEB
                 for _btn_name, _route in (
                         ('pushButton_kasugai_launch', 'kasugai'),
-                        ('pushButton_kasugai_launch_local', 'local'),
                         ('pushButton_kasugai_launch_hosted', 'hosted')):
                     _btn = getattr(self.panel, _btn_name, None)
                     if _btn is not None:
