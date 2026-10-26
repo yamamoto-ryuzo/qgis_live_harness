@@ -11,6 +11,30 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.31.0] - 2026-10-26 emit_zip 追加＋連携構成図のパッケージ流れを修正
+
+- `kasugai_export.py` / `bridge.py`（`kasugaiExport`）に `emit_zip` 追加:
+  True で出力一式（`.kasc`+`DATA/`+起動HTML+`bookmarks.xml` 等）を
+  `kasugai_canvas.zip` として同じフォルダに固める。Re:Earth geo_suite の
+  `qgis: <zip URL>` インスペクタ行がこの ZIP を直接取り込め、
+  `/export-data/kasugai_canvas.zip` からも取得できる
+- `README_JP.md` / `README.md` の連携構成図（mermaid）を修正:
+  - パッケージ一式の流れを3経路すべてに明示（KASUGAI Canvas・
+    ローカル HTTP・サーバレス WEB への出力辺を追加。辺ラベルは
+    簡素化のため省略）
+  - 「ローカル HTTP 配信」ボックスを終点のブラウザに修正
+    （配信主体は内蔵サーバー :8089 自身）
+  - 「内蔵 HTTP サーバー」ノードと「登録・切替 API」辺を廃止し、
+    KASUGAI Canvas へはパッケージ出力の点線辺のみとした
+    （:8089 が :8510 を中継する構造に見える誤読を排除）
+  - 3つの再生経路（KASUGAI Canvas・ローカル HTTP・サーバレス WEB）を
+    「同一パッケージを利用するエクスポート物の再生経路」として
+    1つの枠に統合（Re:Earth・ArcGIS 系は枠外の独立ノード）
+- パネルの出力物列挙に `reearth.txt` と `kasugai_canvas.zip` を明示:
+  「Export」ボタンのツールチップ（`reearth.txt` は HTTP サーバー稼働時
+  のみと注記）・「Web Distribution (Serverless)」の説明文・📁ボタンの
+  ツールチップを更新し、i18n 9言語カタログも同期
+
 ## [3.30.32] - 2026-10-26 README の ArcGIS 方針も①〜③箇条書きに統一
 
 - `README_JP.md` / `README.md` の「ArcGIS 系への対応方針」を

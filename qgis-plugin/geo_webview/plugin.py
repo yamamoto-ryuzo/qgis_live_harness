@@ -1277,6 +1277,7 @@ class GeoWebView:
             result = kasugai_export.export_kasugai_project(
                 self.iface,
                 out_dir=kasugai_export.preferred_output_dir(),
+                emit_zip=True,
                 reearth_port=port)
             n_layers = len(result.get('layers') or [])
             n_tiles = len(result.get('tiles') or [])
@@ -1286,12 +1287,13 @@ class GeoWebView:
                     self.tr("No visible vector/tile layers to export."),
                     duration=5)
                 return
+            zip_note = (' ZIP: ' + result['zip']) if result.get('zip') else ''
             self.iface.messageBar().pushMessage(
                 "geo_webview",
                 self.tr("Exported KASUGAI project to {0} "
                         "({1} layers, {2} tiles). "
-                        "Open the .kasc file in KASUGAI Canvas.").format(
-                    result['dir'], n_layers, n_tiles),
+                        "Open the .kasc file in KASUGAI Canvas.{3}").format(
+                    result['dir'], n_layers, n_tiles, zip_note),
                 duration=8)
         except Exception as e:
             self.iface.messageBar().pushMessage(

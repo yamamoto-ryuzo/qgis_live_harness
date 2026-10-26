@@ -204,7 +204,9 @@ class GeoWebViewBridge:
                 ".kascと同じ場所に <engine>.html 起動ページ(index.html"
                 "含む)も出力し、フォルダ+エンジンを静的サーバーへ上げる"
                 "だけで ?kasc= 経由のサーバレス配信になる"
-                "(emit_launchers=Falseで抑制)。",
+                "(emit_launchers=Falseで抑制)。"
+                "emit_zip=True で出力一式を kasugai_canvas.zip に固める"
+                "(Re:Earth geo_suite の 'qgis:' インスペクタ行が直接取込可)。",
             "example": {"method": "kasugaiExport", "args": []},
         },
         "checkAccess": {
@@ -833,7 +835,7 @@ class GeoWebViewBridge:
                       native_formats=True, hidden_as_off=False,
                       embed_gpkg_style=False, emit_themes=True,
                       emit_bookmarks=True, emit_launchers=True,
-                      engine=None, install=False, route=None):
+                      emit_zip=False, engine=None, install=False, route=None):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
         表示中のベクターレイヤを DATA/ へ出力し、.kasc(geojson:/gpkg:/
@@ -856,6 +858,9 @@ class GeoWebViewBridge:
         (cesium/maplibre/openlayers/leaflet)と index.html のエンジン
         起動ページを出力する。出力フォルダとエンジン(web/ の中身)を
         同じ静的サーバーへアップすれば ?kasc= 経由でサーバレス動作する。
+        emit_zip=True で出力一式(.kasc+DATA/等)を kasugai_canvas.zip に
+        固める。Re:Earth geo_suite の qgis: インスペクタ行がこのZIPを
+        直接取り込める(/export-data/kasugai_canvas.zip でも取得可)。
         出力先は output_dir または設定 kasugai_output_path
         (既定: <ドキュメント>/kasugai_canvas_qgis)。
 
@@ -887,6 +892,7 @@ class GeoWebViewBridge:
                 emit_themes=bool(emit_themes),
                 emit_bookmarks=bool(emit_bookmarks),
                 emit_launchers=bool(emit_launchers),
+                emit_zip=bool(emit_zip),
                 reearth_port=port)
         except Exception as e:
             return self._err(f"kasugai export failed: {e}")
@@ -902,6 +908,7 @@ class GeoWebViewBridge:
             "themes": result.get("themes", []),
             "bookmarks": result.get("bookmarks", 0),
             "launchers": result.get("launchers", []),
+            "zip": result.get("zip"),
         }
         if not open_app:
             out["registered"] = False

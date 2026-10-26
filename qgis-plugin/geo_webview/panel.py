@@ -218,7 +218,7 @@ class GeoWebViewPanel(QDockWidget):
 
         # ラベル
         if hasattr(self.ui, 'label_webdist_info'):
-            self.ui.label_webdist_info.setText(QCoreApplication.translate('geo_webview', "Export the project as a .kasc+DATA/ package. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery."))
+            self.ui.label_webdist_info.setText(QCoreApplication.translate('geo_webview', "Export the project as a .kasc+DATA/ package. Engine launcher HTMLs, reearth.txt and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery."))
         if hasattr(self.ui, 'label_engine'):
             self.ui.label_engine.setText(QCoreApplication.translate('geo_webview', "Engine:"))
         if hasattr(self.ui, 'label_generate_info'):
@@ -235,7 +235,7 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.pushButton_kasugai_export.setText(QCoreApplication.translate('geo_webview', "Export"))
             self.ui.pushButton_kasugai_export.setToolTip(QCoreApplication.translate(
                 'geo_webview',
-                "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs) — files only"))
+                "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs + kasugai_canvas.zip; + reearth.txt when the HTTP server is running) — files only"))
         if hasattr(self.ui, 'pushButton_kasugai_launch'):
             self.ui.pushButton_kasugai_launch.setText(QCoreApplication.translate('geo_webview', "▶ Canvas"))
             self.ui.pushButton_kasugai_launch.setToolTip(QCoreApplication.translate('geo_webview',
@@ -273,7 +273,7 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.pushButton_kasugai_folder.setToolTip(
                 QCoreApplication.translate(
                     'geo_webview',
-                    "Open the export folder (.kasc / DATA/ / engine launchers)"))
+                    "Open the export folder (.kasc / DATA/ / engine launchers / kasugai_canvas.zip)"))
 
         # ボタン
         if hasattr(self.ui, 'pushButton_generate'):

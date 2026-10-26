@@ -1322,7 +1322,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                            native_formats=True, hidden_as_off=False,
                            embed_gpkg_style=False, reearth_port=None,
                            emit_themes=True, emit_bookmarks=True,
-                           emit_launchers=True):
+                           emit_launchers=True, emit_zip=False):
     """レイヤツリーを KASUGAI Canvas プロジェクトとして出力する。
 
     引数:
@@ -1364,10 +1364,15 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             転送し、エンジン本体(web/ の中身)を ./ ../ ../../ / の順に
             自動探索する。出力フォルダとエンジンを同じ静的サーバーへ
             アップするだけで動くサーバレス配布の部品。
+        emit_zip: True なら出力一式(.kasc+DATA/+bookmarks.xml等)を
+            ``kasugai_canvas.zip`` として同じ場所に固める(既定 False)。
+            Re:Earth geo_suite の ``qgis: <zip URL>`` インスペクタ行が
+            このZIPを直接取り込める(CMS等へアップするだけで再現可能)。
+            ``/export-data/kasugai_canvas.zip`` からも取得できる。
 
     戻り値: {"dir","kasc","data_dir","layers":[{name,file,features}],
              "tiles":[...],"skipped":[...],"errors":[...],"warnings":[...],
-             "launchers":[...]}。
+             "launchers":[...],"zip":...}。
     layers が1件も無くても .kasc は出力する。
     """
     from qgis.core import QgsVectorLayer, QgsProject
@@ -1727,13 +1732,41 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         except Exception as e:
             warnings.append('engine launcher html 生成失敗: {0}'.format(e))
 
+    zip_path = None
+    if emit_zip:
+        try:
+            zip_path = _write_export_zip(out_dir)
+        except Exception as e:
+            warnings.append('zip 生成失敗: {0}'.format(e))
+
     return {
         'dir': out_dir, 'kasc': kasc_path, 'data_dir': data_dir,
         'title': project_title, 'layers': layers_out,
         'tiles': tiles_out, 'skipped': skipped, 'errors': errors,
         'warnings': warnings, 'themes': theme_names,
         'bookmarks': bookmark_count, 'launchers': launchers,
+        'zip': zip_path,
     }
+
+
+def _write_export_zip(out_dir):
+    """出力フォルダ一式を kasugai_canvas.zip として固める。
+
+    展開時にルートへ .kasc+DATA/ が並ぶよう out_dir 相対パスで格納する
+    (zip 自身は除外)。Re:Earth geo_suite の ``qgis:`` 取り込みは
+    ZIP 内の .kasc を最短パス優先で検出するため、この配置で正しく解決する。
+    """
+    import zipfile
+    zip_path = os.path.join(out_dir, 'kasugai_canvas.zip')
+    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for root, _dirs, names in os.walk(out_dir):
+            for name in names:
+                full = os.path.join(root, name)
+                if os.path.abspath(full) == os.path.abspath(zip_path):
+                    continue
+                arc = os.path.relpath(full, out_dir).replace(os.sep, '/')
+                zf.write(full, arc)
+    return zip_path
 
 
 def _reearth_native(layer, slug, data_dir, copied, base_url):

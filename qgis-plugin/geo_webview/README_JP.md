@@ -121,29 +121,23 @@ flowchart TB
 
     subgraph GWBOX["geo_webview（QGIS プラグイン）"]
         GW["エクスポート<br>.kasc+DATA/・起動HTML・reearth.txt"]
-        SRV["内蔵 HTTP サーバー（既定 :8089）<br>/kasugai 起動API・/export-data/ 配信<br>/&lt;engine&gt;/ エンジン静的フォールバック"]
     end
 
-    subgraph G1["① セット開発のプレイヤー群（高機能ルート：専用API連携）"]
-        KC["KASUGAI Canvas（主・統合プレイヤー）<br>ローカルサーバー :8510<br>Cesium / MapLibre / OpenLayers / Leaflet<br>登録・切替・rclone・自動更新・.kasc 関連付け"]
+    subgraph PLAY["① エクスポート物の再生経路（3ルートとも同一パッケージ・マルチエンジン: Cesium / MapLibre / OpenLayers / Leaflet）"]
+        KC["KASUGAI Canvas（主・統合プレイヤー）<br>拡張機能: 登録・切替・rclone・<br>自動更新・.kasc 関連付け"]
+        BR["ブラウザで即表示（アプリ不要）<br>内蔵 HTTP サーバー localhost:8089 が<br>/export-data/ + /&lt;engine&gt;/ を配信"]
+        HOST["サーバレス WEB 配信（QGIS 不要）<br>.kasc+DATA/+エンジン一式を静的ホストへ<br>（ホスト版 kasugai-canvas-web 含む）"]
     end
 
-    subgraph NORM["通常ルート：ローカル HTTP + WEB 配信（Canvas なしで即時 Web 化）"]
-        BR["ローカル HTTP 配信<br>ブラウザで即表示"]
-        HOST["サーバレス WEB 配信<br>.kasc+DATA/+エンジンを静的ホストへ<br>（ホスト版 kasugai-canvas-web 含む）"]
-    end
-
-    subgraph G2["② その他クライアント・外部サービス"]
-        RE["Re:Earth Visualizer geo_suite（サブ）<br>reearth.txt・/export-data/・.qml"]
-        AG["ArcGIS 系<br>エクスポート物を独自に読込<br>（.qml スタイル再現・レイヤ表示も実装要件）<br>→ 外部静的ホストで配信"]
-    end
+    RE["Re:Earth Visualizer geo_suite（サブ）<br>reearth.txt・/export-data/・.qml"]
+    AG["ArcGIS 系<br>エクスポート物を独自に読込<br>（.qml スタイル再現・レイヤ表示も実装要件）<br>→ 外部静的ホストで配信"]
 
     QGIS --> GW
-    GW --> SRV
-    SRV -->|"/kasugai → Canvas API（登録・切替）"| KC
-    SRV -->|"エンジン配信 + /export-data/"| BR
-    GW -.->|"パッケージ一式を配置"| HOST
-    GW --> G2
+    GW -.-> KC
+    GW --> BR
+    GW -.-> HOST
+    GW --> RE
+    GW --> AG
 ```
 
 ## サーバレス配信の流れ

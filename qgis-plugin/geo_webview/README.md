@@ -146,29 +146,23 @@ flowchart TB
 
     subgraph GWBOX["geo_webview (QGIS plugin)"]
         GW["Export<br>.kasc+DATA/ - launcher HTML - reearth.txt"]
-        SRV["Embedded HTTP server (default :8089)<br>/kasugai launch API - /export-data/ data<br>/&lt;engine&gt;/ engine static fallback"]
     end
 
-    subgraph G1["① Companion players (high-function route: dedicated API)"]
-        KC["KASUGAI Canvas (primary, unified player)<br>local server :8510<br>Cesium / MapLibre / OpenLayers / Leaflet<br>register - switch - rclone - auto-update - .kasc association"]
+    subgraph PLAY["① Export playback routes (all three: same package - multi-engine: Cesium / MapLibre / OpenLayers / Leaflet)"]
+        KC["KASUGAI Canvas (primary, unified player)<br>extensions: register - switch - rclone -<br>auto-update - .kasc association"]
+        BR["Instant view in a browser (no app needed)<br>embedded HTTP server localhost:8089<br>serves /export-data/ + /&lt;engine&gt;/"]
+        HOST["Serverless web delivery (no QGIS needed)<br>.kasc+DATA/+engine bundle to a static host<br>(incl. hosted kasugai-canvas-web)"]
     end
 
-    subgraph NORM["Standard route: local HTTP + web delivery (instant web, no Canvas app)"]
-        BR["Local HTTP delivery<br>instant view in a browser"]
-        HOST["Serverless web delivery<br>deploy .kasc+DATA/+engine to a static host<br>(incl. hosted kasugai-canvas-web)"]
-    end
-
-    subgraph G2["② Other clients & external services"]
-        RE["Re:Earth Visualizer geo_suite (secondary)<br>reearth.txt - /export-data/ - .qml"]
-        AG["ArcGIS family<br>reads export artifacts on its own<br>(.qml style reproduction + layer display are requirements)<br>→ delivered on external static hosting"]
-    end
+    RE["Re:Earth Visualizer geo_suite (secondary)<br>reearth.txt - /export-data/ - .qml"]
+    AG["ArcGIS family<br>reads export artifacts on its own<br>(.qml style reproduction + layer display are requirements)<br>→ delivered on external static hosting"]
 
     QGIS --> GW
-    GW --> SRV
-    SRV -->|"/kasugai → Canvas API (register - switch)"| KC
-    SRV -->|"engine pages + /export-data/"| BR
-    GW -.->|"deploy package"| HOST
-    GW --> G2
+    GW -.-> KC
+    GW --> BR
+    GW -.-> HOST
+    GW --> RE
+    GW --> AG
 ```
 
 ## Serverless delivery flow
