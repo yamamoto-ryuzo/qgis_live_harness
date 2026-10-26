@@ -40,7 +40,7 @@ flowchart TB
 <a id="reearth"></a>
 ## Re:Earth Visualizer（geo_suite）への対応方針
 
-Re:Earth Visualizer は **KASUGAI Canvas と同じ Cesium ベースのサブプレイヤー** として位置づけます。geo_webview は `reearth.txt`（inspector テキスト）出力と `/export-data/` 経由のファイル・`.qml` スタイル配信で供給し、QML→Re:Earth への変換はクライアント側（geo_suite 同梱のトランスレータ）が担います。3D 表現は Cesium ベースの KASUGAI Canvas（主）・Re:Earth Visualizer（サブ）に集約して開発します。
+**まとめ**: Re:Earth Visualizer 側の対応は**別途開発のプラグイン（geo_suite）で対応**とする。geo_webview は供給側として `reearth.txt`（inspector テキスト）と `/export-data/` 経由のファイル・`.qml` スタイルを出力し、QML→Re:Earth への変換は geo_suite 側のトランスレータが担う（3D 表現は Cesium ベースの KASUGAI Canvas が主）。
 
 実装側（geo_suite）: [ReEarth_GeoSuite リポジトリ](https://github.com/yamamoto-ryuzo/ReEarth_GeoSuite)。`reearth.txt` の出力仕様は [SPEC_JP.md](SPEC_JP.md) を参照。
 
@@ -49,8 +49,8 @@ Re:Earth Visualizer は **KASUGAI Canvas と同じ Cesium ベースのサブプ�
 
 **まとめ**:
 
-- ① **ArcGIS Online 上ではカスタムコードを実行できず、本系統の機能は実現不可能**
-- ② Cesium 等のエンジンと同等品を作る場合 — Canvas 側のコード資産は SDK が異なり流用できないため、**データ構築を含めて一からの開発が必要**（3D は 3D Tiles→I3S 変換パイプライン経由が前提・ライブ 3D Tiles URL は対象外。参照できるのは `.kasc` 仕様と同一 OSS ライブラリのみ）
+- ① ArcGIS Online 上ではカスタムコードを実行できず、本系統の機能は実現不可能
+- ② Cesium 等のエンジンと同等品を作る場合 — Canvas 側のコード資産は SDK が異なり流用できないため、データ構築を含めて一からの開発が必要（3D は 3D Tiles→I3S 変換パイプライン経由が前提・ライブ 3D Tiles URL は対象外。参照できるのは `.kasc` 仕様と同一 OSS ライブラリのみ）
 - ③ ArcGIS のセキュリティ（管理環境）内でカスタム WebGIS を動かすなら Enterprise 11.0+ の ExB カスタムウィジェットが唯一の経路 — それ以外はすべて外部ホスト前提のモデルとなり、導入の意義がない
 
 

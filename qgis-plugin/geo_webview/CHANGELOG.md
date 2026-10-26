@@ -11,6 +11,23 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.30.32] - 2026-10-26 README の ArcGIS 方針も①〜③箇条書きに統一
+
+- `README_JP.md` / `README.md` の「ArcGIS 系への対応方針」を
+  INTEGRATION と同じ①〜③箇条書きに置き換え、詳細は
+  `INTEGRATION(_JP).md#arcgis` への誘導のみとした
+
+## [3.30.31] - 2026-10-26 INTEGRATION の Re:Earth 方針を「別途開発のプラグインで対応」に整理
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の Re:Earth 節を、まとめ1行
+  「Re:Earth Visualizer 側の対応は**別途開発のプラグイン（geo_suite）で
+  対応**」＋供給側の役割（reearth.txt・/export-data/・.qml）に簡潔化
+
+## [3.30.30] - 2026-10-26 INTEGRATION のまとめ箇条書きから太字を除去
+
+- `INTEGRATION_JP.md` / `INTEGRATION.md` の冒頭まとめ①〜③から太字
+  表記を除去しプレーンな箇条書きに統一
+
 ## [3.30.29] - 2026-10-26 INTEGRATION から「（大前提）」表記を除去
 
 - `INTEGRATION_JP.md` / `INTEGRATION.md` の冒頭まとめ①および節見出し

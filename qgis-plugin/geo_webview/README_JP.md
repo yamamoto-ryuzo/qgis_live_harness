@@ -107,9 +107,9 @@ Re:Earth Visualizer は **KASUGAI Canvas と同じ Cesium ベースのサブプ�
 
 #### ArcGIS 系への対応方針
 
-**ArcGIS Online 上で本系統の機能を動かすことは機能的に不可能**（カスタムコードをホスト・実行する仕組みを持たない）ため、ArcGIS 系との連携は「`.kasc`+`DATA/` 出力物をファイルとして受け渡し、ArcGIS 側が独自に読み込む」方針とします。読み込み側には `.qml` スタイルの引き継ぎとレイヤ表示機能（用途に応じ最小限でも可）を要件とします。
-
-配信のための最小構成: **静的ホスト 1 つ（GitHub Pages 等・無料可）＋ ArcGIS Maps SDK for JavaScript 製の `.kasc` プレイヤー実装 ＋ ArcGIS Location Platform アカウント（無料登録）または ArcGIS Online 組織** — Canvas と同じサーバレス配信モデルが成立します。なおデータを加工して AGOL サービスとして公開する経路なら Online 上でも配信できますが、その場合 `.qml` スタイルは引き継げず作り直しになる別モデルです（Online で動かせないのはカスタムコードのアプリ本体と `.kasc` ファイル一式）。
+- ① ArcGIS Online 上ではカスタムコードを実行できず、本系統の機能は実現不可能
+- ② Cesium 等のエンジンと同等品を作る場合 — Canvas 側のコード資産は SDK が異なり流用できないため、データ構築を含めて一からの開発が必要（3D は 3D Tiles→I3S 変換パイプライン経由が前提・ライブ 3D Tiles URL は対象外。参照できるのは `.kasc` 仕様と同一 OSS ライブラリのみ）
+- ③ ArcGIS のセキュリティ（管理環境）内でカスタム WebGIS を動かすなら Enterprise 11.0+ の ExB カスタムウィジェットが唯一の経路 — それ以外はすべて外部ホスト前提のモデルとなり、導入の意義がない
 
 詳細（読み込み側要件・ライセンス形態・最小構成・`arcgis:` 取り込みの注意点）: [geo_webview 連携方針（`INTEGRATION_JP.md`）](INTEGRATION_JP.md#arcgis)
 

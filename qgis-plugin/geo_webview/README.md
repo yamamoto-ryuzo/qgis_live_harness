@@ -121,22 +121,18 @@ Details: [geo_webview integration policy (`INTEGRATION.md`)](INTEGRATION.md#reea
 
 #### ArcGIS policy
 
-**Running this system's features inside ArcGIS Online is functionally
-impossible** (it provides no mechanism to host or execute custom code),
-so ArcGIS integration is limited to **handing over the `.kasc`+`DATA/`
-output as files for the ArcGIS side to read with its own
-implementation**. The reading side is required to carry over `.qml`
-styles and provide layer display features (a minimal implementation is
-acceptable depending on the use case).
-
-Minimum setup for delivery: **one static host (e.g. GitHub Pages —
-free) + a `.kasc` player built on ArcGIS Maps SDK for JavaScript + an
-ArcGIS Location Platform account (free sign-up) or an ArcGIS Online
-org** — the same serverless delivery model as KASUGAI Canvas works.
-Note that data *can* be delivered on Online itself if converted and
-published as AGOL services — but that is a different model where `.qml`
-styles must be rebuilt (what cannot run on Online is only the
-custom-code app and the `.kasc` file set itself).
+- ① Running custom code on ArcGIS Online is impossible — this system's
+  features cannot be realized there
+- ② To build an equivalent of engines like Cesium on ArcGIS — the
+  Canvas-side code assets cannot be reused (different SDK), so
+  development from scratch including data construction is required (3D
+  presupposes the 3D Tiles→I3S conversion pipeline; live 3D Tiles URLs
+  out of scope; only the `.kasc` spec and the same OSS libraries can be
+  carried over)
+- ③ Running a custom WebGIS inside the ArcGIS-managed environment
+  requires Enterprise 11.0+ in-portal ExB custom widgets — the only
+  route; everything else follows the external-hosting model and offers
+  no significance for adoption
 
 Details (reading-side requirements, licensing, minimum setup, and
 cautions for `arcgis:` ingestion): [geo_webview integration policy

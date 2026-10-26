@@ -42,12 +42,12 @@ flowchart TB
 <a id="reearth"></a>
 ## Re:Earth Visualizer (geo_suite) policy
 
-Re:Earth Visualizer is positioned as the **secondary, Cesium-based
-player** alongside KASUGAI Canvas. geo_webview feeds it via `reearth.txt`
-(inspector text) export plus `/export-data/` file and `.qml` style
-delivery; the QML→Re:Earth translation runs client-side (a translator
-bundled in geo_suite). 3D work is consolidated in the Cesium-based
-clients — KASUGAI Canvas (primary) and Re:Earth Visualizer (secondary).
+**Summary**: Re:Earth Visualizer support is **handled by a separately
+developed plugin (geo_suite)**. geo_webview acts only as the supplier —
+outputting `reearth.txt` (inspector text) and serving files / `.qml`
+styles over `/export-data/` — while the QML→Re:Earth translation runs
+client-side (a translator bundled in geo_suite). 3D work is
+consolidated in the Cesium-based KASUGAI Canvas (primary).
 
 Client side (geo_suite): [ReEarth_GeoSuite
 repository](https://github.com/yamamoto-ryuzo/ReEarth_GeoSuite). For the
@@ -58,11 +58,11 @@ repository](https://github.com/yamamoto-ryuzo/ReEarth_GeoSuite). For the
 
 **Summary**:
 
-- ① **Running custom code on ArcGIS Online is impossible — this
-  system's features cannot be realized there** 
-- ② To build an equivalent of engines like Cesium on ArcGIS — **the
+- ① Running custom code on ArcGIS Online is impossible — this
+  system's features cannot be realized there
+- ② To build an equivalent of engines like Cesium on ArcGIS — the
   Canvas-side code assets cannot be reused (different SDK), so
-  development from scratch including data construction is required**
+  development from scratch including data construction is required
   (3D presupposes the 3D Tiles→I3S conversion pipeline; live 3D Tiles
   URLs out of scope; only the `.kasc` spec and the same OSS libraries
   can be carried over)
