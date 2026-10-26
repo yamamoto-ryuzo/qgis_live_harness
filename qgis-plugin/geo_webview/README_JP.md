@@ -304,7 +304,7 @@ KASUGAI Canvas の4エンジン（Cesium / OpenLayers / MapLibre / Leaflet）の
 | 3D Tiles | ✓（`3dtiles:`） | △（deck.gl 2.5D 俯瞰） | △（deck.gl 2.5D 俯瞰） | —（非対応として一覧通知） |
 | XYZ タイル・ベースマップ | ✓（`xyz:`/`base:`） | ✓（`xyz:`/`base:` オーバーレイ） | ✓（`xyz:`/`base:` オーバーレイ） | ✓（`xyz:`/`base:`） |
 | WMS / WMTS ラスタ | ✓（`wms:`/`wmts:` — GetMap を 256px タイルへ分解 / `{z}/{x}/{y}`・KVP GetTile へ正規化） | ✓（`wms:`/`wmts:` 行） | ✓（`wms:`/`wmts:` 行を Import パネルで取込） | △（`xyz:` のみ） |
-| QGIS スタイル（.qml） | ✓（`style=`・entity/primitive 両経路でクライアント側コンパイル） | —（既定スタイル） | —（既定スタイル） | —（既定スタイル） |
+| QGIS スタイル（.qml） | ✓（`style=`＋GPKG 埋め込み layer_styles・entity/primitive 両経路） | ✓（クライアント側コンパイル `shared/qml-2d.js`） | ✓（同左） | ✓（同左） |
 
 ※外部 OGC サーバー併用時は、上表の `wms:`/`wmts:`/`xyz:` 行経由で WMS ラスタや外部 `/wfs` GeoJSON を参照可能（geo_webview 自身の OGC サービスは v3.29.0 で廃止済みのため、外部サーバーが前提）。
 
@@ -312,7 +312,7 @@ KASUGAI Canvas の4エンジン（Cesium / OpenLayers / MapLibre / Leaflet）の
 
 | 機能 | Cesium | OpenLayers | MapLibre | Leaflet |
 |---|:-:|:-:|:-:|:-:|
-| レイヤー一覧 UI | ✓ | — | ✓ | — |
+| レイヤー一覧 UI | ✓ | ✓ | ✓ | ✓ |
 | グループ化（レイヤーツリー継承） | ✓ | — | △ | — |
 | 表示 on/off | ✓ | — | ✓ | — |
 | 凡例表示 | ✓ | — | — | — |
@@ -339,7 +339,7 @@ KASUGAI Canvas の4エンジン（Cesium / OpenLayers / MapLibre / Leaflet）の
 | カメラプリセット・ブックマーク | ✓ | — | ✓ | — |
 | Terrain / Shadow | ✓ | — | — | — |
 | GeoJSON 3D ドレープ | ✓（terrain / 3D Tiles / both） | — | — | — |
-| 追従モード（QGIS キャンバス追従） | — | ✓（`/present/state`） | ✓（`/present/state`） | ✓（`/present/state`） |
+| 追従モード（QGIS キャンバス追従） | ✓（`/present/state`） | ✓（同左） | ✓（同左） | ✓（同左） |
 
 ### プレゼン・共有・外部サービス
 
@@ -373,11 +373,11 @@ KASUGAI Canvas の4エンジン（Cesium / OpenLayers / MapLibre / Leaflet）の
 | 視点の引き継ぎ（中心・縮尺・回転） | ✓（`cam:`） | ✓ | ✓ | ✓ |
 | タイル行（`xyz:`/`base:`/`wms:`/`wmts:`） | ✓ | ✓ | ✓ | △（`xyz:`/`base:`） |
 | ベクターデータ（`DATA/` ファイル） | ✓ | ✓ | ✓ | ✓ |
-| QGIS スタイル（`.qml`） | ✓（`style=`） | — | — | — |
+| QGIS スタイル（`.qml`） | ✓（`style=`） | ✓ | ✓ | ✓ |
 | レイヤ一覧・表示制御 | ✓（on/off・グループ） | — | ✓ | — |
 | クエリ系記述（`duckdb:`/`sql:`/`bbox=auto`） | —（未出力） | — | — | — |
 | マップテーマ | ✓（`theme:`行） | ✓ | ✓ | — |
-| 追従モード（`/present/state`） | — | ✓ | ✓ | ✓ |
+| 追従モード（`/present/state`） | ✓ | ✓ | ✓ | ✓ |
 | プロジェクト登録・ビュー切替 | ✓（`/api/projects/register` + `switchProject`） | ✓ | ✓ | ✓ |
 
 - **視点の引き継ぎ**: `x,y,scale,rotation,crs`（または `lat,lon,zoom`、パーマリンク）で指定した表示状態を各エンジンで再現。`.kasc` の `cam:` 行として書き出す
@@ -385,7 +385,7 @@ KASUGAI Canvas の4エンジン（Cesium / OpenLayers / MapLibre / Leaflet）の
 - **ベクターデータ**: 表示中レイヤを `DATA/` フォルダのファイルとして受け渡す（GPKG/GeoJSON/GeoParquet/FlatGeobuf は変換せずネイティブ参照）
 - **スタイル引き継ぎ**: QGIS レンダラを `.qml` ファイルとして受け渡し、クライアント側でコンパイル（Cesium の entity/primitive 経路・Re:Earth のトランスレータ）
 - **クエリ系記述**: `/kasugai` はソースが許す範囲でクエリ系行を出力する — CSV/TSV（delimitedtext・ogr）は `duckdb:`（`format=`/`lon=`/`lat=`/`geom=`）、フィルタ付き GPKG は `gpkg:`+`where=`、フィルタ付き Parquet は `duckdb:`+`format=parquet`+`where=`。`sql:`（任意 SELECT）は QGIS に相当ソースが無いため出力しない。3D Tiles レイヤ（`QgsTiledSceneLayer`）は `3dtiles:`、ローカル XYZ テンプレート（`file:///…/{z}/{x}/{y}.png`）はタイルツリーごと `DATA/` へ複製。QGIS の WMS ラスタレイヤ（`type=xyz` 以外）は `wms:` 行（`layers=`/`styles=`/`format=` 付き）として出力し、Canvas 側が GetMap を 256px タイルへ分解して描画する
-- **追従モード**: `?follow`/`?present` 付きで開いた Canvas ページ（MapLibre/OpenLayers/Leaflet エンジン）は `/present/state` をポーリングし、QGIS キャンバスの移動にリアルタイム追従（プレゼン・画面共有用）
+- **追従モード**: `?follow`/`?present` 付きで開いた Canvas ページ（Cesium 含む全4エンジン）は `/present/state` をポーリングし、QGIS キャンバスの移動にリアルタイム追従（プレゼン・画面共有用）
 - **双方向ナビゲーション**: パーマリンク受信（`/received`）と External Control により、クライアント→QGIS 方向の視点共有も可能。KASUGAI からの逆方向は `qgis-import` プラグインが `/kasugai` を呼ぶ形（取り込みのみ — Canvas 側の編集結果は QGIS へ戻らない）
 
 ## geo_suite との連携

@@ -318,16 +318,16 @@ Feature comparison of the four KASUGAI Canvas engines (Cesium / OpenLayers / Map
 |---|:-:|:-:|:-:|:-:|
 | `.kasc`+`DATA/` ingestion | ✓ (`/kasugai` register + `?project=`) | ✓ | ✓ | ✓ |
 | GeoJSON | ✓ (`geojson:`) | ✓ (`geojson:`/file) | ✓ (`geojson:`/file) | ✓ (`geojson:`) |
-| GeoPackage | ✓ (`gpkg:` Worker, `bbox=auto` query) | ✓ (`gpkg:` sql.js Worker, `bbox=auto`) | ✓ (`gpkg:` sql.js Worker, `bbox=auto`) | △ |
-| GeoParquet | ✓ (`geoparquet:`) | ✓ (`geoparquet:` hyparquet) | ✓ (`geoparquet:` hyparquet) | △ |
+| GeoPackage | ✓ (`gpkg:` Worker, `bbox=auto` query) | ✓ (`gpkg:` sql.js Worker, `bbox=auto`) | ✓ (same) | ✓ (same) |
+| GeoParquet | ✓ (`geoparquet:`) | ✓ (`geoparquet:` hyparquet) | ✓ (same) | ✓ (same) |
 | FlatGeobuf | ✓ (`flatgeobuf:`) | ✓ (`flatgeobuf:`/`fgb:`) | ✓ (`flatgeobuf:`/`fgb:`) | ✓ (`fgb:`) |
-| CSV/TSV | ✓ (`duckdb:`+`format=csv`, `lon=`/`lat=`/`geom=`) | ✓ (same) | ✓ (same) | △ |
-| DuckDB/SQL query layer | ✓ (`duckdb:`/`sql:`, `:bbox` view-synced) | ✓ (same) | ✓ (same) | — |
-| Layer filter (subsetString) | ✓ (`gpkg:`/`duckdb:` `where=` or GeoJSON bake) | ✓ (`where=`) | ✓ (`where=`) | △ (GeoJSON bake only) |
-| 3D Tiles | ✓ (`3dtiles:`) | △ (deck.gl 2.5D top-down) | △ (deck.gl 2.5D top-down) | — (reported in layer list) |
+| CSV/TSV | ✓ (`duckdb:`+`format=csv`, `lon=`/`lat=`/`geom=`) | ✓ (same) | ✓ (same) | ✓ (same) |
+| DuckDB/SQL query layer | ✓ (`duckdb:`/`sql:`, `:bbox` view-synced) | ✓ (same) | ✓ (same) | ✓ (same) |
+| Layer filter (subsetString) | ✓ (`gpkg:`/`duckdb:` `where=` or GeoJSON bake) | ✓ (`where=`) | ✓ (same) | ✓ (same) |
+| 3D Tiles | ✓ (`3dtiles:`) | △ (deck.gl 2.5D top-down) | △ (same) | △ (same) |
 | XYZ tiles & basemaps | ✓ (`xyz:`/`base:`) | ✓ (`xyz:`/`base:` overlay) | ✓ (`xyz:`/`base:` overlay) | ✓ (`xyz:`/`base:`) |
 | WMS / WMTS raster | ✓ (`wms:`/`wmts:` — GetMap split into 256px tiles / normalized to `{z}/{x}/{y}` & KVP GetTile) | ✓ (`wms:`/`wmts:` lines) | ✓ (`wms:`/`wmts:` lines via Import panel) | △ (`xyz:` only) |
-| QGIS styles (.qml) | ✓ (`style=`, client-side compile on entity & primitive paths) | — (default styling) | — (default styling) | — (default styling) |
+| QGIS styles (.qml) | ✓ (`style=` + embedded `layer_styles`, entity & primitive paths) | ✓ (client-side compile, `shared/qml-2d.js`) | ✓ (same) | ✓ (same) |
 
 ※With external OGC servers, the `wms:`/`wmts:`/`xyz:` lines above can reference WMS rasters and external `/wfs` GeoJSON (geo_webview's own OGC services were removed in v3.29.0 — an external server is required).
 
@@ -335,11 +335,11 @@ Feature comparison of the four KASUGAI Canvas engines (Cesium / OpenLayers / Map
 
 | Feature | Cesium | OpenLayers | MapLibre | Leaflet |
 |---|:-:|:-:|:-:|:-:|
-| Layer list UI | ✓ | — | ✓ | — |
-| Grouping (inherits layer tree) | ✓ | — | △ | — |
-| Visibility on/off | ✓ | — | ✓ | — |
-| Legend display | ✓ | — | — | — |
-| SQL filter & interactive requery | ✓ (⏷ filter) | — | — | — |
+| Layer list UI | ✓ | ✓ | ✓ | ✓ |
+| Grouping (inherits layer tree) | ✓ | ✓ | ✓ | ✓ |
+| Visibility on/off | ✓ | ✓ | ✓ | ✓ |
+| Legend display | ✓ | ✓ | ✓ | ✓ |
+| SQL filter & interactive requery | ✓ (⏷ filter) | △ (API `setLayerFilter`) | △ (same) | △ (same) |
 | Render mode switch (`render=entity/primitive`) | ✓ | — | — | — |
 
 ### Search & attributes
@@ -347,9 +347,9 @@ Feature comparison of the four KASUGAI Canvas engines (Cesium / OpenLayers / Map
 | Feature | Cesium | OpenLayers | MapLibre | Leaflet |
 |---|:-:|:-:|:-:|:-:|
 | Address search | ✓ | — | — | — |
-| Vector search | ✓ | — | — | — |
-| Attribute / value list | ✓ (Attr panel, full query) | △ | △ | — |
-| Info display | ✓ | — | — | — |
+| Vector search | ✓ | △ (text search) | △ (same) | △ (same) |
+| Attribute / value list | ✓ (Attr panel, full query) | △ | △ | △ |
+| Info display | ✓ | ✓ | ✓ | ✓ |
 
 ### View & navigation
 
@@ -358,11 +358,11 @@ Feature comparison of the four KASUGAI Canvas engines (Cesium / OpenLayers / Map
 | View carryover (`cam:`) | ✓ | ✓ | ✓ | ✓ |
 | Rotation | ✓ (heading) | ✓ | ✓ | — |
 | Arbitrary CRS | — | ✓ | — | — |
-| Map themes | ✓ (`theme:` line + layer panel) | ✓ | ✓ | — |
-| Camera presets & bookmarks | ✓ | — | ✓ | — |
+| Map themes | ✓ (`theme:` line + layer panel) | ✓ | ✓ | ✓ |
+| Camera presets & bookmarks | ✓ | ✓ | ✓ | ✓ |
 | Terrain / Shadow | ✓ | — | — | — |
-| GeoJSON 3D drape | ✓ (terrain / 3D Tiles / both) | — | — | — |
-| Follow mode (QGIS canvas tracking) | — | ✓ (`/present/state`) | ✓ (`/present/state`) | ✓ (`/present/state`) |
+| GeoJSON 3D drape | ✓ (terrain / 3D Tiles / both) | △ (onto 3D Tiles via deck.gl) | △ (same) | △ (same) |
+| Follow mode (QGIS canvas tracking) | ✓ (`/present/state`) | ✓ (same) | ✓ (same) | ✓ (same) |
 
 ### Presentation, sharing & external services
 
@@ -378,14 +378,14 @@ Feature comparison of the four KASUGAI Canvas engines (Cesium / OpenLayers / Map
 
 | Feature | Cesium | OpenLayers | MapLibre | Leaflet |
 |---|:-:|:-:|:-:|:-:|
-| AI chat | ✓ (Gemini function calling, shared tool execution) | — | — | — |
+| AI chat | ✓ (Gemini function calling, shared tool execution) | △ (subset tools) | △ (same) | △ (same) |
 | External agent control | ✓ (`/api/command` + bridge hub → Copilot/Devin/Antigravity) | — | — | — |
-| MCP data source | ✓ (`/api/mcp` relay) | — | — | — |
+| MCP data source | ✓ (`/api/mcp` relay) | ✓ | ✓ | ✓ |
 | Plugin mechanism | ✓ (`PLUGIN/`, IndexedDB drafts, `.kasp`) | — | — | — |
 | Cloud storage (rclone) | ✓ | — | — | — |
 | Local save & offline delivery | ✓ (`/api/files`, `_local` workspace) | — | — | — |
 | External project registration | ✓ (`.kasc` association, group manifests) | ✓ (via `?project=`) | ✓ (same) | ✓ (same) |
-| i18n | 8 languages | △ | △ | △ |
+| i18n | 8 languages | △ (chat/settings UI only) | △ (same) | △ (same) |
 
 ### Common services provided by geo_webview
 
@@ -396,11 +396,11 @@ Services geo_webview provides to all engines above. The per-engine difference is
 | View carryover (center, scale, rotation) | ✓ (`cam:`) | ✓ | ✓ | ✓ |
 | Tile lines (`xyz:`/`base:`/`wms:`/`wmts:`) | ✓ | ✓ | ✓ | △ (`xyz:`/`base:`) |
 | Vector data (`DATA/` files) | ✓ | ✓ | ✓ | ✓ |
-| QGIS styles (`.qml`) | ✓ (`style=`) | — | — | — |
-| Layer list & visibility control | ✓ (on/off, groups) | — | ✓ | — |
+| QGIS styles (`.qml`) | ✓ (`style=`) | ✓ | ✓ | ✓ |
+| Layer list & visibility control | ✓ (on/off, groups) | ✓ | ✓ | ✓ |
 | Query-type lines (`duckdb:`/`sql:`/`bbox=auto`) | — (not emitted) | — | — | — |
-| Map themes | ✓ (`theme:` line) | ✓ | ✓ | — |
-| Follow mode (`/present/state`) | — | ✓ | ✓ | ✓ |
+| Map themes | ✓ (`theme:` line) | ✓ | ✓ | ✓ |
+| Follow mode (`/present/state`) | ✓ | ✓ | ✓ | ✓ |
 | Project registration & view switch | ✓ (`/api/projects/register` + `switchProject`) | ✓ | ✓ | ✓ |
 
 - **View carryover**: reproduce the specified view (`x,y,scale,rotation,crs` or `lat,lon,zoom`, permalink) in each engine; written as `cam:` lines in `.kasc`
@@ -408,7 +408,7 @@ Services geo_webview provides to all engines above. The per-engine difference is
 - **Vector data**: visible layers are handed over as `DATA/` files (GPKG/GeoJSON/GeoParquet/FlatGeobuf as native references)
 - **Style carryover**: QGIS renderers are handed over as `.qml` files and compiled client-side (Cesium entity/primitive path, Re:Earth translator)
 - **Query-type lines**: `/kasugai` emits query lines where the source allows — CSV/TSV (delimitedtext/ogr) → `duckdb:` (`format=`/`lon=`/`lat=`/`geom=`), filtered GPKG → `gpkg:`+`where=`, filtered Parquet → `duckdb:`+`format=parquet`+`where=`. `sql:` (arbitrary SELECT) is not emitted (no QGIS equivalent). 3D Tiles layers (`QgsTiledSceneLayer`) → `3dtiles:`; local XYZ templates (`file:///…/{z}/{x}/{y}.png`) are copied into `DATA/`. QGIS WMS raster layers (other than `type=xyz`) are emitted as `wms:` lines (`layers=`/`styles=`/`format=`), and Canvas splits GetMap into 256px tiles
-- **Follow mode**: Canvas pages opened with `?follow`/`?present` (MapLibre/OpenLayers/Leaflet engines) poll `/present/state` and track QGIS canvas moves in real time (presentations / screen sharing)
+- **Follow mode**: Canvas pages opened with `?follow`/`?present` (all four engines incl. Cesium) poll `/present/state` and track QGIS canvas moves in real time (presentations / screen sharing)
 - **Bidirectional navigation**: permalink reception (`/received`) and External Control allow client→QGIS view sharing; the reverse direction from KASUGAI is the `qgis-import` plugin calling `/kasugai` (ingest only — Canvas-side edits do not flow back to QGIS)
 
 ## Integration with geo_suite
