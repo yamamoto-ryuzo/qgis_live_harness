@@ -53,10 +53,12 @@ flowchart TB
     end
 
     subgraph KCBOX["【▶ Canvas】"]
-        direction TB
+        direction LR
         ENG["Multi-engine<br>Cesium / MapLibre / OpenLayers / Leaflet"]
         KCF["Extensions: register - switch - rclone -<br>auto-update - .kasc association"]
-        ENG ~~~ KCF
+        KCS["HTTP server localhost:8510"]
+        KCB["AI bridge hub localhost:8511"]
+        ENG ~~~ KCF ~~~ KCS ~~~ KCB
     end
     subgraph WEBBOX["External HTTP server"]
         WEB["static hosting: GitHub Pages / Cloudflare / Vercel etc."]

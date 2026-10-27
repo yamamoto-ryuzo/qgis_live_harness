@@ -3,7 +3,7 @@ name = geo_webview
 qgisMinimumVersion = 4.0
 qgisMaximumVersion = 4.99
 description = Serverless web distribution of QGIS projects — export .kasc+DATA/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet); permalinks and an embedded HTTP server
-version = 3.36.5
+version = 3.36.8
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
 supportsQt6 = True
@@ -20,6 +20,9 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 3.36.8: 連携構成図の「【▶ Canvas】」に Canvas のローカルポートを明示(HTTPサーバー :8510・AI ブリッジハブ :8511)
+	- 3.36.7: .kasc+DATA/ エクスポートで .qml 参照のシンボル画像を DATA/ へ複製し参照を書き換え(_export_qml_assets)。QGIS内蔵SVG/ローカル画像が Canvas 側で解決できず円マーカー/単色へフォールバックしていた問題を解消
+	- 3.36.6: パネルタイトルを「WebView」へ短縮(旧「geo_webview — Web Distribution」)。i18n 9言語カタログを同期
 	- 3.36.5: インストール進捗ダイアログの×で実際に途中キャンセル可能に(DL/ウィザード待機/展開の各段で中断、キャンセル時は情報通知)
 	- 3.36.4: インストール方式選択ダイアログを非モーダル化(背面隠れで全入力ロック→「閉じられない」問題の根本修正)。進捗ダイアログの×でタスクキャンセル可
 	- 3.36.3: インストール進捗を段階別実表示へ(ダウンロードのMB/バー確定表示・ウィザード待機・展開)。レジストリ幽霊登録の誤検出をexe存在チェックで防止

@@ -18,7 +18,7 @@ flowchart TB
     end
 
     subgraph G1["① Companion players (high-function route: dedicated API)"]
-        KC["KASUGAI Canvas (primary, unified player)<br>local server :8510<br>Cesium / MapLibre / OpenLayers / Leaflet<br>register - switch - rclone - auto-update - .kasc association"]
+        KC["KASUGAI Canvas (primary, unified player)<br>HTTP server :8510 - AI bridge hub :8511<br>Cesium / MapLibre / OpenLayers / Leaflet<br>register - switch - rclone - auto-update - .kasc association"]
     end
 
     subgraph NORM["Standard route: local HTTP + web delivery (instant web, no Canvas app)"]

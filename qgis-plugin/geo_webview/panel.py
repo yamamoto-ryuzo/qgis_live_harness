@@ -56,7 +56,7 @@ class GeoWebViewPanel(QDockWidget):
 
         # パネルのタイトルを設定
         self.setWindowTitle(QCoreApplication.translate(
-            'geo_webview', "geo_webview — Web Distribution"))
+            'geo_webview', "WebView"))
 
         # ドッキングエリアを設定（左側を優先、右側も可能）
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea)

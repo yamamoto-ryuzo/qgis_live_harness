@@ -50,10 +50,12 @@ flowchart TB
     end
 
     subgraph KCBOX["【▶ Canvas】"]
-        direction TB
+        direction LR
         ENG["マルチエンジン<br>Cesium / MapLibre / OpenLayers / Leaflet"]
         KCF["拡張機能: 登録・切替・rclone・<br>自動更新・.kasc 関連付け"]
-        ENG ~~~ KCF
+        KCS["HTTP サーバー localhost:8510"]
+        KCB["AI ブリッジハブ localhost:8511"]
+        ENG ~~~ KCF ~~~ KCS ~~~ KCB
     end
     subgraph WEBBOX["外部HTTPサーバー"]
         WEB["GitHub Pages / Cloudflare / Vercel 等の静的ホスト"]

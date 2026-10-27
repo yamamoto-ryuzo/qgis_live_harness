@@ -11,6 +11,40 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [3.36.8] - 2026-10-27 連携構成図に Canvas 側のポートを明示
+
+- README/README_JP の連携構成図「【▶ Canvas】」内に
+  KASUGAI Canvas のローカルサーバー2ポートを
+  横並びノードとして明示:
+  HTTP サーバー localhost:8510（プロジェクト登録・切替 API）、
+  AI ブリッジハブ localhost:8511（AI エージェント連携）
+- INTEGRATION.md / INTEGRATION_JP.md の Canvas ノード表記も
+  「HTTP サーバー :8510・AI ブリッジハブ :8511」へ更新
+
+## [3.36.7] - 2026-10-27 .qml のシンボル画像を DATA/ へ複製
+
+- `.kasc`+`DATA/` エクスポートで、.qml が参照するシンボル画像を
+  DATA/ へ複製して参照を書き換える `_export_qml_assets` を追加。
+  従来は QGIS 内蔵 SVG シンボル(`transport/…` 等の相対名や
+  QGIS インストール先の絶対パス)・ユーザーのローカル画像が
+  生パスのまま残り、Canvas 側が DATA/ から解決できず
+  円マーカー/単色塗りへフォールバックしていた
+- 対象シンボルレイヤ: SvgMarker(name/path)・RasterMarker(imageFile)・
+  SVGFill(svgFile)・RasterFill/ImageFill(imageFile/file)。
+  サブシンボル(PointPatternFill・MarkerLine 等の内側)も再帰走査
+- 解決順: 絶対パス → プロジェクト dir → .qml dir →
+  `QgsSymbolLayerUtils.svgSymbolNameToPath`/`QgsApplication.svgPaths()`。
+  http(s)/data/base64: 参照はそのまま維持。解決不能は warnings 記録
+- .qml は `<Option>`/旧 `<prop>` 両形式に対応して XML を書き換え
+  (DOCTYPE 保持)。同一ファイルの重複参照は `copied` で1ファイルに集約
+
+## [3.36.6] - 2026-10-27 パネルタイトルを「WebView」へ短縮
+
+- ドックパネルのタイトルを「geo_webview — Web Distribution」から
+  「WebView」へ変更(`panel.py` の `setWindowTitle`)
+- i18n: 旧キーを9言語カタログから削除し `WebView` を登録
+  (固有名詞のため全言語同一表記)
+
 ## [3.36.5] - 2026-10-27 インストール進捗の×で実際に途中キャンセル可能に
 
 - 進捗ダイアログの ×(canceled) を単なる task.cancel ではなく

@@ -165,7 +165,8 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
    ├─ *.parquet / *.fgb       # ネイティブ参照の Parquet/FGB(複製)
    ├─ *.csv / *.tsv           # duckdb: 参照の区切りテキスト(複製)
    ├─ <dir>/                  # ローカル 3D Tiles / ローカル XYZ タイルの複製(1GiB 上限)
-   └─ *.qml                   # 各ベクターレイヤの QGIS スタイル
+   ├─ *.qml                   # 各ベクターレイヤの QGIS スタイル
+   └─ *.svg / *.png 等        # .qml が参照するシンボル画像(QGIS 内蔵SVG・ローカル画像の複製)
 ```
 
 ### .kasc 行の生成規則
@@ -189,6 +190,11 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 | ブックマーク | `bookmarks.xml`(qgis_bookmarks形式・EPSG:4326正規化) + `bookmark:` 行(プロジェクト+アプリケーション両方) | `emit_bookmarks=False` で抑制。Canvas 側が XML を読み込みカメラプリセットへ展開する |
 
 その他: `attr=` に QGIS レイヤの出典(attribution)を引き継ぐ。
+`.qml` 書き出し後、シンボルレイヤが参照する画像(SvgMarker/RasterMarker/
+SVGFill/RasterFill 等の `name`/`imageFile`/`svgFile`/`file`)を実ファイルへ
+解決して DATA/ へ複製し、.qml 内の参照を DATA/ 内のファイル名へ書き換える
+(QGIS 内蔵SVGの `transport/…` 等の相対名は `QgsApplication.svgPaths()` で
+解決。http(s)/data/base64: 参照はそのまま維持。解決不能は warnings 記録)。
 `embed_gpkg_style=True` なら `saveStyleToDatabase` で GPKG の
 `layer_styles` にも既定スタイルを保存する(**元ファイルを更新する**)。
 `sql:` 行は QGIS 側に対応する任意クエリソースが無いため出力しない

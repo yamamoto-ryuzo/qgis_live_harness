@@ -16,7 +16,7 @@ flowchart TB
     end
 
     subgraph G1["① セット開発のプレイヤー群（高機能ルート：専用API連携）"]
-        KC["KASUGAI Canvas（主・統合プレイヤー）<br>ローカルサーバー :8510<br>Cesium / MapLibre / OpenLayers / Leaflet<br>登録・切替・rclone・自動更新・.kasc 関連付け"]
+        KC["KASUGAI Canvas（主・統合プレイヤー）<br>HTTP サーバー :8510・AI ブリッジハブ :8511<br>Cesium / MapLibre / OpenLayers / Leaflet<br>登録・切替・rclone・自動更新・.kasc 関連付け"]
     end
 
     subgraph NORM["通常ルート：ローカル HTTP + WEB 配信（Canvas なしで即時 Web 化）"]

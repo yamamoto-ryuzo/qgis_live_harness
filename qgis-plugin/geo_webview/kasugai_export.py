@@ -1174,6 +1174,158 @@ def _export_qml(layer, path):
     return path
 
 
+# .qml 内で画像ファイルを参照するシンボルレイヤ。
+# キーは class 属性値(小文字)、値はファイル参照を持つ prop 名(小文字)。
+# QGIS 内蔵シンボルは transport/… 等の相対名や QGIS インストール先の
+# 絶対パスのまま書き出され、DATA/ に実体が無いと Canvas 側は解決
+# できない(円・単色へフォールバック)ため、複製して参照を書き換える
+_QML_ASSET_KEYS = {
+    'svgmarker': ('name', 'path'),
+    'rastermarker': ('imagefile', 'file', 'path'),
+    'svgfill': ('svgfile', 'file'),
+    'rasterfill': ('imagefile', 'file'),
+    'imagefill': ('imagefile', 'file'),
+}
+
+# ローカルファイル化できない参照(file: スキームは _local_path で処理する)
+_REMOTE_ASSET_RE = re.compile(
+    r'^(?:https?|data|base64|url|blob)[:;]', re.IGNORECASE)
+
+
+def _qml_asset_props(layer_el, keys):
+    """<layer> 要素内のファイル参照 prop を (element, value_attr) で yield。
+
+    QGIS 3.28+/4 の ``<Option type="Map"><Option name= value=>`` 形式と
+    旧形式 ``<prop k= v=>`` の両方に対応する。
+    """
+    keys = set(keys)
+    for child in layer_el:
+        if child.tag == 'Option':
+            if (child.get('type') or '').strip().lower() == 'map':
+                for opt in child:
+                    if (opt.tag == 'Option' and
+                            (opt.get('name') or '').strip().lower() in keys):
+                        yield opt, 'value'
+            elif (child.get('name') or '').strip().lower() in keys:
+                yield child, 'value'
+        elif (child.tag == 'prop' and
+                (child.get('k') or '').strip().lower() in keys):
+            yield child, 'v'
+
+
+def _qgis_svg_search_paths():
+    """QGIS の SVG 検索ディレクトリ一覧(内蔵+ユーザー登録)。"""
+    try:
+        from qgis.core import QgsApplication
+        return [p for p in (QgsApplication.svgPaths() or []) if p]
+    except Exception:  # nosec B110  # 設計上の許容
+        return []
+
+
+def _resolve_svg_file(name, svg_dirs):
+    """SVG 参照名を実ファイルの絶対パスへ解決する。失敗時 None。"""
+    try:
+        from qgis.core import QgsSymbolLayerUtils
+        try:
+            from qgis.core import QgsPathResolver
+            full = QgsSymbolLayerUtils.svgSymbolNameToPath(
+                name, QgsPathResolver())
+        except Exception:
+            full = QgsSymbolLayerUtils.svgSymbolNameToPath(name)
+        if full and os.path.isfile(full):
+            return os.path.abspath(full)
+    except Exception:  # nosec B110  # utils 未対応時は下の手動検索へ
+        pass
+    for base in svg_dirs or []:
+        cand = os.path.normpath(os.path.join(base, name))
+        if os.path.isfile(cand):
+            return os.path.abspath(cand)
+    return None
+
+
+def _resolve_asset_file(value, qml_dir, svg_dirs):
+    """シンボルの画像参照値をローカルの実ファイルへ解決する。
+
+    絶対パスはそのまま、相対名はプロジェクト dir → qml dir →
+    SVG 検索パスの順で探す。見つからなければ None。
+    """
+    v = urllib.parse.unquote(str(value or '').strip())
+    if not v:
+        return None
+    p = _local_path(v)
+    if os.path.isabs(p):
+        return os.path.abspath(p) if os.path.isfile(p) else None
+    dirs = []
+    try:
+        from qgis.core import QgsProject
+        proj_dir = QgsProject.instance().absolutePath()
+        if proj_dir:
+            dirs.append(proj_dir)
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    dirs.append(qml_dir)
+    dirs.extend(svg_dirs or [])
+    for base in dirs:
+        cand = os.path.normpath(os.path.join(base, p))
+        if os.path.isfile(cand):
+            return os.path.abspath(cand)
+    return _resolve_svg_file(p, svg_dirs or [])
+
+
+def _export_qml_assets(qml_path, layer_slug, data_dir, used_names, copied,
+                       warnings):
+    """.qml が参照するシンボル画像(SVG/ラスタ)を DATA/ へ複製し参照を書き換える。
+
+    QGIS 内蔵 SVG シンボルやユーザーのローカル画像は .qml に
+    生パスのまま残り、Canvas 側は .qml のある DATA/ からしか解決
+    できない。ここで参照ファイルを DATA/ へ複製し、.qml の値を
+    DATA/ 内のファイル名へ書き換える。
+    戻り値: 複製したファイル数。
+    """
+    import xml.etree.ElementTree as ET
+    with open(qml_path, 'r', encoding='utf-8') as f:
+        raw_text = f.read()
+    m = re.search(r'<!DOCTYPE[^>]*>', raw_text)
+    doctype = m.group(0) if m else ''
+    tree = ET.ElementTree(ET.fromstring(raw_text))
+    qml_dir = os.path.dirname(qml_path)
+    svg_dirs = None
+    count = 0
+    changed = False
+    for layer_el in tree.getroot().iter('layer'):
+        keys = _QML_ASSET_KEYS.get(
+            (layer_el.get('class') or '').strip().lower())
+        if not keys:
+            continue
+        for el, attr in _qml_asset_props(layer_el, keys):
+            raw = (el.get(attr) or '').strip()
+            if not raw or _REMOTE_ASSET_RE.match(raw):
+                continue
+            if svg_dirs is None:
+                svg_dirs = _qgis_svg_search_paths()
+            src = _resolve_asset_file(raw, qml_dir, svg_dirs)
+            if not src:
+                warnings.append(
+                    '{0}: シンボル画像が見つかりません: {1}'.format(
+                        os.path.basename(qml_path), raw))
+                continue
+            slug = _slugify('{0}_{1}'.format(
+                layer_slug,
+                os.path.splitext(os.path.basename(src))[0]), used_names)
+            rel = _copy_to_data(src, data_dir, slug, copied)
+            el.set(attr, os.path.basename(rel))
+            changed = True
+            count += 1
+    if changed:
+        body = ET.tostring(tree.getroot(), encoding='unicode')
+        with open(qml_path, 'w', encoding='utf-8') as f:
+            f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+            if doctype:
+                f.write(doctype + '\n')
+            f.write(body)
+    return count
+
+
 def _xyz_layer_info(layer):
     """XYZタイル系ラスタレイヤなら (url, zmin, zmax) を返す。
 
@@ -1506,6 +1658,14 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             style_opt = ''
             try:
                 _export_qml(layer, qml_path)
+                try:
+                    _export_qml_assets(
+                        qml_path, slug, data_dir, used_names, copied,
+                        warnings)
+                except Exception as e:
+                    warnings.append(
+                        '{0}: シンボル画像の複製失敗: {1}'.format(
+                            layer.name(), e))
                 style_opt = ' | style=DATA/{0}.qml'.format(slug)
             except Exception as e:
                 errors.append('{0}: qml {1}'.format(layer.name(), e))
