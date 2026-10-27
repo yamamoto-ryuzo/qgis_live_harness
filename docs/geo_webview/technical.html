@@ -3,21 +3,54 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="geo_webview 技術資料 — 内蔵 HTTP サーバー、エンドポイント一覧、動作環境、開発・カスタマイズ">
 <title>5. 技術資料 | geo_webview ドキュメント</title>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-<nav class="sidebar"><div class="site">geo_webview</div><a href="index.html">はじめに</a><a href="architecture.html">1. 連携構成図</a><a class="sub" href="architecture.html#連携方針対応クライアント">連携方針（対応クライアント）</a><a href="features.html">2. 主な機能</a><a class="sub" href="features.html#エクスポート">【エクスポート】</a><a class="sub" href="features.html#zip">【ZIP】</a><a class="sub" href="features.html#-webview">【▶ WebView】</a><a class="sub" href="features.html#-canvas">【▶ Canvas】</a><a class="sub" href="features.html#webgis">WebGIS</a><a href="engines.html">3. マルチエンジン</a><a class="sub" href="engines.html#起動ページenginehtml">起動ページ（<code>&lt;engine&gt;.html</code>）</a><a class="sub" href="engines.html#kasugai-canvas-エンジン比較">KASUGAI Canvas エンジン比較</a><a class="sub" href="engines.html#githubpages-cdnkasugai-canvas-web">GitHubPages CDN（kasugai-canvas-web）</a><a href="getting-started.html">4. 導入ガイド</a><a class="sub" href="getting-started.html#クイックスタート">クイックスタート</a><a class="sub" href="getting-started.html#サーバレス配信の流れ">サーバレス配信の流れ</a><a class="active" href="technical.html">5. 技術資料</a><a class="sub" href="technical.html#内蔵-http-サーバー補助機能">内蔵 HTTP サーバー（補助機能）</a><a class="sub" href="technical.html#パーマリンクexternal-control従来機能">パーマリンク・External Control（従来機能）</a><a class="sub" href="technical.html#ネットワーク機能">ネットワーク機能</a><a class="sub" href="technical.html#エンドポイント一覧">エンドポイント一覧</a><a class="sub" href="technical.html#geo_suite-との連携">geo_suite との連携</a><a class="sub" href="technical.html#動作環境">動作環境</a><a class="sub" href="technical.html#kasugai-canvas-連携詳細">KASUGAI Canvas 連携（詳細）</a><a class="sub" href="technical.html#開発カスタマイズ">開発・カスタマイズ</a><a class="sub" href="technical.html#セキュリティ注意事項">セキュリティ注意事項</a><a href="license.html">6. ライセンス・履歴・免責</a><a class="sub" href="license.html#バージョン履歴">バージョン履歴</a><a class="sub" href="license.html#ライセンス">ライセンス</a><a class="sub" href="license.html#免責事項">免責事項</a></nav>
+<nav class="sidebar">
+  <div class="site"><a href="index.html">geo_webview</a></div>
+  <a href="index.html">はじめに</a>
+  <a href="architecture.html">1. 連携構成図</a>
+  <a class="sub" href="architecture.html#連携方針対応クライアント">連携方針（対応クライアント）</a>
+  <a href="features.html">2. 主な機能</a>
+  <a class="sub" href="features.html#エクスポート">【エクスポート】</a>
+  <a class="sub" href="features.html#zip">【ZIP】</a>
+  <a class="sub" href="features.html#-webview">【▶ WebView】</a>
+  <a class="sub" href="features.html#-canvas">【▶ Canvas】</a>
+  <a class="sub" href="features.html#webgis">WebGIS</a>
+  <a href="engines.html">3. マルチエンジン</a>
+  <a class="sub" href="engines.html#起動ページenginehtml">起動ページ（<code>&lt;engine&gt;.html</code>）</a>
+  <a class="sub" href="engines.html#kasugai-canvas-エンジン比較">KASUGAI Canvas エンジン比較</a>
+  <a class="sub" href="engines.html#githubpages-cdnkasugai-canvas-web">GitHubPages CDN（kasugai-canvas-web）</a>
+  <a href="getting-started.html">4. 導入ガイド</a>
+  <a class="sub" href="getting-started.html#クイックスタート">クイックスタート</a>
+  <a class="sub" href="getting-started.html#サーバレス配信の流れ">サーバレス配信の流れ</a>
+  <a class="active" href="technical.html">5. 技術資料</a>
+  <a class="sub" href="technical.html#内蔵-http-サーバー補助機能">内蔵 HTTP サーバー（補助機能）</a>
+  <a class="sub" href="technical.html#パーマリンクexternal-control従来機能">パーマリンク・External Control（従来機能）</a>
+  <a class="sub" href="technical.html#ネットワーク機能">ネットワーク機能</a>
+  <a class="sub" href="technical.html#エンドポイント一覧">エンドポイント一覧</a>
+  <a class="sub" href="technical.html#geo_suite-との連携">geo_suite との連携</a>
+  <a class="sub" href="technical.html#動作環境">動作環境</a>
+  <a class="sub" href="technical.html#kasugai-canvas-連携詳細">KASUGAI Canvas 連携（詳細）</a>
+  <a class="sub" href="technical.html#開発カスタマイズ">開発・カスタマイズ</a>
+  <a class="sub" href="technical.html#セキュリティ注意事項">セキュリティ注意事項</a>
+  <a href="license.html">6. ライセンス・履歴・免責</a>
+  <a class="sub" href="license.html#バージョン履歴">バージョン履歴</a>
+  <a class="sub" href="license.html#ライセンス">ライセンス</a>
+  <a class="sub" href="license.html#免責事項">免責事項</a>
+</nav>
 <main>
-<h2>5. 技術資料</h2>
-<h3 id="内蔵-http-サーバー補助機能">内蔵 HTTP サーバー（補助機能）</h3>
+<h1>5. 技術資料</h1>
+<h2 id="内蔵-http-サーバー補助機能">内蔵 HTTP サーバー（補助機能）</h2>
 <p>QGIS 内で動く軽量 HTTP サーバー。配信パッケージのライブ参照と 起動
 API の受け皿です（v3.29.0 で OGC サービスは廃止）。</p>
 <table>
 <thead>
 <tr>
-<th>エンドポイント</th>
-<th>内容</th>
+<th scope="col">エンドポイント</th>
+<th scope="col">内容</th>
 </tr>
 </thead>
 <tbody>
@@ -57,8 +90,14 @@ API の受け皿です（v3.29.0 で OGC サービスは廃止）。</p>
 </tr>
 </tbody>
 </table>
-<h3 id="パーマリンクexternal-control従来機能">パーマリンク・External
-Control（従来機能）</h3>
+<figure class="shot">
+<img src="images/panel_share.png" loading="lazy"
+alt="パネルの「共有」タブ — プレゼン共有ボタン、受領パーマリンク選択、MACアドレス認証の設定欄">
+<figcaption>「共有」タブ — <code>/present</code>
+のプレゼン共有・受領パーマリンク・MACアドレス認証</figcaption>
+</figure>
+<h2 id="パーマリンクexternal-control従来機能">パーマリンク・External
+Control（従来機能）</h2>
 <ul>
 <li>現在の地図ビュー（座標・スケール・回転・テーマ・レイヤ状態）を URL
 で共有</li>
@@ -67,7 +106,13 @@ Control（従来機能）</h3>
 <li>Office ドキュメント（Excel / PowerPoint）への埋め込み、高解像度 PNG
 エクスポート</li>
 </ul>
-<h3 id="ネットワーク機能">ネットワーク機能</h3>
+<figure class="shot">
+<img src="images/panel_permalink.png" loading="lazy"
+alt="パネルの「パーマリンク」タブ — パーマリンク生成ボタン、生成されたURLとURLコピー、移動先パーマリンクの貼り付け・移動欄">
+<figcaption>「パーマリンク」タブ —
+パーマリンク生成・コピーと受信 URL によるナビゲート</figcaption>
+</figure>
+<h2 id="ネットワーク機能">ネットワーク機能</h2>
 <ul>
 <li><strong>外部アクセス診断</strong>:
 接続性チェック、ファイアウォール検出</li>
@@ -77,13 +122,13 @@ Control（従来機能）</h3>
 <li><strong>動的ホスト名解決</strong>:
 外部デバイスからのアクセスに自動対応</li>
 </ul>
-<h3 id="エンドポイント一覧">エンドポイント一覧</h3>
+<h2 id="エンドポイント一覧">エンドポイント一覧</h2>
 <table>
 <thead>
 <tr>
-<th>パス</th>
-<th>種別</th>
-<th>内容</th>
+<th scope="col">パス</th>
+<th scope="col">種別</th>
+<th scope="col">内容</th>
 </tr>
 </thead>
 <tbody>
@@ -132,7 +177,7 @@ Control（従来機能）</h3>
 </tr>
 </tbody>
 </table>
-<h4 id="api-経由の呼び出し">API 経由の呼び出し</h4>
+<h3 id="api-経由の呼び出し">API 経由の呼び出し</h3>
 <p>同じ機能を API 経由でも呼べます:</p>
 <ul>
 <li><code>GET /kasugai?engine=&lt;e&gt;</code> —
@@ -142,7 +187,7 @@ AI 制御</li>
 <li>KASUGAI Canvas 側 <code>qgis-import</code>
 プラグインの「QGISから取り込み」ボタン — 逆方向からの呼び出し</li>
 </ul>
-<h3 id="geo_suite-との連携">geo_suite との連携</h3>
+<h2 id="geo_suite-との連携">geo_suite との連携</h2>
 <p>本プラグインは <a
 href="https://github.com/yamamoto-ryuzo/geo_suite">geo_suite</a>
 プロジェクトの一部として開発されています。</p>
@@ -156,20 +201,20 @@ href="https://github.com/yamamoto-ryuzo/geo_suite">geo_suite</a>
 </ul>
 <p>両方を組み合わせることで、QGIS
 プロジェクトをそのままエンドユーザーに配布できるシステムを構築できます。</p>
-<h3 id="動作環境">動作環境</h3>
+<h2 id="動作環境">動作環境</h2>
 <ul>
 <li>QGIS 4.x / 3.x（Qt5 / Qt6 両対応）</li>
 <li>Windows / macOS / Linux</li>
 <li>ネットワーク環境: LAN またはローカルホスト</li>
 <li>Python 3.7 以上</li>
 </ul>
-<h3 id="kasugai-canvas-連携詳細">KASUGAI Canvas 連携（詳細）</h3>
+<h2 id="kasugai-canvas-連携詳細">KASUGAI Canvas 連携（詳細）</h2>
 <p><code>/kasugai</code> エンドポイント（またはファイル出力のみのパネル
 <code>Export</code> ボタン、 <code>▶ Open</code> ボタン、Live Driver
 経由の <code>kasugaiExport</code> ブリッジ）で、 QGIS プロジェクトを
 KASUGAI Canvas（Cesium / OpenLayers / MapLibre / Leaflet
 のマルチエンジン地図アプリ）へ送出します。</p>
-<pre class="bash"><code>curl &quot;http://localhost:8089/kasugai?engine=openlayers&quot;
+<pre><code class="language-bash">curl &quot;http://localhost:8089/kasugai?engine=openlayers&quot;
 # → {&quot;ok&quot;:true,&quot;url&quot;:&quot;http://localhost:8510/?project=...&amp;engine=openlayers&quot;,&quot;dir&quot;:&quot;...&quot;,&quot;layers&quot;:N,&quot;tiles&quot;:M,&quot;engine&quot;:&quot;openlayers&quot;}</code></pre>
 <ul>
 <li>出力先: KASUGAI インストール先を設定で登録済みなら
@@ -197,10 +242,15 @@ GeoJSON(EPSG:4326) へ変換</li>
 <code>qgis-http</code>/<code>hosted</code>
 フォールバックか出力のみ）</li>
 </ul>
-<p>詳細は <code>SPEC_JP.md</code> の「KASUGAI Canvas
-連携」節を参照。</p>
-<h3 id="開発カスタマイズ">開発・カスタマイズ</h3>
-<h4 id="アーキテクチャ">アーキテクチャ</h4>
+<p>詳細は <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/SPEC_JP.md"><code>SPEC_JP.md</code></a> の「KASUGAI Canvas 連携」節を参照。</p>
+<figure class="shot">
+<img src="images/settings.png" loading="lazy"
+alt="設定ダイアログ — KASUGAI Canvas のインストール先、ホスト版エンジン（kasugai-canvas-web）のチャンネル、ベースマップグループ名の設定項目">
+<figcaption>設定ダイアログ（パネル右下の歯車）— KASUGAI Canvas
+インストール先・ホスト版チャンネル・ベースマップグループ</figcaption>
+</figure>
+<h2 id="開発カスタマイズ">開発・カスタマイズ</h2>
+<h3 id="アーキテクチャ">アーキテクチャ</h3>
 <pre><code>geo_webview/
 ├── plugin.py              # メインプラグイン
 ├── panel.py               # UI パネル
@@ -211,23 +261,23 @@ GeoJSON(EPSG:4326) へ変換</li>
 ├── scale_zoom.py          # スケール/ズーム換算
 ├── settings_dialog.py     # 設定ダイアログ
 └── bridge.py              # AI/外部制御用ブリッジ</code></pre>
-<h4 id="詳細仕様">詳細仕様</h4>
-<p>技術仕様の詳細は <a href="./SPEC.md"><code>SPEC.md</code></a> / <a
-href="./SPEC_JP.md"><code>SPEC_JP.md</code></a> を参照してください。</p>
-<h4 id="開発手順">開発手順</h4>
-<ol type="1">
-<li><a href="./SPEC.md"><code>SPEC.md</code></a> で仕様を確認</li>
+<h3 id="詳細仕様">詳細仕様</h3>
+<p>技術仕様の詳細は <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/SPEC.md"><code>SPEC.md</code></a> / <a
+href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/SPEC_JP.md"><code>SPEC_JP.md</code></a> を参照してください。</p>
+<h3 id="開発手順">開発手順</h3>
+<ol>
+<li><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/SPEC.md"><code>SPEC.md</code></a> で仕様を確認</li>
 <li>主要ファイルを把握</li>
 <li>QGIS で動作確認</li>
 <li>変更 → テスト → コミットのサイクル</li>
 </ol>
-<h4 id="翻訳対応">翻訳対応</h4>
+<h3 id="翻訳対応">翻訳対応</h3>
 <p>ソース言語は英語。<code>i18n/&lt;lang&gt;.json</code> に9言語 (de,
 es, fr, hi, it, ja, pt, ru, zh)の翻訳カタログを持つ。 JSON
 を直接編集する。未登録の文字列は英語にフォールバック。</p>
-<pre class="bash"><code># カタログ未登録の文字列を検出
+<pre><code class="language-bash"># カタログ未登録の文字列を検出
 python ../../scripts/i18n_tool.py check</code></pre>
-<h3 id="セキュリティ注意事項">セキュリティ注意事項</h3>
+<h2 id="セキュリティ注意事項">セキュリティ注意事項</h2>
 <p>⚠️ <strong>重要</strong>: 本プラグインは社内 LAN
 での利用を前提としています。</p>
 <ul>
@@ -238,7 +288,7 @@ python ../../scripts/i18n_tool.py check</code></pre>
 <li>ファイアウォール設定を適切に行ってください</li>
 <li>最小限のデータのみを公開してください</li>
 </ul>
-<div class="pager"><a href="getting-started.html">← 導入ガイド</a><a class="next" href="license.html">ライセンス・履歴・免責 →</a></div>
+<nav class="pager"><a href="getting-started.html">← 導入ガイド</a><a class="next" href="license.html">ライセンス・履歴・免責 →</a></nav>
 </main>
 <script type="module" src="assets/site.js"></script>
 </body>

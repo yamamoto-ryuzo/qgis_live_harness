@@ -22,6 +22,11 @@ nav.sidebar .site {
   padding-bottom: 12px; border-bottom: 2px solid var(--accent);
   color: var(--accent); letter-spacing: .02em;
 }
+nav.sidebar .site a {
+  display: inline; padding: 0; font-size: inherit; color: inherit;
+  border-radius: 0;
+}
+nav.sidebar .site a:hover { background: none; text-decoration: underline; }
 nav.sidebar a {
   display: block; padding: 5px 10px; border-radius: 6px;
   color: #33424d; text-decoration: none; font-size: 13.5px;
@@ -38,21 +43,21 @@ nav.sidebar a.sub:hover { border-left-color: var(--accent); }
 /* ---------- 本文 ---------- */
 main {
   flex: 1; min-width: 0; padding: 30px 40px 72px; max-width: 920px;
-  line-height: 1.75;
+  margin-inline: auto; line-height: 1.75;
 }
 h1 { font-size: 1.6em; margin-top: 0; line-height: 1.4; }
-h2 {
-  font-size: 1.3em; margin-top: 0; padding: 10px 14px; border-radius: 8px;
+main > h1 {
+  font-size: 1.3em; padding: 10px 14px; border-radius: 8px;
   background: linear-gradient(90deg, var(--accent), var(--accent2));
   color: #fff;
 }
-main h2 ~ h2 { margin-top: 2.2em; }
-h3 {
+h2 {
   font-size: 1.1em; margin-top: 2em; padding-left: 10px;
   border-left: 4px solid var(--accent);
 }
-h4 { margin-top: 1.6em; color: #2a4057; }
-h2[id], h3[id], h4[id] { scroll-margin-top: 16px; }
+h3 { margin-top: 1.6em; color: #2a4057; }
+h4 { margin-top: 1.4em; }
+h1[id], h2[id], h3[id], h4[id] { scroll-margin-top: 16px; }
 a { color: var(--accent); }
 code {
   background: #eef2f5; padding: 1px 5px; border-radius: 4px; font-size: .9em;
@@ -73,13 +78,32 @@ th, td {
 }
 th { background: #e8eef5; color: #27405c; white-space: nowrap; }
 tbody tr:nth-child(even) { background: #fafbfc; }
+table.matrix th:not(:first-child),
+table.matrix td:not(:first-child) { text-align: center; }
 blockquote {
   margin: 14px 0; padding: 8px 16px; border-left: 4px solid var(--accent);
   background: var(--bg-soft); color: #33424d; border-radius: 0 8px 8px 0;
 }
 img { max-width: 100%; }
+figure.shot { margin: 24px 0; text-align: center; }
+figure.shot img, figure.shot video {
+  border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(29,43,53,.08);
+}
+figure.shot video { display: inline-block; max-width: 100%; }
+figure.shot figcaption { margin-top: 8px; font-size: .82em; color: var(--muted); }
 .mermaid { text-align: center; margin: 18px 0; }
 .lead { color: var(--muted); font-size: .95em; }
+.ver-badge {
+  display: inline-block; padding: 1px 8px; border-radius: 999px;
+  font-size: .72em; font-weight: 600; vertical-align: middle;
+  background: #eaf0f5; color: var(--accent); border: 1px solid var(--line);
+  white-space: nowrap;
+}
+nav.sidebar .ver-badge { margin-left: 6px; font-size: 11px; }
+.hero .ver-badge {
+  background: rgba(255,255,255,.18); color: #fff; border-color: transparent;
+}
 
 /* ---------- index: ヒーロー + 3本柱 ---------- */
 .hero {

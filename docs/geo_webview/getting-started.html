@@ -3,23 +3,56 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="geo_webview 導入ガイド — インストールとサーバレス配信の流れ">
 <title>4. 導入ガイド | geo_webview ドキュメント</title>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-<nav class="sidebar"><div class="site">geo_webview</div><a href="index.html">はじめに</a><a href="architecture.html">1. 連携構成図</a><a class="sub" href="architecture.html#連携方針対応クライアント">連携方針（対応クライアント）</a><a href="features.html">2. 主な機能</a><a class="sub" href="features.html#エクスポート">【エクスポート】</a><a class="sub" href="features.html#zip">【ZIP】</a><a class="sub" href="features.html#-webview">【▶ WebView】</a><a class="sub" href="features.html#-canvas">【▶ Canvas】</a><a class="sub" href="features.html#webgis">WebGIS</a><a href="engines.html">3. マルチエンジン</a><a class="sub" href="engines.html#起動ページenginehtml">起動ページ（<code>&lt;engine&gt;.html</code>）</a><a class="sub" href="engines.html#kasugai-canvas-エンジン比較">KASUGAI Canvas エンジン比較</a><a class="sub" href="engines.html#githubpages-cdnkasugai-canvas-web">GitHubPages CDN（kasugai-canvas-web）</a><a class="active" href="getting-started.html">4. 導入ガイド</a><a class="sub" href="getting-started.html#クイックスタート">クイックスタート</a><a class="sub" href="getting-started.html#サーバレス配信の流れ">サーバレス配信の流れ</a><a href="technical.html">5. 技術資料</a><a class="sub" href="technical.html#内蔵-http-サーバー補助機能">内蔵 HTTP サーバー（補助機能）</a><a class="sub" href="technical.html#パーマリンクexternal-control従来機能">パーマリンク・External Control（従来機能）</a><a class="sub" href="technical.html#ネットワーク機能">ネットワーク機能</a><a class="sub" href="technical.html#エンドポイント一覧">エンドポイント一覧</a><a class="sub" href="technical.html#geo_suite-との連携">geo_suite との連携</a><a class="sub" href="technical.html#動作環境">動作環境</a><a class="sub" href="technical.html#kasugai-canvas-連携詳細">KASUGAI Canvas 連携（詳細）</a><a class="sub" href="technical.html#開発カスタマイズ">開発・カスタマイズ</a><a class="sub" href="technical.html#セキュリティ注意事項">セキュリティ注意事項</a><a href="license.html">6. ライセンス・履歴・免責</a><a class="sub" href="license.html#バージョン履歴">バージョン履歴</a><a class="sub" href="license.html#ライセンス">ライセンス</a><a class="sub" href="license.html#免責事項">免責事項</a></nav>
+<nav class="sidebar">
+  <div class="site"><a href="index.html">geo_webview</a></div>
+  <a href="index.html">はじめに</a>
+  <a href="architecture.html">1. 連携構成図</a>
+  <a class="sub" href="architecture.html#連携方針対応クライアント">連携方針（対応クライアント）</a>
+  <a href="features.html">2. 主な機能</a>
+  <a class="sub" href="features.html#エクスポート">【エクスポート】</a>
+  <a class="sub" href="features.html#zip">【ZIP】</a>
+  <a class="sub" href="features.html#-webview">【▶ WebView】</a>
+  <a class="sub" href="features.html#-canvas">【▶ Canvas】</a>
+  <a class="sub" href="features.html#webgis">WebGIS</a>
+  <a href="engines.html">3. マルチエンジン</a>
+  <a class="sub" href="engines.html#起動ページenginehtml">起動ページ（<code>&lt;engine&gt;.html</code>）</a>
+  <a class="sub" href="engines.html#kasugai-canvas-エンジン比較">KASUGAI Canvas エンジン比較</a>
+  <a class="sub" href="engines.html#githubpages-cdnkasugai-canvas-web">GitHubPages CDN（kasugai-canvas-web）</a>
+  <a class="active" href="getting-started.html">4. 導入ガイド</a>
+  <a class="sub" href="getting-started.html#クイックスタート">クイックスタート</a>
+  <a class="sub" href="getting-started.html#サーバレス配信の流れ">サーバレス配信の流れ</a>
+  <a href="technical.html">5. 技術資料</a>
+  <a class="sub" href="technical.html#内蔵-http-サーバー補助機能">内蔵 HTTP サーバー（補助機能）</a>
+  <a class="sub" href="technical.html#パーマリンクexternal-control従来機能">パーマリンク・External Control（従来機能）</a>
+  <a class="sub" href="technical.html#ネットワーク機能">ネットワーク機能</a>
+  <a class="sub" href="technical.html#エンドポイント一覧">エンドポイント一覧</a>
+  <a class="sub" href="technical.html#geo_suite-との連携">geo_suite との連携</a>
+  <a class="sub" href="technical.html#動作環境">動作環境</a>
+  <a class="sub" href="technical.html#kasugai-canvas-連携詳細">KASUGAI Canvas 連携（詳細）</a>
+  <a class="sub" href="technical.html#開発カスタマイズ">開発・カスタマイズ</a>
+  <a class="sub" href="technical.html#セキュリティ注意事項">セキュリティ注意事項</a>
+  <a href="license.html">6. ライセンス・履歴・免責</a>
+  <a class="sub" href="license.html#バージョン履歴">バージョン履歴</a>
+  <a class="sub" href="license.html#ライセンス">ライセンス</a>
+  <a class="sub" href="license.html#免責事項">免責事項</a>
+</nav>
 <main>
-<h2>4. 導入ガイド</h2>
-<h3 id="クイックスタート">クイックスタート</h3>
-<h4 id="1-インストール">1. インストール</h4>
-<pre class="bash"><code># QGIS プラグインディレクトリに配置
+<h1>4. 導入ガイド</h1>
+<h2 id="クイックスタート">クイックスタート</h2>
+<h3 id="1-インストール">1. インストール</h3>
+<pre><code class="language-bash"># QGIS プラグインディレクトリに配置
 # Windows: %APPDATA%\QGIS\QGIS3\profiles\default\python\plugins\geo_webview
 # macOS: ~/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/geo_webview
 # Linux: ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/geo_webview</code></pre>
 <p>または QGIS プラグインマネージャーからインストール可能です。</p>
-<h4 id="2-基本的な使い方サーバレス配信">2.
-基本的な使い方（サーバレス配信）</h4>
-<ol type="1">
+<h3 id="2-基本的な使い方サーバレス配信">2.
+基本的な使い方（サーバレス配信）</h3>
+<ol>
 <li>QGIS でプロジェクト（.qgs/.qgz）を開く</li>
 <li>メニューから「Web &gt; geo_webview」を選択してパネルを表示</li>
 <li><code>Engine:</code> でエンジンを選び <code>▶ Open</code> —
@@ -27,14 +60,25 @@
 <li>配布したい場合は <code>Export</code>
 で出力したフォルダをエンジン（<code>web/</code>）と一緒に静的ホストへアップ</li>
 </ol>
-<h3 id="サーバレス配信の流れ">サーバレス配信の流れ</h3>
-<h4 id="1-エクスポート起動">1. エクスポート／起動</h4>
+<figure class="shot">
+<img src="images/mainwindow.webp" loading="lazy"
+alt="QGIS 画面 — 左側にドッキングした geo_webview パネルと地図キャンバス">
+<figcaption>QGIS にドッキングした geo_webview
+パネル（左）と地図キャンバス</figcaption>
+</figure>
+<h2 id="サーバレス配信の流れ">サーバレス配信の流れ</h2>
+<h3 id="1-エクスポート起動">1. エクスポート／起動</h3>
 <p>パネル最上段の「Web Distribution」グループで操作します （3行構成:
 保存行（Export＋保存先＋📁）、CDN行（CDN選択＋ZIP）、
 起動行（Engine選択＋▶WebView＋▶Canvas））。 各ボタン・コンボの詳細は <a
-href="#主な機能エクスポートwebviewcanvaszip">主な機能</a>
+href="features.html">主な機能</a>
 章を参照してください。</p>
-<h4 id="2-出力物">2. 出力物</h4>
+<figure class="shot">
+<img src="images/panel.png" loading="lazy"
+alt="「Web配信」グループ — 保存行（エクスポート＋保存先）、CDN行（CDN選択＋ZIP）、起動行（エンジン選択＋▶WebView＋▶Canvas）の3行構成">
+<figcaption>「Web配信」グループの3行構成 — 保存行・CDN行・起動行</figcaption>
+</figure>
+<h3 id="2-出力物">2. 出力物</h3>
 <pre><code>&lt;out_dir&gt;/                   # KASUGAI 登録済みなら &lt;install&gt;/QGIS_projects/&lt;プロジェクト名&gt;/
 ├─ kasugai_canvas.kasc       # レイヤツリー・参照行・cam:/theme:/bookmark: 等
 ├─ index.html                # 起動ページへのリンク一覧＋ZIPダウンロードリンク
@@ -42,12 +86,12 @@ href="#主な機能エクスポートwebviewcanvaszip">主な機能</a>
 ├─ project.json              # {&quot;title&quot;: ...}
 ├─ bookmarks.xml             # QGIS ブックマーク（emit_bookmarks 時）
 └─ DATA/                     # GeoJSON(4326) / ネイティブ形式複製 / .qml / タイル等</code></pre>
-<p><code>.kasc</code> 行の生成規則の詳細は <code>SPEC_JP.md</code> §15
+<p><code>.kasc</code> 行の生成規則の詳細は <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/SPEC_JP.md"><code>SPEC_JP.md</code></a> §15
 を参照（GPKG/GeoJSON/ GeoParquet/FlatGeobuf はネイティブ参照、CSV/TSV は
 <code>duckdb:</code>、 フィルタ付きは <code>where=</code>、3D Tiles は
 <code>3dtiles:</code>、XYZ 最下段は <code>base:</code>、 WMS ラスタは
 <code>wms:</code> 行、その他ベクターは GeoJSON 化）。</p>
-<div class="pager"><a href="engines.html">← マルチエンジン</a><a class="next" href="technical.html">技術資料 →</a></div>
+<nav class="pager"><a href="engines.html">← マルチエンジン</a><a class="next" href="technical.html">技術資料 →</a></nav>
 </main>
 <script type="module" src="assets/site.js"></script>
 </body>
