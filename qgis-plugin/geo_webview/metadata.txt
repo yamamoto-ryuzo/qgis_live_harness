@@ -3,7 +3,7 @@ name = geo_webview
 qgisMinimumVersion = 4.0
 qgisMaximumVersion = 4.99
 description = Serverless web distribution of QGIS projects — export .kasc+DATA/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet); permalinks and an embedded HTTP server
-version = 4.0.0
+version = 4.0.2
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
 supportsQt6 = True
@@ -11,7 +11,7 @@ about = geo_webview は開いている QGIS プロジェクトを `.kasc`+`DATA/
 about[en] = geo_webview is a serverless web distribution plugin for QGIS: it exports the open project as a `.kasc`+`DATA/` package playable on the KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet), and the output runs on plain static hosting. Available from the panel (`Export` = files only, `▶ Open` = pick an engine, register and launch) as well as `/kasugai` and the `kasugaiExport` bridge. The embedded HTTP server additionally provides `/export-data/` delivery, `/present`/`/screenshot` canvas sharing and permalink reception. See README.md / README_JP.md for usage details and deployment scenarios.
 tracker = https://github.com/yamamoto-ryuzo/qgis_live_harness/issues
 repository = https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview
-homepage = https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview
+homepage = https://yamamoto-ryuzo.github.io/qgis_live_harness/geo_webview/
 tags = permalink,navigation,map,view,link,external,document,excel,pdf,theme,layer,state,style,openlayers,maplibre,webmap,server,http,remote,gis,openlayers-map,geo_suite,cesium,kasugai
 category = Plugins
 license = GPL-3.0
@@ -20,6 +20,8 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 4.0.2: エクスポート起動HTML(index/<engine>.html)と /present 共有ページをロケール対応(日本語/英語固定→translate_textでUI言語追従、9言語カタログへ geo_webview.page コンテキスト41キー追加)。不使用キー39件をカタログから除去
+	- 4.0.1: KASUGAI出力UIの未登録文字列(「▶ Canvas」「▶ WebView」・保存先選択・ZIPダウンロード・起動フォールバック等26キー)を i18n 9言語カタログへ追記
 	- 3.36.8: 連携構成図の「【▶ Canvas】」に Canvas のローカルポートを明示(HTTPサーバー :8510・AI ブリッジハブ :8511)
 	- 3.36.7: .kasc+DATA/ エクスポートで .qml 参照のシンボル画像を DATA/ へ複製し参照を書き換え(_export_qml_assets)。QGIS内蔵SVG/ローカル画像が Canvas 側で解決できず円マーカー/単色へフォールバックしていた問題を解消
 	- 3.36.6: パネルタイトルを「WebView」へ短縮(旧「geo_webview — Web Distribution」)。i18n 9言語カタログを同期

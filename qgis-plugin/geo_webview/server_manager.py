@@ -12,8 +12,49 @@ from collections import deque
 from datetime import datetime
 from qgis.PyQt.QtCore import QCoreApplication, QObject, QEvent
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY, QgsMessageLog, Qgis, QgsRectangle
-from .i18n_json import lang_code
+from .i18n_json import lang_code, translate_text
 # lazy import http_server inside methods to avoid circular import during QGIS plugin init
+
+_PAGE_CTX = 'geo_webview.page'
+_PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# /present 共有ページの表示文字列(英語ソース→カタログ翻訳)。
+# html 内の __T_*__ トークンを QGISのUI言語へ翻訳して差し込む
+# (未登録言語は英語のまま)。
+_PRESENT_STRINGS = {
+    '__T_HINT__':
+        'drag / wheel / pinch: pan &amp; zoom&ensp;&middot;&ensp;'
+        'Alt+Shift+drag / compass: rotate&ensp;&middot;&ensp;Esc / &#8962;: '
+        'reset',
+    '__T_NAV__':
+        'Navigation',
+    '__T_RESETNORTH__':
+        'Reset rotation to north',
+    '__T_ROTATEHINT__':
+        'Alt+Shift+drag to rotate',
+    '__T_RESETHOME__':
+        'Reset to shared view',
+    '__T_HOMEHINT__':
+        'Back to shared view',
+    '__T_INFO__':
+        'geo_webview presentation',
+    '__T_INDVIEW__':
+        ' - independent view',
+    '__T_CENTER__':
+        'center: ',
+    '__T_SCALE__':
+        '  scale: 1:',
+    '__T_ROT__':
+        '  rotation: ',
+}
+
+
+def _localize_page(html):
+    """生成HTML内の __T_*__ トークンを現在のUI言語で置換する。"""
+    for token, source in _PRESENT_STRINGS.items():
+        html = html.replace(
+            token, translate_text(_PLUGIN_DIR, _PAGE_CTX, source))
+    return html
 
 
 class _CursorLeaveFilter(QObject):
@@ -1112,12 +1153,12 @@ html,body{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family:
 </head>
 <body>
 <div id="map"></div>
-<div id="hint">drag / wheel / pinch: pan &amp; zoom&ensp;·&ensp;Alt+Shift+drag / compass: rotate&ensp;·&ensp;Esc / ⌂: reset</div>
-<aside class="navigation-toolbar" aria-label="Navigation">
-  <span class="nav-item"><button id="nav-compass" class="compass-button" type="button" title="Reset rotation to north"><span class="compass-needle"></span><strong>N</strong></button><span class="nav-hint" role="tooltip">Alt+Shift+drag to rotate</span></span>
-  <span class="nav-item"><button id="nav-home" type="button" title="Reset to shared view">⌂</button><span class="nav-hint" role="tooltip">Back to shared view</span></span>
+<div id="hint">__T_HINT__</div>
+<aside class="navigation-toolbar" aria-label="__T_NAV__">
+  <span class="nav-item"><button id="nav-compass" class="compass-button" type="button" title="__T_RESETNORTH__"><span class="compass-needle"></span><strong>N</strong></button><span class="nav-hint" role="tooltip">__T_ROTATEHINT__</span></span>
+  <span class="nav-item"><button id="nav-home" type="button" title="__T_RESETHOME__">⌂</button><span class="nav-hint" role="tooltip">__T_HOMEHINT__</span></span>
 </aside>
-<div id="info">geo_webview presentation</div>
+<div id="info">__T_INFO__</div>
 <script>
 (function(){
   var info = document.getElementById('info');
@@ -1173,7 +1214,7 @@ html,body{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family:
     var z = '';
     if(!home && homeRes > 0)
       z = '   [zoom x' + (homeRes / view.getResolution()).toFixed(1) +
-          ' - independent view]';
+          '__T_INDVIEW__]';
     info.textContent = stateText + z;
   }
   function setImage(d){
@@ -1261,9 +1302,9 @@ html,body{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family:
       var r = await fetch('present/state'); var s = await r.json();
       if(!s) return;
       stateText =
-        'center: ' + (s.lon!=null? s.lon.toFixed(6)+','+s.lat.toFixed(6) : s.x.toFixed(1)+','+s.y.toFixed(1)) +
-        '  scale: 1:' + Math.round(s.scale) +
-        '  rotation: ' + (s.rotation||0).toFixed(1) + '°  crs: ' + s.crs +
+        '__T_CENTER__' + (s.lon!=null? s.lon.toFixed(6)+','+s.lat.toFixed(6) : s.x.toFixed(1)+','+s.y.toFixed(1)) +
+        '__T_SCALE__' + Math.round(s.scale) +
+        '__T_ROT__' + (s.rotation||0).toFixed(1) + '°  crs: ' + s.crs +
         '  (' + s.time + ')';
       if(s.cursor && s.cursor.x != null)
         cursorFeature.setGeometry(
@@ -1296,9 +1337,9 @@ html,body{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family:
 </script>
 </body>
 </html>'''
-        html_page = (html_page
-                     .replace('__LANG__', lang)
-                     .replace('__INTERVAL__', str(interval)))
+        html_page = _localize_page(html_page
+                                   .replace('__LANG__', lang)
+                                   .replace('__INTERVAL__', str(interval)))
         http_server.send_http_response(
             conn, 200, 'OK', html_page, 'text/html; charset=utf-8')
 

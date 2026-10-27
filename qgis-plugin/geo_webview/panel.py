@@ -25,7 +25,7 @@ import os
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QDockWidget, QWidget
-from qgis.PyQt.QtCore import Qt, QSize, QCoreApplication, QEvent
+from qgis.PyQt.QtCore import Qt, QSize, QCoreApplication
 from qgis.PyQt.QtGui import QGuiApplication, QIcon
 
 # UIファイルのパスを指定
@@ -107,12 +107,6 @@ class GeoWebViewPanel(QDockWidget):
         self.pushButton_kasugai_zip = getattr(self.ui, 'pushButton_kasugai_zip', None)
         # ドキュメントサイト(GitHub Pages)を開くヘルプボタン
         self.pushButton_kasugai_help = getattr(self.ui, 'pushButton_kasugai_help', None)
-        # ヘルプボタンはレイアウト外の子widget → グループ枠上(右上)へ配置し
-        # リサイズで追従させる
-        self._kasugai_help_gb = getattr(self.ui, 'groupBox_webdist', None)
-        self._position_kasugai_help()
-        if self._kasugai_help_gb is not None:
-            self._kasugai_help_gb.installEventFilter(self)
         # 保存先表示(クリックでフォルダ選択)と既定リセット
         self.pushButton_kasugai_outdir = getattr(self.ui, 'pushButton_kasugai_outdir', None)
         self.pushButton_kasugai_outdir_reset = getattr(self.ui, 'pushButton_kasugai_outdir_reset', None)
@@ -410,24 +404,9 @@ class GeoWebViewPanel(QDockWidget):
                 "Export destination folder — click to choose a different folder")
             + "\n" + path)
 
-    def _position_kasugai_help(self):
-        """ヘルプボタンを Web 配信グループの枠上(右上)に配置する。"""
-        gb = getattr(self, '_kasugai_help_gb', None)
-        btn = getattr(self.ui, 'pushButton_kasugai_help', None)
-        if gb is not None and btn is not None:
-            btn.move(max(0, gb.width() - btn.width() - 8), 0)
-            btn.raise_()
-
-    def eventFilter(self, obj, event):
-        if obj is getattr(self, '_kasugai_help_gb', None) and \
-                event.type() == QEvent.Resize:
-            self._position_kasugai_help()
-        return super().eventFilter(obj, event)
-
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self._refresh_kasugai_outdir()
-        self._position_kasugai_help()
 
     def update_server_status(self, port, running, network_url=None):
         """サーバーステータスを更新

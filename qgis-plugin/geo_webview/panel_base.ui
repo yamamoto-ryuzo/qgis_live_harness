@@ -27,17 +27,59 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_webdist">
       <item>
-       <widget class="QLabel" name="label_webdist_info">
-        <property name="text">
-         <string>Export the project as a .kasc+DATA/ package. Engine launcher HTMLs and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery.</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color: #666;</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_webdist_info">
+        <item>
+         <widget class="QLabel" name="label_webdist_info">
+          <property name="text">
+           <string>Export the project as a .kasc+DATA/ package. Engine launcher HTMLs and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery.</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: #666;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_webdist_info">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_kasugai_help">
+          <property name="text">
+           <string notr="true">?</string>
+          </property>
+          <property name="toolTip">
+           <string>Open the geo_webview documentation site in the browser</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:1px solid #bbb; border-radius:9px; font-weight:bold; color:#2c5ea8; background:#f7f9fb;</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_kasugai_save">
@@ -243,25 +285,6 @@
        </layout>
       </item>
      </layout>
-     <widget class="QPushButton" name="pushButton_kasugai_help">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>20</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string notr="true">?</string>
-      </property>
-      <property name="toolTip">
-       <string>Open the geo_webview documentation site in the browser</string>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">border:1px solid #bbb; border-radius:9px; font-weight:bold; color:#2c5ea8; background:#f7f9fb;</string>
-      </property>
-     </widget>
     </widget>
    </item>
    <item>

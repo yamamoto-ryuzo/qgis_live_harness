@@ -11,6 +11,45 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [4.0.2] - 2026-10-27 生成HTMLのロケール対応とカタログ整理
+
+- エクスポート起動HTML(`index.html`・`<engine>.html`)を
+  日本語ベタ書き(`lang="ja"`固定)から英語ソース＋`__T_*__`
+  トークン方式へ改修。`kasugai_export._localize_page()` が
+  `i18n_json.translate_text()` で `geo_webview.page` コンテキストを
+  引き、QGISのUI言語に追従した起動HTMLを出力する
+  (未対応言語は従来通り英語)。JS内メッセージも同一仕組みで置換
+- `/present` 共有ページの表示文字列(操作ヒント・ナビボタン
+  title/tooltip・HUDラベル・独立ビュー表示)を同じ仕組みで
+  ローカライズ(`server_manager._localize_page()`)
+- `i18n/*.json` 9言語へ `geo_webview.page` コンテキスト41キーを追加
+- ソースから参照されなくなった旧文言のカタログキー39件を除去
+  (旧「▶ Open」・`+ kasugai_canvas.zip` 時代のツールチップ・
+  削除済み OGC/ビューア経路のメッセージ・旧インストール通知等)
+- なお `panel.py` のエンジンコンボ再構成(`addItem("Cesium (3D)")` 等)
+  と `ZIP`/`📁` ボタンラベルは tr() 未マークのまま(固有名詞のため
+  実害なし)
+
+## [4.0.1] - 2026-10-27 KASUGAI 出力 UI の未翻訳文字列を9言語カタログへ追記
+
+- `i18n_tool.py check` で検出されたカタログ未登録26キー
+  (実行時は全言語で英語フォールバックしていた)を
+  `i18n/*.json` 9言語全てへ追記:
+  - `geo_webview` コンテキスト 19件:
+    「▶ Canvas」「▶ WebView」ボタン、Export/ZIP/📁/↺/? の
+    ツールチップ、保存先選択ダイアログと成否メッセージ、
+    起動フォールバック通知(`Exported to {0}. {1}` /
+    `KASUGAI Canvas is not running…` / `Local delivery…` /
+    `Serverless delivery…` / `No engine available…`)等
+  - `QMapPermalinkPanelBase` コンテキスト 7件
+    (panel_base.ui 側の同一文字列)
+- 翻訳は ja/de/es/fr/it/pt/ru/zh/hi を作成。`{0}`/`{1}`/
+  `<channel>` 等のプレースホルダと製品名は保持
+- なお `kasugai_export.py` の起動HTMLテンプレート
+  (`_ENGINE_LAUNCHER_HTML`/`_LAUNCHER_INDEX_HTML`)は
+  `lang="ja"` 固定の日本語ベタ書きのまま残存(生成HTMLの
+  `translate_text` 化は別途対応が必要)
+
 ## [4.0.0] - 2026-10-27 マルチエンジンを主軸としたメジャー更新
 
 主な変更: **マルチエンジン**（Cesium / MapLibre / OpenLayers / Leaflet）
