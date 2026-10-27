@@ -457,7 +457,6 @@ _LAUNCHER_INDEX_HTML = '''<!DOCTYPE html>
 '''
 
 
-
 def normalize_engine(engine):
     """engine 名を正規化。無効値は None を返す。"""
     e = str(engine or '').strip().lower()

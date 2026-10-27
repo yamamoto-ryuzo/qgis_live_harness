@@ -243,7 +243,8 @@ class GeoWebViewPanel(QDockWidget):
         if hasattr(self.ui, 'label_hosted'):
             self.ui.label_hosted.setText(QCoreApplication.translate('geo_webview', "CDN:"))
         if hasattr(self.ui, 'comboBox_hosted'):
-            self.ui.comboBox_hosted.setToolTip(QCoreApplication.translate('geo_webview',
+            self.ui.comboBox_hosted.setToolTip(QCoreApplication.translate(
+                'geo_webview',
                 "Hosted engine channel used by ▶ WebView — 'stable'/'unstable' (kasugai-canvas-web stages) or a custom base URL ending with '/'"))
         if hasattr(self.ui, 'label_generate_info'):
             self.ui.label_generate_info.setText(QCoreApplication.translate('geo_webview', "Generate a permalink for the current map view"))
@@ -264,7 +265,8 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.pushButton_kasugai_launch.setText(QCoreApplication.translate('geo_webview', "▶ Canvas"))
         if hasattr(self.ui, 'pushButton_kasugai_launch_hosted'):
             self.ui.pushButton_kasugai_launch_hosted.setText(QCoreApplication.translate('geo_webview', "▶ WebView"))
-            self.ui.pushButton_kasugai_launch_hosted.setToolTip(QCoreApplication.translate('geo_webview',
+            self.ui.pushButton_kasugai_launch_hosted.setToolTip(QCoreApplication.translate(
+                'geo_webview',
                 "Open via serverless WEB delivery — hosted engine (GitHub Pages, channel = CDN combo) + this server's data delivery (no Canvas install needed; requires internet + HTTP server running)"))
         if hasattr(self.ui, 'comboBox_engine'):
             self.ui.comboBox_engine.setToolTip(QCoreApplication.translate(

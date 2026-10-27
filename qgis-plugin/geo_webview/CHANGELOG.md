@@ -11,6 +11,15 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [4.0.3] - 2026-10-27 配布前チェックの lint findings 0 化
+
+- flake8(プラグイン同梱 `.flake8` 設定)で残っていた 4 findings を解消:
+  - `plugin.py` の未使用 import `from qgis.core import Qgis` を除去(F401)
+  - `panel.py` のツールチップ翻訳呼出し2件の継続行インデントを修正(E128)
+  - `kasugai_export.py` の過剰な空行を整理(E303)
+- 機能変更なし(配布 ZIP 作成前の plugins.qgis.org スキャン相当
+  チェック通過のための整理)
+
 ## [4.0.2] - 2026-10-27 生成HTMLのロケール対応とカタログ整理
 
 - エクスポート起動HTML(`index.html`・`<engine>.html`)を

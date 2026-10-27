@@ -1551,7 +1551,6 @@ class GeoWebView:
         (関連付けなし)。ダウンロードとインストーラ待機は QgsTask で
         GUI をブロックしない。
         """
-        from qgis.core import Qgis
         box = QMessageBox(
             self.panel if self.panel is not None
             else self.iface.mainWindow())
