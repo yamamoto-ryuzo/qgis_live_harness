@@ -25,7 +25,7 @@ import os
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QDockWidget, QWidget
-from qgis.PyQt.QtCore import Qt, QSize, QCoreApplication
+from qgis.PyQt.QtCore import Qt, QSize, QCoreApplication, QEvent
 from qgis.PyQt.QtGui import QGuiApplication, QIcon
 
 # UIファイルのパスを指定
@@ -103,6 +103,16 @@ class GeoWebViewPanel(QDockWidget):
         self.pushButton_kasugai_launch = getattr(self.ui, 'pushButton_kasugai_launch', None)
         self.pushButton_kasugai_launch_hosted = getattr(self.ui, 'pushButton_kasugai_launch_hosted', None)
         self.pushButton_kasugai_folder = getattr(self.ui, 'pushButton_kasugai_folder', None)
+        # エクスポート物のZIPダウンロード(ブラウザ経由・要HTTPサーバー)
+        self.pushButton_kasugai_zip = getattr(self.ui, 'pushButton_kasugai_zip', None)
+        # ドキュメントサイト(GitHub Pages)を開くヘルプボタン
+        self.pushButton_kasugai_help = getattr(self.ui, 'pushButton_kasugai_help', None)
+        # ヘルプボタンはレイアウト外の子widget → グループ枠上(右上)へ配置し
+        # リサイズで追従させる
+        self._kasugai_help_gb = getattr(self.ui, 'groupBox_webdist', None)
+        self._position_kasugai_help()
+        if self._kasugai_help_gb is not None:
+            self._kasugai_help_gb.installEventFilter(self)
         # 保存先表示(クリックでフォルダ選択)と既定リセット
         self.pushButton_kasugai_outdir = getattr(self.ui, 'pushButton_kasugai_outdir', None)
         self.pushButton_kasugai_outdir_reset = getattr(self.ui, 'pushButton_kasugai_outdir_reset', None)
@@ -233,7 +243,7 @@ class GeoWebViewPanel(QDockWidget):
 
         # ラベル
         if hasattr(self.ui, 'label_webdist_info'):
-            self.ui.label_webdist_info.setText(QCoreApplication.translate('geo_webview', "Export the project as a .kasc+DATA/ package. Engine launcher HTMLs and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery."))
+            self.ui.label_webdist_info.setText(QCoreApplication.translate('geo_webview', "Export the project as a .kasc+DATA/ package with engine launcher HTMLs. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery. The ZIP button downloads kasugai_canvas_<channel>.zip in the browser (static-host deployment / Re:Earth geo_suite 'qgis:' import)."))
         if hasattr(self.ui, 'label_engine'):
             self.ui.label_engine.setText(QCoreApplication.translate('geo_webview', "Engine:"))
         if hasattr(self.ui, 'label_hosted'):
@@ -255,7 +265,7 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.pushButton_kasugai_export.setText(QCoreApplication.translate('geo_webview', "Export"))
             self.ui.pushButton_kasugai_export.setToolTip(QCoreApplication.translate(
                 'geo_webview',
-                "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs + kasugai_canvas.zip) — files only"))
+                "Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs) — files only"))
         if hasattr(self.ui, 'pushButton_kasugai_launch'):
             self.ui.pushButton_kasugai_launch.setText(QCoreApplication.translate('geo_webview', "▶ Canvas"))
         if hasattr(self.ui, 'pushButton_kasugai_launch_hosted'):
@@ -287,12 +297,23 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.pushButton_kasugai_folder.setToolTip(
                 QCoreApplication.translate(
                     'geo_webview',
-                    "Open the export folder (.kasc / DATA/ / engine launchers / kasugai_canvas.zip)"))
+                    "Open the export folder (.kasc / DATA/ / engine launchers)"))
         if hasattr(self.ui, 'pushButton_kasugai_outdir_reset'):
             self.ui.pushButton_kasugai_outdir_reset.setToolTip(
                 QCoreApplication.translate(
                     'geo_webview',
                     "Reset to the default destination (KASUGAI Canvas install or Documents)"))
+        if hasattr(self.ui, 'pushButton_kasugai_zip'):
+            self.ui.pushButton_kasugai_zip.setText('ZIP')
+            self.ui.pushButton_kasugai_zip.setToolTip(
+                QCoreApplication.translate(
+                    'geo_webview',
+                    "Download the export package as kasugai_canvas_<channel>.zip in the browser — generated on demand at download time (requires the HTTP server running). The filename follows the CDN combo channel. For static-host deployment and Re:Earth geo_suite 'qgis:' import"))
+        if hasattr(self.ui, 'pushButton_kasugai_help'):
+            self.ui.pushButton_kasugai_help.setToolTip(
+                QCoreApplication.translate(
+                    'geo_webview',
+                    "Open the geo_webview documentation site in the browser"))
 
         # ボタン
         if hasattr(self.ui, 'pushButton_generate'):
@@ -389,9 +410,24 @@ class GeoWebViewPanel(QDockWidget):
                 "Export destination folder — click to choose a different folder")
             + "\n" + path)
 
+    def _position_kasugai_help(self):
+        """ヘルプボタンを Web 配信グループの枠上(右上)に配置する。"""
+        gb = getattr(self, '_kasugai_help_gb', None)
+        btn = getattr(self.ui, 'pushButton_kasugai_help', None)
+        if gb is not None and btn is not None:
+            btn.move(max(0, gb.width() - btn.width() - 8), 0)
+            btn.raise_()
+
+    def eventFilter(self, obj, event):
+        if obj is getattr(self, '_kasugai_help_gb', None) and \
+                event.type() == QEvent.Resize:
+            self._position_kasugai_help()
+        return super().eventFilter(obj, event)
+
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self._refresh_kasugai_outdir()
+        self._position_kasugai_help()
 
     def update_server_status(self, port, running, network_url=None):
         """サーバーステータスを更新

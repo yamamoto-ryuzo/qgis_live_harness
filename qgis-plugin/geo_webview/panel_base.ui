@@ -47,7 +47,7 @@
            <string>Export</string>
           </property>
           <property name="toolTip">
-           <string>Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs + kasugai_canvas.zip) — files only</string>
+           <string>Export visible layers as a KASUGAI Canvas project (.kasc + DATA/ + engine launcher HTMLs) — files only</string>
           </property>
           <property name="minimumSize">
            <size>
@@ -107,7 +107,7 @@
            <string>📁</string>
           </property>
           <property name="toolTip">
-           <string>Open the export folder (.kasc / DATA/ / engine launchers / kasugai_canvas.zip)</string>
+           <string>Open the export folder (.kasc / DATA/ / engine launchers)</string>
           </property>
           <property name="minimumSize">
            <size>
@@ -118,6 +118,53 @@
           <property name="maximumSize">
            <size>
             <width>32</width>
+            <height>25</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_kasugai_hosted">
+        <item>
+         <widget class="QLabel" name="label_hosted">
+          <property name="text">
+           <string>CDN:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox_hosted">
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+          <property name="toolTip">
+           <string>Hosted engine channel used by ▶ WebView — 'stable'/'unstable' (kasugai-canvas-web stages) or a custom base URL ending with '/'</string>
+          </property>
+          <item>
+           <property name="text">
+            <string notr="true">stable</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">unstable</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_kasugai_zip">
+          <property name="text">
+           <string>ZIP</string>
+          </property>
+          <property name="toolTip">
+           <string>Download the export package as kasugai_canvas_&lt;channel&gt;.zip in the browser — generated on demand at download time (requires the HTTP server running). The filename follows the CDN combo channel. For static-host deployment and Re:Earth geo_suite 'qgis:' import</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
             <height>25</height>
            </size>
           </property>
@@ -162,6 +209,22 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="pushButton_kasugai_launch_hosted">
+          <property name="text">
+           <string>&#9654; WebView</string>
+          </property>
+          <property name="toolTip">
+           <string>Open via serverless WEB delivery — hosted engine (GitHub Pages, channel = CDN combo) + this server's data delivery (no Canvas install needed; requires internet + HTTP server running)</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>25</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="pushButton_kasugai_launch">
           <property name="text">
            <string>&#9654; Canvas</string>
@@ -179,54 +242,26 @@
         </item>
        </layout>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_kasugai_hosted">
-        <item>
-         <widget class="QLabel" name="label_hosted">
-          <property name="text">
-           <string>CDN:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="comboBox_hosted">
-          <property name="editable">
-           <bool>true</bool>
-          </property>
-          <property name="toolTip">
-           <string>Hosted engine channel used by ▶ WebView — 'stable'/'unstable' (kasugai-canvas-web stages) or a custom base URL ending with '/'</string>
-          </property>
-          <item>
-           <property name="text">
-            <string notr="true">stable</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">unstable</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_kasugai_launch_hosted">
-          <property name="text">
-           <string>&#9654; WebView</string>
-          </property>
-          <property name="toolTip">
-           <string>Open via serverless WEB delivery — hosted engine (GitHub Pages, channel = CDN combo) + this server's data delivery (no Canvas install needed; requires internet + HTTP server running)</string>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>25</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
+     <widget class="QPushButton" name="pushButton_kasugai_help">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>20</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string notr="true">?</string>
+      </property>
+      <property name="toolTip">
+       <string>Open the geo_webview documentation site in the browser</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">border:1px solid #bbb; border-radius:9px; font-weight:bold; color:#2c5ea8; background:#f7f9fb;</string>
+      </property>
+     </widget>
     </widget>
    </item>
    <item>

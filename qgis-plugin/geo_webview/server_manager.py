@@ -1326,6 +1326,7 @@ html,body{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family:
         '.gif': 'image/gif',
         '.webp': 'image/webp',
         '.ico': 'image/x-icon',
+        '.zip': 'application/zip',
         '.wasm': 'application/wasm',
         '.map': 'application/json; charset=utf-8',
         '.woff': 'font/woff',
@@ -1359,6 +1360,23 @@ html,body{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family:
         rel_path = urllib.parse.unquote(rel or '').replace('\\', '/')
         target = os.path.abspath(os.path.join(root, rel_path))
         if not target.startswith(root + os.sep) or not os.path.isfile(target):
+            # kasugai_canvas*.zip はファイル未生成でもその場で固めて返す
+            # (エクスポート時のZIP生成は廃止し、ダウンロード要求時に生成。
+            # ファイル名は要求名をそのまま返す=CDNチャンネル反映名に対応)
+            if '/' not in rel_path.lstrip('/') \
+                    and kasugai_export._is_export_zip_name(rel_path) \
+                    and os.path.isdir(root):
+                data = kasugai_export.build_export_zip(root)
+                fname = os.path.basename(rel_path)
+                if head_only:
+                    http_server.send_head_response(
+                        conn, 200, 'OK', len(data), 'application/zip')
+                    return
+                http_server.send_binary_response(
+                    conn, 200, 'OK', data, 'application/zip',
+                    ['Content-Disposition: attachment; '
+                     'filename="{0}"'.format(fname)])
+                return
             http_server.send_http_response(
                 conn, 404, 'Not Found', 'not found',
                 'text/plain; charset=utf-8')

@@ -33,7 +33,10 @@ PLUGINS_ROOT = REPO_ROOT / "qgis-plugin"
 DEFAULT_OUTDIR = REPO_ROOT / "dist"
 
 # gitフォールバック時の除外パターン(ディレクトリ名/拡張子)
-EXCLUDE_DIRS = {"__pycache__", ".git", ".pytest_cache", "node_modules"}
+# "docs/" はドキュメントサイト(HTML)でありプラグイン配布物ではないため
+# ZIPから除外する
+EXCLUDE_DIRS = {"__pycache__", ".git", ".pytest_cache", "node_modules",
+                "docs"}
 EXCLUDE_SUFFIXES = {".pyc", ".pyo"}
 
 # plugins.qgis.org のスキャナが検出する開発者同梱設定ファイル。
@@ -69,7 +72,12 @@ def tracked_files(plugin_id: str) -> list[Path]:
             cwd=REPO_ROOT, capture_output=True, check=True,
         ).stdout
         files = [Path(p.decode("utf-8")) for p in out.split(b"\0") if p]
-        files = [p for p in files if p.name not in EXCLUDE_SCANNER_CONFIGS]
+        files = [
+            p for p in files
+            if p.name not in EXCLUDE_SCANNER_CONFIGS
+            and not any(part in EXCLUDE_DIRS for part in p.parts)
+            and p.suffix.lower() not in EXCLUDE_SUFFIXES
+        ]
         if files:
             return files
     except Exception:

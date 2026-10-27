@@ -262,6 +262,15 @@ _LAUNCHER_INDEX_HTML = '''<!DOCTYPE html>
     （各HTML内の <code>CANVAS_BASE</code> でエンジン位置を指定可）</p>
 </section>
 
+<section>
+  <h2>パッケージ ZIP</h2>
+  <p class="note">エクスポート一式（<code>.kasc</code>+<code>DATA/</code>+起動HTML）の ZIP です。
+  静的ホストへの配置や Re:Earth geo_suite の <code>qgis:</code> 取り込みに使えます。<br />
+  プラグインの HTTP サーバー経由で開いている場合、クリック時にその場で生成してダウンロードします。
+  <span id="zip-note"></span></p>
+  <p><a href="__ZIP_NAME__" download>__ZIP_NAME__ をダウンロード</a></p>
+</section>
+
 <script>
 (function () {
   "use strict";
@@ -271,6 +280,10 @@ _LAUNCHER_INDEX_HTML = '''<!DOCTYPE html>
   var LABELS = { cesium: "Cesium（3D・既定）", maplibre: "MapLibre GL", openlayers: "OpenLayers", leaflet: "Leaflet" };
   var kascUrl = new URL(KASC, location.href).href;
   var isHttp = /^https?:$/.test(location.protocol);
+  if (!isHttp) {
+    document.getElementById("zip-note").textContent =
+      "（file:// で開いているため ZIP ダウンロードは無効です — HTTP サーバー経由で開いてください）";
+  }
   function links(el, make) {
     var ul = document.getElementById(el);
     ul.innerHTML = "";
@@ -572,6 +585,31 @@ def get_hosted_channel():
     """
     v = (_qsettings().value(SETTINGS_KEY_HOSTED_CHANNEL, '') or '')
     return str(v).strip() or 'stable'
+
+
+def export_zip_name(channel=None):
+    """エクスポートZIPのファイル名を返す。
+
+    CDNチャンネル(stable/unstable/カスタムURL)を
+    ``kasugai_canvas_<tag>.zip`` として反映する。
+    カスタムURLは末尾パス要素をタグ化する。
+    """
+    ch = str(channel if channel is not None
+             else get_hosted_channel()).strip()
+    if ch.lower() in HOSTED_CHANNELS:
+        tag = ch.lower()
+    elif ch.lower().startswith(('http://', 'https://')):
+        seg = urllib.parse.urlparse(ch).path.rstrip('/').rsplit('/', 1)[-1]
+        tag = re.sub(r'[^A-Za-z0-9_.-]+', '_', seg) or 'custom'
+    else:
+        tag = 'custom'
+    return 'kasugai_canvas_{0}.zip'.format(tag)
+
+
+def _is_export_zip_name(name):
+    """kasugai_canvas.zip / kasugai_canvas_<tag>.zip 形式なら True。"""
+    return bool(re.match(r'kasugai_canvas(_[A-Za-z0-9_.-]+)?\.zip$',
+                         os.path.basename(name or ''), re.IGNORECASE))
 
 
 def hosted_engine_base(channel=None):
@@ -1496,6 +1534,7 @@ def _write_engine_launchers(out_dir, kasc_name):
             編集して使う
         index.html — 3系統の表示経路案内ページ(①KASUGAI Canvas登録
             ②ローカルHTTP配信で即表示 ③サーバレスWEB配信/パッケージ配置)
+            ＋ kasugai_canvas_<ch>.zip ダウンロードリンク
 
     出力フォルダとエンジンを同じ静的 Web サーバーへアップするだけで
     動く、サーバレス配布のための部品。
@@ -1514,6 +1553,7 @@ def _write_engine_launchers(out_dir, kasc_name):
     with open(idx_path, 'w', encoding='utf-8') as f:
         f.write(_LAUNCHER_INDEX_HTML
                 .replace('__KASC__', kasc_name)
+                .replace('__ZIP_NAME__', export_zip_name())
                 .replace('__HOSTED_BASE__', hosted_engine_base()))
     written.append(idx_path)
     return written
@@ -1566,10 +1606,12 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             自動探索する。出力フォルダとエンジンを同じ静的サーバーへ
             アップするだけで動くサーバレス配布の部品。
         emit_zip: True なら出力一式(.kasc+DATA/+bookmarks.xml等)を
-            ``kasugai_canvas.zip`` として同じ場所に固める(既定 False)。
+            ``kasugai_canvas_<tag>.zip``(export_zip_name、CDNチャンネル反映)
+            として同じ場所に固める(既定 False)。
             Re:Earth geo_suite の ``qgis: <zip URL>`` インスペクタ行が
             このZIPを直接取り込める(CMS等へアップするだけで再現可能)。
-            ``/export-data/kasugai_canvas.zip`` からも取得できる。
+            ``/export-data/kasugai_canvas*.zip`` からも取得できる
+            (未生成時はその場で固めて返す)。
 
     戻り値: {"dir","kasc","data_dir","layers":[{name,file,features}],
              "tiles":[...],"skipped":[...],"errors":[...],"warnings":[...],
@@ -1582,6 +1624,14 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     os.makedirs(data_dir, exist_ok=True)
     global _last_export_dir
     _last_export_dir = out_dir
+    # 旧世代の kasugai_canvas*.zip が残っていると /export-data/ で
+    # 陳腐化したZIPが配信されるため除去する(emit_zip 時は後段で再生成)
+    try:
+        for name in os.listdir(out_dir):
+            if _is_export_zip_name(name):
+                os.remove(os.path.join(out_dir, name))
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
 
     project = QgsProject.instance()
     project_title = os.path.splitext(
@@ -1950,24 +2000,52 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     }
 
 
-def _write_export_zip(out_dir):
-    """出力フォルダ一式を kasugai_canvas.zip として固める。
+def _iter_export_files(root):
+    """out_dir 配下の ZIP 格納対象を (実パス, zip内相対パス) で列挙する。
 
+    ルートの kasugai_canvas*.zip 自身は除外する。
+    """
+    for r, _dirs, names in os.walk(root):
+        for name in names:
+            if os.path.abspath(r) == os.path.abspath(root) \
+                    and _is_export_zip_name(name):
+                continue
+            full = os.path.join(r, name)
+            arc = os.path.relpath(full, root).replace(os.sep, '/')
+            yield full, arc
+
+
+def _write_export_zip(out_dir):
+    """出力フォルダ一式を kasugai_canvas_<tag>.zip として固める。
+
+    ファイル名は CDN チャンネルを反映(export_zip_name)。
     展開時にルートへ .kasc+DATA/ が並ぶよう out_dir 相対パスで格納する
     (zip 自身は除外)。Re:Earth geo_suite の ``qgis:`` 取り込みは
     ZIP 内の .kasc を最短パス優先で検出するため、この配置で正しく解決する。
     """
     import zipfile
-    zip_path = os.path.join(out_dir, 'kasugai_canvas.zip')
+    zip_path = os.path.join(out_dir, export_zip_name())
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
-        for root, _dirs, names in os.walk(out_dir):
-            for name in names:
-                full = os.path.join(root, name)
-                if os.path.abspath(full) == os.path.abspath(zip_path):
-                    continue
-                arc = os.path.relpath(full, out_dir).replace(os.sep, '/')
-                zf.write(full, arc)
+        for full, arc in _iter_export_files(out_dir):
+            zf.write(full, arc)
     return zip_path
+
+
+def build_export_zip(out_dir=None):
+    """エクスポート物一式を kasugai_canvas_<tag>.zip 相当の bytes で返す。
+
+    /export-data/kasugai_canvas*.zip のオンデマンド生成用。
+    ファイルは残さずメモリ上で固めて返すだけなので、内容は常に
+    直近エクスポートの最新状態になる。
+    """
+    import io
+    import zipfile
+    root = os.path.abspath(out_dir or last_export_dir())
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for full, arc in _iter_export_files(root):
+            zf.write(full, arc)
+    return buf.getvalue()
 
 
 def _http_json(url, payload=None, timeout=2.0, method=None):

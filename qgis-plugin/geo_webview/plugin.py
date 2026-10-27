@@ -339,6 +339,20 @@ class GeoWebView:
                     _folder_btn.clicked.connect(
                         lambda checked=False: self.on_kasugai_open_folder())
 
+                # エクスポート物をZIPダウンロードするボタン(ブラウザ経由)
+                _zip_btn = getattr(
+                    self.panel, 'pushButton_kasugai_zip', None)
+                if _zip_btn is not None:
+                    _zip_btn.clicked.connect(
+                        lambda checked=False: self.on_kasugai_zip_clicked())
+
+                # ドキュメントサイト(GitHub Pages)を開くヘルプボタン
+                _help_btn = getattr(
+                    self.panel, 'pushButton_kasugai_help', None)
+                if _help_btn is not None:
+                    _help_btn.clicked.connect(
+                        lambda checked=False: self.on_kasugai_help_clicked())
+
                 # 保存先表示ボタン: クリックでフォルダ選択して出力先変更、
                 # ↺で既定(Canvasインストール先/<ドキュメント>)に戻す
                 _outdir_btn = getattr(
@@ -1362,8 +1376,7 @@ class GeoWebView:
             from . import kasugai_export
             result = kasugai_export.export_kasugai_project(
                 self.iface,
-                out_dir=kasugai_export.preferred_output_dir(),
-                emit_zip=True)
+                out_dir=kasugai_export.preferred_output_dir())
             n_layers = len(result.get('layers') or [])
             n_tiles = len(result.get('tiles') or [])
             if not n_layers and not n_tiles:
@@ -1372,19 +1385,48 @@ class GeoWebView:
                     self.tr("No visible vector/tile layers to export."),
                     duration=5)
                 return
-            zip_note = (' ZIP: ' + result['zip']) if result.get('zip') else ''
             self.iface.messageBar().pushMessage(
                 "geo_webview",
                 self.tr("Exported KASUGAI project to {0} "
                         "({1} layers, {2} tiles). "
-                        "Open the .kasc file in KASUGAI Canvas.{3}").format(
-                    result['dir'], n_layers, n_tiles, zip_note),
+                        "Open the .kasc file in KASUGAI Canvas.").format(
+                    result['dir'], n_layers, n_tiles),
                 duration=8)
         except Exception as e:
             self.iface.messageBar().pushMessage(
                 "geo_webview",
                 self.tr("KASUGAI export error: {0}").format(e),
                 duration=5)
+
+    def on_kasugai_zip_clicked(self):
+        """エクスポート物一式を kasugai_canvas.zip としてブラウザで
+        ダウンロードする。/export-data/kasugai_canvas.zip はZIP未生成でも
+        その場で固めて返すため、常に直近エクスポートの最新内容になる。"""
+        try:
+            if not self.server_manager.is_server_running():
+                self.iface.messageBar().pushMessage(
+                    "geo_webview",
+                    self.tr("The HTTP server is not running. Please start the server."),
+                    duration=5)
+                return
+            from . import kasugai_export
+            port = self.server_manager.get_server_port() or 8089
+            zip_name = kasugai_export.export_zip_name()
+            QDesktopServices.openUrl(QUrl(
+                'http://localhost:{0}/export-data/{1}'.format(
+                    port, zip_name)))
+        except Exception as e:
+            self.iface.messageBar().pushMessage(
+                "geo_webview",
+                self.tr("ZIP download error: {0}").format(e), duration=5)
+
+    # geo_webview ドキュメントサイト(GitHub Pages。docs/geo_webview/ を公開)
+    DOCS_URL = ('https://yamamoto-ryuzo.github.io/'
+                'qgis_live_harness/geo_webview/')
+
+    def on_kasugai_help_clicked(self):
+        """ドキュメントサイト(GitHub Pages)をブラウザで開く。"""
+        QDesktopServices.openUrl(QUrl(self.DOCS_URL))
 
     def on_engine_combo_changed(self, index):
         """Web配信パネルのエンジン選択を QSettings に保存する。"""

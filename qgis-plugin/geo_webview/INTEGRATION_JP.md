@@ -11,7 +11,7 @@ flowchart TB
     QGIS["QGIS プロジェクト<br>レイヤ・スタイル・視点"]
 
     subgraph GWBOX["geo_webview（QGIS プラグイン）"]
-        GW["エクスポート<br>.kasc+DATA/・起動HTML・kasugai_canvas.zip"]
+        GW["エクスポート<br>.kasc+DATA/・起動HTML<br>＋ ZIPダウンロード"]
         SRV["内蔵 HTTP サーバー（既定 :8089）<br>/kasugai 起動API・/export-data/ 配信<br>/&lt;engine&gt;/ エンジン静的フォールバック"]
     end
 
@@ -25,7 +25,7 @@ flowchart TB
     end
 
     subgraph G2["② その他クライアント・外部サービス"]
-        RE["Re:Earth Visualizer geo_suite（サブ）<br>kasugai_canvas.zip・/export-data/・.qml"]
+        RE["Re:Earth Visualizer geo_suite（サブ）<br>kasugai_canvas_*.zip・/export-data/・.qml"]
         AG["ArcGIS 系<br>エクスポート物を独自に読込<br>（.qml スタイル再現・レイヤ表示も実装要件）<br>→ 外部静的ホストで配信"]
     end
 
@@ -33,16 +33,16 @@ flowchart TB
     GW --> SRV
     SRV -->|"/kasugai → Canvas API（登録・切替）"| KC
     SRV -->|"エンジン配信 + /export-data/"| BR
-    GW -.->|"パッケージ一式を配置"| HOST
+    GW -.->|"ZIPでダウンロードして配置"| HOST
     GW --> G2
 ```
 
 <a id="reearth"></a>
 ## Re:Earth Visualizer（geo_suite）への対応方針
 
-**まとめ**: Re:Earth Visualizer 側の対応は**別途開発のプラグイン（geo_suite）で対応**とする。geo_webview は供給側として `kasugai_canvas.zip`（エクスポート一式。`qgis:` インスペクタ行が ZIP の URL で直接取り込む）と `/export-data/` 経由のファイル・`.qml` スタイルを出力し、取込は geo_suite 側が担う（3D 表現は Cesium ベースの KASUGAI Canvas が主）。
+**まとめ**: Re:Earth Visualizer 側の対応は**別途開発のプラグイン（geo_suite）で対応**とする。geo_webview は供給側として `kasugai_canvas_*.zip`（パネルの ZIP ボタンや `index.html` からダウンロードするエクスポート一式。`qgis:` インスペクタ行が ZIP の URL で直接取り込む）と `/export-data/` 経由のファイル・`.qml` スタイルを出力し、取込は geo_suite 側が担う（3D 表現は Cesium ベースの KASUGAI Canvas が主）。
 
-実装側（geo_suite）: [ReEarth_GeoSuite リポジトリ](https://github.com/yamamoto-ryuzo/ReEarth_GeoSuite)。`kasugai_canvas.zip` の出力仕様は [SPEC_JP.md](SPEC_JP.md) を参照。
+実装側（geo_suite）: [ReEarth_GeoSuite リポジトリ](https://github.com/yamamoto-ryuzo/ReEarth_GeoSuite)。`kasugai_canvas_*.zip` の出力仕様は [SPEC_JP.md](SPEC_JP.md) を参照。
 
 <a id="arcgis"></a>
 ## ArcGIS 系への対応方針

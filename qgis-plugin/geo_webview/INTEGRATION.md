@@ -13,7 +13,7 @@ flowchart TB
     QGIS["QGIS project<br>layers / styles / view state"]
 
     subgraph GWBOX["geo_webview (QGIS plugin)"]
-        GW["Export<br>.kasc+DATA/ - launcher HTML - kasugai_canvas.zip"]
+        GW["Export<br>.kasc+DATA/ - launcher HTML<br>+ ZIP download"]
         SRV["Embedded HTTP server (default :8089)<br>/kasugai launch API - /export-data/ data<br>/&lt;engine&gt;/ engine static fallback"]
     end
 
@@ -27,7 +27,7 @@ flowchart TB
     end
 
     subgraph G2["② Other clients & external services"]
-        RE["Re:Earth Visualizer geo_suite (secondary)<br>kasugai_canvas.zip - /export-data/ - .qml"]
+        RE["Re:Earth Visualizer geo_suite (secondary)<br>kasugai_canvas_*.zip - /export-data/ - .qml"]
         AG["ArcGIS family<br>reads export artifacts on its own<br>(.qml style reproduction + layer display are requirements)<br>→ delivered on external static hosting"]
     end
 
@@ -35,7 +35,7 @@ flowchart TB
     GW --> SRV
     SRV -->|"/kasugai → Canvas API (register - switch)"| KC
     SRV -->|"engine pages + /export-data/"| BR
-    GW -.->|"deploy package"| HOST
+    GW -.->|"download ZIP and deploy"| HOST
     GW --> G2
 ```
 
@@ -44,7 +44,8 @@ flowchart TB
 
 **Summary**: Re:Earth Visualizer support is **handled by a separately
 developed plugin (geo_suite)**. geo_webview acts only as the supplier —
-outputting the `kasugai_canvas.zip` export bundle (ingested via
+outputting the `kasugai_canvas_*.zip` export bundle — downloaded on demand
+via the panel ZIP button or `index.html` (ingested via
 geo_suite's `qgis:` inspector line with the ZIP URL) and serving
 files / `.qml` styles over `/export-data/` — while ingestion runs
 client-side (in geo_suite). 3D work is
@@ -52,7 +53,7 @@ consolidated in the Cesium-based KASUGAI Canvas (primary).
 
 Client side (geo_suite): [ReEarth_GeoSuite
 repository](https://github.com/yamamoto-ryuzo/ReEarth_GeoSuite). For the
-`kasugai_canvas.zip` output spec see [SPEC.md](SPEC.md).
+`kasugai_canvas_*.zip` output spec see [SPEC.md](SPEC.md).
 
 <a id="arcgis"></a>
 ## ArcGIS policy

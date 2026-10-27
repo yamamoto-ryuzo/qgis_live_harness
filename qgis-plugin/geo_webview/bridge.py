@@ -206,7 +206,7 @@ class GeoWebViewBridge:
                 "含む)も出力し、フォルダ+エンジンを静的サーバーへ上げる"
                 "だけで ?kasc= 経由のサーバレス配信になる"
                 "(emit_launchers=Falseで抑制)。"
-                "emit_zip=True で出力一式を kasugai_canvas.zip に固める"
+                "emit_zip=True で出力一式を kasugai_canvas_<tag>.zip に固める"
                 "(Re:Earth geo_suite の 'qgis:' インスペクタ行が直接取込可)。"
                 "use_existing=True で再エクスポートせず既存の .kasc のみ"
                 "使用(未出力なら code=not_exported)。",
@@ -905,9 +905,10 @@ class GeoWebViewBridge:
         (cesium/maplibre/openlayers/leaflet)と index.html のエンジン
         起動ページを出力する。出力フォルダとエンジン(web/ の中身)を
         同じ静的サーバーへアップすれば ?kasc= 経由でサーバレス動作する。
-        emit_zip=True で出力一式(.kasc+DATA/等)を kasugai_canvas.zip に
-        固める。Re:Earth geo_suite の qgis: インスペクタ行がこのZIPを
-        直接取り込める(/export-data/kasugai_canvas.zip でも取得可)。
+        emit_zip=True で出力一式(.kasc+DATA/等)を kasugai_canvas_<tag>.zip に
+        固める(<tag>はCDNチャンネル反映、export_zip_name)。
+        Re:Earth geo_suite の qgis: インスペクタ行がこのZIPを
+        直接取り込める(/export-data/kasugai_canvas*.zip でも取得可)。
         出力先は output_dir または設定 kasugai_output_path
         (既定: <ドキュメント>/kasugai_canvas_qgis)。
         use_existing=True で再エクスポートせず出力先の既存 .kasc のみを
