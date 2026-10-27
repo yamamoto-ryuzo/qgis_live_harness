@@ -20,3 +20,14 @@ KASUGAI Canvas のマルチエンジン（Cesium / MapLibre / OpenLayers / Leafl
 3. 【▶Canvas】/【▶WebView】で即表示、【ZIP】で `kasugai_canvas_<ch>.zip` をダウンロードして静的ホストや CMS へ配置
 
 ライセンス: GPL-3.0（[LICENSE](LICENSE) 参照）
+
+## 免責事項
+
+本システムは個人のPCで作成・テストされたものです。  
+ご利用によるいかなる損害も責任を負いません。
+
+<p align="center">
+  <a href="https://giphy.com/explore/free-gif" target="_blank">
+    <img src="https://github.com/yamamoto-ryuzo/QGIS_portable_3x/raw/master/imgs/giphy.gif" width="500" title="avvio QGIS">
+  </a>
+</p>

@@ -20,3 +20,14 @@ The output runs on plain static hosting.
 3. 【▶Canvas】/【▶WebView】for instant preview, 【ZIP】to download `kasugai_canvas_<ch>.zip` for a static host or a CMS
 
 License: GPL-3.0 (see [LICENSE](LICENSE))
+
+## Disclaimer
+
+This system was created and tested on a personal computer.  
+We accept no liability for any damage arising from its use.
+
+<p align="center">
+  <a href="https://giphy.com/explore/free-gif" target="_blank">
+    <img src="https://github.com/yamamoto-ryuzo/QGIS_portable_3x/raw/master/imgs/giphy.gif" width="500" title="avvio QGIS">
+  </a>
+</p>

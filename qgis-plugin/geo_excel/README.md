@@ -184,3 +184,14 @@ attribute information from QGIS as Excel reports.
 
 Initial development: OrbitalNet — https://www.orbitalnet.jp/
 2023/02/01 Added support for QDATE and QDATETIME.
+
+# Disclaimer
+
+This system was created and tested on a personal computer.  
+We accept no liability for any damage arising from its use.
+
+<p align="center">
+  <a href="https://giphy.com/explore/free-gif" target="_blank">
+    <img src="https://github.com/yamamoto-ryuzo/QGIS_portable_3x/raw/master/imgs/giphy.gif" width="500" title="avvio QGIS">
+  </a>
+</p>
