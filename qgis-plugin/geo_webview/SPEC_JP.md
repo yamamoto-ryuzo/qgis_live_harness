@@ -148,7 +148,7 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 
 | 経路 | 呼び出し | 用途 |
 |---|---|---|
-| パネルボタン | `▶ Canvas` / `▶ WebView` ボタン (`plugin.py: on_kasugai_launch_clicked`) | 人手操作。パネルの `Engine:` コンボで起動エンジンを選択（QSettings `kasugai_engine` に保存）。`▶ Canvas`（route=`kasugai`）は**再エクスポートせず**既存の `.kasc` を登録・ブラウザ起動（未出力時はエクスポートを促すメッセージ）。`▶ WebView`（route=`hosted`）は bridge `kasugaiExport(open_app=True)` と同じく出力→フォールバック→ブラウザ起動まで行う。`▶ WebView` 行の `CDN:` コンボ（編集可）でホスト版チャンネルを選択（`stable`/`unstable`/カスタムURL、QSettings `kasugai_hosted_channel` に保存・設定ダイアログと共通） |
+| パネルボタン | `▶ Canvas` / `▶ WebView` ボタン (`plugin.py: on_kasugai_launch_clicked`) | 人手操作。パネルの `Engine:` コンボで起動エンジンを選択（QSettings `kasugai_engine` に保存）。`▶ Canvas`（route=`kasugai`）は**再エクスポートせず**既存の `.kasc` を登録・ブラウザ起動（未出力時はエクスポートを促すメッセージ）。Canvas 未検出時はボタンが「Install KASUGAI Canvas」表示となり、クリックでセットアップ(NSIS・.kasc 関連付けあり)/ポータブルZIP(展開のみ)を選んでバックグラウンドインストール後に起動へ合流。`▶ WebView`（route=`hosted`）は bridge `kasugaiExport(open_app=True)` と同じく出力→フォールバック→ブラウザ起動まで行う。`▶ WebView` 行の `CDN:` コンボ（編集可）でホスト版チャンネルを選択（`stable`/`unstable`/カスタムURL、QSettings `kasugai_hosted_channel` に保存・設定ダイアログと共通） |
 | パネルボタン | `Export` ボタン (`plugin.py: on_kasugai_export_clicked`) | 人手操作（ファイル出力のみ。Canvas 起動・登録はしない） |
 | HTTP | `GET http://localhost:8089/kasugai` (server_manager._handle_kasugai) | 外部アプリ・AI からの一発起動。`?engine=` で起動エンジン指定可。応答は `{ok,url,via,dir,layers,tiles,engine}` JSON |
 | Bridge | `bridge_call` の `kasugaiExport(output_dir, open_app, native_formats, hidden_as_off, embed_gpkg_style, emit_themes, emit_bookmarks, emit_launchers, engine, install, route, use_existing)` | Live Driver 経由の AI 制御（MCP `qgis_bridge_call` / REST `/api/cmd` / JSONL）。`use_existing=True` で再エクスポートせず既存の `.kasc` のみ使用（未出力なら `code=not_exported`） |

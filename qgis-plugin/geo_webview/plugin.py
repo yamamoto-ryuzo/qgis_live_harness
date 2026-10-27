@@ -1426,6 +1426,20 @@ class GeoWebView:
             combo = getattr(self.panel, 'comboBox_engine', None)
             if combo is not None and combo.currentData():
                 engine = combo.currentData()
+            if route == 'kasugai':
+                # Canvas 未検出時はインストール導線(セットアップ/ZIP選択)へ。
+                # 検出処理の失敗のみ許容し、インストール導線自体の例外は
+                # 外側の except でユーザへ通知する
+                try:
+                    from . import kasugai_export
+                    installed = bool(
+                        kasugai_export.detect_kasugai()
+                        or kasugai_export.detect_kasugai_install_dir())
+                except Exception:  # nosec B110  # 検出失敗は従来挙動へ
+                    installed = True
+                if not installed:
+                    self._install_kasugai_then_launch(engine)
+                    return
             if self.bridge is None:
                 from .bridge import GeoWebViewBridge
                 self.bridge = GeoWebViewBridge(self)
@@ -1485,6 +1499,207 @@ class GeoWebView:
                 "geo_webview",
                 self.tr("KASUGAI launch error: {0}").format(e),
                 duration=5)
+
+    def _install_kasugai_then_launch(self, engine):
+        """Canvas 未検出時: インストール方法を選択→バックグラウンド実行→
+        通常起動フローへ合流する。
+
+        セットアップ(NSIS)は .kasc 関連付け・InstallLocation レジストリ
+        登録を行う通常インストール、ポータブルZIPは展開のみ
+        (関連付けなし)。ダウンロードとインストーラ待機は QgsTask で
+        GUI をブロックしない。
+        """
+        from qgis.core import Qgis
+        box = QMessageBox(
+            self.panel if self.panel is not None
+            else self.iface.mainWindow())
+        box.setWindowTitle(self.tr("Install KASUGAI Canvas"))
+        box.setIcon(QMessageBox.Icon.Question)
+        box.setText(self.tr(
+            "KASUGAI Canvas is not installed. Choose how to install it:"))
+        box.setInformativeText(self.tr(
+            "Setup: installs to the standard location with .kasc file "
+            "association and shortcuts (recommended).\n"
+            "Portable ZIP: just extracts the app — no file association."))
+        btn_setup = box.addButton(
+            self.tr("Setup (.kasc association)"),
+            QMessageBox.ButtonRole.AcceptRole)
+        btn_zip = box.addButton(
+            self.tr("Portable ZIP"),
+            QMessageBox.ButtonRole.AcceptRole)
+        box.addButton(QMessageBox.StandardButton.Cancel)
+        box.setDefaultButton(btn_setup)
+        # exec() のモーダルだと背面に隠れた際に他ウィンドウへの入力を
+        # 全てブロックして「閉じられない」状態になるため、open() の
+        # 非モーダル + buttonClicked シグナルで処理する
+        self._install_box = box
+
+        def _picked(btn):
+            self._install_box = None
+            if btn is btn_setup:
+                self._run_kasugai_install('setup')
+            elif btn is btn_zip:
+                self._run_kasugai_install('zip')
+
+        box.buttonClicked.connect(_picked)
+        box.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+        box.open()
+        box.raise_()
+        box.activateWindow()
+
+    def _run_kasugai_install(self, mode):
+        """インストールを QgsTask で実行し、段階別進捗ダイアログを表示する。"""
+        from qgis.core import Qgis
+        # 実行中は進捗を表示し続ける。DL+ウィザード待機は数十秒かかる
+        # 場合があり、無通知だと「何も起きない」ように見える。
+        # 共有stateをワーカが progress_cb で更新し、QTimer が GUI 側で
+        # ラベル+バーを逐次反映する(段階ごとの経過表示)
+        from qgis.PyQt.QtWidgets import QProgressDialog
+        from qgis.PyQt.QtCore import QTimer
+        from qgis.core import QgsMessageLog
+        try:
+            if getattr(self, '_install_progress', None) is not None:
+                self._install_progress.close()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        parent = self.panel if self.panel is not None \
+            else self.iface.mainWindow()
+        progress = QProgressDialog(parent)
+        progress.setWindowTitle(self.tr("Install KASUGAI Canvas"))
+        progress.setCancelButton(None)
+        progress.setWindowModality(Qt.WindowModality.NonModal)
+        progress.setMinimumDuration(0)
+        progress.setRange(0, 100)
+        progress.setValue(0)
+        self._install_progress = progress
+        state = {'stage': 'download', 'done': 0, 'total': 0,
+                 'cancelled': False}
+        progress.canceled.connect(
+            lambda: state.__setitem__('cancelled', True))
+        _labels = {
+            'dl_setup': self.tr(
+                "Downloading the installer... {0:.1f} MB"),
+            'dl_zip': self.tr(
+                "Downloading KASUGAI Canvas... {0:.1f} MB"),
+            'wizard': self.tr(
+                "Waiting for the setup wizard — it opens in a separate "
+                "window. Respond to it (check behind windows and "
+                "security prompts)."),
+            'extract': self.tr("Extracting files..."),
+        }
+
+        def _tick():
+            fin = state.get('fin')
+            if fin is not None:
+                timer.stop()
+                _done(fin['exc'], fin['res'])
+                return
+            st = state['stage']
+            if st == 'download':
+                total = state['total'] or 0
+                mb = state['done'] / 1048576.0
+                progress.setValue(
+                    min(int(state['done'] * 90 / total), 89)
+                    if total else 5)
+                progress.setLabelText(
+                    _labels['dl_setup' if mode == 'setup' else 'dl_zip']
+                    .format(mb))
+            elif st == 'wizard':
+                progress.setValue(90)
+                progress.setLabelText(_labels['wizard'])
+            elif st == 'extract':
+                progress.setValue(92)
+                progress.setLabelText(_labels['extract'])
+
+        timer = QTimer(progress)
+        timer.setInterval(250)
+        timer.timeout.connect(_tick)
+        timer.start()
+        self._install_timer = timer
+        _tick()
+        progress.show()
+        QgsMessageLog.logMessage(
+            'KASUGAI Canvas install started (mode={0})'.format(mode),
+            'geo_webview', Qgis.MessageLevel.Info)
+
+        def _cb(stage, done=0, total=0):
+            state['stage'] = stage
+            state['done'] = done
+            state['total'] = total
+
+        def _work(task):
+            from . import kasugai_export
+            if mode == 'setup':
+                return kasugai_export.install_kasugai_setup(
+                    progress_cb=_cb, cancel=state)
+            return kasugai_export.install_kasugai(
+                progress_cb=_cb, cancel=state)
+
+        def _done(exc, dest=None):
+            try:
+                if self._install_timer is not None:
+                    self._install_timer.stop()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            self._install_timer = None
+            try:
+                if self._install_progress is not None:
+                    self._install_progress.close()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            self._install_progress = None
+            if exc is not None or not dest:
+                err = str(exc) if exc else 'install failed'
+                if state.get('cancelled'):
+                    QgsMessageLog.logMessage(
+                        'KASUGAI Canvas install cancelled by user',
+                        'geo_webview', Qgis.MessageLevel.Info)
+                    self.iface.messageBar().pushMessage(
+                        "geo_webview",
+                        self.tr("KASUGAI Canvas install cancelled."),
+                        level=Qgis.MessageLevel.Info, duration=5)
+                    return
+                QgsMessageLog.logMessage(
+                    'KASUGAI Canvas install failed: {0}'.format(err),
+                    'geo_webview', Qgis.MessageLevel.Warning)
+                self.iface.messageBar().pushMessage(
+                    "geo_webview",
+                    self.tr("KASUGAI Canvas install failed: {0}").format(err),
+                    level=Qgis.MessageLevel.Warning, duration=10)
+                return
+            self.iface.messageBar().pushMessage(
+                "geo_webview",
+                self.tr("Installed KASUGAI Canvas to {0}.").format(dest),
+                duration=5)
+            try:
+                self.panel.update_canvas_launch_state()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            # 通常起動フローへ合流(登録・ブラウザ起動。未出力時は案内)
+            self.on_kasugai_launch_clicked('kasugai')
+
+        try:
+            from qgis.core import QgsApplication, QgsTask
+            task = QgsTask.fromFunction(
+                'Install KASUGAI Canvas', _work, on_finished=_done)
+            progress.canceled.connect(task.cancel)
+            QgsApplication.taskManager().addTask(task)
+        except Exception as e:
+            # QgsTask が使えない環境では Python スレッドへフォールバック
+            # (旧QGIS互換)。完了は _tick が state['fin'] を検出して
+            # GUI スレッドで _done を呼ぶ(GUI をブロックしない)
+            QgsMessageLog.logMessage(
+                'KASUGAI Canvas install task failed to start: {0}'.format(e),
+                'geo_webview', Qgis.MessageLevel.Warning)
+            import threading
+
+            def _bg():
+                try:
+                    res = _work(None)
+                    state['fin'] = {'exc': None, 'res': res}
+                except Exception as e2:  # nosec B110  # _done が通知
+                    state['fin'] = {'exc': e2, 'res': None}
+            threading.Thread(target=_bg, daemon=True).start()
 
     def on_present_clicked_panel(self):
         """プレゼンテーション共有ページ(/present)をブラウザで開く。

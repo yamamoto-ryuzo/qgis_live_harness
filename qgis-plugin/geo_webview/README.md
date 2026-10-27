@@ -83,7 +83,7 @@ flowchart TB
 |---|---|
 | 【Export】 | Writes `.kasc + DATA/ + <engine>.html + index.html + kasugai_canvas.zip`. **Files only** — no launch or registration |
 | 【▶ WebView】 | Opens via the hosted `kasugai-canvas-web` engine (GitHub Pages CDN) with data supplied from `:8089/export-data/`. Needs internet + HTTP server running (works without a Canvas install) |
-| 【▶ Canvas】 | Registers the **already-exported** project with a running KASUGAI Canvas local server (:8510), switches the view, opens the browser. **Does not export** — if nothing has been exported yet, a message prompts you to use Export first. No fallback when Canvas is not running |
+| 【▶ Canvas】 | Registers the **already-exported** project with a running KASUGAI Canvas local server (:8510), switches the view, opens the browser. **Does not export** — if nothing has been exported yet, a message prompts you to use Export first. When Canvas is not detected the button shows **Install KASUGAI Canvas** — choose setup (`.kasc` association + shortcuts) or portable ZIP, installs in the background, then launches |
 | 📁 | Opens the output folder |
 
 ### Multi-engine
@@ -197,7 +197,9 @@ Use the top **"Web Distribution"** group in the panel.
 |---|---|
 | `Engine:` combo | Launch engine selection (Cesium/MapLibre/OpenLayers/Leaflet; persisted in QSettings `kasugai_engine`) |
 | `Export` button | **Files only** — writes `.kasc`+`DATA/` + `index.html` + per-engine launcher HTMLs (no launch) |
-| `▶ Open` button | Export → register with Canvas → open the selected engine in a browser, in one step |
+| `▶ Canvas` button | Registers the **already-exported** `.kasc` with a running Canvas (:8510) and opens it (no re-export). When Canvas is not detected it becomes an **Install** button — pick setup (`.kasc` association) or portable ZIP, then it installs in the background and launches |
+| `CDN:` combo | Hosted engine channel used by `▶ WebView` (`stable`/`unstable`/custom URL; persisted in QSettings `kasugai_hosted_channel`) |
+| `▶ WebView` button | Export → open the hosted engine (GitHub Pages) in a browser, in one step (needs HTTP server + internet) |
 | `📁` button | Open the export folder in the file manager |
 
 The same feature is available through APIs:

@@ -424,7 +424,9 @@ def _registry_install_dir():
         with winreg.OpenKey(
                 winreg.HKEY_CURRENT_USER, _KASUGAI_UNINSTALL_KEY) as key:
             loc = winreg.QueryValueEx(key, 'InstallLocation')[0]
-        if loc and os.path.isdir(loc):
+        # ディレクトリが消えた/ファイルのみ欠落した中途半端な登録は
+        # 未インストール扱いにする(exe の存在まで確認)
+        if loc and os.path.isfile(os.path.join(loc, KASUGAI_EXE_NAME)):
             return loc
     except Exception:  # nosec B110  # レジストリ未登録は正常系
         pass
@@ -2111,11 +2113,41 @@ def _safe_extractall(zf, dest_dir):
     zf.extractall(dest)
 
 
-def install_kasugai(dest_dir=None):
+def _download(url, tmp, progress_cb=None, cancel=None):
+    """url を tmp へダウンロードする。
+
+    progress_cb(stage, done, total) が渡されていれば
+    ('download', 済みバイト, 総バイト) で進捗を逐次通知する
+    (総バイト不明時は total=0)。cancel['cancelled'] が真なら中断する。
+    """
+    req = urllib.request.Request(
+        url, headers={'User-Agent': 'geo_webview'})
+    with urllib.request.urlopen(req, timeout=300) as res, \
+            open(tmp, 'wb') as out:  # nosec B310  # https固定URL
+        try:
+            total = int(res.headers.get('Content-Length') or 0)
+        except Exception:  # nosec B110  # 設計上の許容
+            total = 0
+        done = 0
+        while True:
+            if cancel and cancel.get('cancelled'):
+                raise RuntimeError('install cancelled by user')
+            chunk = res.read(1 << 18)
+            if not chunk:
+                break
+            out.write(chunk)
+            done += len(chunk)
+            if progress_cb:
+                progress_cb('download', done, total)
+
+
+def install_kasugai(dest_dir=None, progress_cb=None, cancel=None):
     """KASUGAI Canvas の配布ZIPをダウンロード・展開してインストール先を返す。
 
     dest_dir 既定は default_install_dir()。成功時は
     ``kasugai_install_path`` 設定へ自動登録する。
+    progress_cb(stage, done, total) で進捗通知
+    ('download'/'extract')。
     失敗時は例外を送出（呼び出し側でキャッチして通知する）。
     ブロッキングするため GUI スレッドではタスク経由で呼ぶこと。
     """
@@ -2126,11 +2158,11 @@ def install_kasugai(dest_dir=None):
     fd, tmp = tempfile.mkstemp(suffix='.zip', prefix='kasugai_canvas_')
     os.close(fd)
     try:
-        req = urllib.request.Request(
-            url, headers={'User-Agent': 'geo_webview'})
-        with urllib.request.urlopen(req, timeout=300) as res, \
-                open(tmp, 'wb') as out:  # nosec B310  # https固定URL
-            shutil.copyfileobj(res, out)
+        _download(url, tmp, progress_cb, cancel)
+        if cancel and cancel.get('cancelled'):
+            raise RuntimeError('install cancelled by user')
+        if progress_cb:
+            progress_cb('extract', 0, 0)
         os.makedirs(dest_dir, exist_ok=True)
         with zipfile.ZipFile(tmp) as zf:
             _safe_extractall(zf, dest_dir)
@@ -2148,3 +2180,74 @@ def install_kasugai(dest_dir=None):
     except Exception:  # nosec B110  # 設計上の許容
         pass
     return dest_dir
+
+
+KASUGAI_SETUP_FALLBACK_URL = (
+    'https://raw.githubusercontent.com/yamamoto-ryuzo/kasugai_canvas'
+    '/main/download/kasugai_canvas_setup.exe')
+
+
+def kasugai_setup_url():
+    """配布セットアップ(NSIS EXE)のURLを返す。
+
+    ZIPと同じ配布ディレクトリの kasugai_canvas_setup.exe を指す
+    (latest.json はZIPのみ公開するため basename 置換で求める)。
+    """
+    base = kasugai_download_url().split('?')[0].rsplit('/', 1)[0]
+    if base.startswith(('https://', 'http://')):
+        return base + '/kasugai_canvas_setup.exe'
+    return KASUGAI_SETUP_FALLBACK_URL
+
+
+def install_kasugai_setup(wait=True, progress_cb=None, cancel=None):
+    """NSIS セットアップをダウンロード・実行する通常インストール経路。
+
+    ポータブルZIP展開(install_kasugai)と違い、.kasc ファイル関連付け・
+    スタートメニュー/アンインストーラ登録・InstallLocation レジストリ
+    登録が行われる。NSIS ウィザードを対話表示し、wait=True で
+    インストーラ終了まで待機する(ブロッキングのため GUI スレッドでは
+    タスク経由で呼ぶこと)。終了後は InstallLocation レジストリから
+    実インストール先を検出し kasugai_install_path へ登録する。
+    progress_cb(stage, done, total) で進捗通知
+    ('download'/'wizard')。cancel['cancelled'] が真なら
+    DL中は中断、ウィザード待機中はプロセスを終了して中断する。
+    ユーザがウィザードをキャンセルした場合は exe 不在で例外となる。
+    """
+    import tempfile
+    import time
+    url = kasugai_setup_url()
+    fd, tmp = tempfile.mkstemp(
+        suffix='.exe', prefix='kasugai_canvas_setup_')
+    os.close(fd)
+    try:
+        _download(url, tmp, progress_cb, cancel)
+        if progress_cb:
+            progress_cb('wizard', 0, 0)
+        proc = subprocess.Popen([tmp])  # nosec B603  # 自前配布物のみ
+        if wait:
+            # ×キャンセル時にウィザードプロセスを終了して抜ける
+            while proc.poll() is None:
+                if cancel and cancel.get('cancelled'):
+                    try:
+                        proc.kill()
+                    except OSError:  # nosec B110  # 設計上の許容
+                        pass
+                    raise RuntimeError('install cancelled by user')
+                time.sleep(0.5)
+        dest = _registry_install_dir() or default_install_dir()
+        exe = os.path.join(dest, KASUGAI_EXE_NAME)
+        if not os.path.isfile(exe):
+            raise RuntimeError(
+                'setup wizard finished but {0} was not found — '
+                'installation cancelled or the wizard was blocked'.format(
+                    KASUGAI_EXE_NAME))
+        try:
+            _qsettings().setValue('kasugai_install_path', dest)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        return dest
+    finally:
+        try:
+            os.remove(tmp)
+        except OSError:  # nosec B110  # 設計上の許容
+            pass

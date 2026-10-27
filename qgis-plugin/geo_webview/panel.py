@@ -340,8 +340,9 @@ class GeoWebViewPanel(QDockWidget):
         """KASUGAI Canvas のインストール状態を「▶ Canvas」ボタンに反映する。
 
         インストール先が検出できない(設定未登録かつインストーラ登録なし)
-        場合はボタンを無効化し、理由をツールチップで示す。検出自体が
-        失敗した場合は従来どおり有効のままにする。
+        場合はボタンを「Install KASUGAI Canvas」表示に変え、クリックで
+        インストール導線(セットアップ/ポータブルZIP選択)へ進む。
+        検出自体が失敗した場合は従来どおり通常表示のままにする。
         """
         btn = getattr(self.ui, 'pushButton_kasugai_launch', None)
         if btn is None:
@@ -351,15 +352,18 @@ class GeoWebViewPanel(QDockWidget):
             installed = bool(kasugai_export.detect_kasugai_install_dir())
         except Exception:  # nosec B110  # 設計上の許容
             installed = True
-        btn.setEnabled(installed)
+        btn.setEnabled(True)
         if installed:
+            btn.setText(QCoreApplication.translate('geo_webview', "▶ Canvas"))
             btn.setToolTip(QCoreApplication.translate(
                 'geo_webview',
                 "Open the exported project in KASUGAI Canvas (main integrated player) — registers the existing .kasc with a running Canvas (port 8510) and switches to it. Requires a prior export (Export button)"))
         else:
+            btn.setText(QCoreApplication.translate(
+                'geo_webview', "Install KASUGAI Canvas"))
             btn.setToolTip(QCoreApplication.translate(
                 'geo_webview',
-                "KASUGAI Canvas is not installed — install the app or set the install path in Settings to enable this button"))
+                "KASUGAI Canvas is not installed — click to install (setup with .kasc file association or portable ZIP), then open the project"))
 
     def set_kasugai_outdir(self, path):
         """保存先表示ボタンの内容を更新する。path はフルパス。"""
