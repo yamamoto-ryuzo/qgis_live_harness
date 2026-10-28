@@ -160,7 +160,7 @@ class SettingsDialog(QtWidgets.QDialog):
             try:
                 from . import kasugai_export
                 detected = kasugai_export._registry_install_dir() or ''
-            except Exception:
+            except Exception:  # nosec B110  # レジストリ自動検出は任意機能・失敗時は [Not set] 表示のみ
                 pass
             if detected:
                 self.kasugai_install_input.setText(

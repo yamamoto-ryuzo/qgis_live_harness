@@ -9,7 +9,7 @@
 
 ## 1. 機能概要
 - **サーバレス Web 配信（主機能）**: 開いている QGIS プロジェクトを `.kasc`+`DATA/` パッケージとして出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet）で再生する。出力物＋エンジンを静的ホストへ置くだけで配信できる。起動経路はパネル（`Export`=ファイル出力のみ / `▶ Open`=登録・起動まで）・`GET /kasugai`・bridge `kasugaiExport` の3系統で、Canvas登録→本サーバ静的配信→ホスト版エンジンの3段フォールバックを持つ（§15）。
-- 組み込み HTTP サーバー（補助）: `/kasugai` `/export-data/` `/present` `/present/state` `/screenshot` `/received` を提供（v3.29.0 で OGC サービスは廃止）。
+- 組み込み HTTP サーバー（補助）: `/kasugai` `/export-data/` `/present` `/present/state` `/screenshot` `/received` `/layouts` `/layout-pdf` を提供（v3.29.0 で OGC サービスは廃止）。
 - パーマリンク生成: QGIS の現在表示（中心座標、scale、rotation、theme など）を HTTP パーマリンク（`/qgis-map` パス）として生成・コピー・開く。`/qgis-map` は HTML を返さず、受領記録・External Control ナビゲートの URL パスとして使う（v3.24.0 でプラグイン内蔵ビューアは廃止）。
 - Theme サポート: `theme` パラメータのマップテーマをナビゲーション時に適用し、`.kasc` へ `theme:` 行として出力（プロジェクト自体は変更しない）。
 - External Control: 外部からの `/qgis-map` や `/wms` を含むリクエストを受け、許可された場合に自動で QGIS をナビゲートする。
@@ -21,6 +21,8 @@
 - GET `/export-data/<rel>` — 直近エクスポート出力先配下のファイル配信（.kasc/DATA/・起動HTML等）。
 - GET `/<engine>/...` — インストール済み KASUGAI Canvas の `web/` を静的配信（エンドポイント不一致パスのフォールバック解決）。
 - GET `/present` `/present/state` `/screenshot` — 画面共有ページ・キャンバス状態 JSON・キャンバス PNG。
+- GET `/layouts` — プロジェクトの印刷レイアウト一覧 JSON `{ok,layouts:[{name,pages,w_mm,h_mm}]}`（KASUGAI Canvas 印刷ダイアログが参照）。
+- GET `/layout-pdf` — `QgsLayoutExporter` で印刷レイアウトを PDF 出力（`layout=<name>` 省略時は先頭のレイアウト、`dpi=` 72–600・既定300）。キューイングで GUI スレッド実行・`_layout_lock` で直列化。
 - GET `/received` — 受領パーマリンク履歴 HTML。
 - GET `/qgis-map` — パーマリンク URL のパス。HTML は返さず、受領記録・External Control のナビゲートトリガとして使う。
 - HEAD `/export-data/`・`/<engine>/` — ランチャー HTML のエンジン自動探索プローブ用（静的配信のみ応答）。
@@ -267,7 +269,7 @@ Canvas が使えない場合は次の順でフォールバックする
 - `plugin.py` — メインプラグインロジック、パーマリンク/ナビゲート、パネルイベント配線。
 - `panel.py` — パネル UI 実装（Web配信グループ、ナビゲート、生成、外部制御トグル等）。
 - `panel_base.ui` — Qt Designer の UI 定義。
-- `server_manager.py` — 組み込み HTTP サーバーの起動/停止・ルーティング（`/kasugai` `/export-data/` `/present` `/present/state` `/screenshot` `/received` `/<engine>/` 等）。
+- `server_manager.py` — 組み込み HTTP サーバーの起動/停止・ルーティング（`/kasugai` `/export-data/` `/present` `/present/state` `/screenshot` `/received` `/layouts` `/layout-pdf` `/<engine>/` 等）。
 - `http_server.py` — HTTP 応答の低水準送信ユーティリティ。
 - `kasugai_export.py` — KASUGAI Canvas 連携（`.kasc`+`DATA/` 生成、起動HTML生成、プロジェクト登録、コマンド送信、フォールバックURL構築）。
 - `scale_zoom.py` — スケール/ズーム換算。

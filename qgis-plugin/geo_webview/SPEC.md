@@ -10,7 +10,7 @@ Purpose and scope
 
 1. Feature overview
 - **Serverless web distribution (main)**: export the open QGIS project as a `.kasc`+`DATA/` package playable on the KASUGAI Canvas engines (Cesium/MapLibre/OpenLayers/Leaflet). Placing the output plus the engine on a static host delivers the map without any server. Launch routes: panel (`Export` = files only / `▶ Open` = register+launch), `GET /kasugai`, and bridge `kasugaiExport`, with a 3-tier fallback (Canvas registration → static serving by this server → hosted engine). See §15.
-- Embedded HTTP server (supporting): provides `/kasugai` `/export-data/` `/present` `/present/state` `/screenshot` `/received` (OGC services removed in v3.29.0).
+- Embedded HTTP server (supporting): provides `/kasugai` `/export-data/` `/present` `/present/state` `/screenshot` `/received` `/layouts` `/layout-pdf` (OGC services removed in v3.29.0).
 - Permalink generation: create HTTP permalinks for the current QGIS view (center coordinates, scale, rotation, theme, etc.) on the `/qgis-map` path for copying or opening in browsers. `/qgis-map` returns no HTML — it is the URL path used for reception history and External Control navigation (built-in viewers removed in v3.24.0).
 - Theme support: apply a named map theme on navigation (permalink `theme` parameter) and export theme lines (`.kasc` `theme:`) without altering project files.
 - External Control: accept requests (for example to `/qgis-map` or `/wms`) and, when permitted, navigate QGIS accordingly.
@@ -20,6 +20,8 @@ Purpose and scope
 - `GET /export-data/<rel>` — serves files under the latest export directory (.kasc/DATA/, launcher HTMLs).
 - `GET /<engine>/...` — statically serves the installed KASUGAI Canvas `web/` (fallback resolution for non-endpoint paths).
 - `GET /present` `/present/state` `/screenshot` — window-share page, canvas state JSON, canvas PNG.
+- `GET /layouts` — project print layout list JSON `{ok,layouts:[{name,pages,w_mm,h_mm}]}` (used by the KASUGAI Canvas print dialog).
+- `GET /layout-pdf` — exports a print layout to PDF via `QgsLayoutExporter` (`layout=<name>` optional, defaults to first layout; `dpi=` 72–600, default 300). Runs on the GUI thread via a queued invoker; serialized by `_layout_lock`.
 - `GET /received` — received permalink history HTML.
 - `GET /qgis-map` — permalink URL path. Returns no HTML; used for reception history and External Control navigation.
 - `HEAD /export-data/` and `/<engine>/` — engine auto-detection probes of launcher HTMLs (static serving only).
@@ -264,7 +266,7 @@ Canvas が使えない場合は次の順でフォールバックする
 - `plugin.py` — メインプラグインロジック、パーマリンク/ナビゲート、パネルイベント配線。
 - `panel.py` — パネル UI 実装（Web配信グループ、ナビゲート、生成、外部制御トグル等）。
 - `panel_base.ui` — Qt Designer の UI 定義。
-- `server_manager.py` — 組み込み HTTP サーバーの起動/停止・ルーティング（`/kasugai` `/export-data/` `/present` `/present/state` `/screenshot` `/received` `/<engine>/` 等）。
+- `server_manager.py` — 組み込み HTTP サーバーの起動/停止・ルーティング（`/kasugai` `/export-data/` `/present` `/present/state` `/screenshot` `/received` `/layouts` `/layout-pdf` `/<engine>/` 等）。
 - `http_server.py` — HTTP 応答の低水準送信ユーティリティ。
 - `kasugai_export.py` — KASUGAI Canvas 連携（`.kasc`+`DATA/` 生成、起動HTML生成、プロジェクト登録、コマンド送信、フォールバックURL構築）。
 - `scale_zoom.py` — スケール/ズーム換算。

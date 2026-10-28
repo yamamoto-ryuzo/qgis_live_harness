@@ -11,6 +11,34 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [4.1.0] - 2026-10-28 印刷レイアウト PDF 出力エンドポイント
+
+- 内蔵 HTTP サーバーに印刷レイアウト関連の2エンドポイントを追加
+  (KASUGAI Canvas 印刷ダイアログの「QGISレイアウトでPDF出力」が利用):
+  - `GET /layouts` — プロジェクトの印刷レイアウト一覧を JSON で返す
+    (`{ok, layouts:[{name,pages,w_mm,h_mm}]}`)
+  - `GET /layout-pdf` — `QgsLayoutExporter` で印刷レイアウトを PDF 出力。
+    `?layout=<name>` 省略時は先頭のレイアウト、`?dpi=` で 72–600(既定300)
+- レイアウト操作は新設 `_MainThreadInvoker` で GUI スレッドへキューイング
+  して実行(HTTPワーカースレッドからの直接呼出しを回避)、PDF出力は
+  `_layout_lock` で直列化。一時PDFは送信前に削除
+- SPEC.md / SPEC_JP.md のエンドポイント一覧を更新
+
+## [4.0.4] - 2026-10-28 サイトスキャン指摘対応
+
+- `kasugai_export._export_qml_assets()` の .qml パースを stdlib
+  `xml.etree.ElementTree` から vendored `defusedxml.ElementTree` へ切替
+  (B405/B314 指摘をコード側で解消。geo_import と同じく ElementTree
+  facade のみ同梱: `__init__.py`/`common.py`/`ElementTree.py`/`LICENSE`)
+- 配布ZIPダウンロード `_download()` に https スキーム検証を追加し、
+  `kasugai_download_url()` も https のみ採用へ(B310 指摘に対し
+  # nosec の位置を修正した上で実コードでも http を拒否)
+- `server_manager.py`(カーソル追跡イベントフィルタ)と
+  `settings_dialog.py`(レジストリ自動検出)の try/except/pass に
+  # nosec B110 と理由コメントを明示
+- `.bandit` に `exclude = defusedxml` と B405 スキップを追加、
+  `.flake8` に `defusedxml/*.py` の per-file-ignores を追加
+
 ## [4.0.3] - 2026-10-27 配布前チェックの lint findings 0 化
 
 - flake8(プラグイン同梱 `.flake8` 設定)で残っていた 4 findings を解消:

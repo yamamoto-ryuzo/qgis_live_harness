@@ -3,7 +3,7 @@ name = geo_webview
 qgisMinimumVersion = 4.0
 qgisMaximumVersion = 4.99
 description = Serverless web distribution of QGIS projects — export .kasc+DATA/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet); permalinks and an embedded HTTP server
-version = 4.0.3
+version = 4.1.0
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
 supportsQt6 = True
@@ -20,6 +20,8 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 4.0.4: サイトスキャン指摘対応(.qml パースを vendored defusedxml へ切替・配布ZIPダウンロードを https 固定・try/except/pass の # nosec 明示、.bandit/.flake8 更新)
+	- 4.0.3: 配布前チェックの flake8 findings 0 化(未使用 import 除去・継続行インデント修正・過剰空行の整理)
 	- 4.0.2: エクスポート起動HTML(index/<engine>.html)と /present 共有ページをロケール対応(日本語/英語固定→translate_textでUI言語追従、9言語カタログへ geo_webview.page コンテキスト41キー追加)。不使用キー39件をカタログから除去
 	- 4.0.1: KASUGAI出力UIの未登録文字列(「▶ Canvas」「▶ WebView」・保存先選択・ZIPダウンロード・起動フォールバック等26キー)を i18n 9言語カタログへ追記
 	- 3.36.8: 連携構成図の「【▶ Canvas】」に Canvas のローカルポートを明示(HTTPサーバー :8510・AI ブリッジハブ :8511)

@@ -1415,17 +1415,22 @@ def _export_qml_assets(qml_path, layer_slug, data_dir, used_names, copied,
     DATA/ 内のファイル名へ書き換える。
     戻り値: 複製したファイル数。
     """
-    import xml.etree.ElementTree as ET
+    # defusedxml を vendored 同梱し利用(実体宣言/外部参照をパーサ層で拒否)
+    try:
+        from .defusedxml import ElementTree as ET
+    except ImportError:
+        # スタンドアロン実行時(プラグインディレクトリを sys.path に追加)用
+        from defusedxml import ElementTree as ET
     with open(qml_path, 'r', encoding='utf-8') as f:
         raw_text = f.read()
     m = re.search(r'<!DOCTYPE[^>]*>', raw_text)
     doctype = m.group(0) if m else ''
-    tree = ET.ElementTree(ET.fromstring(raw_text))
+    root = ET.fromstring(raw_text)
     qml_dir = os.path.dirname(qml_path)
     svg_dirs = None
     count = 0
     changed = False
-    for layer_el in tree.getroot().iter('layer'):
+    for layer_el in root.iter('layer'):
         keys = _QML_ASSET_KEYS.get(
             (layer_el.get('class') or '').strip().lower())
         if not keys:
@@ -1450,7 +1455,7 @@ def _export_qml_assets(qml_path, layer_slug, data_dir, used_names, copied,
             changed = True
             count += 1
     if changed:
-        body = ET.tostring(tree.getroot(), encoding='unicode')
+        body = ET.tostring(root, encoding='unicode')
         with open(qml_path, 'w', encoding='utf-8') as f:
             f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             if doctype:
@@ -2414,7 +2419,7 @@ def kasugai_download_url():
         meta = _http_json(KASUGAI_LATEST_JSON_URL, timeout=5.0)
         url = ((meta.get('platforms') or {})
                .get('windows-x86_64') or {}).get('url')
-        if url and str(url).startswith(('https://', 'http://')):
+        if url and str(url).startswith('https://'):
             return url
     except Exception:  # nosec B110  # 設計上の許容
         pass
@@ -2453,10 +2458,12 @@ def _download(url, tmp, progress_cb=None, cancel=None):
     ('download', 済みバイト, 総バイト) で進捗を逐次通知する
     (総バイト不明時は total=0)。cancel['cancelled'] が真なら中断する。
     """
+    if urllib.parse.urlparse(url).scheme != 'https':
+        raise ValueError('download URL must be https: {0}'.format(url))
     req = urllib.request.Request(
         url, headers={'User-Agent': 'geo_webview'})
-    with urllib.request.urlopen(req, timeout=300) as res, \
-            open(tmp, 'wb') as out:  # nosec B310  # https固定URL
+    with (urllib.request.urlopen(req, timeout=300) as res,  # nosec B310  # 直上でhttpsスキームを検証済み
+            open(tmp, 'wb') as out):
         try:
             total = int(res.headers.get('Content-Length') or 0)
         except Exception:  # nosec B110  # 設計上の許容

@@ -10,7 +10,7 @@ import math
 import concurrent.futures
 from collections import deque
 from datetime import datetime
-from qgis.PyQt.QtCore import QCoreApplication, QObject, QEvent
+from qgis.PyQt.QtCore import QCoreApplication, QObject, QEvent, pyqtSignal, Qt, QThread
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY, QgsMessageLog, Qgis, QgsRectangle
 from .i18n_json import lang_code, translate_text
 # lazy import http_server inside methods to avoid circular import during QGIS plugin init
@@ -76,12 +76,52 @@ class _CursorLeaveFilter(QObject):
         return False
 
 
+class _MainThreadInvoker(QObject):
+    """ワーカースレッドの処理をGUIスレッドへ投げて結果を待つ仲介。
+
+    HTTPハンドラ(スレッドプール)から QgsLayoutManager / QgsLayoutExporter
+    等のGUIスレッド依存APIを安全に呼ぶために使う。生成はGUIスレッドで
+    行うこと(このQObjectの所属スレッドで slot が実行される)。
+    """
+
+    _invoke = pyqtSignal(object)
+
+    def __init__(self):
+        super().__init__()
+        self._invoke.connect(
+            self._run, Qt.ConnectionType.QueuedConnection)
+
+    def _run(self, payload):
+        func, done, box = payload
+        try:
+            box['result'] = func()
+        except Exception as e:
+            box['error'] = e
+        finally:
+            done.set()
+
+    def call(self, func, timeout=120):
+        """func をGUIスレッドで実行し戻り値を返す。既にGUIスレッドなら直接実行。"""
+        app = QCoreApplication.instance()
+        if app is None or QThread.currentThread() is app.thread():
+            return func()
+        done = threading.Event()
+        box = {}
+        self._invoke.emit((func, done, box))
+        if not done.wait(timeout):
+            raise TimeoutError('GUI thread call timed out')
+        if 'error' in box:
+            raise box['error']
+        return box.get('result')
+
+
 class GeoWebViewServerManager:
     """geo_webview用HTTPサーバー管理クラス
 
     内蔵HTTPサーバーの起動・停止・リクエスト処理を担当します。
     提供エンドポイント: /kasugai(.kascエクスポート)、/export-data/、
     /present・/present/state・/screenshot(画面共有)、/received(受領履歴)、
+    /layouts・/layout-pdf(印刷レイアウト一覧/PDF出力)、
     /<engine>/(KASUGAI Canvas web/ 静的フォールバック)。
     /qgis-map・旧形式/wms のパーマリンクURLは受領履歴とExternal Control
     ナビゲートのトリガとしてのみ扱います。
@@ -177,10 +217,15 @@ class GeoWebViewServerManager:
             vp = canvas.viewport()
             if vp is not None:
                 vp.installEventFilter(self._cursor_leave_filter)
-        except Exception:
+        except Exception:  # nosec B110  # カーソル追跡は付加機能・失敗時は /present のカーソル表示が出ないのみ
             pass
         # KASUGAIエクスポートは同一出力先へ書き込むため同時実行を直列化する
         self._kasugai_lock = threading.Lock()
+        # 印刷レイアウトPDF出力もレイアウト参照の同時実行を防ぐため直列化する
+        self._layout_lock = threading.Lock()
+        # HTTPワーカーからGUIスレッドAPIを呼ぶための仲介
+        # (このインスタンス生成=GUIスレッド実行が前提)
+        self._main_invoker = _MainThreadInvoker()
 
     def _on_cursor_xy(self, point):
         """キャンバス上のマウス移動(GUIスレッド)。最終位置を保持する。"""
@@ -647,6 +692,36 @@ class GeoWebViewServerManager:
                         f'kasugai failed: {e}', 'text/plain; charset=utf-8')
                 return
 
+            # 印刷レイアウト一覧(JSON)。KASUGAI Canvas 印刷ダイアログの
+            # 「QGISレイアウトでPDF出力」が参照する
+            if parsed_url.path == '/layouts':
+                try:
+                    self._handle_layouts(conn)
+                except Exception as e:
+                    QgsMessageLog.logMessage(
+                        f'❌ layouts handler error: {e}',
+                        'geo_webview', Qgis.MessageLevel.Critical)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'layouts failed: {e}', 'text/plain; charset=utf-8')
+                return
+
+            # 印刷レイアウトのPDF出力。?layout=<name> 省略時は先頭のレイアウト
+            if parsed_url.path == '/layout-pdf':
+                try:
+                    self._handle_layout_pdf(conn, params)
+                except Exception as e:
+                    QgsMessageLog.logMessage(
+                        f'❌ layout-pdf handler error: {e}',
+                        'geo_webview', Qgis.MessageLevel.Critical)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'layout-pdf failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
             # /export-data/<rel>: KASUGAI/Re:Earth エクスポート産物(out_dir配下)の配信
             if parsed_url.path.startswith('/export-data/'):
                 try:
@@ -699,7 +774,7 @@ class GeoWebViewServerManager:
                 conn,
                 404,
                 "Not Found",
-                "Available endpoints: /present (shared canvas view), /present/state (canvas JSON), /screenshot (canvas PNG), /received (permalink history), /kasugai (KASUGAI Canvas export), /export-data/<rel> (export files), /<engine>/ (KASUGAI Canvas web static fallback)"
+                "Available endpoints: /present (shared canvas view), /present/state (canvas JSON), /screenshot (canvas PNG), /received (permalink history), /kasugai (KASUGAI Canvas export), /layouts (print layout list), /layout-pdf (print layout PDF), /export-data/<rel> (export files), /<engine>/ (KASUGAI Canvas web static fallback)"
             )
             return
 
@@ -1105,6 +1180,104 @@ class GeoWebViewServerManager:
         if image is None or image.isNull():
             return None
         return image
+
+    def _handle_layouts(self, conn):
+        """プロジェクトの印刷レイアウト一覧をJSONで返す(GET /layouts)。"""
+        from . import http_server
+
+        def work():
+            mgr = QgsProject.instance().layoutManager()
+            out = []
+            for layout in mgr.printLayouts():
+                entry = {
+                    'name': layout.name(),
+                    'pages': layout.pageCollection().pageCount(),
+                }
+                if layout.pageCollection().pageCount() > 0:
+                    size = layout.pageCollection().page(0).pageSize()
+                    entry['w_mm'] = round(size.width(), 1)
+                    entry['h_mm'] = round(size.height(), 1)
+                out.append(entry)
+            return out
+
+        try:
+            layouts = self._main_invoker.call(work, timeout=30)
+            payload = json.dumps(
+                {'ok': True, 'layouts': layouts}, ensure_ascii=False)
+            http_server.send_http_response(
+                conn, 200, 'OK', payload,
+                'application/json; charset=utf-8')
+        except Exception as e:
+            http_server.send_http_response(
+                conn, 500, 'Internal Server Error',
+                f'layouts failed: {e}', 'text/plain; charset=utf-8')
+
+    def _handle_layout_pdf(self, conn, params):
+        """印刷レイアウトをPDF出力して返す(GET /layout-pdf?layout=<name>)。
+
+        ?layout 省略時は先頭のレイアウト。?dpi= で出力DPIを指定可
+        (72-600、既定300)。QgsLayoutExporter はGUIスレッドで実行する。
+        """
+        from . import http_server
+        name = (params.get('layout') or params.get('name') or [None])[0]
+        dpi = max(72, min(self._safe_int(params.get('dpi', [300])[0], 300), 600))
+
+        def work():
+            import tempfile
+            from qgis.core import QgsLayoutExporter
+            mgr = QgsProject.instance().layoutManager()
+            layout = mgr.layoutByName(name) if name else None
+            if layout is None:
+                layouts = mgr.printLayouts()
+                if name or not layouts:
+                    raise LookupError(
+                        'layout not found: {}'.format(name or '(none)'))
+                layout = layouts[0]
+            fd, path = tempfile.mkstemp(
+                suffix='.pdf', prefix='geo_webview_layout_')
+            os.close(fd)
+            settings = QgsLayoutExporter.PdfExportSettings()
+            settings.dpi = dpi
+            result = QgsLayoutExporter(layout).exportToPdf(path, settings)
+            if result != QgsLayoutExporter.ExportResult.Success:
+                try:
+                    os.remove(path)
+                except OSError:  # nosec B110  # 設計上の許容
+                    pass
+                raise RuntimeError(
+                    'PDF export failed: {}'.format(result))
+            return path, layout.name()
+
+        try:
+            with self._layout_lock:
+                pdf_path, layout_name = self._main_invoker.call(
+                    work, timeout=120)
+        except LookupError as e:
+            http_server.send_http_response(
+                conn, 404, 'Not Found', str(e),
+                'text/plain; charset=utf-8')
+            return
+        except Exception as e:
+            http_server.send_http_response(
+                conn, 500, 'Internal Server Error',
+                f'layout-pdf failed: {e}', 'text/plain; charset=utf-8')
+            return
+
+        try:
+            with open(pdf_path, 'rb') as f:
+                data = f.read()
+        finally:
+            try:
+                os.remove(pdf_path)
+            except OSError:  # nosec B110  # 設計上の許容
+                pass
+        quoted = urllib.parse.quote(layout_name or 'layout')
+        headers = [
+            "Content-Disposition: inline; filename=\"print.pdf\";"
+            " filename*=UTF-8''{}.pdf".format(quoted),
+        ]
+        http_server.send_binary_response(
+            conn, 200, 'OK', data, 'application/pdf', headers)
 
     def _handle_present_page(self, conn, params):
         """地図キャンバスのウィンドウ共有ページ(/screenshot定期更新)を返す。
