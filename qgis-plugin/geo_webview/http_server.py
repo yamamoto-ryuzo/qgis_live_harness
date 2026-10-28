@@ -22,11 +22,7 @@ _STATIC_ALLOWED_ORIGINS = frozenset((
 
 # ローカルの別ポートのページからの開発・連携用(同一マシン上の
 # プロセスは CORS 無しで読めるため実質的な追加露出にならない)
-_LOOPBACK_PREFIXES = (
-    'http://127.0.0.1', 'https://127.0.0.1',
-    'http://localhost', 'https://localhost',
-    'http://[::1]', 'https://[::1]',
-)
+_LOOPBACK_HOSTNAMES = frozenset(('127.0.0.1', 'localhost', '::1'))
 
 
 def set_request_origin(origin):
@@ -60,8 +56,15 @@ def cors_allowed_origin(origin):
         return False
     if origin in _STATIC_ALLOWED_ORIGINS:
         return True
-    if origin.startswith(_LOOPBACK_PREFIXES):
-        return True
+    # prefix 一致だと http://localhost.evil.com 等の偽サブドメインが
+    # 通るため、ループバックは urlsplit でホスト名を厳密に抜き出して比較
+    try:
+        parts = urllib.parse.urlsplit(origin)
+        if parts.scheme in ('http', 'https') \
+                and parts.hostname in _LOOPBACK_HOSTNAMES:
+            return True
+    except Exception:  # nosec B110  # 不正な Origin は未許可扱い
+        pass
     return origin == _custom_hosted_origin()
 
 
