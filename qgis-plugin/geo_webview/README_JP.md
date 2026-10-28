@@ -1,7 +1,7 @@
 # geo_webview — QGIS をサーバレス Web 配信するプラグイン（マルチエンジン対応）
 
 開いている QGIS プロジェクトを `.kasc`+`DATA/` パッケージに出力し、
-KASUGAI Canvas のマルチエンジン（Cesium / MapLibre / OpenLayers / Leaflet）で
+KASUGAI Canvas のマルチエンジン（Cesium / MapLibre / OpenLayers / Leaflet / GSI Maps）で
 再生する QGIS プラグイン。出力物は静的ホスティングだけで配信できます。
 
 ## ドキュメント

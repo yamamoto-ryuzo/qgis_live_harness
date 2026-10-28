@@ -52,7 +52,7 @@
         │  geo_webview が .kasc + DATA/ へエクスポート
         ▼
 [.kasc + DATA/ パッケージ]  + エンジン本体(KASUGAI Canvas web/)
-        │  Cesium / MapLibre / OpenLayers / Leaflet で再生
+        │  Cesium / MapLibre / OpenLayers / Leaflet / GSI Maps で再生
         ▼  静的ホスティングへ配置
 [ブラウザの WebGIS]  ← サーバーレス（QGIS・専用サーバー不要）</code></pre>
 <ul>
@@ -83,14 +83,14 @@
         WEB[&quot;GitHub Pages / Cloudflare / Vercel 等の静的ホスト&quot;]
     end
     subgraph GHBOX[&quot;GitHubPages&quot;]
-        CDN[&quot;kasugai-canvas-web&lt;br&gt;4エンジンの CDN&lt;br&gt;GitHub Pages: stable/・unstable/&quot;]
+        CDN[&quot;kasugai-canvas-web&lt;br&gt;5エンジンの CDN&lt;br&gt;GitHub Pages: stable/・unstable/&quot;]
     end
     subgraph KCBOX[&quot;【▶ Canvas】&quot;]
         direction LR
         KCS[&quot;HTTP サーバー localhost:8510&quot;]
         KCB[&quot;AI ブリッジハブ localhost:8511&quot;]
         KCF[&quot;拡張機能: 登録・切替・rclone・&lt;br&gt;自動更新・.kasc 関連付け&quot;]
-        ENG[&quot;マルチエンジン&lt;br&gt;Cesium / MapLibre / OpenLayers / Leaflet&quot;]
+        ENG[&quot;マルチエンジン&lt;br&gt;Cesium / MapLibre / OpenLayers / Leaflet / GSI Maps&quot;]
         KCS ~~~ KCB ~~~ KCF ~~~ ENG
     end
     RE[&quot;Re:Earth Visualizer geo_suite（サブ）&lt;br&gt;kasugai_canvas_&amp;lt;ch&amp;gt;.zip を CMS へアップロード →&lt;br&gt;インスペクタに CMS の URL を qgis: URL で指定&quot;]
@@ -113,7 +113,7 @@
     style ENG fill:#f3faf4,stroke:#5ca86a</code></pre>
 <h2 id="連携方針対応クライアント">連携方針（対応クライアント）</h2>
 <p>geo_webview の連携方針は、プレイヤーを <strong>KASUGAI Canvas
-に一本化</strong> （Cesium・MapLibre・OpenLayers・Leaflet
+に一本化</strong> （Cesium・MapLibre・OpenLayers・Leaflet・GSI Maps
 のマルチエンジン構成。 KASUGAI 側で統一開発済み・<code>?engine=</code>
 で切替）し、 <strong>Re:Earth Visualizer
 をサブ</strong>とすることです。</p>

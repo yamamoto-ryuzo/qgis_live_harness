@@ -237,7 +237,7 @@ class GeoWebViewPanel(QDockWidget):
 
         # ラベル
         if hasattr(self.ui, 'label_webdist_info'):
-            self.ui.label_webdist_info.setText(QCoreApplication.translate('geo_webview', "Export the project as a .kasc+DATA/ package with engine launcher HTMLs. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery. The ZIP button downloads kasugai_canvas_<channel>.zip in the browser (static-host deployment / Re:Earth geo_suite 'qgis:' import)."))
+            self.ui.label_webdist_info.setText(QCoreApplication.translate('geo_webview', "Export the project as a .kasc+DATA/ package with engine launcher HTMLs. It plays on Cesium / MapLibre / OpenLayers / Leaflet / GSI Maps — upload with the engine to a static host for serverless delivery. The ZIP button downloads kasugai_canvas_<channel>.zip in the browser (static-host deployment / Re:Earth geo_suite 'qgis:' import)."))
         if hasattr(self.ui, 'label_engine'):
             self.ui.label_engine.setText(QCoreApplication.translate('geo_webview', "Engine:"))
         if hasattr(self.ui, 'label_hosted'):
@@ -283,6 +283,7 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.comboBox_engine.addItem("MapLibre", 'maplibre')
             self.ui.comboBox_engine.addItem("OpenLayers", 'openlayers')
             self.ui.comboBox_engine.addItem("Leaflet", 'leaflet')
+            self.ui.comboBox_engine.addItem("GSI Maps", 'gsimaps')
             if current:
                 idx = self.ui.comboBox_engine.findData(current)
                 if idx >= 0:

@@ -460,6 +460,15 @@ class GeoWebViewServerManager:
             request_text = request_bytes.decode('iso-8859-1', errors='replace')
             self._last_request_text = request_text
 
+            # CORS 許可リスト判定用に Origin ヘッダを記録
+            # (http_server 側の応答が ACAO を付けるかの判定に使う)
+            _origin = ''
+            for _hline in request_text.split('\r\n'):
+                if _hline.lower().startswith('origin:'):
+                    _origin = _hline.split(':', 1)[1].strip()
+                    break
+            http_server.set_request_origin(_origin)
+
             from qgis.core import QgsMessageLog, Qgis
             try:
                 request_line = request_text.splitlines()[0]
@@ -678,7 +687,8 @@ class GeoWebViewServerManager:
 
             # KASUGAI Canvas 連携: 表示中レイヤを .kasc プロジェクトに出力し、
             # 起動中のKASUGAIへ登録してプロジェクトURLをJSONで返す
-            # (?engine=cesium|maplibre|openlayers|leaflet で起動エンジン指定可)
+            # (?engine=cesium|maplibre|openlayers|leaflet|gsimaps
+            #  で起動エンジン指定可)
             if parsed_url.path == '/kasugai':
                 try:
                     self._handle_kasugai(conn, params)
@@ -1644,7 +1654,7 @@ html,body{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family:
         起動中のKASUGAIローカルサーバへ登録してプロジェクトURLを返す。
 
         params['engine'] で起動エンジンを指定できる
-        (cesium|maplibre|openlayers|leaflet、既定 cesium)。
+        (cesium|maplibre|openlayers|leaflet|gsimaps、既定 cesium)。
 
         応答JSON:
           成功 {ok:true, url:<開くURL|null>, via, dir, layers, tiles, engine}

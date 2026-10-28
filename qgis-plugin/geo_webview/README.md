@@ -1,7 +1,7 @@
 # geo_webview — Serverless web distribution for QGIS (multi-engine)
 
 Exports the open QGIS project as a `.kasc`+`DATA/` package playable on the
-KASUGAI Canvas multi-engines (Cesium / MapLibre / OpenLayers / Leaflet).
+KASUGAI Canvas multi-engines (Cesium / MapLibre / OpenLayers / Leaflet / GSI Maps).
 The output runs on plain static hosting.
 
 ## Documentation

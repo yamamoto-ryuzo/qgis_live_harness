@@ -11,6 +11,21 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [4.2.0] - 2026-10-28 GSI Maps エンジン対応
+
+- KASUGAI Canvas の `gsimaps`(地理院地図)エンジンを起動エンジンの
+  選択肢に追加(`VALID_ENGINES`・`normalize_engine`)
+  - `GET /kasugai?engine=gsimaps`・bridge `kasugaiExport`/`openExternal`・
+    `setSettings(kasugai_engine)`・パネルの `Engine:` コンボで選択可
+  - エクスポート時に `gsimaps.html` 起動ページも生成
+    (`_LAUNCHER_ENGINES` に追加、`index.html` のエンジン一覧にも掲載)
+- README/SPEC(英・日)/metadata.txt のエンジン列挙を5エンジンへ更新
+- 内蔵 HTTP サーバーの CORS を許可リスト方式へ強化: 全応答で
+  `Access-Control-Allow-Origin: *` を返していたのを、file://(null)・
+  ホスト版エンジン(github.io・設定のカスタムURL)・ループバックの
+  オリジンのみへエコーに変更。OPTIONS の Private Network Access 応答も
+  許可オリジンのみ返し、任意サイトからのローカルデータ読み取りを遮断
+
 ## [4.1.0] - 2026-10-28 印刷レイアウト PDF 出力エンドポイント
 
 - 内蔵 HTTP サーバーに印刷レイアウト関連の2エンドポイントを追加

@@ -8,7 +8,7 @@
 - 範囲: サーバレス Web 配信（`.kasc`+`DATA/` エクスポート＝**主機能**）、組み込みHTTPサーバー（`/kasugai`・`/export-data/`・`/present`・`/screenshot`・パーマリンク受領＝補助）、パーマリンク生成・ナビゲート、テーマ適用、External Control の挙動、投影（CRS）ポリシー、セキュリティ/運用上の注意。
 
 ## 1. 機能概要
-- **サーバレス Web 配信（主機能）**: 開いている QGIS プロジェクトを `.kasc`+`DATA/` パッケージとして出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet）で再生する。出力物＋エンジンを静的ホストへ置くだけで配信できる。起動経路はパネル（`Export`=ファイル出力のみ / `▶ Open`=登録・起動まで）・`GET /kasugai`・bridge `kasugaiExport` の3系統で、Canvas登録→本サーバ静的配信→ホスト版エンジンの3段フォールバックを持つ（§15）。
+- **サーバレス Web 配信（主機能）**: 開いている QGIS プロジェクトを `.kasc`+`DATA/` パッケージとして出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps）で再生する。出力物＋エンジンを静的ホストへ置くだけで配信できる。起動経路はパネル（`Export`=ファイル出力のみ / `▶ Open`=登録・起動まで）・`GET /kasugai`・bridge `kasugaiExport` の3系統で、Canvas登録→本サーバ静的配信→ホスト版エンジンの3段フォールバックを持つ（§15）。
 - 組み込み HTTP サーバー（補助）: `/kasugai` `/export-data/` `/present` `/present/state` `/screenshot` `/received` `/layouts` `/layout-pdf` を提供（v3.29.0 で OGC サービスは廃止）。
 - パーマリンク生成: QGIS の現在表示（中心座標、scale、rotation、theme など）を HTTP パーマリンク（`/qgis-map` パス）として生成・コピー・開く。`/qgis-map` は HTML を返さず、受領記録・External Control ナビゲートの URL パスとして使う（v3.24.0 でプラグイン内蔵ビューアは廃止）。
 - Theme サポート: `theme` パラメータのマップテーマをナビゲーション時に適用し、`.kasc` へ `theme:` 行として出力（プロジェクト自体は変更しない）。
@@ -17,7 +17,7 @@
 
 ---
 ## 2. API / エンドポイント仕様（高水準）
-- GET `/kasugai` — `.kasc`+`DATA/` エクスポート＋Canvas 登録。`engine=`（cesium|maplibre|openlayers|leaflet、既定 cesium）・`install=1`（未検出時に配布ZIP取得）を受け付ける。応答 JSON `{ok,url,via,dir,layers,tiles,engine}`。
+- GET `/kasugai` — `.kasc`+`DATA/` エクスポート＋Canvas 登録。`engine=`（cesium|maplibre|openlayers|leaflet|gsimaps、既定 cesium）・`install=1`（未検出時に配布ZIP取得）を受け付ける。応答 JSON `{ok,url,via,dir,layers,tiles,engine}`。
 - GET `/export-data/<rel>` — 直近エクスポート出力先配下のファイル配信（.kasc/DATA/・起動HTML等）。
 - GET `/<engine>/...` — インストール済み KASUGAI Canvas の `web/` を静的配信（エンドポイント不一致パスのフォールバック解決）。
 - GET `/present` `/present/state` `/screenshot` — 画面共有ページ・キャンバス状態 JSON・キャンバス PNG。
@@ -61,7 +61,7 @@ http://localhost:8089/qgis-map?x=139.01234&y=35.12345&scale=1000.0&rotation=0.00
 **v3.24.0 で廃止**され、閲覧は KASUGAI Canvas に一本化された。
 現在の Web 配信は `.kasc`+`DATA/` エクスポートが中核であり、詳細は §15 を参照。
 
-- 生成物: `kasugai_canvas.kasc`・`index.html`・`<engine>.html`×4（cesium/maplibre/openlayers/leaflet）・`project.json`・`bookmarks.xml`・`DATA/`（GeoJSON/ネイティブ形式/.qml/タイル複製）。
+- 生成物: `kasugai_canvas.kasc`・`index.html`・`<engine>.html`×5（cesium/maplibre/openlayers/leaflet/gsimaps）・`project.json`・`bookmarks.xml`・`DATA/`（GeoJSON/ネイティブ形式/.qml/タイル複製）。
 - 起動 HTML: `?kasc=<.kasc URL>` 付きで対応エンジンへ転送し、エンジン本体を `./ ../ ../../ /` の順に自動探索（`CANVAS_BASE` で差し替え可。エンジン未検出時は `HOSTED_BASE` のホスト版エンジンへ誘導）。
 
 ---

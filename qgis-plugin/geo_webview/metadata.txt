@@ -2,13 +2,13 @@
 name = geo_webview
 qgisMinimumVersion = 4.0
 qgisMaximumVersion = 4.99
-description = Serverless web distribution of QGIS projects — export .kasc+DATA/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet); permalinks and an embedded HTTP server
-version = 4.1.0
+description = Serverless web distribution of QGIS projects — export .kasc+DATA/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps); permalinks and an embedded HTTP server
+version = 4.2.0
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
 supportsQt6 = True
-about = geo_webview は開いている QGIS プロジェクトを `.kasc`+`DATA/` パッケージに出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet）で再生する、QGIS のサーバレス Web 配信プラグインです。出力物は静的ホスティングだけで配信できます。パネルの `Export`（ファイル出力）/`▶ Open`（エンジン選択付きで登録・起動）に加え、`/kasugai`・bridge `kasugaiExport` からも呼べます。補助として内蔵 HTTP サーバーが `/export-data/` 配信・`/present`/`/screenshot` 画面共有・パーマリンク受領を提供します。詳細は `README_JP.md` を参照してください。
-about[en] = geo_webview is a serverless web distribution plugin for QGIS: it exports the open project as a `.kasc`+`DATA/` package playable on the KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet), and the output runs on plain static hosting. Available from the panel (`Export` = files only, `▶ Open` = pick an engine, register and launch) as well as `/kasugai` and the `kasugaiExport` bridge. The embedded HTTP server additionally provides `/export-data/` delivery, `/present`/`/screenshot` canvas sharing and permalink reception. See README.md / README_JP.md for usage details and deployment scenarios.
+about = geo_webview は開いている QGIS プロジェクトを `.kasc`+`DATA/` パッケージに出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps）で再生する、QGIS のサーバレス Web 配信プラグインです。出力物は静的ホスティングだけで配信できます。パネルの `Export`（ファイル出力）/`▶ Open`（エンジン選択付きで登録・起動）に加え、`/kasugai`・bridge `kasugaiExport` からも呼べます。補助として内蔵 HTTP サーバーが `/export-data/` 配信・`/present`/`/screenshot` 画面共有・パーマリンク受領を提供します。詳細は `README_JP.md` を参照してください。
+about[en] = geo_webview is a serverless web distribution plugin for QGIS: it exports the open project as a `.kasc`+`DATA/` package playable on the KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps), and the output runs on plain static hosting. Available from the panel (`Export` = files only, `▶ Open` = pick an engine, register and launch) as well as `/kasugai` and the `kasugaiExport` bridge. The embedded HTTP server additionally provides `/export-data/` delivery, `/present`/`/screenshot` canvas sharing and permalink reception. See README.md / README_JP.md for usage details and deployment scenarios.
 tracker = https://github.com/yamamoto-ryuzo/qgis_live_harness/issues
 repository = https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview
 homepage = https://yamamoto-ryuzo.github.io/qgis_live_harness/geo_webview/
@@ -20,6 +20,7 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 4.2.0: GSI Maps エンジン対応(engine=gsimaps・gsimaps.html 起動ページ・Engine: コンボ)。内蔵HTTPサーバーのCORSを許可リスト方式へ強化(任意サイトからのローカルデータ読み取りを遮断)
 	- 4.0.4: サイトスキャン指摘対応(.qml パースを vendored defusedxml へ切替・配布ZIPダウンロードを https 固定・try/except/pass の # nosec 明示、.bandit/.flake8 更新)
 	- 4.0.3: 配布前チェックの flake8 findings 0 化(未使用 import 除去・継続行インデント修正・過剰空行の整理)
 	- 4.0.2: エクスポート起動HTML(index/<engine>.html)と /present 共有ページをロケール対応(日本語/英語固定→translate_textでUI言語追従、9言語カタログへ geo_webview.page コンテキスト41キー追加)。不使用キー39件をカタログから除去

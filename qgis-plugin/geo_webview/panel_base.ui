@@ -31,7 +31,7 @@
         <item>
          <widget class="QLabel" name="label_webdist_info">
           <property name="text">
-           <string>Export the project as a .kasc+DATA/ package. Engine launcher HTMLs and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet — upload with the engine to a static host for serverless delivery.</string>
+           <string>Export the project as a .kasc+DATA/ package. Engine launcher HTMLs and kasugai_canvas.zip (Re:Earth geo_suite 'qgis:' import) are also written. It plays on Cesium / MapLibre / OpenLayers / Leaflet / GSI Maps — upload with the engine to a static host for serverless delivery.</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -246,6 +246,11 @@
           <item>
            <property name="text">
             <string notr="true">Leaflet</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">GSI Maps</string>
            </property>
           </item>
          </widget>

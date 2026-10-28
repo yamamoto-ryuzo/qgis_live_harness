@@ -6,17 +6,17 @@ This specification formalizes the features described in the repository README an
 
 Purpose and scope
 - Purpose: Define the expected behavior of the `geo_webview` plugin for implementation, operation and testing.
-- Scope: **serverless web distribution (main feature)** — exporting the open QGIS project as `.kasc`+`DATA/` for the KASUGAI Canvas multi-engine players (Cesium/MapLibre/OpenLayers/Leaflet); the embedded HTTP server (`/kasugai`, `/export-data/`, `/present`, `/screenshot`, permalink reception) as the supporting side; permalink generation/navigation, theme application, External Control behavior, CRS policy, and security/operational considerations.
+- Scope: **serverless web distribution (main feature)** — exporting the open QGIS project as `.kasc`+`DATA/` for the KASUGAI Canvas multi-engine players (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps); the embedded HTTP server (`/kasugai`, `/export-data/`, `/present`, `/screenshot`, permalink reception) as the supporting side; permalink generation/navigation, theme application, External Control behavior, CRS policy, and security/operational considerations.
 
 1. Feature overview
-- **Serverless web distribution (main)**: export the open QGIS project as a `.kasc`+`DATA/` package playable on the KASUGAI Canvas engines (Cesium/MapLibre/OpenLayers/Leaflet). Placing the output plus the engine on a static host delivers the map without any server. Launch routes: panel (`Export` = files only / `▶ Open` = register+launch), `GET /kasugai`, and bridge `kasugaiExport`, with a 3-tier fallback (Canvas registration → static serving by this server → hosted engine). See §15.
+- **Serverless web distribution (main)**: export the open QGIS project as a `.kasc`+`DATA/` package playable on the KASUGAI Canvas engines (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps). Placing the output plus the engine on a static host delivers the map without any server. Launch routes: panel (`Export` = files only / `▶ Open` = register+launch), `GET /kasugai`, and bridge `kasugaiExport`, with a 3-tier fallback (Canvas registration → static serving by this server → hosted engine). See §15.
 - Embedded HTTP server (supporting): provides `/kasugai` `/export-data/` `/present` `/present/state` `/screenshot` `/received` `/layouts` `/layout-pdf` (OGC services removed in v3.29.0).
 - Permalink generation: create HTTP permalinks for the current QGIS view (center coordinates, scale, rotation, theme, etc.) on the `/qgis-map` path for copying or opening in browsers. `/qgis-map` returns no HTML — it is the URL path used for reception history and External Control navigation (built-in viewers removed in v3.24.0).
 - Theme support: apply a named map theme on navigation (permalink `theme` parameter) and export theme lines (`.kasc` `theme:`) without altering project files.
 - External Control: accept requests (for example to `/qgis-map` or `/wms`) and, when permitted, navigate QGIS accordingly.
 
 2. API / Endpoints (high-level)
-- `GET /kasugai` — `.kasc`+`DATA/` export + Canvas registration. Accepts `engine=` (cesium|maplibre|openlayers|leaflet, default cesium) and `install=1` (fetch distribution ZIP when not found). JSON response `{ok,url,via,dir,layers,tiles,engine}`.
+- `GET /kasugai` — `.kasc`+`DATA/` export + Canvas registration. Accepts `engine=` (cesium|maplibre|openlayers|leaflet|gsimaps, default cesium) and `install=1` (fetch distribution ZIP when not found). JSON response `{ok,url,via,dir,layers,tiles,engine}`.
 - `GET /export-data/<rel>` — serves files under the latest export directory (.kasc/DATA/, launcher HTMLs).
 - `GET /<engine>/...` — statically serves the installed KASUGAI Canvas `web/` (fallback resolution for non-endpoint paths).
 - `GET /present` `/present/state` `/screenshot` — window-share page, canvas state JSON, canvas PNG.
@@ -58,7 +58,7 @@ The plugin's built-in generated viewers (former `/qgis-map`, `/maplibre`,
 KASUGAI Canvas. Web distribution now centers on the `.kasc`+`DATA/`
 export; see §15 for details.
 
-- Output: `kasugai_canvas.kasc`, `index.html`, `<engine>.html` ×4 (cesium/maplibre/openlayers/leaflet), `project.json`, `bookmarks.xml`, `DATA/` (GeoJSON / native formats / .qml / copied tiles).
+- Output: `kasugai_canvas.kasc`, `index.html`, `<engine>.html` ×5 (cesium/maplibre/openlayers/leaflet/gsimaps), `project.json`, `bookmarks.xml`, `DATA/` (GeoJSON / native formats / .qml / copied tiles).
 - Launcher HTMLs: redirect to the engine with `?kasc=<.kasc URL>` and auto-detect the engine in `./ ../ ../../ /` order (`CANVAS_BASE` overrides; when no engine is found they link to the hosted engine at `HOSTED_BASE`).
 
 ## 5–9. OGC services (removed in v3.29.0)

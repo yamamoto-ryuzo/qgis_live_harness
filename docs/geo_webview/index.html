@@ -45,11 +45,11 @@
 <main>
 <header class="hero"><h1>geo_webview — サーバレス Web 配信プラグイン
 <span class="ver-badge" data-plugin-version hidden></span></h1>
-<p>開いている QGIS プロジェクトを <code>.kasc</code>+<code>DATA/</code> パッケージに出力し、KASUGAI Canvas のマルチエンジン（Cesium / MapLibre / OpenLayers / Leaflet）で再生する QGIS プラグインの公式ドキュメントです。</p></header>
+<p>開いている QGIS プロジェクトを <code>.kasc</code>+<code>DATA/</code> パッケージに出力し、KASUGAI Canvas のマルチエンジン（Cesium / MapLibre / OpenLayers / Leaflet / GSI Maps）で再生する QGIS プラグインの公式ドキュメントです。</p></header>
 <figure class="shot">
 <img src="images/overview.webp"
-alt="QGISを即座にWebGISへ変換 — geo_webview 連携・機能ガイド。.kasc+DATA/ のエクスポート・静的ホスト配信、エクスポート／ZIP出力／▶WebView（CDN再生）／▶Canvas（ローカル連携）の4出力モード、Cesium・MapLibre・OpenLayers・Leaflet の4エンジンを KASUGAI Canvas に一本化して再生">
-<figcaption>geo_webview の全体像 — QGIS の成果物を .kasc+DATA/ へ出力し、静的ホストまたは KASUGAI Canvas の4エンジンで再生</figcaption>
+alt="QGISを即座にWebGISへ変換 — geo_webview 連携・機能ガイド。.kasc+DATA/ のエクスポート・静的ホスト配信、エクスポート／ZIP出力／▶WebView（CDN再生）／▶Canvas（ローカル連携）の4出力モード、Cesium・MapLibre・OpenLayers・Leaflet・GSI Maps の5エンジンを KASUGAI Canvas に一本化して再生">
+<figcaption>geo_webview の全体像 — QGIS の成果物を .kasc+DATA/ へ出力し、静的ホストまたは KASUGAI Canvas の5エンジンで再生</figcaption>
 </figure>
 <figure class="shot">
 <video src="images/demo.mp4" controls muted playsinline preload="metadata"></video>
@@ -66,7 +66,7 @@ Canvas / Re:Earth の全体像と、クライアントごとの連携方針</spa
 <a href="features.html"><b>主な機能</b><span>【エクスポート】【ZIP】【▶ WebView】
 【▶ Canvas】と WebGIS 公開 — パネル操作のすべて</span></a>
 <a href="engines.html"><b>マルチエンジン</b><span>Cesium / MapLibre / OpenLayers /
-Leaflet の使い分け・機能比較と GitHubPages CDN 配信</span></a>
+Leaflet / GSI Maps の使い分け・機能比較と GitHubPages CDN 配信</span></a>
 </nav>
 <blockquote>
 <p><strong><a
@@ -74,7 +74,7 @@ href="https://github.com/yamamoto-ryuzo/geo_suite">geo_suite</a></strong>
 の一部として開発<br />
 開いている QGIS プロジェクトを <code>.kasc</code>+<code>DATA/</code>
 パッケージに出力し、 KASUGAI Canvas のマルチエンジン（Cesium / MapLibre
-/ OpenLayers / Leaflet） で再生する QGIS
+/ OpenLayers / Leaflet / GSI Maps） で再生する QGIS
 プラグイン。出力物は静的ホスティングだけで配信できる
 <strong>サーバレス構成が本体</strong>であり、内蔵 HTTP
 サーバー（起動API・ <code>/export-data/</code>

@@ -213,7 +213,7 @@ href="https://github.com/yamamoto-ryuzo/geo_suite">geo_suite</a>
 <p><code>/kasugai</code> エンドポイント（またはファイル出力のみのパネル
 <code>Export</code> ボタン、 <code>▶ Open</code> ボタン、Live Driver
 経由の <code>kasugaiExport</code> ブリッジ）で、 QGIS プロジェクトを
-KASUGAI Canvas（Cesium / OpenLayers / MapLibre / Leaflet
+KASUGAI Canvas（Cesium / OpenLayers / MapLibre / Leaflet / GSI Maps
 のマルチエンジン地図アプリ）へ送出します。</p>
 <pre><code class="language-bash">curl &quot;http://localhost:8089/kasugai?engine=openlayers&quot;
 # → {&quot;ok&quot;:true,&quot;url&quot;:&quot;http://localhost:8510/?project=...&amp;engine=openlayers&quot;,&quot;dir&quot;:&quot;...&quot;,&quot;layers&quot;:N,&quot;tiles&quot;:M,&quot;engine&quot;:&quot;openlayers&quot;}</code></pre>
@@ -235,10 +235,10 @@ GeoJSON(EPSG:4326) へ変換</li>
 オプション付き）として出力。<code>wmts:</code> 行（RESTful
 テンプレート・KVP GetTile）も Canvas 側で読み込み可能</li>
 <li>出力プロジェクトは
-<code>?engine=cesium|maplibre|openlayers|leaflet</code>
+<code>?engine=cesium|maplibre|openlayers|leaflet|gsimaps</code>
 で全エンジンから開ける（<code>3dtiles:</code> 行は Cesium/maplibre が 3D
-表示、openlayers は deck.gl で真俯瞰の 2.5D 表示。leaflet
-では情報タブに「未対応行」として明示）</li>
+表示、openlayers は deck.gl で真俯瞰の 2.5D 表示。leaflet/gsimaps
+では「未対応行」として明示）</li>
 <li>起動中の KASUGAI へ自動登録・表示切替（未起動時は
 <code>qgis-http</code>/<code>hosted</code>
 フォールバックか出力のみ）</li>

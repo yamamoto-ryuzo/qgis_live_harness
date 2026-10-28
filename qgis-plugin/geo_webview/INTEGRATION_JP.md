@@ -16,7 +16,7 @@ flowchart TB
     end
 
     subgraph G1["① セット開発のプレイヤー群（高機能ルート：専用API連携）"]
-        KC["KASUGAI Canvas（主・統合プレイヤー）<br>HTTP サーバー :8510・AI ブリッジハブ :8511<br>Cesium / MapLibre / OpenLayers / Leaflet<br>登録・切替・rclone・自動更新・.kasc 関連付け"]
+        KC["KASUGAI Canvas（主・統合プレイヤー）<br>HTTP サーバー :8510・AI ブリッジハブ :8511<br>Cesium / MapLibre / OpenLayers / Leaflet / GSI Maps<br>登録・切替・rclone・自動更新・.kasc 関連付け"]
     end
 
     subgraph NORM["通常ルート：ローカル HTTP + WEB 配信（Canvas なしで即時 Web 化）"]
@@ -80,9 +80,9 @@ flowchart TB
 
 ### ② 同等品を作る場合 — データ構築を含めて一からの開発が必要
 
-他エンジン（Cesium/MapLibre/OpenLayers/Leaflet）と同様の `.kasc`+`DATA/` プレイヤーを ArcGIS 側で実現する場合、**Canvas 側のコード資産は SDK が異なり流用できないため別システムを一から作る形**になります（参照できるのは `.kasc` 仕様と同一 OSS ライブラリのみ）。
+他エンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps）と同様の `.kasc`+`DATA/` プレイヤーを ArcGIS 側で実現する場合、**Canvas 側のコード資産は SDK が異なり流用できないため別システムを一から作る形**になります（参照できるのは `.kasc` 仕様と同一 OSS ライブラリのみ）。
 
-なお **ArcGIS Maps SDK for JavaScript は Leaflet/MapLibre/OpenLayers/CesiumJS と同じカテゴリの Web 地図ライブラリ**（Esri 公式・WebGL ベース、MapView=2D / SceneView=3D）であり、構成としては「マルチエンジンに5番目のエンジンを追加する」のと同じ位置づけです。違いは OSS ではなく Esri 製品使用条件の範囲（帰属表示必須）である点と、SceneView が OGC 3D Tiles 非対応（I3S のみ）である点です。
+なお **ArcGIS Maps SDK for JavaScript は Leaflet/MapLibre/OpenLayers/CesiumJS と同じカテゴリの Web 地図ライブラリ**（Esri 公式・WebGL ベース、MapView=2D / SceneView=3D）であり、構成としては「マルチエンジンに6番目のエンジンを追加する」のと同じ位置づけです。違いは OSS ではなく Esri 製品使用条件の範囲（帰属表示必須）である点と、SceneView が OGC 3D Tiles 非対応（I3S のみ）である点です。
 
 #### プレイヤー実装のスコープと `.kasc` 行種の対応可否
 
@@ -140,7 +140,7 @@ Canvas と同じサーバレス配信は「ArcGIS 版 `.kasc` プレイヤーの
 
 #### `.kasc` プレイヤー実装の最小ライセンス
 
-「他エンジン（Cesium/MapLibre/OpenLayers/Leaflet）と同様に `.kasc`+`DATA/` を読んで再現するプレイヤー」を ArcGIS 側で実装する場合の最小ライセンスは以下の通りで、**いずれも無償または低額**です。
+「他エンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps）と同様に `.kasc`+`DATA/` を読んで再現するプレイヤー」を ArcGIS 側で実装する場合の最小ライセンスは以下の通りで、**いずれも無償または低額**です。
 
 
 

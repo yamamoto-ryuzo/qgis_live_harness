@@ -65,7 +65,8 @@ class GeoWebViewBridge:
     # 自動生成し、METHOD_DOCS で補足する。
     NAME = "geo_webview (QMap Permalink)"
     SUMMARY = ("QGIS プロジェクトを .kasc+DATA/ パッケージに出力して"
-               "KASUGAI Canvas(Cesium/MapLibre/OpenLayers/Leaflet)で再生する"
+               "KASUGAI Canvas(Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps)"
+               "で再生する"
                "サーバレスWeb配信プラグイン。"
                "地図表示状態(中心/縮尺/回転/テーマ)をパーマリンクURLとして"
                "生成・復元する。"
@@ -184,7 +185,7 @@ class GeoWebViewBridge:
         "openExternal": {
             "description":
                 "KASUGAI Canvas を指定エンジンで起動する。serviceは"
-                " cesium / openlayers / maplibre / leaflet。",
+                " cesium / openlayers / maplibre / leaflet / gsimaps。",
             "example": {"method": "openExternal", "args": ["maplibre"]},
         },
         "kasugaiExport": {
@@ -195,8 +196,8 @@ class GeoWebViewBridge:
                 "GPKGはwhere=付き、3D Tilesは3dtiles:行、他ベクターは"
                 "GeoJSON(4326)化。起動中のKASUGAIローカルサーバ(port 8510)"
                 "があれば外部プロジェクト登録してブラウザで開く。"
-                "engine=cesium|openlayers|maplibre|leaflet で起動エンジン"
-                "を指定できる(既定 cesium)。"
+                "engine=cesium|openlayers|maplibre|leaflet|gsimaps "
+                "で起動エンジンを指定できる(既定 cesium)。"
                 "open_app=Falseで出力のみ。hidden_as_off=Trueで非表示レイヤ"
                 "もoff行として出力。embed_gpkg_style=TrueでGPKGの"
                 "layer_stylesへも保存。QGISブックマークは bookmarks.xml"
@@ -866,14 +867,15 @@ class GeoWebViewBridge:
         """KASUGAI Canvas を指定エンジンで起動する。
 
         service: KASUGAI Canvas エンジン名
-        ("cesium" | "openlayers" | "maplibre" | "leaflet")
+        ("cesium" | "openlayers" | "maplibre" | "leaflet" | "gsimaps")
         """
         service = str(service or "").strip().lower()
-        if service in ("cesium", "openlayers", "maplibre", "leaflet"):
+        if service in (
+                "cesium", "openlayers", "maplibre", "leaflet", "gsimaps"):
             # KASUGAI Canvas: エクスポート・登録・ブラウザ起動まで行う
             return self.kasugaiExport(engine=service, open_app=True)
         return self._err("unknown service: {!r} (cesium/openlayers/"
-                         "maplibre/leaflet)".format(service))
+                         "maplibre/leaflet/gsimaps)".format(service))
 
     # ---------- KASUGAI Canvas 連携 ----------
 
@@ -902,7 +904,7 @@ class GeoWebViewBridge:
         正規化)として出力し bookmark: 行を書く(Canvas 側が読み込んで
         カメラプリセットに展開する)。
         emit_launchers=True(既定)で .kasc と同じ場所に <engine>.html
-        (cesium/maplibre/openlayers/leaflet)と index.html のエンジン
+        (cesium/maplibre/openlayers/leaflet/gsimaps)と index.html のエンジン
         起動ページを出力する。出力フォルダとエンジン(web/ の中身)を
         同じ静的サーバーへアップすれば ?kasc= 経由でサーバレス動作する。
         emit_zip=True で出力一式(.kasc+DATA/等)を kasugai_canvas_<tag>.zip に
@@ -921,8 +923,8 @@ class GeoWebViewBridge:
         web/ が見つかれば geo_webview のHTTPサーバがエンジンHTMLと
         /export-data/ のデータを配信するフォールバックURL(via:'qgis-http')
         を返してブラウザで開く。どちらも無理なら出力のみ行う。
-        engine=cesium|openlayers|maplibre|leaflet で起動エンジンを指定
-        できる(既定 cesium、URLの ?engine= パラメータ経由)。
+        engine=cesium|openlayers|maplibre|leaflet|gsimaps で起動エンジンを
+        指定できる(既定 cesium、URLの ?engine= パラメータ経由)。
         GUIスレッドで全レイヤを逐次エクスポートするため、大量レイヤでは
         数秒ブロックする場合がある。
         """
@@ -1122,7 +1124,8 @@ class GeoWebViewBridge:
         base = server.get_network_url() or localhost_base
         eps = [
             {"path": "/kasugai",
-             "url": f"{base}/kasugai?engine=cesium|openlayers|maplibre|leaflet",
+             "url": f"{base}/kasugai"
+                    "?engine=cesium|openlayers|maplibre|leaflet|gsimaps",
              "description": "KASUGAI Canvasエクスポート・登録・起動"},
             {"path": "/export-data/<rel>",
              "url": f"{base}/export-data/<dir>/kasugai_canvas.kasc",
@@ -1206,7 +1209,7 @@ class GeoWebViewBridge:
             if _ke.normalize_engine(eng) is None:
                 return self._err(
                     f"invalid kasugai_engine: {eng!r} "
-                    "(cesium/openlayers/maplibre/leaflet)")
+                    "(cesium/openlayers/maplibre/leaflet/gsimaps)")
             s.setValue("kasugai_engine", _ke.normalize_engine(eng))
             applied["kasugai_engine"] = _ke.normalize_engine(eng)
             panel = self._panel()
