@@ -671,7 +671,14 @@ Canvas エンジンの公開 CDN</a>。 kasugai_canvas 側の
 ＋ shared コア）を GitHub Pages で <code>stable/</code>（安定版・既定）と
 <code>unstable/</code>（開発版）の2チャンネル公開し、
 <code>channels.json</code> が各チャンネルのバージョンを返します。
-エンジンは実質上位互換を維持して更新されます。</p>
+エンジンは実質上位互換を維持して更新されます。GSI Maps
+は vendored 地理院地図（<code>vendor/gsimaps</code>、約75MB）を
+チャンネルへ同梱して配信します。KASUGAI Canvas
+側ではこの vendor をリポジトリ・配布物に同梱しないため、
+ローカルで <code>vendor/</code> が無い環境の
+<code>gsimaps/</code> はこの CDN 版へ
+<code>?kasc=&lt;ローカル絶対URL&gt;</code> で自動転送されます（他4エンジンが
+jsdelivr 依存なのと同様、GSI Maps は github.io 依存）。</p>
 <p>利用経路:</p>
 <ul>
 <li>【▶ WebView】—

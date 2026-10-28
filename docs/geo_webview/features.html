@@ -166,8 +166,11 @@ CDN（Fastly）がエッジ配信。エンジンJSの取得は速い</td>
 <th scope="row">安定性</th>
 <td>高可用だがインターネット必須。github.io
 到達不能だと表示されない</td>
-<td>外部依存ゼロ。オフライン・閉域網・github.io
-ブロック環境でも動く</td>
+<td>同一オリジンなので CORS 不要。ただしエンジン JS
+本体は各エンジンが jsdelivr から取得し、GSI Maps は
+vendor/ 未同梱なら kasugai-canvas-web の CDN 版へ転送されるため、
+<strong>完全オフラインにはライブラリ群と vendor/
+のローカル同梱が別途必要</strong></td>
 </tr>
 <tr>
 <th scope="row">CORS</th>
