@@ -2235,7 +2235,7 @@ def _threed_lines(project, warnings):
 
 
 def _theme_style_qml(layer, style_name, data_dir, slug, theme_slug,
-                     warnings):
+                     warnings, used_names=None, copied=None):
     """テーマ記録の名前付きスタイル(styleManager の名前)を
     DATA/<slug>__<theme>.qml へ出力し 'DATA/...' を返す。
     styleManager に無い・無効なスタイルは None。"""
@@ -2249,9 +2249,20 @@ def _theme_style_qml(layer, style_name, data_dir, slug, theme_slug,
             xml = xml.toString()
         fname = '{0}__{1}.qml'.format(
             slug or 'layer', theme_slug or 'theme')
-        with open(os.path.join(data_dir, fname), 'w',
-                  encoding='utf-8') as f:
+        fpath = os.path.join(data_dir, fname)
+        with open(fpath, 'w', encoding='utf-8') as f:
             f.write(xml)
+        # メインスタイルと同様にシンボル画像(SVG/ラスタ)を
+        # DATA/ へ複製して参照を書き換える(絶対パス残存を防ぐ)
+        try:
+            _export_qml_assets(
+                fpath, slug or 'layer', data_dir,
+                used_names if used_names is not None else set(),
+                copied if copied is not None else {}, warnings)
+        except Exception as e:
+            warnings.append(
+                'theme style {0}: シンボル画像の複製失敗: {1}'.format(
+                    style_name, e))
         return 'DATA/' + fname
     except Exception as e:
         warnings.append('theme style {0}: {1}'.format(style_name, e))
@@ -2903,7 +2914,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                             rel = _theme_style_qml(
                                 layer, sname, data_dir,
                                 slug_by_id.get(layer.id()),
-                                theme_slug, warnings)
+                                theme_slug, warnings,
+                                used_names, copied)
                             if rel:
                                 tok = '{0};style={1}'.format(tok, rel)
                         parts.append(tok)
