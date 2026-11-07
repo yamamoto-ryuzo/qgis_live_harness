@@ -1563,7 +1563,7 @@ def _geotiff_layer_ref(layer, slug, data_dir, copied):
     return _copy_to_data(path, data_dir, slug, copied)
 
 
-def _native_ref(layer, slug, data_dir, copied, warnings):
+def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
     """Canvas が直接参照できるソースなら参照辞書を返す。
 
     戻り値: ``{'type': <kasc行タイプ>, 'ref': <参照>, 'opts': {k: v}}``、
@@ -1576,6 +1576,10 @@ def _native_ref(layer, slug, data_dir, copied, warnings):
     - subsetString → gpkg は ``where=``、parquet は ``duckdb:+format=parquet``
       へ切替、GeoJSON/FGB はフィルタ反映のため GeoJSON 変換へ回す
     地理座標系でない場合は None(GeoJSON 再エクスポートへ回す)。
+
+    embed_style=True ならローカル GPKG の layer_styles へ現在スタイルを
+    保存してから DATA/ へコピーする(配布コピーにスタイルを含めるため、
+    コピー前の埋め込みが必須)。
     """
     src = layer.source() or ''
     subset = _subset_filter(layer)
@@ -1671,6 +1675,23 @@ def _native_ref(layer, slug, data_dir, copied, warnings):
         elif kind != 'gpkg':
             # geojson/flatgeobuf は where= 非対応 → GeoJSON 変換で反映
             return None
+    if kind == 'gpkg' and embed_style:
+        # コピー後に埋め込むと配布コピー(DATA/)へスタイルが入らないため、
+        # 必ず元 GPKG への保存 → コピーの順に行う
+        if _embed_gpkg_style(layer):
+            warnings.append(
+                '{0}: layer_styles に既定スタイルを保存'.format(layer.name()))
+            prev = copied.get(os.path.abspath(src_path))
+            if prev:
+                # 同一 GPKG の別レイヤで既に DATA/ へコピー済み → 参照名を
+                # 変えずに同じ宛先へ上書き再コピーし、全レイヤ分の
+                # layer_styles を配布コピーへ反映する
+                shutil.copy2(src_path,
+                             os.path.join(data_dir,
+                                          os.path.basename(prev)))
+        else:
+            warnings.append(
+                '{0}: layer_styles への保存に失敗'.format(layer.name()))
     ref = _copy_to_data(src_path, data_dir, slug, copied)
     opts = {}
     if kind == 'duckdb':
@@ -1688,14 +1709,14 @@ def _embed_gpkg_style(layer):
     """GPKG の layer_styles へ既定スタイルを保存する(QGIS 標準機能)。
 
     データ+スタイルを1ファイルで配布できる。元ファイルに書き込む点に注意。
+    saveStyleToDatabase はエラーメッセージ文字列を返す(空=成功。
+    QGIS 4.0 実測)。
     """
     try:
         res = layer.saveStyleToDatabase(
             'kasugai', 'KASUGAI Canvas 既定スタイル', True, '')
-        if isinstance(res, tuple):
-            return bool(res[1]) if len(res) > 1 else not res[0]
         return not res
-    except Exception:
+    except Exception:  # プロバイダ未対応等 → 呼び出し側で警告
         return False
 
 
@@ -1770,31 +1791,21 @@ def _qml_asset_props(layer_el, keys):
 
 def _qgis_svg_search_paths():
     """QGIS の SVG 検索ディレクトリ一覧(内蔵+ユーザー登録)。"""
-    try:
-        from qgis.core import QgsApplication
-        return [p for p in (QgsApplication.svgPaths() or []) if p]
-    except Exception:  # nosec B110  # 設計上の許容
-        return []
+    from qgis.core import QgsApplication
+    return [p for p in (QgsApplication.svgPaths() or []) if p]
 
 
-def _resolve_svg_file(name, svg_dirs):
-    """SVG 参照名を実ファイルの絶対パスへ解決する。失敗時 None。"""
-    try:
-        from qgis.core import QgsSymbolLayerUtils
-        try:
-            from qgis.core import QgsPathResolver
-            full = QgsSymbolLayerUtils.svgSymbolNameToPath(
-                name, QgsPathResolver())
-        except Exception:
-            full = QgsSymbolLayerUtils.svgSymbolNameToPath(name)
-        if full and os.path.isfile(full):
-            return os.path.abspath(full)
-    except Exception:  # nosec B110  # utils 未対応時は下の手動検索へ
-        pass
-    for base in svg_dirs or []:
-        cand = os.path.normpath(os.path.join(base, name))
-        if os.path.isfile(cand):
-            return os.path.abspath(cand)
+def _resolve_svg_file(name):
+    """SVG 参照名を実ファイルの絶対パスへ解決する。失敗時 None。
+
+    svgSymbolNameToPath(name, resolver) が SVG 検索パス
+    (内蔵+ユーザー登録)を探し、未解決時は入力名をそのまま返す
+    (QGIS 4.0 実測)ため、isfile で実在を確定させる。
+    """
+    from qgis.core import QgsPathResolver, QgsSymbolLayerUtils
+    full = QgsSymbolLayerUtils.svgSymbolNameToPath(name, QgsPathResolver())
+    if full and os.path.isfile(full):
+        return os.path.abspath(full)
     return None
 
 
@@ -1804,6 +1815,7 @@ def _resolve_asset_file(value, qml_dir, svg_dirs):
     絶対パスはそのまま、相対名はプロジェクト dir → qml dir →
     SVG 検索パスの順で探す。見つからなければ None。
     """
+    from qgis.core import QgsProject
     v = urllib.parse.unquote(str(value or '').strip())
     if not v:
         return None
@@ -1811,20 +1823,16 @@ def _resolve_asset_file(value, qml_dir, svg_dirs):
     if os.path.isabs(p):
         return os.path.abspath(p) if os.path.isfile(p) else None
     dirs = []
-    try:
-        from qgis.core import QgsProject
-        proj_dir = QgsProject.instance().absolutePath()
-        if proj_dir:
-            dirs.append(proj_dir)
-    except Exception:  # nosec B110  # 設計上の許容
-        pass
+    proj_dir = QgsProject.instance().absolutePath()
+    if proj_dir:
+        dirs.append(proj_dir)
     dirs.append(qml_dir)
     dirs.extend(svg_dirs or [])
     for base in dirs:
         cand = os.path.normpath(os.path.join(base, p))
         if os.path.isfile(cand):
             return os.path.abspath(cand)
-    return _resolve_svg_file(p, svg_dirs or [])
+    return _resolve_svg_file(p)
 
 
 def _export_qml_assets(qml_path, layer_slug, data_dir, used_names, copied,
@@ -2235,30 +2243,27 @@ def _threed_lines(project, warnings):
 
 
 def _theme_style_qml(layer, style_name, data_dir, slug, theme_slug,
-                     warnings, used_names=None, copied=None):
+                     warnings, used_names, copied):
     """テーマ記録の名前付きスタイル(styleManager の名前)を
     DATA/<slug>__<theme>.qml へ出力し 'DATA/...' を返す。
-    styleManager に無い・無効なスタイルは None。"""
+    styleManager に無い・無効なスタイルは None。
+    xmlData() は .qml 同等の <qgis> 文書文字列(QGIS 4.0 実測)。"""
     try:
         mgr = layer.styleManager()
         st = mgr.style(style_name) if mgr is not None else None
         if st is None or not st.isValid():
             return None
-        xml = st.xmlData()
-        if not isinstance(xml, str):
-            xml = xml.toString()
         fname = '{0}__{1}.qml'.format(
             slug or 'layer', theme_slug or 'theme')
         fpath = os.path.join(data_dir, fname)
         with open(fpath, 'w', encoding='utf-8') as f:
-            f.write(xml)
+            f.write(st.xmlData())
         # メインスタイルと同様にシンボル画像(SVG/ラスタ)を
         # DATA/ へ複製して参照を書き換える(絶対パス残存を防ぐ)
         try:
             _export_qml_assets(
-                fpath, slug or 'layer', data_dir,
-                used_names if used_names is not None else set(),
-                copied if copied is not None else {}, warnings)
+                fpath, slug or 'layer', data_dir, used_names, copied,
+                warnings)
         except Exception as e:
             warnings.append(
                 'theme style {0}: シンボル画像の複製失敗: {1}'.format(
@@ -2394,6 +2399,9 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         embed_gpkg_style: True なら gpkg: 参照レイヤの現在スタイルを
             QGIS 標準の layer_styles(useAsDefault)へも保存する。
             **元の .gpkg ファイルへ書き込む**点に注意(opt-in)。
+            保存は DATA/ へのコピー前に行い、配布コピーにも
+            layer_styles が含まれる(対象はローカル GPKG のみ。
+            http URL 参照の GPKG へは書き込めないため対象外)。
         emit_themes: True ならプロジェクトのマップテーマを ``theme:`` 行
             (Canvas の可視性プリセット)として出力する(既定)。
             テーマが存在する場合、非表示レイヤも ``| off`` で出力しないと
@@ -2553,23 +2561,15 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                         layer.name()))
                 native = None
             else:
-                native = _native_ref(layer, slug, data_dir, copied,
-                                     warnings) if native_formats else None
+                native = _native_ref(
+                    layer, slug, data_dir, copied, warnings,
+                    embed_style=embed_gpkg_style) if native_formats else None
             if isinstance(native, dict) and native.get('skip_reason'):
                 skipped.append(
                     '{0} ({1})'.format(layer.name(), native['skip_reason']))
                 continue
             if native:
                 line_type, ref = native['type'], native['ref']
-                if embed_gpkg_style and line_type == 'gpkg':
-                    if _embed_gpkg_style(layer):
-                        warnings.append(
-                            '{0}: layer_styles に既定スタイルを保存'.format(
-                                layer.name()))
-                    else:
-                        warnings.append(
-                            '{0}: layer_styles への保存に失敗'.format(
-                                layer.name()))
                 line = '{0}: {1} | {2} | {3}'.format(
                     line_type, title, _kasc_escape(ref), vis_flag)
                 for key, val in native.get('opts', {}).items():
@@ -2880,26 +2880,22 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                     visible_ids = set(
                         collection.mapThemeVisibleLayerIds(name))
                     # テーマ記録の名前付きスタイル → ;style= で引き継ぐ
-                    # (MapThemeRecord.LayerRecord: layer/usingCurrentStyle/
-                    #  currentStyle=スタイル名 文字列)
+                    # (MapThemeLayerRecord: layer()=メソッド、
+                    #  usingCurrentStyle/currentStyle=属性。QGIS 4.0 実測)
                     style_by_id = {}
                     try:
                         rec = collection.mapThemeState(name)
-                        for lr in (rec.layerRecords() or []):
-                            lyr = getattr(lr, 'layer', None)
-                            if callable(lyr):
-                                lyr = lyr()
-                            if lyr is None or not hasattr(lyr, 'id'):
+                        for lr in rec.layerRecords():
+                            lyr = lr.layer()
+                            if lyr is None or not lr.usingCurrentStyle:
                                 continue
-                            if not getattr(lr, 'usingCurrentStyle', False):
-                                continue
-                            sname = getattr(lr, 'currentStyle', '') or ''
-                            if callable(sname):
-                                sname = sname()
+                            sname = lr.currentStyle or ''
                             if sname:
                                 style_by_id[lyr.id()] = sname
-                    except Exception:
-                        style_by_id = {}
+                    except Exception as e:
+                        warnings.append(
+                            'theme {0}: スタイル記録の取得失敗: {1}'.format(
+                                name, e))
                     theme_slug = _slugify(name, used_names)
                     parts = []
                     for layer, _g, _v in tree:

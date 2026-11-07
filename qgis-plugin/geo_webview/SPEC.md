@@ -200,7 +200,10 @@ SVGFill/RasterFill 等の `name`/`imageFile`/`svgFile`/`file`)を実ファイル
 (QGIS 内蔵SVGの `transport/…` 等の相対名は `QgsApplication.svgPaths()` で
 解決。http(s)/data/base64: 参照はそのまま維持。解決不能は warnings 記録)。
 `embed_gpkg_style=True` なら `saveStyleToDatabase` で GPKG の
-`layer_styles` にも既定スタイルを保存する(**元ファイルを更新する**)。
+`layer_styles` にも既定スタイルを保存する(**元ファイルを更新する**。
+保存は DATA/ へのコピー前に行うため配布コピーにも layer_styles が
+含まれ、同一 GPKG の複数レイヤも全レイヤ分が入る。
+対象はローカル GPKG のみで、http(s) URL 参照の GPKG は対象外)。
 `sql:` 行は QGIS 側に対応する任意クエリソースが無いため出力しない
 （クエリ系は `duckdb:` の宣言的オプションで網羅する）。
 

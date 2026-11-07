@@ -11,6 +11,30 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [4.6.2] - 2026-11-07
+
+### Fixed
+
+- `embed_gpkg_style=True` で GPKG への layer_styles 書き込みが
+  DATA/ へのコピー**後**に行われ、配布コピーにスタイルが含まれない
+  問題を修正(4.6.1 と同類の「スタイルが配布物へ届かない」不具合)。
+  埋め込みをコピー前に移動し、同一 GPKG の複数レイヤでは既存の
+  配布コピーを同一名で上書き再コピーして全レイヤ分を反映するようにした。
+  http(s) URL 参照の GPKG には書き込めないため対象外に変更
+  (これまで警告なしで常に失敗していた)。temp GPKG の実機検証で
+  配布コピーに全レイヤ分の layer_styles 行が入ることを確認
+- QML 関連コードで QGIS 4.0 実機検証により到達不能と判明した
+  理由不明のフォールバックを除去:
+  `QgsSymbolLayerUtils.svgSymbolNameToPath` の1引数呼出し
+  (2引数必須のため必ず TypeError→手動検索へ落ちていただけ)、
+  同関数の外側 try/except と svg_paths 手動検索ループ
+  (QGIS 側が同じパスを検索済みで重複)、
+  `QgsMapLayerStyle.xmlData()` の非 str 分岐(常に str)、
+  MapThemeLayerRecord の callable/getattr 防御分岐
+  (`layer()`=メソッド・`usingCurrentStyle`/`currentStyle`=属性と実測)、
+  `saveStyleToDatabase` の tuple 戻り値分岐(str のみ返す)。
+  テーマのスタイル記録取得失敗は黙って捨てず warnings へ記録するよう変更
+
 ## [4.6.1] - 2026-11-07
 
 ### Fixed
