@@ -3,7 +3,7 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
-## [0.15.2] - Unreleased
+## [0.15.2] - 2026-11-07
 
 ### Added
 - bridge.py: AIパネル(openAiPanel)・接続情報(openConnInfo)・
@@ -12,7 +12,7 @@
   bridgeメソッドとして追加し、ドライバ自身の全機能を
   bridge_callからも操作可能にした
 
-## [0.15.1] - Unreleased
+## [0.15.1] - 2026-11-07
 
 ### Added
 
