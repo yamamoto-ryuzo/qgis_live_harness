@@ -23,6 +23,7 @@ KASUGAI Canvas は ``geojson: タイトル | DATA/x.geojson | on | style=DATA/x.
 """
 
 import json
+import math
 import os
 import re
 import shutil
@@ -772,6 +773,20 @@ def _kasc_escape(text):
     return re.sub(r'[|\r\n]+', ' ', str(text or '')).strip()
 
 
+def _kasc_layer_title(groups, leaf_name, exclusive_groups=None):
+    """レイヤツリーのパンくずタイトルを返す。
+
+    直系の親グループが相互排他(exclusive_groups に収集済み)なら
+    親子間を ``//`` で繋ぐ(Canvas の排他グループ指定と同規則)。
+    """
+    parts = ([_kasc_escape(g) for g in groups if g] +
+             [_kasc_escape(leaf_name)])
+    if len(parts) > 1 and exclusive_groups is not None \
+            and tuple(groups) in exclusive_groups:
+        return '/'.join(parts[:-1]) + '//' + parts[-1]
+    return '/'.join(parts)
+
+
 def _project_maplayer_elements(project):
     """プロジェクトファイル(.qgs/.qgz)の <maplayer> 要素を id 引き辞書で返す。
 
@@ -885,7 +900,8 @@ def _load_unresolved_layer(project, node, maplayer_elems, context):
     return node.layer() or lyr
 
 
-def _tree_layers(skipped=None, warnings=None, group_states=None):
+def _tree_layers(skipped=None, warnings=None, group_states=None,
+                 exclusive_groups=None):
     """レイヤツリー順(上から)に (layer, group_path, visible) で返す。
 
     visible はノード自身のチェックと全祖先の表示状態の積(実効表示状態)。
@@ -897,6 +913,9 @@ def _tree_layers(skipped=None, warnings=None, group_states=None):
 
     group_states に dict を渡すと、「 / 」連結のグループパスをキーに
     展開状態(True=expanded/False=collapsed)を収集する(#59)。
+    exclusive_groups に set を渡すと、相互排他(チェックで1つだけ表示)な
+    グループのパス(tuple)を収集する。直系のレイヤは ``//`` 区切りの
+    排他グループタイトルとして出力する。
     """
     from qgis.core import (QgsProject, QgsReadWriteContext,
                            QgsPathResolver)
@@ -906,6 +925,13 @@ def _tree_layers(skipped=None, warnings=None, group_states=None):
 
     def _walk(node, groups, visible):
         from qgis.core import QgsLayerTreeGroup, QgsLayerTreeLayer
+        excl = False
+        if (exclusive_groups is not None
+                and isinstance(node, QgsLayerTreeGroup)):
+            try:
+                excl = bool(node.isMutuallyExclusive())
+            except Exception:  # nosec B110  # 設計上の許容
+                excl = False
         for child in node.children():
             try:
                 checked = child.itemVisibilityChecked()
@@ -923,6 +949,8 @@ def _tree_layers(skipped=None, warnings=None, group_states=None):
                 _walk(child, path, eff)
             elif isinstance(child, QgsLayerTreeLayer):
                 entries.append((child, list(groups), eff))
+                if excl:
+                    exclusive_groups.add(tuple(groups))
 
     _walk(root, [], True)
 
@@ -1429,16 +1457,50 @@ def _renderer_opts(layer, warnings):
     return opts
 
 
+def _layer_3d_opts(layer, warnings):
+    """ベクターの3Dレンダラ(立ち上げ) → ``extrude=<m>``/``z=<m>``(#60)。
+
+    QgsVectorLayer3DRenderer のシンボル(ポリゴン/ライン)が持つ
+    extrusionHeight(立ち上げ高さ)と height(基準高さオフセット)を
+    Canvas の extrudedHeight/height へ橋渡しする。renderer3D を持たない
+    レイヤ・シンボル無し・読み取り失敗時は空dict。2.5D(2D側)レンダラは
+    _renderer_opts 側の warnings 対象のままとする。
+    """
+    opts = {}
+    try:
+        r3d = layer.renderer3D()
+        sym = r3d.symbol() if r3d is not None else None
+    except Exception:  # nosec B110  # 設計上の許容
+        return opts
+    if sym is None:
+        return opts
+    try:
+        ext = float(sym.extrusionHeight())
+        if ext > 0:
+            opts['extrude'] = '{0:g}'.format(ext)
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    try:
+        h = float(sym.height())
+        if h:
+            opts['z'] = '{0:g}'.format(h)
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return opts
+
+
 def _vector_opts_suffix(layer, warnings):
     """ベクター行(geojson:/gpkg: 等)共通の追加オプション文字列を返す。
 
     - 時間対応 → `` | time=<f>``/`` | time_end=<f>``/`` | time_span=<s>``
     - レンダラ種別 → `` | heat=on``/`` | cluster=on``
+    - 3Dレンダラ立ち上げ → `` | extrude=<m>``/`` | z=<m>``
     - レイヤ不透明度 → `` | opacity=<0-1>``
     """
     opts = {}
     opts.update(_temporal_opts(layer, warnings))
     opts.update(_renderer_opts(layer, warnings))
+    opts.update(_layer_3d_opts(layer, warnings))
     _blend_warning(layer, warnings)
     op = _maplayer_opacity(layer)
     if op is not None:
@@ -1929,7 +1991,7 @@ def _xyz_layer_info(layer):
 
 def _wms_layer_info(layer):
     """QGIS の WMS ラスタレイヤ(type=xyz 以外)なら
-    (base_url, layers_csv, styles_csv, format) を返す。
+    (base_url, layers_csv, styles_csv, format, version) を返す。
 
     source URI は ``key=value&key=value`` 形式で、layers=/styles= は
     繰り返し出る(レイヤ順を保持)。値はパーセントエンコード済み。
@@ -1960,7 +2022,8 @@ def _wms_layer_info(layer):
         return (url,
                 ','.join(lists.get('layers', [])),
                 ','.join(lists.get('styles', [])),
-                params.get('format') or '')
+                params.get('format') or '',
+                params.get('version') or '')
     except Exception:
         return None
 
@@ -2060,9 +2123,8 @@ def _render_raster_png(layer, png_path, warnings):
     'w,s,e,n' bbox 文字列、失敗時 None。
     """
     try:
-        from qgis.core import (QgsCoordinateReferenceSystem,
-                               QgsCoordinateTransform, QgsMapRendererSequentialJob,
-                               QgsMapSettings, QgsProject)
+        from qgis.core import (QgsMapRendererSequentialJob,
+                               QgsMapSettings)
         from qgis.PyQt.QtCore import QSize
         from qgis.PyQt.QtGui import QColor
         ext = layer.extent()
@@ -2092,6 +2154,26 @@ def _render_raster_png(layer, png_path, warnings):
         img = job.renderedImage()
         if img.isNull() or not img.save(png_path, 'PNG'):
             return None
+        return _raster_bbox_str(layer)
+    except Exception as e:
+        warnings.append('{0}: ラスタ焼き付け失敗: {1}'.format(
+            layer.name(), e))
+        return None
+
+
+def _raster_bbox_str(layer):
+    """レイヤ範囲の EPSG:4326 'w,s,e,n' 文字列(焼き付けPNGのbboxと同値)。
+
+    差分エクスポートで既存PNGを再利用する際に bbox= を再計算せずに
+    復元するために使う(描画は行わない)。
+    """
+    try:
+        from qgis.core import (QgsCoordinateReferenceSystem,
+                               QgsCoordinateTransform, QgsProject)
+        ext = layer.extent()
+        if not ext or not ext.isFinite() or ext.isEmpty():
+            return None
+        crs = layer.crs()
         if crs and crs.isValid() and crs.authid() != 'EPSG:4326':
             tr = QgsCoordinateTransform(
                 crs, QgsCoordinateReferenceSystem('EPSG:4326'),
@@ -2099,9 +2181,7 @@ def _render_raster_png(layer, png_path, warnings):
             ext = tr.transformBoundingBox(ext)
         return '{0:.6f},{1:.6f},{2:.6f},{3:.6f}'.format(
             ext.xMinimum(), ext.yMinimum(), ext.xMaximum(), ext.yMaximum())
-    except Exception as e:
-        warnings.append('{0}: ラスタ焼き付け失敗: {1}'.format(
-            layer.name(), e))
+    except Exception:  # nosec B110  # 設計上の許容
         return None
 
 
@@ -2161,28 +2241,284 @@ def _project_xml_root(project):
         return None
 
 
-def _threed_lines(project, warnings):
-    """保存済み3Dビュー(<mapViewDocks3D><view>) → cam:/terrain: 行一覧。
+def _qgis3d_color_hex(value):
+    """QGIS 色文字列 'r,g,b,a,rgb:…' / '#rrggbb' → '#RRGGBB'(失敗時 None)。"""
+    if not value:
+        return None
+    value = str(value).strip()
+    if value.startswith('#'):
+        return value[:7]
+    try:
+        parts = [int(float(p.strip())) for p in value.split(',')[:3]]
+        if len(parts) == 3 and all(0 <= p <= 255 for p in parts):
+            return '#{0:02X}{1:02X}{2:02X}'.format(*parts)
+    except (TypeError, ValueError):
+        pass
+    return None
 
-    3D カメラは注視点(xMap,yMap=シーンCRS, dist=視線距離, pitch, yaw)で
-    保持されるため、注視点を 4326 へ変換し大圏逆算でカメラ位置を求め
-    ``cam:QGIS3D <名前>|lat|lon|h=|p=|d=`` として出力する(2D の cam: と
-    分離するため名前を前置)。地形の垂直誇張は ``terrain:`` 行で受け渡す。
+
+# ---- 3Dビュー(ローカル/グローブ) → cam:/fly_geojson: 行 ----------------
+
+_WGS84_A = 6378137.0
+_WGS84_E2 = (1.0 / 298.257223563) * (2.0 - 1.0 / 298.257223563)
+
+
+def _ecef_to_geodetic(x, y, z):
+    """ECEF(m) → (lat_deg, lon_deg, 楕円体高 m)。WGS84 閉形式+反復。"""
+    p = math.hypot(x, y)
+    if p < 1e-9:
+        return (math.copysign(90.0, z), 0.0,
+                abs(z) - _WGS84_A * math.sqrt(1.0 - _WGS84_E2))
+    lon = math.atan2(y, x)
+    lat = math.atan2(z, p * (1.0 - _WGS84_E2))
+    for _ in range(5):
+        n = _WGS84_A / math.sqrt(1.0 - _WGS84_E2 * math.sin(lat) ** 2)
+        lat = math.atan2(z + _WGS84_E2 * n * math.sin(lat), p)
+    n = _WGS84_A / math.sqrt(1.0 - _WGS84_E2 * math.sin(lat) ** 2)
+    return math.degrees(lat), math.degrees(lon), p / math.cos(lat) - n
+
+
+def _camera_offset_enu(dist, pitch_deg, yaw_deg):
+    """QGIS 3Dカメラ姿勢 → 注視点からカメラへの ENU オフセット (E,N,U) m。
+
+    ``QgsCameraPose::updateCamera``(ローカル)/``updateCameraGlobe``(グローブ)
+    の分解: 高さ成分は ``dist*cos(pitch)``、水平成分は ``dist*sin(pitch)``、
+    カメラは注視点から見て方位 ``(180-yaw)``° に位置する
+    (``E=g*sin(yaw), N=-g*cos(yaw)``)。pitch: 0=真上俯瞰, 90=水平。
     """
-    import math
+    p, h = math.radians(pitch_deg), math.radians(yaw_deg)
+    g = dist * math.sin(p)
+    return g * math.sin(h), -g * math.cos(h), dist * math.cos(p)
+
+
+def _camera_geodetic(x, y, z, dist, pitch, yaw, wgs3, globe):
+    """注視点(シーン座標)+姿勢 → カメラの (lat, lon, h)。失敗時 None。"""
+    e, n, u = _camera_offset_enu(dist, pitch, yaw)
+    if not globe:
+        return wgs3(x + e, y + n, z + u)
+    lat_c, lon_c, _h_c = wgs3(x, y, z)
+    clat, clon = math.radians(lat_c), math.radians(lon_c)
+    # 注視点でのローカル ENU 基底(ECEF での単位ベクトル)
+    up = (math.cos(clat) * math.cos(clon),
+          math.cos(clat) * math.sin(clon), math.sin(clat))
+    east = (-math.sin(clon), math.cos(clon), 0.0)
+    north = (-math.sin(clat) * math.cos(clon),
+             -math.sin(clat) * math.sin(clon), math.cos(clat))
+    cx = x + e * east[0] + n * north[0] + u * up[0]
+    cy = y + e * east[1] + n * north[1] + u * up[1]
+    cz = z + e * east[2] + n * north[2] + u * up[2]
+    return _ecef_to_geodetic(cx, cy, cz)
+
+
+def _cam_3d_line(name, lat, lon, h, pitch, yaw):
+    """cam:QGIS3D 行。h=楕円体高, p=QGIS pitch→Cesium pitch(pitch-90),
+    d=視線方位(360-yaw)。QGIS yaw は反時計回り(数学的正方向)のため
+    視線方位は ``-yaw`` になる(updateCamera* の ENU 分解より)。"""
+    return ('cam:QGIS3D {0}|{1:.6f}|{2:.6f}|h={3:.0f}'
+            '|p={4:.1f}|d={5:.1f}').format(
+                _kasc_escape(name), lat, lon, max(1.0, h),
+                pitch - 90.0, (-yaw) % 360.0)
+
+
+def _scene_crs_authid(view):
+    """<view><qgis3d><crs> 要素からシーンCRS の authid を取る。"""
+    crs_el = view.find('qgis3d/crs')
+    if crs_el is None:
+        return None
+    for el in crs_el.iter():
+        if el.tag == 'authid' and el.text and el.text.strip():
+            return el.text.strip()
+    return None
+
+
+def _scene_transformer(view, project, warnings):
+    """ビューのシーン座標→測地変換 ``wgs3(x,y,z)->(lat,lon,h)`` と
+    グローブ(地心系)フラグを返す。
+
+    - シーンCRSが地心系(グローブ: EPSG:4978 等) → ECEF→測地(WGS84
+      閉形式。非WGS84系は QgsCoordinateTransform→EPSG:4979)
+    - EPSG:4326 → 恒等
+    - その他ローカルシーン → QgsCoordinateTransform(シーンCRS→4326)
+      で (x,y) 変換、z は高さとしてそのまま返す
+    """
+    authid = _scene_crs_authid(view)
+    has_qgis = False
+    try:
+        from qgis.core import (QgsCoordinateReferenceSystem,
+                               QgsCoordinateTransform, QgsPoint,
+                               QgsPointXY, Qgis)
+        has_qgis = True
+    except Exception:  # nosec B110  # qgis 無し環境(単体テスト)の許容
+        pass
+    scene_crs = None
+    if has_qgis:
+        try:
+            scene_crs = (QgsCoordinateReferenceSystem(authid)
+                         if authid else project.crs())
+            if scene_crs is not None and not scene_crs.isValid():
+                scene_crs = None
+        except Exception:  # nosec B110  # 設計上の許容
+            scene_crs = None
+    globe = False
+    if scene_crs is not None:
+        try:
+            globe = scene_crs.type() == Qgis.CrsType.Geocentric
+        except Exception:  # nosec B110  # 設計上の許容
+            globe = False
+    if not globe and (authid or '').upper() == 'EPSG:4978':
+        globe = True  # qgis 無し/判定失敗時のフォールバック
+    if globe:
+        if not has_qgis or scene_crs is None \
+                or (authid or '').upper() == 'EPSG:4978':
+            return _ecef_to_geodetic, True
+        try:
+            tr = QgsCoordinateTransform(
+                scene_crs,
+                QgsCoordinateReferenceSystem('EPSG:4979'), project)
+
+            def f(x, y, z):
+                pt = tr.transform(QgsPoint(x, y, z))
+                return pt.y(), pt.x(), pt.z()
+            return f, True
+        except Exception as e:
+            warnings.append('3Dビュー: ECEF変換失敗({0})、'
+                            'WGS84近似で処理: {1}'.format(authid, e))
+            return _ecef_to_geodetic, True
+    if (authid or '').upper() == 'EPSG:4326':
+        return (lambda x, y, z: (y, x, z)), False
+    if not has_qgis:
+        if not authid:
+            return (lambda x, y, z: (y, x, z)), False
+        warnings.append('3Dビュー: qgis 未検出のためシーンCRS {0} を'
+                        '4326とみなします'.format(authid))
+        return (lambda x, y, z: (y, x, z)), False
+    try:
+        if scene_crs is None:
+            scene_crs = QgsCoordinateReferenceSystem(authid)
+        tr = QgsCoordinateTransform(
+            scene_crs, QgsCoordinateReferenceSystem('EPSG:4326'), project)
+
+        def f(x, y, z):
+            try:
+                pt = tr.transform(QgsPoint(x, y, z))
+                return pt.y(), pt.x(), pt.z()
+            except Exception:
+                pt = tr.transform(QgsPointXY(x, y))
+                return pt.y(), pt.x(), z
+        return f, False
+    except Exception as e:
+        warnings.append('3Dビュー: シーンCRS {0} の変換を'
+                        '作成できず座標をそのまま使います: {1}'.format(
+                            authid or project.crs().authid(), e))
+        return (lambda x, y, z: (y, x, z)), False
+
+
+def _anim3d_fly_line(view, name, wgs3, globe, data_dir, used_names,
+                     warnings):
+    """<animation3d><keyframe> 列 → fly_geojson: 行 + DATA/*.geojson。
+
+    キーフレームは ``lookingAtMapPoint``(注視点・シーン座標)+姿勢で保持
+    されるため、各キーフレームのカメラ位置を _camera_geodetic で求めて
+    フライパス(カメラ軌道)にする。speed はカメラ軌道の3D総延長を
+    アニメーション時間で割った m/s。キーフレーム2未満は行を返さない。
+    """
+    anim = view.find('animation3d')
+    if anim is None:
+        return None
+    keyframes = anim.findall('keyframes/keyframe')
+    if len(keyframes) < 2:
+        return None
+    coords, times = [], []
+    for kf in keyframes:
+        try:
+            x = float(kf.get('x'))
+            y = float(kf.get('y'))
+            z = float(kf.get('z') or 0.0)
+            dist = float(kf.get('dist') or 0)
+            pitch = float(kf.get('pitch') or 0)
+            yaw = float(kf.get('yaw') or 0)
+            t = float(kf.get('time') or 0)
+        except (TypeError, ValueError):
+            continue
+        if dist <= 0:
+            continue
+        try:
+            lat, lon, h = _camera_geodetic(
+                x, y, z, dist, pitch, yaw, wgs3, globe)
+        except Exception:  # nosec B112  # 設計上の許容
+            continue
+        coords.append([round(lon, 6), round(lat, 6),
+                       int(round(max(1.0, h)))])
+        times.append(t)
+    if len(coords) < 2:
+        return None
+    legs = []
+    for i in range(len(coords) - 1):
+        a, b = coords[i], coords[i + 1]
+        legs.append(math.hypot(_fly_leg_dist_m(a, b), b[2] - a[2]))
+    total = sum(legs)
+    duration = max(times) - min(times)
+    speed = (total / duration) if duration > 0.5 and total > 0 else None
+    if speed is None or speed <= 0 or speed > 10000:
+        speed = _fly_auto_speed_ms(total)
+    speed = round(speed, 1)
+    step = int(round(total / max(1, len(coords) - 1))) or 100
+    title = 'QGIS3D {0}'.format(name)
+    slug = _slugify('anim3d_{0}'.format(name), used_names)
+    gj = {
+        'type': 'FeatureCollection',
+        'features': [{
+            'type': 'Feature',
+            'properties': {
+                'name': title,
+                'source': 'qgis3dAnimation',
+                'view': name,
+                'keyframes': len(coords),
+                'duration': round(duration, 2),
+                'heightReference': 'MSL',
+                'fly': {
+                    'speed': speed, 'height': 0, 'step': step,
+                    'loop': False, 'view': 'camera',
+                },
+            },
+            'geometry': {
+                'type': 'LineString',
+                'coordinates': coords,
+            },
+        }],
+    }
+    path = os.path.join(data_dir, slug + '.geojson')
+    try:
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(gj, f, ensure_ascii=False)
+    except Exception as e:
+        warnings.append('3Dビュー {0}: アニメgeojson書込失敗: {1}'.format(
+            name, e))
+        return None
+    return ('fly_geojson: {0} | DATA/{1}.geojson | speed={2} '
+            '| view=camera | step={3}').format(
+                _kasc_escape(title), slug, speed, step)
+
+
+def _threed_lines(project, warnings, data_dir=None, used_names=None):
+    """保存済み3Dビュー(<mapViewDocks3D><view>) → cam:/terrain:/scene3d:/light:/fly_geojson: 行一覧。
+
+    3D カメラは注視点(xMap,yMap,zMap=シーンCRS, dist=視線距離, pitch,
+    yaw)で保持される。カメラ位置は注視点からの ENU オフセット
+    (E=dist*sin(p)*sin(yaw), N=-dist*sin(p)*cos(yaw), U=dist*cos(p))
+    で求め ``cam:QGIS3D <名前>|lat|lon|h=|p=|d=`` として出力する
+    (2D の cam: と分離するため名前を前置)。シーンCRSはビューごとの
+    <qgis3d><crs> を使い、地心系(グローブ・QGIS4)は ECEF→測地変換する。
+    地形設定は ``terrain:`` 行、シーン画面設定(背景色/スカイボックス/
+    影/SSAO/EDL・グローブ時は globe=on)は ``scene3d:`` 行、平行光源は
+    ``light:`` 行(シーン座標の光源方向ベクトル→方位/仰角)。
+    <animation3d> キーフレームはカメラ軌道を ``fly_geojson:`` 行 +
+    DATA/anim3d_*.geojson として出力する(#60)。
+    """
     out = []
     root = _project_xml_root(project)
     if root is None:
         return out
-    from qgis.core import (QgsCoordinateReferenceSystem,
-                           QgsCoordinateTransform, QgsPointXY)
-    scene_crs = project.crs()
-    tr = None
-    if scene_crs and scene_crs.isValid() and \
-            scene_crs.authid() != 'EPSG:4326':
-        tr = QgsCoordinateTransform(
-            scene_crs, QgsCoordinateReferenceSystem('EPSG:4326'), project)
-    R = 6371008.8
     try:
         for view in root.iter('view'):
             name = view.get('name') or '3D'
@@ -2192,6 +2528,7 @@ def _threed_lines(project, warnings):
             try:
                 x = float(cam_el.get('xMap'))
                 y = float(cam_el.get('yMap'))
+                z = float(cam_el.get('zMap') or 0)
                 dist = float(cam_el.get('dist') or 0)
                 pitch = float(cam_el.get('pitch') or 0)
                 yaw = float(cam_el.get('yaw') or 0)
@@ -2199,44 +2536,118 @@ def _threed_lines(project, warnings):
                 continue
             if dist <= 0:
                 continue
+            wgs3, globe = _scene_transformer(view, project, warnings)
             try:
-                pt = QgsPointXY(x, y)
-                if tr is not None:
-                    pt = tr.transform(pt)
-                tlat, tlon = pt.y(), pt.x()
-                # camFromGroundCenter 相当: カメラは注視点から
-                # heading+180 方向へ dist*cos(pitch) 退避、
-                # 高さ dist*sin(pitch)
-                th = math.radians(max(0.0, min(89.9, 90.0 - pitch)))
-                h = max(1.0, dist * math.cos(th))
-                d = dist * math.sin(th)
-                brng = math.radians(yaw + 180.0)
-                delta = d / R
-                phi1, lam1 = math.radians(tlat), math.radians(tlon)
-                phi2 = math.asin(
-                    math.sin(phi1) * math.cos(delta) +
-                    math.cos(phi1) * math.sin(delta) * math.cos(brng))
-                lam2 = lam1 + math.atan2(
-                    math.sin(brng) * math.sin(delta) * math.cos(phi1),
-                    math.cos(delta) - math.sin(phi1) * math.sin(phi2))
-                out.append(
-                    'cam:QGIS3D {0}|{1:.6f}|{2:.6f}|h={3:.0f}'
-                    '|p={4:.1f}|d={5:.1f}'.format(
-                        _kasc_escape(name), math.degrees(phi2),
-                        math.degrees(lam2), h, -pitch, yaw % 360))
-            except Exception:  # nosec B110  # 設計上の許容
-                pass
-            # 地形の垂直誇張(≠1 のみ出力)
+                lat, lon, h = _camera_geodetic(
+                    x, y, z, dist, pitch, yaw, wgs3, globe)
+                out.append(_cam_3d_line(name, lat, lon, h, pitch, yaw))
+            except Exception as e:
+                warnings.append(
+                    '3Dビュー {0}: カメラ変換失敗: {1}'.format(name, e))
+            if data_dir is not None and used_names is not None:
+                try:
+                    line = _anim3d_fly_line(
+                        view, name, wgs3, globe, data_dir, used_names,
+                        warnings)
+                    if line:
+                        out.append(line)
+                except Exception as e:
+                    warnings.append(
+                        '3Dビュー {0}: アニメ出力失敗: {1}'.format(name, e))
             qgis3d = view.find('qgis3d')
-            terr = qgis3d.find('terrain') if qgis3d is not None else None
+            if qgis3d is None:
+                continue
+            # 地形(ジェネレータ/垂直誇張/オフセット/陰影) → terrain: 行。
+            # 既定(dem・誇張1・オフセット0・陰影off)と同じ内容は出さない
+            terr = qgis3d.find('terrain')
             if terr is not None:
                 try:
-                    ex = float(terr.get('exaggeration') or 1.0)
+                    opts = []
+                    gen = terr.find('generator')
+                    gtype = (gen.get('type') or '').strip() \
+                        if gen is not None else ''
+                    try:
+                        ex = float(terr.get('exaggeration') or 1.0)
+                    except (TypeError, ValueError):
+                        ex = 1.0
+                    try:
+                        off = float(terr.get('elevation-offset') or 0.0)
+                    except (TypeError, ValueError):
+                        off = 0.0
                     if abs(ex - 1.0) > 0.001:
-                        out.append('terrain: qgis | exaggeration={0:g}'
-                                   .format(ex))
+                        opts.append('exaggeration={0:g}'.format(ex))
+                    if abs(off) > 0.001:
+                        opts.append('offset={0:g}'.format(off))
+                    if terr.get('shading-enabled') == '1':
+                        opts.append('shading=on')
+                    if gtype and (gtype != 'dem' or opts):
+                        opts.insert(0, 'generator={0}'.format(gtype))
+                    if opts:
+                        out.append('terrain: qgis | {0}'.format(
+                            ' | '.join(opts)))
                 except (TypeError, ValueError):
                     pass
+            # 画面設定(背景色/スカイボックス/影/SSAO/EDL) → scene3d: 行。
+            # 既定(QGIS 初期状態)と同じ内容は出さない
+            sopts = []
+            if globe:
+                sopts.append('globe=on')
+            # background は先頭に出す(Canvas が背景色適用時に空を隠すため、
+            # skybox=on を後ろに置いて有効な SkyBox を復帰させる)
+            color_el = qgis3d.find('color')
+            if color_el is not None:
+                bg = _qgis3d_color_hex(color_el.get('background'))
+                if bg and bg.upper() != '#FFFFFF':
+                    sopts.append('background={0}'.format(bg))
+            sky_el = qgis3d.find('skybox')
+            if sky_el is not None and sky_el.get('skybox-enabled') == '1':
+                sopts.append('skybox=on')
+            shadow_el = qgis3d.find('shadow-rendering')
+            if shadow_el is not None and \
+                    shadow_el.get('shadow-rendering-enabled') == '1':
+                sopts.append('shadows=on')
+            ao_el = qgis3d.find('screen-space-ambient-occlusion')
+            if ao_el is not None and ao_el.get('enabled') == '1':
+                sopts.append('ao=on')
+            edl_el = qgis3d.find('eye-dome-lighting')
+            if edl_el is not None and edl_el.get('enabled') == '1':
+                sopts.append('edl=on')
+            if sopts:
+                out.append('scene3d: {0} | {1}'.format(
+                    _kasc_escape(name), ' | '.join(sopts)))
+            # 平行光源 → light: 行。QGIS 3D シーン座標は x=東, y=上,
+            # z=南(-z が北)で、ベクトルは光源「へ向かう」方向
+            # (Qt3D worldDirection)。方位/仰角へ変換して渡す
+            lights = qgis3d.find('lights')
+            if lights is not None:
+                for dl in lights.findall('directional-light'):
+                    try:
+                        lx = float(dl.get('x') or 0)
+                        ly = float(dl.get('y') or 0)
+                        lz = float(dl.get('z') or 0)
+                        norm = math.sqrt(lx * lx + ly * ly + lz * lz)
+                        if norm <= 0:
+                            continue
+                        lopts = [
+                            'az={0:.1f}'.format(
+                                math.degrees(
+                                    math.atan2(lx, -lz)) % 360),
+                            'el={0:.1f}'.format(
+                                math.degrees(math.asin(ly / norm)))]
+                        try:
+                            inten = float(dl.get('intensity') or 1.0)
+                            if abs(inten - 1.0) > 0.001:
+                                lopts.append(
+                                    'intensity={0:g}'.format(inten))
+                        except (TypeError, ValueError):
+                            pass
+                        col = _qgis3d_color_hex(dl.get('color'))
+                        if col and col.upper() != '#FFFFFF':
+                            lopts.append('color={0}'.format(col))
+                        out.append('light: {0} | {1}'.format(
+                            _kasc_escape(name), ' | '.join(lopts)))
+                    except (TypeError, ValueError):
+                        continue
     except Exception as e:
         warnings.append('3Dビュー設定の出力に失敗: {0}'.format(e))
     return out
@@ -2324,6 +2735,247 @@ def _export_bookmarks_xml(path):
         return 0
 
 
+# ---- アトラス → fly_geojson: 行 -------------------------------------
+
+# Canvas 側の正典カメラ高換算(web/shared/kasc.js の nadirVisibleExtent /
+# zoomToCamHeightView と同じ球体幾何)。表示範囲 E[m] を収める直下視
+# カメラ高 h を返す。fov は正典 60 度・ビューポートは正方形として扱う
+_EARTH_R = 6371008.8
+_MERC_R = 6378137.0
+
+
+def _merc_y(lat):
+    lat = max(-85.05, min(85.05, float(lat)))
+    return _MERC_R * math.log(
+        math.tan(math.pi / 4.0 + math.radians(lat) / 2.0))
+
+
+def _extent_view_height(w, s, e, n, margin=1.08, fov_deg=60.0):
+    """EPSG:4326 の bbox を収める正典カメラ高(m)を返す。
+
+    Canvas の正典高さ ⇄ 表示範囲は ``E = 2αR`` (α は視線の中心角)。
+    メルカトルメートルで範囲の大きい方を E に取り、margin で外周に
+    余白を持たせる。戻り値は楕円体高(MSL基準で良い近似値)。
+    """
+    dx = abs(math.radians(float(e) - float(w))) * _MERC_R
+    dy = abs(_merc_y(n) - _merc_y(s))
+    ext = max(dx, dy, 1.0) * margin
+    alpha = ext / (2.0 * _EARTH_R)
+    th = math.radians(fov_deg) / 2.0
+    return _EARTH_R * (math.sin(alpha + th) / math.sin(th) - 1.0)
+
+
+def _fly_leg_dist_m(a, b):
+    """[lon,lat] 2点間の地表距離(m)。Canvas flyLegDist と同じhaversine。"""
+    d_lat = math.radians(b[1] - a[1])
+    d_lng = math.radians(b[0] - a[0])
+    s = (math.sin(d_lat / 2.0) ** 2 +
+         math.cos(math.radians(a[1])) * math.cos(math.radians(b[1])) *
+         math.sin(d_lng / 2.0) ** 2)
+    return 2.0 * _EARTH_R * math.asin(min(1.0, math.sqrt(s)))
+
+
+def _fly_auto_speed_ms(total_m):
+    """ルート総距離から既定速度(m/s)を決める。
+
+    Canvas shared/player-api.js の flyAutoSpeedKmh と同じ階段。
+    ``.kasc`` の ``speed=`` は m/s 規約で書く(2Dプレイヤー側の解釈)。
+    """
+    if total_m < 5e3:
+        return 16.7   # 60 km/h
+    if total_m < 5e4:
+        return 83.3   # 300 km/h
+    return 250.0      # 900 km/h
+
+
+def _atlas_page_frames(layout, warnings):
+    """アトラス有効な印刷レイアウトの各ページ表示範囲を返す。
+
+    ``atlas.beginRender() → seekTo(i) → 参照地図の extent()`` で
+    実際のページ範囲を取り、EPSG:4326 bbox へ変換する。戻り値は
+    ``{'coverage': レイヤ名, 'rotation': 地図回転角,
+       'pages': [{'name':..., 'bbox':(w,s,e,n)}...]}``。
+    アトラス無効・条件未達は None。
+    """
+    from qgis.core import (QgsCoordinateReferenceSystem,
+                           QgsCoordinateTransform, QgsLayoutItemMap,
+                           QgsProject)
+    atlas = layout.atlas()
+    if atlas is None or not atlas.enabled():
+        return None
+    coverage = atlas.coverageLayer()
+    if coverage is None:
+        warnings.append('atlas {0}: カバレッジレイヤ無し'.format(
+            layout.name()))
+        return None
+    ref_map = layout.referenceMap()
+    if ref_map is None:
+        for item in layout.items():
+            if isinstance(item, QgsLayoutItemMap):
+                ref_map = item
+                break
+    if ref_map is None:
+        warnings.append('atlas {0}: 地図アイテム無し'.format(
+            layout.name()))
+        return None
+    project = QgsProject.instance()
+    map_crs = ref_map.crs()
+    dest = QgsCoordinateReferenceSystem('EPSG:4326')
+    to_wgs = (QgsCoordinateTransform(map_crs, dest, project)
+              if map_crs is not None and map_crs.isValid()
+              and map_crs != dest else None)
+    pages = []
+    try:
+        if not atlas.beginRender():
+            warnings.append('atlas {0}: beginRender失敗'.format(
+                layout.name()))
+            return None
+        try:
+            count = atlas.count()
+        except Exception:
+            count = 0
+        for i in range(count):
+            try:
+                if not atlas.seekTo(i):
+                    continue
+            except Exception:  # nosec B112  # 設計上の許容
+                continue
+            try:
+                ext = ref_map.extent()
+            except Exception:  # nosec B112  # 設計上の許容
+                continue
+            if ext is None or ext.isNull() or ext.isEmpty():
+                continue
+            try:
+                if to_wgs is not None:
+                    ext = to_wgs.transformBoundingBox(ext)
+            except Exception:  # nosec B112  # 設計上の許容
+                continue
+            name = ''
+            # ページ名: ユーザー定義名 → ファイル名式 → 連番 の優先順。
+            # メソッド有無・引数の違い(旧API)は個別に try で吸収する
+            for call in (
+                    lambda: atlas.nameForPage(i),
+                    lambda: atlas.filenameForPage(i),
+                    lambda: atlas.currentFilename()):
+                try:
+                    name = str(call() or '').strip()
+                except Exception:  # nosec B112  # 設計上の許容
+                    name = ''
+                if name:
+                    break
+            w = min(ext.xMinimum(), ext.xMaximum())
+            e = max(ext.xMinimum(), ext.xMaximum())
+            s = min(ext.yMinimum(), ext.yMaximum())
+            n = max(ext.yMinimum(), ext.yMaximum())
+            pages.append({'name': name or 'page {0}'.format(i + 1),
+                          'bbox': (w, s, e, n)})
+    finally:
+        try:
+            atlas.endRender()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+    rotation = 0.0
+    try:
+        rotation = float(ref_map.mapRotation() or 0.0)
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return {'coverage': coverage.name(), 'rotation': rotation,
+            'pages': pages}
+
+
+def _export_atlas_fly(project, data_dir, used_names, warnings):
+    """アトラス有効な印刷レイアウト → fly_geojson: 行 + DATA/atlas_*.geojson。
+
+    各ページの表示範囲を巡回するフライパスを生成する。座標のZ値には
+    そのページ範囲を収める正典カメラ高を焼き込み、GeoJSON properties の
+    ``heightReference: "MSL"`` で地形加算を抑止する(Cesium復元規約)。
+    ``properties.fly`` に speed/pitch/step 等も埋め込み、.kasc 行側と
+    同じ設定がリロード後も維持されるようにする。
+    戻り値は (fly_geojson行のリスト, atlas情報のリスト)。
+    """
+    lines, infos = [], []
+    try:
+        mgr = project.layoutManager()
+        layouts = mgr.printLayouts() if mgr is not None else []
+    except Exception:  # nosec B110  # 設計上の許容
+        layouts = []
+    for layout in layouts:
+        try:
+            frames = _atlas_page_frames(layout, warnings)
+        except Exception as e:
+            warnings.append('atlas {0}: {1}'.format(layout.name(), e))
+            continue
+        if not frames:
+            continue
+        pages = frames['pages']
+        if not pages:
+            warnings.append('atlas {0}: ページ0件'.format(layout.name()))
+            continue
+        if abs(frames['rotation'] or 0.0) > 0.01:
+            warnings.append(
+                'atlas {0}: 地図回転({1:.1f}°)はフライパスに反映'
+                'できません'.format(layout.name(), frames['rotation']))
+        coords = []
+        for p in pages:
+            w, s, e, n = p['bbox']
+            lon = (w + e) / 2.0
+            lat = (s + n) / 2.0
+            height = _extent_view_height(w, s, e, n)
+            coords.append([
+                round(lon, 6), round(lat, 6),
+                int(round(max(1.0, height)))])
+        legs = [_fly_leg_dist_m(coords[i], coords[i + 1])
+                for i in range(len(coords) - 1)]
+        total = sum(legs)
+        speed = _fly_auto_speed_ms(total)
+        speed = round(speed, 1)
+        step = int(round(total / len(legs))) if legs else 100
+        name = 'Atlas: {0}'.format(layout.name())
+        slug = _slugify('atlas_{0}'.format(layout.name()), used_names)
+        gj = {
+            'type': 'FeatureCollection',
+            'features': [{
+                'type': 'Feature',
+                'properties': {
+                    'name': name,
+                    'source': 'qgisAtlas',
+                    'layout': layout.name(),
+                    'coverage': frames['coverage'],
+                    'pages': [p['name'] for p in pages],
+                    'pageCount': len(pages),
+                    'heightReference': 'MSL',
+                    'fly': {
+                        'speed': speed, 'height': 0, 'pitch': -85,
+                        'step': step, 'loop': False, 'view': 'camera',
+                    },
+                },
+                'geometry': {
+                    'type': 'LineString',
+                    'coordinates': coords,
+                },
+            }],
+        }
+        path = os.path.join(data_dir, slug + '.geojson')
+        try:
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(gj, f, ensure_ascii=False)
+        except Exception as e:
+            warnings.append('atlas {0}: geojson書込失敗: {1}'.format(
+                layout.name(), e))
+            continue
+        line = ('fly_geojson: {0} | DATA/{1}.geojson | speed={2} '
+                '| pitch=-85 | height=0 | view=camera | step={3}'
+                ).format(_kasc_escape(name), slug, speed, step)
+        lines.append(line)
+        infos.append({
+            'layout': layout.name(), 'pages': len(pages),
+            'coverage': frames['coverage'],
+            'file': 'DATA/{0}.geojson'.format(slug), 'title': name,
+        })
+    return lines, infos
+
+
 def _attribution(layer):
     """レイヤの出典(attribution)文字列。失敗時は空文字。"""
     try:
@@ -2373,7 +3025,9 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                            native_formats=True, hidden_as_off=False,
                            embed_gpkg_style=False,
                            emit_themes=True, emit_bookmarks=True,
-                           emit_launchers=True, emit_zip=False):
+                           emit_launchers=True, emit_zip=False,
+                           emit_atlas=True,
+                           changed=None, live_url=None):
     """レイヤツリーを KASUGAI Canvas プロジェクトとして出力する。
 
     引数:
@@ -2425,10 +3079,15 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             このZIPを直接取り込める(CMS等へアップするだけで再現可能)。
             ``/export-data/kasugai_canvas*.zip`` からも取得できる
             (未生成時はその場で固めて返す)。
+        emit_atlas: True ならアトラス有効な印刷レイアウトを
+            ``fly_geojson:`` 行 + ``DATA/atlas_*.geojson`` として
+            出力する(既定)。各アトラスページの表示範囲を巡回する
+            フライパスで、座標Z値にページを収めるカメラ高を焼き込む
+            (``properties.heightReference="MSL"`` で地形加算を抑止)。
 
     戻り値: {"dir","kasc","data_dir","layers":[{name,file,features}],
              "tiles":[...],"skipped":[...],"errors":[...],"warnings":[...],
-             "launchers":[...],"zip":...}。
+             "launchers":[...],"zip":...,"atlases":[{layout,pages,file}]}。
     layers が1件も無くても .kasc は出力する。
     """
     from qgis.core import QgsVectorLayer, QgsProject
@@ -2455,12 +3114,17 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     copied = {}
     layers_out, tiles_out, skipped, errors, warnings = [], [], [], [], []
     kasc_lines = []
+    # ライブ差分エクスポート: {layer.id(): {'data':bool,'style':bool}}。
+    # changed 指定時は未変更レイヤのデータ/スタイル書き出しを
+    # 既存ファイルがある場合に限りスキップし、live.json に変更一覧を書く
+    live_changed = []
     detected_base = None  # 表示中の最下段 XYZ → base: 行
     group_bases = []      # ベースマップグループ内 XYZ の base: 行
     basemap_layer_ids = set()  # base: 行へ回したレイヤ(theme 行から除外)
 
     group_states = {}
-    tree = _tree_layers(skipped, warnings, group_states)
+    exclusive_groups = set()
+    tree = _tree_layers(skipped, warnings, group_states, exclusive_groups)
 
     # カスタムレイヤー順(描画順オーバーライド)が有効ならその順へ並べ替える(#59)
     try:
@@ -2500,9 +3164,14 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         # 中の XYZ レイヤはレイヤ行ではなく base: 行として登録する
         # (グループ名はタイトルから外し、配下のサブグループは残す)
         bm_idx = _basemap_group_index(groups, basemap_names)
-        title = '/'.join(
-            [_kasc_escape(g) for g in groups if g] +
-            [_kasc_escape(layer.name())])
+        title = _kasc_layer_title(groups, layer.name(), exclusive_groups)
+        kinds = changed.get(layer.id()) if isinstance(changed, dict) else None
+        if kinds is not None:
+            live_changed.append({
+                'title': title,
+                'data': bool(kinds.get('data')),
+                'style': bool(kinds.get('style')),
+            })
         if not visible:
             if (bm_idx is not None
                     and not isinstance(layer, QgsVectorLayer)
@@ -2534,19 +3203,24 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             slug_by_id[layer.id()] = slug
             qml_path = os.path.join(data_dir, slug + '.qml')
             style_opt = ''
-            try:
-                _export_qml(layer, qml_path)
+            if (changed is None or (kinds or {}).get('style')
+                    or not os.path.isfile(qml_path)):
                 try:
-                    _export_qml_assets(
-                        qml_path, slug, data_dir, used_names, copied,
-                        warnings)
+                    _export_qml(layer, qml_path)
+                    try:
+                        _export_qml_assets(
+                            qml_path, slug, data_dir, used_names, copied,
+                            warnings)
+                    except Exception as e:
+                        warnings.append(
+                            '{0}: シンボル画像の複製失敗: {1}'.format(
+                                layer.name(), e))
+                    style_opt = ' | style=DATA/{0}.qml'.format(slug)
                 except Exception as e:
-                    warnings.append(
-                        '{0}: シンボル画像の複製失敗: {1}'.format(
-                            layer.name(), e))
+                    errors.append('{0}: qml {1}'.format(layer.name(), e))
+            else:
+                # 未変更レイヤ: 既存 .qml を再利用して書き出しをスキップ
                 style_opt = ' | style=DATA/{0}.qml'.format(slug)
-            except Exception as e:
-                errors.append('{0}: qml {1}'.format(layer.name(), e))
             feat_count = -1
             try:
                 feat_count = int(layer.featureCount())
@@ -2590,11 +3264,14 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
 
             # ネイティブ参照できないベクター → GeoJSON(EPSG:4326)へ変換
             gj_path = os.path.join(data_dir, slug + '.geojson')
-            try:
-                _export_geojson(layer, gj_path)
-            except Exception as e:
-                errors.append('{0}: geojson {1}'.format(layer.name(), e))
-                continue
+            if (changed is None or (kinds or {}).get('data')
+                    or not os.path.isfile(gj_path)):
+                try:
+                    _export_geojson(layer, gj_path)
+                except Exception as e:
+                    errors.append(
+                        '{0}: geojson {1}'.format(layer.name(), e))
+                    continue
             if not _geo_equiv_crs(layer):
                 warnings.append(
                     '{0}: CRS {1} を EPSG:4326 へ再投影'.format(
@@ -2739,7 +3416,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                     continue
                 wms = _wms_layer_info(layer)
                 if wms:
-                    url, wms_layers, wms_styles, wms_fmt = wms
+                    url, wms_layers, wms_styles, wms_fmt, wms_ver = wms
                     line = 'wms: {0} | {1} | {2}'.format(
                         title, _kasc_escape(url), vis_flag)
                     if wms_layers:
@@ -2751,6 +3428,9 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                     if wms_fmt:
                         line += ' | format={0}'.format(
                             _kasc_escape(wms_fmt))
+                    if wms_ver:
+                        line += ' | version={0}'.format(
+                            _kasc_escape(wms_ver))
                     opacity = _maplayer_opacity(layer)
                     bbox = _layer_extent_bbox(layer)
                     if opacity is not None:
@@ -2774,9 +3454,14 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                     need_bake = ref is None or _raster_needs_bake(layer)
                     baked_bbox = None
                     if need_bake:
-                        baked_bbox = _render_raster_png(
-                            layer, os.path.join(data_dir, slug + '.png'),
-                            warnings)
+                        png_path = os.path.join(data_dir, slug + '.png')
+                        if (changed is None or kinds is not None
+                                or not os.path.isfile(png_path)):
+                            baked_bbox = _render_raster_png(
+                                layer, png_path, warnings)
+                        else:
+                            # 未変更ラスタ: 既存PNG再利用(bboxは範囲から再現)
+                            baked_bbox = _raster_bbox_str(layer)
                     if baked_bbox:
                         line = 'image: {0} | DATA/{1}.png | {2}'.format(
                             title, slug, vis_flag)
@@ -2846,6 +3531,11 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     ] + bases
     if cam:
         header.append(cam)
+    # ライブ双方向連携: QGIS 内蔵HTTPサーバの /live/* 起点URL。
+    # Canvas は同梱の live.json をポーリングし、/live/camera・
+    # /live/selection へカメラ/選択を逆通知する(live_sync 有効時のみ)
+    if live_url:
+        header.append('live: {0}'.format(_kasc_escape(str(live_url))))
     # QGISブックマーク → bookmarks.xml + bookmark: 行。
     # Canvas 側が XML を読み込んでカメラプリセットへ展開する
     if bookmark_count:
@@ -2857,9 +3547,11 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         header.append('group: {0} | {1}'.format(
             _kasc_escape(gname), 'expanded' if expanded else 'collapsed'))
 
-    # 保存済み3Dビュー → cam:QGIS3D 行 + terrain: 行(#60)
+    # 保存済み3Dビュー → cam:QGIS3D 行 + terrain: 行
+    # + アニメーション → fly_geojson: 行(#60)
     try:
-        header.extend(_threed_lines(project, warnings))
+        header.extend(_threed_lines(project, warnings, data_dir,
+                                    used_names))
     except Exception as e:
         warnings.append('3Dビュー出力失敗: {0}'.format(e))
 
@@ -2872,9 +3564,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             for layer, groups, _vis in tree:
                 if id(layer) in basemap_layer_ids:
                     continue  # base: 行へ回したレイヤはテーマ対象外
-                title_by_id[layer.id()] = '/'.join(
-                    [_kasc_escape(g) for g in groups if g] +
-                    [_kasc_escape(layer.name())])
+                title_by_id[layer.id()] = _kasc_layer_title(
+                    groups, layer.name(), exclusive_groups)
             for name in theme_names:
                 try:
                     visible_ids = set(
@@ -2923,12 +3614,39 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         except Exception as e:
             warnings.append('theme 行出力失敗: {0}'.format(e))
 
+    # アトラス有効な印刷レイアウト → fly_geojson: 行。
+    # 各ページ範囲を巡回するプレゼン用フライパス(座標Z=ページを収める高さ)
+    atlases = []
+    if emit_atlas:
+        try:
+            fly_lines, atlases = _export_atlas_fly(
+                project, data_dir, used_names, warnings)
+            kasc_lines.extend(fly_lines)
+        except Exception as e:
+            warnings.append('atlas 行出力失敗: {0}'.format(e))
+
     kasc_path = os.path.join(out_dir, 'kasugai_canvas.kasc')
     with open(kasc_path, 'w', encoding='utf-8') as f:
         f.write('\n'.join(header + kasc_lines) + '\n')
     with open(os.path.join(out_dir, 'project.json'), 'w',
               encoding='utf-8') as f:
         json.dump({'title': project_title}, f, ensure_ascii=False)
+
+    # ライブ連携マニフェスト。Canvas は .kasc と同じ場所のこのファイルを
+    # ポーリングし、rev 増加で .kasc/変更データを再取得する
+    if live_url:
+        try:
+            from datetime import datetime as _dt
+            with open(os.path.join(out_dir, 'live.json'), 'w',
+                      encoding='utf-8') as f:
+                json.dump({
+                    'ok': True,
+                    'rev': int(time.time() * 1000),
+                    'updated': _dt.now().isoformat(timespec='seconds'),
+                    'changed': live_changed,
+                }, f, ensure_ascii=False)
+        except Exception as e:
+            warnings.append('live.json 出力失敗: {0}'.format(e))
 
     launchers = []
     if emit_launchers:
@@ -2951,7 +3669,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         'tiles': tiles_out, 'skipped': skipped, 'errors': errors,
         'warnings': warnings, 'themes': theme_names,
         'bookmarks': bookmark_count, 'launchers': launchers,
-        'zip': zip_path,
+        'zip': zip_path, 'atlases': atlases,
     }
 
 

@@ -293,6 +293,17 @@ class GeoWebView:
         except Exception:  # nosec B110  # 設計上の許容
             pass
 
+        # ライブ双方向連携: レイヤ編集・スタイル変更を差分エクスポートして
+        # Canvas へ即時反映する監視。kasugai_live_sync=True で有効化
+        # (bridge liveSyncStart/Stop からも切替可)
+        try:
+            from .live_sync import LiveSyncController, live_enabled
+            self._live_sync = LiveSyncController(self)
+            if live_enabled():
+                self._live_sync.attach()
+        except Exception:  # nosec B110  # 設計上の許容
+            self._live_sync = None
+
     def _on_project_saved(self):
         """projectSaved フック。自動再エクスポートが有効なら再出力する。"""
         try:
@@ -784,6 +795,14 @@ class GeoWebView:
             except Exception:  # nosec B110  # 設計上の許容
                 pass
             self._auto_export_connected = False
+
+        # ライブ連携の監視を停止
+        try:
+            if getattr(self, '_live_sync', None) is not None:
+                self._live_sync.detach()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        self._live_sync = None
 
         # AI/外部制御用ブリッジを解除
         self.bridge = None

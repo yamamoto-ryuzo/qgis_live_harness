@@ -3,7 +3,7 @@ name = geo_webview
 qgisMinimumVersion = 4.0
 qgisMaximumVersion = 4.99
 description = Serverless web distribution of QGIS projects — export .kasc+DATA/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps); permalinks and an embedded HTTP server
-version = 4.6.2
+version = 4.10.0
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
 supportsQt6 = True
@@ -20,6 +20,8 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 4.10.0: QGIS4の3Dグローブビュー対応(地心系シーンCRS=EPSG:4978の ECEF→測地変換で globe ビューのカメラを正しく出力し scene3d: に globe=on を付与) + 3Dアニメーション(<animation3d>キーフレーム)をカメラ軌道の fly_geojson: 行+DATA/anim3d_*.geojson として出力。3Dビューのカメラ姿勢変換を QgsCameraPose 準拠へ修正(高さ=dist*cos(pitch)・水平距離=dist*sin(pitch)・視線方位=360-yaw・p=pitch-90。従来は高さ/距離が入れ替わり視線方位も反転していた)
+	- 4.8.0: アトラス有効な印刷レイアウトを fly_geojson: 行+DATA/atlas_*.geojson(各ページ範囲を巡回するプレゼン用FLYルート・座標Z=ページを収めるカメラ高)として出力(emit_atlas=True既定、bridge kasugaiExport に emit_atlas 追加)
 	- 4.2.1: .kasc+DATA/ エクスポートで未読込レイヤ(layer()=None)をプロジェクトファイルの <maplayer> 定義から再生成・再登録し、破損レイヤ(isValid()=False)も setDataSource で再オープンして出力対象に含める。解決不能は skipped へ記録
 	- 4.2.0: GSI Maps エンジン対応(engine=gsimaps・gsimaps.html 起動ページ・Engine: コンボ)。内蔵HTTPサーバーのCORSを許可リスト方式へ強化(任意サイトからのローカルデータ読み取りを遮断)
 	- 4.0.4: サイトスキャン指摘対応(.qml パースを vendored defusedxml へ切替・配布ZIPダウンロードを https 固定・try/except/pass の # nosec 明示、.bandit/.flake8 更新)

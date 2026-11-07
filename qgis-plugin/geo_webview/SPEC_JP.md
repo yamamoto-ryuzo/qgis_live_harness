@@ -154,7 +154,7 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 | パネルボタン | `Export` ボタン (`plugin.py: on_kasugai_export_clicked`) | 人手操作（ファイル出力のみ。Canvas 起動・登録はしない。ZIP は生成しない） |
 | パネルボタン | `ZIP` ボタン (`plugin.py: on_kasugai_zip_clicked`) | エクスポート物一式を `kasugai_canvas_<チャンネル>.zip` としてブラウザダウンロード。`/export-data/` がオンデマンドで ZIP を生成して返す（要 HTTP サーバー稼働）。CDN コンボのチャンネルがファイル名に反映される |
 | HTTP | `GET http://localhost:8089/kasugai` (server_manager._handle_kasugai) | 外部アプリ・AI からの一発起動。`?engine=` で起動エンジン指定可。応答は `{ok,url,via,dir,layers,tiles,engine}` JSON |
-| Bridge | `bridge_call` の `kasugaiExport(output_dir, open_app, native_formats, hidden_as_off, embed_gpkg_style, emit_themes, emit_bookmarks, emit_launchers, engine, install, route, use_existing)` | Live Driver 経由の AI 制御（MCP `qgis_bridge_call` / REST `/api/cmd` / JSONL）。`use_existing=True` で再エクスポートせず既存の `.kasc` のみ使用（未出力なら `code=not_exported`） |
+| Bridge | `bridge_call` の `kasugaiExport(output_dir, open_app, native_formats, hidden_as_off, embed_gpkg_style, emit_themes, emit_bookmarks, emit_launchers, engine, install, route, use_existing, emit_atlas)` | Live Driver 経由の AI 制御（MCP `qgis_bridge_call` / REST `/api/cmd` / JSONL）。`use_existing=True` で再エクスポートせず既存の `.kasc` のみ使用（未出力なら `code=not_exported`） |
 
 ### 出力フォルダ構成
 
@@ -190,7 +190,11 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 | 属性テーブルのみ(NoGeometry)・ローカルラスタ・ベクタータイル・メッシュ・点群・アノテーション等 | 出力せず `skipped` に種別/理由付きで記録 | |
 | 非表示レイヤ | `hidden_as_off=True` 時のみ `| off` 付きで出力 | 既定(visible_only=True)では除外 |
 | キャンバス | `cam:` 行(中心座標+概算高度+回転) | |
+|| 保存済み3Dビュー(ローカル/グローブ) | `cam:QGIS3D <名>|lat|lon|h=|p=|d=` 行(注視点+dist/pitch/yaw→ENUオフセットでカメラ位置逆算: 高さ=dist·cos(pitch)・水平=dist·sin(pitch)・視線方位=360-yaw・p=pitch-90) + `terrain:` 行(垂直誇張/オフセット/陰影/ジェネレータ) + `scene3d:` 行(背景色/スカイボックス/影/SSAO/EDL・グローブは globe=on) + `light:` 行(平行光源の方位・仰角・強度・色) | 3Dビューが存在する場合のみ出力。シーンCRSはビューごとの `<qgis3d><crs>` を解決し、地心系(QGIS4グローブ・EPSG:4978等)はECEF→測地変換で対応。既定値相当の項目は省略 |
+|| 3Dビューのアニメーション(`<animation3d>`キーフレーム) | `fly_geojson: QGIS3D <名> | DATA/anim3d_<slug>.geojson | speed=<m/s> | view=camera | step=<m>` 行 + カメラ軌道の LineString GeoJSON | 各キーフレーム(注視点+dist/pitch/yaw+時刻)のカメラ位置を計算してカメラ軌道にする。speed=軌道3D総延長÷アニメ時間。キーフレーム2個未満は出力しない |
+| ベクターの3Dレンダラ(立ち上げ) | ベクター行へ `| extrude=<m>`(立ち上げ高さ)・`| z=<m>`(基準高さオフセット) を付与 | QgsVectorLayer3DRenderer のポリゴン/ラインシンボル。Canvas(Cesium)側で polygon の height/extrudedHeight へ反映 |
 | ブックマーク | `bookmarks.xml`(qgis_bookmarks形式・EPSG:4326正規化) + `bookmark:` 行(プロジェクト+アプリケーション両方) | `emit_bookmarks=False` で抑制。Canvas 側が XML を読み込みカメラプリセットへ展開する |
+| アトラス有効な印刷レイアウト | `fly_geojson: Atlas: <レイアウト名> | DATA/atlas_<slug>.geojson | speed= | pitch=-85 | height=0 | view=camera | step=` 行 | `emit_atlas=False` で抑制(v4.8.0〜)。各アトラスページの表示範囲(参照地図 extent)を巡回するプレゼン用フライパス。座標Z値にページを収めるカメラ高(楕円体高)を焼き込み、`properties.heightReference="MSL"` で地形加算を抑止、ページ名一覧は `properties.pages` へ。地図回転付きは warnings に記録のみ |
 
 その他: `attr=` に QGIS レイヤの出典(attribution)を引き継ぐ。
 全レイヤ行で `minScale=`/`maxScale=` に QGIS の「縮尺による表示」

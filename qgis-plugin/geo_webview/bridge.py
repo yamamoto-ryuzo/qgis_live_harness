@@ -209,6 +209,9 @@ class GeoWebViewBridge:
                 "(emit_launchers=Falseで抑制)。"
                 "emit_zip=True で出力一式を kasugai_canvas_<tag>.zip に固める"
                 "(Re:Earth geo_suite の 'qgis:' インスペクタ行が直接取込可)。"
+                "アトラス有効な印刷レイアウトは各ページ範囲を巡回する"
+                "fly_geojson: 行+DATA/atlas_*.geojson として出力される"
+                "(Canvas FLYルート=プレゼン巡回。emit_atlas=Falseで抑制)。"
                 "use_existing=True で再エクスポートせず既存の .kasc のみ"
                 "使用(未出力なら code=not_exported)。",
             "example": {"method": "kasugaiExport", "args": []},
@@ -884,7 +887,7 @@ class GeoWebViewBridge:
                       embed_gpkg_style=False, emit_themes=True,
                       emit_bookmarks=True, emit_launchers=True,
                       emit_zip=False, engine=None, install=False, route=None,
-                      use_existing=False):
+                      use_existing=False, emit_atlas=True):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
         表示中のベクターレイヤを DATA/ へ出力し、.kasc(geojson:/gpkg:/
@@ -911,6 +914,9 @@ class GeoWebViewBridge:
         固める(<tag>はCDNチャンネル反映、export_zip_name)。
         Re:Earth geo_suite の qgis: インスペクタ行がこのZIPを
         直接取り込める(/export-data/kasugai_canvas*.zip でも取得可)。
+        emit_atlas=True(既定)でアトラス有効な印刷レイアウトを
+        fly_geojson: 行+DATA/atlas_*.geojson(各ページ範囲を巡回する
+        ルート・座標Zにページを収めるカメラ高)として出力する。
         出力先は output_dir または設定 kasugai_output_path
         (既定: <ドキュメント>/kasugai_canvas_qgis)。
         use_existing=True で再エクスポートせず出力先の既存 .kasc のみを
@@ -959,6 +965,18 @@ class GeoWebViewBridge:
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
             else:
+                # ライブ連携有効時は .kasc に live: 行を出して
+                # live.json マニフェストを同梱する
+                live_url = None
+                try:
+                    from . import live_sync as _live_mod
+                    srv_live = self._server()
+                    live_port = (srv_live.get_server_port() if srv_live
+                                 and srv_live.is_server_running() else None)
+                    if live_port and _live_mod.live_enabled():
+                        live_url = 'http://127.0.0.1:{0}'.format(live_port)
+                except Exception:  # nosec B110  # 設計上の許容
+                    live_url = None
                 result = kasugai_export.export_kasugai_project(
                     self._plugin.iface, out_dir=target_dir or None,
                     native_formats=bool(native_formats),
@@ -967,7 +985,9 @@ class GeoWebViewBridge:
                     emit_themes=bool(emit_themes),
                     emit_bookmarks=bool(emit_bookmarks),
                     emit_launchers=bool(emit_launchers),
-                    emit_zip=bool(emit_zip))
+                    emit_zip=bool(emit_zip),
+                    emit_atlas=bool(emit_atlas),
+                    live_url=live_url)
         except Exception as e:
             return self._err(f"kasugai export failed: {e}")
         out = {
@@ -981,6 +1001,7 @@ class GeoWebViewBridge:
             "warnings": result.get("warnings", []),
             "themes": result.get("themes", []),
             "bookmarks": result.get("bookmarks", 0),
+            "atlases": result.get("atlases", []),
             "launchers": result.get("launchers", []),
             "zip": result.get("zip"),
             "use_existing": bool(use_existing),
@@ -1366,3 +1387,53 @@ class GeoWebViewBridge:
         return self._ok({
             "enabled": cur_enabled,
             "allowed": str(s.value('mac_auth_allowed', '') or '')})
+
+    # ---------- ライブ双方向連携 ----------
+
+    def liveSyncStatus(self):
+        """ライブ連携の状態を返す。
+
+        enabled(QSettings)/attached(監視中)/running(出力中)/
+        pending(保留変更数)/live(サーバ側 rev・直近camera/selection)。
+        """
+        from . import live_sync as _live_mod
+        ctl = getattr(self._plugin, '_live_sync', None)
+        st = ctl.status() if ctl is not None else {
+            'enabled': _live_mod.live_enabled(), 'attached': False}
+        srv = self._server()
+        if srv is not None:
+            st['live'] = dict(srv._live)
+        return self._ok(st)
+
+    def liveSyncStart(self):
+        """ライブ双方向連携を有効化して監視を開始する。
+
+        以後レイヤ編集・スタイル変更が最後のエクスポート先へ
+        差分出力され、稼働中の Canvas へ liveSync 通知される。
+        """
+        from qgis.PyQt.QtCore import QSettings
+        from . import live_sync as _live_mod
+        QSettings('GeoWebView', 'geo_webview').setValue(
+            _live_mod.SETTINGS_KEY, True)
+        ctl = getattr(self._plugin, '_live_sync', None)
+        if ctl is not None:
+            ctl.attach()
+        return self.liveSyncStatus()
+
+    def liveSyncStop(self):
+        """ライブ双方向連携を無効化して監視を停止する。"""
+        from qgis.PyQt.QtCore import QSettings
+        from . import live_sync as _live_mod
+        QSettings('GeoWebView', 'geo_webview').setValue(
+            _live_mod.SETTINGS_KEY, False)
+        ctl = getattr(self._plugin, '_live_sync', None)
+        if ctl is not None:
+            ctl.detach()
+        return self.liveSyncStatus()
+
+    def liveSyncFlush(self):
+        """保留中の変更を即時差分エクスポート+通知する。"""
+        ctl = getattr(self._plugin, '_live_sync', None)
+        if ctl is None:
+            return self._err('live sync controller not initialized')
+        return self._ok(ctl.flush())

@@ -11,6 +11,128 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [4.10.0] - 2026-11-07
+
+### Added
+
+- **QGIS4 3Dグローブビュー対応**: `<mapViewDocks3D>` のグローブビュー
+  (シーンCRSが地心系 = `project.crs().toGeocentricCrs()`、
+  通常 EPSG:4978)を正しく出力するようになった。
+  - ビューごとの `<qgis3d><crs>` を読んでシーンCRSを解決
+    (従来は常に `project.crs()` で変換していたため、シーンCRSと
+    プロジェクトCRSが異なる場合に位置がずれていた)。
+    地心系は `QgsCoordinateReferenceSystem.type()==Geocentric` で
+    判定し、注視点の ECEF 座標を測地座標へ変換してカメラ位置を
+    求める(非WGS84の地心系は EPSG:4979 経由)
+  - グローブビューは `scene3d:` 行へ `globe=on` を付与
+- **3Dアニメーション → FLYルート出力**: 3Dビューの
+  `<animation3d>` キーフレーム(注視点+dist/pitch/yaw+時刻)から
+  各時刻のカメラ位置を計算し、カメラ軌道を
+  `fly_geojson:` 行 + `DATA/anim3d_<slug>.geojson` として出力。
+  speed はカメラ軌道の3D総延長÷アニメーション時間(m/s)、
+  `properties.fly` に speed/step/view=camera、`properties` に
+  `source="qgis3dAnimation"`・`keyframes`・`duration` を埋め込む
+  (キーフレーム2個未満は出力しない)
+
+### Fixed
+
+- **3Dビューのカメラ姿勢変換を QgsCameraPose 準拠へ修正**:
+  QGIS ソース(`QgsCameraPose::updateCamera`/`updateCameraGlobe`・
+  `rotationFromPitchHeadingAngles`)からカメラ位置を再導出し、
+  従来の変換が高さと水平距離を入れ替えて出力していた問題を修正。
+  - 正: 高さ=`dist·cos(pitch)`、水平距離=`dist·sin(pitch)`、
+    カメラは注視点の方位 `(180−yaw)`° に位置
+    (QGIS yaw は反時計回り正方向のため視線方位は `360−yaw`)
+  - 出力 `p=` を QGIS pitch(0=真俯瞰・90=水平)から
+    Cesium pitch(`pitch−90`)へ変換(従来の `p=−pitch` では
+    俯瞰ビューが水平視点になっていた)
+  - `zMap`(注視点の高さ)をカメラ高へ加算(従来は無視)
+
+## [4.9.0] - 2026-11-07
+
+### Added
+
+- **ライブ双方向連携 (live sync)**: Canvas を QGIS のライブ連動ビュー化。
+  - QSettings `kasugai_live_sync` / bridge `liveSyncStart` で有効化すると、
+    レイヤ編集(地物追加/削除・ジオメトリ/属性変更)・スタイル変更・
+    レイヤ追加/削除・ツリー可視性変更を 1.2 秒デバウンスで検出し、
+    最後のエクスポート先へ**差分エクスポート**(未変更レイヤの
+    GeoJSON/.qml/焼き付けPNG 書き出しを省略)する。構造変更時は全再出力。
+  - エクスポート時 `.kasc` に `live: <base URL>` 行と `live.json`
+    マニフェスト({rev, updated, changed})を出力。Canvas 側は
+    live.json ポーリングまたは /api/command の `liveSync` プッシュで
+    即時反映し、テキスト不変時は変更レイヤのみ再読込する。
+  - **逆方向(Canvas → QGIS)**: 新エンドポイント
+    `POST /live/camera`(Canvas カメラ → QGIS キャンバス中心/縮尺/回転)、
+    `POST /live/selection`(Canvas 地物選択 → QGIS レイヤ選択。
+    ids/bbox/点+buffer_m 指定)。`GET /live/state` が連携状態+
+    キャンバス状態を返す。POST は /live/* のみ許可(CORS 既存許可リスト)。
+  - bridge: `liveSyncStatus`/`liveSyncStart`/`liveSyncStop`/`liveSyncFlush`。
+
+## [4.8.0] - 2026-11-07
+
+### Added
+
+- アトラス有効な印刷レイアウト → Canvas FLY ルート出力
+  (`.kasc` エクスポート・bridge `kasugaiExport` の
+  `emit_atlas=True`、既定 ON):
+  - 各アトラスページの表示範囲(参照地図の extent)を巡回する
+    `fly_geojson:` 行 + `DATA/atlas_<slug>.geojson` を生成。
+    LineString 座標の Z 値にページ範囲を収める正典カメラ高を
+    焼き込み、`properties.heightReference="MSL"` で
+    Cesium 側の地形加算を抑止。ページ名一覧は
+    `properties.pages`、速度・pitch(-85)・step 等は
+    `properties.fly` へも埋め込む(リロード後も復元)
+  - ページ順はアトラスのソート/フィルタを反映
+    (`atlas.seekTo` 順)。レイアウト名は `Atlas: <名>` の
+    ルートタイトルになる
+  - Canvas 側: 2D プレイヤー(shared/player-api.js)で
+    点ごとの高度を zoom ではなく height として渡すよう修正し、
+    可変縮尺のページ巡回に対応。`fly_geojson` を
+    NON_LAYER_TYPES に追加(テーマ適用でルートが `| off` に
+    なる既存不具合の修正)
+  - 印刷レイアウト本体の PDF 出力は従来どおり `/layouts`・
+    `/layout-pdf`(Canvas 印刷ダイアログの「QGIS レイアウトPDF」)
+    で、アトラスは全ページが 1 PDF に出力される
+
+## [4.7.1] - 2026-11-07
+
+### Added
+
+- `.kasc` エクスポートの WMS/WMTS・グループ対応を強化:
+  - `wms:` 行に `version=` を追加(ソースURIにバージョン指定がある
+    場合のみ)。Canvas の GetMap 組み立てが 1.3.0→`CRS=` /
+    それ以外→`SRS=` を正しく使い分けられるようになる
+  - レイヤツリーの相互排他グループ(チェックで1つだけ表示)を
+    Canvas の排他グループ指定どおり直系レイヤのタイトルを
+    `親//レイヤ` の `//` 区切りで出力。Canvas 側では排他ラジオ
+    グループとして再現される
+
+## [4.7.0] - 2026-11-07
+
+### Added
+
+- QGIS 3Dビュー設定の反映を拡充(kasugai_canvas #60 対応):
+  - `terrain:` 行に `generator=`(地形ジェネレータ種別)/`offset=`
+    (elevation-offset)/`shading=on`(地形陰影)を追加。
+    generator=flat は Canvas(Cesium)側で地形OFFとして反映
+  - 新規 `scene3d:` 行: 3Dシーンの背景色(`background=#RRGGBB`・
+    白以外)・スカイボックス(`skybox=on`)・影(`shadows=on`)・
+    スクリーンスペースAO(`ao=on`)・Eye Dome Lighting(`edl=on`)を
+    非既定値のみ出力。Canvas は背景色→シーン背景+空非表示、
+    skybox→既定星空復帰、shadows→shadowMap 有効化として反映
+  - 新規 `light:` 行: 平行光源(directional-light)をシーン座標の
+    光源方向ベクトル(x=東,y=上,z=南)から方位/仰角へ変換し
+    `az=`/`el=`/`intensity=`/`color=` として出力。
+    Canvas は先頭カメラプリセットの ENU→ECEF 変換で
+    `scene.light`(DirectionalLight)へ反映し地形ライティングを有効化
+  - ベクターレイヤの3Dレンダラ立ち上げ(QgsVectorLayer3DRenderer の
+    ポリゴン/ラインシンボル)をベクター行の `| extrude=<m>`・
+    `| z=<m>` オプションとして出力。Canvas(Cesium)側で polygon の
+    height/extrudedHeight へ反映(render=primitive 経路では無効)
+- 残り未対応: QGIS スカイボックスのテクスチャ画像・点群3Dレンダラ・
+  ポイントライト・3Dアニメーション(keyframes)
+
 ## [4.6.2] - 2026-11-07
 
 ### Fixed

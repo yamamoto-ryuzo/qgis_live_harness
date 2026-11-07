@@ -79,12 +79,17 @@ def _cors_headers():
     return []
 
 
-def read_http_request(conn, max_size=8192):
+def read_http_request(conn, max_size=8192, max_body=4 * 1024 * 1024):
     """Read raw HTTP request bytes from a connected socket.
+
+    ヘッダ終端(\r\n\r\n)まで読み、Content-Length があればボディも
+    続けて読む(POST /live/* 用)。ボディ上限は max_body。
 
     Args:
         conn: socket-like object with recv
-        max_size: maximum bytes to read (prevents unbounded memory use)
+        max_size: maximum bytes to read for the header section
+            (prevents unbounded memory use)
+        max_body: maximum bytes to read for the request body
 
     Returns:
         bytes: raw request bytes (may be empty on error/timeout)
@@ -96,6 +101,23 @@ def read_http_request(conn, max_size=8192):
             if not chunk:
                 break
             data += chunk
+        if b'\r\n\r\n' in data:
+            head, _, body = data.partition(b'\r\n\r\n')
+            want = 0
+            for line in head.split(b'\r\n'):
+                if line.lower().startswith(b'content-length:'):
+                    try:
+                        want = int(line.split(b':', 1)[1].strip())
+                    except (ValueError, IndexError):
+                        want = 0
+                    break
+            want = max(0, min(want, max_body))
+            while len(body) < want:
+                chunk = conn.recv(min(65536, want - len(body)))
+                if not chunk:
+                    break
+                body += chunk
+            data = head + b'\r\n\r\n' + body
         return data
     except Exception:
         return b''
@@ -177,7 +199,7 @@ def send_options_response(conn):
         if cors_allowed_origin(origin):
             header_lines += [
                 'Access-Control-Allow-Origin: {0}'.format(origin),
-                "Access-Control-Allow-Methods: GET, HEAD, OPTIONS",
+                "Access-Control-Allow-Methods: GET, HEAD, POST, OPTIONS",
                 "Access-Control-Allow-Headers: *",
                 "Access-Control-Allow-Private-Network: true",
                 "Access-Control-Max-Age: 600",

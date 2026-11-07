@@ -221,6 +221,12 @@ class GeoWebViewServerManager:
             pass
         # KASUGAIエクスポートは同一出力先へ書き込むため同時実行を直列化する
         self._kasugai_lock = threading.Lock()
+        # ライブ双方向連携(/live/*)の状態。live_sync が更新し、
+        # GET /live/state が Canvas 側へ返す
+        self._live = {
+            'enabled': False, 'rev': 0, 'updated': None,
+            'changed': [], 'camera': None, 'selection': None,
+        }
         # 印刷レイアウトPDF出力もレイアウト参照の同時実行を防ぐため直列化する
         self._layout_lock = threading.Lock()
         # HTTPワーカーからGUIスレッドAPIを呼ぶための仲介
@@ -495,11 +501,19 @@ class GeoWebViewServerManager:
             # HEAD はエクスポート用ランチャーHTMLのエンジン自動探索
             # (fetch HEAD で <engine>/index.html を探す)が使うため受け付ける。
             # 静的配信(export-data / Canvas web/)のみを対象とする
+            # POST はライブ双方向連携(/live/*)のみ受け付ける
             head_only = method.upper() == 'HEAD'
-            if method.upper() not in ('GET', 'HEAD'):
+            _req_path0 = target.split('?', 1)[0].split(' ', 1)[0]
+            is_post = method.upper() == 'POST' \
+                and _req_path0.startswith('/live/')
+            if method.upper() not in ('GET', 'HEAD') and not is_post:
                 from . import http_server
-                http_server.send_http_response(conn, 405, "Method Not Allowed", "Only GET, HEAD and OPTIONS are supported.")
+                http_server.send_http_response(conn, 405, "Method Not Allowed", "Only GET, HEAD, POST(/live/*) and OPTIONS are supported.")
                 return
+            # POST ボディ(JSON)。ヘッダ終端以降がボディ
+            req_body = b''
+            if is_post and b'\r\n\r\n' in request_bytes:
+                req_body = request_bytes.partition(b'\r\n\r\n')[2]
 
             # MACアドレス認証モード(設定で有効時のみ): 未登録MACのクライアントは403
             if not self._mac_auth_check(addr[0] if addr else ''):
@@ -655,6 +669,81 @@ class GeoWebViewServerManager:
                     http_server.send_http_response(
                         conn, 500, 'Internal Server Error',
                         f'present/state failed: {e}', 'text/plain; charset=utf-8')
+                return
+
+            # --- ライブ双方向連携(Canvas ↔ QGIS) ---
+            # GET /live/state : 連携状態+現在のキャンバス状態(JSON)
+            if parsed_url.path == '/live/state' and not is_post:
+                try:
+                    payload = json.dumps(
+                        {'ok': True, 'live': self._live,
+                         'canvas': self._canvas_state_dict()},
+                        ensure_ascii=False)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 200, 'OK', payload,
+                        'application/json; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/state failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
+            # POST /live/camera : Canvas の視点を QGIS キャンバスへ反映
+            # body: {longitude,latitude,height|zoom|scale,heading?} または
+            #       {bbox:[w,s,e,n]}(EPSG:4326)
+            if parsed_url.path == '/live/camera' and is_post:
+                try:
+                    payload = json.loads(
+                        req_body.decode('utf-8') or '{}')
+                    applied = self._main_invoker.call(
+                        lambda: self._apply_live_camera(payload),
+                        timeout=30)
+                    self._live['camera'] = {
+                        'received': payload,
+                        'time': datetime.now().isoformat(timespec='seconds')}
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 200, 'OK',
+                        json.dumps({'ok': True, 'applied': applied},
+                                   ensure_ascii=False),
+                        'application/json; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/camera failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
+            # POST /live/selection : Canvas の地物選択を QGIS の選択へ反映
+            # body: {layer:"<kasc title>", ids:[fid...]} または
+            #       {layer:"<title>", longitude,latitude,buffer_m?} または
+            #       {layer:"<title>", bbox:[w,s,e,n]}
+            if parsed_url.path == '/live/selection' and is_post:
+                try:
+                    payload = json.loads(
+                        req_body.decode('utf-8') or '{}')
+                    applied = self._main_invoker.call(
+                        lambda: self._apply_live_selection(payload),
+                        timeout=30)
+                    self._live['selection'] = {
+                        'received': payload, 'applied': applied,
+                        'time': datetime.now().isoformat(timespec='seconds')}
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 200, 'OK',
+                        json.dumps({'ok': True, **applied},
+                                   ensure_ascii=False),
+                        'application/json; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/selection failed: {e}',
+                        'text/plain; charset=utf-8')
                 return
 
             # 現在のキャンバス表示と同等のPNG(プレゼンテーション共有用)
@@ -965,6 +1054,150 @@ class GeoWebViewServerManager:
             'cursor': self._cursor,
             'time': datetime.now().isoformat(timespec='seconds'),
         }
+
+    # ---------- ライブ双方向連携 ----------
+
+    def live_update(self, changed=None, enabled=None):
+        """live_sync からの更新を記録する。/live/state と push 通知に使う。
+
+        changed: [{'title': str, 'kind': 'data'|'style'|'full'}...] または None
+        """
+        st = self._live
+        st['rev'] = int(time.time() * 1000)
+        st['updated'] = datetime.now().isoformat(timespec='seconds')
+        if changed is not None:
+            st['changed'] = list(changed)
+        if enabled is not None:
+            st['enabled'] = bool(enabled)
+        return st['rev']
+
+    def _apply_live_camera(self, payload):
+        """Canvas 側のカメラ(JSON)を QGIS キャンバスへ反映する(GUIスレッド)。
+
+        payload: {longitude,latitude,zoom|scale|height,heading?}
+                  または {bbox:[w,s,e,n]}(EPSG:4326)。
+        """
+        canvas = self.iface.mapCanvas()
+        dest = canvas.mapSettings().destinationCrs()
+        src = QgsCoordinateReferenceSystem('EPSG:4326')
+        project = QgsProject.instance()
+        applied = {}
+        bbox = payload.get('bbox')
+        if isinstance(bbox, (list, tuple)) and len(bbox) == 4:
+            rect = QgsRectangle(*[float(v) for v in bbox])
+            if src != dest:
+                rect = QgsCoordinateTransform(
+                    src, dest, project).transformBoundingBox(rect)
+            canvas.setExtent(rect)
+            applied['extent'] = True
+        else:
+            lon = payload.get('longitude', payload.get('lon'))
+            lat = payload.get('latitude', payload.get('lat'))
+            if lon is not None and lat is not None:
+                pt = QgsPointXY(float(lon), float(lat))
+                if src != dest:
+                    pt = QgsCoordinateTransform(
+                        src, dest, project).transform(pt)
+                canvas.setCenter(pt)
+                applied['center'] = [pt.x(), pt.y()]
+            scale = payload.get('scale')
+            if scale is None and payload.get('zoom') is not None:
+                try:
+                    from .scale_zoom import estimate_scale_from_zoom
+                    scale = estimate_scale_from_zoom(payload.get('zoom'))
+                except Exception:  # nosec B110  # 設計上の許容
+                    scale = None
+            if scale is None and payload.get('height') is not None:
+                # Cesium カメラ高さ(m) → 概算縮尺(垂直FOV60°・0.28mm/px)
+                try:
+                    h = float(payload.get('height'))
+                    if h > 0:
+                        scale = h / (0.00028 * 2 * 0.5773502691896257)
+                except Exception:  # nosec B110  # 設計上の許容
+                    scale = None
+            if scale:
+                canvas.zoomScale(float(scale))
+                applied['scale'] = float(scale)
+        heading = payload.get('heading', payload.get('rotation'))
+        if heading is not None:
+            try:
+                canvas.setRotation(float(heading))
+                applied['rotation'] = float(heading)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+        canvas.refresh()
+        return applied
+
+    def _apply_live_selection(self, payload):
+        """Canvas 側の選択(JSON)を QGIS のレイヤ選択へ反映する(GUIスレッド)。
+
+        payload: {layer:"<kasc title>", ids:[fid...]}
+                 | {layer, longitude,latitude,buffer_m?}
+                 | {layer, bbox:[w,s,e,n]}
+        """
+        from qgis.core import QgsVectorLayer
+        project = QgsProject.instance()
+        title = str(payload.get('layer') or payload.get('title') or '').strip()
+        layer = None
+        if title:
+            leaf = title.split('/')[-1].strip()
+            try:
+                from . import kasugai_export
+                tree = kasugai_export._tree_layers()
+                norm = lambda s: '/'.join(
+                    p.strip() for p in str(s).split('/'))
+                want = norm(title)
+                cand = [lyr for lyr, groups, _v in tree
+                        if norm(kasugai_export._kasc_layer_title(
+                            groups, lyr.name())) == want]
+                if not cand:
+                    cand = [lyr for lyr in project.mapLayers().values()
+                            if lyr.name() == leaf or lyr.name() == title]
+                layer = cand[0] if cand else None
+            except Exception:  # nosec B110  # 設計上の許容
+                layer = None
+        if layer is None:
+            layer = self.iface.activeLayer()
+        if not isinstance(layer, QgsVectorLayer):
+            return {'selected': 0,
+                    'layer': layer.name() if layer is not None else None}
+        selected = 0
+        ids = payload.get('ids')
+        if isinstance(ids, (list, tuple)) and ids:
+            try:
+                layer.selectByIds([int(i) for i in ids])
+                selected = layer.selectedFeatureCount()
+            except Exception:  # nosec B110  # 設計上の許容
+                selected = 0
+        if not selected:
+            rect4326 = None
+            bbox = payload.get('bbox')
+            lon = payload.get('longitude', payload.get('lon'))
+            lat = payload.get('latitude', payload.get('lat'))
+            if isinstance(bbox, (list, tuple)) and len(bbox) == 4:
+                rect4326 = QgsRectangle(*[float(v) for v in bbox])
+            elif lon is not None and lat is not None:
+                try:
+                    buf = float(payload.get('buffer_m')
+                                or payload.get('buffer') or 5.0)
+                except Exception:  # nosec B110  # 設計上の許容
+                    buf = 5.0
+                d = buf / 111320.0
+                rect4326 = QgsRectangle(
+                    float(lon) - d, float(lat) - d,
+                    float(lon) + d, float(lat) + d)
+            if rect4326 is not None:
+                src = QgsCoordinateReferenceSystem('EPSG:4326')
+                rect = rect4326
+                if layer.crs() != src:
+                    rect = QgsCoordinateTransform(
+                        src, layer.crs(), project).transformBoundingBox(
+                            rect4326)
+                layer.selectByRect(rect)
+                selected = layer.selectedFeatureCount()
+        if selected:
+            layer.triggerRepaint()
+        return {'selected': int(selected), 'layer': layer.name()}
 
     @staticmethod
     def _parse_floats(text, count):
