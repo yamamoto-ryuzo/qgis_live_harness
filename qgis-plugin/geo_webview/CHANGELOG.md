@@ -11,6 +11,95 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [4.6.0] - 2026-11-07
+
+- マップテーマのスタイル再現を強化: テーマが記録するレイヤー別の
+  名前付きスタイル(MapThemeRecord.LayerRecord.styleName)を
+  `DATA/<slug>__<theme>.qml` として出力し、`theme:` 行の該当タイトルに
+  `;style=` を付与する。QGIS でテーマ別にスタイルを切り替えている
+  プロジェクトを Canvas 側でも再現できる(kasugai_canvas 側が
+  テーマ適用時に .qml を差し替え)
+- .kasc 行と出力ファイルの紐付けは従来どおり slug 規則
+  (`<slug>__<theme-slug>.qml`)
+
+## [4.5.0] - 2026-11-07
+
+- KASUGAI Canvas 連携エクスポートの再現度を強化(kasugai_canvas Issues #49-61 対応):
+  - 時間対応レイヤ(QgsTemporal)を `time=`/`time_end=` オプションへ自動出力(#57)
+  - ベクターレイヤの不透明度を `opacity=` として全ベクター行へ出力(#58)
+  - レイヤ/地物ブレンドモード・未対応レンダラ(2.5D/反転ポリゴン/
+    ジオメトリジェネレータ等)を warnings へ明示(#54/#58)
+  - ヒートマップ/ポイントクラスタ/ポイント変位レンダラを Canvas 側の
+    `heat=on`/`cluster=on` へマッピング(#54)
+  - WMTS レイヤ(tileMatrixSet を持つ wms ソース)を `wmts:` 行として出力(#51)
+  - 非GeoTIFFラスタ(JPEG/PNG/VRT/IMG/SDAT/GRIB 等)と再現不能なレンダラ設定
+    (疑似カラー/ヒルシェード/ストレッチ/パレット)を QGIS で描画済み PNG へ
+    焼き付け `image:` 行として出力(#52/#53)。multibandcolor のバンド選択は
+    `bands=` として出力
+  - 対象外レイヤ種別(メッシュ/ベクタータイル/点群/アノテーション/
+    プラグイン/グループ)の skipped 理由を和訳で明示(#50)
+  - レイヤーツリー詳細状態: グループ折りたたみを `group:` 行、
+    カスタムレイヤー順(hasCustomLayerOrder)を行順で出力(#59)
+  - 保存済み3Dビューを `cam:QGIS3D <名前>` 行(dist/pitch/yaw→位置・姿勢逆算)
+    と `terrain:` 行(垂直誇張)として出力(#60)
+  - プロジェクト保存時の自動再エクスポートを追加(#61)。
+    QSettings `kasugai_auto_export` を true にすると projectSaved 直後に
+    kasugaiExport(open_app=True) 相当を遅延実行し Canvas へ即時反映
+
+## [4.4.0] - 2026-11-07
+
+- レイヤの「縮尺による表示」設定（`hasScaleBasedVisibility` +
+  `minimumScale`/`maximumScale`）を `.kasc` 行へ `| minScale=` / `| maxScale=`
+  として出力するようにした。ベクター（geojson/gpkg/geoparquet/flatgeobuf/
+  duckdb）、3dtiles、xyz/base、wms、geotiff の全レイヤ行が対象。
+  KASUGAI Canvas 側で QGIS と同じ縮尺範囲（minScale=引き側限界→ズーム下限、
+  maxScale=寄り側限界→ズーム上限）の表示/非表示として再現される。
+
+## [4.3.0] - 2026-11-07
+
+- GDAL ラスタレイヤ（GeoTIFF/COG）を `geotiff:` 行として `.kasc` に出力するようにした。
+  ローカルの `.tif`/`.tiff`/`.gtif` は `DATA/` へ複製して相対参照し、
+  `http(s)`/`/vsicurl/` の COG URL はそのまま参照する。
+  レイヤ不透明度は `opacity=` へ、出典は `attr=` へ引き継ぐ。
+  再生は KASUGAI Canvas（Cesium エンジン）の geotiff.js デコードで行い、
+  EPSG:4326/3857 はタイル LOD、それ以外の座標系は四隅再投影のオーバーレイ描画となる。
+  これまでは XYZ/WMS/3dtiles 以外のラスタがスキップ対象だった
+
+## [Unreleased]
+
+- `.kasc` 既定ベースマップ群の `淡色地図`/`全国最新写真`（GSI `pale`/`seamlessphoto`）に
+  `minZoom=2` と `bbox=122,19,155,47` を追加。両タイルはズーム 2 未満および
+  日本周辺の範囲外が存在せず、Canvas 側で global 表示時に大量の 404 タイル要求が
+  発生していた（Cesium エンジン側でも `base:` 行の `minZoom`/`bbox` 解釈を実装済み）
+
+## [4.2.2] - 2026-11-07 Canvas 連携のループバックアドレスを 127.0.0.1 へ統一
+
+- Canvas 検出・登録・コマンド送信・生成URL の接続先を `localhost` から
+  `127.0.0.1` へ統一。Canvas 本体・バックエンド検出・起動HTMLは
+  一貫して `127.0.0.1:8510` を使う設計のため、`localhost` が `::1` 優先で
+  解決される環境で `[::1]:8510` の無関係なサービスへ接続してしまい、
+  検出失敗→`via: qgis-http` への静かなフォールバックが発生し得た
+  （`detect_kasugai`/`register_kasugai_project`/`kasugai_command`/
+  `build_kasugai_url`/`build_local_view_url`/`build_hosted_view_url`）
+- 併せて Canvas 側(web/)も修正: `switchProject` がページ読込後に
+  `/api/projects/register` で登録された外部プロジェクトを一覧未反映で
+  「プロジェクトが見つかりません」としていた問題を解消
+  （切替前にマニフェスト再読込するよう各エンジンで対応）
+
+## [4.2.1] - 2026-11-06 未読込・破損レイヤのエクスポート対応
+
+- `.kasc`+`DATA/` エクスポート(`export_kasugai_project`)で、レイヤツリー上
+  `layer()` が `None` の未読込レイヤを黙って落としていた問題を修正。
+  `_tree_layers()` がプロジェクトファイル(.qgs/.qgz)内の `<maplayer>`
+  定義を layerId で照合して `readLayerXml` で再生成・再登録
+  (スタイル等のプロジェクト設定も復元)し、layerTreeRegistryBridge/
+  `resolveReferences` でノードへ解決させて本来のツリー位置で出力する。
+  解決不能なものは skipped に「(未読込レイヤ)」として記録
+- `isValid()` が False の破損レイヤ(読込時にソース未達等)も
+  `setDataSource` で同一ソースの再オープンを試みる。復旧できたものは
+  warnings に「破損レイヤを再読込」、不能なものは skipped に
+  「(破損レイヤ)」として記録
+
 ## [4.2.0] - 2026-10-28 GSI Maps エンジン対応
 
 - KASUGAI Canvas の `gsimaps`(地理院地図)エンジンを起動エンジンの

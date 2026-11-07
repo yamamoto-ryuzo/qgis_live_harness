@@ -280,6 +280,44 @@ class GeoWebView:
         # 初回起動フラグ
         self.first_start = True
 
+        # プロジェクト保存時の自動再エクスポート(#61)。opt-in:
+        # QSettings kasugai_auto_export=True のとき、保存直後に
+        # kasugaiExport(open_app=True) 相当を実行して Canvas へ即時反映する。
+        # layerStyleChanged まで追うと過剰再出力になるため保存のみをフックする
+        self._auto_export_connected = False
+        try:
+            from qgis.core import QgsProject
+            QgsProject.instance().projectSaved.connect(
+                self._on_project_saved)
+            self._auto_export_connected = True
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    def _on_project_saved(self):
+        """projectSaved フック。自動再エクスポートが有効なら再出力する。"""
+        try:
+            from qgis.PyQt.QtCore import QSettings
+            on = QSettings('GeoWebView', 'geo_webview').value(
+                'kasugai_auto_export', False)
+            if str(on).lower() not in ('true', '1', 'yes'):
+                return
+        except Exception:  # nosec B110  # 設計上の許容
+            return
+        # 保存処理の直後に遅延実行(保存中の再帰・ブロックを避ける)
+        try:
+            from qgis.PyQt.QtCore import QTimer
+            QTimer.singleShot(800, self._run_auto_export)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    def _run_auto_export(self):
+        """自動再エクスポート本体(bridge 経由で登録・switchProject まで行う)。"""
+        try:
+            if self.bridge is not None:
+                self.bridge.kasugaiExport(open_app=True)
+        except Exception:  # nosec B110  # 自動化失敗は無視(次の保存で再試行)
+            pass
+
     def open_dialog(self):
         """live driver の open_plugin から呼ばれる互換フック。
 
@@ -736,6 +774,16 @@ class GeoWebView:
                 self.tr(u'&geo_webview'),
                 action)
             self._geo_toolbar().removeAction(action)
+
+        # 自動再エクスポートのシグナル接続を解除
+        if getattr(self, '_auto_export_connected', False):
+            try:
+                from qgis.core import QgsProject
+                QgsProject.instance().projectSaved.disconnect(
+                    self._on_project_saved)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            self._auto_export_connected = False
 
         # AI/外部制御用ブリッジを解除
         self.bridge = None

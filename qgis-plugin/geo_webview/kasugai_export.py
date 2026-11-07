@@ -745,7 +745,7 @@ def build_hosted_view_url(kasc_path, engine=None, port=None,
     rel = rel.replace('\\', '/')
     if rel.startswith('..'):
         return None
-    kasc_url = 'http://localhost:{0}/export-data/{1}'.format(
+    kasc_url = 'http://127.0.0.1:{0}/export-data/{1}'.format(
         int(port), urllib.parse.quote(rel))
     e = normalize_engine(engine) or DEFAULT_ENGINE
     return '{0}{1}/?kasc={2}'.format(
@@ -772,15 +772,137 @@ def _kasc_escape(text):
     return re.sub(r'[|\r\n]+', ' ', str(text or '')).strip()
 
 
-def _tree_layers():
+def _project_maplayer_elements(project):
+    """プロジェクトファイル(.qgs/.qgz)の <maplayer> 要素を id 引き辞書で返す。
+
+    戻り値は ``(doc, {layer_id: QDomElement})``。doc は QDomElement の
+    DOM 生存のために呼び出し側で保持する。取得不可時は ``(None, {})``。
+    """
+    from qgis.PyQt.QtXml import QDomDocument
+    fname = project.fileName() or ''
+    if not fname or not os.path.exists(fname):
+        return None, {}
+    try:
+        if fname.lower().endswith('.qgz'):
+            import zipfile
+            with zipfile.ZipFile(fname) as zf:
+                names = [n for n in zf.namelist()
+                         if n.lower().endswith('.qgs')]
+                if not names:
+                    return None, {}
+                data = zf.read(names[0])
+        else:
+            with open(fname, 'rb') as f:
+                data = f.read()
+        doc = QDomDocument()
+        if not doc.setContent(data):
+            return None, {}
+        elems = {}
+        lst = doc.elementsByTagName('maplayer')
+        for i in range(lst.count()):
+            el = lst.item(i).toElement()
+            lid = el.namedItem('id').toElement().text()
+            if lid:
+                elems[lid] = el
+        return doc, elems
+    except Exception:  # nosec B110  # 設計上の許容
+        return None, {}
+
+
+# <maplayer> の type 属性 → レイヤクラス名(plugin/annotation/group は対象外)
+_MAPLAYER_TYPE_CLS = {
+    'vector': 'QgsVectorLayer',
+    'raster': 'QgsRasterLayer',
+    'mesh': 'QgsMeshLayer',
+    'vector-tile': 'QgsVectorTileLayer',
+    'point-cloud': 'QgsPointCloudLayer',
+    'tiled-scene': 'QgsTiledSceneLayer',
+}
+
+
+def _layer_from_maplayer_elem(elem, context):
+    """<maplayer> 要素から QgsMapLayer を再生成する。失敗時 None。"""
+    import qgis.core as qc
+    cls = getattr(qc, _MAPLAYER_TYPE_CLS.get(
+        elem.attribute('type') or '', ''), None)
+    if cls is None:
+        return None
+    try:
+        lyr = cls()
+        if lyr.readLayerXml(elem, context):
+            return lyr
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return None
+
+
+def _retry_invalid_layer(layer):
+    """isValid()=False のレイヤへデータソース再解決を試みる。
+
+    破損レイヤ(読込時にソース未達等)は id・スタイル・設定を保ったまま
+    setDataSource で同一ソースを再オープンできる。成功時 True。
+    """
+    try:
+        if layer.isValid():
+            return True
+    except Exception:  # nosec B110  # 設計上の許容
+        return False
+    try:
+        src = layer.source() or ''
+        prov = layer.providerType() or ''
+        name = layer.name() or ''
+        if not src:
+            return False
+        layer.setDataSource(src, name, prov)
+        return bool(layer.isValid())
+    except Exception:  # nosec B110  # 設計上の許容
+        return False
+
+
+def _load_unresolved_layer(project, node, maplayer_elems, context):
+    """layer()=None のツリーノードをプロジェクトXML定義から再生成・再登録する。
+
+    <maplayer> 要素を readLayerXml で読むため、スタイルやフィルタ等の
+    プロジェクト設定も復元される。再登録に成功すれば
+    layerTreeRegistryBridge が同 id の弱参照ノードへ自動解決する。
+    """
+    lid = ''
+    try:
+        lid = node.layerId() or ''
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    elem = maplayer_elems.get(lid)
+    if elem is None:
+        return None
+    lyr = _layer_from_maplayer_elem(elem, context)
+    if lyr is None or not lyr.isValid():
+        return None
+    project.addMapLayer(lyr)
+    try:
+        node.resolveReferences(project)
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return node.layer() or lyr
+
+
+def _tree_layers(skipped=None, warnings=None, group_states=None):
     """レイヤツリー順(上から)に (layer, group_path, visible) で返す。
 
     visible はノード自身のチェックと全祖先の表示状態の積(実効表示状態)。
+
+    layer() が未解決のノード(ソース破損等でプロジェクトへ読み込まれ
+    なかったレイヤ)は、プロジェクトファイルの <maplayer> 定義から
+    再生成して再登録し、本来のツリー位置で出力する。解決不能なものは
+    skipped へ「(未読込レイヤ)」として記録する。
+
+    group_states に dict を渡すと、「 / 」連結のグループパスをキーに
+    展開状態(True=expanded/False=collapsed)を収集する(#59)。
     """
-    from qgis.core import QgsProject
+    from qgis.core import (QgsProject, QgsReadWriteContext,
+                           QgsPathResolver)
     project = QgsProject.instance()
     root = project.layerTreeRoot()
-    result = []
+    entries = []
 
     def _walk(node, groups, visible):
         from qgis.core import QgsLayerTreeGroup, QgsLayerTreeLayer
@@ -791,13 +913,62 @@ def _tree_layers():
                 checked = True
             eff = visible and bool(checked)
             if isinstance(child, QgsLayerTreeGroup):
-                _walk(child, groups + [child.name()], eff)
+                path = groups + [child.name()]
+                if group_states is not None:
+                    try:
+                        expanded = bool(child.isExpanded())
+                    except Exception:  # nosec B110  # 設計上の許容
+                        expanded = True
+                    group_states[' / '.join(path)] = expanded
+                _walk(child, path, eff)
             elif isinstance(child, QgsLayerTreeLayer):
-                lyr = child.layer()
-                if lyr is not None:
-                    result.append((lyr, list(groups), eff))
+                entries.append((child, list(groups), eff))
 
     _walk(root, [], True)
+
+    # 未読込レイヤがあればプロジェクトXMLを一度だけ読み、
+    # <maplayer> 定義から再生成を試みる
+    maplayer_elems = {}
+    doc = None
+    if any(node.layer() is None for node, _g, _v in entries):
+        doc, maplayer_elems = _project_maplayer_elements(project)
+    _ = doc  # QDomElement 生存のため DOM を保持するのみ
+    context = QgsReadWriteContext()
+    try:
+        context.setPathResolver(QgsPathResolver(project.fileName()))
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+
+    result = []
+    for node, groups, eff in entries:
+        lyr = node.layer()
+        if lyr is None:
+            lyr = _load_unresolved_layer(
+                project, node, maplayer_elems, context)
+            if warnings is not None and lyr is not None:
+                warnings.append(
+                    '{0}: 未読込レイヤを再読込'.format(lyr.name()))
+            elif skipped is not None and lyr is None:
+                skipped.append(
+                    '{0} (未読込レイヤ)'.format(
+                        node.name() or node.layerId()))
+        else:
+            try:
+                valid = bool(lyr.isValid())
+            except Exception:  # nosec B110  # 設計上の許容
+                valid = True
+            if not valid:
+                # 破損レイヤ(読込時にソース未達等)は同一定義で再オープンを試みる
+                if _retry_invalid_layer(lyr):
+                    if warnings is not None:
+                        warnings.append(
+                            '{0}: 破損レイヤを再読込'.format(lyr.name()))
+                elif skipped is not None:
+                    skipped.append(
+                        '{0} (破損レイヤ)'.format(lyr.name()))
+                    continue
+        if lyr is not None:
+            result.append((lyr, groups, eff))
     return result
 
 
@@ -1101,6 +1272,206 @@ def _maplayer_opacity(layer):
         return None
 
 
+# QPainter::CompositionMode の値 → 名前(警告表示用)。
+# 0=SourceOver(通常)以外は Canvas で再現できない
+_BLEND_MODE_NAMES = {
+    0: 'SourceOver', 1: 'DestinationOver', 2: 'Clear', 3: 'Source',
+    4: 'Destination', 5: 'SourceIn', 6: 'DestinationIn', 7: 'SourceOut',
+    8: 'DestinationOut', 9: 'SourceAtop', 10: 'DestinationAtop',
+    11: 'Xor', 12: 'Plus', 13: 'Multiply', 14: 'Screen', 15: 'Overlay',
+    16: 'Darken', 17: 'Lighten', 18: 'ColorDodge', 19: 'ColorBurn',
+    20: 'HardLight', 21: 'SoftLight', 22: 'Difference', 23: 'Exclusion',
+}
+
+# ベクターレンダラ種別 → Canvas 側オプション。
+# ヒートマップ/クラスタは QML スタイル変換ではなく .kasc の
+# heat=on/cluster=on へマッピングする(Canvas 側の専用描画機構を使う)
+_RENDERER_OPT_MAP = {
+    'heatmaprenderer': {'heat': 'on'},
+    'pointcluster': {'cluster': 'on'},
+    'pointdisplacement': {'cluster': 'on'},
+}
+
+# Canvas で再現できないレンダラ種別 → 警告用の説明
+_UNSUPPORTED_RENDERER_NAMES = {
+    'invertedpolygonrenderer': '反転ポリゴン',
+    '25drenderer': '2.5D',
+    'embeddedsymbol': '埋め込みシンボル',
+    'mergedfeaturerenderer': '結合地物',
+    'nullsymbol': 'null シンボル(地物非表示)',
+    'interpolated': '補間',
+    'geometrygenerator': 'ジオメトリジェネレータ',
+}
+
+
+def _blend_warning(layer, warnings):
+    """レイヤ/地物ブレンドモードが非標準なら警告を出す。
+
+    QGIS の multiply/screen/overlay 等は Canvas 側で再現できないため
+    (概ね通常描画になる)、ユーザーが認識できるよう warnings へ記録する。
+    """
+    for meth, label in (('blendMode', 'ブレンドモード'),
+                        ('featureBlendMode', '地物ブレンドモード')):
+        try:
+            fn = getattr(layer, meth, None)
+            if fn is None:
+                continue
+            bm = fn()
+            val = int(bm.value if hasattr(bm, 'value') else bm)
+        except Exception:  # nosec B110  # 設計上の許容
+            continue
+        if val and val != 0:
+            warnings.append('{0}: {1} {2} は未対応(近似描画)'.format(
+                layer.name(), label,
+                _BLEND_MODE_NAMES.get(val, str(val))))
+
+
+def _temporal_opts(layer, warnings):
+    """時間対応(temporal)設定 → ``time=``/``time_end=``/``time_span=``。
+
+    QgsVectorLayerTemporalProperties の mode 別に変換する:
+    - InstantFromField        → time=<開始フィールド>
+    - StartAndEndFromFields   → time=<開始> + time_end=<終了>
+    - StartAndDurationFromFields → time=<開始>(期間フィールドは未対応→警告)
+    - FromExpressions / FixedRange / RedrawOnly → 変換不能(警告 or 無視)
+    """
+    opts = {}
+    try:
+        tp = layer.temporalProperties()
+    except Exception:  # nosec B110  # 設計上の許容
+        return opts
+    try:
+        if not tp or not tp.isActive():
+            return opts
+        from qgis.core import QgsVectorLayerTemporalProperties as _T
+        mode = tp.mode()
+        if mode == _T.ModeFeatureDateTimeInstantFromField:
+            if tp.startField():
+                opts['time'] = tp.startField()
+            else:
+                warnings.append(
+                    '{0}: 時間フィールド未設定'.format(layer.name()))
+        elif mode == _T.ModeFeatureDateTimeStartAndEndFromFields:
+            if tp.startField():
+                opts['time'] = tp.startField()
+            if tp.endField():
+                opts['time_end'] = tp.endField()
+            if not opts:
+                warnings.append(
+                    '{0}: 時間フィールド未設定'.format(layer.name()))
+        elif mode == getattr(
+                _T, 'ModeFeatureDateTimeStartAndDurationFromFields',
+                object()):
+            if tp.startField():
+                opts['time'] = tp.startField()
+            warnings.append(
+                '{0}: 地物ごとの期間(durationField)は未対応'.format(
+                    layer.name()))
+        elif mode == getattr(
+                _T, 'ModeFeatureDateTimeStartAndEndFromExpressions',
+                object()):
+            warnings.append(
+                '{0}: 式ベースの時間設定は未対応'.format(layer.name()))
+        elif mode == _T.ModeFixedTemporalRange:
+            warnings.append(
+                '{0}: 固定時間範囲はタイムスライダーへ変換不可'.format(
+                    layer.name()))
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return opts
+
+
+def _renderer_opts(layer, warnings):
+    """ベクターレンダラ種別 → Canvas オプション(heat=/cluster=)。
+
+    変換不能なレンダラ(反転ポリゴン/2.5D/ジオメトリジェネレータ等)は
+    「最も近い表現へのフォールバック」となるため warnings に記録する。
+    """
+    opts = {}
+    try:
+        r = layer.renderer()
+        rtype = (r.type() or '').strip().lower() if r else ''
+    except Exception:  # nosec B110  # 設計上の許容
+        return opts
+    if rtype in _RENDERER_OPT_MAP:
+        opts.update(_RENDERER_OPT_MAP[rtype])
+    elif rtype in _UNSUPPORTED_RENDERER_NAMES:
+        warnings.append('{0}: {1}レンダラは未対応(近似描画)'.format(
+            layer.name(), _UNSUPPORTED_RENDERER_NAMES[rtype]))
+    # シンボルレイヤ単位の未対応要素(ジオメトリジェネレータ)を拾う
+    try:
+        syms = []
+        if r and hasattr(r, 'symbol'):
+            s = r.symbol()
+            if s is not None:
+                syms = [s]
+        if not syms and r and hasattr(r, 'symbols'):
+            try:
+                from qgis.core import QgsRenderContext
+                syms = list(r.symbols(QgsRenderContext()) or [])
+            except Exception:  # nosec B110  # 設計上の許容
+                syms = []
+        for s in syms:
+            if s is None:
+                continue
+            try:
+                for i in range(s.symbolLayerCount()):
+                    lt = (s.symbolLayer(i).layerType() or '').strip()
+                    if lt == 'GeometryGenerator':
+                        warnings.append(
+                            '{0}: ジオメトリジェネレータは未対応'
+                            '(近似描画)'.format(layer.name()))
+                        raise StopIteration
+            except StopIteration:
+                break
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return opts
+
+
+def _vector_opts_suffix(layer, warnings):
+    """ベクター行(geojson:/gpkg: 等)共通の追加オプション文字列を返す。
+
+    - 時間対応 → `` | time=<f>``/`` | time_end=<f>``/`` | time_span=<s>``
+    - レンダラ種別 → `` | heat=on``/`` | cluster=on``
+    - レイヤ不透明度 → `` | opacity=<0-1>``
+    """
+    opts = {}
+    opts.update(_temporal_opts(layer, warnings))
+    opts.update(_renderer_opts(layer, warnings))
+    _blend_warning(layer, warnings)
+    op = _maplayer_opacity(layer)
+    if op is not None:
+        opts['opacity'] = '{0:g}'.format(op)
+    out = ''
+    for key, val in opts.items():
+        out += ' | {0}={1}'.format(key, _kasc_escape(val))
+    return out
+
+
+def _scale_vis_opt(layer):
+    """QGIS の縮尺表示設定を `` | minScale= | maxScale=`` オプションにする。
+
+    QgsMapLayer::minimumScale() は引き側限界(分母が大きい方)、
+    maximumScale() は寄り側限界(分母が小さい方・0 は無制限)。
+    Canvas 側は minScale → ズーム下限、maxScale → ズーム上限として
+    解釈する(QGIS と同じ命名方向)。未設定時は空文字。
+    """
+    try:
+        if not layer.hasScaleBasedVisibility():
+            return ''
+        lo = float(layer.minimumScale() or 0)
+        hi = float(layer.maximumScale() or 0)
+    except Exception:
+        return ''
+    out = ''
+    if lo > 0:
+        out += ' | minScale={0:g}'.format(lo)
+    if hi > 0:
+        out += ' | maxScale={0:g}'.format(hi)
+    return out
+
+
 def _layer_extent_bbox(layer):
     """レイヤ範囲を EPSG:4326 の 'w,s,e,n' 文字列に。全域相当/失敗時 None。"""
     try:
@@ -1124,14 +1495,29 @@ def _layer_extent_bbox(layer):
         return None
 
 
+# skipped 記録用の種別名 → ユーザー向け理由(#50)。
+# 対象外レイヤ種別をサイレントに捨てないよう、理由を明示する
+_SKIP_REASON_BY_CLASS = {
+    'QgsMeshLayer': 'メッシュレイヤ(未対応)',
+    'QgsVectorTileLayer': 'ベクタータイル(未対応)',
+    'QgsPointCloudLayer': '点群レイヤ(未対応)',
+    'QgsAnnotationLayer': 'アノテーションレイヤ(未対応)',
+    'QgsPluginLayer': 'プラグインレイヤ(未対応)',
+    'QgsGroupLayer': 'グループレイヤ(未対応)',
+}
+
+
 def _skip_reason(layer):
-    """skipped 記録用の種別文字列(クラス名+プロバイダ)。"""
+    """skipped 記録用の種別文字列(クラス名+プロバイダ、既知種別は和訳)。"""
+    cls_name = type(layer).__name__
+    if cls_name in _SKIP_REASON_BY_CLASS:
+        return _SKIP_REASON_BY_CLASS[cls_name]
     prov = ''
     try:
         prov = layer.providerType() or ''
     except Exception:  # nosec B110  # 設計上の許容
         pass
-    cls = type(layer).__name__.replace('Qgs', '')
+    cls = cls_name.replace('Qgs', '')
     return '{0}({1})'.format(cls, prov) if prov else cls
 
 
@@ -1141,6 +1527,38 @@ def _duckdb_target_ref(target, slug, data_dir, copied):
         return target
     path = _local_path(target)
     if not path or not os.path.exists(path):
+        return None
+    return _copy_to_data(path, data_dir, slug, copied)
+
+
+# geotiff: 行へ回せるラスタファイルの拡張子(GeoTIFF/COG)
+_GEOTIFF_EXTS = ('.tif', '.tiff', '.gtif', '.gtiff')
+
+
+def _geotiff_layer_ref(layer, slug, data_dir, copied):
+    """QgsRasterLayer のソースが GeoTIFF/COG なら参照を返す。
+
+    - http(s)/vsicurl の .tif 系 → URL をそのまま参照(COG 前提)
+    - ローカルの .tif 系 → DATA/ へコピーして相対参照
+    それ以外のラスタ(WMS/仮想等)やファイル不在は None。
+    """
+    try:
+        from qgis.core import QgsRasterLayer
+        if not isinstance(layer, QgsRasterLayer):
+            return None
+    except Exception:  # nosec B110  # 設計上の許容
+        return None
+    if (layer.providerType() or '').lower() != 'gdal':
+        return None
+    src = layer.source() or ''
+    url = src.replace('/vsicurl/', '')
+    if re.match(r'https?://', url):
+        low = url.split('?')[0].lower()
+        return url if low.endswith(_GEOTIFF_EXTS) else None
+    path = _local_path(src)
+    if not path or not path.lower().endswith(_GEOTIFF_EXTS):
+        return None
+    if not os.path.exists(path):
         return None
     return _copy_to_data(path, data_dir, slug, copied)
 
@@ -1539,6 +1957,146 @@ def _wms_layer_info(layer):
         return None
 
 
+def _wmts_layer_info(layer):
+    """QGIS の WMTS ラスタレイヤなら
+    (url, layers_csv, styles_csv, tilematrixset, format, tilesize) を返す。
+
+    WMS(GetMap) と違い、tileMatrixSet を持つソースは ``wmts:`` 行へ
+    出力する(Canvas 側が KVP GetTile または RESTful テンプレートへ展開)。
+    """
+    try:
+        if layer.providerType() not in ('wms',):
+            return None
+        src = layer.source() or ''
+        if 'type=xyz' in src or 'type%3Dxyz' in src.lower():
+            return None
+        params = {}
+        lists = {}
+        for part in src.split('&'):
+            if '=' not in part:
+                continue
+            key, val = part.split('=', 1)
+            key = key.strip().lower()
+            val = urllib.parse.unquote(val.strip())
+            if key in ('layers', 'styles'):
+                lists.setdefault(key, []).append(val)
+            else:
+                params[key] = val
+        tms = params.get('tilematrixset')
+        if not tms:
+            return None
+        url = params.get('url')
+        if not url or not re.match(r'https?://', url):
+            return None
+        try:
+            tilesize = int(params.get('tiledimensions') or 0) or None
+        except Exception:  # nosec B110  # 設計上の許容
+            tilesize = None
+        return (url,
+                ','.join(lists.get('layers', [])),
+                ','.join(lists.get('styles', [])),
+                tms, params.get('format') or '', tilesize)
+    except Exception:
+        return None
+
+
+# 焼き付け PNG(レンダラ再現フォールバック)の長辺上限
+_RASTER_BAKE_MAX_PX = 4096
+
+
+def _raster_needs_bake(layer):
+    """再現に「QGIS で描画済み PNG への焼き付け」が必要なラスタか。
+
+    - multibandcolor: ``bands=`` で表現できるため対象外
+    - singlebandgray: コントラスト強調(ストレッチ)ありなら焼き付け
+    - paletted: パレット色は geotiff 参照で再現されないため焼き付け
+    - それ以外(疑似カラー/ヒルシェード/等高線/未知のレンダラ): 焼き付け
+    """
+    try:
+        r = layer.renderer()
+        rtype = (r.type() or '').strip().lower() if r else ''
+        if rtype in ('multibandcolor', ''):
+            return False
+        if rtype == 'singlebandgray':
+            try:
+                ce = r.contrastEnhancement()
+                return (ce is not None and
+                        int(ce.contrastEnhancementAlgorithm()) != 0)
+            except Exception:  # nosec B110  # 設計上の許容
+                return False
+        return True
+    except Exception:  # nosec B110  # 設計上の許容
+        return False
+
+
+def _raster_bands_opt(layer):
+    """multibandcolor レンダラの band 選択 → 'r,g,b'。標準(1,2,3)なら None。"""
+    try:
+        r = layer.renderer()
+        if not r or (r.type() or '').strip().lower() != 'multibandcolor':
+            return None
+        bands = [r.redBand(), r.greenBand(), r.blueBand()]
+        if min(bands) < 1 or bands == [1, 2, 3]:
+            return None
+        return ','.join(str(b) for b in bands)
+    except Exception:  # nosec B110  # 設計上の許容
+        return None
+
+
+def _render_raster_png(layer, png_path, warnings):
+    """ラスタレイヤを現在の表示状態のまま PNG(透過)へ焼き付ける。
+
+    レンダラ(疑似カラー・ヒルシェード・ストレッチ・パレット)・
+    ブレンド・描画効果を含めて QGIS の見た目をそのまま保存し、
+    ``image:`` 行で参照できるようにする。戻り値は EPSG:4326 の
+    'w,s,e,n' bbox 文字列、失敗時 None。
+    """
+    try:
+        from qgis.core import (QgsCoordinateReferenceSystem,
+                               QgsCoordinateTransform, QgsMapRendererSequentialJob,
+                               QgsMapSettings, QgsProject)
+        from qgis.PyQt.QtCore import QSize
+        from qgis.PyQt.QtGui import QColor
+        ext = layer.extent()
+        if not ext or not ext.isFinite() or ext.isEmpty():
+            return None
+        w_px = int(layer.width() or 0)
+        h_px = int(layer.height() or 0)
+        if w_px <= 0 or h_px <= 0:
+            w_px, h_px = 1024, 1024
+        scale = _RASTER_BAKE_MAX_PX / float(max(w_px, h_px))
+        if scale < 1.0:
+            w_px = max(1, int(w_px * scale))
+            h_px = max(1, int(h_px * scale))
+            warnings.append('{0}: 焼き付けPNGを {1}px 以内へ縮小'.format(
+                layer.name(), _RASTER_BAKE_MAX_PX))
+        settings = QgsMapSettings()
+        settings.setLayers([layer])
+        crs = layer.crs()
+        if crs and crs.isValid():
+            settings.setDestinationCrs(crs)
+        settings.setExtent(ext)
+        settings.setOutputSize(QSize(w_px, h_px))
+        settings.setBackgroundColor(QColor(0, 0, 0, 0))
+        job = QgsMapRendererSequentialJob(settings)
+        job.start()
+        job.waitForFinished()
+        img = job.renderedImage()
+        if img.isNull() or not img.save(png_path, 'PNG'):
+            return None
+        if crs and crs.isValid() and crs.authid() != 'EPSG:4326':
+            tr = QgsCoordinateTransform(
+                crs, QgsCoordinateReferenceSystem('EPSG:4326'),
+                QgsProject.instance())
+            ext = tr.transformBoundingBox(ext)
+        return '{0:.6f},{1:.6f},{2:.6f},{3:.6f}'.format(
+            ext.xMinimum(), ext.yMinimum(), ext.xMaximum(), ext.yMaximum())
+    except Exception as e:
+        warnings.append('{0}: ラスタ焼き付け失敗: {1}'.format(
+            layer.name(), e))
+        return None
+
+
 def _camera_line(iface, height_hint_scale=None):
     """現在キャンバスから cam: 行を作る。失敗時 None。"""
     try:
@@ -1566,6 +2124,137 @@ def _camera_line(iface, height_hint_scale=None):
             pass
         return line
     except Exception:
+        return None
+
+
+def _project_xml_root(project):
+    """プロジェクトファイル(.qgs/.qgz)を ElementTree root で返す。"""
+    fname = project.fileName() or ''
+    if not fname or not os.path.exists(fname):
+        return None
+    try:
+        if fname.lower().endswith('.qgz'):
+            import zipfile
+            with zipfile.ZipFile(fname) as zf:
+                names = [n for n in zf.namelist()
+                         if n.lower().endswith('.qgs')]
+                if not names:
+                    return None
+                data = zf.read(names[0])
+        else:
+            with open(fname, 'rb') as f:
+                data = f.read()
+        try:
+            from .defusedxml import ElementTree as ET
+        except ImportError:
+            from defusedxml import ElementTree as ET
+        return ET.fromstring(data)
+    except Exception:  # nosec B110  # 設計上の許容
+        return None
+
+
+def _threed_lines(project, warnings):
+    """保存済み3Dビュー(<mapViewDocks3D><view>) → cam:/terrain: 行一覧。
+
+    3D カメラは注視点(xMap,yMap=シーンCRS, dist=視線距離, pitch, yaw)で
+    保持されるため、注視点を 4326 へ変換し大圏逆算でカメラ位置を求め
+    ``cam:QGIS3D <名前>|lat|lon|h=|p=|d=`` として出力する(2D の cam: と
+    分離するため名前を前置)。地形の垂直誇張は ``terrain:`` 行で受け渡す。
+    """
+    import math
+    out = []
+    root = _project_xml_root(project)
+    if root is None:
+        return out
+    from qgis.core import (QgsCoordinateReferenceSystem,
+                           QgsCoordinateTransform, QgsPointXY)
+    scene_crs = project.crs()
+    tr = None
+    if scene_crs and scene_crs.isValid() and \
+            scene_crs.authid() != 'EPSG:4326':
+        tr = QgsCoordinateTransform(
+            scene_crs, QgsCoordinateReferenceSystem('EPSG:4326'), project)
+    R = 6371008.8
+    try:
+        for view in root.iter('view'):
+            name = view.get('name') or '3D'
+            cam_el = view.find('camera')
+            if cam_el is None:
+                continue
+            try:
+                x = float(cam_el.get('xMap'))
+                y = float(cam_el.get('yMap'))
+                dist = float(cam_el.get('dist') or 0)
+                pitch = float(cam_el.get('pitch') or 0)
+                yaw = float(cam_el.get('yaw') or 0)
+            except (TypeError, ValueError):
+                continue
+            if dist <= 0:
+                continue
+            try:
+                pt = QgsPointXY(x, y)
+                if tr is not None:
+                    pt = tr.transform(pt)
+                tlat, tlon = pt.y(), pt.x()
+                # camFromGroundCenter 相当: カメラは注視点から
+                # heading+180 方向へ dist*cos(pitch) 退避、
+                # 高さ dist*sin(pitch)
+                th = math.radians(max(0.0, min(89.9, 90.0 - pitch)))
+                h = max(1.0, dist * math.cos(th))
+                d = dist * math.sin(th)
+                brng = math.radians(yaw + 180.0)
+                delta = d / R
+                phi1, lam1 = math.radians(tlat), math.radians(tlon)
+                phi2 = math.asin(
+                    math.sin(phi1) * math.cos(delta) +
+                    math.cos(phi1) * math.sin(delta) * math.cos(brng))
+                lam2 = lam1 + math.atan2(
+                    math.sin(brng) * math.sin(delta) * math.cos(phi1),
+                    math.cos(delta) - math.sin(phi1) * math.sin(phi2))
+                out.append(
+                    'cam:QGIS3D {0}|{1:.6f}|{2:.6f}|h={3:.0f}'
+                    '|p={4:.1f}|d={5:.1f}'.format(
+                        _kasc_escape(name), math.degrees(phi2),
+                        math.degrees(lam2), h, -pitch, yaw % 360))
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            # 地形の垂直誇張(≠1 のみ出力)
+            qgis3d = view.find('qgis3d')
+            terr = qgis3d.find('terrain') if qgis3d is not None else None
+            if terr is not None:
+                try:
+                    ex = float(terr.get('exaggeration') or 1.0)
+                    if abs(ex - 1.0) > 0.001:
+                        out.append('terrain: qgis | exaggeration={0:g}'
+                                   .format(ex))
+                except (TypeError, ValueError):
+                    pass
+    except Exception as e:
+        warnings.append('3Dビュー設定の出力に失敗: {0}'.format(e))
+    return out
+
+
+def _theme_style_qml(layer, style_name, data_dir, slug, theme_slug,
+                     warnings):
+    """テーマ記録の名前付きスタイル(styleManager の名前)を
+    DATA/<slug>__<theme>.qml へ出力し 'DATA/...' を返す。
+    styleManager に無い・無効なスタイルは None。"""
+    try:
+        mgr = layer.styleManager()
+        st = mgr.style(style_name) if mgr is not None else None
+        if st is None or not st.isValid():
+            return None
+        xml = st.xmlData()
+        if not isinstance(xml, str):
+            xml = xml.toString()
+        fname = '{0}__{1}.qml'.format(
+            slug or 'layer', theme_slug or 'theme')
+        with open(os.path.join(data_dir, fname), 'w',
+                  encoding='utf-8') as f:
+            f.write(xml)
+        return 'DATA/' + fname
+    except Exception as e:
+        warnings.append('theme style {0}: {1}'.format(style_name, e))
         return None
 
 
@@ -1743,6 +2432,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         os.path.basename(project.fileName() or ''))[0] or 'QGIS Export'
 
     used_names = set()
+    slug_by_id = {}  # layer.id() → DATA/ 用 slug(theme 行の ;style= で使う)
     copied = {}
     layers_out, tiles_out, skipped, errors, warnings = [], [], [], [], []
     kasc_lines = []
@@ -1750,7 +2440,20 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     group_bases = []      # ベースマップグループ内 XYZ の base: 行
     basemap_layer_ids = set()  # base: 行へ回したレイヤ(theme 行から除外)
 
-    tree = _tree_layers()
+    group_states = {}
+    tree = _tree_layers(skipped, warnings, group_states)
+
+    # カスタムレイヤー順(描画順オーバーライド)が有効ならその順へ並べ替える(#59)
+    try:
+        root = project.layerTreeRoot()
+        if root.hasCustomLayerOrder():
+            order_map = {id(l): i
+                         for i, l in enumerate(root.customLayerOrder() or [])}
+            tree = sorted(
+                tree,
+                key=lambda t: order_map.get(id(t[0]), len(order_map)))
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
 
     # theme: 行(マップテーマ → Canvas 可視性プリセット)の素材。
     # テーマが存在する場合、非表示レイヤも | off で出さないとテーマ適用時に
@@ -1809,6 +2512,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             except Exception:  # nosec B110  # 設計上の許容
                 pass
             slug = _slugify(layer.name() or 'layer', used_names)
+            slug_by_id[layer.id()] = slug
             qml_path = os.path.join(data_dir, slug + '.qml')
             style_opt = ''
             try:
@@ -1829,6 +2533,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 feat_count = int(layer.featureCount())
             except Exception:  # nosec B110  # 設計上の許容
                 pass
+            # 時間対応・ヒートマップ/クラスタ・透過度等の共通オプション
+            vopt = _vector_opts_suffix(layer, warnings)
 
             if _has_unusable_subset(layer):
                 warnings.append(
@@ -1858,6 +2564,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 for key, val in native.get('opts', {}).items():
                     line += ' | {0}={1}'.format(key, _kasc_escape(val))
                 line += style_opt
+                line += vopt
+                line += _scale_vis_opt(layer)
                 attr = _attribution(layer)
                 if attr:
                     line += ' | attr={0}'.format(_kasc_escape(attr))
@@ -1890,8 +2598,9 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             attr_opt = ' | attr={0}'.format(
                 _kasc_escape(attr)) if attr else ''
             kasc_lines.append(
-                'geojson: {0} | DATA/{1}.geojson | {2}{3}{4}'.format(
-                    title, slug, vis_flag, style_opt, attr_opt))
+                'geojson: {0} | DATA/{1}.geojson | {2}{3}{4}{5}{6}'.format(
+                    title, slug, vis_flag, style_opt, vopt,
+                    _scale_vis_opt(layer), attr_opt))
         else:
             if _is_tiled_scene(layer):
                 slug = _slugify(layer.name() or 'scene', used_names)
@@ -1900,6 +2609,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 if ref:
                     line = '3dtiles: {0} | {1} | {2}'.format(
                         title, _kasc_escape(ref), vis_flag)
+                    line += _scale_vis_opt(layer)
                     attr = _attribution(layer)
                     if attr:
                         line += ' | attr={0}'.format(_kasc_escape(attr))
@@ -1945,6 +2655,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                         line += ' | minZoom={0}'.format(zmin)
                     if opacity is not None:
                         line += ' | opacity={0}'.format(opacity)
+                    line += _scale_vis_opt(layer)
                     if not visible:
                         line += ' | off'
                     group_bases.append((visible, line))
@@ -1961,6 +2672,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                         line += ' | minZoom={0}'.format(zmin)
                     if opacity is not None:
                         line += ' | opacity={0}'.format(opacity)
+                    line += _scale_vis_opt(layer)
                     detected_base = line
                 else:
                     line = 'xyz: {0} | {1} | {2}'.format(
@@ -1971,6 +2683,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                         line += ' | minZoom={0}'.format(zmin)
                     if opacity is not None:
                         line += ' | opacity={0}'.format(opacity)
+                    line += _scale_vis_opt(layer)
                     if bbox is not None:
                         line += ' | bbox={0}'.format(bbox)
                     attr = _attribution(layer)
@@ -1980,6 +2693,39 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 tiles_out.append({'name': layer.name(), 'url': url,
                                   'type': 'xyz'})
             else:
+                wmts = _wmts_layer_info(layer)
+                if wmts:
+                    url, w_layers, w_styles, w_tms, w_fmt, w_tilesize = wmts
+                    line = 'wmts: {0} | {1} | {2}'.format(
+                        title, _kasc_escape(url), vis_flag)
+                    if w_layers:
+                        line += ' | layer={0}'.format(
+                            _kasc_escape(w_layers))
+                    if w_styles:
+                        line += ' | style={0}'.format(
+                            _kasc_escape(w_styles))
+                    if w_tms:
+                        line += ' | tilematrixset={0}'.format(
+                            _kasc_escape(w_tms))
+                    if w_fmt:
+                        line += ' | format={0}'.format(
+                            _kasc_escape(w_fmt))
+                    if w_tilesize in (256, 512):
+                        line += ' | tilesize={0}'.format(w_tilesize)
+                    opacity = _maplayer_opacity(layer)
+                    bbox = _layer_extent_bbox(layer)
+                    if opacity is not None:
+                        line += ' | opacity={0}'.format(opacity)
+                    if bbox is not None:
+                        line += ' | bbox={0}'.format(bbox)
+                    line += _scale_vis_opt(layer)
+                    attr = _attribution(layer)
+                    if attr:
+                        line += ' | attr={0}'.format(_kasc_escape(attr))
+                    kasc_lines.append(line)
+                    tiles_out.append({'name': layer.name(), 'url': url,
+                                      'type': 'wmts'})
+                    continue
                 wms = _wms_layer_info(layer)
                 if wms:
                     url, wms_layers, wms_styles, wms_fmt = wms
@@ -2000,6 +2746,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                         line += ' | opacity={0}'.format(opacity)
                     if bbox is not None:
                         line += ' | bbox={0}'.format(bbox)
+                    line += _scale_vis_opt(layer)
                     attr = _attribution(layer)
                     if attr:
                         line += ' | attr={0}'.format(_kasc_escape(attr))
@@ -2007,8 +2754,56 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                     tiles_out.append({'name': layer.name(), 'url': url,
                                       'type': 'wms'})
                 else:
-                    skipped.append(
-                        '{0} ({1})'.format(layer.name(), _skip_reason(layer)))
+                    # GDAL ラスタ: GeoTIFF/COG は geotiff: 行、
+                    # それ以外の形式・再現不能なレンダラ設定は
+                    # QGIS で描画済み PNG へ焼き付けて image: 行で出す
+                    slug = _slugify(layer.name() or 'raster', used_names)
+                    ref = _geotiff_layer_ref(
+                        layer, slug, data_dir, copied)
+                    need_bake = ref is None or _raster_needs_bake(layer)
+                    baked_bbox = None
+                    if need_bake:
+                        baked_bbox = _render_raster_png(
+                            layer, os.path.join(data_dir, slug + '.png'),
+                            warnings)
+                    if baked_bbox:
+                        line = 'image: {0} | DATA/{1}.png | {2}'.format(
+                            title, slug, vis_flag)
+                        line += ' | bbox={0}'.format(baked_bbox)
+                        opacity = _maplayer_opacity(layer)
+                        if opacity is not None:
+                            line += ' | opacity={0}'.format(opacity)
+                        line += _scale_vis_opt(layer)
+                        attr = _attribution(layer)
+                        if attr:
+                            line += ' | attr={0}'.format(
+                                _kasc_escape(attr))
+                        kasc_lines.append(line)
+                        tiles_out.append({
+                            'name': layer.name(),
+                            'url': 'DATA/{0}.png'.format(slug),
+                            'type': 'image'})
+                    elif ref:
+                        line = 'geotiff: {0} | {1} | {2}'.format(
+                            title, _kasc_escape(ref), vis_flag)
+                        bands = _raster_bands_opt(layer)
+                        if bands:
+                            line += ' | bands={0}'.format(bands)
+                        line += _scale_vis_opt(layer)
+                        opacity = _maplayer_opacity(layer)
+                        if opacity is not None:
+                            line += ' | opacity={0}'.format(opacity)
+                        attr = _attribution(layer)
+                        if attr:
+                            line += ' | attr={0}'.format(
+                                _kasc_escape(attr))
+                        kasc_lines.append(line)
+                        tiles_out.append({'name': layer.name(), 'url': ref,
+                                          'type': 'geotiff'})
+                    else:
+                        skipped.append(
+                            '{0} ({1})'.format(
+                                layer.name(), _skip_reason(layer)))
 
     cam = _camera_line(iface)
     bookmark_count = 0
@@ -2021,10 +2816,10 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         '出典：国土地理院 | maxZoom=18',
         'base: 地理院タイル 淡色地図 | '
         'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png | '
-        '出典：国土地理院 | maxZoom=18',
+        '出典：国土地理院 | maxZoom=18 | minZoom=2 | bbox=122,19,155,47',
         'base: 地理院タイル 全国最新写真 | '
         'https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg | '
-        '出典：国土地理院 | maxZoom=18',
+        '出典：国土地理院 | maxZoom=18 | minZoom=2 | bbox=122,19,155,47',
         'base: OpenStreetMap | https://tile.openstreetmap.org/{z}/{x}/{y}.png | '
         '(c) OpenStreetMap contributors | maxZoom=19',
     ]
@@ -2045,6 +2840,18 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     if bookmark_count:
         header.append('bookmark: bookmarks.xml')
 
+    # レイヤーツリーのグループ折りたたみ状態 → group: 行(#59)。
+    # Canvas 側の既定は折りたたみのため、展開状態は明示的に受け渡す
+    for gname, expanded in group_states.items():
+        header.append('group: {0} | {1}'.format(
+            _kasc_escape(gname), 'expanded' if expanded else 'collapsed'))
+
+    # 保存済み3Dビュー → cam:QGIS3D 行 + terrain: 行(#60)
+    try:
+        header.extend(_threed_lines(project, warnings))
+    except Exception as e:
+        warnings.append('3Dビュー出力失敗: {0}'.format(e))
+
     # theme: 行(QGIS マップテーマ → Canvas 可視性プリセット)。
     # 表示レイヤは .kasc のレイヤタイトル(groups/名 のパンくず)と一致させる
     if theme_names:
@@ -2061,13 +2868,48 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 try:
                     visible_ids = set(
                         collection.mapThemeVisibleLayerIds(name))
-                    titles = [title_by_id[layer.id()]
-                              for layer, _g, _v in tree
-                              if layer.id() in visible_ids
-                              and layer.id() in title_by_id]
+                    # テーマ記録の名前付きスタイル → ;style= で引き継ぐ
+                    # (MapThemeRecord.LayerRecord: layer/usingCurrentStyle/
+                    #  currentStyle=スタイル名 文字列)
+                    style_by_id = {}
+                    try:
+                        rec = collection.mapThemeState(name)
+                        for lr in (rec.layerRecords() or []):
+                            lyr = getattr(lr, 'layer', None)
+                            if callable(lyr):
+                                lyr = lyr()
+                            if lyr is None or not hasattr(lyr, 'id'):
+                                continue
+                            if not getattr(lr, 'usingCurrentStyle', False):
+                                continue
+                            sname = getattr(lr, 'currentStyle', '') or ''
+                            if callable(sname):
+                                sname = sname()
+                            if sname:
+                                style_by_id[lyr.id()] = sname
+                    except Exception:
+                        style_by_id = {}
+                    theme_slug = _slugify(name, used_names)
+                    parts = []
+                    for layer, _g, _v in tree:
+                        if layer.id() not in visible_ids:
+                            continue
+                        title = title_by_id.get(layer.id())
+                        if not title:
+                            continue
+                        tok = title
+                        sname = style_by_id.get(layer.id())
+                        if sname:
+                            rel = _theme_style_qml(
+                                layer, sname, data_dir,
+                                slug_by_id.get(layer.id()),
+                                theme_slug, warnings)
+                            if rel:
+                                tok = '{0};style={1}'.format(tok, rel)
+                        parts.append(tok)
                     kasc_lines.append('theme: {0}{1}'.format(
                         _kasc_escape(name),
-                        ''.join(' | ' + t for t in titles)))
+                        ''.join(' | ' + t for t in parts)))
                 except Exception as e:
                     warnings.append('theme {0}: {1}'.format(name, e))
         except Exception as e:
@@ -2174,7 +3016,7 @@ def detect_kasugai(port=None):
     port = int(port or get_kasugai_port())
     try:
         caps = _http_json(
-            'http://localhost:{0}/api/capabilities'.format(port),
+            'http://127.0.0.1:{0}/api/capabilities'.format(port),
             timeout=1.5)
         if isinstance(caps, dict):
             caps['_port'] = port
@@ -2194,7 +3036,7 @@ def build_kasugai_url(project_id, engine=None, port=None):
     engine=None/無効値は既定(cesium)の ``/?project=<id>``。
     """
     port = int(port or get_kasugai_port())
-    base = 'http://localhost:{0}'.format(port)
+    base = 'http://127.0.0.1:{0}'.format(port)
     e = normalize_engine(engine)
     if e:
         base += '/{0}/'.format(e)
@@ -2211,7 +3053,7 @@ def register_kasugai_project(kasc_path, port=None, engine=None):
     port = int(port or get_kasugai_port())
     try:
         res = _http_json(
-            'http://localhost:{0}/api/projects/register'.format(port),
+            'http://127.0.0.1:{0}/api/projects/register'.format(port),
             payload={'path': os.path.abspath(kasc_path)}, timeout=4.0)
         pid = res.get('id')
         if res.get('ok') and pid:
@@ -2227,7 +3069,7 @@ def kasugai_command(name, args=None, port=None):
     port = int(port or get_kasugai_port())
     try:
         res = _http_json(
-            'http://localhost:{0}/api/command'.format(port),
+            'http://127.0.0.1:{0}/api/command'.format(port),
             payload={'name': name, 'args': args or {}}, timeout=4.0)
         return {'ok': bool(res.get('ok')), 'response': res}
     except Exception as e:
@@ -2308,10 +3150,10 @@ def build_local_view_url(kasc_path, engine=None, port=None):
     rel = rel.replace('\\', '/')
     if rel.startswith('..'):
         return None
-    kasc_url = 'http://localhost:{0}/export-data/{1}'.format(
+    kasc_url = 'http://127.0.0.1:{0}/export-data/{1}'.format(
         int(port), urllib.parse.quote(rel))
     e = normalize_engine(engine) or DEFAULT_ENGINE
-    return 'http://localhost:{0}/{1}/?kasc={2}'.format(
+    return 'http://127.0.0.1:{0}/{1}/?kasc={2}'.format(
         int(port), e, urllib.parse.quote(kasc_url, safe=''))
 
 

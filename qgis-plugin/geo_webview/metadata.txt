@@ -3,7 +3,7 @@ name = geo_webview
 qgisMinimumVersion = 4.0
 qgisMaximumVersion = 4.99
 description = Serverless web distribution of QGIS projects — export .kasc+DATA/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps); permalinks and an embedded HTTP server
-version = 4.2.0
+version = 4.6.0
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
 supportsQt6 = True
@@ -20,6 +20,7 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 4.2.1: .kasc+DATA/ エクスポートで未読込レイヤ(layer()=None)をプロジェクトファイルの <maplayer> 定義から再生成・再登録し、破損レイヤ(isValid()=False)も setDataSource で再オープンして出力対象に含める。解決不能は skipped へ記録
 	- 4.2.0: GSI Maps エンジン対応(engine=gsimaps・gsimaps.html 起動ページ・Engine: コンボ)。内蔵HTTPサーバーのCORSを許可リスト方式へ強化(任意サイトからのローカルデータ読み取りを遮断)
 	- 4.0.4: サイトスキャン指摘対応(.qml パースを vendored defusedxml へ切替・配布ZIPダウンロードを https 固定・try/except/pass の # nosec 明示、.bandit/.flake8 更新)
 	- 4.0.3: 配布前チェックの flake8 findings 0 化(未使用 import 除去・継続行インデント修正・過剰空行の整理)
