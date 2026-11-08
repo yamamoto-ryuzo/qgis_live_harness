@@ -15,17 +15,21 @@ QSettings ``kasugai_live_sync`` が有効なとき、レイヤ編集(地物追�
   プロジェクト内 ``live.json`` をポーリングして検出
 
 逆方向(Canvas → QGIS)は geo_webview 内蔵HTTPサーバの
-``POST /live/camera``・``POST /live/selection`` が担い、
-このモジュールは扱わない。
+``POST /live/camera``・``POST /live/selection``・
+``POST /live/writeback``(表示/フィルタ/テーマ書き戻し)・
+``POST /live/features``(GeoJSON→スクラッチレイヤ投入)が担う。
+``suppress()`` は書き戻し適用中の往復出力を抑止するために使う。
 """
 
 import os
 import time
+from contextlib import contextmanager
 
 from qgis.PyQt.QtCore import QObject, QTimer, QSettings
 from qgis.core import QgsProject, QgsMessageLog, Qgis
 
 DEBOUNCE_MS = 1200
+SEL_DEBOUNCE_MS = 400
 SETTINGS_KEY = 'kasugai_live_sync'
 
 
@@ -53,6 +57,13 @@ _LAYER_SIGNALS = (
     ('geometryChanged', 'data'),
     ('attributeValueChanged', 'data'),
     ('layerModified', 'data'),
+    # 通常編集の確定(commitChanges)は committed* 系が確実に出る
+    # (attributeValueChanged 等はバッファ経路で出ない版がある)
+    ('editingStopped', 'data'),
+    ('committedAttributeValuesChanges', 'data'),
+    ('committedFeaturesAdded', 'data'),
+    ('committedFeaturesRemoved', 'data'),
+    ('committedGeometriesChanges', 'data'),
     ('nameChanged', 'struct'),
     ('rendererChanged', 'style'),
 )
@@ -72,11 +83,30 @@ class LiveSyncController(QObject):
         self._timer = QTimer(self)
         self._timer.setSingleShot(True)
         self._timer.timeout.connect(self._flush)
+        self._sel_timer = QTimer(self)
+        self._sel_timer.setSingleShot(True)
+        self._sel_timer.timeout.connect(self._flush_selection)
         self._pending = {}        # layer.id() -> {'data':bool,'style':bool}
         self._structural = False  # add/remove/reorder/可視性/名称変更
         self._attached_layers = set()  # python id(layer)
         self._connected = False
         self._running = False
+        self._suppress = 0  # /live/writeback 適用中の変更検出抑止
+
+    @contextmanager
+    def suppress(self):
+        """逆書き戻し(Canvas → QGIS)適用中は変更検出を抑止する。
+
+        /live/writeback で可視性・フィルタを反映すると通常のレイヤ
+        シグナルが発火するが、これは Canvas 由来の状態なので再出力
+        (QGIS → Canvas への往復)は不要。抑止中に発火した変更は
+        マークしない(レイヤシグナル接続自体は維持する)。
+        """
+        self._suppress += 1
+        try:
+            yield
+        finally:
+            self._suppress = max(0, self._suppress - 1)
 
     # ---- 接続管理 ----
     def attach(self):
@@ -100,6 +130,13 @@ class LiveSyncController(QObject):
                 self._on_structure)
         except Exception:  # nosec B110  # 設計上の許容
             pass
+        try:
+            # ツリーの可視性トグルは layersChanged が出ない環境があるため
+            # ルートノードの visibilityChanged でも拾う
+            project.layerTreeRoot().visibilityChanged.connect(
+                self._on_structure)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
         self._attach_all_layers()
 
     def detach(self):
@@ -108,6 +145,7 @@ class LiveSyncController(QObject):
         self._pending.clear()
         self._structural = False
         self._timer.stop()
+        self._sel_timer.stop()
         project = QgsProject.instance()
         for sig_name, slot in (
                 ('layersAdded', self._on_layers_added),
@@ -120,6 +158,11 @@ class LiveSyncController(QObject):
                 pass
         try:
             self._plugin.iface.mapCanvas().layersChanged.disconnect(
+                self._on_structure)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        try:
+            project.layerTreeRoot().visibilityChanged.disconnect(
                 self._on_structure)
         except Exception:  # nosec B110  # 設計上の許容
             pass
@@ -150,6 +193,15 @@ class LiveSyncController(QObject):
                 connected = True
             except Exception:  # nosec B110  # 設計上の許容
                 pass
+        # QGIS → Canvas 選択同期: ベクターレイヤの選択変更を監視する
+        # (差分エクスポートは不要なため _LAYER_SIGNALS とは別系統)
+        sig = getattr(layer, 'selectionChanged', None)
+        if sig is not None:
+            try:
+                sig.connect(self._on_selection_changed)
+                connected = True
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
         if connected:
             self._attached_layers.add(key)
 
@@ -162,11 +214,18 @@ class LiveSyncController(QObject):
                 sig.disconnect()
             except Exception:  # nosec B110  # 設計上の許容
                 pass
+        sig = getattr(layer, 'selectionChanged', None)
+        if sig is not None:
+            try:
+                sig.disconnect(self._on_selection_changed)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
         self._attached_layers.discard(id(layer))
 
     # ---- シグナルハンドラ ----
     def _mark(self, layer, kind):
-        if not self._connected or not live_enabled():
+        if (not self._connected or not live_enabled()
+                or self._suppress):
             return
         if kind == 'struct':
             self._structural = True
@@ -181,7 +240,8 @@ class LiveSyncController(QObject):
         self._timer.start(DEBOUNCE_MS)
 
     def _on_structure(self, *args):
-        if not self._connected or not live_enabled():
+        if (not self._connected or not live_enabled()
+                or self._suppress):
             return
         self._structural = True
         # 追加/削除の直後はレイヤシグナル構成も追従する
@@ -233,11 +293,11 @@ class LiveSyncController(QObject):
                 return
             if srv is not None:
                 with srv._kasugai_lock:
-                    result = kasugai_export.export_kasugai_project(
+                    kasugai_export.export_kasugai_project(
                         self._plugin.iface, out_dir=out_dir,
                         changed=changed, live_url=live_url)
             else:
-                result = kasugai_export.export_kasugai_project(
+                kasugai_export.export_kasugai_project(
                     self._plugin.iface, out_dir=out_dir,
                     changed=changed, live_url=live_url)
             rev = int(time.time() * 1000)
@@ -278,6 +338,57 @@ class LiveSyncController(QObject):
                 'geo_webview', Qgis.MessageLevel.Warning)
         finally:
             self._running = False
+
+    # ---- QGIS → Canvas 選択同期 ----
+    def _on_selection_changed(self, *args):
+        """ベクターレイヤの selectionChanged(GUIスレッド)。デバウンスして送信。"""
+        if not self._connected or not live_enabled():
+            return
+        self._sel_timer.start(SEL_DEBOUNCE_MS)
+
+    def _flush_selection(self):
+        """選択状態を収集し /live/state 登録 + Canvas プッシュする。"""
+        if not self._connected or not live_enabled():
+            return
+        layers_out = []
+        try:
+            from qgis.core import QgsVectorLayer
+            from . import kasugai_export
+            title_of = {}
+            for lyr, groups, _v in kasugai_export._tree_layers():
+                title_of[lyr.id()] = kasugai_export._kasc_layer_title(
+                    groups, lyr.name())
+            for lyr in QgsProject.instance().mapLayers().values():
+                if not isinstance(lyr, QgsVectorLayer):
+                    continue
+                ids = list(lyr.selectedFeatureIds())
+                if not ids:
+                    continue
+                layers_out.append({
+                    'layer': title_of.get(lyr.id()) or lyr.name(),
+                    'ids': ids[:500],
+                    'count': len(ids),
+                })
+        except Exception as e:
+            QgsMessageLog.logMessage(
+                'live selection collect failed: {0}'.format(e),
+                'geo_webview', Qgis.MessageLevel.Warning)
+            return
+        payload = {'layers': layers_out, 'rev': int(time.time() * 1000)}
+        srv = getattr(self._plugin, 'server_manager', None)
+        if srv is not None:
+            try:
+                srv.live_notify_qgis_selection(payload)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+        # 稼働中の Canvas アプリへ即時プッシュ(未稼働は /live/state で追従)
+        try:
+            from . import kasugai_export
+            if kasugai_export.detect_kasugai():
+                kasugai_export.kasugai_command(
+                    'liveSync', {'selection': payload})
+        except Exception:  # nosec B110  # 通知失敗は次回更新で追従
+            pass
 
     def flush(self):
         """即時同期を要求する(bridge の手動 flush 用)。"""

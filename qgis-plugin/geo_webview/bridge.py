@@ -275,6 +275,25 @@ class GeoWebViewBridge:
             "example": {"method": "macAuth",
                         "args": [True, "AA-BB-CC-00-11-22"]},
         },
+        "liveWriteback": {
+            "description":
+                "Canvas 側の表示/フィルタ/テーマ状態を QGIS プロジェクトへ"
+                "書き戻す(POST /live/writeback と同じ適用ロジック)。",
+            "example": {"method": "liveWriteback",
+                        "args": [{"layers": [{"title": "道路", "visible": False},
+                                             {"title": "筆", "where": "city='名古屋'"}],
+                                  "theme": "概況図"}]},
+        },
+        "liveAddFeatures": {
+            "description":
+                "GeoJSON をスクラッチ(memory)レイヤとしてプロジェクトへ"
+                "投入する(POST /live/features と同じ適用ロジック)。"
+                "同名再送は置換(replace=True)。「Canvas」グループへ追加。",
+            "example": {"method": "liveAddFeatures",
+                        "args": ["作図レイヤー",
+                                 {"type": "FeatureCollection", "features": []},
+                                 True]},
+        },
     }
 
     def __init__(self, plugin):
@@ -1163,6 +1182,21 @@ class GeoWebViewBridge:
             {"path": "/received",
              "url": f"{base}/received",
              "description": "受領パーマリンク履歴JSON"},
+            {"path": "/live/state",
+             "url": f"{base}/live/state",
+             "description": "連携状態+キャンバス状態+選択署名JSON"},
+            {"path": "/live/layers",
+             "url": f"{base}/live/layers",
+             "description": "レイヤカタログ(kascタイトル付き)"},
+            {"path": "/live/features",
+             "url": f"{base}/live/features?layer=<title>&bbox=w,s,e,n",
+             "description": "オンデマンド地物配信(GeoJSON)"},
+            {"path": "/live/selection",
+             "url": f"{base}/live/selection",
+             "description": "QGIS側選択地物(GeoJSON)"},
+            {"path": "/live/render",
+             "url": f"{base}/live/render?bbox=w,s,e,n&w=&h=",
+             "description": "4326範囲のマップ描画PNG(QGIS描画フォールバック)"},
         ]
         return self._ok({"running": server.is_server_running(),
                          "port": port, "base_url": base,
@@ -1437,3 +1471,37 @@ class GeoWebViewBridge:
         if ctl is None:
             return self._err('live sync controller not initialized')
         return self._ok(ctl.flush())
+
+    def liveWriteback(self, payload=None):
+        """Canvas 側の表示/フィルタ/テーマ状態を QGIS プロジェクトへ
+        書き戻す(POST /live/writeback と同じ適用ロジック)。
+
+        payload: {"layers": [{"title": "グループ/葉", "visible": bool,
+        "where": "<subsetString>"}], "theme": "<マップテーマ名>"}。
+        theme は同名のマップテーマがあれば visibility+スタイルを一括
+        適用。layers の where はキーがある時のみ subsetString を更新
+        (空文字=解除)。適用中は live_sync の再エクスポートを抑止する。
+        """
+        srv = self._server()
+        if srv is None:
+            return self._err('server manager not available')
+        if payload is not None and not isinstance(payload, dict):
+            return self._err('payload must be a dict')
+        return self._ok(srv._apply_live_writeback(payload or {}))
+
+    def liveAddFeatures(self, name="", geojson=None, replace=True):
+        """GeoJSON をスクラッチ(memory)レイヤとしてプロジェクトへ
+        投入する(POST /live/features と同じ適用ロジック)。
+
+        Canvas の作図スケッチや追加 GeoJSON の往復投入用。
+        name はレイヤ名かつ置換キー(replace=True で同名の
+        kasugai_live_name レイヤを除去して作り直す)。
+        geojson は FeatureCollection または Feature のリスト。
+        ジオメトリ型混在は型ごとに分割し、レイヤツリー先頭の
+        「Canvas」グループへ追加する。
+        """
+        srv = self._server()
+        if srv is None:
+            return self._err('server manager not available')
+        return self._ok(srv._apply_live_features({
+            'name': name, 'geojson': geojson, 'replace': bool(replace)}))

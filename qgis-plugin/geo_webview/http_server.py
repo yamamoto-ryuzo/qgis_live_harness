@@ -69,11 +69,17 @@ def cors_allowed_origin(origin):
 
 
 def _cors_headers():
-    """許可オリジンのときだけ ACAO/Vary 行を返す。"""
+    """許可オリジンのときだけ ACAO/Vary 行を返す。
+
+    Expose-Headers は MCP リレー(POST /live/mcp)がブラウザへ
+    セッションIDを読み取らせるために必要。
+    """
     origin = getattr(_request_local, 'origin', '')
     if cors_allowed_origin(origin):
         return [
             'Access-Control-Allow-Origin: {0}'.format(origin),
+            'Access-Control-Expose-Headers: Mcp-Session-Id, '
+            'MCP-Protocol-Version',
             'Vary: Origin',
         ]
     return []

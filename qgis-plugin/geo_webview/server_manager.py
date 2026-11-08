@@ -226,6 +226,7 @@ class GeoWebViewServerManager:
         self._live = {
             'enabled': False, 'rev': 0, 'updated': None,
             'changed': [], 'camera': None, 'selection': None,
+            'writeback': None, 'features': None,
         }
         # 印刷レイアウトPDF出力もレイアウト参照の同時実行を防ぐため直列化する
         self._layout_lock = threading.Lock()
@@ -673,6 +674,7 @@ class GeoWebViewServerManager:
 
             # --- ライブ双方向連携(Canvas ↔ QGIS) ---
             # GET /live/state : 連携状態+現在のキャンバス状態(JSON)
+            # live.qgis_selection は live_sync 側の選択監視が随時更新する
             if parsed_url.path == '/live/state' and not is_post:
                 try:
                     payload = json.dumps(
@@ -688,6 +690,65 @@ class GeoWebViewServerManager:
                     http_server.send_http_response(
                         conn, 500, 'Internal Server Error',
                         f'live/state failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
+            # GET /live/mcp-discover : QGIS Live Driver セッションの検出。
+            # AIチャット(CDNホスト版含む)がMCP接続先URLを得るためのもので、
+            # トークン自体は返さない(POST /live/mcp がサーバ側で付与する)。
+            if parsed_url.path == '/live/mcp-discover' and not is_post:
+                try:
+                    from . import live_mcp
+                    port = self.get_server_port() or self.server_port
+                    payload = json.dumps(
+                        live_mcp.discover_payload(port), ensure_ascii=False)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 200, 'OK', payload,
+                        'application/json; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/mcp-discover failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
+            # POST /live/mcp : Live Driver /mcp へのリレー。
+            # qgis_pyeval 等の任意コード実行が乗るため TCP ピアが
+            # loopback の接続のみ許可する(他の /live/* より露出が大きい)。
+            if parsed_url.path == '/live/mcp' and is_post:
+                try:
+                    from . import live_mcp
+                    if not live_mcp.is_loopback_peer(addr[0] if addr else ''):
+                        from . import http_server
+                        http_server.send_http_response(
+                            conn, 403, 'Forbidden',
+                            'live/mcp is loopback only',
+                            'text/plain; charset=utf-8')
+                        return
+                    status, body, ctype, sid = live_mcp.relay(
+                        req_body,
+                        content_type=live_mcp.request_header(
+                            request_text, 'Content-Type'),
+                        accept=live_mcp.request_header(
+                            request_text, 'Accept'),
+                        session_id=live_mcp.request_header(
+                            request_text, 'Mcp-Session-Id'),
+                        protocol_version=live_mcp.request_header(
+                            request_text, 'MCP-Protocol-Version'))
+                    from . import http_server
+                    import http.client
+                    extra = ['Mcp-Session-Id: {0}'.format(sid)] if sid else None
+                    http_server.send_binary_response(
+                        conn, status,
+                        http.client.responses.get(status, 'OK'),
+                        body, ctype, extra_headers=extra)
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/mcp failed: {e}',
                         'text/plain; charset=utf-8')
                 return
 
@@ -743,6 +804,140 @@ class GeoWebViewServerManager:
                     http_server.send_http_response(
                         conn, 500, 'Internal Server Error',
                         f'live/selection failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
+            # POST /live/writeback : Canvas の表示/フィルタ/テーマ変更を
+            # QGIS プロジェクトへ書き戻す(.kasc → QGIS 逆方向)
+            # body: {layers:[{title,visible,where?}], theme?:"<テーマ名>"}
+            if parsed_url.path == '/live/writeback' and is_post:
+                try:
+                    payload = json.loads(
+                        req_body.decode('utf-8') or '{}')
+                    applied = self._main_invoker.call(
+                        lambda: self._apply_live_writeback(payload),
+                        timeout=60)
+                    self._live['writeback'] = {
+                        'received': payload, 'applied': applied,
+                        'time': datetime.now().isoformat(timespec='seconds')}
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 200, 'OK',
+                        json.dumps({'ok': True, **applied},
+                                   ensure_ascii=False),
+                        'application/json; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/writeback failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
+            # POST /live/features : Canvas の作図/GeoJSON を
+            # スクラッチレイヤとしてプロジェクトへ投入
+            # body: {name, geojson: FeatureCollection|Feature[],
+            #        replace?:bool(既定true)}
+            if parsed_url.path == '/live/features' and is_post:
+                try:
+                    payload = json.loads(
+                        req_body.decode('utf-8') or '{}')
+                    applied = self._main_invoker.call(
+                        lambda: self._apply_live_features(payload),
+                        timeout=120)
+                    self._live['features'] = {
+                        'name': payload.get('name'),
+                        'applied': applied,
+                        'time': datetime.now().isoformat(timespec='seconds')}
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 200, 'OK',
+                        json.dumps({'ok': True, **applied},
+                                   ensure_ascii=False),
+                        'application/json; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/features failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
+            # GET /live/layers : プロジェクトのレイヤーカタログ
+            # (kasc タイトル付き。Canvas の「QGISからレイヤ追加」用)
+            if parsed_url.path == '/live/layers' and not is_post:
+                try:
+                    catalog = self._main_invoker.call(
+                        self._live_layer_catalog, timeout=60)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 200, 'OK',
+                        json.dumps({'ok': True, **catalog},
+                                   ensure_ascii=False),
+                        'application/json; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/layers failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
+            # GET /live/features : オンデマンド地物配信(GeoJSON)
+            # ?layer=<kasc title>&bbox=w,s,e,n(EPSG:4326)&limit=&offset=
+            # または pt=lon,lat&tol=<レイヤCRS単位> で地点検索
+            if parsed_url.path == '/live/features' and not is_post:
+                try:
+                    data = self._main_invoker.call(
+                        lambda: self._live_features_query(params),
+                        timeout=120)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 200, 'OK',
+                        json.dumps(data, ensure_ascii=False),
+                        'application/json; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/features query failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
+            # GET /live/selection : QGIS 側の選択地物を GeoJSON で返す
+            # (Canvas 側ハイライト表示用。&max= で地物数上限、既定500)
+            if parsed_url.path == '/live/selection' and not is_post:
+                try:
+                    max_feat = self._safe_int(
+                        params.get('max', ['500'])[0], 500)
+                    data = self._main_invoker.call(
+                        lambda: self._live_selection_dump(max_feat),
+                        timeout=60)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 200, 'OK',
+                        json.dumps({'ok': True, **data},
+                                   ensure_ascii=False),
+                        'application/json; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/selection failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
+            # GET /live/render : 4326 bbox 指定のマップ描画PNG
+            # (Canvas 側「QGIS描画」フォールバックオーバーレイ用)
+            # ?bbox=w,s,e,n(EPSG:4326)&w=&h=&layers=<kasc titles>&bg=transparent
+            if parsed_url.path == '/live/render' and not is_post:
+                try:
+                    self._handle_live_render(conn, params)
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/render failed: {e}',
                         'text/plain; charset=utf-8')
                 return
 
@@ -1071,6 +1266,16 @@ class GeoWebViewServerManager:
             st['enabled'] = bool(enabled)
         return st['rev']
 
+    def live_notify_qgis_selection(self, payload):
+        """live_sync の選択監視から QGIS 側選択状態を受け取り記録する。
+
+        payload: {'layers': [{'layer':<kasc title>,'ids':[fid...],
+        'count':N}], 'rev':<epoch ms>}。GET /live/state の
+        live.qgis_selection として Canvas へ公開される
+        (Canvas 側は rev 変化でハイライトを再描画する)。
+        """
+        self._live['qgis_selection'] = dict(payload or {})
+
     def _apply_live_camera(self, payload):
         """Canvas 側のカメラ(JSON)を QGIS キャンバスへ反映する(GUIスレッド)。
 
@@ -1138,24 +1343,7 @@ class GeoWebViewServerManager:
         from qgis.core import QgsVectorLayer
         project = QgsProject.instance()
         title = str(payload.get('layer') or payload.get('title') or '').strip()
-        layer = None
-        if title:
-            leaf = title.split('/')[-1].strip()
-            try:
-                from . import kasugai_export
-                tree = kasugai_export._tree_layers()
-                norm = lambda s: '/'.join(
-                    p.strip() for p in str(s).split('/'))
-                want = norm(title)
-                cand = [lyr for lyr, groups, _v in tree
-                        if norm(kasugai_export._kasc_layer_title(
-                            groups, lyr.name())) == want]
-                if not cand:
-                    cand = [lyr for lyr in project.mapLayers().values()
-                            if lyr.name() == leaf or lyr.name() == title]
-                layer = cand[0] if cand else None
-            except Exception:  # nosec B110  # 設計上の許容
-                layer = None
+        layer = self._resolve_kasc_layer(title) if title else None
         if layer is None:
             layer = self.iface.activeLayer()
         if not isinstance(layer, QgsVectorLayer):
@@ -1198,6 +1386,528 @@ class GeoWebViewServerManager:
         if selected:
             layer.triggerRepaint()
         return {'selected': int(selected), 'layer': layer.name()}
+
+    def _resolve_kasc_layer(self, title):
+        """kasc タイトル(「グループ/葉」フルパスまたは葉名)から
+        QgsMapLayer を解決する。見つからなければ None。"""
+        project = QgsProject.instance()
+        title = str(title or '').strip()
+        if not title:
+            return None
+        leaf = title.split('/')[-1].strip()
+        try:
+            from . import kasugai_export
+            tree = kasugai_export._tree_layers()
+
+            def norm(s):
+                return '/'.join(p.strip() for p in str(s).split('/'))
+            want = norm(title)
+            cand = [lyr for lyr, groups, _v in tree
+                    if norm(kasugai_export._kasc_layer_title(
+                        groups, lyr.name())) == want]
+            if not cand:
+                cand = [lyr for lyr in project.mapLayers().values()
+                        if lyr.name() == leaf or lyr.name() == title]
+            return cand[0] if cand else None
+        except Exception:  # nosec B110  # 設計上の許容
+            return None
+
+    def _apply_live_writeback(self, payload):
+        """Canvas 側の表示/フィルタ/テーマ状態を QGIS プロジェクトへ
+        書き戻す(GUIスレッド)。.kasc → QGIS の逆方向オーサリング。
+
+        payload: {layers:[{title,visible,where?}], theme?:"<テーマ名>"}
+          - title  : kasc タイトル(「グループ/葉」フルパスまたは葉名)
+          - visible: レイヤツリーのチェック状態。True のとき祖先
+                     グループも ON にして実効表示を確実にする
+          - where  : ベクターレイヤのプロバイダフィルタ(subsetString)。
+                     キーがある場合のみ適用(空文字=フィルタ解除)
+          - theme  : 同名のマップテーマがあれば適用(可視性+記録済み
+                     スタイルの一括反映)。無ければ layers 側の
+                     per-layer visible がそのまま効く
+        """
+        from contextlib import nullcontext
+        from qgis.core import QgsVectorLayer, QgsLayerTreeModel
+        project = QgsProject.instance()
+        root = project.layerTreeRoot()
+        applied = {'visibility': 0, 'filter': 0, 'theme': None,
+                   'missing': []}
+        ctl = getattr(self.main_plugin, '_live_sync', None)
+        ctx = ctl.suppress() if ctl is not None else nullcontext()
+        with ctx:
+            theme = str(payload.get('theme') or '').strip()
+            if theme:
+                try:
+                    coll = project.mapThemeCollection()
+                    if theme in coll.mapThemes():
+                        try:
+                            model = self.iface.layerTreeView() \
+                                .layerTreeModel()
+                        except Exception:  # nosec B110  # 設計上の許容
+                            model = QgsLayerTreeModel(root)
+                        coll.applyTheme(theme, root, model)
+                        applied['theme'] = theme
+                except Exception:  # nosec B110  # 設計上の許容
+                    applied['theme'] = None
+            for ent in payload.get('layers') or []:
+                if not isinstance(ent, dict):
+                    continue
+                title = str(ent.get('title') or '').strip()
+                layer = self._resolve_kasc_layer(title)
+                if layer is None:
+                    if title:
+                        applied['missing'].append(title)
+                    continue
+                if ent.get('visible') is not None:
+                    node = root.findLayer(layer.id())
+                    if node is not None:
+                        node.setItemVisibilityChecked(
+                            bool(ent.get('visible')))
+                        if ent.get('visible'):
+                            parent = node.parent()
+                            while (parent is not None
+                                   and parent != root):
+                                parent.setItemVisibilityChecked(True)
+                                parent = parent.parent()
+                        applied['visibility'] += 1
+                # where= はフィルタのキー。filter= もエイリアスとして受け付ける
+                if ('where' in ent or 'filter' in ent) \
+                        and isinstance(layer, QgsVectorLayer):
+                    try:
+                        layer.setSubsetString(
+                            str(ent.get('where', ent.get('filter')) or ''))
+                        applied['filter'] += 1
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+        try:
+            self.iface.mapCanvas().refresh()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        QgsMessageLog.logMessage(
+            'live writeback applied: vis={0} filter={1} theme={2}'.format(
+                applied['visibility'], applied['filter'],
+                applied['theme']),
+            'geo_webview', Qgis.MessageLevel.Info)
+        return applied
+
+    def _apply_live_features(self, payload):
+        """Canvas からの GeoJSON をスクラッチ(memory)レイヤとして
+        プロジェクトへ投入する(GUIスレッド)。
+
+        payload: {name, geojson: FeatureCollection|Feature[],
+                  replace?:bool(既定True)}
+          - 同名(kasugai_live_name カスタムプロパティ一致)の既存
+            レイヤは replace 時に除去して作り直す(同じ作図レイヤの
+            再送=差し替え運用)
+          - ジオメトリ型混在の FeatureCollection は型ごとに分割
+          - 追加先はレイヤツリー先頭の「Canvas」グループ
+          - 追加は live_sync 抑止しない: QGIS側へ投入された地物は
+            通常の変更として差分エクスポート→Canvas へ往復する
+        """
+        from qgis.core import (QgsVectorLayer, QgsJsonUtils,
+                               QgsLayerTreeLayer)
+        name = str(payload.get('name') or 'Canvas').strip() or 'Canvas'
+        fc = payload.get('geojson')
+        if isinstance(fc, dict):
+            feats_in = fc.get('features') or []
+        elif isinstance(fc, list):
+            feats_in = fc
+        else:
+            feats_in = []
+        feats_in = [f for f in feats_in
+                    if isinstance(f, dict)
+                    and isinstance(f.get('geometry'), dict)]
+        if not feats_in:
+            return {'added': 0, 'layers': []}
+        replace = payload.get('replace', True)
+        project = QgsProject.instance()
+        root = project.layerTreeRoot()
+        if replace:
+            for lyr in list(project.mapLayers().values()):
+                try:
+                    if lyr.customProperty('kasugai_live_name') == name:
+                        project.removeMapLayer(lyr.id())
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+        _TYPE_WKB = {
+            'Point': 'Point', 'MultiPoint': 'MultiPoint',
+            'LineString': 'LineString',
+            'MultiLineString': 'MultiLineString',
+            'Polygon': 'Polygon', 'MultiPolygon': 'MultiPolygon',
+        }
+        by_geom = {}
+        for f in feats_in:
+            wkb = _TYPE_WKB.get(
+                str(f['geometry'].get('type') or ''))
+            if wkb:
+                by_geom.setdefault(wkb, []).append(f)
+        group_node = root.findGroup('Canvas')
+        if group_node is None:
+            group_node = root.insertGroup(0, 'Canvas')
+        created = []
+        multi = len(by_geom) > 1
+        for wkb, flist in by_geom.items():
+            layer_name = (name if not multi
+                          else '{0}({1})'.format(name, wkb))
+            layer = QgsVectorLayer(
+                '{0}?crs=epsg:4326'.format(wkb), layer_name, 'memory')
+            if not layer.isValid():
+                continue
+            fc_json = json.dumps(
+                {'type': 'FeatureCollection', 'features': flist},
+                ensure_ascii=False)
+            try:
+                fields = QgsJsonUtils.stringToFields(fc_json)
+                if fields.isValid() and fields.count():
+                    layer.dataProvider().addAttributes(fields.toList())
+                    layer.updateFields()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            qfeats = []
+            for f in flist:
+                try:
+                    parsed = QgsJsonUtils.stringToFeatureList(
+                        json.dumps(
+                            {'type': 'FeatureCollection',
+                             'features': [f]},
+                            ensure_ascii=False))
+                except Exception:  # nosec B110  # 設計上の許容
+                    parsed = []
+                for qf in parsed:
+                    try:
+                        qf.setFields(layer.fields(), True)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+                    qfeats.append(qf)
+            if qfeats:
+                layer.dataProvider().addFeatures(qfeats)
+            layer.updateExtents()
+            layer.setCustomProperty('kasugai_live_name', name)
+            project.addMapLayer(layer, False)
+            group_node.insertChildNode(0, QgsLayerTreeLayer(layer))
+            created.append({'name': layer_name,
+                            'features': len(qfeats),
+                            'geometry': wkb})
+        try:
+            self.iface.mapCanvas().refresh()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        added = sum(c['features'] for c in created)
+        QgsMessageLog.logMessage(
+            'live features added: {0} feature(s) as {1} layer(s) '
+            '(name={2})'.format(added, len(created), name),
+            'geo_webview', Qgis.MessageLevel.Info)
+        return {'added': added, 'layers': created}
+
+    # ---- GET /live/* オンデマンド配信 ----
+
+    def _kasc_title_map(self):
+        """layer.id() → kasc タイトルの写像を作る(重い tree 走査を1回で)。"""
+        try:
+            from . import kasugai_export
+            return {lyr.id(): kasugai_export._kasc_layer_title(
+                groups, lyr.name())
+                for lyr, groups, _v in kasugai_export._tree_layers()}
+        except Exception:  # nosec B110  # 設計上の許容
+            return {}
+
+    def _live_layer_catalog(self):
+        """GET /live/layers 用: レイヤツリー全レイヤのカタログ(GUIスレッド)。
+
+        kasc タイトル(「グループ/葉」)をキーに、型・地物数・4326範囲・
+        フィルタ有無を返す。Canvas の「QGISからレイヤ追加」UIが使う。
+        """
+        from qgis.core import QgsVectorLayer, QgsRasterLayer
+        project = QgsProject.instance()
+        titles = self._kasc_title_map()
+        out = []
+        for lid, layer in project.mapLayers().items():
+            try:
+                title = titles.get(lid) or layer.name()
+                if isinstance(layer, QgsVectorLayer):
+                    entry = {
+                        'title': title, 'id': lid, 'type': 'vector',
+                        'geometry': {
+                            0: 'point', 1: 'line', 2: 'polygon',
+                        }.get(layer.geometryType(), 'none'),
+                        'count': int(layer.featureCount()),
+                        'hasFilter': bool(layer.subsetString()),
+                        'crs': layer.crs().authid(),
+                    }
+                    try:
+                        ext = layer.extent()
+                        src = layer.crs()
+                        if (src.isValid() and ext.isFinite()
+                                and not ext.isEmpty()):
+                            if src.authid() != 'EPSG:4326':
+                                ext = QgsCoordinateTransform(
+                                    src, QgsCoordinateReferenceSystem(
+                                        'EPSG:4326'),
+                                    project).transformBoundingBox(ext)
+                            entry['extent'] = [
+                                ext.xMinimum(), ext.yMinimum(),
+                                ext.xMaximum(), ext.yMaximum()]
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+                elif isinstance(layer, QgsRasterLayer):
+                    entry = {'title': title, 'id': lid,
+                             'type': 'raster', 'crs': layer.crs().authid()}
+                else:
+                    entry = {'title': title, 'id': lid, 'type': 'other'}
+                out.append(entry)
+            except Exception:  # nosec B110  # 設計上の許容
+                continue
+        return {'layers': out}
+
+    def _rect4326_to_layer(self, rect, layer):
+        """EPSG:4326 の QgsRectangle を layer のCRSへ変換する。"""
+        src = QgsCoordinateReferenceSystem('EPSG:4326')
+        dest = layer.crs()
+        if not src.isValid() or not dest.isValid() or src == dest:
+            return rect
+        return QgsCoordinateTransform(
+            src, dest, QgsProject.instance()).transformBoundingBox(rect)
+
+    def _live_features_query(self, params):
+        """GET /live/features 用(GUIスレッド): レイヤの地物を GeoJSON で返す。
+
+        範囲(bbox)・地点(pt+tol)・上限/オフセットをサポートし、
+        displayExpression は _display プロパティとして埋め込む。
+        """
+        from qgis.core import (QgsVectorLayer, QgsFeatureRequest,
+                               QgsJsonExporter, QgsExpression,
+                               QgsExpressionContext,
+                               QgsExpressionContextUtils)
+        title = str(params.get('layer', [''])[0] or '').strip()
+        layer = self._resolve_kasc_layer(title) if title else None
+        if layer is None:
+            return {'ok': False, 'error': 'layer not found: {0}'.format(
+                title)}
+        if not isinstance(layer, QgsVectorLayer):
+            return {'ok': False, 'error': 'not a vector layer: {0}'.format(
+                title)}
+        req = QgsFeatureRequest()
+        bbox = self._parse_floats(params.get('bbox', [None])[0], 4)
+        pt = self._parse_floats(params.get('pt', [None])[0], 2)
+        if bbox is not None and bbox[2] > bbox[0] and bbox[3] > bbox[1]:
+            req.setFilterRect(
+                self._rect4326_to_layer(QgsRectangle(*bbox), layer))
+        elif pt is not None:
+            tol = self._parse_floats(params.get('tol', [None])[0], 1)
+            tol = tol[0] if tol else 0.0
+            p = QgsPointXY(pt[0], pt[1])
+            p = self._rect4326_to_layer(
+                QgsRectangle(p.x(), p.y(), p.x(), p.y()), layer).center()
+            if tol <= 0:
+                # 既定トレランス: レイヤ範囲の 0.1% (タップ判定程度)
+                ext = layer.extent()
+                tol = max(ext.width(), ext.height()) * 0.001
+                if tol <= 0:
+                    tol = 1e-5
+            req.setFilterRect(QgsRectangle(
+                p.x() - tol, p.y() - tol, p.x() + tol, p.y() + tol))
+        limit = self._safe_int(params.get('limit', ['2000'])[0], 2000)
+        limit = max(1, min(20000, limit or 2000))
+        offset = max(0, self._safe_int(
+            params.get('offset', ['0'])[0], 0))
+        exporter = QgsJsonExporter(layer)
+        disp = ''
+        try:
+            disp = str(layer.displayExpression() or '')
+        except Exception:  # nosec B110  # 設計上の許容
+            disp = ''
+        expr = ctx = None
+        if disp:
+            try:
+                expr = QgsExpression(disp)
+                ctx = QgsExpressionContext()
+                ctx.appendScopes(
+                    QgsExpressionContextUtils
+                    .globalProjectLayerScopes(layer))
+            except Exception:  # nosec B110  # 設計上の許容
+                expr = ctx = None
+        features = []
+        seen = 0
+        truncated = False
+        for f in layer.getFeatures(req):
+            if seen < offset:
+                seen += 1
+                continue
+            if len(features) >= limit:
+                truncated = True
+                break
+            seen += 1
+            try:
+                feat = json.loads(exporter.exportFeature(f))
+            except Exception:  # nosec B110  # 設計上の許容
+                continue
+            if expr is not None and ctx is not None:
+                try:
+                    ctx.setFeature(f)
+                    feat.setdefault('properties', {})[
+                        '_display'] = expr.evaluate(ctx)
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+            features.append(feat)
+        return {'ok': True, 'layer': title,
+                'count': len(features), 'truncated': truncated,
+                'geojson': {'type': 'FeatureCollection',
+                            'features': features}}
+
+    def _selection_signature(self):
+        """QGIS 側選択状態の署名(GUIスレッド)。
+
+        [layer_id, count, first_id, last_id] のリストを返し、
+        Canvas 側が変更検出してから GET /live/selection を呼ぶ
+        判定材料にする(地物数・先端IDの軽量比較)。
+        """
+        from qgis.core import QgsVectorLayer
+        sig = []
+        try:
+            for lid, layer in QgsProject.instance().mapLayers().items():
+                try:
+                    if not isinstance(layer, QgsVectorLayer):
+                        continue
+                    cnt = int(layer.selectedFeatureCount())
+                    if not cnt:
+                        continue
+                    ids = list(layer.selectedFeatureIds())
+                    sig.append([lid, cnt,
+                                ids[0] if ids else -1,
+                                ids[-1] if ids else -1])
+                except Exception:  # nosec B110  # 設計上の許容
+                    continue
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        return {'sig': sig}
+
+    def _live_selection_dump(self, max_features=500):
+        """GET /live/selection 用(GUIスレッド): 選択中の地物を
+        GeoJSON FeatureCollection で返す(各 properties.__layer に
+        kasc タイトルを付与)。max_features は全レイヤ合計の上限。
+        """
+        from qgis.core import QgsVectorLayer, QgsJsonExporter
+        titles = self._kasc_title_map()
+        layers_out = []
+        features = []
+        budget = max(1, int(max_features or 500))
+        for lid, layer in QgsProject.instance().mapLayers().items():
+            try:
+                if not isinstance(layer, QgsVectorLayer):
+                    continue
+                cnt = int(layer.selectedFeatureCount())
+                if not cnt:
+                    continue
+                title = titles.get(lid) or layer.name()
+                layers_out.append({'title': title, 'count': cnt})
+                remaining = budget - len(features)
+                if remaining <= 0:
+                    continue
+                exporter = QgsJsonExporter(layer)
+                for f in layer.selectedFeatures()[:remaining]:
+                    try:
+                        feat = json.loads(exporter.exportFeature(f))
+                        feat.setdefault('properties', {})[
+                            '__layer'] = title
+                        features.append(feat)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        continue
+            except Exception:  # nosec B110  # 設計上の許容
+                continue
+        return {'layers': layers_out,
+                'geojson': {'type': 'FeatureCollection',
+                            'features': features}}
+
+    def _handle_live_render(self, conn, params):
+        """GET /live/render 用: EPSG:4326 の bbox で地図を描画しPNGを返す。
+
+        Canvas の「QGIS描画」フォールバックオーバーレイが使う。
+        bg=transparent で背景透過、layers=<kasc titles,カンマ区切り> で
+        描画対象レイヤを絞れる(省略時はキャンバスの全レイヤ)。
+        応答 X-Map-Extent は EPSG:4326 で返し、配置側は
+        そのままアンカーできる。
+        """
+        from . import http_server
+        from qgis.core import QgsMapSettings
+        from qgis.PyQt.QtCore import QSize, QBuffer, QIODevice, \
+            QByteArray, Qt
+        canvas = self.iface.mapCanvas()
+        ms = QgsMapSettings(canvas.mapSettings())
+        bbox = self._parse_floats(params.get('bbox', [None])[0], 4)
+        if bbox is None or not (bbox[2] > bbox[0] and bbox[3] > bbox[1]):
+            http_server.send_http_response(
+                conn, 400, 'Bad Request',
+                'bbox=w,s,e,n (EPSG:4326) is required',
+                'text/plain; charset=utf-8')
+            return
+        rect = QgsRectangle(*bbox)
+        project = QgsProject.instance()
+        src = QgsCoordinateReferenceSystem('EPSG:4326')
+        dest = ms.destinationCrs()
+        try:
+            if src.isValid() and dest.isValid() and src != dest:
+                rect = QgsCoordinateTransform(
+                    src, dest, project).transformBoundingBox(rect)
+        except Exception as e:
+            http_server.send_http_response(
+                conn, 400, 'Bad Request',
+                'extent transform failed: {0}'.format(e),
+                'text/plain; charset=utf-8')
+            return
+        w = self._safe_int(
+            params.get('w', params.get('width', [0]))[0], 0)
+        h = self._safe_int(
+            params.get('h', params.get('height', [0]))[0], 0)
+        if w <= 0 or h <= 0:
+            w, h = 1024, 768
+        w, h = min(w, 4096), min(h, 4096)
+        ms.setExtent(self._adjust_extent_to_aspect(rect, w, h))
+        ms.setRotation(0)
+        layers_param = str(params.get('layers', [''])[0] or '').strip()
+        if layers_param:
+            resolved = [self._resolve_kasc_layer(t.strip())
+                        for t in layers_param.split(',') if t.strip()]
+            ms.setLayers([lyr for lyr in resolved if lyr is not None])
+        if str(params.get('bg', [''])[0]).lower() \
+                in ('transparent', 'none', '0'):
+            ms.setBackgroundColor(Qt.GlobalColor.transparent)
+        ms.setOutputSize(QSize(w, h))
+        image = None
+        try:
+            with self._render_lock:
+                image = self._render_map_settings(ms)
+        except Exception:
+            image = None
+        if image is None or image.isNull():
+            http_server.send_http_response(
+                conn, 500, 'Internal Server Error', 'render failed',
+                'text/plain; charset=utf-8')
+            return
+        ba = QByteArray()
+        buf = QBuffer(ba)
+        buf.open(QIODevice.OpenModeFlag.WriteOnly)
+        try:
+            image.save(buf, 'PNG')
+        finally:
+            try:
+                buf.close()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+        rendered = ms.extent()
+        try:
+            if src.isValid() and dest.isValid() and src != dest:
+                rendered = QgsCoordinateTransform(
+                    dest, src, project).transformBoundingBox(rendered)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        extra_headers = [
+            'X-Map-Extent: {:.6f},{:.6f},{:.6f},{:.6f}'.format(
+                rendered.xMinimum(), rendered.yMinimum(),
+                rendered.xMaximum(), rendered.yMaximum()),
+            'Access-Control-Expose-Headers: X-Map-Extent',
+        ]
+        http_server.send_binary_response(
+            conn, 200, 'OK', bytes(ba), 'image/png', extra_headers)
 
     @staticmethod
     def _parse_floats(text, count):

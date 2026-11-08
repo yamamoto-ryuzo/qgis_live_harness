@@ -11,6 +11,68 @@
 - **B**: UI 変更・新機能追加・中規模な機能拡張
 - **C**: 軽微な不具合修正・小改善・プロファイル/プラグインの微修正
 
+## [4.12.0] - 2026-11-08
+
+### Added
+
+- **Live Driver MCP リレー(CDN ホスト版 AI チャット向け)**: 新エンドポイント
+  `GET /live/mcp-discover`・`POST /live/mcp`(`live_mcp.py`)。
+  KASUGAI Canvas の AI チャットはローカルアプリ(:8510)では
+  `/api/qgis-live/mcp` リレー経由で Live Driver の MCP ツール
+  (`qgis_pyeval`/`qgis_bridge_call`/`qgis_screenshot` 等)を使えるが、
+  CDN ホスト版には相当するバックエンドが無かった。geo_webview の
+  内蔵サーバは既に CORS + Private Network Access 対応済みのため、
+  その経路に Live Driver `/mcp` へのリレーを載せて CDN からも
+  同じツール群(Processing 解析・他プラグインの bridge_call 含む)へ
+  到達できるようにした。
+  - `GET /live/mcp-discover`: `~/.qgis-live/` レジストリを走査して
+    稼働中セッションを検出し、ブラウザが登録すべきリレー URL
+    (このサーバ自身の `/live/mcp`)を返す。トークンは返さない
+  - `POST /live/mcp`: 検出したセッションの `/mcp` へ JSON-RPC を
+    転送。トークンはレジストリから読みサーバ側で付与する
+    (ブラウザは持たない)。セッション解決は毎回行うため QGIS 再起動で
+    ポート・トークンが変わっても自動追随。`Mcp-Session-Id` を往復伝播
+  - セキュリティ: `pyeval`=任意コード実行が乗るため **TCP ピアが
+    loopback の接続のみ許可**(他の `/live/*` より露出が大きい)。
+    ブラウザ発は既存 CORS 許可リストで制限され、応答ヘッダに
+    `Access-Control-Expose-Headers: Mcp-Session-Id` を追加して
+    セッション ID を JS から読めるようにした
+
+## [4.11.0] - 2026-11-08
+
+### Added
+
+- **ライブ連携 逆方向オーサリング(.kasc → QGIS 書き戻し)**: 新エンドポイント
+  `POST /live/writeback`。Canvas インスペクタでの表示/テーマ/フィルタ変更を
+  `{layers:[{title,visible,where?}], theme?}` として受け取り、
+  QGIS プロジェクトへ反映する。
+  - `visible` → レイヤツリーのチェック状態(表示時は祖先グループもON)
+  - `where` → ベクターレイヤの subsetString(空文字=解除)
+  - `theme` → 同名マップテーマがあれば可視性+記録済みスタイルを一括適用
+  - 適用中は `LiveSyncController.suppress()` で変更検出を抑止し、
+    Canvas 由来の編集が再エクスポートとして Canvas へ往復しないようにした
+- **ライブ連携 地物投入(Canvas → QGIS)**: 新エンドポイント
+  `POST /live/features`。`{name, geojson, replace?}` の
+  GeoJSON(FeatureCollection|Feature[])をスクラッチ(memory)レイヤとして
+  プロジェクトへ投入する。ジオメトリ型混在は型ごとに分割、属性は
+  `QgsJsonUtils` でフィールド化し、レイヤツリー先頭の「Canvas」
+  グループへ追加。`kasugai_live_name` カスタムプロパティで同名再送を
+  置換(既定 replace=true)。投入は通常のプロジェクト変更として
+  live sync の差分エクスポートで Canvas へ往復する
+- **bridge 新メソッド**: `liveWriteback(payload)` /
+  `liveAddFeatures(name, geojson, replace)` —
+  上記と同じ適用ロジックを bridge_call / MCP から実行可能
+- **QGIS → Canvas 選択同期**: レイヤの selectionChanged を監視し
+  `{layers:[{layer,ids,count}],rev}` を `_live.qgis_selection` 経由で
+  `GET /live/state` に公開 + 稼働中 Canvas へ liveSync プッシュ
+- **オンデマンド配信 API**:
+  - `GET /live/layers` — kasc タイトル付きレイヤカタログ
+  - `GET /live/features?layer=&bbox=&pt=&tol=&limit=&offset=` —
+    範囲/地点指定の地物配信(GeoJSON+`_display`)
+  - `GET /live/selection` — QGIS 側選択地物の GeoJSON
+  - `GET /live/render?bbox=&w=&h=&layers=&bg=transparent` —
+    EPSG:4326 範囲のマップ描画PNG(Canvas「QGIS描画」フォールバック用)
+
 ## [4.10.0] - 2026-11-07
 
 ### Added
