@@ -1,5 +1,12 @@
 # 変更履歴(Changelog)
 
+## 4.12.2
+
+- QGIS レイヤツリーの凡例ノード順・ユーザーラベル・凡例表示名を
+  `legendnode:` メタ行として出力し、グループの checked/unchecked/partial
+  (中間)状態を `group:` 行の `checked=` オプションで出力するようにした(#63)。
+
+
 ## 4.12.1
 
 - mvt:/pmtiles: 行タイプに対応した Canvas 向けに、QgsVectorTileLayer の

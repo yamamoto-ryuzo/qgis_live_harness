@@ -925,6 +925,21 @@ def _tree_layers(skipped=None, warnings=None, group_states=None,
 
     def _walk(node, groups, visible):
         from qgis.core import QgsLayerTreeGroup, QgsLayerTreeLayer
+
+        def _subtree_checked(gnode):
+            """グループ配下の全レイヤノードのチェック状態を集約する
+            (#63: グループの checked/unchecked/partial を再現するため)。"""
+            states = []
+            for ch in gnode.children():
+                if isinstance(ch, QgsLayerTreeGroup):
+                    states.extend(_subtree_checked(ch))
+                elif isinstance(ch, QgsLayerTreeLayer):
+                    try:
+                        states.append(bool(ch.itemVisibilityChecked()))
+                    except Exception:  # nosec B110  # 設計上の許容
+                        states.append(True)
+            return states
+
         excl = False
         if (exclusive_groups is not None
                 and isinstance(node, QgsLayerTreeGroup)):
@@ -945,7 +960,10 @@ def _tree_layers(skipped=None, warnings=None, group_states=None,
                         expanded = bool(child.isExpanded())
                     except Exception:  # nosec B110  # 設計上の許容
                         expanded = True
-                    group_states[' / '.join(path)] = expanded
+                    _st = _subtree_checked(child)
+                    _cs = ('checked' if all(_st)
+                           else 'unchecked' if not any(_st) else 'partial')
+                    group_states[' / '.join(path)] = (expanded, _cs)
                 _walk(child, path, eff)
             elif isinstance(child, QgsLayerTreeLayer):
                 entries.append((child, list(groups), eff))
@@ -996,7 +1014,7 @@ def _tree_layers(skipped=None, warnings=None, group_states=None,
                         '{0} (破損レイヤ)'.format(lyr.name()))
                     continue
         if lyr is not None:
-            result.append((lyr, groups, eff))
+            result.append((lyr, groups, eff, node))
     return result
 
 
@@ -1622,6 +1640,39 @@ def _vectortile_source(layer):
         # TileJSON: Canvas 側が tiles[] を解決する
         return {'kind': 'mvt', 'url': url, 'zmin': zmin, 'zmax': zmax}
     return None
+
+
+def _legend_node_line(node, title):
+    """QgsLayerTreeLayer の legend カスタムプロパティ → legendnode: 行(#63)。
+    凡例ノード順(legendNodeOrder)・ユーザーラベル(legendNodeUserLabel)・
+    凡例表示名(legend/title-label)が既定と異なる場合のみ行を返す。"""
+    try:
+        from qgis.core import QgsMapLayerLegendUtils
+        order = list(QgsMapLayerLegendUtils.legendNodeOrder(node) or [])
+        labels = {}
+        for i in order:
+            lbl = QgsMapLayerLegendUtils.legendNodeUserLabel(node, i)
+            if lbl:
+                labels[i] = lbl
+        try:
+            title_label = node.customProperty('legend/title-label') or ''
+        except Exception:  # nosec B110  # 設計上の許容
+            title_label = ''
+        custom_order = bool(order) and any(
+            i != o for o, i in enumerate(order))
+        if not custom_order and not labels and not title_label:
+            return None
+        line = 'legendnode: {0}'.format(_kasc_escape(title))
+        if custom_order:
+            line += ' | order={0}'.format(
+                ','.join(str(i) for i in order))
+        for i in sorted(labels):
+            line += ' | label{0}={1}'.format(i, _kasc_escape(labels[i]))
+        if title_label:
+            line += ' | title={0}'.format(_kasc_escape(title_label))
+        return line
+    except Exception:  # nosec B110  # 設計上の許容
+        return None
 
 
 def _duckdb_target_ref(target, slug, data_dir, copied):
@@ -3200,7 +3251,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     # ベースマップグループ名(内蔵+ユーザー追加)はエクスポート中固定
     basemap_names = _basemap_group_names()
 
-    for layer, groups, visible in tree:
+    for layer, groups, visible, tnode in tree:
         # 「背景図」「basemap」名のグループはベースマップ候補の入れ物。
         # 中の XYZ レイヤはレイヤ行ではなく base: 行として登録する
         # (グループ名はタイトルから外し、配下のサブグループは残す)
@@ -3330,6 +3381,9 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 'geojson: {0} | DATA/{1}.geojson | {2}{3}{4}{5}{6}'.format(
                     title, slug, vis_flag, style_opt, vopt,
                     _scale_vis_opt(layer), attr_opt))
+            ln_meta = _legend_node_line(tnode, title)
+            if ln_meta:
+                kasc_lines.append(ln_meta)
         else:
             vt_src = _vectortile_source(layer)
             if vt_src:
@@ -3599,11 +3653,15 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     if bookmark_count:
         header.append('bookmark: bookmarks.xml')
 
-    # レイヤーツリーのグループ折りたたみ状態 → group: 行(#59)。
     # Canvas 側の既定は折りたたみのため、展開状態は明示的に受け渡す
-    for gname, expanded in group_states.items():
-        header.append('group: {0} | {1}'.format(
-            _kasc_escape(gname), 'expanded' if expanded else 'collapsed'))
+    for gname, gstate in group_states.items():
+        _exp, _cs = (gstate if isinstance(gstate, tuple)
+                     else (gstate, 'checked'))
+        _gl = 'group: {0} | {1}'.format(
+            _kasc_escape(gname), 'expanded' if _exp else 'collapsed')
+        if _cs != 'checked':
+            _gl += ' | checked={0}'.format(_cs)
+        header.append(_gl)
 
     # 保存済み3Dビュー → cam:QGIS3D 行 + terrain: 行
     # + アニメーション → fly_geojson: 行(#60)
