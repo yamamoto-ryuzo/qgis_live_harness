@@ -1,5 +1,13 @@
 # 変更履歴(Changelog)
 
+## 4.12.1
+
+- mvt:/pmtiles: 行タイプに対応した Canvas 向けに、QgsVectorTileLayer の
+  XYZ テンプレート/TileJSON/PMTiles URL を mvt:/pmtiles: 行として出力するようにした
+  (ローカル .mbtiles 等 URL 参照できないものは従来どおり理由付き skipped)。
+  併せて未対応レイヤ種別の skipped 理由表記を整理済み(#50 方針)。
+
+
 このファイルでは geo_webview プラグインの主な変更点を記録します。
 
 記法は [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/) に基づき、

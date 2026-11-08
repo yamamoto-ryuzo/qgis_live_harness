@@ -1561,7 +1561,7 @@ def _layer_extent_bbox(layer):
 # 対象外レイヤ種別をサイレントに捨てないよう、理由を明示する
 _SKIP_REASON_BY_CLASS = {
     'QgsMeshLayer': 'メッシュレイヤ(未対応)',
-    'QgsVectorTileLayer': 'ベクタータイル(未対応)',
+    'QgsVectorTileLayer': 'ベクタータイル(ローカル/URL参照不可)',
     'QgsPointCloudLayer': '点群レイヤ(未対応)',
     'QgsAnnotationLayer': 'アノテーションレイヤ(未対応)',
     'QgsPluginLayer': 'プラグインレイヤ(未対応)',
@@ -1581,6 +1581,47 @@ def _skip_reason(layer):
         pass
     cls = cls_name.replace('Qgs', '')
     return '{0}({1})'.format(cls, prov) if prov else cls
+
+
+def _vectortile_source(layer):
+    """QgsVectorTileLayer のプロバイダ接続文字列を解析し、Canvas の
+    mvt:/pmtiles: 行へ引き渡せるタイルソースを返す(#50)。
+    戻り値 {'kind','url','zmin','zmax'}。URL参照できない
+    (ローカル .mbtiles 等)場合は None → 呼び出し側は skipped へ回す。"""
+    try:
+        from qgis.core import QgsVectorTileLayer
+        if not isinstance(layer, QgsVectorTileLayer):
+            return None
+    except Exception:  # nosec B110  # 設計上の許容
+        return None
+    try:
+        from urllib.parse import unquote
+        src = layer.source() or ''
+    except Exception:  # nosec B110  # 設計上の許容
+        return None
+    # vectortile プロバイダの接続文字列は type=xyz&url=...&zmin=..&zmax=.. 形式
+    params = {}
+    for part in src.split('&'):
+        k, _, v = part.partition('=')
+        if k:
+            params[k.strip().lower()] = unquote(v.strip())
+    url = params.get('url') or ''
+    if not url or not re.match(r'https?://', url):
+        return None  # ローカル .mbtiles・file:// 等は DATA 複製せず未対応
+    def _zi(key):
+        try:
+            return int(params[key]) if params.get(key) else None
+        except Exception:  # nosec B110  # 設計上の許容
+            return None
+    zmin, zmax = _zi('zmin'), _zi('zmax')
+    if url.lower().endswith('.pmtiles') or params.get('type') == 'pmtiles':
+        return {'kind': 'pmtiles', 'url': url, 'zmin': zmin, 'zmax': zmax}
+    if '{z}' in url and '{x}' in url and '{y}' in url:
+        return {'kind': 'mvt', 'url': url, 'zmin': zmin, 'zmax': zmax}
+    if url.lower().endswith('.json'):
+        # TileJSON: Canvas 側が tiles[] を解決する
+        return {'kind': 'mvt', 'url': url, 'zmin': zmin, 'zmax': zmax}
+    return None
 
 
 def _duckdb_target_ref(target, slug, data_dir, copied):
@@ -3290,6 +3331,23 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                     title, slug, vis_flag, style_opt, vopt,
                     _scale_vis_opt(layer), attr_opt))
         else:
+            vt_src = _vectortile_source(layer)
+            if vt_src:
+                line = '{0}: {1} | {2} | {3}'.format(
+                    vt_src['kind'], title, _kasc_escape(vt_src['url']),
+                    vis_flag)
+                if vt_src['zmin'] is not None:
+                    line += ' | minzoom={0}'.format(vt_src['zmin'])
+                if vt_src['zmax'] is not None:
+                    line += ' | maxzoom={0}'.format(vt_src['zmax'])
+                line += _scale_vis_opt(layer)
+                attr = _attribution(layer)
+                if attr:
+                    line += ' | attr={0}'.format(_kasc_escape(attr))
+                kasc_lines.append(line)
+                tiles_out.append({'name': layer.name(), 'url': vt_src['url'],
+                                  'type': vt_src['kind']})
+                continue
             if _is_tiled_scene(layer):
                 slug = _slugify(layer.name() or 'scene', used_names)
                 ref = _tiledscene_ref(layer, slug, data_dir, copied,
