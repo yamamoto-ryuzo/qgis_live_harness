@@ -20,6 +20,11 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 4.12.3: kasugaiExport の "too many values to unpack" を修正(4.12.2 の _tree_layers() 4要素タプル化に伴う 3要素アンパック残存6箇所: kasugai_export の base:XYZ 検出・theme: 行生成、live_sync/server_manager のタイトル写像・writeback 解決)
+	- 4.12.2: QGIS レイヤツリーの凡例ノード順・ユーザーラベル・凡例表示名を legendnode: メタ行として出力し、グループの checked/unchecked/partial(中間)状態を group: 行の checked= で出力(#63)
+	- 4.12.1: QgsVectorTileLayer を mvt:/pmtiles: 行として出力(XYZ テンプレート/TileJSON/PMTiles URL。ローカル .mbtiles 等 URL 参照不可は理由付き skipped)(#50)
+	- 4.12.0: Live Driver MCP リレー(GET /live/mcp-discover・POST /live/mcp)。CDN ホスト版 KASUGAI Canvas の AI チャットから Live Driver の MCP ツール(qgis_pyeval/qgis_bridge_call 等)へ到達可能に(トークンはサーバ側付与・TCP ピア loopback 限定)
+	- 4.11.0: ライブ双方向連携の拡張 — POST /live/writeback(Canvas 表示/テーマ/フィルタの QGIS 書き戻し)・POST /live/features(GeoJSON 地物のスクラッチレイヤ投入)・QGIS→Canvas 選択同期・オンデマンド配信 API(GET /live/layers・/live/features・/live/selection・/live/render)・bridge liveWriteback/liveAddFeatures 追加
 	- 4.10.0: QGIS4の3Dグローブビュー対応(地心系シーンCRS=EPSG:4978の ECEF→測地変換で globe ビューのカメラを正しく出力し scene3d: に globe=on を付与) + 3Dアニメーション(<animation3d>キーフレーム)をカメラ軌道の fly_geojson: 行+DATA/anim3d_*.geojson として出力。3Dビューのカメラ姿勢変換を QgsCameraPose 準拠へ修正(高さ=dist*cos(pitch)・水平距離=dist*sin(pitch)・視線方位=360-yaw・p=pitch-90。従来は高さ/距離が入れ替わり視線方位も反転していた)
 	- 4.8.0: アトラス有効な印刷レイアウトを fly_geojson: 行+DATA/atlas_*.geojson(各ページ範囲を巡回するプレゼン用FLYルート・座標Z=ページを収めるカメラ高)として出力(emit_atlas=True既定、bridge kasugaiExport に emit_atlas 追加)
 	- 4.2.1: .kasc+DATA/ エクスポートで未読込レイヤ(layer()=None)をプロジェクトファイルの <maplayer> 定義から再生成・再登録し、破損レイヤ(isValid()=False)も setDataSource で再オープンして出力対象に含める。解決不能は skipped へ記録
