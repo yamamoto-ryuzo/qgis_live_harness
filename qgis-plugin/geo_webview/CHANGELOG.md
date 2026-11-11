@@ -1,5 +1,16 @@
 # 変更履歴(Changelog)
 
+## 4.12.4
+
+- plugins.qgis.org セキュリティスキャン対応: `except ... continue` 6箇所
+  (kasugai_export.py 1箇所・server_manager.py 5箇所)のインライン抑制が
+  `# nosec B110`(try/except/pass 用のID)になっており B112
+  (try/except/continue)が抑制されず、4.12.3 がサイトスキャンで
+  ブロックされていた問題を修正(`# nosec B112` へ訂正)。
+- QGIS core から撤去され認識されなくなった非推奨フラグ `supportsQt6` を
+  metadata.txt から削除(アップロード時の deprecation 警告対応。
+  QGIS4 対応判定は qgisMinimumVersion/qgisMaximumVersion の範囲で行われる)。
+
 ## 4.12.3
 
 - 公開前の実機動作確認で発見した不具合を修正: `_tree_layers()` が

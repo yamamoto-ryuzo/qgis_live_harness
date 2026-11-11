@@ -1655,7 +1655,7 @@ class GeoWebViewServerManager:
                 else:
                     entry = {'title': title, 'id': lid, 'type': 'other'}
                 out.append(entry)
-            except Exception:  # nosec B110  # 設計上の許容
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
         return {'layers': out}
 
@@ -1739,7 +1739,7 @@ class GeoWebViewServerManager:
             seen += 1
             try:
                 feat = json.loads(exporter.exportFeature(f))
-            except Exception:  # nosec B110  # 設計上の許容
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
             if expr is not None and ctx is not None:
                 try:
@@ -1775,7 +1775,7 @@ class GeoWebViewServerManager:
                     sig.append([lid, cnt,
                                 ids[0] if ids else -1,
                                 ids[-1] if ids else -1])
-                except Exception:  # nosec B110  # 設計上の許容
+                except Exception:  # nosec B112  # 設計上の許容
                     continue
         except Exception:  # nosec B110  # 設計上の許容
             pass
@@ -1810,9 +1810,9 @@ class GeoWebViewServerManager:
                         feat.setdefault('properties', {})[
                             '__layer'] = title
                         features.append(feat)
-                    except Exception:  # nosec B110  # 設計上の許容
+                    except Exception:  # nosec B112  # 設計上の許容
                         continue
-            except Exception:  # nosec B110  # 設計上の許容
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
         return {'layers': layers_out,
                 'geojson': {'type': 'FeatureCollection',

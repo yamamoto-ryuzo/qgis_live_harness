@@ -1364,7 +1364,7 @@ def _blend_warning(layer, warnings):
                 continue
             bm = fn()
             val = int(bm.value if hasattr(bm, 'value') else bm)
-        except Exception:  # nosec B110  # 設計上の許容
+        except Exception:  # nosec B112  # 設計上の許容
             continue
         if val and val != 0:
             warnings.append('{0}: {1} {2} は未対応(近似描画)'.format(
