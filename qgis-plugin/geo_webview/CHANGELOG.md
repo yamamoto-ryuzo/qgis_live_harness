@@ -1,5 +1,17 @@
 # 変更履歴(Changelog)
 
+## 4.12.3
+
+- 公開前の実機動作確認で発見した不具合を修正: `_tree_layers()` が
+  4.12.2 で 4 要素タプル `(layer, groups, visible, node)` を返すように
+  なった際、更新漏れした 3 要素アンパック 6 箇所
+  (kasugai_export の base:XYZ 検出・theme: 行生成 2 箇所、
+  live_sync のタイトル写像、server_manager の writeback 解決・
+  タイトル写像)により `kasugaiExport` が
+  "too many values to unpack (expected 3)" で失敗していた問題を修正。
+  あわせて kasugai_export.py の既存 flake8 E306 指摘を解消。
+
+
 ## 4.12.2
 
 - QGIS レイヤツリーの凡例ノード順・ユーザーラベル・凡例表示名を

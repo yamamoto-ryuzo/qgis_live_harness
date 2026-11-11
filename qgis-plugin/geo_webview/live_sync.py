@@ -355,7 +355,7 @@ class LiveSyncController(QObject):
             from qgis.core import QgsVectorLayer
             from . import kasugai_export
             title_of = {}
-            for lyr, groups, _v in kasugai_export._tree_layers():
+            for lyr, groups, _v, _tn in kasugai_export._tree_layers():
                 title_of[lyr.id()] = kasugai_export._kasc_layer_title(
                     groups, lyr.name())
             for lyr in QgsProject.instance().mapLayers().values():

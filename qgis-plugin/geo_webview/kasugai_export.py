@@ -1626,6 +1626,7 @@ def _vectortile_source(layer):
     url = params.get('url') or ''
     if not url or not re.match(r'https?://', url):
         return None  # ローカル .mbtiles・file:// 等は DATA 複製せず未対応
+
     def _zi(key):
         try:
             return int(params[key]) if params.get(key) else None
@@ -3244,7 +3245,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
 
     # base: 判定用に表示中の最下段 XYZ を先に特定する
     last_xyz_id = None
-    for layer, _groups, vis in tree:
+    for layer, _groups, vis, _tn in tree:
         if vis and _xyz_layer_info(layer):
             last_xyz_id = id(layer)
 
@@ -3677,7 +3678,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         try:
             collection = project.mapThemeCollection()
             title_by_id = {}
-            for layer, groups, _vis in tree:
+            for layer, groups, _vis, _tn in tree:
                 if id(layer) in basemap_layer_ids:
                     continue  # base: 行へ回したレイヤはテーマ対象外
                 title_by_id[layer.id()] = _kasc_layer_title(
@@ -3705,7 +3706,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                                 name, e))
                     theme_slug = _slugify(name, used_names)
                     parts = []
-                    for layer, _g, _v in tree:
+                    for layer, _g, _v, _tn in tree:
                         if layer.id() not in visible_ids:
                             continue
                         title = title_by_id.get(layer.id())

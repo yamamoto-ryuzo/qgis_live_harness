@@ -1402,7 +1402,7 @@ class GeoWebViewServerManager:
             def norm(s):
                 return '/'.join(p.strip() for p in str(s).split('/'))
             want = norm(title)
-            cand = [lyr for lyr, groups, _v in tree
+            cand = [lyr for lyr, groups, _v, _tn in tree
                     if norm(kasugai_export._kasc_layer_title(
                         groups, lyr.name())) == want]
             if not cand:
@@ -1607,7 +1607,7 @@ class GeoWebViewServerManager:
             from . import kasugai_export
             return {lyr.id(): kasugai_export._kasc_layer_title(
                 groups, lyr.name())
-                for lyr, groups, _v in kasugai_export._tree_layers()}
+                for lyr, groups, _v, _tn in kasugai_export._tree_layers()}
         except Exception:  # nosec B110  # 設計上の許容
             return {}
 
