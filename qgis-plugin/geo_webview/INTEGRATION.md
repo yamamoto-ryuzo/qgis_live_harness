@@ -18,7 +18,7 @@ flowchart TB
     end
 
     subgraph G1["① Companion players (high-function route: dedicated API)"]
-        KC["KASUGAI Canvas (primary, unified player)<br>HTTP server :8510 - AI bridge hub :8511<br>Cesium / MapLibre / OpenLayers / Leaflet / GSI Maps<br>register - switch - rclone - auto-update - .kasc association"]
+        KC["KASUGAI Canvas (primary, unified player)<br>HTTP server :8510 - AI bridge hub :8511<br>Cesium / MapLibre / OpenLayers / Leaflet / GSI Maps / Navara<br>register - switch - rclone - auto-update - .kasc association"]
     end
 
     subgraph NORM["Standard route: local HTTP + web delivery (instant web, no Canvas app)"]
@@ -118,7 +118,7 @@ external-host `.kasc` player route applies).
 
 ### 2. Building an equivalent — development from scratch including data construction
 
-Building a `.kasc`+`DATA/` player on the ArcGIS side equivalent to the other engines (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps) means **building a separate system from scratch — Canvas-side code assets cannot be reused because the SDK differs** (only the `.kasc` spec and the same OSS libraries can be carried over).
+Building a `.kasc`+`DATA/` player on the ArcGIS side equivalent to the other engines (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara) means **building a separate system from scratch — Canvas-side code assets cannot be reused because the SDK differs** (only the `.kasc` spec and the same OSS libraries can be carried over).
 
 Note that **ArcGIS Maps SDK for JavaScript is a web-mapping library in
 the same category as Leaflet/MapLibre/OpenLayers/CesiumJS** (Esri's
@@ -197,7 +197,7 @@ specific need.
 
 The minimum licensing for building an ArcGIS-side player that reads and
 reproduces `.kasc`+`DATA/` like the other engines (Cesium/MapLibre/
-OpenLayers/Leaflet/GSI Maps) is as follows — **all are free or low-cost**:
+OpenLayers/Leaflet/GSI Maps/Navara) is as follows — **all are free or low-cost**:
 
 
 

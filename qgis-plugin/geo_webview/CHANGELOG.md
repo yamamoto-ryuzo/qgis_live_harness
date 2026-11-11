@@ -1,5 +1,17 @@
 # 変更履歴(Changelog)
 
+## 4.13.0
+
+- Navara エンジン対応: KASUGAI Canvas の `navara` エンジン
+  (`web/navara/`、.kasc 再生対応済み)を起動エンジンとして選択可能にした。
+  `VALID_ENGINES`/`_LAUNCHER_ENGINES`・パネルの Engine コンボ・
+  エンジン起動 HTML(`navara.html`・index.html のリンク一覧)・
+  bridge `openExternal("navara")`・`/kasugai?engine=navara` が利用可能。
+- metadata.txt の `tags` に `navara`/`gsimap`/`leaflet` を追加
+  (plugins.qgis.org のタグ一覧を Canvas エンジン一式に合わせた)。
+- パネル説明文・README/SPEC のエンジン列挙に Navara を追記
+  (i18n 9言語カタログも同期)。
+
 ## 4.12.4
 
 - plugins.qgis.org セキュリティスキャン対応: `except ... continue` 6箇所

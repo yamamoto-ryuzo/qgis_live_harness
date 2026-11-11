@@ -971,7 +971,7 @@ class GeoWebViewServerManager:
 
             # KASUGAI Canvas 連携: 表示中レイヤを .kasc プロジェクトに出力し、
             # 起動中のKASUGAIへ登録してプロジェクトURLをJSONで返す
-            # (?engine=cesium|maplibre|openlayers|leaflet|gsimaps
+            # (?engine=cesium|maplibre|openlayers|leaflet|gsimaps|navara
             #  で起動エンジン指定可)
             if parsed_url.path == '/kasugai':
                 try:
@@ -2597,7 +2597,7 @@ html,body{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family:
         起動中のKASUGAIローカルサーバへ登録してプロジェクトURLを返す。
 
         params['engine'] で起動エンジンを指定できる
-        (cesium|maplibre|openlayers|leaflet|gsimaps、既定 cesium)。
+        (cesium|maplibre|openlayers|leaflet|gsimaps|navara、既定 cesium)。
 
         応答JSON:
           成功 {ok:true, url:<開くURL|null>, via, dir, layers, tiles, engine}

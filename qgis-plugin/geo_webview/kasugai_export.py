@@ -15,7 +15,8 @@ KASUGAI Canvas は ``geojson: タイトル | DATA/x.geojson | on | style=DATA/x.
 そのまま配信される)。``POST /api/command`` の switchProject で
 起動中の画面を切り替えることもできる。
 起動エンジンは ``/cesium/`` ``/maplibre/`` ``/openlayers/`` ``/leaflet/``
-``/gsimaps/`` の実パスで直接指定できる(``?engine=`` リダイレクトへの
+``/gsimaps/`` ``/navara/`` の実パスで直接指定できる(``?engine=``
+リダイレクトへの
 依存を避ける)。
 
 このモジュールは PyQGIS 環境でのみ使用する(ユニットテスト不可)。
@@ -41,7 +42,8 @@ SETTINGS_KEY_OUTPUT = 'kasugai_output_path'
 SETTINGS_KEY_PORT = 'kasugai_port'
 
 # KASUGAI Canvas の起動エンジン(web/index.html の engine パラメータと同じ)
-VALID_ENGINES = ('cesium', 'maplibre', 'openlayers', 'leaflet', 'gsimaps')
+VALID_ENGINES = ('cesium', 'maplibre', 'openlayers', 'leaflet', 'gsimaps',
+                 'navara')
 DEFAULT_ENGINE = 'cesium'
 
 KASUGAI_EXE_NAME = 'kasugai_canvas.exe'
@@ -64,7 +66,7 @@ SETTINGS_KEY_BASEMAP_GROUPS = 'kasugai_basemap_groups'
 # 自己完結ページ。エンジン本体(web/ の中身)は ./ ../ ../../ / の順に
 # 自動探索し、見つからなければHTML内の CANVAS_BASE を編集してもらう
 _LAUNCHER_ENGINES = (
-    'cesium', 'maplibre', 'openlayers', 'leaflet', 'gsimaps')
+    'cesium', 'maplibre', 'openlayers', 'leaflet', 'gsimaps', 'navara')
 
 # 起動HTML内の __T_*__ トークン→英語ソースの対応表。
 # i18n/<lang>.json の geo_webview.page コンテキストから
@@ -197,7 +199,7 @@ _ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
   "use strict";
   // Location of the KASUGAI Canvas engine (contents of web/).
   // Point to the directory containing cesium/ maplibre/ openlayers/
-  // leaflet/ gsimaps/ shared/ with a trailing /
+  // leaflet/ gsimaps/ navara/ shared/ with a trailing /
   // (e.g. "https://example.com/canvas/").
   // When left empty, __ENGINE__/index.html is probed under ./ ../ ../../ /
   var CANVAS_BASE = "";
@@ -208,7 +210,7 @@ _ENGINE_LAUNCHER_HTML = '''<!DOCTYPE html>
   var ENGINE = "__ENGINE__";
   var KASC = "__KASC__";
   var kascUrl = new URL(KASC, location.href).href;
-  var ENGINES = ["cesium", "maplibre", "openlayers", "leaflet", "gsimaps"];
+  var ENGINES = ["cesium", "maplibre", "openlayers", "leaflet", "gsimaps", "navara"];
   function engineBase(base) {
     // If the base ends with an engine directory, replace it; otherwise append ENGINE
     var u = new URL(base, location.href);
@@ -362,7 +364,7 @@ _LAUNCHER_INDEX_HTML = '''<!DOCTYPE html>
   <p class="note">__T_LAUNCHER_LIST__
     <a href="cesium.html">cesium.html</a> / <a href="maplibre.html">maplibre.html</a> /
     <a href="openlayers.html">openlayers.html</a> / <a href="leaflet.html">leaflet.html</a> /
-    <a href="gsimaps.html">gsimaps.html</a>
+    <a href="gsimaps.html">gsimaps.html</a> / <a href="navara.html">navara.html</a>
     __T_CANVASBASE2__</p>
 </section>
 
@@ -378,8 +380,8 @@ _LAUNCHER_INDEX_HTML = '''<!DOCTYPE html>
   "use strict";
   var KASC = "__KASC__";
   var HOSTED_BASE = "__HOSTED_BASE__";
-  var ENGINES = ["cesium", "maplibre", "openlayers", "leaflet", "gsimaps"];
-  var LABELS = { cesium: "__T_LABEL_CESIUM__", maplibre: "MapLibre GL", openlayers: "OpenLayers", leaflet: "Leaflet", gsimaps: "GSI Maps" };
+  var ENGINES = ["cesium", "maplibre", "openlayers", "leaflet", "gsimaps", "navara"];
+  var LABELS = { cesium: "__T_LABEL_CESIUM__", maplibre: "MapLibre GL", openlayers: "OpenLayers", leaflet: "Leaflet", gsimaps: "GSI Maps", navara: "Navara" };
   var kascUrl = new URL(KASC, location.href).href;
   var isHttp = /^https?:$/.test(location.protocol);
   if (!isHttp) {
@@ -3082,7 +3084,7 @@ def _write_engine_launchers(out_dir, kasc_name):
 
     生成物:
         cesium.html / maplibre.html / openlayers.html / leaflet.html /
-            gsimaps.html —
+            gsimaps.html / navara.html —
             同名エンジンへ ``?kasc=<この .kasc の絶対URL>`` 付きで転送する
             自己完結ランチャー。エンジン本体(web/ の中身)は ./ ../ ../../ /
             の順に自動探索し、見つからなければHTML内の CANVAS_BASE を
@@ -3159,7 +3161,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             EPSG:4326 正規化)として出力し ``bookmark:`` 行を書く(既定)。
             Canvas 側ではカメラプリセットUIにそのまま並ぶ。
         emit_launchers: True なら .kasc と同じ場所に
-            ``<engine>.html``(cesium/maplibre/openlayers/leaflet/gsimaps)と
+            ``<engine>.html``(cesium/maplibre/openlayers/leaflet/gsimaps/
+            navara)と
             ``index.html`` のエンジン起動ページを出力する(既定)。
             各HTMLは ``?kasc=<この .kasc の絶対URL>`` 付きでエンジンへ
             転送し、エンジン本体(web/ の中身)を ./ ../ ../../ / の順に
@@ -3873,7 +3876,7 @@ def build_kasugai_url(project_id, engine=None, port=None):
     """KASUGAI Canvas のプロジェクトURLを構築する。
 
     engine 指定時は ``/<engine>/?project=<id>`` 形式
-    (cesium/maplibre/openlayers/leaflet/gsimaps の実パスを直接指す。
+    (cesium/maplibre/openlayers/leaflet/gsimaps/navara の実パスを直接指す。
     web/index.html の ?engine= リダイレクトに依存しないため、
     旧バージョンの Canvas でも確実にそのエンジンが開く)。
     engine=None/無効値は既定(cesium)の ``/?project=<id>``。
