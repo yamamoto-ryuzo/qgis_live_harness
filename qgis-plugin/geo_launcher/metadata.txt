@@ -1,0 +1,59 @@
+[general]
+name=geo_launcher
+qgisMinimumVersion=4.0
+qgisMaximumVersion=4.99
+description=kasugai_qgis (QGIS/QField ランチャー) の機能を QGIS プラグインとして移植。プロファイル/プロジェクト/バージョン選択・ロール制御・開発モードで QGIS/QField を起動
+about=Rust製 QGIS/QField ランチャー kasugai_qgis (https://github.com/yamamoto-ryuzo/kasugai_qgis) の機能を QGIS 内から使えるようにしたプラグインです。ランチャーフォルダの qgis_settings.json を読み込み、プロファイル・プロジェクト・実行ファイル・ユーザーロールを選択して QGIS/QField を起動します。選択プロファイルが現在のプロファイルと同じ場合は別プロセスを起動せずその場でプロジェクトを開きます。開発モード(WEBENGINE_*)注入、drive_mappings (subst/rclone)、local_sync (robocopy)、配布プロファイルのシード/リセット、QGIS Live Harness セッション一覧にも対応。bridge (GeoLauncherBridge) でAIからの制御も可能です。
+version=1.4.0
+author=yamamoto-ryuzo
+icon=icon.png
+email=ryu@yamakun.net
+homepage=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_launcher
+tracker=https://github.com/yamamoto-ryuzo/qgis_live_harness/issues
+repository=https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_launcher
+hasProcessingProvider=no
+changelog=
+    Version 1.4.0:
+    - profile_source_url: リモートマニフェスト
+      (version/url/sha256) から配布プロファイルを同期
+    - required_plugins: 指定プラグインを公式リポジトリ/
+      任意URLから対象プロファイルへ自動インストール
+      (実体は同梱せずマニフェスト駆動)
+    - bridge syncProfiles / ensurePlugins 追加
+    Version 1.3.0:
+    - 「起動」ボタンがプロファイルを自動判定:
+      同一プロファイルならこのQGISでプロジェクトを開き、
+      異なる場合のみ新プロセスを起動
+      (「このQGISで開く」ボタンは起動に統一し廃止)
+    - bridge launch() に mode/discard 引数を追加
+    - NSIS 自動更新を削除 (更新は QGIS プラグイン
+      マネージャー/公式リポジトリに委ねる)
+    Version 1.2.0:
+    - 「このQGISで開く」ボタン追加: 別プロセスを起動せず
+      現在のQGISで選択プロジェクトを開く
+      (プロファイル不一致時は警告)
+    - bridge openProject(path, discard) 追加、
+      status() に current_profile/current_project を追加
+    Version 1.1.0:
+    - 起動時に現在開いているプロジェクトを渡せるように
+      (プロジェクト一覧の先頭に「現在のプロジェクト」項目を追加、
+      bridge launch() で project="current" を受付)
+    Version 1.0.0:
+    - 初版。kasugai_qgis (Rust製ランチャー) の機能をプラグインへ移植
+    - qgis_settings.json 読込/保存 (force/user オーバーライド対応)
+    - プロファイル/プロジェクト/QGIS・QField バージョン列挙
+    - プロジェクトのバージョンに合った QGIS 自動選択
+    - ロール customization・global settings ini・startup.py・
+      PORTAL_USERROLE・dev mode (WEBENGINE_*) 付き起動
+    - drive_mappings (subst/rclone sync/rclone mount)
+    - local_sync (robocopy /MIR・バージョンファイル管理)
+    - 配布プロファイルのシード/リセット
+    - NSIS 自動更新 (update.json 確認・SHA-256 検証・適用)
+    - QGIS Live Harness セッション一覧 (~/.qgis-live)
+    - bridge (GeoLauncherBridge) で AI 制御フル対応
+license=GPL-3.0
+tags=qgis,launcher,qfield,profile,kasugai
+experimental=False
+deprecated=False
+server=False
+supportsQt6=True
