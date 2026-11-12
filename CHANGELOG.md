@@ -16,6 +16,15 @@
   geo_search/geo_webview/geo_report/geo_import/QGIS-legendView-main の
   ツールバー項目はプラグインツールバーからGeoSuiteへ移行した
 
+### Fixed
+
+- **GeoSuite共有ツールバーが個別利用時に表示されない不具合を修正**:
+  可視状態の保証がドライバ(常時表示強制)のみに依存していたため、
+  ドライバ非稼働の個別利用ではツールバーが非表示のままになり得た。
+  `geo_suite_toolbar()`/各プラグインの `_geo_toolbar()` に
+  `ensure_visible` 引数を追加し、項目追加経路では可視を保証、
+  unload時のremoveAction経路はFalseで従来通り非表示のままにする
+
 ### Changed
 
 - **deployを「dev/use 明示モード」制に変更**

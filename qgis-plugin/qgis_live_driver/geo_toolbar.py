@@ -13,11 +13,20 @@
 TOOLBAR_NAME = "GeoSuite"
 
 
-def geo_suite_toolbar(iface):
-    """GeoSuiteツールバーを返す。無ければ作成する。"""
+def geo_suite_toolbar(iface, ensure_visible=True):
+    """GeoSuiteツールバーを返す。無ければ作成する。
+
+    ensure_visible=True(既定)では可視状態を保証する。
+    項目追加経路では必ず True のまま使い、ドライバ非稼働の
+    個別利用でもツールバーが表示されるようにする。
+    unload時のremoveAction経路など表示を変えたくない場合は
+    False を渡す。
+    """
     from qgis.PyQt.QtWidgets import QToolBar
     tb = iface.mainWindow().findChild(QToolBar, TOOLBAR_NAME)
     if tb is None:
         tb = iface.addToolBar(TOOLBAR_NAME)
         tb.setObjectName(TOOLBAR_NAME)
+    if ensure_visible:
+        tb.setVisible(True)
     return tb

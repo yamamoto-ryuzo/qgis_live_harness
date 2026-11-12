@@ -3,6 +3,14 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
+## [0.15.3] - 2026-11-12
+
+### Changed
+- geo_toolbar.py: `geo_suite_toolbar()` に `ensure_visible` 引数を追加
+  (既定Trueで可視状態を保証)。各プラグイン側の同形ヘルパも同仕様に揃え、
+  個別利用=ドライバ非稼働でもGeoSuiteツールバーが表示されるようにした。
+  表示を変えたくない経路(unload時のremoveAction等)はFalseを渡す
+
 ## [0.15.2] - 2026-11-07
 
 ### Added
