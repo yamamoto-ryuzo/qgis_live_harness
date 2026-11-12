@@ -1450,8 +1450,9 @@ def sync_remote_profiles(settings, settings_dir):
     log("profiles: リモート更新 {} → {} を取得します".format(
         local_ver or "(なし)", version))
 
-    tmp = os.path.join(tempfile.gettempdir(),
-                       "geo_launcher_profiles.zip")
+    fd, tmp = tempfile.mkstemp(
+        prefix="geo_launcher_profiles_", suffix=".zip")
+    os.close(fd)
     req = urllib.request.Request(
         dl_url, headers={"User-Agent": "geo_launcher/1.0"})
     try:
@@ -1460,6 +1461,10 @@ def sync_remote_profiles(settings, settings_dir):
                 open(tmp, "wb") as f:
             shutil.copyfileobj(r, f)
     except Exception as e:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
         raise RuntimeError(
             "profiles.zip 取得失敗 ({}): {}".format(dl_url, e))
     sha = manifest.get("sha256")
@@ -1492,6 +1497,10 @@ def sync_remote_profiles(settings, settings_dir):
         _safe_extract_zip(tmp, base)
         shutil.rmtree(new_dir, ignore_errors=True)
         shutil.rmtree(old_dir, ignore_errors=True)
+    try:
+        os.remove(tmp)
+    except OSError:
+        pass
     write_version_file(settings_dir, PROFILES_VERSION_FILE, version)
     log("profiles: リモート配布 version={} を適用しました".format(version))
     return True
@@ -1617,21 +1626,42 @@ def _target_profile_names(settings_dir, settings, profile_names=None):
 
 
 def _set_ini_flag(ini_path, section, key, value):
-    """INI の [section] key=value を設定する(ファイルが無ければ作成)。"""
-    import configparser
-    cp = configparser.ConfigParser()
-    cp.optionxform = str
+    """INI の [section] key=value を設定する(ファイルが無ければ作成)。
+
+    行ベースで編集する。configparser は QGIS4.ini の重複キーや
+    独自構文で全体を失う可能性があるため使わない。
+    """
+    lines = []
     if os.path.exists(ini_path):
-        try:
-            cp.read(ini_path, encoding="utf-8")
-        except configparser.Error:
-            pass
-    if not cp.has_section(section):
-        cp.add_section(section)
-    cp.set(section, key, value)
-    os.makedirs(os.path.dirname(ini_path), exist_ok=True)
-    with open(ini_path, "w", encoding="utf-8") as f:
-        cp.write(f)
+        with open(ini_path, "r", encoding="utf-8", errors="replace") as f:
+            lines = f.read().splitlines()
+    header = "[{}]".format(section)
+    in_sec = False
+    sec_end = -1  # セクション最終行の次の index
+    key_idx = -1
+    for i, line in enumerate(lines):
+        s = line.strip()
+        if s.startswith("[") and s.endswith("]"):
+            in_sec = (s == header)
+            if in_sec:
+                sec_end = i + 1
+            continue
+        if in_sec:
+            sec_end = i + 1
+            if s.split("=", 1)[0].strip() == key:
+                key_idx = i
+    entry = "{}={}".format(key, value)
+    if key_idx >= 0:
+        lines[key_idx] = entry
+    elif sec_end >= 0:
+        lines.insert(sec_end, entry)
+    else:
+        if lines and lines[-1].strip():
+            lines.append("")
+        lines.extend([header, entry])
+    os.makedirs(os.path.dirname(ini_path) or ".", exist_ok=True)
+    with open(ini_path, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(lines) + "\n")
 
 
 def _download(url, dst, timeout=300):

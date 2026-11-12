@@ -5,6 +5,7 @@
 - **`profile_source_url`**: リモートマニフェスト（`{"version","url","sha256"}`）から配布プロファイルを同期。version が `profiles_version` と同じならスキップ、zip は sha256 検証 + パストラバーサル対策付きで `<settings_dir>/profiles` を丸ごと置換（ミラー）。未設定時は従来のローカル `profiles/` を使用
 - **`required_plugins`**: 指定プラグインを対象プロファイルへ自動インストール（実体は同梱せず id/URL のマニフェスト駆動）。`url` 未指定時は公式リポジトリ `plugins.xml` から最新版を解決、インストール後 `QGIS4.ini [PythonPlugins]` を有効化。launch/seed/reset フローに組み込み済み
 - bridge `syncProfiles` / `ensurePlugins` を追加（ensurePlugins は現在プロファイルへの導入時に即ロードも試行）
+- 修正: `_set_ini_flag` を行ベース編集に変更（configparser が重複キー等で QGIS4.ini 全体を失う可能性があった）。リモートプロファイル取得の一時ファイルを `mkstemp` 化し使用後削除
 
 ## 1.3.0
 
