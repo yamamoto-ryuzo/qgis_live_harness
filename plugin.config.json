@@ -7,7 +7,6 @@
     "geo_excel",
     "geo_userfunc",
     "QGIS-legendView-main",
-    "qgis_live_driver",
-    "geo_launcher"
+    "qgis_live_driver"
   ]
 }

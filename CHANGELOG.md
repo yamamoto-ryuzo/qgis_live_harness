@@ -8,16 +8,6 @@
 
 ### Added
 
-- **geo_launcher プラグインを新規追加**(`qgis-plugin/geo_launcher`):
-  Rust製 QGIS/QField ランチャー kasugai_qgis (launcher/qgis_launcher) の
-  機能をQGISプラグインへ移植。qgis_settings.json 読込/保存・
-  プロファイル/プロジェクト/バージョン列挙・ロール/dev mode
-  (WEBENGINE_*)付き起動・drive_mappings(subst/rclone)・
-  local_sync(robocopy)・プロファイルシード/リセット・
-  live session一覧に対応。起動ボタンは選択プロファイルが現在と
-  同一なら新プロセスを起動せずその場でプロジェクトを開く。
-  bridge(GeoLauncherBridge)でAI制御フル対応、
-  plugin.config.json の検証対象にも登録済み
 - **GeoSuite共有ツールバー**: 管理対象プラグインのツールバー項目を
   1本の `QToolBar`("GeoSuite")に集約(find-or-create方式、
   `qgis_live_driver/geo_toolbar.py` + 各プラグインの同形ヘルパ)。
