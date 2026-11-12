@@ -59,21 +59,12 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   現在は `qgis_live_driver/` と検証対象 `geo_search/` `geo_webview/`
   `geo_report/` `geo_import/` `QGIS-legendView-main/`、および
   Harness生まれの `geo_excel/`(下記)と `geo_userfunc/`(下記)を管理する。
-  なお `launcher/qgis_launcher/` は **QGISプラグインではない**
-  (metadata.txtを持たずdeploy/session対象外。qgis-plugin/ の外に
-  ある専用 `launcher/` 配下で管理する)。Rust製QGISランチャーで、
-  同じ `geo_custom` プロファイル経由で連携する(同梱プラグインを
-  `launcher/qgis_launcher/scripts/sync_bundle_plugins.py` で
-  repo 側へ同期。ランチャー `dev_mode` が WEBENGINE_* を注入する)。
-  upstream `yamamoto-ryuzo/kasugai_qgis` は存在するが、
-  **qgis_launcher はこの repo だけで完結管理する**
-  (upstream 同期用 gitdir は撤去済み。
-  GitHub 側 repo はアーカイブとして残置)。
-  auto-update の配信も harness repo 自身の master を
-  raw.githubusercontent.com 経由で使う
-  (`launcher/qgis_launcher/update.json` と `public/` が正本。
-  harness の master へ push すれば即配信される)。
-  実体はすべてこのrepo内のgit管理対象(Harness側が正本)。
+  なお Rust 製 QGIS ランチャー（旧 `launcher/qgis_launcher`）は
+  本 repo から撤去済みで、単体リポジトリ
+  `yamamoto-ryuzo/kasugai_qgis`（`C:\devin\kasugai_qgis`）が正本。
+  QGIS プラグインではなく deploy/session 対象外だが、
+  同じ `geo_custom` プロファイル経由で連携し、
+  ランチャー `dev_mode` が WEBENGINE_* を注入する。
   upstreamリポジトリとの同期基盤は構造で2形式に分かれ、
   `npm run upstream -- <repo> <git引数>`(scripts/upstream-git.ps1。
   例: `npm run upstream -- geo_report status`)が形式を吸収する:
@@ -88,9 +79,7 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
     `.upstream/<repo>.git` に退避し `core.worktree` を `qgis-plugin/<id>` に
     向けたgitdir運用**。直接叩く場合は
     `git --git-dir=.upstream/<repo>.git <args>`(core.worktree設定済み)
-  なお現存する upstream 同期先はなし
-  (旧 kasugai_qgis=現 launcher/qgis_launcher の gitdir は
-  auto-update 配信の harness 化に伴い撤去済み)。
+  なお現存する upstream 同期先はなし。
   geo_report/QGIS-exportExcel/QGIS-legendView/geo_import の
   clone/gitdir は撤去済みで Harness側が唯一の正本。
   同期が必要になれば上記手順で再構築する
@@ -640,9 +629,6 @@ npm run verify:qgis     # 別ターミナルでQGIS起動(開きっぱなし)
       (resources/qt_compat/ユーザー定義exec)を誤削除し得る。
       機械修正後は必ず `py_compile` と(QGISスタブでの)importを検証する
     - スキャン対象は `qgis-plugin/<id>` のみ。
-      `launcher/qgis_launcher/`(QGISプラグインではない。同梱
-      download/profiles/ 配下はバンドル複製)
-      に autopep8/ruff/正規表現置換をかけないこと
   - **`.bandit` / `.flake8` / `.secrets.baseline` はZIPに同梱しない**。
     同梱するとスキャナが "Developer-Supplied Config Files" として検出し
     "Validated (configured)" になって管理者レビュー対象になるため、

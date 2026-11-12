@@ -6,6 +6,14 @@
 
 ## [Unreleased]
 
+### Removed
+
+- **`launcher/qgis_launcher/` を撤去**: Rust 製 QGIS/QField ランチャーは
+  単体リポジトリ `yamamoto-ryuzo/kasugai_qgis`(`C:\devin\kasugai_qgis`)
+  が正本となり Harness 側の複製は不要になったため削除。
+  `.pre-commit-config.yaml` の cargo-audit フックと bandit 対象からも
+  launcher 参照を除去し、docs/AGENTS のリンク先を kasugai_qgis へ更新
+
 ### Added
 
 - **GeoSuite共有ツールバー**: 管理対象プラグインのツールバー項目を

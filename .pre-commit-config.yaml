@@ -7,7 +7,7 @@
 #    detect-secrets scan > .secrets.baseline)
 # - bandit -lll  : HIGH-severity Python findings only (plugins.qgis.org
 #   "blocking" equivalent; MEDIUM/LOW idioms are not blocked)
-# - cargo audit / npm audit : dependency vulnerabilities, run only when
+# - npm audit : dependency vulnerabilities, run only when
 #   manifests change (scripts/security_audit.py)
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -28,19 +28,11 @@ repos:
       - id: bandit
         args: ['-lll']
         # plugins.qgis.org scan scope is qgis-plugin/; scripts/tests share
-        # the same blocking rule. Bundled copies under launcher/download
-        # are mirrors of qgis-plugin or third-party code and are excluded.
-        files: '^(qgis-plugin|scripts|tests|launcher/qgis_launcher/scripts)/'
-        exclude: '^launcher/qgis_launcher/download/'
+        # the same blocking rule.
+        files: '^(qgis-plugin|scripts|tests)/'
 
   - repo: local
     hooks:
-      - id: cargo-audit
-        name: cargo audit (qgis_launcher)
-        entry: python scripts/security_audit.py --cargo launcher/qgis_launcher
-        language: system
-        pass_filenames: false
-        files: '^launcher/qgis_launcher/Cargo\.(toml|lock)$'
       - id: npm-audit
         name: npm audit
         entry: python scripts/security_audit.py --npm .
