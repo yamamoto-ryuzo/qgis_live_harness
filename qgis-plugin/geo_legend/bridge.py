@@ -147,6 +147,22 @@ class LegendViewBridge:
     def _dock(self):
         return getattr(self._plugin, "dockwidget", None)
 
+    def _cur_layer(self, dock):
+        """dock.currentLayer が生存していれば返す。
+
+        レイヤ削除後もドックが旧参照を保持し、QObject メソッド呼出しで
+        RuntimeError("wrapped C/C++ object ... has been deleted")に
+        なるのを防ぐ。
+        """
+        layer = getattr(dock, "currentLayer", None)
+        if layer is None:
+            return None
+        try:
+            layer.id()
+        except RuntimeError:
+            return None
+        return layer
+
     def _require_dock(self):
         dock = self._dock()
         if dock is None:
@@ -205,7 +221,7 @@ class LegendViewBridge:
             "dockVisible": bool(dock is not None and dock.isVisible()),
         }
         if dock is not None:
-            layer = getattr(dock, "currentLayer", None)
+            layer = self._cur_layer(dock)
             info["layer"] = ({"id": layer.id(), "name": layer.name()}
                              if layer is not None else None)
             info["datasetIndex"] = dock.comboBox.currentIndex()
@@ -272,7 +288,7 @@ class LegendViewBridge:
         if idx is None:
             return self._err(f"dataset not found: {dataset}")
         cb.setCurrentIndex(idx)  # → currentIndexChanged → showLegend
-        layer = dock.currentLayer
+        layer = self._cur_layer(dock)
         return self._ok({"selected": idx,
                          "layer": layer.name() if layer is not None else None})
 
@@ -281,7 +297,7 @@ class LegendViewBridge:
         dock, err = self._require_dock()
         if err:
             return err
-        layer = getattr(dock, "currentLayer", None)
+        layer = self._cur_layer(dock)
         if layer is None:
             return self._err("no layer selected")
         labels = []
@@ -305,7 +321,7 @@ class LegendViewBridge:
         dock, err = self._require_dock()
         if err:
             return err
-        if dock.currentLayer is None:
+        if self._cur_layer(dock) is None:
             return self._err("no layer selected")
         if value is not None:
             dock.mOpacityWidget.setOpacity(float(value))  # → opacityChanged
@@ -320,7 +336,7 @@ class LegendViewBridge:
         dock, err = self._require_dock()
         if err:
             return err
-        layer = getattr(dock, "currentLayer", None)
+        layer = self._cur_layer(dock)
         if layer is None:
             return self._err("no layer selected")
         mgr = layer.styleManager()
@@ -332,7 +348,7 @@ class LegendViewBridge:
         dock, err = self._require_dock()
         if err:
             return err
-        layer = getattr(dock, "currentLayer", None)
+        layer = self._cur_layer(dock)
         if layer is None:
             return self._err("no layer selected")
         if str(name) not in layer.styleManager().styles():
@@ -347,7 +363,7 @@ class LegendViewBridge:
         if err:
             return err
         dock.selectCurrentLayer()
-        layer = dock.currentLayer
+        layer = self._cur_layer(dock)
         return self._ok({"layer": layer.name() if layer is not None else None,
                          "datasetIndex": dock.comboBox.currentIndex()})
 
