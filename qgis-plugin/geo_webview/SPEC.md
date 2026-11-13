@@ -115,7 +115,7 @@ Manual test steps
 2. From another host, request `/qgis-map?x=...&y=...&scale=...` and confirm QGIS navigates.
 3. Confirm `/screenshot` returns a canvas PNG and `/present` opens the share page.
 
-CI note: QGIS modules (`qgis.core`, `PyQt5`) will not be available in typical CI; mock them where needed.
+CI note: QGIS modules (`qgis.core`, `PyQt6`) will not be available in typical CI; mock them where needed.
 
 17. Implementation-file mapping
 - `plugin.py` — main plugin logic and utilities.

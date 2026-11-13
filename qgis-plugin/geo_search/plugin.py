@@ -8,11 +8,7 @@ from qgis.PyQt.QtWidgets import QAction, QComboBox, QWidget, QToolButton, QHBoxL
 from qgis.core import (
     QgsProject,
 )
-"""QGIS プラグイン Qt 互換インポート
-
-PyQt5 を直接参照していた箇所を qgis.PyQt 経由に統一し、
-将来の Qt6 / PyQt6 互換 (QGIS の shim) に備える。
-"""
+"""QGIS プラグイン (QGIS4/Qt6 前提、qgis.PyQt 経由でインポート)。"""
 
 from .constants import OTHER_GROUP_NAME
 from .i18n_json import install_translator
@@ -33,16 +29,6 @@ class plugin(object):
         return QCoreApplication.translate('plugin', message)
 
     def __init__(self, iface):
-        # Ensure compatibility shim is loaded when plugin instance is created.
-        # This is defensive: classFactory also attempts to import the shim, but
-        # importing it here guarantees the monkey-patch for QgsMessageLog is
-        # applied before any logMessage calls executed by this instance.
-        try:
-            import importlib
-            importlib.import_module('geo_search.qt_compat')
-        except Exception:  # nosec B110  # 設計上の許容
-            # ignore failures; plugin should still attempt to run
-            pass
         self.iface = iface
         self.translator = None
         # GUI-ready flag: set to True at the end of initGui(). Some QGIS
@@ -73,8 +59,8 @@ class plugin(object):
         except Exception as e:
             # エラーは無視（QGIS外実行時など）。開発時はログで確認する。
             try:
-                from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"_init_language error: {e}", "GEO-search-plugin", 1)
+                from .log import log_message
+                log_message(f"_init_language error: {e}", "GEO-search-plugin", 1)
             except Exception:  # nosec B110  # 設計上の許容
                 pass
 
@@ -315,22 +301,22 @@ class plugin(object):
                             pass
                     try:
                         self._theme_signals_connected = True
-                        from qgis.core import QgsMessageLog
-                        QgsMessageLog.logMessage(f"theme signals connected (instance={id(self)})", "GEO-search-plugin", 0)
+                        from .log import log_message
+                        log_message(f"theme signals connected (instance={id(self)})", "GEO-search-plugin", 0)
                     except Exception:  # nosec B110  # 設計上の許容
                         pass
                 else:
                     try:
-                        from qgis.core import QgsMessageLog
-                        QgsMessageLog.logMessage(f"theme signals already connected (instance={id(self)})", "GEO-search-plugin", 0)
+                        from .log import log_message
+                        log_message(f"theme signals already connected (instance={id(self)})", "GEO-search-plugin", 0)
                     except Exception:  # nosec B110  # 設計上の許容
                         pass
             except Exception:  # nosec B110  # 設計上の許容
                 pass
         except Exception as e:
             try:
-                from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"theme watch error: {e}", "GEO-search-plugin", 2)
+                from .log import log_message
+                log_message(f"theme watch error: {e}", "GEO-search-plugin", 2)
             except Exception:  # nosec B110  # 設計上の許容
                 pass
 
@@ -469,8 +455,8 @@ class plugin(object):
                     pass
         except Exception:
             try:
-                from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage("group change handling error", "GEO-search-plugin", 2)
+                from .log import log_message
+                log_message("group change handling error", "GEO-search-plugin", 2)
             except Exception:  # nosec B110  # 設計上の許容
                 pass
 
@@ -479,13 +465,13 @@ class plugin(object):
         try:
             # diagnostic: log entry with instance and flags
             try:
-                from qgis.core import QgsMessageLog
+                from .log import log_message
                 try:
                     # increment per-instance call counter for diagnostics
                     self._theme_update_call_count = int(getattr(self, '_theme_update_call_count', 0)) + 1
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
-                QgsMessageLog.logMessage(
+                log_message(
                     f"update_theme_combobox called (instance={id(self)} call={getattr(self, '_theme_update_call_count', 0)} _gui_ready={getattr(self, '_gui_ready', False)} _suppress={getattr(self, '_suppress_theme_update', False)})",
                     "GEO-search-plugin",
                     0,
@@ -495,12 +481,13 @@ class plugin(object):
             # apply_selected_theme 実行中は外部シグナルによる自動更新を抑止する
             if getattr(self, '_suppress_theme_update', False):
                 try:
-                    from qgis.core import QgsMessageLog
-                    QgsMessageLog.logMessage("update_theme_combobox: suppressed during theme apply", "GEO-search-plugin", 0)
+                    from .log import log_message
+                    log_message("update_theme_combobox: suppressed during theme apply", "GEO-search-plugin", 0)
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
                 return
-            from qgis.core import QgsProject, QgsMessageLog
+            from qgis.core import QgsProject
+            from .log import log_message
             project = QgsProject.instance()
             theme_collection = project.mapThemeCollection()
             try:
@@ -554,8 +541,8 @@ class plugin(object):
                             pass
                         import traceback
                         stack = ''.join(traceback.format_stack(limit=6))
-                        from qgis.core import QgsMessageLog
-                        QgsMessageLog.logMessage(
+                        from .log import log_message
+                        log_message(
                             f"update_theme_combobox: theme_combobox is not available (instance={id(self)} _gui_ready={gui_ready} _suppress={suppressed}). stack:\n{stack}",
                             "GEO-search-plugin",
                             1,
@@ -635,13 +622,13 @@ class plugin(object):
                     self.theme_combobox.setCurrentIndex(index)
 
             # デバッグログ
-            QgsMessageLog.logMessage(f"theme list updated: {', '.join(themes)}", "GEO-search-plugin", 0)
+            log_message(f"theme list updated: {', '.join(themes)}", "GEO-search-plugin", 0)
 
             self.theme_combobox.blockSignals(False)
         except Exception as e:
             try:
-                from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"theme combobox update error: {e}", "GEO-search-plugin", 2)
+                from .log import log_message
+                log_message(f"theme combobox update error: {e}", "GEO-search-plugin", 2)
             except Exception:  # nosec B110  # 設計上の許容
                 pass
 
@@ -650,8 +637,8 @@ class plugin(object):
         # prevent re-entrant/duplicate applies
         if getattr(self, '_applying_theme', False):
             try:
-                from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage("apply_selected_theme: re-entrant call ignored", "GEO-search-plugin", 0)
+                from .log import log_message
+                log_message("apply_selected_theme: re-entrant call ignored", "GEO-search-plugin", 0)
             except Exception:  # nosec B110  # 設計上の許容
                 pass
             return
@@ -660,13 +647,14 @@ class plugin(object):
         except Exception:  # nosec B110  # 設計上の許容
             pass
         try:
-            from qgis.core import QgsProject, QgsMessageLog
+            from qgis.core import QgsProject
+            from .log import log_message
             project = QgsProject.instance()
             theme_collection = project.mapThemeCollection()
             # safety: theme_combobox may not exist
             if not hasattr(self, 'theme_combobox') or self.theme_combobox is None:
                 try:
-                    QgsMessageLog.logMessage("apply_selected_theme: theme_combobox is not available", "GEO-search-plugin", 1)
+                    log_message("apply_selected_theme: theme_combobox is not available", "GEO-search-plugin", 1)
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
                 # Ensure applying flag is cleared before returning so subsequent
@@ -707,8 +695,8 @@ class plugin(object):
             try:
                 self._suppress_theme_update = True
                 try:
-                    from qgis.core import QgsMessageLog
-                    QgsMessageLog.logMessage(f"apply_selected_theme: set _suppress_theme_update=True (instance={id(self)})", "GEO-search-plugin", 0)
+                    from .log import log_message
+                    log_message(f"apply_selected_theme: set _suppress_theme_update=True (instance={id(self)})", "GEO-search-plugin", 0)
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
             except Exception:  # nosec B110  # 設計上の許容
@@ -744,14 +732,14 @@ class plugin(object):
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
                 try:
-                    from qgis.core import QgsMessageLog
-                    QgsMessageLog.logMessage(f"apply_selected_theme: cleared _suppress_theme_update/_applying_theme (instance={id(self)})", "GEO-search-plugin", 0)
+                    from .log import log_message
+                    log_message(f"apply_selected_theme: cleared _suppress_theme_update/_applying_theme (instance={id(self)})", "GEO-search-plugin", 0)
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
         except Exception as e:
             try:
-                from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"theme apply error: {e}", "GEO-search-plugin", 2)
+                from .log import log_message
+                log_message(f"theme apply error: {e}", "GEO-search-plugin", 2)
             except Exception:  # nosec B110  # 設計上の許容
                 pass
 
@@ -762,10 +750,10 @@ class plugin(object):
         実際の設定項目はここに追加できます。
         """
         try:
-            # まずログに呼び出しを記録（QgsMessageLog または print）
+            # まずログに呼び出しを記録（log_message または print）
             try:
-                from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage("open_settings_dialog invoked", "GEO-search-plugin", 0)
+                from .log import log_message
+                log_message("open_settings_dialog invoked", "GEO-search-plugin", 0)
             except Exception:
                 try:
                     print("open_settings_dialog invoked")
@@ -807,8 +795,8 @@ class plugin(object):
             dlg.exec()
         except Exception as e:
             try:
-                from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"open_settings_dialog error: {e}", "GEO-search-plugin", 2)
+                from .log import log_message
+                log_message(f"open_settings_dialog error: {e}", "GEO-search-plugin", 2)
             except Exception:
                 try:
                     print(f"open_settings_dialog error: {e}")
@@ -818,32 +806,32 @@ class plugin(object):
     def _on_map_themes_changed(self, *args, **kwargs):
         """Wrapper for mapThemesChanged signal: log and delegate."""
         try:
-            from qgis.core import QgsMessageLog
-            QgsMessageLog.logMessage(f"mapThemesChanged signal received (instance={id(self)})", "GEO-search-plugin", 0)
+            from .log import log_message
+            log_message(f"mapThemesChanged signal received (instance={id(self)})", "GEO-search-plugin", 0)
         except Exception:  # nosec B110  # 設計上の許容
             pass
         try:
             self.update_theme_combobox()
         except Exception:
             try:
-                from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage("_on_map_themes_changed: update failed", "GEO-search-plugin", 2)
+                from .log import log_message
+                log_message("_on_map_themes_changed: update failed", "GEO-search-plugin", 2)
             except Exception:  # nosec B110  # 設計上の許容
                 pass
 
     def _on_theme_collection_changed(self, *args, **kwargs):
         """Wrapper for legacy theme collection 'changed' signal."""
         try:
-            from qgis.core import QgsMessageLog
-            QgsMessageLog.logMessage(f"themeCollection.changed signal received (instance={id(self)})", "GEO-search-plugin", 0)
+            from .log import log_message
+            log_message(f"themeCollection.changed signal received (instance={id(self)})", "GEO-search-plugin", 0)
         except Exception:  # nosec B110  # 設計上の許容
             pass
         try:
             self.update_theme_combobox()
         except Exception:
             try:
-                from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage("_on_theme_collection_changed: update failed", "GEO-search-plugin", 2)
+                from .log import log_message
+                log_message("_on_theme_collection_changed: update failed", "GEO-search-plugin", 2)
             except Exception:  # nosec B110  # 設計上の許容
                 pass
 
@@ -981,12 +969,12 @@ class plugin(object):
                 try:
                     with open(default_path, 'r', encoding='utf-8') as f:
                         input_json_file = f.read()
-                    from qgis.core import QgsMessageLog
-                    QgsMessageLog.logMessage(f"Loaded default settings file: {default_path}", "GEO-search-plugin", 0)
+                    from .log import log_message
+                    log_message(f"Loaded default settings file: {default_path}", "GEO-search-plugin", 0)
                 except Exception as e:
                     try:
-                        from qgis.core import QgsMessageLog
-                        QgsMessageLog.logMessage(f"Failed to read default settings file '{default_path}': {e}", "GEO-search-plugin", 2)
+                        from .log import log_message
+                        log_message(f"Failed to read default settings file '{default_path}': {e}", "GEO-search-plugin", 2)
                     except Exception:  # nosec B110  # 設計上の許容
                         pass
         except Exception:  # nosec B110  # 設計上の許容
@@ -996,7 +984,8 @@ class plugin(object):
         try:
             ProjectInstance = QgsProject.instance()
             try:
-                from qgis.core import QgsExpressionContextUtils, QgsMessageLog
+                from qgis.core import QgsExpressionContextUtils
+                from .log import log_message
                 try:
                     pv = QgsExpressionContextUtils.projectScope(ProjectInstance).variable('GEO-search-plugin')
                 except Exception:
@@ -1007,7 +996,7 @@ class plugin(object):
                     if pv_text and (pv_text.startswith('{') or pv_text.startswith('[')):
                         try:
                             input_json_proj = pv_text
-                            QgsMessageLog.logMessage("Loaded project variable GEO-search-plugin from inline JSON (project scope).", "GEO-search-plugin", 0)
+                            log_message("Loaded project variable GEO-search-plugin from inline JSON (project scope).", "GEO-search-plugin", 0)
                         except Exception:
                             input_json_proj = ''
                     else:
@@ -1025,12 +1014,12 @@ class plugin(object):
                             try:
                                 with open(candidate, 'r', encoding='utf-8') as f:
                                     input_json_proj = f.read()
-                                QgsMessageLog.logMessage(f"Loaded project variable GEO-search-plugin from file: {candidate}", "GEO-search-plugin", 0)
+                                log_message(f"Loaded project variable GEO-search-plugin from file: {candidate}", "GEO-search-plugin", 0)
                             except Exception:
                                 input_json_proj = ''
                         else:
                             try:
-                                QgsMessageLog.logMessage(f"Project variable GEO-search-plugin points to missing file: {candidate}", "GEO-search-plugin", 1)
+                                log_message(f"Project variable GEO-search-plugin points to missing file: {candidate}", "GEO-search-plugin", 1)
                             except Exception:  # nosec B110  # 設計上の許容
                                 pass
             except Exception:  # nosec B110  # 設計上の許容
@@ -1082,18 +1071,18 @@ class plugin(object):
                     try:
                         with open(candidate, 'r', encoding='utf-8') as f:
                             input_json_env = f.read()
-                        from qgis.core import QgsMessageLog
-                        QgsMessageLog.logMessage(f"Loaded settings file from geo_search_json (env/project): {candidate}", "GEO-search-plugin", 0)
+                        from .log import log_message
+                        log_message(f"Loaded settings file from geo_search_json (env/project): {candidate}", "GEO-search-plugin", 0)
                     except Exception as e:
                         try:
-                            from qgis.core import QgsMessageLog
-                            QgsMessageLog.logMessage(f"Failed to read geo_search_json-specified settings file '{candidate}': {e}", "GEO-search-plugin", 2)
+                            from .log import log_message
+                            log_message(f"Failed to read geo_search_json-specified settings file '{candidate}': {e}", "GEO-search-plugin", 2)
                         except Exception:  # nosec B110  # 設計上の許容
                             pass
                 else:
                     try:
-                        from qgis.core import QgsMessageLog
-                        QgsMessageLog.logMessage(f"geo_search_json-specified settings file not found: {candidate}", "GEO-search-plugin", 1)
+                        from .log import log_message
+                        log_message(f"geo_search_json-specified settings file not found: {candidate}", "GEO-search-plugin", 1)
                     except Exception:  # nosec B110  # 設計上の許容
                         pass
             except Exception:  # nosec B110  # 設計上の許容
@@ -1469,7 +1458,8 @@ class plugin(object):
 
         # 現在の表示状態をテーマとして保存する
         try:
-            from qgis.core import QgsProject, QgsMessageLog
+            from qgis.core import QgsProject
+            from .log import log_message
             project = QgsProject.instance()
             theme_collection = project.mapThemeCollection()
 
@@ -1514,11 +1504,11 @@ class plugin(object):
             model = self.iface.layerTreeView().layerTreeModel()
             theme_state = theme_collection.createThemeFromCurrentState(root, model)
             theme_collection.insert(theme_name, theme_state)
-            QgsMessageLog.logMessage(f"theme '{theme_name}' saved", "GEO-search-plugin", 0)
+            log_message(f"theme '{theme_name}' saved", "GEO-search-plugin", 0)
 
         except Exception as e:
-            from qgis.core import QgsMessageLog
-            QgsMessageLog.logMessage(f"theme save error: {e}", "GEO-search-plugin", 2)
+            from .log import log_message
+            log_message(f"theme save error: {e}", "GEO-search-plugin", 2)
 
         self.dialog.show()
 
@@ -1566,8 +1556,8 @@ class plugin(object):
         # Improved diagnostics: log invocation and internal state to help debug when
         # the search button appears to do nothing in QGIS.
         try:
-            from qgis.core import QgsMessageLog
-            QgsMessageLog.logMessage("_invoke_current_feature: invoked", "GEO-search-plugin", 0)
+            from .log import log_message
+            log_message("_invoke_current_feature: invoked", "GEO-search-plugin", 0)
         except Exception:
             try:
                 print("_invoke_current_feature: invoked")
@@ -1577,8 +1567,8 @@ class plugin(object):
         try:
             if not hasattr(self, 'dialog') or not self.dialog:
                 try:
-                    from qgis.core import QgsMessageLog
-                    QgsMessageLog.logMessage("_invoke_current_feature: no dialog present", "GEO-search-plugin", 1)
+                    from .log import log_message
+                    log_message("_invoke_current_feature: no dialog present", "GEO-search-plugin", 1)
                 except Exception:
                     print("_invoke_current_feature: no dialog present")
                 return
@@ -1588,14 +1578,14 @@ class plugin(object):
             except Exception as e:
                 cur = None
                 try:
-                    from qgis.core import QgsMessageLog
-                    QgsMessageLog.logMessage(f"_invoke_current_feature: get_current_search_widget error: {e}", "GEO-search-plugin", 1)
+                    from .log import log_message
+                    log_message(f"_invoke_current_feature: get_current_search_widget error: {e}", "GEO-search-plugin", 1)
                 except Exception:
                     print(f"_invoke_current_feature: get_current_search_widget error: {e}")
 
             try:
-                from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"_invoke_current_feature: current_feature={bool(self.current_feature)} cur={bool(cur)}", "GEO-search-plugin", 0)
+                from .log import log_message
+                log_message(f"_invoke_current_feature: current_feature={bool(self.current_feature)} cur={bool(cur)}", "GEO-search-plugin", 0)
             except Exception:  # nosec B110  # 設計上の許容
                 pass
 
@@ -1605,8 +1595,8 @@ class plugin(object):
                     setattr(self.current_feature, 'widget', cur)
                 except Exception as e:
                     try:
-                        from qgis.core import QgsMessageLog
-                        QgsMessageLog.logMessage(f"_invoke_current_feature: failed to set widget: {e}", "GEO-search-plugin", 1)
+                        from .log import log_message
+                        log_message(f"_invoke_current_feature: failed to set widget: {e}", "GEO-search-plugin", 1)
                     except Exception:
                         print(f"_invoke_current_feature: failed to set widget: {e}")
 
@@ -1616,14 +1606,14 @@ class plugin(object):
                     self.current_feature.show_features()
                 except Exception as e:
                     try:
-                        from qgis.core import QgsMessageLog
-                        QgsMessageLog.logMessage(f"_invoke_current_feature: show_features error: {e}", "GEO-search-plugin", 2)
+                        from .log import log_message
+                        log_message(f"_invoke_current_feature: show_features error: {e}", "GEO-search-plugin", 2)
                     except Exception:
                         print(f"_invoke_current_feature: show_features error: {e}")
         except Exception as e:
             try:
-                from qgis.core import QgsMessageLog
-                QgsMessageLog.logMessage(f"_invoke_current_feature: unexpected error: {e}", "GEO-search-plugin", 2)
+                from .log import log_message
+                log_message(f"_invoke_current_feature: unexpected error: {e}", "GEO-search-plugin", 2)
             except Exception:
                 print(f"_invoke_current_feature: unexpected error: {e}")
 

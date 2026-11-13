@@ -1,0 +1,34 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">
+<title>qgis_live_harness verify</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+body{font-family:system-ui,sans-serif;margin:2em;line-height:1.6;color:#222}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid #ccc;padding:4px 8px;font-size:13px;text-align:left}
+th{background:#f0f0f0}
+.pass{color:#0a7d2c;font-weight:600}.fail{color:#c0392b;font-weight:600}
+.skip,.untested{color:#888}.removed{color:#999;text-decoration:line-through}
+code{background:#f5f5f5;padding:1px 4px}
+.meta{color:#666;font-size:13px}
+h1{font-size:1.4em}h2{font-size:1.1em;border-bottom:1px solid #ddd}
+</style></head><body>
+<h1>qgis_live_harness — 検証ダッシュボード</h1>
+<p class='meta'>2026-11-14T02:36:08+09:00</p>
+<h2>プラグイン間連携</h2>
+<pre class='mermaid'>
+
+flowchart LR
+  subgraph SHARED["共有基盤"]
+    DRV["geo_driver (LiveDriver/REST/MCP)"]
+    TB["GeoSuite共有ツールバー"]
+    REG["geo_userfunc 共有レジストリ"]
+    ORG["layer_org 配置サービス"]
+  end
+  DRV -->|plugin_idルーティング/bridge_call| ALL["全プラグイン"]
+  TB -->|ツールバー集約| ALL
+  GEO_EXCEL["geo_excel"] -->|register_macro| REG
+  GEO_IMPORT["geo_import"] -->|place_all| ORG
+  AI["AI/エージェント"] -->|REST /api/cmd・MCP| DRV
+</pre>
+<h2>コンポーネント</h2><table><tr><th>id</th><th>ver</th><th>機能数</th><th>結果</th></tr><tr><td><a href='../qgis-plugin/geo_driver/verify/index.html'>geo_driver</a></td><td>0.15.3</td><td>142</td><td>pass=123, skip=19</td></tr><tr><td><a href='../qgis-plugin/geo_excel/verify/index.html'>geo_excel</a></td><td>1.9.5</td><td>105</td><td>pass=33, skip=72</td></tr><tr><td><a href='../qgis-plugin/geo_import/verify/index.html'>geo_import</a></td><td>2.10.11</td><td>78</td><td>pass=48, skip=30</td></tr><tr><td><a href='../qgis-plugin/geo_launcher/verify/index.html'>geo_launcher</a></td><td>1.1.2</td><td>47</td><td>pass=31, skip=16</td></tr><tr><td><a href='../qgis-plugin/geo_legend/verify/index.html'>geo_legend</a></td><td>2.6.9</td><td>42</td><td>pass=34, skip=8</td></tr><tr><td><a href='../qgis-plugin/geo_report/verify/index.html'>geo_report</a></td><td>2.9.7</td><td>43</td><td>pass=33, skip=10</td></tr><tr><td><a href='../qgis-plugin/geo_search/verify/index.html'>geo_search</a></td><td>4.4.9</td><td>73</td><td>pass=63, skip=10</td></tr><tr><td><a href='../qgis-plugin/geo_userfunc/verify/index.html'>geo_userfunc</a></td><td>1.0.7</td><td>38</td><td>pass=24, skip=14</td></tr><tr><td><a href='../qgis-plugin/geo_webview/verify/index.html'>geo_webview</a></td><td>4.13.1</td><td>156</td><td>pass=115, skip=41</td></tr></table>
+<script>mermaid.initialize({startOnLoad:true});</script></body></html>

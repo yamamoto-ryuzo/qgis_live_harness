@@ -1,3 +1,11 @@
+# V4.4.9 Qt5/Qt6 互換シム(qt_compat)を除去
+- qt_compat.py を削除。qgis.PyQt/PyQt6/PySide6 を候補探索する動的
+  ローダーと、QgsMessageLog.logMessage へ旧整数レベル(0/1/2)を許容
+  させる monkey-patch を廃止し、整数レベル変換だけを行う
+  log.py の log_message() ラッパへ集約
+  (plugin/searchdialog/resultdialog/searchfeature/settingsdialog/
+  theme/utils の呼出しを機械置換)。Qt import は全て qgis.PyQt 直接使用
+
 # V4.4.8 個別利用時にGeoSuiteツールバーが表示されない不具合を修正
 - plugin.py: `_geo_toolbar()` に `ensure_visible` 引数を追加し、
   項目追加経路ではツールバーの可視状態を保証するようにした

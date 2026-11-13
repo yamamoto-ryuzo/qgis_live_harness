@@ -16,8 +16,7 @@
    未設定でも実行時に既定値が自動適用される(次節)
 
 実行時に `[% @layer_id %]`(アクティブレイヤ)/`[% $id %]`(選択地物)を自動置換する。
-スクリプト本体は upstream 無改変で同梱し、exec直前に `PyQt5`→`qgis.PyQt`、
-`Qt.WaitCursor`→`Qt.CursorShape.WaitCursor` の Qt6 向け書き換えのみ行う。
+スクリプト本体は upstream 由来だが、import は Qt6 対応済み(`qgis.PyQt`)の状態で同梱する。
 
 **前提**: `win32com`(pywin32)と Excel がインストール済みであること。
 

@@ -25,8 +25,8 @@ from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
 
-from PyQt5.QtCore import Qt, QDate, QTime, QDateTime, QCoreApplication
-from PyQt5.QtWidgets import QAction, QMessageBox, QApplication
+from qgis.PyQt.QtCore import Qt, QDate, QTime, QDateTime, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QApplication
 
 # mmへ単位変換する際に使用
 unit_for_mm = {

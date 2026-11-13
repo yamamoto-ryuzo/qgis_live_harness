@@ -89,11 +89,10 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`geo_driver`)。
   QGIS依存は `bridge.py` に閉じ込める。deploy時に `python/plugins/<フォルダ名>` へ配置される。
   `geo_excel/` は upstream `QGIS-exportExcel` のレイヤアクション用
   スクリプト群(プラグインではない)を簡易プラグイン化したもので、
-  スクリプト本体は無改変で同梱し `plugin.py` が実行時に
-  `[% @layer_id %]`/`[% $id %]` をアクティブレイヤ/選択地物で置換して
-  exec する(QGIS4/Qt6では `import PyQt5` がブロックされるため
-  exec直前に `PyQt5`→`qgis.PyQt` へソース書き換え。実行には
-  win32com+Excelが必要)。upstream側の
+  スクリプトの import は `qgis.PyQt` 対応済みで同梱し、
+  `plugin.py` が実行時に `[% @layer_id %]`/`[% $id %]` を
+  アクティブレイヤ/選択地物で置換して exec する
+  (実行には win32com+Excelが必要)。upstream側の
   `.upstream/QGIS-exportExcel.git` は撤去済み(必要時はgitdir運用で再構築)。
   `geo_excel` は `bridge.py`(`GeoExcelBridge`)を `plugin.bridge` に配線済みで、
   geo_searchと同じく `bridge_call`/`describe_plugins` から利用できる。
@@ -637,12 +636,12 @@ npm run verify:qgis     # 別ターミナルでQGIS起動(開きっぱなし)
       `extend-ignore = E501, W503, W504`
       (E501=長行慣習・最大~1600字、W503/W504=排他ルール)
     - upstream/vendored ファイルは per-file-ignores で除外する
-      (geo_excel `export*.py`、geo_import `pyperclip/`、
+      (geo_excel `export*.py`、geo_import `defusedxml/`、
       geo_userfunc `functions/user_functions.py`、
-      legendView `qt_compat.py`/星importファイル、
+      legendView 星importファイル、
       geo_report `__init__.py`/`plugin.py` の E402・`.resources` F401 等)
     - **罠**: `ruff --fix` やIDEのimport整理は副作用import
-      (resources/qt_compat/ユーザー定義exec)を誤削除し得る。
+      (resources/ユーザー定義exec)を誤削除し得る。
       機械修正後は必ず `py_compile` と(QGISスタブでの)importを検証する
     - スキャン対象は `qgis-plugin/<id>` のみ。
   - **`.bandit` / `.flake8` / `.secrets.baseline` はZIPに同梱しない**。

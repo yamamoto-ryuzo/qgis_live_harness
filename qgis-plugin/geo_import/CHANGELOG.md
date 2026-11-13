@@ -1,3 +1,8 @@
+2.10.11 vendored pyperclip を Qt 標準クリップボードへ置き換え
+- pyperclip/(~600行・PyQt4/5やqtpy等の古い互換層を含む)を削除し、
+  QApplication.clipboard() を使う clipboard.py(15行)へ置き換え。
+  利用箇所は copy() のみ(ckanconnector/geo_import_dialog)のため
+  Qt のクリップボードで完結する
 2.10.10 個別利用時にGeoSuiteツールバーが表示されない不具合を修正
 - geo_import_main.py: GeoSuiteツールバーのfind-or-create後に
   可視状態を保証するようにした(ドライバ非稼働の個別利用では

@@ -5,6 +5,16 @@ All notable changes to the QGIS Legend View plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.9] - 2026-11-13
+
+### Changed
+- `qt_compat.py` を削除し、Qt import を `legend_view.py` /
+  `legend_view_dockwidget.py` に直接展開(enum エイリアス・
+  `translate`/`setLabelAlignment`/`createSymbolPreview` 等の
+  ラッパも廃止し `Qt.AlignmentFlag.AlignCenter`・
+  `QgsSymbolLayerUtils.symbolPreviewPixmap` を直接使用)。
+  `import *` による暗黙の依存を解消
+
 ## [2.6.8] - 2026-11-13
 
 ### Changed

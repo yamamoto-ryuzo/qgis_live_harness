@@ -1,5 +1,5 @@
 from qgis.core import QgsProject, QgsVectorLayer, QgsRasterLayer, QgsMapLayer, QgsExpressionContextUtils, QgsLayerTreeGroup, QgsLayerTreeLayer, QgsRenderContext
-from qgis.core import QgsWkbTypes
+from qgis.core import QgsWkbTypes, QgsSymbolLayerUtils
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
@@ -29,11 +29,13 @@ from qgis.core import QgsWkbTypes
 import os
 import re
 
-# Import Qt compatibility module
-from .qt_compat import *
-
-# Use QGIS-provided PyQt bindings to remain version independent
-from qgis.PyQt.QtWidgets import QDialog, QVBoxLayout, QPushButton, QInputDialog, QMessageBox, QHBoxLayout
+# Qt imports (QGIS4/Qt6 前提、QGIS 提供の qgis.PyQt 経由)
+from qgis.PyQt import uic, QtWidgets
+from qgis.PyQt.QtCore import QCoreApplication, Qt, QVariant, QSize, pyqtSignal
+from qgis.PyQt.QtGui import QIcon, QFont
+from qgis.PyQt.QtWidgets import (QDialog, QVBoxLayout, QPushButton, QInputDialog,
+                                 QMessageBox, QHBoxLayout, QHeaderView, QTableWidget,
+                                 QTableWidgetItem, QLabel, QAbstractItemView, QStyle)
 
 from qgis.core import *
 from qgis.gui import *
@@ -83,13 +85,13 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.currentLayer = None
         self.root = QgsProject.instance().layerTreeRoot()
 
-        vheader = QHeaderView(QtOrientation.Vertical)
-        hheader = QHeaderView(QtOrientation.Horizontal)
+        vheader = QHeaderView(Qt.Orientation.Vertical)
+        hheader = QHeaderView(Qt.Orientation.Horizontal)
 
         self.tableWidget.setVerticalHeader(vheader)
         self.tableWidget.setHorizontalHeader(hheader)
         self.tableWidget.setHorizontalHeaderLabels([self.tr("Symbol"), self.tr("Legend")])
-        self.tableWidget.setSelectionMode(NoSelection)
+        self.tableWidget.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.styleComboBox.setVisible(False)
         self.styleLabel.setVisible(False)
 
@@ -145,7 +147,7 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.tableWidget.setColumnCount(2)
             self.tableWidget.horizontalHeader().setStretchLastSection(True)
 
-            pm_icon_size = self.tableWidget.style().pixelMetric(PM_ListViewIconSize)
+            pm_icon_size = self.tableWidget.style().pixelMetric(QStyle.PixelMetric.PM_ListViewIconSize)
 
             # Symbol icon size based on list view metric
             icon_size = QSize(self.tableWidget.columnWidth(0) - 10, pm_icon_size)
@@ -154,10 +156,10 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             for symbol in symbols:
                 _ = QTableWidgetItem()
                 label = QLabel()
-                # Use Qt version-specific alignment function
-                setLabelAlignment(label)
-                # Use Qt version-specific symbol preview function for better SVG support
-                pixmap = createSymbolPreview(symbol, icon_size)
+                label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                pixmap = QgsSymbolLayerUtils.symbolPreviewPixmap(
+                    symbol, QSize(int(icon_size.width() * 0.95),
+                                  int(icon_size.height() * 0.95)))
                 label.setPixmap(pixmap)
                 self.tableWidget.setCellWidget(i, 0, label)
                 i += 1
@@ -440,8 +442,8 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         table.setRowCount(len(vars_list))
         # allow row selection for edit/delete
         try:
-            table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-            table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+            table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
+            table.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection)
         except Exception:  # nosec B110  # 設計上の許容
             pass
 

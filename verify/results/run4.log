@@ -1,0 +1,20 @@
+live driver: port=53170 (reused running QGIS)
+geo_driver: fail=1, pass=122, skip=19
+geo_excel: fail=49, pass=44, skip=12
+geo_import: fail=15, pass=44, skip=19
+geo_launcher: pass=31, skip=16
+geo_legend: fail=6, pass=29, skip=7
+geo_report: fail=3, pass=31, skip=9
+geo_search: fail=2, pass=62, skip=9
+geo_userfunc: pass=24, skip=14
+geo_webview: fail=2, pass=116, skip=38
+geo_driver: rendered 142 features
+geo_excel: rendered 105 features
+geo_import: rendered 78 features
+geo_launcher: rendered 47 features
+geo_legend: rendered 42 features
+geo_report: rendered 43 features
+geo_search: rendered 73 features
+geo_userfunc: rendered 38 features
+geo_webview: rendered 156 features
+root: rendered

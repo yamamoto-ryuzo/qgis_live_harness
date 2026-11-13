@@ -1,7 +1,7 @@
 # データ取得用QThread
 from .util import Util
 from .ckanconnector import CkanConnector
-from .pyperclip import copy
+from .clipboard import copy
 from .geo_import_dialog_dataproviders import GeoImportDialogDataProviders
 from .geo_import_dialog_disclaimer import GeoImportDialogDisclaimer
 from qgis.core import Qgis

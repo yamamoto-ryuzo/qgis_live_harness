@@ -1,0 +1,4 @@
+live driver: port=53170 (reused running QGIS)
+geo_driver: fail=1, pass=122, skip=19
+geo_excel: pass=33, skip=72
+  [fixture] geo_import.openDialog -> {'ok': True, 'opened': True, 'already': False}

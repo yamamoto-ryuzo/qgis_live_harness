@@ -1,0 +1,25 @@
+live driver: port=55956 (reused running QGIS)
+geo_driver: fail=1, pass=122, skip=19
+geo_excel: pass=33, skip=72
+  [fixture] geo_import.openDialog -> {'ok': True, 'opened': True, 'already': False}
+geo_import: pass=48, skip=30
+geo_launcher: pass=31, skip=16
+  [fixture] geo_legend.openDock -> {'ok': True, 'dockVisible': True}
+geo_legend: pass=34, skip=8
+  [fixture] geo_report.openPanel -> {'ok': True, 'panelVisible': True}
+geo_report: pass=33, skip=10
+  [fixture] geo_search.openDialog -> {'ok': True, 'visible': True}
+geo_search: pass=63, skip=10
+geo_userfunc: pass=24, skip=14
+  [fixture] geo_webview.openPanel -> {'ok': True, 'visible': True}
+geo_webview: pass=115, skip=41
+geo_driver: rendered 142 features
+geo_excel: rendered 105 features
+geo_import: rendered 78 features
+geo_launcher: rendered 47 features
+geo_legend: rendered 42 features
+geo_report: rendered 43 features
+geo_search: rendered 73 features
+geo_userfunc: rendered 38 features
+geo_webview: rendered 156 features
+root: rendered

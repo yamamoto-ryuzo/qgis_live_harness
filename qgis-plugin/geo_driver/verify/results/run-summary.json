@@ -1,0 +1,19 @@
+{
+  "ts": "2026-11-14T02:36:00+09:00",
+  "catalog_methods": [
+    "deployMode",
+    "hotReload",
+    "layerOrgProfiles",
+    "layerOrgRules",
+    "listDevPlugins",
+    "openAiPanel",
+    "openConnInfo",
+    "openDeployMode",
+    "organizeLayers",
+    "placeLayer",
+    "pluginInfo",
+    "remoteControl",
+    "setLayerOrgProfile",
+    "status"
+  ]
+}

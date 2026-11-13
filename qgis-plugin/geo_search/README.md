@@ -82,7 +82,7 @@ Security/robustness notes:
 ## QGIS 4.x / Qt6 compatibility
 
 - Designed for QGIS 4.x and Qt6. `metadata.txt` includes `supportsQt6 = True`.
-- Uses `qgis.PyQt` imports and a small compatibility layer in `geo_search/qt_compat.py` to handle API differences.
+- Uses `qgis.PyQt` imports directly (QGIS4/Qt6 only; no Qt5 compatibility layer).
 - Includes UI stability improvements for Qt6-related rendering timing differences (table header resize, column stretching, minimum widths).
 
 

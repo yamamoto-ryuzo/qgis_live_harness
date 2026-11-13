@@ -1,0 +1,21 @@
+{
+  "ts": "2026-11-14T02:32:22+09:00",
+  "catalog_methods": [
+    "closeDock",
+    "deleteLegendVariable",
+    "legend",
+    "legendVariables",
+    "listDatasets",
+    "listStyles",
+    "opacity",
+    "openDock",
+    "refresh",
+    "registerCurrentLayer",
+    "registerLayer",
+    "selectCurrentLayer",
+    "selectDataset",
+    "setLegendVariable",
+    "setStyle",
+    "status"
+  ]
+}

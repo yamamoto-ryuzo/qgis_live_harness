@@ -3,6 +3,10 @@
 バージョン表記: VA.B.C
 - 例: V2.0.0（A=2, B=0, C=0）
 
+## V2.9.7 Qt5 残存記述の除去
+- ui/loader.py: docstring/コメントの「QT5/QT6 の両方に対応」を
+  Qt6 専用の記述へ修正(実装は既に Qt6 専用)
+
 ## V2.9.6 個別利用時にGeoSuiteツールバーが表示されない不具合を修正
 - plugin.py: `_geo_toolbar()` に `ensure_visible` 引数を追加し、
   項目追加経路ではツールバーの可視状態を保証するようにした

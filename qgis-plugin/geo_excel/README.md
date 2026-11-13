@@ -23,8 +23,7 @@ A lightweight wrapper plugin that makes the layer-action scripts from
 
 At execution time, `[% @layer_id %]` (active layer) and `[% $id %]` (selected
 feature) are substituted automatically. The script bodies are bundled
-unmodified from upstream; only Qt6 rewrites (`PyQt5`→`qgis.PyQt`,
-`Qt.WaitCursor`→`Qt.CursorShape.WaitCursor`) are applied just before exec.
+from upstream with Qt6 imports (`qgis.PyQt`) applied.
 
 **Prerequisites**: `win32com` (pywin32) and Excel must be installed.
 

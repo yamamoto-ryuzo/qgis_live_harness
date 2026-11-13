@@ -1,5 +1,12 @@
 # CHANGELOG — geo_excel
 
+## 1.9.5
+
+- 同梱帳票スクリプト(exportList/exportSingle/exportSingleBulk)の
+  import を `PyQt5` から `qgis.PyQt` へ直接修正し、exec 直前に
+  ソース文字列を書き換えていた機構(_PYQT5_RE/_rewrite_source)を撤去。
+  実行時に必要な置換は `[% @layer_id %]` / `[% $id %]` のみに簡素化
+
 ## 1.9.4
 
 - bridge.py: 既定設定の保存(setSettings)と自動テンプレート再生成

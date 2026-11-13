@@ -24,7 +24,10 @@
 import re
 
 # Import Qt compatibility module first
-from .qt_compat import QCoreApplication, Qt, QIcon, QAction, QDockWidget, WA_DeleteOnClose, RightDockWidgetArea, QtWidgets
+from qgis.PyQt.QtCore import QCoreApplication, Qt
+from qgis.PyQt.QtGui import QIcon, QAction
+from qgis.PyQt.QtWidgets import QDockWidget
+from qgis.PyQt import QtWidgets
 from .i18n_json import install_translator
 
 from qgis.core import QgsSettings, QgsProject, QgsExpressionContextUtils
@@ -263,7 +266,7 @@ class LegendView:
             if self.dockwidget is None:
                 # Create the dockwidget (after translation) and keep reference
                 self.dockwidget = LegendViewDockWidget(self.iface)
-                self.dockwidget.setAttribute(WA_DeleteOnClose)
+                self.dockwidget.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
@@ -294,7 +297,7 @@ class LegendView:
         is_floating = s.value("LegendView/isfloating", "0") == "1"
 
         if is_floating:
-            self.iface.addDockWidget(RightDockWidgetArea, self.dockwidget)
+            self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dockwidget)
             geometry = s.value("LegendView/geometry", "")
             if not geometry.isEmpty():
                 self.dockwidget.restoreGeometry(bytearray(geometry))
@@ -303,7 +306,7 @@ class LegendView:
         else:
             self.dockwidget.setFloating(False)
             if not self.iface.mainWindow().restoreDockWidget(self.dockwidget):
-                self.iface.addDockWidget(RightDockWidgetArea, self.dockwidget)
+                self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dockwidget)
                 self.tabifyWithExistingDock()
 
         self.dockwidget.show()
@@ -315,7 +318,7 @@ class LegendView:
         for dock in main_window.findChildren(QDockWidget):
             if dock is self.dockwidget or dock.isFloating():
                 continue
-            if main_window.dockWidgetArea(dock) != RightDockWidgetArea:
+            if main_window.dockWidgetArea(dock) != Qt.DockWidgetArea.RightDockWidgetArea:
                 continue
             if dock.isVisible():
                 target = dock

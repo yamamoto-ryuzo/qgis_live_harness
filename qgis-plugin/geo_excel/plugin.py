@@ -4,19 +4,12 @@
 upstream(QGIS-exportExcel)のスクリプトは「レイヤアクション」として実行される
 前提で書かれており、QGISアクションの置換変数([% @layer_id %] / [% $id %])を
 含む。本プラグインはプラグインメニューからの実行時に、これらをアクティブ
-レイヤ/選択地物の値で置き換えて exec することで、スクリプトを無改変で
-再利用する。
-
-またスクリプト内の `from PyQt5.…` 固定importは、exec直前にソース文字列を
-`from qgis.PyQt.…` へ書き換えて吸収する(QGISのQt6ビルドでは PyQt5 のimportが
-qgis.utils._import フックで禁止されるため、sys.modules shim では不可)。
-ファイル自体は upstream のまま維持する。
+レイヤ/選択地物の値で置き換えて exec することで再利用する。
 
 実行には win32com(pywin32) と Excel が必要。
 """
 
 import os
-import re
 
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
@@ -27,20 +20,6 @@ from .bridge import GeoExcelBridge
 from .i18n_json import install_translator
 
 PLUGIN_DIR = os.path.dirname(__file__)
-
-# PyQt5 固定importを qgis.PyQt(Qt5/Qt6 自動切替)へ書き換える
-_PYQT5_RE = re.compile(r"PyQt5(?=[\.\s])")
-
-
-def _rewrite_source(src):
-    """アクション置換変数と Qt5 固有記法を実行用に書き換える。
-
-    - `PyQt5.` / `from PyQt5 import` → `qgis.PyQt`
-    - `Qt.WaitCursor` → `Qt.CursorShape.WaitCursor`
-      (Qt6で非スコープenumは廃止。Qt5でもスコープ記法は有効)
-    """
-    src = _PYQT5_RE.sub("qgis.PyQt", src)
-    return src.replace("Qt.WaitCursor", "Qt.CursorShape.WaitCursor")
 
 
 def _active_vector_layer(iface):
@@ -264,7 +243,6 @@ class plugin(object):
         src = src.replace("[% @layer_id %]", layer_id)
         if fid is not None:
             src = src.replace("[% $id %]", str(fid))
-        src = _rewrite_source(src)
 
         ns = {"__name__": f"geo_excel.{script_name}", "__file__": path}
         try:
