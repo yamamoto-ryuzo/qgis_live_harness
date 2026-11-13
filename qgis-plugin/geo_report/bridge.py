@@ -686,9 +686,13 @@ class GeoReportBridge:
             return self._err("name is empty")
         project = QgsProject.instance()
         mgr = project.layoutManager()
+        unique = name
+        i = 2
+        while mgr.layoutByName(unique) is not None:
+            unique = f"{name}{i}"
+            i += 1
         layout = QgsPrintLayout(project)
         layout.initializeDefaults()
-        layout.setName(mgr.generateUniqueTitle(name)
-                       if hasattr(mgr, "generateUniqueTitle") else name)
+        layout.setName(unique)
         mgr.addLayout(layout)
         return self._ok({"created": layout.name()})

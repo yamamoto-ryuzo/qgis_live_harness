@@ -629,6 +629,39 @@ class LiveDriver:
         except Exception:
             reply({"id": cid, "error": traceback.format_exc()})
 
+    @staticmethod
+    def _bridge_args(fn, args):
+        """bridge_call の args を (位置引数, kwargs) に正規化する。
+
+        モデルが kwargs 形式で渡すケースを吸収する:
+        - args={"k": v, ...}      (リストでなく辞書)
+        - args=[{"k": v, ...}]    (辞書1個だけのリスト)
+        - args=[pos..., {"k": v}] (末尾辞書=残パラメータへの kwargs)
+        末尾辞書のキーが未バインドのパラメータ名に収まる場合のみ
+        kwargs 化し、収まらない辞書(普通のdict引数)は従来通り
+        位置引数として渡す。
+        """
+        if isinstance(args, dict):
+            pos, cand = [], dict(args)
+        else:
+            pos = list(args)
+            cand = pos.pop() if pos and isinstance(pos[-1], dict) else None
+        if not cand:
+            return list(args) if isinstance(args, (list, tuple)) else [], {}
+        try:
+            params = inspect.signature(fn).parameters
+        except (TypeError, ValueError):
+            return args, {}
+        has_varkw = any(p.kind == inspect.Parameter.VAR_KEYWORD
+                        for p in params.values())
+        names = [n for n, p in params.items()
+                 if p.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                               inspect.Parameter.KEYWORD_ONLY)]
+        bound = set(names[:len(pos)])
+        if has_varkw or (set(cand) <= set(names) and not set(cand) & bound):
+            return pos, cand
+        return args, {}
+
     def _bridge_call(self, cid, cmd, reply):
         """プラグインのbridgeオブジェクトのメソッドをプロセス内で直接呼ぶ。
 
@@ -664,7 +697,8 @@ class LiveDriver:
                        f"no bridge method '{method}'. methods: "
                        f"{[m for m in dir(bridge) if not m.startswith('_')] if bridge else 'no bridge'}"})
                 return
-            res = fn(*args)
+            b_args, b_kwargs = self._bridge_args(fn, args)
+            res = fn(*b_args, **b_kwargs)
             if isinstance(res, str):
                 try:
                     res = json.loads(res)

@@ -6,6 +6,29 @@
 ## [Unreleased]
 
 ### Added
+- skills/webgis-convert.md: **同梱スキル「WebGIS向けデータ形式変換・
+  レイヤ追加」**を追加。サーバレス前提で KASUGAI Canvas
+  (.kasc+DATA/)に最適な出力形式の選定表(GeoJSON/GeoParquet/
+  FlatGeobuf/GPKG/duckdb:/XYZ/3D Tiles)、pyeval による変換→
+  レイヤ追加レシピ、Canvas 側 .qml コンパイラの凡例・ラベル再現
+  範囲、kasugaiExport での送出・検証ループを手順書化。
+  `ai_list_instructions`/`ai_read_instruction` でモデルが
+  オンデマンドに参照する
+- scale_style.py + scale_style/default.json: **スケール連動の
+  標準線幅サービス**を追加。CADと異なりGISでは線幅を縮尺に連動
+  できるため、カテゴリ×縮尺帯の標準幅テーブルをプロファイルJSON
+  で管理し(layer_orgと同型: 同梱 + `~/.qgis-live/scale_style/`
+  のユーザ上書き、QSettingsで切替)、bridgeメソッド
+  `scaleStyleProfiles`/`scaleStyleTable`/`setScaleStyleProfile`/
+  `suggestScaleWidth`/`applyScaleWidth` を追加。
+  `applyScaleWidth` の mode: `mm`=現縮尺向けの紙面幅を固定設定、
+  `meters`=実世界幅(m・RenderMetersInMapUnits)でズーム連動、
+  `rules`=縮尺帯ごとに幅が切替わるルールベースレンダラを生成
+  (geo_legend ロード時はその `applyRules` へ委譲、
+  未ロード時は内部実装へフォールバック)。カテゴリはレイヤ名/
+  geomで推定し、`road_major`/`river`/`boundary`/`contour` 等を
+  同梱プロファイルが提供。`status()` にもアクティブ
+  プロファイルを載せた
 - devin_tasks.py + mcp_http.py/live_driver.py: **Devin CLI 委譲ツール**
   `qgis_devin_run`/`qgis_devin_status`/`qgis_devin_result`/
   `qgis_devin_abort` を追加。Devinセッションを
@@ -47,6 +70,14 @@
   -r でセッション再開。acp engine も同ワーカーで対応)
 
 ### Fixed
+- live_driver.py: **`bridge_call` の kwargs 形式引数を正規化**する
+  `_bridge_args` を追加。モデルが `args=[{"k": v,...}]` や
+  `args={"k": v}`、`args=[pos..., {"k": v}]` 形式で呼んだ場合、
+  末尾辞書のキーが未バインドのパラメータ名に収まるときのみ
+  kwargs として展開する(従来は `fn(*args)` で辞書がそのまま
+  先頭位置引数に渡り "layer not found" 等で失敗していた)。
+  普通の dict 引数(geo_report.setItemProperties 等)は
+  キー不一致で従来通り位置引数として渡る
 - ai_client.py: Copilot で `/chat/completions` を受け付けない
   **Responses API 専用モデル(GPT-6 系等)が送信エラーになる問題**
   を修正。`GET /models` の `supported_endpoints` で事前判別し、

@@ -14,7 +14,7 @@
   "configured": true,
   "checked": "2026-11-14T05:59:23+09:00"
  },
- "updated": "2026-11-14T05:59:23+09:00",
+ "updated": "2026-11-14T15:40:00+09:00",
  "features": [
   {
    "id": "panel.send",
@@ -11234,6 +11234,216 @@
    "last_result": "pass",
    "note": "",
    "last_verified": "2026-11-14T05:16:11+09:00"
+  },
+  {
+   "id": "plugin.geo_legend.bridge.addLayoutLegend",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "addLayoutLegend",
+   "plugin_id": "geo_legend",
+   "ref": "qgis-plugin/geo_legend/verify/features.json#bridge.addLayoutLegend",
+   "source": "bridge.py",
+   "signature": "addLayoutLegend(layout, title, x, y, w, h, layers, linked_map, filter_by_map)",
+   "summary": "印刷レイアウトに凡例アイテム(QgsLayoutItemLegend)を追加する。",
+   "needs_llm": false,
+   "ai_sample": true,
+   "verify": {
+    "tool": "bridge_call 実行+応答assert",
+    "prompt": "凡例を作成して(分類/階級/ルール/レイアウト凡例/PNG出力)",
+    "assert": "応答ok:true+レンダラ/レイアウト/ファイル実在",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_legend",
+    "method": "addLayoutLegend"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "v2.7.0新規・REST /api/cmd bridge_call 実測pass / ai-plane pass(devin_acp): 「新規レイアウトに凡例アイテム追加」で凡例レイアウト+QgsLayoutItemLegend実在assert済",
+   "last_verified": "2026-11-14T15:40:00+09:00"
+  },
+  {
+   "id": "plugin.geo_legend.bridge.applyCategories",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "applyCategories",
+   "plugin_id": "geo_legend",
+   "ref": "qgis-plugin/geo_legend/verify/features.json#bridge.applyCategories",
+   "source": "bridge.py",
+   "signature": "applyCategories(layer, field, ramp, labels, colors)",
+   "summary": "属性フィールドの個別値分類レンダラを作成し凡例を作る。",
+   "needs_llm": false,
+   "ai_sample": true,
+   "verify": {
+    "tool": "bridge_call 実行+応答assert",
+    "prompt": "凡例を作成して(分類/階級/ルール/レイアウト凡例/PNG出力)",
+    "assert": "応答ok:true+レンダラ/レイアウト/ファイル実在",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_legend",
+    "method": "applyCategories"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "v2.7.0新規・REST /api/cmd bridge_call 実測pass",
+   "last_verified": "2026-11-14T10:00:00+09:00"
+  },
+  {
+   "id": "plugin.geo_legend.bridge.applyGraduated",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "applyGraduated",
+   "plugin_id": "geo_legend",
+   "ref": "qgis-plugin/geo_legend/verify/features.json#bridge.applyGraduated",
+   "source": "bridge.py",
+   "signature": "applyGraduated(layer, field, classes, ramp, method)",
+   "summary": "数値フィールドの階級区分レンダラを作成(equal/quantile)。",
+   "needs_llm": false,
+   "ai_sample": true,
+   "verify": {
+    "tool": "bridge_call 実行+応答assert",
+    "prompt": "凡例を作成して(分類/階級/ルール/レイアウト凡例/PNG出力)",
+    "assert": "応答ok:true+レンダラ/レイアウト/ファイル実在",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_legend",
+    "method": "applyGraduated"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "v2.7.0新規・REST /api/cmd bridge_call 実測pass",
+   "last_verified": "2026-11-14T10:00:00+09:00"
+  },
+  {
+   "id": "plugin.geo_legend.bridge.applyRules",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "applyRules",
+   "plugin_id": "geo_legend",
+   "ref": "qgis-plugin/geo_legend/verify/features.json#bridge.applyRules",
+   "source": "bridge.py",
+   "signature": "applyRules(layer, rules, else_label)",
+   "summary": "ルールベースレンダラを作成し凡例を作る。",
+   "needs_llm": false,
+   "ai_sample": true,
+   "verify": {
+    "tool": "bridge_call 実行+応答assert",
+    "prompt": "凡例を作成して(分類/階級/ルール/レイアウト凡例/PNG出力)",
+    "assert": "応答ok:true+レンダラ/レイアウト/ファイル実在",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_legend",
+    "method": "applyRules"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "v2.7.0新規・REST /api/cmd bridge_call 実測pass / ai-plane pass(devin_acp): 「n<10→小/>=10→大の2分類凡例」指示でbridge applyRules選択・kwargs正規化後にRuleRenderer到達・内部状態assert済",
+   "last_verified": "2026-11-14T15:40:00+09:00"
+  },
+  {
+   "id": "plugin.geo_legend.bridge.applySingleSymbol",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "applySingleSymbol",
+   "plugin_id": "geo_legend",
+   "ref": "qgis-plugin/geo_legend/verify/features.json#bridge.applySingleSymbol",
+   "source": "bridge.py",
+   "signature": "applySingleSymbol(layer, color)",
+   "summary": "単一シンボルレンダラに戻す。",
+   "needs_llm": false,
+   "ai_sample": true,
+   "verify": {
+    "tool": "bridge_call 実行+応答assert",
+    "prompt": "凡例を作成して(分類/階級/ルール/レイアウト凡例/PNG出力)",
+    "assert": "応答ok:true+レンダラ/レイアウト/ファイル実在",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_legend",
+    "method": "applySingleSymbol"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "v2.7.0新規・REST /api/cmd bridge_call 実測pass",
+   "last_verified": "2026-11-14T10:00:00+09:00"
+  },
+  {
+   "id": "plugin.geo_legend.bridge.exportLegendImage",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "exportLegendImage",
+   "plugin_id": "geo_legend",
+   "ref": "qgis-plugin/geo_legend/verify/features.json#bridge.exportLegendImage",
+   "source": "bridge.py",
+   "signature": "exportLegendImage(path, layers, title, dpi)",
+   "summary": "凡例のみのPNG画像を出力する。",
+   "needs_llm": false,
+   "ai_sample": true,
+   "verify": {
+    "tool": "bridge_call 実行+応答assert",
+    "prompt": "凡例を作成して(分類/階級/ルール/レイアウト凡例/PNG出力)",
+    "assert": "応答ok:true+レンダラ/レイアウト/ファイル実在",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_legend",
+    "method": "exportLegendImage"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "v2.7.0新規・REST /api/cmd bridge_call 実測pass / ai-plane pass(devin_acp): 凡例PNG出力成功(228x409・小/大ラベル表示確認)。初回gpt-4oではpyeval自力化で失敗→明示指示でpass",
+   "last_verified": "2026-11-14T15:40:00+09:00"
+  },
+  {
+   "id": "plugin.geo_legend.bridge.legendSpec",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "legendSpec",
+   "plugin_id": "geo_legend",
+   "ref": "qgis-plugin/geo_legend/verify/features.json#bridge.legendSpec",
+   "source": "bridge.py",
+   "signature": "legendSpec(layer)",
+   "summary": "レイヤの現在のレンダラ(凡例)定義を返す。",
+   "needs_llm": false,
+   "ai_sample": true,
+   "verify": {
+    "tool": "bridge_call 実行+応答assert",
+    "prompt": "凡例を作成して(分類/階級/ルール/レイアウト凡例/PNG出力)",
+    "assert": "応答ok:true+レンダラ/レイアウト/ファイル実在",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_legend",
+    "method": "legendSpec"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "v2.7.0新規・REST /api/cmd bridge_call 実測pass",
+   "last_verified": "2026-11-14T10:00:00+09:00"
   },
   {
    "id": "plugin.geo_launcher.entry_point.__init__.py:classFactory",

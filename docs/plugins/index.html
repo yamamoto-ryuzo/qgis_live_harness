@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>プラグイン別ドキュメント | QGIS Live Harness</title>
+<meta name="description" content="qgis-plugin/ 配下の全プラグインのドキュメント一覧">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="site"><span class="logo">Q</span>QGIS Live Harness</div>
+    <div class="links">
+      <div class="group">はじめに</div>
+      <a class="navlink" href="../index.html">概要</a>
+      <a class="navlink" href="../usage.html">使い方・セットアップ</a>
+      <a class="navlink" href="../security.html">セキュリティ</a>
+      <div class="group">コンポーネント</div>
+      <a class="navlink" href="../driver.html">QGIS Live Driver</a>
+      <a class="navlink" href="../harness.html">QGIS Live Harness</a>
+      <div class="group">ガイド</div>
+      <a class="navlink" href="../distribution.html">プラグイン配布</a>
+      <a class="navlink" href="../internals.html">Harnessのプラグイン化</a>
+      <a class="navlink" href="../plugins.html">プラグイン一覧</a>
+      <a class="navlink" href="../geosuite.html">GeoSuite</a>
+      <a class="navlink" href="../geo_webview.html">geo_webview</a>
+      <div class="group">プラグイン</div>
+      <a class="navlink active" href="../plugins/index.html">すべてのプラグイン</a>
+      <a class="navlink" href="../plugins/geo_driver.html">geo_driver</a>
+      <a class="navlink" href="../plugins/geo_userfunc.html">geo_userfunc</a>
+      <a class="navlink" href="../plugins/geo_import.html">geo_import</a>
+      <a class="navlink" href="../plugins/geo_search.html">geo_search</a>
+      <a class="navlink" href="../plugins/geo_webview.html">geo_webview</a>
+      <a class="navlink" href="../plugins/geo_report.html">geo_report</a>
+      <a class="navlink" href="../plugins/geo_excel.html">geo_excel</a>
+      <a class="navlink" href="../plugins/geo_legend.html">geo_legend</a>
+      <a class="navlink" href="../plugins/geo_launcher.html">geo_launcher</a>
+      <div class="group">リンク</div>
+      <a class="navlink ext" href="https://github.com/yamamoto-ryuzo/qgis_live_harness">GitHub リポジトリ</a>
+    </div>
+  </nav>
+  <div class="content">
+  <main>
+<header class="page-header">
+<p class="eyebrow">Plugins</p>
+<h1>プラグイン別ドキュメント</h1>
+<p class="lead">qgis-plugin/ 配下の全プラグインのドキュメント。各ページは
+プラグインの README・metadata.txt から生成しています。</p>
+</header>
+<blockquote>
+<p>このページ群は <code>python scripts/build-plugin-docs.py</code> で
+<code>qgis-plugin/&lt;id&gt;/README_JP.md</code>(無ければ <code>README.md</code>)
+から自動生成されます。元ファイル更新後に再実行してください。</p>
+</blockquote>
+<ul class="cards">
+<li><a class="card" href="geo_driver.html"><b>geo_driver</b><span>Localhost-only remote control driver for QGIS (token-authenticated MCP/REST/file API for local AI tools) plus a built-in AI assistant panel for OpenAI-compatible APIs and a hot-reload watcher for plugin development<br><small>v0.16.0 — Harness 中核ドライバ(制御ハブ)</small></span></a></li>
+<li><a class="card" href="geo_userfunc.html"><b>geo_userfunc</b><span>ユーザー定義Pythonコード(式関数/フック/マクロ)のライブラリ管理プラグイン<br><small>v1.0.7 — GeoSuite 前段 — ユーザー定義コード整備</small></span></a></li>
+<li><a class="card" href="geo_import.html"><b>geo_import</b><span>さまざまなデータセットを検索・追加できるQGISプラグインです<br><small>v2.10.11 — GeoSuite — データ取り込み(CKAN/ローカル)</small></span></a></li>
+<li><a class="card" href="geo_search.html"><b>geo_search</b><span>QGIS用の地図検索システム。地番・所有者名・属性検索に対応し、結果はレイヤごとにタブ表示・ページング・表示フィールド選択が可能。タブごとの設定編集UI、マップテーマ切替（selectTheme）、追加表示モード（既存表示に重ねて検索結果を表示）を搭載。QGIS 4.x/Qt6対応。<br><small>v4.4.10 — GeoSuite — 地図内検索</small></span></a></li>
+<li><a class="card" href="geo_webview.html"><b>geo_webview</b><span>Serverless web distribution of QGIS projects — export .kasc+DATA/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara); permalinks and an embedded HTTP server<br><small>v4.13.1 — GeoSuite — スタイル込 Web 共有(.kasc)</small></span></a></li>
+<li><a class="card" href="geo_report.html"><b>geo_report</b><span>レイアウト選択、アイテム事前編集、テンプレート作成により効率的な地図作成ワークフローを実現するQGISプラグイン<br><small>v2.9.8 — GeoSuite — 報告書(PNG/PDF)</small></span></a></li>
+<li><a class="card" href="geo_excel.html"><b>geo_excel</b><span>ベクターレイヤの属性情報をExcel帳票として出力するスクリプト群(QGIS-exportExcel)の簡易プラグインラッパー<br><small>v1.9.5 — GeoSuite — 報告書(Excel 帳票)</small></span></a></li>
+<li><a class="card" href="geo_legend.html"><b>geo_legend</b><span>Display only the necessary legends in a clear, easy-to-understand manner with Qt6 compatibility<br><small>v2.8.0 — 凡例ドック(将来 GeoReport へ統合予定)</small></span></a></li>
+<li><a class="card" href="geo_launcher.html"><b>geo_launcher</b><span>kasugai_qgis ランチャー(Rust/Axum)を QGIS 内からインストール/アンインストール・起動する連携プラグイン<br><small>v1.1.2 — kasugai_qgis ランチャー連携</small></span></a></li>
+</ul>
+<h2>スイートとしての位置づけ</h2>
+<p><code>geo_userfunc</code> → <code>geo_import</code> → <code>geo_search</code> →
+<code>geo_webview</code> → <code>geo_report</code> / <code>geo_excel</code> は
+<a href="../geosuite.html">GeoSuite</a> のワークフロー(取り込み → 検索 → Web 共有 →
+帳票出力)を構成します。<code>geo_driver</code> は全プラグインを遠隔操作する
+制御ハブ(<a href="../driver.html">QGIS Live Driver</a>)で、各プラグインの
+<code>bridge</code> API はこれ経由で AI から呼び出せます。</p>
+<nav class="pager">
+  <a href="../plugins.html"><span class="dir">前へ</span><span class="title">プラグイン一覧(Harness 概要)</span></a>
+  <a class="next" href="geo_driver.html"><span class="dir">次へ</span><span class="title">geo_driver</span></a>
+</nav>
+  </main>
+  <aside class="toc"></aside>
+  </div>
+<script type="module" src="../assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>geo_webview プラグイン | QGIS Live Harness</title>
+<meta name="description" content="Serverless web distribution of QGIS projects — export .kasc+DATA/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara); permalinks and an embedded HTTP server">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="site"><span class="logo">Q</span>QGIS Live Harness</div>
+    <div class="links">
+      <div class="group">はじめに</div>
+      <a class="navlink" href="../index.html">概要</a>
+      <a class="navlink" href="../usage.html">使い方・セットアップ</a>
+      <a class="navlink" href="../security.html">セキュリティ</a>
+      <div class="group">コンポーネント</div>
+      <a class="navlink" href="../driver.html">QGIS Live Driver</a>
+      <a class="navlink" href="../harness.html">QGIS Live Harness</a>
+      <div class="group">ガイド</div>
+      <a class="navlink" href="../distribution.html">プラグイン配布</a>
+      <a class="navlink" href="../internals.html">Harnessのプラグイン化</a>
+      <a class="navlink" href="../plugins.html">プラグイン一覧</a>
+      <a class="navlink" href="../geosuite.html">GeoSuite</a>
+      <a class="navlink" href="../geo_webview.html">geo_webview</a>
+      <div class="group">プラグイン</div>
+      <a class="navlink" href="../plugins/index.html">すべてのプラグイン</a>
+      <a class="navlink" href="../plugins/geo_driver.html">geo_driver</a>
+      <a class="navlink" href="../plugins/geo_userfunc.html">geo_userfunc</a>
+      <a class="navlink" href="../plugins/geo_import.html">geo_import</a>
+      <a class="navlink" href="../plugins/geo_search.html">geo_search</a>
+      <a class="navlink active" href="../plugins/geo_webview.html">geo_webview</a>
+      <a class="navlink" href="../plugins/geo_report.html">geo_report</a>
+      <a class="navlink" href="../plugins/geo_excel.html">geo_excel</a>
+      <a class="navlink" href="../plugins/geo_legend.html">geo_legend</a>
+      <a class="navlink" href="../plugins/geo_launcher.html">geo_launcher</a>
+      <div class="group">リンク</div>
+      <a class="navlink ext" href="https://github.com/yamamoto-ryuzo/qgis_live_harness">GitHub リポジトリ</a>
+    </div>
+  </nav>
+  <div class="content">
+  <main>
+<header class="page-header">
+<p class="eyebrow">Plugin</p>
+<h1><code>geo_webview</code></h1>
+<p class="lead">Serverless web distribution of QGIS projects — export .kasc+DATA/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara); permalinks and an embedded HTTP server</p>
+</header>
+<table>
+<tbody>
+<tr><th>プラグイン ID</th><td><code>geo_webview</code></td></tr>
+<tr><th>バージョン</th><td>4.13.1</td></tr>
+<tr><th>最小 QGIS</th><td>4.0</td></tr>
+<tr><th>ライセンス</th><td>GPL-3.0</td></tr>
+<tr><th>役割</th><td>GeoSuite — スタイル込 Web 共有(.kasc)</td></tr>
+<tr><th>出自</th><td>upstream: geo_webview</td></tr>
+<tr><th>関連リポジトリ</th><td><a href="https://github.com/yamamoto-ryuzo/geo_webview">geo_webview</a></td></tr>
+<tr><th>ソース</th><td><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/">qgis-plugin/geo_webview/</a> · <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/CHANGELOG.md">CHANGELOG</a></td></tr>
+</tbody>
+</table>
+<p>開いている QGIS プロジェクトを <code>.kasc</code>+<code>DATA/</code> パッケージに出力し、
+KASUGAI Canvas のマルチエンジン（Cesium / MapLibre / OpenLayers / Leaflet / GSI Maps / Navara）で
+再生する QGIS プラグイン。出力物は静的ホスティングだけで配信できます。</p>
+<h2>ドキュメント</h2>
+<ul>
+<li><strong><a href="https://yamamoto-ryuzo.github.io/qgis_live_harness/geo_webview/">geo_webview ドキュメント（GitHub Pages）</a></strong> —
+連携構成図・主な機能・マルチエンジン・導入ガイド・技術資料
+（正本はこのフォルダの <code>docs/</code> 配下の HTML。パネルの <code>?</code> ボタンからも開けます）</li>
+<li><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/INTEGRATION_JP.md">INTEGRATION_JP.md</a> / <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/INTEGRATION.md">INTEGRATION.md</a> — 外部クライアント連携方針（Re:Earth・ArcGIS）</li>
+<li><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/SPEC_JP.md">SPEC_JP.md</a> / <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/SPEC.md">SPEC.md</a> — <code>.kasc</code> 行仕様・API・bridge</li>
+<li><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/CHANGELOG.md">CHANGELOG.md</a> — 変更履歴</li>
+</ul>
+<h2>クイックスタート</h2>
+<ol>
+<li>このフォルダを QGIS の <code>python/plugins/</code> に配置し、プラグインを有効化</li>
+<li>パネル「Web配信」で【Export】→ <code>.kasc</code>+<code>DATA/</code>+<code>&lt;engine&gt;.html</code>+<code>index.html</code> を出力</li>
+<li>【▶Canvas】/【▶WebView】で即表示、【ZIP】で <code>kasugai_canvas_&lt;ch&gt;.zip</code> をダウンロードして静的ホストや CMS へ配置</li>
+</ol>
+<p>ライセンス: GPL-3.0（<a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/LICENSE">LICENSE</a> 参照）</p>
+<h2>免責事項</h2>
+<p>本システムは個人のPCで作成・テストされたものです。<br />
+ご利用によるいかなる損害も責任を負いません。</p>
+
+
+
+<h2>関連ドキュメント</h2>
+<ul class="cards">
+<li><a class="card" href="../geosuite.html"><b>GeoSuite(スイート概要)</b></a></li>
+<li><a class="card" href="../geo_webview/"><b>geo_webview ドキュメントサイト</b></a></li>
+<li><a class="card" href="../geo_webview.html"><b>外部サービス・クライアント連携</b></a></li>
+<li><a class="card" href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/SPEC_JP.md"><b>SPEC_JP.md(.kasc仕様/API)</b></a></li>
+<li><a class="card" href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/INTEGRATION_JP.md"><b>INTEGRATION_JP.md(連携方針)</b></a></li>
+<li><a class="card" href="index.html"><b>プラグイン別ドキュメント一覧</b></a></li>
+<li><a class="card" href="../plugins.html"><b>プラグイン一覧(Harness 概要)</b></a></li>
+</ul>
+<nav class="pager">
+  <a href="geo_search.html"><span class="dir">前へ</span><span class="title">geo_search</span></a>
+  <a class="next" href="geo_report.html"><span class="dir">次へ</span><span class="title">geo_report</span></a>
+</nav>
+  </main>
+  <aside class="toc"></aside>
+  </div>
+<script type="module" src="../assets/site.js"></script>
+</body>
+</html>

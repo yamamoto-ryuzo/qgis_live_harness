@@ -5,6 +5,42 @@ All notable changes to the QGIS Legend View plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0] - 2026-11-14
+
+### Added
+- `applyRules` のルール spec を拡張。`width`(線幅)・
+  `width_unit`('mm'|'pixels'|'map_units'|'meters'=実世界幅)・
+  `min_scale`/`max_scale`(縮尺分母の表示範囲。ルールは
+  min_scale < 分母 <= max_scale で有効)を受け付けるようにし、
+  縮尺帯で線幅が切替わるレンダラを作成可能にした。
+  geo_driver の scale_style サービス(標準線幅テーブル)からも
+  この spec で委譲される。`filter` は縮尺指定時に省略可
+- `legendSpec` のルール項目に `min_scale`/`max_scale`/`width`
+  を追加し、縮尺連動レンダラの内容を確認できるようにした
+
+## [2.7.0] - 2026-11-14
+
+### Added
+- **bridge に凡例作成系メソッドを追加**(AIチャットからの凡例作成に対応)。
+  - `legendSpec(layer)` — 現在のレンダラ(凡例)定義を取得
+    (type/field/項目のlabel・value・lower-upper・filter・color)
+  - `applyCategories(layer, field, ramp, labels, colors)` —
+    属性フィールドの個別値分類レンダラを作成
+  - `applyGraduated(layer, field, classes, ramp, method)` —
+    数値フィールドの階級区分レンダラを作成
+    (equal=等間隔 / quantile=分位数)
+  - `applyRules(layer, rules, else_label)` —
+    ルールベースレンダラを作成
+    (rules=[{"filter","label","color"}])
+  - `applySingleSymbol(layer, color)` — 単一シンボルへ戻す
+  - `addLayoutLegend(layout, title, x, y, w, h, layers, linked_map,
+    filter_by_map)` — 印刷レイアウトへ QgsLayoutItemLegend を追加
+    (layout省略で新規レイアウト自動作成、layersで対象限定)
+  - `exportLegendImage(path, layers, title, dpi)` —
+    凡例のみのPNG画像を出力
+- `pluginInfo` の summary/when_to_use に凡例作成用途を追記し、
+  describe_plugins 経由でAIが発見できるようにした
+
 ## [2.6.9] - 2026-11-13
 
 ### Changed

@@ -167,6 +167,10 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`geo_driver`)。
   APIを接続すると、モデルが `mcp_http.TOOLS` のツール群を
   `driver.submit()` 経由でループ実行する。リモート制御OFF時は
   パネル専用の内部ドライバで動く。
+  **AIチャットの実装時検討・ai-plane 検証に使うプロバイダは
+  無償の `devin_acp`(IDE の Devin サインインを使うため
+  APIキー不要・無料)を既定とする**。OpenAI/Anthropic/Gemini/
+  Copilot 等の有料 API はユーザー明示依頼がある場合のみ使う。
   指示書は2系統のMarkdown: `~/.qgis-live/agents/*.md` は
   常時注入(パネルで選択・複数対応)、`~/.qgis-live/skills/*.md` は
   一覧のみプロンプトに載せモデルがpyevalのopen()で読む

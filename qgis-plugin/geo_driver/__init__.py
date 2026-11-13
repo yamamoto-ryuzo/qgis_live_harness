@@ -131,6 +131,12 @@ class GeoDriverPlugin:
             self.layer_org = LayerOrganizer()
         except Exception:
             self.layer_org = None
+        # スケール連動の標準線幅サービス
+        try:
+            from .scale_style import ScaleStyler
+            self.scale_style = ScaleStyler()
+        except Exception:
+            self.scale_style = None
 
     def _init_language(self):
         """QGISの言語設定に合わせて i18n/<lang>.json を載せる。

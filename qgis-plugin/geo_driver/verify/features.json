@@ -1,7 +1,7 @@
 {
  "component": "geo_driver",
  "component_type": "qgis_plugin",
- "version": "0.15.3",
+ "version": "0.16.0",
  "driver": {
   "type": "qgis_live_harness",
   "detect": "GET http://127.0.0.1:<http_port>/api/health",
@@ -137,6 +137,24 @@
    "last_result": "pass",
    "last_verified": "2026-11-14T02:36:00+09:00",
    "note": "自己記述あり"
+  },
+  {
+   "id": "ai.skill.webgis-convert",
+   "kind": "ai_integration",
+   "name": "同梱スキル webgis-convert",
+   "source": "skills/webgis-convert.md",
+   "signature": "",
+   "summary": "WebGIS(KASUGAI Canvas)向け形式変換・レイヤ追加の手順書。モデルが ai_read_instruction で読む",
+   "needs_runtime": true,
+   "standalone_ok": false,
+   "depends": [],
+   "verify": {
+    "standalone": "",
+    "integrated": "ai_list_instructions→skills[]に id=webgis-convert & builtin、ai_read_instruction→title/desc/when+本文"
+   },
+   "last_result": "pass",
+   "last_verified": "2026-11-14T06:27:00+09:00",
+   "note": "実QGIS(pid28736)の instruction op=list で builtin=true・title/desc/when 正解を確認済"
   },
   {
    "id": "bridge.deployMode",
@@ -326,6 +344,111 @@
    "last_result": "pass",
    "last_verified": "2026-11-14T02:36:00+09:00",
    "note": "bridge_call応答あり args=[]"
+  },
+  {
+   "id": "bridge.applyScaleWidth",
+   "kind": "bridge_method",
+   "name": "applyScaleWidth",
+   "source": "bridge.py:316",
+   "signature": "applyScaleWidth(layer_id=…, category=…, scale=…, mode=…, profile=…, dry=…)",
+   "summary": "レイヤのレンダラに標準線幅を適用する(mode=mm|meters|rules)。",
+   "needs_runtime": true,
+   "standalone_ok": false,
+   "depends": [
+    "QGISプラグインロード",
+    "geo_driver"
+   ],
+   "verify": {
+    "standalone": "",
+    "integrated": "bridge_call applyScaleWidth(dry=True) → 応答assert"
+   },
+   "last_result": "untested",
+   "last_verified": "",
+   "note": "新規追加(未検証)。実適用はシンボル幅を変えるためdry=Trueで検証"
+  },
+  {
+   "id": "bridge.scaleStyleProfiles",
+   "kind": "bridge_method",
+   "name": "scaleStyleProfiles",
+   "source": "bridge.py:266",
+   "signature": "scaleStyleProfiles()",
+   "summary": "利用可能な標準線幅プロファイル一覧とアクティブを返す。",
+   "needs_runtime": true,
+   "standalone_ok": false,
+   "depends": [
+    "QGISプラグインロード",
+    "geo_driver"
+   ],
+   "verify": {
+    "standalone": "",
+    "integrated": "bridge_call scaleStyleProfiles → 応答assert"
+   },
+   "last_result": "untested",
+   "last_verified": "",
+   "note": "新規追加(未検証)"
+  },
+  {
+   "id": "bridge.scaleStyleTable",
+   "kind": "bridge_method",
+   "name": "scaleStyleTable",
+   "source": "bridge.py:276",
+   "signature": "scaleStyleTable(profile=…)",
+   "summary": "プロファイルの縮尺帯・カテゴリ別線幅テーブルを返す。",
+   "needs_runtime": true,
+   "standalone_ok": false,
+   "depends": [
+    "QGISプラグインロード",
+    "geo_driver"
+   ],
+   "verify": {
+    "standalone": "",
+    "integrated": "bridge_call scaleStyleTable → 応答assert"
+   },
+   "last_result": "untested",
+   "last_verified": "",
+   "note": "新規追加(未検証)"
+  },
+  {
+   "id": "bridge.setScaleStyleProfile",
+   "kind": "bridge_method",
+   "name": "setScaleStyleProfile",
+   "source": "bridge.py:288",
+   "signature": "setScaleStyleProfile(name)",
+   "summary": "アクティブな線幅プロファイルを切り替える(QSettings永続化)。",
+   "needs_runtime": true,
+   "standalone_ok": false,
+   "depends": [
+    "QGISプラグインロード",
+    "geo_driver"
+   ],
+   "verify": {
+    "standalone": "",
+    "integrated": "bridge_call setScaleStyleProfile → 応答assert"
+   },
+   "last_result": "untested",
+   "last_verified": "",
+   "note": "新規追加(未検証)。QSettingsへ書き込むため検証後は元に戻す"
+  },
+  {
+   "id": "bridge.suggestScaleWidth",
+   "kind": "bridge_method",
+   "name": "suggestScaleWidth",
+   "source": "bridge.py:296",
+   "signature": "suggestScaleWidth(layer_id=…, category=…, scale=…, profile=…)",
+   "summary": "レイヤ/カテゴリと縮尺から標準的な線幅を提案する。",
+   "needs_runtime": true,
+   "standalone_ok": false,
+   "depends": [
+    "QGISプラグインロード",
+    "geo_driver"
+   ],
+   "verify": {
+    "standalone": "",
+    "integrated": "bridge_call suggestScaleWidth → 応答assert"
+   },
+   "last_result": "untested",
+   "last_verified": "",
+   "note": "新規追加(未検証)"
   },
   {
    "id": "bridge.placeLayer",

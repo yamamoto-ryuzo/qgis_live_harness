@@ -3,6 +3,11 @@
 バージョン表記: VA.B.C
 - 例: V2.0.0（A=2, B=0, C=0）
 
+## V2.9.8 bridge createLayout の TypeError を修正
+- bridge.py: `QgsLayoutManager.generateUniqueTitle` はレイアウト名ではなく
+  レイアウト種別 enum を取るため QGIS4 で TypeError になっていた。
+  `layoutByName` の重複チェック+連番付与に置き換えて修正
+
 ## V2.9.7 Qt5 残存記述の除去
 - ui/loader.py: docstring/コメントの「QT5/QT6 の両方に対応」を
   Qt6 専用の記述へ修正(実装は既に Qt6 専用)
