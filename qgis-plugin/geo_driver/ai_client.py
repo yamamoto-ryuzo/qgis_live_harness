@@ -141,6 +141,7 @@ GITHUB_ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token"  # nosec
 PROVIDERS = {
     "openai": {
         "label": QT_TRANSLATE_NOOP("geo_driver", "OpenAI-compatible"),
+        "tag": "【API】",
         "base": DEFAULT_BASE_URL,
         "model": DEFAULT_MODEL,
         "key_hint": QT_TRANSLATE_NOOP(
@@ -152,6 +153,7 @@ PROVIDERS = {
     },
     "anthropic": {
         "label": "Anthropic (Claude)",
+        "tag": "【API】",
         "base": ANTHROPIC_DEFAULT_BASE,
         "model": ANTHROPIC_DEFAULT_MODEL,
         "key_hint": QT_TRANSLATE_NOOP(
@@ -161,6 +163,7 @@ PROVIDERS = {
     },
     "gemini": {
         "label": "Gemini",
+        "tag": "【API】",
         "base": GEMINI_DEFAULT_BASE_URL,
         "model": GEMINI_DEFAULT_MODEL,
         "key_hint": QT_TRANSLATE_NOOP(
@@ -170,6 +173,7 @@ PROVIDERS = {
     },
     "azure": {
         "label": "Azure OpenAI",
+        "tag": "【API】",
         "base": ("https://<resource>.openai.azure.com"
                  "/openai/deployments/<deployment>"),
         "model": AZURE_DEFAULT_MODEL,
@@ -181,6 +185,7 @@ PROVIDERS = {
     },
     "copilot": {
         "label": "GitHub Copilot",
+        "tag": "【API】",
         "base": COPILOT_DEFAULT_BASE,
         "model": COPILOT_DEFAULT_MODEL,
         "key_hint": QT_TRANSLATE_NOOP(
@@ -192,6 +197,82 @@ PROVIDERS = {
             "https://api.githubcopilot.com  (URL of a compatible "
             "proxy such as copilot-api)"),
     },
+    "devin_acp": {
+        "label": "Devin",
+        "tag": "【ACP】",
+        "base": "",
+        "model": "default",
+        "key_hint": QT_TRANSLATE_NOOP(
+            "geo_driver",
+            "not required (uses the IDE's Devin sign-in)"),
+        "endpoint_hint": QT_TRANSLATE_NOOP(
+            "geo_driver",
+            "working directory for Devin sessions "
+            "(default: user home)"),
+    },
+    "copilot_acp": {
+        "label": "GitHub Copilot",
+        "tag": "【ACP】",
+        "base": "",
+        "model": "default",
+        "key_hint": QT_TRANSLATE_NOOP(
+            "geo_driver",
+            "not required (uses the Copilot CLI / gh sign-in)"),
+        "endpoint_hint": QT_TRANSLATE_NOOP(
+            "geo_driver",
+            "working directory for Copilot CLI sessions "
+            "(default: user home)"),
+    },
+    "devin_bridge": {
+        "label": "Devin",
+        "tag": "【ブリッジ】",
+        "base": DEFAULT_BASE_URL,
+        "model": DEFAULT_MODEL,
+        "key_hint": QT_TRANSLATE_NOOP(
+            "geo_driver",
+            "API key of the backing OpenAI-compatible endpoint "
+            "(the chat LLM delegates work to Devin via the "
+            "qgis_devin_* tools)"),
+        "endpoint_hint": QT_TRANSLATE_NOOP(
+            "geo_driver",
+            "OpenAI-compatible endpoint driving the delegation chat "
+            "(e.g. https://api.openai.com/v1)"),
+    },
+    "copilot_bridge": {
+        "label": "GitHub Copilot",
+        "tag": "【ブリッジ】",
+        "base": DEFAULT_BASE_URL,
+        "model": DEFAULT_MODEL,
+        "key_hint": QT_TRANSLATE_NOOP(
+            "geo_driver",
+            "API key of the backing OpenAI-compatible endpoint "
+            "(the chat LLM delegates work to Copilot CLI via the "
+            "qgis_copilot_* tools)"),
+        "endpoint_hint": QT_TRANSLATE_NOOP(
+            "geo_driver",
+            "OpenAI-compatible endpoint driving the delegation chat "
+            "(e.g. https://api.openai.com/v1)"),
+    },
+}
+
+# プロバイダ種別タグ → 接続方式の説明(ツールチップ・ヘルプ用)
+PROVIDER_TAGS = {
+    "【API】": QT_TRANSLATE_NOOP(
+        "geo_driver",
+        "Direct LLM API — each message is sent to the model and the "
+        "panel runs the tool loop itself"),
+    "【ACP】": QT_TRANSLATE_NOOP(
+        "geo_driver",
+        "Agent session — a Devin/Copilot CLI session is the chat "
+        "engine and runs its own tool loop (the panel is a chat UI; "
+        "no API key needed — uses the CLI/IDE sign-in; the endpoint "
+        "field is the working directory)"),
+    "【ブリッジ】": QT_TRANSLATE_NOOP(
+        "geo_driver",
+        "Delegation chat — a normal API chat with injected "
+        "instructions to hand substantial work to an agent CLI via "
+        "the qgis_devin_* / qgis_copilot_* tools (the panel still "
+        "drives the tool loop; needs an API endpoint + key)"),
 }
 
 # ---- モデル一覧のメタ情報 ----
@@ -2708,9 +2789,234 @@ class AzureOpenAIProvider(OpenAIProvider):
         return data
 
 
+# ---- Devin プロバイダ ----
+#
+# "devin_bridge"(【ブリッジ】): 通常のOpenAI互換チャット + systemへ
+# 「qgis_devin_* ツールで実作業をDevinへ委譲せよ」という指示を注入
+# する疑似プロバイダ。ツールループはパネル側(従来どおり)。
+# "devin_acp"(【ACP】): Devin CLI の `devin acp` セッションをチャット
+# エンジンにする実プロバイダ。送信は session/prompt に流し、Devin
+# 自身がツールループを回す(geo_driver の /mcp をMCPサーバとして
+# 注入するので Devin からQGIS操作も可能)。APIキー不要でIDE認証を
+# 共有する。会話履歴はDevinセッション側に保持されるため、各ターン
+# は最新ユーザ発言だけを送る。
+
+_DEVIN_BRIDGE_HINT = """\
+[DELEGATION MODE] You are a delegation assistant. For any task that
+requires writing files, running commands, editing code, or other
+substantial work, delegate it to Devin via the qgis_devin_* tools
+instead of describing the work yourself:
+- qgis_devin_run(prompt, cwd, session_id, engine) starts a task and
+  returns task_id (engine "acp" works without `devin auth login`)
+- qgis_devin_status / qgis_devin_result monitor it (poll; tasks are
+  asynchronous and may take minutes — keep polling until done)
+- qgis_devin_abort cancels a running task
+Pass the returned session_id to later qgis_devin_run calls to continue
+the same Devin session. Report Devin's results to the user."""
+
+_COPILOT_BRIDGE_HINT = _DEVIN_BRIDGE_HINT.replace(
+    "Devin", "Copilot CLI").replace("qgis_devin_", "qgis_copilot_")
+
+# devin_acp セッションはcwd単位でモジュールに保持し、送信のたびに
+# 再利用する(プロバイダインスタンスは send ごとに作り直されるため)
+_ACP_SESSIONS = {}
+
+
+def _acp_mcp_servers():
+    """geo_driver自身の /mcp を Devin セッションへ渡す定義を返す。
+
+    Devin 側のツールループから qgis_pyeval 等が直接使えるようにする。
+    ドライバ未起動・QGIS外では空を返す。
+    """
+    try:
+        import qgis.utils  # noqa: PLC0415
+        plug = qgis.utils.plugins.get("geo_driver")
+        drv = getattr(plug, "driver", None)
+        port = getattr(drv, "http_port", None)
+        tok = getattr(drv, "token", None)
+        if port and tok:
+            return [{"type": "http", "name": "qgis-live",
+                     "url": f"http://127.0.0.1:{port}/mcp",
+                     "headers": [{"name": "Authorization",
+                                  "value": f"Bearer {tok}"}]}]
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return []
+
+
+def close_acp_sessions():
+    """devin_acp で開いた全セッションを閉じる(パネル破棄時)。"""
+    for s in list(_ACP_SESSIONS.values()):
+        try:
+            s.close()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+    _ACP_SESSIONS.clear()
+
+
+class DevinBridgeProvider(OpenAIProvider):
+    """【ブリッジ】OpenAI互換チャット + Devin委譲指示の注入。"""
+
+    id = "devin_bridge"
+    label = PROVIDERS["devin_bridge"]["label"]
+
+    def build_messages(self, system, history, user_text,
+                       user_images=None):
+        return super().build_messages(
+            _DEVIN_BRIDGE_HINT + "\n\n" + (system or ""),
+            history, user_text, user_images)
+
+
+class CopilotBridgeProvider(OpenAIProvider):
+    """【ブリッジ】OpenAI互換チャット + Copilot CLI委譲指示の注入。"""
+
+    id = "copilot_bridge"
+    label = PROVIDERS["copilot_bridge"]["label"]
+
+    def build_messages(self, system, history, user_text,
+                       user_images=None):
+        return super().build_messages(
+            _COPILOT_BRIDGE_HINT + "\n\n" + (system or ""),
+            history, user_text, user_images)
+
+
+class DevinAcpProvider:
+    """【ACP】`devin acp` セッションをチャットエンジンにする。
+
+    エンドポイント欄=セッションの作業ディレクトリ(cwd)、
+    APIキー欄=未使用(IDE認証を共有)、モデル欄=Devin側モデル
+    ("default"または空で未指定)。geo_driver の /mcp を
+    MCPサーバとして渡すので Devin からQGIS操作が可能。
+    """
+
+    id = "devin_acp"
+    label = PROVIDERS["devin_acp"]["label"]
+    ENGINE = "devin"
+
+    def list_model_entries(self, base, key, timeout=30.0):
+        return [{"id": "default"}]
+
+    def list_models(self, base, key, timeout=30.0):
+        return ["default"]
+
+    def build_messages(self, system, history, user_text,
+                       user_images=None):
+        # 履歴はDevin側が保持するため表示用の簡易形式のみ
+        msgs = [{"role": "system", "content": system}]
+        for m in history:
+            msgs.append({"role": m.get("role"),
+                         "content": m.get("content") or "",
+                         "images": m.get("images")})
+        msgs.append({"role": "user", "content": user_text,
+                     "images": list(user_images or [])})
+        return msgs
+
+    def _session(self, cwd, model):
+        """engine+cwd単位の常駐セッションを取得(無ければ生成)。"""
+        from . import devin_tasks  # noqa: PLC0415
+        cwd = os.path.abspath(os.path.expanduser(cwd or "~"))
+        skey = (self.ENGINE, cwd)
+        s = _ACP_SESSIONS.get(skey)
+        if s is not None and s._proc.poll() is not None:
+            s = None  # プロセスが死んでいたら作り直す
+        if s is None:
+            s = devin_tasks.AcpSession(
+                cwd, mcp_servers=_acp_mcp_servers(), mode="bypass",
+                model=None if model in (None, "", "default") else model,
+                engine=self.ENGINE)
+            _ACP_SESSIONS[skey] = s
+        return s
+
+    def send(self, base, key, model, system, msgs, timeout=180.0):
+        from . import devin_tasks  # noqa: PLC0415
+        sess = self._session(base, model)
+        last = msgs[-1] if msgs else {}
+        text = last.get("content") or ""
+        # 新規セッションの最初の発言にだけ system(指示書類)を前置
+        if not getattr(sess, "_sys_sent", False):
+            if system:
+                text = system + "\n\n---\n\n" + text
+            sess._sys_sent = True
+        blocks = []
+        if text.strip():
+            blocks.append({"type": "text", "text": text})
+        for p in last.get("images") or []:
+            try:
+                with open(p, "rb") as f:
+                    import base64
+                    blocks.append({
+                        "type": "image",
+                        "data": base64.b64encode(f.read()).decode("ascii"),
+                        "mimeType": "image/png"})
+            except OSError:
+                pass
+        if not blocks:
+            raise ApiError("empty prompt")
+        chunks = []
+
+        def on_update(u):
+            kind = u.get("sessionUpdate")
+            if kind == "agent_message_chunk":
+                t = ((u.get("content") or {}).get("text") or "")
+                if t:
+                    chunks.append(t)
+            cb = getattr(self, "on_event", None)
+            if cb:
+                try:
+                    cb(kind, u)
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+
+        sess.on_update = on_update
+        self._sess = sess
+        try:
+            res = sess.prompt(blocks)
+        except devin_tasks.TaskError as e:
+            raise ApiError(str(e))
+        usage = res.get("usage") or {}
+        return {"text": "".join(chunks),
+                "stop_reason": res.get("stopReason"),
+                "session_id": sess.session_id,
+                "usage": {"in": usage.get("inputTokens", 0),
+                          "out": usage.get("outputTokens", 0)},
+                "raw": res}
+
+    def parse(self, data):
+        return {"text": data.get("text") or "", "calls": [],
+                "raw": data.get("raw") or data,
+                "usage": data.get("usage")}
+
+    def append_exchange(self, msgs, turn, results):
+        # calls は常に空なので通常呼ばれない。テキストのみ積む
+        msgs.append({"role": "assistant",
+                     "content": turn.get("text") or ""})
+
+    def abort(self):
+        """パネルの中断ボタン → session/cancel。"""
+        s = getattr(self, "_sess", None)
+        if s is not None:
+            s.cancel()
+
+
+class CopilotAcpProvider(DevinAcpProvider):
+    """【ACP】`copilot --acp --stdio` セッションをチャットエンジンにする。
+
+    機構は DevinAcpProvider と同じで、エンジンと認証だけが異なる
+    (GitHub Copilot CLI の gh ログインを利用。windsurf_api_key 不要)。
+    """
+
+    id = "copilot_acp"
+    label = PROVIDERS["copilot_acp"]["label"]
+    ENGINE = "copilot"
+
+
 _PROVIDERS = {"openai": OpenAIProvider, "anthropic": AnthropicProvider,
               "gemini": GeminiProvider, "azure": AzureOpenAIProvider,
-              "copilot": CopilotProvider}
+              "copilot": CopilotProvider,
+              "devin_bridge": DevinBridgeProvider,
+              "copilot_bridge": CopilotBridgeProvider,
+              "devin_acp": DevinAcpProvider,
+              "copilot_acp": CopilotAcpProvider}
 
 
 def get_provider(provider):

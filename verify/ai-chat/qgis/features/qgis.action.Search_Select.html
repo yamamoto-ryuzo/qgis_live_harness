@@ -19,7 +19,7 @@ code{background:#f4f4f4;padding:1px 4px}pre{background:#f8f8f8;padding:.7em;over
   U[検証] --> C[exists_only]</pre>
 <pre>{
  &quot;type&quot;: &quot;exists_only&quot;,
- &quot;code&quot;: &quot;result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == &#x27;Search_Select&#x27; or a.text() == &#x27;Search / Select&#x27;])&quot;
+ &quot;code&quot;: &quot;result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == &#x27;Search_Select&#x27; or a.text() == &#x27;Search / Select&#x27;])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == &#x27;Search_Select&#x27; or _a.text() == &#x27;Search / Select&#x27;:\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())&quot;
 }</pre>
 <h2>検証手順</h2><ul>
 <li>tool: <code>-</code></li>
@@ -28,6 +28,6 @@ code{background:#f4f4f4;padding:1px 4px}pre{background:#f8f8f8;padding:.7em;over
 <li>cleanup: <code>-</code></li>
 </ul>
 <h2>最新結果</h2>
-<p class="pass">tool: pass / ai: untested / 判定: pass (2026-11-14T03:16:01+09:00)</p>
+<p class="pass">tool: pass / ai: no_llm / 判定: pass (2026-11-14T05:17:26+09:00)</p>
 <p></p>
 <p><a href="../index.html">index</a></p><script>mermaid.initialize({startOnLoad:true});</script></body></html>

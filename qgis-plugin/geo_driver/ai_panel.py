@@ -207,9 +207,15 @@ class AiPanel(QDockWidget):
         box = QGroupBox(self.tr("API settings"), root)
         form = QFormLayout(box)
         self.cmb_provider = QComboBox(box)
-        for pid in _PROVIDER_IDS:
-            self.cmb_provider.addItem(ai_client.tr_label(
-                ai_client.PROVIDERS[pid]["label"]), pid)
+        for i, pid in enumerate(_PROVIDER_IDS):
+            d = ai_client.PROVIDERS[pid]
+            self.cmb_provider.addItem(
+                d.get("tag", "") + ai_client.tr_label(d["label"]), pid)
+            tip = ai_client.PROVIDER_TAGS.get(d.get("tag"), "")
+            if tip:
+                self.cmb_provider.setItemData(
+                    i, d["tag"] + " " + ai_client.tr_label(tip),
+                    Qt.ItemDataRole.ToolTipRole)
         self.ed_endpoint = QLineEdit(box)
         self.ed_key = QLineEdit(box)
         self.ed_key.setEchoMode(QLineEdit.EchoMode.Password)
@@ -313,7 +319,18 @@ class AiPanel(QDockWidget):
         lbl.setStyleSheet("color:#666; font-size:11px")
         sr.addWidget(lbl, 1)
         self.w_signin.setVisible(False)
-        form.addRow(self.tr("Provider"), self.cmb_provider)
+        prov_row = QWidget(box)
+        pr = QHBoxLayout(prov_row)
+        pr.setContentsMargins(0, 0, 0, 0)
+        pr.addWidget(self.cmb_provider, 1)
+        btn_prov_help = QPushButton("?", prov_row)
+        btn_prov_help.setFixedWidth(24)
+        btn_prov_help.setToolTip(
+            self.tr("Explain the provider type tags "
+                    "【API】/【ACP】/【ブリッジ】"))
+        btn_prov_help.clicked.connect(self._provider_help)
+        pr.addWidget(btn_prov_help)
+        form.addRow(self.tr("Provider"), prov_row)
         form.addRow(self.tr("Endpoint"), self.ed_endpoint)
         form.addRow(self.tr("API key"), self.ed_key)
         form.addRow("", self.w_signin)
@@ -457,6 +474,19 @@ class AiPanel(QDockWidget):
         self.sig_signin.connect(self._on_signin)
         self.sig_open_url.connect(
             lambda u: QDesktopServices.openUrl(QUrl(u)))
+
+    def _provider_help(self):
+        """「?」ボタン: 【API】/【ACP】/【ブリッジ】の違いを説明する。"""
+        lines = []
+        for tag in ("【API】", "【ブリッジ】", "【ACP】"):
+            names = [ai_client.tr_label(ai_client.PROVIDERS[p]["label"])
+                     for p in _PROVIDER_IDS
+                     if ai_client.PROVIDERS[p].get("tag") == tag]
+            lines.append(
+                f"{tag} {', '.join(names)}\n"
+                f"　{ai_client.tr_label(ai_client.PROVIDER_TAGS[tag])}")
+        QMessageBox.information(
+            self, self.tr("Provider types"), "\n\n".join(lines))
 
     # ---- 設定の永続化 ----
 
@@ -842,6 +872,8 @@ class AiPanel(QDockWidget):
         取得済み一覧(_model_infos)のkindを優先し、手入力の未知
         モデルは classify_model の名前ヒントで推定する。
         """
+        if self._provider() in ("devin_acp", "copilot_acp"):
+            return True  # ACP promptCapabilities.image=true
         mid = (self._current_model()
                or ai_client.PROVIDERS[self._provider()]["model"])
         info = self._model_infos.get(mid)
@@ -1218,6 +1250,7 @@ class AiPanel(QDockWidget):
         self._alive = False
         self._signin_abort = True
         self._reset_mcp()
+        ai_client.close_acp_sessions()
 
     def _emit(self, sig, *args):
         """ワーカースレッドからのemit。パネル消去後は無視。"""
@@ -1345,6 +1378,13 @@ class AiPanel(QDockWidget):
         """送信ボタン: 実行中なら中断フラグを立てる。"""
         if self._busy:
             self._abort = True
+            prov = getattr(self, "_active_prov", None)
+            abort = getattr(prov, "abort", None)
+            if abort:
+                try:
+                    abort()  # devin_acp: session/cancel でターン中断
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
             self.lbl_status.setText(self.tr("Aborting…"))
             # 中断要求を受理したことが見えるようボタン側も変える
             self.btn_send.setText(self.tr("Aborting…"))
@@ -1561,6 +1601,13 @@ class AiPanel(QDockWidget):
             self._emit(self.sig_status, "")
             self._emit(self.sig_busy, False)
             return
+        self._active_prov = prov
+        # ACP系: ターン中の進行状況をステータス行へ流す
+        prov.on_event = lambda kind, u: self._emit(
+            self.sig_status,
+            "{0}: {1}".format(
+                ai_client.tr_label(prov.label),
+                u.get("title") or kind or "…"))
         self._ensure_mcp()
         system = self._build_system(plugins, cfg.get("agent"))
         msgs = prov.build_messages(

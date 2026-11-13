@@ -22,6 +22,10 @@ live dir は WEBENGINE_LIVE_DIR/qgis-<pid>/<plugin_id>/。
    "method": "pluginInfo", "args": [], "token": "..."}
   {"id": 7, "type": "describe_plugins", "token": "..."}
    ← 全プラグインのAI利用可能機能カタログ(bridge+pluginInfo集約)
+  {"id": 8, "type": "devin_run", "prompt": "...",
+   "cwd": "C:/repo", "token": "..."}
+   ← Devin CLI(devin -p)の非同期起動。devin_status/devin_result/
+   devin_abort で追跡・取得・中断する(devin_tasks.py)
 
 認証: 起動ごとにセッショントークンを生成し live_dir/token と
 レジストリJSONに書き出す(どちらもユーザ限定ACL)。ファイル経由
@@ -416,6 +420,11 @@ class LiveDriver:
         cid = cmd.get("id") or f"auto-{next(_AUTO_IDS)}"
         ctype = cmd.get("type", "eval")
         pid = cmd.get("plugin_id")
+        # devin_*/copilot_* は常にこのドライバが処理する
+        # (他プラグインへ転送しない)
+        if ctype.startswith("devin_") or ctype.startswith("copilot_"):
+            self._agent_task(cid, ctype, cmd, reply)
+            return
         # plugin_id が他プラグインを指すコマンドはそのドライバへ転送。
         # 結果は注入したreply経由でこのlive dirのresults.jsonlに返る。
         if pid and pid != __package__ and ctype not in _LOCAL_TYPES:
@@ -450,7 +459,7 @@ class LiveDriver:
             "pass plugin_id of a WebEngine plugin to route "
             "(eval/devreload/screenshot), or use "
             "pyeval/status/open_plugin/reload_plugin/bridge_call/"
-            "describe_plugins",
+            "describe_plugins/devin_*",
         })
 
     def _forward(self, cid, pid, cmd, reply):
@@ -513,6 +522,44 @@ class LiveDriver:
             else:
                 reply({"id": cid,
                        "error": f"op must be list|read|save|delete: {op!r}"})
+        except Exception:
+            reply({"id": cid, "error": traceback.format_exc()})
+
+    def _agent_task(self, cid, ctype, cmd, reply):
+        """qgis_devin_*/qgis_copilot_* ツールの実体。
+        エージェントCLI(devin -p / copilot -p / acp)の非同期タスク管理。
+
+        起動・状態確認ともブロックしない(Popen/ログ読みのみ)ため、
+        他コマンドと同じくGUIスレッドのdispatchで処理してよい。
+        """
+        from . import devin_tasks
+        try:
+            agent, _, op = ctype.partition("_")  # devin_run→(devin,run)
+            if op == "run":
+                reply({"id": cid, "result": devin_tasks.run(
+                    cmd.get("prompt") or "", cwd=cmd.get("cwd"),
+                    session_id=cmd.get("session_id"),
+                    model=cmd.get("model"),
+                    permission_mode=(cmd.get("permission_mode")
+                                     or "dangerous"),
+                    engine=cmd.get("engine") or "auto",
+                    agent=agent,
+                    live_dir=self.dir)})
+            elif op == "status":
+                reply({"id": cid, "result": devin_tasks.status(
+                    cmd.get("task_id"))})
+            elif op == "result":
+                reply({"id": cid, "result": devin_tasks.result(
+                    cmd.get("task_id") or "",
+                    tail=cmd.get("tail") or 20000)})
+            elif op == "abort":
+                reply({"id": cid, "result": devin_tasks.abort(
+                    cmd.get("task_id") or "")})
+            else:
+                reply({"id": cid, "error":
+                       f"op must be run|status|result|abort: {ctype!r}"})
+        except devin_tasks.TaskError as e:
+            reply({"id": cid, "error": str(e)})
         except Exception:
             reply({"id": cid, "error": traceback.format_exc()})
 

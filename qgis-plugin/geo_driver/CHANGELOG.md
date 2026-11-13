@@ -5,6 +5,47 @@
 
 ## [Unreleased]
 
+### Added
+- devin_tasks.py + mcp_http.py/live_driver.py: **Devin CLI 委譲ツール**
+  `qgis_devin_run`/`qgis_devin_status`/`qgis_devin_result`/
+  `qgis_devin_abort` を追加。Devinセッションを
+  バックグラウンドタスクとして起動し、task_id で状態ポーリング・
+  ログ取得・killできる。AIパネル・MCP・RESTの全経路から利用可。
+  エンジンは `engine` 引数で選択:
+  `acp`=`devin acp` をJSON-RPC駆動(IDE認証を共有するため
+  `devin auth login` 不要。session/load による再開、
+  session/request_permission 自動応答、permission_mode→
+  session/set_mode 写像 dangerous→bypass)、
+  `print`=`devin -p`(`devin auth login` 必須。
+  `--respect-workspace-trust false`/`--prompt-file`/`-r`/`--model`
+  対応)、`auto`(既定)=IDE認証があればacp・無ければprint
+- ai_client.py/ai_panel.py: **Devinをプロバイダとして追加**。
+  プロバイダ一覧の各項目に接続方式の種別タグ(【API】/【ACP】/
+  【ブリッジ】)を付与し、Devinを2形態で提供:
+  `devin_acp`(Devin【ACP】)=`devin acp` 常駐セッションをチャット
+  エンジンにし、Devin自身がツールループを回す
+  (devin_tasks.AcpSession: initialize→authenticate(IDE認証共有)→
+  session/new|load→session/prompt、session/cancel による中断、
+  geo_driver自身の /mcp をMCPサーバとして注入するため
+  DevinからQGIS操作も可能。エンドポイント欄=作業dir、
+  APIキー不要)。`devin_bridge`(Devin【ブリッジ】)=OpenAI互換
+  チャットへ qgis_devin_* ツール委譲指示を注入する疑似
+  プロバイダ(ツールループは従来どおりパネル側)。
+  `copilot_acp`(GitHub Copilot【ACP】)=`copilot --acp --stdio`
+  セッションを同じ機構で駆動(認証はCLI側のghログインに委譲、
+  authMethods提示時はbest-effortでauthenticateを試行)。
+  `copilot_bridge`(GitHub Copilot【ブリッジ】)=OpenAI互換
+  チャットへ qgis_copilot_* ツール委譲指示を注入する疑似
+  プロバイダ。コンボ各項目に種別説明ツールチップを付与し、
+  プロバイダ欄の「?」ボタンで3種別の違いをポップアップ表示
+- devin_tasks.py + mcp_http.py/live_driver.py: **Copilot CLI
+  委譲ツール** `qgis_copilot_run`/`qgis_copilot_status`/
+  `qgis_copilot_result`/`qgis_copilot_abort` を追加
+  (devin_tasks.run の agent 引数で共有。`copilot -p` は
+  node+npm-loader.js 直接起動でcmdクォート問題を回避、
+  dangerous=COPILOT_ALLOW_ALL=true で全ツール許可+dir信頼、
+  -r でセッション再開。acp engine も同ワーカーで対応)
+
 ### Fixed
 - ai_client.py: Copilot で `/chat/completions` を受け付けない
   **Responses API 専用モデル(GPT-6 系等)が送信エラーになる問題**

@@ -65,7 +65,9 @@ deployモードバッジ(開発モード/利用モードの常時表示)を載�
 **LLM APIを接続してQGISを対話操作するチャットドック**を開ける
 (`ai_panel.py` + `ai_client.py`)。
 
-- **プロバイダ**(コンボで選択。設定はプロバイダごとに別保存):
+- **プロバイダ**(コンボで選択。設定はプロバイダごとに別保存。
+  各項目の先頭には接続方式の種別タグ 【API】/【ACP】/【ブリッジ】
+  が付く):
   - **OpenAI互換**: Chat Completions
     (`POST {base}/chat/completions` + function calling)。
     エンドポイントを変えれば Ollama (`http://localhost:11434/v1`)・
@@ -115,6 +117,29 @@ deployモードバッジ(開発モード/利用モードの常時表示)を載�
     `GET /models` の `supported_endpoints`(未取得時は
     `model_not_supported` エラーからのフォールバック)で
     自動判別してルーティングする
+  - **Devin【ブリッジ】**: OpenAI互換チャットに「実作業は
+    `qgis_devin_*` ツールでDevinへ委譲せよ」という指示を注入する
+    疑似プロバイダ。ツールループは従来どおりパネル側で動く。
+    エンドポイント/APIキー/モデルは委譲元チャット用の
+    OpenAI互換接続先を設定する
+  - **GitHub Copilot【ブリッジ】**: OpenAI互換チャットに
+    「実作業は `qgis_copilot_*` ツールでCopilot CLIへ委譲せよ」
+    という指示を注入する疑似プロバイダ(Devin【ブリッジ】と同型)
+  - **Devin【ACP】**: Devin CLI(`devin acp`)のセッションを
+    チャットエンジンにするプロバイダ。送信は `session/prompt`
+    に流れ、ツールループはDevin自身が回す(geo_driverの `/mcp`
+    をMCPサーバとして渡すため、Devinから `qgis_pyeval` 等で
+    QGIS操作も可能)。**APIキー不要**でIDEのDevin認証
+    (credentials.toml の windsurf_api_key)を共有する。
+    エンドポイント欄はセッションの作業ディレクトリ
+    (既定: ホーム)。会話履歴はDevin側が保持するので
+    `session/load` 相当の継続会話になる。中断ボタンは
+    `session/cancel` でターンを止める
+  - **GitHub Copilot【ACP】**: GitHub Copilot CLI
+    (`copilot --acp --stdio`)のセッションをチャットエンジンにする。
+    機構は Devin【ACP】と同じで、認証はCLI側のghログインを使う
+    (APIキー欄は不要)。エンドポイント欄はセッションの
+    作業ディレクトリ
 - **モデル選択**: モデル欄は編集可コンボ。隣の「取得」ボタンで
   `GET {base}/models` から利用可能モデル一覧を取り込める
   (GeminiではgenerateContent非対応モデルを除外)。
@@ -200,7 +225,8 @@ deployモードバッジ(開発モード/利用モードの常時表示)を載�
   (`qgis_pyeval` / `qgis_screenshot` / `qgis_status` /
   `qgis_eval` / `qgis_devreload` / `qgis_open_plugin` /
   `qgis_reload_plugin` / `qgis_bridge_call` /
-  `qgis_instruction`)に加え、指示書を
+  `qgis_instruction` / `qgis_devin_*` / `qgis_copilot_*`)に加え、
+  指示書を
   読み書きするパネルローカルツール `ai_*`、および外部MCPサーバの
   ツール `mcp_*` をモデルに渡し、戻ってきたtool_callを
   `driver.submit()`(qgis_*)またはローカル実行(ai_*/mcp_*)で

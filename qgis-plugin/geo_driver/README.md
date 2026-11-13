@@ -71,7 +71,8 @@ items on this same toolbar.
 `Plugins > QGIS Live Driver > AI Assistant` opens a **chat dock that connects
 an LLM API to operate QGIS interactively** (`ai_panel.py` + `ai_client.py`).
 
-- **Providers** (combo selection; settings are stored per provider):
+- **Providers** (combo selection; settings are stored per provider; each
+  entry is prefixed with a type tag 【API】/【ACP】/【ブリッジ】):
   - **OpenAI-compatible**: Chat Completions
     (`POST {base}/chat/completions` + function calling).
     Change the endpoint to use Ollama (`http://localhost:11434/v1`),
@@ -119,6 +120,29 @@ an LLM API to operate QGIS interactively** (`ai_panel.py` + `ai_client.py`).
     (`POST {api}/responses`) and reject `/chat/completions`; the app detects
     this from `supported_endpoints` in `GET /models` (or falls back on a
     `model_not_supported` error) and routes those models automatically.
+  - **Devin【ブリッジ】(Devin bridge)**: an OpenAI-compatible chat with
+    an injected instruction to delegate substantial work to Devin via
+    the `qgis_devin_*` tools. The tool loop still runs in the panel as
+    usual; configure an OpenAI-compatible endpoint/key/model for the
+    delegation chat itself.
+  - **GitHub Copilot【ブリッジ】(Copilot bridge)**: an
+    OpenAI-compatible chat with injected instructions to delegate work
+    to Copilot CLI via the `qgis_copilot_*` tools (same shape as the
+    Devin bridge).
+  - **Devin【ACP】**: uses a Devin CLI session (`devin acp`) as the chat
+    engine. Messages are sent via `session/prompt` and Devin runs its
+    own tool loop (geo_driver's `/mcp` is passed as an MCP server, so
+    Devin can drive QGIS via `qgis_pyeval` etc.). **No API key
+    required** — it shares the IDE's Devin sign-in
+    (`windsurf_api_key` in credentials.toml). The endpoint field is the
+    session working directory (default: user home). Conversation
+    history lives in the Devin session; the Abort button cancels the
+    turn via `session/cancel`.
+  - **GitHub Copilot【ACP】**: uses a GitHub Copilot CLI session
+    (`copilot --acp --stdio`) as the chat engine. Same machinery as
+    Devin【ACP】, but authentication uses the CLI's gh sign-in (the API
+    key field is not required). The endpoint field is the session
+    working directory.
 - **Model selection**: the model field is an editable combo. The adjacent
   "Fetch" button imports the available model list from `GET {base}/models`
   (for Gemini, models without generateContent support are excluded). The list
@@ -209,7 +233,9 @@ an LLM API to operate QGIS interactively** (`ai_panel.py` + `ai_client.py`).
   (`qgis_pyeval` / `qgis_screenshot` / `qgis_status` /
   `qgis_eval` / `qgis_devreload` / `qgis_open_plugin` /
   `qgis_reload_plugin` / `qgis_bridge_call` /
-  `qgis_instruction`), plus panel-local `ai_*` tools for reading/writing
+  `qgis_instruction` / `qgis_devin_*` / `qgis_copilot_*`), plus
+  panel-local `ai_*` tools
+  for reading/writing
   instruction files, and external MCP server tools `mcp_*`. Returned
   tool_calls are processed via `driver.submit()` (qgis_*) or local execution
   (ai_*/mcp_*) in an agent loop (max 25 round trips).

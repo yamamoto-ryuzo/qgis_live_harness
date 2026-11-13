@@ -1638,3 +1638,70 @@ def test_extra_tools_register():
             ai_client.run_extra_tool("mcp_no", {})
     finally:
         ai_client.register_extra_tools([], {})
+
+
+# ---- Devin プロバイダ ----
+
+def test_provider_tags():
+    """全プロバイダに【API】/【ACP】/【ブリッジ】の種別タグが付く。"""
+    for pid, d in ai_client.PROVIDERS.items():
+        assert d.get("tag"), pid
+        assert d["tag"] in ("【API】", "【ACP】", "【ブリッジ】")
+    assert ai_client.PROVIDERS["devin_acp"]["tag"] == "【ACP】"
+    assert ai_client.PROVIDERS["devin_bridge"]["tag"] == "【ブリッジ】"
+    assert ai_client.PROVIDERS["copilot"]["tag"] == "【API】"
+
+
+def test_devin_providers_registered():
+    assert type(ai_client.get_provider("devin_acp")).__name__ == \
+        "DevinAcpProvider"
+    assert isinstance(ai_client.get_provider("devin_bridge"),
+                      ai_client.OpenAIProvider)
+
+
+def test_devin_bridge_injects_delegation_hint():
+    """【ブリッジ】は system 先頭へ Devin 委譲指示を注入する。"""
+    p = ai_client.get_provider("devin_bridge")
+    msgs = p.build_messages("BASE-SYSTEM", [], "do it")
+    assert msgs[0]["role"] == "system"
+    assert "qgis_devin_run" in msgs[0]["content"]
+    assert "BASE-SYSTEM" in msgs[0]["content"]
+
+
+def test_devin_acp_interface():
+    """【ACP】プロバイダの補助メソッド(実接続不要な部分)。"""
+    p = ai_client.get_provider("devin_acp")
+    assert p.list_models("", "", 5) == ["default"]
+    msgs = p.build_messages("SYS",
+                            [{"role": "user", "content": "hi"}],
+                            "next", user_images=["/tmp/x.png"])
+    assert msgs[-1]["images"] == ["/tmp/x.png"]
+    turn = p.parse({"text": "abc", "usage": {"in": 1, "out": 2}})
+    assert turn["text"] == "abc" and turn["calls"] == []
+    assert turn["usage"]["in"] == 1
+
+
+def test_copilot_acp_provider():
+    """【ACP】GitHub Copilot プロバイダも登録される。"""
+    d = ai_client.PROVIDERS["copilot_acp"]
+    assert d["tag"] == "【ACP】" and d["label"] == "GitHub Copilot"
+    p = ai_client.get_provider("copilot_acp")
+    assert type(p).__name__ == "CopilotAcpProvider"
+    assert p.ENGINE == "copilot"
+    assert p.list_models("", "", 5) == ["default"]
+
+
+def test_copilot_bridge_provider():
+    """【ブリッジ】GitHub Copilot は qgis_copilot_* 委譲指示を注入。"""
+    d = ai_client.PROVIDERS["copilot_bridge"]
+    assert d["tag"] == "【ブリッジ】"
+    p = ai_client.get_provider("copilot_bridge")
+    msgs = p.build_messages("S", [], "go")
+    assert "qgis_copilot_run" in msgs[0]["content"]
+    assert "Copilot" in msgs[0]["content"]
+
+
+def test_provider_tags_help_text():
+    """ポップアップ用のタグ説明が全タグ分ある。"""
+    for tag in ("【API】", "【ACP】", "【ブリッジ】"):
+        assert ai_client.PROVIDER_TAGS[tag]
