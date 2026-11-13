@@ -146,6 +146,21 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`geo_driver`)。
   bridge(`GeoLauncherBridge`)は status/isInstalled/launch/install/
   installStatus/uninstall/getSettings/setSettings/openDialog/
   openSettings/openDocs/pluginInfo を提供
+  `geo_webview/` は **KASUGAI Canvas 連携の責務プラグイン**。
+  `kasugai_export.py`(bridge `kasugaiExport`)で QGIS プロジェクトを
+  `.kasc+DATA/` へ送出し、`kasc_import.py`(bridge `kascInspect`/
+  `kascImport`)で逆方向(.kasc → QGIS 再構成)も担う。
+  同梱スキル `skills/webgis-convert.md`(QGIS→Canvas 変換手順・
+  形式選定・エンジン選択・高速化)と `skills/webgis-import.md`
+  (既存 WebGIS → QGIS 取り込み)が AI チャットの手順書。
+  **KASUGAI Canvas 本体(`C:\devin\kasugai_canvas`、
+  `web/shared/kasc.js` の行形式・オプション・エンジン・
+  qml-style.js/qml-2d.js の再現範囲)を拡張した場合は、必ず
+  この geo_webview 側にも連携して反映する**(kasugai_export.py の
+  行生成、kasc_import.py のパース/取り込み、skills/webgis-*.md の
+  仕様記述、verify/features.json、CHANGELOG/metadata.txt の同期)。
+  逆に geo_webview 側で .kasc 解釈を変えた場合も Canvas 側
+  `shared/kasc.js` との乖離を確認して整合させること
   `geo_driver/` はWebEngineを持たない制御専用プラグイン(pyeval+地図キャンバス
   スクショのみ)で、任意プラグインの遠隔操作基盤として常駐させられる。
   内蔵HTTPサーバ(`/mcp`=MCP Streamable HTTP、`/api/*`=REST)と

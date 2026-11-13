@@ -82,6 +82,7 @@ class GeoWebViewBridge:
         "外部端末からのアクセス可否(ファイアウォール等)を診断したい",
         "プロジェクトのマップテーマ/ブックマークを一覧・適用したい",
         "QGISキャンバスを /present・/screenshot で画面共有したい",
+        "既存の .kasc+DATA/(WebGISプロジェクト)をQGISへ取り込みたい",
     ]
     METHOD_DOCS = {
         "status": {
@@ -217,6 +218,32 @@ class GeoWebViewBridge:
                 "use_existing=True で再エクスポートせず既存の .kasc のみ"
                 "使用(未出力なら code=not_exported)。",
             "example": {"method": "kasugaiExport", "args": []},
+        },
+        "kascInspect": {
+            "description":
+                ".kasc(ローカルパスまたはURL)を解析し、レイヤ行・"
+                "ベースマップ・グループ・カメラ・未対応行の一覧を返す"
+                "(プロジェクトは変更しない dry run)。"
+                "DATA/ 等の相対参照は .kasc の所在から絶対化される。",
+            "example": {"method": "kascInspect",
+                        "args": ["C:/export/kasugai_canvas.kasc"]},
+        },
+        "kascImport": {
+            "description":
+                ".kasc+DATA/ を QGIS プロジェクトへ逆取り込みする。"
+                "xyz:/base:→XYZラスタ、wms:/wmts:→WMSラスタ、"
+                "geojson:/gpkg:/geoparquet:/flatgeobuf:/shp:/kml:→"
+                "ベクター(ogr)、duckdb:/csv:→delimitedtext、"
+                "mvt:/pmtiles:→ベクタータイル、3dtiles:→TiledScene、"
+                "geotiff:/image:→ラスタ。style=.qml・minScale=/maxScale=・"
+                "opacity=・where=・attr=・bbox=(クリッピング)・"
+                "グループ構造・| off・cam:(中心/縮尺/回転)・"
+                "group:折りたたみ・theme:・bookmark:も復元する。"
+                "replace=True で同ソースの前回取込を除去する冪等モード。"
+                "kasugaiExport の逆方向。",
+            "example": {"method": "kascImport",
+                        "args": [{"source":
+                                  "C:/export/kasugai_canvas.kasc"}]},
         },
         "checkAccess": {
             "description":
@@ -1137,6 +1164,54 @@ class GeoWebViewBridge:
         else:
             out["register_error"] = reg.get("error")
         return self._ok(out)
+
+    # ---------- .kasc 逆取り込み(WebGIS → QGIS) ----------
+
+    def kascInspect(self, source):
+        """.kasc を解析して一覧を返す(プロジェクト非変更の dry run)。
+
+        source: .kasc のローカルパスまたは http(s) URL。
+        レイヤ行(type/title/解決済ref/visible/opts)・ベースマップ・
+        グループ・カメラ・未対応行の集計を返す。
+        """
+        if not source:
+            return self._err("source (.kasc path or URL) is required")
+        try:
+            from . import kasc_import
+            return json.dumps(
+                kasc_import.inspect_kasc(source), ensure_ascii=False)
+        except Exception as e:
+            return self._err(f"kascInspect failed: {e}")
+
+    def kascImport(self, source=None, add_to_project=True,
+                   only_visible=False, apply_camera=True,
+                   group_prefix=None, replace=False):
+        """.kasc+DATA/ を QGIS プロジェクトへ逆取り込みする。
+
+        kasugaiExport の逆方向。レイヤ行を QGIS レイヤへ再構成し、
+        style=.qml・minScale=/maxScale=・opacity=・where=・attr=・
+        bbox=(マップクリッピング)・グループ構造・``| off``・
+        group:折りたたみ・theme:・bookmark:・cam:(中心/縮尺/回転)
+        を復元する。
+        only_visible=True で ``| off`` 行を取り込まない。
+        group_prefix 指定時は全レイヤをその名前のルートグループ配下へ。
+        replace=True で同じ source の前回取込分を除去してから
+        取り込む(再取込で重複しない)。
+        """
+        if not source:
+            return self._err("source (.kasc path or URL) is required")
+        try:
+            from . import kasc_import
+            rep = kasc_import.import_kasc(
+                source, iface=self._plugin.iface,
+                add_to_project=bool(add_to_project),
+                only_visible=bool(only_visible),
+                apply_camera=bool(apply_camera),
+                group_prefix=group_prefix or None,
+                replace=bool(replace))
+            return json.dumps(rep, ensure_ascii=False)
+        except Exception as e:
+            return self._err(f"kascImport failed: {e}")
 
     # ---------- 診断 / エンドポイント ----------
 

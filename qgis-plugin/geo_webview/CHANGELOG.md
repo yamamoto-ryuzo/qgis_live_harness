@@ -1,5 +1,52 @@
 # 変更履歴(Changelog)
 
+## Unreleased
+
+- `skills/webgis-convert.md` を追加(geo_driver から移動)。
+  geo_driver の同梱指示書集約がプラグイン別 `skills/` 対応になったため、
+  KASUGAI Canvas 向け変換・kasugaiExport の手順書は本プラグインの責務として同梱する
+
+## 4.14.0
+
+- **`.kasc` 逆取り込み機能を追加**(kasc_import.py + bridge
+  `kascInspect`/`kascImport`)。`kasugaiExport` の逆方向として、
+  `.kasc+DATA/`(ローカルパスまたは http(s) URL)を QGIS プロジェクトへ
+  再構成する。`xyz:`/`base:`→XYZラスタ、`wms:`/`wmts:`→WMSラスタ、
+  `geojson:`/`gpkg:`/`geoparquet:`/`flatgeobuf:`/`shp:`/`kml:`→
+  ベクター(ogr)、`duckdb:`/`csv:`/`tsv:`→delimitedtext(ローカル)または
+  ogr、`mvt:`/`pmtiles:`→ベクタータイル、`3dtiles:`→TiledScene、
+  `geotiff:`/`image:`→ラスタ、`fly_geojson:`→ベクター。
+  `style=`(.qml・リモートは一時DL)・`minScale=`/`maxScale=`・
+  `opacity=`・`where=`→subsetString・`attr=`/`出典`→attribution・
+  タイトルの `/` → レイヤツリーグループ(`//` は排他グループ)・
+  `| off`・`group:` 折りたたみ・`theme:` → マップテーマ・
+  `bookmark:` → bookmarks.xml インポート・`cam:` → キャンバス
+  中心/縮尺(送出側近似式 h=scale*0.2 の逆算)/回転を復元する。
+  `bbox=` は Canvas の描画範囲制限として、
+  setMapClippingRegion のあるQGIS系ではクリッピング領域、
+  無い系(QGIS4)ではラスタの setExtent(レイヤCRSへ変換した矩形)
+  へフォールバック適用する(ベクターは未対応として警告)。
+  theme: のレイヤ照合は NFKC 正規化+リーフ名でも行い、
+  空テーマは `レイヤ指定なし` と区別して警告する。
+  `kascInspect` はプロジェクトを変更しない dry run(集計+参照解決)。
+  応答は `added`/`skipped`(理由付き)/`warnings`(Canvas専用オプション=
+  extrude/time等の未適用を列挙)を返す。既存 WebGIS → QGIS →
+  再エクスポートの変換パイプラインの往路として、AIスキル
+  `webgis-import` から呼ばれる想定
+- `kascImport` に **`replace` オプション**(既定 False)を追加。
+  取込レイヤへ `kasc_source` カスタムプロパティ(正規化した
+  source キー)を付与し、replace=True では同キーの前回取込
+  レイヤと取込専用に作成した空グループを除去してから取り込む
+  冪等モード(応答 `replaced` に除去数)。同じ .kasc の
+  再取り込みで重複しない
+- **同梱 AI スキルを `skills/` に配置**(geo_driver の集約拡張で
+  `qgis-plugin/<id>/skills/*.md` が全プラグインから読めるようになった
+  ため責務プラグイン側へ移設): `skills/webgis-convert.md`
+  (geo_driver から移動・Canvas 向け形式変換の手順書)と
+  `skills/webgis-import.md`(新規・既存 WebGIS/.kasc の QGIS 取り込み
+  手順書。`kascInspect`/`kascImport` と汎用 Web ソースの
+  pyeval レシピを記載)の2本
+
 ## 4.13.1
 
 - 個別利用時にGeoSuiteツールバーが表示されない不具合を修正。

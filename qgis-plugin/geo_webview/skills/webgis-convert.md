@@ -70,6 +70,44 @@ Canvas の .qml コンパイラ(web/shared/qml-style.js)の対応範囲。**再�
 - **縮尺表示**: レイヤの「縮尺による表示」は `minScale=`/`maxScale=` としてそのまま維持される。WebGIS でも同じ切替になるので、変換時に適切な縮尺帯を設定しておく
 - **データ定義プロパティ**: 式の一部のみ評価可。複雑な式は事前に静的な値へ置き換える
 
+## エンジン選択(kasugaiExport の engine 引数)
+
+Canvas のエンジンは `cesium`/`maplibre`/`openlayers`/`leaflet`/`gsimaps`/`navara`。ライブラリ自体の一般知識は前提としてよいが、**エンジン別の .kasc 対応差は KASUGAI Canvas 固有**なので以下に従う:
+
+- **`cesium`(既定・推奨)**: QML 再現が最も忠実(`qml-style.js`+`cesium/qml-render.js`、ラベルデクラッター付)。`3dtiles:`/`terrain:`/`scene3d:`/`cam:` の pitch・heading は **cesium 専用**
+- **`maplibre`**: ベクタータイル主体なら選択肢。2D QML 適用+ラベル焼き込み(`bakeQmlLabels`)
+- **`openlayers`/`leaflet`**: 2D 汎用/軽量。QML は qml-2d.js 経由で近似度は cesium より低い(leaflet はマーカーを canvas 描画)
+- **`gsimaps`/`navara`**: 地理院地図系・産総研系のニッチエンジン。凡例/スタイルの対応は限定的。指定された場合のみ使い、能力差をユーザーへ断る
+
+迷ったら `cesium`。2D専用・軽量重視・エンジン固定の要件が明示された時だけ他を選ぶ。
+
+## 高速化チェックリスト
+
+大きい/重いデータは「形式」だけでなく、データ削減・描画抑制・転送最適化の3方向で対処する。
+
+### データ量の削減(QGIS 側の前処理)
+
+- **ジオメトリ簡略化**: `native:simplifygeometries`(tolerance は表示縮尺に合わせる)。境界線系の GeoJSON 化では効果が大きい
+- **不要列の削除**: `native:retainfields` で凡例・ラベル・検索に使う列だけ残す。属性列は転送量とパース時間に直結
+- **座標精度**: `native:savefeatures` の layerOptions(`COORDINATE_PRECISION=5` 程度=約1m)で GeoJSON を軽くできる(GDAL 側オプション)
+- **空間ソート**: GeoParquet/FlatGeobuf を書く前に地域順・ヒルベルト的な並びにすると duckdb: 範囲絞込みやタイル描画の局所性が上がる
+- **FlatGeobuf は空間インデックス必須** — インデックスがあると HTTP Range リクエストで「見る範囲だけ」読める(GDAL は既定で書く)。PMTiles/COG も同様に Range 対応ホスト前提
+- **超大規模ベクターはベクタータイル化**: `native:vectortilesmbtiles`/`native:vectortilesxyz` で mbtiles/ディレクトリタイル化 → `mvt:`/`pmtiles:` 行。数万〜の描画をタイル配信に逃がす最終手段
+
+### 描画側の抑制(.kasc オプション。エクスポート後の行編集またはCanvas側機能)
+
+- **`cluster=on`**: 密集ポイントは件数バッジでクラスタ表示(cesium。QML の pointCluster からも自動ON)
+- **`heat=`**: ポイント密度が主題ならヒートマップ化で個別描画を省略
+- **`bbox=`/`bounds=`/`extent=`**: 描画範囲を限定して範囲外のタイル取得・描画を止める
+- **`minZoom=`/`maxZoom=`**(タイル系)と **`minScale=`/`maxScale=`**(レイヤ縮尺): 見せる範囲・縮尺帯を絞る。重いレイヤと軽いレイヤを縮尺で切替える構成が最も効く
+- **ラベル**: cesium はデクラッター内蔵。逆に全件ラベルは重いので、ラベル用レイヤと地物レイヤを分けて縮尺帯で切替
+
+### 転送・配信の最適化
+
+- **バイナリ形式優先**: GeoJSON はテキスト解析が重い。GeoParquet/FlatGeobuf/PMTiles は転送量・デコード共に軽い
+- **タイル画像の形式**: 写真系は JPEG、線画・透過ありは PNG(`format=`/`transparent=`)
+- **Range リクエスト対応ホスト**を選ぶ: FlatGeobuf/PMTiles/COG/duckdb: の効果は Range 対応(GitHub Pages/S3/CloudFront 等)が前提。Range 非対応だと全量ダウンロードになる
+
 ## 送出・検証ループ
 
 1. 変換→追加→(必要なら placeLayer で整理)

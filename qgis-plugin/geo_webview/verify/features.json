@@ -1,7 +1,7 @@
 {
   "component": "geo_webview",
   "component_type": "qgis_plugin",
-  "version": "4.13.1",
+  "version": "4.14.0",
   "driver": {
     "type": "qgis_live_harness",
     "detect": "GET http://127.0.0.1:<http_port>/api/health",
@@ -944,6 +944,48 @@
       "last_result": "pass",
       "last_verified": "2026-11-14T02:32:22+09:00",
       "note": "bridge_call応答あり args=[]"
+    },
+    {
+      "id": "bridge.kascInspect",
+      "kind": "bridge_method",
+      "name": "kascInspect",
+      "source": "bridge.py",
+      "signature": "kascInspect(source)",
+      "summary": ".kasc を解析して一覧を返す(プロジェクト非変更の dry run)。",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [
+        "QGISプラグインロード",
+        "geo_driver"
+      ],
+      "verify": {
+        "standalone": "",
+        "integrated": "bridge_call kascInspect → counts/layers/bases 応答assert"
+      },
+      "last_result": "pass",
+      "last_verified": "2026-11-14T06:55:00+09:00",
+      "note": "実QGIS(pid28736)で sample_qgis.kasc 解析確認(11layers/37bases/16groups/2cams)。実体は kasc_import.inspect_kasc(stdlib)"
+    },
+    {
+      "id": "bridge.kascImport",
+      "kind": "bridge_method",
+      "name": "kascImport",
+      "source": "bridge.py",
+      "signature": "kascImport(source=…, add_to_project=…, only_visible=…, apply_camera=…, group_prefix=…)",
+      "summary": ".kasc+DATA/ を QGIS プロジェクトへ逆取り込みする。",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [
+        "QGISプラグインロード",
+        "geo_driver"
+      ],
+      "verify": {
+        "standalone": "",
+        "integrated": "bridge_call kascImport → added/skipped/warnings + pyeval でレイヤ実在assert"
+      },
+      "last_result": "pass",
+      "last_verified": "2026-11-14T07:40:00+09:00",
+      "note": "実QGIS(pid28736)で sample_qgis.kasc 取込確認(6vector+5base・cam/theme/group/style/bbox適用)。replace=True の再取込で replaced=11・重複なし、bbox= は setExtent(4326→3857変換)で適用、空テーマは区別警告。kasugaiExport の逆方向"
     },
     {
       "id": "bridge.listBookmarks",
