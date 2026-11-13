@@ -34,7 +34,7 @@ flowchart TB
 
 | 層 | 名前 | 役割 |
 |---|---|---|
-| QGIS側の手 | **QGIS Live Driver** (`qgis_live_driver`) | QGIS内で動く制御専用プラグイン。**このリポジトリに依存しない汎用部品**で、任意のQGISへ単独導入して遠隔操作面を得られる |
+| QGIS側の手 | **QGIS Live Driver** (`geo_driver`) | QGIS内で動く制御専用プラグイン。**このリポジトリに依存しない汎用部品**で、任意のQGISへ単独導入して遠隔操作面を得られる |
 | E2Eプラグイン開発・検証環境 | **QGIS Live Harness** (このリポジトリ全体) | Driverの操作面の上に乗る、クライアントAPI・セッション管理・ホットリロード・検証の基盤 |
 
 この上で回るのは **エージェンティックループ**: AIが「書く→devreloadで実機反映→
@@ -99,7 +99,7 @@ WebEngineプラグインを新規に作る場合は `qgis-plugin/<id>/` に
 開発対象を切り替えたい時は `plugin.config.json` の `id` を書き換える。
 `qgis-plugin/` に複数プラグインを置いても、live dirは `qgis-<pid>/<id>` で分離される。
 
-`qgis_live_driver` はこのリポジトリに依存しない汎用制御プラグインなので、
+`geo_driver` はこのリポジトリに依存しない汎用制御プラグインなので、
 遠隔操作だけ使いたい場合は QGISプラグインリポジトリから単体インストールすればよい
 (クローンもNodeも不要)。
 

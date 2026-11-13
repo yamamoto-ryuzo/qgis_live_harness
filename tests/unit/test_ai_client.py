@@ -14,8 +14,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
 
-from qgis_live_driver import ai_client, credential_store
-from qgis_live_driver.mcp_http import TOOLS, start_http
+from geo_driver import ai_client, credential_store
+from geo_driver.mcp_http import TOOLS, start_http
 
 
 # ---- URL/スキーマ変換 ----
@@ -150,8 +150,8 @@ def test_build_messages_with_images(tmp_path):
 
 
 def test_system_prompt_lists_plugins():
-    p = ai_client.system_prompt(["some_plugin", "qgis_live_driver"])
-    assert "some_plugin" in p and "qgis_live_driver" in p
+    p = ai_client.system_prompt(["some_plugin", "geo_driver"])
+    assert "some_plugin" in p and "geo_driver" in p
 
 
 # ---- Gemini ----

@@ -39,7 +39,7 @@
 <video src="images/AIがQGISを自動操縦する技術の全体像.mp4" controls muted playsinline style="max-width:100%"></video>
 <figcaption>解説動画: QGIS Live Driver — MCPからQGISを操作するドライバ</figcaption>
 </figure>
-<p><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/qgis_live_driver/README.md"><code>qgis-plugin/qgis_live_driver/</code></a> は
+<p><a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_driver/README.md"><code>qgis-plugin/geo_driver/</code></a> は
 <strong>UIを持たない制御専用プラグイン</strong>で、実行中QGISを外部から遠隔操作する面を提供する。
 <code>QWebEngineView</code> を持たないため、<strong>WebEngineを使わない任意のQGIS環境・
 任意の他プラグイン</strong>に対しても使える汎用部品。</p>
@@ -188,7 +188,7 @@ MCPを知らないfunction calling系AI・curl・自作エージェント向け<
 <p>②③はプラグイン内蔵の <code>http.server</code>(stdlibのみ・<code>127.0.0.1</code>・空きポート自動選択)が提供。
 ワーカースレッドが受けた命令は <code>driver.submit()</code> でメモリキューに入り、
 GUIスレッドのQTimerがファイルJSONLと同じ要領で実行する(dispatchは1本に統一)。
-ポート番号・live dir・認証トークン等の接続情報は <strong><code>~/.qgis-live/&lt;pid&gt;-qgis_live_driver.json</code></strong> に書き出され、
+ポート番号・live dir・認証トークン等の接続情報は <strong><code>~/.qgis-live/&lt;pid&gt;-geo_driver.json</code></strong> に書き出され、
 クライアントはここから自動検出できる(<code>QGIS_LIVE_REGISTRY</code>で変更可)。
 このファイルと <code>live_dir/token</code> はユーザ限定ACLで作成される。</p>
 <pre><code class="language-mermaid">flowchart TB
@@ -227,7 +227,7 @@ GUIスレッドのQTimerがファイルJSONLと同じ要領で実行する(dispa
 </thead>
 <tbody><tr>
 <td><code>GET /api/health</code></td>
-<td><code>{"ok":true,"pid":...,"plugin":"qgis_live_driver"}</code></td>
+<td><code>{"ok":true,"pid":...,"plugin":"geo_driver"}</code></td>
 </tr>
 <tr>
 <td><code>GET /api/tools</code></td>
@@ -261,7 +261,7 @@ GUIスレッドのQTimerがファイルJSONLと同じ要領で実行する(dispa
 <p>MCP tools は <code>qgis_&lt;コマンド種別&gt;</code> の命名で、引数はコマンドJSONの
 キーにそのまま対応する(<code>plugin_id</code> / <code>target</code> / <code>method</code> / <code>args</code> 等)。</p>
 <h3>ファイルプロトコル詳細</h3>
-<p>ドライバが起動すると <code>&lt;live_base&gt;/qgis-&lt;pid&gt;/qgis_live_driver/</code> をポーリングする
+<p>ドライバが起動すると <code>&lt;live_base&gt;/qgis-&lt;pid&gt;/geo_driver/</code> をポーリングする
 (live base は <code>WEBENGINE_LIVE_DIR</code> env、またはメニュートグル利用時は
 <code>~/.qgis-live/run</code>):</p>
 <pre><code>外部アプリ → commands.jsonl に1行1JSONを追記(各行に "token" 必須)
@@ -291,7 +291,7 @@ npm run live:ensure</code></pre>
 <li>親シェルのenvは <code>live:ensure</code> → powershell → <code>Start-Process</code> 経由でQGISへ引き継がれる。<strong>既にQGISがlive中の場合は再起動が必要</strong>(envは起動時に読む)</li>
 <li>認証は <code>Authorization: Bearer &lt;key&gt;</code> / <code>X-Api-Key:</code> / <code>api-key:</code> のいずれかのヘッダで行う(不一致は401)。Host/Origin がloopback以外を指すリクエストは403で拒否されるため、トンネル経由のHostヘッダでは <strong>403になる点に注意</strong>(外部公開は設計対象外)</li>
 <li><code>QGIS_LIVE_TOOLS</code> はコマンド種別名のカンマ区切り(<code>qgis_</code>前置も可、<code>*</code>または未設定で全許可)。<code>/mcp</code> の tools/list・tools/call と <code>/api/*</code> の両方に効く</li>
-<li>有効状態は <code>~/.qgis-live/&lt;pid&gt;-qgis_live_driver.json</code> の <code>http_tools</code> / <code>mcp_url</code> で確認できる</li>
+<li>有効状態は <code>~/.qgis-live/&lt;pid&gt;-geo_driver.json</code> の <code>http_tools</code> / <code>mcp_url</code> で確認できる</li>
 </ul>
 <h3>2. HTTPSで公開(トンネル)</h3>
 <p>Copilot Studioはクラウドのため公開URLが必要。ローカルポートをトンネルする:</p>
@@ -340,8 +340,8 @@ find-or-create方式)。ドライバ有効中は<strong>常時表示が強制</s
 <pre><code class="language-powershell"># このリポジトリからなら一括deploy(任意)
 powershell -ExecutionPolicy Bypass -File scripts/deploy-plugin.ps1 -Install
 
-# 手動でも可: qgis-plugin/qgis_live_driver/ を
-# python/plugins/qgis_live_driver/ へコピーし、QGISのプラグイン管理で有効化
+# 手動でも可: qgis-plugin/geo_driver/ を
+# python/plugins/geo_driver/ へコピーし、QGISのプラグイン管理で有効化
 </code></pre>
 <p>あとは <code>WEBENGINE_LIVE_DIR</code> を設定した状態でQGISを起動するか、
 プラグインメニューの <code>QGIS Live Driver → リモート制御 (localhostのみ)</code> を

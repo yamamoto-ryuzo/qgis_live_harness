@@ -2,7 +2,7 @@
 // live-drive.mjs の LivePage (ファイル経由JSONLチャネル) を薄く包み、
 // MCPツールとして公開する。QGIS未起動時は自動でensure( deploy+起動 )する。
 //
-// qgis_live_driver がlive中ならそこをhubとして使い、pluginIdは
+// geo_driver がlive中ならそこをhubとして使い、pluginIdは
 // plugin_idルーティングで各プラグインへ転送される(1窓口で全プラグイン制御)。
 // tools: qgis_ensure / qgis_pyeval / qgis_eval / qgis_bridge_call /
 //        qgis_screenshot / qgis_status / qgis_open_plugin /
@@ -53,12 +53,12 @@ async function liveDirs() {
 }
 
 // コマンド送信用のLivePageを返す。
-// qgis_live_driver が居ればそれをhubとして返し、pluginIdはplugin_id
+// geo_driver が居ればそれをhubとして返し、pluginIdはplugin_id
 // ルーティングとしてコマンドに載せる。居なければ対象プラグイン自身の
 // live dirへ直結し、pluginIdはundefinedにする(自身への送信にルーティング不要)。
 async function dispatchPage(pluginId) {
   const dirs = await liveDirs();
-  const ctrl = dirs.find((d) => d.pluginId === "qgis_live_driver");
+  const ctrl = dirs.find((d) => d.pluginId === "geo_driver");
   if (ctrl) return { page: new LivePage(ctrl.dir), pluginId };
   const t = dirs.find((d) => d.pluginId === pluginId)
     || dirs.find((d) => d.pluginId === PLUGIN_ID)

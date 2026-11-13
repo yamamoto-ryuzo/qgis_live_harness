@@ -8,14 +8,14 @@
 このリポジトリは「プラグイン製品」そのものではなく、
 **AIエージェントがQGISを自律駆動してプラグインを開発する環境**である。
 システム名は **QGIS Live Harness**(外側の装具=このリポジトリ)。
-QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`)。
+QGIS内に入る制御プラグインは **QGIS Live Driver**(`geo_driver`)。
 
 ```
 [エージェント/人間]
    │  MCP (scripts/qgis-mcp.mjs, stdio)  ← .devin/mcp_config.json で登録済
-   │  MCP (qgis_live_driver内蔵 /mcp, Streamable HTTP)
-   │  MCP (qgis_live_driver/mcp_stdio.py, 同梱stdio shim)
-   │  REST (qgis_live_driver内蔵 /api/*) または CLI (npm run live:*)
+   │  MCP (geo_driver内蔵 /mcp, Streamable HTTP)
+   │  MCP (geo_driver/mcp_stdio.py, 同梱stdio shim)
+   │  REST (geo_driver内蔵 /api/*) または CLI (npm run live:*)
    ▼
 [クライアント層] scripts/live-drive.mjs (LivePage) / qgis-session.mjs
    │  ファイルJSONL: commands.jsonl → results.jsonl
@@ -50,15 +50,16 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   (そのプラグインの変更履歴)をフォルダ内に持つ。
   upstreamリポジトリがあるプラグイン(geo_search=GEO-search-plugin、
   geo_webview=geo_webview、geo_report、geo_import、
-  QGIS-legendView-main=QGIS-legendView)の文書はupstream版を復元・追従し、
+  geo_legend=QGIS-legendView)の文書はupstream版を復元・追従し、
   Harness側での追加・変更はそのプラグインのCHANGELOGに
   新バージョンエントリとして記録する(metadata.txtのversionも同期して上げる)。
   **プラグイン固有の変更をルートのCHANGELOG.mdではなく
   プラグインのCHANGELOG.mdに書くのが原則**(ルートCHANGELOGは
   Harness基盤・横断的変更用)。upstreamに公開する場合はそちらにも反映する。
-  現在は `qgis_live_driver/` と検証対象 `geo_search/` `geo_webview/`
-  `geo_report/` `geo_import/` `QGIS-legendView-main/`、および
-  Harness生まれの `geo_excel/`(下記)と `geo_userfunc/`(下記)を管理する。
+  現在は `geo_driver/` と検証対象 `geo_search/` `geo_webview/`
+  `geo_report/` `geo_import/` `geo_legend/`、および
+  Harness生まれの `geo_excel/`(下記)と `geo_userfunc/`(下記)と
+  `geo_launcher/`(下記)を管理する。
   なお Rust 製 QGIS ランチャー（旧 `launcher/qgis_launcher`）は
   本 repo から撤去済みで、単体リポジトリ
   `yamamoto-ryuzo/kasugai_qgis`（`C:\devin\kasugai_qgis`）が正本。
@@ -74,7 +75,7 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
     junctionに置き換える(例: `<clone>/geo_report` → `qgis-plugin/geo_report`)。
     cloneが無い間はHarness側が唯一の正本
   - 「repoルート=プラグイン/コンテンツ」構造のupstream
-    (QGIS-legendView→QGIS-legendView-main、QGIS-exportExcel→geo_excel)は
+    (QGIS-legendView→geo_legend、QGIS-exportExcel→geo_excel)は
     subfolder junctionが張れないため、**upstream側の `.git` を
     `.upstream/<repo>.git` に退避し `core.worktree` を `qgis-plugin/<id>` に
     向けたgitdir運用**。直接叩く場合は
@@ -132,11 +133,25 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   `openManager` を提供し、AIが関数の発見・作成・登録・検証まで
   完結できる。管理ダイアログ(`manager_dialog.py`)は一覧/有効化/
   編集/URL取得/upstream更新を持ち、起動はGeoSuiteに集約
-  `qgis_live_driver/` はWebEngineを持たない制御専用プラグイン(pyeval+地図キャンバス
+  `geo_launcher/` は Rust 製 QGIS ランチャー `kasugai_qgis`
+  (C:\devin\kasugai_qgis)を QGIS 内から管理する連携プラグイン
+  (Harness生まれ)。kasugai_qgis は QGIS を起動すれば自動終了する
+  器なので、責務はインストール/アンインストールと GUI 窓オープンに
+  限定される(API サーバの起動・維持は行わない)。
+  未インストール時は GitHub Pages の `kasugai_qgis-setup.exe` を
+  QgsNetworkAccessManager で非同期DL(サイレント既定・進捗%表示)して
+  インストーラー実行、アンインストールは `uninstall.exe` を起動。
+  起動は `qgis_launcher.exe` を GUI(WebView2)モードで開く。
+  `qgis_launcher.exe --version` でバージョン取得、`PORTAL_USERROLE` で
+  この QGIS がランチャー経由起動かも表示する。
+  bridge(`GeoLauncherBridge`)は status/isInstalled/launch/install/
+  installStatus/uninstall/getSettings/setSettings/openDialog/
+  openSettings/openDocs/pluginInfo を提供
+  `geo_driver/` はWebEngineを持たない制御専用プラグイン(pyeval+地図キャンバス
   スクショのみ)で、任意プラグインの遠隔操作基盤として常駐させられる。
   内蔵HTTPサーバ(`/mcp`=MCP Streamable HTTP、`/api/*`=REST)と
   同梱stdio shim(`mcp_stdio.py`)も持ち、接続情報は
-  `~/.qgis-live/<pid>-qgis_live_driver.json` に書き出す(QGIS_LIVE_REGISTRYで変更可)。
+  `~/.qgis-live/<pid>-geo_driver.json` に書き出す(QGIS_LIVE_REGISTRYで変更可)。
   さらに **AIアシスタントパネル**(`ai_panel.py`+`ai_client.py`)を内蔵:
   `プラグイン > QGIS Live Driver > AI アシスタント` で開くQtドックで、
   OpenAI互換(`/chat/completions`。
@@ -172,7 +187,7 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   配下に解決されるもの=junction配置のみ。該当なしなら候補なし)を一覧し、
   選んだプラグインを手動で sys.modules掃除+reloadPlugin
   (+open_dialog再表示)する。「すべて再読込」も可
-  (qgis_live_driverは最後)。QGIS再起動・deploy不要で、
+  (geo_driverは最後)。QGIS再起動・deploy不要で、
   Node側 `npm run live:watch`(自動watch)の手動版に相当する。
   さらに **GeoSuite共有ツールバー**(`geo_toolbar.py`):
   管理対象プラグインのツールバー項目を1本の
@@ -188,16 +203,16 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
   (開発=「開発モード」の赤背景白文字、利用=歯車アイコンのみで
   非侵襲表示。5秒毎に deploy_state で自動更新、クリックで
   Deploy Modeダイアログ起動)を載せる。geo_search/geo_webview/geo_report/
-  geo_import/QGIS-legendView-main のツールバー項目は全て
+  geo_import/geo_legend のツールバー項目は全て
   GeoSuiteに集約済み。新規プラグインのツールバー項目も
   `addToolBarIcon` ではなくGeoSuiteへ載せること。
   さらに **レイヤ整理サービス**(`layer_org.py`):
   プラグイン横断で追加レイヤの表示を標準化する共有プリミティブ。
-  `plugins['qgis_live_driver'].layer_org.place_all([(layer, ctx)])`
+  `plugins['geo_driver'].layer_org.place_all([(layer, ctx)])`
   でプロファイルJSONのルールに従いグループ配置・リネーム・
   .qmlスタイル適用する。プロファイルは同梱 `<plugin>/layer_org/*.json`
   + ユーザ `~/.qgis-live/layer_org/*.json`(同名優先)の2階層で、
-  アクティブは QSettings `qgis_live_driver/layer_org/profile`
+  アクティブは QSettings `geo_driver/layer_org/profile`
   (bridge `setLayerOrgProfile` で切替)。ルールは match キー
   (format/ext/provider/layer_type/geom/plugin/name_re/dataset_re/
   url_re/tags)の全キーAND先勝ちで、groupパス(`/区切り`)/rename
@@ -214,7 +229,7 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
 - `qgis-plugin/<id>/ui/src/mock-bridge.js` — Pythonブリッジのモック。**bridgeメソッド追加時は必ず同期更新**
 - `qgis-plugin/<id>/bridge.py` — AI/外部制御用ブリッジ(**このrepoで管理する
   プラグインはAI制御フル対応を前提とする**)。`<id>Bridge` クラスを定義し
-  `plugin.bridge` に配線すると、`qgis_live_driver` の `bridge_call`
+  `plugin.bridge` に配線すると、`geo_driver` の `bridge_call`
   (ファイルJSONL / REST /api/cmd / MCP `qgis_bridge_call` /
   AIアシスタントパネル)と `describe_plugins` カタログから利用できる。
   フル対応の要件:
@@ -227,9 +242,9 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
     (geo_excelの _DialogAutoReply 参照)
   - GUIスレッドを長時間占有する処理はその旨をdocstringに明記する
   実装例は `geo_search/bridge.py`(高機能)と `geo_excel/bridge.py`(小規模)。
-  **全管理プラグインが配線済み**: `qgis_live_driver`・`geo_search`・
+  **全管理プラグインが配線済み**: `geo_driver`・`geo_search`・
   `geo_webview`・`geo_excel`・`geo_userfunc`・`geo_report`・`geo_import`・
-  `QGIS-legendView-main`
+  `geo_legend`・`geo_launcher`
   (新規プラグイン追加時もbridge.py同梱が前提)
   なお **bridgeを持たないプラグインにもドライバ側の汎用アダプタ
   `live_driver._GenericBridge` が自動フォールバックする**
@@ -242,7 +257,7 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`qgis_live_driver`
 - `plugin.config.json` — 開発・検証対象プラグインのID(qgis-plugin/下のフォルダ名)。
   **文字列または配列**: 先頭=主開発対象(MCPツール等のデフォルトpluginId)、
   全要素=live:reload/test:liveの対象。現在は
-  `["geo_search","geo_webview","geo_report","geo_import","geo_excel","geo_userfunc","QGIS-legendView-main","qgis_live_driver"]`。
+  `["geo_search","geo_webview","geo_report","geo_import","geo_excel","geo_userfunc","geo_legend","geo_launcher","geo_driver"]`。
   live dirを持たない対象(geo_search等)はtest:liveでhubドライバ経由の
   open_plugin/pyeval/run()/スクショが検証される
 - `tests/e2e/` — Playwrightテスト(L1=mock)。**現在specなし**
@@ -303,7 +318,8 @@ npm run test:unit
 ### L2: 実QGISでの検証
 
 **標準の検証対象プラグインは `geo_search`・`geo_webview`・`geo_report`・
-`geo_import`・`geo_excel`・`geo_userfunc`・`QGIS-legendView-main`**(実体は
+`geo_import`・`geo_excel`・`geo_userfunc`・`geo_legend`・
+`geo_launcher`**(実体は
 `qgis-plugin/<id>` = このrepoのgit管理対象。
 deploy先 `geo_custom/python/plugins/<id>` はここへのjunction。
 upstream同期は `.upstream/` 経由(前述。いずれもHarness側が正本)。Qt Widgetsプラグインでrepo側編集→`reload_plugin`で即反映できる。
@@ -748,7 +764,7 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
   pluginInfo() をこのスキーマで実装すること
 - **`plugin_id` ルーティング(ハブ)**: `eval`/`pyeval`/`screenshot`/`devreload`
   に `plugin_id` を付けるとそのプラグインのLiveDriverへ転送され、結果は
-  呼び出し元のresults.jsonlに返る。qgis_live_driver のlive dir 1箇所
+  呼び出し元のresults.jsonlに返る。geo_driver のlive dir 1箇所
   (または内蔵HTTPポート1本)で全プラグインを制御できる。pyeval転送は
   対象プラグインの名前空間(その `view`/`driver`)で実行される。
   `screenshot` は `target` 指定可: driver側 canvas|mainwindow、
@@ -775,12 +791,12 @@ CDPポートは開くが `connectOverCDP` は Browser context 非対応で失敗
   `qgis_describe_plugins` / `qgis_screenshot` / `qgis_status` /
   `qgis_open_plugin` / `qgis_devreload` / `qgis_reload`。
   各toolは内部でensureするためQGIS未起動でも自動で立ち上がる。
-  qgis_live_driver がlive中ならhubとして使い、`pluginId`引数は
+  geo_driver がlive中ならhubとして使い、`pluginId`引数は
   plugin_idルーティングに載る。stdoutはプロトコル専用のためログはstderrに出る。
   **MCPサーバプロセスは起動時のコードを保持する**ため、
   scripts/*.mjs 変更後はクライアント側でサーバ再起動が必要
   (旧コードが死んだlive dirを拾ってコマンド喪失→タイムアウトになる事例あり)
-  **プラグイン側にもMCP/REST面がある**: `qgis_live_driver` が `POST /mcp`
+  **プラグイン側にもMCP/REST面がある**: `geo_driver` が `POST /mcp`
   (Streamable HTTP)と `POST /api/*`(REST、汎用 `/api/cmd` 含む)を内蔵し、
   同梱 `mcp_stdio.py` がstdioクライアントをファイルJSONLへ中継する(Node不要)。
   toolsは `qgis_<コマンド種別>` の命名でドライバの全コマンドに対応

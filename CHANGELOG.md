@@ -18,10 +18,10 @@
 
 - **GeoSuite共有ツールバー**: 管理対象プラグインのツールバー項目を
   1本の `QToolBar`("GeoSuite")に集約(find-or-create方式、
-  `qgis_live_driver/geo_toolbar.py` + 各プラグインの同形ヘルパ)。
+  `geo_driver/geo_toolbar.py` + 各プラグインの同形ヘルパ)。
   ツールバー先頭にドライバがモードバッジ(開発モード/利用モードの
   常時表示、クリックでDeploy Modeダイアログ起動、5秒毎自動更新)を載せ、
-  geo_search/geo_webview/geo_report/geo_import/QGIS-legendView-main の
+  geo_search/geo_webview/geo_report/geo_import/geo_legend の
   ツールバー項目はプラグインツールバーからGeoSuiteへ移行した
 
 ### Fixed
@@ -35,6 +35,18 @@
 
 ### Changed
 
+- **プラグイン ID を `geo_` シリーズに統一**:
+  `qgis_live_driver` → `geo_driver`、
+  `kasugai_launcher` → `geo_launcher`、
+  `QGIS-legendView-main` → `geo_legend` にリネーム
+  (フォルダ名=IDの規約に従いディレクトリごと)。
+  ブリッジ `pluginId`・QSettings プレフィックス・
+  `tr` コンテキスト・`<pid>-<id>.json` レジストリ・
+  ホットリロード `CTRL_ID`・`.devin/mcp_config.json`・
+  `plugin.config.json`・docs/AGENTS/テスト/スクリプトの
+  参照をすべて新IDへ移行。geo_custom プロファイルの
+  junction も新名で張り替え済み。旧IDの QSettings 値は
+  残置されるが読み込みはされない
 - **deployを「dev/use 明示モード」制に変更**
   (`scripts/qgis-session.mjs`・`deploy-plugin.ps1`・`setup.ps1`):
   `ensure`/`reload`/`setup` が `deploy-plugin.ps1 -Copy` を呼んでおり、
@@ -111,7 +123,7 @@
 ### Changed
 
 - **ホットリロードメニューの対象を `qgis-plugin/` 内プラグインに限定**
-  (qgis_live_driver 0.11.0、`hot_reload.py`): 従来は
+  (geo_driver 0.11.0、`hot_reload.py`): 従来は
   plugin.config.json のid優先・見つからない場合はロード中の全
   プラグイン(サードパーティ含む)が候補になっていた。deploy先の
   各プラグインのrealpathが `<repo>/qgis-plugin/` 配下に解決される
@@ -121,8 +133,8 @@
   ため、実行するとjunctionが実体コピーに戻り候補は空になる
   (再有効化は `npm run deploy`)
 - **全プラグインの国際化(i18n)**: `qgis-plugin/` 下の全管理プラグイン
-  (qgis_live_driver/geo_search/geo_webview/geo_report/geo_import/
-  QGIS-legendView-main/geo_excel)のUI・ログ文字列を英語ソースに統一し、
+  (geo_driver/geo_search/geo_webview/geo_report/geo_import/
+  geo_legend/geo_excel)のUI・ログ文字列を英語ソースに統一し、
   Qt翻訳(`.ts`→`.qm`)経路を整備。日本語カタログを全件翻訳済みで
   再コンパイルし、実行時翻訳を実QGISで検証済み。
   `AGENTS.md` に「英語ソース+日本語ドキュメント併存」の多言語化
@@ -131,8 +143,8 @@
   (ja/de/es/fr/it/pt/ru/zh/hi。geo_search・geo_report・geo_importが
   upstreamから継承している既存共通セット)を `AGENTS.md` に明記し、
   不足していたプラグインにカタログを追加 —
-  geo_excel/geo_webview/qgis_live_driver に de/es/fr/hi/it/pt/ru/zh、
-  QGIS-legendView-main に hi/pt/ru を追加(全プラグイン9言語同梱)。
+  geo_excel/geo_webview/geo_driver に de/es/fr/hi/it/pt/ru/zh、
+  geo_legend に hi/pt/ru を追加(全プラグイン9言語同梱)。
   各プラグインのCHANGELOG参照(0.12.0/4.2.0/3.14.0/2.5.0/2.6.0/
   2.5.0/1.5.0)。
 
@@ -140,7 +152,7 @@
 
 ### Added
 
-- **メニュー「ホットリロード」**(qgis_live_driver 0.9.0、
+- **メニュー「ホットリロード」**(geo_driver 0.9.0、
   `hot_reload.py`): 「プラグイン > QGIS Live Driver >
   ホットリロード」サブメニューから開発対象
   (plugin.config.jsonのid)を選んで手動reloadPluginする。
@@ -152,13 +164,13 @@
   viewを持てば `devreload`、それ以外(本体 `*.py`/`.ui` 等を含む)は
   `reload_plugin` を自動選択して送信する。debounce(既定500ms)で
   連続保存をまとめ、変更が複数プラグインに跨る場合は制御面の
-  `qgis_live_driver` を最後にリロード。`--plugin <id>` で監視対象の
+  `geo_driver` を最後にリロード。`--plugin <id>` で監視対象の
   絞込、`--debounce <ms>` で待ち調整が可能。QGIS未起動なら
   ensureで自動起動し、コマンド消失系の失敗時はensureして1回リトライ。
   junction配置が前提(-Copy配置は先に `deploy:copy`)
 - **upstreamプラグイン4件を `qgis-plugin/` に組み込み**:
   `geo_report`(yamamoto-ryuzo/geo_report)・`geo_import`(geo_import)・
-  `QGIS-legendView-main`(QGIS-legendView、repoルート=プラグイン構造を
+  `geo_legend`(QGIS-legendView、repoルート=プラグイン構造を
   そのまま配置)を実体git管理で取り込み、`plugin.config.json` の id 配列に
   追加して test:live/live:reload の検証対象にした。
   geo_report/geo_importは `C:\devin/<repo>` にcloneしてプラグイン
@@ -175,7 +187,7 @@
   実行時置換、PyQt5固定importはexec直前のソース書き換えで
   `qgis.PyQt` に変換(Qt6対応)。
 - **管理プラグイン全件のAI制御フル対応**: `geo_report`・`geo_import`・
-  `QGIS-legendView-main` にも `bridge.py`(`GeoReportBridge`/
+  `geo_legend` にも `bridge.py`(`GeoReportBridge`/
   `GeoImportBridge`/`LegendViewBridge`)を新設し `plugin.bridge` に配線。
   `bridge_call`/`describe_plugins` から利用可能(geo_search・geo_webview・
   geo_excelは既対応。repo管理プラグインはbridge.py+pluginInfo標準スキーマが
@@ -184,13 +196,13 @@
 - **管理プラグイン全件をQGIS4以降専用に更新**: 残っていた
   `qgisMinimumVersion=3.40` を全件 `4.0` に統一
   (`geo_excel` 1.3.0 / `geo_import` V2.5.0 / `geo_report` 2.4.0 /
-  `geo_webview` 3.12.0 / `QGIS-legendView-main` 2.2.0。
-  geo_search・qgis_live_driverは既に4.0起点)。
+  `geo_webview` 3.12.0 / `geo_legend` 2.2.0。
+  geo_search・geo_driverは既に4.0起点)。
   併せて全プラグインの `homepage`/`tracker`/`repository` を
   upstream個別repoから Harness repo の `qgis-plugin/<id>` 配下
   (tree/master)・issues に統一(正本はHarness側のため)。
   author を `yamamoto-ryuzo` に統一し、ライセンスをGPL-3.0
-  (geo_importのみMIT継続)に統一。`QGIS-legendView-main` はQt5
+  (geo_importのみMIT継続)に統一。`geo_legend` はQt5
   対応コードを完全削除してQt6専用化、`plugin.config.json` に
   `geo_excel` を追加して全管理プラグインを検証対象にした
 - **管理プラグイン全件のQt5/フォールバック残存を一掃**: 実機QGIS4では
@@ -199,18 +211,18 @@
   `exec_()`・動的enum解決(getattr/`hasattr`フォールバック)を削除し
   Qt6スコープenumに統一。`geo_import/update_translations.py` は
   pylupdate6専用に、`resources_rc.py` のPyQt5由来ヘッダーも整理。
-  `QGIS-legendView-main` の旧upstream文書 `README.txt`/`README.html` を削除。
+  `geo_legend` の旧upstream文書 `README.txt`/`README.html` を削除。
   `geo_import` CHANGELOG/metadataの `V` 接頭辞を全エントリで除去
   (geo_excelのupstreamスクリプト内 `PyQt5` 記述は exec直前の
   ソース書き換え設計として意図的に維持)
-- **bridge未搭載プラグインへの汎用アダプタ**(`qgis_live_driver` 0.5.0):
+- **bridge未搭載プラグインへの汎用アダプタ**(`geo_driver` 0.5.0):
   `live_driver._GenericBridge` が `plugin.bridge` を持たない
   プラグイン(mmqgis等のサードパーティ製含むロード済み全件)に
   `pluginInfo`/`status`/`actions`/`trigger`/`run`/`openDialog`/
   `closeDialog` を提供。`run`/`trigger` はQTimer.singleShotで
   非同期発火するためmodalダイアログを開いても応答をブロックしない。
   `describe_plugins` では `generic: true` としてmetadata由来の
-  自己記述が載る。また `qgis_live_driver` 自身にも
+  自己記述が載る。また `geo_driver` 自身にも
   `bridge.py`(`QgisLiveBridge`)を配線しカタログに自己記述を追加
 - `geo_excel` に **AI向けブリッジ**(`bridge.py` の
   `GeoExcelBridge`)を追加し `plugin.bridge` に配線。
@@ -226,10 +238,10 @@
   THEMES_JP.md / CHANGELOG.md を復元し V4.1.0(bridge追加)を追記、
   metadata 4.1.0へ。`geo_webview`: upstreamから README.md /
   README_JP.md / SPEC.md / SPEC_JP.md / CHANGELOG.md を復元。
-  `qgis_live_driver`: CHANGELOG.md 新設、metadata 0.4.0へ
+  `geo_driver`: CHANGELOG.md 新設、metadata 0.4.0へ
 - **AI向けプラグインカタログ**(`describe_plugins` コマンド):
   「どのプラグインをいつどう使うか」をAIが発見するための集約機構。
-  `qgis_live_driver` がロード済み全プラグインを列挙し、bridgeを持つ
+  `geo_driver` がロード済み全プラグインを列挙し、bridgeを持つ
   ものは各 `pluginInfo()` の自己記述(標準スキーマ:
   `id/name/summary/when_to_use/invoke/methods[{name,signature,
   description,example}]/state`)を集約して返す。ファイルJSONL /
@@ -241,7 +253,7 @@
   (methodsは `inspect.signature`+docstring自動生成+`METHOD_DOCS`補足)
 - `geo_search`: **AI/外部制御用ブリッジ**(`bridge.py` の
   `GeoSearchBridge`)を追加し `plugin.bridge` に配線。
-  `qgis_live_driver` の既存 `bridge_call` コマンドが
+  `geo_driver` の既存 `bridge_call` コマンドが
   `plugins['geo_search'].bridge.<method>(*args)` をプロセス内で直接
   呼ぶため、ファイルJSONL / REST `/api/cmd` / MCP `qgis_bridge_call`
   (AIアシスタントパネル含む)の全経路から利用できる。
@@ -264,7 +276,7 @@
   `tabSetting`・`addTabFromCurrentLayer`・`removeTab`・
   `reloadDialog`(タブ管理・設定由来を跨ぐ削除・再構築)。
   `search` に `options` 引数を追加(検索前にオプション適用可能)
-- `qgis_live_driver` 0.3.0: **AIアシスタントパネル**を追加。
+- `geo_driver` 0.3.0: **AIアシスタントパネル**を追加。
   `プラグイン > QGIS Live Driver > AI アシスタント` で開くチャット型
   エージェントドック(Qt Widgets)。**OpenAI互換API**
   (`{base}/chat/completions` + function calling)と **Gemini API**
@@ -342,7 +354,7 @@
 - **サンプルプラグイン `webengine_plugin` を削除**(`qgis-plugin/webengine_plugin/`)。
   併せてその固有テスト(`tests/e2e/plugin-ui.spec.ts`、`tests/unit/test_logic.py`)と
   テンプレート生成スクリプト `scripts/new-plugin.mjs`(`npm run new:plugin`)を除去。
-  `plugin.config.json` の既定idは `qgis_live_driver`。L1基盤
+  `plugin.config.json` の既定idは `geo_driver`。L1基盤
   (`playwright.config.ts`/`serve-ui.mjs`)は残置(WebEngineプラグイン追加時に
   specを再作成すれば再利用可)
 
@@ -364,12 +376,12 @@
 
 同梱プラグインはリポジトリとは別のバージョン系で管理する:
 
-- `qgis_live_driver`: 0.2.0 (experimental)
+- `geo_driver`: 0.2.0 (experimental)
 - `webengine_plugin` (サンプル): 0.1.0 (experimental)
 
 ### Added
 
-- **QGIS Live Driver** (`qgis-plugin/qgis_live_driver`): QGIS内で動く制御専用プラグイン
+- **QGIS Live Driver** (`qgis-plugin/geo_driver`): QGIS内で動く制御専用プラグイン
   - ファイルJSONL(`commands.jsonl` → `results.jsonl`)によるコマンド実行
     (`eval` / `pyeval` / `screenshot` / `devreload` / `status` /
     `open_plugin` / `reload_plugin` / `bridge_call`)

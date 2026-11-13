@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from qgis_live_driver import mode_switch
+from geo_driver import mode_switch
 
 REPO = Path(__file__).resolve().parents[2]
 CTRL = mode_switch.CTRL_ID

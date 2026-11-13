@@ -41,7 +41,7 @@ for (const { dir: liveDir, pluginId } of liveDirs) {
   console.log(`live dir: ${liveDir}`);
   await page.reset();
 
-  // WebEngine viewを持たない制御専用プラグイン(qgis_live_driver等)は
+  // WebEngine viewを持たない制御専用プラグイン(geo_driver等)は
   // UIチェックではなく pyeval/キャンバススクショの生存確認に切り替える。
   // プローブが1回限りだとコマンド喪失時にUI経路へ誤分岐してevalを
   // 延々と送り続けるため、resetを挟んでリトライし、
@@ -166,15 +166,15 @@ for (const { dir: liveDir, pluginId } of liveDirs) {
 }
 
 // live dirを持たない検証対象(plugin.config.jsonに列挙・live_driver未同梱)は
-// 制御ドライバ(qgis_live_driver)をhubにして open_plugin + pyeval で確認する。
+// 制御ドライバ(geo_driver)をhubにして open_plugin + pyeval で確認する。
 // plugin_idルーティングは対象ドライバが無いと届かないため、
 // open_plugin/status等のローカルコマンドとドライバ自身のpyevalのみ使う。
 const covered = new Set(liveDirs.map((d) => d.pluginId));
-const ctrlDir = liveDirs.find((d) => d.pluginId === "qgis_live_driver");
+const ctrlDir = liveDirs.find((d) => d.pluginId === "geo_driver");
 for (const id of PLUGIN_IDS.filter((i) => i && !covered.has(i))) {
   const tag = `[${id}] `;
   if (!ctrlDir) {
-    check(`${tag}hubドライバ経由で到達`, false, "no qgis_live_driver live dir");
+    check(`${tag}hubドライバ経由で到達`, false, "no geo_driver live dir");
     continue;
   }
   const page = new LivePage(ctrlDir.dir);

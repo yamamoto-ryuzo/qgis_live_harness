@@ -6,7 +6,7 @@
     },
     "qgis-live-py": {
       "command": "python",
-      "args": ["qgis-plugin/qgis_live_driver/mcp_stdio.py"]
+      "args": ["qgis-plugin/geo_driver/mcp_stdio.py"]
     }
   }
 }

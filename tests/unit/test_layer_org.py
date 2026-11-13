@@ -9,7 +9,7 @@ import os
 
 import pytest
 
-from qgis_live_driver import layer_org
+from geo_driver import layer_org
 
 
 class _FakeLayer:

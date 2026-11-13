@@ -40,14 +40,14 @@
 <p><strong>QGISをAIツールや自作アプリから遠隔操作したい人向け。リポジトリもNodeも不要。</strong></p>
 <ol>
 <li>QGISプラグインリポジトリから <strong>QGIS Live Driver</strong> をインストール
-(または <code>qgis_live_driver/</code> フォルダを <code>python/plugins/</code> へコピー)</li>
+(または <code>geo_driver/</code> フォルダを <code>python/plugins/</code> へコピー)</li>
 <li><code>プラグイン &gt; QGIS Live Driver &gt; リモート制御 (localhostのみ)</code> をON
 (初回は警告ダイアログ→Yes。QSettingsに保存され次回起動から自動有効)</li>
 <li>接続は4系統のどれでもよい(<a href="driver.html">Driver詳細</a>):
 <ul>
 <li><strong>MCP stdio</strong> — AIクライアントのMCP設定に
-<code>python &lt;profile&gt;/python/plugins/qgis_live_driver/mcp_stdio.py</code> を登録するだけ</li>
-<li><strong>MCP/REST HTTP</strong> — <code>~/.qgis-live/&lt;pid&gt;-qgis_live_driver.json</code> から
+<code>python &lt;profile&gt;/python/plugins/geo_driver/mcp_stdio.py</code> を登録するだけ</li>
+<li><strong>MCP/REST HTTP</strong> — <code>~/.qgis-live/&lt;pid&gt;-geo_driver.json</code> から
 <code>mcp_url</code>/<code>http_port</code> と <code>token</code> を読み Bearer 認証で接続</li>
 <li><strong>ファイルJSONL</strong> — <code>commands.jsonl</code> に
 <code>{"type":...,"token":...}</code> を追記 → <code>results.jsonl</code> で結果受取</li>
@@ -178,7 +178,7 @@ pyevalでQtウィジェットを直接検査・操作し、live dirを持たな�
     bridge.py         ★開発対象: WebChannel経由でJSに公開するAPI
     logic.py          ★開発対象: QGIS非依存の純粋ロジック(pytest対象)
     ui/               ★開発対象: HTML/CSS/JS (mockでブラウザ単体動作も可)
-  qgis_live_driver/   QGIS Live Driver。制御専用プラグイン(UIなし・汎用部品)
+  geo_driver/   QGIS Live Driver。制御専用プラグイン(UIなし・汎用部品)
     live_driver.py    pyeval/screenshot + status/open_plugin/reload_plugin/
                       bridge_call + plugin_id転送の実行体
                       (ファイル+メモリキューdispatch)
@@ -235,7 +235,7 @@ docs/                 GitHub Pages用HTML(直接編集)
 </tr>
 <tr>
 <td>MCP stdio</td>
-<td><code>python &lt;profile&gt;/python/plugins/qgis_live_driver/mcp_stdio.py</code> をspawn</td>
+<td><code>python &lt;profile&gt;/python/plugins/geo_driver/mcp_stdio.py</code> をspawn</td>
 <td>stdio型MCPクライアント全般</td>
 <td>Driver</td>
 </tr>

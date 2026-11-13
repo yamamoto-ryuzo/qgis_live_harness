@@ -233,14 +233,14 @@ export async function reloadPlugin({ liveBase = LIVE_BASE } = {}) {
   const dirs = await ensureQgis({ liveBase });
   // 制御プラグインがあればhub経由でreloadできる
   // (対象プラグインにlive dirが無くても reload_plugin→open_dialog で作られる)
-  const ctrlDir = dirs.find((d) => d.pluginId === "qgis_live_driver");
+  const ctrlDir = dirs.find((d) => d.pluginId === "geo_driver");
   const ctrlPage = ctrlDir ? new LivePage(ctrlDir.dir) : null;
   // reload対象: live dirを持つ全プラグイン + plugin.config.jsonの開発対象
   const ids = [
     ...new Set([...dirs.map((d) => d.pluginId).filter(Boolean), ...PLUGIN_IDS]),
   ];
   // 送信中の経路を先に殺さないようドライバ自身は最後にreloadする
-  ids.sort((a, b) => (a === "qgis_live_driver") - (b === "qgis_live_driver"));
+  ids.sort((a, b) => (a === "geo_driver") - (b === "geo_driver"));
   const results = [];
   for (const id of ids) {
     const own = dirs.find((d) => d.pluginId === id);
@@ -262,7 +262,7 @@ export async function reloadPlugin({ liveBase = LIVE_BASE } = {}) {
     console.log(`[reload] ${id}: ${JSON.stringify(res)}`);
     // 新しいviewがindex.htmlを読み込み終わるまで待つ。
     // reload直後は旧viewが破棄中でeval timeoutすることがあるのでwaitForで吸収する。
-    // viewを持たない制御プラグイン(qgis_live_driver等)はスキップ。
+    // viewを持たない制御プラグイン(geo_driver等)はスキップ。
     // hub経由の場合はplugin_idで対象ドライバの名前空間に転送される。
     const opts = own ? {} : { pluginId: id };
     const hasUi = await page
@@ -285,7 +285,7 @@ export async function devReload({ liveBase = LIVE_BASE } = {}) {
   const dirs = await ensureQgis({ liveBase });
   for (const d of dirs) {
     const page = new LivePage(d.dir);
-    // viewを持たない制御プラグイン(qgis_live_driver等)はdevreload対象外
+    // viewを持たない制御プラグイン(geo_driver等)はdevreload対象外
     const hasUi = await page.pyeval("driver.view is not None").catch(() => false);
     if (!hasUi) continue;
     await page.devreload();

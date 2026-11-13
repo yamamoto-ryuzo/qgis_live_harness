@@ -8,7 +8,7 @@ import sys
 
 import pytest
 
-from qgis_live_driver import credential_store as cs
+from geo_driver import credential_store as cs
 
 
 @pytest.fixture

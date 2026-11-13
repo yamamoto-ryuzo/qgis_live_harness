@@ -94,7 +94,7 @@
 <tbody><tr>
 <td>MCP(stdio) — Devin/Claude Desktop/IDE系</td>
 <td>MCP stdio</td>
-<td><code>qgis_live_driver/mcp_stdio.py</code>(stdlibのみ) または <code>scripts/qgis-mcp.mjs</code>(Node版・ツール豊富)</td>
+<td><code>geo_driver/mcp_stdio.py</code>(stdlibのみ) または <code>scripts/qgis-mcp.mjs</code>(Node版・ツール豊富)</td>
 <td>Driver / Harness</td>
 </tr>
 <tr>
@@ -133,7 +133,7 @@
   &quot;mcpServers&quot;: {
     &quot;qgis-live&quot;: {
       &quot;command&quot;: &quot;python&quot;,
-      &quot;args&quot;: [&quot;C:/Users/&lt;user&gt;/AppData/Roaming/QGIS/QGIS4/profiles/&lt;profile&gt;/python/plugins/qgis_live_driver/mcp_stdio.py&quot;]
+      &quot;args&quot;: [&quot;C:/Users/&lt;user&gt;/AppData/Roaming/QGIS/QGIS4/profiles/&lt;profile&gt;/python/plugins/geo_driver/mcp_stdio.py&quot;]
     }
   }
 }
@@ -144,7 +144,7 @@ tools: <code>qgis_ensure</code> / <code>qgis_pyeval</code> / <code>qgis_eval</co
 <code>qgis_screenshot</code> / <code>qgis_status</code> / <code>qgis_open_plugin</code> /
 <code>qgis_devreload</code> / <code>qgis_reload</code>。
 各toolは内部でensureするためQGIS未起動でも自動で立ち上がり、
-qgis_live_driver がlive中ならそれをhubとして使い
+geo_driver がlive中ならそれをhubとして使い
 (<code>pluginId</code>引数はplugin_idルーティングに載る)、
 <code>qgis_screenshot</code> はPNGをMCP <strong>image content</strong>で返すためエージェントが画像として見られる。</p>
 <p><strong>認証モデル</strong>: 全チャネルでセッショントークン必須
@@ -244,7 +244,7 @@ WebEngine固有の不安定さもない。<strong>検証目的でWebEngineへ作
 </ul>
 <p>live dir(<code>live_driver.py</code>)を持たないWidgetsプラグインでも、
 <code>plugin.config.json</code>に列挙すれば <code>test:live</code> がhub
-(qgis_live_driver)経由で <code>open_plugin</code>/<code>pyeval</code>/<code>run()</code>/
+(geo_driver)経由で <code>open_plugin</code>/<code>pyeval</code>/<code>run()</code>/
 スクショを検証する(同梱の <code>geo_search</code>・<code>geo_webview</code> がその例)。</p>
 <nav class="pager">
   <a href="driver.html"><span class="dir">前へ</span><span class="title">QGIS Live Driver</span></a>

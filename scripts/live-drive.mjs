@@ -57,12 +57,12 @@ export async function resolveLiveDir(liveDir, pluginId) {
 }
 
 /**
- * 制御プラグイン qgis_live_driver のLivePageを返す。見つからなければnull。
+ * 制御プラグイン geo_driver のLivePageを返す。見つからなければnull。
  * 存在すれば plugin_id ルーティングで全プラグインを制御できる統一窓口になる。
  */
 export async function getControlPage(liveDir) {
   const dirs = await resolveLiveDirs(liveDir);
-  const c = dirs.find((d) => d.pluginId === "qgis_live_driver");
+  const c = dirs.find((d) => d.pluginId === "geo_driver");
   return c ? new LivePage(c.dir) : null;
 }
 
@@ -158,7 +158,7 @@ export class LivePage {
    * ナビゲーション中などでrunJavaScriptのコールバックが捨てられると
    * プラグイン側がeval timeoutを返すため、その場合は新しいidでリトライする。
    * pluginId指定時はplugin_idルーティングで他プラグインへ転送される
-   * (このpageが指すlive dirがqgis_live_driver等のハブである場合に有効)。
+   * (このpageが指すlive dirがgeo_driver等のハブである場合に有効)。
    */
   async evaluate(expression, { retries = 4, timeoutMs = 45000, pluginId } = {}) {
     for (let attempt = 0; attempt <= retries; attempt++) {

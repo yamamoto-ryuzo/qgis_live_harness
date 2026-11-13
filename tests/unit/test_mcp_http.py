@@ -10,7 +10,7 @@ import urllib.request
 
 import pytest
 
-from qgis_live_driver.mcp_http import TOOLS, start_http
+from geo_driver.mcp_http import TOOLS, start_http
 
 
 class _FakeDriver:

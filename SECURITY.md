@@ -7,13 +7,13 @@ GitHubリポジトリのメンテナ(@yamamoto-ryuzo)へ個別にご連絡くだ
 
 報告に含めていただきたい情報:
 
-- 影響を受けるコンポーネント(`qgis_live_driver` / Harnessスクリプト 等)とバージョン
+- 影響を受けるコンポーネント(`geo_driver` / Harnessスクリプト 等)とバージョン
 - 再現手順または攻撃シナリオの説明
 - 想定される影響範囲
 
 ## セキュリティモデル
 
-`qgis_live_driver` は `pyeval`(QGISプロセス内での任意Python実行)を提供する
+`geo_driver` は `pyeval`(QGISプロセス内での任意Python実行)を提供する
 **localhost限定のリモート制御プラグイン**です。脅威モデル・認証方式・防御の限界の
 詳細はドキュメントを参照してください:
 

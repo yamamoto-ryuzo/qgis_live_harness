@@ -9,7 +9,7 @@
 //     (viewを持つ) → devreload(repo側を別名importし直す軽量リロード)
 //   - それ以外(プラグイン本体の *.py 等を含む) → reload_plugin
 //     (sys.modules掃除 + reloadPlugin + open_dialog)
-// 複数プラグインが同時に変更された場合は qgis_live_driver を最後に処理する
+// 複数プラグインが同時に変更された場合は geo_driver を最後に処理する
 // (送信経路であるドライバを先に殺さないため)。
 //
 // 使い方:
@@ -33,7 +33,7 @@ const WATCH_ROOT = join(REPO, "qgis-plugin");
 const PLUGIN_IDS = [].concat(
   JSON.parse(readFileSync(join(REPO, "plugin.config.json"), "utf8")).id
 );
-const CTRL_ID = "qgis_live_driver";
+const CTRL_ID = "geo_driver";
 
 // 監視対象外: 実行時に影響しない生成物・ドキュメント・翻訳ソース等。
 // .ui/.py/.json 等の実行系ファイルは全てリロード対象。

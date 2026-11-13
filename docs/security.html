@@ -123,7 +123,7 @@ ngrok等のトンネル経由でも <code>Host</code> ヘッダがloopback以外
 トークン必須と合わせた二重の防御です。</p>
 <h3>5. トークンの保存とACL</h3>
 <p>トークンは <code>&lt;live_dir&gt;/token</code> とレジストリJSON
-(<code>~/.qgis-live/&lt;pid&gt;-qgis_live_driver.json</code>)にのみ保存され、
+(<code>~/.qgis-live/&lt;pid&gt;-geo_driver.json</code>)にのみ保存され、
 作成直後にユーザ限定ACLを適用します(Windows: <code>icacls /inheritance:r + /grant:r</code>、
 POSIX: <code>chmod 600</code>)。正規クライアント(Harness・mcp_stdio.py・自作ツール)は
 ここから自動読み取りするため、利用者がトークンを意識する必要はありません。</p>

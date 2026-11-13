@@ -6,7 +6,8 @@
     "geo_import",
     "geo_excel",
     "geo_userfunc",
-    "QGIS-legendView-main",
-    "qgis_live_driver"
+    "geo_legend",
+    "geo_launcher",
+    "geo_driver"
   ]
 }
