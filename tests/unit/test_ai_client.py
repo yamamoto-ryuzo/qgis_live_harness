@@ -596,6 +596,9 @@ class _CopilotStub(BaseHTTPRequestHandler):
                      "limits": {"max_context_window_tokens": 128000},
                      "supports": {"tool_calls": True, "vision": True}},
                  "policy": {"state": "enabled"}},
+                {"id": "gpt-6-luna",
+                 "capabilities": {"type": "chat"},
+                 "supported_endpoints": ["/responses"]},
                 {"id": "embed-x", "capabilities": {"type": "embedding"}},
                 {"id": "off-m", "capabilities": {"type": "chat"},
                  "policy": {"state": "disabled"}},
@@ -617,8 +620,28 @@ class _CopilotStub(BaseHTTPRequestHandler):
             self.server.last_form = urllib.parse.parse_qs(body.decode())
             self._json({"access_token": "gho_test",
                         "token_type": "bearer"})
-        else:
+        elif self.path == "/responses":
             self.server.last_json = json.loads(body.decode())
+            self._json({"status": "completed",
+                        "output": [{"type": "message",
+                                    "content": [{"type": "output_text",
+                                                 "text": "hi"}]}],
+                        "usage": {"input_tokens": 3,
+                                  "output_tokens": 1}})
+        else:
+            d = json.loads(body.decode())
+            if d.get("model") == "resp-only":
+                raw = json.dumps(
+                    {"error": {
+                        "message": 'model "resp-only" is not accessible'
+                                   " via the /chat/completions endpoint",
+                        "code": "model_not_supported"}}).encode()
+                self.send_response(400)
+                self.send_header("Content-Length", str(len(raw)))
+                self.end_headers()
+                self.wfile.write(raw)
+                return
+            self.server.last_json = d
             self._json({"choices": [{"message": {"role": "assistant",
                                                  "content": "hi"}}]})
 
@@ -631,6 +654,7 @@ def copilot_server(monkeypatch):
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
     port = httpd.server_address[1]
     ai_client._COPILOT_CACHE.clear()
+    ai_client._RESPONSES_ONLY_MODELS.clear()
     monkeypatch.setattr(
         ai_client, "COPILOT_TOKEN_URL",
         f"http://127.0.0.1:{port}/copilot_internal/v2/token")
@@ -646,6 +670,7 @@ def copilot_server(monkeypatch):
     yield httpd
     httpd.shutdown()
     ai_client._COPILOT_CACHE.clear()
+    ai_client._RESPONSES_ONLY_MODELS.clear()
 
 
 def test_copilot_send_exchanges_token(copilot_server):
@@ -687,8 +712,9 @@ def test_copilot_passthrough_custom_base(copilot_server):
 def test_copilot_list_model_entries(copilot_server):
     infos = ai_client.list_model_infos(
         "copilot", "https://api.githubcopilot.com", "gh-tok")
-    # embedding型とpolicy=disabledは除外。capabilities無しは採用
-    assert [i["id"] for i in infos] == ["gpt-4o", "plain-m"]
+    # embedding型とpolicy=disabledは除外。capabilities無しは採用。
+    # /responses専用のgpt-6-lunaもchatモデルとして採用する
+    assert [i["id"] for i in infos] == ["gpt-4o", "gpt-6-luna", "plain-m"]
     g = next(i for i in infos if i["id"] == "gpt-4o")
     assert g["kind"] == "chat_vision"     # supports.vision由来
     assert g["context"] == 128000
@@ -701,6 +727,99 @@ def test_copilot_missing_key():
     prov = ai_client.get_provider("copilot")
     with pytest.raises(ai_client.ApiError):
         prov.send("https://api.githubcopilot.com", "", "m", "s", [])
+
+
+def test_copilot_responses_only_routing(copilot_server):
+    """supported_endpoints=["/responses"]のモデルは
+    /chat/completionsを経由せず /responses へ直接送る。"""
+    prov = ai_client.get_provider("copilot")
+    ai_client.list_model_infos(
+        "copilot", "https://api.githubcopilot.com", "gh-tok")
+    data = prov.send("https://api.githubcopilot.com", "gh-tok",
+                     "gpt-6-luna", "sys",
+                     [{"role": "system", "content": "sys"},
+                      {"role": "user", "content": "x"}])
+    assert data["output"][0]["content"][0]["text"] == "hi"
+    post = copilot_server.reqs[-1]
+    assert post["path"] == "/responses"
+    body = copilot_server.last_json
+    assert body["model"] == "gpt-6-luna"
+    assert body["instructions"] == "sys"
+    assert body["input"][0]["role"] == "user"
+    assert body["tools"][0]["type"] == "function"
+    assert "function" not in body["tools"][0]     # フラット化済み
+    # /chat/completions へは投げていない
+    assert not any(r["path"] == "/chat/completions"
+                   for r in copilot_server.reqs)
+
+
+def test_copilot_responses_fallback(copilot_server):
+    """一覧未取得のモデルでも、/chat/completions が
+    model_not_supported を返せば /responses へ切替・学習する。"""
+    prov = ai_client.get_provider("copilot")
+    msgs = [{"role": "system", "content": "s"},
+            {"role": "user", "content": "x"}]
+    data = prov.send("https://api.githubcopilot.com", "gh-tok",
+                     "resp-only", "s", msgs)
+    assert data["output"]
+    paths = [r["path"] for r in copilot_server.reqs]
+    assert "/chat/completions" in paths       # 最初はchatへ
+    assert paths[-1] == "/responses"          # 失敗後に切替
+    assert ai_client._RESPONSES_ONLY_MODELS["resp-only"] is True
+    # 2回目は学習済みで直接 /responses
+    prov.send("https://api.githubcopilot.com", "gh-tok",
+              "resp-only", "s", msgs)
+    assert copilot_server.reqs[-1]["path"] == "/responses"
+
+
+def test_responses_msg_conversion():
+    """chat形式msgs → Responses input変換(system→instructions、
+    tool_calls→function_call、tool結果→function_call_output、
+    画像→input_image)。"""
+    msgs = [
+        {"role": "system", "content": "sys"},
+        {"role": "user", "content": [
+            {"type": "text", "text": "look"},
+            {"type": "image_url",
+             "image_url": {"url": "data:image/png;base64,AA=="}}]},
+        {"role": "assistant", "content": None, "tool_calls": [
+            {"id": "c1", "type": "function",
+             "function": {"name": "qgis_status",
+                          "arguments": '{"a": 1}'}}]},
+        {"role": "tool", "tool_call_id": "c1", "content": "ok"},
+    ]
+    instr, inp = ai_client.openai_msgs_to_responses_input(msgs)
+    assert instr == "sys"
+    assert inp[0]["role"] == "user"
+    assert inp[0]["content"][0]["type"] == "input_text"
+    assert inp[0]["content"][1] == {
+        "type": "input_image", "image_url": "data:image/png;base64,AA=="}
+    assert inp[1] == {"type": "function_call", "call_id": "c1",
+                      "name": "qgis_status", "arguments": '{"a": 1}'}
+    assert inp[2] == {"type": "function_call_output",
+                      "call_id": "c1", "output": "ok"}
+
+
+def test_parse_responses_output():
+    """Responses応答 → chat形式と同じ {text,calls,raw} に正規化。
+    rawはtool_calls付きassistantで append_exchange にそのまま積める。"""
+    data = {"output": [
+        {"type": "reasoning"},
+        {"type": "message",
+         "content": [{"type": "output_text", "text": "done"}]},
+        {"type": "function_call", "call_id": "fc1",
+         "name": "qgis_status", "arguments": "{}"}],
+        "usage": {"input_tokens": 5, "output_tokens": 7}}
+    t = ai_client.parse_responses_output(data)
+    assert t["text"] == "done"
+    assert t["calls"] == [{"id": "fc1", "name": "qgis_status",
+                           "args": {}}]
+    assert t["usage"] == {"in": 5, "out": 7}
+    assert t["raw"]["role"] == "assistant"
+    assert t["raw"]["tool_calls"][0]["function"]["name"] == "qgis_status"
+    # CopilotProvider.parseもoutput形を検出して同じ結果になる
+    prov = ai_client.get_provider("copilot")
+    assert prov.parse(data)["text"] == "done"
 
 
 def test_copilot_user_endpoint_fallback(copilot_server):

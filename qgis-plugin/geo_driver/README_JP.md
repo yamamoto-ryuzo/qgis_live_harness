@@ -109,7 +109,12 @@ deployモードバッジ(開発モード/利用モードの常時表示)を載�
     制限されうるため「GitHubでサインイン」(デバイスフロー)推奨。
     組織のCopilotモデルポリシーで無効化されたモデルは
     一覧・使用とも不可。IdP条件付きアクセス等の企業側制限は
-    アプリ側では回避不可
+    アプリ側では回避不可。
+    GPT-6系等の一部モデルは `/chat/completions` を受け付けない
+    **Responses API 専用**(`POST {api}/responses`)だが、
+    `GET /models` の `supported_endpoints`(未取得時は
+    `model_not_supported` エラーからのフォールバック)で
+    自動判別してルーティングする
 - **モデル選択**: モデル欄は編集可コンボ。隣の「取得」ボタンで
   `GET {base}/models` から利用可能モデル一覧を取り込める
   (GeminiではgenerateContent非対応モデルを除外)。

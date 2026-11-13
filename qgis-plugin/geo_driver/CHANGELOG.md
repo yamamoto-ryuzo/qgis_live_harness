@@ -5,6 +5,16 @@
 
 ## [Unreleased]
 
+### Fixed
+- ai_client.py: Copilot で `/chat/completions` を受け付けない
+  **Responses API 専用モデル(GPT-6 系等)が送信エラーになる問題**
+  を修正。`GET /models` の `supported_endpoints` で事前判別し、
+  未判別のモデルは `model_not_supported` エラーから自動で
+  `POST {api}/responses` へフォールバック・学習する。
+  内部メッセージ列は従来どおり chat 形式で保持し、送信時にのみ
+  Responses 形式(instructions/input/function_call/
+  function_call_output)へ変換する
+
 ### Changed
 - **プラグイン ID を `qgis_live_driver` → `geo_driver` にリネーム**
   (`geo_` シリーズ統一)。フォルダ名・metadata の name・

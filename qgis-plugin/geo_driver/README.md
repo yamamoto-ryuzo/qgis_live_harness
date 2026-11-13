@@ -115,6 +115,10 @@ an LLM API to operate QGIS interactively** (`ai_panel.py` + `ai_client.py`).
     is recommended. Models disabled by the organization's Copilot model policy
     cannot be listed or used. Enterprise-side restrictions such as IdP
     conditional access cannot be bypassed by the app.
+    Some models (GPT-6 family, etc.) only accept the **Responses API**
+    (`POST {api}/responses`) and reject `/chat/completions`; the app detects
+    this from `supported_endpoints` in `GET /models` (or falls back on a
+    `model_not_supported` error) and routes those models automatically.
 - **Model selection**: the model field is an editable combo. The adjacent
   "Fetch" button imports the available model list from `GET {base}/models`
   (for Gemini, models without generateContent support are excluded). The list

@@ -744,6 +744,187 @@ def chat_completions(base, api_key, model, messages, tools=None,
     return data
 
 
+# ---- OpenAI Responses API (POST {base}/responses) ----
+# CopilotのGPT-6系等、/chat/completions を受け付けず /responses 専用の
+# モデル向け(GET /models の supported_endpoints で判別できる)。
+# ワイヤ形式は異なるが、プロバイダ内部ではchat形式のmsgsを保持し、
+# 送信時にだけResponses形式へ変換する(往復でtool_calls/tool結果が
+# 混ざったmsgsを毎回まるごと変換するので状態を持たない)。
+
+def responses_tools(tools):
+    """OpenAI function calling形式 → Responses APIのtools形式。
+    {"type":"function","function":{...}} をフラット化する。"""
+    out = []
+    for t in tools or []:
+        if t.get("type") == "function" \
+                and isinstance(t.get("function"), dict):
+            d = {"type": "function"}
+            d.update(t["function"])
+            out.append(d)
+        else:
+            out.append(t)
+    return out
+
+
+def _responses_content_parts(content, role):
+    """chat形式のcontent → Responsesのcontent parts
+    (user=input_text/input_image, assistant=output_text)。"""
+    text_t = "input_text" if role == "user" else "output_text"
+    if isinstance(content, str):
+        return [{"type": text_t, "text": content}]
+    parts = []
+    for p in content or []:
+        if not isinstance(p, dict):
+            continue
+        t = p.get("type")
+        if t == "text":
+            parts.append({"type": text_t, "text": p.get("text") or ""})
+        elif t == "image_url":
+            parts.append({"type": "input_image",
+                          "image_url":
+                              (p.get("image_url") or {}).get("url") or ""})
+        elif t in ("input_text", "input_image"):
+            parts.append(p)
+    return parts
+
+
+def _tool_result_output(content):
+    """chat形式のtool結果content → function_call_output.output。
+    文字列はそのまま、画像を含むparts列はinput_*形式にする。"""
+    if isinstance(content, str):
+        return content
+    parts = []
+    for p in content or []:
+        if not isinstance(p, dict):
+            continue
+        t = p.get("type")
+        if t == "text":
+            parts.append({"type": "input_text", "text": p.get("text") or ""})
+        elif t == "image_url":
+            parts.append({"type": "input_image",
+                          "image_url":
+                              (p.get("image_url") or {}).get("url") or ""})
+    return parts or json.dumps(content, ensure_ascii=False)
+
+
+def openai_msgs_to_responses_input(msgs):
+    """OpenAI chat形式msgs → (instructions, Responses API input items)。"""
+    instr = []
+    items = []
+    for m in msgs or []:
+        role = m.get("role")
+        if role == "system":
+            c = m.get("content")
+            instr.append(
+                c if isinstance(c, str)
+                else "\n".join(p.get("text") or "" for p in c or []
+                               if isinstance(p, dict)))
+            continue
+        if role == "assistant" and m.get("tool_calls"):
+            if m.get("content"):
+                items.append({"type": "message", "role": "assistant",
+                              "content": _responses_content_parts(
+                                  m["content"], "assistant")})
+            for tc in m["tool_calls"]:
+                fn = tc.get("function") or {}
+                args = fn.get("arguments")
+                items.append({
+                    "type": "function_call",
+                    "call_id": tc.get("id") or "",
+                    "name": fn.get("name") or "",
+                    "arguments": (args if isinstance(args, str)
+                                  else json.dumps(
+                                      args or {}, ensure_ascii=False))})
+            continue
+        if role == "tool":
+            items.append({
+                "type": "function_call_output",
+                "call_id": m.get("tool_call_id") or "",
+                "output": _tool_result_output(m.get("content"))})
+            continue
+        items.append({"type": "message", "role": role,
+                      "content": _responses_content_parts(
+                          m.get("content"), role)})
+    return "\n".join(x for x in instr if x), items
+
+
+def responses_create(base, api_key, model, msgs, tools=None,
+                     timeout=180.0, extra=None, headers=None):
+    """POST {base}/responses (非ストリーミング)して応答JSONを返す。
+
+    @param msgs: OpenAI chat形式メッセージ列(system含む)。
+      systemメッセージはinstructionsフィールドへ移す
+    """
+    instr, inp = openai_msgs_to_responses_input(msgs)
+    body = {"model": model, "input": inp, "store": False}
+    if instr:
+        body["instructions"] = instr
+    if tools:
+        body["tools"] = responses_tools(tools)
+        body["tool_choice"] = "auto"
+    if extra:
+        body.update(extra)
+    hdrs = dict(headers or {})
+    if api_key:
+        hdrs["Authorization"] = f"Bearer {api_key}"
+    data = _post_json(base.rstrip("/") + "/responses",
+                      hdrs, body, timeout)
+    if not isinstance(data, dict) \
+            or not isinstance(data.get("output"), list):
+        raise ApiError(f"Invalid response format: {str(data)[:300]}")
+    return data
+
+
+def parse_responses_output(data):
+    """Responses API応答 → parse()と同じ {"text","calls","raw","usage"}。
+    rawはchat形式のassistantメッセージ(append_exchange互換)。"""
+    text = []
+    calls = []
+    tool_calls = []
+    for item in data.get("output") or []:
+        if not isinstance(item, dict):
+            continue
+        t = item.get("type")
+        if t == "message":
+            for c in item.get("content") or []:
+                if isinstance(c, dict) \
+                        and c.get("type") == "output_text":
+                    text.append(c.get("text") or "")
+        elif t == "function_call":
+            args = item.get("arguments")
+            cid = item.get("call_id") or item.get("id")
+            calls.append({"id": cid,
+                          "name": item.get("name") or "",
+                          "args": parse_tool_arguments(args)})
+            tool_calls.append({
+                "id": cid, "type": "function",
+                "function": {
+                    "name": item.get("name") or "",
+                    "arguments": (args if isinstance(args, str)
+                                  else json.dumps(
+                                      args or {}, ensure_ascii=False))}})
+    raw = {"role": "assistant", "content": "".join(text) or None}
+    if tool_calls:
+        raw["tool_calls"] = tool_calls
+    return {"text": "".join(text), "calls": calls, "raw": raw,
+            "usage": parse_usage(data)}
+
+
+# model id → True で /responses 専用と記録する。
+# Copilotの GET /models の supported_endpoints と、送信時の
+# model_not_supported エラーからのフォールバックで学習する
+_RESPONSES_ONLY_MODELS = {}
+
+
+def _responses_only_error(e):
+    """そのモデルが /chat/completions を受け付けない場合の
+    エラーかを判定する。誤判定の場合 /responses 側が同様に
+    失敗してそのエラーが返るだけなので広めに拾う。"""
+    s = str(e).lower()
+    return ("not accessible via the /chat/completions" in s
+            or "model_not_supported" in s)
+
+
 # ---- Gemini (generateContent) ----
 
 def gemini_models_url(base):
@@ -2437,14 +2618,41 @@ class CopilotProvider(OpenAIProvider):
             lim = caps.get("limits") or {}
             if lim.get("max_context_window_tokens"):
                 e["context_length"] = lim["max_context_window_tokens"]
+            # /responses 専用モデルを記録(GPT-6系等。
+            # supported_endpoints が無い応答は不明=chat送り)
+            eps = m.get("supported_endpoints")
+            if isinstance(eps, list):
+                if "/chat/completions" not in eps \
+                        and "/responses" in eps:
+                    _RESPONSES_ONLY_MODELS[m["id"]] = True
+                elif "/chat/completions" in eps:
+                    _RESPONSES_ONLY_MODELS.pop(m["id"], None)
             out.append(e)
         return sorted(out, key=lambda e: e["id"])
 
     def send(self, base, key, model, system, msgs, timeout=180.0):
         tok, api_base = copilot_session(key, base)
-        return chat_completions(api_base, tok, model, msgs,
-                                tools=openai_tools(), timeout=timeout,
-                                headers=COPILOT_HEADERS)
+        if not _RESPONSES_ONLY_MODELS.get(model):
+            try:
+                return chat_completions(
+                    api_base, tok, model, msgs,
+                    tools=openai_tools(), timeout=timeout,
+                    headers=COPILOT_HEADERS)
+            except ApiError as e:
+                if not _responses_only_error(e):
+                    raise
+                # /responses専用モデルだった。学習して切替
+                _RESPONSES_ONLY_MODELS[model] = True
+        return responses_create(
+            api_base, tok, model, msgs,
+            tools=openai_tools(), timeout=timeout,
+            headers=COPILOT_HEADERS)
+
+    def parse(self, data):
+        if isinstance(data, dict) \
+                and isinstance(data.get("output"), list):
+            return parse_responses_output(data)
+        return super().parse(data)
 
 
 class AzureOpenAIProvider(OpenAIProvider):
