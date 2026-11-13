@@ -1,0 +1,34 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">
+<title>plugin.geo_excel.bridge.settings</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+body{font-family:system-ui,sans-serif;margin:1.5em;line-height:1.5}
+table{border-collapse:collapse}td,th{border:1px solid #999;padding:2px 8px}
+.pass{color:#080}.fail{color:#c00}.skip,.untested,.no_llm{color:#a60}
+code{background:#f4f4f4;padding:1px 4px}pre{background:#f8f8f8;padding:.7em;overflow:auto}
+</style></head><body>
+<h1>settings</h1>
+<p><b>id</b> <code>plugin.geo_excel.bridge.settings</code> <b>kind</b> bridge_method
+<b>scope</b> cap</p>
+<p><b>source</b> bridge.py:377
+<b>signature</b> settings()</p>
+<p>既定設定・環境チェック・必要物の列挙を返す。</p>
+<p>ref: qgis-plugin/geo_excel/verify/features.json#bridge.settings</p>
+<h2>ロジック</h2>
+<pre class="mermaid">flowchart LR
+  U[検証] --> C[bridge_call0]</pre>
+<pre>{
+ &quot;type&quot;: &quot;bridge_call0&quot;,
+ &quot;plugin_id&quot;: &quot;geo_excel&quot;,
+ &quot;method&quot;: &quot;settings&quot;
+}</pre>
+<h2>検証手順</h2><ul>
+<li>tool: <code>bridge_call/describe_plugins/pyeval 経由の到達確認</code></li>
+<li>prompt: <code>-</code></li>
+<li>assert: <code>bridge_call/状態確認</code></li>
+<li>cleanup: <code>-</code></li>
+</ul>
+<h2>最新結果</h2>
+<p class="untested">tool: untested / ai: untested / 判定: untested (-)</p>
+<p></p>
+<p><a href="../index.html">index</a></p><script>mermaid.initialize({startOnLoad:true});</script></body></html>

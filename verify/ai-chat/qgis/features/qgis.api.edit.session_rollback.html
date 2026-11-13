@@ -1,0 +1,33 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">
+<title>qgis.api.edit.session_rollback</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+body{font-family:system-ui,sans-serif;margin:1.5em;line-height:1.5}
+table{border-collapse:collapse}td,th{border:1px solid #999;padding:2px 8px}
+.pass{color:#080}.fail{color:#c00}.skip,.untested,.no_llm{color:#a60}
+code{background:#f4f4f4;padding:1px 4px}pre{background:#f8f8f8;padding:.7em;overflow:auto}
+</style></head><body>
+<h1>編集セッション開始/ロールバック</h1>
+<p><b>id</b> <code>qgis.api.edit.session_rollback</code> <b>kind</b> qgis_api
+<b>scope</b> qgis</p>
+<p><b>source</b> iface/QgsApplication API
+<b>signature</b> </p>
+<p>編集セッション開始/ロールバック</p>
+<p>ref: -</p>
+<h2>ロジック</h2>
+<pre class="mermaid">flowchart LR
+  U[検証] --> C[pyeval_assert]</pre>
+<pre>{
+ &quot;type&quot;: &quot;pyeval_assert&quot;,
+ &quot;code&quot;: &quot;from qgis.core import QgsVectorLayer; ly=QgsVectorLayer(&#x27;Point?crs=EPSG:4326&amp;field=n:string&#x27;,&#x27;ai_verify_edit&#x27;,&#x27;memory&#x27;); ly.startEditing(); ok=ly.isEditable(); ly.rollBack(); result=ok and not ly.isEditable()&quot;
+}</pre>
+<h2>検証手順</h2><ul>
+<li>tool: <code>pyeval で実行→真値assert</code></li>
+<li>prompt: <code>一時メモリレイヤを作って編集モードに入り、すぐ解除して</code></li>
+<li>assert: <code>True</code></li>
+<li>cleanup: <code>-</code></li>
+</ul>
+<h2>最新結果</h2>
+<p class="untested">tool: untested / ai: untested / 判定: untested (-)</p>
+<p></p>
+<p><a href="../index.html">index</a></p><script>mermaid.initialize({startOnLoad:true});</script></body></html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">
+<title>qgis.api.project.title_getset</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+body{font-family:system-ui,sans-serif;margin:1.5em;line-height:1.5}
+table{border-collapse:collapse}td,th{border:1px solid #999;padding:2px 8px}
+.pass{color:#080}.fail{color:#c00}.skip,.untested,.no_llm{color:#a60}
+code{background:#f4f4f4;padding:1px 4px}pre{background:#f8f8f8;padding:.7em;overflow:auto}
+</style></head><body>
+<h1>プロジェクトタイトル取得・設定</h1>
+<p><b>id</b> <code>qgis.api.project.title_getset</code> <b>kind</b> qgis_api
+<b>scope</b> qgis</p>
+<p><b>source</b> iface/QgsApplication API
+<b>signature</b> </p>
+<p>プロジェクトタイトル取得・設定</p>
+<p>ref: -</p>
+<h2>ロジック</h2>
+<pre class="mermaid">flowchart LR
+  U[検証] --> C[pyeval_assert]</pre>
+<pre>{
+ &quot;type&quot;: &quot;pyeval_assert&quot;,
+ &quot;code&quot;: &quot;p=QgsProject.instance(); old=p.title(); p.setTitle(&#x27;ai-verify&#x27;); ok=(p.title()==&#x27;ai-verify&#x27;); p.setTitle(old); result=ok&quot;
+}</pre>
+<h2>検証手順</h2><ul>
+<li>tool: <code>pyeval で実行→真値assert</code></li>
+<li>prompt: <code>プロジェクトのタイトルを『AI検証』に設定して</code></li>
+<li>assert: <code>QgsProject.instance().title() == &#x27;AI検証&#x27;</code></li>
+<li>cleanup: <code>QgsProject.instance().setTitle(&#x27;__TITLE__&#x27;)</code></li>
+</ul>
+<h2>最新結果</h2>
+<p class="untested">tool: untested / ai: untested / 判定: untested (-)</p>
+<p></p>
+<p><a href="../index.html">index</a></p><script>mermaid.initialize({startOnLoad:true});</script></body></html>

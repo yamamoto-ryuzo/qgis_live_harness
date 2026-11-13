@@ -1,0 +1,33 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">
+<title>qgis.action.mAvoidIntersectionsLayersAction</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+body{font-family:system-ui,sans-serif;margin:1.5em;line-height:1.5}
+table{border-collapse:collapse}td,th{border:1px solid #999;padding:2px 8px}
+.pass{color:#080}.fail{color:#c00}.skip,.untested,.no_llm{color:#a60}
+code{background:#f4f4f4;padding:1px 4px}pre{background:#f8f8f8;padding:.7em;overflow:auto}
+</style></head><body>
+<h1>詳細設定に従う</h1>
+<p><b>id</b> <code>qgis.action.mAvoidIntersectionsLayersAction</code> <b>kind</b> qgis_action
+<b>scope</b> qgis</p>
+<p><b>source</b> mainWindow
+<b>signature</b> </p>
+<p>詳細設定に従う (ツールバー/コンテキスト)</p>
+<p>ref: -</p>
+<h2>ロジック</h2>
+<pre class="mermaid">flowchart LR
+  U[検証] --> C[manual_only]</pre>
+<pre>{
+ &quot;type&quot;: &quot;manual_only&quot;,
+ &quot;reason&quot;: &quot;モーダル/破壊的操作のため自動trigger対象外&quot;
+}</pre>
+<h2>検証手順</h2><ul>
+<li>tool: <code>-</code></li>
+<li>prompt: <code>-</code></li>
+<li>assert: <code>-</code></li>
+<li>cleanup: <code>-</code></li>
+</ul>
+<h2>最新結果</h2>
+<p class="untested">tool: untested / ai: untested / 判定: untested (-)</p>
+<p></p>
+<p><a href="../index.html">index</a></p><script>mermaid.initialize({startOnLoad:true});</script></body></html>
