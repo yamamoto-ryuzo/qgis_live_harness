@@ -1,0 +1,22 @@
+{
+ "id": "panel.send",
+ "prompt": "こんにちは。短く返答してください",
+ "history": [
+  {
+   "role": "user",
+   "content": "こんにちは。短く返答してください"
+  },
+  {
+   "role": "assistant",
+   "content": "こんにちは！どのようなお手伝いをしましょうか？"
+  },
+  {
+   "role": "user",
+   "content": "こんにちは。短く返答してください"
+  },
+  {
+   "role": "assistant",
+   "content": "こんにちは！ご用件をどうぞ。"
+  }
+ ]
+}

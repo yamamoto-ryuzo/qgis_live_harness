@@ -1,0 +1,30 @@
+{
+ "id": "plugin.geo_search.bridge.openDialog",
+ "prompt": "geo_search のパネル/ダイアログを開いて",
+ "history": [
+  {
+   "role": "user",
+   "content": "こんにちは。短く返答してください"
+  },
+  {
+   "role": "assistant",
+   "content": "こんにちは！どのようなお手伝いをしましょうか？"
+  },
+  {
+   "role": "user",
+   "content": "こんにちは。短く返答してください"
+  },
+  {
+   "role": "assistant",
+   "content": "こんにちは！ご用件をどうぞ。"
+  },
+  {
+   "role": "user",
+   "content": "geo_search のパネル/ダイアログを開いて"
+  },
+  {
+   "role": "assistant",
+   "content": "geo_search のダイアログを開きました。"
+  }
+ ]
+}

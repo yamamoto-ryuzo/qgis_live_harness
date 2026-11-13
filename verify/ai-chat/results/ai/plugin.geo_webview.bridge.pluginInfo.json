@@ -1,0 +1,54 @@
+{
+ "id": "plugin.geo_webview.bridge.pluginInfo",
+ "prompt": "geo_webview プラグインの情報を describe_plugins で調べて",
+ "history": [
+  {
+   "role": "user",
+   "content": "こんにちは。短く返答してください"
+  },
+  {
+   "role": "assistant",
+   "content": "こんにちは！どのようなお手伝いをしましょうか？"
+  },
+  {
+   "role": "user",
+   "content": "こんにちは。短く返答してください"
+  },
+  {
+   "role": "assistant",
+   "content": "こんにちは！ご用件をどうぞ。"
+  },
+  {
+   "role": "user",
+   "content": "geo_search のパネル/ダイアログを開いて"
+  },
+  {
+   "role": "assistant",
+   "content": "geo_search のダイアログを開きました。"
+  },
+  {
+   "role": "user",
+   "content": "geo_search プラグインの情報を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "`geo_search` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグイン名**: 地図検索 (`geo_search`)\n- **概要**: レイヤ内の地物を属性値で検索し、結果一覧の表示や地図ズーム・地物選択を行うプラグインです。検索対象は設定された検索タブ（カレントレイヤ／全レイヤ／プロジェクト定義）によって決まります。\n\n### **主な利用シーン**\n- 地名・施設名・市区町村名などの属性値による地物検索\n- 検索結果への地図ズームおよび地物選択\n- 検索タブ（対象レイヤ・フィールド定義）の確認・切替・追加／削除\n- マップテーマ（レイヤ表示プリセット）の一覧取得・切替・追加表示\n- ユーザーテーマの保存／復元\n- 地番検索や所有者検索の実行\n\n---\n\n### **提供されている主なブリッジメソッド (`bridge_call`)**\n\n| メソッド名 | 主な引数 | 説明 |\n| :--- | :--- | :--- |\n| `openDialog` | - | 検索ダイアログを開く／前面に出す |\n| `closeDialog` | - | 検索・結果ダイアログを閉じる |\n| `reloadDialog` | `show=True` | ダイアログの再構築（設定変更の反映用） |\n| `search` | `query`, `tab`, `zoom`, `max_features` など | 指定したクエリ・タブで地物検索を実行しズーム／選択 |\n| `results` | `max_features=200` | 直近の検索結果を取得 |\n| `listTabs` | - | 利用可能な検索タブ一覧を取得 |\n| `selectTab` | `tab` | 検索タブを切り替え |\n| `addTab` / `removeTab` | 各種設定 | 検索タブの追加／削除 |\n| `addTabFromCurrentLayer` | `title` | アクティブレイヤを元に検索タブを追加 |\n| `searchOptions` | `options` | 検索オプション（パン・ズームモード、固定縮尺等）の取得・変更 |\n| `listThemes` / `applyTheme` | `name`, `additive` | マップテーマの確認・適用 |\n| `saveUserTheme` / `loadUserTheme`| `path` | ユーザーテーマの保存および読み込み |\n| `getSettings` / `setSettings` | - | 検索設定（JSONパス・プロジェクト変数等）の取得／設定 |"
+  },
+  {
+   "role": "user",
+   "content": "geo_search の状態を確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "`geo_search` プラグインの現在の状態は以下の通りです。\n\n---\n\n### **1. ダイアログ表示状態**\n- **検索ダイアログ**: 表示中（開いています）\n- **結果ダイアログ**: 非表示（直近の検索結果：0件）\n\n### **2. 選択中の検索タブ**\n- **現在のアクティブタブ**: `カレントレイヤ`（インデックス: 0）\n- **利用可能なタブ一覧**:\n  1. `カレントレイヤ`（選択中）\n  2. `表示レイヤ`\n  3. `全レイヤ`\n\n### **3. 検索・表示オプション**\n- **パン／ズーム動作**: `ズームして選択範囲にフィット`（pan_mode: 0）\n- **縮尺指定**: 自動（固定縮尺の指定なし）\n- **レイヤ名表示**: 有効（`true`）\n\n### **4. 設定・参照元**\n- **設定ファイル**: デフォルトの `setting.json` を参照中（3つのタブを読み込み）\n- **プロジェクト変数による追加設定**: なし"
+  },
+  {
+   "role": "user",
+   "content": "geo_webview プラグインの情報を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "`geo_webview` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグインID**: `geo_webview`\n- **プラグイン名**: `geo_webview (QMap Permalink)`\n- **概要**: \n  - QGISプロジェクトを `.kasc + DATA/` パッケージ（スタイル込み）に出力し、**KASUGAI Canvas**（Cesium / MapLibre / OpenLayers / Leaflet / 地理院地図 / Navara 等）で再生・配信できるサーバレスWeb配信プラグイン。\n  - 地図表示状態（中心座標、縮尺、回転、マップテーマ）をパーマリンクURLとして生成・復元。\n  - 内蔵HTTPサーバによる `/kasugai` 起動、データ配信、`/present` による画面共有、パーマリンク受領（外部からの地図制御）などの連携機能を担います。\n\n---\n\n### **主な利用シーン**\n1. **Web地図連携・出力**:\n   - 表示中レイヤを KASUGAI Canvas 用に出力・登録・Webブラウザで起動\n2. **パーマリンク共有**:\n   - 現在の地図ビューを共有できるパーマリンクURLを発行\n   - パーマリンクURLや座標・縮尺・テーマ指定によるQGISキャンバスのナビゲーション\n3. **内蔵HTTPサーバ管理**:\n   - HTTPサーバの起動／停止、ポート変更、状態確認\n   - 外部端末からのアクセス可否（ファイアウォール設定・診断）\n4. **マップテーマ・ブックマーク管理**:\n   - プロジェクト内のマップテーマやブックマークの一覧取得・適用\n5. **画面共有・リアルタイム連携**:\n   - `/present` や `/screenshot` によるキャンバス画面共有\n   - ライブ連携機能（差分同期・作図レイヤのリアルタイム反映）\n\n---\n\n### **提供されている主なブリッジメソッド (`bridge_call`)**\n\n| カテゴリ | メソッド名 | 説明 |\n| :--- | :--- | :--- |\n| **パネル操作** | `openPanel` / `closePanel` | GeoWebView ドックパネルの開閉 |\n| **状態確認** | `status` / `getSettings` | パネル・サーバ・設定情報の取得 |\n| **KASUGAI出力** | `kasugaiExport(...)` | レイヤを `.kasc` や GeoJSON/GPKG 等に出力して起動 |\n| | `openExportFolder` | 出力先フォルダをOSエクスプローラー等で開く |\n| **パーマリンク** | `generatePermalink(theme=None)` | 現在のビューからパーマリンクURLを生成 |\n| | `copyPermalink` | パーマリンクをクリップボードへコピー |\n| | `navigate(url)` | パーマリンクURLを解析して地図を移動 |\n| | `navigateTo(...)` | 座標(lat/lon/x/y)、縮尺、回転、テーマを指定して地図移動 |\n| **内蔵サーバ** | `startServer(port=None)` / `stopServer` | 内蔵HTTPサーバの起動・停止 |\n| | `serverStatus(deep=False)` | サーバ稼働状態・IPアドレス等の取得 |\n| | `endpoints` | 公開中のHTTPエンドポイント一覧を取得 |\n| | `checkAccess` / `addFirewallRule` | 外部アクセス診断およびWindows FWルールの追加 |\n| **マップテーマ** | `listThemes` / `applyTheme` / `saveTheme` / `deleteTheme` | マップテーマの一覧・適用・保存・削除 |\n| **ライブ同期** | `liveSyncStart` / `liveSyncStop` / `liveAddFeatures` など | Canvas や外部クライアントとのリアルタイム同期 |"
+  }
+ ]
+}

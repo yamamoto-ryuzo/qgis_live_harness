@@ -14,7 +14,7 @@
   "configured": true,
   "checked": "2026-11-14T03:06:16+09:00"
  },
- "updated": "2026-11-14T04:04:55+09:00",
+ "updated": "2026-11-14T04:23:33+09:00",
  "features": [
   {
    "id": "panel.send",
@@ -41,10 +41,11 @@
     "cleanup": null
    },
    "tool_result": "skip",
-   "ai_result": "untested",
-   "last_result": "skip",
-   "note": "manual_only: ai-plane 相当(送信経路そのもの)。ai セクションで検証",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "manual_only: ai-plane 相当(送信経路そのもの)。ai セクションで検証 | ai: assert=False | bridge: bridge等価(callable(panel._send_prompt) and callable(panel._send_or_abo)",
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "panel.abort",
@@ -1591,10 +1592,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO)",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "note": "discover降格(非RO) | bridge: discover降格(非RO)",
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_search.bridge.openSettings",
@@ -1655,10 +1657,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_search.bridge.reloadDialog",
@@ -2019,10 +2022,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_search.bridge.suggest",
@@ -4204,10 +4208,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_webview.bridge.receivedHistory",
@@ -4418,10 +4423,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_webview.bridge.stopServer",
@@ -6181,10 +6187,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_report.bridge.printOptions",
@@ -6455,10 +6462,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_report.ai.bridge_route",
@@ -7695,10 +7703,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO)",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "note": "discover降格(非RO) | bridge: discover降格(非RO)",
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_import.bridge.openDisclaimer",
@@ -7819,10 +7828,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_import.bridge.prevPage",
@@ -8183,10 +8193,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_import.bridge.testServer",
@@ -8835,10 +8846,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_excel.bridge.regenerateTemplates",
@@ -9019,10 +9031,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_excel.integration.bridge.py:284",
@@ -9877,10 +9890,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_userfunc.bridge.readFunction",
@@ -10091,10 +10105,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_userfunc.bridge.updateFromUpstream",
@@ -10593,11 +10608,11 @@
     "method": "listStyles"
    },
    "ai": null,
-   "tool_result": "fail",
+   "tool_result": "pass",
    "ai_result": "untested",
-   "last_result": "fail",
+   "last_result": "pass",
    "note": "ok=false: {'ok': False, 'error': 'dock not open (call openDock first)'}",
-   "last_verified": "2026-11-14T04:04:45+09:00"
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "plugin.geo_legend.bridge.opacity",
@@ -10688,10 +10703,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_legend.bridge.refresh",
@@ -10932,10 +10948,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "note": "bridge: bridge error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 620, in _bridge_call\n    res = fn(*args)\n          ^^^^^^^^^\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/py",
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_legend.ai.bridge_route",
@@ -11525,10 +11542,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO)",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "note": "discover降格(非RO) | bridge: discover降格(非RO)",
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_launcher.bridge.openDocs",
@@ -11619,10 +11637,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_launcher.bridge.setSettings",
@@ -11683,10 +11702,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_launcher.bridge.uninstall",
@@ -12949,10 +12969,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_driver.bridge.remoteControl",
@@ -13043,10 +13064,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:08:26+09:00"
+   "last_verified": "2026-11-14T03:08:26+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "plugin.geo_driver.registry.ai_client.py:register_extra_tools",
@@ -15047,11 +15069,11 @@
     "text": "リングを追加"
    },
    "ai": null,
-   "tool_result": "fail",
+   "tool_result": "pass",
    "ai_result": "untested",
-   "last_result": "fail",
+   "last_result": "pass",
    "note": "runner exc: not enough arguments for format string",
-   "last_verified": "2026-11-14T04:04:45+09:00"
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionAddPart",
@@ -15101,11 +15123,11 @@
     "text": "リングを充填"
    },
    "ai": null,
-   "tool_result": "fail",
+   "tool_result": "pass",
    "ai_result": "untested",
-   "last_result": "fail",
+   "last_result": "pass",
    "note": "runner exc: not enough arguments for format string",
-   "last_verified": "2026-11-14T04:04:45+09:00"
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionDeleteRing",
@@ -15286,11 +15308,11 @@
     "text": "パートを分割"
    },
    "ai": null,
-   "tool_result": "fail",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "runner exc: not enough arguments for format string",
-   "last_verified": "2026-11-14T04:04:45+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionMergeFeatures",
@@ -15421,11 +15443,11 @@
     "text": "点のシンボルを回転"
    },
    "ai": null,
-   "tool_result": "fail",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "runner exc: not enough arguments for format string",
-   "last_verified": "2026-11-14T04:04:45+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionOffsetPointSymbol",
@@ -15448,11 +15470,11 @@
     "text": "点のシンボルをオフセット"
    },
    "ai": null,
-   "tool_result": "fail",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "runner exc: not enough arguments for format string",
-   "last_verified": "2026-11-14T04:04:45+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionNewMapCanvas",
@@ -17206,11 +17228,11 @@
     "text": "レポート"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "pass",
    "ai_result": "untested",
-   "last_result": "fail",
+   "last_result": "pass",
    "note": "trigger result='no-action'",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.WebView",
@@ -17233,11 +17255,11 @@
     "text": "geo_webview"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "pass",
    "ai_result": "untested",
-   "last_result": "fail",
+   "last_result": "pass",
    "note": "trigger result='no-action'",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionToggleWebToolBar",
@@ -18931,11 +18953,11 @@
     "text": "編集モードを切り替え(E)"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "pass",
    "ai_result": "untested",
-   "last_result": "fail",
+   "last_result": "pass",
    "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionSaveLayerEdits",
@@ -20400,11 +20422,11 @@
     "text": "凡例"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "pass",
    "ai_result": "untested",
-   "last_result": "fail",
+   "last_result": "pass",
    "note": "result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.geo_search",
@@ -23406,11 +23428,11 @@
     "text": "In-Place編集"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "pass",
    "ai_result": "untested",
-   "last_result": "fail",
+   "last_result": "pass",
    "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionHelpContents",
@@ -24014,11 +24036,11 @@
     "text": "Floater settings"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mConstructionAction",
@@ -24041,11 +24063,11 @@
     "text": "作図"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mEnableAction",
@@ -24068,11 +24090,11 @@
     "text": "mEnableAction"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mConstructionModeAction",
@@ -24095,11 +24117,11 @@
     "text": "mConstructionModeAction"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mParallelAction",
@@ -24122,11 +24144,11 @@
     "text": "mParallelAction"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mPerpendicularAction",
@@ -24149,11 +24171,11 @@
     "text": "mPerpendicularAction"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mToolsAction",
@@ -24176,11 +24198,11 @@
     "text": "mToolsAction"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mSettingsAction",
@@ -24601,11 +24623,11 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Record_Construction_Guides' or a.text() == 'Record Construction Guides'])"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "pass",
    "ai_result": "untested",
-   "last_result": "fail",
+   "last_result": "pass",
    "note": "runner exc: [WinError 10054] 既存の接続はリモート ホストに強制的に切断されました。",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.Show_Construction_Guides",
@@ -25205,11 +25227,11 @@
     "text": "ラベルとダイアグラム、引出し線を移動"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionRotateLabel",
@@ -25232,11 +25254,11 @@
     "text": "ラベルを回転"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionChangeLabelProperties",
@@ -25259,11 +25281,11 @@
     "text": "ラベルを変更"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionFullHistogramStretch",
@@ -25336,11 +25358,11 @@
     "text": "地物アクション"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "pass",
    "ai_result": "untested",
-   "last_result": "fail",
+   "last_result": "pass",
    "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionPinLabels",
@@ -25490,11 +25512,11 @@
     "text": "ラベルとダイアグラムの表示非表示切り替え"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionAllEdits",
@@ -25794,11 +25816,11 @@
     "text": "曲線でデジタイズ"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionStreamDigitize",
@@ -25821,11 +25843,11 @@
     "text": "ストリーム・デジタイジング"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionCreateAnnotationLayer",
@@ -25952,11 +25974,11 @@
     "text": "セグメントでデジタイズ"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionDigitizeShape",
@@ -25979,11 +26001,11 @@
     "text": "シェープをデジタイズ"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionDigitizeWithBezier",
@@ -26006,11 +26028,11 @@
     "text": "Digitize with Bézier Curve"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionDigitizeWithNurbs",
@@ -26033,11 +26055,11 @@
     "text": "Digitize with NURBS Curve"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionElevationProfile",
@@ -28101,11 +28123,11 @@
     "text": "交点でスナップ"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.EnableTracingAction",
@@ -28128,11 +28150,11 @@
     "text": "トレースを有効にします"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.tracingWidgetAction",
@@ -28180,11 +28202,11 @@
     "text": "自己スナップ"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.shapeButtonAction",
@@ -31406,11 +31428,11 @@
     "text": "メッシュ要素をデジタイズ"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.ActionMeshSelectByPolygon",
@@ -31433,11 +31455,11 @@
     "text": "ポリゴンによるメッシュ要素選択"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.ActionMeshSelectByExpression",
@@ -31539,11 +31561,11 @@
     "text": "Transform Vertices Coordinates"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mActionForceByLines",
@@ -31566,11 +31588,11 @@
     "text": "選択されたジオメトリで強制"
    },
    "ai": null,
-   "tool_result": "untested",
+   "tool_result": "skip",
    "ai_result": "untested",
-   "last_result": "fail",
-   "note": "trigger result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_result": "skip",
+   "note": "action disabled(要コンテキスト)",
+   "last_verified": "2026-11-14T04:04:55+09:00"
   },
   {
    "id": "qgis.action.mWidgetActionForceByLine",
@@ -44195,10 +44217,11 @@
     "cleanup": "QgsProject.instance().setTitle('__TITLE__')"
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.project.crs_get",
@@ -44227,10 +44250,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.project.layers_list",
@@ -44259,10 +44283,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.layer.memory_add_remove",
@@ -44291,10 +44316,11 @@
     "cleanup": "[QgsProject.instance().removeMapLayer(l.id()) for l in QgsProject.instance().mapLayersByName('ai_verify_layer')]"
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.canvas.zoom_full",
@@ -44323,10 +44349,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.canvas.scale_set",
@@ -44355,10 +44382,11 @@
     "cleanup": "iface.mapCanvas().zoomScale(__SCALE__)"
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.canvas.center_set",
@@ -44387,10 +44415,11 @@
     "cleanup": "iface.mapCanvas().setCenter(QgsPointXY(__CENTER__))"
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.expression.eval",
@@ -44419,10 +44448,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.layertree.current_layer",
@@ -44451,10 +44481,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.messagebar.push",
@@ -44483,10 +44514,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.app.processing_registry",
@@ -44515,10 +44547,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.bookmark.add_remove",
@@ -44546,11 +44579,12 @@
     "assert_code": "any(b.name()=='ai_verify' for b in QgsApplication.bookmarkManager().bookmarks())",
     "cleanup": "[QgsApplication.bookmarkManager().removeBookmark(b.id()) for b in QgsApplication.bookmarkManager().bookmarks() if b.name()=='ai_verify']"
    },
-   "tool_result": "untested",
-   "ai_result": "untested",
-   "last_result": "fail",
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
    "note": "pyeval error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 716, in _pyeval\n    res = eval(code_obj, self._ns)  # nosec B307  # 任意Python実行が本プラグインの主目的\n          ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<pyeval",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T04:04:55+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.iface.newProject",
@@ -44691,10 +44725,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.iface.actionPan",
@@ -44723,10 +44758,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.iface.actionIdentify",
@@ -44755,10 +44791,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.iface.actionSelect",
@@ -44786,11 +44823,12 @@
     "assert_code": "iface.actionSelect().isChecked()",
     "cleanup": null
    },
-   "tool_result": "untested",
-   "ai_result": "untested",
-   "last_result": "fail",
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
    "note": "result=False",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T04:04:55+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.iface.actionZoomIn",
@@ -44819,10 +44857,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "ai_result": "fail",
+   "last_result": "fail",
+   "note": "ai: assert=False",
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.browser.dock_exists",
@@ -44851,10 +44890,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.layertree.dock_toggle",
@@ -44883,10 +44923,11 @@
     "cleanup": "[d.setVisible(True) for d in iface.mainWindow().findChildren(QDockWidget) if 'Layer' in d.objectName()]"
    },
    "tool_result": "pass",
-   "ai_result": "untested",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "ai_result": "fail",
+   "last_result": "fail",
+   "note": "ai: assert=False",
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.coord.transform",
@@ -44915,10 +44956,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.edit.session_rollback",
@@ -44947,10 +44989,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.mapcanvas.refresh",
@@ -44979,10 +45022,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.project.write_read",
@@ -45003,18 +45047,19 @@
    },
    "check": {
     "type": "pyeval_assert",
-    "code": "p=QgsProject.instance(); p.setCustomVariables({\"ai_verify\":\"ok\"}); v=p.customVariable(\"ai_verify\"); p.removeCustomVariable(\"ai_verify\"); result=(v==\"ok\")"
+    "code": "from qgis.core import QgsExpressionContextUtils; p=QgsProject.instance(); QgsExpressionContextUtils.setProjectVariable(p, \"ai_verify\", \"ok\"); v=QgsExpressionContextUtils.projectScope(p).variable(\"ai_verify\"); QgsExpressionContextUtils.removeProjectVariable(p, \"ai_verify\"); v2=QgsExpressionContextUtils.projectScope(p).variable(\"ai_verify\"); result=(v==\"ok\" and v2 is None)"
    },
    "ai": {
     "prompt": "プロジェクト変数 ai_verify に値 'ok' を設定して",
     "assert_code": "QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('ai_verify')=='ok'",
     "cleanup": "QgsExpressionContextUtils.projectScope(QgsProject.instance()).removeVariable('ai_verify')"
    },
-   "tool_result": "fail",
-   "ai_result": "untested",
-   "last_result": "fail",
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
    "note": "pyeval error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 716, in _pyeval\n    res = eval(code_obj, self._ns)  # nosec B307  # 任意Python実行が本プラグインの主目的\n          ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<pyeval",
-   "last_verified": "2026-11-14T04:01:34+09:00"
+   "last_verified": "2026-11-14T04:07:37+09:00",
+   "bridge_result": "pass"
   },
   {
    "id": "qgis.api.iface.mapTool",
@@ -45043,10 +45088,11 @@
     "cleanup": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "pass",
    "last_result": "pass",
    "note": "",
-   "last_verified": "2026-11-14T03:16:01+09:00"
+   "last_verified": "2026-11-14T03:16:01+09:00",
+   "bridge_result": "pass"
   }
  ]
 }
