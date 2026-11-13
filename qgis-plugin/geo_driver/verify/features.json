@@ -157,6 +157,28 @@
    "note": "実QGIS(pid28736)の instruction op=list で builtin=true・title/desc/when 正解を確認済"
   },
   {
+   "id": "ai.skill.scale-line-width",
+   "kind": "ai_integration",
+   "name": "同梱スキル scale-line-width",
+   "source": "skills/scale-line-width.md",
+   "signature": "",
+   "summary": "スケール連動の標準線幅(suggestScaleWidth/applyScaleWidth)の手順書。モデルが ai_read_instruction で読む",
+   "needs_runtime": true,
+   "standalone_ok": false,
+   "depends": [
+    "bridge.scaleStyleProfiles",
+    "bridge.suggestScaleWidth",
+    "bridge.applyScaleWidth"
+   ],
+   "verify": {
+    "standalone": "",
+    "integrated": "instruction op=list →skills[]に id=scale-line-width & builtin、op=read→title/desc/when+本文"
+   },
+   "last_result": "pass",
+   "last_verified": "2026-11-14T06:38:42+09:00",
+   "note": "実QGIS(pid28736)の instruction op=list/read で builtin=true・title/desc/when 正解・本文取得を確認済"
+  },
+  {
    "id": "bridge.deployMode",
    "kind": "bridge_method",
    "name": "deployMode",

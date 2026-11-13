@@ -28,7 +28,9 @@
   未ロード時は内部実装へフォールバック)。カテゴリはレイヤ名/
   geomで推定し、`road_major`/`river`/`boundary`/`contour` 等を
   同梱プロファイルが提供。`status()` にもアクティブ
-  プロファイルを載せた
+  プロファイルを載せた。併せて同梱スキル
+  `skills/scale-line-width.md` を追加し、AIチャットが
+  線幅依頼時に手順をオンデマンド参照できるようにした
 - devin_tasks.py + mcp_http.py/live_driver.py: **Devin CLI 委譲ツール**
   `qgis_devin_run`/`qgis_devin_status`/`qgis_devin_result`/
   `qgis_devin_abort` を追加。Devinセッションを
