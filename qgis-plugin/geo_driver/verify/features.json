@@ -142,7 +142,7 @@
    "id": "ai.skill.webgis-convert",
    "kind": "ai_integration",
    "name": "同梱スキル webgis-convert",
-   "source": "skills/webgis-convert.md",
+   "source": "geo_webview/skills/webgis-convert.md",
    "signature": "",
    "summary": "WebGIS(KASUGAI Canvas)向け形式変換・レイヤ追加の手順書。モデルが ai_read_instruction で読む",
    "needs_runtime": true,
@@ -153,8 +153,8 @@
     "integrated": "ai_list_instructions→skills[]に id=webgis-convert & builtin、ai_read_instruction→title/desc/when+本文"
    },
    "last_result": "pass",
-   "last_verified": "2026-11-14T06:27:00+09:00",
-   "note": "実QGIS(pid28736)の instruction op=list で builtin=true・title/desc/when 正解を確認済"
+   "last_verified": "2026-11-14T16:00:00+09:00",
+   "note": "実QGIS(pid28736)の instruction op=list で builtin=true・title/desc/when 正解を確認済 / v?:geo_webview/skills/へ移動(プラグイン別同梱対応後も list で正常検出を再確認)"
   },
   {
    "id": "ai.skill.scale-line-width",
@@ -177,6 +177,28 @@
    "last_result": "pass",
    "last_verified": "2026-11-14T06:38:42+09:00",
    "note": "実QGIS(pid28736)の instruction op=list/read で builtin=true・title/desc/when 正解・本文取得を確認済"
+  },
+  {
+   "id": "ai.skill.webgis-import",
+   "kind": "ai_integration",
+   "name": "同梱スキル webgis-import",
+   "source": "geo_webview/skills/webgis-import.md",
+   "signature": "",
+   "summary": "既存WebGIS(.kasc+DATA/・XYZ/WMS/WFS/MapLibre等)のQGIS取り込み手順書。モデルが ai_read_instruction で読む",
+   "needs_runtime": true,
+   "standalone_ok": false,
+   "depends": [
+    "geo_webview bridge.kascInspect",
+    "geo_webview bridge.kascImport",
+    "geo_webview bridge.kasugaiExport"
+   ],
+   "verify": {
+    "standalone": "",
+    "integrated": "instruction op=list →skills[]に id=webgis-import & builtin、op=read→title/desc/when+本文"
+   },
+   "last_result": "pass",
+   "last_verified": "2026-11-14T06:55:00+09:00",
+   "note": "実QGIS(pid28736)の instruction op=list で builtin=true 検出(geo_webview同梱の集約経由)。実体は geo_webview 4.14.0 の kascImport/kascInspect bridge"
   },
   {
    "id": "bridge.deployMode",
@@ -2826,6 +2848,44 @@
    "last_result": "pass",
    "last_verified": "2026-11-14T02:36:00+09:00",
    "note": "属性/シンボル実在確認(pyeval)"
+  },
+  {
+   "id": "ui.AiPanel.suggestedPrompts",
+   "kind": "ui_control",
+   "name": "おすすめプロンプトコンボ",
+   "source": "ai_panel.py:_on_prompt_activated/_refresh_prompts",
+   "signature": "cmb_prompt (QComboBox) + btn_prompt_edit",
+   "summary": "入力行のおすすめコンボ。選択で prompts/<id>.md の本文を入力欄へ挿入。✎で指示書エディタ(kind=prompts)を開く",
+   "needs_runtime": true,
+   "standalone_ok": false,
+   "depends": [],
+   "verify": {
+    "standalone": "",
+    "integrated": "パネルでコンボ選択→input.setPlainText(本文)。一覧は instruction op=list kind=prompts"
+   },
+   "last_result": "pass",
+   "last_verified": "2026-11-14T06:46:29+09:00",
+   "note": "実QGIS(pid28736)で op=list kind=prompts→6件(geo_driver×4+geo_legend+geo_search 横断集約)、prompt_body→本文のみ返却を確認"
+  },
+  {
+   "id": "ai.prompt.bundled",
+   "kind": "ai_integration",
+   "name": "同梱おすすめプロンプト(6件)",
+   "source": "geo_driver|geo_legend|geo_search の prompts/*.md",
+   "signature": "",
+   "summary": "GIS操作の定型指示をプロンプトファイルとして同梱: organize-layers/standard-line-width/save-map-image/project-doctor(geo_driver), create-legend(geo_legend), search-features(geo_search)。kind=prompts は agents/skills と同じ bundled+ユーザ上書きモデル",
+   "needs_runtime": true,
+   "standalone_ok": false,
+   "depends": [
+    "ui.AiPanel.suggestedPrompts"
+   ],
+   "verify": {
+    "standalone": "",
+    "integrated": "instruction op=list kind=prompts → builtin=true 6件、op=read→本文"
+   },
+   "last_result": "pass",
+   "last_verified": "2026-11-14T06:46:29+09:00",
+   "note": "実QGIS(pid28736)で確認済。ユーザは ~/.qgis-live/prompts/*.md または /prompt・ai_save_instruction で追加可能"
   }
  ],
  "static": {

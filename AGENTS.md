@@ -174,7 +174,10 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`geo_driver`)。
   指示書は2系統のMarkdown: `~/.qgis-live/agents/*.md` は
   常時注入(パネルで選択・複数対応)、`~/.qgis-live/skills/*.md` は
   一覧のみプロンプトに載せモデルがpyevalのopen()で読む
-  オンデマンド手順書。同梱デフォルトは `<plugin>/<kind>/` に置き
+  オンデマンド手順書。同梱デフォルトは **全管理プラグインの**
+  `qgis-plugin/<id>/<skills|agents>/*.md` から集約され
+  (ドメインごとに各プラグインへ配置する: 凡例→geo_legend、
+  WebGIS→geo_webview、横断→geo_driver)、
   ユーザ側同名ファイルが優先される。指示書自体も
   `ai_*`(list/read/save/delete_instruction + ai_select_agent)
   ツールでモデルが編集・選択できる(パネルローカル実行・保存は

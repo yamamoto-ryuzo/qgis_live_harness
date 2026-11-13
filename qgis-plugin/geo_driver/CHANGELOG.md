@@ -6,14 +6,26 @@
 ## [Unreleased]
 
 ### Added
-- skills/webgis-convert.md: **同梱スキル「WebGIS向けデータ形式変換・
-  レイヤ追加」**を追加。サーバレス前提で KASUGAI Canvas
-  (.kasc+DATA/)に最適な出力形式の選定表(GeoJSON/GeoParquet/
-  FlatGeobuf/GPKG/duckdb:/XYZ/3D Tiles)、pyeval による変換→
-  レイヤ追加レシピ、Canvas 側 .qml コンパイラの凡例・ラベル再現
-  範囲、kasugaiExport での送出・検証ループを手順書化。
-  `ai_list_instructions`/`ai_read_instruction` でモデルが
-  オンデマンドに参照する
+- ai_client.py / ai_panel.py / live_driver.py / mcp_http.py:
+  **指示書の第3種別 `prompts`(おすすめプロンプト)**を追加。
+  パネル入力行の「おすすめ…」コンボから選ぶとファイル本文が
+  入力欄へ挿入され、✎ボタン・`/prompt` コマンド・
+  指示書エディタ(kind=Prompts)・`ai_*`/`qgis_instruction`
+  ツール(kind=prompts)で作成・編集できる。配置は agents/
+  skills と同じ bundled `<plugin>/prompts/*.md` + ユーザ
+  `~/.qgis-live/prompts/*.md` 上書きモデル。同梱の定型指示は
+  レイヤ整理・標準線幅・画像保存・状態診断(geo_driver)、
+  凡例作成(geo_legend)、地物検索(geo_search)の6件
+- ai_client.py: **同梱指示書(skills/agents)を全管理プラグインから
+  集約**するように拡張。従来は `geo_driver/skills|agents/` のみだったが、
+  `qgis-plugin/<id>/skills|agents/*.md` を持つ全プラグイン
+  (geo_legend/geo_webview等)をスキャンするため、ドメインごとの
+  手順書を責務プラグイン側に同梱できる。
+  `ai_list_instructions`/`list_skills` の結果メタデータに
+  `when`(use_when ヘッダ行)を追加し、モデルがスキル選択の
+  判断材料を取得できるようにした。
+  併せて `skills/webgis-convert.md` を geo_webview 側へ移動
+  (KASUGAI Canvas は geo_webview の責務のため)
 - scale_style.py + scale_style/default.json: **スケール連動の
   標準線幅サービス**を追加。CADと異なりGISでは線幅を縮尺に連動
   できるため、カテゴリ×縮尺帯の標準幅テーブルをプロファイルJSON

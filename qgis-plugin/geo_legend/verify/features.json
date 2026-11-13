@@ -10,7 +10,7 @@
   "control": "POST /api/cmd Bearer <live_dir token>",
   "detected_from": "scripts/qgis-session.mjs, live_driver.py"
  },
- "updated": "2026-11-14T10:00:00+09:00",
+ "updated": "2026-11-14T16:20:00+09:00",
  "features": [
   {
    "id": "entry_point.__init__.py:classFactory",
@@ -607,6 +607,30 @@
    "note": "v2.7.0新規・bridge_call実測済"
   },
   {
+   "id": "ai.skill.legend-creation",
+   "kind": "ai_integration",
+   "name": "同梱スキル legend-creation",
+   "source": "skills/legend-creation.md",
+   "signature": "",
+   "summary": "凡例作成(applyCategories/applyGraduated/applyRules/addLayoutLegend/exportLegendImage)の手順書。モデルが ai_read_instruction で読む",
+   "needs_runtime": true,
+   "standalone_ok": false,
+   "depends": [
+    "bridge.applyCategories",
+    "bridge.applyGraduated",
+    "bridge.applyRules",
+    "bridge.addLayoutLegend",
+    "bridge.exportLegendImage"
+   ],
+   "verify": {
+    "standalone": "",
+    "integrated": "ai_list_instructions→skills[]に id=legend-creation & builtin、ai_read_instruction→title/desc/when+本文"
+   },
+   "last_result": "pass",
+   "last_verified": "2026-11-14T16:20:00+09:00",
+   "note": "実QGISで ai_client.list_skills()→builtin=true・path=geo_legend/skills/・when正解、load_instruction→本文取得を確認。ai-plane(devin_acp): モデルがスキルを参照し applyCategories(cat/4分類/Spectral) → QgsCategorizedSymbolRenderer実在をassert、addLayoutLegend(検証用凡例) → QgsLayoutItemLegend実在をassert、両方pass"
+  },
+  {
    "id": "ai.bridge_route",
    "kind": "ai_integration",
    "name": "bridge_call経由全到達",
@@ -965,6 +989,24 @@
    "last_result": "pass",
    "last_verified": "2026-11-14T02:32:22+09:00",
    "note": "standalone import+attr実在"
+  },
+  {
+   "id": "ai.prompt.create-legend",
+   "kind": "ai_integration",
+   "name": "同梱おすすめプロンプト create-legend",
+   "source": "prompts/create-legend.md",
+   "signature": "",
+   "summary": "凡例作成の定型指示(パネルのおすすめコンボで選択→入力欄へ挿入)",
+   "needs_runtime": true,
+   "standalone_ok": false,
+   "depends": [],
+   "verify": {
+    "standalone": "",
+    "integrated": "instruction op=list kind=prompts → id=create-legend & builtin、path=geo_legend/prompts/"
+   },
+   "last_result": "pass",
+   "last_verified": "2026-11-14T06:46:49+09:00",
+   "note": "実QGIS(pid28736)で確認済"
   }
  ],
  "static": {

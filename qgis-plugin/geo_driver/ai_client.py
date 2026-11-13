@@ -37,6 +37,7 @@ ai_panel のエージェントループはプロバイダ非依存で回る。
 
 import base64
 import hashlib
+import inspect
 import itertools
 import json
 import os
@@ -551,7 +552,9 @@ Guidelines:
 - `ai_*` tools manage instruction files on this machine:
   `agents` = persistent instructions injected into your system prompt
   (one selected at a time), `skills` = on-demand procedural docs listed
-  in the prompt. You may create or update them when the user asks or
+  in the prompt, `prompts` = canned prompt text shown in the panel's
+  suggestion list (the body is inserted into the user's input field
+  when picked). You may create or update them when the user asks or
   when a reusable procedure emerges. Save always writes a user file;
   bundled files can be shadowed by saving the same id but never deleted.
 - When the user asks to save/learn/create instructions, choose the
@@ -564,6 +567,9 @@ Guidelines:
     a specific task ("remember this workflow", "save how to do X").
     Skills coexist and are read on demand, so this is the default for
     task-specific knowledge.
+  - `prompts`: requests to register a frequently used instruction as
+    a one-click suggestion ("add this to the suggestions"). The file
+    body after the header becomes the text inserted into the input.
   If the intent is genuinely ambiguous, ask the user which they want
   before saving.
 - `mcp_<server>__<tool>` tools (if present) are provided by external
@@ -1400,9 +1406,35 @@ def skills_dir():
     return os.path.join(_registry_dir(), "skills")
 
 
+def prompts_dir():
+    return os.path.join(_registry_dir(), "prompts")
+
+
 def _bundled_dir(kind):
     """プラグイン同梱のデフォルト <kind> ディレクトリ。"""
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), kind)
+
+
+def _bundled_dirs(kind):
+    """同梱 <kind> ディレクトリ群(geo_driver + 全ロードプラグイン)。
+
+    各プラグインが自身の <plugin>/<kind>/*.md を同梱できるようにし、
+    geo_driver のものを先頭に同名は先勝ちで列挙する。
+    """
+    dirs = [_bundled_dir(kind)]
+    try:
+        import qgis.utils
+        for p in qgis.utils.plugins.values():
+            try:
+                d = os.path.join(
+                    os.path.dirname(inspect.getfile(type(p))), kind)
+            except (TypeError, AttributeError):
+                continue
+            if d not in dirs and os.path.isdir(d):
+                dirs.append(d)
+    except Exception:  # nosec B110  # QGIS外利用の許容
+        pass
+    return dirs
 
 
 # ヘッダーの「使いどき」ラベル(説明文の直後・最初の空行までの間に書く)
@@ -1457,9 +1489,10 @@ def list_instruction_files(kind):
     @returns [{id, title, desc, path, builtin}] (id=ファイル名stemで
       ソート)。bundled→user の順で走査し、同名はユーザ側が上書き。
     """
-    udir = agents_dir() if kind == "agents" else skills_dir()
+    udir = os.path.join(_registry_dir(), kind)
     out = {}
-    for d, builtin in ((_bundled_dir(kind), True), (udir, False)):
+    dirs = [(d, True) for d in _bundled_dirs(kind)] + [(udir, False)]
+    for d, builtin in dirs:
         if not os.path.isdir(d):
             continue
         for f in sorted(os.listdir(d)):
@@ -1485,12 +1518,70 @@ def list_skills():
     return list_instruction_files("skills")
 
 
+def list_prompts():
+    """おすすめプロンプト一覧(チャット入力欄へ挿入する定型文)。"""
+    return list_instruction_files("prompts")
+
+
+def _md_body(path):
+    """_md_head と同規則でヘッダー(#タイトル/説明/use_when)を
+    読み飛ばした残りの本文を返す。"""
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+    except OSError:
+        return ""
+    title = desc = None
+    i = 0
+    while i < len(lines):
+        t = lines[i].strip()
+        if not t:
+            if title and desc:
+                i += 1
+                break
+            i += 1
+            continue
+        if t.startswith("#"):
+            if title is None:
+                title = t.lstrip("#").strip()
+                i += 1
+                continue
+            if desc:
+                break       # 次見出し=ヘッダー終了(その行は本文)
+            i += 1
+            continue
+        if desc is None:
+            if t.startswith("---") or t.startswith("<!--"):
+                i += 1
+                continue
+            desc = t
+            i += 1
+            continue
+        if _WHEN_RE.match(t):
+            i += 1        # use_when 行はヘッダーとして消費
+        break               # ラベル行以外=ヘッダー終了(その行は本文)
+    return "".join(lines[i:]).strip()
+
+
+def prompt_body(item_id):
+    """prompts の id → 入力欄へ挿入する本文。未指定/未存在はNone。
+
+    ヘッダー(#タイトル/説明/use_when)を除いた残りを返す。
+    本文が無いファイルは説明→タイトルの順にフォールバックする。
+    """
+    for a in list_instruction_files("prompts"):
+        if a["id"] == item_id:
+            body = _md_body(a["path"])
+            return body or a.get("desc") or a["title"]
+    return None
+
+
 def _kind_dir(kind):
-    return agents_dir() if kind == "agents" else skills_dir()
+    return os.path.join(_registry_dir(), kind)
 
 
 def _kind_list(kind):
-    return list_agents() if kind == "agents" else list_skills()
+    return list_instruction_files(kind)
 
 
 def load_agent(agent_id):
@@ -1566,13 +1657,17 @@ def delete_instruction(kind, item_id):
 # mcp_http.TOOLS と同じ {name, description, inputSchema} 形にして
 # openai_tools()/gemini_tools() にそのまま混ぜられるようにする。
 
-_KIND_PROP = {"type": "string", "enum": ["agents", "skills"],
+_KIND_PROP = {"type": "string",
+              "enum": ["agents", "skills", "prompts"],
               "description":
                   "agents=役割・方針・出力様式など常時注入の指示書"
                   "(同時に1件のみ有効。人格や「常に〜して」系の依頼向け) / "
                   "skills=特定タスクの手順・レシピ"
                   "(複数共存し必要時だけ読まれる。「この手順を覚えて」"
-                  "系の依頼向け)"}
+                  "系の依頼向け) / "
+                  "prompts=チャット入力欄へ挿入する定型文"
+                  "(パネルのおすすめ一覧に出る。「この指示をおすすめに"
+                  "登録して」系の依頼向け。本文=挿入される指示文)"}
 
 INSTRUCTION_TOOLS = [
     {
@@ -1603,7 +1698,10 @@ INSTRUCTION_TOOLS = [
             "Choose the kind by intent: 'agents' for behavior/persona/"
             "output-style instructions (only one is active at a time), "
             "'skills' for task procedures and recipes (many coexist, "
-            "read on demand). Format: first '# ' line = title, next "
+            "read on demand), 'prompts' for canned prompt text shown "
+            "in the panel's suggestion list and inserted into the "
+            "chat input when picked (body = the instruction text). "
+            "Format: first '# ' line = title, next "
             "non-empty line = description, optionally followed by a "
             "'use_when: <when to use>' line (shown in listings so "
             "the model can pick it when a task matches), then the "
@@ -1654,8 +1752,9 @@ def run_instruction_tool(name, args):
         raise ApiError("ai_select_agent is only valid on the AI panel")
     a = args or {}
     kind = a.get("kind") or ""
-    if kind not in ("agents", "skills"):
-        raise ApiError(f"kind must be agents|skills: {kind!r}")
+    if kind not in ("agents", "skills", "prompts"):
+        raise ApiError(
+            f"kind must be agents|skills|prompts: {kind!r}")
     if name == "ai_list_instructions":
         items = list_instruction_files(kind)
         if not items:

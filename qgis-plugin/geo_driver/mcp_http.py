@@ -168,7 +168,9 @@ TOOLS = [
         "description":
             "Manage AI instruction files on this machine. kind=agents "
             "(persistent instructions injected into the assistant's "
-            "system prompt) or skills (on-demand procedural docs). "
+            "system prompt), skills (on-demand procedural docs), or "
+            "prompts (canned prompt text for the panel's suggestion "
+            "list). "
             "op=list|read|save|delete. save writes the user file "
             "(~/.qgis-live/<kind>/<name>.md); a same-id user file "
             "shadows the bundled one. delete works on user files only. "
@@ -180,7 +182,7 @@ TOOLS = [
                 "op": {"type": "string",
                        "enum": ["list", "read", "save", "delete"]},
                 "kind": {"type": "string",
-                         "enum": ["agents", "skills"]},
+                         "enum": ["agents", "skills", "prompts"]},
                 "id": {"type": "string",
                        "description": "対象ファイル名(stem)。read/delete用"},
                 "name": {"type": "string",

@@ -400,6 +400,22 @@ class AiPanel(QDockWidget):
         lay.addWidget(self.input)
 
         row = QHBoxLayout()
+        self.cmb_prompt = QComboBox(root)
+        self.cmb_prompt.setMaximumWidth(170)
+        self.cmb_prompt.setToolTip(self.tr(
+            "Suggested prompts: picking one inserts the prompt text "
+            "into the input field.\n"
+            "Lists bundled <plugin>/prompts/*.md and user "
+            "~/.qgis-live/prompts/*.md.\n"
+            "Edit them via /prompt or the instruction editor."))
+        self.cmb_prompt.activated.connect(self._on_prompt_activated)
+        row.addWidget(self.cmb_prompt)
+        self.btn_prompt_edit = QPushButton("✎", root)
+        self.btn_prompt_edit.setFixedWidth(30)
+        self.btn_prompt_edit.setToolTip(self.tr(
+            "Create, edit, or delete suggested prompts (.md)"))
+        self.btn_prompt_edit.clicked.connect(self._edit_prompts)
+        row.addWidget(self.btn_prompt_edit)
         self.btn_attach = QPushButton("📎", root)
         self.btn_attach.setFixedWidth(30)
         self.btn_attach.setToolTip(self.tr(
@@ -513,6 +529,7 @@ class AiPanel(QDockWidget):
         self.box_api.setVisible(self.btn_settings.isChecked())
         self._refresh_agents(s.value(_SETTING.format("agent"), ""))
         self._refresh_skills()
+        self._refresh_prompts()
         self._update_mcp_label()
 
     def _on_settings_toggled(self, on):
@@ -581,6 +598,43 @@ class AiPanel(QDockWidget):
         self._open_instruction_editor(
             "skills", self.cmb_skill.currentData())
 
+    # ---- おすすめプロンプト(入力欄へ挿入する定型文) ----
+
+    def _refresh_prompts(self):
+        """プロンプトコンボを各プラグイン同梱 + ~/.qgis-live/prompts/
+        で再構築する。先頭はプレースホルダ(選択で入力欄へ挿入)。"""
+        self.cmb_prompt.blockSignals(True)
+        self.cmb_prompt.clear()
+        self.cmb_prompt.addItem(self.tr("Suggested…"), None)
+        for s in ai_client.list_prompts():
+            label = s["title"] + (self.tr(" (bundled)")
+                                  if s["builtin"] else "")
+            self.cmb_prompt.addItem(label, s["id"])
+            tip = s["path"]
+            if s.get("desc"):
+                tip = s["desc"] + "\n" + tip
+            self.cmb_prompt.setItemData(
+                self.cmb_prompt.count() - 1, tip,
+                Qt.ItemDataRole.ToolTipRole)
+        self.cmb_prompt.setCurrentIndex(0)
+        self.cmb_prompt.blockSignals(False)
+
+    def _on_prompt_activated(self, idx):
+        """おすすめプロンプト選択 → 本文を入力欄へ挿入する。"""
+        pid = self.cmb_prompt.itemData(idx)
+        self.cmb_prompt.setCurrentIndex(0)
+        if not pid:
+            return
+        body = ai_client.prompt_body(pid)
+        if body is None:
+            return
+        self.input.setPlainText(body)
+        self.input.setFocus()
+
+    def _edit_prompts(self):
+        self._open_instruction_editor(
+            "prompts", self.cmb_prompt.currentData())
+
     # ---- 指示書編集 ----
     # 「編集」ダイアログは非モーダル。開いている間もチャット入力欄は
     # 通常通り使え、ダイアログ内のプロンプト欄からAIへ本文の修正を
@@ -618,6 +672,7 @@ class AiPanel(QDockWidget):
         """AIのai_*ツールが指示書を更新した後のコンボ再構築。"""
         self._refresh_agents()
         self._refresh_skills()
+        self._refresh_prompts()
         if self._instr_dlg is not None:
             self._instr_dlg.refresh_external()
 
@@ -1490,7 +1545,8 @@ class AiPanel(QDockWidget):
     # チャット入力のローカルコマンド(APIへは送らない)。
     # '/<cmd> <名前>' のあと同一行または改行以降を指示書本文とする。
     _CHAT_CMDS = {"/agent": "agents", "/agents": "agents",
-                  "/skill": "skills", "/skills": "skills"}
+                  "/skill": "skills", "/skills": "skills",
+                  "/prompt": "prompts", "/prompts": "prompts"}
 
     _CMD_USAGE = QT_TRANSLATE_NOOP(
         "geo_driver",
@@ -1501,12 +1557,15 @@ class AiPanel(QDockWidget):
         "  /skill               List skills\n"
         "  /skill <name>        Show a skill's body\n"
         "  /skill <name> <body> Save a skill\n"
+        "  /prompt              List suggested prompts\n"
+        "  /prompt <name>       Insert a prompt into the input\n"
+        "  /prompt <name> <body> Save a suggested prompt\n"
         "(The body can span multiple lines starting from line 2)")
 
     def _chat_command(self, text):
-        """'/agent' '/skill' 系の入力をローカルコマンドとして処理する。
+        """'/agent' '/skill' '/prompt' 系をローカルコマンドとして処理。
 
-        指示書(agents|skills の .md)の保存・切替・参照をAPIを介さず
+        指示書(agents|skills|prompts の .md)の保存・切替・参照をAPIを介さず
         直接行う。処理した場合True(APIへは送らない)。該当しない
         コマンド名の '/' 入力はFalse(通常メッセージとして送信)。
         """
@@ -1536,6 +1595,8 @@ class AiPanel(QDockWidget):
             if not body:
                 if kind == "agents":
                     self._cmd_select_agent(name)
+                elif kind == "prompts":
+                    self._cmd_insert_prompt(name)
                 else:
                     self._cmd_show_instruction(kind, name)
                 return True
@@ -1556,6 +1617,20 @@ class AiPanel(QDockWidget):
         self._append("cmd", self.tr("Switched agent to '{0}'")
                      .format(stem))
 
+    def _cmd_insert_prompt(self, name):
+        """'/prompt <名前>' — おすすめプロンプトを入力欄へ挿入する。"""
+        stem = re.sub(r'[\\/:*?"<>|\s]+', "_", name)
+        body = ai_client.prompt_body(stem)
+        if body is None:
+            raise ai_client.ApiError(
+                self.tr("prompt '{0}' not found "
+                        "(provide a body to save it as new)")
+                .format(stem))
+        self.input.setPlainText(body)
+        self.input.setFocus()
+        self._append("cmd", self.tr("Inserted prompt '{0}'")
+                     .format(stem))
+
     def _cmd_show_instruction(self, kind, name):
         """'/skill <名前>' — 指示書の本文を表示する。"""
         stem = re.sub(r'[\\/:*?"<>|\s]+', "_", name)
@@ -1572,8 +1647,9 @@ class AiPanel(QDockWidget):
         p = ai_client.save_instruction(kind, name, body)
         stem = os.path.splitext(os.path.basename(p))[0]
         self._refresh_instructions()
-        label = (self.tr("agent") if kind == "agents"
-                 else self.tr("skill"))
+        label = {"agents": self.tr("agent"),
+                 "prompts": self.tr("prompt")}.get(
+                     kind, self.tr("skill"))
         if kind == "agents":
             self._on_agent_changed(stem)
             self._append(
@@ -1923,12 +1999,14 @@ class _InstructionsDialog(QDialog):
     _KINDS = [("agents",
                QT_TRANSLATE_NOOP("geo_driver", "Agents")),
               ("skills",
-               QT_TRANSLATE_NOOP("geo_driver", "Skills"))]
+               QT_TRANSLATE_NOOP("geo_driver", "Skills")),
+              ("prompts",
+               QT_TRANSLATE_NOOP("geo_driver", "Prompts"))]
 
     def __init__(self, parent, kind="agents", select=None):
         super().__init__(parent)
         self.setWindowTitle(
-            self.tr("Edit instructions (agents/skills)"))
+            self.tr("Edit instructions"))
         self.resize(760, 480)
         lay = QVBoxLayout(self)
         self.cmb_kind = QComboBox(self)
@@ -2055,12 +2133,16 @@ class _InstructionsDialog(QDialog):
         self._items = {a["id"]: a for a in
                        ai_client.list_instruction_files(kind)}
         self.lbl_hint.setText(
-            self.tr(
+            {"agents": self.tr(
                 "Agents: the selected one is injected into the system "
                 "prompt on every request. Format: \"# Title\" → "
-                "description → \"use_when: when to use\" (optional)")
-            if kind == "agents" else
-            self.tr(
+                "description → \"use_when: when to use\" (optional)"),
+             "prompts": self.tr(
+                "Prompts: shown in the panel's suggestion list; the "
+                "body after the header is inserted into the chat "
+                "input when picked. Format: \"# Title\" → "
+                "description → \"use_when: when to use\" (optional) "
+                "→ prompt text")}.get(kind) or self.tr(
                 "Skills: only the list of id+description+use_when "
                 "appears in the prompt; the model reads the body via "
                 "qgis_pyeval's open() when needed. Format: \"# Title\" "

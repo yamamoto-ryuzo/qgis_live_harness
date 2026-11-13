@@ -5,6 +5,21 @@ All notable changes to the QGIS Legend View plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- `prompts/create-legend.md`: **同梱おすすめプロンプト「凡例の
+  作成」**を追加。geo_driver の prompts 種別(チャット入力欄へ
+  挿入する定型文)がプラグイン別 `prompts/` 集約に対応したため、
+  凡例作成の定型指示を本プラグインに同梱する
+- `skills/legend-creation.md`: **同梱スキル「凡例作成」**を追加。
+  geo_driver の指示書集約がプラグイン別 `skills/` に対応したため、
+  凡例作成の手順書を本プラグインに同梱する。
+  モデルは `ai_list_instructions`→`ai_read_instruction` で
+  オンデマンドに参照し、メソッド選定表(分類/階級区分/ルール/
+  単一・レイアウト凡例・PNG出力)・引数形式・layer解決・
+  scale_style/webgis-convert との連携を得られる
+
 ## [2.8.0] - 2026-11-14
 
 ### Added

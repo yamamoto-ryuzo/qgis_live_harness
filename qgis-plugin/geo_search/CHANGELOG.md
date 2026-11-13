@@ -1,3 +1,9 @@
+# [Unreleased]
+- prompts/search-features.md: **同梱おすすめプロンプト「地物の
+  検索」**を追加。geo_driver の prompts 種別(チャット入力欄へ
+  挿入する定型文)がプラグイン別 `prompts/` 集約に対応したため、
+  属性検索の定型指示を本プラグインに同梱する
+
 # V4.4.10 bridgeのレイヤ参照を削除済みC++ラッパー対策で安全化
 - bridge.py: 検索結果一覧・タブ一覧・zoom・タブ定義で参照する
   `layer.name()`/`layer.id()` を `_layer_name()`/`_layer_id()`

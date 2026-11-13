@@ -1705,3 +1705,44 @@ def test_provider_tags_help_text():
     """ポップアップ用のタグ説明が全タグ分ある。"""
     for tag in ("【API】", "【ACP】", "【ブリッジ】"):
         assert ai_client.PROVIDER_TAGS[tag]
+
+
+def test_prompts_list_and_body(tmp_path, monkeypatch, bundled_skills):
+    """prompts も同梱+ユーザdirから列挙され、prompt_bodyは
+    ヘッダー(#タイトル/説明/use_when)を除いた本文を返す。"""
+    d = tmp_path / "bundled"
+    (d / "prompts").mkdir()
+    (d / "prompts" / "greet.md").write_text(
+        "# 挨拶\n\nあいさつする定型文\nuse_when: 挨拶したいとき\n\n"
+        "こんにちは。レイヤ一覧を出して\n",
+        encoding="utf-8")
+    (d / "prompts" / "no-body.md").write_text(
+        "# タイトルのみ\n\n説明だけ\n",
+        encoding="utf-8")
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    items = {p["id"]: p for p in ai_client.list_prompts()}
+    assert items["greet"]["builtin"]
+    assert items["greet"]["title"] == "挨拶"
+    assert items["greet"]["when"] == "挨拶したいとき"
+    assert ai_client.prompt_body("greet") == \
+        "こんにちは。レイヤ一覧を出して"
+    # 本文が無いファイルは説明文へフォールバック
+    assert ai_client.prompt_body("no-body") == "説明だけ"
+    assert ai_client.prompt_body("missing") is None
+
+
+def test_instruction_tool_prompts_kind(tmp_path, monkeypatch):
+    """ai_*ツールの kind=prompts が list/save/read/delete で動く。"""
+    monkeypatch.setenv("QGIS_LIVE_REGISTRY", str(tmp_path))
+    out = ai_client.run_instruction_tool(
+        "ai_save_instruction",
+        {"kind": "prompts", "name": "定型 a",
+         "text": "# 定型\n\n説明\n\n指示本文"})
+    assert "定型_a.md" in out
+    out = ai_client.run_instruction_tool(
+        "ai_list_instructions", {"kind": "prompts"})
+    assert "定型_a" in out
+    assert ai_client.prompt_body("定型_a") == "指示本文"
+    out = ai_client.run_instruction_tool(
+        "ai_delete_instruction", {"kind": "prompts", "id": "定型_a"})
+    assert "deleted" in out

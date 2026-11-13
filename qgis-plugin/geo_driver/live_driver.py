@@ -491,9 +491,10 @@ class LiveDriver:
             from . import ai_client
             op = cmd.get("op") or ""
             kind = cmd.get("kind") or ""
-            if kind not in ("agents", "skills"):
+            if kind not in ("agents", "skills", "prompts"):
                 reply({"id": cid,
-                       "error": f"kind must be agents|skills: {kind!r}"})
+                       "error": "kind must be agents|skills|prompts: "
+                                f"{kind!r}"})
                 return
             if op == "list":
                 reply({"id": cid, "result":

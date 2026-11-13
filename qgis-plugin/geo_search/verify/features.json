@@ -1409,6 +1409,24 @@
       "last_result": "pass",
       "last_verified": "2026-11-14T02:32:22+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
+    },
+    {
+      "id": "ai.prompt.search-features",
+      "kind": "ai_integration",
+      "name": "同梱おすすめプロンプト search-features",
+      "source": "prompts/search-features.md",
+      "signature": "",
+      "summary": "地物検索の定型指示(パネルのおすすめコンボで選択→入力欄へ挿入)",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "instruction op=list kind=prompts → id=search-features & builtin、path=geo_search/prompts/"
+      },
+      "last_result": "pass",
+      "last_verified": "2026-11-14T06:46:49+09:00",
+      "note": "実QGIS(pid28736)で確認済"
     }
   ],
   "static": {
