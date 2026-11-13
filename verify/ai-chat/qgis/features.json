@@ -8,7 +8,7 @@
   "launch": "npm run live:ensure",
   "control": "POST /api/cmd / pyeval"
  },
- "updated": "2026-11-14T05:26:33+09:00",
+ "updated": "2026-11-14T05:59:23+09:00",
  "features": [
   {
    "id": "qgis.action.mActionNewProject",
@@ -1041,9 +1041,9 @@
   {
    "id": "qgis.action.mActionAddFeature",
    "kind": "qgis_action",
-   "name": "ポリゴン地物を追加",
+   "name": "点地物を追加する",
    "source": "menu:編集(&E)",
-   "summary": "ポリゴン地物を追加 (編集(&E))",
+   "summary": "点地物を追加する (編集(&E))",
    "objectName": "mActionAddFeature",
    "menu_path": "編集(&E)",
    "checkable": true,
@@ -1053,7 +1053,7 @@
     "type": "action_trigger",
     "objectName": "mActionAddFeature",
     "checkable": true,
-    "text": "ポリゴン地物を追加"
+    "text": "点地物を追加する"
    },
    "tool_result": "pass",
    "ai_result": "no_llm",
@@ -1765,7 +1765,7 @@
    "objectName": "mActionPanToSelected",
    "menu_path": "ビュー(&V)",
    "checkable": false,
-   "enabled": true,
+   "enabled": false,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -2039,7 +2039,7 @@
    "objectName": "mActionZoomToSelected",
    "menu_path": "ビュー(&V)",
    "checkable": false,
-   "enabled": true,
+   "enabled": false,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -2685,29 +2685,6 @@
    "last_verified": "2026-11-14T05:16:37+09:00"
   },
   {
-   "id": "qgis.action.AI",
-   "kind": "qgis_action",
-   "name": "AI アシスタント",
-   "source": "menu:ビュー(&V)/パネル",
-   "summary": "AI アシスタント (ビュー(&V)/パネル)",
-   "objectName": "AI",
-   "menu_path": "ビュー(&V)/パネル",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "action_trigger",
-    "objectName": "AI",
-    "checkable": true,
-    "text": "AI アシスタント"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証",
-   "last_verified": "2026-11-14T05:16:37+09:00"
-  },
-  {
    "id": "qgis.action.GPS",
    "kind": "qgis_action",
    "name": "GPS情報",
@@ -3122,27 +3099,27 @@
    "last_verified": "2026-11-14T05:16:50+09:00"
   },
   {
-   "id": "qgis.action.noname",
+   "id": "qgis.action.AI",
    "kind": "qgis_action",
-   "name": "地物情報結果",
+   "name": "AI アシスタント",
    "source": "menu:ビュー(&V)/パネル",
-   "summary": "地物情報結果 (ビュー(&V)/パネル)",
-   "objectName": "noname",
+   "summary": "AI アシスタント (ビュー(&V)/パネル)",
+   "objectName": "AI",
    "menu_path": "ビュー(&V)/パネル",
    "checkable": true,
    "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
-    "objectName": "noname",
+    "objectName": "AI",
     "checkable": true,
-    "text": "地物情報結果"
+    "text": "AI アシスタント"
    },
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "check定義変更のため再検証",
-   "last_verified": "2026-11-14T05:16:50+09:00"
+   "last_verified": "2026-11-14T05:16:37+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -3165,7 +3142,30 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "check定義変更のため再検証",
-   "last_verified": "2026-11-14T05:16:50+09:00"
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.noname",
+   "kind": "qgis_action",
+   "name": "地物情報結果",
+   "source": "menu:ビュー(&V)/パネル",
+   "summary": "地物情報結果 (ビュー(&V)/パネル)",
+   "objectName": "noname",
+   "menu_path": "ビュー(&V)/パネル",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "action_trigger",
+    "objectName": "noname",
+    "checkable": true,
+    "text": "地物情報結果"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.mActionToggleWebToolBar",
@@ -3646,7 +3646,7 @@
    "ai_result": "no_llm",
    "last_result": "skip",
    "note": "disabled: GeoSuite共有ツールバーはドライバが常時表示強制(toggle意図的無効)=仕様",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_verified": "2026-11-14T05:36:06+09:00"
   },
   {
    "id": "qgis.action.ImportPhotos",
@@ -4755,7 +4755,7 @@
    "objectName": "mActionCancelAllEdits",
    "menu_path": "レイヤ(&L)/現在の編集",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
@@ -4839,7 +4839,7 @@
    "objectName": "mActionDuplicateLayer",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": true,
+   "enabled": false,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
@@ -4860,7 +4860,7 @@
    "objectName": "mActionSetLayerScaleVisibility",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": true,
+   "enabled": false,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -4881,7 +4881,7 @@
    "objectName": "mActionSetLayerCRS",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": true,
+   "enabled": false,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -4902,7 +4902,7 @@
    "objectName": "mActionSetProjectCRSFromLayer",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": true,
+   "enabled": false,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -5355,7 +5355,7 @@
    "ai_result": "no_llm",
    "last_result": "skip",
    "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:17:08+09:00"
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action....",
@@ -5671,8 +5671,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:17:08+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.QField",
@@ -5756,7 +5756,7 @@
    "ai_result": "no_llm",
    "last_result": "skip",
    "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:17:08+09:00"
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.AI",
@@ -5839,8 +5839,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:17:08+09:00"
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.searchLayers",
@@ -5923,8 +5923,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:21:37+09:00"
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.geo_search",
@@ -7670,6 +7670,90 @@
    "last_verified": "2026-11-14T05:17:26+09:00"
   },
   {
+   "id": "qgis.action.Qgis2threejsExporterEmb",
+   "kind": "qgis_action",
+   "name": "Qgis2threejs Exporter",
+   "source": "menu:Web(&W)/Qgis2threejs",
+   "summary": "Qgis2threejs Exporter (Web(&W)/Qgis2threejs)",
+   "objectName": "Qgis2threejsExporterEmb",
+   "menu_path": "Web(&W)/Qgis2threejs",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-14T05:18:23+09:00"
+  },
+  {
+   "id": "qgis.action.Qgis2threejsExporterBrw",
+   "kind": "qgis_action",
+   "name": "Qgis2threejs Exporter (Browser Preview)",
+   "source": "menu:Web(&W)/Qgis2threejs",
+   "summary": "Qgis2threejs Exporter (Browser Preview) (Web(&W)/Qgis2threejs)",
+   "objectName": "Qgis2threejsExporterBrw",
+   "menu_path": "Web(&W)/Qgis2threejs",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-14T05:18:23+09:00"
+  },
+  {
+   "id": "qgis.action.Qgis2threejsExporterWoP",
+   "kind": "qgis_action",
+   "name": "Qgis2threejs Exporter (No Preview)",
+   "source": "menu:Web(&W)/Qgis2threejs",
+   "summary": "Qgis2threejs Exporter (No Preview) (Web(&W)/Qgis2threejs)",
+   "objectName": "Qgis2threejsExporterWoP",
+   "menu_path": "Web(&W)/Qgis2threejs",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-14T05:18:23+09:00"
+  },
+  {
+   "id": "qgis.action.Create_web_map",
+   "kind": "qgis_action",
+   "name": "Create web map",
+   "source": "menu:Web(&W)/&qgis2web",
+   "summary": "Create web map (Web(&W)/&qgis2web)",
+   "objectName": "Create_web_map",
+   "menu_path": "Web(&W)/&qgis2web",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Create_web_map' or a.text() == 'Create web map'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Create_web_map' or _a.text() == 'Create web map':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:23+09:00"
+  },
+  {
    "id": "qgis.action.mActionShowMeshCalculator",
    "kind": "qgis_action",
    "name": "メッシュ計算機...",
@@ -8600,6 +8684,48 @@
    "last_verified": "2026-11-14T05:17:35+09:00"
   },
   {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "フィルタ式を編集",
+   "source": "mainWindow",
+   "summary": "フィルタ式を編集 (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'フィルタ式を編集'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'フィルタ式を編集':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "result=False",
+   "last_verified": "2026-11-14T05:17:35+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "フィルタ式をクリア",
+   "source": "mainWindow",
+   "summary": "フィルタ式をクリア (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": false,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'フィルタ式をクリア'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'フィルタ式をクリア':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "result=False",
+   "last_verified": "2026-11-14T05:17:35+09:00"
+  },
+  {
    "id": "qgis.action.mActionAddLayers",
    "kind": "qgis_action",
    "name": "レイヤを追加",
@@ -8812,8 +8938,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:17:35+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:56:17+09:00"
   },
   {
    "id": "qgis.action.mFloaterAction",
@@ -8832,11 +8958,11 @@
     "checkable": true,
     "text": "Floater settings"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: Floater/CADプラグインのドック活性が前提",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:54:22+09:00"
   },
   {
    "id": "qgis.action.mConstructionAction",
@@ -8855,11 +8981,11 @@
     "checkable": true,
     "text": "作図"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: Floater/CADプラグインのドック活性が前提",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:54:22+09:00"
   },
   {
    "id": "qgis.action.mEnableAction",
@@ -8878,11 +9004,11 @@
     "checkable": true,
     "text": ""
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: Floater/CADプラグインのドック活性が前提",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:36:06+09:00"
   },
   {
    "id": "qgis.action.mConstructionModeAction",
@@ -8901,11 +9027,11 @@
     "checkable": true,
     "text": ""
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: Floater/CADプラグインのドック活性が前提",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:54:22+09:00"
   },
   {
    "id": "qgis.action.mParallelAction",
@@ -8927,8 +9053,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "disabled: Floater/CADプラグインのドック活性が前提",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "note": "disabled: デジタイズ作図進行中の平行拘束(作図ストローク中のみ有効)",
+   "last_verified": "2026-11-14T05:54:22+09:00"
   },
   {
    "id": "qgis.action.mPerpendicularAction",
@@ -8950,8 +9076,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "disabled: Floater/CADプラグインのドック活性が前提",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "note": "disabled: デジタイズ作図進行中の垂直拘束(作図ストローク中のみ有効)",
+   "last_verified": "2026-11-14T05:54:22+09:00"
   },
   {
    "id": "qgis.action.mToolsAction",
@@ -8970,11 +9096,11 @@
     "checkable": true,
     "text": ""
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: Floater/CADプラグインのドック活性が前提",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:54:22+09:00"
   },
   {
    "id": "qgis.action.mSettingsAction",
@@ -9078,8 +9204,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:17:35+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.0.1_0.2_0.3_0.4_...",
@@ -9775,69 +9901,6 @@
    "last_verified": "2026-11-14T05:17:45+09:00"
   },
   {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "自動的にプロジェクトを開く",
-   "source": "mainWindow",
-   "summary": "自動的にプロジェクトを開く (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:17:45+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "フィルタ式を編集",
-   "source": "mainWindow",
-   "summary": "フィルタ式を編集 (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'フィルタ式を編集'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'フィルタ式を編集':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:17:45+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "フィルタ式をクリア",
-   "source": "mainWindow",
-   "summary": "フィルタ式をクリア (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": false,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'フィルタ式をクリア'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'フィルタ式をクリア':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:17:45+09:00"
-  },
-  {
    "id": "qgis.action.mActionZoomToLayer",
    "kind": "qgis_action",
    "name": "レイヤの領域にズーム(L)",
@@ -9890,7 +9953,7 @@
    "objectName": "mActionMoveLabel",
    "menu_path": "(mainWindow)",
    "checkable": true,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -9898,11 +9961,11 @@
     "checkable": true,
     "text": "ラベルとダイアグラム、引出し線を移動"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: ラベルエンジン有効レイヤが前提(仮設定でも無効のまま)",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:53:40+09:00"
   },
   {
    "id": "qgis.action.mActionRotateLabel",
@@ -9913,7 +9976,7 @@
    "objectName": "mActionRotateLabel",
    "menu_path": "(mainWindow)",
    "checkable": true,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -9921,11 +9984,11 @@
     "checkable": true,
     "text": "ラベルを回転"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: ラベルエンジン有効レイヤが前提(仮設定でも無効のまま)",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:53:40+09:00"
   },
   {
    "id": "qgis.action.mActionChangeLabelProperties",
@@ -9936,7 +9999,7 @@
    "objectName": "mActionChangeLabelProperties",
    "menu_path": "(mainWindow)",
    "checkable": true,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -9944,11 +10007,11 @@
     "checkable": true,
     "text": "ラベルを変更"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: ラベルエンジン有効レイヤが前提(仮設定でも無効のまま)",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:53:40+09:00"
   },
   {
    "id": "qgis.action.mActionFullHistogramStretch",
@@ -10024,7 +10087,7 @@
    "objectName": "mActionPinLabels",
    "menu_path": "(mainWindow)",
    "checkable": true,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -10131,7 +10194,7 @@
    "objectName": "mActionShowHideLabels",
    "menu_path": "(mainWindow)",
    "checkable": true,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -10139,11 +10202,11 @@
     "checkable": true,
     "text": "ラベルとダイアグラムの表示非表示切り替え"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: ラベルエンジン有効レイヤが前提(仮設定でも無効のまま)",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:53:40+09:00"
   },
   {
    "id": "qgis.action.mActionAllEdits",
@@ -10154,7 +10217,7 @@
    "objectName": "mActionAllEdits",
    "menu_path": "(mainWindow)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
@@ -10395,11 +10458,11 @@
     "checkable": true,
     "text": "曲線でデジタイズ"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: Shape Digitizingツールバーのコンテキスト前提",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:36:06+09:00"
   },
   {
    "id": "qgis.action.mActionStreamDigitize",
@@ -10418,11 +10481,11 @@
     "checkable": true,
     "text": "ストリーム・デジタイジング"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: Shape Digitizingツールバーのコンテキスト前提",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:36:06+09:00"
   },
   {
    "id": "qgis.action.mActionCreateAnnotationLayer",
@@ -10529,11 +10592,11 @@
     "checkable": true,
     "text": "セグメントでデジタイズ"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: Shape Digitizingツールバーのコンテキスト前提",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:36:06+09:00"
   },
   {
    "id": "qgis.action.mActionDigitizeShape",
@@ -10552,11 +10615,11 @@
     "checkable": true,
     "text": "シェープをデジタイズ"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: Shape Digitizingツールバーのコンテキスト前提",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:36:06+09:00"
   },
   {
    "id": "qgis.action.mActionDigitizeWithBezier",
@@ -10575,11 +10638,11 @@
     "checkable": true,
     "text": "Digitize with Bézier Curve"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: Shape Digitizingツールバーのコンテキスト前提",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:36:06+09:00"
   },
   {
    "id": "qgis.action.mActionDigitizeWithNurbs",
@@ -10598,11 +10661,11 @@
     "checkable": true,
     "text": "Digitize with NURBS Curve"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "disabled: Shape Digitizingツールバーのコンテキスト前提",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:36:06+09:00"
   },
   {
    "id": "qgis.action.mActionElevationProfile",
@@ -10706,8 +10769,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:17:56+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -10728,7 +10791,7 @@
    "ai_result": "no_llm",
    "last_result": "skip",
    "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:17:56+09:00"
+   "last_verified": "2026-11-14T05:56:17+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -10770,7 +10833,7 @@
    "ai_result": "no_llm",
    "last_result": "skip",
    "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:17:56+09:00"
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -10791,7 +10854,7 @@
    "ai_result": "no_llm",
    "last_result": "skip",
    "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:17:56+09:00"
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.Models",
@@ -10874,8 +10937,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:17:56+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:56:17+09:00"
   },
   {
    "id": "qgis.action.D",
@@ -11126,8 +11189,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:17:56+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.S",
@@ -11463,7 +11526,7 @@
    "ai_result": "no_llm",
    "last_result": "skip",
    "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:17:56+09:00"
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -11483,8 +11546,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:17:56+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:56:17+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -11504,8 +11567,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:17:56+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -11525,8 +11588,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:17:56+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.M",
@@ -11990,7 +12053,7 @@
    "ai_result": "no_llm",
    "last_result": "skip",
    "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:05+09:00"
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.mAllowIntersectionsAction",
@@ -12074,7 +12137,7 @@
    "ai_result": "no_llm",
    "last_result": "skip",
    "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:05+09:00"
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.mAllLayersAction",
@@ -12181,7 +12244,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "check定義変更のため再検証",
-   "last_verified": "2026-11-14T05:18:05+09:00"
+   "last_verified": "2026-11-14T05:56:17+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -12273,7 +12336,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "check定義変更のため再検証",
-   "last_verified": "2026-11-14T05:18:05+09:00"
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -12296,7 +12359,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "check定義変更のため再検証",
-   "last_verified": "2026-11-14T05:18:05+09:00"
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.TopologicalEditingAction",
@@ -12643,6 +12706,363 @@
    "last_verified": "2026-11-14T05:18:05+09:00"
   },
   {
+   "id": "qgis.action.Count",
+   "kind": "qgis_action",
+   "name": "カウント（Count）",
+   "source": "mainWindow",
+   "summary": "カウント（Count） (ツールバー/コンテキスト)",
+   "objectName": "Count",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Count' or a.text() == 'カウント（Count）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Count' or _a.text() == 'カウント（Count）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.Sum",
+   "kind": "qgis_action",
+   "name": "合計（Sum）",
+   "source": "mainWindow",
+   "summary": "合計（Sum） (ツールバー/コンテキスト)",
+   "objectName": "Sum",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Sum' or a.text() == '合計（Sum）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Sum' or _a.text() == '合計（Sum）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.Mean",
+   "kind": "qgis_action",
+   "name": "平均値（Mean）",
+   "source": "mainWindow",
+   "summary": "平均値（Mean） (ツールバー/コンテキスト)",
+   "objectName": "Mean",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Mean' or a.text() == '平均値（Mean）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Mean' or _a.text() == '平均値（Mean）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.Median",
+   "kind": "qgis_action",
+   "name": "中央値（Median）",
+   "source": "mainWindow",
+   "summary": "中央値（Median） (ツールバー/コンテキスト)",
+   "objectName": "Median",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Median' or a.text() == '中央値（Median）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Median' or _a.text() == '中央値（Median）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "標準偏差 （母集団）",
+   "source": "mainWindow",
+   "summary": "標準偏差 （母集団） (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '標準偏差 （母集団）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '標準偏差 （母集団）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:56:17+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "標準偏差 （標本）",
+   "source": "mainWindow",
+   "summary": "標準偏差 （標本） (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '標準偏差 （標本）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '標準偏差 （標本）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "result=False",
+   "last_verified": "2026-11-14T05:18:14+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "最小",
+   "source": "mainWindow",
+   "summary": "最小 (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '最小'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '最小':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "result=False",
+   "last_verified": "2026-11-14T05:18:14+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "最大",
+   "source": "mainWindow",
+   "summary": "最大 (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '最大'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '最大':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "result=False",
+   "last_verified": "2026-11-14T05:18:14+09:00"
+  },
+  {
+   "id": "qgis.action.Range",
+   "kind": "qgis_action",
+   "name": "範囲（Range）",
+   "source": "mainWindow",
+   "summary": "範囲（Range） (ツールバー/コンテキスト)",
+   "objectName": "Range",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Range' or a.text() == '範囲（Range）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Range' or _a.text() == '範囲（Range）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.Minority",
+   "kind": "qgis_action",
+   "name": "最稀値（Minority）",
+   "source": "mainWindow",
+   "summary": "最稀値（Minority） (ツールバー/コンテキスト)",
+   "objectName": "Minority",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Minority' or a.text() == '最稀値（Minority）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Minority' or _a.text() == '最稀値（Minority）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.Majority",
+   "kind": "qgis_action",
+   "name": "最頻値（Majority）",
+   "source": "mainWindow",
+   "summary": "最頻値（Majority） (ツールバー/コンテキスト)",
+   "objectName": "Majority",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Majority' or a.text() == '最頻値（Majority）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Majority' or _a.text() == '最頻値（Majority）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.Variety",
+   "kind": "qgis_action",
+   "name": "種類（Variety）",
+   "source": "mainWindow",
+   "summary": "種類（Variety） (ツールバー/コンテキスト)",
+   "objectName": "Variety",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Variety' or a.text() == '種類（Variety）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Variety' or _a.text() == '種類（Variety）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.Q1",
+   "kind": "qgis_action",
+   "name": "第１四分位（Q1）",
+   "source": "mainWindow",
+   "summary": "第１四分位（Q1） (ツールバー/コンテキスト)",
+   "objectName": "Q1",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Q1' or a.text() == '第１四分位（Q1）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Q1' or _a.text() == '第１四分位（Q1）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.Q3",
+   "kind": "qgis_action",
+   "name": "第３四分位（Q3）",
+   "source": "mainWindow",
+   "summary": "第３四分位（Q3） (ツールバー/コンテキスト)",
+   "objectName": "Q3",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Q3' or a.text() == '第３四分位（Q3）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Q3' or _a.text() == '第３四分位（Q3）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.IQR",
+   "kind": "qgis_action",
+   "name": "四分位範囲（IQR）",
+   "source": "mainWindow",
+   "summary": "四分位範囲（IQR） (ツールバー/コンテキスト)",
+   "objectName": "IQR",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'IQR' or a.text() == '四分位範囲（IQR）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'IQR' or _a.text() == '四分位範囲（IQR）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.NULL",
+   "kind": "qgis_action",
+   "name": "欠落（NULL）値",
+   "source": "mainWindow",
+   "summary": "欠落（NULL）値 (ツールバー/コンテキスト)",
+   "objectName": "NULL",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'NULL' or a.text() == '欠落（NULL）値'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'NULL' or _a.text() == '欠落（NULL）値':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "選択したレイヤに従う",
+   "source": "mainWindow",
+   "summary": "選択したレイヤに従う (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '選択したレイヤに従う'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '選択したレイヤに従う':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "result=False",
+   "last_verified": "2026-11-14T05:18:14+09:00"
+  },
+  {
    "id": "qgis.action.noname_noname",
    "kind": "qgis_action",
    "name": "パネル",
@@ -12681,8 +13101,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:18:14+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.U",
@@ -12725,6 +13145,27 @@
    "last_result": "pass",
    "note": "result=False",
    "last_verified": "2026-11-14T05:18:14+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "自動的にプロジェクトを開く",
+   "source": "mainWindow",
+   "summary": "自動的にプロジェクトを開く (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.Copy",
@@ -12871,7 +13312,7 @@
    "ai_result": "no_llm",
    "last_result": "skip",
    "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:14+09:00"
+   "last_verified": "2026-11-14T05:56:17+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -12975,8 +13416,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:18:14+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:56:17+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -12996,8 +13437,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:18:14+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:56:17+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13081,7 +13522,7 @@
    "ai_result": "no_llm",
    "last_result": "skip",
    "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:14+09:00"
+   "last_verified": "2026-11-14T05:56:17+09:00"
   },
   {
    "id": "qgis.action.mActionClear",
@@ -13297,7 +13738,7 @@
    "ai_result": "no_llm",
    "last_result": "skip",
    "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:14+09:00"
+   "last_verified": "2026-11-14T05:56:17+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13318,7 +13759,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "result=False",
-   "last_verified": "2026-11-14T05:18:14+09:00"
+   "last_verified": "2026-11-14T05:18:23+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13339,7 +13780,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "result=False",
-   "last_verified": "2026-11-14T05:18:14+09:00"
+   "last_verified": "2026-11-14T05:18:23+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13360,7 +13801,70 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "result=False",
-   "last_verified": "2026-11-14T05:18:14+09:00"
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "全範囲に設定",
+   "source": "mainWindow",
+   "summary": "全範囲に設定 (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-14T05:56:17+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "プリセットのプロジェクト範囲に設定",
+   "source": "mainWindow",
+   "summary": "プリセットのプロジェクト範囲に設定 (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-14T05:56:17+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "単一レイヤ範囲に設定",
+   "source": "mainWindow",
+   "summary": "単一レイヤ範囲に設定 (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": false,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-14T05:56:17+09:00"
   },
   {
    "id": "qgis.action.Show_Location_Marker",
@@ -13554,9 +14058,9 @@
   {
    "id": "qgis.action.mConnectAction",
    "kind": "qgis_action",
-   "name": "Disconnect GPS",
+   "name": "Connect GPS",
    "source": "mainWindow",
-   "summary": "Disconnect GPS (ツールバー/コンテキスト)",
+   "summary": "Connect GPS (ツールバー/コンテキスト)",
    "objectName": "mConnectAction",
    "menu_path": "(mainWindow)",
    "checkable": true,
@@ -13566,7 +14070,7 @@
     "type": "action_trigger",
     "objectName": "mConnectAction",
     "checkable": true,
-    "text": "Disconnect GPS"
+    "text": "Connect GPS"
    },
    "tool_result": "pass",
    "ai_result": "no_llm",
@@ -13583,7 +14087,7 @@
    "objectName": "mRecenterAction",
    "menu_path": "(mainWindow)",
    "checkable": false,
-   "enabled": true,
+   "enabled": false,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -13625,7 +14129,7 @@
    "objectName": "mAddTrackVertexAction",
    "menu_path": "(mainWindow)",
    "checkable": false,
-   "enabled": true,
+   "enabled": false,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
@@ -13640,9 +14144,9 @@
   {
    "id": "qgis.action.mCreateFeatureAction",
    "kind": "qgis_action",
-   "name": "Create Polygon Feature from Track",
+   "name": "Create Point Feature at Location",
    "source": "mainWindow",
-   "summary": "Create Polygon Feature from Track (ツールバー/コンテキスト)",
+   "summary": "Create Point Feature at Location (ツールバー/コンテキスト)",
    "objectName": "mCreateFeatureAction",
    "menu_path": "(mainWindow)",
    "checkable": false,
@@ -13650,7 +14154,7 @@
    "ai_sample": false,
    "check": {
     "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mCreateFeatureAction' or a.text() == 'Create Polygon Feature from Track'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mCreateFeatureAction' or _a.text() == 'Create Polygon Feature from Track':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mCreateFeatureAction' or a.text() == 'Create Point Feature at Location'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mCreateFeatureAction' or _a.text() == 'Create Point Feature at Location':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
    "ai_result": "no_llm",
@@ -13724,153 +14228,6 @@
    "last_verified": "2026-11-14T05:18:23+09:00"
   },
   {
-   "id": "qgis.action.Show_Location",
-   "kind": "qgis_action",
-   "name": "Show Location",
-   "source": "mainWindow",
-   "summary": "Show Location (ツールバー/コンテキスト)",
-   "objectName": "Show_Location",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Show_Location' or a.text() == 'Show Location'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Show_Location' or _a.text() == 'Show Location':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.Show_Altitude_Geoid",
-   "kind": "qgis_action",
-   "name": "Show Altitude (Geoid)",
-   "source": "mainWindow",
-   "summary": "Show Altitude (Geoid) (ツールバー/コンテキスト)",
-   "objectName": "Show_Altitude_Geoid",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Show_Altitude_Geoid' or a.text() == 'Show Altitude (Geoid)'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Show_Altitude_Geoid' or _a.text() == 'Show Altitude (Geoid)':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.Show_Altitude_WGS-84_Ellipsoid",
-   "kind": "qgis_action",
-   "name": "Show Altitude (WGS-84 Ellipsoid)",
-   "source": "mainWindow",
-   "summary": "Show Altitude (WGS-84 Ellipsoid) (ツールバー/コンテキスト)",
-   "objectName": "Show_Altitude_WGS-84_Ellipsoid",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Show_Altitude_WGS-84_Ellipsoid' or a.text() == 'Show Altitude (WGS-84 Ellipsoid)'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Show_Altitude_WGS-84_Ellipsoid' or _a.text() == 'Show Altitude (WGS-84 Ellipsoid)':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.Show_Ground_Speed",
-   "kind": "qgis_action",
-   "name": "Show Ground Speed",
-   "source": "mainWindow",
-   "summary": "Show Ground Speed (ツールバー/コンテキスト)",
-   "objectName": "Show_Ground_Speed",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Show_Ground_Speed' or a.text() == 'Show Ground Speed'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Show_Ground_Speed' or _a.text() == 'Show Ground Speed':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.Show_Bearing",
-   "kind": "qgis_action",
-   "name": "Show Bearing",
-   "source": "mainWindow",
-   "summary": "Show Bearing (ツールバー/コンテキスト)",
-   "objectName": "Show_Bearing",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Show_Bearing' or a.text() == 'Show Bearing'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Show_Bearing' or _a.text() == 'Show Bearing':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.Show_Total_Track_Length",
-   "kind": "qgis_action",
-   "name": "Show Total Track Length",
-   "source": "mainWindow",
-   "summary": "Show Total Track Length (ツールバー/コンテキスト)",
-   "objectName": "Show_Total_Track_Length",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Show_Total_Track_Length' or a.text() == 'Show Total Track Length'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Show_Total_Track_Length' or _a.text() == 'Show Total Track Length':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.Show_Distance_from_Start_of_Track",
-   "kind": "qgis_action",
-   "name": "Show Distance from Start of Track",
-   "source": "mainWindow",
-   "summary": "Show Distance from Start of Track (ツールバー/コンテキスト)",
-   "objectName": "Show_Distance_from_Start_of_Track",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Show_Distance_from_Start_of_Track' or a.text() == 'Show Distance from Start of Track'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Show_Distance_from_Start_of_Track' or _a.text() == 'Show Distance from Start of Track':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
    "id": "qgis.action.Update_GPS_Information",
    "kind": "qgis_action",
    "name": "Update GPS Information",
@@ -13931,7 +14288,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "result=False",
-   "last_verified": "2026-11-14T05:18:23+09:00"
+   "last_verified": "2026-11-14T05:18:32+09:00"
   },
   {
    "id": "qgis.action.mActionPolygonAnnotation",
@@ -14116,27 +14473,6 @@
    "last_verified": "2026-11-14T05:18:23+09:00"
   },
   {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "ホットリロード",
-   "source": "mainWindow",
-   "summary": "ホットリロード (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'ホットリロード'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'ホットリロード':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
    "id": "qgis.action.geo_excel",
    "kind": "qgis_action",
    "name": "geo_excel",
@@ -14217,8 +14553,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:18:23+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:56:17+09:00"
   },
   {
    "id": "qgis.action.geo_report",
@@ -14259,8 +14595,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:18:23+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:56:17+09:00"
   },
   {
    "id": "qgis.action.geo_userfunc",
@@ -14431,69 +14767,6 @@
    "last_verified": "2026-11-14T05:18:23+09:00"
   },
   {
-   "id": "qgis.action.Qgis2threejsExporterEmb",
-   "kind": "qgis_action",
-   "name": "Qgis2threejs Exporter",
-   "source": "mainWindow",
-   "summary": "Qgis2threejs Exporter (ツールバー/コンテキスト)",
-   "objectName": "Qgis2threejsExporterEmb",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.Qgis2threejsExporterBrw",
-   "kind": "qgis_action",
-   "name": "Qgis2threejs Exporter (Browser Preview)",
-   "source": "mainWindow",
-   "summary": "Qgis2threejs Exporter (Browser Preview) (ツールバー/コンテキスト)",
-   "objectName": "Qgis2threejsExporterBrw",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.Qgis2threejsExporterWoP",
-   "kind": "qgis_action",
-   "name": "Qgis2threejs Exporter (No Preview)",
-   "source": "mainWindow",
-   "summary": "Qgis2threejs Exporter (No Preview) (ツールバー/コンテキスト)",
-   "objectName": "Qgis2threejsExporterWoP",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
    "id": "qgis.action.Qgis2threejs",
    "kind": "qgis_action",
    "name": "Qgis2threejs",
@@ -14507,27 +14780,6 @@
    "check": {
     "type": "exists_only",
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Qgis2threejs' or a.text() == 'Qgis2threejs'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Qgis2threejs' or _a.text() == 'Qgis2threejs':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.Create_web_map",
-   "kind": "qgis_action",
-   "name": "Create web map",
-   "source": "mainWindow",
-   "summary": "Create web map (ツールバー/コンテキスト)",
-   "objectName": "Create_web_map",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Create_web_map' or a.text() == 'Create web map'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Create_web_map' or _a.text() == 'Create web map':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
    "ai_result": "no_llm",
@@ -14641,877 +14893,6 @@
    "last_verified": "2026-11-14T05:18:23+09:00"
   },
   {
-   "id": "qgis.action.optionsAction",
-   "kind": "qgis_action",
-   "name": "オプション",
-   "source": "mainWindow",
-   "summary": "オプション (ツールバー/コンテキスト)",
-   "objectName": "optionsAction",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.mProcessingAlg_native_selectbylocation",
-   "kind": "qgis_action",
-   "name": "場所による選択",
-   "source": "mainWindow",
-   "summary": "場所による選択 (ツールバー/コンテキスト)",
-   "objectName": "mProcessingAlg_native:selectbylocation",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mProcessingAlg_native:selectbylocation' or a.text() == '場所による選択'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mProcessingAlg_native:selectbylocation' or _a.text() == '場所による選択':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.mProcessingAlg_native_selectwithindistance",
-   "kind": "qgis_action",
-   "name": "一定距離以内の地物を選択",
-   "source": "mainWindow",
-   "summary": "一定距離以内の地物を選択 (ツールバー/コンテキスト)",
-   "objectName": "mProcessingAlg_native:selectwithindistance",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mProcessingAlg_native:selectwithindistance' or a.text() == '一定距離以内の地物を選択'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mProcessingAlg_native:selectwithindistance' or _a.text() == '一定距離以内の地物を選択':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.mExpandAction",
-   "kind": "qgis_action",
-   "name": "ツリーを展開する",
-   "source": "mainWindow",
-   "summary": "ツリーを展開する (ツールバー/コンテキスト)",
-   "objectName": "mExpandAction",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mExpandAction' or a.text() == 'ツリーを展開する'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mExpandAction' or _a.text() == 'ツリーを展開する':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.mCollapseAction",
-   "kind": "qgis_action",
-   "name": "ツリーを折りたたむ",
-   "source": "mainWindow",
-   "summary": "ツリーを折りたたむ (ツールバー/コンテキスト)",
-   "objectName": "mCollapseAction",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mCollapseAction' or a.text() == 'ツリーを折りたたむ'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mCollapseAction' or _a.text() == 'ツリーを折りたたむ':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.mExpandNewAction",
-   "kind": "qgis_action",
-   "name": "結果を展開する",
-   "source": "mainWindow",
-   "summary": "結果を展開する (ツールバー/コンテキスト)",
-   "objectName": "mExpandNewAction",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "action_trigger",
-    "objectName": "mExpandNewAction",
-    "checkable": true,
-    "text": "結果を展開する"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.mOpenFormAction",
-   "kind": "qgis_action",
-   "name": "フォームを開く",
-   "source": "mainWindow",
-   "summary": "フォームを開く (ツールバー/コンテキスト)",
-   "objectName": "mOpenFormAction",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": false,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.mClearResultsAction",
-   "kind": "qgis_action",
-   "name": "結果をクリア",
-   "source": "mainWindow",
-   "summary": "結果をクリア (ツールバー/コンテキスト)",
-   "objectName": "mClearResultsAction",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mClearResultsAction' or a.text() == '結果をクリア'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mClearResultsAction' or _a.text() == '結果をクリア':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.mActionCopy",
-   "kind": "qgis_action",
-   "name": "地物をコピー",
-   "source": "mainWindow",
-   "summary": "地物をコピー (ツールバー/コンテキスト)",
-   "objectName": "mActionCopy",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": false,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mActionCopy' or a.text() == '地物をコピー'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mActionCopy' or _a.text() == '地物をコピー':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.mActionPrint",
-   "kind": "qgis_action",
-   "name": "レスポンスの印刷",
-   "source": "mainWindow",
-   "summary": "レスポンスの印刷 (ツールバー/コンテキスト)",
-   "objectName": "mActionPrint",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.mActionSelectFeaturesOnMouseOver",
-   "kind": "qgis_action",
-   "name": "Identify Feature on Mouse Over",
-   "source": "mainWindow",
-   "summary": "Identify Feature on Mouse Over (ツールバー/コンテキスト)",
-   "objectName": "mActionSelectFeaturesOnMouseOver",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "action_trigger",
-    "objectName": "mActionSelectFeaturesOnMouseOver",
-    "checkable": false,
-    "text": "Identify Feature(s) on Mouse Over"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.mActionAutoFeatureForm",
-   "kind": "qgis_action",
-   "name": "単一地物の場合、自動でフォームを開く",
-   "source": "mainWindow",
-   "summary": "単一地物の場合、自動でフォームを開く (ツールバー/コンテキスト)",
-   "objectName": "mActionAutoFeatureForm",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": false,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.mActionHideDerivedAttributes",
-   "kind": "qgis_action",
-   "name": "結果の派生属性を隠す",
-   "source": "mainWindow",
-   "summary": "結果の派生属性を隠す (ツールバー/コンテキスト)",
-   "objectName": "mActionHideDerivedAttributes",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "action_trigger",
-    "objectName": "mActionHideDerivedAttributes",
-    "checkable": true,
-    "text": "結果の派生属性を隠す"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.mActionShowRelations",
-   "kind": "qgis_action",
-   "name": "Show Relations",
-   "source": "mainWindow",
-   "summary": "Show Relations (ツールバー/コンテキスト)",
-   "objectName": "mActionShowRelations",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "action_trigger",
-    "objectName": "mActionShowRelations",
-    "checkable": true,
-    "text": "Show Relations"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.mHelpToolAction",
-   "kind": "qgis_action",
-   "name": "ヘルプ",
-   "source": "mainWindow",
-   "summary": "ヘルプ (ツールバー/コンテキスト)",
-   "objectName": "mHelpToolAction",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mHelpToolAction' or a.text() == 'ヘルプ'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mHelpToolAction' or _a.text() == 'ヘルプ':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.mActionHideNullValues",
-   "kind": "qgis_action",
-   "name": "結果のNULL値を隠す",
-   "source": "mainWindow",
-   "summary": "結果のNULL値を隠す (ツールバー/コンテキスト)",
-   "objectName": "mActionHideNullValues",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "action_trigger",
-    "objectName": "mActionHideNullValues",
-    "checkable": true,
-    "text": "結果のNULL値を隠す"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.actionAdd",
-   "kind": "qgis_action",
-   "name": "追加",
-   "source": "mainWindow",
-   "summary": "追加 (ツールバー/コンテキスト)",
-   "objectName": "actionAdd",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'actionAdd' or a.text() == '追加'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'actionAdd' or _a.text() == '追加':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.actionDelete",
-   "kind": "qgis_action",
-   "name": "削除",
-   "source": "mainWindow",
-   "summary": "削除 (ツールバー/コンテキスト)",
-   "objectName": "actionDelete",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.actionZoomTo",
-   "kind": "qgis_action",
-   "name": "ズーム",
-   "source": "mainWindow",
-   "summary": "ズーム (ツールバー/コンテキスト)",
-   "objectName": "actionZoomTo",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'actionZoomTo' or a.text() == 'ズーム'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'actionZoomTo' or _a.text() == 'ズーム':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.actionExport",
-   "kind": "qgis_action",
-   "name": "Export",
-   "source": "mainWindow",
-   "summary": "Export (ツールバー/コンテキスト)",
-   "objectName": "actionExport",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.actionImport",
-   "kind": "qgis_action",
-   "name": "Import",
-   "source": "mainWindow",
-   "summary": "Import (ツールバー/コンテキスト)",
-   "objectName": "actionImport",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.Count",
-   "kind": "qgis_action",
-   "name": "カウント（Count）",
-   "source": "mainWindow",
-   "summary": "カウント（Count） (ツールバー/コンテキスト)",
-   "objectName": "Count",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Count' or a.text() == 'カウント（Count）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Count' or _a.text() == 'カウント（Count）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.Sum",
-   "kind": "qgis_action",
-   "name": "合計（Sum）",
-   "source": "mainWindow",
-   "summary": "合計（Sum） (ツールバー/コンテキスト)",
-   "objectName": "Sum",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Sum' or a.text() == '合計（Sum）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Sum' or _a.text() == '合計（Sum）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.Mean",
-   "kind": "qgis_action",
-   "name": "平均値（Mean）",
-   "source": "mainWindow",
-   "summary": "平均値（Mean） (ツールバー/コンテキスト)",
-   "objectName": "Mean",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Mean' or a.text() == '平均値（Mean）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Mean' or _a.text() == '平均値（Mean）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.Median",
-   "kind": "qgis_action",
-   "name": "中央値（Median）",
-   "source": "mainWindow",
-   "summary": "中央値（Median） (ツールバー/コンテキスト)",
-   "objectName": "Median",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Median' or a.text() == '中央値（Median）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Median' or _a.text() == '中央値（Median）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "標準偏差 （母集団）",
-   "source": "mainWindow",
-   "summary": "標準偏差 （母集団） (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '標準偏差 （母集団）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '標準偏差 （母集団）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "標準偏差 （標本）",
-   "source": "mainWindow",
-   "summary": "標準偏差 （標本） (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '標準偏差 （標本）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '標準偏差 （標本）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "最小",
-   "source": "mainWindow",
-   "summary": "最小 (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '最小'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '最小':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "最大",
-   "source": "mainWindow",
-   "summary": "最大 (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '最大'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '最大':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.Range",
-   "kind": "qgis_action",
-   "name": "範囲（Range）",
-   "source": "mainWindow",
-   "summary": "範囲（Range） (ツールバー/コンテキスト)",
-   "objectName": "Range",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Range' or a.text() == '範囲（Range）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Range' or _a.text() == '範囲（Range）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.Minority",
-   "kind": "qgis_action",
-   "name": "最稀値（Minority）",
-   "source": "mainWindow",
-   "summary": "最稀値（Minority） (ツールバー/コンテキスト)",
-   "objectName": "Minority",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Minority' or a.text() == '最稀値（Minority）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Minority' or _a.text() == '最稀値（Minority）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.Majority",
-   "kind": "qgis_action",
-   "name": "最頻値（Majority）",
-   "source": "mainWindow",
-   "summary": "最頻値（Majority） (ツールバー/コンテキスト)",
-   "objectName": "Majority",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Majority' or a.text() == '最頻値（Majority）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Majority' or _a.text() == '最頻値（Majority）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.Variety",
-   "kind": "qgis_action",
-   "name": "種類（Variety）",
-   "source": "mainWindow",
-   "summary": "種類（Variety） (ツールバー/コンテキスト)",
-   "objectName": "Variety",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Variety' or a.text() == '種類（Variety）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Variety' or _a.text() == '種類（Variety）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.Q1",
-   "kind": "qgis_action",
-   "name": "第１四分位（Q1）",
-   "source": "mainWindow",
-   "summary": "第１四分位（Q1） (ツールバー/コンテキスト)",
-   "objectName": "Q1",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Q1' or a.text() == '第１四分位（Q1）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Q1' or _a.text() == '第１四分位（Q1）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.Q3",
-   "kind": "qgis_action",
-   "name": "第３四分位（Q3）",
-   "source": "mainWindow",
-   "summary": "第３四分位（Q3） (ツールバー/コンテキスト)",
-   "objectName": "Q3",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Q3' or a.text() == '第３四分位（Q3）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Q3' or _a.text() == '第３四分位（Q3）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.IQR",
-   "kind": "qgis_action",
-   "name": "四分位範囲（IQR）",
-   "source": "mainWindow",
-   "summary": "四分位範囲（IQR） (ツールバー/コンテキスト)",
-   "objectName": "IQR",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'IQR' or a.text() == '四分位範囲（IQR）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'IQR' or _a.text() == '四分位範囲（IQR）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.NULL",
-   "kind": "qgis_action",
-   "name": "欠落（NULL）値",
-   "source": "mainWindow",
-   "summary": "欠落（NULL）値 (ツールバー/コンテキスト)",
-   "objectName": "NULL",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'NULL' or a.text() == '欠落（NULL）値'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'NULL' or _a.text() == '欠落（NULL）値':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "選択したレイヤに従う",
-   "source": "mainWindow",
-   "summary": "選択したレイヤに従う (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '選択したレイヤに従う'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '選択したレイヤに従う':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "全範囲に設定",
-   "source": "mainWindow",
-   "summary": "全範囲に設定 (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "プリセットのプロジェクト範囲に設定",
-   "source": "mainWindow",
-   "summary": "プリセットのプロジェクト範囲に設定 (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "単一レイヤ範囲に設定",
-   "source": "mainWindow",
-   "summary": "単一レイヤ範囲に設定 (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": false,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
-   "last_verified": "2026-11-14T05:18:32+09:00"
-  },
-  {
    "id": "qgis.action.noname_noname",
    "kind": "qgis_action",
    "name": "モデル",
@@ -15529,8 +14910,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:18:32+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-14T05:56:17+09:00"
   },
   {
    "id": "qgis.action...._...",
@@ -15701,6 +15082,195 @@
    "last_verified": "2026-11-14T05:18:32+09:00"
   },
   {
+   "id": "qgis.action.optionsAction",
+   "kind": "qgis_action",
+   "name": "オプション",
+   "source": "mainWindow",
+   "summary": "オプション (ツールバー/コンテキスト)",
+   "objectName": "optionsAction",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-14T05:18:23+09:00"
+  },
+  {
+   "id": "qgis.action.mProcessingAlg_native_selectbylocation",
+   "kind": "qgis_action",
+   "name": "場所による選択",
+   "source": "mainWindow",
+   "summary": "場所による選択 (ツールバー/コンテキスト)",
+   "objectName": "mProcessingAlg_native:selectbylocation",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mProcessingAlg_native:selectbylocation' or a.text() == '場所による選択'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mProcessingAlg_native:selectbylocation' or _a.text() == '場所による選択':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:23+09:00"
+  },
+  {
+   "id": "qgis.action.mProcessingAlg_native_selectwithindistance",
+   "kind": "qgis_action",
+   "name": "一定距離以内の地物を選択",
+   "source": "mainWindow",
+   "summary": "一定距離以内の地物を選択 (ツールバー/コンテキスト)",
+   "objectName": "mProcessingAlg_native:selectwithindistance",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mProcessingAlg_native:selectwithindistance' or a.text() == '一定距離以内の地物を選択'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mProcessingAlg_native:selectwithindistance' or _a.text() == '一定距離以内の地物を選択':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:23+09:00"
+  },
+  {
+   "id": "qgis.action.actionAdd",
+   "kind": "qgis_action",
+   "name": "追加",
+   "source": "mainWindow",
+   "summary": "追加 (ツールバー/コンテキスト)",
+   "objectName": "actionAdd",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'actionAdd' or a.text() == '追加'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'actionAdd' or _a.text() == '追加':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.actionDelete",
+   "kind": "qgis_action",
+   "name": "削除",
+   "source": "mainWindow",
+   "summary": "削除 (ツールバー/コンテキスト)",
+   "objectName": "actionDelete",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.actionZoomTo",
+   "kind": "qgis_action",
+   "name": "ズーム",
+   "source": "mainWindow",
+   "summary": "ズーム (ツールバー/コンテキスト)",
+   "objectName": "actionZoomTo",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'actionZoomTo' or a.text() == 'ズーム'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'actionZoomTo' or _a.text() == 'ズーム':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.actionExport",
+   "kind": "qgis_action",
+   "name": "Export",
+   "source": "mainWindow",
+   "summary": "Export (ツールバー/コンテキスト)",
+   "objectName": "actionExport",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.actionImport",
+   "kind": "qgis_action",
+   "name": "Import",
+   "source": "mainWindow",
+   "summary": "Import (ツールバー/コンテキスト)",
+   "objectName": "actionImport",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "ホットリロード",
+   "source": "mainWindow",
+   "summary": "ホットリロード (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'ホットリロード'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'ホットリロード':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "result=False",
+   "last_verified": "2026-11-14T05:18:32+09:00"
+  },
+  {
    "id": "qgis.action.noname_noname",
    "kind": "qgis_action",
    "name": "凡例表示",
@@ -15739,8 +15309,8 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T05:18:32+09:00"
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.mActionDigitizing",
@@ -15762,8 +15332,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "disabled: メッシュレイヤが前提(メモリ生成不可)",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "note": "disabled: メッシュレイヤのフレーム編集が前提(startFrameEditingは対話ブロックのため自動化不可)",
+   "last_verified": "2026-11-14T05:36:06+09:00"
   },
   {
    "id": "qgis.action.ActionMeshSelectByPolygon",
@@ -15785,8 +15355,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "disabled: メッシュレイヤが前提(メモリ生成不可)",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "note": "disabled: メッシュ編集モードが前提(自動化不可・手動)",
+   "last_verified": "2026-11-14T05:36:06+09:00"
   },
   {
    "id": "qgis.action.ActionMeshSelectByExpression",
@@ -15829,8 +15399,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "disabled: メッシュレイヤが前提(メモリ生成不可)",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "note": "disabled: メッシュ編集モードが前提(自動化不可・手動)",
+   "last_verified": "2026-11-14T05:36:06+09:00"
   },
   {
    "id": "qgis.action.mActionSelectAllVertices",
@@ -15852,8 +15422,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "disabled: メッシュレイヤが前提(メモリ生成不可)",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "note": "disabled: メッシュ編集モードが前提(自動化不可・手動)",
+   "last_verified": "2026-11-14T05:36:06+09:00"
   },
   {
    "id": "qgis.action.mActionTransformCoordinates",
@@ -15875,8 +15445,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "disabled: メッシュレイヤが前提(メモリ生成不可)",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "note": "disabled: メッシュ編集モードが前提(自動化不可・手動)",
+   "last_verified": "2026-11-14T05:36:06+09:00"
   },
   {
    "id": "qgis.action.mActionForceByLines",
@@ -15898,8 +15468,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "disabled: メッシュレイヤが前提(メモリ生成不可)",
-   "last_verified": "2026-11-14T05:22:33+09:00"
+   "note": "disabled: メッシュ編集モードが前提(自動化不可・手動)",
+   "last_verified": "2026-11-14T05:36:06+09:00"
   },
   {
    "id": "qgis.action.mWidgetActionForceByLine",
@@ -16068,6 +15638,289 @@
    "last_result": "pass",
    "note": "",
    "last_verified": "2026-11-14T05:18:40+09:00"
+  },
+  {
+   "id": "qgis.action.mExpandAction",
+   "kind": "qgis_action",
+   "name": "ツリーを展開する",
+   "source": "mainWindow",
+   "summary": "ツリーを展開する (ツールバー/コンテキスト)",
+   "objectName": "mExpandAction",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mExpandAction' or a.text() == 'ツリーを展開する'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mExpandAction' or _a.text() == 'ツリーを展開する':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.mCollapseAction",
+   "kind": "qgis_action",
+   "name": "ツリーを折りたたむ",
+   "source": "mainWindow",
+   "summary": "ツリーを折りたたむ (ツールバー/コンテキスト)",
+   "objectName": "mCollapseAction",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mCollapseAction' or a.text() == 'ツリーを折りたたむ'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mCollapseAction' or _a.text() == 'ツリーを折りたたむ':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.mExpandNewAction",
+   "kind": "qgis_action",
+   "name": "結果を展開する",
+   "source": "mainWindow",
+   "summary": "結果を展開する (ツールバー/コンテキスト)",
+   "objectName": "mExpandNewAction",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "action_trigger",
+    "objectName": "mExpandNewAction",
+    "checkable": true,
+    "text": "結果を展開する"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.mOpenFormAction",
+   "kind": "qgis_action",
+   "name": "フォームを開く",
+   "source": "mainWindow",
+   "summary": "フォームを開く (ツールバー/コンテキスト)",
+   "objectName": "mOpenFormAction",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.mClearResultsAction",
+   "kind": "qgis_action",
+   "name": "結果をクリア",
+   "source": "mainWindow",
+   "summary": "結果をクリア (ツールバー/コンテキスト)",
+   "objectName": "mClearResultsAction",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mClearResultsAction' or a.text() == '結果をクリア'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mClearResultsAction' or _a.text() == '結果をクリア':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.mActionCopy",
+   "kind": "qgis_action",
+   "name": "地物をコピー",
+   "source": "mainWindow",
+   "summary": "地物をコピー (ツールバー/コンテキスト)",
+   "objectName": "mActionCopy",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mActionCopy' or a.text() == '地物をコピー'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mActionCopy' or _a.text() == '地物をコピー':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.mActionPrint",
+   "kind": "qgis_action",
+   "name": "レスポンスの印刷",
+   "source": "mainWindow",
+   "summary": "レスポンスの印刷 (ツールバー/コンテキスト)",
+   "objectName": "mActionPrint",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": false,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.mActionSelectFeaturesOnMouseOver",
+   "kind": "qgis_action",
+   "name": "Identify Feature on Mouse Over",
+   "source": "mainWindow",
+   "summary": "Identify Feature on Mouse Over (ツールバー/コンテキスト)",
+   "objectName": "mActionSelectFeaturesOnMouseOver",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "action_trigger",
+    "objectName": "mActionSelectFeaturesOnMouseOver",
+    "checkable": false,
+    "text": "Identify Feature(s) on Mouse Over"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.mActionAutoFeatureForm",
+   "kind": "qgis_action",
+   "name": "単一地物の場合、自動でフォームを開く",
+   "source": "mainWindow",
+   "summary": "単一地物の場合、自動でフォームを開く (ツールバー/コンテキスト)",
+   "objectName": "mActionAutoFeatureForm",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.mActionHideDerivedAttributes",
+   "kind": "qgis_action",
+   "name": "結果の派生属性を隠す",
+   "source": "mainWindow",
+   "summary": "結果の派生属性を隠す (ツールバー/コンテキスト)",
+   "objectName": "mActionHideDerivedAttributes",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "action_trigger",
+    "objectName": "mActionHideDerivedAttributes",
+    "checkable": true,
+    "text": "結果の派生属性を隠す"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.mActionShowRelations",
+   "kind": "qgis_action",
+   "name": "Show Relations",
+   "source": "mainWindow",
+   "summary": "Show Relations (ツールバー/コンテキスト)",
+   "objectName": "mActionShowRelations",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "action_trigger",
+    "objectName": "mActionShowRelations",
+    "checkable": true,
+    "text": "Show Relations"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.mHelpToolAction",
+   "kind": "qgis_action",
+   "name": "ヘルプ",
+   "source": "mainWindow",
+   "summary": "ヘルプ (ツールバー/コンテキスト)",
+   "objectName": "mHelpToolAction",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mHelpToolAction' or a.text() == 'ヘルプ'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mHelpToolAction' or _a.text() == 'ヘルプ':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.mActionHideNullValues",
+   "kind": "qgis_action",
+   "name": "結果のNULL値を隠す",
+   "source": "mainWindow",
+   "summary": "結果のNULL値を隠す (ツールバー/コンテキスト)",
+   "objectName": "mActionHideNullValues",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "action_trigger",
+    "objectName": "mActionHideNullValues",
+    "checkable": true,
+    "text": "結果のNULL値を隠す"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.proc.3d_tessellate",
@@ -25370,6 +25223,66 @@
    "last_verified": "2026-11-14T05:20:11+09:00"
   },
   {
+   "id": "qgis.proc.qgis2web_exportProject",
+   "kind": "qgis_processing",
+   "name": "Export project",
+   "source": "processing:qgis2web:exportProject",
+   "summary": "[qgis2web] Export project",
+   "alg_id": "qgis2web:exportProject",
+   "provider": "qgis2web",
+   "group": "Export webmap",
+   "ai_sample": false,
+   "check": {
+    "type": "proc_meta",
+    "alg": "qgis2web:exportProject"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:56:56+09:00"
+  },
+  {
+   "id": "qgis.proc.qgis2web_exportRasterLayer",
+   "kind": "qgis_processing",
+   "name": "Export raster layer",
+   "source": "processing:qgis2web:exportRasterLayer",
+   "summary": "[qgis2web] Export raster layer",
+   "alg_id": "qgis2web:exportRasterLayer",
+   "provider": "qgis2web",
+   "group": "Export webmap",
+   "ai_sample": false,
+   "check": {
+    "type": "proc_meta",
+    "alg": "qgis2web:exportRasterLayer"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:56:56+09:00"
+  },
+  {
+   "id": "qgis.proc.qgis2web_exportVectorLayer",
+   "kind": "qgis_processing",
+   "name": "Export vector layer",
+   "source": "processing:qgis2web:exportVectorLayer",
+   "summary": "[qgis2web] Export vector layer",
+   "alg_id": "qgis2web:exportVectorLayer",
+   "provider": "qgis2web",
+   "group": "Export webmap",
+   "ai_sample": false,
+   "check": {
+    "type": "proc_meta",
+    "alg": "qgis2web:exportVectorLayer"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:56:56+09:00"
+  },
+  {
    "id": "qgis.proc.quickdemforjp_quickdemforjp",
    "kind": "qgis_processing",
    "name": "XMLファイルからDEMを読み込む",
@@ -25390,35 +25303,16 @@
    "last_verified": "2026-11-14T05:20:11+09:00"
   },
   {
-   "id": "qgis.dock.GeoReportLayoutSelectorPanel",
+   "id": "qgis.dock.Layers",
    "kind": "qgis_dock",
-   "name": "レポート",
-   "source": "dock:GeoReportLayoutSelectorPanel",
-   "summary": "ドック レポート",
-   "objectName": "GeoReportLayoutSelectorPanel",
+   "name": "レイヤ",
+   "source": "dock:Layers",
+   "summary": "ドック レイヤ",
+   "objectName": "Layers",
    "ai_sample": false,
    "check": {
     "type": "dock_toggle",
-    "objectName": "GeoReportLayoutSelectorPanel",
-    "was_visible": true
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "toggle result='no-dock'",
-   "last_verified": "2026-11-14T05:20:11+09:00"
-  },
-  {
-   "id": "qgis.dock.LayerOrder",
-   "kind": "qgis_dock",
-   "name": "レイヤ順序",
-   "source": "dock:LayerOrder",
-   "summary": "ドック レイヤ順序",
-   "objectName": "LayerOrder",
-   "ai_sample": false,
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "LayerOrder",
+    "objectName": "Layers",
     "was_visible": true
    },
    "tool_result": "pass",
@@ -25447,6 +25341,25 @@
    "last_verified": "2026-11-14T05:20:11+09:00"
   },
   {
+   "id": "qgis.dock.LayerOrder",
+   "kind": "qgis_dock",
+   "name": "レイヤ順序",
+   "source": "dock:LayerOrder",
+   "summary": "ドック レイヤ順序",
+   "objectName": "LayerOrder",
+   "ai_sample": false,
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "LayerOrder",
+    "was_visible": true
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:20:11+09:00"
+  },
+  {
    "id": "qgis.dock.AdvancedDigitizingTools",
    "kind": "qgis_dock",
    "name": "高度なデジタイズ",
@@ -25457,44 +25370,6 @@
    "check": {
     "type": "dock_toggle",
     "objectName": "AdvancedDigitizingTools",
-    "was_visible": true
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:20:11+09:00"
-  },
-  {
-   "id": "qgis.dock.VertexEditor",
-   "kind": "qgis_dock",
-   "name": "頂点エディタ",
-   "source": "dock:VertexEditor",
-   "summary": "ドック 頂点エディタ",
-   "objectName": "VertexEditor",
-   "ai_sample": false,
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "VertexEditor",
-    "was_visible": false
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:20:11+09:00"
-  },
-  {
-   "id": "qgis.dock.Layers",
-   "kind": "qgis_dock",
-   "name": "レイヤ",
-   "source": "dock:Layers",
-   "summary": "ドック レイヤ",
-   "objectName": "Layers",
-   "ai_sample": false,
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "Layers",
     "was_visible": true
    },
    "tool_result": "pass",
@@ -25542,6 +25417,44 @@
    "last_verified": "2026-11-14T05:20:11+09:00"
   },
   {
+   "id": "qgis.dock.StatisticalSummaryDockWidget",
+   "kind": "qgis_dock",
+   "name": "統計",
+   "source": "dock:StatisticalSummaryDockWidget",
+   "summary": "ドック 統計",
+   "objectName": "StatisticalSummaryDockWidget",
+   "ai_sample": false,
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "StatisticalSummaryDockWidget",
+    "was_visible": false
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:20:11+09:00"
+  },
+  {
+   "id": "qgis.dock.VertexEditor",
+   "kind": "qgis_dock",
+   "name": "頂点エディタ",
+   "source": "dock:VertexEditor",
+   "summary": "ドック 頂点エディタ",
+   "objectName": "VertexEditor",
+   "ai_sample": false,
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "VertexEditor",
+    "was_visible": false
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:20:11+09:00"
+  },
+  {
    "id": "qgis.dock.QgsGeometryValidationDockBase",
    "kind": "qgis_dock",
    "name": "ジオメトリ検証",
@@ -25552,6 +25465,25 @@
    "check": {
     "type": "dock_toggle",
     "objectName": "QgsGeometryValidationDockBase",
+    "was_visible": false
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:20:11+09:00"
+  },
+  {
+   "id": "qgis.dock.LayerStyling",
+   "kind": "qgis_dock",
+   "name": "レイヤスタイル",
+   "source": "dock:LayerStyling",
+   "summary": "ドック レイヤスタイル",
+   "objectName": "LayerStyling",
+   "ai_sample": false,
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "LayerStyling",
     "was_visible": false
    },
    "tool_result": "pass",
@@ -25580,120 +25512,6 @@
    "last_verified": "2026-11-14T05:20:11+09:00"
   },
   {
-   "id": "qgis.dock.Browser2",
-   "kind": "qgis_dock",
-   "name": "ブラウザ(2)",
-   "source": "dock:Browser2",
-   "summary": "ドック ブラウザ(2)",
-   "objectName": "Browser2",
-   "ai_sample": false,
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "Browser2",
-    "was_visible": false
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:20:11+09:00"
-  },
-  {
-   "id": "qgis.dock.theTileScaleDock",
-   "kind": "qgis_dock",
-   "name": "タイルスケール",
-   "source": "dock:theTileScaleDock",
-   "summary": "ドック タイルスケール",
-   "objectName": "theTileScaleDock",
-   "ai_sample": false,
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "theTileScaleDock",
-    "was_visible": false
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:20:11+09:00"
-  },
-  {
-   "id": "qgis.dock.IdentifyResultsDock",
-   "kind": "qgis_dock",
-   "name": "地物情報結果",
-   "source": "dock:IdentifyResultsDock",
-   "summary": "ドック 地物情報結果",
-   "objectName": "IdentifyResultsDock",
-   "ai_sample": false,
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "IdentifyResultsDock",
-    "was_visible": false
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:20:11+09:00"
-  },
-  {
-   "id": "qgis.dock.GeoDriverAiPanel",
-   "kind": "qgis_dock",
-   "name": "AI アシスタント",
-   "source": "dock:GeoDriverAiPanel",
-   "summary": "ドック AI アシスタント",
-   "objectName": "GeoDriverAiPanel",
-   "ai_sample": false,
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "GeoDriverAiPanel",
-    "was_visible": true
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:20:11+09:00"
-  },
-  {
-   "id": "qgis.dock.BookmarksDockWidget",
-   "kind": "qgis_dock",
-   "name": "空間ブックマークマネージャ",
-   "source": "dock:BookmarksDockWidget",
-   "summary": "ドック 空間ブックマークマネージャ",
-   "objectName": "BookmarksDockWidget",
-   "ai_sample": false,
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "BookmarksDockWidget",
-    "was_visible": true
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:20:11+09:00"
-  },
-  {
-   "id": "qgis.dock.StatisticalSummaryDockWidget",
-   "kind": "qgis_dock",
-   "name": "統計",
-   "source": "dock:StatisticalSummaryDockWidget",
-   "summary": "ドック 統計",
-   "objectName": "StatisticalSummaryDockWidget",
-   "ai_sample": false,
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "StatisticalSummaryDockWidget",
-    "was_visible": false
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T05:20:11+09:00"
-  },
-  {
    "id": "qgis.dock.Temporal_Controller",
    "kind": "qgis_dock",
    "name": "時系列コントローラ",
@@ -25704,6 +25522,25 @@
    "check": {
     "type": "dock_toggle",
     "objectName": "Temporal Controller",
+    "was_visible": false
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:20:11+09:00"
+  },
+  {
+   "id": "qgis.dock.Browser2",
+   "kind": "qgis_dock",
+   "name": "ブラウザ(2)",
+   "source": "dock:Browser2",
+   "summary": "ドック ブラウザ(2)",
+   "objectName": "Browser2",
+   "ai_sample": false,
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "Browser2",
     "was_visible": false
    },
    "tool_result": "pass",
@@ -25789,17 +25626,55 @@
    "last_verified": "2026-11-14T05:20:11+09:00"
   },
   {
-   "id": "qgis.dock.LayerStyling",
+   "id": "qgis.dock.BookmarksDockWidget",
    "kind": "qgis_dock",
-   "name": "レイヤスタイル",
-   "source": "dock:LayerStyling",
-   "summary": "ドック レイヤスタイル",
-   "objectName": "LayerStyling",
+   "name": "空間ブックマークマネージャ",
+   "source": "dock:BookmarksDockWidget",
+   "summary": "ドック 空間ブックマークマネージャ",
+   "objectName": "BookmarksDockWidget",
    "ai_sample": false,
    "check": {
     "type": "dock_toggle",
-    "objectName": "LayerStyling",
+    "objectName": "BookmarksDockWidget",
+    "was_visible": true
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:20:11+09:00"
+  },
+  {
+   "id": "qgis.dock.theTileScaleDock",
+   "kind": "qgis_dock",
+   "name": "タイルスケール",
+   "source": "dock:theTileScaleDock",
+   "summary": "ドック タイルスケール",
+   "objectName": "theTileScaleDock",
+   "ai_sample": false,
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "theTileScaleDock",
     "was_visible": false
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T05:20:11+09:00"
+  },
+  {
+   "id": "qgis.dock.GeoDriverAiPanel",
+   "kind": "qgis_dock",
+   "name": "AI アシスタント",
+   "source": "dock:GeoDriverAiPanel",
+   "summary": "ドック AI アシスタント",
+   "objectName": "GeoDriverAiPanel",
+   "ai_sample": false,
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "GeoDriverAiPanel",
+    "was_visible": true
    },
    "tool_result": "pass",
    "ai_result": "no_llm",
@@ -25823,8 +25698,46 @@
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "pass",
-   "note": "toggle result='no-dock'",
-   "last_verified": "2026-11-14T05:20:11+09:00"
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.dock.GeoReportLayoutSelectorPanel",
+   "kind": "qgis_dock",
+   "name": "レポート",
+   "source": "dock:GeoReportLayoutSelectorPanel",
+   "summary": "ドック レポート",
+   "objectName": "GeoReportLayoutSelectorPanel",
+   "ai_sample": false,
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "GeoReportLayoutSelectorPanel",
+    "was_visible": true
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.dock.IdentifyResultsDock",
+   "kind": "qgis_dock",
+   "name": "地物情報結果",
+   "source": "dock:IdentifyResultsDock",
+   "summary": "ドック 地物情報結果",
+   "objectName": "IdentifyResultsDock",
+   "ai_sample": false,
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "IdentifyResultsDock",
+    "was_visible": true
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.api.project.title_getset",
@@ -26595,6 +26508,153 @@
    "last_verified": "2026-11-14T05:20:22+09:00"
   },
   {
+   "id": "qgis.action.Show_Location",
+   "kind": "qgis_action",
+   "name": "Show Location",
+   "source": "mainWindow",
+   "summary": "Show Location (ツールバー/コンテキスト)",
+   "objectName": "Show_Location",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Show_Location' or a.text() == 'Show Location'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Show_Location' or _a.text() == 'Show Location':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "mmqgis GPS情報パネル内アクション。GPSドック未アクティブ時は未生成(遅延生成)",
+   "last_verified": "2026-11-14T05:18:23+09:00"
+  },
+  {
+   "id": "qgis.action.Show_Altitude_Geoid",
+   "kind": "qgis_action",
+   "name": "Show Altitude (Geoid)",
+   "source": "mainWindow",
+   "summary": "Show Altitude (Geoid) (ツールバー/コンテキスト)",
+   "objectName": "Show_Altitude_Geoid",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Show_Altitude_Geoid' or a.text() == 'Show Altitude (Geoid)'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Show_Altitude_Geoid' or _a.text() == 'Show Altitude (Geoid)':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "mmqgis GPS情報パネル内アクション(遅延生成)",
+   "last_verified": "2026-11-14T05:18:23+09:00"
+  },
+  {
+   "id": "qgis.action.Show_Altitude_WGS-84_Ellipsoid",
+   "kind": "qgis_action",
+   "name": "Show Altitude (WGS-84 Ellipsoid)",
+   "source": "mainWindow",
+   "summary": "Show Altitude (WGS-84 Ellipsoid) (ツールバー/コンテキスト)",
+   "objectName": "Show_Altitude_WGS-84_Ellipsoid",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Show_Altitude_WGS-84_Ellipsoid' or a.text() == 'Show Altitude (WGS-84 Ellipsoid)'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Show_Altitude_WGS-84_Ellipsoid' or _a.text() == 'Show Altitude (WGS-84 Ellipsoid)':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "mmqgis GPS情報パネル内アクション(遅延生成)",
+   "last_verified": "2026-11-14T05:18:23+09:00"
+  },
+  {
+   "id": "qgis.action.Show_Ground_Speed",
+   "kind": "qgis_action",
+   "name": "Show Ground Speed",
+   "source": "mainWindow",
+   "summary": "Show Ground Speed (ツールバー/コンテキスト)",
+   "objectName": "Show_Ground_Speed",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Show_Ground_Speed' or a.text() == 'Show Ground Speed'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Show_Ground_Speed' or _a.text() == 'Show Ground Speed':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "mmqgis GPS情報パネル内アクション(遅延生成)",
+   "last_verified": "2026-11-14T05:18:23+09:00"
+  },
+  {
+   "id": "qgis.action.Show_Bearing",
+   "kind": "qgis_action",
+   "name": "Show Bearing",
+   "source": "mainWindow",
+   "summary": "Show Bearing (ツールバー/コンテキスト)",
+   "objectName": "Show_Bearing",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Show_Bearing' or a.text() == 'Show Bearing'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Show_Bearing' or _a.text() == 'Show Bearing':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "mmqgis GPS情報パネル内アクション(遅延生成)",
+   "last_verified": "2026-11-14T05:18:23+09:00"
+  },
+  {
+   "id": "qgis.action.Show_Total_Track_Length",
+   "kind": "qgis_action",
+   "name": "Show Total Track Length",
+   "source": "mainWindow",
+   "summary": "Show Total Track Length (ツールバー/コンテキスト)",
+   "objectName": "Show_Total_Track_Length",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Show_Total_Track_Length' or a.text() == 'Show Total Track Length'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Show_Total_Track_Length' or _a.text() == 'Show Total Track Length':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "mmqgis GPS情報パネル内アクション(遅延生成)",
+   "last_verified": "2026-11-14T05:18:23+09:00"
+  },
+  {
+   "id": "qgis.action.Show_Distance_from_Start_of_Track",
+   "kind": "qgis_action",
+   "name": "Show Distance from Start of Track",
+   "source": "mainWindow",
+   "summary": "Show Distance from Start of Track (ツールバー/コンテキスト)",
+   "objectName": "Show_Distance_from_Start_of_Track",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Show_Distance_from_Start_of_Track' or a.text() == 'Show Distance from Start of Track'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Show_Distance_from_Start_of_Track' or _a.text() == 'Show Distance from Start of Track':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "mmqgis GPS情報パネル内アクション(遅延生成)",
+   "last_verified": "2026-11-14T05:18:23+09:00"
+  },
+  {
    "id": "qgis.action.WebView",
    "kind": "qgis_action",
    "name": "WebView",
@@ -26614,7 +26674,7 @@
    "tool_result": "fail",
    "ai_result": "no_llm",
    "last_result": "removed",
-   "note": "trigger result='no-action'",
+   "note": "qgis2webダイアログ内ツールバーアクション。ダイアログ未オープン時は未生成",
    "last_verified": "2026-11-14T05:07:59+09:00"
   },
   {
@@ -26635,7 +26695,7 @@
    "tool_result": "fail",
    "ai_result": "no_llm",
    "last_result": "removed",
-   "note": "result=False",
+   "note": "ツールバー内遅延生成アクション(現セッション未生成)",
    "last_verified": "2026-11-14T05:09:51+09:00"
   },
   {
@@ -26656,7 +26716,7 @@
    "tool_result": "fail",
    "ai_result": "no_llm",
    "last_result": "removed",
-   "note": "result=False",
+   "note": "ツールバー内遅延生成アクション(現セッション未生成)",
    "last_verified": "2026-11-14T05:09:51+09:00"
   },
   {
@@ -26677,7 +26737,7 @@
    "tool_result": "fail",
    "ai_result": "no_llm",
    "last_result": "removed",
-   "note": "result=False",
+   "note": "ツールバー内遅延生成アクション(現セッション未生成)",
    "last_verified": "2026-11-14T05:09:51+09:00"
   },
   {
@@ -26698,68 +26758,8 @@
    "tool_result": "fail",
    "ai_result": "no_llm",
    "last_result": "removed",
-   "note": "result=False",
+   "note": "ツールバー内遅延生成アクション(現セッション未生成)",
    "last_verified": "2026-11-14T05:09:51+09:00"
-  },
-  {
-   "id": "qgis.proc.qgis2web_exportProject",
-   "kind": "qgis_processing",
-   "name": "Export project",
-   "source": "processing:qgis2web:exportProject",
-   "summary": "[qgis2web] Export project",
-   "alg_id": "qgis2web:exportProject",
-   "provider": "qgis2web",
-   "group": "Export webmap",
-   "ai_sample": false,
-   "check": {
-    "type": "proc_meta",
-    "alg": "qgis2web:exportProject"
-   },
-   "tool_result": "fail",
-   "ai_result": "no_llm",
-   "last_result": "removed",
-   "note": "meta result=False",
-   "last_verified": "2026-11-14T05:11:28+09:00"
-  },
-  {
-   "id": "qgis.proc.qgis2web_exportRasterLayer",
-   "kind": "qgis_processing",
-   "name": "Export raster layer",
-   "source": "processing:qgis2web:exportRasterLayer",
-   "summary": "[qgis2web] Export raster layer",
-   "alg_id": "qgis2web:exportRasterLayer",
-   "provider": "qgis2web",
-   "group": "Export webmap",
-   "ai_sample": false,
-   "check": {
-    "type": "proc_meta",
-    "alg": "qgis2web:exportRasterLayer"
-   },
-   "tool_result": "fail",
-   "ai_result": "no_llm",
-   "last_result": "removed",
-   "note": "meta result=False",
-   "last_verified": "2026-11-14T05:11:28+09:00"
-  },
-  {
-   "id": "qgis.proc.qgis2web_exportVectorLayer",
-   "kind": "qgis_processing",
-   "name": "Export vector layer",
-   "source": "processing:qgis2web:exportVectorLayer",
-   "summary": "[qgis2web] Export vector layer",
-   "alg_id": "qgis2web:exportVectorLayer",
-   "provider": "qgis2web",
-   "group": "Export webmap",
-   "ai_sample": false,
-   "check": {
-    "type": "proc_meta",
-    "alg": "qgis2web:exportVectorLayer"
-   },
-   "tool_result": "fail",
-   "ai_result": "no_llm",
-   "last_result": "removed",
-   "note": "meta result=False",
-   "last_verified": "2026-11-14T05:11:28+09:00"
   }
  ]
 }
