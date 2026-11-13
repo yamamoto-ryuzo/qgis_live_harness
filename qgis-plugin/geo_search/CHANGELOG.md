@@ -1,3 +1,10 @@
+# V4.4.10 bridgeのレイヤ参照を削除済みC++ラッパー対策で安全化
+- bridge.py: 検索結果一覧・タブ一覧・zoom・タブ定義で参照する
+  `layer.name()`/`layer.id()` を `_layer_name()`/`_layer_id()`
+  ヘルパ経由に変更。削除済みQgsMapLayerのC++ラッパー(sip deleted)
+  へアクセスして RuntimeError になるケースを握り潰し、
+  None を返すようにした
+
 # V4.4.9 Qt5/Qt6 互換シム(qt_compat)を除去
 - qt_compat.py を削除。qgis.PyQt/PyQt6/PySide6 を候補探索する動的
   ローダーと、QgsMessageLog.logMessage へ旧整数レベル(0/1/2)を許容

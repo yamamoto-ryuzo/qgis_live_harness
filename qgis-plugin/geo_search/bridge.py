@@ -52,6 +52,22 @@ def _jsonable(v):
         return repr(v)
 
 
+def _layer_name(layer):
+    """削除済みのC++ラッパーや文字列でも安全にレイヤ名を返す。"""
+    try:
+        return layer.name() if layer is not None else None
+    except Exception:  # nosec B110  # 削除済みQgsMapLayer対策
+        return None
+
+
+def _layer_id(layer):
+    """削除済みのC++ラッパーでも安全にレイヤIDを返す。"""
+    try:
+        return layer.id() if layer is not None else None
+    except Exception:  # nosec B110  # 削除済みQgsMapLayer対策
+        return None
+
+
 def _tr(context, message):
     """Translate a UI message via the plugin's installed translators."""
     try:
@@ -447,9 +463,8 @@ class GeoSearchBridge:
             items = [self._feature_to_dict(f, layer, names)
                      for f in feats[:cap]]
             out.append({
-                "layer": layer.name() if hasattr(layer, "name") else None,
-                "layer_id": (layer.id() if layer is not None
-                             and hasattr(layer, "id") else None),
+                "layer": _layer_name(layer),
+                "layer_id": _layer_id(layer),
                 "count": len(feats),
                 "features": items,
             })
@@ -602,7 +617,7 @@ class GeoSearchBridge:
         for t in getattr(rd, "_tabs", []) or []:
             layer = t.get("layer")
             result_tabs.append({
-                "layer": layer.name() if hasattr(layer, "name") else None,
+                "layer": _layer_name(layer),
                 "count": len(t.get("features") or []),
             })
         return self._ok({
@@ -737,7 +752,7 @@ class GeoSearchBridge:
         feat.zoom_features(ids, layer=layer)
         return self._ok({
             "zoomed": len(ids),
-            "layer": layer.name() if hasattr(layer, "name") else None,
+            "layer": _layer_name(layer),
         })
 
     # ---------- 検索オプション / テーマ / 設定 / タブ管理 ----------
@@ -1244,7 +1259,7 @@ class GeoSearchBridge:
         layer = p.iface.activeLayer()
         if layer is None:
             return self._err("no active layer")
-        layer_name = layer.name() if hasattr(layer, "name") else str(layer)
+        layer_name = _layer_name(layer) or str(layer)
         tab_def = {
             "group": DEFAULT_GROUP_NAME,
             "Title": title or layer_name,
