@@ -1,7 +1,7 @@
 # geo_driver — 完全ロジックシート
 
 - 種別: qgis_plugin / バージョン: 0.15.3
-- 生成: 2026-11-14T02:36:00+09:00 / 機能数: 142
+- 生成: 2026-11-14T05:30:00+09:00 / 機能数: 146
 
 ## トポロジ
 
@@ -108,11 +108,15 @@ flowchart LR
     logic_fn_ai_client_py_model_label["model_label<br/><i>logic_fn</i>"]
     logic_fn_ai_client_py_model_tooltip["model_tooltip<br/><i>logic_fn</i>"]
     logic_fn_ai_client_py_openai_models_url["openai_models_url<br/><i>logic_fn</i>"]
+    logic_fn_ai_client_py_openai_msgs_to_responses_input["openai_msgs_to_responses_input<br/><i>logic_fn</i>"]
     logic_fn_ai_client_py_openai_tools["openai_tools<br/><i>logic_fn</i>"]
+    logic_fn_ai_client_py_parse_responses_output["parse_responses_output<br/><i>logic_fn</i>"]
     logic_fn_ai_client_py_parse_tool_arguments["parse_tool_arguments<br/><i>logic_fn</i>"]
     logic_fn_ai_client_py_parse_usage["parse_usage<br/><i>logic_fn</i>"]
     logic_fn_ai_client_py_provider_defaults["provider_defaults<br/><i>logic_fn</i>"]
     logic_fn_ai_client_py_reply_to_text["reply_to_text<br/><i>logic_fn</i>"]
+    logic_fn_ai_client_py_responses_create["responses_create<br/><i>logic_fn</i>"]
+    logic_fn_ai_client_py_responses_tools["responses_tools<br/><i>logic_fn</i>"]
     logic_fn_ai_client_py_run_extra_tool["run_extra_tool<br/><i>logic_fn</i>"]
     logic_fn_ai_client_py_run_instruction_tool["run_instruction_tool<br/><i>logic_fn</i>"]
     logic_fn_ai_client_py_save_agent["save_agent<br/><i>logic_fn</i>"]
@@ -1795,6 +1799,23 @@ flowchart LR
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
 - 結果: **pass** 2026-11-14T02:36:00+09:00 — 属性/シンボル実在確認(pyeval)
 
+### logic_fn.ai_client.py:openai_msgs_to_responses_input — openai_msgs_to_responses_input
+
+- kind: `logic_fn` / source: `ai_client.py:810`
+- signature: `openai_msgs_to_responses_input(msgs)`
+- 要約: OpenAI chat形式msgs → (instructions, Responses API input items)。system→instructions、tool_calls→function_call、tool結果→function_call_output、画像→input_imageへ変換。
+- needs_runtime=True / standalone_ok=True
+
+```mermaid
+flowchart LR
+  E_logic_fn_ai_client_py_openai_msgs_to_responses_input["呼出元"] --> H_logic_fn_ai_client_py_openai_msgs_to_responses_input["openai_msgs_to_responses_input"]
+  H_logic_fn_ai_client_py_openai_msgs_to_responses_input --> R_logic_fn_ai_client_py_openai_msgs_to_responses_input["QGIS/ランタイムAPI"]
+  R_logic_fn_ai_client_py_openai_msgs_to_responses_input --> OUT["結果"]
+```
+
+- 検証: 単独=直接呼出して変換結果をassert / 連携=pyeval で属性実在+変換往復確認
+- 結果: **pass** 2026-11-14T05:30:00+09:00 — QGIS内pyeval実往復: 属性実在+ローカルHTTPスタブでchat→/responses自動切替・変換・正規化を確認 + pytest(70件)
+
 ### logic_fn.ai_client.py:openai_tools — openai_tools
 
 - kind: `logic_fn` / source: `ai_client.py:707`
@@ -1811,6 +1832,23 @@ flowchart LR
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
 - 結果: **pass** 2026-11-14T02:36:00+09:00 — 属性/シンボル実在確認(pyeval)
+
+### logic_fn.ai_client.py:parse_responses_output — parse_responses_output
+
+- kind: `logic_fn` / source: `ai_client.py:878`
+- signature: `parse_responses_output(data)`
+- 要約: Responses API応答 → parse()と同じ {text,calls,raw,usage} に正規化。rawはchat形式assistant(append_exchange互換)。
+- needs_runtime=True / standalone_ok=True
+
+```mermaid
+flowchart LR
+  E_logic_fn_ai_client_py_parse_responses_output["呼出元"] --> H_logic_fn_ai_client_py_parse_responses_output["parse_responses_output"]
+  H_logic_fn_ai_client_py_parse_responses_output --> R_logic_fn_ai_client_py_parse_responses_output["QGIS/ランタイムAPI"]
+  R_logic_fn_ai_client_py_parse_responses_output --> OUT["結果"]
+```
+
+- 検証: 単独=直接呼出して正規化結果をassert / 連携=pyeval で属性実在+正規化確認
+- 結果: **pass** 2026-11-14T05:30:00+09:00 — QGIS内pyeval実往復: 属性実在+ローカルHTTPスタブでchat→/responses自動切替・変換・正規化を確認 + pytest(70件)
 
 ### logic_fn.ai_client.py:parse_tool_arguments — parse_tool_arguments
 
@@ -1879,6 +1917,40 @@ flowchart LR
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
 - 結果: **pass** 2026-11-14T02:36:00+09:00 — 属性/シンボル実在確認(pyeval)
+
+### logic_fn.ai_client.py:responses_create — responses_create
+
+- kind: `logic_fn` / source: `ai_client.py:851`
+- signature: `responses_create(base, api_key, model, msgs, tools=None, timeout=…, extra=…, headers=…)`
+- 要約: POST {base}/responses (非ストリーミング)して応答JSONを返す。chat形式msgsをResponses inputへ変換して送信。
+- needs_runtime=True / standalone_ok=True
+
+```mermaid
+flowchart LR
+  E_logic_fn_ai_client_py_responses_create["呼出元"] --> H_logic_fn_ai_client_py_responses_create["responses_create"]
+  H_logic_fn_ai_client_py_responses_create --> R_logic_fn_ai_client_py_responses_create["QGIS/ランタイムAPI"]
+  R_logic_fn_ai_client_py_responses_create --> OUT["結果"]
+```
+
+- 検証: 単独=pytest(HTTPスタブ)でPOST応答をassert / 連携=pyeval/bridge でQGIS内import確認
+- 結果: **pass** 2026-11-14T05:30:00+09:00 — QGIS内pyeval実往復: 属性実在+ローカルHTTPスタブでchat→/responses自動切替・変換・正規化を確認 + pytest(70件)
+
+### logic_fn.ai_client.py:responses_tools — responses_tools
+
+- kind: `logic_fn` / source: `ai_client.py:754`
+- signature: `responses_tools(tools)`
+- 要約: OpenAI function calling形式({"type":"function","function":{...}})をResponses APIのtools形式へフラット化する。
+- needs_runtime=True / standalone_ok=True
+
+```mermaid
+flowchart LR
+  E_logic_fn_ai_client_py_responses_tools["呼出元"] --> H_logic_fn_ai_client_py_responses_tools["responses_tools"]
+  H_logic_fn_ai_client_py_responses_tools --> R_logic_fn_ai_client_py_responses_tools["QGIS/ランタイムAPI"]
+  R_logic_fn_ai_client_py_responses_tools --> OUT["結果"]
+```
+
+- 検証: 単独=pytest(HTTPスタブ)または直接呼出 / 連携=pyeval で属性実在+変換往復確認
+- 結果: **pass** 2026-11-14T05:30:00+09:00 — QGIS内pyeval実往復: 属性実在+ローカルHTTPスタブでchat→/responses自動切替・変換・正規化を確認 + pytest(70件)
 
 ### logic_fn.ai_client.py:run_extra_tool — run_extra_tool
 
@@ -2675,11 +2747,15 @@ flowchart LR
 | logic_fn.ai_client.py:model_label | logic_fn | - | ○ | pass |
 | logic_fn.ai_client.py:model_tooltip | logic_fn | - | ○ | pass |
 | logic_fn.ai_client.py:openai_models_url | logic_fn | - | ○ | pass |
+| logic_fn.ai_client.py:openai_msgs_to_responses_input | logic_fn | ○ | ○ | pass |
 | logic_fn.ai_client.py:openai_tools | logic_fn | - | ○ | pass |
+| logic_fn.ai_client.py:parse_responses_output | logic_fn | ○ | ○ | pass |
 | logic_fn.ai_client.py:parse_tool_arguments | logic_fn | - | ○ | pass |
 | logic_fn.ai_client.py:parse_usage | logic_fn | - | ○ | pass |
 | logic_fn.ai_client.py:provider_defaults | logic_fn | - | ○ | pass |
 | logic_fn.ai_client.py:reply_to_text | logic_fn | - | ○ | pass |
+| logic_fn.ai_client.py:responses_create | logic_fn | ○ | ○ | pass |
+| logic_fn.ai_client.py:responses_tools | logic_fn | ○ | ○ | pass |
 | logic_fn.ai_client.py:run_extra_tool | logic_fn | - | ○ | pass |
 | logic_fn.ai_client.py:run_instruction_tool | logic_fn | - | ○ | pass |
 | logic_fn.ai_client.py:save_agent | logic_fn | - | ○ | pass |
