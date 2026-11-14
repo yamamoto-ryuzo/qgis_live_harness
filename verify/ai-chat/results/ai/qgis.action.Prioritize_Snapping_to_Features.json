@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Prioritize_Snapping_to_Features",
+ "prompt": "QGISの「Prioritize Snapping to Features」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Prioritize Snapping to Features」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "前回の調査で見つかっていますが、改めて個別に確認します。調査結果です。\n\n## 「Prioritize Snapping to Features」アクション — **現在有効（未選択）**\n\n| 項目 | 内容 |\n|---|---|\n| objectName | なし（無名 QAction） |\n| enabled | ✅ **有効** |\n| checkable | トグル式 |\n| checked | OFF（未選択） |\n| 所属 | 高度なデジタイズパネルのツールメニュー → **「Snapping Priority」サブメニュー** → 排他 QActionGroup |\n\n親チェーン: `QActionGroup → QMenu（Snapping Priority）→ QMenu（ツールメニュー）→ QDockWidget AdvancedDigitizingTools`\n\n### 排他グループの現在状態\n\n- Prioritize Snapping to Features — OFF（このアクション）\n- **Prioritize Snapping to Common Angles — ● 選択中**\n\n現在は「共通角優先」が選ばれているため、このアクションは未選択です。排他グループなので `trigger()` すれば地物スナップ優先に切り替わり、Common Angles 側が自動的に OFF になります。切り替えを実行しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction, QDockWidget\\n\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    if (a.text() or '') == 'Prioritize Snapping to Features':\\n        p = a.parent()\\n        chain = []\\n        dock = None\\n        while p is not None and len(chain) < 6:\\n            chain.append(type(p).__name__ + ':' + (p.objectName() or ''))\\n            if isinstance(p, QDockWidget) and dock is None:\\n                dock = p.objectName()\\n            p = p.parent()\\n        grp = a.actionGroup()\\n        out.append({\\n            'objectName': a.objectName(),\\n            'tooltip': a.toolTip(),\\n            'enabled': a.isEnabled(),\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'group_exclusive': grp.isExclusive() if grp else None,\\n            'group_members': [{'text': ga.text(), 'checked': ga.isChecked()} for ga in grp.actions()] if grp else [],\\n            'dock': dock,\\n            '"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Prioritize Snapping to Features」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n前回の調査で見つかっていますが、改めて個別に確認します。調査結果です。\n「Prioritize Snapping to Features」アクション — 現在有効（未選択）\n項目\n内容\nobjectName\nなし（無名 QAction）\nenabled\n✅ 有効\ncheckable\nトグル式\nchecked\nOFF（未選択）\n所属\n高度なデジタイズパネルのツールメニュー → 「Snapping Priority」サブメニュー → 排他 QActionGroup\n\n親チェーン: QActionGroup → QMenu（Snapping Priority）→ QMenu（ツールメニュー）→ QDockWidget AdvancedDigitizingTools\n排他グループの現在状態\nPrioritize Snapping to Features — OFF（このアクション）\nPrioritize Snapping to Common Angles — ● 選択中\n現在は「共通角優先」が選ばれているため、このアクションは未選択です。排他グループなので trigger() すれば地物スナップ優先に切り替わり、Common Angles 側が自動的に OFF になります。切り替えを実行しますか？"
+}

@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.Show_Floater",
+ "prompt": "QGISの「Show Floater」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Show Floater」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Show Floater」関連のアクションを検索します。「Show Floater」はONのようです。実際にフローターウィジェットが表示されているかも確認します。調査結果です。\n\n## 「Show Floater」は **有効(ON)** です\n\n| 項目 | 値 |\n|---|---|\n| text | `Show Floater` |\n| checkable | true（トグル式） |\n| **checked** | **true → 有効（ON)** |\n| enabled | true |\n| 配置 | メニュー「Floater settings」内（その親ボタン `mFloaterAction` も checked、ツールバー `mToolbar` に配置） |\n\nただし補足として、実際のフローターウィジェット `QgsAdvancedDigitizingFloater` の `isVisible()` は **false** でした。\n\nこれは矛盾ではなく、QGISのアドバンスドデジタイジングの仕様です。「Show Floater」は「フローターを表示するか」の設定であり、**実際に表示されるのはCAD対応のデジタイジングツール（地物の追加など）がアクティブな間だけ**です。現在は対象ツールが非アクティブなため、設定はONでもウィジェットは隠れている状態です。\n\n現状まとめ:\n- Show Floater: **ON**（フローター自体は非アクティブ時のため非表示）\n- Show Construction Guides: ON\n- Line Extension / X/Y Point / Record / Snap to Visible: OFF"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    on = (a.objectName() or '')\\n    tt = (a.toolTip() or '')\\n    if 'floater' in t.lower() or 'floater' in on.lower() or 'floater' in tt.lower():\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': t,\\n            'objectName': on,\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            'tooltip': tt,\\n            'shortcut': a.shortcut("
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QWidget\\nmw = iface.mainWindow()\\nfloaters = []\\nfor w in mw.findChildren(QWidget):\\n    cn = w.metaObject().className()\\n    if 'Floater' in cn:\\n        floaters.append({\\n            'class': cn,\\n            'objectName': w.objectName(),\\n            'visible': w.isVisible(),\\n            'enabled': w.isEnabled(),\\n        })\\nresult = floaters\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Show Floater」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Show Floater」関連のアクションを検索します。「Show Floater」はONのようです。実際にフローターウィジェットが表示されているかも確認します。調査結果です。\n「Show Floater」は 有効(ON) です\n項目\n値\ntext\nShow Floater\ncheckable\ntrue（トグル式）\nchecked\ntrue → 有効（ON)\nenabled\ntrue\n配置\nメニュー「Floater settings」内（その親ボタン mFloaterAction も checked、ツールバー mToolbar に配置）\n\nただし補足として、実際のフローターウィジェット QgsAdvancedDigitizingFloater の isVisible() は false でした。\nこれは矛盾ではなく、QGISのアドバンスドデジタイジングの仕様です。「Show Floater」は「フローターを表示するか」の設定であり、実際に表示されるのはCAD対応のデジタイジングツール（地物の追加など）がアクティブな間だけです。現在は対象ツールが非アクティブなため、設定はONでもウィジェットは隠れている状態です。\n現状まとめ:\nShow Floater: ON（フローター自体は非アクティブ時のため非表示）\nShow Construction Guides: ON\nLine Extension / X/Y Point / Record / Snap to Visible: OFF"
+}

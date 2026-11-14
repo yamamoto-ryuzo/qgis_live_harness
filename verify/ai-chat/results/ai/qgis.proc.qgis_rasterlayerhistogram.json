@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_rasterlayerhistogram",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] ラスタレイヤのヒストグラム」(id: qgis:rasterlayerhistogram) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] ラスタレイヤのヒストグラム」(id: qgis:rasterlayerhistogram) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。存在を確認しました。`qgis:rasterlayerhistogram` は registry に登録されています。\n\n## [QGIS] ラスタレイヤのヒストグラム\n\n**用途**: ラスタレイヤのセル値の度数分布をヒストグラムとして描画するアルゴリズム(グループ: プロット)。標高・反射値などの分布把握、閾値設定やストレッチ方法の検討に使えます。出力はグラフ画像ではなく、プロットを含む **HTML ファイル**です。\n\n**主なパラメータ**:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ラスタレイヤ |\n| `BAND` | 集計するバンド番号(デフォルト 1) |\n| `BINS` | ヒストグラムの階級(ビン)数(デフォルト 10) |\n| `OUTPUT` | 出力先ファイル(HTML) |\n\n注意点: ヘルプ上は単一バンドラスタが前提です(マルチバンドの場合は `BAND` で1バンドだけを対象にします)。数値データとしての度数統計が欲しい場合は `native:rasterlayerstatistics`(ラスタレイヤの統計)など別アルゴリズムが適します。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:rasterlayerhistogram')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'histogram' in a.id().lower()]}\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': type(p).__name__, 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()]\\n    outputs = [{'name': o.name(), 'desc': o.description()} for o in alg.outputDefinitions()]\\n    enum_opts = {p.name(): p.options() for p in alg.parameterDefinitions() if type(p).__name__ == 'QgsProcessingParameterEnum'}\\n    result = {'found': True, 'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'params': params, 'enums': enum_opts, 'outputs': outputs, 'shortHelp': (alg.shortHelpString() or '')[:800]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] ラスタレイヤのヒストグラム」(id: qgis:rasterlayerhistogram) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。存在を確認しました。qgis:rasterlayerhistogram は registry に登録されています。\n[QGIS] ラスタレイヤのヒストグラム\n用途: ラスタレイヤのセル値の度数分布をヒストグラムとして描画するアルゴリズム(グループ: プロット)。標高・反射値などの分布把握、閾値設定やストレッチ方法の検討に使えます。出力はグラフ画像ではなく、プロットを含む HTML ファイルです。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n入力ラスタレイヤ\nBAND\n集計するバンド番号(デフォルト 1)\nBINS\nヒストグラムの階級(ビン)数(デフォルト 10)\nOUTPUT\n出力先ファイル(HTML)\n\n注意点: ヘルプ上は単一バンドラスタが前提です(マルチバンドの場合は BAND で1バンドだけを対象にします)。数値データとしての度数統計が欲しい場合は native:rasterlayerstatistics(ラスタレイヤの統計)など別アルゴリズムが適します。"
+}

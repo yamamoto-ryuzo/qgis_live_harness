@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_importintospatialiteregistered",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Export to SpatiaLite (registered)」(id: native:importintospatialiteregistered) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Export to SpatiaLite (registered)」(id: native:importintospatialiteregistered) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:importintospatialiteregistered` は **processing registry に存在します**。\n\n- **表示名**: Export to SpatiaLite (registered)（SpatiaLite へエクスポート（登録済接続））\n- **グループ**: データベース (`database`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\nベクタレイヤを SpatiaLite データベースへエクスポートし新規テーブルを作成するアルゴリズムで、先ほどの `native:importintospatialite` と機能は同じです。違いは**出力先の指定方法**：こちらはファイルパスではなく、QGIS に事前登録された **SpatiaLite 接続名**（ブラウザパネル等で作成した接続）を使います。ヘルプにも「事前に QGIS と SpatiaLite DB 間の接続を作成しておく必要がある」と明記されています。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | エクスポートするレイヤ（必須） | — |\n| `DATABASE` | データベース**接続名**（`QgsProcessingParameterProviderConnection`、必須） | — |\n| `TABLENAME` | 作成するテーブル（`QgsProcessingParameterDatabaseTable`、空白ならレイヤ名） | 空 |\n| `PRIMARY_KEY` | 主キーフィールド（任意） | — |\n| `GEOMETRY_COLUMN` | ジオメトリカラム名 | `geom` |\n| `ENCODING` | 文字コード | `UTF-8` |\n| `OVERWRITE` | 上書き | `True` |\n| `CREATEINDEX` | 空間インデックス作成 | `True` |\n| `LOWERCASE_NAMES` | フィールド名小文字化 | `True` |\n| `DROP_STRING_LENGTH` | 文字列長制約を無視 | `False` |\n| `FORCE_SINGLEPART` | シングルパート化 | `False` |\n\n## 非 registered 版との違いまとめ\n\n- `DATABASE`：ファイルパス指定 → **登録済み接続名**指定（型も `VectorLayer` → `ProviderConnection`）\n- `TABLENAME`：自由文字列 → DB テーブル名パラメータ型（UI でスキーマ/テーブルを選択可能）\n\n実行例: `processing.run(\"native:importintospatialiteregistered\", {'INPUT': layer, 'DATABASE': 'my_spatialite_connection', 'TABLENAME': 'schema.my_table'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:importintospatialiteregistered')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        })\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': (alg.shortHelpString() or '')[:2000],\\n        'params': params,\\n        'ou"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Export to SpatiaLite (registered)」(id: native:importintospatialiteregistered) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:importintospatialiteregistered は processing registry に存在します。\n表示名: Export to SpatiaLite (registered)（SpatiaLite へエクスポート（登録済接続））\nグループ: データベース (database)\nプロバイダ: QGIS（ネイティブ C++）\n用途\nベクタレイヤを SpatiaLite データベースへエクスポートし新規テーブルを作成するアルゴリズムで、先ほどの native:importintospatialite と機能は同じです。違いは出力先の指定方法：こちらはファイルパスではなく、QGIS に事前登録された SpatiaLite 接続名（ブラウザパネル等で作成した接続）を使います。ヘルプにも「事前に QGIS と SpatiaLite DB 間の接続を作成しておく必要がある」と明記されています。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\nエクスポートするレイヤ（必須）\n—\nDATABASE\nデータベース接続名（QgsProcessingParameterProviderConnection、必須）\n—\nTABLENAME\n作成するテーブル（QgsProcessingParameterDatabaseTable、空白ならレイヤ名）\n空\nPRIMARY_KEY\n主キーフィールド（任意）\n—\nGEOMETRY_COLUMN\nジオメトリカラム名\ngeom\nENCODING\n文字コード\nUTF-8\nOVERWRITE\n上書き\nTrue\nCREATEINDEX\n空間インデックス作成\nTrue\nLOWERCASE_NAMES\nフィールド名小文字化\nTrue\nDROP_STRING_LENGTH\n文字列長制約を無視\nFalse\nFORCE_SINGLEPART\nシングルパート化\nFalse\n\n非 registered 版との違いまとめ\nDATABASE：ファイルパス指定 → 登録済み接続名指定（型も VectorLayer → ProviderConnection）\nTABLENAME：自由文字列 → DB テーブル名パラメータ型（UI でスキーマ/テーブルを選択可能）\n実行例: processing.run(\"native:importintospatialiteregistered\", {'INPUT': layer, 'DATABASE': 'my_spatialite_connection', 'TABLENAME': 'schema.my_table'})"
+}

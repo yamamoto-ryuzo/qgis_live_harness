@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Show_Common_Snapping_Angle",
+ "prompt": "QGISの「Show Common Snapping Angle」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Show Common Snapping Angle」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Show Common Snapping Angle」の現在の状態を確認します。調査結果です。\n\n## 「Show Common Snapping Angle」は **無効(OFF)** です\n\n| 項目 | 値 |\n|---|---|\n| text | `Show Common Snapping Angle` |\n| checkable | true（トグル式） |\n| **checked** | **false → 無効（OFF)** |\n| enabled | true（押下可能） |\n| 配置 | メニュー「**Floater settings**」内 |\n| ショートカット | なし |\n\nフローターに**共通角（よく使う角度へのスナップ）欄を表示するか**の設定で、現在OFFです。\n\n「Floater settings」系の現状：\n- Show Floater: ON\n- Show Distance: ON\n- Show Angle: ON\n- Show XY Coordinates: ON\n- Show Z Value: ON\n- Show M Value: ON\n- Show Bearing/Azimuth: OFF\n- Show Common Snapping Angle: **OFF**\n\nついでに検出した関連アクション：\n- `Prioritize Snapping to Common Angles`（メニュー「Snapping Priority」内）: **ON**\n- `共通角にスナップしない`（無名メニュー内）: **ON** ※名前が「スナップしない」なのにcheckedなのは少し奇妙ですが、排他的グループの選択状態と思われます\n\nONにしたい場合は `a.trigger()` で切り替えられます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    on = (a.objectName() or '')\\n    tt = (a.toolTip() or '')\\n    if 'common' in t.lower() or 'common' in on.lower() or '共通角' in t:\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': t,\\n            'objectName': on,\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            'tooltip': tt,\\n            'shortcut': a.shortcut().toString(),\\n"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Show Common Snapping Angle」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Show Common Snapping Angle」の現在の状態を確認します。調査結果です。\n「Show Common Snapping Angle」は 無効(OFF) です\n項目\n値\ntext\nShow Common Snapping Angle\ncheckable\ntrue（トグル式）\nchecked\nfalse → 無効（OFF)\nenabled\ntrue（押下可能）\n配置\nメニュー「Floater settings」内\nショートカット\nなし\n\nフローターに共通角（よく使う角度へのスナップ）欄を表示するかの設定で、現在OFFです。\n「Floater settings」系の現状：\nShow Floater: ON\nShow Distance: ON\nShow Angle: ON\nShow XY Coordinates: ON\nShow Z Value: ON\nShow M Value: ON\nShow Bearing/Azimuth: OFF\nShow Common Snapping Angle: OFF\nついでに検出した関連アクション：\nPrioritize Snapping to Common Angles（メニュー「Snapping Priority」内）: ON\n共通角にスナップしない（無名メニュー内）: ON ※名前が「スナップしない」なのにcheckedなのは少し奇妙ですが、排他的グループの選択状態と思われます\nONにしたい場合は a.trigger() で切り替えられます。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionZoomActualSize",
+ "prompt": "QGISの「ネイティブ解像度にズーム（100%）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ネイティブ解像度にズーム（100%）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ネイティブ解像度にズーム」アクションを調べます。調査結果です。「ネイティブ解像度にズーム（100%）」は `mActionZoomActualSize` として見つかりました。\n\n| 項目 | 値 |\n|---|---|\n| objectName | `mActionZoomActualSize` |\n| テキスト | `ネイティブ解像度にズーム（100%）` |\n| 有効(isEnabled) | **False(現在無効です)** |\n| 可視(isVisible) | True |\n\n無効になっている理由: このアクションはラスタレイヤを1ピクセル=1画素の解像度で表示するためのもので、現在のアクティブレイヤ「テスト地目レイヤ」はベクタレイヤ(type=0)のため選択できません。ラスタレイヤをアクティブにすると有効化されます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').replace('&','')\\n    o = a.objectName() or ''\\n    if ('解像度' in t) or ('native' in o.lower()):\\n        found.append((o, a.text(), a.isEnabled(), a.isVisible()))\\nlyr = iface.activeLayer()\\nresult = (found, lyr.name() if lyr else None, lyr.type() if lyr else None)\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ネイティブ解像度にズーム（100%）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「ネイティブ解像度にズーム」アクションを調べます。調査結果です。「ネイティブ解像度にズーム（100%）」は mActionZoomActualSize として見つかりました。\n項目\n値\nobjectName\nmActionZoomActualSize\nテキスト\nネイティブ解像度にズーム（100%）\n有効(isEnabled)\nFalse(現在無効です)\n可視(isVisible)\nTrue\n\n無効になっている理由: このアクションはラスタレイヤを1ピクセル=1画素の解像度で表示するためのもので、現在のアクティブレイヤ「テスト地目レイヤ」はベクタレイヤ(type=0)のため選択できません。ラスタレイヤをアクティブにすると有効化されます。"
+}

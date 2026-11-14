@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.qgis_heatmapkerneldensityestimation",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] ヒートマップ（カーネル密度推定）」(id: qgis:heatmapkerneldensityestimation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] ヒートマップ（カーネル密度推定）」(id: qgis:heatmapkerneldensityestimation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis:heatmapkerneldensityestimation` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `qgis:heatmapkerneldensityestimation`\n- **表示名**: `ヒートマップ（カーネル密度推定）`\n- **Provider**: `QGIS`\n- **グループ**: `内挿`\n\n### 用途\n入力ポイントの空間密度をカーネル密度推定で計算し、連続した密度ラスタ（ヒートマップ）を作成します。点の集中箇所やホットスポットの可視化に使います。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ポイントレイヤ | — |\n| `RADIUS` | カーネルの影響半径 | `100.0` |\n| `RADIUS_FIELD` | 任意。地物ごとの半径を指定する属性 | なし |\n| `PIXEL_SIZE` | 出力ラスタのセルサイズ | `0.1` |\n| `WEIGHT_FIELD` | 任意。各点の重み付け属性 | なし |\n| `KERNEL` | カーネル形状 | `Quartic(Biweight)` |\n| `DECAY` | Triangular カーネル用の減衰率 | `0.0` |\n| `OUTPUT_VALUE` | 出力値をそのまま使うかスケールするか | `そのまま` |\n| `OUTPUT` | 出力ラスタ | — |\n\n`KERNEL` の選択肢：`Quartic(Biweight)`、`Triangular`、`Uniform`、`Triweight`、`Epanechnikov`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('qgis:heatmapkerneldensityestimation')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'heatmap' in a.id().lower() or 'density' in a.id().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                '"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:heatmapkerneldensityestimation')\\nresult = [\\n    {'name': p.name(), 'tooltip': p.toolTip(), 'metadata': p.metadata() if hasattr(p, 'metadata') else None}\\n    for p in alg.parameterDefinitions()\\n]\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] ヒートマップ（カーネル密度推定）」(id: qgis:heatmapkerneldensityestimation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nqgis:heatmapkerneldensityestimation を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: qgis:heatmapkerneldensityestimation\n表示名: ヒートマップ（カーネル密度推定）\nProvider: QGIS\nグループ: 内挿\n用途\n入力ポイントの空間密度をカーネル密度推定で計算し、連続した密度ラスタ（ヒートマップ）を作成します。点の集中箇所やホットスポットの可視化に使います。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\n入力ポイントレイヤ\n—\nRADIUS\nカーネルの影響半径\n100.0\nRADIUS_FIELD\n任意。地物ごとの半径を指定する属性\nなし\nPIXEL_SIZE\n出力ラスタのセルサイズ\n0.1\nWEIGHT_FIELD\n任意。各点の重み付け属性\nなし\nKERNEL\nカーネル形状\nQuartic(Biweight)\nDECAY\nTriangular カーネル用の減衰率\n0.0\nOUTPUT_VALUE\n出力値をそのまま使うかスケールするか\nそのまま\nOUTPUT\n出力ラスタ\n—\n\nKERNEL の選択肢：Quartic(Biweight)、Triangular、Uniform、Triweight、Epanechnikov"
+}

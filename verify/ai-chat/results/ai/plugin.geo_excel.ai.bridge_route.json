@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_excel.ai.bridge_route",
+ "prompt": "geo_excel プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_excel プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "`describe_plugins` を実行し、`geo_excel` の自己記述を抽出します。`describe_plugins` の `geo_excel` 情報です。\n\n## 基本情報\n\n- `id`: `geo_excel`\n- `name`: `Excel帳票出力 (geo_excel)`\n- `bridge`: `true`\n- `ok`: `true`\n- `state`:\n  - `scriptCount`: `3`\n  - `win32com`: `true`\n\n## summary\n\nベクターレイヤの属性情報を Excel 帳票として出力するプラグインです。アクティブレイヤのレイヤ変数 `xlsout_*` でテンプレートと出力先を指定し、一覧帳票・単票・単票一括の3種を実行できます。実行には `win32com`（pywin32）と Excel が必要です。\n\n## when_to_use\n\n- アクティブレイヤの全地物を Excel 一覧帳票に出力したい\n- 選択した地物の属性を Excel 単票テンプレートへ差し込み出力したい\n- 選択地物または全地物の単票を一括出力したい\n- 帳票出力用レイヤ変数 `xlsout_*` の設定状況を確認・変更したい\n- 帳票出力に必要な既定値（出力先・テンプレート）を自動設定したい\n\n## invoke\n\n```json\n{\n  \"type\": \"bridge_call\",\n  \"plugin_id\": \"geo_excel\",\n  \"method\": \"<method>\",\n  \"args\": []\n}\n```\n\n## methods\n\n`applyDefaults`, `checkExcel`, `layerVariables`, `listScripts`, `openSettings`, `regenerateTemplates`, `run`, `setLayerVariables`, `setSettings`, `settings`, `status`"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_excel プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \ndescribe_plugins を実行し、geo_excel の自己記述を抽出します。describe_plugins の geo_excel 情報です。\n基本情報\nid: geo_excel\nname: Excel帳票出力 (geo_excel)\nbridge: true\nok: true\nstate: \nscriptCount: 3\nwin32com: true\nsummary\nベクターレイヤの属性情報を Excel 帳票として出力するプラグインです。アクティブレイヤのレイヤ変数 xlsout_* でテンプレートと出力先を指定し、一覧帳票・単票・単票一括の3種を実行できます。実行には win32com（pywin32）と Excel が必要です。\nwhen_to_use\nアクティブレイヤの全地物を Excel 一覧帳票に出力したい\n選択した地物の属性を Excel 単票テンプレートへ差し込み出力したい\n選択地物または全地物の単票を一括出力したい\n帳票出力用レイヤ変数 xlsout_* の設定状況を確認・変更したい\n帳票出力に必要な既定値（出力先・テンプレート）を自動設定したい\ninvoke\n{\n  \"type\": \"bridge_call\",\n  \"plugin_id\": \"geo_excel\",\n  \"method\": \"<method>\",\n  \"args\": []\n}\nmethods\napplyDefaults, checkExcel, layerVariables, listScripts, openSettings, regenerateTemplates, run, setLayerVariables, setSettings, settings, status"
+}

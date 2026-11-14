@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_removeduplicatesbyattribute",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性値重複を削除」(id: native:removeduplicatesbyattribute) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性値重複を削除」(id: native:removeduplicatesbyattribute) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:removeduplicatesbyattribute` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:removeduplicatesbyattribute`\n- **表示名**: `[QGIS（ネイティブC++）] 属性値重複を削除`\n- **グループ**: ベクタ一般\n- **用途**: 指定した1つまたは複数のフィールド値が重複する地物を整理し、最初に一致した地物だけを残したレイヤを作成する。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT` | 必須 | 入力ベクタレイヤ |\n| `FIELDS` | 必須 | 重複判定に使用するフィールド |\n| `OUTPUT` | 必須 | 重複を除いた出力レイヤ |\n| `DUPLICATES` | 任意 | 除外された重複地物を保存する出力レイヤ |\n\n保持件数 `RETAINED_COUNT` と除外件数 `DUPLICATE_COUNT` も数値出力として返ります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:removeduplicatesbyattribute')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'desc"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性値重複を削除」(id: native:removeduplicatesbyattribute) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:removeduplicatesbyattribute を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:removeduplicatesbyattribute\n表示名: [QGIS（ネイティブC++）] 属性値重複を削除\nグループ: ベクタ一般\n用途: 指定した1つまたは複数のフィールド値が重複する地物を整理し、最初に一致した地物だけを残したレイヤを作成する。\n主なパラメータ\n名前\n必須\n説明\nINPUT\n必須\n入力ベクタレイヤ\nFIELDS\n必須\n重複判定に使用するフィールド\nOUTPUT\n必須\n重複を除いた出力レイヤ\nDUPLICATES\n任意\n除外された重複地物を保存する出力レイヤ\n\n保持件数 RETAINED_COUNT と除外件数 DUPLICATE_COUNT も数値出力として返ります。"
+}

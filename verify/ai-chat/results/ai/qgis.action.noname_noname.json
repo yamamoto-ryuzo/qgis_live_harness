@@ -1,0 +1,38 @@
+{
+ "id": "qgis.action.noname_noname",
+ "prompt": "QGISの「属性テーブルを表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「属性テーブルを表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「属性テーブルを表示」に該当するアクションを調べます。「属性テーブルを表示」という正確なテキストのアクションが見つかりました。所属を詳しく調べます。親が QMenu のようなので、その親メニューを特定します。調査結果です。\n\n**「属性テーブルを表示」アクションは現在有効（enabled）です。**\n\n詳細:\n\n- **アクション**: 「属性テーブルを表示」（objectName なし）— `enabled=True`, `visible=True`、ショートカットなし\n- **所属**: メインのプルダウンメニューには登録されておらず、**マップキャンバス（theMapCanvas）配下の無名コンテキストメニュー**に属しています。キャンバス下には同名の空 QMenu が7つあり、右クリック時などに動的に構築されるコンテキストメニュー用のアクションです。\n\n注意点 — 紛らわしい類似アクション（こちらはすべて有効）:\n\n| アクション | objectName | 場所 | ショートカット |\n|---|---|---|---|\n| 属性テーブルを開く(&A) | `mActionOpenTable` | レイヤ(&L)メニュー | F6 |\n| 属性テーブルを開く（選択地物） | `mActionOpenTableSelected` | 属性テーブルをフィルタ | Shift+F6 |\n| 属性テーブルを開く（可視地物） | `mActionOpenTableVisible` | 属性テーブルをフィルタ | Ctrl+F6 |\n| 属性テーブルを開く（編集済み地物） | `mActionOpenTableEdited` | 属性テーブルをフィルタ | — |\n\nもしレイヤメニューの「属性テーブルを開く(F6)」のほうを指していた場合、そちらも `enabled=True` で F6 で起動可能です。いずれも無効化・グレーアウトはされていません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    o = a.objectName() or ''\\n    if '属性テーブル' in t or 'attributetable' in o.lower() or 'openTable' in o:\\n        conts = []\\n        for w in a.associatedObjects():\\n            if isinstance(w, QMenu):\\n                conts.append('QMenu:%s [%s]' % (w.title(), w.objectName()))\\n            elif isinstance(w, QToolBar):\\n                conts.append('QToolBar:%s' % w.windowTitle())\\n        out.append({'text': t, 'objectName': o, 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'checkable': a.isCheckable(), 'shortcut': a.shortcut().toString(), 'containers': conts})\\nresult = out\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QMenu, QToolBar, QAction, QToolButton, QAbstractButton\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    if (a.text() or '') == '属性テーブルを表示':\\n        conts = []\\n        for w in a.associatedObjects():\\n            if isinstance(w, QMenu):\\n                conts.append('QMenu:%s [%s]' % (w.title(), w.objectName()))\\n            elif isinstance(w, QToolBar):\\n                conts.append('QToolBar:%s' % w.windowTitle())\\n            else:\\n                name = getattr(w, 'objectName', lambda: '')()\\n                tip = getattr(w, 'toolTip', lambda: '')()\\n                conts.append('%s(name=%s,tip=%s)' % (w.metaObject().className(), name, tip[:40]))\\n        out.append({'enabled': a.isEnabled(), 'visible': a.isVisible(), 'toolTip': a.toolTip(), 'statusTip': a.statusTip(), 'containers': conts, 'parent': type(a.parent()).__name__ if a.parent() else None})\\nresult = out\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QMenu, QAction\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    if (a.text() or '') == '属性テーブルを表示':\\n        p = a.parent()\\n        info = {'parent_class': type(p).__name__, 'parent_title': getattr(p, 'title', lambda: '')(), 'parent_objectName': p.objectName() if hasattr(p, 'objectName') else ''}\\n        if isinstance(p, QMenu):\\n            info['parent_actions'] = [(sa.text(), sa.isEnabled(), sa.isSeparator()) for sa in p.actions()]\\n            # where is the parent menu's action?\\n            ma = p.menuAction()\\n            if ma is not None:\\n                info['grandparents'] = ['QMenu:%s [%s]' % (w.title(), w.objectName()) for w in ma.associatedObjects() if isinstance(w, QMenu)]\\n        # chain up\\n        chain = []\\n        w = p\\n        while w is not None:\\n            chain.append(type(w).__name__ + (':' + w.objectName() if hasattr(w, 'objectName') and w.objectName() else ''))\\n            w = w.par"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"canvas = iface.mapCanvas()\\nout = {'canvas': canvas.objectName(), 'has_menu_attr': hasattr(canvas, 'menu')}\\n# check children QMenus of the canvas\\nfrom qgis.PyQt.QtWidgets import QMenu\\nmenus = []\\nfor m in canvas.findChildren(QMenu):\\n    menus.append({'title': m.title(), 'objectName': m.objectName(), 'n_actions': len(m.actions()), 'visible': m.isVisible()})\\nout['canvas_menus'] = menus\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「属性テーブルを表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「属性テーブルを表示」に該当するアクションを調べます。「属性テーブルを表示」という正確なテキストのアクションが見つかりました。所属を詳しく調べます。親が QMenu のようなので、その親メニューを特定します。調査結果です。\n「属性テーブルを表示」アクションは現在有効（enabled）です。\n詳細:\nアクション: 「属性テーブルを表示」（objectName なし）— enabled=True, visible=True、ショートカットなし\n所属: メインのプルダウンメニューには登録されておらず、マップキャンバス（theMapCanvas）配下の無名コンテキストメニューに属しています。キャンバス下には同名の空 QMenu が7つあり、右クリック時などに動的に構築されるコンテキストメニュー用のアクションです。\n注意点 — 紛らわしい類似アクション（こちらはすべて有効）:\nアクション\nobjectName\n場所\nショートカット\n属性テーブルを開く(&A)\nmActionOpenTable\nレイヤ(&L)メニュー\nF6\n属性テーブルを開く（選択地物）\nmActionOpenTableSelected\n属性テーブルをフィルタ\nShift+F6\n属性テーブルを開く（可視地物）\nmActionOpenTableVisible\n属性テーブルをフィルタ\nCtrl+F6\n属性テーブルを開く（編集済み地物）\nmActionOpenTableEdited\n属性テーブルをフィルタ\n—\n\nもしレイヤメニューの「属性テーブルを開く(F6)」のほうを指していた場合、そちらも enabled=True で F6 で起動可能です。いずれも無効化・グレーアウトはされていません。"
+}

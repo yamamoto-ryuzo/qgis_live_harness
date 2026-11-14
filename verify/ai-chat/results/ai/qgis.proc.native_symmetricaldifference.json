@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_symmetricaldifference",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 対称差（symmetrical difference）」(id: native:symmetricaldifference) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 対称差（symmetrical difference）」(id: native:symmetricaldifference) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:symmetricaldifference`「**対称差（symmetrical difference）**」は登録されています（グループ: ベクタオーバーレイ）。\n\n## 用途\n\n- 入力レイヤとオーバーレイレイヤについて、**両方に重なっている部分を除いた領域**を抽出します\n- つまり `(A ∪ B) − (A ∩ B)` で、「Aだけ」「Bだけ」の部分が残り、交差部分は削除されます\n- 用途例：2つのポリゴンデータの**差分エリア検出**（更新前後の土地利用の変化、版の異なる境界データのずれ可視化）\n- 出力の属性テーブルには**入力・オーバーレイ両方の属性**が含まれます\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | 入力レイヤ |\n| `OVERLAY` | source | オーバーレイレイヤ |\n| `OVERLAY_FIELDS_PREFIX` | string | オーバーレイ属性の接頭辞（出力属性名の衝突回避用） |\n| `GRID_SIZE` | number | グリッドサイズ（数値安定化用。微小誤差の吸収） |\n| `OUTPUT` | sink | 出力レイヤ |\n\n## 動作イメージ\n\n```\n入力A:   [#####    ]      オーバーレイB: [    #####]\n重なり:      [##]                       \n出力:    [###]        [###]   ← 交差部分だけ除去\n```\n\nオーバーレイ系の対比：\n\n| アルゴリズム | 残る部分 |\n|---|---|\n| `native:intersection` | 重なり部分のみ（A∩B） |\n| `native:union` | 全部（A∪B、重なりも分割される） |\n| `native:difference` | A−B（AからBを引く） |\n| **本アルゴリズム** | A∩B 以外全部（(A∪B)−(A∩B)） |\n\n注意点：出力は「A由来の部分」と「B由来の部分」が混在するため、どちら由来か判別したい場合は `OVERLAY_FIELDS_PREFIX` で属性接頭辞を付けておくと後処理しやすいです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:symmetricaldifference')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 対称差（symmetrical difference）」(id: native:symmetricaldifference) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:symmetricaldifference「対称差（symmetrical difference）」は登録されています（グループ: ベクタオーバーレイ）。\n用途\n入力レイヤとオーバーレイレイヤについて、両方に重なっている部分を除いた領域を抽出します\nつまり (A ∪ B) − (A ∩ B) で、「Aだけ」「Bだけ」の部分が残り、交差部分は削除されます\n用途例：2つのポリゴンデータの差分エリア検出（更新前後の土地利用の変化、版の異なる境界データのずれ可視化）\n出力の属性テーブルには入力・オーバーレイ両方の属性が含まれます\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\n入力レイヤ\nOVERLAY\nsource\nオーバーレイレイヤ\nOVERLAY_FIELDS_PREFIX\nstring\nオーバーレイ属性の接頭辞（出力属性名の衝突回避用）\nGRID_SIZE\nnumber\nグリッドサイズ（数値安定化用。微小誤差の吸収）\nOUTPUT\nsink\n出力レイヤ\n\n動作イメージ\n入力A:   [#####    ]      オーバーレイB: [    #####]\n重なり:      [##]                       \n出力:    [###]        [###]   ← 交差部分だけ除去\nオーバーレイ系の対比：\nアルゴリズム\n残る部分\nnative:intersection\n重なり部分のみ（A∩B）\nnative:union\n全部（A∪B、重なりも分割される）\nnative:difference\nA−B（AからBを引く）\n本アルゴリズム\nA∩B 以外全部（(A∪B)−(A∩B)）\n\n注意点：出力は「A由来の部分」と「B由来の部分」が混在するため、どちら由来か判別したい場合は OVERLAY_FIELDS_PREFIX で属性接頭辞を付けておくと後処理しやすいです。"
+}

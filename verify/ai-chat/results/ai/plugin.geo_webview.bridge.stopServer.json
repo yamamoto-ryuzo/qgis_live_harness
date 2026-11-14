@@ -1,0 +1,35 @@
+{
+ "id": "plugin.geo_webview.bridge.stopServer",
+ "prompt": "QGISの geo_webview プラグインで「HTTPサーバを停止する。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_webview プラグインで「HTTPサーバを停止する。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "ブリッジのメソッド一覧から停止用メソッドを確認してから実行します。停止を確認します。geo_webview の HTTPサーバを停止しました。\n\n**実行結果**\n- `stopServer()` → `ok: true, running: false`\n- 停止後の状態（`serverStatus`）:\n  - `running: false`\n  - `port: null`（停止前は 8090 で稼働中）\n  - `localhost_url` / `network_url`: なし\n\nサーバは正常に停止しました。パーマリンク受領・`/present` 画面共有・`/export-data/` 配信などの HTTP 機能は、再び `startServer` で起動するまで使えません。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils, json\\nb = qgis.utils.plugins['geo_webview'].bridge\\npi = json.loads(b.pluginInfo())\\nresult = [m['name'] + ' ' + m.get('signature','') for m in pi['methods']]\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_webview', 'args': [], 'method': 'stopServer'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'plugin_id': 'geo_webview', 'method': 'serverStatus'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_webview プラグインで「HTTPサーバを停止する。」を実行して結果を教えて\n[AI] \nブリッジのメソッド一覧から停止用メソッドを確認してから実行します。停止を確認します。geo_webview の HTTPサーバを停止しました。\n実行結果\nstopServer() → ok: true, running: false\n停止後の状態（serverStatus）: \nrunning: false\nport: null（停止前は 8090 で稼働中）\nlocalhost_url / network_url: なし\nサーバは正常に停止しました。パーマリンク受領・/present 画面共有・/export-data/ 配信などの HTTP 機能は、再び startServer で起動するまで使えません。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_executesql",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] SQLを実行」(id: gdal:executesql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] SQLを実行」(id: gdal:executesql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:executesql` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:executesql` |\n| 表示名 | SQLを実行 |\n| プロバイダ | GDAL |\n| グループ | ベクタその他 |\n\n## 用途\n\nベクタレイヤに対して **SQL クエリを実行**し、結果を新しいベクタレイヤとして出力します(`ogr2ogr -sql` に相当)。選択・結合・集計など、データソースをまたいだ柔軟な抽出処理に使います。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ベクタレイヤ | 必須 |\n| `SQL` | 実行する SQL 文 | 必須 |\n| `DIALECT` | SQL ダイアレクト(なし / **OGR SQL** / **SQLite**) | なし |\n| `OPTIONS` | 追加作成オプション | 任意 |\n| `OUTPUT` | 出力ベクタレイヤ | 必須 |\n\n## 補足\n\n- `DIALECT` で **SQLite** を選ぶと SpatiaLite 系の空間関数が、**OGR SQL** では OGR 提供の SQL 構文が使えます。\n- 入力に複数レイヤがある場合や複雑な空間演算は SQLite ダイアレクトが強力です。\n\n実行例: `processing.run(\"gdal:executesql\", {\"INPUT\": v, \"SQL\": \"SELECT * FROM layer WHERE pop > 1000\", \"DIALECT\": \"SQLITE\", \"OUTPUT\": \"filtered.gpkg\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:executesql')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'sql' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n    "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] SQLを実行」(id: gdal:executesql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:executesql をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:executesql\n表示名\nSQLを実行\nプロバイダ\nGDAL\nグループ\nベクタその他\n\n用途\nベクタレイヤに対して SQL クエリを実行し、結果を新しいベクタレイヤとして出力します(ogr2ogr -sql に相当)。選択・結合・集計など、データソースをまたいだ柔軟な抽出処理に使います。\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n入力ベクタレイヤ\n必須\nSQL\n実行する SQL 文\n必須\nDIALECT\nSQL ダイアレクト(なし / OGR SQL / SQLite)\nなし\nOPTIONS\n追加作成オプション\n任意\nOUTPUT\n出力ベクタレイヤ\n必須\n\n補足\nDIALECT で SQLite を選ぶと SpatiaLite 系の空間関数が、OGR SQL では OGR 提供の SQL 構文が使えます。\n入力に複数レイヤがある場合や複雑な空間演算は SQLite ダイアレクトが強力です。\n実行例: processing.run(\"gdal:executesql\", {\"INPUT\": v, \"SQL\": \"SELECT * FROM layer WHERE pop > 1000\", \"DIALECT\": \"SQLITE\", \"OUTPUT\": \"filtered.gpkg\"})"
+}

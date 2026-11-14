@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_checkvalidity",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Check validity」(id: native:checkvalidity) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Check validity」(id: native:checkvalidity) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:checkvalidity` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] Check validity`\n- **ID**: `native:checkvalidity`\n- **グループ**: `ベクタジオメトリ`\n- **用途**: ベクタレイヤの各地物が有効なジオメトリかを検査し、`valid`、`invalid`、`error` の3種類に分類します。自己交差やリング不正などのジオメトリ問題を、修正前に一覧化する用途に向きます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT_LAYER` | 検査対象のベクタレイヤ |\n| `METHOD` | 検査方法。`0`=デジタイズ設定、`1`=QGIS、`2`=GEOS。既定値 `2` |\n| `IGNORE_RING_SELF_INTERSECTION` | リングの自己交差を無視するか。既定値 `False` |\n| `VALID_OUTPUT` | 有効な地物の出力。任意 |\n| `INVALID_OUTPUT` | 無効な地物の出力。`_errors` フィールドに概要を追加。任意 |\n| `ERROR_OUTPUT` | エラー位置を示すポイント出力。`message` 等の情報を保持。任意 |\n\n`METHOD` では、GEOS が高速ですが各地物で最初に見つかったエラーのみ返し、QGIS 方式は低速ながら複数のエラーを報告できます。ほかに `VALID_COUNT`、`INVALID_COUNT`、`ERROR_COUNT` の件数も返ります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:checkvalidity')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({\\n            'n"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Check validity」(id: native:checkvalidity) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:checkvalidity を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] Check validity\nID: native:checkvalidity\nグループ: ベクタジオメトリ\n用途: ベクタレイヤの各地物が有効なジオメトリかを検査し、valid、invalid、error の3種類に分類します。自己交差やリング不正などのジオメトリ問題を、修正前に一覧化する用途に向きます。\n主なパラメータ:\nパラメータ\n内容\nINPUT_LAYER\n検査対象のベクタレイヤ\nMETHOD\n検査方法。0=デジタイズ設定、1=QGIS、2=GEOS。既定値 2\nIGNORE_RING_SELF_INTERSECTION\nリングの自己交差を無視するか。既定値 False\nVALID_OUTPUT\n有効な地物の出力。任意\nINVALID_OUTPUT\n無効な地物の出力。_errors フィールドに概要を追加。任意\nERROR_OUTPUT\nエラー位置を示すポイント出力。message 等の情報を保持。任意\n\nMETHOD では、GEOS が高速ですが各地物で最初に見つかったエラーのみ返し、QGIS 方式は低速ながら複数のエラーを報告できます。ほかに VALID_COUNT、INVALID_COUNT、ERROR_COUNT の件数も返ります。"
+}

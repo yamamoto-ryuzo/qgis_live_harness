@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Create_Grid_Layer",
+ "prompt": "QGISの「Create Grid Layer」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Create Grid Layer」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Create Grid Layer」アクションも **現在有効（enabled）** です。\n\n## 調査結果\n\n- テキスト: `Create Grid Layer`\n- 所有者: **mmqgis プラグイン**\n- `isEnabled()` = **true**、`isVisible()` = true\n- 配置場所: メニューバー **MMQGIS → Create → Create Grid Layer**\n\n## 参考：grid 関連でヒットしたもう1件\n\n| アクション | 場所 | 有効 |\n|---|---|---|\n| `Create Grid Layer` | MMQGIS → Create | **有効** |\n| `Gridify`（ラベル用グリッド化） | MMQGIS → Modify | 有効 |\n\nコア機能としては `グリッドを作成...`（`native:creategrid`、ベクタ → Research Tools）が同等機能です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.utils import plugins\\nmmqgis = plugins.get('mmqgis')\\nmenu = mmqgis.mmqgis_menu\\nfound = []\\nfor a in menu.actions():\\n    m = a.menu()\\n    if m is not None:\\n        for sa in m.actions():\\n            if 'grid' in (sa.text() or '').lower():\\n                found.append({\\n                    'submenu': (a.text() or '').replace('&',''),\\n                    'action_text': sa.text(),\\n                    'enabled': sa.isEnabled(),\\n                    'visible': sa.isVisible(),\\n                })\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Create Grid Layer」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Create Grid Layer」アクションも 現在有効（enabled） です。\n調査結果\nテキスト: Create Grid Layer\n所有者: mmqgis プラグイン\nisEnabled() = true、isVisible() = true\n配置場所: メニューバー MMQGIS → Create → Create Grid Layer\n参考：grid 関連でヒットしたもう1件\nアクション\n場所\n有効\nCreate Grid Layer\nMMQGIS → Create\n有効\nGridify（ラベル用グリッド化）\nMMQGIS → Modify\n有効\n\nコア機能としては グリッドを作成...（native:creategrid、ベクタ → Research Tools）が同等機能です。"
+}

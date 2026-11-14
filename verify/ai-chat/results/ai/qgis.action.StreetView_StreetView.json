@@ -1,0 +1,34 @@
+{
+ "id": "qgis.action.StreetView_StreetView",
+ "prompt": "QGISの「StreetView」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「StreetView」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "StreetView プラグインのアクションを調べます。調査結果です。\n\n**「StreetView」アクションは現在有効（enabled）です。**\n\n詳細:\n\n- **プラグイン**: `StreetView`（`StreetView.streetview.StreetView`）ロード済み\n- **プラグインの `action`**「StreetView」— `enabled=True`, `visible=True`\n  - 所属: 「プラグインツールバー」(mPluginToolBar) 上の QToolButton「StreetView」\n  - ＋「プラグイン(&P)」→「&StreetView」サブメニュー（objectName `StreetView`）内\n- **「&StreetView」メニューエントリ**（menuAction 相当）も `enabled=True` / `visible=True`\n\n補足:\n\n- 検索時に出てきた「Geocode from Street Layer」は別物です（「&Geocode」メニュー内、MMQGIS 系のジオコーディング機能。こちらも enabled=True）。\n- StreetView プラグイン本体は `action` と `run` のみのシンプルな構成で、アクション実行時に `run` がストリートビュー関連のダイアログ/ドックを開きます。無効化・グレーアウトはありません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\npl = qgis.utils.plugins.get('StreetView')\\ninfo = {'loaded': pl is not None}\\nif pl is not None:\\n    info['plugin_type'] = type(pl).__name__\\n    info['module'] = getattr(pl, '__module__', None)\\n    info['attrs'] = [a for a in dir(pl) if not a.startswith('__')]\\nresult = info\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    o = a.objectName() or ''\\n    if 'street' in t.lower() or 'street' in o.lower() or 'ストリート' in t:\\n        out.append({'text': t, 'objectName': o, 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'checkable': a.isCheckable(), 'checked': a.isChecked()})\\nresult = out\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\nfrom qgis.PyQt.QtWidgets import QMenu, QToolBar, QAction, QToolButton\\npl = qgis.utils.plugins['StreetView']\\nmw = iface.mainWindow()\\npa = getattr(pl, 'action', None)\\nout = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    if 'street' in t.lower() or 'ストリート' in t:\\n        conts = []\\n        for w in a.associatedObjects():\\n            if isinstance(w, QMenu):\\n                conts.append('QMenu:%s [%s]' % (w.title(), w.objectName()))\\n            elif isinstance(w, QToolBar):\\n                conts.append('QToolBar:%s [%s]' % (w.windowTitle(), w.objectName()))\\n            elif isinstance(w, QToolButton):\\n                conts.append('QToolButton:%s' % (w.text() or w.toolTip()))\\n            else:\\n                conts.append(w.metaObject().className())\\n        out.append({'text': t, 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'toolTip': a.toolTip(), 'is_plugin_action': a is pa, 'containers': conts})\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「StreetView」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nStreetView プラグインのアクションを調べます。調査結果です。\n「StreetView」アクションは現在有効（enabled）です。\n詳細:\nプラグイン: StreetView（StreetView.streetview.StreetView）ロード済み\nプラグインの action「StreetView」— enabled=True, visible=True \n所属: 「プラグインツールバー」(mPluginToolBar) 上の QToolButton「StreetView」\n＋「プラグイン(&P)」→「&StreetView」サブメニュー（objectName StreetView）内\n「&StreetView」メニューエントリ（menuAction 相当）も enabled=True / visible=True\n補足:\n検索時に出てきた「Geocode from Street Layer」は別物です（「&Geocode」メニュー内、MMQGIS 系のジオコーディング機能。こちらも enabled=True）。\nStreetView プラグイン本体は action と run のみのシンプルな構成で、アクション実行時に run がストリートビュー関連のダイアログ/ドックを開きます。無効化・グレーアウトはありません。"
+}

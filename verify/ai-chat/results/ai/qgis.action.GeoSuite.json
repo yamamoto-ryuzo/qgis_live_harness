@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.GeoSuite",
+ "prompt": "QGISの「GeoSuite」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「GeoSuite」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「GeoSuite」に関連するアクションを探します。「GeoSuite」アクション(ツールバー切替)が見つかりました。実行します。「GeoSuite」アクションを実行しました。\n\n- GeoSuite ツールバーは既に表示されていたため、トグル実行で一度非表示になった後、再度実行して表示状態に戻しています\n- アクションはチェック状態のまま、ツールバーは表示中です\n\n画面上部の2段目にあるこのツールバーから、各種 geo_* プラグイン(表示モード・AI・geo_search など)の機能にアクセスできます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nacts = [(x.objectName(), x.text(), x.isCheckable(), x.isChecked()) for x in mw.findChildren(QAction) if 'geosuite' in (x.objectName() + x.text()).lower()]\\nmenus = [(m.objectName(), m.title()) for m in mw.findChildren(QMenu) if 'geosuite' in (m.objectName() + m.title()).lower()]\\nresult = {'actions': acts, 'menus': menus}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\na = [x for x in mw.findChildren(QAction) if x.text() == 'GeoSuite'][0]\\ntbars = [t for t in mw.findChildren(QToolBar) if 'geosuite' in (t.objectName() + t.windowTitle()).lower()]\\nbefore = (a.isChecked(), [t.isVisible() for t in tbars])\\na.trigger()\\nif tbars and not any(t.isVisible() for t in tbars):\\n    a.trigger()\\nresult = {'before': before,\\n          'toolbars': [(t.objectName(), t.windowTitle(), t.isVisible()) for t in tbars],\\n          'final_checked': a.isChecked()}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「GeoSuite」機能(アクション)を実行して\n[AI] \n「GeoSuite」に関連するアクションを探します。「GeoSuite」アクション(ツールバー切替)が見つかりました。実行します。「GeoSuite」アクションを実行しました。\nGeoSuite ツールバーは既に表示されていたため、トグル実行で一度非表示になった後、再度実行して表示状態に戻しています\nアクションはチェック状態のまま、ツールバーは表示中です\n画面上部の2段目にあるこのツールバーから、各種 geo_* プラグイン(表示モード・AI・geo_search など)の機能にアクセスできます。"
+}

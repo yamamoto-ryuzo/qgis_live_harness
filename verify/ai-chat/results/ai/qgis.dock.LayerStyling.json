@@ -1,0 +1,26 @@
+{
+ "id": "qgis.dock.LayerStyling",
+ "prompt": "「レイヤスタイル」パネル(ドック)を表示して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "「レイヤスタイル」パネル(ドック)を表示して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に「レイヤスタイル」ドックを表示します。「レイヤスタイル」パネルを表示しました。レイヤを選択すると、そのパネルからシンボロジやラベルの設定を直接編集できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\nfor d in iface.mainWindow().findChildren(QDockWidget):\\n    if d.objectName() == 'LayerStyling':\\n        d.setVisible(True)\\n        d.show()\\n        d.raise_()\\n        result = d.isVisible()\\nresult\"}"
+  }
+ ],
+ "view_tail": "[あなた] 「レイヤスタイル」パネル(ドック)を表示して\n[AI] \n同様に「レイヤスタイル」ドックを表示します。「レイヤスタイル」パネルを表示しました。レイヤを選択すると、そのパネルからシンボロジやラベルの設定を直接編集できます。"
+}

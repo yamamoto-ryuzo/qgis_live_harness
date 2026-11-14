@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionTogglePanelsVisibility",
+ "prompt": "QGISの「パネル表示を切り替え(V)」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「パネル表示を切り替え(V)」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「パネル表示を切り替え」に対応するアクションを探します。アクションを確認しました。現在パネル(ドック)が表示されているかも調べます。調査結果です。\n\n**アクション: `mActionTogglePanelsVisibility`「パネル表示を切り替え(&V)」**\n\n| 項目 | 状態 |\n|---|---|\n| ショートカット | Ctrl+Tab |\n| 有効 (isEnabled) | **有効** — 実行可能な状態です |\n| チェック可能 | いいえ(実行するたびに表示↔非表示が切り替わるタイプ) |\n| 現在のパネル状態 | **表示中** — 20個のドックのうち10個が可視 |\n\n現在表示されているパネル: レイヤ、ブラウザ、レイヤ順序、頂点エディタ、統計、高度なデジタイズ、空間ブックマークマネージャ、全体図、タイルスケール、AI アシスタント\n\nこのアクションを実行すると、表示中のパネルがすべて一時的に隠れ、もう一度実行すると元に戻ります。実行しますか?"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nresult = [(a.objectName(), a.text(), a.shortcut().toString(), a.isEnabled(), a.isCheckable(), a.isChecked()) for a in iface.mainWindow().findChildren(QAction) if 'パネル' in a.text() or 'panel' in a.objectName().lower() or 'dock' in a.objectName().lower()]\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\ndocks = iface.mainWindow().findChildren(QDockWidget)\\nvis = [(d.objectName(), d.windowTitle()) for d in docks if d.isVisible()]\\nresult = {'total_docks': len(docks), 'visible_count': len(vis), 'visible': vis[:15]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「パネル表示を切り替え(V)」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「パネル表示を切り替え」に対応するアクションを探します。アクションを確認しました。現在パネル(ドック)が表示されているかも調べます。調査結果です。\nアクション: mActionTogglePanelsVisibility「パネル表示を切り替え(&V)」\n項目\n状態\nショートカット\nCtrl+Tab\n有効 (isEnabled)\n有効 — 実行可能な状態です\nチェック可能\nいいえ(実行するたびに表示↔非表示が切り替わるタイプ)\n現在のパネル状態\n表示中 — 20個のドックのうち10個が可視\n\n現在表示されているパネル: レイヤ、ブラウザ、レイヤ順序、頂点エディタ、統計、高度なデジタイズ、空間ブックマークマネージャ、全体図、タイルスケール、AI アシスタント\nこのアクションを実行すると、表示中のパネルがすべて一時的に隠れ、もう一度実行すると元に戻ります。実行しますか?"
+}

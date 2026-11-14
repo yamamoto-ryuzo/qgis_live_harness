@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_search.ai.catalog",
+ "prompt": "geo_search プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_search プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "再度 `qgis_describe_plugins` を実行し、geo_search のセクションを確認します。`qgis_describe_plugins` で geo_search のカタログ情報を再取得しました。内容は前回と同一で、専用 bridge 搭載(`\"bridge\": true`)、公開メソッドは27件です。\n\n## geo_search — 地図検索 (geo_search)\n\n- **summary**: レイヤ内の地物を属性値で検索し、結果一覧の表示と地図ズーム・地物選択を行う。検索対象は設定済みの検索タブ(カレントレイヤ/全レイヤ/プロジェクト定義)で決まる。`searchAddress` は住所・地名・施設名のジオコーディング(gsi/google/yahoo/osm)で座標取得と地図移動ができる。\n- **invoke**: `{\"type\": \"bridge_call\", \"plugin_id\": \"geo_search\"}`\n- **state**: `dialog: true`、`dialogVisible: false`、`tabCount: 4`\n\n### when_to_use\n\n- 地名・施設名・市区町村名など属性値で地物を探したい\n- 住所・地名・施設名から緯度経度を調べて地図を移動したい(ジオコーディング)\n- 検索結果へ地図をズーム・結果地物を選択したい\n- 検索タブの確認・切替・追加/削除\n- マップテーマの一覧・切替・追加表示、ユーザーテーマ保存/復元\n- 検索設定(geo_search_json・タブ設定)の確認・変更\n- 地番検索(完全一致/あいまい・字コード)や所有者検索(対象フィールド・一致方式)\n\n### メソッド(27件)\n\n**検索系**\n- `search(query='', tab=None, show=True, zoom=True, max_features=200, options=None)` — query は str/list/dict、tab は index/タイトル/{group,title}\n- `searchAddress(query='', provider=None, zoom=True, createLayer=None)` — ジオコーディング、provider=gsi/google/yahoo/osm\n- `suggest(tab=None, field=None, limit=200)` — 検索フィールドのユニーク値\n- `results(max_features=200)` — 直近の結果を再取得\n\n**結果操作**\n- `zoom(feature_ids=None, tab_index=0)` — 省略時はタブ全件へズーム\n- `resultDisplayMode(mode=None)` — 'table'/'form'\n- `resultPage(page=None)` — 1始まり\n\n**タブ管理**\n- `listTabs` `selectTab(tab)` `addTab(config, target='project')` `addTabFromCurrentLayer(title)` `removeTab(tab)` `tabSetting(tab)` `setTabSetting(tab, config)` `tabOptions(tab, options)` — 地番: match/aza_code、所有者: fields/match_mode\n\n**テーマ**\n- `listThemes` `applyTheme(name, additive)` `themeAdditive(enabled)` `saveUserTheme(path)` `loadUserTheme(path)`\n\n**設定・UI・状態**\n- `getSettings` `setSettings(settings)` `openSettings` `searchOptions(options)` — pan_mode(0フィット/1パン/4固定縮尺/5アニメーション/6選択のみ)・fixed_scale・show_layer_name\n- `openDialog` `closeDialog` `reloadDialog(show)` `status`\n\n全文は `C:\\Users\\ryu.RYU-NOTE\\AppData\\Local\\Temp\\devin.exe-overflows\\1f7e3ae3\\content.txt` の1710–2056行にあります。"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_search プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \n再度 qgis_describe_plugins を実行し、geo_search のセクションを確認します。qgis_describe_plugins で geo_search のカタログ情報を再取得しました。内容は前回と同一で、専用 bridge 搭載(\"bridge\": true)、公開メソッドは27件です。\ngeo_search — 地図検索 (geo_search)\nsummary: レイヤ内の地物を属性値で検索し、結果一覧の表示と地図ズーム・地物選択を行う。検索対象は設定済みの検索タブ(カレントレイヤ/全レイヤ/プロジェクト定義)で決まる。searchAddress は住所・地名・施設名のジオコーディング(gsi/google/yahoo/osm)で座標取得と地図移動ができる。\ninvoke: {\"type\": \"bridge_call\", \"plugin_id\": \"geo_search\"}\nstate: dialog: true、dialogVisible: false、tabCount: 4\nwhen_to_use\n地名・施設名・市区町村名など属性値で地物を探したい\n住所・地名・施設名から緯度経度を調べて地図を移動したい(ジオコーディング)\n検索結果へ地図をズーム・結果地物を選択したい\n検索タブの確認・切替・追加/削除\nマップテーマの一覧・切替・追加表示、ユーザーテーマ保存/復元\n検索設定(geo_search_json・タブ設定)の確認・変更\n地番検索(完全一致/あいまい・字コード)や所有者検索(対象フィールド・一致方式)\nメソッド(27件)\n検索系\nsearch(query='', tab=None, show=True, zoom=True, max_features=200, options=None) — query は str/list/dict、tab は index/タイトル/{group,title}\nsearchAddress(query='', provider=None, zoom=True, createLayer=None) — ジオコーディング、provider=gsi/google/yahoo/osm\nsuggest(tab=None, field=None, limit=200) — 検索フィールドのユニーク値\nresults(max_features=200) — 直近の結果を再取得\n結果操作\nzoom(feature_ids=None, tab_index=0) — 省略時はタブ全件へズーム\nresultDisplayMode(mode=None) — 'table'/'form'\nresultPage(page=None) — 1始まり\nタブ管理\nlistTabs selectTab(tab) addTab(config, target='project') addTabFromCurrentLayer(title) removeTab(tab) tabSetting(tab) setTabSetting(tab, config) tabOptions(tab, options) — 地番: match/aza_code、所有者: fields/match_mode\nテーマ\nlistThemes applyTheme(name, additive) themeAdditive(enabled) saveUserTheme(path) loadUserTheme(path)\n設定・UI・状態\ngetSettings setSettings(settings) openSettings searchOptions(options) — pan_mode(0フィット/1パン/4固定縮尺/5アニメーション/6選択のみ)・fixed_scale・show_layer_name\nopenDialog closeDialog reloadDialog(show) status\n全文は C:\\Users\\ryu.RYU-NOTE\\AppData\\Local\\Temp\\devin.exe-overflows\\1f7e3ae3\\content.txt の1710–2056行にあります。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionShowSelectedLayers",
+ "prompt": "QGISの「選択レイヤを表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「選択レイヤを表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「選択レイヤを表示」アクションを調べます。調査結果です。「選択レイヤを表示」は `mActionShowSelectedLayers` として見つかりました。\n\n| 項目 | 値 |\n|---|---|\n| objectName | `mActionShowSelectedLayers` |\n| テキスト | `選択レイヤを表示` |\n| 有効(isEnabled) | **True(現在有効です)** |\n\n関連するレイヤ表示切替アクションもすべて有効です:\n\n- `mActionHideSelectedLayers`「選択レイヤを隠す」\n- `mActionToggleSelectedLayers`「選択レイヤを切り替え」\n- `mActionToggleSelectedLayersIndependently`「選択レイヤを個別切り替え」\n- `mActionHideDeselectedLayers`「選択されてないレイヤを隠す」\n\n実行すると、レイヤパネルで選択されているレイヤが表示状態(チェックON)になります。実行しますか?"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    o = a.objectName() or ''\\n    if ('選択レイヤ' in t) or ('selectedlayers' in o.lower()):\\n        found.append((o, t, a.isEnabled(), a.isVisible(), a.shortcut().toString()))\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「選択レイヤを表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「選択レイヤを表示」アクションを調べます。調査結果です。「選択レイヤを表示」は mActionShowSelectedLayers として見つかりました。\n項目\n値\nobjectName\nmActionShowSelectedLayers\nテキスト\n選択レイヤを表示\n有効(isEnabled)\nTrue(現在有効です)\n\n関連するレイヤ表示切替アクションもすべて有効です:\nmActionHideSelectedLayers「選択レイヤを隠す」\nmActionToggleSelectedLayers「選択レイヤを切り替え」\nmActionToggleSelectedLayersIndependently「選択レイヤを個別切り替え」\nmActionHideDeselectedLayers「選択されてないレイヤを隠す」\n実行すると、レイヤパネルで選択されているレイヤが表示状態(チェックON)になります。実行しますか?"
+}

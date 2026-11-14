@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Median",
+ "prompt": "QGISの「中央値（Median）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「中央値（Median）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「中央値（Median）」アクションは **有効(enabled)で、現在チェック状態(checked)です**。\n\n調査結果:\n\n- テキスト「中央値（Median）」の `QAction` が1つあり、`isEnabled() = True`、`isCheckable() = True`、`isChecked() = True`、`isVisible() = True`\n- 場所はこれまでと同じく、統計サマリードック(`StatisticalSummaryDockWidget`)のオプションボタンのメニュー内です\n\n集計実行時に中央値も出力される設定になっています。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nacts = [a for a in iface.mainWindow().findChildren(QAction) if a.text() == '中央値（Median）']\\nresult = [(a.isEnabled(), a.isCheckable(), a.isChecked(), a.isVisible(), a.parent().objectName() if a.parent() else None) for a in acts]\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「中央値（Median）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「中央値（Median）」アクションは 有効(enabled)で、現在チェック状態(checked)です。\n調査結果:\nテキスト「中央値（Median）」の QAction が1つあり、isEnabled() = True、isCheckable() = True、isChecked() = True、isVisible() = True\n場所はこれまでと同じく、統計サマリードック(StatisticalSummaryDockWidget)のオプションボタンのメニュー内です\n集計実行時に中央値も出力される設定になっています。"
+}

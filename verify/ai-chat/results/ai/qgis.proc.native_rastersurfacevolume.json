@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_rastersurfacevolume",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタのサーフェス体積」(id: native:rastersurfacevolume) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタのサーフェス体積」(id: native:rastersurfacevolume) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:rastersurfacevolume` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:rastersurfacevolume`\n- **表示名**: `[QGIS（ネイティブC++）] ラスタのサーフェス体積`\n- **グループ**: ラスタ解析\n- **用途**: ラスタ表面と指定基準値との差から、体積・面積・対象ピクセル数を計算する。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT` | 必須 | 対象ラスタレイヤ |\n| `BAND` | 必須 | 計算するバンド番号。既定値は `1` |\n| `LEVEL` | 必須 | 体積計算の基準値。既定値は `0` |\n| `METHOD` | 必須 | 基準値を超える／下回る場合の計算方法 |\n| `OUTPUT_HTML_FILE` | 任意 | 体積計算レポート（HTML） |\n| `OUTPUT_TABLE` | 任意 | 体積計算表 |\n\n`METHOD` の選択肢は、`基準値を超える場合だけ`、`基準値を下回る場合だけ`、`基準値を下回る場合は減算`、`基準値を下回る場合は加算` です。体積・面積・ピクセル数は数値出力としても返ります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:rastersurfacevolume')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'description'"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタのサーフェス体積」(id: native:rastersurfacevolume) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:rastersurfacevolume を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:rastersurfacevolume\n表示名: [QGIS（ネイティブC++）] ラスタのサーフェス体積\nグループ: ラスタ解析\n用途: ラスタ表面と指定基準値との差から、体積・面積・対象ピクセル数を計算する。\n主なパラメータ\n名前\n必須\n説明\nINPUT\n必須\n対象ラスタレイヤ\nBAND\n必須\n計算するバンド番号。既定値は 1\nLEVEL\n必須\n体積計算の基準値。既定値は 0\nMETHOD\n必須\n基準値を超える／下回る場合の計算方法\nOUTPUT_HTML_FILE\n任意\n体積計算レポート（HTML）\nOUTPUT_TABLE\n任意\n体積計算表\n\nMETHOD の選択肢は、基準値を超える場合だけ、基準値を下回る場合だけ、基準値を下回る場合は減算、基準値を下回る場合は加算 です。体積・面積・ピクセル数は数値出力としても返ります。"
+}

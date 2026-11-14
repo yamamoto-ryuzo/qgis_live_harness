@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_dbscanclustering",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] DBSCANクラスタリング」(id: native:dbscanclustering) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] DBSCANクラスタリング」(id: native:dbscanclustering) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:dbscanclustering`\n- **表示名**: DBSCANクラスタリング\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ベクタ解析\n\n## 用途\nポイント地物を**密度ベースの DBSCAN アルゴリズム（2D実装）でクラスタリング**します。「近傍に minPts 個以上の点が eps 距離内に集まっている領域」をクラスタとして検出するため、K-means と違い**クラスタ数を事前に指定する必要がなく**、不規則な形状のクラスタを見つけられ、どのクラスタにも属さない点は**ノイズ**として扱われます。各点にクラスタID（デフォルト `CLUSTER_ID`）とクラスタサイズ（`CLUSTER_SIZE`）を属性として付加します。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ポイントレイヤ（必須） |\n| `MIN_SIZE` | 最小クラスタサイズ minPts（デフォルト 5、最小 1） |\n| `EPS` | クラスタ化される点同士の最大距離 eps（デフォルト 1。レイヤの距離単位に注意） |\n| `DBSCAN*` | 境界点をノイズとして扱う DBSCAN* 変種（上級、デフォルト OFF） |\n| `FIELD_NAME` | クラスタIDを格納する属性名（上級、デフォルト `CLUSTER_ID`） |\n| `SIZE_FIELD_NAME` | クラスタサイズを格納する属性名（上級、デフォルト `CLUSTER_SIZE`） |\n| `OUTPUT` | 出力レイヤ（クラスタ） |\n\n出力は `OUTPUT`（クラスタ属性付きのポイントレイヤ）に加えて `NUM_CLUSTERS`（検出されたクラスタ数）も返します。`EPS` はレイヤのCRS単位なので、度単位のデータでは実用上メートル系への投影を済ませてから使うのが安全です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber, QgsProcessingParameterField, QgsProcessingParameterBoolean\\nalg = QgsApplication.processingRegistry().algorithmById('native:dbscanclustering')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'cluster' in a.id().lower() or 'dbscan' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        if isinstance(p, QgsProcessingParameterNumber):\\n            d['min'] = p.minimum(); d['max'] = p.maximum()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': True,\\n        'id': "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] DBSCANクラスタリング」(id: native:dbscanclustering) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:dbscanclustering\n表示名: DBSCANクラスタリング\nプロバイダ: QGIS（ネイティブC++）／グループ: ベクタ解析\n用途\nポイント地物を密度ベースの DBSCAN アルゴリズム（2D実装）でクラスタリングします。「近傍に minPts 個以上の点が eps 距離内に集まっている領域」をクラスタとして検出するため、K-means と違いクラスタ数を事前に指定する必要がなく、不規則な形状のクラスタを見つけられ、どのクラスタにも属さない点はノイズとして扱われます。各点にクラスタID（デフォルト CLUSTER_ID）とクラスタサイズ（CLUSTER_SIZE）を属性として付加します。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ポイントレイヤ（必須）\nMIN_SIZE\n最小クラスタサイズ minPts（デフォルト 5、最小 1）\nEPS\nクラスタ化される点同士の最大距離 eps（デフォルト 1。レイヤの距離単位に注意）\nDBSCAN*\n境界点をノイズとして扱う DBSCAN* 変種（上級、デフォルト OFF）\nFIELD_NAME\nクラスタIDを格納する属性名（上級、デフォルト CLUSTER_ID）\nSIZE_FIELD_NAME\nクラスタサイズを格納する属性名（上級、デフォルト CLUSTER_SIZE）\nOUTPUT\n出力レイヤ（クラスタ）\n\n出力は OUTPUT（クラスタ属性付きのポイントレイヤ）に加えて NUM_CLUSTERS（検出されたクラスタ数）も返します。EPS はレイヤのCRS単位なので、度単位のデータでは実用上メートル系への投影を済ませてから使うのが安全です。"
+}

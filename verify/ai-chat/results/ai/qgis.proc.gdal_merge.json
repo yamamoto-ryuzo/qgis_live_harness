@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_merge",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 結合」(id: gdal:merge) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 結合」(id: gdal:merge) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:merge` を Processing Registry で確認します。確認しました。Processing Registry に **`[GDAL] 結合`** は存在します。\n\n- **ID:** `gdal:merge`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタその他`\n\n### 用途\n複数のラスタを1つに結合します。隣接・重複するラスタをモザイク化したり、`SEPARATE` により各入力を別バンドとして積み重ねたりできます。\n\n### 主なパラメータ\n- `INPUT`：結合する複数のラスタレイヤ\n- `PCT`：最初のレイヤから疑似カラーテーブルを取得\n- `SEPARATE`：各入力ファイルを別バンドへ格納\n- `NODATA_INPUT`：入力でNoDataとして扱う値\n- `NODATA_OUTPUT`：出力に設定するNoData値\n- `DATA_TYPE`：出力ラスタのデータ型\n- `OUTPUT`：出力ラスタ\n- `OPTIONS` / `CREATION_OPTIONS` / `EXTRA`：GDAL向け追加オプション"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:merge'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'merge' in a.id().lower() or '結合' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'merge' in a.id().lower() or '結合' in a.di"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 結合」(id: gdal:merge) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:merge を Processing Registry で確認します。確認しました。Processing Registry に [GDAL] 結合 は存在します。\nID: gdal:merge\nプロバイダ: GDAL\nグループ: ラスタその他\n用途\n複数のラスタを1つに結合します。隣接・重複するラスタをモザイク化したり、SEPARATE により各入力を別バンドとして積み重ねたりできます。\n主なパラメータ\nINPUT：結合する複数のラスタレイヤ\nPCT：最初のレイヤから疑似カラーテーブルを取得\nSEPARATE：各入力ファイルを別バンドへ格納\nNODATA_INPUT：入力でNoDataとして扱う値\nNODATA_OUTPUT：出力に設定するNoData値\nDATA_TYPE：出力ラスタのデータ型\nOUTPUT：出力ラスタ\nOPTIONS / CREATION_OPTIONS / EXTRA：GDAL向け追加オプション"
+}

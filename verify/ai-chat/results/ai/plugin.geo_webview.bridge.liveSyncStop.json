@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_webview.bridge.liveSyncStop",
+ "prompt": "QGISの geo_webview プラグインで「ライブ双方向連携を無効化して監視を停止する。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_webview プラグインで「ライブ双方向連携を無効化して監視を停止する。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`liveSyncStop` を実行します。`liveSyncStop` の結果です。\n\n## 実行結果\n\n| 項目 | Before(start時) | After(stop後) |\n|---|---|---|\n| enabled | true | **false** |\n| attached | true | **false** |\n| watched_layers | 23 | **0** |\n| pending / structural | 0 / false | 0 / false |\n\nライブ双方向連携は無効化され、23レイヤへの監視シグナルも切断されました(`attached: false`)。\n\n**注意点**: `live.enabled: true` が残っていますが、これは HTTPサーバ側の `/live/*` 配信機能の有効フラグで、連携監視の ON/OFF とは別物です。`/live/state` 等のエンドポイント自体は引き続き応答しますが、QGIS→Canvas への差分エクスポート・選択同期の監視は停止しました。\n\n再開するには `liveSyncStart` を再度呼びます。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'plugin_id': 'geo_webview', 'method': 'liveSyncStop'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_webview プラグインで「ライブ双方向連携を無効化して監視を停止する。」を実行して結果を教えて\n[AI] \nliveSyncStop を実行します。liveSyncStop の結果です。\n実行結果\n項目\nBefore(start時)\nAfter(stop後)\nenabled\ntrue\nfalse\nattached\ntrue\nfalse\nwatched_layers\n23\n0\npending / structural\n0 / false\n0 / false\n\nライブ双方向連携は無効化され、23レイヤへの監視シグナルも切断されました(attached: false)。\n注意点: live.enabled: true が残っていますが、これは HTTPサーバ側の /live/* 配信機能の有効フラグで、連携監視の ON/OFF とは別物です。/live/state 等のエンドポイント自体は引き続き応答しますが、QGIS→Canvas への差分エクスポート・選択同期の監視は停止しました。\n再開するには liveSyncStart を再度呼びます。"
+}

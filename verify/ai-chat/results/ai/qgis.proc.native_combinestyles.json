@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_combinestyles",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] スタイルデータベースを統合」(id: native:combinestyles) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] スタイルデータベースを統合」(id: native:combinestyles) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:combinestyles` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] スタイルデータベースを統合`\n- **ID**: `native:combinestyles`\n- **グループ**: `地図製作`\n- **用途**: 複数の QGIS スタイルデータベース（`.xml`）を1つのスタイルデータベースに統合します。複数ユーザー・複数プロジェクトで分かれているシンボルやラベル設定をまとめる用途に向きます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 統合する複数のスタイルデータベース（`.xml`） |\n| `OBJECTS` | 統合対象を選択。`シンボル`、`カラーランプ`、`テキストフォーマット`、`ラベル設定`。既定では全て |\n| `OUTPUT` | 出力する統合済みスタイルデータベース（`.xml`） |\n\n同名のスタイルオブジェクトがある場合は自動で別名に変更されます。統合された `SYMBOLS`、`COLORRAMPS`、`TEXTFORMATS`、`LABELSETTINGS` の件数も出力されます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:combinestyles')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue', 'fileFilter', 'behavior'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        output"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] スタイルデータベースを統合」(id: native:combinestyles) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:combinestyles を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] スタイルデータベースを統合\nID: native:combinestyles\nグループ: 地図製作\n用途: 複数の QGIS スタイルデータベース（.xml）を1つのスタイルデータベースに統合します。複数ユーザー・複数プロジェクトで分かれているシンボルやラベル設定をまとめる用途に向きます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n統合する複数のスタイルデータベース（.xml）\nOBJECTS\n統合対象を選択。シンボル、カラーランプ、テキストフォーマット、ラベル設定。既定では全て\nOUTPUT\n出力する統合済みスタイルデータベース（.xml）\n\n同名のスタイルオブジェクトがある場合は自動で別名に変更されます。統合された SYMBOLS、COLORRAMPS、TEXTFORMATS、LABELSETTINGS の件数も出力されます。"
+}

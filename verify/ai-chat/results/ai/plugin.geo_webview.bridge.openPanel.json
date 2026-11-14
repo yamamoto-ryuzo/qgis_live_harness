@@ -1,0 +1,31 @@
+{
+ "id": "plugin.geo_webview.bridge.openPanel",
+ "prompt": "QGISの geo_webview プラグインで「GeoWebViewドックパネルを生成・表示する(冪等、トグルではない)。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_webview プラグインで「GeoWebViewドックパネルを生成・表示する(冪等、トグルではない)。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`openPanel` を実行します(先ほど `closePanel` で隠したので再表示されるはずです)。`openPanel` の結果です。\n\n```json\n{\"ok\": true, \"visible\": true}\n```\n\n- `closePanel` で隠れていた GeoWebView ドックパネルが左側に再表示されました(スクリーンショットで確認:Web配信・HTTPサーバー稼働中・テーマ「検索前」選択中)\n- 説明通り**冪等**なので、既に表示中の状態で呼んでもインスタンスは再生成されずそのまま `visible: true` が返ります(トグルではないので閉じることはありません)\n\nなおステータスバーには先ほど `navigateTo` で設定した回転 15.0° も残っているのが見えます。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'plugin_id': 'geo_webview', 'method': 'openPanel'}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-76bc659d.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_webview プラグインで「GeoWebViewドックパネルを生成・表示する(冪等、トグルではない)。」を実行して結果を教えて\n[AI] \nopenPanel を実行します(先ほど closePanel で隠したので再表示されるはずです)。openPanel の結果です。\n{\"ok\": true, \"visible\": true}\nclosePanel で隠れていた GeoWebView ドックパネルが左側に再表示されました(スクリーンショットで確認:Web配信・HTTPサーバー稼働中・テーマ「検索前」選択中)\n説明通り冪等なので、既に表示中の状態で呼んでもインスタンスは再生成されずそのまま visible: true が返ります(トグルではないので閉じることはありません)\nなおステータスバーには先ほど navigateTo で設定した回転 15.0° も残っているのが見えます。"
+}

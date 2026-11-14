@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.native_batchnominatimgeocoder",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Nominatimジオコーディング」(id: native:batchnominatimgeocoder) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Nominatimジオコーディング」(id: native:batchnominatimgeocoder) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "QGIS の Processing registry を実際に照会して、指定アルゴリズムの有無とパラメータ定義を確認します。指定 ID のアルゴリズム自体は見つかりました。パラメータ列挙中に QGIS 4 API 差異（`isOptional` 非対応）があったため、フラグ方式で再取得します。確認しました。**存在します**。\n\n- **ID**: `native:batchnominatimgeocoder`\n- **表示名**: `Nominatimジオコーディング`\n- **プロバイダ**: `QGIS（ネイティブC++）` (`native`)\n- **グループ**: `ベクタ一般` (`vectorgeneral`)\n\n## 用途\n\n入力レイヤの文字列フィールドに保存された住所・地名を、QGIS 用 Nominatim サービスで**一括ジオコーディング**します。結果は、ジオコーディングされた位置を表す**ポイント地物**と、関連属性を持つベクタレイヤとして出力されます。\n\n## 主なパラメータ\n\n| パラメータ | 型 | 必須 | 説明 |\n|---|---|---:|---|\n| `INPUT` | `source` | 必須 | 住所・地名データを含む入力レイヤ |\n| `FIELD` | `field` | 必須 | ジオコーディング対象の住所フィールド |\n| `OUTPUT` | `sink` | 必須 | 出力先ベクタレイヤ |\n\n出力定義も `OUTPUT`（`outputVector`）のみでした。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\n\\nalg_id = 'native:batchnominatimgeocoder'\\nreg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById(alg_id)\\n\\ndef safe(v):\\n    try:\\n        if isinstance(v, (str, int, float, bool)) or v is None:\\n            return v\\n        return str(v)\\n    except Exception as e:\\n        return '<unavailable: %s>' % e\\n\\nif alg is None:\\n    matches = []\\n    for a in reg.algorithms():\\n        text = ' '.join([safe(a.id()), safe(a.displayName()), safe(a.group())]).lower()\\n        if 'nominatim' in text or 'geocod' in text:\\n            matches.append({'id': safe(a.id()), 'displayName': safe(a.displayName()), 'group': safe(a.group())})\\n    result = {'exists': False, 'requested_id': alg_id, 'matching_algorithms': matches}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': safe(p.name()),\\n            'description': safe(p.description()),\\n  "
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\n\\nalg_id = 'native:batchnominatimgeocoder'\\nreg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById(alg_id)\\n\\ndef safe(v):\\n    try:\\n        if isinstance(v, (str, int, float, bool)) or v is None:\\n            return v\\n        return str(v)\\n    except Exception as e:\\n        return '<unavailable: %s>' % e\\n\\nif alg is None:\\n    matches = []\\n    for a in reg.algorithms():\\n        text = ' '.join([safe(a.id()), safe(a.displayName()), safe(a.group())]).lower()\\n        if 'nominatim' in text or 'geocod' in text:\\n            matches.append({'id': safe(a.id()), 'displayName': safe(a.displayName()), 'group': safe(a.group())})\\n    result = {'exists': False, 'requested_id': alg_id, 'matching_algorithms': matches}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        flags = p.flags()\\n        params.append({\\n            'name': safe(p.name()),\\n            'description':"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Nominatimジオコーディング」(id: native:batchnominatimgeocoder) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nQGIS の Processing registry を実際に照会して、指定アルゴリズムの有無とパラメータ定義を確認します。指定 ID のアルゴリズム自体は見つかりました。パラメータ列挙中に QGIS 4 API 差異（isOptional 非対応）があったため、フラグ方式で再取得します。確認しました。存在します。\nID: native:batchnominatimgeocoder\n表示名: Nominatimジオコーディング\nプロバイダ: QGIS（ネイティブC++） (native)\nグループ: ベクタ一般 (vectorgeneral)\n用途\n入力レイヤの文字列フィールドに保存された住所・地名を、QGIS 用 Nominatim サービスで一括ジオコーディングします。結果は、ジオコーディングされた位置を表すポイント地物と、関連属性を持つベクタレイヤとして出力されます。\n主なパラメータ\nパラメータ\n型\n必須\n説明\nINPUT\nsource\n必須\n住所・地名データを含む入力レイヤ\nFIELD\nfield\n必須\nジオコーディング対象の住所フィールド\nOUTPUT\nsink\n必須\n出力先ベクタレイヤ\n\n出力定義も OUTPUT（outputVector）のみでした。"
+}

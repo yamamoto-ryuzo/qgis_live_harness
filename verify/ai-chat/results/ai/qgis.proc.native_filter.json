@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.native_filter",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 地物フィルタ」(id: native:filter) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 地物フィルタ」(id: native:filter) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の Processing registry に存在します。\n\n- **ID**: `native:filter`\n- **表示名**: 地物フィルタ\n- **グループ**: モデラーツール\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n- **補足**: `FlagHideFromToolbox` が設定されており、通常ツールボックスではなくモデラ用です\n\n## 用途\n\n入力レイヤのフィーチャを式で評価し、条件ごとに定義した**複数のモデラ出力へ振り分け**ます。  \nモデル内で属性条件などに応じて処理経路を分岐させるために使います。\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | フィルタ対象の入力ベクタレイヤ（必須） |\n\n固定の `OUTPUT` パラメータはありません。抽出条件と出力先は、Processing モデラ内でフィルタ出力として個別に定義します。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:filter')\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'options': p.options() if hasattr(p, 'options') else None,\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else [],\\n    'outputs': [\\n        {'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__}\\n        for o in"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingAlgorithm, QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:filter')\\nresult = {\\n    'flags_int': int(alg.flags()),\\n    'is_model_only': bool(alg.flags() & QgsProcessingAlgorithm.FlagHideFromToolbox),\\n    'hide_from_modeler': bool(alg.flags() & QgsProcessingAlgorithm.FlagHideFromModeler),\\n    'hide_from_toolbox': bool(alg.flags() & QgsProcessingAlgorithm.FlagHideFromToolbox),\\n    'can_cancel': bool(alg.flags() & QgsProcessingAlgorithm.FlagCanCancel),\\n    'requires_matching_crs': bool(alg.flags() & QgsProcessingAlgorithm.FlagRequiresMatchingCrs),\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 地物フィルタ」(id: native:filter) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の Processing registry に存在します。\nID: native:filter\n表示名: 地物フィルタ\nグループ: モデラーツール\n種別: QGIS ネイティブ C++ アルゴリズム\n補足: FlagHideFromToolbox が設定されており、通常ツールボックスではなくモデラ用です\n用途\n入力レイヤのフィーチャを式で評価し、条件ごとに定義した複数のモデラ出力へ振り分けます。\nモデル内で属性条件などに応じて処理経路を分岐させるために使います。\n主なパラメータ\nパラメータ\n内容\nINPUT\nフィルタ対象の入力ベクタレイヤ（必須）\n\n固定の OUTPUT パラメータはありません。抽出条件と出力先は、Processing モデラ内でフィルタ出力として個別に定義します。"
+}

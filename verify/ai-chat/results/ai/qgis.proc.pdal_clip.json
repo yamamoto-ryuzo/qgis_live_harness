@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.pdal_clip",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Clip point cloud」(id: pdal:clip) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Clip point cloud」(id: pdal:clip) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`pdal:clip` **[QGIS (PDAL)] Clip point cloud** は processing registry に登録されています（プロバイダ: QGIS (PDAL)、グループ: Point cloud data management）。\n\n### 用途\n\n点群を**ポリゴンレイヤで切り抜き（クリップ）**し、ポリゴン内側の点のみを含む点群を出力します。対象地域だけの点群を取り出す前処理に使います。\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT` | pointcloud | — | 入力点群レイヤ |\n| `OVERLAY` | vector | — | 切り抜きポリゴンレイヤ |\n| `FILTER_EXPRESSION` | expression | （任意） | 点の絞り込み式（分類値等） |\n| `FILTER_EXTENT` | extent | （任意） | 切り抜き範囲 |\n| `VPC_OUTPUT_FORMAT` | enum | COPC | Virtual Point Cloud使用時の出力形式: COPC / LAZ / LAS |\n| `OUTPUT` | pointCloudDestination | — | 出力点群 |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('pdal:clip')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Clip point cloud」(id: pdal:clip) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\npdal:clip [QGIS (PDAL)] Clip point cloud は processing registry に登録されています（プロバイダ: QGIS (PDAL)、グループ: Point cloud data management）。\n用途\n点群を**ポリゴンレイヤで切り抜き（クリップ）**し、ポリゴン内側の点のみを含む点群を出力します。対象地域だけの点群を取り出す前処理に使います。\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT\npointcloud\n—\n入力点群レイヤ\nOVERLAY\nvector\n—\n切り抜きポリゴンレイヤ\nFILTER_EXPRESSION\nexpression\n（任意）\n点の絞り込み式（分類値等）\nFILTER_EXTENT\nextent\n（任意）\n切り抜き範囲\nVPC_OUTPUT_FORMAT\nenum\nCOPC\nVirtual Point Cloud使用時の出力形式: COPC / LAZ / LAS\nOUTPUT\npointCloudDestination\n—\n出力点群\n"
+}

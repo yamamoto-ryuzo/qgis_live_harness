@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_highestpositioninrasterstack",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタスタックの最大値の位置」(id: native:highestpositioninrasterstack) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタスタックの最大値の位置」(id: native:highestpositioninrasterstack) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:highestpositioninrasterstack`（表示名 **「ラスタスタックの最大値の位置」**、グループ「ラスタ解析」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n**セルごとに、ラスタスタック内で最大値を持つのが「何番目のラスタか」という位置を出力**するアルゴリズムです。値そのものではなく「どのレイヤが最大だったか」のインデックスを返します。\n\n- 位置は **1始まり** で、入力ラスタの総数までの整数値\n- **入力ラスタの順序がそのまま位置番号になる**ため、並び順が意味を持ちます\n- 同順位（最大値が複数ある）場合は**先頭側のラスタ**の位置を採用\n- マルチバンドは**第1バンドのみ**、出力は **int32 型**\n\n例：時系列の12枚のラスタで「最も値が高かった月（何枚目か）」をセルごとに求める、といった解析に使えます。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT_RASTERS` | 入力ラスタスタック（複数ラスタ。順序＝位置番号） |\n| `REFERENCE_LAYER` | 参照レイヤ（出力の範囲・解像度の基準） |\n| `IGNORE_NODATA` | NoDataを無視するか（bool） |\n| `OUTPUT_NODATA_VALUE` | 出力のNoData値（数値） |\n| `CREATE_OPTIONS` / `CREATION_OPTIONS` | 出力ラスタの作成オプション |\n| `OUTPUT` | 出力レイヤ |\n\n### 出力\n\n- `OUTPUT` — 最大値の位置（ラスタ番号）のラスタ\n- 付随して `EXTENT`・`CRS_AUTHID`・`WIDTH_IN_PIXELS`・`HEIGHT_IN_PIXELS`・`TOTAL_PIXEL_COUNT` も返ります\n\n### 補足\n\n対になる `native:lowestpositioninrasterstack`（**最小値**の位置）もあります。また、位置ではなく「閾値との比較回数」を数える `greaterthanfrequency` 系や、パーセンタイル系の `cellstackpercentile`・`cellstackpercentrank*` も同じラスタスタック解析の系列です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:highestpositioninrasterstack')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related': [(a.id(), a.displayName(), a.group()) for a in QgsApplication.processingRegistry().algorithms() if 'position' in a.id() or '位置' in a.displayName() or 'stack' in a.id() or 'スタック' in a.displayName()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタスタックの最大値の位置」(id: native:highestpositioninrasterstack) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:highestpositioninrasterstack（表示名 「ラスタスタックの最大値の位置」、グループ「ラスタ解析」）がこのQGISの processing registry に登録されています。\n用途\nセルごとに、ラスタスタック内で最大値を持つのが「何番目のラスタか」という位置を出力するアルゴリズムです。値そのものではなく「どのレイヤが最大だったか」のインデックスを返します。\n位置は 1始まり で、入力ラスタの総数までの整数値\n入力ラスタの順序がそのまま位置番号になるため、並び順が意味を持ちます\n同順位（最大値が複数ある）場合は先頭側のラスタの位置を採用\nマルチバンドは第1バンドのみ、出力は int32 型\n例：時系列の12枚のラスタで「最も値が高かった月（何枚目か）」をセルごとに求める、といった解析に使えます。\n主なパラメータ\nパラメータ\n内容\nINPUT_RASTERS\n入力ラスタスタック（複数ラスタ。順序＝位置番号）\nREFERENCE_LAYER\n参照レイヤ（出力の範囲・解像度の基準）\nIGNORE_NODATA\nNoDataを無視するか（bool）\nOUTPUT_NODATA_VALUE\n出力のNoData値（数値）\nCREATE_OPTIONS / CREATION_OPTIONS\n出力ラスタの作成オプション\nOUTPUT\n出力レイヤ\n\n出力\nOUTPUT — 最大値の位置（ラスタ番号）のラスタ\n付随して EXTENT・CRS_AUTHID・WIDTH_IN_PIXELS・HEIGHT_IN_PIXELS・TOTAL_PIXEL_COUNT も返ります\n補足\n対になる native:lowestpositioninrasterstack（最小値の位置）もあります。また、位置ではなく「閾値との比較回数」を数える greaterthanfrequency 系や、パーセンタイル系の cellstackpercentile・cellstackpercentrank* も同じラスタスタック解析の系列です。"
+}

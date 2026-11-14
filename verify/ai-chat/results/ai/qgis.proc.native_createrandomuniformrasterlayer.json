@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_createrandomuniformrasterlayer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 乱数ラスタを作成（一様分布）」(id: native:createrandomuniformrasterlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 乱数ラスタを作成（一様分布）」(id: native:createrandomuniformrasterlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:createrandomuniformrasterlayer`\n- **表示名**: 乱数ラスタを作成（一様分布）\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ラスタ作成\n\n## 用途\n指定した範囲・ピクセルサイズのラスタを生成し、各セルを**一様分布に従う乱数**で埋めるアルゴリズムです。値の範囲は上級パラメータの下限・上限で指定でき、省略時（両方ゼロまたは同値）は選択した出力データ型のフルレンジになります。上限・下限が出力データ型の許容範囲外だとアルゴリズムが中止されます。汎用的な乱数ラスタとして、マスク生成、ランダム分類、シミュレーションなどに最も広く使えるタイプです。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `EXTENT` | 作成範囲（必須） |\n| `TARGET_CRS` | 出力CRS（デフォルト: プロジェクトCRS） |\n| `PIXEL_SIZE` | ピクセルサイズ（デフォルト 1） |\n| `OUTPUT_TYPE` | 出力データ型（上級、デフォルト Float32。Byte/Int16/UInt16/Int32/UInt32/Float32/Float64） |\n| `LOWER_BOUND` | 乱数範囲の下限（上級、省略時はデータ型の最小値） |\n| `UPPER_BOUND` | 乱数範囲の上限（上級、省略時はデータ型の最大値） |\n| `CREATION_OPTIONS` | GDAL作成オプション（上級・任意） |\n| `OUTPUT` | 出力ラスタの保存先 |\n\n他の分布版と異なり `OUTPUT_TYPE` に **Byte が含まれ**、デフォルトも Float32 です。整数型を選べば整数一様分布、Float 系なら連続一様分布として動作します。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber\\nalg = QgsApplication.processingRegistry().algorithmById('native:createrandomuniformrasterlayer')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'uniform' in a.id().lower() or 'random' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        if isinstance(p, QgsProcessingParameterNumber):\\n            d['min'] = p.minimum(); d['max'] = p.maximum()\\n        params[p.name()] = d\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provi"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 乱数ラスタを作成（一様分布）」(id: native:createrandomuniformrasterlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:createrandomuniformrasterlayer\n表示名: 乱数ラスタを作成（一様分布）\nプロバイダ: QGIS（ネイティブC++）／グループ: ラスタ作成\n用途\n指定した範囲・ピクセルサイズのラスタを生成し、各セルを一様分布に従う乱数で埋めるアルゴリズムです。値の範囲は上級パラメータの下限・上限で指定でき、省略時（両方ゼロまたは同値）は選択した出力データ型のフルレンジになります。上限・下限が出力データ型の許容範囲外だとアルゴリズムが中止されます。汎用的な乱数ラスタとして、マスク生成、ランダム分類、シミュレーションなどに最も広く使えるタイプです。\n主なパラメータ\nパラメータ\n内容\nEXTENT\n作成範囲（必須）\nTARGET_CRS\n出力CRS（デフォルト: プロジェクトCRS）\nPIXEL_SIZE\nピクセルサイズ（デフォルト 1）\nOUTPUT_TYPE\n出力データ型（上級、デフォルト Float32。Byte/Int16/UInt16/Int32/UInt32/Float32/Float64）\nLOWER_BOUND\n乱数範囲の下限（上級、省略時はデータ型の最小値）\nUPPER_BOUND\n乱数範囲の上限（上級、省略時はデータ型の最大値）\nCREATION_OPTIONS\nGDAL作成オプション（上級・任意）\nOUTPUT\n出力ラスタの保存先\n\n他の分布版と異なり OUTPUT_TYPE に Byte が含まれ、デフォルトも Float32 です。整数型を選べば整数一様分布、Float 系なら連続一様分布として動作します。"
+}

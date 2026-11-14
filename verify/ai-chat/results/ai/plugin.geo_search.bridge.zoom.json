@@ -1,0 +1,64 @@
+{
+ "id": "plugin.geo_search.bridge.zoom",
+ "prompt": "geo_search プラグインの「zoom」(結果地物へズームする。feature_ids省略時はそのタブの全件。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_search プラグインの「zoom」(結果地物へズームする。feature_ids省略時はそのタブの全件。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "geo_search プラグインの bridge メソッド `zoom` のシグネチャを確認してから呼びます。検索結果がまだ無いので、先に検索タブを確認して検索を実行します。動作しました。地図キャンバスを確認します。`zoom` の動作確認ができました。\n\n**実行内容**\n\n1. 事前に `search(\"春日井\", tab=0)` でカレントレイヤ(「geo_search 住所検索」ポイント3件)を検索\n2. `zoom([2], 0)` → `{\"ok\": true, \"zoomed\": 1}` — ID=2 の地物(春日井市役所前郵便局)だけへズーム\n3. `zoom(null, 0)` → `{\"ok\": true, \"zoomed\": 3}` — feature_ids 省略でタブ0の全3件へズーム\n\nスクリーンショットでも、3件の地物が選択(黄色)され全体にフィットしているのを確認しました。シグネチャは `zoom(feature_ids=None, tab_index=0)` で、`feature_ids` を省略するとそのタブの検索結果全件へズームします。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import json\\nbr = driver.plugins.get('geo_search') if hasattr(driver, 'plugins') else None\\nresult = None\\n# try to find geo_search driver/bridge\\nfrom qgis.utils import plugins\\np = plugins.get('geo_search')\\ninfo = {}\\nfor attr in ('bridge','driver'):\\n    b = getattr(p, attr, None)\\n    if b is not None and hasattr(b, 'pluginInfo'):\\n        info[attr] = b.pluginInfo()\\nresult = info\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'plugin_id': 'geo_search', 'method': 'status'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'method': 'listTabs', 'plugin_id': 'geo_search'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"layers = [(l.name(), l.type(), l.featureCount() if hasattr(l,'featureCount') else None) for l in QgsProject.instance().mapLayers().values()]\\nal = iface.activeLayer()\\nresult = {'layers': layers, 'active': al.name() if al else None}\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_search', 'method': 'search', 'args': ['', 0, False, False]}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"l = iface.activeLayer()\\nresult = {'fields': [f.name() for f in l.fields()], 'features': [{f.name(): ft[f.name()] for f in l.fields()} for ft in l.getFeatures()]}\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'search', 'plugin_id': 'geo_search', 'args': ['春日井', 0, False, False]}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'zoom', 'args': [[2], 0], 'plugin_id': 'geo_search'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [None, 0], 'method': 'zoom', 'plugin_id': 'geo_search'}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-baf30a6f.png'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_search プラグインの「zoom」(結果地物へズームする。feature_ids省略時はそのタブの全件。)を試して。必要な引数は適当な値でよい\n[AI] \ngeo_search プラグインの bridge メソッド zoom のシグネチャを確認してから呼びます。検索結果がまだ無いので、先に検索タブを確認して検索を実行します。動作しました。地図キャンバスを確認します。zoom の動作確認ができました。\n実行内容\n事前に search(\"春日井\", tab=0) でカレントレイヤ(「geo_search 住所検索」ポイント3件)を検索\nzoom([2], 0) → {\"ok\": true, \"zoomed\": 1} — ID=2 の地物(春日井市役所前郵便局)だけへズーム\nzoom(null, 0) → {\"ok\": true, \"zoomed\": 3} — feature_ids 省略でタブ0の全3件へズーム\nスクリーンショットでも、3件の地物が選択(黄色)され全体にフィットしているのを確認しました。シグネチャは zoom(feature_ids=None, tab_index=0) で、feature_ids を省略するとそのタブの検索結果全件へズームします。"
+}

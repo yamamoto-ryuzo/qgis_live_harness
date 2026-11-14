@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_userfunc.bridge.listFunctions",
+ "prompt": "QGISの geo_userfunc プラグインで「ライブラリ内ファイルの一覧と登録済み式関数を返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_userfunc プラグインで「ライブラリ内ファイルの一覧と登録済み式関数を返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`listFunctions` の結果です。\n\n**ライブラリディレクトリ**\n`C:/Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4/profiles/geo_custom/python/geo_userfunc`\n\n**ファイル一覧（1件）**\n\n| ファイル | 有効 | 種類 | 式関数 | フック | エラー |\n|---|---|---|---|---|---|\n| `user_functions.py` | ✓ | expression, hook | `zen2han(moji, feature, parent)` （グループ: ユーザー関数） | openProject, saveProject, closeProject | なし |\n\n**登録済み式関数**\n- `zen2han`\n\n**配線済みフック**\n- `user_functions.py` → `openProject`, `saveProject`, `closeProject`\n\nつまり現在のライブラリは `user_functions.py` 1本だけで、`zen2han` という式関数1つと、プロジェクトの開閉・保存時に動く3つのフックが登録・配線済みの状態です。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_userfunc', 'method': 'listFunctions', 'args': []}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_userfunc プラグインで「ライブラリ内ファイルの一覧と登録済み式関数を返す。」を実行して結果を教えて\n[AI] \nlistFunctions の結果です。\nライブラリディレクトリ C:/Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4/profiles/geo_custom/python/geo_userfunc\nファイル一覧（1件）\nファイル\n有効\n種類\n式関数\nフック\nエラー\nuser_functions.py\n✓\nexpression, hook\nzen2han(moji, feature, parent) （グループ: ユーザー関数）\nopenProject, saveProject, closeProject\nなし\n\n登録済み式関数\nzen2han\n配線済みフック\nuser_functions.py → openProject, saveProject, closeProject\nつまり現在のライブラリは user_functions.py 1本だけで、zen2han という式関数1つと、プロジェクトの開閉・保存時に動く3つのフックが登録・配線済みの状態です。"
+}

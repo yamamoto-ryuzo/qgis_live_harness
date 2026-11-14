@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.X_Y_Point",
+ "prompt": "QGISの「X/Y Point」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「X/Y Point」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「X/Y Point」関連のアクションを検索します。調査結果です。\n\n## 「X/Y Point」は **無効(OFF)** です\n\n| 項目 | 値 |\n|---|---|\n| text | `X/Y Point` |\n| checkable | true（トグル式） |\n| **checked** | **false → 無効（OFF)** |\n| enabled | true（押下可能） |\n| 配置 | メニュー「**作図**」内（Line Extension と同じ） |\n| ツールチップ | 「xy点モードを使用するにはスナップを有効にする必要があります」 |\n\n「Line Extension」と同じく、スナップが前提条件の作図ツールです。スナップは現在有効（EnableSnappingAction が checked）なので、ONにすればそのまま使えます。\n\n作図メニュー系の現状まとめ：\n- Show Construction Guides: **ON**\n- Line Extension: OFF\n- X/Y Point: **OFF**\n- Snap to Visible Construction Guides: OFF\n- Record Construction Guides: OFF\n\n必要であれば `a.trigger()` でONに切り替えられます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    on = (a.objectName() or '')\\n    tt = (a.toolTip() or '')\\n    if 'x/y' in t.lower() or 'x/y' in on.lower() or 'x/y' in tt.lower() or 'xy point' in t.lower():\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': t,\\n            'objectName': on,\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            'tooltip': tt,\\n            'shortcu"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「X/Y Point」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「X/Y Point」関連のアクションを検索します。調査結果です。\n「X/Y Point」は 無効(OFF) です\n項目\n値\ntext\nX/Y Point\ncheckable\ntrue（トグル式）\nchecked\nfalse → 無効（OFF)\nenabled\ntrue（押下可能）\n配置\nメニュー「作図」内（Line Extension と同じ）\nツールチップ\n「xy点モードを使用するにはスナップを有効にする必要があります」\n\n「Line Extension」と同じく、スナップが前提条件の作図ツールです。スナップは現在有効（EnableSnappingAction が checked）なので、ONにすればそのまま使えます。\n作図メニュー系の現状まとめ：\nShow Construction Guides: ON\nLine Extension: OFF\nX/Y Point: OFF\nSnap to Visible Construction Guides: OFF\nRecord Construction Guides: OFF\n必要であれば a.trigger() でONに切り替えられます。"
+}

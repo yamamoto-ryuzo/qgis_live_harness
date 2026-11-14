@@ -10,7 +10,7 @@
   },
   {
    "role": "assistant",
-   "content": "「地物選択を反転」(`mActionInvertSelection`)を確認しました。\n\n| 項目 | 値 |\n|---|---|\n| objectName | `mActionInvertSelection` |\n| **有効(enabled)** | ✅ **true(有効)** |\n\n有効な理由: アクティブレイヤ(`repro_move`)が選択可能なベクタレイヤのため、このアクションは常時有効です。\n\n現在 `repro_move` は全1地物中 **0地物選択中** なので、実行すると選択が反転し **1地物が選択** されます。実行して確認しますか?"
+   "content": "「地物選択を反転」(`mActionInvertSelection`)の状態を調べます。## 結果:「地物選択を反転」は現在**有効**です\n\n| objectName | 表示テキスト | enabled | 所在 |\n|---|---|---|---|\n| `mActionInvertSelection` | 地物選択を反転 | **true** | 選択メニュー |\n\n## 状況\n\n- アクティブレイヤ: `テスト地目レイヤ`(ベクタレイヤ)\n- 現在の選択: **10 / 10 地物**(直前に「すべての地物を選択」を実行済み)\n\nこのアクションはベクタレイヤがアクティブな間有効です。今実行すると選択が反転し、**選択数は 10 → 0** になります(全選択状態のため結果は選択なしになります)。\n\n参考:「線の向きを反転」(`mActionReverseLine`)は無効 — ライン系ベクタレイヤがアクティブでないためです(アクティブはポイントレイヤ)。"
   }
  ],
  "tools": [
@@ -19,8 +19,8 @@
  "audit": [
   {
    "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = next(x for x in iface.mainWindow().findChildren(QAction) if x.objectName()=='mActionInvertSelection')\\nlyr = QgsProject.instance().mapLayersByName('repro_move')[0]\\nresult = {'text': a.text(), 'objectName': a.objectName(), 'enabled': a.isEnabled(),\\n          'selected_now': lyr.selectedFeatureCount(), 'feature_count': lyr.featureCount()}\"}"
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nacts = [a for a in mw.findChildren(QAction) if a.objectName() == 'mActionInvertSelection' or '反転' in a.text()]\\nlyr = iface.activeLayer()\\nresult = {\\n    'actions': [{'objectName': a.objectName(), 'text': a.text(), 'enabled': a.isEnabled()} for a in acts],\\n    'activeLayer': lyr.name() if lyr else None,\\n    'selectedCount': lyr.selectedFeatureCount() if lyr else None,\\n    'featureCount': lyr.featureCount() if lyr else None,\\n}\"}"
   }
  ],
- "view_tail": "[あなた] QGISの「地物選択を反転」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「地物選択を反転」(mActionInvertSelection)を確認しました。\n項目\n値\nobjectName\nmActionInvertSelection\n有効(enabled)\n✅ true(有効)\n\n有効な理由: アクティブレイヤ(repro_move)が選択可能なベクタレイヤのため、このアクションは常時有効です。\n現在 repro_move は全1地物中 0地物選択中 なので、実行すると選択が反転し 1地物が選択 されます。実行して確認しますか?"
+ "view_tail": "[あなた] QGISの「地物選択を反転」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「地物選択を反転」(mActionInvertSelection)の状態を調べます。## 結果:「地物選択を反転」は現在有効です\nobjectName\n表示テキスト\nenabled\n所在\nmActionInvertSelection\n地物選択を反転\ntrue\n選択メニュー\n\n状況\nアクティブレイヤ: テスト地目レイヤ(ベクタレイヤ)\n現在の選択: 10 / 10 地物(直前に「すべての地物を選択」を実行済み)\nこのアクションはベクタレイヤがアクティブな間有効です。今実行すると選択が反転し、選択数は 10 → 0 になります(全選択状態のため結果は選択なしになります)。\n参考:「線の向きを反転」(mActionReverseLine)は無効 — ライン系ベクタレイヤがアクティブでないためです(アクティブはポイントレイヤ)。"
 }

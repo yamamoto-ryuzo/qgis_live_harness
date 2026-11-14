@@ -1,0 +1,34 @@
+{
+ "id": "qgis.action.QGIS_Live_Driver",
+ "prompt": "QGISの「QGIS Live Driver」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「QGIS Live Driver」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「QGIS Live Driver」アクションを検索します。見つかりました。所在（親チェーン・所属メニュー/ツールバー）を確認します。プラグインメニュー内の geo_driver プラグインのアクションです。サブメニュー内容も確認します。調査結果です。\n\n## 「QGIS Live Driver」アクション\n\n`geo_driver` プラグインが **プラグイン(&P) メニュー配下に作るサブメニュー「QGISLiveDriver」**の親アクションです（メニュー本体で、実行型ではありません）。\n\n**現在の状態**（pyeval 実測）:\n\n| 項目 | 値 |\n|---|---|\n| isEnabled | **true（有効）** |\n| isCheckable | false（サブメニュー親） |\n| isVisible | true |\n| has_menu | true |\n\n**サブメニュー内容**（このプラグイン自身の機能一覧）:\n\n| 項目 | enabled | 状態 |\n|---|---|---|\n| AI アシスタント | true | 実行型（AIパネルを開く） |\n| リモート制御 (localhostのみ) | true | **checked=true（ON）** ← このMCP経路を有効化しているトグル |\n| 接続情報 | true | 実行型 |\n| ホットリロード | true | 実行型 |\n| 配置モード | true | 実行型 |\n\n## まとめ\n\n- 「QGIS Live Driver」アクション自体は **有効** で、プラグインメニューからサブメニューを開きます。\n- 重要な点: 子項目の「**リモート制御 (localhostのみ)**」が checked=true — これが ON だからこそ pyeval/screenshot などの外部制御（今の会話の経路）が機能しています。OFFにするとこのドライバ経路は切れます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nhits = []\\nfor x in mw.findChildren(QAction):\\n    blob = ((x.text() or '') + '|' + (x.objectName() or '') + '|' + (x.toolTip() or '')).lower()\\n    if 'live driver' in blob or 'livedriver' in blob or 'driver' in blob:\\n        hits.append({'text': x.text(), 'objectName': x.objectName(), 'enabled': x.isEnabled(),\\n                     'checkable': x.isCheckable(), 'checked': x.isChecked(), 'visible': x.isVisible(),\\n                     'tooltip': (x.toolTip() or '')[:80]})\\nresult = hits\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction, QToolBar, QMenuBar\\nmw = iface.mainWindow()\\na = None\\nfor x in mw.findChildren(QAction):\\n    if (x.text() or '') == 'QGIS Live Driver':\\n        a = x\\n        break\\np = a.parent()\\nchain = []\\nwhile p is not None:\\n    name = p.objectName() or (p.windowTitle() if hasattr(p, 'windowTitle') else '') or ''\\n    chain.append(type(p).__name__ + '(' + name + ')')\\n    p = p.parent()\\n# which toolbar/menu shows it\\ncontainers = []\\nfor tb in mw.findChildren(QToolBar):\\n    if a in tb.actions():\\n        containers.append('toolbar:' + (tb.objectName() or tb.windowTitle()))\\nmb = mw.menuBar()\\nif mb:\\n    for top in mb.actions():\\n        m = top.menu()\\n        if m and a in m.actions():\\n            containers.append('menu:' + top.text())\\n        if m:\\n            for s in m.actions():\\n                sm = s.menu()\\n                if sm and a in sm.actions():\\n                    containers.append('menu:' + top.text() + '>' + s.text"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = None\\nfor x in mw.findChildren(QAction):\\n    if (x.text() or '') == 'QGIS Live Driver':\\n        a = x\\n        break\\nmenu = a.parent()\\nsibs = [{'text': s.text(), 'objectName': s.objectName(), 'enabled': s.isEnabled(),\\n         'checkable': s.isCheckable(), 'checked': s.isChecked()} for s in menu.actions()]\\nresult = {'menu_name': menu.objectName() or menu.title(), 'siblings': sibs, 'has_own_menu': a.menu() is not None}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「QGIS Live Driver」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「QGIS Live Driver」アクションを検索します。見つかりました。所在（親チェーン・所属メニュー/ツールバー）を確認します。プラグインメニュー内の geo_driver プラグインのアクションです。サブメニュー内容も確認します。調査結果です。\n「QGIS Live Driver」アクション\ngeo_driver プラグインが **プラグイン(&P) メニュー配下に作るサブメニュー「QGISLiveDriver」**の親アクションです（メニュー本体で、実行型ではありません）。\n現在の状態（pyeval 実測）:\n項目\n値\nisEnabled\ntrue（有効）\nisCheckable\nfalse（サブメニュー親）\nisVisible\ntrue\nhas_menu\ntrue\n\nサブメニュー内容（このプラグイン自身の機能一覧）:\n項目\nenabled\n状態\nAI アシスタント\ntrue\n実行型（AIパネルを開く）\nリモート制御 (localhostのみ)\ntrue\nchecked=true（ON） ← このMCP経路を有効化しているトグル\n接続情報\ntrue\n実行型\nホットリロード\ntrue\n実行型\n配置モード\ntrue\n実行型\n\nまとめ\n「QGIS Live Driver」アクション自体は 有効 で、プラグインメニューからサブメニューを開きます。\n重要な点: 子項目の「リモート制御 (localhostのみ)」が checked=true — これが ON だからこそ pyeval/screenshot などの外部制御（今の会話の経路）が機能しています。OFFにするとこのドライバ経路は切れます。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_ogrinfo",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] ベクタの情報」(id: gdal:ogrinfo) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] ベクタの情報」(id: gdal:ogrinfo) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:ogrinfo` を Processing Registry で確認します。確認しました。Processing Registry に **`[GDAL] ベクタの情報`** は存在します。\n\n- **ID:** `gdal:ogrinfo`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ベクタその他`\n\n### 用途\nOGR対応のベクタデータについて、レイヤ名、地物数、範囲、CRS、フィールド構成、メタデータなどを確認し、結果を **HTMLレポート** として出力します。\n\n### 主なパラメータ\n- `INPUT`：入力ベクタレイヤ／データセット\n- `ALL_LAYERS`：データセット内の全レイヤを一覧表示\n- `SUMMARY_ONLY`：要約情報のみ出力（既定値 `True`）\n- `NO_METADATA`：メタデータを出力しない\n- `EXTRA`：追加の `ogrinfo` コマンドライン引数\n- `OUTPUT`：出力HTMLファイル"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:ogrinfo'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'ogrinfo' in a.id().lower() or 'ベクタの情報' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'ogrinfo' in a.id().lower() or 'ベ"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] ベクタの情報」(id: gdal:ogrinfo) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:ogrinfo を Processing Registry で確認します。確認しました。Processing Registry に [GDAL] ベクタの情報 は存在します。\nID: gdal:ogrinfo\nプロバイダ: GDAL\nグループ: ベクタその他\n用途\nOGR対応のベクタデータについて、レイヤ名、地物数、範囲、CRS、フィールド構成、メタデータなどを確認し、結果を HTMLレポート として出力します。\n主なパラメータ\nINPUT：入力ベクタレイヤ／データセット\nALL_LAYERS：データセット内の全レイヤを一覧表示\nSUMMARY_ONLY：要約情報のみ出力（既定値 True）\nNO_METADATA：メタデータを出力しない\nEXTRA：追加の ogrinfo コマンドライン引数\nOUTPUT：出力HTMLファイル"
+}

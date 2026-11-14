@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_splitfeaturesbycharacter",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 文字で地物を分割」(id: native:splitfeaturesbycharacter) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 文字で地物を分割」(id: native:splitfeaturesbycharacter) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:splitfeaturesbycharacter`「**文字で地物を分割**」は登録されています（グループ: ベクタ一般）。\n\n## 用途\n\n- 属性値に含まれる**区切り文字で値を分割し、1地物を複数地物に展開**します\n- 例：属性が `\"A,B,C\"` の地物 → `\"A\"`、`\"B\"`、`\"C\"` という3地物に分割。ジオメトリはそのままコピーされます\n- カンマ区切りの複数値属性（複合キー、タグ、分類コードの連結など）を、1値1レコードに正規化したいときに便利です\n- 区切り文字には**正規表現も使用可能**です\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | 入力レイヤ |\n| `FIELD` | field | 分割するフィールド（連結値が入っている属性） |\n| `CHAR` | string | 区切り文字（例: `,`、`;`、または正規表現パターン） |\n| `REGEX` | boolean | 区切り文字に正規表現を使うか |\n| `OUTPUT` | sink | 出力レイヤ |\n\n## 動作イメージ\n\n```\n入力: fid=1, name=\"A,B,C\", geom=POINT(0 0)\n出力: fid=1, name=\"A\", POINT(0 0)\n      fid=2, name=\"B\", POINT(0 0)\n      fid=3, name=\"C\", POINT(0 0)\n```\n\n注意点：\n\n- 分割後の**地物IDは新しく振られます**（元のidとの対応が必要なら別途キー属性を残しておく）\n- 属性値が区切り文字を含まない地物はそのまま1地物として出力されます\n- 逆方向（複数地物の属性を連結して1地物に）したい場合は `native:aggregate`（集約）や `native:joinattributestable` を使います"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:splitfeaturesbycharacter')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 文字で地物を分割」(id: native:splitfeaturesbycharacter) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:splitfeaturesbycharacter「文字で地物を分割」は登録されています（グループ: ベクタ一般）。\n用途\n属性値に含まれる区切り文字で値を分割し、1地物を複数地物に展開します\n例：属性が \"A,B,C\" の地物 → \"A\"、\"B\"、\"C\" という3地物に分割。ジオメトリはそのままコピーされます\nカンマ区切りの複数値属性（複合キー、タグ、分類コードの連結など）を、1値1レコードに正規化したいときに便利です\n区切り文字には正規表現も使用可能です\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\n入力レイヤ\nFIELD\nfield\n分割するフィールド（連結値が入っている属性）\nCHAR\nstring\n区切り文字（例: ,、;、または正規表現パターン）\nREGEX\nboolean\n区切り文字に正規表現を使うか\nOUTPUT\nsink\n出力レイヤ\n\n動作イメージ\n入力: fid=1, name=\"A,B,C\", geom=POINT(0 0)\n出力: fid=1, name=\"A\", POINT(0 0)\n      fid=2, name=\"B\", POINT(0 0)\n      fid=3, name=\"C\", POINT(0 0)\n注意点：\n分割後の地物IDは新しく振られます（元のidとの対応が必要なら別途キー属性を残しておく）\n属性値が区切り文字を含まない地物はそのまま1地物として出力されます\n逆方向（複数地物の属性を連結して1地物に）したい場合は native:aggregate（集約）や native:joinattributestable を使います"
+}

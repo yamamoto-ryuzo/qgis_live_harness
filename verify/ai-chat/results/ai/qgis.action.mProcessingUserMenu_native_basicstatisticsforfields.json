@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mProcessingUserMenu_native_basicstatisticsforfields",
+ "prompt": "QGISの「Basic statistics for fields...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Basic statistics for fields...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Basic statistics for fields」というアクションをQGIS内から探して、有効状態を確認します。見つかりました。メニュー階層と、対応するProcessingアルゴリズムが利用可能かどうかも確認します。調査結果です。「Basic statistics for fields...」アクションは**現在有効（enabled = true）**です。\n\n## アクション情報\n\n| 項目 | 値 |\n|---|---|\n| text | `Basic statistics for fields...` |\n| objectName | `mProcessingUserMenu_native:basicstatisticsforfields` |\n| enabled | **true** |\n| visible | true |\n| 配置メニュー | ベクタ(&O) → &Analysis Tools |\n| ツールバー | なし（メニューのみ） |\n\n## 裏側のアルゴリズム\n\nこのアクションは Processing アルゴリズムへのメニュー項目で、対応するアルゴリズムも正常に登録されています：\n\n- アルゴリズムID: `native:basicstatisticsforfields`\n- 表示名: `Basic statistics for fields`\n- プロバイダ: QGIS（ネイティブC++）\n\nつまり、メニュー項目も有効で、実際に実行するアルゴリズム本体も利用可能な状態です。必要であれば `action.trigger()` でダイアログを開いて動作確認できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QApplication, QAction, QMenu, QToolBar\\n\\nhits = []\\nfor w in QApplication.topLevelWidgets():\\n    for a in w.findChildren(QAction):\\n        t = (a.text() or '')\\n        if 'statistic' in t.lower() or '統計' in t:\\n            # find containing menus/toolbars\\n            menus = [m.title() for m in iface.mainWindow().findChildren(QMenu) if a in m.actions()]\\n            bars = [tb.objectName() or tb.windowTitle() for tb in iface.mainWindow().findChildren(QToolBar) if a in tb.actions()]\\n            hits.append({\\n                'text': t,\\n                'objectName': a.objectName(),\\n                'enabled': a.isEnabled(),\\n                'visible': a.isVisible(),\\n                'menus': menus,\\n                'toolbars': bars,\\n            })\\nseen = set(); uniq = []\\nfor h in hits:\\n    k = h['text']\\n    if k not in seen:\\n        seen.add(k); uniq.append(h)\\nresult = uniq\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QApplication, QAction, QMenu\\nfrom qgis.core import QgsApplication\\n\\nout = {}\\n# locate parent menu chain of the action\\ntarget = None\\nfor a in iface.mainWindow().findChildren(QAction):\\n    if a.objectName() == 'mProcessingUserMenu_native:basicstatisticsforfields':\\n        target = a\\n        break\\n\\nchain = []\\nif target:\\n    for m in iface.mainWindow().findChildren(QMenu):\\n        if target in m.actions():\\n            # walk up parents\\n            node = m\\n            while node is not None:\\n                if isinstance(node, QMenu):\\n                    chain.append(node.title())\\n                node = node.parent() if not isinstance(node.parent(), QMenu) else node.parent()\\n                # climb via parentMenu\\n                break\\n            chain = [m.title()]\\n            pm = m.parent()\\n            while pm is not None:\\n                if isinstance(pm, QMenu):\\n                    chain.append(pm.title())\\n         "
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Basic statistics for fields...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Basic statistics for fields」というアクションをQGIS内から探して、有効状態を確認します。見つかりました。メニュー階層と、対応するProcessingアルゴリズムが利用可能かどうかも確認します。調査結果です。「Basic statistics for fields...」アクションは**現在有効（enabled = true）**です。\nアクション情報\n項目\n値\ntext\nBasic statistics for fields...\nobjectName\nmProcessingUserMenu_native:basicstatisticsforfields\nenabled\ntrue\nvisible\ntrue\n配置メニュー\nベクタ(&O) → &Analysis Tools\nツールバー\nなし（メニューのみ）\n\n裏側のアルゴリズム\nこのアクションは Processing アルゴリズムへのメニュー項目で、対応するアルゴリズムも正常に登録されています：\nアルゴリズムID: native:basicstatisticsforfields\n表示名: Basic statistics for fields\nプロバイダ: QGIS（ネイティブC++）\nつまり、メニュー項目も有効で、実際に実行するアルゴリズム本体も利用可能な状態です。必要であれば action.trigger() でダイアログを開いて動作確認できます。"
+}

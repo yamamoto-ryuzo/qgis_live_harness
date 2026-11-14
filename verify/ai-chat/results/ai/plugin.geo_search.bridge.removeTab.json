@@ -1,0 +1,30 @@
+{
+ "id": "plugin.geo_search.bridge.removeTab",
+ "prompt": "geo_search プラグインの「removeTab」(検索タブを設定ソースから削除し、ダイアログを再構築する。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_search プラグインの「removeTab」(検索タブを設定ソースから削除し、ダイアログを再構築する。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "先ほど追加した「テスト追加タブ」を削除対象にして試します。`removeTab` を試しました。結果:\n\n- `removeTab(\"テスト追加タブ\")` → `{\"ok\": true, \"removed\": \"テスト追加タブ\", \"from\": \"project variable\", \"rebuilt\": true}`\n- プロジェクト変数に保存されていたタブ定義が削除され、ダイアログも再構築されました\n- `listTabs` で確認: タブは元の4件(カレントレイヤ/表示レイヤ/全レイヤ/住所検索)に戻り、「テスト追加タブ」は消えています\n\n追加実験の後始末も兼ねて、きれいに元の状態に戻りました。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_search', 'args': ['テスト追加タブ'], 'method': 'removeTab'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'listTabs', 'plugin_id': 'geo_search'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_search プラグインの「removeTab」(検索タブを設定ソースから削除し、ダイアログを再構築する。)を試して。必要な引数は適当な値でよい\n[AI] \n先ほど追加した「テスト追加タブ」を削除対象にして試します。removeTab を試しました。結果:\nremoveTab(\"テスト追加タブ\") → {\"ok\": true, \"removed\": \"テスト追加タブ\", \"from\": \"project variable\", \"rebuilt\": true}\nプロジェクト変数に保存されていたタブ定義が削除され、ダイアログも再構築されました\nlistTabs で確認: タブは元の4件(カレントレイヤ/表示レイヤ/全レイヤ/住所検索)に戻り、「テスト追加タブ」は消えています\n追加実験の後始末も兼ねて、きれいに元の状態に戻りました。"
+}

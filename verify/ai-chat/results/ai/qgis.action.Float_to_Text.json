@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Float_to_Text",
+ "prompt": "QGISの「Float to Text」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Float to Text」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認できました。**「Float to Text」アクションは現在有効です。**\n\n## 詳細\n\n- メニューパス: **MMQGIS > Modify > Float to Text**\n- `QAction` 状態: `enabled = true`, `visible = true`\n- `mmqgis` プラグインの `modify_menu` 内に登録済みで（`in_modify_menu = true`）、`mm.float_to_text` メソッドに接続されています。\n\nなお、対になる「**Text to Float**」も同じサブメニューにあり、同様に `enabled = true` で有効です。実行しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis import utils\\nmm = utils.plugins.get('mmqgis')\\nres = {}\\nattrs = [a for a in dir(mm) if 'float' in a.lower() or 'text' in a.lower()]\\nres['attrs'] = attrs\\nfor a_name in attrs:\\n    if a_name.endswith('_action'):\\n        ac = getattr(mm, a_name)\\n        res[a_name] = {'text': ac.text(), 'enabled': ac.isEnabled(), 'visible': ac.isVisible(),\\n                       'in_modify_menu': ac in mm.modify_menu.actions()}\\n    else:\\n        res[a_name] = repr(getattr(mm, a_name))[:150]\\nresult = res\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Float to Text」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n確認できました。「Float to Text」アクションは現在有効です。\n詳細\nメニューパス: MMQGIS > Modify > Float to Text\nQAction 状態: enabled = true, visible = true\nmmqgis プラグインの modify_menu 内に登録済みで（in_modify_menu = true）、mm.float_to_text メソッドに接続されています。\nなお、対になる「Text to Float」も同じサブメニューにあり、同様に enabled = true で有効です。実行しますか？"
+}

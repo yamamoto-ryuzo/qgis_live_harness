@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_wedgebuffers",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 楔型バッファを作成」(id: native:wedgebuffers) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 楔型バッファを作成」(id: native:wedgebuffers) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`native:wedgebuffers` **[QGIS（ネイティブC++）] 楔型バッファを作成** は processing registry に登録されています（グループ: ベクタジオメトリ）。\n\n### 用途\n\n入力ポイントレイヤの各点から、**扇形（くさび形）のバッファポリゴン**を生成します。方位・張角・内外半径を指定できるため、**アンテナの指向性カバー範囲・視界セクター・監視カメラの向き範囲**など、方向性のある影響範囲の表現に向いています。\n\n- 方位角は**扇の中心線**が指す方向（度、北=0・時計回り）\n- 張角は方位の左右へ半分ずつ展開\n- 内径を0より大きくすれば**ドーナツ状の扇（円弧帯）**になる\n- 内部では CurvePolygon として生成され、出力形式に応じて自動的にセグメント化\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT` | source | — | 入力ポイントレイヤ |\n| `AZIMUTH` | number | 0 | 扇中心線の方位角（度、北=0・時計回り） |\n| `WIDTH` | number | 45 | 扇の張角（度。方位の左右に半分ずつ） |\n| `OUTER_RADIUS` | number | 1 | 外径（扇の大きさ） |\n| `INNER_RADIUS` | number | 0 | 内径（0=点から始まる扇、>0=帯状扇） |\n| `OUTPUT` | sink | — | 出力ポリゴンレイヤ |\n\nAZIMUTH・WIDTH・半径系はデータ定義（フィールド/式）にも対応するので、地物ごとに異なる向き・大きさの扇を作れます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('native:wedgebuffers')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 楔型バッファを作成」(id: native:wedgebuffers) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\nnative:wedgebuffers [QGIS（ネイティブC++）] 楔型バッファを作成 は processing registry に登録されています（グループ: ベクタジオメトリ）。\n用途\n入力ポイントレイヤの各点から、扇形（くさび形）のバッファポリゴンを生成します。方位・張角・内外半径を指定できるため、アンテナの指向性カバー範囲・視界セクター・監視カメラの向き範囲など、方向性のある影響範囲の表現に向いています。\n方位角は扇の中心線が指す方向（度、北=0・時計回り）\n張角は方位の左右へ半分ずつ展開\n内径を0より大きくすれば**ドーナツ状の扇（円弧帯）**になる\n内部では CurvePolygon として生成され、出力形式に応じて自動的にセグメント化\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT\nsource\n—\n入力ポイントレイヤ\nAZIMUTH\nnumber\n0\n扇中心線の方位角（度、北=0・時計回り）\nWIDTH\nnumber\n45\n扇の張角（度。方位の左右に半分ずつ）\nOUTER_RADIUS\nnumber\n1\n外径（扇の大きさ）\nINNER_RADIUS\nnumber\n0\n内径（0=点から始まる扇、>0=帯状扇）\nOUTPUT\nsink\n—\n出力ポリゴンレイヤ\n\nAZIMUTH・WIDTH・半径系はデータ定義（フィールド/式）にも対応するので、地物ごとに異なる向き・大きさの扇を作れます。"
+}

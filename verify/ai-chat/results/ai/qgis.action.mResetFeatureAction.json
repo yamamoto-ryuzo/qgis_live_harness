@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mResetFeatureAction",
+ "prompt": "QGISの「Reset Track」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Reset Track」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Reset Track」は `mResetFeatureAction` と思われます。確認します。調査結果です。\n\n## 「Reset Track」アクション（`mResetFeatureAction`）\n\nGPSツールバー上の実行型アクションです。\n\n**現在の状態**（pyeval 実測）:\n\n| 項目 | 値 |\n|---|---|\n| isEnabled | **false（無効）** ← これまで調べた中で初めての無効状態 |\n| isCheckable | false |\n| isVisible | true |\n| toolTip | \"Reset Track\" |\n| 対応ボタン | QToolButton（mGpsToolBar内、enabled=false） |\n\n**意味・実効**: 記録中のGPSトラック（頂点列）をリセット（全消去）するアクションです。\n\n**無効の理由**: 無効化条件は「トラックに頂点が存在すること」と思われ、現在トラックは空（Add Track Vertex 未実行、Automatically Add Track Vertices も OFF）のため、リセット対象がなくグレーアウトしています。\n\n## まとめ\n\n- **現在は無効（disabled）** です。実行も不可。\n- 頂点を1つ以上追加（Add Track Vertex 実行 or 自動追加ONでGPS移動）すれば有効化されるはずです。確認のために頂点追加 → 再調査、という流れも可能です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\nhits = []\\nfor x in mw.findChildren(QAction):\\n    blob = (x.objectName() or '') + '|' + (x.text() or '')\\n    if 'reset' in blob.lower():\\n        hits.append({'text': x.text(), 'objectName': x.objectName(), 'enabled': x.isEnabled(),\\n                     'checkable': x.isCheckable(), 'visible': x.isVisible(), 'tooltip': x.toolTip()})\\ntb = None\\nfor t in mw.findChildren(QToolBar):\\n    if t.objectName() == 'mGpsToolBar':\\n        tb = t\\n        break\\nfor h in hits:\\n    for x in mw.findChildren(QAction):\\n        if x.objectName() == h['objectName'] and h['objectName']:\\n            w = tb.widgetForAction(x)\\n            h['in_gps_toolbar'] = w is not None\\n            h['button_enabled'] = w.isEnabled() if w else None\\nresult = hits\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Reset Track」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Reset Track」は mResetFeatureAction と思われます。確認します。調査結果です。\n「Reset Track」アクション（mResetFeatureAction）\nGPSツールバー上の実行型アクションです。\n現在の状態（pyeval 実測）:\n項目\n値\nisEnabled\nfalse（無効） ← これまで調べた中で初めての無効状態\nisCheckable\nfalse\nisVisible\ntrue\ntoolTip\n\"Reset Track\"\n対応ボタン\nQToolButton（mGpsToolBar内、enabled=false）\n\n意味・実効: 記録中のGPSトラック（頂点列）をリセット（全消去）するアクションです。\n無効の理由: 無効化条件は「トラックに頂点が存在すること」と思われ、現在トラックは空（Add Track Vertex 未実行、Automatically Add Track Vertices も OFF）のため、リセット対象がなくグレーアウトしています。\nまとめ\n現在は無効（disabled） です。実行も不可。\n頂点を1つ以上追加（Add Track Vertex 実行 or 自動追加ONでGPS移動）すれば有効化されるはずです。確認のために頂点追加 → 再調査、という流れも可能です。"
+}

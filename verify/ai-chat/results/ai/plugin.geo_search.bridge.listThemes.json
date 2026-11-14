@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_search.bridge.listThemes",
+ "prompt": "QGISの geo_search プラグインで「マップテーマ一覧・グループ・現在選択・追加表示モードを返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_search プラグインで「マップテーマ一覧・グループ・現在選択・追加表示モードを返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`listThemes` の実行結果です。\n\n- **themes**: `検索前` の1件のみ(このプロジェクトに定義されているマップテーマ)\n- **groups**: `{ \"None\": [\"検索前\"] }` — グループ分けはなく、`None` グループに属しています\n- **current**: `検索前` — 先ほど `applyTheme` で適用したテーマが現在選択として残っています\n- **additive**: `true` — 追加表示モードも ON のままです(テーマ適用時に既存レイヤの表示状態を維持したまま重ねるモード)"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_search', 'method': 'listThemes'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_search プラグインで「マップテーマ一覧・グループ・現在選択・追加表示モードを返す。」を実行して結果を教えて\n[AI] \nlistThemes の実行結果です。\nthemes: 検索前 の1件のみ(このプロジェクトに定義されているマップテーマ)\ngroups: { \"None\": [\"検索前\"] } — グループ分けはなく、None グループに属しています\ncurrent: 検索前 — 先ほど applyTheme で適用したテーマが現在選択として残っています\nadditive: true — 追加表示モードも ON のままです(テーマ適用時に既存レイヤの表示状態を維持したまま重ねるモード)"
+}

@@ -1,94 +1,26 @@
 {
  "id": "plugin.geo_import.bridge.pluginInfo",
  "prompt": "geo_import プラグインの情報を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
  "history": [
-  {
-   "role": "user",
-   "content": "こんにちは。短く返答してください"
-  },
-  {
-   "role": "assistant",
-   "content": "こんにちは！どのようなお手伝いをしましょうか？"
-  },
-  {
-   "role": "user",
-   "content": "こんにちは。短く返答してください"
-  },
-  {
-   "role": "assistant",
-   "content": "こんにちは！ご用件をどうぞ。"
-  },
-  {
-   "role": "user",
-   "content": "geo_search のパネル/ダイアログを開いて"
-  },
-  {
-   "role": "assistant",
-   "content": "geo_search のダイアログを開きました。"
-  },
-  {
-   "role": "user",
-   "content": "geo_search プラグインの情報を describe_plugins で調べて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_search` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグイン名**: 地図検索 (`geo_search`)\n- **概要**: レイヤ内の地物を属性値で検索し、結果一覧の表示や地図ズーム・地物選択を行うプラグインです。検索対象は設定された検索タブ（カレントレイヤ／全レイヤ／プロジェクト定義）によって決まります。\n\n### **主な利用シーン**\n- 地名・施設名・市区町村名などの属性値による地物検索\n- 検索結果への地図ズームおよび地物選択\n- 検索タブ（対象レイヤ・フィールド定義）の確認・切替・追加／削除\n- マップテーマ（レイヤ表示プリセット）の一覧取得・切替・追加表示\n- ユーザーテーマの保存／復元\n- 地番検索や所有者検索の実行\n\n---\n\n### **提供されている主なブリッジメソッド (`bridge_call`)**\n\n| メソッド名 | 主な引数 | 説明 |\n| :--- | :--- | :--- |\n| `openDialog` | - | 検索ダイアログを開く／前面に出す |\n| `closeDialog` | - | 検索・結果ダイアログを閉じる |\n| `reloadDialog` | `show=True` | ダイアログの再構築（設定変更の反映用） |\n| `search` | `query`, `tab`, `zoom`, `max_features` など | 指定したクエリ・タブで地物検索を実行しズーム／選択 |\n| `results` | `max_features=200` | 直近の検索結果を取得 |\n| `listTabs` | - | 利用可能な検索タブ一覧を取得 |\n| `selectTab` | `tab` | 検索タブを切り替え |\n| `addTab` / `removeTab` | 各種設定 | 検索タブの追加／削除 |\n| `addTabFromCurrentLayer` | `title` | アクティブレイヤを元に検索タブを追加 |\n| `searchOptions` | `options` | 検索オプション（パン・ズームモード、固定縮尺等）の取得・変更 |\n| `listThemes` / `applyTheme` | `name`, `additive` | マップテーマの確認・適用 |\n| `saveUserTheme` / `loadUserTheme`| `path` | ユーザーテーマの保存および読み込み |\n| `getSettings` / `setSettings` | - | 検索設定（JSONパス・プロジェクト変数等）の取得／設定 |"
-  },
-  {
-   "role": "user",
-   "content": "geo_search の状態を確認して"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_search` プラグインの現在の状態は以下の通りです。\n\n---\n\n### **1. ダイアログ表示状態**\n- **検索ダイアログ**: 表示中（開いています）\n- **結果ダイアログ**: 非表示（直近の検索結果：0件）\n\n### **2. 選択中の検索タブ**\n- **現在のアクティブタブ**: `カレントレイヤ`（インデックス: 0）\n- **利用可能なタブ一覧**:\n  1. `カレントレイヤ`（選択中）\n  2. `表示レイヤ`\n  3. `全レイヤ`\n\n### **3. 検索・表示オプション**\n- **パン／ズーム動作**: `ズームして選択範囲にフィット`（pan_mode: 0）\n- **縮尺指定**: 自動（固定縮尺の指定なし）\n- **レイヤ名表示**: 有効（`true`）\n\n### **4. 設定・参照元**\n- **設定ファイル**: デフォルトの `setting.json` を参照中（3つのタブを読み込み）\n- **プロジェクト変数による追加設定**: なし"
-  },
-  {
-   "role": "user",
-   "content": "geo_webview プラグインの情報を describe_plugins で調べて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_webview` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグインID**: `geo_webview`\n- **プラグイン名**: `geo_webview (QMap Permalink)`\n- **概要**: \n  - QGISプロジェクトを `.kasc + DATA/` パッケージ（スタイル込み）に出力し、**KASUGAI Canvas**（Cesium / MapLibre / OpenLayers / Leaflet / 地理院地図 / Navara 等）で再生・配信できるサーバレスWeb配信プラグイン。\n  - 地図表示状態（中心座標、縮尺、回転、マップテーマ）をパーマリンクURLとして生成・復元。\n  - 内蔵HTTPサーバによる `/kasugai` 起動、データ配信、`/present` による画面共有、パーマリンク受領（外部からの地図制御）などの連携機能を担います。\n\n---\n\n### **主な利用シーン**\n1. **Web地図連携・出力**:\n   - 表示中レイヤを KASUGAI Canvas 用に出力・登録・Webブラウザで起動\n2. **パーマリンク共有**:\n   - 現在の地図ビューを共有できるパーマリンクURLを発行\n   - パーマリンクURLや座標・縮尺・テーマ指定によるQGISキャンバスのナビゲーション\n3. **内蔵HTTPサーバ管理**:\n   - HTTPサーバの起動／停止、ポート変更、状態確認\n   - 外部端末からのアクセス可否（ファイアウォール設定・診断）\n4. **マップテーマ・ブックマーク管理**:\n   - プロジェクト内のマップテーマやブックマークの一覧取得・適用\n5. **画面共有・リアルタイム連携**:\n   - `/present` や `/screenshot` によるキャンバス画面共有\n   - ライブ連携機能（差分同期・作図レイヤのリアルタイム反映）\n\n---\n\n### **提供されている主なブリッジメソッド (`bridge_call`)**\n\n| カテゴリ | メソッド名 | 説明 |\n| :--- | :--- | :--- |\n| **パネル操作** | `openPanel` / `closePanel` | GeoWebView ドックパネルの開閉 |\n| **状態確認** | `status` / `getSettings` | パネル・サーバ・設定情報の取得 |\n| **KASUGAI出力** | `kasugaiExport(...)` | レイヤを `.kasc` や GeoJSON/GPKG 等に出力して起動 |\n| | `openExportFolder` | 出力先フォルダをOSエクスプローラー等で開く |\n| **パーマリンク** | `generatePermalink(theme=None)` | 現在のビューからパーマリンクURLを生成 |\n| | `copyPermalink` | パーマリンクをクリップボードへコピー |\n| | `navigate(url)` | パーマリンクURLを解析して地図を移動 |\n| | `navigateTo(...)` | 座標(lat/lon/x/y)、縮尺、回転、テーマを指定して地図移動 |\n| **内蔵サーバ** | `startServer(port=None)` / `stopServer` | 内蔵HTTPサーバの起動・停止 |\n| | `serverStatus(deep=False)` | サーバ稼働状態・IPアドレス等の取得 |\n| | `endpoints` | 公開中のHTTPエンドポイント一覧を取得 |\n| | `checkAccess` / `addFirewallRule` | 外部アクセス診断およびWindows FWルールの追加 |\n| **マップテーマ** | `listThemes` / `applyTheme` / `saveTheme` / `deleteTheme` | マップテーマの一覧・適用・保存・削除 |\n| **ライブ同期** | `liveSyncStart` / `liveSyncStop` / `liveAddFeatures` など | Canvas や外部クライアントとのリアルタイム同期 |"
-  },
-  {
-   "role": "user",
-   "content": "geo_webview の状態を確認して"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_webview` プラグインの現在の状態は以下の通りです。\n\n---\n\n### **1. 基本・パネル状態**\n- **プラグインバージョン**: `4.13.1`\n- **パネル状態**: 開いており、現在表示中（`panelVisible: true`）\n\n### **2. 内蔵HTTPサーバ状態**\n- **稼働状態**: **稼働中（Running）**\n- **ポート番号**: `8091`（優先設定: 8089）\n- **ローカルURL**: `http://localhost:8091`\n- **ネットワークURL**: `http://100.64.1.82:8091`\n\n### **3. 地図キャンバス連携状態**\n- **CRS**: `EPSG:4326` (WGS 84)\n- **中心座標**: 東経 `139.6770°`, 北緯 `35.6851°`（東京近辺）\n- **縮尺**: 約 `1:603,307`\n- **回転角度**: `0.0°`\n\n### **4. パネル設定・フォーム状態**\n- **選択中のマップテーマ**: `-- テーマなし (位置のみ) --`\n- **外部制御の許可**: オフ（`false`）\n- **サーバ自動起動トグル**: オン（`true`）"
-  },
-  {
-   "role": "user",
-   "content": "geo_report プラグインの情報を describe_plugins で調べて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_report` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグインID**: `geo_report`\n- **プラグイン名**: `帳票レイアウト管理 (geo_report)`\n- **概要**: \n  - プロジェクトの**印刷レイアウト（帳票）をドックパネルで一元管理**するプラグイン。\n  - レイアウトの選択、印刷範囲（ラバーバンド）の地図上プレビュー表示（縮尺・回転角の指定可）。\n  - レイアウト内の各アイテム（地図、ラベル、画像など）のプロパティ（位置・サイズ・表示内容・可視状態）の参照・変更。\n  - アイテムのプロパティ情報を JSON 形式で保存／復元。\n\n---\n\n### **主な利用シーン**\n- プロジェクト内の印刷レイアウト一覧の確認・切り替え\n- 印刷レイアウトのプレビュー枠（印刷範囲）を現在の地図キャンバス上に表示・調整\n- レイアウト内アイテム（タイトルテキストや凡例、ロゴなど）の属性・位置の確認および編集\n- 標準テンプレート（同梱の `.qpt` ファイル）からのレイアウト新規追加\n- レイアウト設定（アイテムの配置など）の外部 JSON 保存および流用・復元\n- QGISレイアウトデザイナ／レイアウトマネージャの起動\n\n---\n\n### **主な提供メソッド (`bridge_call`)**\n\n| カテゴリ | メソッド名 | 説明 |\n| :--- | :--- | :--- |\n| **パネル操作** | `openPanel` / `closePanel` | ドックパネルの開閉（印刷範囲枠の表示／解除） |\n| **レイアウト管理** | `listLayouts` | プロジェクト内のレイアウト一覧を取得 |\n| | `selectLayout(layout)` | レイアウトを選択し、印刷範囲を地図上に表示 |\n| | `createLayout(name)` / `removeLayout(layout)` | レイアウトの新規作成・削除 |\n| | `duplicateLayout(layout, new_name)` | レイアウトの複製 |\n| | `renameLayout(layout, new_name)` | レイアウトの名前変更 |\n| | `layoutInfo()` | 選択中レイアウトの詳細情報（サイズ、ページ数等）を取得 |\n| **テンプレート** | `listStandardLayouts` | 同梱の標準テンプレート（`.qpt`）一覧を取得 |\n| | `addStandardLayout(name)` | 標準テンプレートをプロジェクトに追加 |\n| **印刷範囲・オプション** | `printOptions(options=None)` | 印刷枠のスケール（縮尺）や角度の取得・設定 |\n| **アイテム操作** | `listItems()` | レイアウト内アイテム一覧の取得 |\n| | `itemProperties(item)` | 特定アイテムのプロパティ詳細を取得 |\n| | `setItemProperties(item, props)` | アイテムの位置・サイズ・テキスト等のプロパティを変更 |\n| **保存・復元** | `saveLayoutProperties(path)` | アイテムプロパティを JSON へ保存 |\n| | `loadLayoutProperties(path)` | JSON からプロパティを読み込み適用 |\n| **デザイナ連携** | `openLayoutManager()` | 選択中レイアウトをQGIS標準のレイアウトデザイナで開く |\n| | `manageLayouts()` | QGIS標準のレイアウトマネージャダイアログを開く |"
-  },
-  {
-   "role": "user",
-   "content": "geo_report の状態を確認して"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_report` プラグインの現在の状態は以下の通りです。\n\n---\n\n### **1. パネル表示状態**\n- **ドックパネル (`dock_widget`)**: 作成済みですが、現在は**非表示（閉じた状態）**です。\n\n### **2. 選択中の印刷レイアウト**\n- **現在選択中のレイアウト**: `A0`\n  - **ページ数**: 1ページ（サイズ: `1189.0 x 841.0 mm`）\n  - **含まれるオブジェクト**:\n    1. `地図 1` (`QgsLayoutItemMap`, サイズ: 1189.0×841.0 mm)\n    2. `ページ` (`QgsLayoutItemPage`, サイズ: 1189.0×841.0 mm)\n\n### **3. 印刷範囲（ラバーバンド）プレビュー設定**\n- **縮尺（Scale）**: `1.9`\n- **回転角度（Angle）**: `0.0°`\n\n### **4. プロジェクト内の登録レイアウト一覧（計10種）**\n- **A0**（選択中）、A0縦\n- **A1**、A1縦\n- **A2**、A2縦\n- **A3**、A3縦\n- **A4**、A4縦"
-  },
-  {
-   "role": "user",
-   "content": "geo_import のパネル/ダイアログを開いて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_import` のダイアログを開きました。"
-  },
   {
    "role": "user",
    "content": "geo_import プラグインの情報を describe_plugins で調べて"
   },
   {
    "role": "assistant",
-   "content": "`geo_import` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグインID**: `geo_import`\n- **プラグイン名**: `データカタログ取込 (geo_import)`\n- **概要**: \n  - オープンデータカタログ（**CKAN** 等）からデータセットを検索し、データセット内のリソース（配信ファイルやサービスURL）を選択してQGISキャンバスへレイヤとして直接読み込むプラグイン。\n  - 非同期検索に対応しており、検索後に結果一覧やリソース一覧を取得できます。\n\n---\n\n### **主な利用シーン**\n- CKANなどのオープンデータカタログから必要なデータセットをキーワードやカテゴリで検索\n- データセットに含まれるリソース（Shapefile、GeoJSON、CSV、WMS/WFS、TIFFなど）の確認\n- 目的のリソースを選択してQGISへ直接レイヤとしてロード\n- データカタログの接続先（CKANサーバーやローカルフォルダ）の追加・切り替え\n- オフライン利用・高速化のためのローカルキャッシュ（SQLite）管理\n\n---\n\n### **主な提供メソッド (`bridge_call`)**\n\n| カテゴリ | メソッド名 | 説明 |\n| :--- | :--- | :--- |\n| **ダイアログ操作** | `openDialog` / `closeDialog` | カタログブラウザダイアログの開閉 |\n| | `openSettings` / `openProviders` | 設定ダイアログやプロバイダ選択画面を開く |\n| **検索・閲覧** | `search(keyword, ...)` | 指定キーワードや条件でカタログ検索を実行（非同期） |\n| | `results()` | 直近の検索結果（データセット一覧、件数、ページ情報）を取得 |\n| | `gotoPage` / `nextPage` / `prevPage` | 検索結果のページネーション操作 |\n| | `selectDataset(index)` | データセットを選択して詳細・リソース一覧を表示 |\n| | `datasetDetails(index)` | 選択データセットの詳細メタデータ（説明、組織、ライセンス等）を取得 |\n| **絞り込み・フィルタ** | `formatFilter(format)` | データ形式（GeoJSON, Shapefile等）での絞り込み |\n| | `listGroups` / `checkGroups` | カテゴリ（グループ）一覧の取得と絞り込み設定 |\n| **リソース読込** | `resources()` | 選択中データセットのリソース一覧を取得 |\n| | `checkResources(selection)` | 読み込み対象リソースのチェックON/OFF |\n| | `loadSelected()` | チェックしたリソースをQGISへレイヤとして読み込み |\n| **サーバ・キャッシュ** | `listServers` / `selectServers` | 利用可能なカタログサーバーの確認と選択 |\n| | `addServer` / `removeServer` | カスタムサーバー（CKAN URLまたはフォルダ）の追加／削除 |\n| | `localCache(enabled)` / `refreshCache()` | ローカルキャッシュ利用の切替やキャッシュ再作成 |"
+   "content": "`qgis_describe_plugins` で `geo_import` の公開メソッド情報を確認します。全体出力は大きいため、保存された `describe_plugins` 出力から `geo_import` セクションだけ抽出します。`qgis_describe_plugins` で `geo_import` を確認しました。\n\n## 基本情報\n\n- ID: `geo_import`\n- Bridge: `true`\n- 名称: `データカタログ取込 (geo_import)`\n- 概要: データカタログ（CKAN等）を検索し、データセット内のリソース（ファイル/サービスURL）を選択して QGIS へ読み込むプラグイン\n- 呼び出し方法:\n\n```json\n{\n  \"type\": \"bridge_call\",\n  \"plugin_id\": \"geo_import\",\n  \"method\": \"<method>\",\n  \"args\": []\n}\n```\n\n調査時点の状態では `dialog: false` でした。\n\n## 主な用途\n\n- データカタログからデータセットを検索する\n- データセットのリソース（配信ファイル/URL）を確認する\n- リソースを選んで QGIS レイヤとして読み込む\n- カタログ接続設定（CKAN URL/キャッシュ）を確認する\n\n## Bridge メソッド\n\n### ダイアログ操作\n\n| メソッド | 説明 |\n|---|---|\n| `openDialog()` | カタログブラウザを非モーダルで開く |\n| `closeDialog()` | カタログブラウザを閉じる |\n| `openProviders()` | データプロバイダ選択ダイアログを開く |\n| `openSettings()` | 設定ダイアログを開く |\n| `openDisclaimer()` | 免責事項ダイアログを開く |\n| `reload()` | ダイアログを再読込する |\n| `status()` | ダイアログ・検索・接続設定の状態を返す |\n\n### 検索とページング\n\n| メソッド | 説明 |\n|---|---|\n| `search(text=None)` | データセットを検索する。省略時は全件 |\n| `results()` | 現在の検索結果一覧を返す |\n| `gotoPage(page)` | 指定ページへ移動する |\n| `nextPage()` | 次ページへ移動する |\n| `prevPage()` | 前ページへ移動する |\n| `selectResult(index)` | データセットを1件選択する |\n| `selectResults(indices)` | データセットを複数選択する |\n| `datasetDetails(index=None)` | データセット詳細を返す |\n\n### カテゴリ・形式フィルタ\n\n| メソッド | 説明 |\n|---|---|\n| `listGroups()` | カテゴリ一覧を返す |\n| `checkGroups(selection='all')` | カテゴリのチェックを設定して再検索する |\n| `formatFilter(format=None)` | データ形式フィルタを取得/設定する |\n\n### リソースと読み込み\n\n| メソッド | 説明 |\n|---|---|\n| `resources()` | 選択データセットのリソース一覧を返す |\n| `checkResources(selection='all')` | リソースのチェック状態を設定する |\n| `link(copy=False)` | リンク表示欄を返す。`copy=True` でクリップボードへ |\n| `loadSelected()` | チェック済みリソースを QGIS へ読み込む |\n\n### サーバー・設定・キャッシュ\n\n| メソッド | 説明 |\n|---|---|\n| `listServers()` | カタログサーバー設定を返す |\n| `selectServers(names)` | 検索対象サーバーを選択する |\n| `addServer(name, url)` | カスタムサーバーを追加する |\n| `removeServer(name)` | カスタムサーバーを削除する |\n| `testServer(url)` | サーバー接続テストを行う |\n| `getSettings()` | 設定を返す |\n| `setSettings(settings=None)` | 設定を変更して保存する |\n| `localCache(ena"
   }
- ]
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_import プラグインの情報を describe_plugins で調べて\n[AI] \nqgis_describe_plugins で geo_import の公開メソッド情報を確認します。全体出力は大きいため、保存された describe_plugins 出力から geo_import セクションだけ抽出します。qgis_describe_plugins で geo_import を確認しました。\n基本情報\nID: geo_import\nBridge: true\n名称: データカタログ取込 (geo_import)\n概要: データカタログ（CKAN等）を検索し、データセット内のリソース（ファイル/サービスURL）を選択して QGIS へ読み込むプラグイン\n呼び出し方法:\n{\n  \"type\": \"bridge_call\",\n  \"plugin_id\": \"geo_import\",\n  \"method\": \"<method>\",\n  \"args\": []\n}\n調査時点の状態では dialog: false でした。\n主な用途\nデータカタログからデータセットを検索する\nデータセットのリソース（配信ファイル/URL）を確認する\nリソースを選んで QGIS レイヤとして読み込む\nカタログ接続設定（CKAN URL/キャッシュ）を確認する\nBridge メソッド\nダイアログ操作\nメソッド\n説明\nopenDialog()\nカタログブラウザを非モーダルで開く\ncloseDialog()\nカタログブラウザを閉じる\nopenProviders()\nデータプロバイダ選択ダイアログを開く\nopenSettings()\n設定ダイアログを開く\nopenDisclaimer()\n免責事項ダイアログを開く\nreload()\nダイアログを再読込する\nstatus()\nダイアログ・検索・接続設定の状態を返す\n\n検索とページング\nメソッド\n説明\nsearch(text=None)\nデータセットを検索する。省略時は全件\nresults()\n現在の検索結果一覧を返す\ngotoPage(page)\n指定ページへ移動する\nnextPage()\n次ページへ移動する\nprevPage()\n前ページへ移動する\nselectResult(index)\nデータセットを1件選択する\nselectResults(indices)\nデータセットを複数選択する\ndatasetDetails(index=None)\nデータセット詳細を返す\n\nカテゴリ・形式フィルタ\nメソッド\n説明\nlistGroups()\nカテゴリ一覧を返す\ncheckGroups(selection='all')\nカテゴリのチェックを設定して再検索する\nformatFilter(format=None)\nデータ形式フィルタを取得/設定する\n\nリソースと読み込み\nメソッド\n説明\nresources()\n選択データセットのリソース一覧を返す\ncheckResources(selection='all')\nリソースのチェック状態を設定する\nlink(copy=False)\nリンク表示欄を返す。copy=True でクリップボードへ\nloadSelected()\nチェック済みリソースを QGIS へ読み込む\n\nサーバー・設定・キャッシュ\nメソッド\n説明\nlistServers()\nカタログサーバー設定を返す\nselectServers(names)\n検索対象サーバーを選択する\naddServer(name, url)\nカスタムサーバーを追加する\nremoveServer(name)\nカスタムサーバーを削除する\ntestServer(url)\nサーバー接続テストを行う\ngetSettings()\n設定を返す\nsetSettings(settings=None)\n設定を変更して保存する\nlocalCache(enabled=None)\nローカルキャッシュ利用を取得/設定する\nrefreshCache()\n選択中サーバーのSQLiteキャッシュを再作成する\n"
 }

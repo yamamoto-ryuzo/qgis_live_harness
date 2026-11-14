@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_fillnodata",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] Fill NoData」(id: gdal:fillnodata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] Fill NoData」(id: gdal:fillnodata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:fillnodata` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:fillnodata` |\n| 表示名 | Fill NoData |\n| プロバイダ | GDAL |\n| グループ | ラスタ解析 |\n\n## 用途\n\nラスタの **NoData(欠損)領域を周囲の有効ピクセルから内挿して埋め**ます(`gdal_fillnodata` / `GDALFillNodata` に相当)。内挿は逆距離加重(IDW)で行われ、DEM の穴埋め・センサー欠損の補完などに使います。任意で**スムージング**もかけられます。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ラスタ | 必須 |\n| `BAND` | バンド番号 | 1 |\n| `DISTANCE` | 内挿値を検索する距離(ピクセル単位) | 10 |\n| `ITERATIONS` | 内挿後のスムージング回数 | 0 |\n| `NO_MASK` | デフォルトマスクを使わない | false |\n| `MASK_LAYER` | 埋める範囲を限定するマスクラスタ | 任意 |\n| `OPTIONS` / `CREATION_OPTIONS` / `EXTRA` | 追加オプション | 任意 |\n| `OUTPUT` | 出力ラスタ | 必須 |\n\n実行例: `processing.run(\"gdal:fillnodata\", {\"INPUT\": r, \"BAND\": 1, \"DISTANCE\": 50, \"ITERATIONS\": 2, \"OUTPUT\": \"filled.tif\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:fillnodata')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'nodata' in a.id().lower() or 'fill' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n    "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] Fill NoData」(id: gdal:fillnodata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:fillnodata をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:fillnodata\n表示名\nFill NoData\nプロバイダ\nGDAL\nグループ\nラスタ解析\n\n用途\nラスタの NoData(欠損)領域を周囲の有効ピクセルから内挿して埋めます(gdal_fillnodata / GDALFillNodata に相当)。内挿は逆距離加重(IDW)で行われ、DEM の穴埋め・センサー欠損の補完などに使います。任意でスムージングもかけられます。\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n入力ラスタ\n必須\nBAND\nバンド番号\n1\nDISTANCE\n内挿値を検索する距離(ピクセル単位)\n10\nITERATIONS\n内挿後のスムージング回数\n0\nNO_MASK\nデフォルトマスクを使わない\nfalse\nMASK_LAYER\n埋める範囲を限定するマスクラスタ\n任意\nOPTIONS / CREATION_OPTIONS / EXTRA\n追加オプション\n任意\nOUTPUT\n出力ラスタ\n必須\n\n実行例: processing.run(\"gdal:fillnodata\", {\"INPUT\": r, \"BAND\": 1, \"DISTANCE\": 50, \"ITERATIONS\": 2, \"OUTPUT\": \"filled.tif\"})"
+}

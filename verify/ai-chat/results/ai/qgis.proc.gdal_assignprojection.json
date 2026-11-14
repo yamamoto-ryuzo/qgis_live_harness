@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_assignprojection",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 投影法を設定」(id: gdal:assignprojection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 投影法を設定」(id: gdal:assignprojection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:assignprojection` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:assignprojection` |\n| 表示名 | 投影法を設定 |\n| プロバイダ | GDAL |\n| グループ | ラスタ投影 |\n| 実装クラス | `processing.algs.gdal.AssignProjection` |\n\n## 用途\n\nラスタファイルに **CRS(座標参照系)情報を書き込む**アルゴリズムです。**ピクセル値や位置の再投影(変換)は行わず、座標系のメタデータだけを付与・上書き**します。\n\n- CRS が未定義のラスタに座標系を設定したいとき\n- 間違った CRS が付いているラスタを修正したいとき\n\nに使います。**ファイル自体をインプレースで更新**する点に注意が必要です(新しい出力ファイルは作成されず、出力 `OUTPUT` は処理対象の入力レイヤをそのまま返す形式)。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 型 |\n|---|---|---|\n| `INPUT` | 入力ラスタレイヤ(このファイルが直接更新される) | RasterLayer |\n| `CRS` | 設定する座標参照系 | Crs |\n\nパラメータはこの2つのみで非常にシンプルです。\n\n## 注意点\n\n- **再投影ではない**:ピクセルは変換されません。別の CRS への座標変換が必要な場合は `gdal:warpreproject`(ワープ(再投影))を使います。\n- **元ファイルを直接書き換える**ため、元データを残したい場合は事前にコピーを取るか、別アルゴリズムを検討してください。\n\n実行例: `processing.run(\"gdal:assignprojection\", {\"INPUT\": layer, \"CRS\": \"EPSG:6674\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:assignprojection')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'assign' in a.id().lower() or 'projection' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': alg.shortHelpString() if hasattr(a"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 投影法を設定」(id: gdal:assignprojection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:assignprojection をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:assignprojection\n表示名\n投影法を設定\nプロバイダ\nGDAL\nグループ\nラスタ投影\n実装クラス\nprocessing.algs.gdal.AssignProjection\n\n用途\nラスタファイルに CRS(座標参照系)情報を書き込むアルゴリズムです。ピクセル値や位置の再投影(変換)は行わず、座標系のメタデータだけを付与・上書きします。\nCRS が未定義のラスタに座標系を設定したいとき\n間違った CRS が付いているラスタを修正したいとき\nに使います。ファイル自体をインプレースで更新する点に注意が必要です(新しい出力ファイルは作成されず、出力 OUTPUT は処理対象の入力レイヤをそのまま返す形式)。\n主なパラメータ\nパラメータ\n説明\n型\nINPUT\n入力ラスタレイヤ(このファイルが直接更新される)\nRasterLayer\nCRS\n設定する座標参照系\nCrs\n\nパラメータはこの2つのみで非常にシンプルです。\n注意点\n再投影ではない:ピクセルは変換されません。別の CRS への座標変換が必要な場合は gdal:warpreproject(ワープ(再投影))を使います。\n元ファイルを直接書き換えるため、元データを残したい場合は事前にコピーを取るか、別アルゴリズムを検討してください。\n実行例: processing.run(\"gdal:assignprojection\", {\"INPUT\": layer, \"CRS\": \"EPSG:6674\"})"
+}

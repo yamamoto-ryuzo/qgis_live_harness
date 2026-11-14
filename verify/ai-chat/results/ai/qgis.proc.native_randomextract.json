@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_randomextract",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ランダム抽出」(id: native:randomextract) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ランダム抽出」(id: native:randomextract) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:randomextract` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:randomextract`\n- **表示名**: `[QGIS（ネイティブC++）] ランダム抽出`\n- **グループ**: ベクタ選択\n- **用途**: 入力ベクタレイヤから地物をランダムに抽出し、新しいベクタレイヤを作成する。\n\n### 主なパラメータ\n\n| 名前 | 種類 | 必須 | 説明 |\n|---|---|---:|---|\n| `INPUT` | ベクタレイヤ | 必須 | 抽出元のレイヤ |\n| `METHOD` | 選択肢 | 必須 | `地物の数` または `地物のパーセンテージ` |\n| `NUMBER` | 数値 | 必須 | 抽出する地物数または割合。既定値は `10` |\n| `OUTPUT` | 出力ベクタ | 必須 | 抽出結果を保存するレイヤ |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:randomextract')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'description': o.de"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ランダム抽出」(id: native:randomextract) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:randomextract を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:randomextract\n表示名: [QGIS（ネイティブC++）] ランダム抽出\nグループ: ベクタ選択\n用途: 入力ベクタレイヤから地物をランダムに抽出し、新しいベクタレイヤを作成する。\n主なパラメータ\n名前\n種類\n必須\n説明\nINPUT\nベクタレイヤ\n必須\n抽出元のレイヤ\nMETHOD\n選択肢\n必須\n地物の数 または 地物のパーセンテージ\nNUMBER\n数値\n必須\n抽出する地物数または割合。既定値は 10\nOUTPUT\n出力ベクタ\n必須\n抽出結果を保存するレイヤ\n"
+}

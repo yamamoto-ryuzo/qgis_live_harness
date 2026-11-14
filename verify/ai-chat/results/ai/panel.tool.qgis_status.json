@@ -10,17 +10,26 @@
   },
   {
    "role": "assistant",
-   "content": "QGIS の現在の状態です。\n\n- **QGIS プロセス**: PID 36700\n- **ライブドライバー**: `geo_driver`（HTTP ポート 60799）\n- **WebEngine ビュー**: なし（`view: false`）\n\n**読み込み済みプラグイン**（bridge 対応）:\n\n| プラグイン | driver | view | bridge |\n|---|---|---|---|\n| geo_driver | ✔ | – | ✔ |\n| geo_excel / geo_import / geo_launcher | – | – | ✔ |\n| geo_legend / geo_report / geo_search | – | – | ✔ |\n| geo_userfunc / geo_webview | – | – | ✔ |\n\n**その他の読み込み済みプラグイン**（bridge なし）: ImportPhotos, menu_from_project, mmqgis, mojxml_plugin, plateau_plugin, qfieldsync, QuickDEM4JP, searchlayers, StreetView, db_manager, MetaSearch, processing\n\n- geo_legend は先ほどのリロード後も正常に読み込まれています（bridge は利用可能）\n- WebEngine ビューを持つプラグインは現在起動していないため、`devreload` / `qgis_eval` が使える対象はありません"
+   "content": "QGISの現在状態です。\n\n**プロセス / ドライバ**\n- QGIS バージョン: **4.0.1-Norrköping**(PID 37036)\n- live driver: **geo_driver のみ有効**(HTTPポート 51630)、WebEngineビュー持ちプラグインなし\n- bridge 利用可能: geo_driver, geo_excel, geo_import, geo_launcher, geo_legend, geo_report, geo_search, geo_userfunc, geo_webview の9プラグイン\n- 読み込み済みプラグイン: 全20件\n\n**プロジェクト / キャンバス**\n- プロジェクト: 未保存・無題、**レイヤ 0件**\n- CRS: EPSG:4326\n- 縮尺: 約 1:1,902,690\n- 表示範囲: 138.10,32.38 〜 141.25,38.99(関東〜東北)"
   }
  ],
  "tools": [
+  "pyeval",
   "status"
  ],
  "audit": [
   {
    "type": "status",
    "args": "{}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nproj = QgsProject.instance()\\ncanvas = iface.mapCanvas()\\nresult = {\\n    'project_file': proj.fileName() or '(未保存)',\\n    'project_title': proj.title() or '(無題)',\\n    'layer_count': len(proj.mapLayers()),\\n    'layers': [l.name() for l in proj.mapLayers().values()],\\n    'crs': proj.crs().authid(),\\n    'canvas_scale': round(canvas.scale()),\\n    'canvas_extent': canvas.extent().toString(2),\\n    'qgis_version': QgsApplication.qgisVersion(),\\n}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.core import Qgis\\nproj = QgsProject.instance()\\ncanvas = iface.mapCanvas()\\nresult = {\\n    'qgis_version': Qgis.version(),\\n    'project_file': proj.fileName() or '(未保存)',\\n    'project_title': proj.title() or '(無題)',\\n    'layer_count': len(proj.mapLayers()),\\n    'crs': proj.crs().authid(),\\n    'canvas_scale': round(canvas.scale()),\\n    'canvas_extent': canvas.extent().toString(2),\\n}\\n\"}"
   }
  ],
- "view_tail": "[あなた] status でQGISの現在状態を確認して\n[AI] \nQGIS の現在の状態です。\nQGIS プロセス: PID 36700\nライブドライバー: geo_driver（HTTP ポート 60799）\nWebEngine ビュー: なし（view: false）\n読み込み済みプラグイン（bridge 対応）:\nプラグイン\ndriver\nview\nbridge\ngeo_driver\n✔\n–\n✔\ngeo_excel / geo_import / geo_launcher\n–\n–\n✔\ngeo_legend / geo_report / geo_search\n–\n–\n✔\ngeo_userfunc / geo_webview\n–\n–\n✔\n\nその他の読み込み済みプラグイン（bridge なし）: ImportPhotos, menu_from_project, mmqgis, mojxml_plugin, plateau_plugin, qfieldsync, QuickDEM4JP, searchlayers, StreetView, db_manager, MetaSearch, processing\ngeo_legend は先ほどのリロード後も正常に読み込まれています（bridge は利用可能）\nWebEngine ビューを持つプラグインは現在起動していないため、devreload / qgis_eval が使える対象はありません"
+ "view_tail": "[あなた] status でQGISの現在状態を確認して\n[AI] \nQGISの現在状態です。\nプロセス / ドライバ\nQGIS バージョン: 4.0.1-Norrköping(PID 37036)\nlive driver: geo_driver のみ有効(HTTPポート 51630)、WebEngineビュー持ちプラグインなし\nbridge 利用可能: geo_driver, geo_excel, geo_import, geo_launcher, geo_legend, geo_report, geo_search, geo_userfunc, geo_webview の9プラグイン\n読み込み済みプラグイン: 全20件\nプロジェクト / キャンバス\nプロジェクト: 未保存・無題、レイヤ 0件\nCRS: EPSG:4326\n縮尺: 約 1:1,902,690\n表示範囲: 138.10,32.38 〜 141.25,38.99(関東〜東北)"
 }

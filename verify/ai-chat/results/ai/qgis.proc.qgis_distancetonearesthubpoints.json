@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_distancetonearesthubpoints",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] 最寄りのハブの距離」(id: qgis:distancetonearesthubpoints) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] 最寄りのハブの距離」(id: qgis:distancetonearesthubpoints) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis:distancetonearesthubpoints` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `qgis:distancetonearesthubpoints`\n- **表示名**: `最寄りのハブの距離`\n- **Provider**: `QGIS`\n- **グループ**: `ベクタ解析`\n\n### 用途\n入力地物ごとに最も近いハブ地物を検索し、その距離を計算します。出力は入力地物の中心点を持つポイントレイヤで、最寄りハブの識別属性と距離が付与されます。ネットワーク距離ではなく、地物中心間の距離です。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT` | 起点となる入力レイヤ | — |\n| `HUBS` | 最寄り先を検索するハブレイヤ | — |\n| `FIELD` | 出力へコピーするハブ属性（ハブIDなど） | — |\n| `UNIT` | 距離の計測単位 | `メートル`／`フィート`／`マイル`／`キロメートル`／`レイヤの単位` |\n| `OUTPUT` | 出力ポイントレイヤ | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('qgis:distancetonearesthubpoints')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'hub' in a.id().lower() or 'nearest' in a.id().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'type': p"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] 最寄りのハブの距離」(id: qgis:distancetonearesthubpoints) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nqgis:distancetonearesthubpoints を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: qgis:distancetonearesthubpoints\n表示名: 最寄りのハブの距離\nProvider: QGIS\nグループ: ベクタ解析\n用途\n入力地物ごとに最も近いハブ地物を検索し、その距離を計算します。出力は入力地物の中心点を持つポイントレイヤで、最寄りハブの識別属性と距離が付与されます。ネットワーク距離ではなく、地物中心間の距離です。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\n起点となる入力レイヤ\n—\nHUBS\n最寄り先を検索するハブレイヤ\n—\nFIELD\n出力へコピーするハブ属性（ハブIDなど）\n—\nUNIT\n距離の計測単位\nメートル／フィート／マイル／キロメートル／レイヤの単位\nOUTPUT\n出力ポイントレイヤ\n—\n"
+}

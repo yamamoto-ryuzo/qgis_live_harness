@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionTextAnnotationalongLine",
+ "prompt": "QGISの「Text Annotation along Lineを作成」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Text Annotation along Lineを作成」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Text Annotation along Lineを作成」アクション（`mActionTextAnnotationalongLine`）を実行します。実行しました。「Text Annotation along Lineを作成」ツールが有効化されています。\n\n## 実行結果\n\n**アクション**: `mActionTextAnnotationalongLine`（Text Annotation along Lineを作成）\n\n- `trigger()` 実行 → `checked=false → true`\n- `mActionTextAnnotationatPoint` は自動で `checked=false` に戻りました（排他選択）\n- アクティブマップツール: `QgsMapToolCapture`（「注記ツール」）、**capture_mode=2（Line モード）**\n\n## 現在の状態\n\n| 項目 | 値 |\n|---|---|\n| Text Annotation along Lineアクション | checked=true |\n| Text Annotation at Pointアクション | checked=false |\n| キャンバスのマップツール | 注記ツール・ラインキャプチャモード |\n\n地図上でラインをデジタイズ（左クリックで頂点、右クリックで完了）すると、そのラインに沿ったテキスト注記が作成されます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = None\\nprev = None\\nfor x in mw.findChildren(QAction):\\n    if x.objectName() == 'mActionTextAnnotationalongLine':\\n        a = x\\n    elif x.objectName() == 'mActionTextAnnotationatPoint':\\n        prev = x\\nbefore = a.isChecked()\\na.trigger()\\ncanvas = iface.mapCanvas()\\ntool = canvas.mapTool()\\nresult = {'before_checked': before, 'after_checked': a.isChecked(),\\n          'textpoint_action_now': prev.isChecked() if prev else None,\\n          'active_map_tool': type(tool).__name__ if tool else None,\\n          'tool_name': tool.toolName() if tool and hasattr(tool, 'toolName') else None,\\n          'capture_mode': int(tool.mode()) if tool and hasattr(tool, 'mode') else None}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Text Annotation along Lineを作成」機能(アクション)を実行して\n[AI] \n「Text Annotation along Lineを作成」アクション（mActionTextAnnotationalongLine）を実行します。実行しました。「Text Annotation along Lineを作成」ツールが有効化されています。\n実行結果\nアクション: mActionTextAnnotationalongLine（Text Annotation along Lineを作成）\ntrigger() 実行 → checked=false → true\nmActionTextAnnotationatPoint は自動で checked=false に戻りました（排他選択）\nアクティブマップツール: QgsMapToolCapture（「注記ツール」）、capture_mode=2（Line モード）\n現在の状態\n項目\n値\nText Annotation along Lineアクション\nchecked=true\nText Annotation at Pointアクション\nchecked=false\nキャンバスのマップツール\n注記ツール・ラインキャプチャモード\n\n地図上でラインをデジタイズ（左クリックで頂点、右クリックで完了）すると、そのラインに沿ったテキスト注記が作成されます。"
+}

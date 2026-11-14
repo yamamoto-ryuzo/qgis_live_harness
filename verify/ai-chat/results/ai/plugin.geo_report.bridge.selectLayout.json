@@ -1,0 +1,30 @@
+{
+ "id": "plugin.geo_report.bridge.selectLayout",
+ "prompt": "geo_report プラグインの「selectLayout」(レイアウトを選択する(index/名前)。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_report プラグインの「selectLayout」(レイアウトを選択する(index/名前)。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`selectLayout` を実行しました。\n\n**実行**: `selectLayout(\"A3\")` → `{ \"ok\": true, \"selected\": 6, \"layout\": \"A3\" }`（index 6 を選択）\n\n**実行後の状態（`status`）**\n```json\n{ \"panelVisible\": true, \"layout\": \"A3\", \"printAreaVisible\": true,\n  \"scale\": 1.0, \"angle\": 15.0, \"itemCount\": 2, \"layoutCount\": 13 }\n```\n\n- 選択レイアウトが `A4縦_2` → **`A3`** に切り替わり、キャンバスの印刷範囲表示もA3用に更新（`printAreaVisible: true`）\n- スケールはレイアウトに合わせて自動計算され 1.0 にリセット、角度は先ほど設定した 15° が引き継がれています\n- 引数は index（例: `6`）でも名前でも指定可能で、パネルが閉じていても自動で開きます"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': ['A3'], 'method': 'selectLayout', 'plugin_id': 'geo_report'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_report', 'args': [], 'method': 'status'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_report プラグインの「selectLayout」(レイアウトを選択する(index/名前)。)を試して。必要な引数は適当な値でよい\n[AI] \nselectLayout を実行しました。\n実行: selectLayout(\"A3\") → { \"ok\": true, \"selected\": 6, \"layout\": \"A3\" }（index 6 を選択）\n実行後の状態（status）\n{ \"panelVisible\": true, \"layout\": \"A3\", \"printAreaVisible\": true,\n  \"scale\": 1.0, \"angle\": 15.0, \"itemCount\": 2, \"layoutCount\": 13 }\n選択レイアウトが A4縦_2 → A3 に切り替わり、キャンバスの印刷範囲表示もA3用に更新（printAreaVisible: true）\nスケールはレイアウトに合わせて自動計算され 1.0 にリセット、角度は先ほど設定した 15° が引き継がれています\n引数は index（例: 6）でも名前でも指定可能で、パネルが閉じていても自動で開きます"
+}

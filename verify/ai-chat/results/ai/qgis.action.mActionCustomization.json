@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionCustomization",
+ "prompt": "QGISの「インタフェースのカスタマイズ...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「インタフェースのカスタマイズ...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「インタフェースのカスタマイズ...」アクションを検索します。## 調査結果\n\n「インタフェースのカスタマイズ...」アクション（`mActionCustomization`）の状態を `qgis_pyeval` で確認しました。\n\n| 項目 | 状態 |\n|---|---|\n| アクション名 | `mActionCustomization` |\n| 表示テキスト | インタフェースのカスタマイズ... |\n| ツールチップ | インタフェースのカスタマイズ |\n| 配置場所 | **設定(S)** メニュー |\n| ショートカット | なし |\n| 現在の有効状態 | **有効（enabled）** |\n\n### 補足\n\n- これまでの設定メニュー系アクション（スタイルマネージャ、カスタム投影法、キーボードショートカット）と同じく、レイヤ非依存のため有効です。\n- このダイアログでは QGIS のメニュー・ツールバー・パネル等の UI 要素の表示/非表示を切り替えるカスタマイズ設定（`QgsCustomization`）を編集できます。\n\n必要であれば `trigger()` で開けます（モーダルダイアログ）。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\nmw = iface.mainWindow()\\nmatches = []\\nfor a in mw.findChildren(QAction):\\n    name = (a.objectName() or '').lower()\\n    text = a.text() or ''\\n    tip = a.toolTip() or ''\\n    if 'customiz' in name or 'カスタマイズ' in text or 'カスタマイズ' in tip or 'カスタム' in text:\\n        homes = [m.title() for m in mw.findChildren(QMenu) if a in m.actions()]\\n        tb = [t.windowTitle() for t in mw.findChildren(QToolBar) if a in t.actions()]\\n        matches.append({'objectName': a.objectName(), 'text': text, 'toolTip': tip,\\n                        'enabled': a.isEnabled(), 'visible': a.isVisible(),\\n                        'shortcut': a.shortcut().toString(), 'menus': homes, 'toolbars': tb})\\nresult = matches\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「インタフェースのカスタマイズ...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「インタフェースのカスタマイズ...」アクションを検索します。## 調査結果\n「インタフェースのカスタマイズ...」アクション（mActionCustomization）の状態を qgis_pyeval で確認しました。\n項目\n状態\nアクション名\nmActionCustomization\n表示テキスト\nインタフェースのカスタマイズ...\nツールチップ\nインタフェースのカスタマイズ\n配置場所\n設定(S) メニュー\nショートカット\nなし\n現在の有効状態\n有効（enabled）\n\n補足\nこれまでの設定メニュー系アクション（スタイルマネージャ、カスタム投影法、キーボードショートカット）と同じく、レイヤ非依存のため有効です。\nこのダイアログでは QGIS のメニュー・ツールバー・パネル等の UI 要素の表示/非表示を切り替えるカスタマイズ設定（QgsCustomization）を編集できます。\n必要であれば trigger() で開けます（モーダルダイアログ）。"
+}

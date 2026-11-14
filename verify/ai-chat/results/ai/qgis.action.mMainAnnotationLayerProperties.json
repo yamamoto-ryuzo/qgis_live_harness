@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mMainAnnotationLayerProperties",
+ "prompt": "QGISの「メイン注記レイヤの属性...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「メイン注記レイヤの属性...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "調査結果です。\n\n## 「メイン注記レイヤの属性...」アクション（`mMainAnnotationLayerProperties`）\n\n| 項目 | 内容 |\n|---|---|\n| objectName | `mMainAnnotationLayerProperties` |\n| 表示名 | メイン注記レイヤの属性... |\n| **enabled** | **true（現在有効）** |\n| visible | true |\n| ツールチップ | メイン注記レイヤの属性 |\n\n### 有効な理由\n\nこのアクションはプロジェクトの**メイン注記レイヤ**（自動生成される常設レイヤ）のプロパティダイアログを開くものです。メイン注記レイヤ `注記` が存在し有効なため、このアクションは常に利用可能です。実行すると `QgsAnnotationLayer` のレイヤプロパティダイアログが開きます。\n\nダイアログを実際に開きますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfrom qgis.utils import iface\\nfrom qgis.core import QgsProject\\na = iface.mainWindow().findChild(QAction, 'mMainAnnotationLayerProperties')\\nmain_lyr = QgsProject.instance().mainAnnotationLayer()\\nresult = {\\n  'action': {'objectName': a.objectName(), 'text': a.text(), 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'tooltip': a.toolTip()},\\n  'mainAnnotationLayer': {'name': main_lyr.name(), 'isValid': main_lyr.isValid()} if main_lyr else None,\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「メイン注記レイヤの属性...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n調査結果です。\n「メイン注記レイヤの属性...」アクション（mMainAnnotationLayerProperties）\n項目\n内容\nobjectName\nmMainAnnotationLayerProperties\n表示名\nメイン注記レイヤの属性...\nenabled\ntrue（現在有効）\nvisible\ntrue\nツールチップ\nメイン注記レイヤの属性\n\n有効な理由\nこのアクションはプロジェクトのメイン注記レイヤ（自動生成される常設レイヤ）のプロパティダイアログを開くものです。メイン注記レイヤ 注記 が存在し有効なため、このアクションは常に利用可能です。実行すると QgsAnnotationLayer のレイヤプロパティダイアログが開きます。\nダイアログを実際に開きますか？"
+}

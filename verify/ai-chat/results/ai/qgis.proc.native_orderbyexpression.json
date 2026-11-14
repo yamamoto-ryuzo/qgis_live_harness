@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_orderbyexpression",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 式による並べ替え」(id: native:orderbyexpression) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 式による並べ替え」(id: native:orderbyexpression) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:orderbyexpression` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:orderbyexpression`\n- **表示名**: 式による並べ替え\n- **グループ**: ベクタ一般\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\nベクタレイヤの地物を**QGIS式（expression）の評価結果でソート**し、並べ替えた順序の新しいレイヤを出力します。単一属性だけでなく `\"pop\" / \"area\"` のような計算式や複合条件での並べ替えが可能です。なおヘルプにも注記がある通り、データプロバイダによっては地物順序が保存されず、期待通り機能しない場合があります。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力レイヤ |\n| `EXPRESSION` | expression（必須） | ソートキーにするQGIS式（例: `\"人口\"`、`length($geometry)`） |\n| `ASCENDING` | boolean（必須、デフォルト True） | 昇順でソートするか（False＝降順） |\n| `NULLS_FIRST` | boolean（必須、デフォルト False） | NULL値を先頭に配置するか |\n| `OUTPUT` | sink → outputVector | 出力先（並べ替え後のベクタレイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:orderbyexpression\", {\n    'INPUT': layer,\n    'EXPRESSION': '\"population\" / $area',\n    'ASCENDING': False,\n    'NULLS_FIRST': False,\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:orderbyexpression')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 式による並べ替え」(id: native:orderbyexpression) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:orderbyexpression は現在の QGIS の processing registry に登録されています。\nID: native:orderbyexpression\n表示名: 式による並べ替え\nグループ: ベクタ一般\nプロバイダ: QGIS（ネイティブC++）\n用途\nベクタレイヤの地物をQGIS式（expression）の評価結果でソートし、並べ替えた順序の新しいレイヤを出力します。単一属性だけでなく \"pop\" / \"area\" のような計算式や複合条件での並べ替えが可能です。なおヘルプにも注記がある通り、データプロバイダによっては地物順序が保存されず、期待通り機能しない場合があります。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力レイヤ\nEXPRESSION\nexpression（必須）\nソートキーにするQGIS式（例: \"人口\"、length($geometry)）\nASCENDING\nboolean（必須、デフォルト True）\n昇順でソートするか（False＝降順）\nNULLS_FIRST\nboolean（必須、デフォルト False）\nNULL値を先頭に配置するか\nOUTPUT\nsink → outputVector\n出力先（並べ替え後のベクタレイヤ）\n\n実行例:\nprocessing.run(\"native:orderbyexpression\", {\n    'INPUT': layer,\n    'EXPRESSION': '\"population\" / $area',\n    'ASCENDING': False,\n    'NULLS_FIRST': False,\n    'OUTPUT': 'memory:'\n})"
+}

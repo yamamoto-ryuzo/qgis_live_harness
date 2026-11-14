@@ -1,0 +1,43 @@
+{
+ "id": "plugin.geo_import.bridge.formatFilter",
+ "prompt": "geo_import プラグインの「formatFilter」(データ形式フィルタを取得/設定する('All'でフィルタ無し)。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_import プラグインの「formatFilter」(データ形式フィルタを取得/設定する('All'でフィルタ無し)。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`formatFilter` の引数形式と現在のダイアログ状態を確認します。`format` 引数は省略で取得、文字列指定で設定です。親ダイアログを起動し、まず選択肢を取得します。選択肢から `XYZ` を設定してフィルタ適用を試します。`formatFilter` を試しました。\n\nまず現在値・選択肢を取得:\n\n```json\n{\n  \"method\": \"formatFilter\",\n  \"args\": []\n}\n```\n\n- 現在値: `すべて`\n- 選択肢: `csv`, `json`, `geojson`, `shp`, `gpkg`, `WMS`, `XYZ` など\n\n続けて `XYZ` に設定:\n\n```json\n{\n  \"method\": \"formatFilter\",\n  \"args\": [\"XYZ\"]\n}\n```\n\n結果:\n\n- 成功: `ok: true`\n- 設定後の形式フィルタ: `XYZ`"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils, inspect\\np = qgis.utils.plugins['geo_import']\\nresult = {\\n 'sig': str(inspect.signature(p.bridge.formatFilter)),\\n 'src': inspect.getsource(p.bridge.formatFilter),\\n 'doc': p.bridge.METHOD_DOCS.get('formatFilter') if hasattr(p.bridge, 'METHOD_DOCS') else None,\\n 'dialog': repr(getattr(p, 'dlg', None)),\\n 'dialog_visible': getattr(getattr(p, 'dlg', None), 'isVisible', lambda: None)()\\n}\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'status', 'plugin_id': 'geo_import', 'args': []}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_import', 'args': [], 'method': 'openDialog'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'method': 'formatFilter', 'plugin_id': 'geo_import'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_import', 'method': 'formatFilter', 'args': ['XYZ']}"
+  }
+ ],
+ "view_tail": "[あなた] geo_import プラグインの「formatFilter」(データ形式フィルタを取得/設定する('All'でフィルタ無し)。)を試して。必要な引数は適当な値でよい\n[AI] \nformatFilter の引数形式と現在のダイアログ状態を確認します。format 引数は省略で取得、文字列指定で設定です。親ダイアログを起動し、まず選択肢を取得します。選択肢から XYZ を設定してフィルタ適用を試します。formatFilter を試しました。\nまず現在値・選択肢を取得:\n{\n  \"method\": \"formatFilter\",\n  \"args\": []\n}\n現在値: すべて\n選択肢: csv, json, geojson, shp, gpkg, WMS, XYZ など\n続けて XYZ に設定:\n{\n  \"method\": \"formatFilter\",\n  \"args\": [\"XYZ\"]\n}\n結果:\n成功: ok: true\n設定後の形式フィルタ: XYZ"
+}

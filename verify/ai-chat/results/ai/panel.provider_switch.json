@@ -2,6 +2,7 @@
  "id": "panel.provider_switch",
  "prompt": "LLMプロバイダの一覧を教えて",
  "provider": "devin_acp",
+ "model": "swe-2-high",
  "history": [
   {
    "role": "user",
@@ -9,7 +10,7 @@
   },
   {
    "role": "assistant",
-   "content": "LLMプロバイダ一覧を確認します。LLMプロバイダ一覧：\n\n- 【API】OpenAI互換\n- 【API】Anthropic (Claude)\n- 【API】Gemini\n- 【API】Azure OpenAI\n- 【API】GitHub Copilot\n- 【ACP】Devin\n- 【ACP】GitHub Copilot\n- 【ブリッジ】Devin\n- 【ブリッジ】GitHub Copilot\n\n現在選択: `【ACP】Devin`"
+   "content": "LLMプロバイダ一覧です(現在の選択: **【ACP】Devin**):\n\n**API系**\n- 【API】Gemini\n- 【API】GitHub Copilot\n- 【API】Azure OpenAI\n- 【API】Anthropic (Claude)\n- 【API】OpenAI互換\n\n**ACP系**\n- 【ACP】GitHub Copilot\n- 【ACP】Devin\n- 【ACP】カスタムエージェント\n\n**ブリッジ系**\n- 【ブリッジ】GitHub Copilot\n- 【ブリッジ】Devin\n- 【ブリッジ】外部エージェント"
   }
  ],
  "tools": [
@@ -18,8 +19,12 @@
  "audit": [
   {
    "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtWidgets import QWidget, QLabel, QComboBox\\npanel = next((w for w in iface.mainWindow().findChildren(QWidget) if type(w).__name__ == 'AiPanel' or w.objectName() == 'GeoDriverAiPanel'), None)\\ncombo = None\\nif panel is not None:\\n    for lab in panel.findChildren(QLabel):\\n        if lab.text() == 'プロバイダ':\\n            candidates = [c for c in lab.parentWidget().findChildr"
+   "args": "{'code': \"\\nimport qgis.utils\\np = qgis.utils.plugins['geo_driver']._ai_panel\\nattrs = [a for a in dir(p) if 'provider' in a.lower() or 'llm' in a.lower() or 'api' in a.lower()]\\ninfo = {'panel_attrs': attrs}\\nmi = getattr(p, '_model_infos', None)\\nif mi:\\n    info['model_infos_type'] = type(mi).__name__\\n    info['model_infos_sample'] = str(mi)[:2000]\\nresult = info\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nimport qgis.utils\\np = qgis.utils.plugins['geo_driver']._ai_panel\\nresult = {'providers': [p.cmb_provider.itemText(i) for i in range(p.cmb_provider.count())],\\n          'current': p.cmb_provider.currentText(),\\n          'provider': getattr(p, '_provider', None)}\\n\"}"
   }
  ],
- "view_tail": "[あなた] LLMプロバイダの一覧を教えて\n[AI] \nLLMプロバイダ一覧を確認します。LLMプロバイダ一覧：\n【API】OpenAI互換\n【API】Anthropic (Claude)\n【API】Gemini\n【API】Azure OpenAI\n【API】GitHub Copilot\n【ACP】Devin\n【ACP】GitHub Copilot\n【ブリッジ】Devin\n【ブリッジ】GitHub Copilot\n現在選択: 【ACP】Devin"
+ "view_tail": "[あなた] LLMプロバイダの一覧を教えて\n[AI] \nLLMプロバイダ一覧です(現在の選択: 【ACP】Devin):\nAPI系\n【API】Gemini\n【API】GitHub Copilot\n【API】Azure OpenAI\n【API】Anthropic (Claude)\n【API】OpenAI互換\nACP系\n【ACP】GitHub Copilot\n【ACP】Devin\n【ACP】カスタムエージェント\nブリッジ系\n【ブリッジ】GitHub Copilot\n【ブリッジ】Devin\n【ブリッジ】外部エージェント"
 }

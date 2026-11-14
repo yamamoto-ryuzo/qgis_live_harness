@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.pdal_classifyground",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Classify ground points」(id: pdal:classifyground) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Classify ground points」(id: pdal:classifyground) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`pdal:classifyground` **[QGIS (PDAL)] Classify ground points** は processing registry に登録されています（プロバイダ: QGIS (PDAL)、グループ: Point cloud data management）。\n\n### 用途\n\n**SMRF（Simple Morphological Filter）アルゴリズムで地上面ポイントを分類**します。未分類の点群から「地表（ground）」点を識別してClassificationを付与し、DTM生成などの前処理に使います。\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT` | pointcloud | — | 入力点群レイヤ |\n| `CELL_SIZE` | number | 1.0 | 処理グリッドのセルサイズ。小さいほど詳細だがノイズ増 |\n| `SCALAR` | number | 1.25 | 急斜面の閾値スケーラー。地形が荒いほど大きく |\n| `SLOPE` | number | 0.15 | 傾斜の許容値（rise/run）。急傾斜地は大きめに |\n| `THRESHOLD` | number | 0.5 | 地面と地物を分ける標高差閾値 |\n| `WINDOW_SIZE` | number | 18.0 | 最大フィルタ窓サイズ。大きいほど大きな建物等を検出 |\n| `VPC_OUTPUT_FORMAT` | enum | COPC | Virtual Point Cloud使用時の出力形式: COPC / LAZ / LAS |\n| `OUTPUT` | pointCloudDestination | — | 分類済み点群の出力先 |\n\n地形の急峻さや地物の大きさに応じて SLOPE / WINDOW_SIZE / THRESHOLD を調整するのがポイントです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('pdal:classifyground')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Classify ground points」(id: pdal:classifyground) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\npdal:classifyground [QGIS (PDAL)] Classify ground points は processing registry に登録されています（プロバイダ: QGIS (PDAL)、グループ: Point cloud data management）。\n用途\nSMRF（Simple Morphological Filter）アルゴリズムで地上面ポイントを分類します。未分類の点群から「地表（ground）」点を識別してClassificationを付与し、DTM生成などの前処理に使います。\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT\npointcloud\n—\n入力点群レイヤ\nCELL_SIZE\nnumber\n1.0\n処理グリッドのセルサイズ。小さいほど詳細だがノイズ増\nSCALAR\nnumber\n1.25\n急斜面の閾値スケーラー。地形が荒いほど大きく\nSLOPE\nnumber\n0.15\n傾斜の許容値（rise/run）。急傾斜地は大きめに\nTHRESHOLD\nnumber\n0.5\n地面と地物を分ける標高差閾値\nWINDOW_SIZE\nnumber\n18.0\n最大フィルタ窓サイズ。大きいほど大きな建物等を検出\nVPC_OUTPUT_FORMAT\nenum\nCOPC\nVirtual Point Cloud使用時の出力形式: COPC / LAZ / LAS\nOUTPUT\npointCloudDestination\n—\n分類済み点群の出力先\n\n地形の急峻さや地物の大きさに応じて SLOPE / WINDOW_SIZE / THRESHOLD を調整するのがポイントです。"
+}

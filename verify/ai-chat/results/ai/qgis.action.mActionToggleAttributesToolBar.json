@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionToggleAttributesToolBar",
+ "prompt": "QGISの「属性ツールバー」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「属性ツールバー」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「属性ツールバー」の状態を確認します。「属性ツールバー」(`mActionToggleAttributesToolBar`)も**すでにON(表示中)**です — 地物情報表示、属性テーブル、フィールド演算、統計サマリなどのアイコンがあるツールバーです。\n\nトグルを実行すると非表示になります。非表示にしたい場合はその旨お知らせください。\n\nまだ非表示のままのツールバー:\n\n- データソースマネージャツールバー\n- 注記ツールバー\n- GPS Toolbar"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\naction = mw.findChild(QAction, 'mActionToggleAttributesToolBar')\\ntb = mw.findChild(QToolBar, 'mAttributesToolBar')\\nresult = {'action_found': action is not None, 'checked': action.isChecked() if action else None, 'toolbar_visible': tb.isVisible() if tb else None}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「属性ツールバー」機能(アクション)を実行して\n[AI] \n「属性ツールバー」の状態を確認します。「属性ツールバー」(mActionToggleAttributesToolBar)も**すでにON(表示中)**です — 地物情報表示、属性テーブル、フィールド演算、統計サマリなどのアイコンがあるツールバーです。\nトグルを実行すると非表示になります。非表示にしたい場合はその旨お知らせください。\nまだ非表示のままのツールバー:\nデータソースマネージャツールバー\n注記ツールバー\nGPS Toolbar"
+}

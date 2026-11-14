@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.native_adduniquevalueindexfield",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 分類用ユニーク属性を追加」(id: native:adduniquevalueindexfield) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 分類用ユニーク属性を追加」(id: native:adduniquevalueindexfield) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認しました。**`native:adduniquevalueindexfield`（表示名:「分類用ユニーク属性を追加」、グループ:「ベクタテーブル」、プロバイダ:「QGIS（ネイティブC++）」）は存在します**。\n\n## 用途\n**指定した属性（分類属性）の同じ値を持つ地物に、共通の整数クラス番号を振った新しいフィールドを追加**します。つまり「文字列カテゴリ → 数値クラスコード」への変換器で、分類値ごとの一意な ID を作ります。数値 ID を要求する外部ツールへのエクスポート、カテゴリのコード化、結合用キーの生成などに使えます。入力は変更されず新しいレイヤが出力されます。\n\n## 主なパラメータ\n\n| パラメータ | 型 | 必須 | 説明 |\n|---|---|---|---|\n| `INPUT` | source | 必須 | 入力ベクタレイヤ |\n| `FIELD` | field | 必須 | 分類の基準となる属性 |\n| `FIELD_NAME` | string | 必須 | 追加する整数フィールド名。デフォルト `NUM_FIELD` |\n| `OUTPUT` | sink | 任意 | 出力レイヤ（省略時は一時レイヤ） |\n| `SUMMARY_OUTPUT` | sink | 任意 | クラス番号と分類属性値の対応表（要約テーブル）の出力先 |\n\n補足：\n- 振られる番号は各ユニーク値ごとに 0 始まりの連番（出現順）です。「同じ属性値なら同じ番号」という点が `native:addautoincrementalfield`（全地物に連番）との違いです。\n- `SUMMARY_OUTPUT` を指定すると「NUM_FIELD ↔ 分類属性値」の対応表が別テーブルとして出力されるので、コードの意味を後から引き直せます。\n- 複数フィールドの組み合わせで分類したい場合は、先にフィールド計算機でキー列を作ってから適用するのが手軽です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('native:adduniquevalueindexfield')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in reg.algorithms() if 'unique' in a.id().lower() or 'index' in a.id().lower()]}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': str(p.defaultValue())}\\n        if hasattr(p, 'options'):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': (alg.shortHelpString() or '')[:1000],\\n        'params': params,\\n    }\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterDefinition\\nalg = QgsApplication.processingRegistry().algorithmById('native:adduniquevalueindexfield')\\nresult = {p.name(): bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional) for p in alg.parameterDefinitions()}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 分類用ユニーク属性を追加」(id: native:adduniquevalueindexfield) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認しました。native:adduniquevalueindexfield（表示名:「分類用ユニーク属性を追加」、グループ:「ベクタテーブル」、プロバイダ:「QGIS（ネイティブC++）」）は存在します。\n用途\n指定した属性（分類属性）の同じ値を持つ地物に、共通の整数クラス番号を振った新しいフィールドを追加します。つまり「文字列カテゴリ → 数値クラスコード」への変換器で、分類値ごとの一意な ID を作ります。数値 ID を要求する外部ツールへのエクスポート、カテゴリのコード化、結合用キーの生成などに使えます。入力は変更されず新しいレイヤが出力されます。\n主なパラメータ\nパラメータ\n型\n必須\n説明\nINPUT\nsource\n必須\n入力ベクタレイヤ\nFIELD\nfield\n必須\n分類の基準となる属性\nFIELD_NAME\nstring\n必須\n追加する整数フィールド名。デフォルト NUM_FIELD\nOUTPUT\nsink\n任意\n出力レイヤ（省略時は一時レイヤ）\nSUMMARY_OUTPUT\nsink\n任意\nクラス番号と分類属性値の対応表（要約テーブル）の出力先\n\n補足：\n振られる番号は各ユニーク値ごとに 0 始まりの連番（出現順）です。「同じ属性値なら同じ番号」という点が native:addautoincrementalfield（全地物に連番）との違いです。\nSUMMARY_OUTPUT を指定すると「NUM_FIELD ↔ 分類属性値」の対応表が別テーブルとして出力されるので、コードの意味を後から引き直せます。\n複数フィールドの組み合わせで分類したい場合は、先にフィールド計算機でキー列を作ってから適用するのが手軽です。"
+}

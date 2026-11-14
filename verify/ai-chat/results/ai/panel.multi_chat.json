@@ -10,7 +10,7 @@
   },
   {
    "role": "assistant",
-   "content": "新しいチャットを作成しました。"
+   "content": "新しいチャットを作成しました。`_new_chat()` が正常に実行され、チャット一覧に「チャット11」が追加され、現在のチャットとして切り替わっています。"
   }
  ],
  "tools": [
@@ -19,12 +19,40 @@
  "audit": [
   {
    "type": "pyeval",
-   "args": "{'code': \"result = {\\n    'has_panel': 'panel' in globals(),\\n    'driver_type': type(driver).__name__,\\n    'driver_attrs': [a for a in dir(driver) if 'panel' in a.lower() or 'chat' in a.lower()],\\n    'panel_type': type(panel).__name__ if 'panel' in globals() else None,\\n}\"}"
+   "args": "{'code': \"\\n# AIチャットパネルを探す\\nfound = []\\nfor w in iface.mainWindow().findChildren(__import__('qgis.PyQt.QtWidgets', fromlist=['QDockWidget']).QDockWidget):\\n    found.append(w.objectName())\\nresult = found\\n\"}"
   },
   {
    "type": "pyeval",
-   "args": "{'code': 'result = panel._new_chat()'}"
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QDockWidget\\ndock = iface.mainWindow().findChild(QDockWidget, 'GeoDriverAiPanel')\\npanel = dock.widget() if dock else None\\nmethods = [m for m in dir(panel) if 'chat' in m.lower() or 'new' in m.lower()] if panel else []\\nresult = {'dock': bool(dock), 'panel_type': type(panel).__name__ if panel else None, 'methods': methods}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QDockWidget, QWidget\\ndock = iface.mainWindow().findChild(QDockWidget, 'GeoDriverAiPanel')\\nholder = dock.widget()\\ntarget = None\\nfor w in [holder] + holder.findChildren(QWidget):\\n    if hasattr(w, '_new_chat'):\\n        target = w\\n        break\\nresult = {'target': type(target).__name__ if target else None,\\n          'children': [type(c).__name__ for c in holder.findChildren(QWidget)][:20]}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nresult = {'driver_attrs': [a for a in dir(driver) if 'panel' in a.lower() or 'chat' in a.lower() or 'ai' in a.lower()]}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nimport qgis.utils\\nplugins = qgis.utils.plugins\\nresult = {'plugins_with_panel': {k: [a for a in dir(v) if 'panel' in a.lower() or 'chat' in a.lower()] for k, v in plugins.items()}}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nimport qgis.utils\\np = qgis.utils.plugins['geo_driver']._ai_panel\\nresult = {'type': type(p).__name__, 'has_new_chat': hasattr(p, '_new_chat'),\\n          'chat_methods': [m for m in dir(p) if 'chat' in m.lower() or 'new' in m.lower()]}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nimport qgis.utils\\np = qgis.utils.plugins['geo_driver']._ai_panel\\np._new_chat()\\nresult = {'title': p._chat_title() if hasattr(p, '_chat_title') else None,\\n          'current': p.cmb_chats.currentText() if hasattr(p, 'cmb_chats') else None}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nimport qgis.utils\\np = qgis.utils.plugins['geo_driver']._ai_panel\\nresult = {'count': p.cmb_chats.count, 'current': p.cmb_chats.currentText(),\\n          'items': [p.cmb_chats.itemText(i) for i in range(p.cmb_chats.count)]}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nimport qgis.utils\\np = qgis.utils.plugins['geo_driver']._ai_panel\\nresult = {'count': p.cmb_chats.count(), 'current': p.cmb_chats.currentText(),\\n          'items': [p.cmb_chats.itemText(i) for i in range(p.cmb_chats.count())]}\\n\"}"
   }
  ],
- "view_tail": "[AI] \n新しいチャットを作成しました。"
+ "view_tail": "[AI] \n新しいチャットを作成しました。_new_chat() が正常に実行され、チャット一覧に「チャット11」が追加され、現在のチャットとして切り替わっています。"
 }

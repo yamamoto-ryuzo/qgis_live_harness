@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionShowTimeouts",
+ "prompt": "QGISの「タイムアウトを表示」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「タイムアウトを表示」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「タイムアウトを表示」アクションを探して状態を確認します。プロファイラ側がOFFなので実行してONにします。「タイムアウトを表示」を実行しました。\n\n## 実行結果\n\n「タイムアウトを表示」(`mActionShowTimeouts`) は2箇所にあり、両方とも現在 **ON** になりました。\n\n| パネル | 実行前 | 実行後 |\n|---|---|---|\n| `QgsProfilerPanelWidget`（プロファイラ） | False → | **True**（今回 trigger でオン） |\n| `QgsNetworkLoggerPanelWidget`（ネットワークロガー） | True | True（既にオンだったためそのまま） |\n\nこれにより、両パネルでタイムアウトしたリクエストも表示されるようになります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nout = []\\nfor w in mw.findChildren(QAction):\\n    if 'タイムアウト' in w.text():\\n        out.append({'objectName': w.objectName(), 'text': w.text(), 'enabled': w.isEnabled(), 'checked': w.isChecked() if w.isCheckable() else None, 'panel': w.parent().metaObject().className()})\\nresult = out\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nresults = []\\nfor w in mw.findChildren(QAction):\\n    if w.objectName() == 'mActionShowTimeouts':\\n        panel = w.parent().metaObject().className()\\n        before = w.isChecked()\\n        if not w.isChecked():\\n            w.trigger()\\n        results.append({'panel': panel, 'before': before, 'after': w.isChecked()})\\nresult = results\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「タイムアウトを表示」機能(アクション)を実行して\n[AI] \n「タイムアウトを表示」アクションを探して状態を確認します。プロファイラ側がOFFなので実行してONにします。「タイムアウトを表示」を実行しました。\n実行結果\n「タイムアウトを表示」(mActionShowTimeouts) は2箇所にあり、両方とも現在 ON になりました。\nパネル\n実行前\n実行後\nQgsProfilerPanelWidget（プロファイラ）\nFalse →\nTrue（今回 trigger でオン）\nQgsNetworkLoggerPanelWidget（ネットワークロガー）\nTrue\nTrue（既にオンだったためそのまま）\n\nこれにより、両パネルでタイムアウトしたリクエストも表示されるようになります。"
+}

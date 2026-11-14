@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.pdal_density",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Point cloud density」(id: pdal:density) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Point cloud density」(id: pdal:density) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`pdal:density` **[QGIS (PDAL)] Point cloud density** は processing registry に登録されています（プロバイダ: QGIS (PDAL)、グループ: Point cloud extraction）。\n\n### 用途\n\n点群の**密度ラスタを生成**します。各セルに「その面積内に含まれる点数」を格納したラスタを出力するため、**点の疎密分布の可視化・カバレッジ品質チェック・欠損エリアの検出**に使えます。\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT` | pointcloud | — | 入力点群レイヤ |\n| `RESOLUTION` | number | 1 | 密度ラスタの解像度（セルサイズ） |\n| `TILE_SIZE` | number | 1000 | 並列処理用タイルサイズ |\n| `FILTER_EXPRESSION` | expression | （任意） | 点の絞り込み式（分類値等で密度を限定可能） |\n| `FILTER_EXTENT` | extent | （任意） | 切り抜き範囲 |\n| `ORIGIN_X` / `ORIGIN_Y` | number | （任意） | 並列実行用のタイル原点座標 |\n| `OUTPUT` | rasterDestination | — | 出力密度ラスタ |\n\n### 出力\n\n| 出力 | 型 | 説明 |\n|---|---|---|\n| `OUTPUT` | outputRaster | セルあたり点数を持つ密度ラスタ |\n\n`FILTER_EXPRESSION` で例えば地上面だけの密度を計算する、といった部分集計も可能です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('pdal:density')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Point cloud density」(id: pdal:density) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\npdal:density [QGIS (PDAL)] Point cloud density は processing registry に登録されています（プロバイダ: QGIS (PDAL)、グループ: Point cloud extraction）。\n用途\n点群の密度ラスタを生成します。各セルに「その面積内に含まれる点数」を格納したラスタを出力するため、点の疎密分布の可視化・カバレッジ品質チェック・欠損エリアの検出に使えます。\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT\npointcloud\n—\n入力点群レイヤ\nRESOLUTION\nnumber\n1\n密度ラスタの解像度（セルサイズ）\nTILE_SIZE\nnumber\n1000\n並列処理用タイルサイズ\nFILTER_EXPRESSION\nexpression\n（任意）\n点の絞り込み式（分類値等で密度を限定可能）\nFILTER_EXTENT\nextent\n（任意）\n切り抜き範囲\nORIGIN_X / ORIGIN_Y\nnumber\n（任意）\n並列実行用のタイル原点座標\nOUTPUT\nrasterDestination\n—\n出力密度ラスタ\n\n出力\n出力\n型\n説明\nOUTPUT\noutputRaster\nセルあたり点数を持つ密度ラスタ\n\nFILTER_EXPRESSION で例えば地上面だけの密度を計算する、といった部分集計も可能です。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_totalcurvature",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Total curvature」(id: native:totalcurvature) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Total curvature」(id: native:totalcurvature) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:totalcurvature`「**Total curvature**」は登録されています（グループ: ラスタ地形解析）。\n\n## 用途\n\n- DTM（標高ラスタ）から**全曲率（total curvature）** を計算します\n- 曲率は地形の凹凸（尾根・谷の丸み）を表す地形量で、Wilson & Gallant (2000) の地形解析手法に基づいています\n- 用途例：地形分類（凸面・凹面の抽出）、土砂災害・侵食リスク評価、微地形解析、水文モデルの前処理\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | raster | DTMレイヤ |\n| `Z_FACTOR` | number | Z係数（XYとZの単位が異なる場合の垂直方向倍率） |\n| `NODATA` | number | 出力のNoData値 |\n| `CREATION_OPTIONS` | string | GDAL出力作成オプション |\n| `OUTPUT` | rasterDestination | 出力ラスタ（全曲率） |\n\nパラメータ構成は `native:slope` や `native:aspect` と同じ地形解析系の形です。\n\n## 補足\n\n- 「Total curvature」は平面曲率と断面曲率を組み合わせた指標で、凸（正）/凹（負）の符号で地形を判定できます\n- **XYとZの単位を揃える**のは slope と同じく重要です（EPSG:4326 のDEMをそのまま使うと誤った値になります。メートル系に投影変換するか `Z_FACTOR` で補正）\n- 関連：`native:slope`（傾斜）、`native:aspect`（傾斜方位）、`native:ruggednessindex`（起伏量）、SAGA/GRASS系の曲率アルゴリズム"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:totalcurvature')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Total curvature」(id: native:totalcurvature) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:totalcurvature「Total curvature」は登録されています（グループ: ラスタ地形解析）。\n用途\nDTM（標高ラスタ）から全曲率（total curvature） を計算します\n曲率は地形の凹凸（尾根・谷の丸み）を表す地形量で、Wilson & Gallant (2000) の地形解析手法に基づいています\n用途例：地形分類（凸面・凹面の抽出）、土砂災害・侵食リスク評価、微地形解析、水文モデルの前処理\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nraster\nDTMレイヤ\nZ_FACTOR\nnumber\nZ係数（XYとZの単位が異なる場合の垂直方向倍率）\nNODATA\nnumber\n出力のNoData値\nCREATION_OPTIONS\nstring\nGDAL出力作成オプション\nOUTPUT\nrasterDestination\n出力ラスタ（全曲率）\n\nパラメータ構成は native:slope や native:aspect と同じ地形解析系の形です。\n補足\n「Total curvature」は平面曲率と断面曲率を組み合わせた指標で、凸（正）/凹（負）の符号で地形を判定できます\nXYとZの単位を揃えるのは slope と同じく重要です（EPSG:4326 のDEMをそのまま使うと誤った値になります。メートル系に投影変換するか Z_FACTOR で補正）\n関連：native:slope（傾斜）、native:aspect（傾斜方位）、native:ruggednessindex（起伏量）、SAGA/GRASS系の曲率アルゴリズム"
+}

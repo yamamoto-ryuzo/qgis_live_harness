@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_swapxy",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 座標のXY入れ替え」(id: native:swapxy) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 座標のXY入れ替え」(id: native:swapxy) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:swapxy`「**座標のXY入れ替え**」は登録されています（グループ: ベクタジオメトリ）。\n\n## 用途\n\n- 入力ジオメトリの**全頂点の X 座標と Y 座標を入れ替え**ます\n- 典型例：**緯度と経度を逆にして登録してしまったデータの修復**（`lat,lon` で作るべきところを `lon,lat` にしてしまったCSV取り込みなど）\n- その他、座標軸順の誤りで「地図の天地が逆」「全く違う場所に表示される」データを直すのに使えます\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | 入力レイヤ |\n| `OUTPUT` | sink | 出力レイヤ |\n\nパラメータは入出力のみです。\n\n## 動作イメージ\n\n```\n入力: POINT(35.0 139.0)   ← 本当は (lon=139, lat=35) だったのに逆\n出力: POINT(139.0 35.0)\n```\n\n## 補足・注意点\n\n- **属性や地物構造はそのまま**で、ジオメトリの座標値だけが swap されます\n- 「緯度・経度の列を指定してポイント作成」する段階で逆にしてしまった場合は、`native:createpointslayerfromtable` 等で作り直す方が本来は正しいです（このアルゴリズムは既存ジオメトリを事後修復するもの）\n- 経度緯度のどちらが正しいかはデータの状況によるので、実行後に `qgis_screenshot` や既知の基準地物と重ねて確認するのが確実です"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:swapxy')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 座標のXY入れ替え」(id: native:swapxy) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:swapxy「座標のXY入れ替え」は登録されています（グループ: ベクタジオメトリ）。\n用途\n入力ジオメトリの全頂点の X 座標と Y 座標を入れ替えます\n典型例：緯度と経度を逆にして登録してしまったデータの修復（lat,lon で作るべきところを lon,lat にしてしまったCSV取り込みなど）\nその他、座標軸順の誤りで「地図の天地が逆」「全く違う場所に表示される」データを直すのに使えます\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\n入力レイヤ\nOUTPUT\nsink\n出力レイヤ\n\nパラメータは入出力のみです。\n動作イメージ\n入力: POINT(35.0 139.0)   ← 本当は (lon=139, lat=35) だったのに逆\n出力: POINT(139.0 35.0)\n補足・注意点\n属性や地物構造はそのままで、ジオメトリの座標値だけが swap されます\n「緯度・経度の列を指定してポイント作成」する段階で逆にしてしまった場合は、native:createpointslayerfromtable 等で作り直す方が本来は正しいです（このアルゴリズムは既存ジオメトリを事後修復するもの）\n経度緯度のどちらが正しいかはデータの状況によるので、実行後に qgis_screenshot や既知の基準地物と重ねて確認するのが確実です"
+}

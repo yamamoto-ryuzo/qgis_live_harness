@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_excel.ai.pluginInfo",
+ "prompt": "geo_excel プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_excel プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "出力が大きいので、保存された全文から `geo_excel` の部分だけ抽出します。`describe_plugins` から geo_excel のカタログ情報を取得しました。専用bridge搭載(`bridge: true`)で、AI呼び出し可能なメソッドが11個公開されています。\n\n## geo_excel — Excel帳票出力\n\n**summary**: ベクターレイヤの属性情報をExcel帳票として出力。アクティブレイヤのレイヤ変数(`xlsout_*`)でテンプレートと出力先を指定し、一覧帳票・単票・単票一括の3種を実行可能。実行には **win32com(pywin32) と Excel が必要**。\n\n**when_to_use**(使いどき):\n- アクティブレイヤの全地物をExcel一覧帳票に出力\n- 選択地物の属性をExcel単票テンプレートへ差し込み出力\n- 選択地物/全地物の単票一括出力\n- `xlsout_*` レイヤ変数の確認・変更\n- 出力先・テンプレート等の既定値の自動設定\n\n**呼び出し方法**: `qgis_bridge_call` で `plugin_id: \"geo_excel\"`, `method: <下記>`, `args: [...]`\n\n**メソッド一覧**:\n\n| メソッド | シグネチャ | 説明 |\n|---|---|---|\n| `run` | `run(script='list', feature_id=None, confirm=False)` | 帳票実行。scriptは `list`/`single`/`bulk`/ファイル名/index。`confirm=True`で上書き確認にOk応答。GUIスレッドをブロックする点に注意 |\n| `status` | `status()` | アクティブレイヤ・選択地物数・win32com可否・変数設定状況 |\n| `settings` | `settings()` | 既定設定+環境チェック(win32com/Excel登録/出力先) |\n| `setSettings` | `setSettings(settings)` | 既定保存。キー: `output_dir`/`dpi`/`template_list`/`template_single`/`auto_apply` |\n| `layerVariables` | `layerVariables(layer_id=None)` | `xlsout_*`/`dpi` レイヤ変数を取得 |\n| `setLayerVariables` | `setLayerVariables(variables, layer_id=None)` | レイヤ変数を設定(`{変数名: 値}`、Noneで削除) |\n| `applyDefaults` | `applyDefaults(layer_id=None, script=None)` | 不足変数へ既定値適用+出力フォルダ作成+テンプレ自動生成 |\n| `regenerateTemplates` | `regenerateTemplates(layer_id=None)` | 自動生成テンプレ再生成(ユーザー指定は上書きしない) |\n| `listScripts` | `listScripts()` | 帳票スクリプト一覧(id/ファイル/要選択/必要変数) |\n| `checkExcel` | `checkExcel()` | ExcelをCOM起動して実検証(数秒ブロック) |\n| `openSettings` | `openSettings()` | 設定ダイアログを開く |\n\n**現在の状態**: スクリプト3種(list/single/bulk)、win32com 利用可能(`win32com: true`)。\n\n典型的な使い方としては、まず `status` → `settings` で環境確認 → `applyDefaults` で既定値適用 → `run(\"list\", null, true)` で一覧帳票出力、という流れになります。実際に帳票出力を試しますか?"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_excel プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \n出力が大きいので、保存された全文から geo_excel の部分だけ抽出します。describe_plugins から geo_excel のカタログ情報を取得しました。専用bridge搭載(bridge: true)で、AI呼び出し可能なメソッドが11個公開されています。\ngeo_excel — Excel帳票出力\nsummary: ベクターレイヤの属性情報をExcel帳票として出力。アクティブレイヤのレイヤ変数(xlsout_*)でテンプレートと出力先を指定し、一覧帳票・単票・単票一括の3種を実行可能。実行には win32com(pywin32) と Excel が必要。\nwhen_to_use(使いどき):\nアクティブレイヤの全地物をExcel一覧帳票に出力\n選択地物の属性をExcel単票テンプレートへ差し込み出力\n選択地物/全地物の単票一括出力\nxlsout_* レイヤ変数の確認・変更\n出力先・テンプレート等の既定値の自動設定\n呼び出し方法: qgis_bridge_call で plugin_id: \"geo_excel\", method: <下記>, args: [...]\nメソッド一覧:\nメソッド\nシグネチャ\n説明\nrun\nrun(script='list', feature_id=None, confirm=False)\n帳票実行。scriptは list/single/bulk/ファイル名/index。confirm=Trueで上書き確認にOk応答。GUIスレッドをブロックする点に注意\nstatus\nstatus()\nアクティブレイヤ・選択地物数・win32com可否・変数設定状況\nsettings\nsettings()\n既定設定+環境チェック(win32com/Excel登録/出力先)\nsetSettings\nsetSettings(settings)\n既定保存。キー: output_dir/dpi/template_list/template_single/auto_apply\nlayerVariables\nlayerVariables(layer_id=None)\nxlsout_*/dpi レイヤ変数を取得\nsetLayerVariables\nsetLayerVariables(variables, layer_id=None)\nレイヤ変数を設定({変数名: 値}、Noneで削除)\napplyDefaults\napplyDefaults(layer_id=None, script=None)\n不足変数へ既定値適用+出力フォルダ作成+テンプレ自動生成\nregenerateTemplates\nregenerateTemplates(layer_id=None)\n自動生成テンプレ再生成(ユーザー指定は上書きしない)\nlistScripts\nlistScripts()\n帳票スクリプト一覧(id/ファイル/要選択/必要変数)\ncheckExcel\ncheckExcel()\nExcelをCOM起動して実検証(数秒ブロック)\nopenSettings\nopenSettings()\n設定ダイアログを開く\n\n現在の状態: スクリプト3種(list/single/bulk)、win32com 利用可能(win32com: true)。\n典型的な使い方としては、まず status → settings で環境確認 → applyDefaults で既定値適用 → run(\"list\", null, true) で一覧帳票出力、という流れになります。実際に帳票出力を試しますか?"
+}

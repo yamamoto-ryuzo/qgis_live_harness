@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_fuzzifyrastersmallmembership",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタのファジー化（small membership）」(id: native:fuzzifyrastersmallmembership) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタのファジー化（small membership）」(id: native:fuzzifyrastersmallmembership) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:fuzzifyrastersmallmembership`（表示名 **「ラスタのファジー化（small membership）」**、グループ「ラスタ解析」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n入力ラスタをファジーメンバーシップ度（0〜1）に変換するアルゴリズムで、**「値が小さいほど所属度が高い」単調減少型**の関数を使います。`large` の鏡像です。\n\n- 小さい値 → **1**（完全所属）、大きい値 → **0**（非所属）\n- 中点（midpoint）でちょうど **0.5** になり、S字カーブ状に減衰\n- 「小さいほど望ましい」評価（例：傾斜が緩いほど・道路からの距離が短いほど適する、等）に向いた関数形です\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ラスタ |\n| `BAND` | 対象バンド番号 |\n| `FUZZYMIDPOINT` | 関数の中点 — メンバーシップが **0.5** になるセル値 |\n| `FUZZYSPREAD` | 関数の拡がり — 1→0への減衰の急峻さを制御 |\n| `CREATE_OPTIONS` / `CREATION_OPTIONS` | 出力ラスタの作成オプション |\n| `OUTPUT` | ファジー化ラスタ（出力） |\n\n### 出力\n\n- `OUTPUT` — ファジー化ラスタ\n- 付随して `EXTENT`・`CRS_AUTHID`・`WIDTH_IN_PIXELS`・`HEIGHT_IN_PIXELS`・`TOTAL_PIXEL_COUNT` も返ります\n\n### 補足：メンバーシップ関数の式\n\nヘルプの訳注に各関数の式が載っていました。`large`/`small` の対比は：\n\n- `large`: μ(x) = 1 / (1 + (x/a)^−b) — 中点より大きいほど急速に1へ\n- `small`: μ(x) = 1 / (1 + (x/a)^b) — 中点より小さいほど急速に1へ\n\n（a = midpoint、b = spread）\n\nこれでファジー化6関数すべて確認済みです。増加型は `large`、減少型は `small`、範囲評価は `gaussian`/`near`、閾値指定型は `linear`/`power` という使い分けです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:fuzzifyrastersmallmembership')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタのファジー化（small membership）」(id: native:fuzzifyrastersmallmembership) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:fuzzifyrastersmallmembership（表示名 「ラスタのファジー化（small membership）」、グループ「ラスタ解析」）がこのQGISの processing registry に登録されています。\n用途\n入力ラスタをファジーメンバーシップ度（0〜1）に変換するアルゴリズムで、「値が小さいほど所属度が高い」単調減少型の関数を使います。large の鏡像です。\n小さい値 → 1（完全所属）、大きい値 → 0（非所属）\n中点（midpoint）でちょうど 0.5 になり、S字カーブ状に減衰\n「小さいほど望ましい」評価（例：傾斜が緩いほど・道路からの距離が短いほど適する、等）に向いた関数形です\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ラスタ\nBAND\n対象バンド番号\nFUZZYMIDPOINT\n関数の中点 — メンバーシップが 0.5 になるセル値\nFUZZYSPREAD\n関数の拡がり — 1→0への減衰の急峻さを制御\nCREATE_OPTIONS / CREATION_OPTIONS\n出力ラスタの作成オプション\nOUTPUT\nファジー化ラスタ（出力）\n\n出力\nOUTPUT — ファジー化ラスタ\n付随して EXTENT・CRS_AUTHID・WIDTH_IN_PIXELS・HEIGHT_IN_PIXELS・TOTAL_PIXEL_COUNT も返ります\n補足：メンバーシップ関数の式\nヘルプの訳注に各関数の式が載っていました。large/small の対比は：\nlarge: μ(x) = 1 / (1 + (x/a)^−b) — 中点より大きいほど急速に1へ\nsmall: μ(x) = 1 / (1 + (x/a)^b) — 中点より小さいほど急速に1へ\n（a = midpoint、b = spread）\nこれでファジー化6関数すべて確認済みです。増加型は large、減少型は small、範囲評価は gaussian/near、閾値指定型は linear/power という使い分けです。"
+}

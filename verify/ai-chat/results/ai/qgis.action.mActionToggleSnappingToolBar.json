@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionToggleSnappingToolBar",
+ "prompt": "QGISの「スナップツールバー」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「スナップツールバー」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「スナップツールバー」のトグルアクション/ツールバーを探します。「スナップツールバー」は既に表示されています。表示状態を確認します。「スナップツールバー」は既に表示されており、トグルアクションもオン(チェック済み)です。スナップの有効/無効、対象レイヤ、スナップタイプ(頂点・セグメント・交点など)、許容値をここから設定できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nacts = [(a.objectName(), a.text()) for a in iface.mainWindow().findChildren(QAction) if 'napp' in a.objectName() or 'スナップ' in a.text()]\\ntbars = [(t.objectName(), t.windowTitle(), t.isVisible()) for t in iface.mainWindow().findChildren(QToolBar) if 'napp' in t.objectName() or 'スナップ' in t.windowTitle()]\\nresult = {'actions': acts, 'toolbars': tbars}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QToolBar, QAction\\nt = iface.mainWindow().findChild(QToolBar, 'mSnappingToolBar')\\na = iface.mainWindow().findChild(QAction, 'mActionToggleSnappingToolBar')\\nresult = {'visible': t.isVisible(), 'checked': a.isChecked()}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「スナップツールバー」機能(アクション)を実行して\n[AI] \n「スナップツールバー」のトグルアクション/ツールバーを探します。「スナップツールバー」は既に表示されています。表示状態を確認します。「スナップツールバー」は既に表示されており、トグルアクションもオン(チェック済み)です。スナップの有効/無効、対象レイヤ、スナップタイプ(頂点・セグメント・交点など)、許容値をここから設定できます。"
+}

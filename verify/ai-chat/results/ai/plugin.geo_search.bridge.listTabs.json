@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_search.bridge.listTabs",
+ "prompt": "QGISの geo_search プラグインで「listTabs」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_search プラグインで「listTabs」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`listTabs` の実行結果です。検索タブは全部で5件:\n\n| index | グループ | タイトル | 対象レイヤ | 現在選択 |\n|---|---|---|---|---|\n| 0 | 各種レイヤ | カレントレイヤ | (動的) | ✓ |\n| 1 | 各種レイヤ | 表示レイヤ | (動的) | |\n| 2 | 各種レイヤ | 全レイヤ | (動的) | |\n| 3 | 各種レイヤ | 住所検索 | なし(ジオコーディング) | |\n| 4 | テスト | テスト追加タブ | Name=`layer1` | |\n\n- 現在選択中は index 0「カレントレイヤ」\n- index 4 は先ほど `addTab` で追加したタブで、グループ「テスト」に分類されています"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'listTabs', 'plugin_id': 'geo_search'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_search プラグインで「listTabs」を実行して結果を教えて\n[AI] \nlistTabs の実行結果です。検索タブは全部で5件:\nindex\nグループ\nタイトル\n対象レイヤ\n現在選択\n0\n各種レイヤ\nカレントレイヤ\n(動的)\n✓\n1\n各種レイヤ\n表示レイヤ\n(動的)\n\n2\n各種レイヤ\n全レイヤ\n(動的)\n\n3\n各種レイヤ\n住所検索\nなし(ジオコーディング)\n\n4\nテスト\nテスト追加タブ\nName=layer1\n\n現在選択中は index 0「カレントレイヤ」\nindex 4 は先ほど addTab で追加したタブで、グループ「テスト」に分類されています"
+}

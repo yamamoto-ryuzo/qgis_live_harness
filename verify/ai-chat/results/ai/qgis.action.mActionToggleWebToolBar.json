@@ -1,0 +1,35 @@
+{
+ "id": "qgis.action.mActionToggleWebToolBar",
+ "prompt": "QGISの「Webツールバー」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Webツールバー」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Webツールバー」アクション（`mActionToggleWebToolBar`、ツールバー切替）を実行します。ツールバーが表示されました。見た目を確認します。Webツールバーが表示されました。中身のボタンを確認します。「Webツールバー」アクションを実行しました。\n\n**結果**\n\n| 項目 | 値 |\n|---|---|\n| アクション | `mActionToggleWebToolBar`（Webツールバー切替、ツールバー `mWebToolBar` に紐付く） |\n| 実行後 | checked = True、ツールバー表示 = True |\n\nツールバーに登録されているボタン（プラグイン提供）:\n\n- `Qgis2threejs Exporter` — 3D エクスポートダイアログを開く\n- `MetaSearch` — メタデータカタログ（CSW）検索ダイアログを開く\n\nスクリーンショットでは、ツールバー行の右端に新しいアイコンが追加されているのを確認できます（Qgis2threejs／MetaSearch のボタン）。標準の QGIS ではこのツールバーは空ですが、インストール済みプラグインがボタンを登録しています。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\nacts = {x.objectName(): x for x in mw.findChildren(QAction)}\\na = acts['mActionToggleWebToolBar']\\na.trigger()\\n\\ntbs = [(t.objectName(), t.windowTitle(), t.isVisible()) for t in mw.findChildren(QToolBar) if 'eb' in t.objectName() or 'Web' in t.windowTitle()]\\nresult = {'checked': a.isChecked(), 'toolbars': tbs}\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-22bca01c.png', 'target': 'mainwindow'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QToolBar\\nmw = iface.mainWindow()\\ntb = [t for t in mw.findChildren(QToolBar) if t.objectName() == 'mWebToolBar'][0]\\nresult = {'visible': tb.isVisible(), 'actions': [(a.objectName(), a.text(), a.isEnabled()) for a in tb.actions() if not a.isSeparator()]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Webツールバー」機能(アクション)を実行して\n[AI] \n「Webツールバー」アクション（mActionToggleWebToolBar、ツールバー切替）を実行します。ツールバーが表示されました。見た目を確認します。Webツールバーが表示されました。中身のボタンを確認します。「Webツールバー」アクションを実行しました。\n結果\n項目\n値\nアクション\nmActionToggleWebToolBar（Webツールバー切替、ツールバー mWebToolBar に紐付く）\n実行後\nchecked = True、ツールバー表示 = True\n\nツールバーに登録されているボタン（プラグイン提供）:\nQgis2threejs Exporter — 3D エクスポートダイアログを開く\nMetaSearch — メタデータカタログ（CSW）検索ダイアログを開く\nスクリーンショットでは、ツールバー行の右端に新しいアイコンが追加されているのを確認できます（Qgis2threejs／MetaSearch のボタン）。標準の QGIS ではこのツールバーは空ですが、インストール済みプラグインがボタンを登録しています。"
+}

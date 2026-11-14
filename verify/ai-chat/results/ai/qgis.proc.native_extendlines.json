@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_extendlines",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線の両端を延長」(id: native:extendlines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線の両端を延長」(id: native:extendlines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の Processing registry に存在します。\n\n- **ID**: `native:extendlines`\n- **表示名**: 線の両端を延長\n- **グループ**: ベクタジオメトリ\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n\n## 用途\n\nラインジオメトリの**始点側・終点側を指定距離だけ延長**します。  \n延長方向には、最初と最後のセグメントの方位が使われます。交点まで届かない線同士を接続しやすくする処理などに使えます。\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ラインレイヤ（必須） |\n| `START_DISTANCE` | 始点側へ延長する距離。既定値は `0.0` |\n| `END_DISTANCE` | 終点側へ延長する距離。既定値は `0.0` |\n| `OUTPUT` | 延長後のラインを出力するベクタレイヤ（必須） |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:extendlines')\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'options': p.options() if hasattr(p, 'options') else None,\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else []\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線の両端を延長」(id: native:extendlines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の Processing registry に存在します。\nID: native:extendlines\n表示名: 線の両端を延長\nグループ: ベクタジオメトリ\n種別: QGIS ネイティブ C++ アルゴリズム\n用途\nラインジオメトリの始点側・終点側を指定距離だけ延長します。\n延長方向には、最初と最後のセグメントの方位が使われます。交点まで届かない線同士を接続しやすくする処理などに使えます。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ラインレイヤ（必須）\nSTART_DISTANCE\n始点側へ延長する距離。既定値は 0.0\nEND_DISTANCE\n終点側へ延長する距離。既定値は 0.0\nOUTPUT\n延長後のラインを出力するベクタレイヤ（必須）\n"
+}

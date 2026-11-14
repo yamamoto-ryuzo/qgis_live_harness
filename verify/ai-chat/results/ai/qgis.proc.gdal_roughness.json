@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_roughness",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 粗度（roughness）」(id: gdal:roughness) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 粗度（roughness）」(id: gdal:roughness) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:roughness` を Processing Registry で確認します。確認しました。Processing Registry に **`[GDAL] 粗度（roughness）`** は存在します。\n\n- **ID:** `gdal:roughness`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタ解析`\n\n### 用途\nDEMなどの標高ラスタから、周辺セルとの標高差に基づく **地形の粗さ**を計算します。微地形の凹凸や斜面の細かさを評価する用途に使います。\n\n### 主なパラメータ\n- `INPUT`：入力DEMラスタ\n- `BAND`：対象バンド（既定値 `1`）\n- `COMPUTE_EDGES`：ラスタ境界でも計算する\n- `OUTPUT`：粗度ラスタ\n- `OPTIONS` / `CREATION_OPTIONS`：GDAL向け追加オプション"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:roughness'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'roughness' in a.id().lower() or '粗度' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'roughness' in a.id().lower() or "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 粗度（roughness）」(id: gdal:roughness) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:roughness を Processing Registry で確認します。確認しました。Processing Registry に [GDAL] 粗度（roughness） は存在します。\nID: gdal:roughness\nプロバイダ: GDAL\nグループ: ラスタ解析\n用途\nDEMなどの標高ラスタから、周辺セルとの標高差に基づく 地形の粗さを計算します。微地形の凹凸や斜面の細かさを評価する用途に使います。\n主なパラメータ\nINPUT：入力DEMラスタ\nBAND：対象バンド（既定値 1）\nCOMPUTE_EDGES：ラスタ境界でも計算する\nOUTPUT：粗度ラスタ\nOPTIONS / CREATION_OPTIONS：GDAL向け追加オプション"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_raisewarning",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 警告メッセージ出力」(id: native:raisewarning) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 警告メッセージ出力」(id: native:raisewarning) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:raisewarning` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:raisewarning`\n- **表示名**: `[QGIS（ネイティブC++）] 警告メッセージ出力`\n- **グループ**: モデラーツール\n- **用途**: モデル実行中に Processing ログへ警告メッセージを出力する。異常値や注意が必要な状態の通知に使える。\n\n### 主なパラメータ\n\n| 名前 | 種類 | 必須 | 説明 |\n|---|---|---:|---|\n| `MESSAGE` | 文字列 | 必須 | ログに出力する警告メッセージ |\n| `CONDITION` | 式 | 任意 | 式が `true` の場合のみ警告を出力 |\n\n出力レイヤや出力パラメータはありません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:raisewarning')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'type': p.type(),\\n                'defaultValue': p.defaultValue(),\\n                'optional': bool(p.flags() & p.FlagOptional),\\n            }\\n            for p in alg.parameterDefinitions()\\n        ],\\n        'outputs': [\\n            {'name': o.name(), 'description': o.description(), 'type': o.type()}\\n            for o in alg.outputDefinitions()\\n        ],\\n        'shortHelp': alg.shortHelpString(),\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 警告メッセージ出力」(id: native:raisewarning) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:raisewarning を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:raisewarning\n表示名: [QGIS（ネイティブC++）] 警告メッセージ出力\nグループ: モデラーツール\n用途: モデル実行中に Processing ログへ警告メッセージを出力する。異常値や注意が必要な状態の通知に使える。\n主なパラメータ\n名前\n種類\n必須\n説明\nMESSAGE\n文字列\n必須\nログに出力する警告メッセージ\nCONDITION\n式\n任意\n式が true の場合のみ警告を出力\n\n出力レイヤや出力パラメータはありません。"
+}

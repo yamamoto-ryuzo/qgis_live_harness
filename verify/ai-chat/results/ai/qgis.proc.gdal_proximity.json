@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.gdal_proximity",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 近接性（ラスタ距離）」(id: gdal:proximity) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 近接性（ラスタ距離）」(id: gdal:proximity) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:proximity` を Processing Registry で確認します。`UNITS` の選択肢も確認します。確認しました。Processing Registry に **`[GDAL] 近接性（ラスタ距離）`** は存在します。\n\n- **ID:** `gdal:proximity`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタ解析`\n\n### 用途\nラスタ内の対象ピクセルから、各セル中心までの **最短距離を計算した距離ラスタ**を作成します。道路・水域などのマスク化データから、近接距離やバッファ的な解析を行う用途に使います。\n\n### 主なパラメータ\n- `INPUT`：入力ラスタ\n- `BAND`：対象バンド（既定値 `1`）\n- `VALUES`：対象とみなすピクセル値のリスト\n- `UNITS`：距離単位（`地理座標`／`ピクセル座標`）\n- `MAX_DISTANCE`：距離を計算する最大範囲\n- `REPLACE`：最大距離内に固定値を設定する場合の値\n- `NODATA`：出力のNoData値\n- `DATA_TYPE`：出力ラスタのデータ型\n- `OUTPUT`：出力距離ラスタ"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:proximity'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'proximity' in a.id().lower() or '近接' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'proximity' in a.id().lower() or "
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nimport json\\nalg = QgsApplication.processingRegistry().algorithmById('gdal:proximity')\\nresult = None\\nif alg:\\n    p = next((x for x in alg.parameterDefinitions() if x.name() == 'UNITS'), None)\\n    result = json.dumps({'units_options': list(p.options()) if p else None, 'default': p.defaultValue() if p else None}, ensure_ascii=False)\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 近接性（ラスタ距離）」(id: gdal:proximity) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:proximity を Processing Registry で確認します。UNITS の選択肢も確認します。確認しました。Processing Registry に [GDAL] 近接性（ラスタ距離） は存在します。\nID: gdal:proximity\nプロバイダ: GDAL\nグループ: ラスタ解析\n用途\nラスタ内の対象ピクセルから、各セル中心までの 最短距離を計算した距離ラスタを作成します。道路・水域などのマスク化データから、近接距離やバッファ的な解析を行う用途に使います。\n主なパラメータ\nINPUT：入力ラスタ\nBAND：対象バンド（既定値 1）\nVALUES：対象とみなすピクセル値のリスト\nUNITS：距離単位（地理座標／ピクセル座標）\nMAX_DISTANCE：距離を計算する最大範囲\nREPLACE：最大距離内に固定値を設定する場合の値\nNODATA：出力のNoData値\nDATA_TYPE：出力ラスタのデータ型\nOUTPUT：出力距離ラスタ"
+}

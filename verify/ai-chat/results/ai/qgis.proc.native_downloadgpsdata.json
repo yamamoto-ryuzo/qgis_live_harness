@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_downloadgpsdata",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] GPSデータをデバイスからダウンロード」(id: native:downloadgpsdata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] GPSデータをデバイスからダウンロード」(id: native:downloadgpsdata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:downloadgpsdata`\n- **表示名**: GPSデータをデバイスからダウンロード\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: GPS\n\n## 用途\n外部ツール **GPSBabel** を使って、接続中の GPS デバイスからデータをダウンロードし、**GPX 形式に変換**するアルゴリズムです。Garmin 等のデバイスからウェイポイント・ルート・トラックを取り込む用途で、実行には QGIS から呼べる場所に GPSBabel がインストールされている必要があります。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `DEVICE` | デバイス種別（GPSBabel のデバイス識別子、文字列。例: `garmin`） |\n| `PORT` | 接続ポート（文字列。例: `usb:`、`COM3`） |\n| `FEATURE_TYPE` | ダウンロード対象（ウェイポイント／ルート／トラック、デフォルトはウェイポイント） |\n| `OUTPUT` | 出力 GPX ファイル（必須） |\n\n## 出力\n- `OUTPUT`: 生成された GPX ファイル\n- `OUTPUT_LAYER`: そのファイルを読み込んだレイヤ\n\n補足: 実機接続・ドライバ権限など環境依存が強い処理のため、モデル内で使うより対話的な取り込みに向きます。逆方向（GPSへアップロード）は `native:uploadgpsdata` が対応します。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber, QgsProcessingParameterBoolean, QgsProcessingParameterField, QgsProcessingParameterString, QgsProcessingParameterFile\\nalg = QgsApplication.processingRegistry().algorithmById('native:downloadgpsdata')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'gps' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        '"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] GPSデータをデバイスからダウンロード」(id: native:downloadgpsdata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:downloadgpsdata\n表示名: GPSデータをデバイスからダウンロード\nプロバイダ: QGIS（ネイティブC++）／グループ: GPS\n用途\n外部ツール GPSBabel を使って、接続中の GPS デバイスからデータをダウンロードし、GPX 形式に変換するアルゴリズムです。Garmin 等のデバイスからウェイポイント・ルート・トラックを取り込む用途で、実行には QGIS から呼べる場所に GPSBabel がインストールされている必要があります。\n主なパラメータ\nパラメータ\n内容\nDEVICE\nデバイス種別（GPSBabel のデバイス識別子、文字列。例: garmin）\nPORT\n接続ポート（文字列。例: usb:、COM3）\nFEATURE_TYPE\nダウンロード対象（ウェイポイント／ルート／トラック、デフォルトはウェイポイント）\nOUTPUT\n出力 GPX ファイル（必須）\n\n出力\nOUTPUT: 生成された GPX ファイル\nOUTPUT_LAYER: そのファイルを読み込んだレイヤ\n補足: 実機接続・ドライバ権限など環境依存が強い処理のため、モデル内で使うより対話的な取り込みに向きます。逆方向（GPSへアップロード）は native:uploadgpsdata が対応します。"
+}

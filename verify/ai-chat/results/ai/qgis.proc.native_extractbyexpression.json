@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_extractbyexpression",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] QGIS式による抽出」(id: native:extractbyexpression) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] QGIS式による抽出」(id: native:extractbyexpression) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の Processing registry に存在します。\n\n- **ID**: `native:extractbyexpression`\n- **表示名**: QGIS式による抽出\n- **グループ**: ベクタ選択\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n\n## 用途\n\nQGIS式の評価結果が真になるフィーチャだけを抽出し、新しいベクタレイヤとして出力します。  \n属性値だけでなく、ジオメトリ・関連レイヤ・関数を組み合わせた柔軟な条件指定が可能です。\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ベクタレイヤ（必須） |\n| `EXPRESSION` | 抽出条件となるQGIS式（必須） |\n| `OUTPUT` | 式に一致したフィーチャの出力先（必須） |\n| `FAIL_OUTPUT` | 式に一致しなかったフィーチャの出力先（任意） |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:extractbyexpression')\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'options': p.options() if hasattr(p, 'options') else None,\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else []\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] QGIS式による抽出」(id: native:extractbyexpression) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の Processing registry に存在します。\nID: native:extractbyexpression\n表示名: QGIS式による抽出\nグループ: ベクタ選択\n種別: QGIS ネイティブ C++ アルゴリズム\n用途\nQGIS式の評価結果が真になるフィーチャだけを抽出し、新しいベクタレイヤとして出力します。\n属性値だけでなく、ジオメトリ・関連レイヤ・関数を組み合わせた柔軟な条件指定が可能です。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ベクタレイヤ（必須）\nEXPRESSION\n抽出条件となるQGIS式（必須）\nOUTPUT\n式に一致したフィーチャの出力先（必須）\nFAIL_OUTPUT\n式に一致しなかったフィーチャの出力先（任意）\n"
+}

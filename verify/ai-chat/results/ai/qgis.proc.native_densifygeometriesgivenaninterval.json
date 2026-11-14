@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_densifygeometriesgivenaninterval",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 間隔による高密度化」(id: native:densifygeometriesgivenaninterval) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 間隔による高密度化」(id: native:densifygeometriesgivenaninterval) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:densifygeometriesgivenaninterval`\n- **表示名**: 間隔による高密度化\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ベクタジオメトリ\n\n## 用途\nライン/ポリゴンレイヤの各辺に頂点を追加し、**どのセグメントも指定した間隔（距離）を超えない**ように高密度化するアルゴリズムです。「個数ベース」の `native:densifygeometries` と違い、距離で密度を制御するため、長い辺ほど多くの頂点が入り**全体で一様な頂点密度**になります。長い直線辺を投影変換・ワープで正しく変形させる前処理や、間隔の空いた頂点で欠損しやすい解析の前段に適します。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ライン/ポリゴンレイヤ（必須） |\n| `INTERVAL` | 頂点間隔の上限（必須、距離型、デフォルト 1、範囲 0〜10,000,000。**レイヤの地図単位**） |\n| `OUTPUT` | 出力レイヤ（必須） |\n\n`INTERVAL` はレイヤCRSの単位（メートル系ならメートル、度なら度）なので、実距離で指定したい場合は投影済みレイヤで使います。間隔を小さくしすぎると頂点数が爆発的に増える点に注意してください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber\\nalg = QgsApplication.processingRegistry().algorithmById('native:densifygeometriesgivenaninterval')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'densif' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        if isinstance(p, QgsProcessingParameterNumber):\\n            d['min'] = p.minimum(); d['max'] = p.maximum()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg."
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 間隔による高密度化」(id: native:densifygeometriesgivenaninterval) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:densifygeometriesgivenaninterval\n表示名: 間隔による高密度化\nプロバイダ: QGIS（ネイティブC++）／グループ: ベクタジオメトリ\n用途\nライン/ポリゴンレイヤの各辺に頂点を追加し、どのセグメントも指定した間隔（距離）を超えないように高密度化するアルゴリズムです。「個数ベース」の native:densifygeometries と違い、距離で密度を制御するため、長い辺ほど多くの頂点が入り全体で一様な頂点密度になります。長い直線辺を投影変換・ワープで正しく変形させる前処理や、間隔の空いた頂点で欠損しやすい解析の前段に適します。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ライン/ポリゴンレイヤ（必須）\nINTERVAL\n頂点間隔の上限（必須、距離型、デフォルト 1、範囲 0〜10,000,000。レイヤの地図単位）\nOUTPUT\n出力レイヤ（必須）\n\nINTERVAL はレイヤCRSの単位（メートル系ならメートル、度なら度）なので、実距離で指定したい場合は投影済みレイヤで使います。間隔を小さくしすぎると頂点数が爆発的に増える点に注意してください。"
+}

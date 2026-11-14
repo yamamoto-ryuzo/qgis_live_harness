@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_rasterlayerstatistics",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタレイヤの統計量」(id: native:rasterlayerstatistics) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタレイヤの統計量」(id: native:rasterlayerstatistics) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:rasterlayerstatistics` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:rasterlayerstatistics`\n- **表示名**: `[QGIS（ネイティブC++）] ラスタレイヤの統計量`\n- **グループ**: ラスタ解析\n- **用途**: 入力ラスタの指定バンドについて、最小値・最大値・平均値・標準偏差などの基本統計量を計算する。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT` | 必須 | 対象ラスタレイヤ |\n| `BAND` | 必須 | 統計を計算するバンド番号。既定値は `1` |\n| `OUTPUT_HTML_FILE` | 任意 | 統計結果を保存するHTMLファイル |\n\n`COUNT`、`MIN`、`MAX`、`RANGE`、`SUM`、`MEAN`、`STD_DEV`、`SUM_OF_SQUARES` も数値出力として返ります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:rasterlayerstatistics')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'descriptio"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタレイヤの統計量」(id: native:rasterlayerstatistics) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:rasterlayerstatistics を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:rasterlayerstatistics\n表示名: [QGIS（ネイティブC++）] ラスタレイヤの統計量\nグループ: ラスタ解析\n用途: 入力ラスタの指定バンドについて、最小値・最大値・平均値・標準偏差などの基本統計量を計算する。\n主なパラメータ\n名前\n必須\n説明\nINPUT\n必須\n対象ラスタレイヤ\nBAND\n必須\n統計を計算するバンド番号。既定値は 1\nOUTPUT_HTML_FILE\n任意\n統計結果を保存するHTMLファイル\n\nCOUNT、MIN、MAX、RANGE、SUM、MEAN、STD_DEV、SUM_OF_SQUARES も数値出力として返ります。"
+}

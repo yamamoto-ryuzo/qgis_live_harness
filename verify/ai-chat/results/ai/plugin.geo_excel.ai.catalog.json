@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_excel.ai.catalog",
+ "prompt": "geo_excel プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_excel プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "`describe_plugins` を再実行して `geo_excel` の自己記述を確認します。`describe_plugins` の `geo_excel` 自己記述です。\n\n- `id`: `geo_excel`\n- `name`: `Excel帳票出力 (geo_excel)`\n- `bridge`: `true`\n- `ok`: `true`\n- `state.scriptCount`: `3`\n- `state.win32com`: `true`\n\n## summary\n\nベクターレイヤの属性情報を Excel 帳票として出力するプラグインです。アクティブレイヤのレイヤ変数 `xlsout_*` でテンプレートと出力先を指定し、一覧帳票・単票・単票一括の3種を実行できます。実行には `win32com`（pywin32）と Excel が必要です。\n\n## when_to_use\n\n- アクティブレイヤの全地物を Excel 一覧帳票に出力する\n- 選択地物の属性を Excel 単票テンプレートへ差し込み出力する\n- 選択地物または全地物の単票を一括出力する\n- `xlsout_*` レイヤ変数を確認・変更する\n- 出力先・テンプレートの既定値を自動設定する\n\n## methods\n\n`applyDefaults`, `checkExcel`, `layerVariables`, `listScripts`, `openSettings`, `regenerateTemplates`, `run`, `setLayerVariables`, `setSettings`, `settings`, `status`"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_excel プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \ndescribe_plugins を再実行して geo_excel の自己記述を確認します。describe_plugins の geo_excel 自己記述です。\nid: geo_excel\nname: Excel帳票出力 (geo_excel)\nbridge: true\nok: true\nstate.scriptCount: 3\nstate.win32com: true\nsummary\nベクターレイヤの属性情報を Excel 帳票として出力するプラグインです。アクティブレイヤのレイヤ変数 xlsout_* でテンプレートと出力先を指定し、一覧帳票・単票・単票一括の3種を実行できます。実行には win32com（pywin32）と Excel が必要です。\nwhen_to_use\nアクティブレイヤの全地物を Excel 一覧帳票に出力する\n選択地物の属性を Excel 単票テンプレートへ差し込み出力する\n選択地物または全地物の単票を一括出力する\nxlsout_* レイヤ変数を確認・変更する\n出力先・テンプレートの既定値を自動設定する\nmethods\napplyDefaults, checkExcel, layerVariables, listScripts, openSettings, regenerateTemplates, run, setLayerVariables, setSettings, settings, status"
+}

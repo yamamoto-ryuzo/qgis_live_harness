@@ -1,0 +1,39 @@
+{
+ "id": "qgis.action.mActionZoomToSelected",
+ "prompt": "QGISの「選択部分にズーム(&S)」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「選択部分にズーム(&S)」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「選択部分にズーム」アクションを探して実行します。見つかりました(有効、ショートカット Ctrl+J)。実行します。実行しました。選択地物があるかと地図の状態を確認します。「選択部分にズーム(&S)」(`mActionZoomToSelected`、Ctrl+J)を実行しました。アクション自体は正常にトリガーされました。\n\nただし現在、両レイヤ(テスト路線レイヤ・テスト地目レイヤ)とも **選択地物が0件** のため、地図は実際にはズームしていません(縮尺は約1:33,361のまま、範囲も変化なし)。\n\n先に地物を選択してから再実行すれば、その選択範囲にズームします。特定の地物を選択してからズームしたい場合は、条件を教えてください。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').replace('&','')\\n    o = a.objectName() or ''\\n    if ('選択部分にズーム' in t) or ('zoomtoselected' in o.lower()):\\n        found.append((o, a.text(), a.isEnabled(), a.shortcut().toString()))\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionZoomToSelected')\\na.trigger()\\nresult = (a.text(), a.isEnabled(), iface.mapCanvas().extent().toString())\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"sel = {lyr.name(): lyr.selectedFeatureCount() for lyr in QgsProject.instance().mapLayers().values() if hasattr(lyr, 'selectedFeatureCount')}\\nresult = (sel, iface.mapCanvas().scale())\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-74ae921d.png', 'target': 'canvas'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「選択部分にズーム(&S)」機能(アクション)を実行して\n[AI] \n「選択部分にズーム」アクションを探して実行します。見つかりました(有効、ショートカット Ctrl+J)。実行します。実行しました。選択地物があるかと地図の状態を確認します。「選択部分にズーム(&S)」(mActionZoomToSelected、Ctrl+J)を実行しました。アクション自体は正常にトリガーされました。\nただし現在、両レイヤ(テスト路線レイヤ・テスト地目レイヤ)とも 選択地物が0件 のため、地図は実際にはズームしていません(縮尺は約1:33,361のまま、範囲も変化なし)。\n先に地物を選択してから再実行すれば、その選択範囲にズームします。特定の地物を選択してからズームしたい場合は、条件を教えてください。"
+}

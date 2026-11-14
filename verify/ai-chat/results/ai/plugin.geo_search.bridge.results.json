@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_search.bridge.results",
+ "prompt": "geo_search プラグインの「results」(直近の検索結果を返す(再検索はしない)。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_search プラグインの「results」(直近の検索結果を返す(再検索はしない)。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`results` を試しました。結果:\n\n```json\n{\n  \"ok\": true,\n  \"total\": 0,\n  \"layers\": [\n    { \"layer\": null, \"layer_id\": null, \"count\": 0, \"features\": [] }\n  ],\n  \"resultVisible\": false\n}\n```\n\nまだ `search` を実行していないため、直近の検索結果は空(`total: 0`)でした。`max_features` 引数(既定200)で返す件数の上限も指定できます。実際の結果を確認するには、先に `search` または `searchAddress` で検索を実行する必要があります。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_search', 'method': 'results'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_search プラグインの「results」(直近の検索結果を返す(再検索はしない)。)を試して。必要な引数は適当な値でよい\n[AI] \nresults を試しました。結果:\n{\n  \"ok\": true,\n  \"total\": 0,\n  \"layers\": [\n    { \"layer\": null, \"layer_id\": null, \"count\": 0, \"features\": [] }\n  ],\n  \"resultVisible\": false\n}\nまだ search を実行していないため、直近の検索結果は空(total: 0)でした。max_features 引数(既定200)で返す件数の上限も指定できます。実際の結果を確認するには、先に search または searchAddress で検索を実行する必要があります。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_removepartsbyarea",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Remove parts by area」(id: native:removepartsbyarea) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Remove parts by area」(id: native:removepartsbyarea) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:removepartsbyarea` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:removepartsbyarea`\n- **表示名**: `[QGIS（ネイティブC++）] Remove parts by area`\n- **グループ**: ベクタジオメトリ\n- **用途**: 指定面積未満のポリゴンまたはマルチポリゴンの個別パートを削除し、クリーニング済みレイヤを作成する。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT` | 必須 | 入力ポリゴンレイヤ |\n| `MIN_AREA` | 必須 | この面積未満のパートを削除。既定値は `0.0` |\n| `OUTPUT` | 必須 | クリーニング済みベクタの出力先 |\n\n面積は入力レイヤのCRS上で直交座標計算されます。すべてのパートが条件未満の地物は出力から除外され、属性は変更されません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:removepartsbyarea')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'description': "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Remove parts by area」(id: native:removepartsbyarea) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:removepartsbyarea を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:removepartsbyarea\n表示名: [QGIS（ネイティブC++）] Remove parts by area\nグループ: ベクタジオメトリ\n用途: 指定面積未満のポリゴンまたはマルチポリゴンの個別パートを削除し、クリーニング済みレイヤを作成する。\n主なパラメータ\n名前\n必須\n説明\nINPUT\n必須\n入力ポリゴンレイヤ\nMIN_AREA\n必須\nこの面積未満のパートを削除。既定値は 0.0\nOUTPUT\n必須\nクリーニング済みベクタの出力先\n\n面積は入力レイヤのCRS上で直交座標計算されます。すべてのパートが条件未満の地物は出力から除外され、属性は変更されません。"
+}

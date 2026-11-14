@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_multiintersection",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 交差（intersect、複数レイヤ）」(id: native:multiintersection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 交差（intersect、複数レイヤ）」(id: native:multiintersection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:multiintersection` の存在とパラメータを確認します。## 確認結果: 存在します ✅\n\n`native:multiintersection` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:multiintersection`\n- **表示名**: 交差（intersect、複数レイヤ）\n- **グループ**: ベクタオーバーレイ\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\n入力レイヤと**複数のオーバーレイレイヤ**の地物が重なり合う部分を抜き出すアルゴリズムです。通常の `native:intersection`（オーバーレイ1枚のみ）に対し、複数のオーバーレイレイヤを一度に指定できます。出力地物には、入力レイヤと**各オーバーレイレイヤ双方の属性**が格納されます。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力レイヤ |\n| `OVERLAYS` | multilayer（必須） | オーバーレイレイヤのリスト（複数指定可） |\n| `OVERLAY_FIELDS_PREFIX` | string（オプション） | オーバーレイ側属性名に付ける接頭辞（フィールド名衝突の回避用） |\n| `OUTPUT` | sink → outputVector | 出力先（交差結果のベクタレイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:multiintersection\", {\n    'INPUT': layer_a,\n    'OVERLAYS': [layer_b, layer_c],\n    'OVERLAY_FIELDS_PREFIX': 'ov_',\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:multiintersection')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional)} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:600], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 交差（intersect、複数レイヤ）」(id: native:multiintersection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:multiintersection の存在とパラメータを確認します。## 確認結果: 存在します ✅\nnative:multiintersection は現在の QGIS の processing registry に登録されています。\nID: native:multiintersection\n表示名: 交差（intersect、複数レイヤ）\nグループ: ベクタオーバーレイ\nプロバイダ: QGIS（ネイティブC++）\n用途\n入力レイヤと複数のオーバーレイレイヤの地物が重なり合う部分を抜き出すアルゴリズムです。通常の native:intersection（オーバーレイ1枚のみ）に対し、複数のオーバーレイレイヤを一度に指定できます。出力地物には、入力レイヤと各オーバーレイレイヤ双方の属性が格納されます。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力レイヤ\nOVERLAYS\nmultilayer（必須）\nオーバーレイレイヤのリスト（複数指定可）\nOVERLAY_FIELDS_PREFIX\nstring（オプション）\nオーバーレイ側属性名に付ける接頭辞（フィールド名衝突の回避用）\nOUTPUT\nsink → outputVector\n出力先（交差結果のベクタレイヤ）\n\n実行例:\nprocessing.run(\"native:multiintersection\", {\n    'INPUT': layer_a,\n    'OVERLAYS': [layer_b, layer_c],\n    'OVERLAY_FIELDS_PREFIX': 'ov_',\n    'OUTPUT': 'memory:'\n})"
+}

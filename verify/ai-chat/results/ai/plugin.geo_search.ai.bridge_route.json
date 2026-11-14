@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_search.ai.bridge_route",
+ "prompt": "geo_search プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_search プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "出力が大きいので、geo_search のセクションだけ抜き出します。`qgis_describe_plugins` で geo_search のカタログ情報を取得しました。`\"bridge\": true` で専用 bridge 搭載、全27メソッドが公開されています。\n\n## geo_search — 地図検索\n\n- **name**: 地図検索 (geo_search)\n- **summary**: レイヤ内の地物を属性値で検索し、結果一覧の表示と地図ズーム・地物選択を行う。検索対象は設定済みの検索タブで決まる。`searchAddress` はジオコーディング(gsi/google/yahoo/osm)で座標取得と地図移動が可能。\n- **invoke**: `bridge_call` / `plugin_id: \"geo_search\"`\n- **state**: dialog 構築済み・非表示・タブ数4\n\n### when_to_use(主な用途)\n\n- 属性値で地物を探す / 検索結果へズーム・選択\n- 住所・地名のジオコーディングと地図移動\n- 検索タブの確認・切替・追加/削除\n- マップテーマの一覧・切替・追加表示、ユーザーテーマ保存/復元\n- geo_search_json・タブ設定の確認/変更\n- 地番検索・所有者検索などタブ固有検索\n\n### メソッド一覧(27件)\n\n| グループ | メソッド |\n|---|---|\n| 検索 | `search(query, tab, show, zoom, ...)` `searchAddress(query, provider, zoom, createLayer)` `suggest(tab, field)` `results(max_features)` |\n| 結果操作 | `zoom(feature_ids, tab_index)` `resultDisplayMode(mode)` `resultPage(page)` |\n| タブ管理 | `listTabs` `selectTab` `addTab` `addTabFromCurrentLayer` `removeTab` `tabSetting` `setTabSetting` `tabOptions` |\n| テーマ | `listThemes` `applyTheme` `themeAdditive` `saveUserTheme` `loadUserTheme` |\n| 設定 | `getSettings` `setSettings` `openSettings` |\n| UI/状態 | `openDialog` `closeDialog` `reloadDialog` `status` `searchOptions` |\n\n先ほど試した `zoom` もこのカタログ通り `zoom(feature_ids=None, tab_index=0)` のシグネチャで、feature_ids 省略時は指定タブ全件へズームする仕様です。全文はオーバーフローファイルにも残っています(geo_search 部分は 1710–2056 行目)。"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_search プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \n出力が大きいので、geo_search のセクションだけ抜き出します。qgis_describe_plugins で geo_search のカタログ情報を取得しました。\"bridge\": true で専用 bridge 搭載、全27メソッドが公開されています。\ngeo_search — 地図検索\nname: 地図検索 (geo_search)\nsummary: レイヤ内の地物を属性値で検索し、結果一覧の表示と地図ズーム・地物選択を行う。検索対象は設定済みの検索タブで決まる。searchAddress はジオコーディング(gsi/google/yahoo/osm)で座標取得と地図移動が可能。\ninvoke: bridge_call / plugin_id: \"geo_search\"\nstate: dialog 構築済み・非表示・タブ数4\nwhen_to_use(主な用途)\n属性値で地物を探す / 検索結果へズーム・選択\n住所・地名のジオコーディングと地図移動\n検索タブの確認・切替・追加/削除\nマップテーマの一覧・切替・追加表示、ユーザーテーマ保存/復元\ngeo_search_json・タブ設定の確認/変更\n地番検索・所有者検索などタブ固有検索\nメソッド一覧(27件)\nグループ\nメソッド\n検索\nsearch(query, tab, show, zoom, ...) searchAddress(query, provider, zoom, createLayer) suggest(tab, field) results(max_features)\n結果操作\nzoom(feature_ids, tab_index) resultDisplayMode(mode) resultPage(page)\nタブ管理\nlistTabs selectTab addTab addTabFromCurrentLayer removeTab tabSetting setTabSetting tabOptions\nテーマ\nlistThemes applyTheme themeAdditive saveUserTheme loadUserTheme\n設定\ngetSettings setSettings openSettings\nUI/状態\nopenDialog closeDialog reloadDialog status searchOptions\n\n先ほど試した zoom もこのカタログ通り zoom(feature_ids=None, tab_index=0) のシグネチャで、feature_ids 省略時は指定タブ全件へズームする仕様です。全文はオーバーフローファイルにも残っています(geo_search 部分は 1710–2056 行目)。"
+}

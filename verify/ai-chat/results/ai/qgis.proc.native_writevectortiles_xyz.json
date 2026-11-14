@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_writevectortiles_xyz",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ベクタタイルを書き出し（XYZ）」(id: native:writevectortiles_xyz) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ベクタタイルを書き出し（XYZ）」(id: native:writevectortiles_xyz) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`native:writevectortiles_xyz` **[QGIS（ネイティブC++）] ベクタタイルを書き出し（XYZ）** は processing registry に登録されています（グループ: ベクタタイル）。\n\n### 用途\n\n1つ以上のベクタレイヤを **XYZ形式のディレクトリ構造（個別 .pbf タイルファイル）として書き出し**ます。Webサーバーへそのまま配置して静的配信できる形式で、1ファイルにまとまる MBTiles 版（`native:writevectortiles_mbtiles`）に対し、こちらは**ホスティング向き**です。\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `LAYERS` | vectortilewriterlayers | — | 入力レイヤ（レイヤごとにタイル内での最小ズーム等を個別設定可能） |\n| `OUTPUT_DIRECTORY` | folderDestination | — | タイル出力先ディレクトリ |\n| `XYZ_TEMPLATE` | string | `{z}/{x}/{y}.pbf` | タイルファイルのパステンプレート |\n| `MIN_ZOOM` / `MAX_ZOOM` | number | 0 / 3 | 生成するタイルのズーム範囲 |\n| `EXTENT` | extent | — | タイル化する領域 |\n\n### 出力\n\n| 出力 | 型 | 説明 |\n|---|---|---|\n| `OUTPUT_DIRECTORY` | outputFolder | 生成タイルを含むディレクトリ |\n\nMBTiles 版と違いメタデータ系パラメータはなく、シンプルにタイルファイルを吐き出すだけの構成です。ズーム上限がタイル数（処理時間・容量）を左右します。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('native:writevectortiles_xyz')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ベクタタイルを書き出し（XYZ）」(id: native:writevectortiles_xyz) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\nnative:writevectortiles_xyz [QGIS（ネイティブC++）] ベクタタイルを書き出し（XYZ） は processing registry に登録されています（グループ: ベクタタイル）。\n用途\n1つ以上のベクタレイヤを XYZ形式のディレクトリ構造（個別 .pbf タイルファイル）として書き出します。Webサーバーへそのまま配置して静的配信できる形式で、1ファイルにまとまる MBTiles 版（native:writevectortiles_mbtiles）に対し、こちらはホスティング向きです。\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nLAYERS\nvectortilewriterlayers\n—\n入力レイヤ（レイヤごとにタイル内での最小ズーム等を個別設定可能）\nOUTPUT_DIRECTORY\nfolderDestination\n—\nタイル出力先ディレクトリ\nXYZ_TEMPLATE\nstring\n{z}/{x}/{y}.pbf\nタイルファイルのパステンプレート\nMIN_ZOOM / MAX_ZOOM\nnumber\n0 / 3\n生成するタイルのズーム範囲\nEXTENT\nextent\n—\nタイル化する領域\n\n出力\n出力\n型\n説明\nOUTPUT_DIRECTORY\noutputFolder\n生成タイルを含むディレクトリ\n\nMBTiles 版と違いメタデータ系パラメータはなく、シンプルにタイルファイルを吐き出すだけの構成です。ズーム上限がタイル数（処理時間・容量）を左右します。"
+}

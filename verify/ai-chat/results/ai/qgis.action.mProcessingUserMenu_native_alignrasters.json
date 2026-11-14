@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mProcessingUserMenu_native_alignrasters",
+ "prompt": "QGISの「Align rasters...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Align rasters...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に「Align rasters...」アクションを調べます。「Align rasters...」アクションも **現在有効（enabled）** です。\n\n## 調査結果\n\n**アクション自体**\n- テキスト: `Align rasters...`（この環境では未翻訳・英語表記のまま）\n- objectName: `mProcessingUserMenu_native:alignrasters`\n- `isEnabled()` = **true**、`isVisible()` = true\n- 配置場所: メニューバー **ラスタ(&R) → Align rasters...**（サブメニューではなくラスタメニュー直下）\n\n**裏側の Processing アルゴリズム**\n- `native:alignrasters` が Processing レジストリに登録済み（表示名: `Align rasters`）\n- プロバイダ: `QGIS（ネイティブC++）`、`isActive()` = true\n\nこれまでの GDAL 系アクションと異なり、これは QGIS ネイティブ（C++）プロバイダのアルゴリズムで、複数ラスタを同一グリッドへリサンプリングするツールです。こちらも問題なく有効です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nhits = []\\ncontainers = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').replace('&','')\\n    on = (a.objectName() or '').lower()\\n    if 'align' in on or 'align' in t.lower() or '位置合わせ' in t or '整列' in t:\\n        hits.append({\\n            'text': t,\\n            'objectName': a.objectName(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n        })\\nfor m in mw.findChildren(QMenu):\\n    for a in m.actions():\\n        t = (a.text() or '').replace('&','')\\n        on = (a.objectName() or '').lower()\\n        if 'align' in on or 'align' in t.lower() or '位置合わせ' in t or '整列' in t:\\n            path = [m.title()]\\n            p = m.parent()\\n            while isinstance(p, QMenu):\\n                path.insert(0, p.title())\\n                p = p.parent()\\n            containers.append({'action_text': t, 'menu_path': ' > '.join(path)})\\nresult = {'actions': hit"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('native:alignrasters')\\nprov = reg.providerById('native') or reg.providerById('qgis')\\nresult = {\\n    'algorithm_found': alg is not None,\\n    'algorithm_display': alg.displayName() if alg else None,\\n    'provider': alg.provider().name() if alg else None,\\n    'provider_isActive': prov.isActive() if prov else None,\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Align rasters...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n同様に「Align rasters...」アクションを調べます。「Align rasters...」アクションも 現在有効（enabled） です。\n調査結果\nアクション自体\nテキスト: Align rasters...（この環境では未翻訳・英語表記のまま）\nobjectName: mProcessingUserMenu_native:alignrasters\nisEnabled() = true、isVisible() = true\n配置場所: メニューバー ラスタ(&R) → Align rasters...（サブメニューではなくラスタメニュー直下）\n裏側の Processing アルゴリズム\nnative:alignrasters が Processing レジストリに登録済み（表示名: Align rasters）\nプロバイダ: QGIS（ネイティブC++）、isActive() = true\nこれまでの GDAL 系アクションと異なり、これは QGIS ネイティブ（C++）プロバイダのアルゴリズムで、複数ラスタを同一グリッドへリサンプリングするツールです。こちらも問題なく有効です。"
+}

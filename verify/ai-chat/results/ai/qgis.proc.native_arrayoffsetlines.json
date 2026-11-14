@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_arrayoffsetlines",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] オフセット線の配列」(id: native:arrayoffsetlines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] オフセット線の配列」(id: native:arrayoffsetlines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認しました。**`native:arrayoffsetlines`（表示名:「オフセット線の配列」、グループ:「ベクタ作成」、プロバイダ:「QGIS（ネイティブC++）」）は存在します**。\n\n## 用途\n**入力ラインから段階的に離れたオフセット線の「配列（アレイ）」を生成**します。各コピーは元の線から `OFFSET × k`（k = 1〜COUNT）の距離だけずれた平行線になるので、等高線状の表示、歩道・車線のような並行構造物の作図、デザイン的なストライプ表現などに使えます。単一オフセット（`native:offsetline`）と違い、複数本を一括生成する点が特徴です。\n\n## 主なパラメータ\n\n| パラメータ | 型 | デフォルト | 説明 |\n|---|---|---|---|\n| `INPUT` | source | — | 入力ラインレイヤ |\n| `COUNT` | number | 10 | 生成するオフセット線の本数 |\n| `OFFSET` | distance | 1.0 | 各線のずれ幅（ステップ距離。レイヤ CRS 単位） |\n| `SEGMENTS` | number | 8 | 丸め結合時の近似セグメント数 |\n| `JOIN_STYLE` | enum | 丸め | 角部の処理：`丸め` / `Miter` / `Bevel` |\n| `MITER_LIMIT` | number | 2 | Miter 結合時の尖りすぎを防ぐ制限比 |\n| `OUTPUT` | sink | — | 出力ラインレイヤ（「オフセット線」） |\n\n補足：\n- 生成される線のオフセット距離は動的（各コピーが `OFFSET` の整数倍だけ離れる）ため、`OFFSET` を負にすると反対側へ配列を作れます。\n- オフセット方向は線の**進行方向に対する片側**（符号で左右）です。両側に欲しい場合は `OFFSET` 符号を変えて 2 回実行するか、`native:offsetline` と併用します。\n- 似た機能の `native:arraytranslatedfeatures`（平行移動地物の配列）は「線をオフセット曲線として変形」ではなく「同じ形を平行にコピー」する点が異なります。曲がった線でも等距離を保つのがこちらの強みです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('native:arrayoffsetlines')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in reg.algorithms() if 'array' in a.id().lower() or 'offset' in a.id().lower()]}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': str(p.defaultValue())}\\n        if hasattr(p, 'options'):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': (alg.shortHelpString() or '')[:1500],\\n        'params': params,\\n    }\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] オフセット線の配列」(id: native:arrayoffsetlines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認しました。native:arrayoffsetlines（表示名:「オフセット線の配列」、グループ:「ベクタ作成」、プロバイダ:「QGIS（ネイティブC++）」）は存在します。\n用途\n入力ラインから段階的に離れたオフセット線の「配列（アレイ）」を生成します。各コピーは元の線から OFFSET × k（k = 1〜COUNT）の距離だけずれた平行線になるので、等高線状の表示、歩道・車線のような並行構造物の作図、デザイン的なストライプ表現などに使えます。単一オフセット（native:offsetline）と違い、複数本を一括生成する点が特徴です。\n主なパラメータ\nパラメータ\n型\nデフォルト\n説明\nINPUT\nsource\n—\n入力ラインレイヤ\nCOUNT\nnumber\n10\n生成するオフセット線の本数\nOFFSET\ndistance\n1.0\n各線のずれ幅（ステップ距離。レイヤ CRS 単位）\nSEGMENTS\nnumber\n8\n丸め結合時の近似セグメント数\nJOIN_STYLE\nenum\n丸め\n角部の処理：丸め / Miter / Bevel\nMITER_LIMIT\nnumber\n2\nMiter 結合時の尖りすぎを防ぐ制限比\nOUTPUT\nsink\n—\n出力ラインレイヤ（「オフセット線」）\n\n補足：\n生成される線のオフセット距離は動的（各コピーが OFFSET の整数倍だけ離れる）ため、OFFSET を負にすると反対側へ配列を作れます。\nオフセット方向は線の進行方向に対する片側（符号で左右）です。両側に欲しい場合は OFFSET 符号を変えて 2 回実行するか、native:offsetline と併用します。\n似た機能の native:arraytranslatedfeatures（平行移動地物の配列）は「線をオフセット曲線として変形」ではなく「同じ形を平行にコピー」する点が異なります。曲がった線でも等距離を保つのがこちらの強みです。"
+}

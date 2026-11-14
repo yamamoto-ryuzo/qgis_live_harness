@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionToggleDatabaseToolBar",
+ "prompt": "QGISの「データベースツールバー」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「データベースツールバー」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「データベースツールバー」のトグルアクションを探して実行します。「データベースツールバー」を有効化しました。\n\n- アクション `mActionToggleDatabaseToolBar` を実行 → チェック ON\n- ツールバー `mDatabaseToolBar` が表示されました\n\nこのツールバーから DB Manager、オフライン編集、eVis などのデータベース関連機能にアクセスできます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\naction = mw.findChild(QAction, 'mActionToggleDatabaseToolBar')\\nif action is None:\\n    cands = [(a.objectName(), a.text(), a.isCheckable(), a.isChecked() if a.isCheckable() else None) for a in mw.findChildren(QAction) if 'データベース' in a.text() or 'atabase' in (a.objectName() or '')]\\n    result = {'action': None, 'candidates': cands}\\nelse:\\n    action.trigger()\\n    tb = mw.findChild(QToolBar, 'mDatabaseToolBar')\\n    result = {'action': action.objectName(), 'checked': action.isChecked(), 'toolbar_visible': tb.isVisible() if tb else None}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「データベースツールバー」機能(アクション)を実行して\n[AI] \n「データベースツールバー」のトグルアクションを探して実行します。「データベースツールバー」を有効化しました。\nアクション mActionToggleDatabaseToolBar を実行 → チェック ON\nツールバー mDatabaseToolBar が表示されました\nこのツールバーから DB Manager、オフライン編集、eVis などのデータベース関連機能にアクセスできます。"
+}

@@ -2,6 +2,7 @@
  "id": "plugin.geo_search.bridge.selectTab",
  "prompt": "geo_search プラグインの「selectTab」(selectTab)を試して。必要な引数は適当な値でよい",
  "provider": "devin_acp",
+ "model": "swe-2-high",
  "history": [
   {
    "role": "user",
@@ -9,7 +10,7 @@
   },
   {
    "role": "assistant",
-   "content": "まず選択可能なタブを確認します。`selectTab(2)` で「全レイヤ」タブを選択します。`selectTab(2)` は成功しました。\n\n現在タブは `各種レイヤ / 全レイヤ` に切り替わっています。"
+   "content": "`selectTab` を試しました。結果:\n\n- `selectTab(\"住所検索\")` → `{\"ok\": true, \"selected\": {\"index\": 3, \"title\": \"住所検索\"}, \"current\": \"住所検索\"}`\n- `status` で確認: `currentTab` が index 3「住所検索」に切り替わっています\n\nついでに分かることとして、先ほどの検索の入力値「春日井市役所」と結果(レイヤ `geo_search 住所検索`、3件)も status に残っていました。`selectTab` はタイトルだけでなく index や `{group, title}` でも指定できます。"
   }
  ],
  "tools": [
@@ -18,16 +19,12 @@
  "audit": [
   {
    "type": "bridge_call",
-   "args": "{'plugin_id': 'geo_search', 'args': [], 'method': 'listTabs'}"
+   "args": "{'method': 'selectTab', 'plugin_id': 'geo_search', 'args': ['住所検索']}"
   },
   {
    "type": "bridge_call",
-   "args": "{'method': 'selectTab', 'plugin_id': 'geo_search', 'args': [2]}"
-  },
-  {
-   "type": "bridge_call",
-   "args": "{'method': 'status', 'args': [], 'plugin_id': 'geo_search'}"
+   "args": "{'plugin_id': 'geo_search', 'method': 'status'}"
   }
  ],
- "view_tail": "[あなた] geo_search プラグインの「selectTab」(selectTab)を試して。必要な引数は適当な値でよい\n[AI] \nまず選択可能なタブを確認します。selectTab(2) で「全レイヤ」タブを選択します。selectTab(2) は成功しました。\n現在タブは 各種レイヤ / 全レイヤ に切り替わっています。"
+ "view_tail": "[あなた] geo_search プラグインの「selectTab」(selectTab)を試して。必要な引数は適当な値でよい\n[AI] \nselectTab を試しました。結果:\nselectTab(\"住所検索\") → {\"ok\": true, \"selected\": {\"index\": 3, \"title\": \"住所検索\"}, \"current\": \"住所検索\"}\nstatus で確認: currentTab が index 3「住所検索」に切り替わっています\nついでに分かることとして、先ほどの検索の入力値「春日井市役所」と結果(レイヤ geo_search 住所検索、3件)も status に残っていました。selectTab はタイトルだけでなく index や {group, title} でも指定できます。"
 }

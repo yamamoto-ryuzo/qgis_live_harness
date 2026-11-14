@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_importphotos",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオタグ（位置情報）付きの写真」(id: native:importphotos) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオタグ（位置情報）付きの写真」(id: native:importphotos) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:importphotos` は **processing registry に存在します**。\n\n- **表示名**: ジオタグ（位置情報）付きの写真\n- **グループ**: ベクタ作成 (`vectorcreation`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n指定フォルダ内の **JPEG / HEIF・HEIC 画像の EXIF ジオタグ（GPS 情報）を読み取り、撮影位置を PointZ ポイントレイヤとして作成**するアルゴリズムです。ジオタグに高度情報があれば Z 値として格納されます。フィールドワーク写真のマッピング、ドローン/スマホ写真の位置確認などに使います。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `FOLDER` | 写真が入っているフォルダ（必須） | — |\n| `RECURSIVE` | サブフォルダも再帰的に検索 | `False` |\n| `OUTPUT` | 出力ポイントレイヤ（任意） | 一時レイヤ |\n| `INVALID` | ジオタグを読めなかった写真の一覧テーブル（任意） | — |\n\n- `OUTPUT`: ジオタグが読めた各画像に対応する PointZ フィーチャを持つレイヤ\n- `INVALID`: 位置情報が無い・EXIF が壊れている等でスキップされたファイルのリスト\n\n出力はフィーチャシンク型なので、ファイル保存先または `TEMPORARY_OUTPUT` を指定します。\n\n実行例: `processing.run(\"native:importphotos\", {'FOLDER': 'C:/photos', 'RECURSIVE': True, 'OUTPUT': 'TEMPORARY_OUTPUT', 'INVALID': 'TEMPORARY_OUTPUT'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:importphotos')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'provi"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオタグ（位置情報）付きの写真」(id: native:importphotos) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:importphotos は processing registry に存在します。\n表示名: ジオタグ（位置情報）付きの写真\nグループ: ベクタ作成 (vectorcreation)\nプロバイダ: QGIS（ネイティブ C++）\n用途\n指定フォルダ内の JPEG / HEIF・HEIC 画像の EXIF ジオタグ（GPS 情報）を読み取り、撮影位置を PointZ ポイントレイヤとして作成するアルゴリズムです。ジオタグに高度情報があれば Z 値として格納されます。フィールドワーク写真のマッピング、ドローン/スマホ写真の位置確認などに使います。\n主なパラメータ\n名前\n説明\n既定値\nFOLDER\n写真が入っているフォルダ（必須）\n—\nRECURSIVE\nサブフォルダも再帰的に検索\nFalse\nOUTPUT\n出力ポイントレイヤ（任意）\n一時レイヤ\nINVALID\nジオタグを読めなかった写真の一覧テーブル（任意）\n—\n\nOUTPUT: ジオタグが読めた各画像に対応する PointZ フィーチャを持つレイヤ\nINVALID: 位置情報が無い・EXIF が壊れている等でスキップされたファイルのリスト\n出力はフィーチャシンク型なので、ファイル保存先または TEMPORARY_OUTPUT を指定します。\n実行例: processing.run(\"native:importphotos\", {'FOLDER': 'C:/photos', 'RECURSIVE': True, 'OUTPUT': 'TEMPORARY_OUTPUT', 'INVALID': 'TEMPORARY_OUTPUT'})"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_approximatemedialaxis",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Approximate medial axis」(id: native:approximatemedialaxis) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Approximate medial axis」(id: native:approximatemedialaxis) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認しました。**`native:approximatemedialaxis`（表示名:「Approximate medial axis」、グループ:「ベクタジオメトリ」、プロバイダ:「QGIS（ネイティブC++）」）は存在します**。\n\n## 用途\n**ポリゴンの形状の中心構造（メディアル軸＝中軸）を近似計算し、ライン群として出力**するアルゴリズムです。建物フットプリントの中心線、道路ポリゴン・河川ポリゴンの中央線（センターライン）抽出、形状のスケルトン化などに使えます。ポリゴン内部に「密度の高いポイントのボロノイ」を利用した近似方式で、**形状のトポロジーを保ちつつノイズを無視した安定した細い曲線**が得られます。Z 値は無視され、3D ジオメトリは 2D 投影して計算されます。\n\n## 主なパラメータ\n\n| パラメータ | 型 | 説明 |\n|---|---|---|\n| `INPUT` | source | 入力ポリゴンレイヤ |\n| `OUTPUT` | sink | 出力ラインレイヤ（「Medial axis」） |\n\n補足：\n- パラメータは入力・出力のみで、チューニング用の設定（サンプリング密度等）はありません。\n- 似た用途の `native:polygonstolines` や「センターライン」系アルゴリズムと異なり、**細長いポリゴンの中央線抽出に特化**した出力になります。\n- 河川・道路のポリゴンからネットワーク解析用の中心線を作る前処理や、建物の主軸推定などが代表例です。精度が足りない場合は、SAGA GIS の \"Polygon Skeleton\" 系アルゴリズムと結果を比較すると良いです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('native:approximatemedialaxis')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in reg.algorithms() if 'medial' in a.id().lower() or 'skeleton' in a.id().lower() or 'axis' in a.id().lower()]}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': str(p.defaultValue())}\\n        if hasattr(p, 'options'):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': (alg.shortHelpString() or '')[:1500],\\n        'params': params,\\n    }\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Approximate medial axis」(id: native:approximatemedialaxis) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認しました。native:approximatemedialaxis（表示名:「Approximate medial axis」、グループ:「ベクタジオメトリ」、プロバイダ:「QGIS（ネイティブC++）」）は存在します。\n用途\nポリゴンの形状の中心構造（メディアル軸＝中軸）を近似計算し、ライン群として出力するアルゴリズムです。建物フットプリントの中心線、道路ポリゴン・河川ポリゴンの中央線（センターライン）抽出、形状のスケルトン化などに使えます。ポリゴン内部に「密度の高いポイントのボロノイ」を利用した近似方式で、形状のトポロジーを保ちつつノイズを無視した安定した細い曲線が得られます。Z 値は無視され、3D ジオメトリは 2D 投影して計算されます。\n主なパラメータ\nパラメータ\n型\n説明\nINPUT\nsource\n入力ポリゴンレイヤ\nOUTPUT\nsink\n出力ラインレイヤ（「Medial axis」）\n\n補足：\nパラメータは入力・出力のみで、チューニング用の設定（サンプリング密度等）はありません。\n似た用途の native:polygonstolines や「センターライン」系アルゴリズムと異なり、細長いポリゴンの中央線抽出に特化した出力になります。\n河川・道路のポリゴンからネットワーク解析用の中心線を作る前処理や、建物の主軸推定などが代表例です。精度が足りない場合は、SAGA GIS の \"Polygon Skeleton\" 系アルゴリズムと結果を比較すると良いです。"
+}

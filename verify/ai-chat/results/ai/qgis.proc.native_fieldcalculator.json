@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_fieldcalculator",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] フィールド計算機」(id: native:fieldcalculator) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] フィールド計算機」(id: native:fieldcalculator) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の Processing registry に存在します。\n\n- **ID**: `native:fieldcalculator`\n- **表示名**: フィールド計算機\n- **グループ**: ベクタテーブル\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n\n## 用途\n\n入力レイヤの全フィーチャをコピーし、QGIS式の結果を属性として追加した新しいレイヤを作成します。  \n既存フィールド名を指定した場合は値を上書きし、新しいフィールド名の場合は指定した型・長さ・精度で追加します。\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ベクタレイヤ（必須） |\n| `FIELD_NAME` | 作成・更新する属性名（必須） |\n| `FIELD_TYPE` | 新規フィールドの型。数値、文字列、日付、ブール、BLOB、各種リストなど |\n| `FIELD_LENGTH` | フィールド長（必須） |\n| `FIELD_PRECISION` | 小数精度（必須） |\n| `FORMULA` | フィーチャごとに評価するQGIS式（必須） |\n| `OUTPUT` | 計算結果を含む出力レイヤ（必須） |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:fieldcalculator')\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'options': p.options() if hasattr(p, 'options') else None,\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else []\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] フィールド計算機」(id: native:fieldcalculator) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の Processing registry に存在します。\nID: native:fieldcalculator\n表示名: フィールド計算機\nグループ: ベクタテーブル\n種別: QGIS ネイティブ C++ アルゴリズム\n用途\n入力レイヤの全フィーチャをコピーし、QGIS式の結果を属性として追加した新しいレイヤを作成します。\n既存フィールド名を指定した場合は値を上書きし、新しいフィールド名の場合は指定した型・長さ・精度で追加します。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ベクタレイヤ（必須）\nFIELD_NAME\n作成・更新する属性名（必須）\nFIELD_TYPE\n新規フィールドの型。数値、文字列、日付、ブール、BLOB、各種リストなど\nFIELD_LENGTH\nフィールド長（必須）\nFIELD_PRECISION\n小数精度（必須）\nFORMULA\nフィーチャごとに評価するQGIS式（必須）\nOUTPUT\n計算結果を含む出力レイヤ（必須）\n"
+}

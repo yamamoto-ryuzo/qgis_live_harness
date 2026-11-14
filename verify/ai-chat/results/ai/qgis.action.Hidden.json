@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Hidden",
+ "prompt": "QGISの「Hidden」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Hidden」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Hidden」関連のアクションを検索します。調査結果です。\n\n## 「Hidden」は **有効（選択中）** — 2箇所あり、両方ONです\n\n「Hidden」は排他選択グループの選択肢で、2つ見つかりました：\n\n| # | 配置メニュー | checkable | **checked** |\n|---|---|---|---|\n| 1 | 「Show Area」サブメニュー内 | true | **true → ON** |\n| 2 | 「Show Total Length/Perimeter」サブメニュー内 | true | **true → ON** |\n\nこれはフローター設定の排他オプションで、「Hidden = その項目をフローターに表示しない」の意味です。\n\n前回「Show Area」の子オプション（Ellipsoidal / Cartesian)が両方OFFだった理由がこれで分かります —— **3択グループで「Hidden」が選択されている**からです：\n\n- Show Area: ☑ Hidden / ☐ Ellipsoidal / ☐ Cartesian → **面積欄は非表示**\n- Show Total Length/Perimeter: ☑ Hidden / ☐ （おそらく同じくEllipsoidal/Cartesian) → **周長欄も非表示**\n\n面積や周長をフローターに出したい場合は、それぞれのサブメニューで Ellipsoidal または Cartesian を選ぶ（`a.trigger()`）ことで Hidden が自動的に外れます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    on = (a.objectName() or '')\\n    tt = (a.toolTip() or '')\\n    if 'hidden' in t.lower() or 'hidden' in on.lower() or 'hidden' in tt.lower() or '非表示' in t or '隠' in t:\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': t,\\n            'objectName': on,\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            'tooltip': tt,\\n            "
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Hidden」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Hidden」関連のアクションを検索します。調査結果です。\n「Hidden」は 有効（選択中） — 2箇所あり、両方ONです\n「Hidden」は排他選択グループの選択肢で、2つ見つかりました：\n#\n配置メニュー\ncheckable\nchecked\n1\n「Show Area」サブメニュー内\ntrue\ntrue → ON\n2\n「Show Total Length/Perimeter」サブメニュー内\ntrue\ntrue → ON\n\nこれはフローター設定の排他オプションで、「Hidden = その項目をフローターに表示しない」の意味です。\n前回「Show Area」の子オプション（Ellipsoidal / Cartesian)が両方OFFだった理由がこれで分かります —— 3択グループで「Hidden」が選択されているからです：\nShow Area: ☑ Hidden / ☐ Ellipsoidal / ☐ Cartesian → 面積欄は非表示\nShow Total Length/Perimeter: ☑ Hidden / ☐ （おそらく同じくEllipsoidal/Cartesian) → 周長欄も非表示\n面積や周長をフローターに出したい場合は、それぞれのサブメニューで Ellipsoidal または Cartesian を選ぶ（a.trigger()）ことで Hidden が自動的に外れます。"
+}

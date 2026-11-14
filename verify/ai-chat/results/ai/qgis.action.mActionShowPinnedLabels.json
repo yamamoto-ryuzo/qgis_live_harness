@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionShowPinnedLabels",
+ "prompt": "QGISの「固定されたラベル・ダイアグラム・引出し線の強調表示」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「固定されたラベル・ダイアグラム・引出し線の強調表示」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「固定されたラベル・ダイアグラム・引出し線の強調表示」(`mActionShowPinnedLabels`)を実行します。実行しました。\n\n## 「固定されたラベル・ダイアグラム・引出し線の強調表示」を実行 → **ONになりました**\n\n| 項目 | 値 |\n|---|---|\n| アクション | `mActionShowPinnedLabels`（ラベルツールバー内、トグル式） |\n| enabled | true |\n| checked | false → **true(ON)** |\n| 現在のマップツール | `QgsMapToolFeatureAction`（変化なし） |\n\nこれは表示設定トグルなので、マップツールは切り替わらずそのまま（地物アクションのまま）です。\n\n効果：手動指定などで位置が固定されているラベル・ダイアグラム・引出し線の周囲に**強調枠（緑色の枠）が表示**されるようになります。\n\nなお現在のレイヤには地物も固定ラベルもないため、画面上の変化はありません。OFFに戻したい場合は `a.trigger()` の再実行で切り替わります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nout = {}\\nfor a in mw.findChildren(QAction):\\n    if (a.objectName() or '') == 'mActionShowPinnedLabels':\\n        out['enabled_before'] = a.isEnabled()\\n        out['checked_before'] = a.isChecked()\\n        a.trigger()\\n        out['checked_after'] = a.isChecked()\\n        out['triggered'] = True\\n        break\\nmt = iface.mapCanvas().mapTool()\\nout['current_mapTool'] = mt.metaObject().className() if mt else None\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「固定されたラベル・ダイアグラム・引出し線の強調表示」機能(アクション)を実行して\n[AI] \n「固定されたラベル・ダイアグラム・引出し線の強調表示」(mActionShowPinnedLabels)を実行します。実行しました。\n「固定されたラベル・ダイアグラム・引出し線の強調表示」を実行 → ONになりました\n項目\n値\nアクション\nmActionShowPinnedLabels（ラベルツールバー内、トグル式）\nenabled\ntrue\nchecked\nfalse → true(ON)\n現在のマップツール\nQgsMapToolFeatureAction（変化なし）\n\nこれは表示設定トグルなので、マップツールは切り替わらずそのまま（地物アクションのまま）です。\n効果：手動指定などで位置が固定されているラベル・ダイアグラム・引出し線の周囲に強調枠（緑色の枠）が表示されるようになります。\nなお現在のレイヤには地物も固定ラベルもないため、画面上の変化はありません。OFFに戻したい場合は a.trigger() の再実行で切り替わります。"
+}

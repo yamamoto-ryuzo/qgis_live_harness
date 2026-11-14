@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_condition",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 条件分け」(id: native:condition) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 条件分け」(id: native:condition) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:condition` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] 条件分け`\n- **ID**: `native:condition`\n- **グループ**: `モデラーツール`\n- **用途**: Graphical Modeler 内に条件分岐を追加し、式が `True` と評価された場合だけ、その分岐に依存する後続処理を実行します。モデル内の if 文に相当します。\n\nパラメータについては、レジストリ上の通常の `parameterDefinitions()` は空で、モデル編集時に次の組み合わせとして定義します。\n\n| 設定 | 内容 |\n|---|---|\n| `BRANCH` | 条件分岐の名前 |\n| `CONDITION` | 分岐を有効にするか評価する QGIS 式 |\n\n出力はありません。後続アルゴリズムの「依存関係」として分岐名を指定することで、その条件が成立した場合だけ処理を実行します。\n\nこのアルゴリズムはモデラー専用で、Toolbox から直接実行する用途ではありません。実際のフラグにも `HideFromToolbox` が設定されています。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:condition')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue', 'expression', 'parentLayerParameterName'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n  "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 条件分け」(id: native:condition) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:condition を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] 条件分け\nID: native:condition\nグループ: モデラーツール\n用途: Graphical Modeler 内に条件分岐を追加し、式が True と評価された場合だけ、その分岐に依存する後続処理を実行します。モデル内の if 文に相当します。\nパラメータについては、レジストリ上の通常の parameterDefinitions() は空で、モデル編集時に次の組み合わせとして定義します。\n設定\n内容\nBRANCH\n条件分岐の名前\nCONDITION\n分岐を有効にするか評価する QGIS 式\n\n出力はありません。後続アルゴリズムの「依存関係」として分岐名を指定することで、その条件が成立した場合だけ処理を実行します。\nこのアルゴリズムはモデラー専用で、Toolbox から直接実行する用途ではありません。実際のフラグにも HideFromToolbox が設定されています。"
+}

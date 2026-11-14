@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_randompointsinsidepolygons",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] ポリゴン内部にランダム点群（inside）」(id: qgis:randompointsinsidepolygons) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] ポリゴン内部にランダム点群（inside）」(id: qgis:randompointsinsidepolygons) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。存在を確認しました。`qgis:randompointsinsidepolygons` は registry に登録されています。\n\n## [QGIS] ポリゴン内部にランダム点群(inside)\n\n**用途**: ポリゴンレイヤの**各地物内部**にランダムな点を配置した新しいポイントレイヤを作成するアルゴリズム(グループ: ベクタ作成)。`randompointsinlayerbounds`(矩形領域)と違い、点が必ずポリゴン形状の内側に入ります。ポリゴンごとのサンプリング(集水域・行政区内の調査点など)に向きます。\n\n**主なパラメータ**:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ポリゴンレイヤ |\n| `STRATEGY` | 生成基準 — `0`: 点の数 / `1`: 点の密度(単位面積あたり) |\n| `VALUE` | 各ポリゴンに生成する点の数または密度(デフォルト 1) |\n| `EXPRESSION` | ポリゴンごとに値を変えたい場合の式(データ定義オーバーライド)。属性値を参照してポリゴンごとに点数を変えられる |\n| `MIN_DISTANCE` | 点間最小距離(レイヤの距離単位) |\n| `OUTPUT` | 出力ポイントレイヤ |\n\n注意点: `STRATEGY` が「点の密度」の場合、ポリゴンが小さい・密度が低いと点が0になることもあります。また `MIN_DISTANCE` はポリゴン間をまたいだ近接にも適用されるので、大きすぎると所定数に達しない場合があります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:randompointsinsidepolygons')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'randompoints' in a.id().lower()]}\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': type(p).__name__, 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()]\\n    outputs = [{'name': o.name(), 'desc': o.description()} for o in alg.outputDefinitions()]\\n    enum_opts = {p.name(): p.options() for p in alg.parameterDefinitions() if type(p).__name__ == 'QgsProcessingParameterEnum'}\\n    result = {'found': True, 'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'params': params, 'enums': enum_opts, 'outputs': outputs, 'shortHelp': (alg.shortHelpString() or '')[:800]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] ポリゴン内部にランダム点群（inside）」(id: qgis:randompointsinsidepolygons) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。存在を確認しました。qgis:randompointsinsidepolygons は registry に登録されています。\n[QGIS] ポリゴン内部にランダム点群(inside)\n用途: ポリゴンレイヤの各地物内部にランダムな点を配置した新しいポイントレイヤを作成するアルゴリズム(グループ: ベクタ作成)。randompointsinlayerbounds(矩形領域)と違い、点が必ずポリゴン形状の内側に入ります。ポリゴンごとのサンプリング(集水域・行政区内の調査点など)に向きます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n入力ポリゴンレイヤ\nSTRATEGY\n生成基準 — 0: 点の数 / 1: 点の密度(単位面積あたり)\nVALUE\n各ポリゴンに生成する点の数または密度(デフォルト 1)\nEXPRESSION\nポリゴンごとに値を変えたい場合の式(データ定義オーバーライド)。属性値を参照してポリゴンごとに点数を変えられる\nMIN_DISTANCE\n点間最小距離(レイヤの距離単位)\nOUTPUT\n出力ポイントレイヤ\n\n注意点: STRATEGY が「点の密度」の場合、ポリゴンが小さい・密度が低いと点が0になることもあります。また MIN_DISTANCE はポリゴン間をまたいだ近接にも適用されるので、大きすぎると所定数に達しない場合があります。"
+}

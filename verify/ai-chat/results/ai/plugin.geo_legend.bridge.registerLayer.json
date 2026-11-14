@@ -1,0 +1,35 @@
+{
+ "id": "plugin.geo_legend.bridge.registerLayer",
+ "prompt": "geo_legend プラグインの「registerLayer」(指定レイヤを legend_* プロジェクト変数として登録する。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_legend プラグインの「registerLayer」(指定レイヤを legend_* プロジェクト変数として登録する。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "別レイヤを用意して `registerLayer` で指定登録してみます。`registerLayer` を正常に実行できました。\n\n**手順**:\n1. ラインのメモリレイヤ「テスト路線レイヤ」をプロジェクトに追加\n2. `registerLayer(layer_id, 2)` で layer_id を指定して登録\n\n**結果**: `legend_*` 変数が2件になりました。\n\n| 変数名 | 値（優先度） | 解決先 |\n|---|---|---|\n| `legend_テスト地目レイヤ` | 1 | テスト地目レイヤ |\n| `legend_テスト路線レイヤ` | 2 | テスト路線レイヤ |\n\n**確認**: `listDatasets` で凡例対象コンボに2件が並び、新規登録した「テスト路線レイヤ」が選択状態（`current: 1`）になっています。凡例ドック側でも対象レイヤが切り替わりました。\n\n`registerCurrentLayer`（アクティブレイヤ対象・ドックの「登録」ボタン相当）に対し、`registerLayer` は layer_id/レイヤ名で任意のレイヤを登録できる点が違いです。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsVectorLayer\\nvl2 = QgsVectorLayer('LineString?crs=EPSG:4326', 'テスト路線レイヤ', 'memory')\\nQgsProject.instance().addMapLayer(vl2)\\nresult = vl2.id()\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'registerLayer', 'args': ['_________4ef8edf6_a482_4835_b29d_2b32270ae0ea', 2], 'plugin_id': 'geo_legend'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_legend', 'method': 'listDatasets', 'args': []}"
+  }
+ ],
+ "view_tail": "[あなた] geo_legend プラグインの「registerLayer」(指定レイヤを legend_* プロジェクト変数として登録する。)を試して。必要な引数は適当な値でよい\n[AI] \n別レイヤを用意して registerLayer で指定登録してみます。registerLayer を正常に実行できました。\n手順:\nラインのメモリレイヤ「テスト路線レイヤ」をプロジェクトに追加\nregisterLayer(layer_id, 2) で layer_id を指定して登録\n結果: legend_* 変数が2件になりました。\n変数名\n値（優先度）\n解決先\nlegend_テスト地目レイヤ\n1\nテスト地目レイヤ\nlegend_テスト路線レイヤ\n2\nテスト路線レイヤ\n\n確認: listDatasets で凡例対象コンボに2件が並び、新規登録した「テスト路線レイヤ」が選択状態（current: 1）になっています。凡例ドック側でも対象レイヤが切り替わりました。\nregisterCurrentLayer（アクティブレイヤ対象・ドックの「登録」ボタン相当）に対し、registerLayer は layer_id/レイヤ名で任意のレイヤを登録できる点が違いです。"
+}

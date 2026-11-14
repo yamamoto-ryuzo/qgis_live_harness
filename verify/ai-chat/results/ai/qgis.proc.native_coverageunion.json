@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_coverageunion",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Dissolve coverage」(id: native:coverageunion) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Dissolve coverage」(id: native:coverageunion) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:coverageunion` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] Dissolve coverage`\n- **ID**: `native:coverageunion`\n- **グループ**: `Vector coverage`\n- **用途**: 境界が正確に一致するポリゴンカバレッジを融合し、全体の union / dissolved geometry を作成します。通常の `Dissolve` より、行政区画や土地利用ポリゴンなどの隣接ポリゴン群を高速に結合するためのアルゴリズムです。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 融合対象のポリゴンカバレッジレイヤ |\n| `OUTPUT` | 融合後のポリゴンレイヤ |\n\nこの処理は、ポリゴン同士が重ならず共有境界が一致している有効なカバレッジを前提とした最適化です。属性フィールドによるグループ別融合は行わず、レイヤ全体を対象にします。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:coverageunion')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({\\n            'n"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Dissolve coverage」(id: native:coverageunion) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:coverageunion を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] Dissolve coverage\nID: native:coverageunion\nグループ: Vector coverage\n用途: 境界が正確に一致するポリゴンカバレッジを融合し、全体の union / dissolved geometry を作成します。通常の Dissolve より、行政区画や土地利用ポリゴンなどの隣接ポリゴン群を高速に結合するためのアルゴリズムです。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n融合対象のポリゴンカバレッジレイヤ\nOUTPUT\n融合後のポリゴンレイヤ\n\nこの処理は、ポリゴン同士が重ならず共有境界が一致している有効なカバレッジを前提とした最適化です。属性フィールドによるグループ別融合は行わず、レイヤ全体を対象にします。"
+}

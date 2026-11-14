@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.EnableSnappingAction",
+ "prompt": "QGISの「スナップを切り替え」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「スナップを切り替え」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "スナップツールバー上の「スナップを切り替え」に相当するアクションを特定してから実行します。対象は `EnableSnappingAction`（現在 ON）です。アクションを実行して状態を検証します。「スナップを切り替え」アクションを実行しました。\n\n- 対象アクション: `EnableSnappingAction`\n- 実行前: `checked=True`, スナップ有効\n- 実行後: `checked=False`, スナップ無効\n- `snappingUtils().config().enabled()`: `False`\n\n現在、**スナップは OFF の状態**です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QToolBar, QAction\\nwin = iface.mainWindow()\\ntb = win.findChild(QToolBar, 'mSnappingToolBar')\\nrows = []\\nfor i, a in enumerate(tb.actions() if tb else []):\\n    w = tb.widgetForAction(a)\\n    rows.append({\\n        'index': i,\\n        'qtClass': a.metaObject().className(),\\n        'objectName': a.objectName(),\\n        'text': a.text(),\\n        'iconText': a.iconText(),\\n        'toolTip': a.toolTip(),\\n        'enabled': a.isEnabled(),\\n        'visible': a.isVisible(),\\n        'checkable': a.isCheckable(),\\n        'checked': a.isChecked(),\\n        'widget_class': w.metaObject().className() if w else None,\\n        'widget_objectName': w.objectName() if w else None,\\n        'widget_enabled': w.isEnabled() if w else None,\\n        'widget_visible': w.isVisible() if w else None,\\n        'widget_text': w.text() if w and hasattr(w, 'text') else None,\\n        'widget_toolTip': w.toolTip() if w and hasattr(w, 'toolTip') else None,\\n       "
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nfrom qgis.PyQt.QtCore import QCoreApplication\\nwin = iface.mainWindow()\\ntb = win.findChild(QToolBar, 'mSnappingToolBar')\\na = win.findChild(QAction, 'EnableSnappingAction')\\nif a is None:\\n    result = {'executed': False, 'error': 'EnableSnappingAction not found'}\\nelse:\\n    before = {\\n        'checked': a.isChecked(),\\n        'enabled': a.isEnabled(),\\n        'config_enabled': iface.mapCanvas().snappingUtils().config().enabled(),\\n    }\\n    a.trigger()\\n    QCoreApplication.processEvents()\\n    after = {\\n        'checked': a.isChecked(),\\n        'enabled': a.isEnabled(),\\n        'config_enabled': iface.mapCanvas().snappingUtils().config().enabled(),\\n        'widget_checked': tb.widgetForAction(a).isChecked() if tb and tb.widgetForAction(a) else None,\\n        'widget_enabled': tb.widgetForAction(a).isEnabled() if tb and tb.widgetForAction(a) else None,\\n        'widget_visible': tb.widgetForAction(a).isVisible() if"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「スナップを切り替え」機能(アクション)を実行して\n[AI] \nスナップツールバー上の「スナップを切り替え」に相当するアクションを特定してから実行します。対象は EnableSnappingAction（現在 ON）です。アクションを実行して状態を検証します。「スナップを切り替え」アクションを実行しました。\n対象アクション: EnableSnappingAction\n実行前: checked=True, スナップ有効\n実行後: checked=False, スナップ無効\nsnappingUtils().config().enabled(): False\n現在、スナップは OFF の状態です。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_convertgeometrytype",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Convert geometry type」(id: native:convertgeometrytype) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Convert geometry type」(id: native:convertgeometrytype) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:convertgeometrytype` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] Convert geometry type`\n- **ID**: `native:convertgeometrytype`\n- **グループ**: `ベクタジオメトリ`\n- **用途**: ベクタレイヤのジオメトリを別のジオメトリタイプへ変換した新しいレイヤを作成します。例えば、ポリゴンを境界ラインや重心ポイントへ、ラインをノードポイントへ変換できます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 変換対象のベクタレイヤ |\n| `TYPE` | 変換後のジオメトリタイプ。`重心`、`Nodes`、`Linestrings`、`Multilinestrings`、`ポリゴン（Polygons）` から選択 |\n| `OUTPUT` | 変換後の地物を含む出力レイヤ |\n\nすべての組み合わせが変換できるわけではありません。例えば、ラインレイヤからポイントは作成できますが、ポイントレイヤからラインは作成できません。`Polygonize` や `Lines to polygons` など、別アルゴリズムが適する場合もあります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:convertgeometrytype')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({\\n        "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Convert geometry type」(id: native:convertgeometrytype) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:convertgeometrytype を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] Convert geometry type\nID: native:convertgeometrytype\nグループ: ベクタジオメトリ\n用途: ベクタレイヤのジオメトリを別のジオメトリタイプへ変換した新しいレイヤを作成します。例えば、ポリゴンを境界ラインや重心ポイントへ、ラインをノードポイントへ変換できます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n変換対象のベクタレイヤ\nTYPE\n変換後のジオメトリタイプ。重心、Nodes、Linestrings、Multilinestrings、ポリゴン（Polygons） から選択\nOUTPUT\n変換後の地物を含む出力レイヤ\n\nすべての組み合わせが変換できるわけではありません。例えば、ラインレイヤからポイントは作成できますが、ポイントレイヤからラインは作成できません。Polygonize や Lines to polygons など、別アルゴリズムが適する場合もあります。"
+}

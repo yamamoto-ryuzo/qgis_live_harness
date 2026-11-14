@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_randompointsonlines",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線の上のランダム点群」(id: native:randompointsonlines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線の上のランダム点群」(id: native:randompointsonlines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:randompointsonlines` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:randompointsonlines`\n- **表示名**: `[QGIS（ネイティブC++）] 線の上のランダム点群`\n- **グループ**: ベクタ作成\n- **用途**: 入力線レイヤの各地物上に、指定数のランダム点を持つ点レイヤを作成する。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT` | 必須 | 入力線レイヤ |\n| `POINTS_NUMBER` | 必須 | 各地物上に生成する点の数。既定値は `1` |\n| `MIN_DISTANCE` | 任意 | 同一線上の点同士の最小距離 |\n| `MIN_DISTANCE_GLOBAL` | 任意 | レイヤ全体での点同士の最小距離 |\n| `MAX_TRIES_PER_POINT` | 任意 | 点生成の最大試行回数。既定値は `10` |\n| `SEED` | 任意 | 再現用の乱数シード |\n| `INCLUDE_LINE_ATTRIBUTES` | 必須 | 元の線属性を点へ引き継ぐか。既定値は `true` |\n| `OUTPUT` | 必須 | 生成点群の出力先 |\n\nほかに、生成点数や生成失敗数を示す数値出力も返します。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:randompointsonlines')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'description'"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線の上のランダム点群」(id: native:randompointsonlines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:randompointsonlines を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:randompointsonlines\n表示名: [QGIS（ネイティブC++）] 線の上のランダム点群\nグループ: ベクタ作成\n用途: 入力線レイヤの各地物上に、指定数のランダム点を持つ点レイヤを作成する。\n主なパラメータ\n名前\n必須\n説明\nINPUT\n必須\n入力線レイヤ\nPOINTS_NUMBER\n必須\n各地物上に生成する点の数。既定値は 1\nMIN_DISTANCE\n任意\n同一線上の点同士の最小距離\nMIN_DISTANCE_GLOBAL\n任意\nレイヤ全体での点同士の最小距離\nMAX_TRIES_PER_POINT\n任意\n点生成の最大試行回数。既定値は 10\nSEED\n任意\n再現用の乱数シード\nINCLUDE_LINE_ATTRIBUTES\n必須\n元の線属性を点へ引き継ぐか。既定値は true\nOUTPUT\n必須\n生成点群の出力先\n\nほかに、生成点数や生成失敗数を示す数値出力も返します。"
+}

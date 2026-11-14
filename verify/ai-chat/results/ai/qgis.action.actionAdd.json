@@ -1,0 +1,34 @@
+{
+ "id": "qgis.action.actionAdd",
+ "prompt": "QGISの「追加」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「追加」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「追加」というテキストを持つアクションを検索します(同名が複数ある可能性があるので全件調べます)。完全一致ではブックマーク用の1件のみでした。前回までの流れ(メッシュ編集コンテキストメニュー)に関連する可能性もあるので、`QgsMapToolAdvancedDigitizing` 配下で「追加」を含むアクションも確認します。調査結果です。テキストが**ちょうど「追加」**のアクションは1件だけ存在し、現在 **有効(isEnabled = True)** です。\n\n## 完全一致「追加」\n\n| 項目 | 値 |\n|---|---|\n| オブジェクト名 | `actionAdd` |\n| 表示テキスト | 追加 |\n| toolTip | ブックマークを追加する |\n| isEnabled | **True** |\n| isVisible | True |\n| 親オブジェクト | `BookmarksDockWidget`(空間ブックマーク ドック) |\n\n## 参考:「追加」を含む他のアクション(27件すべて `isEnabled = True`)\n\n`QgsMapToolAdvancedDigitizing` 配下に「追加」系アクションは見つかりませんでした(前回までのメッシュ編集メニューには存在しない)。主な候補は以下です。\n\n| objectName | テキスト |\n|---|---|\n| `mActionAddFeature` | ポリゴン地物を追加 |\n| `mActionAddRing` | リングを追加 |\n| `mActionAddPart` | 部分を追加 |\n| `mActionAddLayers` | レイヤを追加(ブラウザパネル) |\n| その他 | ベクタ/ラスタ/WMS/メッシュ等「…レイヤを追加…」一式 |\n\nなお、これらは QAction の `isEnabled()` が True という意味での「有効」です。`mActionAddFeature`(ポリゴン地物を追加)のように、実際の使用可否が選択レイヤや編集モードに依存するものも、現時点ではすべて enabled でした。\n\nもし特定の「追加」アクション(メニューやツールバーのもの)を意図している場合は、対象をもう少し教えてください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').replace('&', '')\\n    tt = (a.toolTip() or '').replace('&', '')\\n    if t.strip() == '追加' or tt.strip() == '追加':\\n        found.append({\\n            'objectName': a.objectName(),\\n            'text': a.text(),\\n            'tooltip': a.toolTip(),\\n            'isEnabled': a.isEnabled(),\\n            'isVisible': a.isVisible(),\\n            'isCheckable': a.isCheckable(),\\n            'isChecked': a.isChecked(),\\n            'class': a.__class__.__name__,\\n            'parent': (a.parent().objectName(), a.parent().__class__.__name__) if a.parent() else None,\\n        })\\nresult = {'count': len(found), 'found': found}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\n# actions owned by QgsMapToolAdvancedDigitizing whose text contains 追加 (or Add)\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    p = a.parent()\\n    pcls = p.__class__.__name__ if p else ''\\n    if 'AdvancedDigitizing' in pcls:\\n        t = (a.text() or '').replace('&', '')\\n        if '追加' in t or 'Add' in t:\\n            found.append({\\n                'objectName': a.objectName(),\\n                'text': a.text(),\\n                'isEnabled': a.isEnabled(),\\n                'isVisible': a.isVisible(),\\n                'parent_class': pcls,\\n            })\\n# also list ALL actions owned by the current map tool for context\\nmt = iface.mapCanvas().mapTool()\\nall_tool_actions = [(a.objectName(), a.text(), a.isEnabled()) for a in mt.findChildren(QAction)] if mt else []\\nresult = {'contains_add': found, 'all_actions_of_current_tool': all_tool_actions}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').replace('&', '')\\n    if '追加' in t:\\n        p = a.parent()\\n        found.append({\\n            'objectName': a.objectName(),\\n            'text': t,\\n            'isEnabled': a.isEnabled(),\\n            'isVisible': a.isVisible(),\\n            'parent': (p.objectName(), p.__class__.__name__) if p else None,\\n        })\\nresult = {'count': len(found), 'found': found}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「追加」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「追加」というテキストを持つアクションを検索します(同名が複数ある可能性があるので全件調べます)。完全一致ではブックマーク用の1件のみでした。前回までの流れ(メッシュ編集コンテキストメニュー)に関連する可能性もあるので、QgsMapToolAdvancedDigitizing 配下で「追加」を含むアクションも確認します。調査結果です。テキストが**ちょうど「追加」**のアクションは1件だけ存在し、現在 有効(isEnabled = True) です。\n完全一致「追加」\n項目\n値\nオブジェクト名\nactionAdd\n表示テキスト\n追加\ntoolTip\nブックマークを追加する\nisEnabled\nTrue\nisVisible\nTrue\n親オブジェクト\nBookmarksDockWidget(空間ブックマーク ドック)\n\n参考:「追加」を含む他のアクション(27件すべて isEnabled = True)\nQgsMapToolAdvancedDigitizing 配下に「追加」系アクションは見つかりませんでした(前回までのメッシュ編集メニューには存在しない)。主な候補は以下です。\nobjectName\nテキスト\nmActionAddFeature\nポリゴン地物を追加\nmActionAddRing\nリングを追加\nmActionAddPart\n部分を追加\nmActionAddLayers\nレイヤを追加(ブラウザパネル)\nその他\nベクタ/ラスタ/WMS/メッシュ等「…レイヤを追加…」一式\n\nなお、これらは QAction の isEnabled() が True という意味での「有効」です。mActionAddFeature(ポリゴン地物を追加)のように、実際の使用可否が選択レイヤや編集モードに依存するものも、現時点ではすべて enabled でした。\nもし特定の「追加」アクション(メニューやツールバーのもの)を意図している場合は、対象をもう少し教えてください。"
+}

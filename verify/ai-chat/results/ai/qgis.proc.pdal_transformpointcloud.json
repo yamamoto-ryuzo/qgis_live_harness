@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.pdal_transformpointcloud",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Transform point cloud」(id: pdal:transformpointcloud) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Transform point cloud」(id: pdal:transformpointcloud) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`pdal:transformpointcloud` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `pdal:transformpointcloud`\n- **表示名**: `Transform point cloud`\n- **Provider**: `QGIS (PDAL)`\n- **グループ**: `Point cloud data management`\n\n### 用途\n点群座標にアフィン変換を適用します。平行移動・回転・拡大縮小を組み合わせて、4×4 変換行列として実行されます。  \n処理順は **スケール → 回転 → 平行移動**、回転角は各軸まわりの度数法です。CRS の再投影ではありません。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---:|\n| `INPUT` | 入力点群レイヤ | — |\n| `TRANSLATE_X` / `TRANSLATE_Y` / `TRANSLATE_Z` | 各軸方向の平行移動量 | `0.0` |\n| `SCALE_X` / `SCALE_Y` / `SCALE_Z` | 各軸方向の拡大縮小率 | `1.0` |\n| `ROTATE_X` / `ROTATE_Y` / `ROTATE_Z` | 各軸まわりの回転角（度） | `0.0` |\n| `VPC_OUTPUT_FORMAT` | VPC 出力の内部形式（`COPC` / `LAZ` / `LAS`） | `COPC` |\n| `OUTPUT` | 変換後の点群出力先 | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('pdal:transformpointcloud')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'transform' in a.id().lower() or 'transform' in a.displayName().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n               "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Transform point cloud」(id: pdal:transformpointcloud) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \npdal:transformpointcloud を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: pdal:transformpointcloud\n表示名: Transform point cloud\nProvider: QGIS (PDAL)\nグループ: Point cloud data management\n用途\n点群座標にアフィン変換を適用します。平行移動・回転・拡大縮小を組み合わせて、4×4 変換行列として実行されます。\n処理順は スケール → 回転 → 平行移動、回転角は各軸まわりの度数法です。CRS の再投影ではありません。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\n入力点群レイヤ\n—\nTRANSLATE_X / TRANSLATE_Y / TRANSLATE_Z\n各軸方向の平行移動量\n0.0\nSCALE_X / SCALE_Y / SCALE_Z\n各軸方向の拡大縮小率\n1.0\nROTATE_X / ROTATE_Y / ROTATE_Z\n各軸まわりの回転角（度）\n0.0\nVPC_OUTPUT_FORMAT\nVPC 出力の内部形式（COPC / LAZ / LAS）\nCOPC\nOUTPUT\n変換後の点群出力先\n—\n"
+}

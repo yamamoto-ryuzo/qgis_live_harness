@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_webview.bridge.endpoints",
+ "prompt": "QGISの geo_webview プラグインで「HTTPサーバが公開するエンドポイント一覧と基底URLを返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_webview プラグインで「HTTPサーバが公開するエンドポイント一覧と基底URLを返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`endpoints` を実行します。`endpoints` の結果です。\n\n## HTTPサーバ エンドポイント一覧\n\n**状態**: 稼働中・ポート 8090\n**基底URL**: `http://100.64.1.82:8090`(localhost: `http://localhost:8090`)\n\n| パス | 説明 |\n|---|---|\n| `/kasugai` | KASUGAI Canvas エクスポート・登録・起動(`?engine=cesium\\|openlayers\\|maplibre\\|leaflet\\|gsimaps\\|navara`) |\n| `/export-data/<rel>` | 直近エクスポート物(.kasc+DATA/)の配信 |\n| `/present` | QGISキャンバスのウィンドウ共有ページ |\n| `/present/state` | キャンバス状態JSON(追従モード用) |\n| `/screenshot` | 現在のキャンバス表示PNG |\n| `/received` | 受領パーマリンク履歴JSON |\n| `/live/state` | 連携状態+キャンバス状態+選択署名JSON |\n| `/live/layers` | レイヤカタログ(kascタイトル付き) |\n| `/live/features?layer=<title>&bbox=w,s,e,n` | オンデマンド地物配信(GeoJSON) |\n| `/live/selection` | QGIS側選択地物(GeoJSON) |\n| `/live/render?bbox=w,s,e,n&w=&h=` | 4326範囲のマップ描画PNG(QGIS描画フォールバック) |\n\n計11エンドポイント。なお外部端末からのアクセスには、先の `checkAccess` で警告が出た通り Windows ファイアウォールで TCP 8090 の許可ルールが必要です。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'endpoints', 'args': [], 'plugin_id': 'geo_webview'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_webview プラグインで「HTTPサーバが公開するエンドポイント一覧と基底URLを返す。」を実行して結果を教えて\n[AI] \nendpoints を実行します。endpoints の結果です。\nHTTPサーバ エンドポイント一覧\n状態: 稼働中・ポート 8090 基底URL: http://100.64.1.82:8090(localhost: http://localhost:8090)\nパス\n説明\n/kasugai\nKASUGAI Canvas エクスポート・登録・起動(?engine=cesium\\|openlayers\\|maplibre\\|leaflet\\|gsimaps\\|navara)\n/export-data/<rel>\n直近エクスポート物(.kasc+DATA/)の配信\n/present\nQGISキャンバスのウィンドウ共有ページ\n/present/state\nキャンバス状態JSON(追従モード用)\n/screenshot\n現在のキャンバス表示PNG\n/received\n受領パーマリンク履歴JSON\n/live/state\n連携状態+キャンバス状態+選択署名JSON\n/live/layers\nレイヤカタログ(kascタイトル付き)\n/live/features?layer=<title>&bbox=w,s,e,n\nオンデマンド地物配信(GeoJSON)\n/live/selection\nQGIS側選択地物(GeoJSON)\n/live/render?bbox=w,s,e,n&w=&h=\n4326範囲のマップ描画PNG(QGIS描画フォールバック)\n\n計11エンドポイント。なお外部端末からのアクセスには、先の checkAccess で警告が出た通り Windows ファイアウォールで TCP 8090 の許可ルールが必要です。"
+}

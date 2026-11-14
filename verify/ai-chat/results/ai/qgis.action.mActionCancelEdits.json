@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionCancelEdits",
+ "prompt": "QGISの「選択レイヤの編集キャンセル」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「選択レイヤの編集キャンセル」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「選択レイヤの編集キャンセル」アクションの現在状態とアクティブレイヤの編集状態を確認します。`選択レイヤの編集キャンセル` アクションは**現在無効**です。\n\n確認結果:\n\n- 表示名: `選択レイヤの編集キャンセル`\n- objectName: `mActionCancelEdits`\n- 有効: `false`\n- 表示: `true`\n- ショートカット: なし\n- 所在メニュー: `現在の編集`\n- 所在ツールバー: なし\n- 現在のアクティブレイヤ: なし\n- プロジェクト内レイヤ数: `0`\n\n編集中のレイヤがないため、現時点では実行できません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\n\\naction = iface.mainWindow().findChild(QAction, 'mActionCancelEdits')\\nactive_layer = iface.activeLayer()\\nmenus = [m.title() for m in iface.mainWindow().findChildren(QMenu) if action in m.actions()]\\ntoolbars = [tb.windowTitle() for tb in iface.mainWindow().findChildren(QToolBar) if action in tb.actions()]\\nresult = {\\n    'action_found': action is not None,\\n    'text': action.text() if action else None,\\n    'objectName': action.objectName() if action else None,\\n    'enabled': action.isEnabled() if action else None,\\n    'visible': action.isVisible() if action else None,\\n    'shortcut': action.shortcut().toString() if action else None,\\n    'tooltip': action.toolTip() if action else None,\\n    'menus': menus,\\n    'toolbars': toolbars,\\n    'active_layer': active_layer.name() if active_layer else None,\\n    'active_layer_is_editable': active_layer.isEditable() if active_layer else None,\\n    'active_layer_is_modi"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「選択レイヤの編集キャンセル」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「選択レイヤの編集キャンセル」アクションの現在状態とアクティブレイヤの編集状態を確認します。選択レイヤの編集キャンセル アクションは現在無効です。\n確認結果:\n表示名: 選択レイヤの編集キャンセル\nobjectName: mActionCancelEdits\n有効: false\n表示: true\nショートカット: なし\n所在メニュー: 現在の編集\n所在ツールバー: なし\n現在のアクティブレイヤ: なし\nプロジェクト内レイヤ数: 0\n編集中のレイヤがないため、現時点では実行できません。"
+}

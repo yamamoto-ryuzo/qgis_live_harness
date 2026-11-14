@@ -1,0 +1,35 @@
+{
+ "id": "qgis.action.geo_launcher",
+ "prompt": "QGISの「geo_launcher」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「geo_launcher」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "`geo_launcher` 関連のアクションを検索します（GeoSuiteツールバーでは「Kasugai QGIS Launcher」という名前でした）。`&geo_launcher` サブメニューの中身を確認します。プラグインのbridgeも確認します。調査結果です。\n\n## 「geo_launcher」アクション\n\n`geo_launcher` プラグイン関連のアクションは2箇所にあり、どちらも有効です。\n\n**① プラグインメニュー（`&geo_launcher`、QMenu(geolauncher)）**\n\n| 項目 | 値 |\n|---|---|\n| isEnabled | **true（有効）** |\n| サブメニュー | 「Kasugai QGIS Launcher」「ランチャーを開く」「設定...」全て enabled |\n\n**② GeoSuite ツールバーボタン「Kasugai QGIS Launcher」**\n- enabled、非チェック型（パネル/ダイアログを開く実行型）\n\n## プラグイン自体の状態\n\n`geo_launcher` は loaded & active、bridge 公開済み（pluginInfo 取得）。\n\n- **機能**: Rust/Axum製の `kasugai_qgis` ランチャー（QGIS/QField起動ツール）を QGIS内からインストール/アンインストール/起動\n- **現在の状態（state）**: `installed=true`（qgis_launcher.exe 検出済み）、`launched_via_launcher=false`（このQGISはランチャー経由起動ではない）\n- **bridgeメソッド**: `status / isInstalled / install / uninstall / launch / openDialog / openSettings / getSettings / setSettings / installStatus / openDocs`\n\n## まとめ\n\n- 「geo_launcher」メニュー・ツールバーアクション共に **有効（enabled）** です。\n- ランチャー本体はインストール済みなので、「ランチャーを開く」または bridge の `launch` でそのまま起動可能な状態です。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nhits = []\\nfor x in mw.findChildren(QAction):\\n    blob = ((x.text() or '') + '|' + (x.objectName() or '') + '|' + (x.toolTip() or '')).lower()\\n    if 'launcher' in blob or 'geo_launcher' in blob or 'kasugai' in blob or '春日井' in blob:\\n        p = x.parent()\\n        chain = []\\n        while p is not None:\\n            name = p.objectName() or (p.windowTitle() if hasattr(p, 'windowTitle') else '') or ''\\n            chain.append(type(p).__name__ + '(' + name + ')')\\n            p = p.parent()\\n        hits.append({'text': x.text(), 'objectName': x.objectName(), 'enabled': x.isEnabled(),\\n                     'checkable': x.isCheckable(), 'checked': x.isChecked(), 'has_menu': x.menu() is not None,\\n                     'tooltip': (x.toolTip() or '')[:80], 'chain': chain})\\nresult = hits\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = None\\nfor x in mw.findChildren(QAction):\\n    if (x.text() or '') == '&geo_launcher':\\n        a = x\\n        break\\nm = a.menu()\\ntry:\\n    m.aboutToShow.emit()\\nexcept Exception:\\n    pass\\nitems = [{'text': s.text(), 'objectName': s.objectName(), 'enabled': s.isEnabled(),\\n          'checkable': s.isCheckable(), 'checked': s.isChecked(), 'has_menu': s.menu() is not None} for s in m.actions()]\\nresult = {'action_enabled': a.isEnabled(), 'menu_items': items}\\n\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_launcher', 'method': 'pluginInfo'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「geo_launcher」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \ngeo_launcher 関連のアクションを検索します（GeoSuiteツールバーでは「Kasugai QGIS Launcher」という名前でした）。&geo_launcher サブメニューの中身を確認します。プラグインのbridgeも確認します。調査結果です。\n「geo_launcher」アクション\ngeo_launcher プラグイン関連のアクションは2箇所にあり、どちらも有効です。\n① プラグインメニュー（&geo_launcher、QMenu(geolauncher)）\n項目\n値\nisEnabled\ntrue（有効）\nサブメニュー\n「Kasugai QGIS Launcher」「ランチャーを開く」「設定...」全て enabled\n\n② GeoSuite ツールバーボタン「Kasugai QGIS Launcher」\nenabled、非チェック型（パネル/ダイアログを開く実行型）\nプラグイン自体の状態\ngeo_launcher は loaded & active、bridge 公開済み（pluginInfo 取得）。\n機能: Rust/Axum製の kasugai_qgis ランチャー（QGIS/QField起動ツール）を QGIS内からインストール/アンインストール/起動\n現在の状態（state）: installed=true（qgis_launcher.exe 検出済み）、launched_via_launcher=false（このQGISはランチャー経由起動ではない）\nbridgeメソッド: status / isInstalled / install / uninstall / launch / openDialog / openSettings / getSettings / setSettings / installStatus / openDocs\nまとめ\n「geo_launcher」メニュー・ツールバーアクション共に 有効（enabled） です。\nランチャー本体はインストール済みなので、「ランチャーを開く」または bridge の launch でそのまま起動可能な状態です。"
+}

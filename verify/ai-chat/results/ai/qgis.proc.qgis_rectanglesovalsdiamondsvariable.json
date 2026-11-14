@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_rectanglesovalsdiamondsvariable",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] 長方形・楕円・ダイヤモンド（可変）」(id: qgis:rectanglesovalsdiamondsvariable) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] 長方形・楕円・ダイヤモンド（可変）」(id: qgis:rectanglesovalsdiamondsvariable) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。存在を確認しました。`qgis:rectanglesovalsdiamondsvariable` は registry に登録されています。\n\n## [QGIS] 長方形・楕円・ダイヤモンド(可変)\n\n**用途**: ポイントレイヤの各地物を中心に、長方形・楕円・ダイヤモンド形のポリゴンを生成するアルゴリズム(グループ: ベクタジオメトリ)。「可変(variable)」の名の通り、**幅・高さ・回転角を属性フィールドから地物ごとに取得**できるのが特徴で、建物 footprint やマーカー表示、サイズの異なるシンボル領域の作成などに使えます。\n\n**主なパラメータ**:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ポイントレイヤ |\n| `SHAPE` | 形状 — `0`: 長方形 / `1`: ダイヤモンド / `2`: 楕円形 |\n| `WIDTH` | 幅を持つ属性フィールド |\n| `HEIGHT` | 高さを持つ属性フィールド |\n| `ROTATION` | 回転角(度)を持つ属性フィールド(省略可) |\n| `SEGMENTS` | 楕円近似のセグメント数(デフォルト 36) |\n| `OUTPUT` | 出力ポリゴンレイヤ |\n\n注意点: マルチパート入力は先に「マルチパートをシングルパートに分解」しておく必要があります。全地物で固定サイズにしたい場合は固定値版の「長方形・楕円・ダイヤモンド(固定)」を使います。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:rectanglesovalsdiamondsvariable')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'rect' in a.id().lower() or 'oval' in a.id().lower() or 'diamond' in a.id().lower()]}\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': type(p).__name__, 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()]\\n    outputs = [{'name': o.name(), 'desc': o.description()} for o in alg.outputDefinitions()]\\n    enum_opts = {p.name(): p.options() for p in alg.parameterDefinitions() if type(p).__name__ == 'QgsProcessingParameterEnum'}\\n    result = {'found': True, 'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'params': params, 'enums': enum_opts, 'outputs': outputs, 'shortHelp': (alg.shortHelpString() or '')[:800]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] 長方形・楕円・ダイヤモンド（可変）」(id: qgis:rectanglesovalsdiamondsvariable) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。存在を確認しました。qgis:rectanglesovalsdiamondsvariable は registry に登録されています。\n[QGIS] 長方形・楕円・ダイヤモンド(可変)\n用途: ポイントレイヤの各地物を中心に、長方形・楕円・ダイヤモンド形のポリゴンを生成するアルゴリズム(グループ: ベクタジオメトリ)。「可変(variable)」の名の通り、幅・高さ・回転角を属性フィールドから地物ごとに取得できるのが特徴で、建物 footprint やマーカー表示、サイズの異なるシンボル領域の作成などに使えます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n入力ポイントレイヤ\nSHAPE\n形状 — 0: 長方形 / 1: ダイヤモンド / 2: 楕円形\nWIDTH\n幅を持つ属性フィールド\nHEIGHT\n高さを持つ属性フィールド\nROTATION\n回転角(度)を持つ属性フィールド(省略可)\nSEGMENTS\n楕円近似のセグメント数(デフォルト 36)\nOUTPUT\n出力ポリゴンレイヤ\n\n注意点: マルチパート入力は先に「マルチパートをシングルパートに分解」しておく必要があります。全地物で固定サイズにしたい場合は固定値版の「長方形・楕円・ダイヤモンド(固定)」を使います。"
+}

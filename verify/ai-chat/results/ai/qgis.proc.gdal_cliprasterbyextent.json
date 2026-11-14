@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_cliprasterbyextent",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 範囲を指定してラスタを切り抜く」(id: gdal:cliprasterbyextent) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 範囲を指定してラスタを切り抜く」(id: gdal:cliprasterbyextent) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:cliprasterbyextent` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:cliprasterbyextent` |\n| 表示名 | 範囲を指定してラスタを切り抜く |\n| プロバイダ | GDAL |\n| グループ | ラスタ抽出 |\n\n## 用途\n\nラスタを**矩形範囲(エクステント)で切り抜き**ます(`gdal_translate -projwin` に相当)。画面に表示されている範囲やレイヤの領域、座標値指定の矩形でトリミングする用途です。ポリゴンなどの任意形状で切り抜きたい場合は、別アルゴリズムの「ポリゴンを指定してラスタを切り抜く」(`gdal:cliprasterbymasklayer`)を使います。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ラスタレイヤ | 必須 |\n| `PROJWIN` | 切り抜く範囲(矩形エクステント) | 必須 |\n| `OVERCRS` | 出力の CRS を `PROJWIN` の CRS で上書き | false |\n| `NODATA` | 出力バンドに指定 NoData 値を設定 | 任意 |\n| `OPTIONS` / `CREATION_OPTIONS` | 追加オプション | 任意 |\n| `DATA_TYPE` | 出力データ型(入力と同じ / Byte〜Float64 / CInt16〜CFloat64 / Int8) | 入力と同じ |\n| `EXTRA` | 追加コマンドラインパラメータ | 任意 |\n| `OUTPUT` | 出力ラスタファイル | 必須 |\n\n実行例: `processing.run(\"gdal:cliprasterbyextent\", {\"INPUT\": r, \"PROJWIN\": \"135.0,135.5,34.5,35.0 [EPSG:4326]\", \"OUTPUT\": \"clipped.tif\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:cliprasterbyextent')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'clip' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 範囲を指定してラスタを切り抜く」(id: gdal:cliprasterbyextent) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:cliprasterbyextent をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:cliprasterbyextent\n表示名\n範囲を指定してラスタを切り抜く\nプロバイダ\nGDAL\nグループ\nラスタ抽出\n\n用途\nラスタを矩形範囲(エクステント)で切り抜きます(gdal_translate -projwin に相当)。画面に表示されている範囲やレイヤの領域、座標値指定の矩形でトリミングする用途です。ポリゴンなどの任意形状で切り抜きたい場合は、別アルゴリズムの「ポリゴンを指定してラスタを切り抜く」(gdal:cliprasterbymasklayer)を使います。\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n入力ラスタレイヤ\n必須\nPROJWIN\n切り抜く範囲(矩形エクステント)\n必須\nOVERCRS\n出力の CRS を PROJWIN の CRS で上書き\nfalse\nNODATA\n出力バンドに指定 NoData 値を設定\n任意\nOPTIONS / CREATION_OPTIONS\n追加オプション\n任意\nDATA_TYPE\n出力データ型(入力と同じ / Byte〜Float64 / CInt16〜CFloat64 / Int8)\n入力と同じ\nEXTRA\n追加コマンドラインパラメータ\n任意\nOUTPUT\n出力ラスタファイル\n必須\n\n実行例: processing.run(\"gdal:cliprasterbyextent\", {\"INPUT\": r, \"PROJWIN\": \"135.0,135.5,34.5,35.0 [EPSG:4326]\", \"OUTPUT\": \"clipped.tif\"})"
+}

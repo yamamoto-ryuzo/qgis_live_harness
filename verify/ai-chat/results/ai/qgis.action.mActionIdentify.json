@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionIdentify",
+ "prompt": "QGISの「地物情報を表示」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「地物情報を表示」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「地物情報を表示」アクションを探して実行します。実行しました。\n\n- アクション: `mActionIdentify`「地物情報を表示」(Ctrl+Shift+I)\n- 実行後: **`checked: true`**、マップツールは `QgsMapToolIdentify` に切り替わりました\n\nキャンバス上で地物をクリックすると、属性情報のパネル/ダイアログが開きます。複数レイヤがある場合は「地物情報の表示設定」(アクティブレイヤのみ/上位から順/全レイヤ)に従って結果が出ます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    n = a.objectName() or ''\\n    if '地物情報' in t or 'dentify' in n or 'Identify' in t:\\n        found.append({'objectName': n, 'text': t, 'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked(), 'shortcut': a.shortcut().toString()})\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionIdentify')\\ninfo = {'enabled': a.isEnabled()}\\na.trigger()\\ninfo['checked'] = a.isChecked()\\ninfo['mapTool'] = type(iface.mapCanvas().mapTool()).__name__\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「地物情報を表示」機能(アクション)を実行して\n[AI] \n「地物情報を表示」アクションを探して実行します。実行しました。\nアクション: mActionIdentify「地物情報を表示」(Ctrl+Shift+I)\n実行後: checked: true、マップツールは QgsMapToolIdentify に切り替わりました\nキャンバス上で地物をクリックすると、属性情報のパネル/ダイアログが開きます。複数レイヤがある場合は「地物情報の表示設定」(アクティブレイヤのみ/上位から順/全レイヤ)に従って結果が出ます。"
+}

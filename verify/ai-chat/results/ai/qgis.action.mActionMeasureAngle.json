@@ -1,0 +1,31 @@
+{
+ "id": "qgis.action.mActionMeasureAngle",
+ "prompt": "QGISの「角度を測る」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「角度を測る」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「角度を測る」アクションを探して実行します。実行されました。画面を確認します。「角度を測る」ツールを実行しました。`mActionMeasureAngle` アクションをトリガーし、有効(チェック状態)になっています。\n\n地図キャンバス上でクリックして折れ線を描き、右クリックで確定すると、各頂点での角度が計測ダイアログに表示されます。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionMeasureAngle')\\nif a is None:\\n    cands = [(x.objectName(), x.text()) for x in iface.mainWindow().findChildren(QAction) if '角度' in (x.text() or '') or 'angle' in (x.objectName() or '').lower()]\\n    result = ('not found', cands)\\nelse:\\n    a.trigger()\\n    result = (a.text(), a.isChecked())\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-1cb902cb.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「角度を測る」機能(アクション)を実行して\n[AI] \n「角度を測る」アクションを探して実行します。実行されました。画面を確認します。「角度を測る」ツールを実行しました。mActionMeasureAngle アクションをトリガーし、有効(チェック状態)になっています。\n地図キャンバス上でクリックして折れ線を描き、右クリックで確定すると、各頂点での角度が計測ダイアログに表示されます。"
+}

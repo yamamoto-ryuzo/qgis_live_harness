@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Show_Z_Value",
+ "prompt": "QGISの「Show Z Value」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Show Z Value」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Show Z Value」関連のアクションを検索します。調査結果です。\n\n## 「Show Z Value」は **有効(ON)** です\n\n| 項目 | 値 |\n|---|---|\n| text | `Show Z Value` |\n| checkable | true（トグル式） |\n| **checked** | **true → 有効（ON)** |\n| enabled | true（押下可能） |\n| 配置 | メニュー「**Floater settings**」内 |\n| ショートカット | なし |\n\nフローターに**Z値入力欄を表示するか**の設定で、現在ONです。なおZ欄は、編集中のレイヤがZ値を持つジオメトリ（PointZ 等）の場合にのみ実際に表示されます。\n\n「Floater settings」系の現状（すべてON):\n- Show Floater: **ON**\n- Show Distance: **ON**\n- Show Angle: **ON**\n- Show XY Coordinates: **ON**\n- Show Z Value: **ON**\n\nOFFにしたい場合は `a.trigger()` で切り替えられます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    on = (a.objectName() or '')\\n    tt = (a.toolTip() or '')\\n    if ' z ' in (' ' + t.lower() + ' ') or 'z value' in t.lower() or 'z value' in on.lower() or 'z value' in tt.lower() or ' z値' in t:\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': t,\\n            'objectName': on,\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            '"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Show Z Value」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Show Z Value」関連のアクションを検索します。調査結果です。\n「Show Z Value」は 有効(ON) です\n項目\n値\ntext\nShow Z Value\ncheckable\ntrue（トグル式）\nchecked\ntrue → 有効（ON)\nenabled\ntrue（押下可能）\n配置\nメニュー「Floater settings」内\nショートカット\nなし\n\nフローターにZ値入力欄を表示するかの設定で、現在ONです。なおZ欄は、編集中のレイヤがZ値を持つジオメトリ（PointZ 等）の場合にのみ実際に表示されます。\n「Floater settings」系の現状（すべてON):\nShow Floater: ON\nShow Distance: ON\nShow Angle: ON\nShow XY Coordinates: ON\nShow Z Value: ON\nOFFにしたい場合は a.trigger() で切り替えられます。"
+}

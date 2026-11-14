@@ -2,6 +2,7 @@
  "id": "plugin.geo_search.bridge.status",
  "prompt": "geo_search の状態を確認して",
  "provider": "devin_acp",
+ "model": "swe-2-high",
  "history": [
   {
    "role": "user",
@@ -9,22 +10,17 @@
   },
   {
    "role": "assistant",
-   "content": "`geo_search` の現在状態を確認します。`geo_search` は利用可能です。\n\n- bridge: 有効\n- 検索ダイアログ: 作成済み・非表示\n- 現在タブ: `各種レイヤ / カレントレイヤ`\n- 入力: 空\n- 検索結果: 0件"
+   "content": "geo_search の現在の状態です(`status` より):\n\n| 項目 | 状態 |\n|---|---|\n| ダイアログ | 存在するが非表示(`dialogVisible: false`) |\n| 結果ダイアログ | 非表示(`resultVisible: false`) |\n| 現在のタブ | index 3「住所検索」 |\n| 入力値 | 「春日井市役所」 |\n| 検索結果 | レイヤ `geo_search 住所検索` に3件 |\n\n補足: この間の試行で `pan_mode` は `6`(選択のみ)、テーマ追加表示モードは `true`、結果表示モードは `form` になっています。必要なら元の値に戻します。"
   }
  ],
  "tools": [
-  "bridge_call",
-  "status"
+  "bridge_call"
  ],
  "audit": [
   {
-   "type": "status",
-   "args": "{}"
-  },
-  {
    "type": "bridge_call",
-   "args": "{'plugin_id': 'geo_search', 'args': [], 'method': 'status'}"
+   "args": "{'plugin_id': 'geo_search', 'method': 'status'}"
   }
  ],
- "view_tail": "[あなた] geo_search の状態を確認して\n[AI] \ngeo_search の現在状態を確認します。geo_search は利用可能です。\nbridge: 有効\n検索ダイアログ: 作成済み・非表示\n現在タブ: 各種レイヤ / カレントレイヤ\n入力: 空\n検索結果: 0件"
+ "view_tail": "[あなた] geo_search の状態を確認して\n[AI] \ngeo_search の現在の状態です(status より):\n項目\n状態\nダイアログ\n存在するが非表示(dialogVisible: false)\n結果ダイアログ\n非表示(resultVisible: false)\n現在のタブ\nindex 3「住所検索」\n入力値\n「春日井市役所」\n検索結果\nレイヤ geo_search 住所検索 に3件\n\n補足: この間の試行で pan_mode は 6(選択のみ)、テーマ追加表示モードは true、結果表示モードは form になっています。必要なら元の値に戻します。"
 }

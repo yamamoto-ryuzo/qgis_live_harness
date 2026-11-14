@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.qgis_randomextractwithinsubsets",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] 地物のグループ別ランダム抽出」(id: qgis:randomextractwithinsubsets) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] 地物のグループ別ランダム抽出」(id: qgis:randomextractwithinsubsets) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。`METHOD` の選択肢も確認します。存在を確認しました。`qgis:randomextractwithinsubsets` は registry に登録されています。\n\n## [QGIS] 地物のグループ別ランダム抽出\n\n**用途**: ベクタレイヤから地物をランダムに抽出して新しいレイヤを作るアルゴリズム(グループ: ベクタ選択)。通常のランダム抽出と違い、指定した属性フィールドの値ごと(グループ別)に抽出を行うのが特徴です。例えば「都道府県ごとに10件ずつ」「土地利用区分ごとに20%ずつ」といった層化サンプリングに使えます。\n\n**主なパラメータ**:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ |\n| `FIELD` | グループ分けに使う属性フィールド |\n| `METHOD` | 抽出基準 — `0`: 地物の数 / `1`: 地物の割合(%) |\n| `NUMBER` | 各グループから抽出する数またはパーセント(デフォルト 10) |\n| `OUTPUT` | 出力レイヤ |\n\n`NUMBER` の解釈は `METHOD` に依存します(数なら件数、割合なら各グループ内の%)。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:randomextractwithinsubsets')\\nif alg is None:\\n    # fallback: 類似IDを検索\\n    result = {'found': False, 'similar': [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'random' in a.id().lower()]}\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': type(p).__name__, 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()]\\n    outputs = [{'name': o.name(), 'desc': o.description()} for o in alg.outputDefinitions()]\\n    result = {'found': True, 'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'params': params, 'outputs': outputs, 'shortHelp': (alg.shortHelpString() or '')[:800]}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:randomextractwithinsubsets')\\nresult = alg.parameterDefinition('METHOD').options()\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] 地物のグループ別ランダム抽出」(id: qgis:randomextractwithinsubsets) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。METHOD の選択肢も確認します。存在を確認しました。qgis:randomextractwithinsubsets は registry に登録されています。\n[QGIS] 地物のグループ別ランダム抽出\n用途: ベクタレイヤから地物をランダムに抽出して新しいレイヤを作るアルゴリズム(グループ: ベクタ選択)。通常のランダム抽出と違い、指定した属性フィールドの値ごと(グループ別)に抽出を行うのが特徴です。例えば「都道府県ごとに10件ずつ」「土地利用区分ごとに20%ずつ」といった層化サンプリングに使えます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n入力レイヤ\nFIELD\nグループ分けに使う属性フィールド\nMETHOD\n抽出基準 — 0: 地物の数 / 1: 地物の割合(%)\nNUMBER\n各グループから抽出する数またはパーセント(デフォルト 10)\nOUTPUT\n出力レイヤ\n\nNUMBER の解釈は METHOD に依存します(数なら件数、割合なら各グループ内の%)。"
+}

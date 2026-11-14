@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_clip",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 切り抜く（clip）」(id: native:clip) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 切り抜く（clip）」(id: native:clip) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:clip` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] 切り抜く（clip）`\n- **ID**: `native:clip`\n- **グループ**: `ベクタオーバーレイ`\n- **用途**: 入力ベクタレイヤを、別のポリゴンレイヤの範囲で切り抜きます。オーバーレイポリゴンと重なる部分だけを残し、解析範囲外の道路・土地利用・河川などを除去できます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 切り抜き対象のベクタレイヤ。ポイント・ライン・ポリゴンを指定可能 |\n| `OVERLAY` | 切り抜き範囲を定義するポリゴンレイヤ |\n| `OUTPUT` | 切り抜き後のベクタレイヤ出力 |\n\nクリップによりジオメトリの長さ・面積は変わりますが、属性テーブル内に保存済みの長さ・面積フィールドは自動更新されません。必要に応じて再計算が必要です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:clip')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue', 'parentLayerParameterName'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.appen"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 切り抜く（clip）」(id: native:clip) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:clip を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] 切り抜く（clip）\nID: native:clip\nグループ: ベクタオーバーレイ\n用途: 入力ベクタレイヤを、別のポリゴンレイヤの範囲で切り抜きます。オーバーレイポリゴンと重なる部分だけを残し、解析範囲外の道路・土地利用・河川などを除去できます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n切り抜き対象のベクタレイヤ。ポイント・ライン・ポリゴンを指定可能\nOVERLAY\n切り抜き範囲を定義するポリゴンレイヤ\nOUTPUT\n切り抜き後のベクタレイヤ出力\n\nクリップによりジオメトリの長さ・面積は変わりますが、属性テーブル内に保存済みの長さ・面積フィールドは自動更新されません。必要に応じて再計算が必要です。"
+}

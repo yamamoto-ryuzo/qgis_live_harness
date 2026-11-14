@@ -1,0 +1,38 @@
+{
+ "id": "qgis.action.mActionElevationController",
+ "prompt": "QGISの「Elevation Controller」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Elevation Controller」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Elevation Controller」アクションを探して実行します。ドックが見つからないので、全ドックを列挙して確認します。ドック一覧には無いので、キャンバス内のウィジェットとして実装されているか確認します。実行できていました。「Elevation Controller」はドックではなく**マップキャンバス内のウィジェット**として表示されます。\n\n- アクション: `mActionElevationController` → **`checked: true`**\n- ウィジェット: `QgsElevationControllerWidget`(QgsMapCanvas の子)、**visible: true**、サイズ 53×737 — キャンバス左端に縦長の標高スライダーとして表示されています\n\n標高範囲を持つレイヤ(点群・メッシュ・3Dタイル等)がある場合、このコントローラで表示する標高スライスを調整できます。もう一度 trigger すると非表示になります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    n = a.objectName() or ''\\n    if 'levation' in t or 'levation' in n or '標高' in t:\\n        found.append({'objectName': n, 'text': t, 'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked()})\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QDockWidget\\na = iface.mainWindow().findChild(QAction, 'mActionElevationController')\\ninfo = {'enabled': a.isEnabled()}\\na.trigger()\\ninfo['checked'] = a.isChecked()\\ndocks = [d for d in iface.mainWindow().findChildren(QDockWidget) if 'levation' in (d.windowTitle() or '') or 'levation' in d.objectName()]\\ninfo['docks'] = [{'objectName': d.objectName(), 'title': d.windowTitle(), 'visible': d.isVisible()} for d in docks]\\nresult = info\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\ndocks = [{'objectName': d.objectName(), 'title': d.windowTitle(), 'visible': d.isVisible(), 'widget': type(d.widget()).__name__ if d.widget() else None} for d in iface.mainWindow().findChildren(QDockWidget)]\\nresult = [d for d in docks if d['visible'] or 'lev' in (d['objectName']+d['title']).lower()]\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QWidget\\nmw = iface.mainWindow()\\nhits = []\\nfor w in mw.findChildren(QWidget):\\n    cn = type(w).__name__\\n    if 'levation' in cn or 'levation' in (w.objectName() or ''):\\n        hits.append({'class': cn, 'objectName': w.objectName(), 'visible': w.isVisible(), 'size': str(w.size()), 'parent': type(w.parentWidget()).__name__ if w.parentWidget() else None})\\nresult = hits\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Elevation Controller」機能(アクション)を実行して\n[AI] \n「Elevation Controller」アクションを探して実行します。ドックが見つからないので、全ドックを列挙して確認します。ドック一覧には無いので、キャンバス内のウィジェットとして実装されているか確認します。実行できていました。「Elevation Controller」はドックではなくマップキャンバス内のウィジェットとして表示されます。\nアクション: mActionElevationController → checked: true\nウィジェット: QgsElevationControllerWidget(QgsMapCanvas の子)、visible: true、サイズ 53×737 — キャンバス左端に縦長の標高スライダーとして表示されています\n標高範囲を持つレイヤ(点群・メッシュ・3Dタイル等)がある場合、このコントローラで表示する標高スライスを調整できます。もう一度 trigger すると非表示になります。"
+}

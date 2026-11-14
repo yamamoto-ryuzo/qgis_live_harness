@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionReverseLine",
+ "prompt": "QGISの「線の向きを反転」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「線の向きを反転」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「線の向きを反転」アクション(mActionReverseLine 相当)を探して状態を確認します。`mActionReverseLine` は無効です。編集中のラインレイヤがアクティブな時だけ有効になるので、テスト路線レイヤをアクティブにして編集モードを開始してから実行します。実行しました。「線の向きを反転」ツールがアクティブになっています。\n\n手順と結果:\n\n1. `mActionReverseLine` は当初**無効**でした(編集中のラインレイヤが必要なため)\n2. `テスト路線レイヤ`(LineString)をアクティブ化し、編集モードを開始\n3. アクションが有効になったので `trigger()` を実行 → **`checked: true`**、現在のマップツールは `QgsMapToolEdit`(反転ツール)に切替済み\n\nこのツールは対話式なので、**キャンバス上で反転したいライン地物をクリック**すると向きが反転します。プログラム側で特定の地物を反転させたい場合は、地物を指定して直接ジオメトリを反転させることもできます。必要なら続けます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    n = a.objectName() or ''\\n    if '反転' in t or 'Reverse' in t or 'reverse' in n.lower():\\n        found.append({'objectName': n, 'text': t, 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'checkable': a.isCheckable(), 'checked': a.isChecked()})\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProject, QgsWkbTypes\\nfrom qgis.PyQt.QtWidgets import QAction\\nlayers = QgsProject.instance().mapLayersByName('テスト路線レイヤ')\\ninfo = {'found': bool(layers)}\\nif layers:\\n    lyr = layers[0]\\n    info['geom'] = QgsWkbTypes.displayString(lyr.wkbType())\\n    info['editable_before'] = lyr.isEditable()\\n    iface.setActiveLayer(lyr)\\n    if not lyr.isEditable():\\n        lyr.startEditing()\\n    info['editable_after'] = lyr.isEditable()\\n    a = iface.mainWindow().findChild(QAction, 'mActionReverseLine')\\n    info['action_enabled'] = a.isEnabled()\\n    if a.isEnabled():\\n        a.trigger()\\n        info['triggered'] = True\\n        info['checked'] = a.isChecked()\\n        info['mapTool'] = type(iface.mapCanvas().mapTool()).__name__ if iface.mapCanvas().mapTool() else None\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「線の向きを反転」機能(アクション)を実行して\n[AI] \n「線の向きを反転」アクション(mActionReverseLine 相当)を探して状態を確認します。mActionReverseLine は無効です。編集中のラインレイヤがアクティブな時だけ有効になるので、テスト路線レイヤをアクティブにして編集モードを開始してから実行します。実行しました。「線の向きを反転」ツールがアクティブになっています。\n手順と結果:\nmActionReverseLine は当初無効でした(編集中のラインレイヤが必要なため)\nテスト路線レイヤ(LineString)をアクティブ化し、編集モードを開始\nアクションが有効になったので trigger() を実行 → checked: true、現在のマップツールは QgsMapToolEdit(反転ツール)に切替済み\nこのツールは対話式なので、キャンバス上で反転したいライン地物をクリックすると向きが反転します。プログラム側で特定の地物を反転させたい場合は、地物を指定して直接ジオメトリを反転させることもできます。必要なら続けます。"
+}

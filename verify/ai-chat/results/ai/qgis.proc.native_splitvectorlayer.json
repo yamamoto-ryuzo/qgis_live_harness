@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_splitvectorlayer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性でレイヤを分割」(id: native:splitvectorlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性でレイヤを分割」(id: native:splitvectorlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:splitvectorlayer`「**属性でレイヤを分割**」は登録されています（グループ: ベクタ一般）。\n\n## 用途\n\n- 入力ベクタレイヤを、**指定した属性値が同じ地物ごとに別レイヤ（別ファイル）へ分割**します\n- 例：`都道府県` 属性で分割 → 都道府県ごとのファイルがフォルダに出力される\n- 用途例：行政区域ごとのデータ配布、種別ごとのファイルエクスポート、一括処理前のデータ分解\n- **出力ファイル数 = ユニークな属性値の数**です\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | 入力レイヤ |\n| `FIELD` | field | ID属性（分割キーとなるフィールド） |\n| `PREFIX_FIELD` | boolean | ファイル名に属性接頭辞を追加するか |\n| `FILE_TYPE` | enum | 出力ファイル型（下記、多数対応） |\n| `OUTPUT` | folderDestination | 出力ディレクトリ |\n\n## 出力\n\n- `OUTPUT`：出力フォルダ\n- `OUTPUT_LAYERS`：生成された複数レイヤ（モデラーで後続処理へ渡せる）\n\n## FILE_TYPE（実際の registry から取得、主要なもの）\n\n`gpkg`（既定）、`shp`、`geojson`、`csv`、`kml`、`gpx`、`fgb`（FlatGeobuf）、`parquet`、`feather`、`gdb`、`sqlite`、`xlsx` など多数\n\n注意点：\n\n- ファイル名は属性値ベースになるため、**ファイル名に使えない文字が属性値に含まれる**場合は注意\n- 出力先はフォルダ指定なので、既存ファイルの上書き/追記動作は形式に依存します\n- 1レイヤ内で属性ごとに「地物」を分割（複数値展開）したい場合は `native:splitfeaturesbycharacter` です"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:splitvectorlayer')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性でレイヤを分割」(id: native:splitvectorlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:splitvectorlayer「属性でレイヤを分割」は登録されています（グループ: ベクタ一般）。\n用途\n入力ベクタレイヤを、指定した属性値が同じ地物ごとに別レイヤ（別ファイル）へ分割します\n例：都道府県 属性で分割 → 都道府県ごとのファイルがフォルダに出力される\n用途例：行政区域ごとのデータ配布、種別ごとのファイルエクスポート、一括処理前のデータ分解\n出力ファイル数 = ユニークな属性値の数です\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\n入力レイヤ\nFIELD\nfield\nID属性（分割キーとなるフィールド）\nPREFIX_FIELD\nboolean\nファイル名に属性接頭辞を追加するか\nFILE_TYPE\nenum\n出力ファイル型（下記、多数対応）\nOUTPUT\nfolderDestination\n出力ディレクトリ\n\n出力\nOUTPUT：出力フォルダ\nOUTPUT_LAYERS：生成された複数レイヤ（モデラーで後続処理へ渡せる）\nFILE_TYPE（実際の registry から取得、主要なもの）\ngpkg（既定）、shp、geojson、csv、kml、gpx、fgb（FlatGeobuf）、parquet、feather、gdb、sqlite、xlsx など多数\n注意点：\nファイル名は属性値ベースになるため、ファイル名に使えない文字が属性値に含まれる場合は注意\n出力先はフォルダ指定なので、既存ファイルの上書き/追記動作は形式に依存します\n1レイヤ内で属性ごとに「地物」を分割（複数値展開）したい場合は native:splitfeaturesbycharacter です"
+}

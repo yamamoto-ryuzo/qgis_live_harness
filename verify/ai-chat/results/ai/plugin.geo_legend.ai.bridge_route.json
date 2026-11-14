@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_legend.ai.bridge_route",
+ "prompt": "geo_legend プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_legend プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "`describe_plugins` で geo_legend のカタログ情報を再取得しました。メソッド定義は前回と同一、state は `dock: true / dockVisible: true`（ドック表示中）です。\n\n## geo_legend 自己記述（pluginInfo）\n\n- **id**: `geo_legend` / **bridge**: 搭載\n- **name**: 凡例ビュー (geo_legend)\n- **summary**: レイヤの凡例（シンボル一覧）の表示と作成。ドックへのコンパクト凡例表示、個別値分類・数値階級・ルールベースのレンダラ作成、印刷レイアウトへの凡例アイテム追加、凡例画像（PNG）出力。対象は `legend_*` 変数登録レイヤ＋アクティブレイヤ。不透明度・名前付きスタイル切替も可能。\n\n**when_to_use**: 凡例の確認 / ドックでの対象切替 / 不透明度・スタイル変更 / `legend_*` 変数の登録・確認 / 分類・階級・ルールの凡例作成 / レンダラ定義の取得 / 印刷レイアウトへの凡例追加 / 凡例PNG出力\n\n## メソッド（23個、すべて `bridge_call` 経由）\n\n- **レンダラ作成**: `applyCategories`, `applyGraduated`, `applyRules`, `applySingleSymbol`\n- **凡例の取得・出力**: `legend`, `legendSpec(layer)`, `addLayoutLegend(...)`, `exportLegendImage(path, layers, title, dpi)`\n- **ドック・対象選択**: `openDock`, `closeDock`, `listDatasets`, `selectDataset`, `selectCurrentLayer`, `refresh`, `status`\n- **legend_* 変数**: `registerLayer`, `registerCurrentLayer`, `legendVariables`, `setLegendVariable`, `deleteLegendVariable`\n- **スタイル・表示**: `opacity(value)`, `listStyles`, `setStyle(name)`\n\nこの会話で動作確認済み: `openDock`・`addLayoutLegend`・`applyCategories`・`applyGraduated`・`applyRules`・`applySingleSymbol`・`deleteLegendVariable`・`legendSpec`・`listDatasets`・`listStyles`・`opacity`・`registerCurrentLayer`・`registerLayer`・`selectDataset`・`setLegendVariable`・`setStyle`・`status`（17個）。\n\n未確認のメソッド: `closeDock`, `exportLegendImage`, `legend`, `legendVariables`, `refresh`, `selectCurrentLayer`（`legendVariables` と `refresh` は途中の確認で実質使用済み）。"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_legend プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \ndescribe_plugins で geo_legend のカタログ情報を再取得しました。メソッド定義は前回と同一、state は dock: true / dockVisible: true（ドック表示中）です。\ngeo_legend 自己記述（pluginInfo）\nid: geo_legend / bridge: 搭載\nname: 凡例ビュー (geo_legend)\nsummary: レイヤの凡例（シンボル一覧）の表示と作成。ドックへのコンパクト凡例表示、個別値分類・数値階級・ルールベースのレンダラ作成、印刷レイアウトへの凡例アイテム追加、凡例画像（PNG）出力。対象は legend_* 変数登録レイヤ＋アクティブレイヤ。不透明度・名前付きスタイル切替も可能。\nwhen_to_use: 凡例の確認 / ドックでの対象切替 / 不透明度・スタイル変更 / legend_* 変数の登録・確認 / 分類・階級・ルールの凡例作成 / レンダラ定義の取得 / 印刷レイアウトへの凡例追加 / 凡例PNG出力\nメソッド（23個、すべて bridge_call 経由）\nレンダラ作成: applyCategories, applyGraduated, applyRules, applySingleSymbol\n凡例の取得・出力: legend, legendSpec(layer), addLayoutLegend(...), exportLegendImage(path, layers, title, dpi)\nドック・対象選択: openDock, closeDock, listDatasets, selectDataset, selectCurrentLayer, refresh, status\nlegend_ 変数*: registerLayer, registerCurrentLayer, legendVariables, setLegendVariable, deleteLegendVariable\nスタイル・表示: opacity(value), listStyles, setStyle(name)\nこの会話で動作確認済み: openDock・addLayoutLegend・applyCategories・applyGraduated・applyRules・applySingleSymbol・deleteLegendVariable・legendSpec・listDatasets・listStyles・opacity・registerCurrentLayer・registerLayer・selectDataset・setLegendVariable・setStyle・status（17個）。\n未確認のメソッド: closeDock, exportLegendImage, legend, legendVariables, refresh, selectCurrentLayer（legendVariables と refresh は途中の確認で実質使用済み）。"
+}

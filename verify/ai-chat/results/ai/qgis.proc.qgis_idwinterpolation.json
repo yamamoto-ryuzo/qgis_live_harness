@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.qgis_idwinterpolation",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] IDW内挿（逆距離加重法）」(id: qgis:idwinterpolation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] IDW内挿（逆距離加重法）」(id: qgis:idwinterpolation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis:idwinterpolation` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `qgis:idwinterpolation`\n- **表示名**: `IDW内挿（逆距離加重法）`\n- **Provider**: `QGIS`\n- **グループ**: `内挿`\n\n### 用途\nポイントデータの値を、距離に反比例する重みで内挿し、連続面ラスタを生成します。距離が近い点ほど推定値へ強く影響します。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INTERPOLATION_DATA` | 内挿に使うポイントレイヤと値の指定 | — |\n| `DISTANCE_COEFFICIENT` | 距離係数 `P`。大きいほど近傍点の影響が局所的になる | `2.0` |\n| `EXTENT` | 出力ラスタの範囲 | — |\n| `PIXEL_SIZE` | 出力ラスタのセルサイズ | `0.1` |\n| `COLUMNS` / `ROWS` | 任意。セルサイズの代わりに列数・行数を指定 | なし |\n| `OUTPUT` | 出力ラスタ | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('qgis:idwinterpolation')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'idw' in a.id().lower() or 'interp' in a.id().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'type': p.type(),\\n "
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:idwinterpolation')\\nresult = [\\n    {'name': p.name(), 'tooltip': p.toolTip(), 'metadata': p.metadata() if hasattr(p, 'metadata') else None}\\n    for p in alg.parameterDefinitions()\\n]\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] IDW内挿（逆距離加重法）」(id: qgis:idwinterpolation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nqgis:idwinterpolation を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: qgis:idwinterpolation\n表示名: IDW内挿（逆距離加重法）\nProvider: QGIS\nグループ: 内挿\n用途\nポイントデータの値を、距離に反比例する重みで内挿し、連続面ラスタを生成します。距離が近い点ほど推定値へ強く影響します。\n主なパラメータ\nパラメータ\n意味\n既定値\nINTERPOLATION_DATA\n内挿に使うポイントレイヤと値の指定\n—\nDISTANCE_COEFFICIENT\n距離係数 P。大きいほど近傍点の影響が局所的になる\n2.0\nEXTENT\n出力ラスタの範囲\n—\nPIXEL_SIZE\n出力ラスタのセルサイズ\n0.1\nCOLUMNS / ROWS\n任意。セルサイズの代わりに列数・行数を指定\nなし\nOUTPUT\n出力ラスタ\n—\n"
+}

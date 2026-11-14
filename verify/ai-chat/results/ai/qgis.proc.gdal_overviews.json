@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.gdal_overviews",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 全体図を作成（ピラミッド）」(id: gdal:overviews) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 全体図を作成（ピラミッド）」(id: gdal:overviews) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:overviews` を Processing Registry で確認します。`RESAMPLING` / `FORMAT` の選択肢も確認します。確認しました。Processing Registry に **`[GDAL] 全体図を作成（ピラミッド）`** は存在します。\n\n- **ID:** `gdal:overviews`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタその他`\n\n### 用途\nラスタに **低解像度の全体図／オーバービュー（ピラミッド）** を作成します。縮小表示時の描画速度を改善するための処理で、内部オーバービューや外部 `.ovr` / `.aux` ファイルとして保存できます。\n\n### 主なパラメータ\n- `INPUT`：対象ラスタ\n- `CLEAN`：既存の全体図をすべて削除\n- `LEVELS`：作成する縮小レベル（例：`2 4 8 16`）\n- `RESAMPLING`：縮小時のリサンプリング方法\n  - 最近傍法、平均、ガウス、Cubic、Lanczos、モード など\n- `FORMAT`：全体図の保存形式\n  - 内部\n  - 外部（GTiff `.ovr`）\n  - 外部（ERDAS Imagine `.aux`）\n- `EXTRA`：追加のGDALオプション\n- `OUTPUT`：処理済みラスタ"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:overviews'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'overview' in a.id().lower() or '全体図' in a.displayName() or 'ピラミッド' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'ov"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nimport json\\nalg = QgsApplication.processingRegistry().algorithmById('gdal:overviews')\\nresult = None\\nif alg:\\n    defs = {p.name(): p for p in alg.parameterDefinitions()}\\n    result = json.dumps({\\n        'resampling_options': list(defs['RESAMPLING'].options()),\\n        'format_options': list(defs['FORMAT'].options())\\n    }, ensure_ascii=False)\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 全体図を作成（ピラミッド）」(id: gdal:overviews) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:overviews を Processing Registry で確認します。RESAMPLING / FORMAT の選択肢も確認します。確認しました。Processing Registry に [GDAL] 全体図を作成（ピラミッド） は存在します。\nID: gdal:overviews\nプロバイダ: GDAL\nグループ: ラスタその他\n用途\nラスタに 低解像度の全体図／オーバービュー（ピラミッド） を作成します。縮小表示時の描画速度を改善するための処理で、内部オーバービューや外部 .ovr / .aux ファイルとして保存できます。\n主なパラメータ\nINPUT：対象ラスタ\nCLEAN：既存の全体図をすべて削除\nLEVELS：作成する縮小レベル（例：2 4 8 16）\nRESAMPLING：縮小時のリサンプリング方法 \n最近傍法、平均、ガウス、Cubic、Lanczos、モード など\nFORMAT：全体図の保存形式 \n内部\n外部（GTiff .ovr）\n外部（ERDAS Imagine .aux）\nEXTRA：追加のGDALオプション\nOUTPUT：処理済みラスタ"
+}

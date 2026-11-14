@@ -1,0 +1,34 @@
+{
+ "id": "plugin.geo_import.bridge.listGroups",
+ "prompt": "QGISの geo_import プラグインで「カテゴリ(グループ)一覧を返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_import プラグインで「カテゴリ(グループ)一覧を返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`geo_import` bridge の `listGroups`（カテゴリ一覧を返す）を実行します。親ダイアログが閉じているため、先に `openDialog` を実行してから一覧を取得します。`listGroups` の実行結果です。24件のカテゴリが返り、現在選択中のグループはありません。\n\n| index | title | name | checked |\n|---:|---|---|---|\n| 0 | 1/10万土性図 | `gsj_map_xagro` | false |\n| 1 | 1/200万地質編集図 | `gsj_map_g02m` | false |\n| 2 | 1/20万地質図幅 | `gsj_map_g200` | false |\n| 3 | 1/50万地質図幅 | `gsj_map_g500` | false |\n| 4 | 1/50万活構造図 | `gsj_map_n500` | false |\n| 5 | 1/5万地質図幅 | `gsj_map_g050` | false |\n| 6 | 1/7.5万地質図幅 | `gsj_map_g075` | false |\n| 7 | アジア地域の地球科学図 | `gsj_map_asia` | false |\n| 8 | 地熱資源図 | `gsj_map_geotherm` | false |\n| 9 | 地質情報データベース | `gsj_db_gbank` | false |\n| 10 | 大規模火砕流分布図 | `gsj_map_lvi` | false |\n| 11 | 日本水理地質図 | `gsj_map_hydr` | false |\n| 12 | 日本油田・ガス田図 | `gsj_map_olgs` | false |\n| 13 | 日本炭田図 | `gsj_map_coal` | false |\n| 14 | 構造図 | `gsj_map_tect` | false |\n| 15 | 海洋地質図（広域） | `gsj_map_wide` | false |\n| 16 | 海洋地質図（海底地質図） | `gsj_map_bottom` | false |\n| 17 | 海洋地質図（表層堆積図） | `gsj_map_surface` | false |\n| 18 | 海陸シームレス地質情報 | `gsj_map_sgmcz` | false |\n| 19 | 火山地質図 | `gsj_map_volc` | false |\n| 20 | 特殊地質図 | `gsj_map_misc` | false |\n| 21 | 空中磁気図 | `gsj_map_magn` | false |\n| 22 | 重力図 | `gsj_map_grav` | false |\n| 23 | 鉱物資源図 | `gsj_map_mine` | false |"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'plugin_id': 'geo_import', 'method': 'listGroups'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_import', 'args': [], 'method': 'openDialog'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'listGroups', 'args': [], 'plugin_id': 'geo_import'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_import プラグインで「カテゴリ(グループ)一覧を返す。」を実行して結果を教えて\n[AI] \ngeo_import bridge の listGroups（カテゴリ一覧を返す）を実行します。親ダイアログが閉じているため、先に openDialog を実行してから一覧を取得します。listGroups の実行結果です。24件のカテゴリが返り、現在選択中のグループはありません。\nindex\ntitle\nname\nchecked\n0\n1/10万土性図\ngsj_map_xagro\nfalse\n1\n1/200万地質編集図\ngsj_map_g02m\nfalse\n2\n1/20万地質図幅\ngsj_map_g200\nfalse\n3\n1/50万地質図幅\ngsj_map_g500\nfalse\n4\n1/50万活構造図\ngsj_map_n500\nfalse\n5\n1/5万地質図幅\ngsj_map_g050\nfalse\n6\n1/7.5万地質図幅\ngsj_map_g075\nfalse\n7\nアジア地域の地球科学図\ngsj_map_asia\nfalse\n8\n地熱資源図\ngsj_map_geotherm\nfalse\n9\n地質情報データベース\ngsj_db_gbank\nfalse\n10\n大規模火砕流分布図\ngsj_map_lvi\nfalse\n11\n日本水理地質図\ngsj_map_hydr\nfalse\n12\n日本油田・ガス田図\ngsj_map_olgs\nfalse\n13\n日本炭田図\ngsj_map_coal\nfalse\n14\n構造図\ngsj_map_tect\nfalse\n15\n海洋地質図（広域）\ngsj_map_wide\nfalse\n16\n海洋地質図（海底地質図）\ngsj_map_bottom\nfalse\n17\n海洋地質図（表層堆積図）\ngsj_map_surface\nfalse\n18\n海陸シームレス地質情報\ngsj_map_sgmcz\nfalse\n19\n火山地質図\ngsj_map_volc\nfalse\n20\n特殊地質図\ngsj_map_misc\nfalse\n21\n空中磁気図\ngsj_map_magn\nfalse\n22\n重力図\ngsj_map_grav\nfalse\n23\n鉱物資源図\ngsj_map_mine\nfalse\n"
+}

@@ -10,13 +10,12 @@
   },
   {
    "role": "assistant",
-   "content": "geo_legend を再読み込みしました。\n\n補足: `devreload` は WebEngine 系プラグインのライブドライバー向けのため、geo_legend には使えませんでした（`driver: false`）。代わりに同等のホットリロード機能 `qgis_reload_plugin` でモジュールをクリーンアップして再読み込みしました。\n\n- `loaded: true` — 再読み込み成功\n- `opened: false` — プラグインのダイアログは開いていません（open_dialog が無いか未実装のようです）\n\nダイアログを開きたい場合は `qgis_open_plugin` を試せます。"
+   "content": "`qgis_devreload` は失敗しました — geo_legend に live driver が無いためです(devreload はプラグイン自身の driver 経由で repo 側 bridge/ui を再import する仕組み)。\n\n代わりに geo_driver 側から実行できる **ホットリロード**(`qgis_reload_plugin`: sys.modules 掃除 + reloadPlugin)で再読み込みします。geo_legend を再読み込みしました。\n\n- `qgis_devreload` は geo_legend に live driver が無いため実行不可(このQGISプロセスでは geo_driver のみ driver 有効)\n- 代わりに `qgis_reload_plugin` でホットリロード(sys.modules 掃除 + `reloadPlugin`)を実行 → `loaded: true` で成功しました"
   }
  ],
  "tools": [
   "devreload",
-  "reload_plugin",
-  "status"
+  "reload_plugin"
  ],
  "audit": [
   {
@@ -24,13 +23,9 @@
    "args": "{'plugin_id': 'geo_legend'}"
   },
   {
-   "type": "status",
-   "args": "{}"
-  },
-  {
    "type": "reload_plugin",
    "args": "{'plugin_id': 'geo_legend'}"
   }
  ],
- "view_tail": "[あなた] geo_legend プラグインを devreload で再読み込みして\n[AI] \ngeo_legend を再読み込みしました。\n補足: devreload は WebEngine 系プラグインのライブドライバー向けのため、geo_legend には使えませんでした（driver: false）。代わりに同等のホットリロード機能 qgis_reload_plugin でモジュールをクリーンアップして再読み込みしました。\nloaded: true — 再読み込み成功\nopened: false — プラグインのダイアログは開いていません（open_dialog が無いか未実装のようです）\nダイアログを開きたい場合は qgis_open_plugin を試せます。"
+ "view_tail": "[あなた] geo_legend プラグインを devreload で再読み込みして\n[AI] \nqgis_devreload は失敗しました — geo_legend に live driver が無いためです(devreload はプラグイン自身の driver 経由で repo 側 bridge/ui を再import する仕組み)。\n代わりに geo_driver 側から実行できる ホットリロード(qgis_reload_plugin: sys.modules 掃除 + reloadPlugin)で再読み込みします。geo_legend を再読み込みしました。\nqgis_devreload は geo_legend に live driver が無いため実行不可(このQGISプロセスでは geo_driver のみ driver 有効)\n代わりに qgis_reload_plugin でホットリロード(sys.modules 掃除 + reloadPlugin)を実行 → loaded: true で成功しました"
 }

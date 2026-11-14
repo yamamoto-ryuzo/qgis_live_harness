@@ -1,0 +1,34 @@
+{
+ "id": "qgis.action.mActionRotatePointSymbols",
+ "prompt": "QGISの「点のシンボルを回転」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「点のシンボルを回転」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「点のシンボルを回転」アクションを探して状態を確認します。無効です。編集中のポイントレイヤが必要です。テスト地目レイヤのジオメトリを確認して、ポイントなら有効化して実行します。テスト地目レイヤはポイントレイヤでした。アクティブ化→編集開始→実行します。実行しました。\n\n- アクション: `mActionRotatePointSymbols`「点のシンボルを回転」\n- 当初は無効 → `テスト地目レイヤ`(Point)をアクティブ化し編集モードを開始して有効化\n- 実行後: **`checked: true`**、マップツールは回転ツールに切替済み\n\nこのツールは対話式です。キャンバス上で**ポイント地物をクリックしてドラッグ**するとシンボルの向きを回転できます。\n\n注意点: シンボルに「回転」のデータ定義(フィールド)が設定されていない場合、最初のクリック時に回転角度を格納するフィールドを選ぶダイアログが出ることがあります。フィールドを指定すれば角度が属性として保存されます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    n = a.objectName() or ''\\n    if 'シンボルを回転' in t or 'RotatePoint' in n or 'rotatepoint' in n.lower() or ('回転' in t and '点' in t):\\n        found.append({'objectName': n, 'text': t, 'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked()})\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProject, QgsWkbTypes\\ninfo = {}\\nfor lyr in QgsProject.instance().mapLayers().values():\\n    info[lyr.name()] = QgsWkbTypes.displayString(lyr.wkbType()) if hasattr(lyr, 'wkbType') else lyr.type()\\nresult = info\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProject\\nfrom qgis.PyQt.QtWidgets import QAction\\nlyr = QgsProject.instance().mapLayersByName('テスト地目レイヤ')[0]\\niface.setActiveLayer(lyr)\\nif not lyr.isEditable():\\n    lyr.startEditing()\\na = iface.mainWindow().findChild(QAction, 'mActionRotatePointSymbols')\\ninfo = {'editable': lyr.isEditable(), 'enabled': a.isEnabled()}\\nif a.isEnabled():\\n    a.trigger()\\n    info['checked'] = a.isChecked()\\n    info['mapTool'] = type(iface.mapCanvas().mapTool()).__name__\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「点のシンボルを回転」機能(アクション)を実行して\n[AI] \n「点のシンボルを回転」アクションを探して状態を確認します。無効です。編集中のポイントレイヤが必要です。テスト地目レイヤのジオメトリを確認して、ポイントなら有効化して実行します。テスト地目レイヤはポイントレイヤでした。アクティブ化→編集開始→実行します。実行しました。\nアクション: mActionRotatePointSymbols「点のシンボルを回転」\n当初は無効 → テスト地目レイヤ(Point)をアクティブ化し編集モードを開始して有効化\n実行後: checked: true、マップツールは回転ツールに切替済み\nこのツールは対話式です。キャンバス上でポイント地物をクリックしてドラッグするとシンボルの向きを回転できます。\n注意点: シンボルに「回転」のデータ定義(フィールド)が設定されていない場合、最初のクリック時に回転角度を格納するフィールドを選ぶダイアログが出ることがあります。フィールドを指定すれば角度が属性として保存されます。"
+}

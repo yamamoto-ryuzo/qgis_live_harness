@@ -1,0 +1,31 @@
+{
+ "id": "qgis.action.mShowInfoAction",
+ "prompt": "QGISの「Information」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Information」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Information」アクション（`mShowInfoAction`、GPS情報パネル表示トグル）を実行します。ONになりました。GPS情報パネルが表示されたか、メインウィンドウをスクリーンショットで確認します。実行しました。GPS情報パネルが表示され、位置マーカーも確認できました。\n\n## 実行結果\n\n**アクション**: `mShowInfoAction`（Information = GPS情報パネルの表示トグル）\n\n- `trigger()` 実行 → `checked=false → true`\n- **GPS情報パネルが左ドックに表示**されました（スクリーンショット確認済み）\n\n## パネル表示内容（実測値）\n\n| 項目 | 値 |\n|---|---|\n| 緯度 | 35.68494943° |\n| 経度 | 139.67703717° |\n| Altitude | nan m（高度情報なし） |\n| 測定時刻 | Sat Nov 14 05:30:52 2026 GMT |\n| ボタン | Disconnect（切断用） |\n\nまた、地図キャンバス中央に **GPS位置マーカー（⊕ 十字マーク）** が表示されているのが確認できました — 「Show Location Marker」が ON なので、接続確立とともに描画されています。\n\n実行は正常に完了し、GPS情報パネルは現在表示中です。閉じたい場合は再度 `trigger()` するかパネルの×で閉じると `checked` も OFF に戻ります。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = None\\nfor x in mw.findChildren(QAction):\\n    if x.objectName() == 'mShowInfoAction':\\n        a = x\\n        break\\nbefore = a.isChecked()\\na.trigger()\\nimport time\\ntime.sleep(0.5)\\nresult = {'before_checked': before, 'after_checked': a.isChecked(), 'enabled': a.isEnabled()}\\n\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis_gps_info.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Information」機能(アクション)を実行して\n[AI] \n「Information」アクション（mShowInfoAction、GPS情報パネル表示トグル）を実行します。ONになりました。GPS情報パネルが表示されたか、メインウィンドウをスクリーンショットで確認します。実行しました。GPS情報パネルが表示され、位置マーカーも確認できました。\n実行結果\nアクション: mShowInfoAction（Information = GPS情報パネルの表示トグル）\ntrigger() 実行 → checked=false → true\nGPS情報パネルが左ドックに表示されました（スクリーンショット確認済み）\nパネル表示内容（実測値）\n項目\n値\n緯度\n35.68494943°\n経度\n139.67703717°\nAltitude\nnan m（高度情報なし）\n測定時刻\nSat Nov 14 05:30:52 2026 GMT\nボタン\nDisconnect（切断用）\n\nまた、地図キャンバス中央に GPS位置マーカー（⊕ 十字マーク） が表示されているのが確認できました — 「Show Location Marker」が ON なので、接続確立とともに描画されています。\n実行は正常に完了し、GPS情報パネルは現在表示中です。閉じたい場合は再度 trigger() するかパネルの×で閉じると checked も OFF に戻ります。"
+}

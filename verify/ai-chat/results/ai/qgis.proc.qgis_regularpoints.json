@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_regularpoints",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] 規則的点群（regular points）」(id: qgis:regularpoints) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] 規則的点群（regular points）」(id: qgis:regularpoints) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。存在を確認しました。`qgis:regularpoints` は registry に登録されています。\n\n## [QGIS] 規則的点群(regular points)\n\n**用途**: 指定した矩形範囲内に、一定間隔の格子状に並んだ点(グリッド点)を持つポイントレイヤを作成するアルゴリズム(グループ: ベクタ作成)。メッシュ調査点、ドローン撮影点、サンプリング格子などの生成に使えます。\n\n**主なパラメータ**:\n\n| パラメータ | 内容 |\n|---|---|\n| `EXTENT` | 点を生成する矩形範囲 |\n| `SPACING` | 点の間隔(`IS_SPACING`=True の場合)または点数(レイヤの距離単位) |\n| `INSET` | 範囲の左上角からのオフセット(切込み量)。グリッド開始位置をずらす |\n| `RANDOMIZE` | 各点の位置を間隔の範囲内でランダムにずらす(True で規則性を緩和) |\n| `IS_SPACING` | True: `SPACING` を間隔として解釈 / False: 総点数として解釈 |\n| `CRS` | 出力の座標参照系(デフォルトはプロジェクト CRS) |\n| `OUTPUT` | 出力ポイントレイヤ |\n\n注意点: 点はあくまで矩形範囲に対して生成されるので、ポリゴン内のみに絞りたい場合は後でクリップ(「交差」や「クリップ」)するか、グリッドポリゴン生成系のアルゴリズム(`native:grid` 系)を併用します。`RANDOMIZE` を有効にしても各点が所属するセル位置の範囲内でのジッターであり、完全ランダムではありません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:regularpoints')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'regular' in a.id().lower() or 'point' in a.id().lower()]}\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': type(p).__name__, 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()]\\n    outputs = [{'name': o.name(), 'desc': o.description()} for o in alg.outputDefinitions()]\\n    enum_opts = {p.name(): p.options() for p in alg.parameterDefinitions() if type(p).__name__ == 'QgsProcessingParameterEnum'}\\n    result = {'found': True, 'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'params': params, 'enums': enum_opts, 'outputs': outputs, 'shortHelp': (alg.shortHelpString() or '')[:1200]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] 規則的点群（regular points）」(id: qgis:regularpoints) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。存在を確認しました。qgis:regularpoints は registry に登録されています。\n[QGIS] 規則的点群(regular points)\n用途: 指定した矩形範囲内に、一定間隔の格子状に並んだ点(グリッド点)を持つポイントレイヤを作成するアルゴリズム(グループ: ベクタ作成)。メッシュ調査点、ドローン撮影点、サンプリング格子などの生成に使えます。\n主なパラメータ:\nパラメータ\n内容\nEXTENT\n点を生成する矩形範囲\nSPACING\n点の間隔(IS_SPACING=True の場合)または点数(レイヤの距離単位)\nINSET\n範囲の左上角からのオフセット(切込み量)。グリッド開始位置をずらす\nRANDOMIZE\n各点の位置を間隔の範囲内でランダムにずらす(True で規則性を緩和)\nIS_SPACING\nTrue: SPACING を間隔として解釈 / False: 総点数として解釈\nCRS\n出力の座標参照系(デフォルトはプロジェクト CRS)\nOUTPUT\n出力ポイントレイヤ\n\n注意点: 点はあくまで矩形範囲に対して生成されるので、ポリゴン内のみに絞りたい場合は後でクリップ(「交差」や「クリップ」)するか、グリッドポリゴン生成系のアルゴリズム(native:grid 系)を併用します。RANDOMIZE を有効にしても各点が所属するセル位置の範囲内でのジッターであり、完全ランダムではありません。"
+}

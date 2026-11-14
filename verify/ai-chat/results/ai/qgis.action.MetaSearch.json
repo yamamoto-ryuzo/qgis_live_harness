@@ -1,0 +1,38 @@
+{
+ "id": "qgis.action.MetaSearch",
+ "prompt": "QGISの「MetaSearch」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「MetaSearch」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "MetaSearch プラグインのアクションを調べます。調査結果です。\n\n**「MetaSearch」アクションは現在有効（enabled）です。**\n\n詳細 — プラグイン `MetaSearch`（`MetaSearch.plugin.MetaSearchPlugin`、QGIS コアプラグイン）ロード済み:\n\n- **メインアクション**「MetaSearch」（objectName `action_run`）— `enabled=True`, `visible=True`\n  - 所属: 「Webツールバー」(mWebToolBar) 上の QToolButton\n  - ＋「Web(&W)」→「&MetaSearch」サブメニュー（objectName `MetaSearch`、menuAction 有効・表示）\n- **「Help」アクション**（objectName `action_help`）— `enabled=True`、`&MetaSearch` メニュー内\n- **メニュー構成**: 「&MetaSearch」サブメニューは `mWebMenu`（Web メニュー）配下で `enabled=True`\n\n補足:\n\n- `dialog` 属性はあるものの、初回実行時（`run`）に CSW カタログ検索ダイアログが生成される構成です。\n- 無効化・グレーアウトされている項目はありません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\npl = qgis.utils.plugins.get('MetaSearch')\\ninfo = {'loaded': pl is not None}\\nif pl is not None:\\n    info['plugin_type'] = type(pl).__name__\\n    info['module'] = getattr(pl, '__module__', None)\\n    info['attrs'] = [a for a in dir(pl) if not a.startswith('__')]\\nresult = info\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    o = a.objectName() or ''\\n    if 'metasearch' in t.lower() or 'metasearch' in o.lower() or 'csw' in t.lower() or 'カタログ' in t:\\n        out.append({'text': t, 'objectName': o, 'enabled': a.isEnabled(), 'visible': a.isVisible()})\\nresult = out\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\nfrom qgis.PyQt.QtWidgets import QMenu, QToolBar, QAction, QToolButton\\npl = qgis.utils.plugins['MetaSearch']\\nout = {}\\nfor name in ['action_run', 'action_help']:\\n    a = getattr(pl, name, None)\\n    if isinstance(a, QAction):\\n        conts = []\\n        for w in a.associatedObjects():\\n            if isinstance(w, QMenu):\\n                conts.append('QMenu:%s [%s]' % (w.title(), w.objectName()))\\n            elif isinstance(w, QToolBar):\\n                conts.append('QToolBar:%s [%s]' % (w.windowTitle(), w.objectName()))\\n            else:\\n                conts.append(w.metaObject().className())\\n        out[name] = {'text': a.text(), 'objectName': a.objectName(), 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'shortcut': a.shortcut().toString(), 'containers': conts}\\nwm = getattr(pl, 'web_menu', None)\\nif isinstance(wm, QMenu):\\n    ma = wm.menuAction()\\n    out['web_menu'] = {'title': wm.title(), 'objectName': wm.objectName(), 'enabled': wm.is"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QMenu\\nmw = iface.mainWindow()\\nout = []\\nfor m in mw.findChildren(QMenu):\\n    if m.objectName() == 'MetaSearch':\\n        ma = m.menuAction()\\n        parents = ['%s [%s]' % (w.title(), w.objectName()) for w in ma.associatedObjects() if isinstance(w, QMenu)]\\n        out.append({'title': m.title(), 'enabled': m.isEnabled(), 'menuAction_enabled': ma.isEnabled(), 'menuAction_visible': ma.isVisible(), 'in_menus': parents})\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「MetaSearch」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nMetaSearch プラグインのアクションを調べます。調査結果です。\n「MetaSearch」アクションは現在有効（enabled）です。\n詳細 — プラグイン MetaSearch（MetaSearch.plugin.MetaSearchPlugin、QGIS コアプラグイン）ロード済み:\nメインアクション「MetaSearch」（objectName action_run）— enabled=True, visible=True \n所属: 「Webツールバー」(mWebToolBar) 上の QToolButton\n＋「Web(&W)」→「&MetaSearch」サブメニュー（objectName MetaSearch、menuAction 有効・表示）\n「Help」アクション（objectName action_help）— enabled=True、&MetaSearch メニュー内\nメニュー構成: 「&MetaSearch」サブメニューは mWebMenu（Web メニュー）配下で enabled=True\n補足:\ndialog 属性はあるものの、初回実行時（run）に CSW カタログ検索ダイアログが生成される構成です。\n無効化・グレーアウトされている項目はありません。"
+}

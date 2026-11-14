@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Normal",
+ "prompt": "QGISの「通常（Normal）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「通常（Normal）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「通常（Normal）」は前回の調査でフィルタパターン文法グループの選択肢として見つかっています。改めて実体を確認します。「通常（Normal）」は QGIS 内に **3 つ** あり、いずれも**現在有効かつ選択中**です。\n\n## 1. プレビューモード `mActionPreviewModeOff`\n\n- 場所: QgisApp 直下（表示メニュー → 地図のプレビューモード系）\n- ツールチップ: `<b>通常プレビューモード</b>`\n- 状態: **有効 / チェックON（現在のモード）**\n- 排他グループ: 通常 / モノクロシミュレート / 全色盲 / 赤色盲 / 緑色盲 / 黄青盲色シミュレート — 現在「通常」でプレビュー中\n\n## 2, 3. ブラウザフィルタの「フィルタパターン文法」グループ\n\n前回調査したものです。`Browser`（表示中）と `Browser2`（非表示）の各ドックに1つずつ：\n\n- objectName: なし（QActionGroup 内の無名アクション）\n- 状態: **有効 / チェックON（現在のフィルタ文法モード）**\n- 排他グループ: [フィルタパターン文法(見出し)] / 通常（Normal）/ ワイルドカード / 正規表現\n\n### 結論\n\n「通常（Normal）」アクションはすべて**有効で、現在どちらの文脈（地図プレビュー・ブラウザフィルタ）でも選択中の状態**です。排他グループ所属のため、trigger()してもOFFにはならず、別の選択肢（ワイルドカード等）を選んだ時点で自動的にOFFになります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction, QActionGroup, QDockWidget\\n\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    if (a.text() or '').startswith('通常'):\\n        p = a.parent()\\n        chain = []\\n        dock = None\\n        while p is not None and len(chain) < 6:\\n            chain.append(type(p).__name__ + ':' + (p.objectName() or ''))\\n            if isinstance(p, QDockWidget) and dock is None:\\n                dock = p.objectName()\\n            p = p.parent()\\n        grp = a.actionGroup()\\n        out.append({\\n            'objectName': a.objectName(),\\n            'text': a.text(),\\n            'tooltip': a.toolTip(),\\n            'enabled': a.isEnabled(),\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'group_exclusive': grp.isExclusive() if grp else None,\\n            'group_members': [ga.text() for ga in grp.actions()] if grp else [],\\n            'dock': dock,\\n            'parents': ch"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「通常（Normal）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「通常（Normal）」は前回の調査でフィルタパターン文法グループの選択肢として見つかっています。改めて実体を確認します。「通常（Normal）」は QGIS 内に 3 つ あり、いずれも現在有効かつ選択中です。\n1. プレビューモード mActionPreviewModeOff\n場所: QgisApp 直下（表示メニュー → 地図のプレビューモード系）\nツールチップ: <b>通常プレビューモード</b>\n状態: 有効 / チェックON（現在のモード）\n排他グループ: 通常 / モノクロシミュレート / 全色盲 / 赤色盲 / 緑色盲 / 黄青盲色シミュレート — 現在「通常」でプレビュー中\n2, 3. ブラウザフィルタの「フィルタパターン文法」グループ\n前回調査したものです。Browser（表示中）と Browser2（非表示）の各ドックに1つずつ：\nobjectName: なし（QActionGroup 内の無名アクション）\n状態: 有効 / チェックON（現在のフィルタ文法モード）\n排他グループ: [フィルタパターン文法(見出し)] / 通常（Normal）/ ワイルドカード / 正規表現\n結論\n「通常（Normal）」アクションはすべて有効で、現在どちらの文脈（地図プレビュー・ブラウザフィルタ）でも選択中の状態です。排他グループ所属のため、trigger()してもOFFにはならず、別の選択肢（ワイルドカード等）を選んだ時点で自動的にOFFになります。"
+}

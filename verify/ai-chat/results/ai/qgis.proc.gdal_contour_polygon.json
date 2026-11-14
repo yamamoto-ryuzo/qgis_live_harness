@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_contour_polygon",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 等高線ポリゴン」(id: gdal:contour_polygon) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 等高線ポリゴン」(id: gdal:contour_polygon) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:contour_polygon` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:contour_polygon` |\n| 表示名 | 等高線ポリゴン |\n| プロバイダ | GDAL |\n| グループ | Raster extraction(ラスタ抽出) |\n\n## 用途\n\nDEM(標高ラスタ)から**等高線を「ポリゴン」として生成**します(`gdal_contour -p` に相当)。ライン版の `gdal:contour` と異なり、**標高帯ごとの塗りつぶしポリゴン**(下限標高〜上限標高の帯域)を出力します。段彩図的な表現や標高帯別の集計・面積計算に向きます。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ラスタ(DEM) | 必須 |\n| `BAND` | バンド番号 | 1 |\n| `INTERVAL` | 等高線間隔 | 10.0 |\n| `FIELD_NAME_MIN` | ポリゴン下限標高の属性名 | `ELEV_MIN` |\n| `FIELD_NAME_MAX` | ポリゴン上限標高の属性名 | `ELEV_MAX` |\n| `CREATE_3D` | Z値付き3Dベクタを生成 | false |\n| `IGNORE_NODATA` | 全ラスタ値を有効とみなす | false |\n| `NODATA` | NoData として扱う入力値 | 任意 |\n| `OFFSET` | 間隔の基準値 | 0.0 |\n| `OPTIONS` / `EXTRA` | 追加オプション | 任意 |\n| `OUTPUT` | 出力ベクタ(ポリゴン) | 必須 |\n\n## `gdal:contour` との違い\n\n- 出力が**ポリゴン**(ラインではない)\n- 属性が**下限/上限の2フィールド**(`ELEV_MIN`/`ELEV_MAX`)\n\n実行例: `processing.run(\"gdal:contour_polygon\", {\"INPUT\": dem, \"INTERVAL\": 10, \"OUTPUT\": \"bands.gpkg\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:contour_polygon')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'contour' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 等高線ポリゴン」(id: gdal:contour_polygon) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:contour_polygon をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:contour_polygon\n表示名\n等高線ポリゴン\nプロバイダ\nGDAL\nグループ\nRaster extraction(ラスタ抽出)\n\n用途\nDEM(標高ラスタ)から等高線を「ポリゴン」として生成します(gdal_contour -p に相当)。ライン版の gdal:contour と異なり、標高帯ごとの塗りつぶしポリゴン(下限標高〜上限標高の帯域)を出力します。段彩図的な表現や標高帯別の集計・面積計算に向きます。\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n入力ラスタ(DEM)\n必須\nBAND\nバンド番号\n1\nINTERVAL\n等高線間隔\n10.0\nFIELD_NAME_MIN\nポリゴン下限標高の属性名\nELEV_MIN\nFIELD_NAME_MAX\nポリゴン上限標高の属性名\nELEV_MAX\nCREATE_3D\nZ値付き3Dベクタを生成\nfalse\nIGNORE_NODATA\n全ラスタ値を有効とみなす\nfalse\nNODATA\nNoData として扱う入力値\n任意\nOFFSET\n間隔の基準値\n0.0\nOPTIONS / EXTRA\n追加オプション\n任意\nOUTPUT\n出力ベクタ(ポリゴン)\n必須\n\ngdal:contour との違い\n出力がポリゴン(ラインではない)\n属性が下限/上限の2フィールド(ELEV_MIN/ELEV_MAX)\n実行例: processing.run(\"gdal:contour_polygon\", {\"INPUT\": dem, \"INTERVAL\": 10, \"OUTPUT\": \"bands.gpkg\"})"
+}

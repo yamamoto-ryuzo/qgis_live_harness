@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.actionActionCatchForCustomization",
+ "prompt": "QGISの「mActionCatchForCustomization」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「mActionCatchForCustomization」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "`mActionCatchForCustomization` を検索します。調査結果です。\n\n## `mActionCatchForCustomization` は **有効(enabled)** です\n\n| 項目 | 値 |\n|---|---|\n| text | `mActionCatchForCustomization` |\n| objectName | `actionActionCatchForCustomization` |\n| checkable | false（トグル式ではない） |\n| **enabled** | **true → 有効** |\n| visible | true（ただし**ツールバー/メニューには一切配置されていない** — containers空） |\n| ツールチップ | 「ここでショートカットのコンフリクトを除去します。ショートカットはQgsCustomizationでキャッチされます」 |\n| ショートカット | **Ctrl+M** |\n\nこれはUIカスタマイズ機能用の**内部・非表示アクション**です。「設定 > インタフェースのカスタマイズ…」(mActionCustomization）ダイアログで「キャッチモード」を有効にした際、Ctrl+M を押しながらUI上のウィジェット/メニュー項目を拾うために使われる、QgsCustomization 用のショートカットフックです。\n\n- メニューやツールバーには表示されず、内部的に登録されているだけのアクションです\n- enabled=true は「ショートカットが機能可能な状態」を意味し、カスタマイズダイアログのキャッチモードがONかどうかとは別です（キャッチモード自体はダイアログ側の状態）\n\nこのアクションを `trigger()` しても通常は何も起きません（キャッチモード中のみ意味を持つ）。確認したい具体的な用途があればお知らせください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    on = (a.objectName() or '')\\n    tt = (a.toolTip() or '')\\n    if 'customization' in on.lower() or 'customiz' in t.lower() or 'customiz' in tt.lower() or 'catch' in on.lower() or 'カスタマ' in t:\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': t,\\n            'objectName': on,\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            'to"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「mActionCatchForCustomization」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nmActionCatchForCustomization を検索します。調査結果です。\nmActionCatchForCustomization は 有効(enabled) です\n項目\n値\ntext\nmActionCatchForCustomization\nobjectName\nactionActionCatchForCustomization\ncheckable\nfalse（トグル式ではない）\nenabled\ntrue → 有効\nvisible\ntrue（ただしツールバー/メニューには一切配置されていない — containers空）\nツールチップ\n「ここでショートカットのコンフリクトを除去します。ショートカットはQgsCustomizationでキャッチされます」\nショートカット\nCtrl+M\n\nこれはUIカスタマイズ機能用の内部・非表示アクションです。「設定 > インタフェースのカスタマイズ…」(mActionCustomization）ダイアログで「キャッチモード」を有効にした際、Ctrl+M を押しながらUI上のウィジェット/メニュー項目を拾うために使われる、QgsCustomization 用のショートカットフックです。\nメニューやツールバーには表示されず、内部的に登録されているだけのアクションです\nenabled=true は「ショートカットが機能可能な状態」を意味し、カスタマイズダイアログのキャッチモードがONかどうかとは別です（キャッチモード自体はダイアログ側の状態）\nこのアクションを trigger() しても通常は何も起きません（キャッチモード中のみ意味を持つ）。確認したい具体的な用途があればお知らせください。"
+}

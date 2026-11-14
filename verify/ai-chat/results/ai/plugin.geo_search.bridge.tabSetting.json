@@ -1,0 +1,30 @@
+{
+ "id": "plugin.geo_search.bridge.tabSetting",
+ "prompt": "geo_search プラグインの「tabSetting」(検索タブの設定JSON(由来_source/_source_index含む)を返す。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_search プラグインの「tabSetting」(検索タブの設定JSON(由来_source/_source_index含む)を返す。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`tabSetting` を試しました。結果:\n\n**タブ「住所検索」(index 3)**\n```json\n{\n  \"group\": \"各種レイヤ\",\n  \"Title\": \"住所検索\",\n  \"Provider\": \"gsi\",\n  \"CreateScratch\": true,\n  \"ViewFields\": [],\n  \"_source\": \"setting.json\",\n  \"_source_index\": 3,\n  \"_load_sequence\": 3\n}\n```\n\n**タブ0「カレントレイヤ」**\n```json\n{\n  \"group\": \"各種レイヤ\",\n  \"Title\": \"カレントレイヤ\",\n  \"Layer\": {},\n  \"SearchField\": {},\n  \"ViewFields\": [],\n  \"_source\": \"setting.json\",\n  \"_source_index\": 0,\n  \"_load_sequence\": 0\n}\n```\n\nポイント:\n- `_source`: 設定の由来 — 両方ともプラグイン同梱の `setting.json`\n- `_source_index`: 由来ファイル内での定義順\n- `Provider: \"gsi\"` と `CreateScratch: true` が住所検索タブ固有の設定(ジオコーディング provider とスクラッチレイヤ作成フラグ)\n\n指定方法はタイトル・index・`{group, title}` のいずれでも可です。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_search', 'args': ['住所検索'], 'method': 'tabSetting'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'tabSetting', 'plugin_id': 'geo_search', 'args': [0]}"
+  }
+ ],
+ "view_tail": "[あなた] geo_search プラグインの「tabSetting」(検索タブの設定JSON(由来_source/_source_index含む)を返す。)を試して。必要な引数は適当な値でよい\n[AI] \ntabSetting を試しました。結果:\nタブ「住所検索」(index 3)\n{\n  \"group\": \"各種レイヤ\",\n  \"Title\": \"住所検索\",\n  \"Provider\": \"gsi\",\n  \"CreateScratch\": true,\n  \"ViewFields\": [],\n  \"_source\": \"setting.json\",\n  \"_source_index\": 3,\n  \"_load_sequence\": 3\n}\nタブ0「カレントレイヤ」\n{\n  \"group\": \"各種レイヤ\",\n  \"Title\": \"カレントレイヤ\",\n  \"Layer\": {},\n  \"SearchField\": {},\n  \"ViewFields\": [],\n  \"_source\": \"setting.json\",\n  \"_source_index\": 0,\n  \"_load_sequence\": 0\n}\nポイント:\n_source: 設定の由来 — 両方ともプラグイン同梱の setting.json\n_source_index: 由来ファイル内での定義順\nProvider: \"gsi\" と CreateScratch: true が住所検索タブ固有の設定(ジオコーディング provider とスクラッチレイヤ作成フラグ)\n指定方法はタイトル・index・{group, title} のいずれでも可です。"
+}

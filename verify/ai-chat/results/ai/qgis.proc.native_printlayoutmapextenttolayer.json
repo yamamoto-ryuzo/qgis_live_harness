@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_printlayoutmapextenttolayer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 印刷レイアウト領域を作成」(id: native:printlayoutmapextenttolayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 印刷レイアウト領域を作成」(id: native:printlayoutmapextenttolayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:printlayoutmapextenttolayer` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:printlayoutmapextenttolayer`\n- **表示名**: 印刷レイアウト領域を作成\n- **グループ**: 地図製作\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\n印刷レイアウト内の**地図アイテムが表示している範囲（extent）をポリゴンとして出力**します。出力ポリゴンには地図のサイズ・縮尺・回転が属性として付加されます。`MAP` で特定の地図アイテムを指定すればその地図のみ、未指定ならレイアウト上のすべての地図が対象になります。アトラスの図郭範囲を実データとして取得したい場合などに便利です。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `LAYOUT` | layout（必須） | 対象の印刷レイアウト名 |\n| `MAP` | layoutitem（オプション） | 地図アイテム（省略時はレイアウト内の全地図） |\n| `CRS` | crs（オプション） | 出力CRSの上書き（省略時は地図のCRS） |\n| `OUTPUT` | sink → outputVector | 出力先（領域ポリゴンレイヤ） |\n\n## 出力（戻り値）\n\n`OUTPUT` に加え、`WIDTH`（地図の幅）、`HEIGHT`（高さ）、`SCALE`（縮尺）、`ROTATION`（回転）も返ります。\n\n実行例:\n\n```python\nres = processing.run(\"native:printlayoutmapextenttolayer\", {\n    'LAYOUT': 'MyLayout',\n    'MAP': 'Map 1',\n    'OUTPUT': 'memory:'\n})\nprint(res['SCALE'])\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:printlayoutmapextenttolayer')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 印刷レイアウト領域を作成」(id: native:printlayoutmapextenttolayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:printlayoutmapextenttolayer は現在の QGIS の processing registry に登録されています。\nID: native:printlayoutmapextenttolayer\n表示名: 印刷レイアウト領域を作成\nグループ: 地図製作\nプロバイダ: QGIS（ネイティブC++）\n用途\n印刷レイアウト内の地図アイテムが表示している範囲（extent）をポリゴンとして出力します。出力ポリゴンには地図のサイズ・縮尺・回転が属性として付加されます。MAP で特定の地図アイテムを指定すればその地図のみ、未指定ならレイアウト上のすべての地図が対象になります。アトラスの図郭範囲を実データとして取得したい場合などに便利です。\n主なパラメータ\n名前\n種別\n説明\nLAYOUT\nlayout（必須）\n対象の印刷レイアウト名\nMAP\nlayoutitem（オプション）\n地図アイテム（省略時はレイアウト内の全地図）\nCRS\ncrs（オプション）\n出力CRSの上書き（省略時は地図のCRS）\nOUTPUT\nsink → outputVector\n出力先（領域ポリゴンレイヤ）\n\n出力（戻り値）\nOUTPUT に加え、WIDTH（地図の幅）、HEIGHT（高さ）、SCALE（縮尺）、ROTATION（回転）も返ります。\n実行例:\nres = processing.run(\"native:printlayoutmapextenttolayer\", {\n    'LAYOUT': 'MyLayout',\n    'MAP': 'Map 1',\n    'OUTPUT': 'memory:'\n})\nprint(res['SCALE'])"
+}

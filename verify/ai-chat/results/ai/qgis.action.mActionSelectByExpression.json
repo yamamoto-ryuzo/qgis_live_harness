@@ -10,7 +10,7 @@
   },
   {
    "role": "assistant",
-   "content": "「式による地物選択...」(`mActionSelectByExpression`)を実行します。ダイアログが開きました。式を入力して選択を実行します。式エディタに `\"id\" = 1` を設定して「地物を選択」を実行します。式の設定が反映されませんでした。ビルダーのAPIを確認します。「式による地物選択...」(`mActionSelectByExpression`)を実行し、式による選択まで検証しました。\n\n## 実行結果\n\n1. **アクション実行** → `QgsExpressionSelectionDialog`「repro_move — QGIS式による選択」がオープン(非モーダル)\n2. **式入力**: 式ビルダー(`QgsExpressionBuilderWidget`)に `\"id\" = 1` をセット\n3. **「地物を選択」実行**(`mButtonSelect`)→ `selectedFeatureCount = 1` ✓\n\n地物の `id=1` が条件に一致し、正しく選択されました。\n\nダイアログには他に「地物にズーム」「ヘルプ」「クリア」「式の保存/編集/削除/インポート/エクスポート」ボタンがあり、式ビルダーのツリー・関数リファレンスも内蔵されています。ダイアログは現在も開いたままです。閉じますか?\n\nなお現在 `repro_move` には「値による地物選択」ダイアログも併せて2つ開いています。"
+   "content": "「式による地物選択...」(`mActionSelectByExpression`)を実行します。## 「式による地物選択...」を実行しました\n\n`mActionSelectByExpression` を `trigger()` で実行し、ダイアログが開いたことを確認しました:\n\n- 開いたウィンドウ: `テスト地目レイヤ — QGIS式による選択`(`QgsExpressionSelectionDialog`)\n\nアクティブレイヤ `テスト地目レイヤ` に対して、QGIS式(例: `\"地目\" = '田'` や `\"人口\" > 100`)で地物を選択できる式ビルダーダイアログが表示されています。\n\n式を入力して選択まで実行する場合や、ダイアログを閉じる場合はお知らせください。"
   }
  ],
  "tools": [
@@ -19,24 +19,8 @@
  "audit": [
   {
    "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QApplication, QDialog\\na = next(x for x in iface.mainWindow().findChildren(QAction) if x.objectName()=='mActionSelectByExpression')\\na.trigger()\\ndlgs = [{'class': w.metaObject().className(), 'title': w.windowTitle(), 'modal': w.isModal()}\\n        for w in QApplication.topLevelWidgets() if isinstance(w, QDialog) and w.isVisible()]\\nresult = {'dialogs': dlgs}\"}"
-  },
-  {
-   "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtWidgets import QApplication, QDialog, QWidget, QToolButton, QPushButton, QLineEdit\\ndlg = next(w for w in QApplication.topLevelWidgets() if isinstance(w, QDialog) and w.metaObject().className()=='QgsExpressionSelectionDialog')\\nout=[]\\nfor c in dlg.findChildren(QWidget):\\n    cn = c.metaObject().className()\\n    if 'Expression' in cn or 'Editor' in cn or isinstance(c,(QToolButton,QPushButton)):\\n        info={'cls':cn,'objectName':c.objectName(),'visible':c.isVisible()}\\n        if hasattr(c,'text'): info['text']=c.text()\\n        out.append(info)\\nresult = out[:30]\"}"
-  },
-  {
-   "type": "pyeval",
-   "args": "{'code': 'from qgis.PyQt.QtWidgets import QApplication, QDialog, QWidget, QToolButton\\ndlg = next(w for w in QApplication.topLevelWidgets() if isinstance(w, QDialog) and w.metaObject().className()==\\'QgsExpressionSelectionDialog\\')\\nbuilder = next(c for c in dlg.findChildren(QWidget) if c.metaObject().className()==\\'QgsExpressionBuilderWidget\\')\\n# 式をセット(ビルダーのAPI)\\nfor m in (\\'setExpressionText\\', \\'setExpression\\'):\\n    if hasattr(builder, m):\\n        getattr(builder, m)(\\'\"id\" = 1\\')\\n        break\\ntxt = builder.expressionText() if hasattr(builder,\\'expressionText\\') else None\\nlyr = QgsProject.instance().mapLayersByName(\\'repro_move\\')[0]\\nlyr.removeSelection()\\nbtn = next(c for c in dlg.findChildren(QToolButton) if c.objectName()==\\'mButtonSelect\\')\\nbtn.click()\\nresult = {\\'expression\\': txt, \\'selected\\': lyr.selectedFeatureCount(), \\'dlg_visible\\': dlg.isVisible()}'}"
-  },
-  {
-   "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtWidgets import QApplication, QDialog, QWidget\\ndlg = next(w for w in QApplication.topLevelWidgets() if isinstance(w, QDialog) and w.metaObject().className()=='QgsExpressionSelectionDialog')\\nbuilder = next(c for c in dlg.findChildren(QWidget) if c.metaObject().className()=='QgsExpressionBuilderWidget')\\nms = [m for m in dir(builder) if 'expr' in m.lower() or 'text' in m.lower()]\\ninfo = {'methods': ms, 'py_type': type(builder).__name__}\\nresult = info\"}"
-  },
-  {
-   "type": "pyeval",
-   "args": "{'code': 'from qgis.PyQt import sip\\nfrom qgis.gui import QgsExpressionBuilderWidget\\nfrom qgis.PyQt.QtWidgets import QApplication, QDialog, QWidget, QToolButton\\ndlg = next(w for w in QApplication.topLevelWidgets() if isinstance(w, QDialog) and w.metaObject().className()==\\'QgsExpressionSelectionDialog\\')\\nbw = next(c for c in dlg.findChildren(QWidget) if c.metaObject().className()==\\'QgsExpressionBuilderWidget\\')\\nb = sip.wrapinstance(int(sip.unwrapinstance(bw)), QgsExpressionBuilderWidget)\\nb.setExpressionText(\\'\"id\" = 1\\')\\ntxt = b.expressionText()\\nlyr = QgsProject.instance().mapLayersByName(\\'repro_move\\')[0]\\nlyr.removeSelection()\\nbtn = next(c for c in dlg.findChildren(QToolButton) if c.objectName()==\\'mButtonSelect\\')\\nbtn.click()\\nresult = {\\'expression\\': txt, \\'selected\\': lyr.selectedFeatureCount()}'}"
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QApplication\\nmw = iface.mainWindow()\\nact = next(a for a in mw.findChildren(QAction) if a.objectName() == 'mActionSelectByExpression')\\nact.trigger()\\nQApplication.processEvents()\\nw = QApplication.activeModalWidget() or QApplication.activeWindow()\\nresult = {'activeWidget': w.objectName() or type(w).__name__, 'windowTitle': w.windowTitle() if w else None}\"}"
   }
  ],
- "view_tail": "[あなた] QGISの「式による地物選択...」機能(アクション)を実行して\n[AI] \n「式による地物選択...」(mActionSelectByExpression)を実行します。ダイアログが開きました。式を入力して選択を実行します。式エディタに \"id\" = 1 を設定して「地物を選択」を実行します。式の設定が反映されませんでした。ビルダーのAPIを確認します。「式による地物選択...」(mActionSelectByExpression)を実行し、式による選択まで検証しました。\n実行結果\nアクション実行 → QgsExpressionSelectionDialog「repro_move — QGIS式による選択」がオープン(非モーダル)\n式入力: 式ビルダー(QgsExpressionBuilderWidget)に \"id\" = 1 をセット\n「地物を選択」実行(mButtonSelect)→ selectedFeatureCount = 1 ✓\n地物の id=1 が条件に一致し、正しく選択されました。\nダイアログには他に「地物にズーム」「ヘルプ」「クリア」「式の保存/編集/削除/インポート/エクスポート」ボタンがあり、式ビルダーのツリー・関数リファレンスも内蔵されています。ダイアログは現在も開いたままです。閉じますか?\nなお現在 repro_move には「値による地物選択」ダイアログも併せて2つ開いています。"
+ "view_tail": "[あなた] QGISの「式による地物選択...」機能(アクション)を実行して\n[AI] \n「式による地物選択...」(mActionSelectByExpression)を実行します。## 「式による地物選択...」を実行しました\nmActionSelectByExpression を trigger() で実行し、ダイアログが開いたことを確認しました:\n開いたウィンドウ: テスト地目レイヤ — QGIS式による選択(QgsExpressionSelectionDialog)\nアクティブレイヤ テスト地目レイヤ に対して、QGIS式(例: \"地目\" = '田' や \"人口\" > 100)で地物を選択できる式ビルダーダイアログが表示されています。\n式を入力して選択まで実行する場合や、ダイアログを閉じる場合はお知らせください。"
 }

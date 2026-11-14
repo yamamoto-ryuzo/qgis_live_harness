@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_extractprojection",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 投影法を抽出」(id: gdal:extractprojection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 投影法を抽出」(id: gdal:extractprojection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:extractprojection` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:extractprojection` |\n| 表示名 | 投影法を抽出 |\n| プロバイダ | GDAL |\n| グループ | ラスタ投影 |\n| 実装クラス | `processing.algs.gdal.extractprojection.ExtractProjection` |\n\n## 用途\n\nラスタファイルの**ジオリファレンス情報をサイドカーファイルとして書き出し**ます。\n\n- **ワールドファイル**(`.wld` / `.tfw` 等):セルサイズ・回転・原点座標のアフィン変換情報\n- **`.prj` ファイル**(オプション):WKT 形式の座標系定義\n\nジオリファレンス情報を持たない形式へ渡す場合や、座標情報をテキストで確認・持ち運びたいときに使います。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ラスタファイル | 必須 |\n| `PRJ_FILE_CREATE` | `.prj` ファイルも作成する | false |\n\n## 出力(自動生成)\n\n| 出力名 | 内容 |\n|---|---|\n| `WORLD_FILE` | ワールドファイル(常時生成) |\n| `PRJ_FILE` | `.prj` ファイル(`PRJ_FILE_CREATE=True` のとき) |\n\n出力は入力ファイルと同じ場所にサイドカーとして書き込まれる形式で、通常の「出力ファイル」パラメータはありません。\n\n実行例: `processing.run(\"gdal:extractprojection\", {\"INPUT\": layer, \"PRJ_FILE_CREATE\": True})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:extractprojection')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'projection' in a.id().lower() or 'extract' in a.id().lower()][:80]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displa"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 投影法を抽出」(id: gdal:extractprojection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:extractprojection をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:extractprojection\n表示名\n投影法を抽出\nプロバイダ\nGDAL\nグループ\nラスタ投影\n実装クラス\nprocessing.algs.gdal.extractprojection.ExtractProjection\n\n用途\nラスタファイルのジオリファレンス情報をサイドカーファイルとして書き出します。\nワールドファイル(.wld / .tfw 等):セルサイズ・回転・原点座標のアフィン変換情報\n.prj ファイル(オプション):WKT 形式の座標系定義\nジオリファレンス情報を持たない形式へ渡す場合や、座標情報をテキストで確認・持ち運びたいときに使います。\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n入力ラスタファイル\n必須\nPRJ_FILE_CREATE\n.prj ファイルも作成する\nfalse\n\n出力(自動生成)\n出力名\n内容\nWORLD_FILE\nワールドファイル(常時生成)\nPRJ_FILE\n.prj ファイル(PRJ_FILE_CREATE=True のとき)\n\n出力は入力ファイルと同じ場所にサイドカーとして書き込まれる形式で、通常の「出力ファイル」パラメータはありません。\n実行例: processing.run(\"gdal:extractprojection\", {\"INPUT\": layer, \"PRJ_FILE_CREATE\": True})"
+}

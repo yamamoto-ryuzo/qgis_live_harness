@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionShowCached",
+ "prompt": "QGISの「キャッシュにある応答を表示」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「キャッシュにある応答を表示」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「キャッシュ」を含むアクションを全走査します。「キャッシュにある応答を表示」は `mActionShowCached` — ネットワークロガーパネルのトグルアクションで、**既に ON(checked=True)** です。ボタンの所在とパネルの状態を確認します。調査結果です。\n\n## 「キャッシュにある応答を表示」— **既に有効(ON)のため、そのままにしました**\n\n**アクションの実体**: `mActionShowCached` — デバッグ開発ツールドック内の**ネットワークロガー**パネル(`QgsNetworkLoggerPanelWidget`)のツールバーにあるドロップダウンボタンのメニュー項目です。\n\n- 場所: 「デバッグ開発ツール」ドック → ネットワークロガー → ツールバーのメニューボタン内\n- 役割: ネットワークロガーのログ一覧に、**ローカルキャッシュから返された応答**も表示するかどうかのトグル(ツールチップ: 「ローカルのキャッシュデータから返された応答を表示」)\n\n**pyeval での実測値**:\n\n| 項目 | 値 |\n|---|---|\n| `isEnabled()` | True |\n| `isChecked()` | **True(既にON)** |\n| `isCheckable()` | True |\n| ドックの表示 | デバッグ開発ツールドックは表示中 |\n\nこれは「In-Place編集」と同じトグル型アクションですが、**既に ON になっている**ため実行(`trigger()`)すると逆に OFF になってしまいます。「キャッシュ由来の応答を表示する」という機能自体は有効な状態なので、今回は状態を変更していません。\n\n意図が「OFF に切り替えて」であれば言ってください。トグルして OFF にします。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\nmw = iface.mainWindow()\\nres = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').replace('&','')\\n    tt = (a.toolTip() or '')\\n    on = a.objectName() or ''\\n    if ('キャッシュ' in t or 'キャッシュ' in tt or 'cache' in on.lower() or 'cache' in t.lower() or '応答' in t):\\n        menus = [m.title().replace('&','') for m in mw.findChildren(QMenu) if a in m.actions()]\\n        tbs = [tb.windowTitle() for tb in mw.findChildren(QToolBar) if a in tb.actions()]\\n        res.append({\\n            'objectName': on,\\n            'text': t,\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'tooltip': tt,\\n            'shortcut': a.shortcut().toString(),\\n            'menus': menus,\\n            'toolbars': tbs,\\n            'parentClass': a.parent().metaObject().className() if a.parent() else None,\\n    "
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': 'from qgis.PyQt.QtWidgets import QAction, QToolButton, QDockWidget, QMenu\\nmw = iface.mainWindow()\\ntarget = None\\nfor a in mw.findChildren(QAction):\\n    if a.objectName() == \\'mActionShowCached\\':\\n        target = a\\n        break\\nres = {\\'checked\\': target.isChecked(), \\'enabled\\': target.isEnabled()}\\n# どのボタン/メニューに載っているか\\nfor btn in mw.findChildren(QToolButton):\\n    m = btn.menu()\\n    if m is not None and target in m.actions():\\n        chain = []\\n        p = btn.parent()\\n        while p is not None and len(chain) < 6:\\n            chain.append(f\"{p.metaObject().className()}({p.objectName()})\")\\n            p = p.parent()\\n        res[\\'buttonMenu_in\\'] = \\' <- \\'.join(chain)\\n# ネットワークロガーのドック状態\\nfor d in mw.findChildren(QDockWidget):\\n    if \\'デバッグ\\' in d.windowTitle() or \\'Debug\\' in d.objectName():\\n        res[\\'dock\\'] = {\\'title\\': d.windowTitle(), \\'visible\\': d.isVisible()}\\nresult = res'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「キャッシュにある応答を表示」機能(アクション)を実行して\n[AI] \n「キャッシュ」を含むアクションを全走査します。「キャッシュにある応答を表示」は mActionShowCached — ネットワークロガーパネルのトグルアクションで、既に ON(checked=True) です。ボタンの所在とパネルの状態を確認します。調査結果です。\n「キャッシュにある応答を表示」— 既に有効(ON)のため、そのままにしました\nアクションの実体: mActionShowCached — デバッグ開発ツールドック内のネットワークロガーパネル(QgsNetworkLoggerPanelWidget)のツールバーにあるドロップダウンボタンのメニュー項目です。\n場所: 「デバッグ開発ツール」ドック → ネットワークロガー → ツールバーのメニューボタン内\n役割: ネットワークロガーのログ一覧に、ローカルキャッシュから返された応答も表示するかどうかのトグル(ツールチップ: 「ローカルのキャッシュデータから返された応答を表示」)\npyeval での実測値:\n項目\n値\nisEnabled()\nTrue\nisChecked()\nTrue(既にON)\nisCheckable()\nTrue\nドックの表示\nデバッグ開発ツールドックは表示中\n\nこれは「In-Place編集」と同じトグル型アクションですが、既に ON になっているため実行(trigger())すると逆に OFF になってしまいます。「キャッシュ由来の応答を表示する」という機能自体は有効な状態なので、今回は状態を変更していません。\n意図が「OFF に切り替えて」であれば言ってください。トグルして OFF にします。"
+}

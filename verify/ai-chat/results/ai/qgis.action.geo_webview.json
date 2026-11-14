@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.geo_webview",
+ "prompt": "QGISの「geo_webview」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「geo_webview」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「geo_webview」に該当するアクションを検索します。## 調査結果\n\n「geo_webview」アクションの状態を `qgis_pyeval` で確認しました。\n\n| 項目 | 状態 |\n|---|---|\n| 提供元 | **geo_webview** プラグイン（QGIS 標準ではありません） |\n| 表示テキスト | geo_webview |\n| 配置場所 | **プラグイン → geo_webview** メニュー ＋ **GeoSuite** ツールバー |\n| ショートカット | なし |\n| 現在の有効状態 | **有効（enabled）** |\n\n### 補足\n\n- GeoSuite ツールバー上の geo_webview プラグイン起動アクションです。実行するとプラグインの WebEngine ビュー（WebGIS パネル/ダイアログ）が開く想定です。\n- geo_webview はライブドライバを持つプラグインのため、`qgis_open_plugin` でダイアログを開くことも可能です。\n\n必要であれば `trigger()` または `qgis_open_plugin` で起動できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\nmw = iface.mainWindow()\\nmatches = []\\nfor a in mw.findChildren(QAction):\\n    name = a.objectName() or ''\\n    text = a.text() or ''\\n    tip = a.toolTip() or ''\\n    if 'geo_webview' in (name+text+tip).lower() or 'webview' in (name+text+tip).lower():\\n        homes = [m.title() for m in mw.findChildren(QMenu) if a in m.actions()]\\n        tb = [t.windowTitle() for t in mw.findChildren(QToolBar) if a in t.actions()]\\n        matches.append({'objectName': name, 'text': text, 'toolTip': tip,\\n                        'enabled': a.isEnabled(), 'visible': a.isVisible(),\\n                        'shortcut': a.shortcut().toString(), 'menus': homes, 'toolbars': tb})\\nresult = matches\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「geo_webview」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「geo_webview」に該当するアクションを検索します。## 調査結果\n「geo_webview」アクションの状態を qgis_pyeval で確認しました。\n項目\n状態\n提供元\ngeo_webview プラグイン（QGIS 標準ではありません）\n表示テキスト\ngeo_webview\n配置場所\nプラグイン → geo_webview メニュー ＋ GeoSuite ツールバー\nショートカット\nなし\n現在の有効状態\n有効（enabled）\n\n補足\nGeoSuite ツールバー上の geo_webview プラグイン起動アクションです。実行するとプラグインの WebEngine ビュー（WebGIS パネル/ダイアログ）が開く想定です。\ngeo_webview はライブドライバを持つプラグインのため、qgis_open_plugin でダイアログを開くことも可能です。\n必要であれば trigger() または qgis_open_plugin で起動できます。"
+}

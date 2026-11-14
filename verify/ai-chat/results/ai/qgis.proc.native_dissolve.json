@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_dissolve",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 融合（dissolve）」(id: native:dissolve) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 融合（dissolve）」(id: native:dissolve) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:dissolve`\n- **表示名**: 融合（dissolve）\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ベクタジオメトリ\n\n## 用途\n入力レイヤの地物を**結合（融合）して新しいレイヤを作る**アルゴリズムです。属性フィールドを指定すると同じ値を持つ地物同士が融合され、指定しない場合は全地物が1つの地物にまとめられます。ポリゴンでは隣接する地物の共有境界が消え、出力はすべてマルチパートジオメトリになります。例: 市区町村ポリゴンを県属性で融合して県ポリゴンを作る、全地物を1つの外郭にする、など。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ベクタレイヤ（必須） |\n| `FIELD` | 融合の基準属性（任意・複数可。未指定なら全地物を1つに融合） |\n| `SEPARATE_DISJOINT` | 接していない地物は融合しない（上級、デフォルト OFF。ONにすると同じ属性値でも地理的に離れた地物は別地物として出力） |\n| `OUTPUT` | 融合後の出力レイヤ（必須） |\n\n注意点: `SEPARATE_DISJOINT` を使わないデフォルト動作では、離れた地物も同一属性なら**1つのマルチパート地物**になります。融合後の属性値はジオメトリの結合で自動集計されないため、面積合計などが必要なら別途 `native:aggregate` やフィールド演算を組み合わせます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber, QgsProcessingParameterBoolean, QgsProcessingParameterField\\nalg = QgsApplication.processingRegistry().algorithmById('native:dissolve')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'dissolve' in a.id().lower() or 'aggregate' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        if isinstance(p, QgsProcessingParameterField):\\n            d['allowMultiple'] = p.allowMultiple()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n  "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 融合（dissolve）」(id: native:dissolve) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:dissolve\n表示名: 融合（dissolve）\nプロバイダ: QGIS（ネイティブC++）／グループ: ベクタジオメトリ\n用途\n入力レイヤの地物を結合（融合）して新しいレイヤを作るアルゴリズムです。属性フィールドを指定すると同じ値を持つ地物同士が融合され、指定しない場合は全地物が1つの地物にまとめられます。ポリゴンでは隣接する地物の共有境界が消え、出力はすべてマルチパートジオメトリになります。例: 市区町村ポリゴンを県属性で融合して県ポリゴンを作る、全地物を1つの外郭にする、など。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ベクタレイヤ（必須）\nFIELD\n融合の基準属性（任意・複数可。未指定なら全地物を1つに融合）\nSEPARATE_DISJOINT\n接していない地物は融合しない（上級、デフォルト OFF。ONにすると同じ属性値でも地理的に離れた地物は別地物として出力）\nOUTPUT\n融合後の出力レイヤ（必須）\n\n注意点: SEPARATE_DISJOINT を使わないデフォルト動作では、離れた地物も同一属性なら1つのマルチパート地物になります。融合後の属性値はジオメトリの結合で自動集計されないため、面積合計などが必要なら別途 native:aggregate やフィールド演算を組み合わせます。"
+}

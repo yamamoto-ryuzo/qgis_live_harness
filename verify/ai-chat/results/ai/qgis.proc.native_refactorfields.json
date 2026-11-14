@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_refactorfields",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性をリファクタリング」(id: native:refactorfields) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性をリファクタリング」(id: native:refactorfields) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:refactorfields` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:refactorfields`\n- **表示名**: `[QGIS（ネイティブC++）] 属性をリファクタリング`\n- **グループ**: ベクタテーブル\n- **用途**: ベクタレイヤの属性フィールドを再構成する。フィールド名・型・順序・値の対応関係を変更し、新しいレイヤとして出力する。入力レイヤ自体は変更されない。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT` | 必須 | 元となるベクタレイヤ |\n| `FIELDS_MAPPING` | 必須 | 出力フィールド名、型、対応元フィールド／式などの対応定義 |\n| `OUTPUT` | 必須 | 属性を再構成したベクタの出力先 |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:refactorfields')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'description': o.d"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性をリファクタリング」(id: native:refactorfields) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:refactorfields を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:refactorfields\n表示名: [QGIS（ネイティブC++）] 属性をリファクタリング\nグループ: ベクタテーブル\n用途: ベクタレイヤの属性フィールドを再構成する。フィールド名・型・順序・値の対応関係を変更し、新しいレイヤとして出力する。入力レイヤ自体は変更されない。\n主なパラメータ\n名前\n必須\n説明\nINPUT\n必須\n元となるベクタレイヤ\nFIELDS_MAPPING\n必須\n出力フィールド名、型、対応元フィールド／式などの対応定義\nOUTPUT\n必須\n属性を再構成したベクタの出力先\n"
+}

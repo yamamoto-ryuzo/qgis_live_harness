@@ -1,0 +1,34 @@
+{
+ "id": "plugin.geo_legend.bridge.deleteLegendVariable",
+ "prompt": "geo_legend プラグインの「deleteLegendVariable」(legend_* プロジェクト変数を削除する。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_legend プラグインの「deleteLegendVariable」(legend_* プロジェクト変数を削除する。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "削除対象が必要なので、まず `legendVariables` で現状を確認し、なければ `registerLayer` で作ってから削除します。変数がないので、現在のレイヤを登録してから削除します。`legend_テスト地目レイヤ` が登録されました。これを削除します。`deleteLegendVariable` を正常に実行できました。\n\n**手順**:\n1. `legendVariables` で確認 → 変数なし\n2. `registerLayer(null, 1)` で現在のレイヤを登録 → `legend_テスト地目レイヤ`（値: `1`、解決先: テスト地目レイヤ）が作成\n3. `deleteLegendVariable(\"legend_テスト地目レイヤ\")` を実行\n\n**結果**: `ok: true`、`variables: []` — 変数が削除され、プロジェクト変数 `legend_*` は再び空になりました。\n\n存在しない変数名を指定した場合や、レイヤ削除済みの変数の扱いを確認したい場合は、別途試すこともできます。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'method': 'legendVariables', 'plugin_id': 'geo_legend'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [None, 1], 'plugin_id': 'geo_legend', 'method': 'registerLayer'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'deleteLegendVariable', 'plugin_id': 'geo_legend', 'args': ['legend_テスト地目レイヤ']}"
+  }
+ ],
+ "view_tail": "[あなた] geo_legend プラグインの「deleteLegendVariable」(legend_* プロジェクト変数を削除する。)を試して。必要な引数は適当な値でよい\n[AI] \n削除対象が必要なので、まず legendVariables で現状を確認し、なければ registerLayer で作ってから削除します。変数がないので、現在のレイヤを登録してから削除します。legend_テスト地目レイヤ が登録されました。これを削除します。deleteLegendVariable を正常に実行できました。\n手順:\nlegendVariables で確認 → 変数なし\nregisterLayer(null, 1) で現在のレイヤを登録 → legend_テスト地目レイヤ（値: 1、解決先: テスト地目レイヤ）が作成\ndeleteLegendVariable(\"legend_テスト地目レイヤ\") を実行\n結果: ok: true、variables: [] — 変数が削除され、プロジェクト変数 legend_* は再び空になりました。\n存在しない変数名を指定した場合や、レイヤ削除済みの変数の扱いを確認したい場合は、別途試すこともできます。"
+}

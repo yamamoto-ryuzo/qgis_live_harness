@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.native_transectfixeddistance",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Transect (fixed distance)」(id: native:transectfixeddistance) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Transect (fixed distance)」(id: native:transectfixeddistance) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。存在を確認しました。enumパラメータの選択肢も確認しておきます。## 確認結果: 存在します ✅\n\n`native:transectfixeddistance` **[QGIS（ネイティブC++）] Transect (fixed distance)** は processing registry に登録されています（グループ: ベクタジオメトリ）。\n\n### 用途\n\n入力のライン/マルチラインに沿って、**一定間隔ごとにトランセクト（横断線）を生成**します。デフォルトでは元の線に対して直角（90°）方向の線分が作られます。河川の横断測量、道路の法線方向への断面線作成などに使えます。\n\n元地物の属性を引き継ぐほか、以下の属性が付加されます:\n\n- `TR_FID`: 元地物のFID / `TR_ID`: トランセクトID / `TR_SEGMENT`: セグメントID\n- `TR_ANGLE`: 角度 / `TR_LENGTH`: 長さ / `TR_ORIENT`: 側（左=0, 右=1, 両側=2）\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT` | source | — | 入力ラインレイヤ |\n| `INTERVAL` | distance | 10.0 | トランセクトの配置間隔 |\n| `INCLUDE_START` | boolean | true | ライン始点にも作成するか |\n| `LENGTH` | distance | 5.0 | トランセクトの長さ |\n| `ANGLE` | number | 90.0 | 元の線との角度（度） |\n| `SIDE` | enum | 両側（2) | 作成する側: 左=0 / 右=1 / 両側=2 |\n| `DIRECTION` | enum | Right to Left(0) | 作成方向: Right to Left=0 / Left to Right=1 |\n| `OUTPUT` | sink | — | 出力ラインレイヤ |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nreg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('native:transectfixeddistance')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({'name': p.name(), 'desc': p.description(), 'type': p.type()})\\n    outputs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': outputs,\\n    }\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('native:transectfixeddistance')\\ninfo = {}\\nfor p in alg.parameterDefinitions():\\n    if isinstance(p, QgsProcessingParameterEnum):\\n        info[p.name()] = {'options': p.options(), 'default': p.defaultValue()}\\n    else:\\n        info[p.name()] = {'default': p.defaultValue()}\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Transect (fixed distance)」(id: native:transectfixeddistance) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。存在を確認しました。enumパラメータの選択肢も確認しておきます。## 確認結果: 存在します ✅\nnative:transectfixeddistance [QGIS（ネイティブC++）] Transect (fixed distance) は processing registry に登録されています（グループ: ベクタジオメトリ）。\n用途\n入力のライン/マルチラインに沿って、一定間隔ごとにトランセクト（横断線）を生成します。デフォルトでは元の線に対して直角（90°）方向の線分が作られます。河川の横断測量、道路の法線方向への断面線作成などに使えます。\n元地物の属性を引き継ぐほか、以下の属性が付加されます:\nTR_FID: 元地物のFID / TR_ID: トランセクトID / TR_SEGMENT: セグメントID\nTR_ANGLE: 角度 / TR_LENGTH: 長さ / TR_ORIENT: 側（左=0, 右=1, 両側=2）\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT\nsource\n—\n入力ラインレイヤ\nINTERVAL\ndistance\n10.0\nトランセクトの配置間隔\nINCLUDE_START\nboolean\ntrue\nライン始点にも作成するか\nLENGTH\ndistance\n5.0\nトランセクトの長さ\nANGLE\nnumber\n90.0\n元の線との角度（度）\nSIDE\nenum\n両側（2)\n作成する側: 左=0 / 右=1 / 両側=2\nDIRECTION\nenum\nRight to Left(0)\n作成方向: Right to Left=0 / Left to Right=1\nOUTPUT\nsink\n—\n出力ラインレイヤ\n"
+}

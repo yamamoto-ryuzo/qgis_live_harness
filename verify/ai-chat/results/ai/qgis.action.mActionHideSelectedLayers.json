@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionHideSelectedLayers",
+ "prompt": "QGISの「選択レイヤを隠す」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「選択レイヤを隠す」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「選択レイヤを隠す」アクションの状態を確認します。調査結果です。「選択レイヤを隠す」は `mActionHideSelectedLayers` として見つかりました。\n\n| 項目 | 値 |\n|---|---|\n| objectName | `mActionHideSelectedLayers` |\n| テキスト | `選択レイヤを隠す` |\n| 有効(isEnabled) | **True(現在有効です)** |\n| 可視(isVisible) | True |\n\n実行すると、レイヤパネルで選択されているレイヤが非表示(チェックOFF)になります。実行しますか?"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionHideSelectedLayers')\\nresult = (a.objectName(), a.text(), a.isEnabled(), a.isVisible())\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「選択レイヤを隠す」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「選択レイヤを隠す」アクションの状態を確認します。調査結果です。「選択レイヤを隠す」は mActionHideSelectedLayers として見つかりました。\n項目\n値\nobjectName\nmActionHideSelectedLayers\nテキスト\n選択レイヤを隠す\n有効(isEnabled)\nTrue(現在有効です)\n可視(isVisible)\nTrue\n\n実行すると、レイヤパネルで選択されているレイヤが非表示(チェックOFF)になります。実行しますか?"
+}

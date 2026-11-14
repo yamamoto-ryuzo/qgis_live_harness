@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.gdal_onesidebuffer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 片側バッファを作成」(id: gdal:onesidebuffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 片側バッファを作成」(id: gdal:onesidebuffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:onesidebuffer` を Processing Registry で確認します。`BUFFER_SIDE` の選択肢も確認します。確認しました。Processing Registry に **`[GDAL] 片側バッファを作成`** は存在します。\n\n- **ID:** `gdal:onesidebuffer`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ベクタ・ジオプロセシング`\n\n### 用途\nライン系ベクタに対し、進行方向の **右側または左側だけにバッファポリゴン** を作成します。道路中心線の片側だけを面化するような処理に使います。\n\n### 主なパラメータ\n- `INPUT`：入力ラインレイヤ\n- `GEOMETRY`：対象ジオメトリカラム名\n- `DISTANCE`：バッファ距離\n- `BUFFER_SIDE`：バッファを作成する側（`右`／`左`）\n- `FIELD`：ディゾルブに使う属性フィールド\n- `DISSOLVE`：結果をディゾルブ\n- `EXPLODE_COLLECTIONS`：マルチパートをシングルパート化\n- `OPTIONS`：追加のGDALオプション\n- `OUTPUT`：出力ベクタレイヤ"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:onesidebuffer'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'onesidebuffer' in a.id().lower() or '片側バッファ' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'onesidebuffer' in a."
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nimport json\\nalg = QgsApplication.processingRegistry().algorithmById('gdal:onesidebuffer')\\nresult = None\\nif alg:\\n    p = next((x for x in alg.parameterDefinitions() if x.name() == 'BUFFER_SIDE'), None)\\n    result = json.dumps({'buffer_side_options': list(p.options()) if p else None}, ensure_ascii=False)\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 片側バッファを作成」(id: gdal:onesidebuffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:onesidebuffer を Processing Registry で確認します。BUFFER_SIDE の選択肢も確認します。確認しました。Processing Registry に [GDAL] 片側バッファを作成 は存在します。\nID: gdal:onesidebuffer\nプロバイダ: GDAL\nグループ: ベクタ・ジオプロセシング\n用途\nライン系ベクタに対し、進行方向の 右側または左側だけにバッファポリゴン を作成します。道路中心線の片側だけを面化するような処理に使います。\n主なパラメータ\nINPUT：入力ラインレイヤ\nGEOMETRY：対象ジオメトリカラム名\nDISTANCE：バッファ距離\nBUFFER_SIDE：バッファを作成する側（右／左）\nFIELD：ディゾルブに使う属性フィールド\nDISSOLVE：結果をディゾルブ\nEXPLODE_COLLECTIONS：マルチパートをシングルパート化\nOPTIONS：追加のGDALオプション\nOUTPUT：出力ベクタレイヤ"
+}

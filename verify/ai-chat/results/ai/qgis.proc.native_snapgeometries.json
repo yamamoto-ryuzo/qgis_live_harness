@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_snapgeometries",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオメトリをレイヤにスナップ」(id: native:snapgeometries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオメトリをレイヤにスナップ」(id: native:snapgeometries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:snapgeometries`「**ジオメトリをレイヤにスナップ**」は登録されています（グループ: ベクタジオメトリ）。\n\n## 用途\n\n- 入力レイヤのジオメトリを、**別レイヤ（または同一レイヤ内）のジオメトリに吸着（スナップ）**させます\n- 典型例：2つの道路網の境界ずれを揃える、住所ポイントを道路ラインへ吸着、行政区ポリゴンの境界を共通の参照ラインに一致させる、トポロジの隙間・重なりを修正\n- 一致させるために**頂点の挿入・削除**が行われます\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | 入力レイヤ（スナップさせる側） |\n| `REFERENCE_LAYER` | source | 参照レイヤ（吸着先。同一レイヤを指定すれば自己スナップ） |\n| `TOLERANCE` | distance | 許容範囲（この距離以内ならスナップ。入力レイヤの単位） |\n| `BEHAVIOR` | enum | 動作ルール（8択、下記） |\n| `OUTPUT` | sink | 出力レイヤ |\n\n## BEHAVIOR の選択肢（実際の registry から取得）\n\n1. `ノードの整列を優先し、必要に応じて頂点を追加する` — 頂点同士を揃える。最も確実に境界が一致（既定）\n2. `最近傍点を優先し、必要に応じて頂点を追加する` — 最も近い点（辺上でも可）へ吸着\n3. `ノードの整列を優先するが、頂点は追加しない` — 頂点数を変えたくない場合\n4. `最近傍点を優先するが、頂点は追加しない` — 同上の最近傍版\n5. `エンドポイントのみ移動し、ノードの整列を優先する` — ラインの端点だけ接続したいとき\n6. `エンドポイントのみ移動し、最近傍点を優先する`\n7. `エンドポイントはエンドポイントだけにスナップする` — 端点同士のみ（ネットワーク接続用）\n8. `アンカーノードにスナップする（単一レイヤの場合だけ）` — 自己スナップ専用\n\n注意点：頂点追加モードはジオメトリ形状が変わるため、ポリゴンで面積を厳密に保ちたい場合は「頂点は追加しない」系を選ぶか、後続で `native:fixgeometries` をかけると安全です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:snapgeometries')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオメトリをレイヤにスナップ」(id: native:snapgeometries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:snapgeometries「ジオメトリをレイヤにスナップ」は登録されています（グループ: ベクタジオメトリ）。\n用途\n入力レイヤのジオメトリを、**別レイヤ（または同一レイヤ内）のジオメトリに吸着（スナップ）**させます\n典型例：2つの道路網の境界ずれを揃える、住所ポイントを道路ラインへ吸着、行政区ポリゴンの境界を共通の参照ラインに一致させる、トポロジの隙間・重なりを修正\n一致させるために頂点の挿入・削除が行われます\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\n入力レイヤ（スナップさせる側）\nREFERENCE_LAYER\nsource\n参照レイヤ（吸着先。同一レイヤを指定すれば自己スナップ）\nTOLERANCE\ndistance\n許容範囲（この距離以内ならスナップ。入力レイヤの単位）\nBEHAVIOR\nenum\n動作ルール（8択、下記）\nOUTPUT\nsink\n出力レイヤ\n\nBEHAVIOR の選択肢（実際の registry から取得）\nノードの整列を優先し、必要に応じて頂点を追加する — 頂点同士を揃える。最も確実に境界が一致（既定）\n最近傍点を優先し、必要に応じて頂点を追加する — 最も近い点（辺上でも可）へ吸着\nノードの整列を優先するが、頂点は追加しない — 頂点数を変えたくない場合\n最近傍点を優先するが、頂点は追加しない — 同上の最近傍版\nエンドポイントのみ移動し、ノードの整列を優先する — ラインの端点だけ接続したいとき\nエンドポイントのみ移動し、最近傍点を優先する\nエンドポイントはエンドポイントだけにスナップする — 端点同士のみ（ネットワーク接続用）\nアンカーノードにスナップする（単一レイヤの場合だけ） — 自己スナップ専用\n注意点：頂点追加モードはジオメトリ形状が変わるため、ポリゴンで面積を厳密に保ちたい場合は「頂点は追加しない」系を選ぶか、後続で native:fixgeometries をかけると安全です。"
+}

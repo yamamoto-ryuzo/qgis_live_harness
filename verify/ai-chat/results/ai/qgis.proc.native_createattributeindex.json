@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_createattributeindex",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性インデックスを作成」(id: native:createattributeindex) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性インデックスを作成」(id: native:createattributeindex) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:createattributeindex` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] 属性インデックスを作成`\n- **ID**: `native:createattributeindex`\n- **グループ**: `ベクタ一般`\n- **用途**: 指定フィールドに属性インデックスを作成し、属性検索・フィルタ・結合などのクエリを高速化します。大きい属性テーブルで有効です。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | インデックスを作成するベクタレイヤ |\n| `FIELD` | インデックス対象のフィールド。1つ指定 |\n| `OUTPUT` | インデックスが作成されたレイヤ |\n\nインデックス作成の可否はデータプロバイダとフィールド型に依存します。この処理は対象データソースへインデックスを追加するため、新しい地物を生成する変換処理ではありません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:createattributeindex')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'parentLayerParameterName', 'allowMultiple'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outp"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性インデックスを作成」(id: native:createattributeindex) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:createattributeindex を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] 属性インデックスを作成\nID: native:createattributeindex\nグループ: ベクタ一般\n用途: 指定フィールドに属性インデックスを作成し、属性検索・フィルタ・結合などのクエリを高速化します。大きい属性テーブルで有効です。\n主なパラメータ:\nパラメータ\n内容\nINPUT\nインデックスを作成するベクタレイヤ\nFIELD\nインデックス対象のフィールド。1つ指定\nOUTPUT\nインデックスが作成されたレイヤ\n\nインデックス作成の可否はデータプロバイダとフィールド型に依存します。この処理は対象データソースへインデックスを追加するため、新しい地物を生成する変換処理ではありません。"
+}

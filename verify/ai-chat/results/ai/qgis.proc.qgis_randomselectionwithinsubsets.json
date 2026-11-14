@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_randomselectionwithinsubsets",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] 地物のグループ別ランダム選択」(id: qgis:randomselectionwithinsubsets) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] 地物のグループ別ランダム選択」(id: qgis:randomselectionwithinsubsets) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。存在を確認しました。`qgis:randomselectionwithinsubsets` は registry に登録されています。\n\n## [QGIS] 地物のグループ別ランダム選択\n\n**用途**: ベクタレイヤの地物を、指定した属性フィールドの**グループ(カテゴリ)ごと**にランダムに選択状態にするアルゴリズム(グループ: ベクタ選択)。「都道府県ごとに10件ずつ選択」といった層化ランダム選択ができます。\n\n前回の「地物のグループ別ランダム抽出」(`randomextractwithinsubsets`)との違いは、**新しいレイヤを作らず、入力レイヤ上で選択セットを変更するだけ**という点です(出力は選択状態のみ)。\n\n**主なパラメータ**:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ベクタレイヤ |\n| `FIELD` | グループ分けに使う属性フィールド |\n| `METHOD` | 方法 — `0`: 地物の数 / `1`: 選択地物の割合(%) |\n| `NUMBER` | 各グループから選択する数またはパーセント(デフォルト 10) |\n\n**出力**: 新規レイヤではなく、入力レイヤの選択セット(`OUTPUT` として渡されるのは同じレイヤ)。\n\n注意点: `METHOD` が割合の場合、`NUMBER` は各グループ内での割合です。また実行後に既存の選択は上書きされるので、必要なら事前に選択を保存してください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:randomselectionwithinsubsets')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'random' in a.id().lower()]}\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': type(p).__name__, 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()]\\n    outputs = [{'name': o.name(), 'desc': o.description()} for o in alg.outputDefinitions()]\\n    enum_opts = {p.name(): p.options() for p in alg.parameterDefinitions() if type(p).__name__ == 'QgsProcessingParameterEnum'}\\n    result = {'found': True, 'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'params': params, 'enums': enum_opts, 'outputs': outputs, 'shortHelp': (alg.shortHelpString() or '')[:800]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] 地物のグループ別ランダム選択」(id: qgis:randomselectionwithinsubsets) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。存在を確認しました。qgis:randomselectionwithinsubsets は registry に登録されています。\n[QGIS] 地物のグループ別ランダム選択\n用途: ベクタレイヤの地物を、指定した属性フィールドのグループ(カテゴリ)ごとにランダムに選択状態にするアルゴリズム(グループ: ベクタ選択)。「都道府県ごとに10件ずつ選択」といった層化ランダム選択ができます。\n前回の「地物のグループ別ランダム抽出」(randomextractwithinsubsets)との違いは、新しいレイヤを作らず、入力レイヤ上で選択セットを変更するだけという点です(出力は選択状態のみ)。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n入力ベクタレイヤ\nFIELD\nグループ分けに使う属性フィールド\nMETHOD\n方法 — 0: 地物の数 / 1: 選択地物の割合(%)\nNUMBER\n各グループから選択する数またはパーセント(デフォルト 10)\n\n出力: 新規レイヤではなく、入力レイヤの選択セット(OUTPUT として渡されるのは同じレイヤ)。\n注意点: METHOD が割合の場合、NUMBER は各グループ内での割合です。また実行後に既存の選択は上書きされるので、必要なら事前に選択を保存してください。"
+}

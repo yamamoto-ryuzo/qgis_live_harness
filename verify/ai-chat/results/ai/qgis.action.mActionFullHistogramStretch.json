@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionFullHistogramStretch",
+ "prompt": "QGISの「ヒストグラムをデータセット全域の値で引きのばす」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ヒストグラムをデータセット全域の値で引きのばす」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ヒストグラムをデータセット全域の値で引きのばす」の現在の状態を確認します。調査結果です。\n\n## 「ヒストグラムをデータセット全域の値で引きのばす」は **無効（グレーアウト・実行不可）** です\n\n| 項目 | 値 |\n|---|---|\n| text | `ヒストグラムをデータセット全域の値で引きのばす` |\n| objectName | `mActionFullHistogramStretch` |\n| checkable | **false（一発実行ボタン。ON/OFF状態は持たない）** |\n| **enabled** | **false → 無効（押せない状態）** |\n| 配置 | ツールバー「**ラスタツールバー**」 |\n\n「ヒストグラムを表示領域の値で引きのばす」の全域版で、データセット全体のピクセル値を使ってラスタのコントラストを引き伸ばすコマンドです。\n\n**無効な理由：** 前回と同じで、**アクティブレイヤがラスタレイヤの時だけ有効**になります。現在のアクティブレイヤは `tmp_floater_test`（ベクタ、type=0）でラスタレイヤはプロジェクトに1つもないため、グレーアウトしています。\n\nラスタツールバーのヒストグラム系4アクションは全て同じ条件で enabled=false のままです。ラスタレイヤ（DEM・画像・衛星写真等）を追加してアクティブにすれば有効化されますので、必要であればお申し付けください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    if (a.objectName() or '') == 'mActionFullHistogramStretch':\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': a.text(),\\n            'objectName': a.objectName(),\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            'tooltip': a.toolTip(),\\n            'shortcut': a.shortcut().toString(),\\n        })\\nlyr = iface.activeLayer()\\nresult = {'action': info, 'a"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ヒストグラムをデータセット全域の値で引きのばす」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「ヒストグラムをデータセット全域の値で引きのばす」の現在の状態を確認します。調査結果です。\n「ヒストグラムをデータセット全域の値で引きのばす」は 無効（グレーアウト・実行不可） です\n項目\n値\ntext\nヒストグラムをデータセット全域の値で引きのばす\nobjectName\nmActionFullHistogramStretch\ncheckable\nfalse（一発実行ボタン。ON/OFF状態は持たない）\nenabled\nfalse → 無効（押せない状態）\n配置\nツールバー「ラスタツールバー」\n\n「ヒストグラムを表示領域の値で引きのばす」の全域版で、データセット全体のピクセル値を使ってラスタのコントラストを引き伸ばすコマンドです。\n無効な理由： 前回と同じで、アクティブレイヤがラスタレイヤの時だけ有効になります。現在のアクティブレイヤは tmp_floater_test（ベクタ、type=0）でラスタレイヤはプロジェクトに1つもないため、グレーアウトしています。\nラスタツールバーのヒストグラム系4アクションは全て同じ条件で enabled=false のままです。ラスタレイヤ（DEM・画像・衛星写真等）を追加してアクティブにすれば有効化されますので、必要であればお申し付けください。"
+}

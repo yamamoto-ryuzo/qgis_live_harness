@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.pdal_boundary",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] トポロジカル境界」(id: pdal:boundary) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] トポロジカル境界」(id: pdal:boundary) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`pdal:boundary` **[QGIS (PDAL)] トポロジカル境界** は processing registry に登録されています（プロバイダ: QGIS (PDAL)、グループ: Point cloud extraction）。\n\n### 用途\n\n点群レイヤの**占有範囲をポリゴン（境界線）としてエクスポート**します。単なる外接矩形ではなく、点が存在する領域に沿った形状で、**穴（hole）やマルチパートポリゴンもあり得ます**。点群データのカバレッジ確認・インデックスポリゴン作成・取得範囲の可視化に使います。\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT` | pointcloud | — | 入力点群レイヤ |\n| `RESOLUTION` | number | （任意） | 境界計算に使うセルの解像度 |\n| `THRESHOLD` | number | （任意） | セルを「占有」とみなす最小点数 |\n| `FILTER_EXPRESSION` | expression | （任意） | 点を絞り込むフィルタ式（例: 分類値） |\n| `FILTER_EXTENT` | extent | （任意） | 切り抜き範囲 |\n| `OUTPUT` | vectorDestination | — | 出力ポリゴンレイヤ |\n\n`RESOLUTION`/`THRESHOLD` を調整すると、まばらな点や外れ点を除外した実質的な占有境界を得られます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('pdal:boundary')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] トポロジカル境界」(id: pdal:boundary) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\npdal:boundary [QGIS (PDAL)] トポロジカル境界 は processing registry に登録されています（プロバイダ: QGIS (PDAL)、グループ: Point cloud extraction）。\n用途\n点群レイヤの占有範囲をポリゴン（境界線）としてエクスポートします。単なる外接矩形ではなく、点が存在する領域に沿った形状で、穴（hole）やマルチパートポリゴンもあり得ます。点群データのカバレッジ確認・インデックスポリゴン作成・取得範囲の可視化に使います。\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT\npointcloud\n—\n入力点群レイヤ\nRESOLUTION\nnumber\n（任意）\n境界計算に使うセルの解像度\nTHRESHOLD\nnumber\n（任意）\nセルを「占有」とみなす最小点数\nFILTER_EXPRESSION\nexpression\n（任意）\n点を絞り込むフィルタ式（例: 分類値）\nFILTER_EXTENT\nextent\n（任意）\n切り抜き範囲\nOUTPUT\nvectorDestination\n—\n出力ポリゴンレイヤ\n\nRESOLUTION/THRESHOLD を調整すると、まばらな点や外れ点を除外した実質的な占有境界を得られます。"
+}

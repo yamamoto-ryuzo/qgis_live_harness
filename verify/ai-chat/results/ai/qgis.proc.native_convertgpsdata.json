@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_convertgpsdata",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] GPSデータを変換」(id: native:convertgpsdata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] GPSデータを変換」(id: native:convertgpsdata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:convertgpsdata` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] GPSデータを変換`\n- **ID**: `native:convertgpsdata`\n- **グループ**: `GPS`\n- **用途**: GPSBabel を使って、各種 GPS データファイルを標準的な `GPX` 形式へ変換します。ウェイポイント、ルート、トラックの取り込みに使えます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 変換元の GPS データファイル。多数の GPS／ログ形式を指定可能 |\n| `FORMAT` | GPSBabel が認識する入力形式名を文字列で指定 |\n| `FEATURE_TYPE` | 変換対象。`ウェイポイント`、`ルート`、`トラック` から選択 |\n| `OUTPUT` | 出力する `.gpx` ファイル |\n\n出力は GPX ファイルで、処理結果として `OUTPUT_LAYER` ベクタレイヤも返されます。利用には GPSBabel が実行環境に必要です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:convertgpsdata')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue', 'fileFilter', 'behavior', 'extension'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] GPSデータを変換」(id: native:convertgpsdata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:convertgpsdata を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] GPSデータを変換\nID: native:convertgpsdata\nグループ: GPS\n用途: GPSBabel を使って、各種 GPS データファイルを標準的な GPX 形式へ変換します。ウェイポイント、ルート、トラックの取り込みに使えます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n変換元の GPS データファイル。多数の GPS／ログ形式を指定可能\nFORMAT\nGPSBabel が認識する入力形式名を文字列で指定\nFEATURE_TYPE\n変換対象。ウェイポイント、ルート、トラック から選択\nOUTPUT\n出力する .gpx ファイル\n\n出力は GPX ファイルで、処理結果として OUTPUT_LAYER ベクタレイヤも返されます。利用には GPSBabel が実行環境に必要です。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionPictureAnnotation",
+ "prompt": "QGISの「Picture Annotationを作成」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Picture Annotationを作成」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Picture Annotationを作成」アクション（`mActionPictureAnnotation`）を実行します。実行しました。「Picture Annotationを作成」ツールが有効化されています。\n\n## 実行結果\n\n**アクション**: `mActionPictureAnnotation`（Picture Annotationを作成）\n\n- `trigger()` 実行 → `checked=false → true`\n- `mActionTextAnnotationinRectangle` は自動で `checked=false` に戻りました（排他選択）\n- アクティブマップツール: `QgsMapToolAdvancedDigitizing`\n\n## 現在の状態\n\n| 項目 | 値 |\n|---|---|\n| Picture Annotationアクション | checked=true |\n| Text Annotation in Rectangleアクション | checked=false |\n| キャンバスのマップツール | QgsMapToolAdvancedDigitizing |\n\n地図上でクリック/ドラッグして画像注記を配置します（画像ファイルの選択が伴います）。\n\nこれで注記作成ツール群（Polygon / Line / Marker / Text at Point / Text along Line / Text in Rectangle / Picture）を一通り実行しました。全て排他のチェック可能アクションで、最後に実行した「Picture Annotationを作成」が現在選択中です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = None\\nprev = None\\nfor x in mw.findChildren(QAction):\\n    if x.objectName() == 'mActionPictureAnnotation':\\n        a = x\\n    elif x.objectName() == 'mActionTextAnnotationinRectangle':\\n        prev = x\\nbefore = a.isChecked()\\na.trigger()\\ncanvas = iface.mapCanvas()\\ntool = canvas.mapTool()\\nresult = {'before_checked': before, 'after_checked': a.isChecked(),\\n          'textrect_action_now': prev.isChecked() if prev else None,\\n          'active_map_tool': type(tool).__name__ if tool else None,\\n          'tool_name': tool.toolName() if tool and hasattr(tool, 'toolName') else None,\\n          'capture_mode': int(tool.mode()) if tool and hasattr(tool, 'mode') else None}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Picture Annotationを作成」機能(アクション)を実行して\n[AI] \n「Picture Annotationを作成」アクション（mActionPictureAnnotation）を実行します。実行しました。「Picture Annotationを作成」ツールが有効化されています。\n実行結果\nアクション: mActionPictureAnnotation（Picture Annotationを作成）\ntrigger() 実行 → checked=false → true\nmActionTextAnnotationinRectangle は自動で checked=false に戻りました（排他選択）\nアクティブマップツール: QgsMapToolAdvancedDigitizing\n現在の状態\n項目\n値\nPicture Annotationアクション\nchecked=true\nText Annotation in Rectangleアクション\nchecked=false\nキャンバスのマップツール\nQgsMapToolAdvancedDigitizing\n\n地図上でクリック/ドラッグして画像注記を配置します（画像ファイルの選択が伴います）。\nこれで注記作成ツール群（Polygon / Line / Marker / Text at Point / Text along Line / Text in Rectangle / Picture）を一通り実行しました。全て排他のチェック可能アクションで、最後に実行した「Picture Annotationを作成」が現在選択中です。"
+}

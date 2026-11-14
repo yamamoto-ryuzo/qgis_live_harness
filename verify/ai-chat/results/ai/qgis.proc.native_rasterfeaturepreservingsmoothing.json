@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_rasterfeaturepreservingsmoothing",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Feature preserving DEM smoothing」(id: native:rasterfeaturepreservingsmoothing) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Feature preserving DEM smoothing」(id: native:rasterfeaturepreservingsmoothing) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:rasterfeaturepreservingsmoothing` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:rasterfeaturepreservingsmoothing`\n- **表示名**: `[QGIS（ネイティブC++）] Feature preserving DEM smoothing`\n- **グループ**: ラスタ解析\n- **用途**: FPDEMS法によりDEMの表面粗さを平滑化する。急斜面や河岸段丘などの鋭い地形変化を保持しやすい。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT` | 必須 | 入力DEMラスタ |\n| `BAND` | 必須 | 処理するバンド番号。既定値は `1` |\n| `RADIUS` | 必須 | フィルタ半径（ピクセル）。既定値は `5` |\n| `THRESHOLD` | 必須 | 法線差のしきい値（度）。既定値は `15.0` |\n| `ITERATIONS` | 必須 | 標高更新の反復回数。既定値は `3` |\n| `MAX_ELEVATION_CHANGE` | 任意 | 最大標高変化量 |\n| `Z_FACTOR` | 必須 | 標高値に適用するZ係数。既定値は `1.0` |\n| `CREATION_OPTIONS` | 任意 | ラスタ作成オプション |\n| `OUTPUT` | 必須 | 平滑化結果の出力先 |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:rasterfeaturepreservingsmoothing')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Feature preserving DEM smoothing」(id: native:rasterfeaturepreservingsmoothing) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:rasterfeaturepreservingsmoothing を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:rasterfeaturepreservingsmoothing\n表示名: [QGIS（ネイティブC++）] Feature preserving DEM smoothing\nグループ: ラスタ解析\n用途: FPDEMS法によりDEMの表面粗さを平滑化する。急斜面や河岸段丘などの鋭い地形変化を保持しやすい。\n主なパラメータ\n名前\n必須\n説明\nINPUT\n必須\n入力DEMラスタ\nBAND\n必須\n処理するバンド番号。既定値は 1\nRADIUS\n必須\nフィルタ半径（ピクセル）。既定値は 5\nTHRESHOLD\n必須\n法線差のしきい値（度）。既定値は 15.0\nITERATIONS\n必須\n標高更新の反復回数。既定値は 3\nMAX_ELEVATION_CHANGE\n任意\n最大標高変化量\nZ_FACTOR\n必須\n標高値に適用するZ係数。既定値は 1.0\nCREATION_OPTIONS\n任意\nラスタ作成オプション\nOUTPUT\n必須\n平滑化結果の出力先\n"
+}

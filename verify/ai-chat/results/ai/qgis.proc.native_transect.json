@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_transect",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] トランセクト」(id: native:transect) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] トランセクト」(id: native:transect) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:transect`「**トランセクト**」は登録されています（グループ: ベクタジオメトリ）。\n\n## 用途\n\n- ライン（マルチライン含む）の**各頂点から、指定した角度（デフォルトは垂直90°）で伸びる線分（トランセクト）を生成**します\n- 用途例：河川・海岸線に対する横断方向の測線、道路に垂直なサンプリングライン、横断プロファイル採取用の補助線\n- 出力には元地物の属性に加えて、トランセクト固有の情報が属性として付きます：\n  - `TR_FID`（元地物ID）、`TR_ID`（トランセクト一意ID）、`TR_SEGMENT`（セグメントID）、`TR_ANGLE`（角度）、`TR_LENGTH`（長さ）、`TR_ORIENT`（側：左=0/右=1/両側=2）\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | 入力レイヤ（ライン） |\n| `LENGTH` | distance | トランセクトの長さ |\n| `ANGLE` | number | 元の線との角度（度。垂直は90） |\n| `SIDE` | enum | 作成する側（線の進行方向基準）：`左` / `右` / `両側` |\n| `DIRECTION` | enum | Direction（方向の扱い）：`Right to Left` / `Left to Right` |\n| `OUTPUT` | sink | 出力レイヤ（ライン） |\n\n## 補足\n\n- **頂点ごと**にトランセクトが作られるため、頂点の多いラインでは大量の線ができます。「等間隔でトランセクト」にしたい場合は先に `native:interpolatepoint` や `qgis:pointsalonglines` で点を打ってからの方が扱いやすいです\n- 「側」の判定はラインの進行方向依存です（`native:reverselinedirection` で反転可）\n- 生成したトランセクトとDEMを組み合わせれば、等高線状プロファイルや断面図の作成に応用できます"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:transect')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] トランセクト」(id: native:transect) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:transect「トランセクト」は登録されています（グループ: ベクタジオメトリ）。\n用途\nライン（マルチライン含む）の各頂点から、指定した角度（デフォルトは垂直90°）で伸びる線分（トランセクト）を生成します\n用途例：河川・海岸線に対する横断方向の測線、道路に垂直なサンプリングライン、横断プロファイル採取用の補助線\n出力には元地物の属性に加えて、トランセクト固有の情報が属性として付きます： \nTR_FID（元地物ID）、TR_ID（トランセクト一意ID）、TR_SEGMENT（セグメントID）、TR_ANGLE（角度）、TR_LENGTH（長さ）、TR_ORIENT（側：左=0/右=1/両側=2）\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\n入力レイヤ（ライン）\nLENGTH\ndistance\nトランセクトの長さ\nANGLE\nnumber\n元の線との角度（度。垂直は90）\nSIDE\nenum\n作成する側（線の進行方向基準）：左 / 右 / 両側\nDIRECTION\nenum\nDirection（方向の扱い）：Right to Left / Left to Right\nOUTPUT\nsink\n出力レイヤ（ライン）\n\n補足\n頂点ごとにトランセクトが作られるため、頂点の多いラインでは大量の線ができます。「等間隔でトランセクト」にしたい場合は先に native:interpolatepoint や qgis:pointsalonglines で点を打ってからの方が扱いやすいです\n「側」の判定はラインの進行方向依存です（native:reverselinedirection で反転可）\n生成したトランセクトとDEMを組み合わせれば、等高線状プロファイルや断面図の作成に応用できます"
+}

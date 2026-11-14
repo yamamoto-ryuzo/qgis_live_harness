@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_excel.bridge.settings",
+ "prompt": "QGISの geo_excel プラグインで「既定設定・環境チェック・必要物の列挙を返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_excel プラグインで「既定設定・環境チェック・必要物の列挙を返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`geo_excel` bridge の `settings`（既定設定・環境チェック・必要物）を実行します。`settings` の実行結果です。\n\n## 環境チェック\n\n- `win32com`: `true`\n- `excel_registered`: `true`\n- `documents_dir`: `C:\\Users\\ryu.RYU-NOTE\\Documents`\n- `output_dir`: `C:\\Users\\ryu.RYU-NOTE\\Documents\\geo_excel`\n- `output_dir_exists`: `true`\n- `auto_apply`: `true`\n\n## 既定設定\n\n- `output_dir`: `C:\\Users\\ryu.RYU-NOTE\\Documents\\geo_excel`\n- `output_dir_configured`: `false`\n- `dpi`: `\"\"`\n- `template_list`: `\"\"`\n- `template_single`: `\"\"`\n- `auto_apply`: `true`\n\n## 必要物\n\n- Windows版 Excel（win32com/pywin32 による COM 自動化）\n- QGIS の Python から import できる pywin32（`win32com.client`）\n- ベクターレイヤ\n  - 一覧/一括: アクティブレイヤ\n  - 単票: 地物の選択も必要\n- プレースホルダを記述した Excel テンプレート\n  - `##Attach::<フィールド>`\n  - `##ListInsert::<フィールド>`\n  - `##AttachFitImage::<テーマ>::<縮尺>`\n  - 未設定時は自動生成\n- レイヤ変数 `xlsout_*`\n- `##AttachFitImage::` を使う場合はプロジェクト内のマップテーマ\n\n## スクリプト別レイヤ変数\n\n- `exportList.py`\n  - 必須: `xlsout_list_template_path`, `xlsout_list_output_path_fixed`, `xlsout_list_output_path_variable`\n- `exportSingle.py`\n  - 必須: `xlsout_template_path`, `xlsout_output_path_fixed`, `xlsout_output_path_variable`\n  - 任意: `dpi`\n- `exportSingleBulk.py`\n  - 必須: `xlsout_template_path`, `xlsout_output_path_fixed`, `xlsout_output_path_variable`\n  - 任意: `dpi`\n\n## 現在のレイヤ\n\n- `name`: `temp_edit_test`\n- `id`: `temp_edit_test_f4feafd4_99da_4ebe_9b25_cd6addc7be26`\n\n現在の `xlsout_*` / `dpi` レイヤ変数は全て `null` です。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_excel', 'method': 'settings', 'args': []}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_excel プラグインで「既定設定・環境チェック・必要物の列挙を返す。」を実行して結果を教えて\n[AI] \ngeo_excel bridge の settings（既定設定・環境チェック・必要物）を実行します。settings の実行結果です。\n環境チェック\nwin32com: true\nexcel_registered: true\ndocuments_dir: C:\\Users\\ryu.RYU-NOTE\\Documents\noutput_dir: C:\\Users\\ryu.RYU-NOTE\\Documents\\geo_excel\noutput_dir_exists: true\nauto_apply: true\n既定設定\noutput_dir: C:\\Users\\ryu.RYU-NOTE\\Documents\\geo_excel\noutput_dir_configured: false\ndpi: \"\"\ntemplate_list: \"\"\ntemplate_single: \"\"\nauto_apply: true\n必要物\nWindows版 Excel（win32com/pywin32 による COM 自動化）\nQGIS の Python から import できる pywin32（win32com.client）\nベクターレイヤ \n一覧/一括: アクティブレイヤ\n単票: 地物の選択も必要\nプレースホルダを記述した Excel テンプレート \n##Attach::<フィールド>\n##ListInsert::<フィールド>\n##AttachFitImage::<テーマ>::<縮尺>\n未設定時は自動生成\nレイヤ変数 xlsout_*\n##AttachFitImage:: を使う場合はプロジェクト内のマップテーマ\nスクリプト別レイヤ変数\nexportList.py \n必須: xlsout_list_template_path, xlsout_list_output_path_fixed, xlsout_list_output_path_variable\nexportSingle.py \n必須: xlsout_template_path, xlsout_output_path_fixed, xlsout_output_path_variable\n任意: dpi\nexportSingleBulk.py \n必須: xlsout_template_path, xlsout_output_path_fixed, xlsout_output_path_variable\n任意: dpi\n現在のレイヤ\nname: temp_edit_test\nid: temp_edit_test_f4feafd4_99da_4ebe_9b25_cd6addc7be26\n現在の xlsout_* / dpi レイヤ変数は全て null です。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_pointstopath",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 点を線に変換」(id: native:pointstopath) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 点を線に変換」(id: native:pointstopath) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:pointstopath` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:pointstopath`\n- **表示名**: 点を線に変換\n- **グループ**: ベクタ作成\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\nポイントレイヤの各地物を順番に結んで**ライン（パス）レイヤを作成**します。接続順は式で指定でき（未指定なら地物ID順）、グループ式で同じ値を持つ点同士を別々のラインに分けることも可能です。GPS軌跡や時系列観測点からの経路再構築が典型例です。出力はラインに加え、方向テキスト（頂点ごとの方位・距離）のテキストファイルも生成できます。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力ポイントレイヤ |\n| `CLOSE_PATH` | boolean（デフォルト False） | パスを閉じる（最終点→始点を接続） |\n| `ORDER_EXPRESSION` | expression（オプション） | 点を接続する順序の式 |\n| `NATURAL_SORT` | boolean（デフォルト False） | 文字列の自然ソート（'a9'を'a10'より前に） |\n| `GROUP_EXPRESSION` | expression（オプション） | 同じ値の点を同一ラインにまとめるグループ式 |\n| `OUTPUT` | sink → outputVector | 出力ラインレイヤ |\n| `OUTPUT_TEXT_DIR` | folderDestination（オプション） | 方位・距離テキストの出力ディレクトリ |\n\n※ ほかに旧仕様の `ORDER_FIELD` / `GROUP_FIELD` / `DATE_FORMAT`（いずれもオプション）も残っていますが、現在は式ベースの `ORDER_EXPRESSION` / `GROUP_EXPRESSION` が推奨です。\n\n実行例:\n\n```python\nres = processing.run(\"native:pointstopath\", {\n    'INPUT': gps_points,\n    'ORDER_EXPRESSION': '\"timestamp\"',\n    'GROUP_EXPRESSION': '\"track_id\"',\n    'CLOSE_PATH': False,\n    'OUTPUT': 'memory:'\n})\nprint(res['NUM_PATHS'])  # 生成されたパス数\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:pointstopath')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 点を線に変換」(id: native:pointstopath) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:pointstopath は現在の QGIS の processing registry に登録されています。\nID: native:pointstopath\n表示名: 点を線に変換\nグループ: ベクタ作成\nプロバイダ: QGIS（ネイティブC++）\n用途\nポイントレイヤの各地物を順番に結んでライン（パス）レイヤを作成します。接続順は式で指定でき（未指定なら地物ID順）、グループ式で同じ値を持つ点同士を別々のラインに分けることも可能です。GPS軌跡や時系列観測点からの経路再構築が典型例です。出力はラインに加え、方向テキスト（頂点ごとの方位・距離）のテキストファイルも生成できます。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力ポイントレイヤ\nCLOSE_PATH\nboolean（デフォルト False）\nパスを閉じる（最終点→始点を接続）\nORDER_EXPRESSION\nexpression（オプション）\n点を接続する順序の式\nNATURAL_SORT\nboolean（デフォルト False）\n文字列の自然ソート（'a9'を'a10'より前に）\nGROUP_EXPRESSION\nexpression（オプション）\n同じ値の点を同一ラインにまとめるグループ式\nOUTPUT\nsink → outputVector\n出力ラインレイヤ\nOUTPUT_TEXT_DIR\nfolderDestination（オプション）\n方位・距離テキストの出力ディレクトリ\n\n※ ほかに旧仕様の ORDER_FIELD / GROUP_FIELD / DATE_FORMAT（いずれもオプション）も残っていますが、現在は式ベースの ORDER_EXPRESSION / GROUP_EXPRESSION が推奨です。\n実行例:\nres = processing.run(\"native:pointstopath\", {\n    'INPUT': gps_points,\n    'ORDER_EXPRESSION': '\"timestamp\"',\n    'GROUP_EXPRESSION': '\"track_id\"',\n    'CLOSE_PATH': False,\n    'OUTPUT': 'memory:'\n})\nprint(res['NUM_PATHS'])  # 生成されたパス数"
+}

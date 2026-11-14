@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionIncreaseGamma",
+ "prompt": "QGISの「ガンマを大きく」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ガンマを大きく」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "調査結果です。\n\n## 「ガンマを大きく」アクション（`mActionIncreaseGamma`）\n\n| 項目 | 内容 |\n|---|---|\n| objectName | `mActionIncreaseGamma` |\n| 表示名 | ガンマを大きく |\n| **enabled** | **false（現在有効ではない）** |\n| visible | true |\n| ツールチップ | ガンマを大きく |\n\n### 無効の理由\n\n「ガンマを小さく」と同様、ラスタレイヤがアクティブなときのみ有効です。現在は `tmp_floater_test`（ベクタ）がアクティブで、プロジェクト内にラスタレイヤが無いため無効です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfrom qgis.utils import iface\\nfrom qgis.core import QgsMapLayer, QgsProject\\na = iface.mainWindow().findChild(QAction, 'mActionIncreaseGamma')\\nlyr = iface.activeLayer()\\nresult = {\\n  'action': {'objectName': a.objectName(), 'text': a.text(), 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'tooltip': a.toolTip()},\\n  'activeLayer': {'name': lyr.name(), 'isRaster': lyr.type() == QgsMapLayer.RasterLayer} if lyr else None,\\n  'rasterLayersInProject': [l.name() for l in QgsProject.instance().mapLayers().values() if l.type() == QgsMapLayer.RasterLayer],\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ガンマを大きく」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n調査結果です。\n「ガンマを大きく」アクション（mActionIncreaseGamma）\n項目\n内容\nobjectName\nmActionIncreaseGamma\n表示名\nガンマを大きく\nenabled\nfalse（現在有効ではない）\nvisible\ntrue\nツールチップ\nガンマを大きく\n\n無効の理由\n「ガンマを小さく」と同様、ラスタレイヤがアクティブなときのみ有効です。現在は tmp_floater_test（ベクタ）がアクティブで、プロジェクト内にラスタレイヤが無いため無効です。"
+}

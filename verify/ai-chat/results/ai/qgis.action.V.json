@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.V",
+ "prompt": "QGISの「ビュー(V)」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ビュー(V)」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "調査結果です。\n\n## 「ビュー(&V)」アクション（ビューメニュー `mViewMenu`）\n\n| 項目 | 内容 |\n|---|---|\n| 表示名 | ビュー(&V) |\n| メニュー | `mViewMenu`（メニューバーのトップレベルメニュー） |\n| **enabled** | **true（現在有効）** |\n| visible | true |\n| 子項目 | 35件（うち **33件が有効**、2件が無効） |\n\n### 状態\n\n有効です。ビューメニューは常に有効なトップレベルメニューで、地図のズーム・パン・パネルやツールバー表示切替などの項目を含みます。子項目のうち2件が無効なのは、レイヤ種別や地図ヒントなど状況依存のアクションが現在の状態で使えないためと考えられます。無効な子項目の内訳も必要であれば調べます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfrom qgis.utils import iface\\nmw = iface.mainWindow()\\nfor mb in mw.menuBar().actions():\\n    if 'ビュー' in mb.text():\\n        m = mb.menu()\\n        enabled_children = sum(1 for c in m.actions() if c.isEnabled())\\n        result = {\\n          'text': mb.text(),\\n          'enabled': mb.isEnabled(),\\n          'visible': mb.isVisible(),\\n          'menuObjectName': m.objectName() if m else None,\\n          'childCount': len(m.actions()),\\n          'enabledChildren': enabled_children,\\n        }\\n        break\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ビュー(V)」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n調査結果です。\n「ビュー(&V)」アクション（ビューメニュー mViewMenu）\n項目\n内容\n表示名\nビュー(&V)\nメニュー\nmViewMenu（メニューバーのトップレベルメニュー）\nenabled\ntrue（現在有効）\nvisible\ntrue\n子項目\n35件（うち 33件が有効、2件が無効）\n\n状態\n有効です。ビューメニューは常に有効なトップレベルメニューで、地図のズーム・パン・パネルやツールバー表示切替などの項目を含みます。子項目のうち2件が無効なのは、レイヤ種別や地図ヒントなど状況依存のアクションが現在の状態で使えないためと考えられます。無効な子項目の内訳も必要であれば調べます。"
+}

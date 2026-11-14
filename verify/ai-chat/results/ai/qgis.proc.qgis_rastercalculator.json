@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.qgis_rastercalculator",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] Raster calculator」(id: qgis:rastercalculator) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] Raster calculator」(id: qgis:rastercalculator) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。ヘルプの残りを確認します。存在を確認しました。`qgis:rastercalculator` は registry に登録されています。\n\n## [QGIS] Raster calculator\n\n**用途**: ラスタレイヤ同士の代数演算(加減乗除・条件式など)を式で記述し、結果を新しいラスタとして出力するアルゴリズム(グループ: ラスタ解析)。NDVI のような植生指数計算、DEM の傾斜マスク、複数ラスタの重み付け合成などに使います。`sin()` `cos()` `tan()` `atan2()` `ln()` `log10()` などの関数も利用可能。\n\n**主なパラメータ**:\n\n| パラメータ | 内容 |\n|---|---|\n| `EXPRESSION` | 計算式。レイヤは `'レイヤ名@バンド番号'` で参照(バンドは1始まり)。例: `\"DEM@1\" > 100`、`(\"B4@1\" - \"B3@1\") / (\"B4@1\" + \"B3@1\")` |\n| `LAYERS` | 参照レイヤ(出力の領域・セルサイズ・CRS の自動決定に使用) |\n| `CELLSIZE` | 出力セルサイズ(0 または空で自動 = 参照レイヤの最小セルサイズ) |\n| `EXTENT` | 出力領域(未指定なら参照レイヤをすべて覆う最小領域) |\n| `CRS` | 出力 CRS(未指定なら先頭の参照レイヤの CRS) |\n| `OUTPUT` | 出力ラスタ |\n\n注意点: セルサイズは X/Y 共通です。コンソール・バッチ実行ではレイヤ参照はファイル名(パスなし)になります(例: `path/to/dem.tif` → `dem.tif@1`)。GUI のラスタ計算機と同等ですが、より細かい制御が必要なら `gdal:gdalrastercalculator` 系の方が向く場合もあります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:rastercalculator')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'rastercalc' in a.id().lower() or 'calculator' in a.id().lower()]}\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': type(p).__name__, 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()]\\n    outputs = [{'name': o.name(), 'desc': o.description()} for o in alg.outputDefinitions()]\\n    enum_opts = {p.name(): p.options() for p in alg.parameterDefinitions() if type(p).__name__ == 'QgsProcessingParameterEnum'}\\n    result = {'found': True, 'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'params': params, 'enums': enum_opts, 'outputs': outputs, 'shortHelp': (alg.shortHelpString() or '')[:800]}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"result = QgsApplication.processingRegistry().algorithmById('qgis:rastercalculator').shortHelpString()[700:]\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] Raster calculator」(id: qgis:rastercalculator) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。ヘルプの残りを確認します。存在を確認しました。qgis:rastercalculator は registry に登録されています。\n[QGIS] Raster calculator\n用途: ラスタレイヤ同士の代数演算(加減乗除・条件式など)を式で記述し、結果を新しいラスタとして出力するアルゴリズム(グループ: ラスタ解析)。NDVI のような植生指数計算、DEM の傾斜マスク、複数ラスタの重み付け合成などに使います。sin() cos() tan() atan2() ln() log10() などの関数も利用可能。\n主なパラメータ:\nパラメータ\n内容\nEXPRESSION\n計算式。レイヤは 'レイヤ名@バンド番号' で参照(バンドは1始まり)。例: \"DEM@1\" > 100、(\"B4@1\" - \"B3@1\") / (\"B4@1\" + \"B3@1\")\nLAYERS\n参照レイヤ(出力の領域・セルサイズ・CRS の自動決定に使用)\nCELLSIZE\n出力セルサイズ(0 または空で自動 = 参照レイヤの最小セルサイズ)\nEXTENT\n出力領域(未指定なら参照レイヤをすべて覆う最小領域)\nCRS\n出力 CRS(未指定なら先頭の参照レイヤの CRS)\nOUTPUT\n出力ラスタ\n\n注意点: セルサイズは X/Y 共通です。コンソール・バッチ実行ではレイヤ参照はファイル名(パスなし)になります(例: path/to/dem.tif → dem.tif@1)。GUI のラスタ計算機と同等ですが、より細かい制御が必要なら gdal:gdalrastercalculator 系の方が向く場合もあります。"
+}

@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionAddPgLayer",
+ "prompt": "QGISの「Add PostgreSQL Layer…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Add PostgreSQL Layer…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "QGISのメニュー/アクション定義と有効状態を調べます。対象アクションを特定しました。続いて、メニュー/ツールバー上の所在と PostgreSQL プロバイダ登録状態も確認します。`Add PostgreSQL Layer…` アクションは**現在有効**です。\n\n確認結果:\n\n- 表示名: `Add PostgreSQL Layer…`\n- objectName: `mActionAddPgLayer`\n- 有効: `true`\n- 表示: `true`\n- ショートカット: `Ctrl+Shift+D`\n- 所在メニュー: `レイヤを追加`\n- PostgreSQLプロバイダ: 登録済み\n  - `postgres`\n  - `postgresraster`\n\nしたがって、現時点ではメニューから PostgreSQL レイヤ追加ダイアログを開ける状態です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nresult = [\\n    {\\n        'text': a.text(),\\n        'objectName': a.objectName(),\\n        'enabled': a.isEnabled(),\\n        'visible': a.isVisible(),\\n        'checkable': a.isCheckable(),\\n        'tooltip': a.toolTip(),\\n        'parent': a.parent().objectName() if a.parent() else None,\\n    }\\n    for a in iface.mainWindow().findChildren(QAction)\\n    if 'postgres' in a.text().lower() or 'postgis' in a.text().lower() or 'postgres' in a.objectName().lower() or 'postgis' in a.objectName().lower()\\n]\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\nfrom qgis.core import QgsProviderRegistry\\n\\naction = iface.mainWindow().findChild(QAction, 'mActionAddPgLayer')\\nmenus = [m.title() for m in iface.mainWindow().findChildren(QMenu) if action in m.actions()]\\ntoolbars = [tb.windowTitle() for tb in iface.mainWindow().findChildren(QToolBar) if action in tb.actions()]\\nproviders = sorted(QgsProviderRegistry.instance().providerList())\\nresult = {\\n    'action_found': action is not None,\\n    'text': action.text() if action else None,\\n    'objectName': action.objectName() if action else None,\\n    'enabled': action.isEnabled() if action else None,\\n    'visible': action.isVisible() if action else None,\\n    'shortcut': action.shortcut().toString() if action else None,\\n    'menus': menus,\\n    'toolbars': toolbars,\\n    'postgres_provider_registered': 'postgres' in providers,\\n    'matching_providers': [p for p in providers if 'postgres' in p.lower() or 'postgis' in p.lower"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Add PostgreSQL Layer…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nQGISのメニュー/アクション定義と有効状態を調べます。対象アクションを特定しました。続いて、メニュー/ツールバー上の所在と PostgreSQL プロバイダ登録状態も確認します。Add PostgreSQL Layer… アクションは現在有効です。\n確認結果:\n表示名: Add PostgreSQL Layer…\nobjectName: mActionAddPgLayer\n有効: true\n表示: true\nショートカット: Ctrl+Shift+D\n所在メニュー: レイヤを追加\nPostgreSQLプロバイダ: 登録済み \npostgres\npostgresraster\nしたがって、現時点ではメニューから PostgreSQL レイヤ追加ダイアログを開ける状態です。"
+}

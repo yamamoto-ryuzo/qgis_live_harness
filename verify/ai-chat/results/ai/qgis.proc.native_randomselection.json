@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_randomselection",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Random selection」(id: native:randomselection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Random selection」(id: native:randomselection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:randomselection` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:randomselection`\n- **表示名**: `[QGIS（ネイティブC++）] Random selection`\n- **グループ**: ベクタ選択\n- **用途**: 入力ベクタレイヤの地物をランダムに選択する。新しいレイヤは作成せず、既存レイヤの選択状態を更新する。\n\n### 主なパラメータ\n\n| 名前 | 種類 | 必須 | 説明 |\n|---|---|---:|---|\n| `INPUT` | ベクタレイヤ | 必須 | 対象レイヤ |\n| `METHOD` | 選択肢 | 必須 | `地物の数` または `地物のパーセンテージ` |\n| `NUMBER` | 数値 | 必須 | 選択する地物数または割合。既定値は `10` |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:randomselection')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'description': o."
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Random selection」(id: native:randomselection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:randomselection を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:randomselection\n表示名: [QGIS（ネイティブC++）] Random selection\nグループ: ベクタ選択\n用途: 入力ベクタレイヤの地物をランダムに選択する。新しいレイヤは作成せず、既存レイヤの選択状態を更新する。\n主なパラメータ\n名前\n種類\n必須\n説明\nINPUT\nベクタレイヤ\n必須\n対象レイヤ\nMETHOD\n選択肢\n必須\n地物の数 または 地物のパーセンテージ\nNUMBER\n数値\n必須\n選択する地物数または割合。既定値は 10\n"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_singlesidedbuffer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 片側バッファを作成」(id: native:singlesidedbuffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 片側バッファを作成」(id: native:singlesidedbuffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:singlesidedbuffer`「**片側バッファを作成**」は登録されています（グループ: ベクタジオメトリ）。\n\n## 用途\n\n- ラインレイヤに対して、**ラインの片側だけ**に固定距離のバッファ（ポリゴン）を作成します\n- 通常の `native:buffer` が両側に広がるのに対し、片側のみ。例：道路の右側だけの占用範囲、河川の左岸側の緩衝帯、鉄道沿線の片側スクリーン表示など\n- 「どちら側」はラインの**デジタイズ方向**に対する左右で決まります\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | 入力レイヤ（ライン） |\n| `DISTANCE` | distance | バッファ距離（レイヤのCRS単位） |\n| `SIDE` | enum | 位置（どちら側か）：`左` / `右` |\n| `SEGMENTS` | number | 円弧部分を近似する直線セグメント数（大きいほど滑らか） |\n| `JOIN_STYLE` | enum | 結合スタイル：`丸め` / `Miter`（留め継ぎ・鋭角）/ `Bevel`（斜角継ぎ・切り落とし） |\n| `MITER_LIMIT` | number | Miter結合でオフセット線から離れてよい最大距離（とがりすぎ防止） |\n| `OUTPUT` | sink | 出力レイヤ（ポリゴン） |\n\n注意点：左右の判定はラインの進行方向依存なので、期待と逆側にバッファができたら `SIDE` を入れ替えるか `native:reverselinedirection`（ラインの方向を反転）で方向を揃えます。`DISTANCE` はデータ定義による上書き（属性値で地物ごとに変える）も可能です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:singlesidedbuffer')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 片側バッファを作成」(id: native:singlesidedbuffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:singlesidedbuffer「片側バッファを作成」は登録されています（グループ: ベクタジオメトリ）。\n用途\nラインレイヤに対して、ラインの片側だけに固定距離のバッファ（ポリゴン）を作成します\n通常の native:buffer が両側に広がるのに対し、片側のみ。例：道路の右側だけの占用範囲、河川の左岸側の緩衝帯、鉄道沿線の片側スクリーン表示など\n「どちら側」はラインのデジタイズ方向に対する左右で決まります\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\n入力レイヤ（ライン）\nDISTANCE\ndistance\nバッファ距離（レイヤのCRS単位）\nSIDE\nenum\n位置（どちら側か）：左 / 右\nSEGMENTS\nnumber\n円弧部分を近似する直線セグメント数（大きいほど滑らか）\nJOIN_STYLE\nenum\n結合スタイル：丸め / Miter（留め継ぎ・鋭角）/ Bevel（斜角継ぎ・切り落とし）\nMITER_LIMIT\nnumber\nMiter結合でオフセット線から離れてよい最大距離（とがりすぎ防止）\nOUTPUT\nsink\n出力レイヤ（ポリゴン）\n\n注意点：左右の判定はラインの進行方向依存なので、期待と逆側にバッファができたら SIDE を入れ替えるか native:reverselinedirection（ラインの方向を反転）で方向を揃えます。DISTANCE はデータ定義による上書き（属性値で地物ごとに変える）も可能です。"
+}

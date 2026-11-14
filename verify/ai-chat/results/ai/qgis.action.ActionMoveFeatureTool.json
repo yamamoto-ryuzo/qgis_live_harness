@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.ActionMoveFeatureTool",
+ "prompt": "QGISの「ActionMoveFeatureTool」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ActionMoveFeatureTool」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "`ActionMoveFeatureTool` を objectName 完全一致で調べ、実体・実ウィジェット・所属ツールバーの状態を確認します。実ボタンは表示・有効ですが、表示名が配列複製ツールになっているため、ボタンの defaultAction と周辺アクションも確認します。`ActionMoveFeatureTool` を実際に調べた結果、**現在有効で、画面上にも表示されています**。\n\n確認値:\n\n- `objectName`: `ActionMoveFeatureTool`\n- 実体クラス: `QWidgetAction`\n- `isEnabled()`: `True`\n- `isVisible()`: `True`\n- 所属ツールバー: `mAdvancedDigitizeToolBar`\n- ツールバー `isEnabled()`: `True`\n- ツールバー `isVisible()`: `True`\n- 実ウィジェット: `QToolButton`\n- ボタン `isEnabled()`: `True`\n- ボタン `isVisible()`: `True`\n- 画面上の描画領域あり: `True`\n\nこの `ActionMoveFeatureTool` は複数の地物移動系操作をまとめるボタンで、内部アクションはすべて有効です。\n\n- `mActionMoveFeature` / `地物を移動`: `enabled=True`\n- `mActionMoveFeatureCopy` / `地物をコピー/移動`: `enabled=True`\n- `mActionFeatureArray` / `Copy Features in an Array`: `enabled=True`\n\n現在ボタンの既定表示は `Copy Features in an Array` ですが、**ActionMoveFeatureTool 自体は有効で、地物移動系の操作も利用可能な状態**です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtCore import QObject\\nfrom qgis.PyQt.QtWidgets import QWidget, QAction, QToolBar\\nwin = iface.mainWindow()\\nobj = win.findChild(QObject, 'ActionMoveFeatureTool')\\n\\nif obj is None:\\n    result = {'found': False}\\nelse:\\n    action = obj if isinstance(obj, QAction) else None\\n    parent = obj.parent()\\n    tb = parent if isinstance(parent, QToolBar) else None\\n    if tb is None and action is not None:\\n        for candidate in win.findChildren(QToolBar):\\n            if action in candidate.actions():\\n                tb = candidate\\n                break\\n    widget = tb.widgetForAction(action) if tb is not None and action is not None else (obj if isinstance(obj, QWidget) else None)\\n    menu = None\\n    if widget is not None and hasattr(widget, 'menu'):\\n        menu = widget.menu()\\n    elif action is not None:\\n        menu = action.menu()\\n    menu_actions = []\\n    if menu is not None:\\n        for ma in menu.actions():\\n            menu_actions.append({\\n"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QToolButton\\nwin = iface.mainWindow()\\na = win.findChild(QAction, 'ActionMoveFeatureTool')\\ntb = win.findChild(QToolBar, 'mAdvancedDigitizeToolBar')\\nw = tb.widgetForAction(a) if tb and a else None\\n\\ndef action_info(x):\\n    return {\\n        'qtClass': x.metaObject().className(),\\n        'objectName': x.objectName(),\\n        'text': x.text(),\\n        'enabled': x.isEnabled(),\\n        'visible': x.isVisible(),\\n        'checkable': x.isCheckable(),\\n        'checked': x.isChecked(),\\n        'shortcut': x.shortcut().toString(),\\n    } if x else None\\n\\nbutton_actions = []\\nif w is not None:\\n    for x in w.actions():\\n        button_actions.append(action_info(x))\\n\\nnearby = []\\nif tb is not None:\\n    idx = tb.actions().index(a) if a in tb.actions() else -1\\n    for i, x in enumerate(tb.actions()):\\n        if idx - 3 <= i <= idx + 3:\\n            info = action_info(x)\\n            info['index'] = i\\n            info['t"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ActionMoveFeatureTool」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nActionMoveFeatureTool を objectName 完全一致で調べ、実体・実ウィジェット・所属ツールバーの状態を確認します。実ボタンは表示・有効ですが、表示名が配列複製ツールになっているため、ボタンの defaultAction と周辺アクションも確認します。ActionMoveFeatureTool を実際に調べた結果、現在有効で、画面上にも表示されています。\n確認値:\nobjectName: ActionMoveFeatureTool\n実体クラス: QWidgetAction\nisEnabled(): True\nisVisible(): True\n所属ツールバー: mAdvancedDigitizeToolBar\nツールバー isEnabled(): True\nツールバー isVisible(): True\n実ウィジェット: QToolButton\nボタン isEnabled(): True\nボタン isVisible(): True\n画面上の描画領域あり: True\nこの ActionMoveFeatureTool は複数の地物移動系操作をまとめるボタンで、内部アクションはすべて有効です。\nmActionMoveFeature / 地物を移動: enabled=True\nmActionMoveFeatureCopy / 地物をコピー/移動: enabled=True\nmActionFeatureArray / Copy Features in an Array: enabled=True\n現在ボタンの既定表示は Copy Features in an Array ですが、ActionMoveFeatureTool 自体は有効で、地物移動系の操作も利用可能な状態です。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_selectbyexpression",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] QGIS式による選択」(id: qgis:selectbyexpression) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] QGIS式による選択」(id: qgis:selectbyexpression) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。存在を確認しました。`qgis:selectbyexpression` は registry に登録されています。\n\n## [QGIS] QGIS式による選択\n\n**用途**: QGIS の式エンジンで書いた条件式に一致する地物を、ベクタレイヤ上で選択状態にするアルゴリズム(グループ: ベクタ選択)。`selectbyattribute`(単一フィールド＋単純演算子)では表現できない、AND/OR の複合条件・文字列関数・ジオメトリ演算(`$area`, `intersects(...)` 等)を含む柔軟な選択ができます。新レイヤは作らず選択セットのみ変更します。\n\n**主なパラメータ**:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ベクタレイヤ |\n| `EXPRESSION` | QGIS 式。例: `\"pop\" > 10000 AND \"type\" = 'city'`、`$area > 5000` |\n| `METHOD` | 選択の扱い — `0`: 新たに選択、`1`: 現在の選択に追加、`2`: 現在の選択から除く、`3`: 現在の選択から選択(既存選択内で再絞込み) |\n\n**出力**: 選択状態が更新された同じレイヤ(`OUTPUT` = 選択済みレイヤ)。\n\n補足: 式で抽出して新しいレイヤを作りたい場合は「式による地物抽出」(`native:extractbyexpression`)を使います。位置関係による選択なら「空間的位置による選択」(`qgis:selectbylocation`)が適します。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:selectbyexpression')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'select' in a.id().lower()]}\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': type(p).__name__, 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()]\\n    outputs = [{'name': o.name(), 'desc': o.description()} for o in alg.outputDefinitions()]\\n    enum_opts = {p.name(): p.options() for p in alg.parameterDefinitions() if type(p).__name__ == 'QgsProcessingParameterEnum'}\\n    result = {'found': True, 'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'params': params, 'enums': enum_opts, 'outputs': outputs, 'shortHelp': (alg.shortHelpString() or '')[:1200]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] QGIS式による選択」(id: qgis:selectbyexpression) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。存在を確認しました。qgis:selectbyexpression は registry に登録されています。\n[QGIS] QGIS式による選択\n用途: QGIS の式エンジンで書いた条件式に一致する地物を、ベクタレイヤ上で選択状態にするアルゴリズム(グループ: ベクタ選択)。selectbyattribute(単一フィールド＋単純演算子)では表現できない、AND/OR の複合条件・文字列関数・ジオメトリ演算($area, intersects(...) 等)を含む柔軟な選択ができます。新レイヤは作らず選択セットのみ変更します。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n入力ベクタレイヤ\nEXPRESSION\nQGIS 式。例: \"pop\" > 10000 AND \"type\" = 'city'、$area > 5000\nMETHOD\n選択の扱い — 0: 新たに選択、1: 現在の選択に追加、2: 現在の選択から除く、3: 現在の選択から選択(既存選択内で再絞込み)\n\n出力: 選択状態が更新された同じレイヤ(OUTPUT = 選択済みレイヤ)。\n補足: 式で抽出して新しいレイヤを作りたい場合は「式による地物抽出」(native:extractbyexpression)を使います。位置関係による選択なら「空間的位置による選択」(qgis:selectbylocation)が適します。"
+}

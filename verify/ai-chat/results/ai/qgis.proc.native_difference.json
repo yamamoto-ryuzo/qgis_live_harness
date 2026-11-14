@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_difference",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 差分（difference）」(id: native:difference) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 差分（difference）」(id: native:difference) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:difference`\n- **表示名**: 差分（difference）\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ベクタオーバーレイ\n\n## 用途\n入力レイヤの地物から、**オーバーレイレイヤと重ならない部分だけを取り出す**（A − B の幾何減算）アルゴリズムです。オーバーレイの外側にある地物はそのまま、部分的に重なる地物は重なり部分が切り抜かれて出力されます。ポリゴン同士なら「建物範囲を除いた敷地」「緩衝区域外の対象地」など、ライン・ポイントにも適用可能です。属性はそのまま引き継がれるため、面積・長さを保持しているフィールドは切り抜き後の値に自動更新されない点に注意が必要です。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ（必須。差分を取られる側） |\n| `OVERLAY` | オーバーレイレイヤ（必須。差し引く側） |\n| `GRID_SIZE` | グリッドサイズ（上級・任意。ジオメトリを指定精度のグリッドにスナップさせて演算の堅牢性を上げる。未指定で無効） |\n| `OUTPUT` | 差分レイヤ（必須） |\n\n出力は `OUTPUT` のみ。両レイヤのジオメトリ型の組み合わせで結果が変わるので、想定外の出力になったら入力・オーバーレイを逆にしていないか確認してください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber, QgsProcessingParameterBoolean, QgsProcessingParameterField\\nalg = QgsApplication.processingRegistry().algorithmById('native:difference')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'differ' in a.id().lower() or 'diff' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        if isinstance(p, QgsProcessingParameterField):\\n            d['allowMultiple'] = p.allowMultiple()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n       "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 差分（difference）」(id: native:difference) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:difference\n表示名: 差分（difference）\nプロバイダ: QGIS（ネイティブC++）／グループ: ベクタオーバーレイ\n用途\n入力レイヤの地物から、オーバーレイレイヤと重ならない部分だけを取り出す（A − B の幾何減算）アルゴリズムです。オーバーレイの外側にある地物はそのまま、部分的に重なる地物は重なり部分が切り抜かれて出力されます。ポリゴン同士なら「建物範囲を除いた敷地」「緩衝区域外の対象地」など、ライン・ポイントにも適用可能です。属性はそのまま引き継がれるため、面積・長さを保持しているフィールドは切り抜き後の値に自動更新されない点に注意が必要です。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ（必須。差分を取られる側）\nOVERLAY\nオーバーレイレイヤ（必須。差し引く側）\nGRID_SIZE\nグリッドサイズ（上級・任意。ジオメトリを指定精度のグリッドにスナップさせて演算の堅牢性を上げる。未指定で無効）\nOUTPUT\n差分レイヤ（必須）\n\n出力は OUTPUT のみ。両レイヤのジオメトリ型の組み合わせで結果が変わるので、想定外の出力になったら入力・オーバーレイを逆にしていないか確認してください。"
+}

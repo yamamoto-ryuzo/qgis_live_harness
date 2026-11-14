@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_clipvectorbypolygon",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] マスクレイヤで切り抜く」(id: gdal:clipvectorbypolygon) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] マスクレイヤで切り抜く」(id: gdal:clipvectorbypolygon) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:clipvectorbypolygon` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:clipvectorbypolygon` |\n| 表示名 | マスクレイヤで切り抜く |\n| プロバイダ | GDAL |\n| グループ | ベクタ・ジオプロセシング |\n\n## 用途\n\nベクタレイヤを**マスクレイヤ(ポリゴン)の形状で切り抜き**ます(`ogr2ogr -clipsrc` のベクタレイヤ指定版)。矩形切り抜きの `gdal:clipvectorbyextent` に対し、**任意形状**での切り抜きが可能です。行政区域・調査区画などのポリゴンで地物を抽出する用途に使います。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ベクタレイヤ | 必須 |\n| `MASK` | マスクレイヤ(切り抜きに使うポリゴン) | 必須 |\n| `OPTIONS` | 追加オプション | 任意 |\n| `OUTPUT` | 出力ベクタレイヤ | 必須 |\n\nパラメータ4つのみのシンプルなアルゴリズムです。\n\n実行例: `processing.run(\"gdal:clipvectorbypolygon\", {\"INPUT\": v, \"MASK\": poly, \"OUTPUT\": \"clipped.gpkg\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:clipvectorbypolygon')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'clip' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.grou"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] マスクレイヤで切り抜く」(id: gdal:clipvectorbypolygon) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:clipvectorbypolygon をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:clipvectorbypolygon\n表示名\nマスクレイヤで切り抜く\nプロバイダ\nGDAL\nグループ\nベクタ・ジオプロセシング\n\n用途\nベクタレイヤをマスクレイヤ(ポリゴン)の形状で切り抜きます(ogr2ogr -clipsrc のベクタレイヤ指定版)。矩形切り抜きの gdal:clipvectorbyextent に対し、任意形状での切り抜きが可能です。行政区域・調査区画などのポリゴンで地物を抽出する用途に使います。\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n入力ベクタレイヤ\n必須\nMASK\nマスクレイヤ(切り抜きに使うポリゴン)\n必須\nOPTIONS\n追加オプション\n任意\nOUTPUT\n出力ベクタレイヤ\n必須\n\nパラメータ4つのみのシンプルなアルゴリズムです。\n実行例: processing.run(\"gdal:clipvectorbypolygon\", {\"INPUT\": v, \"MASK\": poly, \"OUTPUT\": \"clipped.gpkg\"})"
+}

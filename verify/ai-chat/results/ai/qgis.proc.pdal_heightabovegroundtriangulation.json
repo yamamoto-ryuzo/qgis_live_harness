@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.pdal_heightabovegroundtriangulation",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Height above ground (using triangulation)」(id: pdal:heightabovegroundtriangulation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Height above ground (using triangulation)」(id: pdal:heightabovegroundtriangulation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`pdal:heightabovegroundtriangulation` を registry から照会し、存在する場合は定義済みパラメータとヘルプを確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `pdal:heightabovegroundtriangulation`\n- **表示名**: `Height above ground (using triangulation)`\n- **Provider**: `QGIS (PDAL)`\n- **グループ**: `Point cloud data management`\n\n### 用途\n地表面分類点（`Classification = 2`）を使って Delaunay 三角形分割による TIN 地表面を作成し、各点の**地上高（HeightAboveGround）**を計算します。\n\n出力には `HeightAboveGround` ディメンションが追加されます。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力点群レイヤ | — |\n| `REPLACE_Z` | `True` の場合、Z 値を地上高へ置き換える | `True` |\n| `COUNT` | 地表面構築に使用する近傍地表面点数 | `10` |\n| `VPC_OUTPUT_FORMAT` | VPC 出力の内部形式（`COPC` / `LAZ` / `LAS`） | `COPC` |\n| `OUTPUT` | 出力先の点群データ | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('pdal:heightabovegroundtriangulation')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'triang' in a.id().lower() or 'height' in a.id().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'ty"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Height above ground (using triangulation)」(id: pdal:heightabovegroundtriangulation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \npdal:heightabovegroundtriangulation を registry から照会し、存在する場合は定義済みパラメータとヘルプを確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: pdal:heightabovegroundtriangulation\n表示名: Height above ground (using triangulation)\nProvider: QGIS (PDAL)\nグループ: Point cloud data management\n用途\n地表面分類点（Classification = 2）を使って Delaunay 三角形分割による TIN 地表面を作成し、各点の**地上高（HeightAboveGround）**を計算します。\n出力には HeightAboveGround ディメンションが追加されます。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\n入力点群レイヤ\n—\nREPLACE_Z\nTrue の場合、Z 値を地上高へ置き換える\nTrue\nCOUNT\n地表面構築に使用する近傍地表面点数\n10\nVPC_OUTPUT_FORMAT\nVPC 出力の内部形式（COPC / LAZ / LAS）\nCOPC\nOUTPUT\n出力先の点群データ\n—\n"
+}

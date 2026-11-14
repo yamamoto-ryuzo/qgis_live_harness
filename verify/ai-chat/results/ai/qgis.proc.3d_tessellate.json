@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.3d_tessellate",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（3D）] テッセレーション」(id: 3d:tessellate) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（3D）] テッセレーション」(id: 3d:tessellate) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing レジストリに `3d:tessellate` があるか pyeval で確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `3d:tessellate` |\n| 表示名 | テッセレーション |\n| プロバイダ | QGIS(3D) |\n| グループ | ベクタジオメトリ |\n\n## 用途\n\nポリゴンジオメトリを**三角形に分割(テッセレーション)**するアルゴリズムです。入力ポリゴン(穴やマルチパートを含む)を三角形ポリゴンの集まりに分解します。出力は各入力地物に対応する**マルチポリゴン**で、それぞれが複数の三角形で構成されます。3D表示や、三角形メッシュが前提となる処理(シェーディング、3D解析、外部3Dフォーマットへの変換前処理など)に使われます。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 型 |\n|---|---|---|\n| `INPUT` | 入力レイヤ(**ポリゴン限定**) | FeatureSource |\n| `OUTPUT` | 出力レイヤ(マルチポリゴン) | FeatureSink |\n\nパラメータはこの2つのみで、オプションはありません。非常にシンプルなアルゴリズムです。\n\n実行例: `processing.run(\"3d:tessellate\", {\"INPUT\": layer, \"OUTPUT\": \"TEMPORARY_OUTPUT\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('3d:tessellate')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'tessel' in a.id().lower() or '3d:' in a.id()][:50]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortDescription': getattr(alg, 'shortDescription', lambda: '')(),\\n        'params': params,\\n        'outputs': outs,\\n    }\\n"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（3D）] テッセレーション」(id: 3d:tessellate) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing レジストリに 3d:tessellate があるか pyeval で確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\n3d:tessellate\n表示名\nテッセレーション\nプロバイダ\nQGIS(3D)\nグループ\nベクタジオメトリ\n\n用途\nポリゴンジオメトリを三角形に分割(テッセレーション)するアルゴリズムです。入力ポリゴン(穴やマルチパートを含む)を三角形ポリゴンの集まりに分解します。出力は各入力地物に対応するマルチポリゴンで、それぞれが複数の三角形で構成されます。3D表示や、三角形メッシュが前提となる処理(シェーディング、3D解析、外部3Dフォーマットへの変換前処理など)に使われます。\n主なパラメータ\nパラメータ\n説明\n型\nINPUT\n入力レイヤ(ポリゴン限定)\nFeatureSource\nOUTPUT\n出力レイヤ(マルチポリゴン)\nFeatureSink\n\nパラメータはこの2つのみで、オプションはありません。非常にシンプルなアルゴリズムです。\n実行例: processing.run(\"3d:tessellate\", {\"INPUT\": layer, \"OUTPUT\": \"TEMPORARY_OUTPUT\"})"
+}

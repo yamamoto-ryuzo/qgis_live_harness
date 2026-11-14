@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_polygonstolines",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ポリゴンを線に変換」(id: native:polygonstolines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ポリゴンを線に変換」(id: native:polygonstolines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:polygonstolines` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:polygonstolines`\n- **表示名**: ポリゴンを線に変換\n- **グループ**: ベクタジオメトリ\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\nポリゴンレイヤの各地物を**境界線（リング）としてラインレイヤに変換**します。ポリゴンの外周線を取得したい場合に使い、属性は元地物から引き継がれます。なお、**隣接ポリゴン間の共有境界は各ポリゴンごとに重複して出力**されるため、境界の一意な抽出が必要な場合は `native:boundary` との使い分け・後処理が必要になることがあります。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力ポリゴンレイヤ |\n| `OUTPUT` | sink → outputVector | 出力先（ラインレイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:polygonstolines\", {\n    'INPUT': polygon_layer,\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:polygonstolines')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ポリゴンを線に変換」(id: native:polygonstolines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:polygonstolines は現在の QGIS の processing registry に登録されています。\nID: native:polygonstolines\n表示名: ポリゴンを線に変換\nグループ: ベクタジオメトリ\nプロバイダ: QGIS（ネイティブC++）\n用途\nポリゴンレイヤの各地物を境界線（リング）としてラインレイヤに変換します。ポリゴンの外周線を取得したい場合に使い、属性は元地物から引き継がれます。なお、隣接ポリゴン間の共有境界は各ポリゴンごとに重複して出力されるため、境界の一意な抽出が必要な場合は native:boundary との使い分け・後処理が必要になることがあります。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力ポリゴンレイヤ\nOUTPUT\nsink → outputVector\n出力先（ラインレイヤ）\n\n実行例:\nprocessing.run(\"native:polygonstolines\", {\n    'INPUT': polygon_layer,\n    'OUTPUT': 'memory:'\n})"
+}

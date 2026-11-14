@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Analysis_Tools",
+ "prompt": "QGISの「Analysis Tools」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Analysis Tools」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Analysis Tools」サブメニュー（ベクタメニュー内）を調べます。「Analysis Tools」アクションを調べました。結論：**現在有効（enabled = true）で、配下の全項目も有効です**。\n\n- **実体**: 「ベクタ（&O)」メニュー（`mVectorMenu`）内のサブメニュー `&Analysis Tools`（Processing プラグインが QGIS native アルゴリズムを登録したもの）\n- **状態**: `isEnabled() == true`、`isVisible() == true`\n- **配下のメニュー項目（8項目、すべて enabled = true）**:\n\n| 項目 | objectName | 対応アルゴリズム |\n|---|---|---|\n| Basic statistics for fields... | `mProcessingUserMenu_native:basicstatisticsforfields` | native:basicstatisticsforfields |\n| ポリゴン内の点の数... | `mProcessingUserMenu_native:countpointsinpolygon` | native:countpointsinpolygon |\n| 線の交差（intersect）... | `mProcessingUserMenu_native:lineintersections` | native:lineintersections |\n| List unique values... | `mProcessingUserMenu_native:listuniquevalues` | native:listuniquevalues |\n| 加重平均座標（重心の平均）... | `mProcessingUserMenu_native:meancoordinates` | native:meancoordinates |\n| 最近傍解析... | `mProcessingUserMenu_native:nearestneighbouranalysis` | native:nearestneighbouranalysis |\n| 線長の合計... | `mProcessingUserMenu_native:sumlinelengths` | native:sumlinelengths |\n| 距離行列（distance matrix）... | `mProcessingUserMenu_qgis:distancematrix` | qgis:distancematrix |\n\nサブメニュー本体も8つのベクタ解析アルゴリズムもすべて有効な状態です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    if a.text().replace('&','') == 'Analysis Tools' and a.menu() is not None:\\n        m = a.menu()\\n        m.aboutToShow.emit()\\n        items = [{'text': x.text().replace('&',''), 'name': x.objectName(), 'enabled': x.isEnabled(), 'sep': x.isSeparator()} for x in m.actions()]\\n        assoc = [{'cls': w.__class__.__name__, 'obj': w.objectName()} for w in a.associatedObjects()]\\n        found.append({'enabled': a.isEnabled(), 'visible': a.isVisible(), 'menu_obj': m.objectName(), 'assoc': assoc, 'items': items})\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Analysis Tools」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Analysis Tools」サブメニュー（ベクタメニュー内）を調べます。「Analysis Tools」アクションを調べました。結論：現在有効（enabled = true）で、配下の全項目も有効です。\n実体: 「ベクタ（&O)」メニュー（mVectorMenu）内のサブメニュー &Analysis Tools（Processing プラグインが QGIS native アルゴリズムを登録したもの）\n状態: isEnabled() == true、isVisible() == true\n配下のメニュー項目（8項目、すべて enabled = true）:\n項目\nobjectName\n対応アルゴリズム\nBasic statistics for fields...\nmProcessingUserMenu_native:basicstatisticsforfields\nnative:basicstatisticsforfields\nポリゴン内の点の数...\nmProcessingUserMenu_native:countpointsinpolygon\nnative:countpointsinpolygon\n線の交差（intersect）...\nmProcessingUserMenu_native:lineintersections\nnative:lineintersections\nList unique values...\nmProcessingUserMenu_native:listuniquevalues\nnative:listuniquevalues\n加重平均座標（重心の平均）...\nmProcessingUserMenu_native:meancoordinates\nnative:meancoordinates\n最近傍解析...\nmProcessingUserMenu_native:nearestneighbouranalysis\nnative:nearestneighbouranalysis\n線長の合計...\nmProcessingUserMenu_native:sumlinelengths\nnative:sumlinelengths\n距離行列（distance matrix）...\nmProcessingUserMenu_qgis:distancematrix\nqgis:distancematrix\n\nサブメニュー本体も8つのベクタ解析アルゴリズムもすべて有効な状態です。"
+}

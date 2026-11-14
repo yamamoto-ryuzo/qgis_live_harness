@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.native_createrandomgeometricrasterlayer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 乱数ラスタを作成（幾何分布）」(id: native:createrandomgeometricrasterlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 乱数ラスタを作成（幾何分布）」(id: native:createrandomgeometricrasterlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "QGIS の processing registry を確認します。まず利用可能なツールを一覧します。`qgis_pyeval` で processing registry を照会します。存在を確認できました。もう少し詳しくパラメータのデフォルト値と選択肢を確認します。フラグの意味だけ確認しておきます。registry で実際に確認しました。**存在します**。\n\n- **id**: `native:createrandomgeometricrasterlayer`\n- **表示名**: 乱数ラスタを作成（幾何分布）\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ラスタ作成\n\n## 用途\n指定した範囲・ピクセルサイズのラスタを生成し、各セルを**幾何分布に従う乱数**で埋めるアルゴリズムです。値は「成功確率 p のベルヌーイ試行で初めて成功するまでの試行回数」（正の整数、平均 = 1/p）に相当します。p のデフォルトは 0.5。テスト用の擬似データ作成、モンテカルロ的なシミュレーション、サンプリング基盤データなどに使えます。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `EXTENT` | 作成範囲（必須） |\n| `TARGET_CRS` | 出力CRS（デフォルト: プロジェクトCRS） |\n| `PIXEL_SIZE` | ピクセルサイズ（デフォルト 1） |\n| `OUTPUT_TYPE` | 出力データ型（上級、デフォルト Integer16。Int16/UInt16/Int32/UInt32/Float32/Float64） |\n| `PROBABILITY` | 成功確率 p（上級、デフォルト 0.5、最小 1e-5） |\n| `CREATION_OPTIONS` | GDAL作成オプション（上級・任意） |\n| `OUTPUT` | 出力ラスタの保存先 |\n\nなお `CREATE_OPTIONS` という非表示の同名パラメータも残っていますが、現行で使うのは `CREATION_OPTIONS` のほうです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('native:createrandomgeometricrasterlayer')\\nif alg is None:\\n    cands = [a.id() for a in reg.algorithms() if 'geometric' in a.id().lower() or 'random' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': (alg.shortHelpString() or '')[:400],\\n        'params': [(p.name(), p.description(), p.type()) for p in alg.parameterDefinitions()],\\n    }\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber\\nalg = QgsApplication.processingRegistry().algorithmById('native:createrandomgeometricrasterlayer')\\ninfo = {}\\nfor p in alg.parameterDefinitions():\\n    d = {'default': p.defaultValue(), 'flags': int(p.flags())}\\n    if isinstance(p, QgsProcessingParameterEnum):\\n        d['options'] = p.options()\\n    if isinstance(p, QgsProcessingParameterNumber):\\n        d['min'] = p.minimum(); d['max'] = p.maximum()\\n    info[p.name()] = d\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 乱数ラスタを作成（幾何分布）」(id: native:createrandomgeometricrasterlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nQGIS の processing registry を確認します。まず利用可能なツールを一覧します。qgis_pyeval で processing registry を照会します。存在を確認できました。もう少し詳しくパラメータのデフォルト値と選択肢を確認します。フラグの意味だけ確認しておきます。registry で実際に確認しました。存在します。\nid: native:createrandomgeometricrasterlayer\n表示名: 乱数ラスタを作成（幾何分布）\nプロバイダ: QGIS（ネイティブC++）／グループ: ラスタ作成\n用途\n指定した範囲・ピクセルサイズのラスタを生成し、各セルを幾何分布に従う乱数で埋めるアルゴリズムです。値は「成功確率 p のベルヌーイ試行で初めて成功するまでの試行回数」（正の整数、平均 = 1/p）に相当します。p のデフォルトは 0.5。テスト用の擬似データ作成、モンテカルロ的なシミュレーション、サンプリング基盤データなどに使えます。\n主なパラメータ\nパラメータ\n内容\nEXTENT\n作成範囲（必須）\nTARGET_CRS\n出力CRS（デフォルト: プロジェクトCRS）\nPIXEL_SIZE\nピクセルサイズ（デフォルト 1）\nOUTPUT_TYPE\n出力データ型（上級、デフォルト Integer16。Int16/UInt16/Int32/UInt32/Float32/Float64）\nPROBABILITY\n成功確率 p（上級、デフォルト 0.5、最小 1e-5）\nCREATION_OPTIONS\nGDAL作成オプション（上級・任意）\nOUTPUT\n出力ラスタの保存先\n\nなお CREATE_OPTIONS という非表示の同名パラメータも残っていますが、現行で使うのは CREATION_OPTIONS のほうです。"
+}

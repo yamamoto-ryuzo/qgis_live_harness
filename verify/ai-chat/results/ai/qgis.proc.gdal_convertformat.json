@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_convertformat",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 形式変換」(id: gdal:convertformat) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 形式変換」(id: gdal:convertformat) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:convertformat` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:convertformat` |\n| 表示名 | 形式変換 |\n| プロバイダ | GDAL |\n| グループ | ベクタ変換 |\n\n## 用途\n\nベクタレイヤを**別のファイル形式に変換**します(`ogr2ogr` に相当)。例: Shapefile→GeoPackage、GeoJSON、KML、CSV など OGR が対応する形式間の相互変換。拡張子で出力形式が決まり、`OPTIONS` でレイヤ作成オプション(`-lco`)等を渡せます。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ベクタレイヤ | 必須 |\n| `CONVERT_ALL_LAYERS` | データセット内の全レイヤを変換(複数レイヤデータソース向け) | false |\n| `OPTIONS` | 追加オプション | 任意 |\n| `OUTPUT` | 出力ベクタファイル(拡張子で形式指定) | 必須 |\n\n実行例: `processing.run(\"gdal:convertformat\", {\"INPUT\": v, \"OUTPUT\": \"out.gpkg\"})`\n\nなおラスタ版の形式変換は `gdal:translate`(変換(形式変換))です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:convertformat')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'convert' in a.id().lower() or 'format' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 形式変換」(id: gdal:convertformat) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:convertformat をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:convertformat\n表示名\n形式変換\nプロバイダ\nGDAL\nグループ\nベクタ変換\n\n用途\nベクタレイヤを別のファイル形式に変換します(ogr2ogr に相当)。例: Shapefile→GeoPackage、GeoJSON、KML、CSV など OGR が対応する形式間の相互変換。拡張子で出力形式が決まり、OPTIONS でレイヤ作成オプション(-lco)等を渡せます。\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n入力ベクタレイヤ\n必須\nCONVERT_ALL_LAYERS\nデータセット内の全レイヤを変換(複数レイヤデータソース向け)\nfalse\nOPTIONS\n追加オプション\n任意\nOUTPUT\n出力ベクタファイル(拡張子で形式指定)\n必須\n\n実行例: processing.run(\"gdal:convertformat\", {\"INPUT\": v, \"OUTPUT\": \"out.gpkg\"})\nなおラスタ版の形式変換は gdal:translate(変換(形式変換))です。"
+}

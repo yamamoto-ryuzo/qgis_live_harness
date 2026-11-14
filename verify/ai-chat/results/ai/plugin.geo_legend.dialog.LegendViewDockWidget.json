@@ -1,0 +1,31 @@
+{
+ "id": "plugin.geo_legend.dialog.LegendViewDockWidget",
+ "prompt": "geo_legend プラグインの「LegendViewDockWidget」ダイアログ/パネルを開いて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_legend プラグインの「LegendViewDockWidget」ダイアログ/パネルを開いて"
+  },
+  {
+   "role": "assistant",
+   "content": "「凡例表示」ドック（LegendViewDockWidget）が開いています。スクリーンショット右上に確認できます。\n\n**ドックの内容**\n- レイヤ名コンボ（凡例対象の選択）＋「現在のレイヤ」「登録」ボタン\n- 不透明度スライダー、優先度、「変数一覧」ボタン\n- 「シンボル」「凡例」タブ\n\nただし凡例対象レイヤが未選択（`layer: null`）のため、凡例エリアは空です。レイヤがプロジェクトに読み込まれていない状態なので、表示できる凡例項目もまだありません。\n\nレイヤを追加してアクティブにすれば、`selectCurrentLayer` で凡例を表示できます。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_legend', 'method': 'openDock', 'args': []}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-828a3000.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_legend プラグインの「LegendViewDockWidget」ダイアログ/パネルを開いて\n[AI] \n「凡例表示」ドック（LegendViewDockWidget）が開いています。スクリーンショット右上に確認できます。\nドックの内容\nレイヤ名コンボ（凡例対象の選択）＋「現在のレイヤ」「登録」ボタン\n不透明度スライダー、優先度、「変数一覧」ボタン\n「シンボル」「凡例」タブ\nただし凡例対象レイヤが未選択（layer: null）のため、凡例エリアは空です。レイヤがプロジェクトに読み込まれていない状態なので、表示できる凡例項目もまだありません。\nレイヤを追加してアクティブにすれば、selectCurrentLayer で凡例を表示できます。"
+}

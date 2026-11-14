@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.native_fillnodata",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] NoDataのセルを埋める」(id: native:fillnodata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] NoDataのセルを埋める」(id: native:fillnodata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の Processing registry に存在します。\n\n- **ID**: `native:fillnodata`\n- **表示名**: NoDataのセルを埋める\n- **グループ**: ラスタツール\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n\n## 用途\n\n入力ラスタの **NoDataセルを指定値で置き換えたラスタを生成**します。  \n出力ラスタにはNoDataが残らず、欠損セルを一定値で補完したい場合に使います。\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ラスタ（必須） |\n| `BAND` | 対象バンド番号。既定は `1` |\n| `FILL_VALUE` | NoDataへ設定する値。既定は `1` |\n| `CREATION_OPTIONS` | 出力ラスタ作成オプション（任意・高度な設定） |\n| `OUTPUT` | 出力ラスタ（必須） |\n\n※ `CREATE_OPTIONS` という同名に近い隠しパラメータも存在しますが、通常画面で使うのは `CREATION_OPTIONS` 側です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:fillnodata')\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'options': p.options() if hasattr(p, 'options') else None,\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else []\\n}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nalg = QgsApplication.processingRegistry().algorithmById('native:fillnodata')\\nresult = [\\n    {\\n        'name': p.name(),\\n        'flags_int': int(p.flags()),\\n        'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        'hidden': bool(p.flags() & QgsProcessingParameterDefinition.FlagHidden),\\n    }\\n    for p in alg.parameterDefinitions()\\n]\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] NoDataのセルを埋める」(id: native:fillnodata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の Processing registry に存在します。\nID: native:fillnodata\n表示名: NoDataのセルを埋める\nグループ: ラスタツール\n種別: QGIS ネイティブ C++ アルゴリズム\n用途\n入力ラスタの NoDataセルを指定値で置き換えたラスタを生成します。\n出力ラスタにはNoDataが残らず、欠損セルを一定値で補完したい場合に使います。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ラスタ（必須）\nBAND\n対象バンド番号。既定は 1\nFILL_VALUE\nNoDataへ設定する値。既定は 1\nCREATION_OPTIONS\n出力ラスタ作成オプション（任意・高度な設定）\nOUTPUT\n出力ラスタ（必須）\n\n※ CREATE_OPTIONS という同名に近い隠しパラメータも存在しますが、通常画面で使うのは CREATION_OPTIONS 側です。"
+}

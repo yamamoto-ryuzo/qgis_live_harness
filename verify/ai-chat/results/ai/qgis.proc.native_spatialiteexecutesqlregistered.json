@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_spatialiteexecutesqlregistered",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] SpatiaLiteで実行（登録済みDB）」(id: native:spatialiteexecutesqlregistered) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] SpatiaLiteで実行（登録済みDB）」(id: native:spatialiteexecutesqlregistered) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:spatialiteexecutesqlregistered`「**SpatiaLiteで実行（登録済みDB）**」は登録されています（グループ: データベース）。\n\n## 用途\n\n- **SpatiaLite データベース上で任意の SQL 文を直接実行**します\n- 前回の `native:spatialiteexecutesql` との違いは、DB の指定方法だけです：こちらは**ブラウザ/DBマネージャに登録済みの SpatiaLite 接続名**を使います（レイヤやファイルパスではなく）\n- 用途は同じく、テーブル作成・一括更新・空間関数バッチなどのDB直接操作。**出力はありません**（DBを更新する副作用型）\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `DATABASE` | providerconnection | データベース（接続名）— QGISに登録された SpatiaLite 接続を選択 |\n| `SQL` | string | 実行する SQL クエリ |\n\n## 使い分け\n\n| 状況 | アルゴリズム |\n|---|---|\n| 接続名でDBを指定したい（ブラウザ登録済み、モデラーで接続を選びたい） | **本アルゴリズム** `spatialiteexecutesqlregistered` |\n| レイヤやファイルパスでDBを指定したい | `native:spatialiteexecutesql` |\n| 同様のものを GeoPackage に対して | `native:geopackageexecutesql` 系（存在すれば）または OGR 経由 |\n\n注意点は前回同様で、**実DBに書き込まれる**ため破壊的 SQL はバックアップ推奨です。SELECT 結果をレイヤ化したい場合は `gdal:executesql` や DBマネージャを使います。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:spatialiteexecutesqlregistered')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] SpatiaLiteで実行（登録済みDB）」(id: native:spatialiteexecutesqlregistered) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:spatialiteexecutesqlregistered「SpatiaLiteで実行（登録済みDB）」は登録されています（グループ: データベース）。\n用途\nSpatiaLite データベース上で任意の SQL 文を直接実行します\n前回の native:spatialiteexecutesql との違いは、DB の指定方法だけです：こちらはブラウザ/DBマネージャに登録済みの SpatiaLite 接続名を使います（レイヤやファイルパスではなく）\n用途は同じく、テーブル作成・一括更新・空間関数バッチなどのDB直接操作。出力はありません（DBを更新する副作用型）\n主なパラメータ\nパラメータ\n型\n内容\nDATABASE\nproviderconnection\nデータベース（接続名）— QGISに登録された SpatiaLite 接続を選択\nSQL\nstring\n実行する SQL クエリ\n\n使い分け\n状況\nアルゴリズム\n接続名でDBを指定したい（ブラウザ登録済み、モデラーで接続を選びたい）\n本アルゴリズム spatialiteexecutesqlregistered\nレイヤやファイルパスでDBを指定したい\nnative:spatialiteexecutesql\n同様のものを GeoPackage に対して\nnative:geopackageexecutesql 系（存在すれば）または OGR 経由\n\n注意点は前回同様で、実DBに書き込まれるため破壊的 SQL はバックアップ推奨です。SELECT 結果をレイヤ化したい場合は gdal:executesql や DBマネージャを使います。"
+}

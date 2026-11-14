@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionPan",
+ "prompt": "QGISの「地図を移動」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「地図を移動」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「地図を移動」アクションを探して実行します。実行しました。\n\n- アクション: `mActionPan`「地図を移動」\n- 実行後: **`checked: true`**、マップツールは `QgsMapToolPan`(パンツール)に切り替わりました\n\nキャンバス上でドラッグすると地図が移動します。前のオフセットツールからパンツールへ正常に切り替わっています。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    n = a.objectName() or ''\\n    if '地図を移動' in t or n == 'mActionPan' or 'パン' in t:\\n        found.append({'objectName': n, 'text': t, 'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked()})\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionPan')\\ninfo = {'enabled': a.isEnabled()}\\na.trigger()\\ninfo['checked'] = a.isChecked()\\ninfo['mapTool'] = type(iface.mapCanvas().mapTool()).__name__\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「地図を移動」機能(アクション)を実行して\n[AI] \n「地図を移動」アクションを探して実行します。実行しました。\nアクション: mActionPan「地図を移動」\n実行後: checked: true、マップツールは QgsMapToolPan(パンツール)に切り替わりました\nキャンバス上でドラッグすると地図が移動します。前のオフセットツールからパンツールへ正常に切り替わっています。"
+}

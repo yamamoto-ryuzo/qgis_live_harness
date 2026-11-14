@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_intersection",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 交差（intersect）」(id: native:intersection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 交差（intersect）」(id: native:intersection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:intersection` は **processing registry に存在します**。\n\n- **表示名**: 交差（intersect）\n- **グループ**: ベクタオーバーレイ (`vectoroverlay`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n入力レイヤとオーバーレイレイヤの**地物同士が空間的に重なり合う部分（交差領域）だけを抜き出し**、出力地物に両方のレイヤの属性を結合して付与するアルゴリズムです。典型的な GIS のオーバーレイ解析で、「A ゾーン内に存在する B の部分だけを、A と B 両方の属性付きで取り出す」用途に使います。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力レイヤ（必須） | — |\n| `OVERLAY` | オーバーレイレイヤ（必須） | — |\n| `INPUT_FIELDS` | 入力側からコピーする属性（空白＝全属性） | 空 |\n| `OVERLAY_FIELDS` | オーバーレイ側からコピーする属性（空白＝全属性） | 空 |\n| `OVERLAY_FIELDS_PREFIX` | オーバーレイ属性名に付ける接頭辞（同名フィールドの衝突回避用） | 空 |\n| `GRID_SIZE` | グリッドサイズ（数値、座標を指定グリッドにスナップさせる精度制御。任意） | なし |\n| `OUTPUT` | 出力レイヤ「交差（intersect）」（必須） | — |\n\nポイント:\n- 出力ジオメトリは両レイヤの**交差部分のみ**（切り出し＋属性結合）\n- `INPUT_FIELDS` / `OVERLAY_FIELDS` で出力する属性を絞れる\n- `GRID_SIZE` で精度丸めによるトポロジーエラー対策が可能\n\n実行例: `processing.run(\"native:intersection\", {'INPUT': layer_a, 'OVERLAY': layer_b, 'OUTPUT': 'TEMPORARY_OUTPUT'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:intersection')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'provi"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 交差（intersect）」(id: native:intersection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:intersection は processing registry に存在します。\n表示名: 交差（intersect）\nグループ: ベクタオーバーレイ (vectoroverlay)\nプロバイダ: QGIS（ネイティブ C++）\n用途\n入力レイヤとオーバーレイレイヤの地物同士が空間的に重なり合う部分（交差領域）だけを抜き出し、出力地物に両方のレイヤの属性を結合して付与するアルゴリズムです。典型的な GIS のオーバーレイ解析で、「A ゾーン内に存在する B の部分だけを、A と B 両方の属性付きで取り出す」用途に使います。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力レイヤ（必須）\n—\nOVERLAY\nオーバーレイレイヤ（必須）\n—\nINPUT_FIELDS\n入力側からコピーする属性（空白＝全属性）\n空\nOVERLAY_FIELDS\nオーバーレイ側からコピーする属性（空白＝全属性）\n空\nOVERLAY_FIELDS_PREFIX\nオーバーレイ属性名に付ける接頭辞（同名フィールドの衝突回避用）\n空\nGRID_SIZE\nグリッドサイズ（数値、座標を指定グリッドにスナップさせる精度制御。任意）\nなし\nOUTPUT\n出力レイヤ「交差（intersect）」（必須）\n—\n\nポイント:\n出力ジオメトリは両レイヤの交差部分のみ（切り出し＋属性結合）\nINPUT_FIELDS / OVERLAY_FIELDS で出力する属性を絞れる\nGRID_SIZE で精度丸めによるトポロジーエラー対策が可能\n実行例: processing.run(\"native:intersection\", {'INPUT': layer_a, 'OVERLAY': layer_b, 'OUTPUT': 'TEMPORARY_OUTPUT'})"
+}

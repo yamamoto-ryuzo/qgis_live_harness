@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_kmeansclustering",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] K平均クラスタリング」(id: native:kmeansclustering) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] K平均クラスタリング」(id: native:kmeansclustering) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:kmeansclustering` は **processing registry に存在します**。\n\n- **表示名**: K平均クラスタリング\n- **グループ**: ベクタ解析 (`vectoranalysis`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n**2D 距離に基づく k-means クラスタリング**を行い、入力地物ごとに所属クラスタ番号を属性として付加したレイヤを作成するアルゴリズムです。地点データの地理的分類・グルーピングに使います。\n\nポイント（ヘルプより）：\n- ライン・ポリゴン入力の場合は**重心（centroid）**を基準にクラスタリング\n- 初期値選択アルゴリズムは K-means++ / Farthest points の論文実装に基づく\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力レイヤ（必須） | — |\n| `CLUSTERS` | クラスタ数（k の値） | `5` |\n| `METHOD` | 初期化方法（enum）：`0` Farthest points / `1` K-means++ | `0` |\n| `FIELD_NAME` | クラスタIDを格納する属性名 | `CLUSTER_ID` |\n| `SIZE_FIELD_NAME` | クラスタサイズを格納する属性名 | `CLUSTER_SIZE` |\n| `OUTPUT` | 出力レイヤ「クラスタ（Clusters）」（必須） | — |\n\n## 出力\n\n- `OUTPUT` — 入力地物に `CLUSTER_ID`（クラスタ番号）と `CLUSTER_SIZE`（クラスタの地物数）フィールドが追加されたレイヤ\n\n実行例: `processing.run(\"native:kmeansclustering\", {'INPUT': points, 'CLUSTERS': 8, 'METHOD': 1, 'OUTPUT': 'TEMPORARY_OUTPUT'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:kmeansclustering')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'p"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] K平均クラスタリング」(id: native:kmeansclustering) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:kmeansclustering は processing registry に存在します。\n表示名: K平均クラスタリング\nグループ: ベクタ解析 (vectoranalysis)\nプロバイダ: QGIS（ネイティブ C++）\n用途\n2D 距離に基づく k-means クラスタリングを行い、入力地物ごとに所属クラスタ番号を属性として付加したレイヤを作成するアルゴリズムです。地点データの地理的分類・グルーピングに使います。\nポイント（ヘルプより）：\nライン・ポリゴン入力の場合は**重心（centroid）**を基準にクラスタリング\n初期値選択アルゴリズムは K-means++ / Farthest points の論文実装に基づく\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力レイヤ（必須）\n—\nCLUSTERS\nクラスタ数（k の値）\n5\nMETHOD\n初期化方法（enum）：0 Farthest points / 1 K-means++\n0\nFIELD_NAME\nクラスタIDを格納する属性名\nCLUSTER_ID\nSIZE_FIELD_NAME\nクラスタサイズを格納する属性名\nCLUSTER_SIZE\nOUTPUT\n出力レイヤ「クラスタ（Clusters）」（必須）\n—\n\n出力\nOUTPUT — 入力地物に CLUSTER_ID（クラスタ番号）と CLUSTER_SIZE（クラスタの地物数）フィールドが追加されたレイヤ\n実行例: processing.run(\"native:kmeansclustering\", {'INPUT': points, 'CLUSTERS': 8, 'METHOD': 1, 'OUTPUT': 'TEMPORARY_OUTPUT'})"
+}

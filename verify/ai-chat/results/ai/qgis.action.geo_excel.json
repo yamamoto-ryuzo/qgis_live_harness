@@ -1,0 +1,43 @@
+{
+ "id": "qgis.action.geo_excel",
+ "prompt": "QGISの「geo_excel」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「geo_excel」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "`geo_excel` プラグインのアクションを検索します。`&geo_excel` はプラグインサブメニューの親です。中身を確認します。ツールバー等にも項目があるか確認します。プラグインオブジェクト自体も確認します。bridge の pluginInfo を取得して機能概要も確認します。調査結果です。\n\n## 「geo_excel」アクション\n\n`geo_excel` プラグインが **プラグイン(&P) メニュー配下に作るサブメニュー**（`QMenu(geoexcel)` → `&geo_excel` アクション）です。\n\n**現在の状態**（pyeval 実測）:\n\n| 項目 | 値 |\n|---|---|\n| isEnabled | **true（有効）** |\n| isCheckable | false |\n| has_menu | true（サブメニュー親） |\n\n**サブメニュー内容**:\n\n| 項目 | enabled |\n|---|---|\n| 設定... | true（openSettings 相当） |\n\n※ GeoSuite ツールバー上には geo_excel ボタンはありません（メニュー経由の機能）。\n\n## プラグイン自体の状態\n\n`geo_excel` プラグインは **loaded & active** で、live driver の `bridge` も公開しています（pluginInfo 取得済み）。\n\n- **機能**: ベクターレイヤの属性をExcel帳票出力（一覧帳票・単票・単票一括の3スクリプト）。レイヤ変数 `xlsout_*` でテンプレート/出力先を指定\n- **環境**: `win32com` 利用可（state.win32com=true）、スクリプト3件\n- **AIから呼べるbridgeメソッド**: `run / status / settings / setSettings / listScripts / layerVariables / setLayerVariables / applyDefaults / regenerateTemplates / checkExcel / openSettings`\n\n## まとめ\n\n- メニューアクションは **有効** で、サブメニューから「設定...」ダイアログを開けます。\n- 帳票実行などの機能自体は `qgis_bridge_call`（例: `geo_excel.status` → 実行可否確認 → `geo_excel.run`）で直接呼ぶことも可能です。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nhits = []\\nfor x in mw.findChildren(QAction):\\n    blob = ((x.text() or '') + '|' + (x.objectName() or '') + '|' + (x.toolTip() or '')).lower()\\n    if 'excel' in blob or 'geo_excel' in blob or 'エクセル' in blob:\\n        p = x.parent()\\n        chain = []\\n        while p is not None:\\n            name = p.objectName() or (p.windowTitle() if hasattr(p, 'windowTitle') else '') or ''\\n            chain.append(type(p).__name__ + '(' + name + ')')\\n            p = p.parent()\\n        hits.append({'text': x.text(), 'objectName': x.objectName(), 'enabled': x.isEnabled(),\\n                     'checkable': x.isCheckable(), 'checked': x.isChecked(), 'visible': x.isVisible(),\\n                     'tooltip': (x.toolTip() or '')[:80], 'has_menu': x.menu() is not None, 'chain': chain})\\nresult = hits\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = None\\nfor x in mw.findChildren(QAction):\\n    if (x.text() or '') == '&geo_excel':\\n        a = x\\n        break\\nm = a.menu()\\ntry:\\n    m.aboutToShow.emit()\\nexcept Exception:\\n    pass\\nitems = [{'text': s.text(), 'objectName': s.objectName(), 'enabled': s.isEnabled(),\\n          'checkable': s.isCheckable(), 'checked': s.isChecked(), 'has_menu': s.menu() is not None} for s in m.actions()]\\nresult = {'action_enabled': a.isEnabled(), 'menu_items': items}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QToolBar\\nmw = iface.mainWindow()\\nbars = []\\nfor tb in mw.findChildren(QToolBar):\\n    name = tb.objectName() or tb.windowTitle()\\n    if 'excel' in name.lower() or 'geo' in name.lower():\\n        items = [{'text': a.text(), 'objectName': a.objectName(), 'enabled': a.isEnabled()} for a in tb.actions() if a.text() or a.objectName()]\\n        bars.append({'toolbar': name, 'visible': tb.isVisible(), 'items': items})\\nresult = bars\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.utils import plugins, active_plugins\\nplug = plugins.get('geo_excel')\\ninfo = {'loaded': 'geo_excel' in plugins, 'in_active': 'geo_excel' in active_plugins}\\nif plug is not None:\\n    info['type'] = type(plug).__name__\\n    for attr in ('name','description','icon','category'):\\n        if hasattr(plug, attr):\\n            info[attr] = str(getattr(plug, attr))[:100]\\n    info['has_bridge'] = hasattr(plug, 'bridge')\\n    if hasattr(plug, 'bridge'):\\n        try:\\n            info['bridge_methods'] = [m for m in dir(plug.bridge) if not m.startswith('_')][:50]\\n        except Exception as e:\\n            info['bridge_err'] = str(e)\\nresult = info\\n\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'pluginInfo', 'plugin_id': 'geo_excel'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「geo_excel」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \ngeo_excel プラグインのアクションを検索します。&geo_excel はプラグインサブメニューの親です。中身を確認します。ツールバー等にも項目があるか確認します。プラグインオブジェクト自体も確認します。bridge の pluginInfo を取得して機能概要も確認します。調査結果です。\n「geo_excel」アクション\ngeo_excel プラグインが プラグイン(&P) メニュー配下に作るサブメニュー（QMenu(geoexcel) → &geo_excel アクション）です。\n現在の状態（pyeval 実測）:\n項目\n値\nisEnabled\ntrue（有効）\nisCheckable\nfalse\nhas_menu\ntrue（サブメニュー親）\n\nサブメニュー内容:\n項目\nenabled\n設定...\ntrue（openSettings 相当）\n\n※ GeoSuite ツールバー上には geo_excel ボタンはありません（メニュー経由の機能）。\nプラグイン自体の状態\ngeo_excel プラグインは loaded & active で、live driver の bridge も公開しています（pluginInfo 取得済み）。\n機能: ベクターレイヤの属性をExcel帳票出力（一覧帳票・単票・単票一括の3スクリプト）。レイヤ変数 xlsout_* でテンプレート/出力先を指定\n環境: win32com 利用可（state.win32com=true）、スクリプト3件\nAIから呼べるbridgeメソッド: run / status / settings / setSettings / listScripts / layerVariables / setLayerVariables / applyDefaults / regenerateTemplates / checkExcel / openSettings\nまとめ\nメニューアクションは 有効 で、サブメニューから「設定...」ダイアログを開けます。\n帳票実行などの機能自体は qgis_bridge_call（例: geo_excel.status → 実行可否確認 → geo_excel.run）で直接呼ぶことも可能です。"
+}

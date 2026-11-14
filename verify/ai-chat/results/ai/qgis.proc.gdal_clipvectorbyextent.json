@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_clipvectorbyextent",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 矩形領域で切り抜く」(id: gdal:clipvectorbyextent) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 矩形領域で切り抜く」(id: gdal:clipvectorbyextent) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:clipvectorbyextent` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:clipvectorbyextent` |\n| 表示名 | 矩形領域で切り抜く |\n| プロバイダ | GDAL |\n| グループ | ベクタ・ジオプロセシング |\n\n## 用途\n\nベクタレイヤを**矩形範囲(エクステント)で切り抜き**ます(`ogr2ogr -clipsrc` に相当)。ラスタ版の `gdal:cliprasterbyextent` に対応するベクタ版で、指定矩形内に入る地物だけを抽出します。任意形状での切り抜きは `gdal:clipvectorbypolygon` を使います。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ベクタレイヤ | 必須 |\n| `EXTENT` | 切り抜く範囲(矩形) | 必須 |\n| `OPTIONS` | 追加オプション | 任意 |\n| `OUTPUT` | 出力ベクタレイヤ | 必須 |\n\nパラメータ4つのみのシンプルなアルゴリズムです。\n\n実行例: `processing.run(\"gdal:clipvectorbyextent\", {\"INPUT\": v, \"EXTENT\": \"135.0,135.5,34.5,35.0 [EPSG:4326]\", \"OUTPUT\": \"clipped.gpkg\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:clipvectorbyextent')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'clip' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 矩形領域で切り抜く」(id: gdal:clipvectorbyextent) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:clipvectorbyextent をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:clipvectorbyextent\n表示名\n矩形領域で切り抜く\nプロバイダ\nGDAL\nグループ\nベクタ・ジオプロセシング\n\n用途\nベクタレイヤを矩形範囲(エクステント)で切り抜きます(ogr2ogr -clipsrc に相当)。ラスタ版の gdal:cliprasterbyextent に対応するベクタ版で、指定矩形内に入る地物だけを抽出します。任意形状での切り抜きは gdal:clipvectorbypolygon を使います。\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n入力ベクタレイヤ\n必須\nEXTENT\n切り抜く範囲(矩形)\n必須\nOPTIONS\n追加オプション\n任意\nOUTPUT\n出力ベクタレイヤ\n必須\n\nパラメータ4つのみのシンプルなアルゴリズムです。\n実行例: processing.run(\"gdal:clipvectorbyextent\", {\"INPUT\": v, \"EXTENT\": \"135.0,135.5,34.5,35.0 [EPSG:4326]\", \"OUTPUT\": \"clipped.gpkg\"})"
+}

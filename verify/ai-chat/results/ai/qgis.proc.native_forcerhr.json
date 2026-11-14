@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_forcerhr",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 右手ルールを強制」(id: native:forcerhr) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 右手ルールを強制」(id: native:forcerhr) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:forcerhr`（表示名 **「右手ルールを強制」**、グループ「ベクタジオメトリ」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\nポリゴンジオメトリのリングの向きを**右手ルール（Right-Hand-Rule）規約**に従って統一するアルゴリズムです。QGIS の実装では「ポリゴンに囲まれた領域が境界の右側に来る」解釈を採用しており、具体的には：\n\n- **外周リング（exterior ring）→ 時計回り（clockwise）**\n- **内部リング（穴）→ 反時計回り（counter-clockwise）**\n\nつまり実質的な向きは `native:forcecw` と同じ結果になります。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ（対象のポリゴン） |\n| `OUTPUT` | 出力レイヤ |\n\n### 補足と訂正\n\n- ヘルプに明記されている通り、**右手ルールの定義は文脈によって解釈が異なる**（GeoJSON/RFC 7946 系では外周＝反時計回りを「右手ルール」と呼ぶ）ため、「曖昧さを避けたいなら明示的な `native:forcecw`（Force polygons clockwise）を使うべき」と公式が推奨しています。\n- **訂正**: 前回の `forcecw` の説明で「`forcerhr` は `forceccw` と実質同じ方向」と記しましたが、実際のヘルプを確認すると **`forcerhr` の外周は時計回り＝ `forcecw` と同じ方向** でした。失礼しました。\n\n| ID | 外周リングの向き |\n|---|---|\n| `native:forceccw` | 反時計回り |\n| `native:forcecw` | 時計回り |\n| `native:forcerhr` | 時計回り（右手ルール解釈による） |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:forcerhr')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 右手ルールを強制」(id: native:forcerhr) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:forcerhr（表示名 「右手ルールを強制」、グループ「ベクタジオメトリ」）がこのQGISの processing registry に登録されています。\n用途\nポリゴンジオメトリのリングの向きを右手ルール（Right-Hand-Rule）規約に従って統一するアルゴリズムです。QGIS の実装では「ポリゴンに囲まれた領域が境界の右側に来る」解釈を採用しており、具体的には：\n外周リング（exterior ring）→ 時計回り（clockwise）\n内部リング（穴）→ 反時計回り（counter-clockwise）\nつまり実質的な向きは native:forcecw と同じ結果になります。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ（対象のポリゴン）\nOUTPUT\n出力レイヤ\n\n補足と訂正\nヘルプに明記されている通り、右手ルールの定義は文脈によって解釈が異なる（GeoJSON/RFC 7946 系では外周＝反時計回りを「右手ルール」と呼ぶ）ため、「曖昧さを避けたいなら明示的な native:forcecw（Force polygons clockwise）を使うべき」と公式が推奨しています。\n訂正: 前回の forcecw の説明で「forcerhr は forceccw と実質同じ方向」と記しましたが、実際のヘルプを確認すると forcerhr の外周は時計回り＝ forcecw と同じ方向 でした。失礼しました。\nID\n外周リングの向き\nnative:forceccw\n反時計回り\nnative:forcecw\n時計回り\nnative:forcerhr\n時計回り（右手ルール解釈による）\n"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.mojxmlloader_mojxmlloader",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[法務省登記所備付地図データ] 地図XML/ZIPを読み込む」(id: mojxmlloader:mojxmlloader) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[法務省登記所備付地図データ] 地図XML/ZIPを読み込む」(id: mojxmlloader:mojxmlloader) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認しました。**`mojxmlloader:mojxmlloader`（表示名:「地図XML/ZIPを読み込む」、プロバイダ:「法務省登記所備付地図データ」）は存在します**。読み込み済みの `mojxml_plugin` プラグインが提供するアルゴリズムです。\n\n## 用途\n**法務省登記所備付地図データ（いわゆる「地図XML」）を QGIS のベクタレイヤに変換**するアルゴリズムです。登記情報提供サービス等からダウンロードした筆界・筆ポリゴンの XML データをそのまま読み込み、座標系付きのベクタレイヤとして出力します。配布形式の ZIP ファイルを解凍せずに直接指定できるのが特徴です。地番ごとの範囲確認、筆界データの GIS 化などに使います。\n\n## 主なパラメータ\n\n| パラメータ | 型 | 説明 |\n|---|---|---|\n| `INPUT` | file | 読み込む地図 XML ファイル、または配布 ZIP ファイル |\n| `OUTPUT` | sink | 出力ベクタレイヤ（任意の形式・保存先を指定可能） |\n| `INCLUDE_ARBITRARY_CRS` | boolean | 任意座標系（公共座標系以外の独自原点）のデータも含める。デフォルト `False` |\n| `INCLUDE_CHIKUGAI` | boolean | 「地区外」「別図」の地番データを含める。デフォルト `False` |\n\n補足：\n- 地図XML の座標系は公共測量の平面直角座標系（第 n 系）に対応しており、正しい EPSG で出力されます。`INCLUDE_ARBITRARY_CRS` を `True` にすると、公共座標系を持たない任意座標のデータも取り込みますが、その場合 CRS 解釈に注意が必要です。\n- `INCLUDE_CHIKUGAI` は、地図XML 内の「地区外」や「別図」として分離収録されている筆界データを含めるかどうかのスイッチです。通常は対象地区のデータだけで足りるのでデフォルト `False` で問題ありません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('mojxmlloader:mojxmlloader')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in reg.algorithms() if 'moj' in a.id().lower() or 'xml' in a.id().lower()]}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': str(p.defaultValue())}\\n        if hasattr(p, 'options'):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': (alg.shortHelpString() or '')[:800],\\n        'params': params,\\n    }\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[法務省登記所備付地図データ] 地図XML/ZIPを読み込む」(id: mojxmlloader:mojxmlloader) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認しました。mojxmlloader:mojxmlloader（表示名:「地図XML/ZIPを読み込む」、プロバイダ:「法務省登記所備付地図データ」）は存在します。読み込み済みの mojxml_plugin プラグインが提供するアルゴリズムです。\n用途\n法務省登記所備付地図データ（いわゆる「地図XML」）を QGIS のベクタレイヤに変換するアルゴリズムです。登記情報提供サービス等からダウンロードした筆界・筆ポリゴンの XML データをそのまま読み込み、座標系付きのベクタレイヤとして出力します。配布形式の ZIP ファイルを解凍せずに直接指定できるのが特徴です。地番ごとの範囲確認、筆界データの GIS 化などに使います。\n主なパラメータ\nパラメータ\n型\n説明\nINPUT\nfile\n読み込む地図 XML ファイル、または配布 ZIP ファイル\nOUTPUT\nsink\n出力ベクタレイヤ（任意の形式・保存先を指定可能）\nINCLUDE_ARBITRARY_CRS\nboolean\n任意座標系（公共座標系以外の独自原点）のデータも含める。デフォルト False\nINCLUDE_CHIKUGAI\nboolean\n「地区外」「別図」の地番データを含める。デフォルト False\n\n補足：\n地図XML の座標系は公共測量の平面直角座標系（第 n 系）に対応しており、正しい EPSG で出力されます。INCLUDE_ARBITRARY_CRS を True にすると、公共座標系を持たない任意座標のデータも取り込みますが、その場合 CRS 解釈に注意が必要です。\nINCLUDE_CHIKUGAI は、地図XML 内の「地区外」や「別図」として分離収録されている筆界データを含めるかどうかのスイッチです。通常は対象地区のデータだけで足りるのでデフォルト False で問題ありません。"
+}

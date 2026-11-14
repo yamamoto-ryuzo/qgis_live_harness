@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionShowBookmarkManager",
+ "prompt": "QGISの「空間ブックマーク・マネージャを表示」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「空間ブックマーク・マネージャを表示」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "このアクションはドックの表示切替で、現在すでにON(チェック済み)です。トグルしてしまうと非表示になるため、現在状態を確認したうえでドックを前面に出します。「空間ブックマーク・マネージャを表示」(`mActionShowBookmarkManager`)の状態を確認しました。\n\n- アクションはすでにチェックONで、「空間ブックマークマネージャ」ドックは画面左下に表示中です\n- 表示中のドックを `show()` + `raise_()` で前面に出しました\n\nこのアクションはトグル型のため、今の状態で `trigger()` すると逆にパネルが閉じてしまいます。すでに表示済みのため、実行せずに現在の状態を維持しています。非表示にしたい場合は言ってください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QDockWidget\\nmw = iface.mainWindow()\\na = mw.findChild(QAction, 'mActionShowBookmarkManager')\\ndock = None\\nfor d in mw.findChildren(QDockWidget):\\n    if 'ブックマーク' in (d.windowTitle() or '') or 'bookmark' in (d.objectName() or '').lower():\\n        dock = d\\n        break\\nif dock:\\n    dock.show()\\n    dock.raise_()\\nresult = (a.text(), a.isChecked(), dock.windowTitle() if dock else None, dock.isVisible() if dock else None)\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「空間ブックマーク・マネージャを表示」機能(アクション)を実行して\n[AI] \nこのアクションはドックの表示切替で、現在すでにON(チェック済み)です。トグルしてしまうと非表示になるため、現在状態を確認したうえでドックを前面に出します。「空間ブックマーク・マネージャを表示」(mActionShowBookmarkManager)の状態を確認しました。\nアクションはすでにチェックONで、「空間ブックマークマネージャ」ドックは画面左下に表示中です\n表示中のドックを show() + raise_() で前面に出しました\nこのアクションはトグル型のため、今の状態で trigger() すると逆にパネルが閉じてしまいます。すでに表示済みのため、実行せずに現在の状態を維持しています。非表示にしたい場合は言ってください。"
+}

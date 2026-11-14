@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.searchLayers",
+ "prompt": "QGISの「Search Layers」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Search Layers」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Search Layers」に該当するアクションを検索します。## 調査結果\n\n「Search Layers」アクションの状態を `qgis_pyeval` で確認しました。\n\n| 項目 | 状態 |\n|---|---|\n| 提供元 | **searchlayers** プラグイン（QGIS 標準ではありません） |\n| アクション名 | `searchLayers` |\n| 表示テキスト | Search Layers |\n| 配置場所 | **Search Layers** メニュー ＋ **Search Layers Toolbar** ツールバー |\n| ショートカット | なし |\n| 現在の有効状態 | **有効（enabled）** |\n\n### 補足\n\n- 実行すると Search Layers プラグインの検索ダイアログが開き、レイヤ名や属性でプロジェクト内レイヤを検索できる機能です。\n- 関連して `searchLayersHelp`（Help）アクションも同メニューにあり **有効** です。\n\n必要であれば `trigger()` で実行できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\nmw = iface.mainWindow()\\nmatches = []\\nfor a in mw.findChildren(QAction):\\n    name = a.objectName() or ''\\n    text = a.text() or ''\\n    tip = a.toolTip() or ''\\n    if 'searchlayers' in (name+text+tip).lower() or 'search layers' in (name+text+tip).lower():\\n        homes = [m.title() for m in mw.findChildren(QMenu) if a in m.actions()]\\n        tb = [t.windowTitle() for t in mw.findChildren(QToolBar) if a in t.actions()]\\n        matches.append({'objectName': name, 'text': text, 'toolTip': tip,\\n                        'enabled': a.isEnabled(), 'visible': a.isVisible(),\\n                        'shortcut': a.shortcut().toString(), 'menus': homes, 'toolbars': tb})\\nresult = matches\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Search Layers」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Search Layers」に該当するアクションを検索します。## 調査結果\n「Search Layers」アクションの状態を qgis_pyeval で確認しました。\n項目\n状態\n提供元\nsearchlayers プラグイン（QGIS 標準ではありません）\nアクション名\nsearchLayers\n表示テキスト\nSearch Layers\n配置場所\nSearch Layers メニュー ＋ Search Layers Toolbar ツールバー\nショートカット\nなし\n現在の有効状態\n有効（enabled）\n\n補足\n実行すると Search Layers プラグインの検索ダイアログが開き、レイヤ名や属性でプロジェクト内レイヤを検索できる機能です。\n関連して searchLayersHelp（Help）アクションも同メニューにあり 有効 です。\n必要であれば trigger() で実行できます。"
+}

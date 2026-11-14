@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_package",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤをGeoPackage化」(id: native:package) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤをGeoPackage化」(id: native:package) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:package` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:package`\n- **表示名**: レイヤをGeoPackage化\n- **グループ**: データベース\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\n**複数のレイヤをまとめて1つの GeoPackage (.gpkg) ファイルにエクスポート**します。スタイルやメタデータの同梱、CRS変換、領域クリップ、選択地物のみの抽出、プロジェクトで定義されたリレーション先レイヤの同時エクスポートにも対応しており、データの配布・アーカイブ用の定番アルゴリズムです。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `LAYERS` | multilayer（必須） | パッケージ化する入力レイヤのリスト |\n| `OUTPUT` | fileDestination（必須） | 出力GeoPackageファイル名 |\n| `OVERWRITE` | boolean（デフォルト False） | 既存GeoPackageを上書きするか |\n| `SAVE_STYLES` | boolean（デフォルト True） | レイヤスタイルをGeoPackageに保存 |\n| `SAVE_METADATA` | boolean（デフォルト True） | レイヤメタデータを保存 |\n| `SELECTED_FEATURES_ONLY` | boolean（デフォルト False） | 選択地物のみ保存 |\n| `EXPORT_RELATED_LAYERS` | boolean（デフォルト False） | プロジェクト定義のリレーション先レイヤもエクスポート |\n| `EXTENT` | extent（オプション） | 出力範囲のクリップ領域 |\n| `CRS` | crs（オプション） | 変換先CRS（再投影） |\n\n出力としては `OUTPUT`（ファイルパス）と `OUTPUT_LAYERS`（新しいパッケージ内のレイヤ一覧）を返します。\n\n実行例:\n\n```python\nprocessing.run(\"native:package\", {\n    'LAYERS': [layer1, layer2],\n    'OUTPUT': r'C:/data/out.gpkg',\n    'OVERWRITE': True,\n    'SAVE_STYLES': True\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:package')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤをGeoPackage化」(id: native:package) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:package は現在の QGIS の processing registry に登録されています。\nID: native:package\n表示名: レイヤをGeoPackage化\nグループ: データベース\nプロバイダ: QGIS（ネイティブC++）\n用途\n複数のレイヤをまとめて1つの GeoPackage (.gpkg) ファイルにエクスポートします。スタイルやメタデータの同梱、CRS変換、領域クリップ、選択地物のみの抽出、プロジェクトで定義されたリレーション先レイヤの同時エクスポートにも対応しており、データの配布・アーカイブ用の定番アルゴリズムです。\n主なパラメータ\n名前\n種別\n説明\nLAYERS\nmultilayer（必須）\nパッケージ化する入力レイヤのリスト\nOUTPUT\nfileDestination（必須）\n出力GeoPackageファイル名\nOVERWRITE\nboolean（デフォルト False）\n既存GeoPackageを上書きするか\nSAVE_STYLES\nboolean（デフォルト True）\nレイヤスタイルをGeoPackageに保存\nSAVE_METADATA\nboolean（デフォルト True）\nレイヤメタデータを保存\nSELECTED_FEATURES_ONLY\nboolean（デフォルト False）\n選択地物のみ保存\nEXPORT_RELATED_LAYERS\nboolean（デフォルト False）\nプロジェクト定義のリレーション先レイヤもエクスポート\nEXTENT\nextent（オプション）\n出力範囲のクリップ領域\nCRS\ncrs（オプション）\n変換先CRS（再投影）\n\n出力としては OUTPUT（ファイルパス）と OUTPUT_LAYERS（新しいパッケージ内のレイヤ一覧）を返します。\n実行例:\nprocessing.run(\"native:package\", {\n    'LAYERS': [layer1, layer2],\n    'OUTPUT': r'C:/data/out.gpkg',\n    'OVERWRITE': True,\n    'SAVE_STYLES': True\n})"
+}

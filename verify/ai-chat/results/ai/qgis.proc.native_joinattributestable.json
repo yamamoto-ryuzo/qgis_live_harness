@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_joinattributestable",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性テーブルで結合（table join）」(id: native:joinattributestable) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性テーブルで結合（table join）」(id: native:joinattributestable) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:joinattributestable` は **processing registry に存在します**。\n\n- **表示名**: 属性テーブルで結合（table join）\n- **グループ**: ベクタ一般 (`vectorgeneral`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n両レイヤの**結合キーとなるフィールド値の一致を条件に**、第2レイヤの属性を入力レイヤへ結合した新しいレイヤを作成するアルゴリズムです。ジオメトリを持たない CSV/Excel 由来のテーブルを地域コードや ID で結合する等、RDB の JOIN に相当する通常の「属性結合」に使います（空間関係は見ません）。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力レイヤ（結合される側、必須） | — |\n| `FIELD` | 入力レイヤの結合対象フィールド（必須） | — |\n| `INPUT_2` | 第2の入力レイヤ（結合元、必須） | — |\n| `FIELD_2` | 第2レイヤの結合対象フィールド（必須） | — |\n| `FIELDS_TO_COPY` | 第2レイヤからコピーする属性（空白＝全属性） | 空 |\n| `METHOD` | 結合型（enum）：`0` マッチごとに地物作成（1対多） / `1` 最初に合致した地物のみ（1対1） | `1` |\n| `DISCARD_NONMATCHING` | 結合対象がなかった地物を破棄 | `False` |\n| `PREFIX` | コピーフィールド名の接頭辞 | 空 |\n| `OUTPUT` | 出力レイヤ | 一時出力 |\n| `NON_MATCHING` | 結合できなかった入力地物の出力（任意） | — |\n\n## 出力\n\n- `OUTPUT` — 結合済みレイヤ\n- `NON_MATCHING` — 結合できなかった地物\n- `JOINED_COUNT` / `UNJOINABLE_COUNT` — 結合できた／できなかった地物数（数値）\n\n空間結合 `native:joinattributesbylocation` との違いは、結合条件が**フィールド値の一致**である点（`PREDICATE` は無く、かわりに `FIELD`/`FIELD_2` を指定）です。\n\n実行例: `processing.run(\"native:joinattributestable\", {'INPUT': layer_a, 'FIELD': 'code', 'INPUT_2': table_b, 'FIELD_2': 'area_code', 'METHOD': 1, 'OUTPUT': 'TEMPORARY_OUTPUT'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:joinattributestable')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n       "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性テーブルで結合（table join）」(id: native:joinattributestable) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:joinattributestable は processing registry に存在します。\n表示名: 属性テーブルで結合（table join）\nグループ: ベクタ一般 (vectorgeneral)\nプロバイダ: QGIS（ネイティブ C++）\n用途\n両レイヤの結合キーとなるフィールド値の一致を条件に、第2レイヤの属性を入力レイヤへ結合した新しいレイヤを作成するアルゴリズムです。ジオメトリを持たない CSV/Excel 由来のテーブルを地域コードや ID で結合する等、RDB の JOIN に相当する通常の「属性結合」に使います（空間関係は見ません）。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力レイヤ（結合される側、必須）\n—\nFIELD\n入力レイヤの結合対象フィールド（必須）\n—\nINPUT_2\n第2の入力レイヤ（結合元、必須）\n—\nFIELD_2\n第2レイヤの結合対象フィールド（必須）\n—\nFIELDS_TO_COPY\n第2レイヤからコピーする属性（空白＝全属性）\n空\nMETHOD\n結合型（enum）：0 マッチごとに地物作成（1対多） / 1 最初に合致した地物のみ（1対1）\n1\nDISCARD_NONMATCHING\n結合対象がなかった地物を破棄\nFalse\nPREFIX\nコピーフィールド名の接頭辞\n空\nOUTPUT\n出力レイヤ\n一時出力\nNON_MATCHING\n結合できなかった入力地物の出力（任意）\n—\n\n出力\nOUTPUT — 結合済みレイヤ\nNON_MATCHING — 結合できなかった地物\nJOINED_COUNT / UNJOINABLE_COUNT — 結合できた／できなかった地物数（数値）\n空間結合 native:joinattributesbylocation との違いは、結合条件がフィールド値の一致である点（PREDICATE は無く、かわりに FIELD/FIELD_2 を指定）です。\n実行例: processing.run(\"native:joinattributestable\", {'INPUT': layer_a, 'FIELD': 'code', 'INPUT_2': table_b, 'FIELD_2': 'area_code', 'METHOD': 1, 'OUTPUT': 'TEMPORARY_OUTPUT'})"
+}

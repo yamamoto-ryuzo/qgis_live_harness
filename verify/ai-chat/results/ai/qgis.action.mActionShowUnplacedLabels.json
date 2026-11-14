@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionShowUnplacedLabels",
+ "prompt": "QGISの「未配置ラベルを表示」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「未配置ラベルを表示」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "`mActionShowUnplacedLabels`（未配置ラベルを表示）を実行します。実行しました。\n\n- **アクション**: `mActionShowUnplacedLabels`（未配置ラベルを表示）\n- **状態変化**: checked false → **true**（ONになりました）\n\nこれで、ラベル配置エンジンが他のラベルとの重なりなどで配置を見送ったラベル（unplaced labels）が地図キャンバス上に警告表示されるようになります。もう一度トリガすればOFFに戻ります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfrom qgis.utils import iface\\na = iface.mainWindow().findChild(QAction, 'mActionShowUnplacedLabels')\\nbefore = a.isChecked()\\na.trigger()\\ncanvas = iface.mapCanvas()\\nresult = {'enabled': a.isEnabled(), 'checkedBefore': before, 'checkedAfter': a.isChecked(), 'action': a.text()}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「未配置ラベルを表示」機能(アクション)を実行して\n[AI] \nmActionShowUnplacedLabels（未配置ラベルを表示）を実行します。実行しました。\nアクション: mActionShowUnplacedLabels（未配置ラベルを表示）\n状態変化: checked false → true（ONになりました）\nこれで、ラベル配置エンジンが他のラベルとの重なりなどで配置を見送ったラベル（unplaced labels）が地図キャンバス上に警告表示されるようになります。もう一度トリガすればOFFに戻ります。"
+}

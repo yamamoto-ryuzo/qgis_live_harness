@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_pointtolayer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 点からレイヤを作成」(id: native:pointtolayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 点からレイヤを作成」(id: native:pointtolayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:pointtolayer` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:pointtolayer`\n- **表示名**: 点からレイヤを作成\n- **グループ**: ベクタ作成\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\nパラメータで指定した**1つの点ジオメトリを持つ単一地物のベクタレイヤ**を作成するユーティリティです。モデラーやスクリプト内で「点座標」をレイヤ入力として渡したい場合（例: バッファやクリップの入力に点を使う）の変換役として使います。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | point（必須） | 点座標（`QgsPointXY` / \"x,y [crs]\" 形式の文字列など） |\n| `OUTPUT` | sink → outputVector | 出力先（ポイントレイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:pointtolayer\", {\n    'INPUT': '139.7671, 35.6812 [EPSG:4326]',\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:pointtolayer')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 点からレイヤを作成」(id: native:pointtolayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:pointtolayer は現在の QGIS の processing registry に登録されています。\nID: native:pointtolayer\n表示名: 点からレイヤを作成\nグループ: ベクタ作成\nプロバイダ: QGIS（ネイティブC++）\n用途\nパラメータで指定した1つの点ジオメトリを持つ単一地物のベクタレイヤを作成するユーティリティです。モデラーやスクリプト内で「点座標」をレイヤ入力として渡したい場合（例: バッファやクリップの入力に点を使う）の変換役として使います。\n主なパラメータ\n名前\n種別\n説明\nINPUT\npoint（必須）\n点座標（QgsPointXY / \"x,y [crs]\" 形式の文字列など）\nOUTPUT\nsink → outputVector\n出力先（ポイントレイヤ）\n\n実行例:\nprocessing.run(\"native:pointtolayer\", {\n    'INPUT': '139.7671, 35.6812 [EPSG:4326]',\n    'OUTPUT': 'memory:'\n})"
+}

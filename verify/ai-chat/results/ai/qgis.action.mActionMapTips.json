@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionMapTips",
+ "prompt": "QGISの「地図のTipsを表示」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「地図のTipsを表示」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「地図のTipsを表示」アクションを探して実行します。`mActionMapTips`「地図のTipsを表示」が見つかりました(有効・未チェック)。実行します。「地図のTipsを表示」(`mActionMapTips`)を実行し、有効(チェック状態)になりました。\n\nこれで、地図Tipsが設定されているレイヤの地物にマウスをホバーすると、ツールチップが表示されます。表示内容はレイヤプロパティの「表示」タブの「地図のTips」設定(HTML式)に依存します。現在のレイヤにTips設定がない場合はホバーしても何も出ません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    o = a.objectName() or ''\\n    if ('Tips' in t) or ('Tips' in o) or ('maptip' in o.lower()):\\n        found.append((o, t, a.isEnabled(), a.isCheckable(), a.isChecked(), a.shortcut().toString()))\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionMapTips')\\na.trigger()\\nresult = (a.text(), a.isChecked())\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「地図のTipsを表示」機能(アクション)を実行して\n[AI] \n「地図のTipsを表示」アクションを探して実行します。mActionMapTips「地図のTipsを表示」が見つかりました(有効・未チェック)。実行します。「地図のTipsを表示」(mActionMapTips)を実行し、有効(チェック状態)になりました。\nこれで、地図Tipsが設定されているレイヤの地物にマウスをホバーすると、ツールチップが表示されます。表示内容はレイヤプロパティの「表示」タブの「地図のTips」設定(HTML式)に依存します。現在のレイヤにTips設定がない場合はホバーしても何も出ません。"
+}

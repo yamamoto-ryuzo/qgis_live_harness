@@ -1,0 +1,39 @@
+{
+ "id": "qgis.action.mActionZoomToLayer",
+ "prompt": "QGISの「レイヤの領域にズーム(&L)」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「レイヤの領域にズーム(&L)」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「レイヤの領域にズーム」アクションを検索して実行します。アクションは発火しました。表示領域は変化なし — すでにレイヤの領域にズーム済みだった可能性があります。念のため画面を確認します。画面が白紙です。アクティブレイヤの状態を確認します。実行結果を報告します。\n\n## 「レイヤの領域にズーム(&L)」を実行しました\n\n- 対象アクション： `mActionZoomToLayer`（アクティブレイヤの領域へズーム）→ **trigger() で発火済み**\n- ただし**表示領域に変化はありませんでした**\n\n**理由：** プロジェクト内のレイヤは `tmp_floater_test`（EPSG:4326）1つのみで、**地物数0・領域(extent)がNullの空のレイヤ**です。空レイヤに対してはズーム先の領域が計算できないため、QGISは現在の表示領域を維持します（実行前後で extent は同一）。\n\n```\nextent before = after:\n-1.0,-2.2246 : 1.0,2.2246  (EPSG:4326, scale 1:1,604,453)\n```\n\nキャンバスのスクリーンショットも白紙（表示すべき地物がない）であることを確認済みです。\n\nつまりアクション自体は正常に実行されましたが、「ズーム先のレイヤ領域が存在しない」ため効果はありませんでした。地物のあるレイヤを追加するか、ベースマップ等を読み込んでから再度実行すれば、その領域にズームします。必要であればOpenStreetMap等のベースマップを追加できます。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    on = (a.objectName() or '')\\n    if 'mActionZoomToLayer' in on or 'zoom to layer' in t.lower() or '領域にズーム' in t or 'レイヤの領域' in t:\\n        info.append({'text': t, 'objectName': on, 'checkable': a.isCheckable(), 'checked': a.isChecked(), 'enabled': a.isEnabled(), 'visible': a.isVisible()})\\nresult = info\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nlyr = iface.activeLayer()\\nbefore = iface.mapCanvas().extent()\\nout = {'active_layer': lyr.name() if lyr else None, 'extent_before': before.toString()}\\nfor a in mw.findChildren(QAction):\\n    if (a.objectName() or '') == 'mActionZoomToLayer':\\n        a.trigger()\\n        out['triggered'] = True\\n        break\\nafter = iface.mapCanvas().extent()\\nout['extent_after'] = after.toString()\\nresult = out\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-3e4dc32c.png', 'target': 'canvas'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"lyr = iface.activeLayer()\\nout = {'layers': []}\\nfor l in QgsProject.instance().mapLayers().values():\\n    out['layers'].append({\\n        'name': l.name(),\\n        'type': str(l.type()),\\n        'crs': l.crs().authid(),\\n        'extent': l.extent().toString(),\\n        'featureCount': l.featureCount() if hasattr(l, 'featureCount') else None,\\n        'visible': QgsProject.instance().layerTreeRoot().findLayer(l.id()).isVisible() if QgsProject.instance().layerTreeRoot().findLayer(l.id()) else None,\\n        'isValid': l.isValid(),\\n    })\\nout['canvas_scale'] = iface.mapCanvas().scale()\\nout['canvas_crs'] = iface.mapCanvas().mapSettings().destinationCrs().authid()\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「レイヤの領域にズーム(&L)」機能(アクション)を実行して\n[AI] \n「レイヤの領域にズーム」アクションを検索して実行します。アクションは発火しました。表示領域は変化なし — すでにレイヤの領域にズーム済みだった可能性があります。念のため画面を確認します。画面が白紙です。アクティブレイヤの状態を確認します。実行結果を報告します。\n「レイヤの領域にズーム(&L)」を実行しました\n対象アクション： mActionZoomToLayer（アクティブレイヤの領域へズーム）→ trigger() で発火済み\nただし表示領域に変化はありませんでした\n理由： プロジェクト内のレイヤは tmp_floater_test（EPSG:4326）1つのみで、地物数0・領域(extent)がNullの空のレイヤです。空レイヤに対してはズーム先の領域が計算できないため、QGISは現在の表示領域を維持します（実行前後で extent は同一）。\nextent before = after:\n-1.0,-2.2246 : 1.0,2.2246  (EPSG:4326, scale 1:1,604,453)\nキャンバスのスクリーンショットも白紙（表示すべき地物がない）であることを確認済みです。\nつまりアクション自体は正常に実行されましたが、「ズーム先のレイヤ領域が存在しない」ため効果はありませんでした。地物のあるレイヤを追加するか、ベースマップ等を読み込んでから再度実行すれば、その領域にズームします。必要であればOpenStreetMap等のベースマップを追加できます。"
+}

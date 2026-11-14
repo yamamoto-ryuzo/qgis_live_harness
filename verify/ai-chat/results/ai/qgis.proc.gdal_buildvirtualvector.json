@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_buildvirtualvector",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 仮想レイヤを構築」(id: gdal:buildvirtualvector) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 仮想レイヤを構築」(id: gdal:buildvirtualvector) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:buildvirtualvector` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:buildvirtualvector` |\n| 表示名 | 仮想レイヤを構築 |\n| プロバイダ | GDAL |\n| グループ | ベクタその他 |\n\n## 用途\n\n複数のベクタデータソースを参照する **OGR 仮想レイヤ(.vrt)を構築**します。ラスタ版の `gdal:buildvirtualraster` に相当するベクタ版で、実データをコピーせず参照だけを持つ XML ファイルを作ります。\n\n- 分割・分散したベクタファイル群を**1つのレイヤとしてまとめて扱う**\n- `UNIONED` を ON にすると、入力量すべてを**1つの和集合レイヤ**にまとめた VRT を生成(同一スキーマ前提)\n- オフライン・巨大データの複製を避けたい場合に便利\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ベクタレイヤ/データソース(複数可) | 必須 |\n| `UNIONED` | 和集合の VRT を作成するか | false |\n| `OUTPUT` | 出力仮想ベクタ(.vrt) | 必須 |\n\nパラメータは3つのみのシンプルなアルゴリズムです。\n\n実行例: `processing.run(\"gdal:buildvirtualvector\", {\"INPUT\": [v1, v2, v3], \"UNIONED\": True, \"OUTPUT\": \"merged.vrt\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:buildvirtualvector')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'virtual' in a.id().lower() or 'vrt' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName("
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 仮想レイヤを構築」(id: gdal:buildvirtualvector) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:buildvirtualvector をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:buildvirtualvector\n表示名\n仮想レイヤを構築\nプロバイダ\nGDAL\nグループ\nベクタその他\n\n用途\n複数のベクタデータソースを参照する OGR 仮想レイヤ(.vrt)を構築します。ラスタ版の gdal:buildvirtualraster に相当するベクタ版で、実データをコピーせず参照だけを持つ XML ファイルを作ります。\n分割・分散したベクタファイル群を1つのレイヤとしてまとめて扱う\nUNIONED を ON にすると、入力量すべてを1つの和集合レイヤにまとめた VRT を生成(同一スキーマ前提)\nオフライン・巨大データの複製を避けたい場合に便利\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n入力ベクタレイヤ/データソース(複数可)\n必須\nUNIONED\n和集合の VRT を作成するか\nfalse\nOUTPUT\n出力仮想ベクタ(.vrt)\n必須\n\nパラメータは3つのみのシンプルなアルゴリズムです。\n実行例: processing.run(\"gdal:buildvirtualvector\", {\"INPUT\": [v1, v2, v3], \"UNIONED\": True, \"OUTPUT\": \"merged.vrt\"})"
+}

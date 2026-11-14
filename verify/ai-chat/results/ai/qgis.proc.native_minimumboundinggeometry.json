@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_minimumboundinggeometry",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Minimum bounding geometry」(id: native:minimumboundinggeometry) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Minimum bounding geometry」(id: native:minimumboundinggeometry) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:minimumboundinggeometry` は **processing registry に存在します**。\n\n- **表示名**: Minimum bounding geometry（最小包含ジオメトリ）\n- **グループ**: ベクタジオメトリ (`vectorgeometry`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n入力レイヤの地物群を**包み込む最小のジオメトリを作成**するアルゴリズムです。点群・地物群の範囲を囲む代表的な形状（バウンディングボックス、向き付き矩形、最小包含円、凸包）を生成するのに使います。\n\nオプション：`FIELD` でグループ化フィールドを指定すると、**その値ごとに1地物**の包含ジオメトリが生成されます（クラスごとの範囲ポリゴン作成など）。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力レイヤ（必須） | — |\n| `FIELD` | グループ化フィールド（任意。指定すると値ごとに包含ジオメトリを作成） | なし |\n| `TYPE` | ジオメトリタイプ（enum）：`0` Envelope (Bounding Box) / `1` Minimum Oriented Rectangle / `2` Minimum Enclosing Circle / `3` Convex Hull（必須） | — |\n| `OUTPUT` | 出力レイヤ「Bounding geometry」（必須） | — |\n\n## 出力\n\n- `OUTPUT` — 包含ジオメトリのポリゴンレイヤ\n\n実行例: `processing.run(\"native:minimumboundinggeometry\", {'INPUT': points, 'TYPE': 3, 'FIELD': 'class', 'OUTPUT': 'TEMPORARY_OUTPUT'})`（クラスごとの凸包）"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:minimumboundinggeometry')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n   "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Minimum bounding geometry」(id: native:minimumboundinggeometry) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:minimumboundinggeometry は processing registry に存在します。\n表示名: Minimum bounding geometry（最小包含ジオメトリ）\nグループ: ベクタジオメトリ (vectorgeometry)\nプロバイダ: QGIS（ネイティブ C++）\n用途\n入力レイヤの地物群を包み込む最小のジオメトリを作成するアルゴリズムです。点群・地物群の範囲を囲む代表的な形状（バウンディングボックス、向き付き矩形、最小包含円、凸包）を生成するのに使います。\nオプション：FIELD でグループ化フィールドを指定すると、その値ごとに1地物の包含ジオメトリが生成されます（クラスごとの範囲ポリゴン作成など）。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力レイヤ（必須）\n—\nFIELD\nグループ化フィールド（任意。指定すると値ごとに包含ジオメトリを作成）\nなし\nTYPE\nジオメトリタイプ（enum）：0 Envelope (Bounding Box) / 1 Minimum Oriented Rectangle / 2 Minimum Enclosing Circle / 3 Convex Hull（必須）\n—\nOUTPUT\n出力レイヤ「Bounding geometry」（必須）\n—\n\n出力\nOUTPUT — 包含ジオメトリのポリゴンレイヤ\n実行例: processing.run(\"native:minimumboundinggeometry\", {'INPUT': points, 'TYPE': 3, 'FIELD': 'class', 'OUTPUT': 'TEMPORARY_OUTPUT'})（クラスごとの凸包）"
+}

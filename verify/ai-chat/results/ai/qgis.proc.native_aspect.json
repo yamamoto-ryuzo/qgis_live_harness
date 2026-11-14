@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_aspect",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 傾斜方位（aspect）」(id: native:aspect) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 傾斜方位（aspect）」(id: native:aspect) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認しました。**`native:aspect`（表示名:「傾斜方位（aspect）」、グループ:「ラスタ地形解析」、プロバイダ:「QGIS（ネイティブC++）」）は存在します**。\n\n## 用途\n**DEM（デジタル地形モデル）から各セルの斜面方位を計算し、ラスタとして出力**します。出力値は**北を 0° として時計回り 0〜360° の方位角**で、「そのセルの斜面がどちら向きに下っているか」を表します。日当たり解析（南向き斜面の抽出）、雪崩・土砂災害リスク評価、植生分布解析などの地形解析で使われます。GDAL 版の `gdal:aspect` があるため、こちらはネイティブ実装版という位置づけです。\n\n## 主なパラメータ\n\n| パラメータ | 型 | デフォルト | 説明 |\n|---|---|---|---|\n| `INPUT` | raster | — | 入力 DTM ラスタ |\n| `Z_FACTOR` | number | 1.0 | Z 係数（垂直単位 / 水平単位の比率）。標高がメートルで座標が度単位の場合などに補正 |\n| `NODATA` | number | -9999.0 | 出力の NoData 値（平坦面や縁のセルに適用） |\n| `CREATION_OPTIONS` | string | — | 出力ラスタの作成オプション（圧縮指定など） |\n| `OUTPUT` | rasterDestination | — | 出力ラスタ（「傾斜方位（aspect）」） |\n\n補足：\n- **完全に平坦なセルは NoData** になる仕様です（方位が定義できないため）。\n- `Z_FACTOR` は DEM の垂直単位と水平単位が異なる場合に重要です。メートル系投影座標なら 1.0 のままで OK。地理座標系（度）の DEM は、先にメートル系へ投影変換するか緯度に応じた係数を設定してください。\n- 同グループに `native:slope`（傾斜）、`native:hillshade`（陰影）など姉妹アルゴリズムがあり、ネイティブ版は QGIS 独自の実装で GDAL 依存がありません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('native:aspect')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in reg.algorithms() if 'aspect' in a.id().lower()]}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': str(p.defaultValue())}\\n        if hasattr(p, 'options'):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': (alg.shortHelpString() or '')[:1500],\\n        'params': params,\\n    }\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 傾斜方位（aspect）」(id: native:aspect) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認しました。native:aspect（表示名:「傾斜方位（aspect）」、グループ:「ラスタ地形解析」、プロバイダ:「QGIS（ネイティブC++）」）は存在します。\n用途\nDEM（デジタル地形モデル）から各セルの斜面方位を計算し、ラスタとして出力します。出力値は北を 0° として時計回り 0〜360° の方位角で、「そのセルの斜面がどちら向きに下っているか」を表します。日当たり解析（南向き斜面の抽出）、雪崩・土砂災害リスク評価、植生分布解析などの地形解析で使われます。GDAL 版の gdal:aspect があるため、こちらはネイティブ実装版という位置づけです。\n主なパラメータ\nパラメータ\n型\nデフォルト\n説明\nINPUT\nraster\n—\n入力 DTM ラスタ\nZ_FACTOR\nnumber\n1.0\nZ 係数（垂直単位 / 水平単位の比率）。標高がメートルで座標が度単位の場合などに補正\nNODATA\nnumber\n-9999.0\n出力の NoData 値（平坦面や縁のセルに適用）\nCREATION_OPTIONS\nstring\n—\n出力ラスタの作成オプション（圧縮指定など）\nOUTPUT\nrasterDestination\n—\n出力ラスタ（「傾斜方位（aspect）」）\n\n補足：\n完全に平坦なセルは NoData になる仕様です（方位が定義できないため）。\nZ_FACTOR は DEM の垂直単位と水平単位が異なる場合に重要です。メートル系投影座標なら 1.0 のままで OK。地理座標系（度）の DEM は、先にメートル系へ投影変換するか緯度に応じた係数を設定してください。\n同グループに native:slope（傾斜）、native:hillshade（陰影）など姉妹アルゴリズムがあり、ネイティブ版は QGIS 独自の実装で GDAL 依存がありません。"
+}

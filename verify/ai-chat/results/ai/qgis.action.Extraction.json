@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Extraction",
+ "prompt": "QGISの「Extraction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Extraction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Extraction」サブメニュー（ラスタメニュー内）を調べます。「Extraction」アクションを調べました。結論：**現在有効（enabled = true）で、配下の全項目も有効です**。\n\n- **実体**: 「ラスタ（&R)」メニュー（`mRasterMenu`）内のサブメニュー `Extraction`（Processing プラグインが GDAL アルゴリズムを登録したもの）\n- **状態**: `isEnabled() == true`、`isVisible() == true`\n- **配下のメニュー項目（3項目、すべて enabled = true）**:\n\n| 項目 | objectName | 対応アルゴリズム |\n|---|---|---|\n| 範囲を指定してラスタを切り抜く... | `mProcessingUserMenu_gdal:cliprasterbyextent` | gdal:cliprasterbyextent |\n| マスクレイヤでラスタを切り抜く... | `mProcessingUserMenu_gdal:cliprasterbymasklayer` | gdal:cliprasterbymasklayer |\n| 等高線... | `mProcessingUserMenu_gdal:contour` | gdal:contour |\n\nサブメニュー本体も3つの抽出系アルゴリズムもすべて有効な状態です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    if a.text().replace('&','') == 'Extraction' and a.menu() is not None:\\n        m = a.menu()\\n        m.aboutToShow.emit()\\n        items = [{'text': x.text().replace('&',''), 'name': x.objectName(), 'enabled': x.isEnabled(), 'sep': x.isSeparator()} for x in m.actions()]\\n        assoc = [{'cls': w.__class__.__name__, 'obj': w.objectName()} for w in a.associatedObjects()]\\n        found.append({'enabled': a.isEnabled(), 'visible': a.isVisible(), 'menu_obj': m.objectName(), 'assoc': assoc, 'items': items})\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Extraction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Extraction」サブメニュー（ラスタメニュー内）を調べます。「Extraction」アクションを調べました。結論：現在有効（enabled = true）で、配下の全項目も有効です。\n実体: 「ラスタ（&R)」メニュー（mRasterMenu）内のサブメニュー Extraction（Processing プラグインが GDAL アルゴリズムを登録したもの）\n状態: isEnabled() == true、isVisible() == true\n配下のメニュー項目（3項目、すべて enabled = true）:\n項目\nobjectName\n対応アルゴリズム\n範囲を指定してラスタを切り抜く...\nmProcessingUserMenu_gdal:cliprasterbyextent\ngdal:cliprasterbyextent\nマスクレイヤでラスタを切り抜く...\nmProcessingUserMenu_gdal:cliprasterbymasklayer\ngdal:cliprasterbymasklayer\n等高線...\nmProcessingUserMenu_gdal:contour\ngdal:contour\n\nサブメニュー本体も3つの抽出系アルゴリズムもすべて有効な状態です。"
+}

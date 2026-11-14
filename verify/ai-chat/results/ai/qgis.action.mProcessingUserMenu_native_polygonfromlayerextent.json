@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mProcessingUserMenu_native_polygonfromlayerextent",
+ "prompt": "QGISの「レイヤ範囲を抽出...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「レイヤ範囲を抽出...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「レイヤ範囲を抽出」アクションをQGIS内から探して、有効状態を確認します。調査結果です。「レイヤ範囲を抽出...」アクションは**現在有効（enabled = true）**です。\n\n## アクション情報\n\n| 項目 | 値 |\n|---|---|\n| text | `レイヤ範囲を抽出...` |\n| objectName | `mProcessingUserMenu_native:polygonfromlayerextent` |\n| enabled | **true** |\n| visible | true |\n| 配置メニュー | ベクタ(&O) → &Research Tools |\n\n## 裏側のアルゴリズム\n\n- アルゴリズムID: `native:polygonfromlayerextent`\n- 表示名: `レイヤ範囲を抽出`\n- プロバイダ: QGIS（ネイティブC++） — 正常に登録済み\n\nベクタ → Research Tools 配下の項目で、メニュー項目・アルゴリズム本体ともに利用可能な状態です。レイヤの領域範囲をポリゴンとして抽出するアルゴリズムです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QApplication, QAction, QMenu\\nfrom qgis.core import QgsApplication\\n\\nout = {'candidates': []}\\ntarget = None\\nfor w in QApplication.topLevelWidgets():\\n    for a in w.findChildren(QAction):\\n        t = (a.text() or '')\\n        if '範囲' in t or 'extent' in t.lower() or 'extent' in (a.objectName() or '').lower():\\n            menus = [m.title() for m in iface.mainWindow().findChildren(QMenu) if a in m.actions()]\\n            out['candidates'].append({'text': t, 'objectName': a.objectName(), 'enabled': a.isEnabled(), 'menus': menus})\\n            if 'polygonfromlayerextent' in (a.objectName() or '').lower() or 'layerextent' in (a.objectName() or '').lower():\\n                target = a\\n\\nif target:\\n    out['action_enabled'] = target.isEnabled()\\n    out['action_visible'] = target.isVisible()\\n    out['action_tooltip'] = target.toolTip()\\n    out['action_objectName'] = target.objectName()\\n    for m in iface.mainWindow().findChildren(QMenu):\\n "
+  }
+ ],
+ "view_tail": "[あなた] QGISの「レイヤ範囲を抽出...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「レイヤ範囲を抽出」アクションをQGIS内から探して、有効状態を確認します。調査結果です。「レイヤ範囲を抽出...」アクションは**現在有効（enabled = true）**です。\nアクション情報\n項目\n値\ntext\nレイヤ範囲を抽出...\nobjectName\nmProcessingUserMenu_native:polygonfromlayerextent\nenabled\ntrue\nvisible\ntrue\n配置メニュー\nベクタ(&O) → &Research Tools\n\n裏側のアルゴリズム\nアルゴリズムID: native:polygonfromlayerextent\n表示名: レイヤ範囲を抽出\nプロバイダ: QGIS（ネイティブC++） — 正常に登録済み\nベクタ → Research Tools 配下の項目で、メニュー項目・アルゴリズム本体ともに利用可能な状態です。レイヤの領域範囲をポリゴンとして抽出するアルゴリズムです。"
+}

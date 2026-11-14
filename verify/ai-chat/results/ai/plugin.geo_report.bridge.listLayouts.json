@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_report.bridge.listLayouts",
+ "prompt": "QGISの geo_report プラグインで「プロジェクトの印刷レイアウト一覧を返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_report プラグインで「プロジェクトの印刷レイアウト一覧を返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`listLayouts`（プロジェクトの印刷レイアウト一覧）を実行しました。現在 **13件** あります。\n\n| index | 名前 | ページ | 地図アイテム | 選択 |\n|---|---|---|---|---|\n| 0 | A0 | 1 | 1 | |\n| 1 | A0縦 | 1 | 1 | |\n| 2 | A1 | 1 | 1 | |\n| 3 | A1縦 | 1 | 1 | |\n| 4 | A2 | 1 | 1 | |\n| 5 | A2縦 | 1 | 1 | |\n| 6 | A3 | 1 | 1 | |\n| 7 | A3縦 | 1 | 1 | |\n| 8 | A4 | 1 | 1 | |\n| 9 | A4縦 | 1 | 1 | |\n| 10 | A4縦_2 | 1 | 1 | ● |\n| 11 | テスト図面 | 1 | 0 | |\n| 12 | A4縦_copy | 1 | 1 | |\n\n- 現在の選択レイアウト: **A4縦_2**（index 10）\n- `テスト図面`（createLayout で作成）は地図アイテム 0 の空レイアウト、それ以外は地図1個を含む構成です\n- このセッションで追加した `A4縦_2`・`テスト図面`・`A4縦_copy` の3件が増分です。不要なら `removeLayout` で削除できます"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'plugin_id': 'geo_report', 'method': 'listLayouts'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_report プラグインで「プロジェクトの印刷レイアウト一覧を返す。」を実行して結果を教えて\n[AI] \nlistLayouts（プロジェクトの印刷レイアウト一覧）を実行しました。現在 13件 あります。\nindex\n名前\nページ\n地図アイテム\n選択\n0\nA0\n1\n1\n\n1\nA0縦\n1\n1\n\n2\nA1\n1\n1\n\n3\nA1縦\n1\n1\n\n4\nA2\n1\n1\n\n5\nA2縦\n1\n1\n\n6\nA3\n1\n1\n\n7\nA3縦\n1\n1\n\n8\nA4\n1\n1\n\n9\nA4縦\n1\n1\n\n10\nA4縦_2\n1\n1\n●\n11\nテスト図面\n1\n0\n\n12\nA4縦_copy\n1\n1\n\n現在の選択レイアウト: A4縦_2（index 10）\nテスト図面（createLayout で作成）は地図アイテム 0 の空レイアウト、それ以外は地図1個を含む構成です\nこのセッションで追加した A4縦_2・テスト図面・A4縦_copy の3件が増分です。不要なら removeLayout で削除できます"
+}

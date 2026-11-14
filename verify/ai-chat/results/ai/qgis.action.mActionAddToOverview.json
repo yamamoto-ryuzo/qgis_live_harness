@@ -1,0 +1,38 @@
+{
+ "id": "qgis.action.mActionAddToOverview",
+ "prompt": "QGISの「全体図に表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「全体図に表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "調査のため、まず qgis-live サーバーのツール一覧を確認します。`qgis_pyeval` で「全体図に表示」アクション（QGIS 内部名 `mActionZoomFull`）を実際に調べます。見つかりました。「全体図に表示」は `mActionAddToOverview` で、現在 **無効** です。理由を確認するため、レイヤの状態を調べます。レイヤメニュー内にあることが確認できました。念のため、一時的なメモリレイヤを追加して有効になるか検証します（直後に削除します）。## 調査結果\n\n「全体図に表示」アクション（`mActionAddToOverview`）を `qgis_pyeval` で実際に調べました。\n\n| 項目 | 状態 |\n|---|---|\n| アクション名 | `mActionAddToOverview` |\n| 表示テキスト | 全体図に表示 |\n| 配置場所 | **レイヤ(L)** メニュー |\n| 現在の有効状態 | **無効（disabled）** |\n\n### 無効の理由\n現在のプロジェクトにはレイヤが 0 件で、アクティブレイヤが存在しないため無効になっています。検証のため一時的にメモリレイヤを追加してアクティブ化したところ **有効 (enabled: true)** に変わり、削除すると再び無効に戻ることを実際に確認しました（検証後はレイヤ削除・ダーティフラグ解除済み）。\n\n### 補足\nこのアクションは「アクティブなレイヤを全体図（オーバービュー）パネルに追加する」機能で、ズーム操作ではありません。関連する類似アクションとして：\n\n- `mActionAddAllToOverview`（全体図にすべて表示）… 現在 **有効**\n- `mActionRemoveAllFromOverview`（全体図からすべて隠す）… 現在 **有効**\n- `mActionZoomFullExtent`（全域表示、Ctrl+Shift+F）… 現在 **有効** — こちらが「全体を表示するズーム」\n\nレイヤを読み込んでアクティブにすれば、「全体図に表示」はすぐ使える状態になります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"mw = iface.mainWindow()\\nacts = [a for a in mw.findChildren(type(mw)) if False]  # placeholder\\nfrom qgis.PyQt.QtWidgets import QAction\\nmatches = []\\nfor a in mw.findChildren(QAction):\\n    name = a.objectName()\\n    text = a.text()\\n    tip = a.toolTip()\\n    if 'zoom' in name.lower() or 'ズーム' in text or '全体' in text or '全体' in tip or 'Full' in text:\\n        matches.append({'objectName': name, 'text': text, 'toolTip': tip, 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'shortcut': a.shortcut().toString()})\\nresult = matches\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': 'layer = iface.activeLayer()\\ncanvas = iface.mapCanvas()\\nproj_layers = list(QgsProject.instance().mapLayers().values())\\n\\n# find the action and its parent menu\\nfrom qgis.PyQt.QtWidgets import QAction, QMenu\\na = mw.findChild(QAction, \\'mActionAddToOverview\\')\\nparents = []\\np = a.parent()\\nwhile p is not None:\\n    parents.append(f\"{p.__class__.__name__}({p.objectName() or p.title() if isinstance(p, QMenu) else p.objectName()})\")\\n    p = p.parent()\\n\\nresult = {\\n    \\'action_enabled\\': a.isEnabled(),\\n    \\'active_layer\\': layer.name() if layer else None,\\n    \\'project_layer_count\\': len(proj_layers),\\n    \\'project_layers\\': [l.name() for l in proj_layers[:10]],\\n    \\'canvas_layer_count\\': canvas.layerCount(),\\n    \\'parents\\': parents[:3],\\n}'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\na = mw.findChild(QAction, 'mActionAddToOverview')\\nhomes = []\\nfor m in mw.findChildren(QMenu):\\n    if a in m.actions():\\n        homes.append(m.title())\\n# also check toolbars\\nfrom qgis.PyQt.QtWidgets import QToolBar\\ntb = [t.windowTitle() for t in mw.findChildren(QToolBar) if a in t.actions()]\\nresult = {'menus': homes, 'toolbars': tb}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsVectorLayer\\nfrom qgis.PyQt.QtWidgets import QAction\\na = mw.findChild(QAction, 'mActionAddToOverview')\\nmem = QgsVectorLayer('Point?crs=EPSG:4326', 'tmp_probe', 'memory')\\nQgsProject.instance().addMapLayer(mem)\\niface.setActiveLayer(mem)\\n# let GUI update\\nfrom qgis.PyQt.QtWidgets import QApplication\\nQApplication.processEvents()\\nenabled_with_layer = a.isEnabled()\\nQgsProject.instance().removeMapLayer(mem.id())\\nQApplication.processEvents()\\nenabled_after_remove = a.isEnabled()\\nQgsProject.instance().setDirty(False)\\nresult = {'enabled_with_active_layer': enabled_with_layer, 'enabled_after_remove': enabled_after_remove}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「全体図に表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n調査のため、まず qgis-live サーバーのツール一覧を確認します。qgis_pyeval で「全体図に表示」アクション（QGIS 内部名 mActionZoomFull）を実際に調べます。見つかりました。「全体図に表示」は mActionAddToOverview で、現在 無効 です。理由を確認するため、レイヤの状態を調べます。レイヤメニュー内にあることが確認できました。念のため、一時的なメモリレイヤを追加して有効になるか検証します（直後に削除します）。## 調査結果\n「全体図に表示」アクション（mActionAddToOverview）を qgis_pyeval で実際に調べました。\n項目\n状態\nアクション名\nmActionAddToOverview\n表示テキスト\n全体図に表示\n配置場所\nレイヤ(L) メニュー\n現在の有効状態\n無効（disabled）\n\n無効の理由\n現在のプロジェクトにはレイヤが 0 件で、アクティブレイヤが存在しないため無効になっています。検証のため一時的にメモリレイヤを追加してアクティブ化したところ 有効 (enabled: true) に変わり、削除すると再び無効に戻ることを実際に確認しました（検証後はレイヤ削除・ダーティフラグ解除済み）。\n補足\nこのアクションは「アクティブなレイヤを全体図（オーバービュー）パネルに追加する」機能で、ズーム操作ではありません。関連する類似アクションとして：\nmActionAddAllToOverview（全体図にすべて表示）… 現在 有効\nmActionRemoveAllFromOverview（全体図からすべて隠す）… 現在 有効\nmActionZoomFullExtent（全域表示、Ctrl+Shift+F）… 現在 有効 — こちらが「全体を表示するズーム」\nレイヤを読み込んでアクティブにすれば、「全体図に表示」はすぐ使える状態になります。"
+}

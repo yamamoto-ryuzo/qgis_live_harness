@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_triterrainruggednessindex",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] TRI（Terrain Ruggedness Index）」(id: gdal:triterrainruggednessindex) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] TRI（Terrain Ruggedness Index）」(id: gdal:triterrainruggednessindex) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認しました。**`gdal:triterrainruggednessindex`（表示名:「TRI（Terrain Ruggedness Index）」、グループ:「ラスタ解析」）は存在します**。\n\n## 用途\nGDAL の `gdaldem tri` をラップしたアルゴリズムで、**DEM から地形起伏指数（TRI）を計算**します。各セルの標高と 8 近傍セルの標高差の二乗和の平方根（Riley et al. の TRI 定義）を出力し、**地形のゴツゴツさ・起伏の大きさを定量化**します。値が大きいほど起伏が激しい地形です。生態学のハビタット解析（動物の生息地適性）、地形分類、地盤安定性の評価などに使われます。\n\n## 主なパラメータ\n\n| パラメータ | 型 | 説明 |\n|---|---|---|\n| `INPUT` | raster | 入力 DEM ラスタ |\n| `BAND` | band | 対象バンド番号。デフォルト 1 |\n| `COMPUTE_EDGES` | boolean | ラスタ縁（エッジ）のセルも計算する。デフォルト `False`（縁は NoData） |\n| `OPTIONS` | string | 追加の処理オプション |\n| `CREATION_OPTIONS` | string | 出力ラスタの作成オプション（圧縮指定など） |\n| `OUTPUT` | rasterDestination | 出力ファイル |\n\n補足：\n- TPI（地形位置指数）や Roughness（粗度）と同系統の地形指標で、パラメータ構成も同じくシンプルです。\n- 出力値は DEM と同じ標高単位（通常メートル）。平坦地では 0 に近く、起伏が増すほど大きくなります。\n- 近傍サイズは 3×3 固定です。スケールを変えて解析したい場合は、DEM をリサンプリングするか、SAGA/GRASS の類似アルゴリズムを使うと調整できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:triterrainruggednessindex')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in reg.algorithms() if 'tri' in a.id().lower() or 'rugged' in a.id().lower()]}\\nelse:\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelp': (alg.shortHelpString() or '')[:500],\\n        'params': [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()],\\n    }\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] TRI（Terrain Ruggedness Index）」(id: gdal:triterrainruggednessindex) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認しました。gdal:triterrainruggednessindex（表示名:「TRI（Terrain Ruggedness Index）」、グループ:「ラスタ解析」）は存在します。\n用途\nGDAL の gdaldem tri をラップしたアルゴリズムで、DEM から地形起伏指数（TRI）を計算します。各セルの標高と 8 近傍セルの標高差の二乗和の平方根（Riley et al. の TRI 定義）を出力し、地形のゴツゴツさ・起伏の大きさを定量化します。値が大きいほど起伏が激しい地形です。生態学のハビタット解析（動物の生息地適性）、地形分類、地盤安定性の評価などに使われます。\n主なパラメータ\nパラメータ\n型\n説明\nINPUT\nraster\n入力 DEM ラスタ\nBAND\nband\n対象バンド番号。デフォルト 1\nCOMPUTE_EDGES\nboolean\nラスタ縁（エッジ）のセルも計算する。デフォルト False（縁は NoData）\nOPTIONS\nstring\n追加の処理オプション\nCREATION_OPTIONS\nstring\n出力ラスタの作成オプション（圧縮指定など）\nOUTPUT\nrasterDestination\n出力ファイル\n\n補足：\nTPI（地形位置指数）や Roughness（粗度）と同系統の地形指標で、パラメータ構成も同じくシンプルです。\n出力値は DEM と同じ標高単位（通常メートル）。平坦地では 0 に近く、起伏が増すほど大きくなります。\n近傍サイズは 3×3 固定です。スケールを変えて解析したい場合は、DEM をリサンプリングするか、SAGA/GRASS の類似アルゴリズムを使うと調整できます。"
+}

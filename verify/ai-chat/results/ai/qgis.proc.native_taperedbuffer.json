@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_taperedbuffer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 先細りバッファ」(id: native:taperedbuffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 先細りバッファ」(id: native:taperedbuffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:taperedbuffer`「**先細りバッファ**」は登録されています（グループ: ベクタジオメトリ）。\n\n## 用途\n\n- ラインに対して、**始点と終点でバッファの直径を別々に指定し、連続的に太さが変化するバッファ（テーパードバッファ）** を作成します\n- 通常の `native:buffer` が一定幅なのに対し、こちらは「だんだん細くなる/太くなる」帯を生成します\n- 用途例：川幅の変化表現、視線・照準範囲の先細り表現、道路幅員の遷移、風向き・流向の幅変化ビジュアル\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | 入力レイヤ（ライン） |\n| `START_WIDTH` | number | 始点における直径 |\n| `END_WIDTH` | number | 終点における直径 |\n| `SEGMENTS` | number | セグメント数（円弧近似の分割数。大きいほど滑らか） |\n| `OUTPUT` | sink | 出力レイヤ（ポリゴン） |\n\n## 動作イメージ\n\n```\n始点(太い)                    終点(細い)\n   ████████╗\n   ██████████╗\n   ████████╝      →    ╱──  先細りの帯\n   ╚═══════╝         ╱\nSTART_WIDTH=8, END_WIDTH=2 のイメージ\n```\n\n## 補足\n\n- 「どちらが始点か」は**ラインのデジタイズ方向**に依存します（`native:reverselinedirection` で反転可能）\n- `START_WIDTH` > `END_WIDTH` なら先細り、逆なら先太りになります\n- 両端で同じ太さにしたいだけなら通常の `native:buffer` の方が適切です。線上のM値で太さを変えるような表現には `native:bufferbym`（M値によるバッファ）も関連します"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:taperedbuffer')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 先細りバッファ」(id: native:taperedbuffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:taperedbuffer「先細りバッファ」は登録されています（グループ: ベクタジオメトリ）。\n用途\nラインに対して、始点と終点でバッファの直径を別々に指定し、連続的に太さが変化するバッファ（テーパードバッファ） を作成します\n通常の native:buffer が一定幅なのに対し、こちらは「だんだん細くなる/太くなる」帯を生成します\n用途例：川幅の変化表現、視線・照準範囲の先細り表現、道路幅員の遷移、風向き・流向の幅変化ビジュアル\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\n入力レイヤ（ライン）\nSTART_WIDTH\nnumber\n始点における直径\nEND_WIDTH\nnumber\n終点における直径\nSEGMENTS\nnumber\nセグメント数（円弧近似の分割数。大きいほど滑らか）\nOUTPUT\nsink\n出力レイヤ（ポリゴン）\n\n動作イメージ\n始点(太い)                    終点(細い)\n   ████████╗\n   ██████████╗\n   ████████╝      →    ╱──  先細りの帯\n   ╚═══════╝         ╱\nSTART_WIDTH=8, END_WIDTH=2 のイメージ\n補足\n「どちらが始点か」はラインのデジタイズ方向に依存します（native:reverselinedirection で反転可能）\nSTART_WIDTH > END_WIDTH なら先細り、逆なら先太りになります\n両端で同じ太さにしたいだけなら通常の native:buffer の方が適切です。線上のM値で太さを変えるような表現には native:bufferbym（M値によるバッファ）も関連します"
+}

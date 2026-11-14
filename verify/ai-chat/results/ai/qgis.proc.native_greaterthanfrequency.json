@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_greaterthanfrequency",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタスタックの値の超過頻度」(id: native:greaterthanfrequency) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタスタックの値の超過頻度」(id: native:greaterthanfrequency) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:greaterthanfrequency`（表示名 **「ラスタスタックの値の超過頻度」**、グループ「ラスタ解析」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n**セルごとに、ラスタスタック（複数ラスタ）の値が基準値ラスタの値を「何枚超えたか」という頻度を数える**アルゴリズムです。例えば「このセルで、10枚の時系列ラスタのうち基準値を超えたのは何枚か」をピクセル単位で集計します。閾値超過の出現頻度解析（浸水頻度・高温日数のような時間方向のカウント）に適します。\n\n注意点（ヘルプより）：\n\n- スタック内がマルチバンドの場合は**常に第1バンドのみ**が解析対象\n- 基準値ラスタ・スタックのいずれかのNoDataは、（無視オフなら）出力もNoDataになる\n- 出力は **int32 型**、範囲・解像度は基準値ラスタに従う\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT_VALUE_RASTER` | 基準値ラスタ（比較の基準となるラスタ） |\n| `INPUT_VALUE_RASTER_BAND` | 対象バンド |\n| `INPUT_RASTERS` | 入力ラスタスタック（複数ラスタを指定） |\n| `IGNORE_NODATA` | NoDataを無視するか（bool） |\n| `OUTPUT_NODATA_VALUE` | 出力のNoData値（数値） |\n| `CREATE_OPTIONS` / `CREATION_OPTIONS` | 出力ラスタの作成オプション |\n| `OUTPUT` | 出力レイヤ |\n\n### 出力\n\n- `OUTPUT` — 超過頻度のラスタ\n- 付随して `OCCURRENCE_COUNT`（値の頻度）・`FOUND_LOCATIONS_COUNT`・`MEAN_FREQUENCY_PER_LOCATION`・`EXTENT`・`CRS_AUTHID`・`WIDTH_IN_PIXELS`・`HEIGHT_IN_PIXELS`・`TOTAL_PIXEL_COUNT` も返ります\n\n### 補足：3種の頻度アルゴリズム\n\n| ID | 表示名 | 比較 |\n|---|---|---|\n| `native:equaltofrequency` | 一致頻度 | スタック値 ＝ 基準値 |\n| `native:greaterthanfrequency` | **超過頻度**（本アルゴリズム） | スタック値 ＞ 基準値 |\n| `native:lessthanfrequency` | 過小頻度 | スタック値 ＜ 基準値 |\n\n「基準を上回る／下回る／一致する回数」のどれを数えたいかで使い分けます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:greaterthanfrequency')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related': [(a.id(), a.displayName(), a.group()) for a in QgsApplication.processingRegistry().algorithms() if 'frequency' in a.id() or '頻度' in a.displayName()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタスタックの値の超過頻度」(id: native:greaterthanfrequency) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:greaterthanfrequency（表示名 「ラスタスタックの値の超過頻度」、グループ「ラスタ解析」）がこのQGISの processing registry に登録されています。\n用途\nセルごとに、ラスタスタック（複数ラスタ）の値が基準値ラスタの値を「何枚超えたか」という頻度を数えるアルゴリズムです。例えば「このセルで、10枚の時系列ラスタのうち基準値を超えたのは何枚か」をピクセル単位で集計します。閾値超過の出現頻度解析（浸水頻度・高温日数のような時間方向のカウント）に適します。\n注意点（ヘルプより）：\nスタック内がマルチバンドの場合は常に第1バンドのみが解析対象\n基準値ラスタ・スタックのいずれかのNoDataは、（無視オフなら）出力もNoDataになる\n出力は int32 型、範囲・解像度は基準値ラスタに従う\n主なパラメータ\nパラメータ\n内容\nINPUT_VALUE_RASTER\n基準値ラスタ（比較の基準となるラスタ）\nINPUT_VALUE_RASTER_BAND\n対象バンド\nINPUT_RASTERS\n入力ラスタスタック（複数ラスタを指定）\nIGNORE_NODATA\nNoDataを無視するか（bool）\nOUTPUT_NODATA_VALUE\n出力のNoData値（数値）\nCREATE_OPTIONS / CREATION_OPTIONS\n出力ラスタの作成オプション\nOUTPUT\n出力レイヤ\n\n出力\nOUTPUT — 超過頻度のラスタ\n付随して OCCURRENCE_COUNT（値の頻度）・FOUND_LOCATIONS_COUNT・MEAN_FREQUENCY_PER_LOCATION・EXTENT・CRS_AUTHID・WIDTH_IN_PIXELS・HEIGHT_IN_PIXELS・TOTAL_PIXEL_COUNT も返ります\n補足：3種の頻度アルゴリズム\nID\n表示名\n比較\nnative:equaltofrequency\n一致頻度\nスタック値 ＝ 基準値\nnative:greaterthanfrequency\n超過頻度（本アルゴリズム）\nスタック値 ＞ 基準値\nnative:lessthanfrequency\n過小頻度\nスタック値 ＜ 基準値\n\n「基準を上回る／下回る／一致する回数」のどれを数えたいかで使い分けます。"
+}

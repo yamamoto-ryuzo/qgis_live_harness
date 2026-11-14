@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_subdivide",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオメトリを空間分割」(id: native:subdivide) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオメトリを空間分割」(id: native:subdivide) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:subdivide`「**ジオメトリを空間分割**」は登録されています（グループ: ベクタジオメトリ）。\n\n## 用途\n\n- 頂点数の多い**複雑なジオメトリを、指定した最大頂点数以下の部分に分割**します\n- 出力は分割された部分を含むコレクション（マルチ地物 or 分割地物群）になります\n- 用途例：巨大ポリゴンを小分けにして**空間インデックスを効かせる**、その後の intersection/clip などのオーバーレイ処理を高速化、PostGIS等への格納前の前処理\n- PostGIS の `ST_Subdivide` と同じ概念です\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | 入力レイヤ |\n| `MAX_NODES` | number | 各部分の最大頂点数（分割後の1部分あたりの頂点数上限） |\n| `OUTPUT` | sink | 出力レイヤ |\n\nパラメータはこれだけです。\n\n## 注意点（ヘルプより）\n\n- **分割後の部分は有効とは限らず、自己交差を含む場合があります**。必要に応じて `native:fixgeometries` を後続に\n- **曲線ジオメトリは分割前にセグメント化**（直線近似）されます\n- 属性は元地物から引き継がれますが、地物としては分割されます（集計値の引き継ぎはしない）\n\n典型的な用途は「国土全体のような巨大ポリゴンを、オーバーレイ処理が速くなるよう小さく割ってから使う」というパフォーマンス対策です。1地物として分割（単体出力）したい場合と、マルチ地物のまま保ちたい場合で後続処理が変わる点に留意してください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:subdivide')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオメトリを空間分割」(id: native:subdivide) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:subdivide「ジオメトリを空間分割」は登録されています（グループ: ベクタジオメトリ）。\n用途\n頂点数の多い複雑なジオメトリを、指定した最大頂点数以下の部分に分割します\n出力は分割された部分を含むコレクション（マルチ地物 or 分割地物群）になります\n用途例：巨大ポリゴンを小分けにして空間インデックスを効かせる、その後の intersection/clip などのオーバーレイ処理を高速化、PostGIS等への格納前の前処理\nPostGIS の ST_Subdivide と同じ概念です\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\n入力レイヤ\nMAX_NODES\nnumber\n各部分の最大頂点数（分割後の1部分あたりの頂点数上限）\nOUTPUT\nsink\n出力レイヤ\n\nパラメータはこれだけです。\n注意点（ヘルプより）\n分割後の部分は有効とは限らず、自己交差を含む場合があります。必要に応じて native:fixgeometries を後続に\n曲線ジオメトリは分割前にセグメント化（直線近似）されます\n属性は元地物から引き継がれますが、地物としては分割されます（集計値の引き継ぎはしない）\n典型的な用途は「国土全体のような巨大ポリゴンを、オーバーレイ処理が速くなるよう小さく割ってから使う」というパフォーマンス対策です。1地物として分割（単体出力）したい場合と、マルチ地物のまま保ちたい場合で後続処理が変わる点に留意してください。"
+}

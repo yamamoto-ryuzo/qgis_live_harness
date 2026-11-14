@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_openurl",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Open file or URL」(id: native:openurl) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Open file or URL」(id: native:openurl) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:openurl` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:openurl`\n- **表示名**: Open file or URL\n- **グループ**: File tools\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\n指定した**ファイルをOSの関連付けられたデフォルトアプリケーションで開く**、または**URLを既定のWebブラウザで開く**ユーティリティアルゴリズムです。モデラーやスクリプトの最終ステップで、生成したレポートやHTMLファイルを自動表示させる用途などに向いています（`native:openfolder` はフォルダを開く対になるアルゴリズム）。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `URL` | string（必須） | 開く対象のURLまたはファイルパス |\n\n## 出力（戻り値）\n\n| 名前 | 説明 |\n|---|---|\n| `SUCCESS` | 起動に成功したかどうか（Boolean） |\n\n実行例:\n\n```python\nres = processing.run(\"native:openurl\", {'URL': 'https://qgis.org'})\nprint(res['SUCCESS'])\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:openurl')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Open file or URL」(id: native:openurl) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:openurl は現在の QGIS の processing registry に登録されています。\nID: native:openurl\n表示名: Open file or URL\nグループ: File tools\nプロバイダ: QGIS（ネイティブC++）\n用途\n指定したファイルをOSの関連付けられたデフォルトアプリケーションで開く、またはURLを既定のWebブラウザで開くユーティリティアルゴリズムです。モデラーやスクリプトの最終ステップで、生成したレポートやHTMLファイルを自動表示させる用途などに向いています（native:openfolder はフォルダを開く対になるアルゴリズム）。\n主なパラメータ\n名前\n種別\n説明\nURL\nstring（必須）\n開く対象のURLまたはファイルパス\n\n出力（戻り値）\n名前\n説明\nSUCCESS\n起動に成功したかどうか（Boolean）\n\n実行例:\nres = processing.run(\"native:openurl\", {'URL': 'https://qgis.org'})\nprint(res['SUCCESS'])"
+}

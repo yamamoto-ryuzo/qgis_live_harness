@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionToggleAdvancedDigitizeToolBar",
+ "prompt": "QGISの「高度なデジタイズツールバー」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「高度なデジタイズツールバー」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「高度なデジタイズツールバー」は既に表示されています。状態を確認します。「高度なデジタイズツールバー」は既に表示されており、トグルアクションもオンです。高度なデジタイズモードの有効化や、距離・角度の拘束、幾何学ツール(ライン/ポリゴン構築補助)などのボタンが並んでいます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QToolBar, QAction\\nt = iface.mainWindow().findChild(QToolBar, 'mAdvancedDigitizeToolBar')\\na = iface.mainWindow().findChild(QAction, 'mActionToggleAdvancedDigitizeToolBar')\\nresult = {'visible': t.isVisible(), 'checked': a.isChecked() if a else None}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「高度なデジタイズツールバー」機能(アクション)を実行して\n[AI] \n「高度なデジタイズツールバー」は既に表示されています。状態を確認します。「高度なデジタイズツールバー」は既に表示されており、トグルアクションもオンです。高度なデジタイズモードの有効化や、距離・角度の拘束、幾何学ツール(ライン/ポリゴン構築補助)などのボタンが並んでいます。"
+}

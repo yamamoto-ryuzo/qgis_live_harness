@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_meshexportcrosssection",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュの線上の断面データセットをエクスポート」(id: native:meshexportcrosssection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュの線上の断面データセットをエクスポート」(id: native:meshexportcrosssection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:meshexportcrosssection` は **processing registry に存在します**。\n\n- **表示名**: メッシュの線上の断面データセットをエクスポート\n- **グループ**: メッシュ (`mesh`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\nメッシュレイヤのデータセット値を、**ベクタライン（断面線）に沿ってサンプリングし CSV へエクスポート**するアルゴリズムです。各ラインは指定したセグメント解像度で離散化され、各点でのメッシュ値が抜き出されます。河川の縦横断図用の水位・水深プロファイル取得など、**断面（クロスセクション）データの作成**に使います。出力はレイヤではなく **CSV ファイル**です。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力メッシュレイヤ（必須） | — |\n| `DATASET_GROUPS` | 対象のデータセットグループ（必須） | `[]` |\n| `DATASET_TIME` | データセット時間（対象時刻、必須） | — |\n| `INPUT_LINES` | 断面線となるラインレイヤ（必須） | — |\n| `RESOLUTION` | 線のセグメント解像度（サンプリング間隔） | `10.0` |\n| `COORDINATES_DIGITS` | 座標値の丸め桁数 | `2` |\n| `DATASET_DIGITS` | データ値の丸め桁数 | `2` |\n| `OUTPUT` | 出力 CSV ファイル（必須） | — |\n\n## 出力\n\n- `OUTPUT` — エクスポートされた CSV ファイル\n\n実行例: `processing.run(\"native:meshexportcrosssection\", {'INPUT': mesh, 'DATASET_GROUPS': [0], 'DATASET_TIME': {'type': 'dataset-time-step', 'value': [0, 0]}, 'INPUT_LINES': section_lines, 'RESOLUTION': 5, 'OUTPUT': 'C:/cross.csv'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:meshexportcrosssection')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n    "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュの線上の断面データセットをエクスポート」(id: native:meshexportcrosssection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:meshexportcrosssection は processing registry に存在します。\n表示名: メッシュの線上の断面データセットをエクスポート\nグループ: メッシュ (mesh)\nプロバイダ: QGIS（ネイティブ C++）\n用途\nメッシュレイヤのデータセット値を、ベクタライン（断面線）に沿ってサンプリングし CSV へエクスポートするアルゴリズムです。各ラインは指定したセグメント解像度で離散化され、各点でのメッシュ値が抜き出されます。河川の縦横断図用の水位・水深プロファイル取得など、断面（クロスセクション）データの作成に使います。出力はレイヤではなく CSV ファイルです。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力メッシュレイヤ（必須）\n—\nDATASET_GROUPS\n対象のデータセットグループ（必須）\n[]\nDATASET_TIME\nデータセット時間（対象時刻、必須）\n—\nINPUT_LINES\n断面線となるラインレイヤ（必須）\n—\nRESOLUTION\n線のセグメント解像度（サンプリング間隔）\n10.0\nCOORDINATES_DIGITS\n座標値の丸め桁数\n2\nDATASET_DIGITS\nデータ値の丸め桁数\n2\nOUTPUT\n出力 CSV ファイル（必須）\n—\n\n出力\nOUTPUT — エクスポートされた CSV ファイル\n実行例: processing.run(\"native:meshexportcrosssection\", {'INPUT': mesh, 'DATASET_GROUPS': [0], 'DATASET_TIME': {'type': 'dataset-time-step', 'value': [0, 0]}, 'INPUT_LINES': section_lines, 'RESOLUTION': 5, 'OUTPUT': 'C:/cross.csv'})"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.dock.MessageLog",
+ "prompt": "「ログメッセージ」パネル(ドック)を表示して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "「ログメッセージ」パネル(ドック)を表示して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ログメッセージ」ドックを表示します。「ログメッセージ」パネルを表示しました。QGISの各種ログ（一般、プラグイン、処理など）がタブごとに確認できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\nfor d in iface.mainWindow().findChildren(QDockWidget):\\n    if d.objectName() == 'MessageLog':\\n        d.setVisible(True)\\n        d.show()\\n        d.raise_()\\n        result = d.isVisible()\\nresult\"}"
+  }
+ ],
+ "view_tail": "[あなた] 「ログメッセージ」パネル(ドック)を表示して\n[AI] \n「ログメッセージ」ドックを表示します。「ログメッセージ」パネルを表示しました。QGISの各種ログ（一般、プラグイン、処理など）がタブごとに確認できます。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionManage3DMapViews",
+ "prompt": "QGISの「Manage 3D Map Views…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Manage 3D Map Views…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "直前の検索で取得済みですが、念のため再確認します。「Manage 3D Map Views…」は `mActionManage3DMapViews` で、現在**有効(enabled)**です。\n\n| objectName | 表示テキスト | enabled | visible |\n|---|---|---|---|\n| `mActionManage3DMapViews` | `Manage 3D Map Views…` | **true** | true |\n\n3D ビューの有無に関わらず常時有効なアクションで、実行すると 3D マップビューの管理ダイアログ(ビューの一覧・名前変更・複製・削除など)が開きます。実行しますか?"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionManage3DMapViews')\\nresult = {'objectName': a.objectName(), 'text': a.text(), 'enabled': a.isEnabled(), 'visible': a.isVisible()} if a else None\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Manage 3D Map Views…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n直前の検索で取得済みですが、念のため再確認します。「Manage 3D Map Views…」は mActionManage3DMapViews で、現在**有効(enabled)**です。\nobjectName\n表示テキスト\nenabled\nvisible\nmActionManage3DMapViews\nManage 3D Map Views…\ntrue\ntrue\n\n3D ビューの有無に関わらず常時有効なアクションで、実行すると 3D マップビューの管理ダイアログ(ビューの一覧・名前変更・複製・削除など)が開きます。実行しますか?"
+}

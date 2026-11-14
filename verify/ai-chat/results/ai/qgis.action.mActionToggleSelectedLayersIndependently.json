@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionToggleSelectedLayersIndependently",
+ "prompt": "QGISの「選択レイヤを個別切り替え」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「選択レイヤを個別切り替え」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「選択レイヤを個別切り替え」アクションの状態を確認します。調査結果です。「選択レイヤを個別切り替え」は `mActionToggleSelectedLayersIndependently` として見つかりました。\n\n| 項目 | 値 |\n|---|---|\n| objectName | `mActionToggleSelectedLayersIndependently` |\n| テキスト | `選択レイヤを個別切り替え` |\n| 有効(isEnabled) | **True(現在有効です)** |\n| 可視(isVisible) | True |\n\n「選択レイヤを切り替え」との違い: 一括切替は選択レイヤを全部同じ状態(反転)に揃えますが、個別切替は各レイヤの表示状態を個別に反転します(表示中のものだけ隠し、隠れているものだけ表示)。実行しますか?"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionToggleSelectedLayersIndependently')\\nresult = (a.objectName(), a.text(), a.isEnabled(), a.isVisible())\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「選択レイヤを個別切り替え」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「選択レイヤを個別切り替え」アクションの状態を確認します。調査結果です。「選択レイヤを個別切り替え」は mActionToggleSelectedLayersIndependently として見つかりました。\n項目\n値\nobjectName\nmActionToggleSelectedLayersIndependently\nテキスト\n選択レイヤを個別切り替え\n有効(isEnabled)\nTrue(現在有効です)\n可視(isVisible)\nTrue\n\n「選択レイヤを切り替え」との違い: 一括切替は選択レイヤを全部同じ状態(反転)に揃えますが、個別切替は各レイヤの表示状態を個別に反転します(表示中のものだけ隠し、隠れているものだけ表示)。実行しますか?"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_rasterize_over_fixed_value",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタ化（固定値で上書き）」(id: gdal:rasterize_over_fixed_value) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタ化（固定値で上書き）」(id: gdal:rasterize_over_fixed_value) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:rasterize_over_fixed_value` を Processing Registry で確認します。確認しました。Processing Registry に **`[GDAL] ラスタ化（固定値で上書き）`** は存在します。\n\n- **ID:** `gdal:rasterize_over_fixed_value`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ベクタ変換`\n\n### 用途\nベクタ地物が重なる部分の既存ラスタを、指定した **固定値で上書き**します。マスク値や特定区分値を既存ラスタへ書き込む用途に使います。\n\n### 主なパラメータ\n- `INPUT`：入力ベクタレイヤ\n- `INPUT_RASTER`：上書き対象の既存ラスタ\n- `BURN`：焼き込む固定値\n- `ADD`：上書きではなく、既存値へ固定値を加算\n- `EXTRA`：追加のGDALオプション\n- `OUTPUT`：更新後のラスタ"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:rasterize_over_fixed_value'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'rasterize_over' in a.id().lower() or '固定値' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'rasterize"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタ化（固定値で上書き）」(id: gdal:rasterize_over_fixed_value) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:rasterize_over_fixed_value を Processing Registry で確認します。確認しました。Processing Registry に [GDAL] ラスタ化（固定値で上書き） は存在します。\nID: gdal:rasterize_over_fixed_value\nプロバイダ: GDAL\nグループ: ベクタ変換\n用途\nベクタ地物が重なる部分の既存ラスタを、指定した 固定値で上書きします。マスク値や特定区分値を既存ラスタへ書き込む用途に使います。\n主なパラメータ\nINPUT：入力ベクタレイヤ\nINPUT_RASTER：上書き対象の既存ラスタ\nBURN：焼き込む固定値\nADD：上書きではなく、既存値へ固定値を加算\nEXTRA：追加のGDALオプション\nOUTPUT：更新後のラスタ"
+}

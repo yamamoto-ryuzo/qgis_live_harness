@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_gridinversedistance",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] グリッド（累乗逆距離加重法）」(id: gdal:gridinversedistance) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] グリッド（累乗逆距離加重法）」(id: gdal:gridinversedistance) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:gridinversedistance` を Processing Registry で確認します。確認しました。Processing Registry に **`[GDAL] グリッド（累乗逆距離加重法）`** は存在します。\n\n- **ID:** `gdal:gridinversedistance`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタ解析`\n\n### 用途\n点データのZ値を **IDW（逆距離加重補間）** で補間し、連続したラスタ面を作成します。近い観測点ほど強い影響を与え、`POWER` で距離減衰の強さを調整します。\n\n### 主なパラメータ\n- `INPUT`：入力点レイヤ\n- `Z_FIELD`：補間対象のZ値フィールド\n- `POWER`：逆距離加重の累乗（既定値 `2.0`）\n- `SMOOTHING`：スムージング係数（既定値 `0.0`）\n- `RADIUS_1` / `RADIUS_2`：検索楕円の半径（X軸／Y軸）\n- `ANGLE`：検索楕円の回転角\n- `MAX_POINTS`：検索する最大点数\n- `MIN_POINTS`：補間に必要な最少点数\n- `NODATA`：NoData値\n- `DATA_TYPE`：出力ラスタのデータ型\n- `OUTPUT`：IDW補間結果の出力ラスタ"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:gridinversedistance'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'gridinversedistance' in a.id().lower() or '累乗逆距離' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'gridinver"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] グリッド（累乗逆距離加重法）」(id: gdal:gridinversedistance) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:gridinversedistance を Processing Registry で確認します。確認しました。Processing Registry に [GDAL] グリッド（累乗逆距離加重法） は存在します。\nID: gdal:gridinversedistance\nプロバイダ: GDAL\nグループ: ラスタ解析\n用途\n点データのZ値を IDW（逆距離加重補間） で補間し、連続したラスタ面を作成します。近い観測点ほど強い影響を与え、POWER で距離減衰の強さを調整します。\n主なパラメータ\nINPUT：入力点レイヤ\nZ_FIELD：補間対象のZ値フィールド\nPOWER：逆距離加重の累乗（既定値 2.0）\nSMOOTHING：スムージング係数（既定値 0.0）\nRADIUS_1 / RADIUS_2：検索楕円の半径（X軸／Y軸）\nANGLE：検索楕円の回転角\nMAX_POINTS：検索する最大点数\nMIN_POINTS：補間に必要な最少点数\nNODATA：NoData値\nDATA_TYPE：出力ラスタのデータ型\nOUTPUT：IDW補間結果の出力ラスタ"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_launcher.bridge.installStatus",
+ "prompt": "QGISの geo_launcher プラグインで「installStatus」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_launcher プラグインで「installStatus」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`installStatus` の結果です:\n\n| キー | 値 | 意味 |\n|---|---|---|\n| `ok` | `true` | 呼び出し成功 |\n| `phase` | `idle` | インストール処理は実行していない(待機中) |\n| `received` | `0` | 受信バイト数(ダウンロード中のみ増加) |\n| `total` | `-1` | 総サイズ未確定/未実行 |\n| `error` | (空) | エラーなし |\n| `path` | (空) | ダウンロード中ファイルなし |\n\n現在インストール/ダウンロードは実行されておらず、エラーもありません。`install` を実行するとこの `phase` が `downloading` → `installing` などに遷移するはずです。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'method': 'installStatus', 'plugin_id': 'geo_launcher'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_launcher プラグインで「installStatus」を実行して結果を教えて\n[AI] \ninstallStatus の結果です:\nキー\n値\n意味\nok\ntrue\n呼び出し成功\nphase\nidle\nインストール処理は実行していない(待機中)\nreceived\n0\n受信バイト数(ダウンロード中のみ増加)\ntotal\n-1\n総サイズ未確定/未実行\nerror\n(空)\nエラーなし\npath\n(空)\nダウンロード中ファイルなし\n\n現在インストール/ダウンロードは実行されておらず、エラーもありません。install を実行するとこの phase が downloading → installing などに遷移するはずです。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Research_Tools",
+ "prompt": "QGISの「Research Tools」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Research Tools」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Research Tools」サブメニュー（ベクタメニュー内）を調べます。「Research Tools」アクションを調べました。結論：**現在有効（enabled = true）で、配下の全項目も有効です**。\n\n- **実体**: 「ベクタ（&O)」メニュー（`mVectorMenu`）内のサブメニュー `&Research Tools`（Processing プラグインがアルゴリズムを登録したもの）\n- **状態**: `isEnabled() == true`、`isVisible() == true`\n- **配下のメニュー項目（12項目、すべて enabled = true）**:\n\n| 項目 | objectName | 対応アルゴリズム |\n|---|---|---|\n| グリッドを作成... | `mProcessingUserMenu_native:creategrid` | native:creategrid |\n| レイヤ範囲を抽出... | `mProcessingUserMenu_native:polygonfromlayerextent` | native:polygonfromlayerextent |\n| 指定範囲にランダム点群... | `mProcessingUserMenu_native:randompointsinextent` | native:randompointsinextent |\n| ポリゴン内部にランダム点群（in）... | `mProcessingUserMenu_native:randompointsinpolygons` | native:randompointsinpolygons |\n| 線の上のランダム点群... | `mProcessingUserMenu_native:randompointsonlines` | native:randompointsonlines |\n| Random selection... | `mProcessingUserMenu_native:randomselection` | native:randomselection |\n| 場所による選択... | `mProcessingUserMenu_native:selectbylocation` | native:selectbylocation |\n| 一定距離以内の地物を選択... | `mProcessingUserMenu_native:selectwithindistance` | native:selectwithindistance |\n| レイヤ領域にランダム点群... | `mProcessingUserMenu_qgis:randompointsinlayerbounds` | qgis:randompointsinlayerbounds |\n| ポリゴン内部にランダム点群（inside）... | `mProcessingUserMenu_qgis:randompointsinsidepolygons` | qgis:randompointsinsidepolygons |\n| 地物のグループ別ランダム選択... | `mProcessingUserMenu_qgis:randomselectionwithinsubsets` | qgis:randomselectionwithinsubsets |\n| 規則的点群（regular points）... | `mProcessingUserMenu_qgis:regularpoints` | qgis:regularpoints |\n\nサブメニュー本体も12の調査・選択・ランダム点群系アルゴリズムもすべて有効な状態です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    if a.text().replace('&','') == 'Research Tools' and a.menu() is not None:\\n        m = a.menu()\\n        m.aboutToShow.emit()\\n        items = [{'text': x.text().replace('&',''), 'name': x.objectName(), 'enabled': x.isEnabled(), 'sep': x.isSeparator()} for x in m.actions()]\\n        assoc = [{'cls': w.__class__.__name__, 'obj': w.objectName()} for w in a.associatedObjects()]\\n        found.append({'enabled': a.isEnabled(), 'visible': a.isVisible(), 'menu_obj': m.objectName(), 'assoc': assoc, 'items': items})\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Research Tools」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Research Tools」サブメニュー（ベクタメニュー内）を調べます。「Research Tools」アクションを調べました。結論：現在有効（enabled = true）で、配下の全項目も有効です。\n実体: 「ベクタ（&O)」メニュー（mVectorMenu）内のサブメニュー &Research Tools（Processing プラグインがアルゴリズムを登録したもの）\n状態: isEnabled() == true、isVisible() == true\n配下のメニュー項目（12項目、すべて enabled = true）:\n項目\nobjectName\n対応アルゴリズム\nグリッドを作成...\nmProcessingUserMenu_native:creategrid\nnative:creategrid\nレイヤ範囲を抽出...\nmProcessingUserMenu_native:polygonfromlayerextent\nnative:polygonfromlayerextent\n指定範囲にランダム点群...\nmProcessingUserMenu_native:randompointsinextent\nnative:randompointsinextent\nポリゴン内部にランダム点群（in）...\nmProcessingUserMenu_native:randompointsinpolygons\nnative:randompointsinpolygons\n線の上のランダム点群...\nmProcessingUserMenu_native:randompointsonlines\nnative:randompointsonlines\nRandom selection...\nmProcessingUserMenu_native:randomselection\nnative:randomselection\n場所による選択...\nmProcessingUserMenu_native:selectbylocation\nnative:selectbylocation\n一定距離以内の地物を選択...\nmProcessingUserMenu_native:selectwithindistance\nnative:selectwithindistance\nレイヤ領域にランダム点群...\nmProcessingUserMenu_qgis:randompointsinlayerbounds\nqgis:randompointsinlayerbounds\nポリゴン内部にランダム点群（inside）...\nmProcessingUserMenu_qgis:randompointsinsidepolygons\nqgis:randompointsinsidepolygons\n地物のグループ別ランダム選択...\nmProcessingUserMenu_qgis:randomselectionwithinsubsets\nqgis:randomselectionwithinsubsets\n規則的点群（regular points）...\nmProcessingUserMenu_qgis:regularpoints\nqgis:regularpoints\n\nサブメニュー本体も12の調査・選択・ランダム点群系アルゴリズムもすべて有効な状態です。"
+}

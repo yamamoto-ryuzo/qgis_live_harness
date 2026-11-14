@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_polygonize",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ポリゴン化（polygonize）」(id: native:polygonize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ポリゴン化（polygonize）」(id: native:polygonize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:polygonize` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:polygonize`\n- **表示名**: ポリゴン化（polygonize）\n- **グループ**: ベクタジオメトリ\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\n入力**ラインレイヤから、線が閉じた領域を囲む部分をポリゴン化**してポリゴンレイヤを作成します（GEOS の polygonize 相当）。網目状の道路線や区画線から面を生成する用途が典型です。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力ラインレイヤ |\n| `KEEP_FIELDS` | boolean（必須、デフォルト False） | ラインレイヤのテーブル構造（フィールド）を出力に維持するか |\n| `OUTPUT` | sink → outputVector | 出力先（ポリゴンレイヤ） |\n\n出力として `NUM_POLYGONS`（生成されたポリゴン数）も返ります。\n\n実行例:\n\n```python\nres = processing.run(\"native:polygonize\", {\n    'INPUT': line_layer,\n    'KEEP_FIELDS': False,\n    'OUTPUT': 'memory:'\n})\nprint(res['NUM_POLYGONS'])\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:polygonize')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ポリゴン化（polygonize）」(id: native:polygonize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:polygonize は現在の QGIS の processing registry に登録されています。\nID: native:polygonize\n表示名: ポリゴン化（polygonize）\nグループ: ベクタジオメトリ\nプロバイダ: QGIS（ネイティブC++）\n用途\n入力ラインレイヤから、線が閉じた領域を囲む部分をポリゴン化してポリゴンレイヤを作成します（GEOS の polygonize 相当）。網目状の道路線や区画線から面を生成する用途が典型です。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力ラインレイヤ\nKEEP_FIELDS\nboolean（必須、デフォルト False）\nラインレイヤのテーブル構造（フィールド）を出力に維持するか\nOUTPUT\nsink → outputVector\n出力先（ポリゴンレイヤ）\n\n出力として NUM_POLYGONS（生成されたポリゴン数）も返ります。\n実行例:\nres = processing.run(\"native:polygonize\", {\n    'INPUT': line_layer,\n    'KEEP_FIELDS': False,\n    'OUTPUT': 'memory:'\n})\nprint(res['NUM_POLYGONS'])"
+}

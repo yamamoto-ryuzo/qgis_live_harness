@@ -1,0 +1,34 @@
+{
+ "id": "qgis.action.mActionProfile_geo_custom",
+ "prompt": "QGISの「geo_custom」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「geo_custom」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「geo_custom」に該当するアクションを実際の QGIS UI 内で探します。「geo_custom」は現在アクティブなプロファイルそのもの（チェック済み）です。実行すると何が起きるか、接続先の処理を確認します。「geo_custom」アクションについて調べた結果、実行には注意が必要です。\n\n## 調査結果\n\n| 項目 | 内容 |\n|---|---|\n| アクション名 | `mActionProfile_geo_custom` |\n| 表示テキスト | geo_custom |\n| 配置場所 | **設定 → ユーザープロファイル(U)** メニュー |\n| 種別 | ユーザープロファイル切り替えアクション（チェック可能） |\n| 現在の状態 | **有効・チェック済み** — つまり `geo_custom` は **現在アクティブ中のプロファイル** です |\n| プロファイルパス | `C:\\Users\\ryu.RYU-NOTE\\AppData\\Roaming\\QGIS\\QGIS4\\profiles\\geo_custom` |\n\n## 実行について\n\nこれは「QGIS を指定プロファイルで起動し直す」アクションで、トリガーすると **QGIS 本体が再起動** します（確認ダイアログが出る場合もあります）。再起動すると現在のセッション（このライブドライバ接続含む）が切断され、開いている未保存のプロジェクト状態も失われます。\n\nまた、すでに `geo_custom` プロファイル上で動作しているため、実行しても同じプロファイルでの再起動になるだけです。\n\nそれでも実行（= QGIS 再起動）しますか？確認でき次第 `a.trigger()` で実行します。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nmatches = []\\nfor a in mw.findChildren(QAction):\\n    name = a.objectName() or ''\\n    text = a.text() or ''\\n    tip = a.toolTip() or ''\\n    if 'geo_custom' in name.lower() or 'geo_custom' in text.lower() or 'geo_custom' in tip.lower() or 'geocustom' in (name+text+tip).lower():\\n        matches.append({'objectName': name, 'text': text, 'toolTip': tip, 'enabled': a.isEnabled()})\\nresult = matches\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QMenu\\na = mw.findChild(type(a), 'mActionProfile_geo_custom') if False else None\\nfrom qgis.PyQt.QtWidgets import QAction\\na = mw.findChild(QAction, 'mActionProfile_geo_custom')\\nhomes = []\\nfor m in mw.findChildren(QMenu):\\n    if a in m.actions():\\n        homes.append(m.title())\\nresult = {\\n    'current_profile': QgsApplication.qgisSettingsDirPath() if hasattr(QgsApplication, 'qgisSettingsDirPath') else str(QgsApplication.qgisSettingsDirPath),\\n    'profile_name': getattr(QgsApplication, 'profileName', None)() if callable(getattr(QgsApplication, 'profileName', None)) else None,\\n    'menus': homes,\\n    'enabled': a.isEnabled(),\\n    'checkable': a.isCheckable(),\\n    'checked': a.isChecked(),\\n}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtCore import QObject\\nn = a.receivers(b'2triggered()')\\nresult = {'triggered_receivers': n, 'triggered_bool_receivers': a.receivers(b'2triggered(bool)')}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「geo_custom」機能(アクション)を実行して\n[AI] \n「geo_custom」に該当するアクションを実際の QGIS UI 内で探します。「geo_custom」は現在アクティブなプロファイルそのもの（チェック済み）です。実行すると何が起きるか、接続先の処理を確認します。「geo_custom」アクションについて調べた結果、実行には注意が必要です。\n調査結果\n項目\n内容\nアクション名\nmActionProfile_geo_custom\n表示テキスト\ngeo_custom\n配置場所\n設定 → ユーザープロファイル(U) メニュー\n種別\nユーザープロファイル切り替えアクション（チェック可能）\n現在の状態\n有効・チェック済み — つまり geo_custom は 現在アクティブ中のプロファイル です\nプロファイルパス\nC:\\Users\\ryu.RYU-NOTE\\AppData\\Roaming\\QGIS\\QGIS4\\profiles\\geo_custom\n\n実行について\nこれは「QGIS を指定プロファイルで起動し直す」アクションで、トリガーすると QGIS 本体が再起動 します（確認ダイアログが出る場合もあります）。再起動すると現在のセッション（このライブドライバ接続含む）が切断され、開いている未保存のプロジェクト状態も失われます。\nまた、すでに geo_custom プロファイル上で動作しているため、実行しても同じプロファイルでの再起動になるだけです。\nそれでも実行（= QGIS 再起動）しますか？確認でき次第 a.trigger() で実行します。"
+}

@@ -1,0 +1,38 @@
+{
+ "id": "qgis.action.mWidgetActionDigitizing",
+ "prompt": "QGISの「mWidgetActionDigitizing」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「mWidgetActionDigitizing」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "I'll first check the available tools on the qgis-live MCP server.`qgis_pyeval` を使って、メインウィンドウ内のアクション `mWidgetActionDigitizing` を探し、有効状態を確認します。アクションは `QWidgetAction` として見つかりました。所属ツールバーや中身のウィジェットの有効状態まで詳しく確認します。`advancedDigitizingDockWidget` が無いようなので、別の方法でドックと現在のマップツールを確認します。調査結果です。`mWidgetActionDigitizing` は現在 **有効(isEnabled = True)** です。\n\n## 詳細\n\n| 項目 | 値 |\n|---|---|\n| オブジェクト名 | `mWidgetActionDigitizing` |\n| クラス | `QWidgetAction` |\n| isEnabled | **True** |\n| isVisible | True |\n| isCheckable / isChecked | False / False |\n| 親オブジェクト | `QgsMapToolAdvancedDigitizing` → `theMapCanvas` |\n| createdWidgets | 空(ツールバー上に実体化されたウィジェット無し) |\n| 所属ツールバー | なし(どの QToolBar の actions() にも含まれず) |\n\n## 補足(現在の QGIS 状態)\n\n- 現在のマップツールは **`QgsMapToolAdvancedDigitizing`**(アクションの親そのもの)がアクティブです。\n- `AdvancedDigitizingTools` という名前の `QDockWidget` が存在し、visible/enabled ともに True → **高度なデジタイズ(CAD パネル)は現在 ON** の状態です。\n\nつまりこのアクションは、現在アクティブな高度なデジタイズマップツールが所有する QWidgetAction で、QAction 自体の状態としては enabled になっています。ただしどのツールバーにも追加されておらず、作成済みウィジェットも無いため、画面上の実ウィジェットとしては現在未展開、という状態です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"mw = iface.mainWindow()\\nactions = mw.findChildren(__import__('qgis.PyQt.QtWidgets', fromlist=['QAction']).QAction)\\nfound = [a for a in actions if a.objectName() == 'mWidgetActionDigitizing']\\nresult = {\\n    'count': len(found),\\n    'info': [\\n        {\\n            'objectName': a.objectName(),\\n            'text': a.text(),\\n            'isEnabled': a.isEnabled(),\\n            'isVisible': a.isVisible(),\\n            'isCheckable': a.isCheckable(),\\n            'isChecked': a.isChecked(),\\n            'tooltip': a.toolTip(),\\n            'class': a.__class__.__name__,\\n        }\\n        for a in found\\n    ]\\n}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QWidgetAction\\nmw = iface.mainWindow()\\nactions = mw.findChildren(QWidgetAction)\\na = next(x for x in actions if x.objectName() == 'mWidgetActionDigitizing')\\nwidgets = a.createdWidgets()\\nparents = []\\np = a.parent()\\nwhile p is not None:\\n    parents.append((p.objectName(), p.__class__.__name__))\\n    p = p.parent()\\n# find toolbars containing the action\\ntbs = []\\nfor tb in mw.findChildren(__import__('qgis.PyQt.QtWidgets', fromlist=['QToolBar']).QToolBar):\\n    if a in tb.actions():\\n        tbs.append((tb.objectName(), tb.windowTitle(), tb.isVisible(), tb.isEnabled()))\\nresult = {\\n    'action_enabled': a.isEnabled(),\\n    'action_visible': a.isVisible(),\\n    'parent_chain': parents[:3],\\n    'toolbars': tbs,\\n    'created_widgets': [\\n        (w.__class__.__name__, w.objectName(), w.isEnabled(), w.isVisible())\\n        for w in widgets\\n    ],\\n}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"canvas = iface.mapCanvas()\\nmt = canvas.mapTool()\\ndock = iface.advancedDigitizingDockWidget()\\nresult = {\\n    'current_map_tool': mt.__class__.__name__ if mt else None,\\n    'current_map_tool_objname': mt.objectName() if mt else None,\\n    'cad_dock_visible': dock.isVisible(),\\n    'cad_dock_enabled': dock.isEnabled(),\\n    'cad_dock_cadEnabled': dock.cadEnabled(),\\n}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\ncanvas = iface.mapCanvas()\\nmt = canvas.mapTool()\\ndocks = mw_docks = [(d.objectName(), d.__class__.__name__, d.isVisible(), d.isEnabled()) for d in iface.mainWindow().findChildren(QDockWidget) if 'Digitiz' in d.__class__.__name__ or 'digitiz' in d.objectName().lower() or 'Digitiz' in d.objectName()]\\n# check the cad dock via mainWindow attr if exists\\ncad = getattr(iface.mainWindow(), 'findChild', lambda *a: None)\\nresult = {\\n    'current_map_tool': mt.__class__.__name__ if mt else None,\\n    'digitizing_docks': docks,\\n    'iface_attrs': [x for x in dir(iface) if 'igitiz' in x or 'advan' in x.lower()],\\n}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「mWidgetActionDigitizing」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nI'll first check the available tools on the qgis-live MCP server.qgis_pyeval を使って、メインウィンドウ内のアクション mWidgetActionDigitizing を探し、有効状態を確認します。アクションは QWidgetAction として見つかりました。所属ツールバーや中身のウィジェットの有効状態まで詳しく確認します。advancedDigitizingDockWidget が無いようなので、別の方法でドックと現在のマップツールを確認します。調査結果です。mWidgetActionDigitizing は現在 有効(isEnabled = True) です。\n詳細\n項目\n値\nオブジェクト名\nmWidgetActionDigitizing\nクラス\nQWidgetAction\nisEnabled\nTrue\nisVisible\nTrue\nisCheckable / isChecked\nFalse / False\n親オブジェクト\nQgsMapToolAdvancedDigitizing → theMapCanvas\ncreatedWidgets\n空(ツールバー上に実体化されたウィジェット無し)\n所属ツールバー\nなし(どの QToolBar の actions() にも含まれず)\n\n補足(現在の QGIS 状態)\n現在のマップツールは QgsMapToolAdvancedDigitizing(アクションの親そのもの)がアクティブです。\nAdvancedDigitizingTools という名前の QDockWidget が存在し、visible/enabled ともに True → 高度なデジタイズ(CAD パネル)は現在 ON の状態です。\nつまりこのアクションは、現在アクティブな高度なデジタイズマップツールが所有する QWidgetAction で、QAction 自体の状態としては enabled になっています。ただしどのツールバーにも追加されておらず、作成済みウィジェットも無いため、画面上の実ウィジェットとしては現在未展開、という状態です。"
+}

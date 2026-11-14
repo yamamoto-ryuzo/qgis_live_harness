@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_meshcontours",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 等高線をエクスポート」(id: native:meshcontours) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 等高線をエクスポート」(id: native:meshcontours) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:meshcontours` は **processing registry に存在します**。\n\n- **表示名**: 等高線をエクスポート\n- **グループ**: メッシュ (`mesh`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n**メッシュレイヤのスカラデータセットから等高線（等値線）をベクタレイヤとして生成**するアルゴリズムです。メッシュ上の水深・水位・流速などの連続スカラ値から、指定レベルの等高線（ライン）とレベル間のポリゴンを切り出すのに使います。時系列メッシュの場合は対象時刻も指定できます。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力メッシュレイヤ（必須） | — |\n| `DATASET_GROUPS` | 対象のデータセットグループ（必須） | `[]` |\n| `DATASET_TIME` | データセット時間（対象時刻、必須） | — |\n| `INCREMENT` | 等高線レベルの間隔（任意） | なし |\n| `MINIMUM` / `MAXIMUM` | 等高線の最小値／最大値（任意） | なし |\n| `CONTOUR_LEVEL_LIST` | 等高線レベルを直接列挙（カンマ区切り等、任意） | 空 |\n| `CRS_OUTPUT` | 出力座標系（任意） | なし |\n| `OUTPUT_LINES` | 等高線（ライン）出力（必須） | — |\n| `OUTPUT_POLYGONS` | 等高線区間（ポリゴン）出力（必須） | — |\n\n## 出力\n\n- `OUTPUT_LINES` — 等高線ラインレイヤ\n- `OUTPUT_POLYGONS` — レベル間を塗り分けたポリゴンレイヤ\n\nレベル指定は「`MINIMUM`〜`MAXIMUM` を `INCREMENT` 間隔」または「`CONTOUR_LEVEL_LIST` で個別列挙」の2系統です。実行例: `processing.run(\"native:meshcontours\", {'INPUT': mesh, 'DATASET_GROUPS': [0], 'DATASET_TIME': {'type': 'dataset-time-step', 'value': [0, 0]}, 'MINIMUM': 0, 'MAXIMUM': 100, 'INCREMENT': 10, 'OUTPUT_LINES': 'TEMPORARY_OUTPUT', 'OUTPUT_POLYGONS': 'TEMPORARY_OUTPUT'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:meshcontours')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'provi"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 等高線をエクスポート」(id: native:meshcontours) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:meshcontours は processing registry に存在します。\n表示名: 等高線をエクスポート\nグループ: メッシュ (mesh)\nプロバイダ: QGIS（ネイティブ C++）\n用途\nメッシュレイヤのスカラデータセットから等高線（等値線）をベクタレイヤとして生成するアルゴリズムです。メッシュ上の水深・水位・流速などの連続スカラ値から、指定レベルの等高線（ライン）とレベル間のポリゴンを切り出すのに使います。時系列メッシュの場合は対象時刻も指定できます。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力メッシュレイヤ（必須）\n—\nDATASET_GROUPS\n対象のデータセットグループ（必須）\n[]\nDATASET_TIME\nデータセット時間（対象時刻、必須）\n—\nINCREMENT\n等高線レベルの間隔（任意）\nなし\nMINIMUM / MAXIMUM\n等高線の最小値／最大値（任意）\nなし\nCONTOUR_LEVEL_LIST\n等高線レベルを直接列挙（カンマ区切り等、任意）\n空\nCRS_OUTPUT\n出力座標系（任意）\nなし\nOUTPUT_LINES\n等高線（ライン）出力（必須）\n—\nOUTPUT_POLYGONS\n等高線区間（ポリゴン）出力（必須）\n—\n\n出力\nOUTPUT_LINES — 等高線ラインレイヤ\nOUTPUT_POLYGONS — レベル間を塗り分けたポリゴンレイヤ\nレベル指定は「MINIMUM〜MAXIMUM を INCREMENT 間隔」または「CONTOUR_LEVEL_LIST で個別列挙」の2系統です。実行例: processing.run(\"native:meshcontours\", {'INPUT': mesh, 'DATASET_GROUPS': [0], 'DATASET_TIME': {'type': 'dataset-time-step', 'value': [0, 0]}, 'MINIMUM': 0, 'MAXIMUM': 100, 'INCREMENT': 10, 'OUTPUT_LINES': 'TEMPORARY_OUTPUT', 'OUTPUT_POLYGONS': 'TEMPORARY_OUTPUT'})"
+}

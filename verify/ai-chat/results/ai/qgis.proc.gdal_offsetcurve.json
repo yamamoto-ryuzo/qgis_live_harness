@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_offsetcurve",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 曲線をオフセット」(id: gdal:offsetcurve) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 曲線をオフセット」(id: gdal:offsetcurve) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:offsetcurve` を Processing Registry で確認します。確認しました。Processing Registry に **`[GDAL] 曲線をオフセット`** は存在します。\n\n- **ID:** `gdal:offsetcurve`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ベクタ・ジオプロセシング`\n\n### 用途\nライン系ベクタの各ジオメトリを、進行方向に対して左右へ平行に移動した **オフセットライン** を作成します。道路中心線からの片側ライン作成などに使います。\n\n### 主なパラメータ\n- `INPUT`：入力ライン／曲線レイヤ\n- `GEOMETRY`：対象ジオメトリカラム名（既定値 `geometry`）\n- `DISTANCE`：オフセット距離。正が左側、負が右側（既定値 `10`）\n- `OPTIONS`：追加のGDALオプション\n- `OUTPUT`：出力ベクタレイヤ"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:offsetcurve'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'offsetcurve' in a.id().lower() or 'オフセット' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'offsetcurve' in a.id().lo"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 曲線をオフセット」(id: gdal:offsetcurve) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:offsetcurve を Processing Registry で確認します。確認しました。Processing Registry に [GDAL] 曲線をオフセット は存在します。\nID: gdal:offsetcurve\nプロバイダ: GDAL\nグループ: ベクタ・ジオプロセシング\n用途\nライン系ベクタの各ジオメトリを、進行方向に対して左右へ平行に移動した オフセットライン を作成します。道路中心線からの片側ライン作成などに使います。\n主なパラメータ\nINPUT：入力ライン／曲線レイヤ\nGEOMETRY：対象ジオメトリカラム名（既定値 geometry）\nDISTANCE：オフセット距離。正が左側、負が右側（既定値 10）\nOPTIONS：追加のGDALオプション\nOUTPUT：出力ベクタレイヤ"
+}

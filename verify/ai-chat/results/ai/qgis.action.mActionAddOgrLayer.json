@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionAddOgrLayer",
+ "prompt": "QGISの「ベクタレイヤを追加...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ベクタレイヤを追加...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ベクタレイヤを追加」に対応するアクションを探します。調査結果です。\n\n**アクション: `mActionAddOgrLayer`「ベクタレイヤを追加...」**\n\n| 項目 | 状態 |\n|---|---|\n| ショートカット | Ctrl+Shift+V |\n| 有効 (isEnabled) | **有効** — 実行可能な状態です |\n| チェック可能 | いいえ(ダイアログを開くだけの通常アクション) |\n\n実行すると「データソースマネージャ」ダイアログがベクタタブを選択した状態で開き、ファイル(GeoPackage/Shapefile等)・データベース・プロトコル経由でベクタレイヤを追加できます。\n\n関連する「ベクタツールバー」(`mActionToggleVectorToolBar`)は現在**非表示**になっています。アクションを実行してダイアログを開きますか?"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nresult = [(a.objectName(), a.text(), a.shortcut().toString(), a.isEnabled(), a.isCheckable(), a.isChecked()) for a in iface.mainWindow().findChildren(QAction) if 'ベクタレイヤ' in a.text() or 'ogr' in a.objectName().lower() or 'vector' in a.objectName().lower()]\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ベクタレイヤを追加...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「ベクタレイヤを追加」に対応するアクションを探します。調査結果です。\nアクション: mActionAddOgrLayer「ベクタレイヤを追加...」\n項目\n状態\nショートカット\nCtrl+Shift+V\n有効 (isEnabled)\n有効 — 実行可能な状態です\nチェック可能\nいいえ(ダイアログを開くだけの通常アクション)\n\n実行すると「データソースマネージャ」ダイアログがベクタタブを選択した状態で開き、ファイル(GeoPackage/Shapefile等)・データベース・プロトコル経由でベクタレイヤを追加できます。\n関連する「ベクタツールバー」(mActionToggleVectorToolBar)は現在非表示になっています。アクションを実行してダイアログを開きますか?"
+}

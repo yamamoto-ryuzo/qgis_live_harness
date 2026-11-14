@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_multiparttosingleparts",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] マルチパートをシングルパートに変換」(id: native:multiparttosingleparts) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] マルチパートをシングルパートに変換」(id: native:multiparttosingleparts) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:multiparttosingleparts` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:multiparttosingleparts`\n- **表示名**: マルチパートをシングルパートに変換\n- **グループ**: ベクタジオメトリ\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\nMultiPolygon / MultiLineString / MultiPoint などの**マルチパートジオメトリを構成パートごとに分割**し、各パートを独立したシングルパート地物として持つ新しいレイヤを生成します。分割された各地物には元の地物の属性値がそのまま継承されます。地物ごとの面積計算や個別編集を行いたい場合の前処理としてよく使われます（逆操作は `native:collect` / 「シングルパートをマルチパートに変換」）。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力レイヤ（マルチパートを含む任意のベクタレイヤ） |\n| `OUTPUT` | sink → outputVector | 出力先（シングルパート化されたベクタレイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:multiparttosingleparts\", {\n    'INPUT': layer,\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:multiparttosingleparts')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional)} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:600], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] マルチパートをシングルパートに変換」(id: native:multiparttosingleparts) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:multiparttosingleparts は現在の QGIS の processing registry に登録されています。\nID: native:multiparttosingleparts\n表示名: マルチパートをシングルパートに変換\nグループ: ベクタジオメトリ\nプロバイダ: QGIS（ネイティブC++）\n用途\nMultiPolygon / MultiLineString / MultiPoint などのマルチパートジオメトリを構成パートごとに分割し、各パートを独立したシングルパート地物として持つ新しいレイヤを生成します。分割された各地物には元の地物の属性値がそのまま継承されます。地物ごとの面積計算や個別編集を行いたい場合の前処理としてよく使われます（逆操作は native:collect / 「シングルパートをマルチパートに変換」）。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力レイヤ（マルチパートを含む任意のベクタレイヤ）\nOUTPUT\nsink → outputVector\n出力先（シングルパート化されたベクタレイヤ）\n\n実行例:\nprocessing.run(\"native:multiparttosingleparts\", {\n    'INPUT': layer,\n    'OUTPUT': 'memory:'\n})"
+}

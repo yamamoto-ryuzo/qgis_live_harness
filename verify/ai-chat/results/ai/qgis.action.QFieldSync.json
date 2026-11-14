@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.QFieldSync",
+ "prompt": "QGISの「QFieldSyncツールバー」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「QFieldSyncツールバー」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「QFieldSyncツールバー」のアクションを探して実行します。ツールバーは現在非表示です。アクションを実行して表示します。「QFieldSyncツールバー」を実行・表示しました。\n\n- QFieldSync ツールバーが表示され、対応するアクションはチェック状態になりました\n- このツールバーから QField 向けプロジェクトのパッケージ化・同期設定などの QFieldSync 機能にアクセスできます"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\nacts = [(x.objectName(), x.text(), x.isCheckable(), x.isChecked()) for x in mw.findChildren(QAction) if 'qfieldsync' in x.objectName().lower() or 'QFieldSync' in x.text()]\\ntbars = [(t.objectName(), t.windowTitle(), t.isVisible()) for t in mw.findChildren(QToolBar) if 'qfield' in (t.objectName() + t.windowTitle()).lower()]\\nresult = {'actions': acts, 'toolbars': tbars}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\na = [x for x in mw.findChildren(QAction) if x.text() == 'QFieldSync\\\\u30c4\\\\u30fc\\\\u30eb\\\\u30d0\\\\u30fc'][0]\\nt = [x for x in mw.findChildren(QToolBar) if x.objectName() == 'QFieldSync Toolbar'][0]\\na.trigger()\\nresult = {'checked': a.isChecked(), 'visible': t.isVisible()}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「QFieldSyncツールバー」機能(アクション)を実行して\n[AI] \n「QFieldSyncツールバー」のアクションを探して実行します。ツールバーは現在非表示です。アクションを実行して表示します。「QFieldSyncツールバー」を実行・表示しました。\nQFieldSync ツールバーが表示され、対応するアクションはチェック状態になりました\nこのツールバーから QField 向けプロジェクトのパッケージ化・同期設定などの QFieldSync 機能にアクセスできます"
+}

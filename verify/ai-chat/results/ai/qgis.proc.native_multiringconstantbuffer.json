@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_multiringconstantbuffer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 多重リングバッファ」(id: native:multiringconstantbuffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 多重リングバッファ」(id: native:multiringconstantbuffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:multiringconstantbuffer` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:multiringconstantbuffer`\n- **表示名**: 多重リングバッファ\n- **グループ**: ベクタジオメトリ\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\n入力地物を中心に、一定間隔の**同心円状リング（ドーナツ型）バッファ**を複数層生成します。各地物について「0〜距離」「距離〜2×距離」…という環状ポリゴンが作られ、距離は固定値またはデータ定義（属性値・式による動的指定）が可能です。距離帯別の影響範囲分析などに使います。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力レイヤ |\n| `RINGS` | number（必須、デフォルト 1） | リングの層数 |\n| `DISTANCE` | distance（必須、デフォルト 1） | リング間の距離（各リングの幅） |\n| `OUTPUT` | sink → outputVector | 出力先（多重リングバッファのベクタレイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:multiringconstantbuffer\", {\n    'INPUT': layer,\n    'RINGS': 5,\n    'DISTANCE': 100,\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:multiringconstantbuffer')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 多重リングバッファ」(id: native:multiringconstantbuffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:multiringconstantbuffer は現在の QGIS の processing registry に登録されています。\nID: native:multiringconstantbuffer\n表示名: 多重リングバッファ\nグループ: ベクタジオメトリ\nプロバイダ: QGIS（ネイティブC++）\n用途\n入力地物を中心に、一定間隔の同心円状リング（ドーナツ型）バッファを複数層生成します。各地物について「0〜距離」「距離〜2×距離」…という環状ポリゴンが作られ、距離は固定値またはデータ定義（属性値・式による動的指定）が可能です。距離帯別の影響範囲分析などに使います。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力レイヤ\nRINGS\nnumber（必須、デフォルト 1）\nリングの層数\nDISTANCE\ndistance（必須、デフォルト 1）\nリング間の距離（各リングの幅）\nOUTPUT\nsink → outputVector\n出力先（多重リングバッファのベクタレイヤ）\n\n実行例:\nprocessing.run(\"native:multiringconstantbuffer\", {\n    'INPUT': layer,\n    'RINGS': 5,\n    'DISTANCE': 100,\n    'OUTPUT': 'memory:'\n})"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_tininterpolation",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] TIN内挿（不整三角網）」(id: qgis:tininterpolation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] TIN内挿（不整三角網）」(id: qgis:tininterpolation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。存在を確認しました。`qgis:tininterpolation` は registry に登録されています。\n\n## [QGIS] TIN内挿(不整三角網)\n\n**用途**: 点(またはライン)レイヤの標高・計測値などを、TIN(不整三角網)で補間して連続するサーフェスのラスタを生成するアルゴリズム(グループ: 内挿)。DEM 生成や等値線図の元データ作成に使います。三角網そのものをベクタ(ライン)としても出力できます。\n\n**主なパラメータ**:\n\n| パラメータ | 内容 |\n|---|---|\n| `INTERPOLATION_DATA` | 入力レイヤ設定。`レイヤ::属性::入力タイプ::Z値取込` 形式の文字列で、`;` 区切りで複数レイヤ指定可(入力タイプ: 0=点, 1=構造線, 2=ブレークライン 等) |\n| `METHOD` | 内挿方法 — `0`: 線形 / `1`: Clough-Tocher(キュービック法。滑らかな面になる) |\n| `EXTENT` | 内挿する範囲 |\n| `PIXEL_SIZE` | 出力ラスタのセルサイズ(デフォルト 0.1) |\n| `COLUMNS` / `ROWS` | 出力ラスタの列数・行数(セルサイズ指定の代わりに使用可) |\n| `OUTPUT` | 出力ラスタ(補間結果) |\n| `TRIANGULATION` | 三角網の出力(ベクタラインレイヤ、省略可) |\n\n注意点: 線形 TIN の結果は面が滑らかでない(三角形単位の平面)ため、滑らかなサーフェスが欲しい場合は Clough-Tocher を選びます。凸包外(データのない領域)は外挿されず NULL になります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:tininterpolation')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'interp' in a.id().lower() or 'tin' in a.id().lower()]}\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': type(p).__name__, 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()]\\n    outputs = [{'name': o.name(), 'desc': o.description()} for o in alg.outputDefinitions()]\\n    enum_opts = {p.name(): p.options() for p in alg.parameterDefinitions() if type(p).__name__ == 'QgsProcessingParameterEnum'}\\n    result = {'found': True, 'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'params': params, 'enums': enum_opts, 'outputs': outputs, 'shortHelp': (alg.shortHelpString() or '')[:1500]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] TIN内挿（不整三角網）」(id: qgis:tininterpolation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。存在を確認しました。qgis:tininterpolation は registry に登録されています。\n[QGIS] TIN内挿(不整三角網)\n用途: 点(またはライン)レイヤの標高・計測値などを、TIN(不整三角網)で補間して連続するサーフェスのラスタを生成するアルゴリズム(グループ: 内挿)。DEM 生成や等値線図の元データ作成に使います。三角網そのものをベクタ(ライン)としても出力できます。\n主なパラメータ:\nパラメータ\n内容\nINTERPOLATION_DATA\n入力レイヤ設定。レイヤ::属性::入力タイプ::Z値取込 形式の文字列で、; 区切りで複数レイヤ指定可(入力タイプ: 0=点, 1=構造線, 2=ブレークライン 等)\nMETHOD\n内挿方法 — 0: 線形 / 1: Clough-Tocher(キュービック法。滑らかな面になる)\nEXTENT\n内挿する範囲\nPIXEL_SIZE\n出力ラスタのセルサイズ(デフォルト 0.1)\nCOLUMNS / ROWS\n出力ラスタの列数・行数(セルサイズ指定の代わりに使用可)\nOUTPUT\n出力ラスタ(補間結果)\nTRIANGULATION\n三角網の出力(ベクタラインレイヤ、省略可)\n\n注意点: 線形 TIN の結果は面が滑らかでない(三角形単位の平面)ため、滑らかなサーフェスが欲しい場合は Clough-Tocher を選びます。凸包外(データのない領域)は外挿されず NULL になります。"
+}

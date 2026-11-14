@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_zonalhistogram",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ゾーンヒストグラム」(id: native:zonalhistogram) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ゾーンヒストグラム」(id: native:zonalhistogram) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`native:zonalhistogram` **[QGIS（ネイティブC++）] ゾーンヒストグラム** は processing registry に登録されています（グループ: ラスタ解析）。\n\n### 用途\n\nポリゴン（ゾーン）ごとに、その内部に含まれる**ラスタのユニーク値ごとのピクセル数をカウントし、属性フィールドとして追加**します。土地利用区分ラスタ × 行政区ポリゴンで「区内の各地類の面積内訳」を得る、といった**カテゴリラスタのゾーン別内訳集計**に向いています。連続値の統計（平均・合計等）には `native:zonalstatisticsfb`（ゾーン統計）が対応します。\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT_RASTER` | raster | — | 対象ラスタレイヤ（カテゴリ/離散値向き） |\n| `RASTER_BAND` | band | 1 | 集計するバンド番号 |\n| `INPUT_VECTOR` | source | — | ゾーンを表すポリゴンレイヤ |\n| `COLUMN_PREFIX` | string | `HISTO_` | 値ごとのカウント列名の接頭辞（例: `HISTO_1`, `HISTO_2`…） |\n| `OUTPUT` | sink | — | 出力ベクタレイヤ |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('native:zonalhistogram')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ゾーンヒストグラム」(id: native:zonalhistogram) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\nnative:zonalhistogram [QGIS（ネイティブC++）] ゾーンヒストグラム は processing registry に登録されています（グループ: ラスタ解析）。\n用途\nポリゴン（ゾーン）ごとに、その内部に含まれるラスタのユニーク値ごとのピクセル数をカウントし、属性フィールドとして追加します。土地利用区分ラスタ × 行政区ポリゴンで「区内の各地類の面積内訳」を得る、といったカテゴリラスタのゾーン別内訳集計に向いています。連続値の統計（平均・合計等）には native:zonalstatisticsfb（ゾーン統計）が対応します。\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT_RASTER\nraster\n—\n対象ラスタレイヤ（カテゴリ/離散値向き）\nRASTER_BAND\nband\n1\n集計するバンド番号\nINPUT_VECTOR\nsource\n—\nゾーンを表すポリゴンレイヤ\nCOLUMN_PREFIX\nstring\nHISTO_\n値ごとのカウント列名の接頭辞（例: HISTO_1, HISTO_2…）\nOUTPUT\nsink\n—\n出力ベクタレイヤ\n"
+}

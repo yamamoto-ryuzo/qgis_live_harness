@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.native_fixgeometryarea",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Fix small polygons」(id: native:fixgeometryarea) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Fix small polygons」(id: native:fixgeometryarea) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "前回と同様に、registry を直接確認します。ついでに対になる Check geometry 系アルゴリズムも取得します。`METHOD` の選択肢も確認しておきます。## 確認結果：存在します ✅\n\n`native:fixgeometryarea`（表示名 **「Fix small polygons」**、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n「Check geometry」系の **`native:checkgeometryarea`（Small polygons）** が出力したエラーレイヤを元に、**面積が小さすぎるポリゴンを隣接ポリゴンにマージ**してジオメトリを修正するアルゴリズムです。前回の `fixgeometryangle`（頂点削除）と同じ「検出 → 修正」の2段ワークフローで、マージ方法を選択できるのが特徴です。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ（修正対象のポリゴン） |\n| `ERRORS` | エラーレイヤ（`checkgeometryarea` の出力） |\n| `METHOD` | マージ方法（enum、下記参照） |\n| `MERGE_ATTRIBUTE` | 「同一属性」方式を選んだ場合に参照するフィールド |\n| `UNIQUE_ID` | 元地物を一意に識別するフィールド |\n| `PART_IDX` / `RING_IDX` / `VERTEX_IDX` | エラーレイヤ中のパート・リング・頂点番号フィールド |\n| `TOLERANCE` | 許容範囲（数値） |\n\n### `METHOD` の選択肢（実際の enum 値）\n\n1. 最も長い共有エッジの隣接ポリゴンをマージする\n2. 最大面積の隣接ポリゴンをマージする\n3. 同一の属性値を持つ隣接ポリゴンをマージする。もしなければそのままにする（→ `MERGE_ATTRIBUTE` で対象フィールドを指定）\n\n### 出力\n\n- `OUTPUT` — 小ポリゴンがマージされたレイヤ\n- `REPORT` — マージ内容のレポートレイヤ\n\n`UNIQUE_ID` 〜 `VERTEX_IDX` は `checkgeometryarea` の出力スキーマに合わせて指定します。まずチェックアルゴリズムを実行し、そのエラーレイヤを `ERRORS` に渡すのが基本フローです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:fixgeometryarea')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': [(p.name(), p.description(), p.type()) for p in alg.parameterDefinitions()],\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related_check': [(a.id(), a.displayName()) for a in QgsApplication.processingRegistry().algorithms() if 'checkgeometry' in a.id() and ('area' in a.id() or 'small' in a.displayName().lower())],\\n    }\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:fixgeometryarea')\\np = alg.parameterDefinition('METHOD')\\nresult = {'options': p.options(), 'default': p.defaultValue()}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Fix small polygons」(id: native:fixgeometryarea) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n前回と同様に、registry を直接確認します。ついでに対になる Check geometry 系アルゴリズムも取得します。METHOD の選択肢も確認しておきます。## 確認結果：存在します ✅\nnative:fixgeometryarea（表示名 「Fix small polygons」、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n用途\n「Check geometry」系の native:checkgeometryarea（Small polygons） が出力したエラーレイヤを元に、面積が小さすぎるポリゴンを隣接ポリゴンにマージしてジオメトリを修正するアルゴリズムです。前回の fixgeometryangle（頂点削除）と同じ「検出 → 修正」の2段ワークフローで、マージ方法を選択できるのが特徴です。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ（修正対象のポリゴン）\nERRORS\nエラーレイヤ（checkgeometryarea の出力）\nMETHOD\nマージ方法（enum、下記参照）\nMERGE_ATTRIBUTE\n「同一属性」方式を選んだ場合に参照するフィールド\nUNIQUE_ID\n元地物を一意に識別するフィールド\nPART_IDX / RING_IDX / VERTEX_IDX\nエラーレイヤ中のパート・リング・頂点番号フィールド\nTOLERANCE\n許容範囲（数値）\n\nMETHOD の選択肢（実際の enum 値）\n最も長い共有エッジの隣接ポリゴンをマージする\n最大面積の隣接ポリゴンをマージする\n同一の属性値を持つ隣接ポリゴンをマージする。もしなければそのままにする（→ MERGE_ATTRIBUTE で対象フィールドを指定）\n出力\nOUTPUT — 小ポリゴンがマージされたレイヤ\nREPORT — マージ内容のレポートレイヤ\nUNIQUE_ID 〜 VERTEX_IDX は checkgeometryarea の出力スキーマに合わせて指定します。まずチェックアルゴリズムを実行し、そのエラーレイヤを ERRORS に渡すのが基本フローです。"
+}

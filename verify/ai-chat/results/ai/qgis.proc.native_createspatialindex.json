@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_createspatialindex",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 空間インデックスを作成」(id: native:createspatialindex) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 空間インデックスを作成」(id: native:createspatialindex) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:createspatialindex`\n- **表示名**: 空間インデックスを作成\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ベクタ一般\n\n## 用途\nベクタレイヤに**空間インデックスを作成**し、バウンディングボックス検索・空間検索・位置による選択/結合などの空間アクセスを高速化するアルゴリズムです。大きなレイヤで「属性ではなく位置」でフィルタする処理（intersects, within 等）の前段に置くと効果的です。ただしインデックスの実際のサポートはデータプロバイダ依存で、GeoPackage や SpatiaLite 等では有効ですが、すでに空間インデックスを持つソース（例: PostGIS の gist インデックス）では効果がありません。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ベクタレイヤ（必須、唯一のパラメータ） |\n\n出力は `OUTPUT`（インデックス作成済みの同一レイヤ）。新しいレイヤは作られず、入力レイヤそのものにインデックスが付与されます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber\\nalg = QgsApplication.processingRegistry().algorithmById('native:createspatialindex')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'index' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        if isinstance(p, QgsProcessingParameterNumber):\\n            d['min'] = p.minimum(); d['max'] = p.maximum()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 空間インデックスを作成」(id: native:createspatialindex) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:createspatialindex\n表示名: 空間インデックスを作成\nプロバイダ: QGIS（ネイティブC++）／グループ: ベクタ一般\n用途\nベクタレイヤに空間インデックスを作成し、バウンディングボックス検索・空間検索・位置による選択/結合などの空間アクセスを高速化するアルゴリズムです。大きなレイヤで「属性ではなく位置」でフィルタする処理（intersects, within 等）の前段に置くと効果的です。ただしインデックスの実際のサポートはデータプロバイダ依存で、GeoPackage や SpatiaLite 等では有効ですが、すでに空間インデックスを持つソース（例: PostGIS の gist インデックス）では効果がありません。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ベクタレイヤ（必須、唯一のパラメータ）\n\n出力は OUTPUT（インデックス作成済みの同一レイヤ）。新しいレイヤは作られず、入力レイヤそのものにインデックスが付与されます。"
+}

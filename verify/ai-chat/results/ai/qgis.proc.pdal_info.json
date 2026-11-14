@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.pdal_info",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Point cloud information」(id: pdal:info) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Point cloud information」(id: pdal:info) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`pdal:info` を registry から照会し、存在する場合は定義済みパラメータと出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `pdal:info`\n- **表示名**: `Point cloud information`\n- **Provider**: `QGIS (PDAL)`\n- **グループ**: `Point cloud data management`\n\n### 用途\n点群ファイルから基本メタデータを抽出し、情報レポートとして出力します。点群データの内容確認・品質チェック用です。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力点群レイヤ | — |\n| `OUTPUT` | レイヤ情報の出力先。HTML ファイルとして保存 | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('pdal:info')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'info' in a.id().lower() or 'information' in a.displayName().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'type': p.type(),"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Point cloud information」(id: pdal:info) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \npdal:info を registry から照会し、存在する場合は定義済みパラメータと出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: pdal:info\n表示名: Point cloud information\nProvider: QGIS (PDAL)\nグループ: Point cloud data management\n用途\n点群ファイルから基本メタデータを抽出し、情報レポートとして出力します。点群データの内容確認・品質チェック用です。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\n入力点群レイヤ\n—\nOUTPUT\nレイヤ情報の出力先。HTML ファイルとして保存\n—\n"
+}

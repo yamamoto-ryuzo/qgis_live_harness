@@ -1,0 +1,34 @@
+{
+ "id": "plugin.geo_legend.bridge.opacity",
+ "prompt": "geo_legend プラグインの「opacity」(選択中レイヤの不透明度を取得/設定する(0.0-1.0)。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_legend プラグインの「opacity」(選択中レイヤの不透明度を取得/設定する(0.0-1.0)。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "まず現在値を取得し、その後 0.5 に設定します。設定が反映されました。元の 1.0 に戻しておきます。`opacity` を試しました。\n\n| 操作 | 呼び出し | 結果 |\n|---|---|---|\n| 現在値の取得 | `opacity()` | `1.0`（不透明） |\n| 設定 | `opacity(0.5)` | `0.5`（半透明）に設定成功 |\n| 復元 | `opacity(1.0)` | `1.0` に復元 |\n\n引数なしで現在値の取得、0.0–1.0 の値を渡すと設定になります。凡例ドックの不透明度スライダーと連動しており、選択中レイヤ（凡例対象レイヤ）に適用されます。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'plugin_id': 'geo_legend', 'method': 'opacity'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_legend', 'method': 'opacity', 'args': [0.5]}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'opacity', 'plugin_id': 'geo_legend', 'args': [1.0]}"
+  }
+ ],
+ "view_tail": "[あなた] geo_legend プラグインの「opacity」(選択中レイヤの不透明度を取得/設定する(0.0-1.0)。)を試して。必要な引数は適当な値でよい\n[AI] \nまず現在値を取得し、その後 0.5 に設定します。設定が反映されました。元の 1.0 に戻しておきます。opacity を試しました。\n操作\n呼び出し\n結果\n現在値の取得\nopacity()\n1.0（不透明）\n設定\nopacity(0.5)\n0.5（半透明）に設定成功\n復元\nopacity(1.0)\n1.0 に復元\n\n引数なしで現在値の取得、0.0–1.0 の値を渡すと設定になります。凡例ドックの不透明度スライダーと連動しており、選択中レイヤ（凡例対象レイヤ）に適用されます。"
+}

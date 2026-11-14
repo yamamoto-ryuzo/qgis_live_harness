@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionCopyStyle",
+ "prompt": "QGISの「スタイルをコピー」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「スタイルをコピー」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「スタイルをコピー」関連のアクション名と有効状態を調べます。対象アクションを特定しました。現在無効なので、メニュー上の所在とアクティブレイヤ状態も確認します。`スタイルをコピー` アクションは**現在無効**です。\n\n確認結果:\n\n- 表示名: `スタイルをコピー`\n- objectName: `mActionCopyStyle`\n- 有効: `false`\n- 表示: `true`\n- ショートカット: なし\n- 所在メニュー: `レイヤ(&L)`\n- 所在ツールバー: なし\n- 現在のアクティブレイヤ: なし\n- プロジェクト内レイヤ数: `0`\n\nこのアクションはアクティブレイヤのスタイルをコピーするため、レイヤ未選択の現在の状態では実行できません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nresult = [\\n    {\\n        'text': a.text(),\\n        'objectName': a.objectName(),\\n        'enabled': a.isEnabled(),\\n        'visible': a.isVisible(),\\n        'checkable': a.isCheckable(),\\n        'tooltip': a.toolTip(),\\n        'shortcut': a.shortcut().toString(),\\n        'parent': a.parent().objectName() if a.parent() else None,\\n    }\\n    for a in iface.mainWindow().findChildren(QAction)\\n    if any(k in (a.text() + ' ' + a.objectName() + ' ' + a.toolTip()).lower() for k in ['copy style', 'copystyle', 'スタイルをコピー', 'style'])\\n]\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\n\\naction = iface.mainWindow().findChild(QAction, 'mActionCopyStyle')\\nactive_layer = iface.activeLayer()\\nmenus = [m.title() for m in iface.mainWindow().findChildren(QMenu) if action in m.actions()]\\ntoolbars = [tb.windowTitle() for tb in iface.mainWindow().findChildren(QToolBar) if action in tb.actions()]\\nresult = {\\n    'action_found': action is not None,\\n    'text': action.text() if action else None,\\n    'objectName': action.objectName() if action else None,\\n    'enabled': action.isEnabled() if action else None,\\n    'visible': action.isVisible() if action else None,\\n    'shortcut': action.shortcut().toString() if action else None,\\n    'menus': menus,\\n    'toolbars': toolbars,\\n    'active_layer': active_layer.name() if active_layer else None,\\n    'project_layer_count': len(QgsProject.instance().mapLayers()),\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「スタイルをコピー」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「スタイルをコピー」関連のアクション名と有効状態を調べます。対象アクションを特定しました。現在無効なので、メニュー上の所在とアクティブレイヤ状態も確認します。スタイルをコピー アクションは現在無効です。\n確認結果:\n表示名: スタイルをコピー\nobjectName: mActionCopyStyle\n有効: false\n表示: true\nショートカット: なし\n所在メニュー: レイヤ(&L)\n所在ツールバー: なし\n現在のアクティブレイヤ: なし\nプロジェクト内レイヤ数: 0\nこのアクションはアクティブレイヤのスタイルをコピーするため、レイヤ未選択の現在の状態では実行できません。"
+}

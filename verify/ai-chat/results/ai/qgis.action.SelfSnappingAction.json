@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.SelfSnappingAction",
+ "prompt": "QGISの「自己スナップ」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「自己スナップ」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「自己スナップ」アクションを探します。「自己スナップ」を実行しました。\n\n- スナップツールバーの `SelfSnappingAction`(「自己スナップ」)はチェック可能なトグルで、当初 OFF でした\n- `trigger()` で実行し、`checked=True` になりました\n\nデジタイズ中に、現在編集中のジオメトリ自身の頂点・セグメントにもスナップするようになります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nacts = [a for a in iface.mainWindow().findChildren(QAction) if 'スナップ' in a.text() or 'snap' in a.objectName().lower()]\\nresult = [(a.objectName(), a.text(), a.isEnabled(), a.isCheckable(), a.isChecked()) for a in acts]\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QWidget\\nsw = iface.mainWindow().findChild(QWidget, 'mSnappingWidget')\\nact = sw.findChild(QAction, 'SelfSnappingAction')\\nact.trigger()\\nresult = {'checked': act.isChecked()}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「自己スナップ」機能(アクション)を実行して\n[AI] \n「自己スナップ」アクションを探します。「自己スナップ」を実行しました。\nスナップツールバーの SelfSnappingAction(「自己スナップ」)はチェック可能なトグルで、当初 OFF でした\ntrigger() で実行し、checked=True になりました\nデジタイズ中に、現在編集中のジオメトリ自身の頂点・セグメントにもスナップするようになります。"
+}

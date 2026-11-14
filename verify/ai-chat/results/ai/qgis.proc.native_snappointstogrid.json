@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_snappointstogrid",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 点をグリッドにスナップ」(id: native:snappointstogrid) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 点をグリッドにスナップ」(id: native:snappointstogrid) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:snappointstogrid`「**点をグリッドにスナップ**」は登録されています（グループ: ベクタジオメトリ）。\n\n## 用途\n\n- ベクタレイヤの**全ての座標点（頂点）を、指定間隔のグリッド格子点に丸めてスナップ**します\n- 用途例：座標精度の統一（小数点丸め）、図郭・グリッドデータへの整列、測量データの座標を 0.5m/1m 格子に揃える、座標値を見やすい値に揃えたい場合\n- X・Y だけでなく **Z・M 値にも個別にスナップ間隔を指定可能**です（間隔0 = その軸はスナップしない）\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | 入力レイヤ（ポイント/ライン/ポリゴン） |\n| `HSPACING` | distance | X軸のグリッド間隔（レイヤのCRS単位） |\n| `VSPACING` | distance | Y軸のグリッド間隔 |\n| `ZSPACING` | number | Z軸のグリッド間隔（Z値を持つジオメトリ用） |\n| `MSPACING` | number | M値のグリッド間隔 |\n| `OUTPUT` | sink | 出力レイヤ |\n\n## 注意点（ヘルプより）\n\n- **近すぎる座標が同じ格子点に潰れた場合、その地物のジオメトリは消去**されます（例: 微小なポリゴンが1点になってしまう）\n- スナップにより**無効なジオメトリが生成される可能性**があるため、続けて `native:fixgeometries`（ジオメトリの修正）や `native:removeemptygeometries`（空ジオメトリの削除）を通すと安全です\n- `native:snapgeometries`（別ジオメトリへの吸着）とは別物で、こちらは等間隔グリッドへの丸めです"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:snappointstogrid')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 点をグリッドにスナップ」(id: native:snappointstogrid) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:snappointstogrid「点をグリッドにスナップ」は登録されています（グループ: ベクタジオメトリ）。\n用途\nベクタレイヤの全ての座標点（頂点）を、指定間隔のグリッド格子点に丸めてスナップします\n用途例：座標精度の統一（小数点丸め）、図郭・グリッドデータへの整列、測量データの座標を 0.5m/1m 格子に揃える、座標値を見やすい値に揃えたい場合\nX・Y だけでなく Z・M 値にも個別にスナップ間隔を指定可能です（間隔0 = その軸はスナップしない）\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\n入力レイヤ（ポイント/ライン/ポリゴン）\nHSPACING\ndistance\nX軸のグリッド間隔（レイヤのCRS単位）\nVSPACING\ndistance\nY軸のグリッド間隔\nZSPACING\nnumber\nZ軸のグリッド間隔（Z値を持つジオメトリ用）\nMSPACING\nnumber\nM値のグリッド間隔\nOUTPUT\nsink\n出力レイヤ\n\n注意点（ヘルプより）\n近すぎる座標が同じ格子点に潰れた場合、その地物のジオメトリは消去されます（例: 微小なポリゴンが1点になってしまう）\nスナップにより無効なジオメトリが生成される可能性があるため、続けて native:fixgeometries（ジオメトリの修正）や native:removeemptygeometries（空ジオメトリの削除）を通すと安全です\nnative:snapgeometries（別ジオメトリへの吸着）とは別物で、こちらは等間隔グリッドへの丸めです"
+}

@@ -1,0 +1,35 @@
+{
+ "id": "qgis.action.mActionZoomLast",
+ "prompt": "QGISの「前の領域へズーム」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「前の領域へズーム」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「前の領域へズーム」アクションを確認して実行します。有効です(ズーム履歴あり)。実行します。実行されました。表示範囲が履歴上の前の領域に戻りました。画面を確認します。「前の領域へズーム」(`mActionZoomLast`)を実行しました。\n\n- 実行前: 139.698–139.792°E, 35.630–35.730°N(地物が見えていた範囲)\n- 実行後: −1.0–1.0°E, −1.05–1.05°N、縮尺 約1:1,165,858\n\nズーム履歴上の前の表示範囲(プロジェクト初期状態と思われる空の領域)に戻ったため、キャンバスは真っ白になりました。\n\n元の表示に戻すには「次の表示領域にズーム」(`mActionZoomNext`、現在有効化されています)を実行できます。戻しますか?"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = mw.findChild(QAction, 'mActionZoomLast')\\nb = mw.findChild(QAction, 'mActionZoomNext')\\nresult = (a.text(), a.isEnabled(), a.shortcut().toString(), b.text(), b.isEnabled())\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nbefore = iface.mapCanvas().extent().toString()\\na = iface.mainWindow().findChild(QAction, 'mActionZoomLast')\\na.trigger()\\nresult = (before, iface.mapCanvas().extent().toString(), iface.mapCanvas().scale())\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-a2ec577e.png', 'target': 'canvas'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「前の領域へズーム」機能(アクション)を実行して\n[AI] \n「前の領域へズーム」アクションを確認して実行します。有効です(ズーム履歴あり)。実行します。実行されました。表示範囲が履歴上の前の領域に戻りました。画面を確認します。「前の領域へズーム」(mActionZoomLast)を実行しました。\n実行前: 139.698–139.792°E, 35.630–35.730°N(地物が見えていた範囲)\n実行後: −1.0–1.0°E, −1.05–1.05°N、縮尺 約1:1,165,858\nズーム履歴上の前の表示範囲(プロジェクト初期状態と思われる空の領域)に戻ったため、キャンバスは真っ白になりました。\n元の表示に戻すには「次の表示領域にズーム」(mActionZoomNext、現在有効化されています)を実行できます。戻しますか?"
+}

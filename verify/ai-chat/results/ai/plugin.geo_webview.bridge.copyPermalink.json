@@ -1,0 +1,31 @@
+{
+ "id": "plugin.geo_webview.bridge.copyPermalink",
+ "prompt": "QGISの geo_webview プラグインで「現在のパーマリンクをクリップボードへコピーする(未生成なら生成)。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_webview プラグインで「現在のパーマリンクをクリップボードへコピーする(未生成なら生成)。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`copyPermalink` を実行します。クリップボードの中身も確認します。`copyPermalink` を実行しました。結果:\n\n```\nhttp://localhost:8090/qgis-map?x=139.676958&y=35.684937&scale=268.5&crs=EPSG:4326&rotation=0.00\n```\n\n- `{\"ok\": true, \"copied\": \"<上記URL>\"}` が返り、クリップボードの実際の中身も同じ文字列であることを `QClipboard` で確認済みです\n- 内容は内蔵HTTPサーバ(localhost:8090)の `/qgis-map` エンドポイントに、現在の地図ビュー(中心 x=139.676958, y=35.684937 / 縮尺 1:268.5 / CRS=EPSG:4326 / 回転 0°)をエンコードしたパーマリンクです\n\n縮尺 268.5 は先ほどの検索結果ズーム(3点にフィット)によるかなり大きな拡大率です。外部端末用には `localhost` を `100.64.1.82` に置き換えた URL になります(ただしファイアウォール未許可の状態です)。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_webview', 'args': [], 'method': 'copyPermalink'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': 'from qgis.PyQt.QtWidgets import QApplication\\nresult = QApplication.clipboard().text()'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_webview プラグインで「現在のパーマリンクをクリップボードへコピーする(未生成なら生成)。」を実行して結果を教えて\n[AI] \ncopyPermalink を実行します。クリップボードの中身も確認します。copyPermalink を実行しました。結果:\nhttp://localhost:8090/qgis-map?x=139.676958&y=35.684937&scale=268.5&crs=EPSG:4326&rotation=0.00\n{\"ok\": true, \"copied\": \"<上記URL>\"} が返り、クリップボードの実際の中身も同じ文字列であることを QClipboard で確認済みです\n内容は内蔵HTTPサーバ(localhost:8090)の /qgis-map エンドポイントに、現在の地図ビュー(中心 x=139.676958, y=35.684937 / 縮尺 1:268.5 / CRS=EPSG:4326 / 回転 0°)をエンコードしたパーマリンクです\n縮尺 268.5 は先ほどの検索結果ズーム(3点にフィット)によるかなり大きな拡大率です。外部端末用には localhost を 100.64.1.82 に置き換えた URL になります(ただしファイアウォール未許可の状態です)。"
+}

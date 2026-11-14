@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_flattenrelationships",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] リレーションをフラット化」(id: native:flattenrelationships) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] リレーションをフラット化」(id: native:flattenrelationships) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に registry を確認します。## 確認結果：存在します ✅\n\n`native:flattenrelationships`（表示名 **「リレーションをフラット化」**、グループ「ベクタ一般」）がこのQGISの processing registry に登録されています。これまでの Fix geometry 系ではなく、属性テーブル処理のアルゴリズムです。\n\n### 用途\n\nQGISプロジェクトに定義された**レイヤ間リレーション（1:N などの親子関係）を展開し、リレーション先（子）の属性をすべて含んだ「マスター地物」のテーブルを1つのベクタレイヤとして出力**します。つまり、複数テーブルに分散した情報を1枚のフラットなテーブルにまとめる処理で、タグが示す通り join / export 用途を想定したものです。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ（マスター側のベクタレイヤ） |\n| `OUTPUT` | フラット化出力 |\n\n### 補足\n\n- パラメータは `INPUT` / `OUTPUT` の2つだけと非常にシンプルです。リレーション定義そのものは**プロジェクトのリレーション設定**から読み取られるため、実行前に「プロジェクト → プロパティ → リレーション」で対象レイヤのリレーションが定義されている必要があります。\n- リレーションが定義されていないレイヤを入力した場合は、実質何も展開されない（元属性のみの出力）になります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:flattenrelationships')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related': [(a.id(), a.displayName(), a.group()) for a in QgsApplication.processingRegistry().algorithms() if 'relation' in a.id() or 'relation' in a.displayName().lower()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] リレーションをフラット化」(id: native:flattenrelationships) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に registry を確認します。## 確認結果：存在します ✅\nnative:flattenrelationships（表示名 「リレーションをフラット化」、グループ「ベクタ一般」）がこのQGISの processing registry に登録されています。これまでの Fix geometry 系ではなく、属性テーブル処理のアルゴリズムです。\n用途\nQGISプロジェクトに定義されたレイヤ間リレーション（1:N などの親子関係）を展開し、リレーション先（子）の属性をすべて含んだ「マスター地物」のテーブルを1つのベクタレイヤとして出力します。つまり、複数テーブルに分散した情報を1枚のフラットなテーブルにまとめる処理で、タグが示す通り join / export 用途を想定したものです。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ（マスター側のベクタレイヤ）\nOUTPUT\nフラット化出力\n\n補足\nパラメータは INPUT / OUTPUT の2つだけと非常にシンプルです。リレーション定義そのものはプロジェクトのリレーション設定から読み取られるため、実行前に「プロジェクト → プロパティ → リレーション」で対象レイヤのリレーションが定義されている必要があります。\nリレーションが定義されていないレイヤを入力した場合は、実質何も展開されない（元属性のみの出力）になります。"
+}

@@ -10,7 +10,7 @@
   },
   {
    "role": "assistant",
-   "content": "中断対象のタスクはありません。Devin / Copilot ともに実行中タスクが0件のため、`abort` を呼ぶ必要がありませんでした。"
+   "content": "中断対象のタスクはありません。Devin / Copilot ともに実行中・登録済みのタスクが0件のため、`qgis_devin_abort` / `qgis_copilot_abort` を呼ぶ必要はありませんでした。"
   }
  ],
  "tools": [
@@ -27,5 +27,5 @@
    "args": "{}"
   }
  ],
- "view_tail": "[あなた] 外部エージェントの実行中タスクを中断して\n[AI] \n中断対象のタスクはありません。Devin / Copilot ともに実行中タスクが0件のため、abort を呼ぶ必要がありませんでした。"
+ "view_tail": "[あなた] 外部エージェントの実行中タスクを中断して\n[AI] \n中断対象のタスクはありません。Devin / Copilot ともに実行中・登録済みのタスクが0件のため、qgis_devin_abort / qgis_copilot_abort を呼ぶ必要はありませんでした。"
 }

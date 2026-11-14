@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_import.ai.catalog",
+ "prompt": "geo_import プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_import プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "もう一度 `describe_plugins` を実行し、`geo_import` の自己記述を抽出します。`describe_plugins` で `geo_import` のカタログ情報・自己記述を再確認しました。\n\n## 基本情報\n\n- `id`: `geo_import`\n- `name`: `データカタログ取込 (geo_import)`\n- `bridge`: `true`\n- `ok`: `true`\n- 現在の状態: `dialog: false`\n\n## 概要\n\nデータカタログ（CKAN等）を検索し、データセット内のリソース（ファイル/サービスURL）を選択して QGIS へ読み込むプラグインです。検索は非同期実行のため、`search()` の後に `results()` で結果を取得します。\n\n## 用途\n\n- データカタログからデータセットを検索する\n- データセットのリソースを確認する\n- リソースを QGIS レイヤとして読み込む\n- CKAN URL・キャッシュなどの接続設定を確認する\n\n## 呼び出し形式\n\n```json\n{\n  \"type\": \"bridge_call\",\n  \"plugin_id\": \"geo_import\",\n  \"method\": \"<method>\",\n  \"args\": []\n}\n```\n\n## 公開メソッド\n\n31個の bridge メソッドが公開されています。\n\n```text\naddServer\ncheckGroups\ncheckResources\ncloseDialog\ndatasetDetails\nformatFilter\ngetSettings\ngotoPage\nlink\nlistGroups\nlistServers\nloadSelected\nlocalCache\nnextPage\nopenDialog\nopenDisclaimer\nopenProviders\nopenSettings\nprevPage\nrefreshCache\nreload\nremoveServer\nresources\nresults\nsearch\nselectResult\nselectResults\nselectServers\nsetSettings\nstatus\ntestServer\n```"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_import プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \nもう一度 describe_plugins を実行し、geo_import の自己記述を抽出します。describe_plugins で geo_import のカタログ情報・自己記述を再確認しました。\n基本情報\nid: geo_import\nname: データカタログ取込 (geo_import)\nbridge: true\nok: true\n現在の状態: dialog: false\n概要\nデータカタログ（CKAN等）を検索し、データセット内のリソース（ファイル/サービスURL）を選択して QGIS へ読み込むプラグインです。検索は非同期実行のため、search() の後に results() で結果を取得します。\n用途\nデータカタログからデータセットを検索する\nデータセットのリソースを確認する\nリソースを QGIS レイヤとして読み込む\nCKAN URL・キャッシュなどの接続設定を確認する\n呼び出し形式\n{\n  \"type\": \"bridge_call\",\n  \"plugin_id\": \"geo_import\",\n  \"method\": \"<method>\",\n  \"args\": []\n}\n公開メソッド\n31個の bridge メソッドが公開されています。\naddServer\ncheckGroups\ncheckResources\ncloseDialog\ndatasetDetails\nformatFilter\ngetSettings\ngotoPage\nlink\nlistGroups\nlistServers\nloadSelected\nlocalCache\nnextPage\nopenDialog\nopenDisclaimer\nopenProviders\nopenSettings\nprevPage\nrefreshCache\nreload\nremoveServer\nresources\nresults\nsearch\nselectResult\nselectResults\nselectServers\nsetSettings\nstatus\ntestServer"
+}

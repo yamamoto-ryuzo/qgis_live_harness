@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_lineintersections",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線の交差（intersect）」(id: native:lineintersections) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線の交差（intersect）」(id: native:lineintersections) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:lineintersections` は **processing registry に存在します**。\n\n- **表示名**: 線の交差（intersect）\n- **グループ**: ベクタオーバーレイ (`vectoroverlay`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n入力ラインレイヤと交差ラインレイヤの**線同士が交わる位置をポイント地物として抽出**するアルゴリズムです。交差点（道路網のノード）や河川と行政境界線の交点など、「線×線の交点」を点レイヤとして得るのに使います。同じレイヤ同士を指定すれば自己交差点も検出できます。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ラインレイヤ（必須） | — |\n| `INTERSECT` | 交差ラインレイヤ（必須） | — |\n| `INPUT_FIELDS` | 入力側からコピーする属性（空白＝全属性） | 空 |\n| `INTERSECT_FIELDS` | 交差側からコピーする属性（空白＝全属性） | 空 |\n| `INTERSECT_FIELDS_PREFIX` | 交差側フィールド名の接頭辞（同名フィールドの衝突回避） | 空 |\n| `OUTPUT` | 出力「交差部分」ポイントレイヤ（必須） | — |\n\n## 出力\n\n- `OUTPUT` — 交点のポイントレイヤ。交差した双方のライン地物の属性が結合される\n\n実行例: `processing.run(\"native:lineintersections\", {'INPUT': roads_a, 'INTERSECT': rivers, 'OUTPUT': 'TEMPORARY_OUTPUT'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:lineintersections')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        '"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線の交差（intersect）」(id: native:lineintersections) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:lineintersections は processing registry に存在します。\n表示名: 線の交差（intersect）\nグループ: ベクタオーバーレイ (vectoroverlay)\nプロバイダ: QGIS（ネイティブ C++）\n用途\n入力ラインレイヤと交差ラインレイヤの線同士が交わる位置をポイント地物として抽出するアルゴリズムです。交差点（道路網のノード）や河川と行政境界線の交点など、「線×線の交点」を点レイヤとして得るのに使います。同じレイヤ同士を指定すれば自己交差点も検出できます。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力ラインレイヤ（必須）\n—\nINTERSECT\n交差ラインレイヤ（必須）\n—\nINPUT_FIELDS\n入力側からコピーする属性（空白＝全属性）\n空\nINTERSECT_FIELDS\n交差側からコピーする属性（空白＝全属性）\n空\nINTERSECT_FIELDS_PREFIX\n交差側フィールド名の接頭辞（同名フィールドの衝突回避）\n空\nOUTPUT\n出力「交差部分」ポイントレイヤ（必須）\n—\n\n出力\nOUTPUT — 交点のポイントレイヤ。交差した双方のライン地物の属性が結合される\n実行例: processing.run(\"native:lineintersections\", {'INPUT': roads_a, 'INTERSECT': rivers, 'OUTPUT': 'TEMPORARY_OUTPUT'})"
+}

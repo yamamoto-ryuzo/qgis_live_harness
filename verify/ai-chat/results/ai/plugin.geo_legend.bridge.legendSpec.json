@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_legend.bridge.legendSpec",
+ "prompt": "geo_legend プラグインの「legendSpec」(レイヤの現在のレンダラ(凡例)定義を返す。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_legend プラグインの「legendSpec」(レイヤの現在のレンダラ(凡例)定義を返す。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`legendSpec` の結果です（引数省略 → アクティブレイヤ「テスト地目レイヤ」）。\n\n| 項目 | 値 |\n|---|---|\n| layer | テスト地目レイヤ |\n| renderer | `singleSymbol` |\n| items | `label: \"\"`, `color: \"#1f78b4\"` の1件 |\n| legend_items | `[\"\"]` |\n\n先ほど `applySingleSymbol` で単一シンボル（青）に戻した状態がそのまま返っています。\n\nこのメソッドは、分類後であれば `items` に各カテゴリの `value`/`filter`/`lower`-`upper`/`color` が列挙されるため、「今どんな凡例・色分け定義になっているか」を機械的に取得するのに使えます。`layer` 引数に layer_id やレイヤ名を渡せば、アクティブでないレイヤの定義も取得できます。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'method': 'legendSpec', 'plugin_id': 'geo_legend'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_legend プラグインの「legendSpec」(レイヤの現在のレンダラ(凡例)定義を返す。)を試して。必要な引数は適当な値でよい\n[AI] \nlegendSpec の結果です（引数省略 → アクティブレイヤ「テスト地目レイヤ」）。\n項目\n値\nlayer\nテスト地目レイヤ\nrenderer\nsingleSymbol\nitems\nlabel: \"\", color: \"#1f78b4\" の1件\nlegend_items\n[\"\"]\n\n先ほど applySingleSymbol で単一シンボル（青）に戻した状態がそのまま返っています。\nこのメソッドは、分類後であれば items に各カテゴリの value/filter/lower-upper/color が列挙されるため、「今どんな凡例・色分け定義になっているか」を機械的に取得するのに使えます。layer 引数に layer_id やレイヤ名を渡せば、アクティブでないレイヤの定義も取得できます。"
+}

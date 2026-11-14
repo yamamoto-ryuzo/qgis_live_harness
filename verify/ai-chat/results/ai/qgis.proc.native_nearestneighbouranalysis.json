@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_nearestneighbouranalysis",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最近傍解析」(id: native:nearestneighbouranalysis) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最近傍解析」(id: native:nearestneighbouranalysis) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:nearestneighbouranalysis` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:nearestneighbouranalysis`\n- **表示名**: 最近傍解析\n- **グループ**: ベクタ解析\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\n**点レイヤ**に対して最近傍解析を実行し、点の分布が**クラスター（集中）傾向か、ランダムか、規則的（均等）か**を統計的に評価します。最近傍インデックスやZスコアを算出し、結果を HTML レポートとして出力します（出力レイヤは作られず、統計値のみの解析アルゴリズムです）。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力レイヤ（点レイヤ） |\n| `OUTPUT_HTML_FILE` | fileDestination（オプション） | 結果レポートの HTML 出力先 |\n\n## 出力（戻り値）\n\n| 名前 | 説明 |\n|---|---|\n| `OBSERVED_MD` | 観測平均距離 |\n| `EXPECTED_MD` | 期待（推定）平均距離 |\n| `NN_INDEX` | 最近傍インデックス（1未満＝集中的、1＝ランダム、1超＝規則的） |\n| `POINT_COUNT` | 点の数 |\n| `Z_SCORE` | Z-スコア（統計的有意性） |\n\n実行例:\n\n```python\nres = processing.run(\"native:nearestneighbouranalysis\", {\n    'INPUT': point_layer,\n    'OUTPUT_HTML_FILE': 'TEMPORARY_OUTPUT'\n})\nprint(res['NN_INDEX'], res['Z_SCORE'])\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:nearestneighbouranalysis')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional)} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最近傍解析」(id: native:nearestneighbouranalysis) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:nearestneighbouranalysis は現在の QGIS の processing registry に登録されています。\nID: native:nearestneighbouranalysis\n表示名: 最近傍解析\nグループ: ベクタ解析\nプロバイダ: QGIS（ネイティブC++）\n用途\n点レイヤに対して最近傍解析を実行し、点の分布がクラスター（集中）傾向か、ランダムか、規則的（均等）かを統計的に評価します。最近傍インデックスやZスコアを算出し、結果を HTML レポートとして出力します（出力レイヤは作られず、統計値のみの解析アルゴリズムです）。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力レイヤ（点レイヤ）\nOUTPUT_HTML_FILE\nfileDestination（オプション）\n結果レポートの HTML 出力先\n\n出力（戻り値）\n名前\n説明\nOBSERVED_MD\n観測平均距離\nEXPECTED_MD\n期待（推定）平均距離\nNN_INDEX\n最近傍インデックス（1未満＝集中的、1＝ランダム、1超＝規則的）\nPOINT_COUNT\n点の数\nZ_SCORE\nZ-スコア（統計的有意性）\n\n実行例:\nres = processing.run(\"native:nearestneighbouranalysis\", {\n    'INPUT': point_layer,\n    'OUTPUT_HTML_FILE': 'TEMPORARY_OUTPUT'\n})\nprint(res['NN_INDEX'], res['Z_SCORE'])"
+}

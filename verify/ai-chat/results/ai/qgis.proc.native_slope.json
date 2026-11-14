@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_slope",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 傾斜（slope）」(id: native:slope) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 傾斜（slope）」(id: native:slope) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:slope`「**傾斜（slope）**」は登録されています（グループ: ラスタ地形解析）。\n\n## 用途\n\n- DTM（数値標高モデル）ラスタから**各地点の傾斜角を計算**し、傾斜ラスタを出力します\n- 出力単位は**度（degree）**で、0°=平坦、90°=垂直壁に近づきます\n- 斜面災害リスク評価、農地適性判定、土地利用分類、陰影図と組み合わせた地形可視化などに使います\n- 兄弟アルゴリズム: `native:aspect`（傾斜方位）、`native:hillshade`（陰影図）、`native:ruggednessindex`（起伏量）など\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | raster | DTMレイヤ（入力標高ラスタ） |\n| `Z_FACTOR` | number | Z係数（XY単位とZ単位が異なる場合の垂直方向の倍率。デフォルト1。例: XYが度でZがmなら約111320など） |\n| `NODATA` | number | 出力のNoData値（未指定なら入力にならう） |\n| `CREATION_OPTIONS` | string | GDAL出力作成オプション（`COMPRESS=DEFLATE` など、パイプ区切り） |\n| `OUTPUT` | rasterDestination | 傾斜ラスタの出力先 |\n\n注意点：\n\n- **XYとZの単位を揃える**のが重要です。EPSG:4326（緯度経度）のDEMにそのまま適用するとXY単位が「度」のまま計算され傾斜が正しく出ません。先に `gdal:warpreproject` 等でメートル系（例: 平面直角座標系）へ投影変換するか、`Z_FACTOR` で補正してください\n- 傾斜率（%）が欲しい場合は出力を `gdal:gdalcalcvirtualraster` やラスタ計算機で `tan(rad)` 変換するか、`gdal:slope` の `-p`（percent）オプション版を使います"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:slope')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 傾斜（slope）」(id: native:slope) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:slope「傾斜（slope）」は登録されています（グループ: ラスタ地形解析）。\n用途\nDTM（数値標高モデル）ラスタから各地点の傾斜角を計算し、傾斜ラスタを出力します\n出力単位は**度（degree）**で、0°=平坦、90°=垂直壁に近づきます\n斜面災害リスク評価、農地適性判定、土地利用分類、陰影図と組み合わせた地形可視化などに使います\n兄弟アルゴリズム: native:aspect（傾斜方位）、native:hillshade（陰影図）、native:ruggednessindex（起伏量）など\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nraster\nDTMレイヤ（入力標高ラスタ）\nZ_FACTOR\nnumber\nZ係数（XY単位とZ単位が異なる場合の垂直方向の倍率。デフォルト1。例: XYが度でZがmなら約111320など）\nNODATA\nnumber\n出力のNoData値（未指定なら入力にならう）\nCREATION_OPTIONS\nstring\nGDAL出力作成オプション（COMPRESS=DEFLATE など、パイプ区切り）\nOUTPUT\nrasterDestination\n傾斜ラスタの出力先\n\n注意点：\nXYとZの単位を揃えるのが重要です。EPSG:4326（緯度経度）のDEMにそのまま適用するとXY単位が「度」のまま計算され傾斜が正しく出ません。先に gdal:warpreproject 等でメートル系（例: 平面直角座標系）へ投影変換するか、Z_FACTOR で補正してください\n傾斜率（%）が欲しい場合は出力を gdal:gdalcalcvirtualraster やラスタ計算機で tan(rad) 変換するか、gdal:slope の -p（percent）オプション版を使います"
+}

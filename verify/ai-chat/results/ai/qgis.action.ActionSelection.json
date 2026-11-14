@@ -1,0 +1,34 @@
+{
+ "id": "qgis.action.ActionSelection",
+ "prompt": "QGISの「ActionSelection」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ActionSelection」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "`ActionSelection` は **有効(enabled)です**。\n\n調査結果:\n\n- objectName `ActionSelection` の `QWidgetAction` が1つあり、`isEnabled() = True`、`isVisible() = True`\n- 選択ツールバー(`mSelectionToolBar`)に配置された QToolButton で、ボタン自体も `isEnabled() = True`\n- MenuButtonPopup 型の分割ボタンで、以下のアクションを束ねています(すべて有効):\n\n| アクション | テキスト | enabled |\n|---|---|---|\n| `mActionSelectByForm` | 値による地物選択... | True |\n| `mActionSelectByExpression` | 式による地物選択... | True |\n| `mActionSelectAll` | すべての地物を選択 | True |\n| `mActionInvertSelection` | 地物選択を反転 | True |\n\n現在ボタンのデフォルトアクション(クリックで実行されるもの)は「地物選択を反転」になっています。隣の `ActionDeselection`(選択解除系ボタン)も有効でした。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nacts = [a for a in iface.mainWindow().findChildren(QAction) if 'selection' in a.objectName().lower()]\\nresult = [(a.objectName(), a.text(), a.__class__.__name__, a.isEnabled(), a.isCheckable(), a.isChecked(), a.isVisible()) for a in acts]\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': 'from qgis.PyQt.QtWidgets import QAction, QToolButton, QWidget\\nacts = [a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == \\'ActionSelection\\']\\ninfo = []\\nfor a in acts:\\n    p = a.parent()\\n    chain = []\\n    while p is not None:\\n        chain.append(f\"{p.__class__.__name__}:{p.objectName()}\")\\n        p = p.parent()\\n    dw = a.defaultWidget() if hasattr(a, \\'defaultWidget\\') else None\\n    da = dw.defaultAction() if isinstance(dw, QToolButton) else None\\n    menu_acts = [m.text() for m in dw.menu().actions()] if (isinstance(dw, QToolButton) and dw.menu()) else []\\n    info.append({\\'enabled\\': a.isEnabled(), \\'visible\\': a.isVisible(), \\'dw\\': f\"{dw.__class__.__name__}:{dw.objectName()}\" if dw else None, \\'dw_enabled\\': dw.isEnabled() if dw else None, \\'default_action\\': da.text() if da else None, \\'menu\\': menu_acts, \\'parent_chain\\': \\' <- \\'.join(chain)})\\nresult = info'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolButton\\na = [x for x in iface.mainWindow().findChildren(QAction) if x.objectName() == 'ActionSelection'][0]\\ndw = a.defaultWidget()\\nacts = dw.actions() if dw else []\\nresult = {'button_actions': [(x.objectName(), x.text(), x.isEnabled(), x.isChecked()) for x in acts], 'popup_mode': str(dw.popupMode()) if hasattr(dw,'popupMode') else None, 'tool_tip': dw.toolTip()}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ActionSelection」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nActionSelection は 有効(enabled)です。\n調査結果:\nobjectName ActionSelection の QWidgetAction が1つあり、isEnabled() = True、isVisible() = True\n選択ツールバー(mSelectionToolBar)に配置された QToolButton で、ボタン自体も isEnabled() = True\nMenuButtonPopup 型の分割ボタンで、以下のアクションを束ねています(すべて有効):\nアクション\nテキスト\nenabled\nmActionSelectByForm\n値による地物選択...\nTrue\nmActionSelectByExpression\n式による地物選択...\nTrue\nmActionSelectAll\nすべての地物を選択\nTrue\nmActionInvertSelection\n地物選択を反転\nTrue\n\n現在ボタンのデフォルトアクション(クリックで実行されるもの)は「地物選択を反転」になっています。隣の ActionDeselection(選択解除系ボタン)も有効でした。"
+}

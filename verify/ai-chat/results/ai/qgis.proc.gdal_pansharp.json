@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.gdal_pansharp",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 高解像度化（pansharpening）」(id: gdal:pansharp) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 高解像度化（pansharpening）」(id: gdal:pansharp) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:pansharp` を Processing Registry で確認します。`RESAMPLING` の選択肢も確認します。確認しました。Processing Registry に **`[GDAL] 高解像度化（pansharpening）`** は存在します。\n\n- **ID:** `gdal:pansharp`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタその他`\n\n### 用途\n低解像度のマルチスペクトル画像と、高解像度のパンクロマティック画像を合成し、**色情報を保った高解像度マルチバンドラスタ**を作成します。\n\n### 主なパラメータ\n- `SPECTRAL`：低解像度のマルチバンドラスタ\n- `PANCHROMATIC`：高解像度のパンクロマティックラスタ\n- `RESAMPLING`：リサンプリング方法\n  - 最近傍法、Bilinear、Cubic、Cubic B-Spline、Lanczos、Average\n  - 既定値は `Cubic`\n- `OUTPUT`：出力ラスタ\n- `OPTIONS` / `CREATION_OPTIONS` / `EXTRA`：GDAL向け追加オプション"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:pansharp'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'pansharp' in a.id().lower() or '高解像度化' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'pansharp' in a.id().lower() or "
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nimport json\\nalg = QgsApplication.processingRegistry().algorithmById('gdal:pansharp')\\nresult = None\\nif alg:\\n    p = next((x for x in alg.parameterDefinitions() if x.name() == 'RESAMPLING'), None)\\n    result = json.dumps({'resampling_options': list(p.options()) if p else None, 'default': p.defaultValue() if p else None}, ensure_ascii=False)\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 高解像度化（pansharpening）」(id: gdal:pansharp) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:pansharp を Processing Registry で確認します。RESAMPLING の選択肢も確認します。確認しました。Processing Registry に [GDAL] 高解像度化（pansharpening） は存在します。\nID: gdal:pansharp\nプロバイダ: GDAL\nグループ: ラスタその他\n用途\n低解像度のマルチスペクトル画像と、高解像度のパンクロマティック画像を合成し、色情報を保った高解像度マルチバンドラスタを作成します。\n主なパラメータ\nSPECTRAL：低解像度のマルチバンドラスタ\nPANCHROMATIC：高解像度のパンクロマティックラスタ\nRESAMPLING：リサンプリング方法 \n最近傍法、Bilinear、Cubic、Cubic B-Spline、Lanczos、Average\n既定値は Cubic\nOUTPUT：出力ラスタ\nOPTIONS / CREATION_OPTIONS / EXTRA：GDAL向け追加オプション"
+}

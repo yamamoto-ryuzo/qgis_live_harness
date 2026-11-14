@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionModifyAnnotation",
+ "prompt": "QGISの「注記を修正」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「注記を修正」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "実行しました。\n\n## 「注記を修正」の実行結果\n\n| 項目 | 状態 |\n|---|---|\n| アクション | `mActionModifyAnnotation`（注記を修正） |\n| checked | **true** |\n| アクティブマップツール | `QgsMapToolAdvancedDigitizing` 系（`QgsMapToolModifyAnnotation` の基底クラス名が表示されます） |\n\n注記修正ツールがアクティブになりました。キャンバス上の注記アイテムをクリックすると、その注記の編集（移動・ハンドル操作・プロパティ変更）が行えます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfrom qgis.utils import iface\\na = iface.mainWindow().findChild(QAction, 'mActionModifyAnnotation')\\nenabled = a.isEnabled()\\nif enabled:\\n    a.trigger()\\ntool = iface.mapCanvas().mapTool()\\nresult = {\\n  'text': a.text(),\\n  'enabledBefore': enabled,\\n  'checkedAfter': a.isChecked(),\\n  'activeMapTool': tool.__class__.__name__ if tool else None,\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「注記を修正」機能(アクション)を実行して\n[AI] \n実行しました。\n「注記を修正」の実行結果\n項目\n状態\nアクション\nmActionModifyAnnotation（注記を修正）\nchecked\ntrue\nアクティブマップツール\nQgsMapToolAdvancedDigitizing 系（QgsMapToolModifyAnnotation の基底クラス名が表示されます）\n\n注記修正ツールがアクティブになりました。キャンバス上の注記アイテムをクリックすると、その注記の編集（移動・ハンドル操作・プロパティ変更）が行えます。"
+}

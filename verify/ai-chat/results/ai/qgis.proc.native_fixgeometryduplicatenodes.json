@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_fixgeometryduplicatenodes",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Delete duplicated vertices」(id: native:fixgeometryduplicatenodes) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Delete duplicated vertices」(id: native:fixgeometryduplicatenodes) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に registry を確認します。## 確認結果：存在します ✅\n\n`native:fixgeometryduplicatenodes`（表示名 **「Delete duplicated vertices」**、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n「Check geometry」系の **`native:checkgeometryduplicatenodes`（Duplicated vertices）** が出力したエラーレイヤを元に、**ジオメトリ内の重複頂点を削除**する修正アルゴリズムです。同一座標に連続して置かれた余分な頂点を取り除き、ジオメトリをクリーンにします。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ（修正対象のベクタ） |\n| `ERRORS` | エラーレイヤ（`checkgeometryduplicatenodes` の出力） |\n| `UNIQUE_ID` | 元地物を一意に識別するフィールド |\n| `PART_IDX` / `RING_IDX` / `VERTEX_IDX` | エラーレイヤ中のパート・リング・頂点番号フィールド |\n| `TOLERANCE` | 許容範囲（数値。頂点を重複とみなす距離の許容誤差） |\n\n### 出力\n\n- `OUTPUT` — 重複頂点を削除したレイヤ\n- `REPORT` — 修正内容のレポートレイヤ\n\n### 補足\n\n`fixgeometryangle` / `fixgeometryarea` と同じ「検出 → 修正」の2段ワークフローですが、重複頂点の削除だけならエラーレイヤ不要で直接実行できる **`native:removeduplicatevertices`（重複する頂点を削除）** も別途存在します。チェックの記録（REPORT）が欲しい場合は本アルゴリズム、手軽に一括除去したいだけなら `removeduplicatevertices` の方が簡単です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:fixgeometryduplicatenodes')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': [(p.name(), p.description(), p.type()) for p in alg.parameterDefinitions()],\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related_check': [(a.id(), a.displayName()) for a in QgsApplication.processingRegistry().algorithms() if 'duplicate' in a.id() or 'duplicat' in a.displayName().lower()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Delete duplicated vertices」(id: native:fixgeometryduplicatenodes) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に registry を確認します。## 確認結果：存在します ✅\nnative:fixgeometryduplicatenodes（表示名 「Delete duplicated vertices」、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n用途\n「Check geometry」系の native:checkgeometryduplicatenodes（Duplicated vertices） が出力したエラーレイヤを元に、ジオメトリ内の重複頂点を削除する修正アルゴリズムです。同一座標に連続して置かれた余分な頂点を取り除き、ジオメトリをクリーンにします。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ（修正対象のベクタ）\nERRORS\nエラーレイヤ（checkgeometryduplicatenodes の出力）\nUNIQUE_ID\n元地物を一意に識別するフィールド\nPART_IDX / RING_IDX / VERTEX_IDX\nエラーレイヤ中のパート・リング・頂点番号フィールド\nTOLERANCE\n許容範囲（数値。頂点を重複とみなす距離の許容誤差）\n\n出力\nOUTPUT — 重複頂点を削除したレイヤ\nREPORT — 修正内容のレポートレイヤ\n補足\nfixgeometryangle / fixgeometryarea と同じ「検出 → 修正」の2段ワークフローですが、重複頂点の削除だけならエラーレイヤ不要で直接実行できる native:removeduplicatevertices（重複する頂点を削除） も別途存在します。チェックの記録（REPORT）が欲しい場合は本アルゴリズム、手軽に一括除去したいだけなら removeduplicatevertices の方が簡単です。"
+}

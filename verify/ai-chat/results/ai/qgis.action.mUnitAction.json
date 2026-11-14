@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mUnitAction",
+ "prompt": "QGISの「mUnitAction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「mUnitAction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "`mUnitAction` を objectName 完全一致で調べ、実体・実ウィジェット・所属ツールバーの状態を確認します。`mUnitAction` を実際に調べた結果、**現在有効で、画面上にも表示されています**。\n\n確認値:\n\n- `objectName`: `mUnitAction`\n- 実体クラス: `QWidgetAction`\n- `isEnabled()`: `True`\n- `isVisible()`: `True`\n- 所属ツールバー: `mSnappingToolBar`\n- ツールバー `isEnabled()`: `True`\n- ツールバー `isVisible()`: `True`\n\n実ウィジェット:\n\n- クラス: `QComboBox`\n- `objectName`: `SnappingUnitComboBox`\n- `isEnabled()`: `True`\n- `isVisible()`: `True`\n- `isHidden()`: `False`\n- 画面上の描画領域あり: `True`\n- 現在値: `px`\n- 選択肢: `px`, `degrees`\n\nしたがって、**mUnitAction は現在有効で、スナップツールバー上の単位コンボボックスとして操作可能な状態です**。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtCore import QObject\\nfrom qgis.PyQt.QtWidgets import QWidget, QAction, QToolBar\\nwin = iface.mainWindow()\\nobjs = [o for o in win.findChildren(QObject) if o.objectName() == 'mUnitAction']\\n\\ndef action_info(x):\\n    return {\\n        'qtClass': x.metaObject().className(),\\n        'objectName': x.objectName(),\\n        'text': x.text(),\\n        'enabled': x.isEnabled(),\\n        'visible': x.isVisible(),\\n        'checkable': x.isCheckable(),\\n        'checked': x.isChecked(),\\n        'shortcut': x.shortcut().toString(),\\n    } if x else None\\n\\nitems = []\\nfor obj in objs:\\n    action = obj if isinstance(obj, QAction) else None\\n    parent = obj.parent()\\n    tb = parent if isinstance(parent, QToolBar) else None\\n    if tb is None and action is not None:\\n        for candidate in win.findChildren(QToolBar):\\n            if action in candidate.actions():\\n                tb = candidate\\n                break\\n    widget = tb.widgetForAction(action) if tb is"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「mUnitAction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nmUnitAction を objectName 完全一致で調べ、実体・実ウィジェット・所属ツールバーの状態を確認します。mUnitAction を実際に調べた結果、現在有効で、画面上にも表示されています。\n確認値:\nobjectName: mUnitAction\n実体クラス: QWidgetAction\nisEnabled(): True\nisVisible(): True\n所属ツールバー: mSnappingToolBar\nツールバー isEnabled(): True\nツールバー isVisible(): True\n実ウィジェット:\nクラス: QComboBox\nobjectName: SnappingUnitComboBox\nisEnabled(): True\nisVisible(): True\nisHidden(): False\n画面上の描画領域あり: True\n現在値: px\n選択肢: px, degrees\nしたがって、mUnitAction は現在有効で、スナップツールバー上の単位コンボボックスとして操作可能な状態です。"
+}

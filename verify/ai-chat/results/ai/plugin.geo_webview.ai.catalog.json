@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_webview.ai.catalog",
+ "prompt": "geo_webview プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_webview プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "改めて `describe_plugins` を実行し、geo_webview のエントリを確認します。geo_webview のカタログ情報（`describe_plugins` 取得結果、前回から変化なし）:\n\n**識別情報**\n- `id`: `geo_webview` / `name`: geo_webview (QMap Permalink) / `bridge`: true（専用ブリッジ搭載・36メソッド公開）\n- `summary`: QGISプロジェクトを `.kasc+DATA/` パッケージに出力して KASUGAI Canvas（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）で再生するサーバレスWeb配信プラグイン。地図表示状態（中心/縮尺/回転/テーマ）をパーマリンクURLとして生成・復元。内蔵HTTPサーバは `/kasugai` 起動・`/export-data/` 配信・`/present` 画面共有・パーマリンク受領を担う。\n\n**when_to_use**\n- KASUGAI Canvas 用の出力・登録・起動\n- パーマリンクURLの発行 / URLからの地図移動\n- 座標・縮尺・回転・テーマ指定での地図操作\n- HTTPサーバの起動・停止・ポート変更・状態確認、外部アクセス診断\n- マップテーマ/ブックマークの一覧・適用\n- `/present`・`/screenshot` での画面共有\n- `.kasc+DATA/` の QGIS への取り込み\n\n**呼び出し形式**: `bridge_call` → `plugin_id: \"geo_webview\"`, `method`, `args`\n\n**メソッド一覧（36個、分類）**\n\n| カテゴリ | メソッド |\n|---|---|\n| HTTPサーバ | `startServer` `stopServer` `serverStatus` `setPort` `endpoints` `addFirewallRule` `checkAccess` `externalControl` `macAuth` |\n| パーマリンク/ナビ | `generatePermalink` `copyPermalink` `navigate` `navigateTo` `receivedHistory` |\n| KASUGAI連携 | `kasugaiExport` `kascImport` `kascInspect` `openExportFolder` `openExternal` |\n| ライブ同期 | `liveSyncStart` `liveSyncStop` `liveSyncStatus` `liveSyncFlush` `liveAddFeatures` `liveWriteback` |\n| テーマ/ブックマーク | `listThemes` `applyTheme` `saveTheme` `deleteTheme` `listBookmarks` |\n| パネル/共有 | `openPanel` `closePanel` `openPresent` |\n| 設定/状態 | `getSettings` `setSettings` `status` |\n\n**実行時スナップショット（`state`）**\n```json\n{ \"panel\": true, \"panelVisible\": true, \"serverRunning\": false, \"serverPort\": null }\n```\n\nサーバは停止したまま（`serverRunning: false`）、パネルは表示中です。"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_webview プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \n改めて describe_plugins を実行し、geo_webview のエントリを確認します。geo_webview のカタログ情報（describe_plugins 取得結果、前回から変化なし）:\n識別情報\nid: geo_webview / name: geo_webview (QMap Permalink) / bridge: true（専用ブリッジ搭載・36メソッド公開）\nsummary: QGISプロジェクトを .kasc+DATA/ パッケージに出力して KASUGAI Canvas（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）で再生するサーバレスWeb配信プラグイン。地図表示状態（中心/縮尺/回転/テーマ）をパーマリンクURLとして生成・復元。内蔵HTTPサーバは /kasugai 起動・/export-data/ 配信・/present 画面共有・パーマリンク受領を担う。\nwhen_to_use\nKASUGAI Canvas 用の出力・登録・起動\nパーマリンクURLの発行 / URLからの地図移動\n座標・縮尺・回転・テーマ指定での地図操作\nHTTPサーバの起動・停止・ポート変更・状態確認、外部アクセス診断\nマップテーマ/ブックマークの一覧・適用\n/present・/screenshot での画面共有\n.kasc+DATA/ の QGIS への取り込み\n呼び出し形式: bridge_call → plugin_id: \"geo_webview\", method, args\nメソッド一覧（36個、分類）\nカテゴリ\nメソッド\nHTTPサーバ\nstartServer stopServer serverStatus setPort endpoints addFirewallRule checkAccess externalControl macAuth\nパーマリンク/ナビ\ngeneratePermalink copyPermalink navigate navigateTo receivedHistory\nKASUGAI連携\nkasugaiExport kascImport kascInspect openExportFolder openExternal\nライブ同期\nliveSyncStart liveSyncStop liveSyncStatus liveSyncFlush liveAddFeatures liveWriteback\nテーマ/ブックマーク\nlistThemes applyTheme saveTheme deleteTheme listBookmarks\nパネル/共有\nopenPanel closePanel openPresent\n設定/状態\ngetSettings setSettings status\n\n実行時スナップショット（state）\n{ \"panel\": true, \"panelVisible\": true, \"serverRunning\": false, \"serverPort\": null }\nサーバは停止したまま（serverRunning: false）、パネルは表示中です。"
+}

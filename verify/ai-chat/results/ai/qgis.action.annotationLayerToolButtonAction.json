@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.annotationLayerToolButtonAction",
+ "prompt": "QGISの「annotationLayerToolButtonAction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「annotationLayerToolButtonAction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "`annotationLayerToolButtonAction` は **有効(enabled)です**。\n\n調査結果:\n\n- objectName `annotationLayerToolButtonAction` の `QWidgetAction` が1つあり、`isEnabled() = True`、`isVisible() = True`\n- 注記ツールバー(`mAnnotationsToolBar`)の QToolButton で、ボタン自体も **isEnabled() = True**(メッシュ系と違い実ボタンも有効)\n- 内包するアクション:\n\n| アクション | テキスト | enabled |\n|---|---|---|\n| (空の先頭アクション) | — | True |\n| `mActionCreateAnnotationLayer` | 新規注記レイヤ | True |\n\nデフォルトアクションは「新規注記レイヤ」(クリックで新規注記レイヤ作成ダイアログが開きます)。関連する `mMainAnnotationLayerProperties`(メイン注記レイヤプロパティ)も有効でした。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': 'from qgis.PyQt.QtWidgets import QAction, QToolButton\\nacts = [a for a in iface.mainWindow().findChildren(QAction) if \\'annotationlayer\\' in a.objectName().lower() or a.objectName() == \\'annotationLayerToolButtonAction\\']\\ninfo = []\\nfor a in acts:\\n    p = a.parent()\\n    chain = []\\n    while p is not None:\\n        chain.append(f\"{p.__class__.__name__}:{p.objectName()}\")\\n        p = p.parent()\\n    dw = a.defaultWidget() if hasattr(a, \\'defaultWidget\\') else None\\n    bacts = dw.actions() if dw else []\\n    da = dw.defaultAction() if isinstance(dw, QToolButton) else None\\n    info.append({\\'objectName\\': a.objectName(), \\'class\\': a.__class__.__name__, \\'action_enabled\\': a.isEnabled(), \\'visible\\': a.isVisible(), \\'dw\\': dw.__class__.__name__ if dw else None, \\'dw_enabled\\': dw.isEnabled() if dw else None, \\'default_action\\': da.text() if da else None, \\'tool_tip\\': dw.toolTip() if dw else None, \\'button_actions\\': [(x.objectName(), x.text(), x.isEnabled(), x.isChecked())"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「annotationLayerToolButtonAction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nannotationLayerToolButtonAction は 有効(enabled)です。\n調査結果:\nobjectName annotationLayerToolButtonAction の QWidgetAction が1つあり、isEnabled() = True、isVisible() = True\n注記ツールバー(mAnnotationsToolBar)の QToolButton で、ボタン自体も isEnabled() = True(メッシュ系と違い実ボタンも有効)\n内包するアクション:\nアクション\nテキスト\nenabled\n(空の先頭アクション)\n—\nTrue\nmActionCreateAnnotationLayer\n新規注記レイヤ\nTrue\n\nデフォルトアクションは「新規注記レイヤ」(クリックで新規注記レイヤ作成ダイアログが開きます)。関連する mMainAnnotationLayerProperties(メイン注記レイヤプロパティ)も有効でした。"
+}

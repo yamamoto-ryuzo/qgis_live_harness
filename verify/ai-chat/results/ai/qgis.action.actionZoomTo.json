@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.actionZoomTo",
+ "prompt": "QGISの「ズーム」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ズーム」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ズーム」というテキストのアクションを検索します。まず完全一致、見つからなければ関連アクションを洗い出します。調査結果です。テキストが**ちょうど「ズーム」**のアクションは1件で、現在 **有効(isEnabled = True)** です。\n\n## 完全一致「ズーム」\n\n| 項目 | 値 |\n|---|---|\n| オブジェクト名 | `actionZoomTo` |\n| 表示テキスト | ズーム |\n| toolTip | ブックマークにズーム |\n| isEnabled | **True** |\n| isVisible | True |\n| 親オブジェクト | `BookmarksDockWidget`(空間ブックマーク ドック) |\n\n## 参考:ズーム系アクション全体の有効状態\n\n「ズーム」を含むもの + 主要な地図ナビゲーション系を調べました。**ほぼ有効ですが、2件だけ無効**になっています。\n\n| objectName | テキスト | isEnabled |\n|---|---|---|\n| `mActionZoomIn` | 拡大 | True |\n| `mActionZoomOut` | 縮小 | True |\n| `mActionZoomFullExtent` | 全域表示(F) | True |\n| `mActionZoomToLayer` / `mActionZoomToLayers` | レイヤの領域にズーム | True |\n| `mActionZoomToSelected` | 選択部分にズーム | True |\n| `mActionZoomLast` | 前の領域へズーム | True |\n| `mActionZoomNext` | 次の表示領域にズーム | **False** |\n| `mActionZoomActualSize` | ネイティブ解像度にズーム(100%) | **False** |\n| `mActionPan` / `mActionPanToSelected` | 地図を移動 / 選択部分にパン | True |\n\n- `mActionZoomNext` が無効なのは、地図表示の履歴に「次の領域」が存在しないためと考えられます。\n- `mActionZoomActualSize` が無効なのは、100% 解像度ズームの対象となるラスタ/WM Sレイヤが選択されていないためと思われます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nexact = []\\ncontains = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').replace('&', '')\\n    tt = (a.toolTip() or '').replace('&', '')\\n    p = a.parent()\\n    rec = {\\n        'objectName': a.objectName(),\\n        'text': t,\\n        'tooltip': tt,\\n        'isEnabled': a.isEnabled(),\\n        'isVisible': a.isVisible(),\\n        'isCheckable': a.isCheckable(),\\n        'isChecked': a.isChecked(),\\n        'parent': (p.objectName(), p.__class__.__name__) if p else None,\\n    }\\n    if t.strip() == 'ズーム' or tt.strip() == 'ズーム':\\n        exact.append(rec)\\n    elif 'ズーム' in t or 'ズーム' in tt:\\n        contains.append(rec)\\nresult = {'exact_count': len(exact), 'exact': exact, 'contains_count': len(contains), 'contains': contains}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nnames = ['mActionZoomIn','mActionZoomOut','mActionZoomFullExtent','mActionZoomToLayer','mActionZoomToLayers','mActionZoomToSelected','mActionZoomLast','mActionZoomNext','mActionZoomActualSize','mActionPan','mActionPanToSelected']\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    if a.objectName() in names:\\n        found.append({\\n            'objectName': a.objectName(),\\n            'text': (a.text() or '').replace('&',''),\\n            'isEnabled': a.isEnabled(),\\n        })\\nfound.sort(key=lambda r: names.index(r['objectName']) if r['objectName'] in names else 99)\\nresult = found\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ズーム」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「ズーム」というテキストのアクションを検索します。まず完全一致、見つからなければ関連アクションを洗い出します。調査結果です。テキストが**ちょうど「ズーム」**のアクションは1件で、現在 有効(isEnabled = True) です。\n完全一致「ズーム」\n項目\n値\nオブジェクト名\nactionZoomTo\n表示テキスト\nズーム\ntoolTip\nブックマークにズーム\nisEnabled\nTrue\nisVisible\nTrue\n親オブジェクト\nBookmarksDockWidget(空間ブックマーク ドック)\n\n参考:ズーム系アクション全体の有効状態\n「ズーム」を含むもの + 主要な地図ナビゲーション系を調べました。ほぼ有効ですが、2件だけ無効になっています。\nobjectName\nテキスト\nisEnabled\nmActionZoomIn\n拡大\nTrue\nmActionZoomOut\n縮小\nTrue\nmActionZoomFullExtent\n全域表示(F)\nTrue\nmActionZoomToLayer / mActionZoomToLayers\nレイヤの領域にズーム\nTrue\nmActionZoomToSelected\n選択部分にズーム\nTrue\nmActionZoomLast\n前の領域へズーム\nTrue\nmActionZoomNext\n次の表示領域にズーム\nFalse\nmActionZoomActualSize\nネイティブ解像度にズーム(100%)\nFalse\nmActionPan / mActionPanToSelected\n地図を移動 / 選択部分にパン\nTrue\n\nmActionZoomNext が無効なのは、地図表示の履歴に「次の領域」が存在しないためと考えられます。\nmActionZoomActualSize が無効なのは、100% 解像度ズームの対象となるラスタ/WM Sレイヤが選択されていないためと思われます。"
+}

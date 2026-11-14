@@ -2,6 +2,7 @@
  "id": "panel.tool.qgis_describe_plugins",
  "prompt": "describe_plugins でプラグイン一覧を取得して",
  "provider": "devin_acp",
+ "model": "swe-2-high",
  "history": [
   {
    "role": "user",
@@ -9,7 +10,7 @@
   },
   {
    "role": "assistant",
-   "content": "プラグイン一覧を取得します。一覧を簡潔に整理します。`describe_plugins` で取得したプラグイン一覧：\n\n**bridgeあり**\n- `geo_driver` — QGIS Live Driver\n- `geo_excel` — Excel帳票出力\n- `geo_import` — データカタログ取込\n- `geo_launcher` — kasugai_qgis ランチャー連携\n- `geo_legend` — 凡例ビュー\n- `geo_report` — 帳票レイアウト管理\n- `geo_search` — 地図検索\n- `geo_userfunc` — ユーザー関数ライブラリ\n- `geo_webview` — QMap Permalink\n\n**bridgeなし（generic）**\n- `ImportPhotos`\n- `MetaSearch`\n- `QuickDEM4JP`\n- `StreetView`\n- `db_manager`\n- `menu_from_project`\n- `mmqgis`\n- `mojxml_plugin`\n- `plateau_plugin`\n- `processing`\n- `qfieldsync`\n- `searchlayers`"
+   "content": "プラグイン一覧を取得しました(全21件)。\n\n**専用 bridge 搭載(9件)** — 豊富なメソッドを持つ:\n\n| プラグイン | 概要 | メソッド数 |\n|---|---|---|\n| geo_driver | 遠隔制御ハブ(pyeval/status/bridge_call等) | 19 |\n| geo_excel | 属性情報をExcel帳票出力 | 11 |\n| geo_import | データカタログ検索→QGIS取り込み | 31 |\n| geo_launcher | kasugai_qgis ランチャー連携 | 11 |\n| geo_legend | 凡例の表示・作成 | 23 |\n| geo_report | 印刷レイアウト管理ドック | 23 |\n| geo_search | 地物を属性検索・ズーム・選択 | 28 |\n| geo_userfunc | ユーザー定義Pythonライブラリ管理 | 17 |\n| geo_webview | .kasc出力(KASUGAI Canvas連携) | 36 |\n\n**汎用 bridge(12件)** — `pluginInfo`/`status`/`actions`/`trigger`/`run`/`openDialog`/`closeDialog` の共通7メソッドのみ:\n\nImportPhotos, MetaSearch, Qgis2threejs, QuickDEM4JP, StreetView, db_manager, menu_from_project, mmqgis, mojxml_plugin, plateau_plugin, processing, qfieldsync, searchlayers\n\n各 bridge メソッドは `qgis_bridge_call` で `{\"plugin_id\": ..., \"method\": ..., \"args\": [...]}` の形式で呼び出せます。特定プラグインのメソッド詳細が必要なら教えてください。"
   }
  ],
  "tools": [
@@ -21,5 +22,5 @@
    "args": "{}"
   }
  ],
- "view_tail": "[あなた] describe_plugins でプラグイン一覧を取得して\n[AI] \nプラグイン一覧を取得します。一覧を簡潔に整理します。describe_plugins で取得したプラグイン一覧：\nbridgeあり\ngeo_driver — QGIS Live Driver\ngeo_excel — Excel帳票出力\ngeo_import — データカタログ取込\ngeo_launcher — kasugai_qgis ランチャー連携\ngeo_legend — 凡例ビュー\ngeo_report — 帳票レイアウト管理\ngeo_search — 地図検索\ngeo_userfunc — ユーザー関数ライブラリ\ngeo_webview — QMap Permalink\nbridgeなし（generic）\nImportPhotos\nMetaSearch\nQuickDEM4JP\nStreetView\ndb_manager\nmenu_from_project\nmmqgis\nmojxml_plugin\nplateau_plugin\nprocessing\nqfieldsync\nsearchlayers"
+ "view_tail": "[あなた] describe_plugins でプラグイン一覧を取得して\n[AI] \nプラグイン一覧を取得しました(全21件)。\n専用 bridge 搭載(9件) — 豊富なメソッドを持つ:\nプラグイン\n概要\nメソッド数\ngeo_driver\n遠隔制御ハブ(pyeval/status/bridge_call等)\n19\ngeo_excel\n属性情報をExcel帳票出力\n11\ngeo_import\nデータカタログ検索→QGIS取り込み\n31\ngeo_launcher\nkasugai_qgis ランチャー連携\n11\ngeo_legend\n凡例の表示・作成\n23\ngeo_report\n印刷レイアウト管理ドック\n23\ngeo_search\n地物を属性検索・ズーム・選択\n28\ngeo_userfunc\nユーザー定義Pythonライブラリ管理\n17\ngeo_webview\n.kasc出力(KASUGAI Canvas連携)\n36\n\n汎用 bridge(12件) — pluginInfo/status/actions/trigger/run/openDialog/closeDialog の共通7メソッドのみ:\nImportPhotos, MetaSearch, Qgis2threejs, QuickDEM4JP, StreetView, db_manager, menu_from_project, mmqgis, mojxml_plugin, plateau_plugin, processing, qfieldsync, searchlayers\n各 bridge メソッドは qgis_bridge_call で {\"plugin_id\": ..., \"method\": ..., \"args\": [...]} の形式で呼び出せます。特定プラグインのメソッド詳細が必要なら教えてください。"
 }

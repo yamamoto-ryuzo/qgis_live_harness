@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mProcessingAlg_native_selectwithindistance",
+ "prompt": "QGISの「一定距離以内の地物を選択」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「一定距離以内の地物を選択」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「一定距離以内の地物を選択」に該当するアクションを調べます。調査結果です。\n\n**「一定距離以内の地物を選択」アクションは現在有効（enabled）です。**\n\n該当する QAction が2件あり、両方とも `enabled=True`:\n\n1. **「一定距離以内の地物を選択...」**（メニュー項目）\n   - objectName: `mProcessingUserMenu_native:selectwithindistance`\n   - `enabled=True`, `visible=True`、ツールチップ「一定距離以内の地物を選択」\n   - 所属: 「**&Research Tools**」サブメニュー（ベクタ(&V)メニュー内）— 「場所による選択」と同じグループ\n   - 実行すると Processing の `native:selectwithindistance` アルゴリズムのダイアログが開きます\n2. **「一定距離以内の地物を選択」**（アルゴリズム本体のラッパーアクション）\n   - objectName: `mProcessingAlg_native:selectwithindistance`\n   - `enabled=True`, `visible=True`（ツールボックス側定義用）\n\n補足:\n\n- `native:selectwithindistance` も QGIS 本体の native アルゴリズムで、ベクタメニューと Processing ツールボックスのどちらからも実行可能です。\n\n無効化・グレーアウトはされていません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    o = a.objectName() or ''\\n    if '一定距離' in t or 'withindistance' in o.lower() or '距離' in t:\\n        conts = []\\n        for w in a.associatedObjects():\\n            if isinstance(w, QMenu):\\n                conts.append('QMenu:%s [%s]' % (w.title(), w.objectName()))\\n        out.append({'text': t, 'objectName': o, 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'toolTip': a.toolTip(), 'menus': conts})\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「一定距離以内の地物を選択」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「一定距離以内の地物を選択」に該当するアクションを調べます。調査結果です。\n「一定距離以内の地物を選択」アクションは現在有効（enabled）です。\n該当する QAction が2件あり、両方とも enabled=True:\n「一定距離以内の地物を選択...」（メニュー項目） \nobjectName: mProcessingUserMenu_native:selectwithindistance\nenabled=True, visible=True、ツールチップ「一定距離以内の地物を選択」\n所属: 「&Research Tools」サブメニュー（ベクタ(&V)メニュー内）— 「場所による選択」と同じグループ\n実行すると Processing の native:selectwithindistance アルゴリズムのダイアログが開きます\n「一定距離以内の地物を選択」（アルゴリズム本体のラッパーアクション） \nobjectName: mProcessingAlg_native:selectwithindistance\nenabled=True, visible=True（ツールボックス側定義用）\n補足:\nnative:selectwithindistance も QGIS 本体の native アルゴリズムで、ベクタメニューと Processing ツールボックスのどちらからも実行可能です。\n無効化・グレーアウトはされていません。"
+}

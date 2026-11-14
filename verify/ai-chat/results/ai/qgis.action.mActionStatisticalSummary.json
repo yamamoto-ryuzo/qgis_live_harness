@@ -1,0 +1,31 @@
+{
+ "id": "qgis.action.mActionStatisticalSummary",
+ "prompt": "QGISの「統計サマリー」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「統計サマリー」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「統計サマリー」アクションを実行します。実行されました。ドックパネルが開いたか確認します。「統計サマリー」パネルを開きました。`mActionStatisticalSummary` アクションをトリガーし、画面左下に「統計」ドックが表示されています。\n\n- レイヤ「テスト地目レイヤ」が選択済み\n- フィールドを選ぶと、個数・合計・平均・標準偏差などの統計量が一覧表示されます\n- 「選択した地物のみ」をチェックすると選択地物だけを集計できます"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = getattr(iface, 'actionStatisticalSummary', lambda: None)()\\nif a is None:\\n    a = iface.mainWindow().findChild(QAction, 'mActionStatisticalSummary')\\nif a is None:\\n    cands = [(x.objectName(), x.text()) for x in iface.mainWindow().findChildren(QAction) if '統計' in (x.text() or '') or 'stat' in (x.objectName() or '').lower()]\\n    result = ('not found', cands)\\nelse:\\n    a.trigger()\\n    result = (a.objectName(), a.text(), a.isChecked())\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-7473a02e.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「統計サマリー」機能(アクション)を実行して\n[AI] \n「統計サマリー」アクションを実行します。実行されました。ドックパネルが開いたか確認します。「統計サマリー」パネルを開きました。mActionStatisticalSummary アクションをトリガーし、画面左下に「統計」ドックが表示されています。\nレイヤ「テスト地目レイヤ」が選択済み\nフィールドを選ぶと、個数・合計・平均・標準偏差などの統計量が一覧表示されます\n「選択した地物のみ」をチェックすると選択地物だけを集計できます"
+}

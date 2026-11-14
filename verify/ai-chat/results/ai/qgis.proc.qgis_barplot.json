@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_barplot",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] ベクタレイヤの棒グラフ」(id: qgis:barplot) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] ベクタレイヤの棒グラフ」(id: qgis:barplot) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis:barplot` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `qgis:barplot`\n- **表示名**: `ベクタレイヤの棒グラフ`\n- **Provider**: `QGIS`\n- **グループ**: `プロット`\n\n### 用途\nベクタレイヤの属性値から、カテゴリ別の棒グラフを作成します。分類用フィールドと数値用フィールドを指定し、HTML 形式のグラフを出力します。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ベクタレイヤ | — |\n| `NAME_FIELD` | カテゴリを示す属性フィールド | — |\n| `VALUE_FIELD` | 棒の値に使う属性フィールド | — |\n| `TITLE` | 任意。グラフタイトル | なし |\n| `XAXIS_TITLE` | 任意。X軸ラベル | なし |\n| `YAXIS_TITLE` | 任意。Y軸ラベル | なし |\n| `OUTPUT` | 出力先 HTML ファイル | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('qgis:barplot')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'plot' in a.id().lower() or 'chart' in a.id().lower() or 'graph' in a.id().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] ベクタレイヤの棒グラフ」(id: qgis:barplot) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nqgis:barplot を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: qgis:barplot\n表示名: ベクタレイヤの棒グラフ\nProvider: QGIS\nグループ: プロット\n用途\nベクタレイヤの属性値から、カテゴリ別の棒グラフを作成します。分類用フィールドと数値用フィールドを指定し、HTML 形式のグラフを出力します。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\n入力ベクタレイヤ\n—\nNAME_FIELD\nカテゴリを示す属性フィールド\n—\nVALUE_FIELD\n棒の値に使う属性フィールド\n—\nTITLE\n任意。グラフタイトル\nなし\nXAXIS_TITLE\n任意。X軸ラベル\nなし\nYAXIS_TITLE\n任意。Y軸ラベル\nなし\nOUTPUT\n出力先 HTML ファイル\n—\n"
+}

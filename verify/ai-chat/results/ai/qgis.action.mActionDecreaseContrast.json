@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionDecreaseContrast",
+ "prompt": "QGISの「コントラストを弱くする」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「コントラストを弱くする」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "調査結果です。\n\n## 「コントラストを弱くする」アクション（`mActionDecreaseContrast`）\n\n| 項目 | 内容 |\n|---|---|\n| objectName | `mActionDecreaseContrast` |\n| 表示名 | コントラストを弱くする |\n| **enabled** | **false（現在有効ではない）** |\n| visible | true |\n| ツールチップ | コントラストを弱くする |\n\n### 無効の理由\n\n他のラスタ調整アクションと同じ条件です。アクティブレイヤ `tmp_floater_test` はベクタレイヤで、プロジェクト内にラスタレイヤが無いため無効です。ラスタレイヤを読み込んでアクティブにすれば有効化されます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfrom qgis.utils import iface\\nfrom qgis.core import QgsMapLayer, QgsProject\\na = iface.mainWindow().findChild(QAction, 'mActionDecreaseContrast')\\nlyr = iface.activeLayer()\\nresult = {\\n  'action': {'objectName': a.objectName(), 'text': a.text(), 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'tooltip': a.toolTip()},\\n  'activeLayer': {'name': lyr.name(), 'isRaster': lyr.type() == QgsMapLayer.RasterLayer} if lyr else None,\\n  'rasterLayersInProject': [l.name() for l in QgsProject.instance().mapLayers().values() if l.type() == QgsMapLayer.RasterLayer],\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「コントラストを弱くする」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n調査結果です。\n「コントラストを弱くする」アクション（mActionDecreaseContrast）\n項目\n内容\nobjectName\nmActionDecreaseContrast\n表示名\nコントラストを弱くする\nenabled\nfalse（現在有効ではない）\nvisible\ntrue\nツールチップ\nコントラストを弱くする\n\n無効の理由\n他のラスタ調整アクションと同じ条件です。アクティブレイヤ tmp_floater_test はベクタレイヤで、プロジェクト内にラスタレイヤが無いため無効です。ラスタレイヤを読み込んでアクティブにすれば有効化されます。"
+}

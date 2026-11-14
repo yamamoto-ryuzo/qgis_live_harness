@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_cliprasterbymasklayer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] マスクレイヤでラスタを切り抜く」(id: gdal:cliprasterbymasklayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] マスクレイヤでラスタを切り抜く」(id: gdal:cliprasterbymasklayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:cliprasterbymasklayer` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:cliprasterbymasklayer` |\n| 表示名 | マスクレイヤでラスタを切り抜く |\n| プロバイダ | GDAL |\n| グループ | ラスタ抽出 |\n\n## 用途\n\nベクタの**マスクレイヤ(ポリゴン等)の形状でラスタを切り抜き**ます(`gdalwarp -cutline` に相当)。矩形切り抜きの `gdal:cliprasterbymasklayer` に対し、**任意形状**での切り抜きが可能です。マスク外は NoData(またはアルファ)になります。行政区域・流域・調査範囲でのラスタ切り出しに使います。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ラスタ | 必須 |\n| `MASK` | マスクレイヤ(ベクタ) | 必須 |\n| `SOURCE_CRS` / `TARGET_CRS` | 変換元/変換先 CRS | 任意 |\n| `TARGET_EXTENT` | 変換先の領域 | 任意 |\n| `NODATA` | 出力に設定する NoData 値 | 任意 |\n| `ALPHA_BAND` | マスク外を示すアルファバンドを作成 | false |\n| `CROP_TO_CUTLINE` | 出力範囲をマスク領域に一致させる | true |\n| `KEEP_RESOLUTION` | 入力解像度を保持 | false |\n| `SET_RESOLUTION` + `X_RESOLUTION` / `Y_RESOLUTION` | 出力解像度を明示指定 | false / 任意 |\n| `MULTITHREADING` | マルチスレッドで処理 | false |\n| `DATA_TYPE` | 出力データ型(入力と同じ / Byte〜Float64 等) | 入力と同じ |\n| `OPTIONS` / `CREATION_OPTIONS` / `EXTRA` | 追加オプション | 任意 |\n| `OUTPUT` | 出力ラスタ | 必須 |\n\n実行例: `processing.run(\"gdal:cliprasterbymasklayer\", {\"INPUT\": r, \"MASK\": poly, \"CROP_TO_CUTLINE\": True, \"OUTPUT\": \"clipped.tif\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:cliprasterbymasklayer')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'clip' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.gr"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] マスクレイヤでラスタを切り抜く」(id: gdal:cliprasterbymasklayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:cliprasterbymasklayer をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:cliprasterbymasklayer\n表示名\nマスクレイヤでラスタを切り抜く\nプロバイダ\nGDAL\nグループ\nラスタ抽出\n\n用途\nベクタのマスクレイヤ(ポリゴン等)の形状でラスタを切り抜きます(gdalwarp -cutline に相当)。矩形切り抜きの gdal:cliprasterbymasklayer に対し、任意形状での切り抜きが可能です。マスク外は NoData(またはアルファ)になります。行政区域・流域・調査範囲でのラスタ切り出しに使います。\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n入力ラスタ\n必須\nMASK\nマスクレイヤ(ベクタ)\n必須\nSOURCE_CRS / TARGET_CRS\n変換元/変換先 CRS\n任意\nTARGET_EXTENT\n変換先の領域\n任意\nNODATA\n出力に設定する NoData 値\n任意\nALPHA_BAND\nマスク外を示すアルファバンドを作成\nfalse\nCROP_TO_CUTLINE\n出力範囲をマスク領域に一致させる\ntrue\nKEEP_RESOLUTION\n入力解像度を保持\nfalse\nSET_RESOLUTION + X_RESOLUTION / Y_RESOLUTION\n出力解像度を明示指定\nfalse / 任意\nMULTITHREADING\nマルチスレッドで処理\nfalse\nDATA_TYPE\n出力データ型(入力と同じ / Byte〜Float64 等)\n入力と同じ\nOPTIONS / CREATION_OPTIONS / EXTRA\n追加オプション\n任意\nOUTPUT\n出力ラスタ\n必須\n\n実行例: processing.run(\"gdal:cliprasterbymasklayer\", {\"INPUT\": r, \"MASK\": poly, \"CROP_TO_CUTLINE\": True, \"OUTPUT\": \"clipped.tif\"})"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_createpointslayerfromtable",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] テーブルから点レイヤを作成」(id: native:createpointslayerfromtable) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] テーブルから点レイヤを作成」(id: native:createpointslayerfromtable) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:createpointslayerfromtable` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] テーブルから点レイヤを作成`\n- **ID**: `native:createpointslayerfromtable`\n- **グループ**: `ベクタ作成`\n- **用途**: CSVや非空間テーブルなどに含まれる座標値フィールドから、ポイントレイヤを作成します。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 座標フィールドを含む入力テーブル／レイヤ |\n| `XFIELD` | X座標を格納したフィールド |\n| `YFIELD` | Y座標を格納したフィールド |\n| `ZFIELD` | Z値を格納したフィールド。任意 |\n| `MFIELD` | M値を格納したフィールド。任意 |\n| `TARGET_CRS` | 出力ポイントの CRS。既定値 `EPSG:4326` |\n| `OUTPUT` | 生成するポイントレイヤ |\n\n座標値は `TARGET_CRS` の座標として解釈されます。緯度・経度列を使う場合は、緯度を `YFIELD`、経度を `XFIELD` に割り当てます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:createpointslayerfromtable')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue', 'parentLayerParameterName', 'allowMultiple'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outp"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] テーブルから点レイヤを作成」(id: native:createpointslayerfromtable) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:createpointslayerfromtable を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] テーブルから点レイヤを作成\nID: native:createpointslayerfromtable\nグループ: ベクタ作成\n用途: CSVや非空間テーブルなどに含まれる座標値フィールドから、ポイントレイヤを作成します。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n座標フィールドを含む入力テーブル／レイヤ\nXFIELD\nX座標を格納したフィールド\nYFIELD\nY座標を格納したフィールド\nZFIELD\nZ値を格納したフィールド。任意\nMFIELD\nM値を格納したフィールド。任意\nTARGET_CRS\n出力ポイントの CRS。既定値 EPSG:4326\nOUTPUT\n生成するポイントレイヤ\n\n座標値は TARGET_CRS の座標として解釈されます。緯度・経度列を使う場合は、緯度を YFIELD、経度を XFIELD に割り当てます。"
+}

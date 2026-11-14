@@ -1,0 +1,31 @@
+{
+ "id": "plugin.geo_webview.bridge.navigate",
+ "prompt": "geo_webview プラグインの「navigate」(パーマリンクURLから地図ビューを移動する(モーダル無し)。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_webview プラグインの「navigate」(パーマリンクURLから地図ビューを移動する(モーダル無し)。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`navigate` を実行します。現在とは別地点(春日井市役所付近)へのパーマリンクで試します。移動しました。キャンバスを確認します。`navigate` の動作を確認しました。\n\n## 実行内容\n\n```\nnavigate(\"http://localhost:8090/qgis-map?x=136.9722&y=35.2475&scale=5000&crs=EPSG:4326\")\n```\n\n## 結果\n\n- `ok: true`、`kind: permalink`、`type: coordinates`\n- 地図ビューが **中心 (136.9722, 35.2475)・縮尺 1:5000** に移動(返り値の `canvas` で確認)\n- スクリーンショットでも春日井市役所・市役所前郵便局のポイント(選択中の黄色)が表示されており、移動できていることを確認\n\nモーダルダイアログは出ず、URLパラメータの解釈→座標変換→ビュー移動まで完結しています。`theme=` 付きURLならテーマ復元も同時に行われます。また `qgis-permalink://` 形式や旧 `/wms` 形式のURLも受け付ける仕様です。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': ['http://localhost:8090/qgis-map?x=136.9722&y=35.2475&scale=5000&crs=EPSG:4326'], 'method': 'navigate', 'plugin_id': 'geo_webview'}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-bbe8a541.png'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_webview プラグインの「navigate」(パーマリンクURLから地図ビューを移動する(モーダル無し)。)を試して。必要な引数は適当な値でよい\n[AI] \nnavigate を実行します。現在とは別地点(春日井市役所付近)へのパーマリンクで試します。移動しました。キャンバスを確認します。navigate の動作を確認しました。\n実行内容\nnavigate(\"http://localhost:8090/qgis-map?x=136.9722&y=35.2475&scale=5000&crs=EPSG:4326\")\n結果\nok: true、kind: permalink、type: coordinates\n地図ビューが 中心 (136.9722, 35.2475)・縮尺 1:5000 に移動(返り値の canvas で確認)\nスクリーンショットでも春日井市役所・市役所前郵便局のポイント(選択中の黄色)が表示されており、移動できていることを確認\nモーダルダイアログは出ず、URLパラメータの解釈→座標変換→ビュー移動まで完結しています。theme= 付きURLならテーマ復元も同時に行われます。また qgis-permalink:// 形式や旧 /wms 形式のURLも受け付ける仕様です。"
+}

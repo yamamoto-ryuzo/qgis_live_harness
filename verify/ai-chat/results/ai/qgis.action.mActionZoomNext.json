@@ -1,0 +1,31 @@
+{
+ "id": "qgis.action.mActionZoomNext",
+ "prompt": "QGISの「次の表示領域にズーム」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「次の表示領域にズーム」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「次の表示領域にズーム」を実行します。元の領域に戻りました。画面を確認します。「次の表示領域にズーム」(`mActionZoomNext`)を実行し、元の表示範囲に戻りました。\n\n- 表示範囲: 139.698–139.792°E, 35.630–35.730°N\n- 縮尺: 約1:33,361\n- 地物(ポイント)が再び表示されています"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionZoomNext')\\na.trigger()\\nresult = (a.text(), iface.mapCanvas().extent().toString(), iface.mapCanvas().scale())\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-1e59b1a7.png', 'target': 'canvas'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「次の表示領域にズーム」機能(アクション)を実行して\n[AI] \n「次の表示領域にズーム」を実行します。元の領域に戻りました。画面を確認します。「次の表示領域にズーム」(mActionZoomNext)を実行し、元の表示範囲に戻りました。\n表示範囲: 139.698–139.792°E, 35.630–35.730°N\n縮尺: 約1:33,361\n地物(ポイント)が再び表示されています"
+}

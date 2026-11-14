@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_fixgeometryhole",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Fill holes」(id: native:fixgeometryhole) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Fill holes」(id: native:fixgeometryhole) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:fixgeometryhole`（表示名 **「Fill holes」**、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n「Check geometry」系の **`native:checkgeometryhole`（Holes）** が出力したエラーレイヤを元に、**ポリゴン内部の穴（ホール、内部リング）を削除・充填**する修正アルゴリズムです。チェックで「小さすぎる穴」として検出された内部リングを取り除きます。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ（修正対象のポリゴン） |\n| `ERRORS` | エラーレイヤ（`checkgeometryhole` の出力） |\n| `UNIQUE_ID` | 元地物を一意に識別するフィールド |\n| `PART_IDX` / `RING_IDX` / `VERTEX_IDX` | エラーレイヤ中のパート・リング・頂点番号フィールド |\n| `TOLERANCE` | 許容範囲（数値） |\n\n### 出力\n\n- `OUTPUT` — 穴が埋められたレイヤ\n- `REPORT` — 修正内容のレポートレイヤ\n\n### 補足\n\n`fixgeometrygap`（ポリゴン**間**の隙間）と混同しやすいですが、こちらはポリゴン**内部**の穴を消すアルゴリズムです。エラーレイヤ不要で直接穴を除去したいだけなら、同系の **`native:deleteholes`（孔を削除）** もあります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:fixgeometryhole')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related_check': [(a.id(), a.displayName()) for a in QgsApplication.processingRegistry().algorithms() if 'hole' in a.id() or 'hole' in a.displayName().lower()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Fill holes」(id: native:fixgeometryhole) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:fixgeometryhole（表示名 「Fill holes」、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n用途\n「Check geometry」系の native:checkgeometryhole（Holes） が出力したエラーレイヤを元に、ポリゴン内部の穴（ホール、内部リング）を削除・充填する修正アルゴリズムです。チェックで「小さすぎる穴」として検出された内部リングを取り除きます。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ（修正対象のポリゴン）\nERRORS\nエラーレイヤ（checkgeometryhole の出力）\nUNIQUE_ID\n元地物を一意に識別するフィールド\nPART_IDX / RING_IDX / VERTEX_IDX\nエラーレイヤ中のパート・リング・頂点番号フィールド\nTOLERANCE\n許容範囲（数値）\n\n出力\nOUTPUT — 穴が埋められたレイヤ\nREPORT — 修正内容のレポートレイヤ\n補足\nfixgeometrygap（ポリゴン間の隙間）と混同しやすいですが、こちらはポリゴン内部の穴を消すアルゴリズムです。エラーレイヤ不要で直接穴を除去したいだけなら、同系の native:deleteholes（孔を削除） もあります。"
+}

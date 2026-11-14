@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mProcessingAlg_native_selectbylocation",
+ "prompt": "QGISの「場所による選択」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「場所による選択」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「場所による選択」に該当するアクションを探します。調査結果です。\n\n**「場所による選択」アクションは現在有効（enabled）です。**\n\n「場所による選択」に該当する QAction が2件あり、両方とも `enabled=True`:\n\n1. **「場所による選択...」**（メニュー項目）\n   - objectName: `mProcessingUserMenu_native:selectbylocation`\n   - `enabled=True`, `visible=True`\n   - 所属: 「**&Research Tools**」サブメニュー（ベクタ(&V)メニュー内の調査系ツールグループ）\n   - 実行すると Processing の `native:selectbylocation` アルゴリズムのダイアログが開きます\n2. **「場所による選択」**（アルゴリズム本体のラッパーアクション）\n   - objectName: `mProcessingAlg_native:selectbylocation`\n   - `enabled=True`, `visible=True`\n   - これは Processing ツールボックス内のアルゴリズム定義用アクションで、メニューには直接登録されていません\n\n補足:\n\n- `native:selectbylocation` は QGIS 本体（native プロバイダ）のアルゴリズムなので、プラグインの有効/無効に依存せず、ツールボックス・ベクタメニューどちらからも実行可能な状態です。\n\n無効化・グレーアウトはされていません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    o = a.objectName() or ''\\n    if '場所' in t or 'location' in o.lower() or 'Location' in t or '空間' in t or '位置' in t:\\n        conts = []\\n        for w in a.associatedObjects():\\n            if isinstance(w, QMenu):\\n                conts.append('QMenu:%s [%s]' % (w.title(), w.objectName()))\\n        out.append({'text': t, 'objectName': o, 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'menus': conts})\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「場所による選択」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「場所による選択」に該当するアクションを探します。調査結果です。\n「場所による選択」アクションは現在有効（enabled）です。\n「場所による選択」に該当する QAction が2件あり、両方とも enabled=True:\n「場所による選択...」（メニュー項目） \nobjectName: mProcessingUserMenu_native:selectbylocation\nenabled=True, visible=True\n所属: 「&Research Tools」サブメニュー（ベクタ(&V)メニュー内の調査系ツールグループ）\n実行すると Processing の native:selectbylocation アルゴリズムのダイアログが開きます\n「場所による選択」（アルゴリズム本体のラッパーアクション） \nobjectName: mProcessingAlg_native:selectbylocation\nenabled=True, visible=True\nこれは Processing ツールボックス内のアルゴリズム定義用アクションで、メニューには直接登録されていません\n補足:\nnative:selectbylocation は QGIS 本体（native プロバイダ）のアルゴリズムなので、プラグインの有効/無効に依存せず、ツールボックス・ベクタメニューどちらからも実行可能な状態です。\n無効化・グレーアウトはされていません。"
+}

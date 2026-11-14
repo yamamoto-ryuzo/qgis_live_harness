@@ -1,0 +1,51 @@
+{
+ "id": "plugin.geo_webview.dialog.SettingsDialog",
+ "prompt": "geo_webview プラグインの「SettingsDialog」ダイアログ/パネルを開いて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_webview プラグインの「SettingsDialog」ダイアログ/パネルを開いて"
+  },
+  {
+   "role": "assistant",
+   "content": "geo_webview の bridge には設定ダイアログを開くメソッドが見当たらないので、プラグイン内部から `SettingsDialog` を探して直接開きます。パネル側は `SettingsDialog(self); dlg.exec()` でモーダル起動しています。GUI スレッドをブロックしないよう、非モーダル(`show()`)で開き、GC されないよう参照を保持します。開きました。画面を確認します。`SettingsDialog` を開きました。\n\n- `geo_webview.settings_dialog.SettingsDialog` を `GeoWebViewPanel` を親としてインスタンス化し、非モーダル `show()` で表示(`isVisible() = True`)。参照は `plugin._settings_dlg` に保持しているので GC されません。\n- パネルの歯車ボタン相当の `_open_settings()` は `dlg.exec()` のモーダル実行のため、MCP 経由では GUI スレッドをブロックしてしまうので `show()` を使いました。\n\nなおこのダイアログは別ウィンドウのため、メインウィンドウのスクリーンショットには写りません(QGIS本体の背面に隠れている可能性があります)。タスクバーや Alt+Tab で「Settings」というタイトルのウィンドウを探してください。モーダル版(`exec()`)で開き直したい場合や、内容の確認スクリーンショットが必要なら言ってください。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.utils import plugins\\np = plugins.get('geo_webview')\\nattrs = [a for a in dir(p) if 'setting' in a.lower() or 'dialog' in a.lower() or 'pref' in a.lower()]\\nresult = {'plugin_attrs': attrs}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import sys\\nmods = [(k, [a for a in dir(v) if 'settings' in a.lower() or 'dialog' in a.lower()]) for k, v in sys.modules.items() if 'geo_webview' in k]\\nresult = {k: v for k, v in mods if v}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import inspect\\nfrom geo_webview.settings_dialog import SettingsDialog\\nsig = str(inspect.signature(SettingsDialog.__init__))\\nsrc = inspect.getsourcefile(SettingsDialog)\\nresult = {'sig': sig, 'file': src}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import re, pathlib\\nbase = pathlib.Path(r'C:\\\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\\\profiles\\\\geo_custom/python/plugins\\\\geo_webview')\\nhits = []\\nfor f in base.rglob('*.py'):\\n    for i, line in enumerate(f.read_text(encoding='utf-8', errors='ignore').splitlines(), 1):\\n        if 'SettingsDialog' in line:\\n            hits.append(f'{f.name}:{i}: {line.strip()[:120]}')\\nresult = hits\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import inspect, re\\nfrom geo_webview import panel as _pmod\\nsrc = inspect.getsource(_pmod)\\nm = re.search(r'def (\\\\w+)\\\\(self\\\\)[^:]*:\\\\s*(?:[^\\\\n]*\\\\n){0,6}[^\\\\n]*SettingsDialog', src)\\n# find surrounding method containing SettingsDialog(self)\\nidx = src.find('SettingsDialog(self)')\\nstart = src.rfind('def ', 0, idx)\\nresult = src[start:idx+200]\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.utils import plugins\\nfrom geo_webview.settings_dialog import SettingsDialog\\np = plugins['geo_webview']\\n# find panel attribute for proper parenting\\nparent = None\\nfor a in dir(p):\\n    obj = getattr(p, a, None)\\n    if obj is not None and obj.__class__.__name__ in ('GeoWebViewPanel', 'QDockWidget'):\\n        parent = obj\\n        break\\ndlg = SettingsDialog(parent or iface.mainWindow())\\np._settings_dlg = dlg  # keep reference\\ndlg.show()\\ndlg.raise_()\\ndlg.activateWindow()\\nresult = {'opened': dlg.isVisible(), 'parent': parent.__class__.__name__ if parent else 'mainWindow'}\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-188d22bd.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_webview プラグインの「SettingsDialog」ダイアログ/パネルを開いて\n[AI] \ngeo_webview の bridge には設定ダイアログを開くメソッドが見当たらないので、プラグイン内部から SettingsDialog を探して直接開きます。パネル側は SettingsDialog(self); dlg.exec() でモーダル起動しています。GUI スレッドをブロックしないよう、非モーダル(show())で開き、GC されないよう参照を保持します。開きました。画面を確認します。SettingsDialog を開きました。\ngeo_webview.settings_dialog.SettingsDialog を GeoWebViewPanel を親としてインスタンス化し、非モーダル show() で表示(isVisible() = True)。参照は plugin._settings_dlg に保持しているので GC されません。\nパネルの歯車ボタン相当の _open_settings() は dlg.exec() のモーダル実行のため、MCP 経由では GUI スレッドをブロックしてしまうので show() を使いました。\nなおこのダイアログは別ウィンドウのため、メインウィンドウのスクリーンショットには写りません(QGIS本体の背面に隠れている可能性があります)。タスクバーや Alt+Tab で「Settings」というタイトルのウィンドウを探してください。モーダル版(exec())で開き直したい場合や、内容の確認スクリーンショットが必要なら言ってください。"
+}

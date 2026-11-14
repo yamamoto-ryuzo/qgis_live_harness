@@ -1,0 +1,31 @@
+{
+ "id": "qgis.action.mActionPreviewProtanope",
+ "prompt": "QGISの「赤色盲シミュレート（Protanope）」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「赤色盲シミュレート（Protanope）」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「赤色盲シミュレート（Protanope）」(`mActionPreviewProtanope`)を実行します。モードが Protanope(=2) に切り替わりました。表示を確認します。「赤色盲シミュレート（Protanope）」(`mActionPreviewProtanope`)を実行しました。\n\n- アクションがチェック状態になり、`previewMode=2`(Protanope)に切り替わりました\n- スクリーンショットで確認したとおり、赤系のポイントが暗い黄土色/グレー系に見えるなど、赤色盲(1型2色覚)の見え方にシミュレートされています\n\n元に戻す場合は「通常（Normal）」を実行してください。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionPreviewProtanope')\\na.trigger()\\niface.mapCanvas().refresh()\\nresult = (a.text(), a.isChecked(), iface.mapCanvas().previewMode())\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-5cefd093.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「赤色盲シミュレート（Protanope）」機能(アクション)を実行して\n[AI] \n「赤色盲シミュレート（Protanope）」(mActionPreviewProtanope)を実行します。モードが Protanope(=2) に切り替わりました。表示を確認します。「赤色盲シミュレート（Protanope）」(mActionPreviewProtanope)を実行しました。\nアクションがチェック状態になり、previewMode=2(Protanope)に切り替わりました\nスクリーンショットで確認したとおり、赤系のポイントが暗い黄土色/グレー系に見えるなど、赤色盲(1型2色覚)の見え方にシミュレートされています\n元に戻す場合は「通常（Normal）」を実行してください。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.D",
+ "prompt": "QGISの「地図整飾(D)」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「地図整飾(D)」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "調査結果です。\n\n## 「地図整飾(&D)」アクション（デコレーションサブメニュー）\n\n| 項目 | 内容 |\n|---|---|\n| 表示名 | 地図整飾(&D) |\n| 所在 | メニューバー → **ビュー** → **地図整飾**（デコレーションサブメニュー） |\n| **enabled** | **true（現在有効）** |\n\n### サブメニュー内のアクション（すべて有効）\n\n| アクション | 表示名 | 有効 |\n|---|---|---|\n| `mActionDecorationTitle` | タイトルラベル(&T)... | ✓ |\n| `mActionDecorationCopyright` | 著作権ラベル(&C)... | ✓ |\n| `mActionDecorationImage` | 画像(&I)... | ✓ |\n| `mActionDecorationNorthArrow` | 方位記号(&N)... | ✓ |\n| `mActionDecorationScaleBar` | スケールバー(&S)... | ✓ |\n| `mActionDecorationGrid` | グリッド(&G)... | ✓ |\n| `mActionDecorationLayoutExtent` | レイアウト範囲(&L)... | ✓ |\n\n### 状態\n\nサブメニュー本体および全子アクションが有効です。いずれも地図キャンバスにオーバーレイ表示するデコレーションの設定ダイアログを開くアクションで、常時有効です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfrom qgis.utils import iface\\nfound = []\\nfor a in iface.mainWindow().findChildren(QAction):\\n    t = a.text() or ''\\n    if '地図整飾' in t or '装飾' in t or 'decoration' in (a.objectName() or '').lower() or 'Decoration' in t:\\n        found.append({'objectName': a.objectName(), 'text': t, 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'hasMenu': a.menu() is not None})\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「地図整飾(D)」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n調査結果です。\n「地図整飾(&D)」アクション（デコレーションサブメニュー）\n項目\n内容\n表示名\n地図整飾(&D)\n所在\nメニューバー → ビュー → 地図整飾（デコレーションサブメニュー）\nenabled\ntrue（現在有効）\n\nサブメニュー内のアクション（すべて有効）\nアクション\n表示名\n有効\nmActionDecorationTitle\nタイトルラベル(&T)...\n✓\nmActionDecorationCopyright\n著作権ラベル(&C)...\n✓\nmActionDecorationImage\n画像(&I)...\n✓\nmActionDecorationNorthArrow\n方位記号(&N)...\n✓\nmActionDecorationScaleBar\nスケールバー(&S)...\n✓\nmActionDecorationGrid\nグリッド(&G)...\n✓\nmActionDecorationLayoutExtent\nレイアウト範囲(&L)...\n✓\n\n状態\nサブメニュー本体および全子アクションが有効です。いずれも地図キャンバスにオーバーレイ表示するデコレーションの設定ダイアログを開くアクションで、常時有効です。"
+}

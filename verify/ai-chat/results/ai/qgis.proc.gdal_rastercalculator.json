@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.gdal_rastercalculator",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタ計算機」(id: gdal:rastercalculator) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタ計算機」(id: gdal:rastercalculator) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:rastercalculator` を Processing Registry で確認します。`EXTENT_OPT` / `RTYPE` の選択肢も確認します。確認しました。Processing Registry に **`[GDAL] ラスタ計算機`** は存在します。\n\n- **ID:** `gdal:rastercalculator`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタその他`\n\n### 用途\n最大6個のラスタ（`A`〜`F`）に対して、セルごとの数値演算を実行し、新しいラスタを作成します。GDALの計算式や `logical_and()` などのNumPy系関数を使用できます。\n\n### 主なパラメータ\n- `INPUT_A`〜`INPUT_F`：計算に使うラスタ（`A`のみ必須）\n- `BAND_A`〜`BAND_F`：各入力ラスタの対象バンド\n- `FORMULA`：計算式（例：`A*2`、`logical_and(A > 0, B < 10)`）\n- `NO_DATA`：出力NoData値\n- `EXTENT_OPT`：入力範囲が異なる場合の扱い\n  - `Ignore`、`Fail`、`Union`、`Intersect`\n- `PROJWIN`：出力範囲\n- `RTYPE`：出力データ型（Byte、Int16、Float32 など）\n- `OUTPUT`：出力ラスタ"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:rastercalculator'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'rastercalculator' in a.id().lower() or 'ラスタ計算' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'rastercalculato"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nimport json\\nalg = QgsApplication.processingRegistry().algorithmById('gdal:rastercalculator')\\nresult = None\\nif alg:\\n    defs = {p.name(): p for p in alg.parameterDefinitions()}\\n    result = json.dumps({\\n        'extent_options': list(defs['EXTENT_OPT'].options()),\\n        'rtype_options': list(defs['RTYPE'].options())\\n    }, ensure_ascii=False)\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタ計算機」(id: gdal:rastercalculator) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:rastercalculator を Processing Registry で確認します。EXTENT_OPT / RTYPE の選択肢も確認します。確認しました。Processing Registry に [GDAL] ラスタ計算機 は存在します。\nID: gdal:rastercalculator\nプロバイダ: GDAL\nグループ: ラスタその他\n用途\n最大6個のラスタ（A〜F）に対して、セルごとの数値演算を実行し、新しいラスタを作成します。GDALの計算式や logical_and() などのNumPy系関数を使用できます。\n主なパラメータ\nINPUT_A〜INPUT_F：計算に使うラスタ（Aのみ必須）\nBAND_A〜BAND_F：各入力ラスタの対象バンド\nFORMULA：計算式（例：A*2、logical_and(A > 0, B < 10)）\nNO_DATA：出力NoData値\nEXTENT_OPT：入力範囲が異なる場合の扱い \nIgnore、Fail、Union、Intersect\nPROJWIN：出力範囲\nRTYPE：出力データ型（Byte、Int16、Float32 など）\nOUTPUT：出力ラスタ"
+}

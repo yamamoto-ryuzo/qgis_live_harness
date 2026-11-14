@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_rasterlayerproperties",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタレイヤのプロパティ」(id: native:rasterlayerproperties) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタレイヤのプロパティ」(id: native:rasterlayerproperties) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:rasterlayerproperties` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:rasterlayerproperties`\n- **表示名**: `[QGIS（ネイティブC++）] ラスタレイヤのプロパティ`\n- **グループ**: ラスタ解析\n- **用途**: ラスタの範囲、ピクセルサイズ、ピクセル数、CRS、バンド数などの基本プロパティを取得する。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT` | 必須 | 対象ラスタレイヤ |\n| `BAND` | 任意 | `NoData` 値を取得するバンド番号 |\n\n`BAND` を指定すると、そのバンドの `NoData` 設定と値も返ります。出力は数値・文字列のプロパティ値であり、新しいラスタは作成されません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:rasterlayerproperties')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'descriptio"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタレイヤのプロパティ」(id: native:rasterlayerproperties) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:rasterlayerproperties を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:rasterlayerproperties\n表示名: [QGIS（ネイティブC++）] ラスタレイヤのプロパティ\nグループ: ラスタ解析\n用途: ラスタの範囲、ピクセルサイズ、ピクセル数、CRS、バンド数などの基本プロパティを取得する。\n主なパラメータ\n名前\n必須\n説明\nINPUT\n必須\n対象ラスタレイヤ\nBAND\n任意\nNoData 値を取得するバンド番号\n\nBAND を指定すると、そのバンドの NoData 設定と値も返ります。出力は数値・文字列のプロパティ値であり、新しいラスタは作成されません。"
+}

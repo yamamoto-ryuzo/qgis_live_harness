@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.pdal_reproject",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Reproject point cloud」(id: pdal:reproject) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Reproject point cloud」(id: pdal:reproject) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`pdal:reproject` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `pdal:reproject`\n- **表示名**: `Reproject point cloud`\n- **Provider**: `QGIS (PDAL)`\n- **グループ**: `Point cloud data management`\n\n### 用途\n点群データを別の座標参照系（CRS）へ再投影します。座標値と点群の CRS メタデータを変換先 CRS に合わせて出力します。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力点群レイヤ | — |\n| `CRS` | 変換先 CRS | `EPSG:4326` |\n| `OPERATION` | 任意。使用する座標変換オペレーションを指定 | 自動選択 |\n| `VPC_OUTPUT_FORMAT` | VPC 出力の内部形式（`COPC` / `LAZ` / `LAS`） | `COPC` |\n| `OUTPUT` | 再投影後の点群出力先 | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('pdal:reproject')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'reproject' in a.id().lower() or 'reproject' in a.displayName().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'type': p"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Reproject point cloud」(id: pdal:reproject) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \npdal:reproject を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: pdal:reproject\n表示名: Reproject point cloud\nProvider: QGIS (PDAL)\nグループ: Point cloud data management\n用途\n点群データを別の座標参照系（CRS）へ再投影します。座標値と点群の CRS メタデータを変換先 CRS に合わせて出力します。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\n入力点群レイヤ\n—\nCRS\n変換先 CRS\nEPSG:4326\nOPERATION\n任意。使用する座標変換オペレーションを指定\n自動選択\nVPC_OUTPUT_FORMAT\nVPC 出力の内部形式（COPC / LAZ / LAS）\nCOPC\nOUTPUT\n再投影後の点群出力先\n—\n"
+}

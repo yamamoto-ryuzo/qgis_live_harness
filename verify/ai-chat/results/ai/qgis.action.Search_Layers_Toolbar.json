@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.Search_Layers_Toolbar",
+ "prompt": "QGISの「Search Layers Toolbar」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Search Layers Toolbar」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Search Layers Toolbar」のアクションを探して実行します。ツールバーは現在非表示です。アクションを実行して表示します。「Search Layers Toolbar」を実行・表示しました。\n\n- Search Layers ツールバー(SearchLayersToolbar)が表示され、対応するアクションはチェック状態になりました\n- このツールバーから Search Layers プラグインによるレイヤ内検索ダイアログにアクセスできます"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\nacts = [(x.objectName(), x.text(), x.isCheckable(), x.isChecked()) for x in mw.findChildren(QAction) if 'earch' in x.text() or 'earch' in x.objectName()]\\ntbars = [(t.objectName(), t.windowTitle(), t.isVisible()) for t in mw.findChildren(QToolBar) if 'earch' in (t.objectName() + t.windowTitle())]\\nresult = {'actions': acts, 'toolbars': tbars}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\na = [x for x in mw.findChildren(QAction) if x.text() == 'Search Layers Toolbar'][0]\\nt = [x for x in mw.findChildren(QToolBar) if x.objectName() == 'SearchLayersToolbar'][0]\\na.trigger()\\nresult = {'checked': a.isChecked(), 'visible': t.isVisible()}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Search Layers Toolbar」機能(アクション)を実行して\n[AI] \n「Search Layers Toolbar」のアクションを探して実行します。ツールバーは現在非表示です。アクションを実行して表示します。「Search Layers Toolbar」を実行・表示しました。\nSearch Layers ツールバー(SearchLayersToolbar)が表示され、対応するアクションはチェック状態になりました\nこのツールバーから Search Layers プラグインによるレイヤ内検索ダイアログにアクセスできます"
+}

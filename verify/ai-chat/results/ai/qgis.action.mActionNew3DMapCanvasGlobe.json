@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionNew3DMapCanvasGlobe",
+ "prompt": "QGISの「New 3D Globe View」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「New 3D Globe View」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「New 3D Globe View」に該当するアクションを検索します。見つかりました。「New 3D Globe View」は `mActionNew3DMapCanvasGlobe` で、現在**有効(enabled)**です。\n\n| objectName | 表示テキスト | enabled |\n|---|---|---|\n| `mActionNew3DMapCanvasGlobe` | `New 3D &Globe View` | **true** |\n\n関連する 3D 系アクションもすべて有効でした:\n\n- `mActionNew3DMapCanvas`(新規3Dマップビュー): true\n- `mActionManage3DMapViews`(Manage 3D Map Views…): true\n\n実行してグローブビューを開きますか?"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    n = a.objectName() or ''\\n    if 'Globe' in t or '3D' in t or 'globe' in n.lower() or '3d' in n.lower() or '3D' in n:\\n        found.append({'objectName': n, 'text': t, 'enabled': a.isEnabled(), 'visible': a.isVisible()})\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「New 3D Globe View」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「New 3D Globe View」に該当するアクションを検索します。見つかりました。「New 3D Globe View」は mActionNew3DMapCanvasGlobe で、現在**有効(enabled)**です。\nobjectName\n表示テキスト\nenabled\nmActionNew3DMapCanvasGlobe\nNew 3D &Globe View\ntrue\n\n関連する 3D 系アクションもすべて有効でした:\nmActionNew3DMapCanvas(新規3Dマップビュー): true\nmActionManage3DMapViews(Manage 3D Map Views…): true\n実行してグローブビューを開きますか?"
+}

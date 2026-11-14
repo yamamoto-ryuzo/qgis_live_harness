@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_launcher.bridge.isInstalled",
+ "prompt": "QGISの geo_launcher プラグインで「isInstalled」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_launcher プラグインで「isInstalled」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`isInstalled` の結果です:\n\n| キー | 値 |\n|---|---|\n| `ok` | `true` |\n| `installed` | `true` — インストール済み |\n| `exe` | `C:\\kasugai\\kasugai_qgis\\qgis_launcher.exe` |\n| `version` | `2.5.5` |\n\nKasugai QGIS Launcher は `C:\\kasugai\\kasugai_qgis\\` にバージョン 2.5.5 でインストール済みです。ランチャーダイアログに表示されていた情報と一致しています。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_launcher', 'args': [], 'method': 'isInstalled'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_launcher プラグインで「isInstalled」を実行して結果を教えて\n[AI] \nisInstalled の結果です:\nキー\n値\nok\ntrue\ninstalled\ntrue — インストール済み\nexe\nC:\\kasugai\\kasugai_qgis\\qgis_launcher.exe\nversion\n2.5.5\n\nKasugai QGIS Launcher は C:\\kasugai\\kasugai_qgis\\ にバージョン 2.5.5 でインストール済みです。ランチャーダイアログに表示されていた情報と一致しています。"
+}

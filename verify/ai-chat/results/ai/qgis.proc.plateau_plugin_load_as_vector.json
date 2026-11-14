@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.plateau_plugin_load_as_vector",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[Project PLATEAU] PLATEAU 3D都市モデルを読み込む」(id: plateau_plugin:load_as_vector) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[Project PLATEAU] PLATEAU 3D都市モデルを読み込む」(id: plateau_plugin:load_as_vector) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`plateau_plugin:load_as_vector` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `plateau_plugin:load_as_vector`\n- **表示名**: `PLATEAU 3D都市モデルを読み込む`\n- **Provider**: `Project PLATEAU`\n\n### 用途\n「3D都市モデル標準製品仕様書 第3.0版」に対応した PLATEAU の CityGML（`.gml`）を、ベクタレイヤとして QGIS に読み込みます。  \n出力先 GeoPackage を省略した場合は、一時スクラッチレイヤとして読み込まれます。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT` | PLATEAU CityGML ファイル | — |\n| `LOD_PREFERENCE` | 読み込む LOD。単純 / 詳細 / 全 LOD から選択 | `最も単純なLODのみ` |\n| `SEMANTIC_PARTS` | 壁・屋根・車道など意味的構成部分ごとにレイヤ分割 | `False` |\n| `FORCE_2D` | 3D 地物を強制的に平面化 | `False` |\n| `APPEND_MODE` | 既存の同名レイヤ／テーブルへ追記 | `True` |\n| `CRS` | 変換先 CRS | `EPSG:6668` |\n| `OUTPUT` | 任意。出力先 GeoPackage | 一時レイヤ |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('plateau_plugin:load_as_vector')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'plateau' in a.id().lower() or 'plateau' in a.displayName().lower() or 'load' in a.id().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.de"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[Project PLATEAU] PLATEAU 3D都市モデルを読み込む」(id: plateau_plugin:load_as_vector) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nplateau_plugin:load_as_vector を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: plateau_plugin:load_as_vector\n表示名: PLATEAU 3D都市モデルを読み込む\nProvider: Project PLATEAU\n用途\n「3D都市モデル標準製品仕様書 第3.0版」に対応した PLATEAU の CityGML（.gml）を、ベクタレイヤとして QGIS に読み込みます。\n出力先 GeoPackage を省略した場合は、一時スクラッチレイヤとして読み込まれます。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\nPLATEAU CityGML ファイル\n—\nLOD_PREFERENCE\n読み込む LOD。単純 / 詳細 / 全 LOD から選択\n最も単純なLODのみ\nSEMANTIC_PARTS\n壁・屋根・車道など意味的構成部分ごとにレイヤ分割\nFalse\nFORCE_2D\n3D 地物を強制的に平面化\nFalse\nAPPEND_MODE\n既存の同名レイヤ／テーブルへ追記\nTrue\nCRS\n変換先 CRS\nEPSG:6668\nOUTPUT\n任意。出力先 GeoPackage\n一時レイヤ\n"
+}

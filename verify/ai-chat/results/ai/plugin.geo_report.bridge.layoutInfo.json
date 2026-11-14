@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_report.bridge.layoutInfo",
+ "prompt": "QGISの geo_report プラグインで「選択中レイアウトの情報テキストを返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_report プラグインで「選択中レイアウトの情報テキストを返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`layoutInfo`（選択中レイアウトの情報テキスト）を実行しました。\n\n**対象レイアウト**: `A4縦_2`\n\n**返却テキスト**\n```\nレイアウト名: A4縦_2\nページ数: 1\nオブジェクト総数: 3\n\nページ情報:\n  ページ 1: 210.0 x 297.0 mm\n\n全オブジェクト一覧:\n  1. QgsLayoutItemMap\n     - QgsLayoutItem: True\n     - displayName: True\n     - uuid: True\n     - 名前: 地図 1\n  2. QGraphicsRectItem\n     - QgsLayoutItem: False\n     - displayName: False\n     - uuid: False\n  3. QgsLayoutItemPage\n     - QgsLayoutItem: True\n     - displayName: True\n     - uuid: True\n     - 名前: ページ\n```\n\nA4縦サイズ（210×297mm）1ページで、地図アイテム「地図 1」＋ページ＋内部の `QGraphicsRectItem`（ページ枠描画用の非レイアウトオブジェクト）の計3オブジェクトという構成です。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'layoutInfo', 'plugin_id': 'geo_report', 'args': []}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_report プラグインで「選択中レイアウトの情報テキストを返す。」を実行して結果を教えて\n[AI] \nlayoutInfo（選択中レイアウトの情報テキスト）を実行しました。\n対象レイアウト: A4縦_2\n返却テキスト\nレイアウト名: A4縦_2\nページ数: 1\nオブジェクト総数: 3\n\nページ情報:\n  ページ 1: 210.0 x 297.0 mm\n\n全オブジェクト一覧:\n  1. QgsLayoutItemMap\n     - QgsLayoutItem: True\n     - displayName: True\n     - uuid: True\n     - 名前: 地図 1\n  2. QGraphicsRectItem\n     - QgsLayoutItem: False\n     - displayName: False\n     - uuid: False\n  3. QgsLayoutItemPage\n     - QgsLayoutItem: True\n     - displayName: True\n     - uuid: True\n     - 名前: ページ\nA4縦サイズ（210×297mm）1ページで、地図アイテム「地図 1」＋ページ＋内部の QGraphicsRectItem（ページ枠描画用の非レイアウトオブジェクト）の計3オブジェクトという構成です。"
+}

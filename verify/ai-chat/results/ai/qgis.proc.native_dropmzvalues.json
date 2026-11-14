@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_dropmzvalues",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] M値/Z値を削除」(id: native:dropmzvalues) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] M値/Z値を削除」(id: native:dropmzvalues) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:dropmzvalues`\n- **表示名**: M値/Z値を削除\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ベクタジオメトリ\n\n## 用途\n入力レイヤのジオメトリから **M値（計測値/マイルストーン的な第4次元）や Z値（標高・第3次元）を除去**するアルゴリズムです。2Dに変換したいとき、Z/M対応を嫌うツールやフォーマットへ渡す前処理、Z/Mを持つデータでジオメトリ比較や結合がうまくいかない場合の対策に使います。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ベクタレイヤ（必須） |\n| `DROP_M_VALUES` | M値を削除（ブール、デフォルト OFF） |\n| `DROP_Z_VALUES` | Z値を削除（ブール、デフォルト OFF） |\n| `OUTPUT` | 出力レイヤ（必須） |\n\n両方 OFF だと実質コピーになるだけなので、目的に応じて少なくとも一方を ON にします。逆に Z値を追加・設定する用途には `native:setzvalue`（Z値を設定）や `native:setmvalue` 系のアルゴリズムがあります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber, QgsProcessingParameterBoolean\\nalg = QgsApplication.processingRegistry().algorithmById('native:dropmzvalues')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'drop' in a.id().lower() or 'mz' in a.id().lower() or 'zm' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if a"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] M値/Z値を削除」(id: native:dropmzvalues) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:dropmzvalues\n表示名: M値/Z値を削除\nプロバイダ: QGIS（ネイティブC++）／グループ: ベクタジオメトリ\n用途\n入力レイヤのジオメトリから M値（計測値/マイルストーン的な第4次元）や Z値（標高・第3次元）を除去するアルゴリズムです。2Dに変換したいとき、Z/M対応を嫌うツールやフォーマットへ渡す前処理、Z/Mを持つデータでジオメトリ比較や結合がうまくいかない場合の対策に使います。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ベクタレイヤ（必須）\nDROP_M_VALUES\nM値を削除（ブール、デフォルト OFF）\nDROP_Z_VALUES\nZ値を削除（ブール、デフォルト OFF）\nOUTPUT\n出力レイヤ（必須）\n\n両方 OFF だと実質コピーになるだけなので、目的に応じて少なくとも一方を ON にします。逆に Z値を追加・設定する用途には native:setzvalue（Z値を設定）や native:setmvalue 系のアルゴリズムがあります。"
+}

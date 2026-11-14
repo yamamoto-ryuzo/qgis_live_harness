@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_legend.ai.catalog",
+ "prompt": "geo_legend プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_legend プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis_describe_plugins` を呼んで geo_legend のカタログ情報を確認します。出力が長いので、保存されたファイルから geo_legend の部分を抽出します。`qgis_describe_plugins` の結果から `geo_legend` の自己記述(pluginInfo)を抽出しました。\n\n## geo_legend — 凡例ビュー\n\n- **id**: `geo_legend` / **bridge**: あり(専用bridge搭載)\n- **summary**: レイヤの凡例(シンボル一覧)の表示と作成。ドックパネルにコンパクトな凡例を表示するほか、個別値分類・数値階級・ルールベースのシンボル凡例をレンダラとして作成し、印刷レイアウトへの凡例アイテム追加や凡例画像(PNG)出力も可能。対象レイヤは `legend_*` プロジェクト変数で登録したレイヤとアクティブレイヤから選択。不透明度・名前付きスタイルの切替も可。\n- **state**: ドックは作成済みで表示中(`dock: true, dockVisible: true`)\n\n**when_to_use(抜粋)**: 凡例の確認、凡例ドックの開閉・対象レイヤ切替、不透明度/名前付きスタイル変更、`legend_*` 変数への登録・確認、分類/階級区分/ルールベース凡例の作成、レンダラ定義の取得、印刷レイアウトへの凡例追加、凡例画像(PNG)出力。\n\n### メソッド一覧(全22)\n\n| 分類 | メソッド |\n|---|---|\n| ドック/選択 | `openDock()`, `closeDock()`, `status()`, `refresh()`, `listDatasets()`, `selectDataset(dataset)`, `selectCurrentLayer()` |\n| 凡例参照 | `legend()`, `legendSpec(layer)` |\n| レンダラ作成 | `applyCategories(layer, field, ramp, labels, colors)`, `applyGraduated(layer, field, classes, ramp, method)`, `applyRules(layer, rules, else_label)`, `applySingleSymbol(layer, color)` |\n| スタイル/不透明度 | `listStyles()`, `setStyle(name)`, `opacity(value)` |\n| legend_* 変数 | `legendVariables()`, `registerCurrentLayer(priority)`, `registerLayer(layer_id, priority)`, `setLegendVariable(name, value)`, `deleteLegendVariable(name)` |\n| 出力 | `addLayoutLegend(layout, title, x, y, w, h, layers, linked_map, filter_by_map)`, `exportLegendImage(path, layers, title, dpi)` |\n\n呼び出しは `qgis_bridge_call` で `plugin_id=\"geo_legend\"`、`method` と `args` を指定します。主なシグネチャ:\n\n- `applyCategories(layer=None, field=None, ramp=None, labels=None, colors=None)` — 個別値分類(ramp既定は Spectral)\n- `applyGraduated(layer=None, field=None, classes=5, ramp=None, method='equal')` — 階級区分(equal/quantile、2–20級)\n- `applyRules(layer=None, rules=None, else_label=None)` — ルールベース。rules は `{\"filter\",\"label\",\"color\",\"width\",\"width_unit\",\"min_scale\",\"max_scale\"}`。縮尺帯ごとの線幅切替ルールも作れる\n- `addLayoutLegend(layout=None, title='凡例', x,y,w,h[mm], layers, linked_map, filter_by_map)` — レイアウト名省略時"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_legend プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \nqgis_describe_plugins を呼んで geo_legend のカタログ情報を確認します。出力が長いので、保存されたファイルから geo_legend の部分を抽出します。qgis_describe_plugins の結果から geo_legend の自己記述(pluginInfo)を抽出しました。\ngeo_legend — 凡例ビュー\nid: geo_legend / bridge: あり(専用bridge搭載)\nsummary: レイヤの凡例(シンボル一覧)の表示と作成。ドックパネルにコンパクトな凡例を表示するほか、個別値分類・数値階級・ルールベースのシンボル凡例をレンダラとして作成し、印刷レイアウトへの凡例アイテム追加や凡例画像(PNG)出力も可能。対象レイヤは legend_* プロジェクト変数で登録したレイヤとアクティブレイヤから選択。不透明度・名前付きスタイルの切替も可。\nstate: ドックは作成済みで表示中(dock: true, dockVisible: true)\nwhen_to_use(抜粋): 凡例の確認、凡例ドックの開閉・対象レイヤ切替、不透明度/名前付きスタイル変更、legend_* 変数への登録・確認、分類/階級区分/ルールベース凡例の作成、レンダラ定義の取得、印刷レイアウトへの凡例追加、凡例画像(PNG)出力。\nメソッド一覧(全22)\n分類\nメソッド\nドック/選択\nopenDock(), closeDock(), status(), refresh(), listDatasets(), selectDataset(dataset), selectCurrentLayer()\n凡例参照\nlegend(), legendSpec(layer)\nレンダラ作成\napplyCategories(layer, field, ramp, labels, colors), applyGraduated(layer, field, classes, ramp, method), applyRules(layer, rules, else_label), applySingleSymbol(layer, color)\nスタイル/不透明度\nlistStyles(), setStyle(name), opacity(value)\nlegend_* 変数\nlegendVariables(), registerCurrentLayer(priority), registerLayer(layer_id, priority), setLegendVariable(name, value), deleteLegendVariable(name)\n出力\naddLayoutLegend(layout, title, x, y, w, h, layers, linked_map, filter_by_map), exportLegendImage(path, layers, title, dpi)\n\n呼び出しは qgis_bridge_call で plugin_id=\"geo_legend\"、method と args を指定します。主なシグネチャ:\napplyCategories(layer=None, field=None, ramp=None, labels=None, colors=None) — 個別値分類(ramp既定は Spectral)\napplyGraduated(layer=None, field=None, classes=5, ramp=None, method='equal') — 階級区分(equal/quantile、2–20級)\napplyRules(layer=None, rules=None, else_label=None) — ルールベース。rules は {\"filter\",\"label\",\"color\",\"width\",\"width_unit\",\"min_scale\",\"max_scale\"}。縮尺帯ごとの線幅切替ルールも作れる\naddLayoutLegend(layout=None, title='凡例', x,y,w,h[mm], layers, linked_map, filter_by_map) — レイアウト名省略時は 'AI凡例' を新規作成\nexportLegendImage(path=None, layers=None, title='凡例', dpi=96) — PNG 出力\nまた、geo_driver の applyStandardWidth(mode='rules') は geo_legend ロード時に applyRules へ委譲する連携がある点もカタログ上に記載されていました。"
+}

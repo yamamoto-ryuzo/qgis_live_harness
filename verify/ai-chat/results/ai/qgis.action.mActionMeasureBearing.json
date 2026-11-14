@@ -1,0 +1,39 @@
+{
+ "id": "qgis.action.mActionMeasureBearing",
+ "prompt": "QGISの「方位を測る」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「方位を測る」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「方位を測る」アクションを実行します。`actionMeasureBearing` はこのQGISバージョンにはないようです。関連アクションを探します。`mActionMeasureBearing`(「方位を測る」)が見つかりました。実行します。実行されました。画面を確認します。「方位を測る」ツールを実行しました。`mActionMeasureBearing` アクションをトリガーし、有効(チェック状態)になりました。\n\n地図キャンバス上で2点をクリックすると、始点から終点への方位角が計測ダイアログに表示されます。\n\nなお `iface.actionMeasureBearing()` はこのQGISバージョンでは公開されていなかったため、メインウィンドウ内の `mActionMeasureBearing` アクションを検索して実行しました。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': 'a = iface.actionMeasureBearing()\\na.trigger()\\nresult = (a.text(), a.isChecked())'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    o = a.objectName() or ''\\n    if ('方位' in t) or ('方角' in t) or ('bearing' in o.lower()) or ('azimuth' in o.lower()) or ('bearing' in t.lower()):\\n        found.append((o, t, a.isVisible(), a.isEnabled()))\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionMeasureBearing')\\na.trigger()\\nresult = (a.text(), a.isChecked())\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-bdcca652.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「方位を測る」機能(アクション)を実行して\n[AI] \n「方位を測る」アクションを実行します。actionMeasureBearing はこのQGISバージョンにはないようです。関連アクションを探します。mActionMeasureBearing(「方位を測る」)が見つかりました。実行します。実行されました。画面を確認します。「方位を測る」ツールを実行しました。mActionMeasureBearing アクションをトリガーし、有効(チェック状態)になりました。\n地図キャンバス上で2点をクリックすると、始点から終点への方位角が計測ダイアログに表示されます。\nなお iface.actionMeasureBearing() はこのQGISバージョンでは公開されていなかったため、メインウィンドウ内の mActionMeasureBearing アクションを検索して実行しました。"
+}

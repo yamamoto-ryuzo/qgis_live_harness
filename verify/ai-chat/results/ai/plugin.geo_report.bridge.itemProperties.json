@@ -1,0 +1,35 @@
+{
+ "id": "plugin.geo_report.bridge.itemProperties",
+ "prompt": "geo_report プラグインの「itemProperties」(アイテムのプロパティを返す。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_report プラグインの「itemProperties」(アイテムのプロパティを返す。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "選択中レイアウトのアイテムを確認してから `itemProperties` を実行します。`itemProperties` を実行しました。\n\n**実行**: `itemProperties(\"地図 1\")`（選択中レイアウト `A4縦_2` 内のアイテム名を指定）\n\n**結果**\n```json\n{\n  \"name\": \"地図 1\",\n  \"item_type\": \"QgsLayoutItemMap\",\n  \"uuid\": \"{a65dffb6-4280-41de-85d7-5c2bdc66d01a}\",\n  \"id\": \"地図 1\",\n  \"visible\": true,\n  \"position\": { \"x\": 0.0, \"y\": 0.0 },\n  \"size\": { \"width\": 210.0, \"height\": 297.0 },\n  \"rotation\": 0.0,\n  \"scale\": 1.0000000071\n}\n```\n\n- 「地図 1」はページ全面（210×297mm = A4縦いっぱい）に配置された地図アイテムで、回転なし・縮尺ほぼ1.0\n- `item` 引数は index / uuid / id / 表示名のいずれでも指定可能で、省略時は選択中アイテムを返す仕様です"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils, json\\nb = qgis.utils.plugins['geo_report'].bridge\\npi = b.pluginInfo()\\npi = json.loads(pi) if isinstance(pi, str) else pi\\nresult = [m for m in pi['methods'] if m['name'] in ('itemProperties','listItems')]\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'plugin_id': 'geo_report', 'method': 'listItems'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_report', 'method': 'itemProperties', 'args': ['地図 1']}"
+  }
+ ],
+ "view_tail": "[あなた] geo_report プラグインの「itemProperties」(アイテムのプロパティを返す。)を試して。必要な引数は適当な値でよい\n[AI] \n選択中レイアウトのアイテムを確認してから itemProperties を実行します。itemProperties を実行しました。\n実行: itemProperties(\"地図 1\")（選択中レイアウト A4縦_2 内のアイテム名を指定）\n結果\n{\n  \"name\": \"地図 1\",\n  \"item_type\": \"QgsLayoutItemMap\",\n  \"uuid\": \"{a65dffb6-4280-41de-85d7-5c2bdc66d01a}\",\n  \"id\": \"地図 1\",\n  \"visible\": true,\n  \"position\": { \"x\": 0.0, \"y\": 0.0 },\n  \"size\": { \"width\": 210.0, \"height\": 297.0 },\n  \"rotation\": 0.0,\n  \"scale\": 1.0000000071\n}\n「地図 1」はページ全面（210×297mm = A4縦いっぱい）に配置された地図アイテムで、回転なし・縮尺ほぼ1.0\nitem 引数は index / uuid / id / 表示名のいずれでも指定可能で、省略時は選択中アイテムを返す仕様です"
+}

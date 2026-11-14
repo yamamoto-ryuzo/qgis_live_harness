@@ -1,0 +1,34 @@
+{
+ "id": "plugin.geo_import.bridge.testServer",
+ "prompt": "geo_import プラグインの「testServer」(サーバーURLの接続テストを行う(同期HTTP。数秒ブロック)。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_import プラグインの「testServer」(サーバーURLの接続テストを行う(同期HTTP。数秒ブロック)。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "現在選択中の CKAN URL `https://data.gsj.jp/gkan/api/3` で `testServer` を実行します。接続テストにはカタログダイアログの初期化が必要なため、開いてから再試行します。`testServer` を試しました。\n\n実行内容:\n\n```json\n{\n  \"method\": \"testServer\",\n  \"args\": [\"https://data.gsj.jp/gkan/api/3\"]\n}\n```\n\n結果:\n\n- 成功: `ok: true`\n- 種別: `ckan`\n- URL: `https://data.gsj.jp/gkan/api/3`\n\n接続テストは成功しました。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': ['https://data.gsj.jp/gkan/api/3'], 'plugin_id': 'geo_import', 'method': 'testServer'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'plugin_id': 'geo_import', 'method': 'openDialog'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': ['https://data.gsj.jp/gkan/api/3'], 'plugin_id': 'geo_import', 'method': 'testServer'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_import プラグインの「testServer」(サーバーURLの接続テストを行う(同期HTTP。数秒ブロック)。)を試して。必要な引数は適当な値でよい\n[AI] \n現在選択中の CKAN URL https://data.gsj.jp/gkan/api/3 で testServer を実行します。接続テストにはカタログダイアログの初期化が必要なため、開いてから再試行します。testServer を試しました。\n実行内容:\n{\n  \"method\": \"testServer\",\n  \"args\": [\"https://data.gsj.jp/gkan/api/3\"]\n}\n結果:\n成功: ok: true\n種別: ckan\nURL: https://data.gsj.jp/gkan/api/3\n接続テストは成功しました。"
+}

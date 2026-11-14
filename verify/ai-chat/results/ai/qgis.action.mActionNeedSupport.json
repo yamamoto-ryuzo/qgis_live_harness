@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionNeedSupport",
+ "prompt": "QGISの「有償サポートが必要ですか？」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「有償サポートが必要ですか？」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認できました。**「有償サポートが必要ですか？」アクションは現在有効です。**\n\n## 詳細\n\n- メニューパス: **ヘルプ(&H) > 有償サポートが必要ですか？**\n- `objectName = 'mActionNeedSupport'`\n- `QAction` 状態: `enabled = true`, `visible = true`\n\nQGIS の商用サポート提供企業一覧ページ（qgis.org の commercial support）をブラウザで開くアクションで、実行可能な状態です。実行しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nfound = []\\nfor w in iface.mainWindow().findChildren(QAction):\\n    t = w.text() or ''\\n    o = (w.objectName() or '').lower()\\n    if 'サポート' in t or 'support' in o or '有償' in t:\\n        menus = []\\n        for m in iface.mainWindow().findChildren(QMenu):\\n            if w in m.actions():\\n                menus.append(m.title())\\n        found.append((t, w.objectName(), w.isEnabled(), w.isVisible(), menus))\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「有償サポートが必要ですか？」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n確認できました。「有償サポートが必要ですか？」アクションは現在有効です。\n詳細\nメニューパス: ヘルプ(&H) > 有償サポートが必要ですか？\nobjectName = 'mActionNeedSupport'\nQAction 状態: enabled = true, visible = true\nQGIS の商用サポート提供企業一覧ページ（qgis.org の commercial support）をブラウザで開くアクションで、実行可能な状態です。実行しますか？"
+}

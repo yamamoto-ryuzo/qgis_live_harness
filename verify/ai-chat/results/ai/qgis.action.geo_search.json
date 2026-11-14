@@ -1,0 +1,34 @@
+{
+ "id": "qgis.action.geo_search",
+ "prompt": "QGISの「地図検索」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「地図検索」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「地図検索」という名前のアクションをQGIS内から探して、有効状態を確認します。「地図検索」アクションが見つかりました。有効になっているようです。もう少し詳しく（どのプラグイン/メニュー・ツールバーに属するか）調べます。調査結果です。「地図検索」アクションは**現在有効（enabled = true）**です。\n\n## 見つかったアクション\n\n「地図検索」というテキストを持つ QAction が2つあります：\n\n| 項目 | メニュー側 | プラグイン本体 |\n|---|---|---|\n| text | 地図検索 | 地図検索 |\n| objectName | （なし） | `geo_search` |\n| enabled | **true** | **true** |\n| visible | true | true |\n| 配置 | QMenu 内 | `GeoSuite` ツールバー + 「地図検索」メニュー |\n\n## プラグインの状態\n\n- `geo_search` プラグイン（GeoSuite系）は**ロード済み**\n- `SearchDialog` インスタンスは生成済みだが、現在は**非表示**（ダイアログはまだ開かれていない）\n- bridge も存在しており、プラグインは正常に初期化されています\n\nつまり、アクション自体はメニュー/ツールバー両方で有効な状態なので、クリック（または `action.trigger()`）すれば検索ダイアログが開くはずです。実際に開いて動作確認まで行いますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QApplication\\n\\nhits = []\\nfor w in QApplication.topLevelWidgets():\\n    for a in w.findChildren(type(iface.actionPan())):  # QAction objects\\n        t = (a.text() or '')\\n        if '地図検索' in t or '検索' in t:\\n            hits.append({\\n                'text': t,\\n                'objectName': a.objectName(),\\n                'enabled': a.isEnabled(),\\n                'visible': a.isVisible(),\\n                'checkable': a.isCheckable(),\\n                'checked': a.isChecked(),\\n                'parent': a.parent().objectName() or type(a.parent()).__name__ if a.parent() else None,\\n            })\\n# dedupe\\nseen = set(); uniq = []\\nfor h in hits:\\n    k = (h['text'], h['objectName'])\\n    if k not in seen:\\n        seen.add(k); uniq.append(h)\\nresult = uniq\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QApplication, QAction, QMenu, QToolBar\\nfrom qgis.utils import plugins\\n\\ninfo = {}\\n# geo_search plugin loaded?\\ninfo['geo_search_loaded'] = 'geo_search' in plugins\\nif 'geo_search' in plugins:\\n    p = plugins['geo_search']\\n    info['plugin_type'] = type(p).__name__\\n    info['has_dialog_open'] = getattr(getattr(p, 'dlg', None), 'isVisible', lambda: 'n/a')() if hasattr(p, 'dlg') else 'no dlg attr'\\n\\n# find the geo_search action and where it is used\\nfor w in QApplication.topLevelWidgets():\\n    for a in w.findChildren(QAction):\\n        if a.objectName() == 'geo_search':\\n            info['action_tooltip'] = a.toolTip()\\n            info['action_enabled'] = a.isEnabled()\\n            # find toolbars containing it\\n            bars = []\\n            for tb in iface.mainWindow().findChildren(QToolBar):\\n                if a in tb.actions():\\n                    bars.append(tb.objectName() or tb.windowTitle())\\n            menus = []\\n        "
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.utils import plugins\\nfrom qgis.PyQt.QtWidgets import QDockWidget\\n\\np = plugins.get('geo_search')\\nout = {'attrs': [a for a in dir(p) if not a.startswith('_')] if p else None}\\n# any dock widget belonging to plugin?\\ndocks = []\\nfor d in iface.mainWindow().findChildren(QDockWidget):\\n    docks.append({'name': d.objectName(), 'title': d.windowTitle(), 'visible': d.isVisible()})\\nout['docks'] = [d for d in docks if 'search' in (d['name'] or '').lower() or '検索' in (d['title'] or '')]\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「地図検索」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「地図検索」という名前のアクションをQGIS内から探して、有効状態を確認します。「地図検索」アクションが見つかりました。有効になっているようです。もう少し詳しく（どのプラグイン/メニュー・ツールバーに属するか）調べます。調査結果です。「地図検索」アクションは**現在有効（enabled = true）**です。\n見つかったアクション\n「地図検索」というテキストを持つ QAction が2つあります：\n項目\nメニュー側\nプラグイン本体\ntext\n地図検索\n地図検索\nobjectName\n（なし）\ngeo_search\nenabled\ntrue\ntrue\nvisible\ntrue\ntrue\n配置\nQMenu 内\nGeoSuite ツールバー + 「地図検索」メニュー\n\nプラグインの状態\ngeo_search プラグイン（GeoSuite系）はロード済み\nSearchDialog インスタンスは生成済みだが、現在は非表示（ダイアログはまだ開かれていない）\nbridge も存在しており、プラグインは正常に初期化されています\nつまり、アクション自体はメニュー/ツールバー両方で有効な状態なので、クリック（または action.trigger()）すれば検索ダイアログが開くはずです。実際に開いて動作確認まで行いますか？"
+}

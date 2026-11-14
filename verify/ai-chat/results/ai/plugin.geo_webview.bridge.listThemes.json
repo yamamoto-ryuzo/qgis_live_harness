@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_webview.bridge.listThemes",
+ "prompt": "QGISの geo_webview プラグインで「マップテーマ一覧・パネルコンボの現在選択を返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_webview プラグインで「マップテーマ一覧・パネルコンボの現在選択を返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`listThemes` を実行します。`listThemes` の結果です。\n\n```json\n{\n  \"ok\": true,\n  \"themes\": [\"検索前\"],\n  \"current\": \"検索前\"\n}\n```\n\n- **登録マップテーマ**: 「検索前」の1件\n- **パネルコンボの現在選択**: 「検索前」\n\n先ほど `applyTheme(\"検索前\")` を実行する前は `current: null` だったので、適用結果がパネル側にも正しく反映・維持されています。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_webview', 'args': [], 'method': 'listThemes'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_webview プラグインで「マップテーマ一覧・パネルコンボの現在選択を返す。」を実行して結果を教えて\n[AI] \nlistThemes を実行します。listThemes の結果です。\n{\n  \"ok\": true,\n  \"themes\": [\"検索前\"],\n  \"current\": \"検索前\"\n}\n登録マップテーマ: 「検索前」の1件\nパネルコンボの現在選択: 「検索前」\n先ほど applyTheme(\"検索前\") を実行する前は current: null だったので、適用結果がパネル側にも正しく反映・維持されています。"
+}

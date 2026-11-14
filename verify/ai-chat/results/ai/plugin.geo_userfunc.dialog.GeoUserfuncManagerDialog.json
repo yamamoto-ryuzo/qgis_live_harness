@@ -1,0 +1,30 @@
+{
+ "id": "plugin.geo_userfunc.dialog.GeoUserfuncManagerDialog",
+ "prompt": "geo_userfunc プラグインの「GeoUserfuncManagerDialog」ダイアログ/パネルを開いて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_userfunc プラグインの「GeoUserfuncManagerDialog」ダイアログ/パネルを開いて"
+  },
+  {
+   "role": "assistant",
+   "content": "既に開いていますが、最前面に出して表示状態を確認します。`GeoUserfuncManagerDialog`(ユーザー関数ライブラリ)を開き、最前面に表示しました。内容は以下の通りです。\n\n**ライブラリdir**: `C:/Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4/profiles/geo_custom/python/geo_userfunc`\n\n**ライブラリのファイル**(1件):\n- `user_functions.py` — 有効 / 型: expression, hook / 内容: `zen2han`, `hook:openProject`, `hook:saveProject`, `hook:closeProject`\n\n**他プラグインからの登録**(3件・すべて geo_excel):\n- 一覧帳票を出力(アクティブレイヤ)\n- 単票を出力(選択地物)\n- 単票を一括出力(選択地物または全地物)\n\nボタンは「再読込 / 新規作成… / 編集… / フォルダを開く / URLから取得… / upstreamから更新 / 閉じる」が並んでいます。次に何をしますか(関数の編集・新規作成・マクロ実行など)?"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QApplication\\ndlg=None\\nfor w in QApplication.topLevelWidgets():\\n    if type(w).__name__=='GeoUserfuncManagerDialog':\\n        dlg=w; break\\nif dlg is None:\\n    result={'opened':False}\\nelse:\\n    dlg.showNormal(); dlg.raise_(); dlg.activateWindow()\\n    result={'opened':True,'visible':dlg.isVisible(),'title':dlg.windowTitle(),'geom':str(dlg.geometry())}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QApplication\\nimport os\\ndlg=None\\nfor w in QApplication.topLevelWidgets():\\n    if type(w).__name__=='GeoUserfuncManagerDialog':\\n        dlg=w; break\\npath=os.path.join(os.environ.get('TEMP','.'),'geo_userfunc_dlg.png')\\nif dlg:\\n    pm=dlg.grab(); pm.save(path)\\nresult={'path':path,'exists':os.path.exists(path)}\"}"
+  }
+ ],
+ "view_tail": "[あなた] geo_userfunc プラグインの「GeoUserfuncManagerDialog」ダイアログ/パネルを開いて\n[AI] \n既に開いていますが、最前面に出して表示状態を確認します。GeoUserfuncManagerDialog(ユーザー関数ライブラリ)を開き、最前面に表示しました。内容は以下の通りです。\nライブラリdir: C:/Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4/profiles/geo_custom/python/geo_userfunc\nライブラリのファイル(1件):\nuser_functions.py — 有効 / 型: expression, hook / 内容: zen2han, hook:openProject, hook:saveProject, hook:closeProject\n他プラグインからの登録(3件・すべて geo_excel):\n一覧帳票を出力(アクティブレイヤ)\n単票を出力(選択地物)\n単票を一括出力(選択地物または全地物)\nボタンは「再読込 / 新規作成… / 編集… / フォルダを開く / URLから取得… / upstreamから更新 / 閉じる」が並んでいます。次に何をしますか(関数の編集・新規作成・マクロ実行など)?"
+}

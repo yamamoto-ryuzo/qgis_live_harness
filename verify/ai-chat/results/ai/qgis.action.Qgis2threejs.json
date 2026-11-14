@@ -1,0 +1,38 @@
+{
+ "id": "qgis.action.Qgis2threejs",
+ "prompt": "QGISの「Qgis2threejs」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Qgis2threejs」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "Qgis2threejs プラグインのアクションを調べます。調査結果です。\n\n**Qgis2threejs のアクションはすべて現在有効（enabled）です。**\n\n詳細 — プラグイン `Qgis2threejs`（`Qgis2threejs.qgis2threejs.Qgis2threejs`）ロード済み:\n\n**ツールバー側**\n\n- 「Qgis2threejs Exporter」（objectName `Qgis2threejsExporter`）— `enabled=True`, `visible=True`\n- 「Webツールバー」(mWebToolBar) 上の QToolButton として表示\n\n**メニュー側** — 「Web(&W)」→「Qgis2threejs」サブメニュー（objectName `Qgisthreejs`、menuAction 有効・表示）\n\nサブメニュー内は排他選択（QActionGroup・checkable）の3モードで、すべて `enabled=True`（いずれも現在 checked ではない）:\n\n| アクション | objectName |\n|---|---|\n| Qgis2threejs Exporter | `Qgis2threejsExporterEmb`（埋め込みプレビュー） |\n| Qgis2threejs Exporter (Browser Preview) | `Qgis2threejsExporterBrw` |\n| Qgis2threejs Exporter (No Preview) | `Qgis2threejsExporterWoP` |\n\n補足: `LAST_ACTION` / `openExporterLastAction` の仕組みがあり、ツールバーボタンは前回使ったモードで Exporter を開く実装のようです。無効化・グレーアウトされた項目はありません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\npl = qgis.utils.plugins.get('Qgis2threejs')\\ninfo = {'loaded': pl is not None}\\nif pl is not None:\\n    info['plugin_type'] = type(pl).__name__\\n    info['module'] = getattr(pl, '__module__', None)\\n    info['attrs'] = [a for a in dir(pl) if not a.startswith('__')]\\nresult = info\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\nfrom qgis.PyQt.QtWidgets import QMenu, QToolBar, QAction, QToolButton\\npl = qgis.utils.plugins['Qgis2threejs']\\nout = {'main': None, 'group': []}\\na = getattr(pl, 'action', None)\\nif isinstance(a, QAction):\\n    conts = []\\n    for w in a.associatedObjects():\\n        if isinstance(w, QMenu):\\n            conts.append('QMenu:%s [%s]' % (w.title(), w.objectName()))\\n        elif isinstance(w, QToolBar):\\n            conts.append('QToolBar:%s [%s]' % (w.windowTitle(), w.objectName()))\\n        else:\\n            conts.append(w.metaObject().className())\\n    out['main'] = {'text': a.text(), 'objectName': a.objectName(), 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'containers': conts}\\ng = getattr(pl, 'actionGroup', None)\\nif g is not None:\\n    for sa in g.actions():\\n        out['group'].append({'text': sa.text(), 'objectName': sa.objectName(), 'enabled': sa.isEnabled(), 'visible': sa.isVisible(), 'checkable': sa.isCheckable(), 'checked': sa.isChecked"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\nfrom qgis.PyQt.QtWidgets import QMenu\\npl = qgis.utils.plugins['Qgis2threejs']\\nout = []\\nfor sa in pl.actionGroup.actions():\\n    menus = ['%s [%s]' % (w.title(), w.objectName()) for w in sa.associatedObjects() if isinstance(w, QMenu)]\\n    out.append({'text': sa.text(), 'menus': menus})\\nresult = out\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QMenu\\nmw = iface.mainWindow()\\nout = []\\nfor m in mw.findChildren(QMenu):\\n    if m.objectName() == 'Qgisthreejs':\\n        ma = m.menuAction()\\n        parents = ['%s [%s]' % (w.title(), w.objectName()) for w in ma.associatedObjects() if isinstance(w, QMenu)]\\n        out.append({'title': m.title(), 'enabled': m.isEnabled(), 'menuAction_enabled': ma.isEnabled(), 'menuAction_visible': ma.isVisible(), 'in_menus': parents})\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Qgis2threejs」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nQgis2threejs プラグインのアクションを調べます。調査結果です。\nQgis2threejs のアクションはすべて現在有効（enabled）です。\n詳細 — プラグイン Qgis2threejs（Qgis2threejs.qgis2threejs.Qgis2threejs）ロード済み:\nツールバー側\n「Qgis2threejs Exporter」（objectName Qgis2threejsExporter）— enabled=True, visible=True\n「Webツールバー」(mWebToolBar) 上の QToolButton として表示\nメニュー側 — 「Web(&W)」→「Qgis2threejs」サブメニュー（objectName Qgisthreejs、menuAction 有効・表示）\nサブメニュー内は排他選択（QActionGroup・checkable）の3モードで、すべて enabled=True（いずれも現在 checked ではない）:\nアクション\nobjectName\nQgis2threejs Exporter\nQgis2threejsExporterEmb（埋め込みプレビュー）\nQgis2threejs Exporter (Browser Preview)\nQgis2threejsExporterBrw\nQgis2threejs Exporter (No Preview)\nQgis2threejsExporterWoP\n\n補足: LAST_ACTION / openExporterLastAction の仕組みがあり、ツールバーボタンは前回使ったモードで Exporter を開く実装のようです。無効化・グレーアウトされた項目はありません。"
+}

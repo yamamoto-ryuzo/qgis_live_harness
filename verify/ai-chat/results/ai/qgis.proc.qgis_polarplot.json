@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_polarplot",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] ベクタレイヤの極座標プロット」(id: qgis:polarplot) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] ベクタレイヤの極座標プロット」(id: qgis:polarplot) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis:polarplot` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `qgis:polarplot`\n- **表示名**: `ベクタレイヤの極座標プロット`\n- **Provider**: `QGIS`\n- **グループ**: `プロット`\n\n### 用途\n入力ベクタレイヤの数値属性を使って極座標プロットを作成し、HTML として出力します。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ベクタレイヤ | — |\n| `VALUE_FIELD` | プロットする値の属性フィールド | — |\n| `OUTPUT` | 出力先 HTML ファイル | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('qgis:polarplot')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'polar' in a.id().lower() or 'plot' in a.id().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'type': p.type(),\\n        "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] ベクタレイヤの極座標プロット」(id: qgis:polarplot) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nqgis:polarplot を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: qgis:polarplot\n表示名: ベクタレイヤの極座標プロット\nProvider: QGIS\nグループ: プロット\n用途\n入力ベクタレイヤの数値属性を使って極座標プロットを作成し、HTML として出力します。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\n入力ベクタレイヤ\n—\nVALUE_FIELD\nプロットする値の属性フィールド\n—\nOUTPUT\n出力先 HTML ファイル\n—\n"
+}

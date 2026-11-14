@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_webview.bridge.getSettings",
+ "prompt": "QGISの geo_webview プラグインで「設定(出力先ディレクトリ・優先ポート)とバージョンを返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_webview プラグインで「設定(出力先ディレクトリ・優先ポート)とバージョンを返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`getSettings` を実行します。`getSettings` の結果です。\n\n## geo_webview 設定\n\n| 項目 | 値 |\n|---|---|\n| バージョン | **4.14.0** |\n| 出力先 (kasugai_output_dir) | `C:/Users/ryu.RYU-NOTE/Documents\\kasugai_canvas_qgis` |\n| 出力パス (kasugai_output_path) | 空(未設定) |\n| **優先ポート (preferred_port)** | **8089** |\n| KASUGAI Canvas インストール先 | `C:\\kasugai\\kasugai_canvas` |\n| ├ projects_dir | `C:\\kasugai\\kasugai_canvas\\projects` |\n| └ QGIS_projects_dir | `C:\\kasugai\\kasugai_canvas\\QGIS_projects` |\n| KASUGAI ポート | 8510 |\n| ホスト版チャンネル | `stable` |\n| ホスト版ベースURL | `https://yamamoto-ryuzo.github.io/kasugai-canvas-web/stable/` |\n| エンジン | `cesium` |\n| MAC認証 | 無効(`mac_auth_enabled: \"false\"`) |\n| プラグインdir | `.../geo_custom/python/plugins/geo_webview` |\n\n**注意点**: 優先ポートは **8089** ですが、実際に稼働中のサーバーは **8090** です(checkAccess/endpoints の結果より)。8089 が既に使われていた等でフォールバックした可能性があります。設定値の変更は `setSettings`、ポート変更は `setPort` で行えます。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'method': 'getSettings', 'plugin_id': 'geo_webview'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_webview プラグインで「設定(出力先ディレクトリ・優先ポート)とバージョンを返す。」を実行して結果を教えて\n[AI] \ngetSettings を実行します。getSettings の結果です。\ngeo_webview 設定\n項目\n値\nバージョン\n4.14.0\n出力先 (kasugai_output_dir)\nC:/Users/ryu.RYU-NOTE/Documents\\kasugai_canvas_qgis\n出力パス (kasugai_output_path)\n空(未設定)\n優先ポート (preferred_port)\n8089\nKASUGAI Canvas インストール先\nC:\\kasugai\\kasugai_canvas\n├ projects_dir\nC:\\kasugai\\kasugai_canvas\\projects\n└ QGIS_projects_dir\nC:\\kasugai\\kasugai_canvas\\QGIS_projects\nKASUGAI ポート\n8510\nホスト版チャンネル\nstable\nホスト版ベースURL\nhttps://yamamoto-ryuzo.github.io/kasugai-canvas-web/stable/\nエンジン\ncesium\nMAC認証\n無効(mac_auth_enabled: \"false\")\nプラグインdir\n.../geo_custom/python/plugins/geo_webview\n\n注意点: 優先ポートは 8089 ですが、実際に稼働中のサーバーは 8090 です(checkAccess/endpoints の結果より)。8089 が既に使われていた等でフォールバックした可能性があります。設定値の変更は setSettings、ポート変更は setPort で行えます。"
+}

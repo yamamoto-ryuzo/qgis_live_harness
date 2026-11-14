@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_exportaddgeometrycolumns",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Add geometry attributes」(id: native:exportaddgeometrycolumns) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Add geometry attributes」(id: native:exportaddgeometrycolumns) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:exportaddgeometrycolumns`\n- **表示名**: Add geometry attributes（英語表記のまま）\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ベクタジオメトリ\n\n## 用途\n**地物の幾何学的な計測値を属性フィールドとして追加**した新しいレイヤを作るアルゴリズムです。追加される属性はジオメトリ型で変わり、ポイントなら座標値（x, y、あれば z, m）、ラインなら長さ、ポリゴンなら面積・周長が付きます。「属性表に面積列が欲しい」「ポイントのXY座標を列として出したい」といった定型処理の定番です。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ベクタレイヤ（必須） |\n| `METHOD` | 計算方式（0=レイヤCRSの直交計算【デフォルト】／1=プロジェクトCRSの直交計算／2=楕円体上の測地計算） |\n| `OUTPUT` | 計測属性付き出力レイヤ（必須） |\n\n`METHOD` の選び方: 度単位（地理座標系）レイヤで実距離・実面積が欲しい場合は「楕円体上の測地計算」を選びます。投影済みレイヤならレイヤCRSの直交計算で十分です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber\\nalg = QgsApplication.processingRegistry().algorithmById('native:exportaddgeometrycolumns')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'geometry' in a.id().lower() and ('add' in a.id().lower() or 'export' in a.id().lower())]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.prov"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Add geometry attributes」(id: native:exportaddgeometrycolumns) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:exportaddgeometrycolumns\n表示名: Add geometry attributes（英語表記のまま）\nプロバイダ: QGIS（ネイティブC++）／グループ: ベクタジオメトリ\n用途\n地物の幾何学的な計測値を属性フィールドとして追加した新しいレイヤを作るアルゴリズムです。追加される属性はジオメトリ型で変わり、ポイントなら座標値（x, y、あれば z, m）、ラインなら長さ、ポリゴンなら面積・周長が付きます。「属性表に面積列が欲しい」「ポイントのXY座標を列として出したい」といった定型処理の定番です。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ベクタレイヤ（必須）\nMETHOD\n計算方式（0=レイヤCRSの直交計算【デフォルト】／1=プロジェクトCRSの直交計算／2=楕円体上の測地計算）\nOUTPUT\n計測属性付き出力レイヤ（必須）\n\nMETHOD の選び方: 度単位（地理座標系）レイヤで実距離・実面積が欲しい場合は「楕円体上の測地計算」を選びます。投影済みレイヤならレイヤCRSの直交計算で十分です。"
+}

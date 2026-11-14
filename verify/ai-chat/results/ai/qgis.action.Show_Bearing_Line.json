@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Show_Bearing_Line",
+ "prompt": "QGISの「Show Bearing Line」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Show Bearing Line」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Show Bearing Line」も同じGPSオプションメニュー内にあります。現在状態を再確認します。調査結果です。\n\n## 「Show Bearing Line」アクション\n\n前回調べた「Show Location Marker」と同じ、**GPSツールバーのオプションメニュー**（`QToolButton(mBtnPopupOptions)` 配下の QMenu）内のアクションです。\n\n**現在の状態**（pyeval 実測）:\n\n| 項目 | 値 |\n|---|---|\n| isEnabled | **true（有効）** |\n| isCheckable | true |\n| isChecked | **false（OFF）** |\n| isVisible | true |\n\n**意味・実効**: GPS の進行方位（bearing）を地図上に線で表示するトグルです。チェックは OFF ですがアクション自体は有効で、クリック/`trigger()`/`setChecked(True)` で ON にできます。\n\nただし先ほど確認した通り `QgsApplication.gpsConnectionRegistry()` のアクティブな GPS 接続は **0 件**なので、ON にしても現時点で実際に方位線が描画されることはありません（GPS接続確立＋bearing データ受信時のみ描画されます）。\n\n## まとめ\n\n- アクションは **有効（enabled）だが OFF（unchecked）** の状態です。\n- 実際の描画には GPS 接続が前提です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = None\\nfor x in mw.findChildren(QAction):\\n    if (x.text() or '') == 'Show Bearing Line':\\n        a = x\\n        break\\nresult = {'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked(),\\n          'visible': a.isVisible(), 'tooltip': a.toolTip(), 'statusTip': a.statusTip()}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Show Bearing Line」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Show Bearing Line」も同じGPSオプションメニュー内にあります。現在状態を再確認します。調査結果です。\n「Show Bearing Line」アクション\n前回調べた「Show Location Marker」と同じ、GPSツールバーのオプションメニュー（QToolButton(mBtnPopupOptions) 配下の QMenu）内のアクションです。\n現在の状態（pyeval 実測）:\n項目\n値\nisEnabled\ntrue（有効）\nisCheckable\ntrue\nisChecked\nfalse（OFF）\nisVisible\ntrue\n\n意味・実効: GPS の進行方位（bearing）を地図上に線で表示するトグルです。チェックは OFF ですがアクション自体は有効で、クリック/trigger()/setChecked(True) で ON にできます。\nただし先ほど確認した通り QgsApplication.gpsConnectionRegistry() のアクティブな GPS 接続は 0 件なので、ON にしても現時点で実際に方位線が描画されることはありません（GPS接続確立＋bearing データ受信時のみ描画されます）。\nまとめ\nアクションは 有効（enabled）だが OFF（unchecked） の状態です。\n実際の描画には GPS 接続が前提です。"
+}

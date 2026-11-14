@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_linesubstring",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線の一部を切り出し」(id: native:linesubstring) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線の一部を切り出し」(id: native:linesubstring) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:linesubstring` は **processing registry に存在します**。\n\n- **表示名**: 線の一部を切り出し\n- **グループ**: ベクタジオメトリ (`vectorgeometry`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\nライン（直線・曲線）地物について、**線の始点からの距離で指定した開始位置～終了位置の区間だけを切り出し**た新しいラインを作成するアルゴリズムです。道路の一部区間の抽出、ルートの途中区間だけの切り出し等に使います。\n\n挙動のポイント（ヘルプより）：\n- Z 値・M 値は線形内挿される\n- マルチパートジオメトリは**最初のパートのみ**が対象\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ラインレイヤ（必須） | — |\n| `START_DISTANCE` | 切り出し開始位置（線の始点からの距離） | `0.0` |\n| `END_DISTANCE` | 切り出し終了位置（線の始点からの距離） | `1.0` |\n| `OUTPUT` | 出力「線分切り出し（Substring）」（必須） | — |\n\n`START_DISTANCE`/`END_DISTANCE` は距離パラメータ型なので、データ定義式で地物ごとに可変の区間を指定することも可能です。\n\n実行例: `processing.run(\"native:linesubstring\", {'INPUT': lines, 'START_DISTANCE': 100, 'END_DISTANCE': 500, 'OUTPUT': 'TEMPORARY_OUTPUT'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:linesubstring')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'prov"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線の一部を切り出し」(id: native:linesubstring) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:linesubstring は processing registry に存在します。\n表示名: 線の一部を切り出し\nグループ: ベクタジオメトリ (vectorgeometry)\nプロバイダ: QGIS（ネイティブ C++）\n用途\nライン（直線・曲線）地物について、線の始点からの距離で指定した開始位置～終了位置の区間だけを切り出した新しいラインを作成するアルゴリズムです。道路の一部区間の抽出、ルートの途中区間だけの切り出し等に使います。\n挙動のポイント（ヘルプより）：\nZ 値・M 値は線形内挿される\nマルチパートジオメトリは最初のパートのみが対象\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力ラインレイヤ（必須）\n—\nSTART_DISTANCE\n切り出し開始位置（線の始点からの距離）\n0.0\nEND_DISTANCE\n切り出し終了位置（線の始点からの距離）\n1.0\nOUTPUT\n出力「線分切り出し（Substring）」（必須）\n—\n\nSTART_DISTANCE/END_DISTANCE は距離パラメータ型なので、データ定義式で地物ごとに可変の区間を指定することも可能です。\n実行例: processing.run(\"native:linesubstring\", {'INPUT': lines, 'START_DISTANCE': 100, 'END_DISTANCE': 500, 'OUTPUT': 'TEMPORARY_OUTPUT'})"
+}

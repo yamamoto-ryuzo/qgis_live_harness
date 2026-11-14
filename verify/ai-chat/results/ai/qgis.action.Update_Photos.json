@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Update_Photos",
+ "prompt": "QGISの「Update Photos」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Update Photos」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Update Photos」アクションの現在の状態を確認します。## 調査結果\n\n「Update Photos」アクションの状態を `qgis_pyeval` で確認しました。\n\n| 項目 | 状態 |\n|---|---|\n| 提供元 | **ImportPhotos** プラグイン（QGIS 標準ではありません） |\n| 表示テキスト | Update Photos |\n| 配置場所 | **ImportPhotos** メニュー ＋ **ImportPhotos** ツールバー |\n| 種別 | 通常アクション（非チェック型） |\n| ショートカット | なし |\n| 現在の有効状態 | **有効（enabled）** |\n\n### 補足\n\n- 「Click Photos」（チェック型マップツール、現在アクティブ中）と同じツールバーに並んでいます。\n- 既存の写真ポイントレイヤの写真パス等を更新する機能と思われます。実行すると写真フォルダ選択などのダイアログが出る可能性があります。\n\n必要であれば `trigger()` で実行できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    if (a.text() or '') == 'Update Photos':\\n        homes = [m.title() for m in mw.findChildren(QMenu) if a in m.actions()]\\n        tb = [t.windowTitle() for t in mw.findChildren(QToolBar) if a in t.actions()]\\n        found.append({'text': a.text(), 'toolTip': a.toolTip(), 'enabled': a.isEnabled(),\\n                      'visible': a.isVisible(), 'checkable': a.isCheckable(), 'checked': a.isChecked(),\\n                      'shortcut': a.shortcut().toString(), 'menus': homes, 'toolbars': tb})\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Update Photos」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Update Photos」アクションの現在の状態を確認します。## 調査結果\n「Update Photos」アクションの状態を qgis_pyeval で確認しました。\n項目\n状態\n提供元\nImportPhotos プラグイン（QGIS 標準ではありません）\n表示テキスト\nUpdate Photos\n配置場所\nImportPhotos メニュー ＋ ImportPhotos ツールバー\n種別\n通常アクション（非チェック型）\nショートカット\nなし\n現在の有効状態\n有効（enabled）\n\n補足\n「Click Photos」（チェック型マップツール、現在アクティブ中）と同じツールバーに並んでいます。\n既存の写真ポイントレイヤの写真パス等を更新する機能と思われます。実行すると写真フォルダ選択などのダイアログが出る可能性があります。\n必要であれば trigger() で実行できます。"
+}

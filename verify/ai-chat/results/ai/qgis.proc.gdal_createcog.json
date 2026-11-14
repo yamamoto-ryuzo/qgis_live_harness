@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_createcog",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] Create Cloud Optimized GeoTIFF」(id: gdal:createcog) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] Create Cloud Optimized GeoTIFF」(id: gdal:createcog) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:createcog` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:createcog` |\n| 表示名 | Create Cloud Optimized GeoTIFF |\n| プロバイダ | GDAL |\n| グループ | Raster conversion(ラスタ変換) |\n\n## 用途\n\n入力ラスタを **Cloud Optimized GeoTIFF(COG)** に変換します(GDAL 3.x の COG ドライバ経由)。COG は HTTP 範囲リクエストで**必要な部分だけを効率的に読み取れる**内部タイル構造+オーバービューを持つ GeoTIFF で、以下に適します。\n\n- クラウド(S3等)上での**効率的な配信・部分読み取り**\n- 大きなラスタの**高速な範囲表示・ストリーミング**\n- WebGIS / STAC カタログへの公開前処理\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `LAYERS` | 入力ラスタ(複数可) | 必須 |\n| `CREATION_OPTIONS` | 追加の作成オプション | 任意 |\n| `OUTPUT` | **出力ディレクトリ**(ファイルではなくフォルダ) | 必須 |\n\n複数レイヤを渡した場合、指定フォルダ内にレイヤごとの COG ファイルが生成されます。\n\n実行例: `processing.run(\"gdal:createcog\", {\"LAYERS\": [r1, r2], \"OUTPUT\": \"out_dir\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:createcog')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'cog' in a.id().lower() or 'cloud' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n       "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] Create Cloud Optimized GeoTIFF」(id: gdal:createcog) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:createcog をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:createcog\n表示名\nCreate Cloud Optimized GeoTIFF\nプロバイダ\nGDAL\nグループ\nRaster conversion(ラスタ変換)\n\n用途\n入力ラスタを Cloud Optimized GeoTIFF(COG) に変換します(GDAL 3.x の COG ドライバ経由)。COG は HTTP 範囲リクエストで必要な部分だけを効率的に読み取れる内部タイル構造+オーバービューを持つ GeoTIFF で、以下に適します。\nクラウド(S3等)上での効率的な配信・部分読み取り\n大きなラスタの高速な範囲表示・ストリーミング\nWebGIS / STAC カタログへの公開前処理\n主なパラメータ\nパラメータ\n説明\n既定値\nLAYERS\n入力ラスタ(複数可)\n必須\nCREATION_OPTIONS\n追加の作成オプション\n任意\nOUTPUT\n出力ディレクトリ(ファイルではなくフォルダ)\n必須\n\n複数レイヤを渡した場合、指定フォルダ内にレイヤごとの COG ファイルが生成されます。\n実行例: processing.run(\"gdal:createcog\", {\"LAYERS\": [r1, r2], \"OUTPUT\": \"out_dir\"})"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_meancoordinates",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 加重平均座標（重心の平均）」(id: native:meancoordinates) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 加重平均座標（重心の平均）」(id: native:meancoordinates) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:meancoordinates` は **processing registry に存在します**。\n\n- **表示名**: 加重平均座標（重心の平均）\n- **グループ**: ベクタ解析 (`vectoranalysis`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n入力レイヤの**全地物（またはグループごと）の座標の平均値（重心）を計算し、ポイントレイヤとして出力**するアルゴリズムです。点群の中心位置の把握、クラスタ代表点の生成等に使います。\n\nオプション：\n- `WEIGHT` を指定すると**加重平均**（人口や規模で重み付けた重心）になる\n- `UID`（ID属性）を指定すると**その値で地物をグループ化**し、グループごとの重心を計算する\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力レイヤ（必須） | — |\n| `WEIGHT` | 重み属性フィールド（任意） | なし |\n| `UID` | グループ化に使う ID 属性（任意） | なし |\n| `OUTPUT` | 出力ポイントレイヤ（必須） | — |\n\n## 出力\n\n- `OUTPUT` — 重心のポイントレイヤ（`UID` 指定時はグループごとに1点）\n\n実行例: `processing.run(\"native:meancoordinates\", {'INPUT': points, 'WEIGHT': 'population', 'UID': 'pref', 'OUTPUT': 'TEMPORARY_OUTPUT'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:meancoordinates')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'pr"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 加重平均座標（重心の平均）」(id: native:meancoordinates) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:meancoordinates は processing registry に存在します。\n表示名: 加重平均座標（重心の平均）\nグループ: ベクタ解析 (vectoranalysis)\nプロバイダ: QGIS（ネイティブ C++）\n用途\n入力レイヤの全地物（またはグループごと）の座標の平均値（重心）を計算し、ポイントレイヤとして出力するアルゴリズムです。点群の中心位置の把握、クラスタ代表点の生成等に使います。\nオプション：\nWEIGHT を指定すると加重平均（人口や規模で重み付けた重心）になる\nUID（ID属性）を指定するとその値で地物をグループ化し、グループごとの重心を計算する\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力レイヤ（必須）\n—\nWEIGHT\n重み属性フィールド（任意）\nなし\nUID\nグループ化に使う ID 属性（任意）\nなし\nOUTPUT\n出力ポイントレイヤ（必須）\n—\n\n出力\nOUTPUT — 重心のポイントレイヤ（UID 指定時はグループごとに1点）\n実行例: processing.run(\"native:meancoordinates\", {'INPUT': points, 'WEIGHT': 'population', 'UID': 'pref', 'OUTPUT': 'TEMPORARY_OUTPUT'})"
+}

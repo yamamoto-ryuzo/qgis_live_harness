@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.gdal_rasterize",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタライズ（ベクタをラスタ化）」(id: gdal:rasterize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタライズ（ベクタをラスタ化）」(id: gdal:rasterize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:rasterize` を Processing Registry で確認します。`UNITS` の選択肢も確認します。確認しました。Processing Registry に **`[GDAL] ラスタライズ（ベクタをラスタ化）`** は存在します。\n\n- **ID:** `gdal:rasterize`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ベクタ変換`\n\n### 用途\nベクタ地物の位置に、属性値・固定値・Z値を **ピクセル値として焼き込み、ラスタを作成**します。ポリゴン区分やマスク画像の作成などに使います。\n\n### 主なパラメータ\n- `INPUT`：入力ベクタレイヤ\n- `FIELD`：ピクセルへ焼き込む属性フィールド\n- `BURN`：属性の代わりに使う固定値\n- `USE_Z`：地物のZ値を焼き込む\n- `UNITS`：出力サイズ指定の単位（`ピクセル`／`地理単位`）\n- `WIDTH` / `HEIGHT`：出力サイズまたは解像度\n- `EXTENT`：出力範囲\n- `NODATA`：出力NoData値\n- `INIT`：初期値\n- `INVERT`：地物の内側ではなく外側を塗りつぶす\n- `DATA_TYPE`：出力ラスタのデータ型\n- `OUTPUT`：出力ラスタ"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:rasterize'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'rasterize' in a.id().lower() or 'ラスタライズ' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'rasterize' in a.id().lower()"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nimport json\\nalg = QgsApplication.processingRegistry().algorithmById('gdal:rasterize')\\nresult = None\\nif alg:\\n    p = next((x for x in alg.parameterDefinitions() if x.name() == 'UNITS'), None)\\n    result = json.dumps({'units_options': list(p.options()) if p else None, 'default': p.defaultValue() if p else None}, ensure_ascii=False)\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタライズ（ベクタをラスタ化）」(id: gdal:rasterize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:rasterize を Processing Registry で確認します。UNITS の選択肢も確認します。確認しました。Processing Registry に [GDAL] ラスタライズ（ベクタをラスタ化） は存在します。\nID: gdal:rasterize\nプロバイダ: GDAL\nグループ: ベクタ変換\n用途\nベクタ地物の位置に、属性値・固定値・Z値を ピクセル値として焼き込み、ラスタを作成します。ポリゴン区分やマスク画像の作成などに使います。\n主なパラメータ\nINPUT：入力ベクタレイヤ\nFIELD：ピクセルへ焼き込む属性フィールド\nBURN：属性の代わりに使う固定値\nUSE_Z：地物のZ値を焼き込む\nUNITS：出力サイズ指定の単位（ピクセル／地理単位）\nWIDTH / HEIGHT：出力サイズまたは解像度\nEXTENT：出力範囲\nNODATA：出力NoData値\nINIT：初期値\nINVERT：地物の内側ではなく外側を塗りつぶす\nDATA_TYPE：出力ラスタのデータ型\nOUTPUT：出力ラスタ"
+}

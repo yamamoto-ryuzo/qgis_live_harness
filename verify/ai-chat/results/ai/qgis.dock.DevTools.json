@@ -1,0 +1,26 @@
+{
+ "id": "qgis.dock.DevTools",
+ "prompt": "「デバッグ開発ツール」パネル(ドック)を表示して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "「デバッグ開発ツール」パネル(ドック)を表示して"
+  },
+  {
+   "role": "assistant",
+   "content": "「デバッグ開発ツール」ドックを表示します。「デバッグ開発ツール」パネルを表示しました。ネットワークログ、クエリログ、プロファイラなどのタブが使えます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\nfor d in iface.mainWindow().findChildren(QDockWidget):\\n    if d.objectName() == 'DevTools':\\n        d.setVisible(True)\\n        d.show()\\n        d.raise_()\\n        result = d.isVisible()\\nresult\"}"
+  }
+ ],
+ "view_tail": "[あなた] 「デバッグ開発ツール」パネル(ドック)を表示して\n[AI] \n「デバッグ開発ツール」ドックを表示します。「デバッグ開発ツール」パネルを表示しました。ネットワークログ、クエリログ、プロファイラなどのタブが使えます。"
+}

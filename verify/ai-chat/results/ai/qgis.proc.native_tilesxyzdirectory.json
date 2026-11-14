@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_tilesxyzdirectory",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Generate XYZ tiles (Directory)」(id: native:tilesxyzdirectory) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Generate XYZ tiles (Directory)」(id: native:tilesxyzdirectory) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:tilesxyzdirectory`「**Generate XYZ tiles (Directory)**」は登録されています（グループ: ラスタツール）。\n\n## 用途\n\n- **現在の地図キャンバスの表示内容を XYZ タイル**（`{z}/{x}/{y}.png` 構成）として生成し、個別画像ファイルとしてディレクトリに保存します\n- 生成物は Web 地図（Leaflet/OpenLayers など）や他GISでそのまま XYZ ソースとして使えます\n- 用途例：QGISプロジェクトの地図をWebGIS用タイルへ変換、オフライン配布用タイルの作成、ローカルタイルサーバのデータ準備\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `EXTENT` | extent | タイル化する領域 |\n| `ZOOM_MIN` / `ZOOM_MAX` | number | 生成するズームレベル範囲 |\n| `DPI` | number | 出力DPI |\n| `BACKGROUND_COLOR` | color | 背景色 |\n| `ANTIALIAS` | boolean | アンチエイリアス有効化 |\n| `TILE_FORMAT` | enum | タイル形式：`PNG` / `JPG` |\n| `QUALITY` | number | 品質（JPGのみ） |\n| `METATILESIZE` | number | メタタイルサイズ（ラベル切れ防止のため複数タイルをまとめて描画） |\n| `TILE_WIDTH` / `TILE_HEIGHT` | number | タイル幅・高さ（px、通常256） |\n| `TMS_CONVENTION` | boolean | Y軸を反転して TMS 仕様にするか |\n| `HTML_TITLE` / `HTML_ATTRIBUTION` / `HTML_OSM` | string / string / boolean | Leaflet HTML出力用のタイトル・帰属表示・OSM背景の有無 |\n| `OUTPUT_DIRECTORY` | folderDestination | タイルの出力ディレクトリ |\n| `OUTPUT_HTML` | fileDestination | 出力HTML（Leafletプレビュー用、任意） |\n\n## 出力\n\n- `OUTPUT_DIRECTORY`：`z/x/y.png` 構造のタイル群\n- `OUTPUT_HTML`：生成タイルをプレビューする Leaflet の HTML（指定した場合）\n\n## 補足\n\n- **キャンバスに表示されているスタイルのまま**タイル化されます（QGISの描画をそのまま焼き付ける）\n- 兄弟：`native:tilesxyzmbtiles`（MBTilesとして1ファイルに出力）。単一ファイルで配布したいならそちら\n- 大量生成は時間・容量を食うので、`ZOOM_MAX` と `EXTENT` は必要最小限に抑えるのがコツです"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:tilesxyzdirectory')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Generate XYZ tiles (Directory)」(id: native:tilesxyzdirectory) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:tilesxyzdirectory「Generate XYZ tiles (Directory)」は登録されています（グループ: ラスタツール）。\n用途\n現在の地図キャンバスの表示内容を XYZ タイル（{z}/{x}/{y}.png 構成）として生成し、個別画像ファイルとしてディレクトリに保存します\n生成物は Web 地図（Leaflet/OpenLayers など）や他GISでそのまま XYZ ソースとして使えます\n用途例：QGISプロジェクトの地図をWebGIS用タイルへ変換、オフライン配布用タイルの作成、ローカルタイルサーバのデータ準備\n主なパラメータ\nパラメータ\n型\n内容\nEXTENT\nextent\nタイル化する領域\nZOOM_MIN / ZOOM_MAX\nnumber\n生成するズームレベル範囲\nDPI\nnumber\n出力DPI\nBACKGROUND_COLOR\ncolor\n背景色\nANTIALIAS\nboolean\nアンチエイリアス有効化\nTILE_FORMAT\nenum\nタイル形式：PNG / JPG\nQUALITY\nnumber\n品質（JPGのみ）\nMETATILESIZE\nnumber\nメタタイルサイズ（ラベル切れ防止のため複数タイルをまとめて描画）\nTILE_WIDTH / TILE_HEIGHT\nnumber\nタイル幅・高さ（px、通常256）\nTMS_CONVENTION\nboolean\nY軸を反転して TMS 仕様にするか\nHTML_TITLE / HTML_ATTRIBUTION / HTML_OSM\nstring / string / boolean\nLeaflet HTML出力用のタイトル・帰属表示・OSM背景の有無\nOUTPUT_DIRECTORY\nfolderDestination\nタイルの出力ディレクトリ\nOUTPUT_HTML\nfileDestination\n出力HTML（Leafletプレビュー用、任意）\n\n出力\nOUTPUT_DIRECTORY：z/x/y.png 構造のタイル群\nOUTPUT_HTML：生成タイルをプレビューする Leaflet の HTML（指定した場合）\n補足\nキャンバスに表示されているスタイルのままタイル化されます（QGISの描画をそのまま焼き付ける）\n兄弟：native:tilesxyzmbtiles（MBTilesとして1ファイルに出力）。単一ファイルで配布したいならそちら\n大量生成は時間・容量を食うので、ZOOM_MAX と EXTENT は必要最小限に抑えるのがコツです"
+}

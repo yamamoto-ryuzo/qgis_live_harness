@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_meshexporttimeseries",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュの時系列データ値をエクスポート」(id: native:meshexporttimeseries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュの時系列データ値をエクスポート」(id: native:meshexporttimeseries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:meshexporttimeseries` は **processing registry に存在します**。\n\n- **表示名**: メッシュの時系列データ値をエクスポート\n- **グループ**: メッシュ (`mesh`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n時系列メッシュレイヤについて、**指定したポイント地物の位置でのデータセット値を、開始〜終了時刻の期間にわたり CSV へエクスポート**するアルゴリズムです。観測点・関心地点での水位・流量などの**時系列プロファイル（ハイドログラフ用データ）を抽出**するのに使います。出力はレイヤではなく **CSV ファイル**です。\n\nポイント（ヘルプより）：`TIME_STEP` を既定値（0時間）のままにすると、**最初の2つのデータセット間隔**が自動的に使われます。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力メッシュレイヤ（必須） | — |\n| `DATASET_GROUPS` | 対象のデータセットグループ（必須） | `[]` |\n| `STARTING_TIME` | 開始時刻（必須） | — |\n| `FINISHING_TIME` | 終了時刻（必須） | — |\n| `TIME_STEP` | サンプリング間隔（単位・時。0=自動） | `0` |\n| `INPUT_POINTS` | データを抽出するポイントレイヤ（必須） | — |\n| `COORDINATES_DIGITS` | 座標値の丸め桁数 | `2` |\n| `DATASET_DIGITS` | データ値の丸め桁数 | `2` |\n| `OUTPUT` | 出力 CSV ファイル（必須） | — |\n\n## 出力\n\n- `OUTPUT` — エクスポートされた CSV ファイル\n\n実行例: `processing.run(\"native:meshexporttimeseries\", {'INPUT': mesh, 'DATASET_GROUPS': [0], 'STARTING_TIME': {'type': 'dataset-time-step', 'value': [0, 0]}, 'FINISHING_TIME': {'type': 'dataset-time-step', 'value': [0, 10]}, 'INPUT_POINTS': obs_points, 'OUTPUT': 'C:/series.csv'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:meshexporttimeseries')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n      "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュの時系列データ値をエクスポート」(id: native:meshexporttimeseries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:meshexporttimeseries は processing registry に存在します。\n表示名: メッシュの時系列データ値をエクスポート\nグループ: メッシュ (mesh)\nプロバイダ: QGIS（ネイティブ C++）\n用途\n時系列メッシュレイヤについて、指定したポイント地物の位置でのデータセット値を、開始〜終了時刻の期間にわたり CSV へエクスポートするアルゴリズムです。観測点・関心地点での水位・流量などの時系列プロファイル（ハイドログラフ用データ）を抽出するのに使います。出力はレイヤではなく CSV ファイルです。\nポイント（ヘルプより）：TIME_STEP を既定値（0時間）のままにすると、最初の2つのデータセット間隔が自動的に使われます。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力メッシュレイヤ（必須）\n—\nDATASET_GROUPS\n対象のデータセットグループ（必須）\n[]\nSTARTING_TIME\n開始時刻（必須）\n—\nFINISHING_TIME\n終了時刻（必須）\n—\nTIME_STEP\nサンプリング間隔（単位・時。0=自動）\n0\nINPUT_POINTS\nデータを抽出するポイントレイヤ（必須）\n—\nCOORDINATES_DIGITS\n座標値の丸め桁数\n2\nDATASET_DIGITS\nデータ値の丸め桁数\n2\nOUTPUT\n出力 CSV ファイル（必須）\n—\n\n出力\nOUTPUT — エクスポートされた CSV ファイル\n実行例: processing.run(\"native:meshexporttimeseries\", {'INPUT': mesh, 'DATASET_GROUPS': [0], 'STARTING_TIME': {'type': 'dataset-time-step', 'value': [0, 0]}, 'FINISHING_TIME': {'type': 'dataset-time-step', 'value': [0, 10]}, 'INPUT_POINTS': obs_points, 'OUTPUT': 'C:/series.csv'})"
+}

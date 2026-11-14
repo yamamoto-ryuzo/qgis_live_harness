@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_createdirectory",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ディレクトリを作成」(id: native:createdirectory) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ディレクトリを作成」(id: native:createdirectory) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:createdirectory` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] ディレクトリを作成`\n- **ID**: `native:createdirectory`\n- **グループ**: `モデラーツール`\n- **用途**: 指定したフォルダをファイルシステム上に作成します。中間ディレクトリも含めて再帰的に作成されるため、モデル内の出力先フォルダを動的に準備するのに使えます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `PATH` | 作成するディレクトリのパス |\n| `OUTPUT` | 作成されたディレクトリのパスを返す出力 |\n\n既にディレクトリが存在する場合はエラーになりません。同名のファイルが存在する場合や、書き込み権限がない場合は失敗します。モデラーツールのため、主に Graphical Modeler 内での利用を想定しています。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:createdirectory')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({\\n            'name': o.name(),\\n            'description': o.description(),\\n            'type': o.__class__.__name__,\\n        })\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ディレクトリを作成」(id: native:createdirectory) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:createdirectory を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] ディレクトリを作成\nID: native:createdirectory\nグループ: モデラーツール\n用途: 指定したフォルダをファイルシステム上に作成します。中間ディレクトリも含めて再帰的に作成されるため、モデル内の出力先フォルダを動的に準備するのに使えます。\n主なパラメータ:\nパラメータ\n内容\nPATH\n作成するディレクトリのパス\nOUTPUT\n作成されたディレクトリのパスを返す出力\n\n既にディレクトリが存在する場合はエラーになりません。同名のファイルが存在する場合や、書き込み権限がない場合は失敗します。モデラーツールのため、主に Graphical Modeler 内での利用を想定しています。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_dxfexport",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤをDXFにエクスポート」(id: native:dxfexport) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤをDXFにエクスポート」(id: native:dxfexport) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:dxfexport`\n- **表示名**: レイヤをDXFにエクスポート\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ベクタ一般\n\n## 用途\nベクタレイヤを **AutoCAD 交換形式の DXF ファイルに書き出す**アルゴリズムです（メニューの「プロジェクト → DXF へエクスポート」と同系のエンジン）。レイヤごとに分割用フィールドを指定すると、その値ごとに DXF 上のレイヤが分かれます。シンボロジ情報の付与（指定縮尺での描画スタイルをDXFエンティティに反映）、ラベルの MTEXT/TEXT 出力、地図テーマによる可視状態の反映など、CAD 受け渡し向けの細かい制御ができます。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `LAYERS` | 出力するレイヤ一覧（必須。各レイヤに分割用フィールドを割り当て可能） |\n| `SYMBOLOGY_MODE` | シンボロジモード（シンボロジなし／地物シンボロジ／シンボルレイヤシンボロジ） |\n| `SYMBOLOGY_SCALE` | シンボロジを評価する縮尺分母（デフォルト 1,000,000） |\n| `MAP_THEME` | 地図テーマ（任意。可視レイヤ・スタイルをテーマに合わせる） |\n| `ENCODING` | DXFの文字コード（デフォルト ISO-8859-1。Shift_JIS 等も選択可） |\n| `CRS` | 出力CRS（デフォルト EPSG:4326） |\n| `EXTENT` | 出力範囲でクリップ（任意） |\n| `SELECTED_FEATURES_ONLY` | 選択地物のみ出力（デフォルト OFF） |\n| `USE_LAYER_TITLE` | DXFレイヤ名にレイヤタイトルを使う（デフォルト OFF） |\n| `FORCE_2D` | Z値を落として2D出力（デフォルト OFF） |\n| `MTEXT` | ラベルをMTEXT要素で出力（デフォルト ON） |\n| `OUTPUT` | 出力DXFファイル（必須） |\n\n日本語のレイヤ名・属性を含む場合は `ENCODING` を `Shift_JIS` 系にしておくと文字化けを防げます。出力はDXFファイルのみで、QGISレイヤとしては返りません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber, QgsProcessingParameterBoolean, QgsProcessingParameterField, QgsProcessingParameterString\\nalg = QgsApplication.processingRegistry().algorithmById('native:dxfexport')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'dxf' in a.id().lower() or 'export' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'prov"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤをDXFにエクスポート」(id: native:dxfexport) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:dxfexport\n表示名: レイヤをDXFにエクスポート\nプロバイダ: QGIS（ネイティブC++）／グループ: ベクタ一般\n用途\nベクタレイヤを AutoCAD 交換形式の DXF ファイルに書き出すアルゴリズムです（メニューの「プロジェクト → DXF へエクスポート」と同系のエンジン）。レイヤごとに分割用フィールドを指定すると、その値ごとに DXF 上のレイヤが分かれます。シンボロジ情報の付与（指定縮尺での描画スタイルをDXFエンティティに反映）、ラベルの MTEXT/TEXT 出力、地図テーマによる可視状態の反映など、CAD 受け渡し向けの細かい制御ができます。\n主なパラメータ\nパラメータ\n内容\nLAYERS\n出力するレイヤ一覧（必須。各レイヤに分割用フィールドを割り当て可能）\nSYMBOLOGY_MODE\nシンボロジモード（シンボロジなし／地物シンボロジ／シンボルレイヤシンボロジ）\nSYMBOLOGY_SCALE\nシンボロジを評価する縮尺分母（デフォルト 1,000,000）\nMAP_THEME\n地図テーマ（任意。可視レイヤ・スタイルをテーマに合わせる）\nENCODING\nDXFの文字コード（デフォルト ISO-8859-1。Shift_JIS 等も選択可）\nCRS\n出力CRS（デフォルト EPSG:4326）\nEXTENT\n出力範囲でクリップ（任意）\nSELECTED_FEATURES_ONLY\n選択地物のみ出力（デフォルト OFF）\nUSE_LAYER_TITLE\nDXFレイヤ名にレイヤタイトルを使う（デフォルト OFF）\nFORCE_2D\nZ値を落として2D出力（デフォルト OFF）\nMTEXT\nラベルをMTEXT要素で出力（デフォルト ON）\nOUTPUT\n出力DXFファイル（必須）\n\n日本語のレイヤ名・属性を含む場合は ENCODING を Shift_JIS 系にしておくと文字化けを防げます。出力はDXFファイルのみで、QGISレイヤとしては返りません。"
+}

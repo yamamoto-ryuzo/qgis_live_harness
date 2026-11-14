@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Log_NMEA_Sentences",
+ "prompt": "QGISの「Log NMEA Sentences…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Log NMEA Sentences…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "同じGPSオプションメニュー内のアクションです。確認します。調査結果です。\n\n## 「Log NMEA Sentences…」アクション\n\n同じく **GPSツールバーのオプションメニュー**内のアクションです。\n\n**現在の状態**（pyeval 実測）:\n\n| 項目 | 値 |\n|---|---|\n| isEnabled | **true（有効）** |\n| isCheckable | true |\n| isChecked | **false（OFF）** |\n| isVisible | true |\n| has_menu | false |\n\n**意味・実効**: GPS接続から受信した生の NMEA センテンスをファイルへダンプ記録するトグルです。ON にしようとすると出力先ファイルを選ぶダイアログが開き、選択後にチェック状態となって記録が開始されます。\n\n## まとめ\n\n- アクションは **有効（enabled）だが OFF（unchecked）**、現在はNMEAログを記録していません。\n- ON にするには `trigger()` 等で起動し保存先を選択（キャンセルで OFF のまま）。実際の記録は GPS 接続時（現在0件）に行われます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = None\\nfor x in mw.findChildren(QAction):\\n    if (x.text() or '').startswith('Log NMEA Sentences'):\\n        a = x\\n        break\\nresult = {'text': a.text(), 'enabled': a.isEnabled(), 'checkable': a.isCheckable(),\\n          'checked': a.isChecked(), 'visible': a.isVisible(), 'tooltip': a.toolTip(),\\n          'has_menu': a.menu() is not None}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Log NMEA Sentences…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n同じGPSオプションメニュー内のアクションです。確認します。調査結果です。\n「Log NMEA Sentences…」アクション\n同じく GPSツールバーのオプションメニュー内のアクションです。\n現在の状態（pyeval 実測）:\n項目\n値\nisEnabled\ntrue（有効）\nisCheckable\ntrue\nisChecked\nfalse（OFF）\nisVisible\ntrue\nhas_menu\nfalse\n\n意味・実効: GPS接続から受信した生の NMEA センテンスをファイルへダンプ記録するトグルです。ON にしようとすると出力先ファイルを選ぶダイアログが開き、選択後にチェック状態となって記録が開始されます。\nまとめ\nアクションは 有効（enabled）だが OFF（unchecked）、現在はNMEAログを記録していません。\nON にするには trigger() 等で起動し保存先を選択（キャンセルで OFF のまま）。実際の記録は GPS 接続時（現在0件）に行われます。"
+}

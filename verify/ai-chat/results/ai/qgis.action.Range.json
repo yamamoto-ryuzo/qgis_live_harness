@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Range",
+ "prompt": "QGISの「範囲（Range）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「範囲（Range）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「範囲（Range）」アクションは **有効(enabled)で、現在チェック状態(checked)です**。\n\n調査結果:\n\n- テキスト「範囲（Range）」の `QAction` が1つあり、`isEnabled() = True`、`isCheckable() = True`、`isChecked() = True`、`isVisible() = True`\n- 場所は統計サマリードック(`StatisticalSummaryDockWidget`)のオプションメニュー内\n\n集計実行時に範囲(最大−最小)も出力される設定です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nacts = [a for a in iface.mainWindow().findChildren(QAction) if a.text() == '範囲（Range）']\\nresult = [(a.isEnabled(), a.isCheckable(), a.isChecked(), a.isVisible()) for a in acts]\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「範囲（Range）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「範囲（Range）」アクションは 有効(enabled)で、現在チェック状態(checked)です。\n調査結果:\nテキスト「範囲（Range）」の QAction が1つあり、isEnabled() = True、isCheckable() = True、isChecked() = True、isVisible() = True\n場所は統計サマリードック(StatisticalSummaryDockWidget)のオプションメニュー内\n集計実行時に範囲(最大−最小)も出力される設定です。"
+}

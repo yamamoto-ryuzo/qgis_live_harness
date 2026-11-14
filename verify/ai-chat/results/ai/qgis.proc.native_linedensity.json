@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_linedensity",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線密度」(id: native:linedensity) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線密度」(id: native:linedensity) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:linedensity` は **processing registry に存在します**。\n\n- **表示名**: 線密度\n- **グループ**: 内挿 (`interpolation`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\nラインレイヤから**線密度ラスタを生成**するアルゴリズムです。各ラスタセルを中心とする**円形近傍（検索半径内）に含まれる線分の長さを集計し、重み係数を掛けた後、近傍の面積で割る**ことで、道路密度・河川密度・網の目の粗さ等を連続面として表現します。ArcGIS の Line Density 相当です。\n\n計算手順（ヘルプより）：円形近傍と交差する各線分の長さ × 重み → 合計 → 近傍面積で除算、を全セルについて繰り返す。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力線レイヤ（必須） | — |\n| `WEIGHT` | 重みフィールド（任意。指定すれば線分長にその値を乗算） | なし |\n| `RADIUS` | 検索半径（円形近傍の半径、距離単位） | `10` |\n| `PIXEL_SIZE` | 出力ラスタのピクセルサイズ | `10` |\n| `CREATION_OPTIONS` | GDAL Creation options（任意） | 空 |\n| `OUTPUT` | 線密度ラスタ（必須） | — |\n\n※ `CREATE_OPTIONS` / `CREATION_OPTIONS` が2つ定義されています（新旧名の併存と思われます）。\n\n## 出力\n\n- `OUTPUT` — 線密度ラスタ\n\n実行例: `processing.run(\"native:linedensity\", {'INPUT': roads, 'WEIGHT': 'traffic', 'RADIUS': 500, 'PIXEL_SIZE': 25, 'OUTPUT': 'C:/out.tif'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:linedensity')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'provid"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線密度」(id: native:linedensity) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:linedensity は processing registry に存在します。\n表示名: 線密度\nグループ: 内挿 (interpolation)\nプロバイダ: QGIS（ネイティブ C++）\n用途\nラインレイヤから線密度ラスタを生成するアルゴリズムです。各ラスタセルを中心とする円形近傍（検索半径内）に含まれる線分の長さを集計し、重み係数を掛けた後、近傍の面積で割ることで、道路密度・河川密度・網の目の粗さ等を連続面として表現します。ArcGIS の Line Density 相当です。\n計算手順（ヘルプより）：円形近傍と交差する各線分の長さ × 重み → 合計 → 近傍面積で除算、を全セルについて繰り返す。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力線レイヤ（必須）\n—\nWEIGHT\n重みフィールド（任意。指定すれば線分長にその値を乗算）\nなし\nRADIUS\n検索半径（円形近傍の半径、距離単位）\n10\nPIXEL_SIZE\n出力ラスタのピクセルサイズ\n10\nCREATION_OPTIONS\nGDAL Creation options（任意）\n空\nOUTPUT\n線密度ラスタ（必須）\n—\n\n※ CREATE_OPTIONS / CREATION_OPTIONS が2つ定義されています（新旧名の併存と思われます）。\n出力\nOUTPUT — 線密度ラスタ\n実行例: processing.run(\"native:linedensity\", {'INPUT': roads, 'WEIGHT': 'traffic', 'RADIUS': 500, 'PIXEL_SIZE': 25, 'OUTPUT': 'C:/out.tif'})"
+}

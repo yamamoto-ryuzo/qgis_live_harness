@@ -1,0 +1,34 @@
+{
+ "id": "qgis.dock.LayerOrder",
+ "prompt": "「レイヤ順序」パネル(ドック)を表示して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "「レイヤ順序」パネル(ドック)を表示して"
+  },
+  {
+   "role": "assistant",
+   "content": "「レイヤ順序」ドックを探して表示します。ドックは既に存在しますが、前面に出して明示的に表示します。表示処理は実行済みです。状態だけ確認し直します。「レイヤ順序」パネルを表示しました。現在、左側ドックエリアに表示されています(フローティングではなくドッキング状態)。パネル上の「描画順をレイヤパネルとは別に管理」にチェックを入れると、凡例ツリーとは独立した描画順を設定できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': 'from qgis.PyQt.QtWidgets import QDockWidget\\ndocks = iface.mainWindow().findChildren(QDockWidget)\\ninfo = [(d.objectName(), d.windowTitle(), d.isVisible()) for d in docks]\\nresult = info'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\nfrom qgis.PyQt.QtCore import Qt\\ndock = iface.mainWindow().findChild(QDockWidget, 'LayerOrder')\\n# タブ化されている場合に前面へ、隠れていれば表示\\ndock.setVisible(True)\\ndock.show()\\ndock.raise_()\\nresult = {'visible': dock.isVisible(), 'floating': dock.isFloating(), 'area': int(iface.mainWindow().dockWidgetArea(dock))}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\ndock = iface.mainWindow().findChild(QDockWidget, 'LayerOrder')\\nresult = {'visible': dock.isVisible(), 'floating': dock.isFloating(), 'area': str(iface.mainWindow().dockWidgetArea(dock))}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 「レイヤ順序」パネル(ドック)を表示して\n[AI] \n「レイヤ順序」ドックを探して表示します。ドックは既に存在しますが、前面に出して明示的に表示します。表示処理は実行済みです。状態だけ確認し直します。「レイヤ順序」パネルを表示しました。現在、左側ドックエリアに表示されています(フローティングではなくドッキング状態)。パネル上の「描画順をレイヤパネルとは別に管理」にチェックを入れると、凡例ツリーとは独立した描画順を設定できます。"
+}

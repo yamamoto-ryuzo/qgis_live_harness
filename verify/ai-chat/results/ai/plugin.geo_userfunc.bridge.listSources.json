@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_userfunc.bridge.listSources",
+ "prompt": "QGISの geo_userfunc プラグインで「sources.json のupstream更新元一覧を返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_userfunc プラグインで「sources.json のupstream更新元一覧を返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`listSources` の結果です。\n\n**sources.json の場所**\n`C:/Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4/profiles/geo_custom/python/geo_userfunc/sources.json`\n\n**更新元一覧（2件 — 実質同じ定義の重複）**\n\n| ファイル | URL | 由来 |\n|---|---|---|\n| `user_functions.py` | https://raw.githubusercontent.com/yamamoto-ryuzo/QGIS_user_function/main/python | user |\n| `user_functions.py` | （同上） | seed |\n\n`user_functions.py` に対して GitHub 上の upstream URL が1つ登録されており、それがユーザー定義（user）とプラグイン同梱のシード定義（seed）の両方に存在しています。\n\n`updateFromUpstream` を実行すると、この URL からファイルを再取得して上書き更新します（構文検証を通ったもののみ保存）。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'listSources', 'plugin_id': 'geo_userfunc', 'args': []}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_userfunc プラグインで「sources.json のupstream更新元一覧を返す。」を実行して結果を教えて\n[AI] \nlistSources の結果です。\nsources.json の場所 C:/Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4/profiles/geo_custom/python/geo_userfunc/sources.json\n更新元一覧（2件 — 実質同じ定義の重複）\nファイル\nURL\n由来\nuser_functions.py\nhttps://raw.githubusercontent.com/yamamoto-ryuzo/QGIS_user_function/main/python\nuser\nuser_functions.py\n（同上）\nseed\n\nuser_functions.py に対して GitHub 上の upstream URL が1つ登録されており、それがユーザー定義（user）とプラグイン同梱のシード定義（seed）の両方に存在しています。\nupdateFromUpstream を実行すると、この URL からファイルを再取得して上書き更新します（構文検証を通ったもののみ保存）。"
+}

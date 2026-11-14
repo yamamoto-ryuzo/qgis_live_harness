@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.QFieldCloud",
+ "prompt": "QGISの「QFieldCloudプロジェクト一覧」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「QFieldCloudプロジェクト一覧」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「QFieldCloudプロジェクト一覧」に該当するアクションを検索します。## 調査結果\n\n「QFieldCloudプロジェクト一覧」アクションの状態を `qgis_pyeval` で確認しました。\n\n| 項目 | 状態 |\n|---|---|\n| 提供元 | **QFieldSync**（qfieldsync）プラグイン（QGIS 標準ではありません） |\n| 表示テキスト | QFieldCloudプロジェクト一覧 |\n| 配置場所 | **プラグイン → QFieldSync** メニュー ＋ **QFieldSyncツールバー** |\n| ショートカット | なし |\n| 現在の有効状態 | **有効（enabled）** |\n\n### 補足\n\n- 実行すると QFieldCloud へのログイン状態に応じて、クラウドプロジェクト一覧ダイアログが開く想定です（未ログインならログイン画面が出る可能性あり）。\n- 関連アクション「QFieldパッケージを作成」「QFieldから同期」も同ツールバーにあり、いずれも **有効** でした（メニュー用とツールバー用で同名アクションが2件ずつ登録されています）。\n\n必要であれば `trigger()` で実行できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\nmw = iface.mainWindow()\\nmatches = []\\nfor a in mw.findChildren(QAction):\\n    name = a.objectName() or ''\\n    text = a.text() or ''\\n    tip = a.toolTip() or ''\\n    if 'qfield' in (name+text+tip).lower() or 'プロジェクト一覧' in text or 'プロジェクト一覧' in tip:\\n        homes = [m.title() for m in mw.findChildren(QMenu) if a in m.actions()]\\n        tb = [t.windowTitle() for t in mw.findChildren(QToolBar) if a in t.actions()]\\n        matches.append({'objectName': name, 'text': text, 'toolTip': tip,\\n                        'enabled': a.isEnabled(), 'visible': a.isVisible(),\\n                        'shortcut': a.shortcut().toString(), 'menus': homes, 'toolbars': tb})\\nresult = matches\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「QFieldCloudプロジェクト一覧」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「QFieldCloudプロジェクト一覧」に該当するアクションを検索します。## 調査結果\n「QFieldCloudプロジェクト一覧」アクションの状態を qgis_pyeval で確認しました。\n項目\n状態\n提供元\nQFieldSync（qfieldsync）プラグイン（QGIS 標準ではありません）\n表示テキスト\nQFieldCloudプロジェクト一覧\n配置場所\nプラグイン → QFieldSync メニュー ＋ QFieldSyncツールバー\nショートカット\nなし\n現在の有効状態\n有効（enabled）\n\n補足\n実行すると QFieldCloud へのログイン状態に応じて、クラウドプロジェクト一覧ダイアログが開く想定です（未ログインならログイン画面が出る可能性あり）。\n関連アクション「QFieldパッケージを作成」「QFieldから同期」も同ツールバーにあり、いずれも 有効 でした（メニュー用とツールバー用で同名アクションが2件ずつ登録されています）。\n必要であれば trigger() で実行できます。"
+}

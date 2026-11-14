@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_checkgeometryselfintersection",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Self-intersections」(id: native:checkgeometryselfintersection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Self-intersections」(id: native:checkgeometryselfintersection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:checkgeometryselfintersection` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] Self-intersections`\n- **ID**: `native:checkgeometryselfintersection`\n- **グループ**: `Check geometry`\n- **用途**: ラインまたはポリゴンが自身と交差している箇所を検出するジオメトリチェックです。ポリゴンの自己交差、ラインのループや交差など、OGC的に不正・不適切になり得る形状の洗い出しに使えます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | チェック対象のライン／ポリゴンレイヤ |\n| `UNIQUE_ID` | 地物を一意に識別するフィールド |\n| `ERRORS` | 自己交差箇所を示すエラーポイント出力 |\n| `OUTPUT` | 自己交差を含む元地物を出力するレイヤ。任意 |\n| `TOLERANCE` | 高度な設定。整数 `n` を指定し、`10^-n` 地図単位未満の差を幾何演算上ゼロとして扱う。既定値 `8` |\n\n`ERRORS` が交差位置と判定情報、`OUTPUT` が問題を含む地物の抽出用です。`Self-contacts` は接触型、`Self-intersections` は交差型のチェックです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:checkgeometryselfintersection')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        })\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({\\n            'name': o.name(),\\n            'description': o.description(),\\n            'type': o.__class__.__name__,\\n        })\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId'"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Self-intersections」(id: native:checkgeometryselfintersection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:checkgeometryselfintersection を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] Self-intersections\nID: native:checkgeometryselfintersection\nグループ: Check geometry\n用途: ラインまたはポリゴンが自身と交差している箇所を検出するジオメトリチェックです。ポリゴンの自己交差、ラインのループや交差など、OGC的に不正・不適切になり得る形状の洗い出しに使えます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\nチェック対象のライン／ポリゴンレイヤ\nUNIQUE_ID\n地物を一意に識別するフィールド\nERRORS\n自己交差箇所を示すエラーポイント出力\nOUTPUT\n自己交差を含む元地物を出力するレイヤ。任意\nTOLERANCE\n高度な設定。整数 n を指定し、10^-n 地図単位未満の差を幾何演算上ゼロとして扱う。既定値 8\n\nERRORS が交差位置と判定情報、OUTPUT が問題を含む地物の抽出用です。Self-contacts は接触型、Self-intersections は交差型のチェックです。"
+}

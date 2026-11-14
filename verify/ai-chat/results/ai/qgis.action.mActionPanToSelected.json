@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionPanToSelected",
+ "prompt": "QGISの「選択部分にパン」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「選択部分にパン」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「選択部分にパン」(`mActionPanToSelected`)を実行します。実行しましたが、**地図は動きませんでした**。\n\n- アクション: `mActionPanToSelected`「選択部分にパン」— 有効、trigger 済み\n- アクティブレイヤ: `テスト地目レイヤ` / **選択地物数: 0**\n- extent: 実行前後で変化なし\n\nこのアクションは「アクティブレイヤの選択地物」へパンするので、選択地物が無い現状では何も起こりません。地物を選択してから再実行しますか?例えば全地物選択(`lyr.selectAll()`)してから実行すれば、レイヤ全体にパンする動作を確認できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionPanToSelected')\\nlyr = iface.activeLayer()\\ninfo = {\\n    'enabled': a.isEnabled(),\\n    'activeLayer': lyr.name() if lyr else None,\\n    'selectedCount': lyr.selectedFeatureCount() if lyr and hasattr(lyr, 'selectedFeatureCount') else None,\\n    'extent_before': iface.mapCanvas().extent().toString(),\\n}\\na.trigger()\\ninfo['extent_after'] = iface.mapCanvas().extent().toString()\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「選択部分にパン」機能(アクション)を実行して\n[AI] \n「選択部分にパン」(mActionPanToSelected)を実行します。実行しましたが、地図は動きませんでした。\nアクション: mActionPanToSelected「選択部分にパン」— 有効、trigger 済み\nアクティブレイヤ: テスト地目レイヤ / 選択地物数: 0\nextent: 実行前後で変化なし\nこのアクションは「アクティブレイヤの選択地物」へパンするので、選択地物が無い現状では何も起こりません。地物を選択してから再実行しますか?例えば全地物選択(lyr.selectAll())してから実行すれば、レイヤ全体にパンする動作を確認できます。"
+}

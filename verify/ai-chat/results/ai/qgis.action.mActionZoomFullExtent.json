@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionZoomFullExtent",
+ "prompt": "QGISの「全域表示(F)」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「全域表示(F)」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「全域表示」アクションを探して有効状態を確認します。調査結果です。「全域表示(F)」アクションは `mActionZoomFullExtent` として見つかりました。\n\n| 項目 | 値 |\n|---|---|\n| objectName | `mActionZoomFullExtent` |\n| テキスト | `全域表示(&F)` |\n| 有効(isEnabled) | **True(現在有効です)** |\n| 可視(isVisible) | True |\n| ショートカット | `Ctrl+Shift+F` |\n\nメインウィンドウ内で有効状態で存在しており、現在実行可能です。実行する場合はこのアクションを `trigger()` するだけです(レイヤの範囲ではなく全レイヤの全範囲にズームします)。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').replace('&','')\\n    o = a.objectName() or ''\\n    if ('全域' in t) or ('zoomfull' in o.lower()) or ('full' in o.lower() and 'zoom' in o.lower()):\\n        found.append((o, a.text(), a.isEnabled(), a.isVisible(), a.shortcut().toString()))\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「全域表示(F)」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「全域表示」アクションを探して有効状態を確認します。調査結果です。「全域表示(F)」アクションは mActionZoomFullExtent として見つかりました。\n項目\n値\nobjectName\nmActionZoomFullExtent\nテキスト\n全域表示(&F)\n有効(isEnabled)\nTrue(現在有効です)\n可視(isVisible)\nTrue\nショートカット\nCtrl+Shift+F\n\nメインウィンドウ内で有効状態で存在しており、現在実行可能です。実行する場合はこのアクションを trigger() するだけです(レイヤの範囲ではなく全レイヤの全範囲にズームします)。"
+}

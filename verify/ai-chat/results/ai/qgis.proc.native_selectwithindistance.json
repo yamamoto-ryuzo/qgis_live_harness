@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_selectwithindistance",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 一定距離以内の地物を選択」(id: native:selectwithindistance) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 一定距離以内の地物を選択」(id: native:selectwithindistance) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:selectwithindistance` をレジストリで確認します。確認できました。`native:selectwithindistance` は登録されています。\n\n- **表示名**: [QGIS(ネイティブC++)] 一定距離以内の地物を選択\n- **グループ**: ベクタ選択\n- **用途**: 別レイヤ(参照レイヤ)の地物から指定距離以内にある地物を、入力レイヤ上で選択します。バッファを作らずに「○○から xxx m 以内」の地物を直接選べます。選択状態を変更するだけで、新しいレイヤは出力しません。\n\n**主なパラメータ**\n\n| 名前 | 型 | 説明 | 既定値 |\n|---|---|---|---|\n| `INPUT` | vector | 選択する地物のあるレイヤ | — |\n| `REFERENCE` | source | 比較対象の地物のあるレイヤ | — |\n| `DISTANCE` | distance | 地物がある範囲(距離) | 100 |\n| `METHOD` | enum | 現在の選択状態への適用方法 | 0 |\n\n`METHOD` の選択肢:\n\n| index | 動作 |\n|---|---|\n| 0 | 新たに選択 |\n| 1 | 現在の選択に追加 |\n| 2 | 現在の選択範囲内で選択 |\n| 3 | 現在の選択から除く |\n\n`DISTANCE` はレイヤの CRS 単位で評価されるため、緯度経度系では実距離とずれます。距離内の地物を新レイヤとして抽出したい場合は `native:extractwithindistance`(距離による抽出)を使います。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:selectwithindistance')\\nif alg is None:\\n    result = {'found': False}\\nelse:\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortDescription': alg.shortDescription(),\\n        'params': [{'name': p.name(), 'type': p.type(), 'description': p.description(), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None, 'flags': int(p.flags())} for p in alg.parameterDefinitions()],\\n        'outputs': [{'name': o.name(), 'type': o.type(), 'description': o.description()} for o in alg.outputDefinitions()],\\n        'enums': {},\\n    }\\nfor p in alg.parameterDefinitions() if alg else []:\\n    if p.type() == 'enum':\\n        result['enums'][p.name()] = p.options()\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 一定距離以内の地物を選択」(id: native:selectwithindistance) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:selectwithindistance をレジストリで確認します。確認できました。native:selectwithindistance は登録されています。\n表示名: [QGIS(ネイティブC++)] 一定距離以内の地物を選択\nグループ: ベクタ選択\n用途: 別レイヤ(参照レイヤ)の地物から指定距離以内にある地物を、入力レイヤ上で選択します。バッファを作らずに「○○から xxx m 以内」の地物を直接選べます。選択状態を変更するだけで、新しいレイヤは出力しません。\n主なパラメータ\n名前\n型\n説明\n既定値\nINPUT\nvector\n選択する地物のあるレイヤ\n—\nREFERENCE\nsource\n比較対象の地物のあるレイヤ\n—\nDISTANCE\ndistance\n地物がある範囲(距離)\n100\nMETHOD\nenum\n現在の選択状態への適用方法\n0\n\nMETHOD の選択肢:\nindex\n動作\n0\n新たに選択\n1\n現在の選択に追加\n2\n現在の選択範囲内で選択\n3\n現在の選択から除く\n\nDISTANCE はレイヤの CRS 単位で評価されるため、緯度経度系では実距離とずれます。距離内の地物を新レイヤとして抽出したい場合は native:extractwithindistance(距離による抽出)を使います。"
+}

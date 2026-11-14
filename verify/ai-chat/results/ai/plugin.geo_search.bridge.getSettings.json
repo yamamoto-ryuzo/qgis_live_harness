@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_search.bridge.getSettings",
+ "prompt": "QGISの geo_search プラグインで「検索設定の由来(ファイル/プロジェクト変数/env)と値を返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_search プラグインで「検索設定の由来(ファイル/プロジェクト変数/env)と値を返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`getSettings` を実行しました。結果:\n\n- **`geo_search_json`** — `env: null`, `project_variable: null`(外部JSONは未指定)\n- **`config_variable`** — プロジェクト変数 `GEO-search-plugin`(inline)に先ほど追加した「テスト追加タブ」定義が1件保存されています\n- **`setting_json`** — バンドル設定ファイル: `...\\plugins\\geo_search\\setting.json`\n- **`tab_sources`** — 検索タブの由来内訳: `setting.json` 由来 4件(カレントレイヤ/表示レイヤ/全レイヤ/住所検索)、`project variable` 由来 1件(テスト追加タブ)\n\nつまり現在の検索タブは、プラグイン同梱の `setting.json` 4件 + プロジェクト変数の1件の計5件で構成されています。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'getSettings', 'plugin_id': 'geo_search'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_search プラグインで「検索設定の由来(ファイル/プロジェクト変数/env)と値を返す。」を実行して結果を教えて\n[AI] \ngetSettings を実行しました。結果:\ngeo_search_json — env: null, project_variable: null(外部JSONは未指定)\nconfig_variable — プロジェクト変数 GEO-search-plugin(inline)に先ほど追加した「テスト追加タブ」定義が1件保存されています\nsetting_json — バンドル設定ファイル: ...\\plugins\\geo_search\\setting.json\ntab_sources — 検索タブの由来内訳: setting.json 由来 4件(カレントレイヤ/表示レイヤ/全レイヤ/住所検索)、project variable 由来 1件(テスト追加タブ)\nつまり現在の検索タブは、プラグイン同梱の setting.json 4件 + プロジェクト変数の1件の計5件で構成されています。"
+}

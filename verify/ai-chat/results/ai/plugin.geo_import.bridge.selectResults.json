@@ -1,0 +1,34 @@
+{
+ "id": "plugin.geo_import.bridge.selectResults",
+ "prompt": "geo_import プラグインの「selectResults」(結果リストの複数データセットを選択する(index配列)。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_import プラグインの「selectResults」(結果リストの複数データセットを選択する(index配列)。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`selectResults` を試すため、親ダイアログを開き、index `0` と `2` の複数データセットを選択します。複数選択に成功しました。マージ表示されたリソース一覧を確認します。`selectResults` を試しました。\n\n実行内容:\n\n```json\n{\n  \"method\": \"selectResults\",\n  \"args\": [[0, 2]]\n}\n```\n\n結果:\n\n- 成功: `ok: true`\n- 選択された index: `0`, `2`\n- リソース一覧の表示件数: `6`\n\n`resources()` で確認すると、選択状態に応じたリソース一覧が表示されています。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'openDialog', 'args': [], 'plugin_id': 'geo_import'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_import', 'method': 'selectResults', 'args': [[0, 2]]}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'method': 'resources', 'plugin_id': 'geo_import'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_import プラグインの「selectResults」(結果リストの複数データセットを選択する(index配列)。)を試して。必要な引数は適当な値でよい\n[AI] \nselectResults を試すため、親ダイアログを開き、index 0 と 2 の複数データセットを選択します。複数選択に成功しました。マージ表示されたリソース一覧を確認します。selectResults を試しました。\n実行内容:\n{\n  \"method\": \"selectResults\",\n  \"args\": [[0, 2]]\n}\n結果:\n成功: ok: true\n選択された index: 0, 2\nリソース一覧の表示件数: 6\nresources() で確認すると、選択状態に応じたリソース一覧が表示されています。"
+}

@@ -1,0 +1,63 @@
+{
+ "id": "plugin.geo_legend.bridge.setStyle",
+ "prompt": "geo_legend プラグインの「setStyle」(選択中レイヤの名前付きスタイルを切り替える。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_legend プラグインの「setStyle」(選択中レイヤの名前付きスタイルを切り替える。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`setStyle` を試すには複数の名前付きスタイルが必要なので、まず「テスト地目レイヤ」に2つのスタイルを保存します。`layer=None` はQGISのアクティブレイヤ（テスト路線レイヤ）を見ていたようです。レイヤ名を明示します。3つのスタイルが登録できました。`setStyle` で切り替えを試します。`legendSpec` がアクティブレイヤを見てしまったので、対象レイヤを指定して確認します。「単色」への切替を確認。続けて「地目分類」に戻します。`setStyle` で名前付きスタイルの切り替えを確認できました。\n\n**準備**: 「テスト地目レイヤ」に2つの名前付きスタイルを保存 —\n- `単色`：単一シンボル（青 `#1f78b4`）\n- `地目分類`：地目フィールドの個別値分類（5色）\n\n**検証結果**\n\n| 呼び出し | legendSpec での確認 |\n|---|---|\n| `setStyle(\"単色\")` | `singleSymbol` / `#1f78b4` に切替 ✓ |\n| `setStyle(\"地目分類\")` | `categorizedSymbol`（宅地〜雑種地の5項目）に復帰 ✓ |\n\nスタイル切替でレンダラ定義ごと保存時の状態に戻ることを確認しました。対象は凡例ドックで「選択中」のレイヤ（=凡例対象として選択されたレイヤ）なので、事前に `selectDataset` で対象を合わせておくと確実です。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_legend', 'args': ['テスト地目レイヤ'], 'method': 'selectDataset'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"lyr = QgsProject.instance().mapLayersByName('テスト地目レイヤ')[0]\\nmgr = lyr.styleManager()\\n# 現在の単一シンボル(青)を '単色' として保存\\nok1 = mgr.addStyleFromLayer('単色')\\nresult = {'added_単色': ok1, 'styles': mgr.styles()}\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'applyCategories', 'args': [None, '地目', 'Spectral'], 'plugin_id': 'geo_legend'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'applyCategories', 'args': ['テスト地目レイヤ', '地目', 'Spectral'], 'plugin_id': 'geo_legend'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"lyr = QgsProject.instance().mapLayersByName('テスト地目レイヤ')[0]\\nmgr = lyr.styleManager()\\nok2 = mgr.addStyleFromLayer('地目分類')\\nresult = {'added_地目分類': ok2, 'styles': mgr.styles(), 'current': mgr.currentStyle()}\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_legend', 'method': 'setStyle', 'args': ['単色']}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'plugin_id': 'geo_legend', 'method': 'legendSpec'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'legendSpec', 'plugin_id': 'geo_legend', 'args': ['テスト地目レイヤ']}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'setStyle', 'plugin_id': 'geo_legend', 'args': ['地目分類']}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'legendSpec', 'args': ['テスト地目レイヤ'], 'plugin_id': 'geo_legend'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_legend プラグインの「setStyle」(選択中レイヤの名前付きスタイルを切り替える。)を試して。必要な引数は適当な値でよい\n[AI] \nsetStyle を試すには複数の名前付きスタイルが必要なので、まず「テスト地目レイヤ」に2つのスタイルを保存します。layer=None はQGISのアクティブレイヤ（テスト路線レイヤ）を見ていたようです。レイヤ名を明示します。3つのスタイルが登録できました。setStyle で切り替えを試します。legendSpec がアクティブレイヤを見てしまったので、対象レイヤを指定して確認します。「単色」への切替を確認。続けて「地目分類」に戻します。setStyle で名前付きスタイルの切り替えを確認できました。\n準備: 「テスト地目レイヤ」に2つの名前付きスタイルを保存 —\n単色：単一シンボル（青 #1f78b4）\n地目分類：地目フィールドの個別値分類（5色）\n検証結果\n呼び出し\nlegendSpec での確認\nsetStyle(\"単色\")\nsingleSymbol / #1f78b4 に切替 ✓\nsetStyle(\"地目分類\")\ncategorizedSymbol（宅地〜雑種地の5項目）に復帰 ✓\n\nスタイル切替でレンダラ定義ごと保存時の状態に戻ることを確認しました。対象は凡例ドックで「選択中」のレイヤ（=凡例対象として選択されたレイヤ）なので、事前に selectDataset で対象を合わせておくと確実です。"
+}

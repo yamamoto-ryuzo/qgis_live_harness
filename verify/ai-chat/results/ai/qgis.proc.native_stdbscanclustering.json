@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_stdbscanclustering",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ST-DBSCANクラスタリング」(id: native:stdbscanclustering) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ST-DBSCANクラスタリング」(id: native:stdbscanclustering) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:stdbscanclustering`「**ST-DBSCANクラスタリング**」は登録されています（グループ: ベクタ解析）。\n\n## 用途\n\n- ポイントレイヤに対して **ST-DBSCAN（Spatial-Temporal DBSCAN：時空間密度ベースクラスタリング）** を実行します\n- 空間だけでなく**時間も考慮**して、「近い場所で近い時刻に発生した点」を同じクラスタにまとめます\n- 用途例：イベント発生地点の時空間パターン解析（犯罪・事故・感染症・SNS投稿のクラスタ検出）、軌跡データの停留検出\n- 密度ベースなので**クラスタ数を事前指定不要**で、孤立点はノイズとして扱われます\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | 入力レイヤ（ポイント） |\n| `DATETIME_FIELD` | field | 日付・時間フィールド（時間次元の基準） |\n| `MIN_SIZE` | number | 最小クラスタサイズ（minPts）。これ未満はクラスタにならない |\n| `EPS` | distance | 空間方向の最大距離（eps）。この距離内を近傍とみなす |\n| `EPS2` | duration | 時間方向の最大継続時間。この時間幅内を近傍とみなす |\n| `DBSCAN*` | boolean | 境界点をノイズとして扱う（DBSCAN* 亜種） |\n| `FIELD_NAME` | string | クラスタIDを書き込む属性名（デフォルト `CLUSTER_ID`） |\n| `SIZE_FIELD_NAME` | string | クラスタサイズを書き込む属性名（デフォルト `CLUSTER_SIZE`） |\n| `OUTPUT` | sink | クラスタ属性付き出力レイヤ |\n\n## 出力\n\n- `OUTPUT`：元の点レイヤ + `CLUSTER_ID`/`CLUSTER_SIZE` 属性（ノイズ点は NULL または -1）\n- `NUM_CLUSTERS`：検出されたクラスタ数（数値出力、モデラーで利用可）\n\n兄弟アルゴリズム：\n\n- `native:dbscanclustering` — 時間を考慮しない純粋な空間DBSCAN\n- `native:kmeansclustering` — クラスタ数を事前指定する k-means\n\n注意点：時間フィールドが `datetime` 型でないと正しく動かないことがあります（文字列の場合は先に変換）。`EPS`（距離）はレイヤCRS単位、`EPS2`（時間）は適切な単位で指定してください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:stdbscanclustering')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ST-DBSCANクラスタリング」(id: native:stdbscanclustering) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:stdbscanclustering「ST-DBSCANクラスタリング」は登録されています（グループ: ベクタ解析）。\n用途\nポイントレイヤに対して ST-DBSCAN（Spatial-Temporal DBSCAN：時空間密度ベースクラスタリング） を実行します\n空間だけでなく時間も考慮して、「近い場所で近い時刻に発生した点」を同じクラスタにまとめます\n用途例：イベント発生地点の時空間パターン解析（犯罪・事故・感染症・SNS投稿のクラスタ検出）、軌跡データの停留検出\n密度ベースなのでクラスタ数を事前指定不要で、孤立点はノイズとして扱われます\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\n入力レイヤ（ポイント）\nDATETIME_FIELD\nfield\n日付・時間フィールド（時間次元の基準）\nMIN_SIZE\nnumber\n最小クラスタサイズ（minPts）。これ未満はクラスタにならない\nEPS\ndistance\n空間方向の最大距離（eps）。この距離内を近傍とみなす\nEPS2\nduration\n時間方向の最大継続時間。この時間幅内を近傍とみなす\nDBSCAN*\nboolean\n境界点をノイズとして扱う（DBSCAN* 亜種）\nFIELD_NAME\nstring\nクラスタIDを書き込む属性名（デフォルト CLUSTER_ID）\nSIZE_FIELD_NAME\nstring\nクラスタサイズを書き込む属性名（デフォルト CLUSTER_SIZE）\nOUTPUT\nsink\nクラスタ属性付き出力レイヤ\n\n出力\nOUTPUT：元の点レイヤ + CLUSTER_ID/CLUSTER_SIZE 属性（ノイズ点は NULL または -1）\nNUM_CLUSTERS：検出されたクラスタ数（数値出力、モデラーで利用可）\n兄弟アルゴリズム：\nnative:dbscanclustering — 時間を考慮しない純粋な空間DBSCAN\nnative:kmeansclustering — クラスタ数を事前指定する k-means\n注意点：時間フィールドが datetime 型でないと正しく動かないことがあります（文字列の場合は先に変換）。EPS（距離）はレイヤCRS単位、EPS2（時間）は適切な単位で指定してください。"
+}

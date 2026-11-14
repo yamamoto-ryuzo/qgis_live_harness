@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Show_Area",
+ "prompt": "QGISの「Show Area」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Show Area」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Show Area」関連のアクションを検索します。調査結果です。\n\n## 「Show Area」はトグルではなく**サブメニュー**です\n\n| 項目 | 値 |\n|---|---|\n| text | `Show Area` |\n| checkable | **false（トグル式ではない = メニューの親項目）** |\n| enabled | true |\n| 配置 | メニュー「**Floater settings**」内 |\n\n「Show Area」はクリックでON/OFFする項目ではなく、フローターへ面積欄を表示する際の**計算方式を選ぶサブメニュー**です。子アクションの現在の状態：\n\n| 子アクション | checked |\n|---|---|\n| Show Ellipsoidal Area（楕円体面積） | **false → OFF** |\n| Show Cartesian Area（平面/デカルト面積） | **false → OFF** |\n\n両方ともOFFなので、現状は**フローターに面積欄は表示されない**設定です。有効にするにはどちらか一方をチェックする形になります（排他選択のはず）。\n\n「Floater settings」系の現状まとめ:\n- Show Floater / Distance / Angle / XY / Z / M: すべてON\n- Show Bearing/Azimuth: OFF\n- Show Common Snapping Angle: OFF\n- Show Area: サブメニュー（Ellipsoidal / Cartesian ともにOFF）\n\nどれかをONにしたい場合は `a.trigger()` で切り替えられます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    on = (a.objectName() or '')\\n    tt = (a.toolTip() or '')\\n    if 'area' in t.lower() or 'area' in on.lower() or 'area' in tt.lower() or '面積' in t:\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': t,\\n            'objectName': on,\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            'tooltip': tt,\\n            'shortcut': a.short"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Show Area」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Show Area」関連のアクションを検索します。調査結果です。\n「Show Area」はトグルではなくサブメニューです\n項目\n値\ntext\nShow Area\ncheckable\nfalse（トグル式ではない = メニューの親項目）\nenabled\ntrue\n配置\nメニュー「Floater settings」内\n\n「Show Area」はクリックでON/OFFする項目ではなく、フローターへ面積欄を表示する際の計算方式を選ぶサブメニューです。子アクションの現在の状態：\n子アクション\nchecked\nShow Ellipsoidal Area（楕円体面積）\nfalse → OFF\nShow Cartesian Area（平面/デカルト面積）\nfalse → OFF\n\n両方ともOFFなので、現状はフローターに面積欄は表示されない設定です。有効にするにはどちらか一方をチェックする形になります（排他選択のはず）。\n「Floater settings」系の現状まとめ:\nShow Floater / Distance / Angle / XY / Z / M: すべてON\nShow Bearing/Azimuth: OFF\nShow Common Snapping Angle: OFF\nShow Area: サブメニュー（Ellipsoidal / Cartesian ともにOFF）\nどれかをONにしたい場合は a.trigger() で切り替えられます。"
+}

@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.Time_Stamp_Destination",
+ "prompt": "QGISの「Time Stamp Destination」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Time Stamp Destination」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "同じGPSオプションメニュー内の項目です。確認します（サブメニューの可能性もあるので子アクションも見ます）。サブメニューは動的生成（aboutToShowで生成）と思われるので、シグナルを発行して子項目を確認します。調査結果です。\n\n## 「Time Stamp Destination」アクション\n\n同じく **GPSツールバーのオプションメニュー**内の項目ですが、これはトグルではなく**サブメニュー（メニュー親）**です。\n\n**現在の状態**（pyeval 実測）:\n\n| 項目 | 値 |\n|---|---|\n| isEnabled | **true（有効）** |\n| isCheckable | false（トグルではない） |\n| has_menu | true（サブメニュー持ち） |\n\n**サブメニュー内容**: `aboutToShow` で動的生成される形式で、実測したところ現在は 1 件のみ。\n\n| 子アクション | enabled | checked |\n|---|---|---|\n| Do Not Store | true | **true（選択中）** |\n\n**意味・実効**: GPSトラック頂点を追加する際にタイムスタンプをどの属性フィールドへ保存するかを選ぶメニューです。トラック先レイヤのフィールドが候補として並ぶ仕組みですが、現在は「Do Not Store（保存しない）」のみが存在し選択中です — 記録先レイヤが未設定か、タイムスタンプ格納可能なフィールドがない状態を示します。\n\n## まとめ\n\n- アクション自体は **有効（enabled）** です。\n- サブメニュー内の選択は現在「Do Not Store」で、タイムスタンプは保存されない設定になっています。\n- フィールド候補は GPS 接続・トラック先レイヤ設定時に動的に追加されます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = None\\nfor x in mw.findChildren(QAction):\\n    if (x.text() or '') == 'Time Stamp Destination':\\n        a = x\\n        break\\ninfo = {'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked(),\\n        'visible': a.isVisible(), 'tooltip': a.toolTip(), 'has_menu': a.menu() is not None}\\nsub = []\\nif a.menu() is not None:\\n    for s in a.menu().actions():\\n        sub.append({'text': s.text(), 'enabled': s.isEnabled(), 'checkable': s.isCheckable(),\\n                    'checked': s.isChecked() if s.isCheckable() else None,\\n                    'data': str(s.data())})\\ninfo['sub_actions'] = sub\\nresult = info\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = None\\nfor x in mw.findChildren(QAction):\\n    if (x.text() or '') == 'Time Stamp Destination':\\n        a = x\\n        break\\nm = a.menu()\\ntry:\\n    m.aboutToShow.emit()\\nexcept Exception as e:\\n    pass\\nsub = [{'text': s.text(), 'enabled': s.isEnabled(), 'checkable': s.isCheckable(),\\n        'checked': s.isChecked() if s.isCheckable() else None, 'data': s.data()} for s in m.actions()]\\nresult = {'parent_enabled': a.isEnabled(), 'sub_actions': sub}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Time Stamp Destination」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n同じGPSオプションメニュー内の項目です。確認します（サブメニューの可能性もあるので子アクションも見ます）。サブメニューは動的生成（aboutToShowで生成）と思われるので、シグナルを発行して子項目を確認します。調査結果です。\n「Time Stamp Destination」アクション\n同じく GPSツールバーのオプションメニュー内の項目ですが、これはトグルではなく**サブメニュー（メニュー親）**です。\n現在の状態（pyeval 実測）:\n項目\n値\nisEnabled\ntrue（有効）\nisCheckable\nfalse（トグルではない）\nhas_menu\ntrue（サブメニュー持ち）\n\nサブメニュー内容: aboutToShow で動的生成される形式で、実測したところ現在は 1 件のみ。\n子アクション\nenabled\nchecked\nDo Not Store\ntrue\ntrue（選択中）\n\n意味・実効: GPSトラック頂点を追加する際にタイムスタンプをどの属性フィールドへ保存するかを選ぶメニューです。トラック先レイヤのフィールドが候補として並ぶ仕組みですが、現在は「Do Not Store（保存しない）」のみが存在し選択中です — 記録先レイヤが未設定か、タイムスタンプ格納可能なフィールドがない状態を示します。\nまとめ\nアクション自体は 有効（enabled） です。\nサブメニュー内の選択は現在「Do Not Store」で、タイムスタンプは保存されない設定になっています。\nフィールド候補は GPS 接続・トラック先レイヤ設定時に動的に追加されます。"
+}

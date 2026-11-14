@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_tilesxyzmbtiles",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Generate XYZ tiles (MBTiles)」(id: native:tilesxyzmbtiles) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Generate XYZ tiles (MBTiles)」(id: native:tilesxyzmbtiles) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:tilesxyzmbtiles`「**Generate XYZ tiles (MBTiles)**」は登録されています（グループ: ラスタツール）。\n\n## 用途\n\n- 地図キャンバスの表示内容を XYZ タイルとして生成し、**単一の MBTiles ファイル**（SQLiteベースのタイルコンテナ）にまとめます\n- 先ほどの `native:tilesxyzdirectory`（ディレクトリに `z/x/y` 個別ファイル出力）の**MBTiles版**です\n- 用途例：Web地図配布を1ファイルで受け渡し、モバイルGIS（QField等）への背景タイル同梱、タイルサーバへの一括アップロード\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `EXTENT` | extent | タイル化する領域 |\n| `ZOOM_MIN` / `ZOOM_MAX` | number | 生成するズームレベル範囲 |\n| `DPI` | number | 出力DPI |\n| `BACKGROUND_COLOR` | color | 背景色 |\n| `ANTIALIAS` | boolean | アンチエイリアス有効化 |\n| `TILE_FORMAT` | enum | タイル形式：`PNG` / `JPG` |\n| `QUALITY` | number | 品質（JPGのみ） |\n| `METATILESIZE` | number | メタタイルサイズ（ラベル切れ防止） |\n| `OUTPUT_FILE` | fileDestination | 出力（.mbtiles） |\n\n## Directory版との違い\n\n| | `tilesxyzdirectory` | `tilesxyzmbtiles`（本件） |\n|---|---|---|\n| 出力 | `z/x/y.png` のファイル群 + 任意HTML | **1つの .mbtiles ファイル** |\n| タイル個別指定パラメータ | TILE_WIDTH/HEIGHT, TMS_CONVENTION あり | なし（標準仕様） |\n| LeafletプレビューHTML | 出力可能 | なし |\n| 配布・管理 | ファイル数が膨大になりがち | 単一ファイルで扱いやすい |\n\n注意点は共通で、キャンバスのスタイルがそのまま焼き付けられる点、生成量は `EXTENT`×`ZOOM` 範囲に比例する点です。QGIS は .mbtiles をそのままラスタソースとして読めるので、生成後にレイヤ追加して確認もできます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:tilesxyzmbtiles')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Generate XYZ tiles (MBTiles)」(id: native:tilesxyzmbtiles) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:tilesxyzmbtiles「Generate XYZ tiles (MBTiles)」は登録されています（グループ: ラスタツール）。\n用途\n地図キャンバスの表示内容を XYZ タイルとして生成し、単一の MBTiles ファイル（SQLiteベースのタイルコンテナ）にまとめます\n先ほどの native:tilesxyzdirectory（ディレクトリに z/x/y 個別ファイル出力）のMBTiles版です\n用途例：Web地図配布を1ファイルで受け渡し、モバイルGIS（QField等）への背景タイル同梱、タイルサーバへの一括アップロード\n主なパラメータ\nパラメータ\n型\n内容\nEXTENT\nextent\nタイル化する領域\nZOOM_MIN / ZOOM_MAX\nnumber\n生成するズームレベル範囲\nDPI\nnumber\n出力DPI\nBACKGROUND_COLOR\ncolor\n背景色\nANTIALIAS\nboolean\nアンチエイリアス有効化\nTILE_FORMAT\nenum\nタイル形式：PNG / JPG\nQUALITY\nnumber\n品質（JPGのみ）\nMETATILESIZE\nnumber\nメタタイルサイズ（ラベル切れ防止）\nOUTPUT_FILE\nfileDestination\n出力（.mbtiles）\n\nDirectory版との違い\n\ntilesxyzdirectory\ntilesxyzmbtiles（本件）\n出力\nz/x/y.png のファイル群 + 任意HTML\n1つの .mbtiles ファイル\nタイル個別指定パラメータ\nTILE_WIDTH/HEIGHT, TMS_CONVENTION あり\nなし（標準仕様）\nLeafletプレビューHTML\n出力可能\nなし\n配布・管理\nファイル数が膨大になりがち\n単一ファイルで扱いやすい\n\n注意点は共通で、キャンバスのスタイルがそのまま焼き付けられる点、生成量は EXTENT×ZOOM 範囲に比例する点です。QGIS は .mbtiles をそのままラスタソースとして読めるので、生成後にレイヤ追加して確認もできます。"
+}

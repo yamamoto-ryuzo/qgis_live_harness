@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.Show_Construction_Guides",
+ "prompt": "QGISの「Show Construction Guides」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Show Construction Guides」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "QGISメインウィンドウ内から「Construction Guides」関連のQActionを探してみます。調査結果です。\n\n## 「Show Construction Guides」は **有効(ON)** です\n\nQGISメインウィンドウ内の全QActionを検索したところ、該当アクションが見つかり、現在の状態は以下の通りです：\n\n| 項目 | 値 |\n|---|---|\n| text | `Show Construction Guides` |\n| checkable | true（トグル式） |\n| **checked** | **true → 有効（ON)** |\n| enabled | true（押下可能） |\n| 配置 | いずれかのサブメニュー内（メニュータイトルは空） |\n| ショートカット | なし |\n\n同じグループに以下の関連アクションもあり、現状は：\n\n- `Record Construction Guides` — checkable, **unchecked(OFF)**\n- `Snap to Visible Construction Guides` — checkable, **unchecked(OFF)**\n- `Clear Construction Guides` — non-checkable（実行ボタン）\n\nつまり、作図ガイド（Construction Guides)の**表示はON**ですが、ガイドの記録（Record)とガイドへのスナップはOFFという状態です。\n\nなお関連するアドバンスドデジタイジング側のアクション `mConstructionAction`（作図モード）も `checked=false` でした。切り替えたい場合は `a.setChecked(False)` / `a.trigger()` で操作できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    if 'construction' in t.lower() or 'construction' in (a.objectName() or '').lower():\\n        found.append({\\n            'text': t,\\n            'objectName': a.objectName(),\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n        })\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    if (a.text() or '') == 'Show Construction Guides':\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({'checked': a.isChecked(), 'enabled': a.isEnabled(), 'containers': containers, 'tooltip': a.toolTip(), 'shortcut': a.shortcut().toString()})\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Show Construction Guides」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nQGISメインウィンドウ内から「Construction Guides」関連のQActionを探してみます。調査結果です。\n「Show Construction Guides」は 有効(ON) です\nQGISメインウィンドウ内の全QActionを検索したところ、該当アクションが見つかり、現在の状態は以下の通りです：\n項目\n値\ntext\nShow Construction Guides\ncheckable\ntrue（トグル式）\nchecked\ntrue → 有効（ON)\nenabled\ntrue（押下可能）\n配置\nいずれかのサブメニュー内（メニュータイトルは空）\nショートカット\nなし\n\n同じグループに以下の関連アクションもあり、現状は：\nRecord Construction Guides — checkable, unchecked(OFF)\nSnap to Visible Construction Guides — checkable, unchecked(OFF)\nClear Construction Guides — non-checkable（実行ボタン）\nつまり、作図ガイド（Construction Guides)の表示はONですが、ガイドの記録（Record)とガイドへのスナップはOFFという状態です。\nなお関連するアドバンスドデジタイジング側のアクション mConstructionAction（作図モード）も checked=false でした。切り替えたい場合は a.setChecked(False) / a.trigger() で操作できます。"
+}

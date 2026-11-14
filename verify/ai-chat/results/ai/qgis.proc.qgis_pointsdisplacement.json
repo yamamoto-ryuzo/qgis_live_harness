@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_pointsdisplacement",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] 点の重なり回避（point displacement）」(id: qgis:pointsdisplacement) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] 点の重なり回避（point displacement）」(id: qgis:pointsdisplacement) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis:pointsdisplacement` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `qgis:pointsdisplacement`\n- **表示名**: `点の重なり回避（point displacement）`\n- **Provider**: `QGIS`\n- **グループ**: `ベクタジオメトリ`\n\n### 用途\n近接・重複するポイントを円周上などへずらし、表示上の重なりを緩和します。実位置を解析用に保ちたい場合より、カートグラフィックな見やすさ重視の処理です。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ポイントレイヤ | — |\n| `PROXIMITY` | この距離以内の点を近隣点として扱う | `1.0` |\n| `DISTANCE` | 近隣点を配置する円の半径 | `1.0` |\n| `HORIZONTAL` | 近隣点が2点だけの場合、水平方向にずらす | — |\n| `OUTPUT` | ずらしたポイントの出力レイヤ | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('qgis:pointsdisplacement')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'displacement' in a.id().lower() or 'point' in a.id().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'type': p."
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] 点の重なり回避（point displacement）」(id: qgis:pointsdisplacement) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nqgis:pointsdisplacement を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: qgis:pointsdisplacement\n表示名: 点の重なり回避（point displacement）\nProvider: QGIS\nグループ: ベクタジオメトリ\n用途\n近接・重複するポイントを円周上などへずらし、表示上の重なりを緩和します。実位置を解析用に保ちたい場合より、カートグラフィックな見やすさ重視の処理です。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\n入力ポイントレイヤ\n—\nPROXIMITY\nこの距離以内の点を近隣点として扱う\n1.0\nDISTANCE\n近隣点を配置する円の半径\n1.0\nHORIZONTAL\n近隣点が2点だけの場合、水平方向にずらす\n—\nOUTPUT\nずらしたポイントの出力レイヤ\n—\n"
+}

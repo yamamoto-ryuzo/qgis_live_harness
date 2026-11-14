@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Clear_Construction_Guides",
+ "prompt": "QGISの「Clear Construction Guides」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Clear Construction Guides」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Clear Construction Guides」の現在の状態を確認します。調査結果です。\n\n## 「Clear Construction Guides」は **有効（実行可能）** です\n\n| 項目 | 値 |\n|---|---|\n| text | `Clear Construction Guides` |\n| checkable | **false（トグル式ではない = ON/OFF状態を持たない）** |\n| **enabled** | **true → 有効・実行可能** |\n| visible | true |\n| 配置 | サブメニュー内（メニュータイトルは空） |\n| ショートカット | なし |\n\nこのアクションは前の2つ（Show / Snap to Visible)とは違い、**チェック式のトグルではなく、押すと「ガイドをクリア」を一度だけ実行するボタン**です。そのためON/OFFの状態は存在せず、「有効かどうか」は enabled の意味になります。\n\n現在 **enabled=true** なので、実行すればすぐに登録済みの作図ガイドが消去される状態です。実行したい場合は `a.trigger()` で発火できますので、お申し付けください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    if (a.text() or '') == 'Clear Construction Guides':\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': a.text(),\\n            'objectName': a.objectName(),\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            'tooltip': a.toolTip(),\\n            'shortcut': a.shortcut().toString(),\\n        })\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Clear Construction Guides」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Clear Construction Guides」の現在の状態を確認します。調査結果です。\n「Clear Construction Guides」は 有効（実行可能） です\n項目\n値\ntext\nClear Construction Guides\ncheckable\nfalse（トグル式ではない = ON/OFF状態を持たない）\nenabled\ntrue → 有効・実行可能\nvisible\ntrue\n配置\nサブメニュー内（メニュータイトルは空）\nショートカット\nなし\n\nこのアクションは前の2つ（Show / Snap to Visible)とは違い、チェック式のトグルではなく、押すと「ガイドをクリア」を一度だけ実行するボタンです。そのためON/OFFの状態は存在せず、「有効かどうか」は enabled の意味になります。\n現在 enabled=true なので、実行すればすぐに登録済みの作図ガイドが消去される状態です。実行したい場合は a.trigger() で発火できますので、お申し付けください。"
+}

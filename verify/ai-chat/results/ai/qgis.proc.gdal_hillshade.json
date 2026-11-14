@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_hillshade",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 陰影図（hillshade）」(id: gdal:hillshade) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 陰影図（hillshade）」(id: gdal:hillshade) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:hillshade` を Processing Registry で確認します。確認しました。Processing Registry に **`[GDAL] 陰影図（hillshade）`** は存在します。\n\n- **ID:** `gdal:hillshade`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタ解析`\n\n### 用途\nDEMなどの標高ラスタから **陰影図（シェードレリーフ）** を作成します。仮想的な光源の方位・高度に基づいて地形の凹凸を視覚化します。\n\n### 主なパラメータ\n- `INPUT`：入力DEMラスタ\n- `BAND`：使用するバンド番号\n- `Z_FACTOR`：垂直方向の強調係数\n- `SCALE`：水平距離と標高単位の変換比\n- `AZIMUTH`：光源の方位角（既定値 `315.0`）\n- `ALTITUDE`：光源の仰角／高度（既定値 `45.0`）\n- `COMPUTE_EDGES`：ラスタ境界でも陰影を計算\n- `ZEVENBERGEN`：Zevenbergen–Thorne式を使用\n- `COMBINED`：複合シェーディング\n- `MULTIDIRECTIONAL`：複数方向からの陰影を合成\n- `OUTPUT`：出力陰影図ラスタ"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:hillshade'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'hillshade' in a.id().lower() or '陰影' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'hillshade' in a.id().lower() or "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 陰影図（hillshade）」(id: gdal:hillshade) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:hillshade を Processing Registry で確認します。確認しました。Processing Registry に [GDAL] 陰影図（hillshade） は存在します。\nID: gdal:hillshade\nプロバイダ: GDAL\nグループ: ラスタ解析\n用途\nDEMなどの標高ラスタから 陰影図（シェードレリーフ） を作成します。仮想的な光源の方位・高度に基づいて地形の凹凸を視覚化します。\n主なパラメータ\nINPUT：入力DEMラスタ\nBAND：使用するバンド番号\nZ_FACTOR：垂直方向の強調係数\nSCALE：水平距離と標高単位の変換比\nAZIMUTH：光源の方位角（既定値 315.0）\nALTITUDE：光源の仰角／高度（既定値 45.0）\nCOMPUTE_EDGES：ラスタ境界でも陰影を計算\nZEVENBERGEN：Zevenbergen–Thorne式を使用\nCOMBINED：複合シェーディング\nMULTIDIRECTIONAL：複数方向からの陰影を合成\nOUTPUT：出力陰影図ラスタ"
+}

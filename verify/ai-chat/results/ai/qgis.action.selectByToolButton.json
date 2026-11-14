@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.selectByToolButton",
+ "prompt": "QGISの「selectByToolButton」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「selectByToolButton」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "`selectByToolButton` は **有効(enabled)です**。\n\n調査結果:\n\n- objectName `selectByToolButton` の `QWidgetAction` が1つあり、`isEnabled() = True`、`isVisible() = True`\n- 選択ツールバー(`mSelectionToolBar`)の QToolButton で、ボタン自体も `isEnabled() = True`\n- Processing の選択アルゴリズムをまとめたドロップダウンボタンで、内包するアクションはすべて有効:\n\n| アクション | テキスト | enabled |\n|---|---|---|\n| `mProcessingAlg_native:selectbylocation` | 場所による選択 | True |\n| `mProcessingAlg_native:selectwithindistance` | 一定距離以内の地物を選択 | True |\n\nデフォルトアクションは「場所による選択」です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QWidget\\nacts = [a for a in iface.mainWindow().findChildren(QAction) if 'selectby' in a.objectName().lower()]\\nwidgets = [w for w in iface.mainWindow().findChildren(QWidget) if 'selectby' in w.objectName().lower()]\\nresult = {\\n  'actions': [(a.objectName(), a.text(), a.__class__.__name__, a.isEnabled(), a.isVisible()) for a in acts],\\n  'widgets': [(w.objectName(), w.__class__.__name__, w.isEnabled(), w.isVisible()) for w in widgets]\\n}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': 'from qgis.PyQt.QtWidgets import QAction, QToolButton\\na = [x for x in iface.mainWindow().findChildren(QAction) if x.objectName() == \\'selectByToolButton\\'][0]\\np = a.parent()\\nchain = []\\nwhile p is not None:\\n    chain.append(f\"{p.__class__.__name__}:{p.objectName()}\")\\n    p = p.parent()\\ndw = a.defaultWidget() if hasattr(a, \\'defaultWidget\\') else None\\nacts = dw.actions() if dw else []\\nda = dw.defaultAction() if isinstance(dw, QToolButton) else None\\nresult = {\\'enabled\\': a.isEnabled(), \\'visible\\': a.isVisible(), \\'dw\\': dw.__class__.__name__ if dw else None, \\'dw_enabled\\': dw.isEnabled() if dw else None, \\'default_action\\': da.text() if da else None, \\'tool_tip\\': dw.toolTip() if dw else None, \\'button_actions\\': [(x.objectName(), x.text(), x.isEnabled(), x.isChecked()) for x in acts], \\'parent_chain\\': \\' <- \\'.join(chain)}'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「selectByToolButton」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nselectByToolButton は 有効(enabled)です。\n調査結果:\nobjectName selectByToolButton の QWidgetAction が1つあり、isEnabled() = True、isVisible() = True\n選択ツールバー(mSelectionToolBar)の QToolButton で、ボタン自体も isEnabled() = True\nProcessing の選択アルゴリズムをまとめたドロップダウンボタンで、内包するアクションはすべて有効:\nアクション\nテキスト\nenabled\nmProcessingAlg_native:selectbylocation\n場所による選択\nTrue\nmProcessingAlg_native:selectwithindistance\n一定距離以内の地物を選択\nTrue\n\nデフォルトアクションは「場所による選択」です。"
+}

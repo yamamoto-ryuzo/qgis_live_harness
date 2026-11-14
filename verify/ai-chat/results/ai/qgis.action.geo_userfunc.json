@@ -1,0 +1,34 @@
+{
+ "id": "qgis.action.geo_userfunc",
+ "prompt": "QGISの「geo_userfunc」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「geo_userfunc」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "geo_userfunc プラグインの登録アクションを調べます。調査結果です。\n\n**geo_userfunc のアクションは現在有効（enabled）です。**\n\n詳細:\n\n- **プラグイン**: `geo_userfunc`（`geo_userfunc.plugin.plugin`）ロード済み\n- **メインメニュー**: 「プラグイン(&P)」→「&geo_userfunc」（objectName `geouserfunc`）— `enabled=True`\n\nメニュー内のアクション（すべて `enabled=True`）:\n\n| アクション | 内容 |\n|---|---|\n| ユーザー関数ライブラリ... | ライブラリ管理ダイアログを開く（GeoSuite ツールバーの QToolButton からも実行可） |\n| 一覧帳票を出力 (アクティブレイヤ) | マクロ `geo_excel.exportList.py` |\n| 単票を出力 (選択地物) | マクロ `geo_excel.exportSingle.py` |\n| 単票を一括出力 (選択地物または全地物) | マクロ `geo_excel.exportSingleBulk.py` |\n\n`macro_actions` には `geo_excel` プラグイン由来のマクロ3件が登録されており、いずれも無効化・非表示にはなっていません。ツールバー・メニュー両方から実行可能な状態です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\npl = qgis.utils.plugins.get('geo_userfunc')\\ninfo = {'loaded': pl is not None}\\nif pl is not None:\\n    info['plugin_type'] = type(pl).__name__\\n    info['module'] = getattr(pl, '__module__', None)\\n    info['attrs'] = [a for a in dir(pl) if not a.startswith('__')]\\n    for name in info['attrs']:\\n        v = getattr(pl, name, None)\\n        tn = type(v).__name__\\n        if tn in ('QAction', 'QMenu', 'list'):\\n            info.setdefault('interesting', {})[name] = '%s: %s' % (tn, repr(v)[:200])\\nresult = info\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\nfrom qgis.PyQt.QtWidgets import QMenu, QToolBar\\npl = qgis.utils.plugins['geo_userfunc']\\nmw = iface.mainWindow()\\nout = {'menu_name': getattr(pl, 'menu_name', None),\\n       'macro_actions_type': type(getattr(pl, 'macro_actions', None)).__name__,\\n       'macro_actions': repr(getattr(pl, 'macro_actions', None))[:300]}\\nacts = []\\nfor a in getattr(pl, 'actions', []) or []:\\n    conts = []\\n    for w in a.associatedObjects():\\n        if isinstance(w, QMenu):\\n            conts.append('QMenu:%s [%s]' % (w.title(), w.objectName()))\\n        elif isinstance(w, QToolBar):\\n            conts.append('QToolBar:%s [%s]' % (w.windowTitle(), w.objectName()))\\n        else:\\n            conts.append(w.metaObject().className())\\n    acts.append({'text': a.text(), 'objectName': a.objectName(), 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'containers': conts})\\nout['actions'] = acts\\nresult = out\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\nfrom qgis.PyQt.QtWidgets import QMenu\\npl = qgis.utils.plugins['geo_userfunc']\\nmw = iface.mainWindow()\\nout = {'macro_actions': [], 'menu': None}\\nfor k, a in pl.macro_actions.items():\\n    out['macro_actions'].append({'key': k, 'text': a.text(), 'enabled': a.isEnabled(), 'visible': a.isVisible()})\\nfor m in mw.findChildren(QMenu):\\n    if m.objectName() == 'geouserfunc':\\n        ma = m.menuAction()\\n        out['menu'] = {'title': m.title(), 'enabled': m.isEnabled(), 'menuAction_enabled': ma.isEnabled(), 'menuAction_visible': ma.isVisible(), 'actions': [(sa.text(), sa.isEnabled(), sa.isSeparator()) for sa in m.actions()]}\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「geo_userfunc」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \ngeo_userfunc プラグインの登録アクションを調べます。調査結果です。\ngeo_userfunc のアクションは現在有効（enabled）です。\n詳細:\nプラグイン: geo_userfunc（geo_userfunc.plugin.plugin）ロード済み\nメインメニュー: 「プラグイン(&P)」→「&geo_userfunc」（objectName geouserfunc）— enabled=True\nメニュー内のアクション（すべて enabled=True）:\nアクション\n内容\nユーザー関数ライブラリ...\nライブラリ管理ダイアログを開く（GeoSuite ツールバーの QToolButton からも実行可）\n一覧帳票を出力 (アクティブレイヤ)\nマクロ geo_excel.exportList.py\n単票を出力 (選択地物)\nマクロ geo_excel.exportSingle.py\n単票を一括出力 (選択地物または全地物)\nマクロ geo_excel.exportSingleBulk.py\n\nmacro_actions には geo_excel プラグイン由来のマクロ3件が登録されており、いずれも無効化・非表示にはなっていません。ツールバー・メニュー両方から実行可能な状態です。"
+}

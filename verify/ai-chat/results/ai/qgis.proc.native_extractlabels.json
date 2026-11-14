@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_extractlabels",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラベルを抽出」(id: native:extractlabels) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラベルを抽出」(id: native:extractlabels) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の Processing registry に存在します。\n\n- **ID**: `native:extractlabels`\n- **表示名**: ラベルを抽出\n- **グループ**: 地図製作\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n\n## 用途\n\n指定した範囲・縮尺・解像度で実際にレンダリングされるラベル位置を計算し、**ポイント型ベクタレイヤとして抽出**します。  \n出力属性には、レイヤ名、フィーチャID、ラベル文字列、回転、配置、フォント情報などが含まれます。ラベル配置の確認や外部ツールへの引き渡しに使えます。\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `EXTENT` | ラベルを抽出する地図範囲（必須） |\n| `SCALE` | ラベル配置を計算する地図縮尺（必須） |\n| `MAP_THEME` | 使用する地図テーマ（任意。未指定時は可視レイヤ全体） |\n| `INCLUDE_UNPLACED` | 配置できなかったラベルも含めるか。既定は `true` |\n| `DPI` | ラベル配置計算に使う解像度。既定は `96.0` |\n| `OUTPUT` | 抽出したラベルのポイントレイヤ（必須） |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:extractlabels')\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'options': p.options() if hasattr(p, 'options') else None,\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else []\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラベルを抽出」(id: native:extractlabels) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の Processing registry に存在します。\nID: native:extractlabels\n表示名: ラベルを抽出\nグループ: 地図製作\n種別: QGIS ネイティブ C++ アルゴリズム\n用途\n指定した範囲・縮尺・解像度で実際にレンダリングされるラベル位置を計算し、ポイント型ベクタレイヤとして抽出します。\n出力属性には、レイヤ名、フィーチャID、ラベル文字列、回転、配置、フォント情報などが含まれます。ラベル配置の確認や外部ツールへの引き渡しに使えます。\n主なパラメータ\nパラメータ\n内容\nEXTENT\nラベルを抽出する地図範囲（必須）\nSCALE\nラベル配置を計算する地図縮尺（必須）\nMAP_THEME\n使用する地図テーマ（任意。未指定時は可視レイヤ全体）\nINCLUDE_UNPLACED\n配置できなかったラベルも含めるか。既定は true\nDPI\nラベル配置計算に使う解像度。既定は 96.0\nOUTPUT\n抽出したラベルのポイントレイヤ（必須）\n"
+}

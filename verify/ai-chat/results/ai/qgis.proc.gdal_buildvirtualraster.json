@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_buildvirtualraster",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 仮想ラスタを構築」(id: gdal:buildvirtualraster) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 仮想ラスタを構築」(id: gdal:buildvirtualraster) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:buildvirtualraster` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:buildvirtualraster` |\n| 表示名 | 仮想ラスタを構築 |\n| プロバイダ | GDAL |\n| グループ | ラスタその他 |\n\n## 用途\n\n複数のラスタを参照する**仮想ラスタ(VRT)を構築**します(`gdalbuildvrt` に相当)。VRT は実データをコピーせず、ソースラスタへの参照を持つだけの軽量な XML ファイルで、以下の用途に向きます。\n\n- タイル状に分割されたラスタを**1枚のモザイク**として扱う\n- 複数ファイルを**別バンドに積み重ねる**(`SEPARATE`)\n- データの複製を避けつつ統一解像度・リサンプリングを指定する\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ラスタ(複数可) | 必須 |\n| `RESOLUTION` | 出力解像度:Average / Highest / Lowest | Average |\n| `SEPARATE` | 各入力を別バンドに配置 | true |\n| `PROJ_DIFFERENCE` | 投影差を許容 | false |\n| `ADD_ALPHA` | ソースにアルファが無い場合アルファバンド追加 | false |\n| `ASSIGN_CRS` | 出力の投影を上書き | 任意 |\n| `RESAMPLING` | リサンプリング法(Nearest/Bilinear/Cubic/Cubic B-Spline/Lanczos/Average/Mode) | Nearest |\n| `SRC_NODATA` | 入力バンドの nodata 値(空白区切り) | 任意 |\n| `EXTRA` | 追加コマンドラインパラメータ | 任意 |\n| `OUTPUT` | 出力 VRT ファイル | 必須 |\n\n実行例: `processing.run(\"gdal:buildvirtualraster\", {\"INPUT\": [r1, r2], \"RESOLUTION\": 0, \"SEPARATE\": False, \"OUTPUT\": \"mosaic.vrt\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:buildvirtualraster')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'virtual' in a.id().lower() or 'vrt' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName("
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 仮想ラスタを構築」(id: gdal:buildvirtualraster) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:buildvirtualraster をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:buildvirtualraster\n表示名\n仮想ラスタを構築\nプロバイダ\nGDAL\nグループ\nラスタその他\n\n用途\n複数のラスタを参照する仮想ラスタ(VRT)を構築します(gdalbuildvrt に相当)。VRT は実データをコピーせず、ソースラスタへの参照を持つだけの軽量な XML ファイルで、以下の用途に向きます。\nタイル状に分割されたラスタを1枚のモザイクとして扱う\n複数ファイルを別バンドに積み重ねる(SEPARATE)\nデータの複製を避けつつ統一解像度・リサンプリングを指定する\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n入力ラスタ(複数可)\n必須\nRESOLUTION\n出力解像度:Average / Highest / Lowest\nAverage\nSEPARATE\n各入力を別バンドに配置\ntrue\nPROJ_DIFFERENCE\n投影差を許容\nfalse\nADD_ALPHA\nソースにアルファが無い場合アルファバンド追加\nfalse\nASSIGN_CRS\n出力の投影を上書き\n任意\nRESAMPLING\nリサンプリング法(Nearest/Bilinear/Cubic/Cubic B-Spline/Lanczos/Average/Mode)\nNearest\nSRC_NODATA\n入力バンドの nodata 値(空白区切り)\n任意\nEXTRA\n追加コマンドラインパラメータ\n任意\nOUTPUT\n出力 VRT ファイル\n必須\n\n実行例: processing.run(\"gdal:buildvirtualraster\", {\"INPUT\": [r1, r2], \"RESOLUTION\": 0, \"SEPARATE\": False, \"OUTPUT\": \"mosaic.vrt\"})"
+}

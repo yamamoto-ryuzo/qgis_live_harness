@@ -1,0 +1,30 @@
+{
+ "id": "plugin.geo_search.bridge.themeAdditive",
+ "prompt": "geo_search プラグインの「themeAdditive」(テーマ適用の追加表示モードを取得/設定する。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_search プラグインの「themeAdditive」(テーマ適用の追加表示モードを取得/設定する。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "現在 `true` なので `false` に切り替えます。`themeAdditive` を試しました。結果:\n\n1. **取得**(引数なし): `{\"additive\": true}` — 先ほど `applyTheme(..., additive=true)` で ON になっていました\n2. **設定** `themeAdditive(false)`: `{\"additive\": false}` — 追加表示モード OFF に変更\n\nこのモードが ON だと、マップテーマ適用時に現在のレイヤ表示状態を維持したまま重ねて表示(union)します。OFF ならテーマ定義どおりに表示状態を置き換えます。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_search', 'method': 'themeAdditive'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'themeAdditive', 'args': [False], 'plugin_id': 'geo_search'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_search プラグインの「themeAdditive」(テーマ適用の追加表示モードを取得/設定する。)を試して。必要な引数は適当な値でよい\n[AI] \n現在 true なので false に切り替えます。themeAdditive を試しました。結果:\n取得(引数なし): {\"additive\": true} — 先ほど applyTheme(..., additive=true) で ON になっていました\n設定 themeAdditive(false): {\"additive\": false} — 追加表示モード OFF に変更\nこのモードが ON だと、マップテーマ適用時に現在のレイヤ表示状態を維持したまま重ねて表示(union)します。OFF ならテーマ定義どおりに表示状態を置き換えます。"
+}

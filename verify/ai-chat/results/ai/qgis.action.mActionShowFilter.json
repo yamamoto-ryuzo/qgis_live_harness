@@ -1,0 +1,39 @@
+{
+ "id": "qgis.action.mActionShowFilter",
+ "prompt": "QGISの「ブラウザのフィルタ」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ブラウザのフィルタ」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ブラウザのフィルタ」アクションを探します。「ブラウザのフィルタ」（`mActionShowFilter`、チェック可能なトグル）を実行します。ブラウザパネルを前面に出して、フィルタ欄が表示されたか確認します。「ブラウザのフィルタ」機能を実行しました。\n\n## 結果\n\n- ブラウザドックのツールバーにある **`mActionShowFilter`「ブラウザのフィルタ」**（チェック可能なトグル）を trigger → `checked` が `false → true` に切り替わりました（ブラウザ・ブラウザ(2)の両ドック分）\n- ブラウザパネル内のフィルタ入力欄（`mLeFilter`、プレースホルダ: 「表示項目をフィルタするにはここに入力...」）が **表示状態**になりました\n\nブラウザのツリー項目を文字列で絞り込める状態です。フィルタ文字列を入れて試しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nfound = []\\nfor w in iface.mainWindow().findChildren(QAction):\\n    t = w.text() or ''\\n    o = w.objectName() or ''\\n    if 'フィルタ' in t or 'filter' in o.lower() or ('browser' in o.lower() and 'filter' in t.lower()):\\n        found.append((t, o, w.isEnabled(), w.isVisible(), w.isCheckable(),\\n                      w.parent().__class__.__name__ if w.parent() else None))\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QApplication\\nacts = [w for w in iface.mainWindow().findChildren(QAction) if w.objectName()=='mActionShowFilter']\\nres = []\\nfor a in acts:\\n    before = a.isChecked()\\n    a.trigger()\\n    res.append({'before': before, 'after': a.isChecked(), 'enabled': a.isEnabled()})\\nQApplication.processEvents()\\n# check browser dock visibility\\nfrom qgis.PyQt.QtWidgets import QDockWidget\\ndocks = []\\nfor w in iface.mainWindow().findChildren(QDockWidget):\\n    if 'browser' in (w.objectName() or '').lower() or 'ブラウザ' in (w.windowTitle() or ''):\\n        docks.append({'title': w.windowTitle(), 'obj': w.objectName(), 'visible': w.isVisible()})\\nresult = {'actions': res, 'docks': docks}\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-a111e69d.png', 'target': 'mainwindow'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget, QLineEdit, QApplication\\nd = iface.mainWindow().findChild(QDockWidget, 'Browser')\\nd.raise_()\\nd.setVisible(True)\\nQApplication.processEvents()\\n# find filter line edit inside browser\\nles = [le for le in d.findChildren(QLineEdit)]\\nresult = [{'obj': le.objectName(), 'visible': le.isVisible(), 'placeholder': le.placeholderText()} for le in les]\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ブラウザのフィルタ」機能(アクション)を実行して\n[AI] \n「ブラウザのフィルタ」アクションを探します。「ブラウザのフィルタ」（mActionShowFilter、チェック可能なトグル）を実行します。ブラウザパネルを前面に出して、フィルタ欄が表示されたか確認します。「ブラウザのフィルタ」機能を実行しました。\n結果\nブラウザドックのツールバーにある mActionShowFilter「ブラウザのフィルタ」（チェック可能なトグル）を trigger → checked が false → true に切り替わりました（ブラウザ・ブラウザ(2)の両ドック分）\nブラウザパネル内のフィルタ入力欄（mLeFilter、プレースホルダ: 「表示項目をフィルタするにはここに入力...」）が 表示状態になりました\nブラウザのツリー項目を文字列で絞り込める状態です。フィルタ文字列を入れて試しますか？"
+}

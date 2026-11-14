@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_polygonize",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタをベクタ化（polygonize）」(id: gdal:polygonize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタをベクタ化（polygonize）」(id: gdal:polygonize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:polygonize` を Processing Registry で確認します。確認しました。Processing Registry に **`[GDAL] ラスタをベクタ化（polygonize）`** は存在します。\n\n- **ID:** `gdal:polygonize`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタ変換`\n\n### 用途\nラスタ内で **同じ値を持つ隣接セルをまとめ、ポリゴンとしてベクタ化**します。分類ラスタやマスク画像をポリゴンへ変換する場合に使います。\n\n### 主なパラメータ\n- `INPUT`：入力ラスタ\n- `BAND`：ベクタ化対象のバンド（既定値 `1`）\n- `FIELD`：ラスタ値を格納する属性名（既定値 `DN`）\n- `EIGHT_CONNECTEDNESS`：斜め方向も連結として扱うかどうか\n- `OUTPUT`：出力ポリゴンレイヤ\n- `EXTRA`：追加のGDALオプション"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:polygonize'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'polygonize' in a.id().lower() or 'ポリゴン' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'polygonize' in a.id().lower("
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタをベクタ化（polygonize）」(id: gdal:polygonize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:polygonize を Processing Registry で確認します。確認しました。Processing Registry に [GDAL] ラスタをベクタ化（polygonize） は存在します。\nID: gdal:polygonize\nプロバイダ: GDAL\nグループ: ラスタ変換\n用途\nラスタ内で 同じ値を持つ隣接セルをまとめ、ポリゴンとしてベクタ化します。分類ラスタやマスク画像をポリゴンへ変換する場合に使います。\n主なパラメータ\nINPUT：入力ラスタ\nBAND：ベクタ化対象のバンド（既定値 1）\nFIELD：ラスタ値を格納する属性名（既定値 DN）\nEIGHT_CONNECTEDNESS：斜め方向も連結として扱うかどうか\nOUTPUT：出力ポリゴンレイヤ\nEXTRA：追加のGDALオプション"
+}

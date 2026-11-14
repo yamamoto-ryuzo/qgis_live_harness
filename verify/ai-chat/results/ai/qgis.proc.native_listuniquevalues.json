@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_listuniquevalues",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] List unique values」(id: native:listuniquevalues) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] List unique values」(id: native:listuniquevalues) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:listuniquevalues` は **processing registry に存在します**。\n\n- **表示名**: List unique values（ユニーク値一覧）\n- **グループ**: ベクタ解析 (`vectoranalysis`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\nベクタレイヤの指定した属性（1つまたは複数）について、**出現するユニーク値の一覧をレポートとして生成**するアルゴリズムです。カテゴリ値の網羅確認、属性値の揺れ（表記ミス）チェック、分類前の値確認などデータのプロファイリングに使います。複数フィールド指定時は値の組み合わせが対象になります。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力レイヤ（必須） | — |\n| `FIELDS` | 対象フィールド（1つ以上指定、必須） | — |\n| `OUTPUT` | ユニーク値のテーブル出力（任意） | 一時出力 |\n| `OUTPUT_HTML_FILE` | HTML レポート出力先（任意） | 空 |\n\n## 出力\n\n- `OUTPUT` — ユニーク値の一覧（ベクタ/テーブル出力）\n- `OUTPUT_HTML_FILE` — HTML レポート\n- `TOTAL_VALUES` — ユニーク値の総数（数値）\n- `UNIQUE_VALUES` — ユニーク値の一覧（文字列）\n\n実行例: `processing.run(\"native:listuniquevalues\", {'INPUT': layer, 'FIELDS': ['category'], 'OUTPUT_HTML_FILE': 'C:/report.html'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:listuniquevalues')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'p"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] List unique values」(id: native:listuniquevalues) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:listuniquevalues は processing registry に存在します。\n表示名: List unique values（ユニーク値一覧）\nグループ: ベクタ解析 (vectoranalysis)\nプロバイダ: QGIS（ネイティブ C++）\n用途\nベクタレイヤの指定した属性（1つまたは複数）について、出現するユニーク値の一覧をレポートとして生成するアルゴリズムです。カテゴリ値の網羅確認、属性値の揺れ（表記ミス）チェック、分類前の値確認などデータのプロファイリングに使います。複数フィールド指定時は値の組み合わせが対象になります。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力レイヤ（必須）\n—\nFIELDS\n対象フィールド（1つ以上指定、必須）\n—\nOUTPUT\nユニーク値のテーブル出力（任意）\n一時出力\nOUTPUT_HTML_FILE\nHTML レポート出力先（任意）\n空\n\n出力\nOUTPUT — ユニーク値の一覧（ベクタ/テーブル出力）\nOUTPUT_HTML_FILE — HTML レポート\nTOTAL_VALUES — ユニーク値の総数（数値）\nUNIQUE_VALUES — ユニーク値の一覧（文字列）\n実行例: processing.run(\"native:listuniquevalues\", {'INPUT': layer, 'FIELDS': ['category'], 'OUTPUT_HTML_FILE': 'C:/report.html'})"
+}

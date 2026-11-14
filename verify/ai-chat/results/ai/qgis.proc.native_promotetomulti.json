@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_promotetomulti",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] マルチパートに強制変換」(id: native:promotetomulti) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] マルチパートに強制変換」(id: native:promotetomulti) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:promotetomulti` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:promotetomulti`\n- **表示名**: マルチパートに強制変換\n- **グループ**: ベクタジオメトリ\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\nシングルパート地物を含むレイヤの**全ジオメトリをマルチパート型（MultiPolygon/MultiLineString/MultiPoint）に強制変換**します。すでにマルチパートの地物はそのままです。目的はジオメトリ型の統一 — シングル/マルチを厳格に区別するデータ形式（GeoPackage、PostGIS など）との互換性確保です。なお複数地物をまとめてマルチパート化したい場合は「集計（`native:aggregate`）」の方を使います。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力レイヤ |\n| `OUTPUT` | sink → outputVector | 出力先（マルチパート化されたベクタレイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:promotetomulti\", {\n    'INPUT': layer,\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:promotetomulti')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] マルチパートに強制変換」(id: native:promotetomulti) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:promotetomulti は現在の QGIS の processing registry に登録されています。\nID: native:promotetomulti\n表示名: マルチパートに強制変換\nグループ: ベクタジオメトリ\nプロバイダ: QGIS（ネイティブC++）\n用途\nシングルパート地物を含むレイヤの全ジオメトリをマルチパート型（MultiPolygon/MultiLineString/MultiPoint）に強制変換します。すでにマルチパートの地物はそのままです。目的はジオメトリ型の統一 — シングル/マルチを厳格に区別するデータ形式（GeoPackage、PostGIS など）との互換性確保です。なお複数地物をまとめてマルチパート化したい場合は「集計（native:aggregate）」の方を使います。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力レイヤ\nOUTPUT\nsink → outputVector\n出力先（マルチパート化されたベクタレイヤ）\n\n実行例:\nprocessing.run(\"native:promotetomulti\", {\n    'INPUT': layer,\n    'OUTPUT': 'memory:'\n})"
+}

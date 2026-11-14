@@ -1,246 +1,30 @@
 {
  "id": "qgis.api.canvas.center_set",
  "prompt": "地図の中心を東京(経度139.7, 緯度35.7)に移動して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
  "history": [
-  {
-   "role": "user",
-   "content": "こんにちは。短く返答してください"
-  },
-  {
-   "role": "assistant",
-   "content": "こんにちは！どのようなお手伝いをしましょうか？"
-  },
-  {
-   "role": "user",
-   "content": "こんにちは。短く返答してください"
-  },
-  {
-   "role": "assistant",
-   "content": "こんにちは！ご用件をどうぞ。"
-  },
-  {
-   "role": "user",
-   "content": "geo_search のパネル/ダイアログを開いて"
-  },
-  {
-   "role": "assistant",
-   "content": "geo_search のダイアログを開きました。"
-  },
-  {
-   "role": "user",
-   "content": "geo_search プラグインの情報を describe_plugins で調べて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_search` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグイン名**: 地図検索 (`geo_search`)\n- **概要**: レイヤ内の地物を属性値で検索し、結果一覧の表示や地図ズーム・地物選択を行うプラグインです。検索対象は設定された検索タブ（カレントレイヤ／全レイヤ／プロジェクト定義）によって決まります。\n\n### **主な利用シーン**\n- 地名・施設名・市区町村名などの属性値による地物検索\n- 検索結果への地図ズームおよび地物選択\n- 検索タブ（対象レイヤ・フィールド定義）の確認・切替・追加／削除\n- マップテーマ（レイヤ表示プリセット）の一覧取得・切替・追加表示\n- ユーザーテーマの保存／復元\n- 地番検索や所有者検索の実行\n\n---\n\n### **提供されている主なブリッジメソッド (`bridge_call`)**\n\n| メソッド名 | 主な引数 | 説明 |\n| :--- | :--- | :--- |\n| `openDialog` | - | 検索ダイアログを開く／前面に出す |\n| `closeDialog` | - | 検索・結果ダイアログを閉じる |\n| `reloadDialog` | `show=True` | ダイアログの再構築（設定変更の反映用） |\n| `search` | `query`, `tab`, `zoom`, `max_features` など | 指定したクエリ・タブで地物検索を実行しズーム／選択 |\n| `results` | `max_features=200` | 直近の検索結果を取得 |\n| `listTabs` | - | 利用可能な検索タブ一覧を取得 |\n| `selectTab` | `tab` | 検索タブを切り替え |\n| `addTab` / `removeTab` | 各種設定 | 検索タブの追加／削除 |\n| `addTabFromCurrentLayer` | `title` | アクティブレイヤを元に検索タブを追加 |\n| `searchOptions` | `options` | 検索オプション（パン・ズームモード、固定縮尺等）の取得・変更 |\n| `listThemes` / `applyTheme` | `name`, `additive` | マップテーマの確認・適用 |\n| `saveUserTheme` / `loadUserTheme`| `path` | ユーザーテーマの保存および読み込み |\n| `getSettings` / `setSettings` | - | 検索設定（JSONパス・プロジェクト変数等）の取得／設定 |"
-  },
-  {
-   "role": "user",
-   "content": "geo_search の状態を確認して"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_search` プラグインの現在の状態は以下の通りです。\n\n---\n\n### **1. ダイアログ表示状態**\n- **検索ダイアログ**: 表示中（開いています）\n- **結果ダイアログ**: 非表示（直近の検索結果：0件）\n\n### **2. 選択中の検索タブ**\n- **現在のアクティブタブ**: `カレントレイヤ`（インデックス: 0）\n- **利用可能なタブ一覧**:\n  1. `カレントレイヤ`（選択中）\n  2. `表示レイヤ`\n  3. `全レイヤ`\n\n### **3. 検索・表示オプション**\n- **パン／ズーム動作**: `ズームして選択範囲にフィット`（pan_mode: 0）\n- **縮尺指定**: 自動（固定縮尺の指定なし）\n- **レイヤ名表示**: 有効（`true`）\n\n### **4. 設定・参照元**\n- **設定ファイル**: デフォルトの `setting.json` を参照中（3つのタブを読み込み）\n- **プロジェクト変数による追加設定**: なし"
-  },
-  {
-   "role": "user",
-   "content": "geo_webview プラグインの情報を describe_plugins で調べて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_webview` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグインID**: `geo_webview`\n- **プラグイン名**: `geo_webview (QMap Permalink)`\n- **概要**: \n  - QGISプロジェクトを `.kasc + DATA/` パッケージ（スタイル込み）に出力し、**KASUGAI Canvas**（Cesium / MapLibre / OpenLayers / Leaflet / 地理院地図 / Navara 等）で再生・配信できるサーバレスWeb配信プラグイン。\n  - 地図表示状態（中心座標、縮尺、回転、マップテーマ）をパーマリンクURLとして生成・復元。\n  - 内蔵HTTPサーバによる `/kasugai` 起動、データ配信、`/present` による画面共有、パーマリンク受領（外部からの地図制御）などの連携機能を担います。\n\n---\n\n### **主な利用シーン**\n1. **Web地図連携・出力**:\n   - 表示中レイヤを KASUGAI Canvas 用に出力・登録・Webブラウザで起動\n2. **パーマリンク共有**:\n   - 現在の地図ビューを共有できるパーマリンクURLを発行\n   - パーマリンクURLや座標・縮尺・テーマ指定によるQGISキャンバスのナビゲーション\n3. **内蔵HTTPサーバ管理**:\n   - HTTPサーバの起動／停止、ポート変更、状態確認\n   - 外部端末からのアクセス可否（ファイアウォール設定・診断）\n4. **マップテーマ・ブックマーク管理**:\n   - プロジェクト内のマップテーマやブックマークの一覧取得・適用\n5. **画面共有・リアルタイム連携**:\n   - `/present` や `/screenshot` によるキャンバス画面共有\n   - ライブ連携機能（差分同期・作図レイヤのリアルタイム反映）\n\n---\n\n### **提供されている主なブリッジメソッド (`bridge_call`)**\n\n| カテゴリ | メソッド名 | 説明 |\n| :--- | :--- | :--- |\n| **パネル操作** | `openPanel` / `closePanel` | GeoWebView ドックパネルの開閉 |\n| **状態確認** | `status` / `getSettings` | パネル・サーバ・設定情報の取得 |\n| **KASUGAI出力** | `kasugaiExport(...)` | レイヤを `.kasc` や GeoJSON/GPKG 等に出力して起動 |\n| | `openExportFolder` | 出力先フォルダをOSエクスプローラー等で開く |\n| **パーマリンク** | `generatePermalink(theme=None)` | 現在のビューからパーマリンクURLを生成 |\n| | `copyPermalink` | パーマリンクをクリップボードへコピー |\n| | `navigate(url)` | パーマリンクURLを解析して地図を移動 |\n| | `navigateTo(...)` | 座標(lat/lon/x/y)、縮尺、回転、テーマを指定して地図移動 |\n| **内蔵サーバ** | `startServer(port=None)` / `stopServer` | 内蔵HTTPサーバの起動・停止 |\n| | `serverStatus(deep=False)` | サーバ稼働状態・IPアドレス等の取得 |\n| | `endpoints` | 公開中のHTTPエンドポイント一覧を取得 |\n| | `checkAccess` / `addFirewallRule` | 外部アクセス診断およびWindows FWルールの追加 |\n| **マップテーマ** | `listThemes` / `applyTheme` / `saveTheme` / `deleteTheme` | マップテーマの一覧・適用・保存・削除 |\n| **ライブ同期** | `liveSyncStart` / `liveSyncStop` / `liveAddFeatures` など | Canvas や外部クライアントとのリアルタイム同期 |"
-  },
-  {
-   "role": "user",
-   "content": "geo_webview の状態を確認して"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_webview` プラグインの現在の状態は以下の通りです。\n\n---\n\n### **1. 基本・パネル状態**\n- **プラグインバージョン**: `4.13.1`\n- **パネル状態**: 開いており、現在表示中（`panelVisible: true`）\n\n### **2. 内蔵HTTPサーバ状態**\n- **稼働状態**: **稼働中（Running）**\n- **ポート番号**: `8091`（優先設定: 8089）\n- **ローカルURL**: `http://localhost:8091`\n- **ネットワークURL**: `http://100.64.1.82:8091`\n\n### **3. 地図キャンバス連携状態**\n- **CRS**: `EPSG:4326` (WGS 84)\n- **中心座標**: 東経 `139.6770°`, 北緯 `35.6851°`（東京近辺）\n- **縮尺**: 約 `1:603,307`\n- **回転角度**: `0.0°`\n\n### **4. パネル設定・フォーム状態**\n- **選択中のマップテーマ**: `-- テーマなし (位置のみ) --`\n- **外部制御の許可**: オフ（`false`）\n- **サーバ自動起動トグル**: オン（`true`）"
-  },
-  {
-   "role": "user",
-   "content": "geo_report プラグインの情報を describe_plugins で調べて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_report` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグインID**: `geo_report`\n- **プラグイン名**: `帳票レイアウト管理 (geo_report)`\n- **概要**: \n  - プロジェクトの**印刷レイアウト（帳票）をドックパネルで一元管理**するプラグイン。\n  - レイアウトの選択、印刷範囲（ラバーバンド）の地図上プレビュー表示（縮尺・回転角の指定可）。\n  - レイアウト内の各アイテム（地図、ラベル、画像など）のプロパティ（位置・サイズ・表示内容・可視状態）の参照・変更。\n  - アイテムのプロパティ情報を JSON 形式で保存／復元。\n\n---\n\n### **主な利用シーン**\n- プロジェクト内の印刷レイアウト一覧の確認・切り替え\n- 印刷レイアウトのプレビュー枠（印刷範囲）を現在の地図キャンバス上に表示・調整\n- レイアウト内アイテム（タイトルテキストや凡例、ロゴなど）の属性・位置の確認および編集\n- 標準テンプレート（同梱の `.qpt` ファイル）からのレイアウト新規追加\n- レイアウト設定（アイテムの配置など）の外部 JSON 保存および流用・復元\n- QGISレイアウトデザイナ／レイアウトマネージャの起動\n\n---\n\n### **主な提供メソッド (`bridge_call`)**\n\n| カテゴリ | メソッド名 | 説明 |\n| :--- | :--- | :--- |\n| **パネル操作** | `openPanel` / `closePanel` | ドックパネルの開閉（印刷範囲枠の表示／解除） |\n| **レイアウト管理** | `listLayouts` | プロジェクト内のレイアウト一覧を取得 |\n| | `selectLayout(layout)` | レイアウトを選択し、印刷範囲を地図上に表示 |\n| | `createLayout(name)` / `removeLayout(layout)` | レイアウトの新規作成・削除 |\n| | `duplicateLayout(layout, new_name)` | レイアウトの複製 |\n| | `renameLayout(layout, new_name)` | レイアウトの名前変更 |\n| | `layoutInfo()` | 選択中レイアウトの詳細情報（サイズ、ページ数等）を取得 |\n| **テンプレート** | `listStandardLayouts` | 同梱の標準テンプレート（`.qpt`）一覧を取得 |\n| | `addStandardLayout(name)` | 標準テンプレートをプロジェクトに追加 |\n| **印刷範囲・オプション** | `printOptions(options=None)` | 印刷枠のスケール（縮尺）や角度の取得・設定 |\n| **アイテム操作** | `listItems()` | レイアウト内アイテム一覧の取得 |\n| | `itemProperties(item)` | 特定アイテムのプロパティ詳細を取得 |\n| | `setItemProperties(item, props)` | アイテムの位置・サイズ・テキスト等のプロパティを変更 |\n| **保存・復元** | `saveLayoutProperties(path)` | アイテムプロパティを JSON へ保存 |\n| | `loadLayoutProperties(path)` | JSON からプロパティを読み込み適用 |\n| **デザイナ連携** | `openLayoutManager()` | 選択中レイアウトをQGIS標準のレイアウトデザイナで開く |\n| | `manageLayouts()` | QGIS標準のレイアウトマネージャダイアログを開く |"
-  },
-  {
-   "role": "user",
-   "content": "geo_report の状態を確認して"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_report` プラグインの現在の状態は以下の通りです。\n\n---\n\n### **1. パネル表示状態**\n- **ドックパネル (`dock_widget`)**: 作成済みですが、現在は**非表示（閉じた状態）**です。\n\n### **2. 選択中の印刷レイアウト**\n- **現在選択中のレイアウト**: `A0`\n  - **ページ数**: 1ページ（サイズ: `1189.0 x 841.0 mm`）\n  - **含まれるオブジェクト**:\n    1. `地図 1` (`QgsLayoutItemMap`, サイズ: 1189.0×841.0 mm)\n    2. `ページ` (`QgsLayoutItemPage`, サイズ: 1189.0×841.0 mm)\n\n### **3. 印刷範囲（ラバーバンド）プレビュー設定**\n- **縮尺（Scale）**: `1.9`\n- **回転角度（Angle）**: `0.0°`\n\n### **4. プロジェクト内の登録レイアウト一覧（計10種）**\n- **A0**（選択中）、A0縦\n- **A1**、A1縦\n- **A2**、A2縦\n- **A3**、A3縦\n- **A4**、A4縦"
-  },
-  {
-   "role": "user",
-   "content": "geo_import のパネル/ダイアログを開いて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_import` のダイアログを開きました。"
-  },
-  {
-   "role": "user",
-   "content": "geo_import プラグインの情報を describe_plugins で調べて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_import` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグインID**: `geo_import`\n- **プラグイン名**: `データカタログ取込 (geo_import)`\n- **概要**: \n  - オープンデータカタログ（**CKAN** 等）からデータセットを検索し、データセット内のリソース（配信ファイルやサービスURL）を選択してQGISキャンバスへレイヤとして直接読み込むプラグイン。\n  - 非同期検索に対応しており、検索後に結果一覧やリソース一覧を取得できます。\n\n---\n\n### **主な利用シーン**\n- CKANなどのオープンデータカタログから必要なデータセットをキーワードやカテゴリで検索\n- データセットに含まれるリソース（Shapefile、GeoJSON、CSV、WMS/WFS、TIFFなど）の確認\n- 目的のリソースを選択してQGISへ直接レイヤとしてロード\n- データカタログの接続先（CKANサーバーやローカルフォルダ）の追加・切り替え\n- オフライン利用・高速化のためのローカルキャッシュ（SQLite）管理\n\n---\n\n### **主な提供メソッド (`bridge_call`)**\n\n| カテゴリ | メソッド名 | 説明 |\n| :--- | :--- | :--- |\n| **ダイアログ操作** | `openDialog` / `closeDialog` | カタログブラウザダイアログの開閉 |\n| | `openSettings` / `openProviders` | 設定ダイアログやプロバイダ選択画面を開く |\n| **検索・閲覧** | `search(keyword, ...)` | 指定キーワードや条件でカタログ検索を実行（非同期） |\n| | `results()` | 直近の検索結果（データセット一覧、件数、ページ情報）を取得 |\n| | `gotoPage` / `nextPage` / `prevPage` | 検索結果のページネーション操作 |\n| | `selectDataset(index)` | データセットを選択して詳細・リソース一覧を表示 |\n| | `datasetDetails(index)` | 選択データセットの詳細メタデータ（説明、組織、ライセンス等）を取得 |\n| **絞り込み・フィルタ** | `formatFilter(format)` | データ形式（GeoJSON, Shapefile等）での絞り込み |\n| | `listGroups` / `checkGroups` | カテゴリ（グループ）一覧の取得と絞り込み設定 |\n| **リソース読込** | `resources()` | 選択中データセットのリソース一覧を取得 |\n| | `checkResources(selection)` | 読み込み対象リソースのチェックON/OFF |\n| | `loadSelected()` | チェックしたリソースをQGISへレイヤとして読み込み |\n| **サーバ・キャッシュ** | `listServers` / `selectServers` | 利用可能なカタログサーバーの確認と選択 |\n| | `addServer` / `removeServer` | カスタムサーバー（CKAN URLまたはフォルダ）の追加／削除 |\n| | `localCache(enabled)` / `refreshCache()` | ローカルキャッシュ利用の切替やキャッシュ再作成 |"
-  },
-  {
-   "role": "user",
-   "content": "geo_import の状態を確認して"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_import` プラグインの現在の状態は以下の通りです。\n\n---\n\n### **1. ダイアログ表示状態**\n- **ダイアログ**: **表示中（開いています）**\n\n### **2. 接続・対象サーバー設定**\n- **現在アクティブなCKAN URL**:\n  - `https://data.gsj.jp/gkan/api/3`（産総研地質調査総合センター / GSJ）\n- **標準設定URL**:\n  - `https://www.geospatial.jp/ckan/api/3/`（G空間情報センター）\n- **接続エラー記録**:\n  - `https://opendata.pref.aomori.lg.jp/api/3/`（アクセス不可ログあり）\n\n### **3. データセット検索・一覧状態**\n- **総件数**: **1,486 件**\n- **表示ページ**: **1 ページ目**（全 30 ページ、1ページあたり30件表示）\n- **上位のデータセット例**:\n  - 甲府－静岡地域重力図（ブーゲー異常）1:200,000 (2024)\n  - 伊勢地域重力図（ブーゲー異常）1:200,000 (2022)\n  - 名古屋地域重力図（ブーゲー異常）1:200,000 (2020)\n  - 5万分の1地質図幅シリーズ 等\n\n### **4. 選択状態**\n- **選択中のデータセット**: なし（未選択）\n- **選択中のリソース**: 0件（未選択）"
-  },
-  {
-   "role": "user",
-   "content": "geo_excel プラグインの情報を describe_plugins で調べて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_excel` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグインID**: `geo_excel`\n- **プラグイン名**: `Excel帳票出力 (geo_excel)`\n- **概要**: \n  - ベクターレイヤの属性情報を **Excel 帳票** として出力するプラグイン。\n  - アクティブレイヤのレイヤ変数（`xlsout_*`）を用いてテンプレートや出力先を指定します。\n  - 「一覧帳票」「単票」「単票一括」の3種類の出力パターンに対応しています（実行には Windows の `win32com` および Microsoft Excel が必要）。\n\n---\n\n### **主な利用シーン**\n- アクティブレイヤの地物一覧を Excel 帳票に出力\n- 選択した特定地物の属性を Excel 単票テンプレートに差し込み出力\n- 選択地物（または全地物）の単票を一括自動生成・出力\n- 帳票出力用レイヤ変数（`xlsout_*`）の設定確認・更新\n- 不足しているテンプレートや出力先フォルダの自動生成・初期設定（`applyDefaults`）\n\n---\n\n### **主な提供メソッド (`bridge_call`)**\n\n| カテゴリ | メソッド名 | 主な引数 | 説明 |\n| :--- | :--- | :--- | :--- |\n| **状態・診断** | `status` | - | アクティブレイヤ、選択地物数、win32com 利用可否、レイヤ変数設定状況を取得 |\n| | `checkExcel` | - | Excel COMの起動検証を実行 |\n| | `settings` | - | 既定の出力フォルダ、DPI、テンプレートなどの設定を取得 |\n| | `setSettings` | `settings` | 既定設定（出力先、DPIなど）を保存 |\n| **帳票実行** | `run` | `script`, `feature_id`, `confirm` | 帳票スクリプトを実行（`list`: 一覧 / `single`: 単票 / `bulk`: 一括） |\n| | `listScripts` | - | 利用可能なスクリプト一覧と必要変数を取得 |\n| **レイヤ変数管理** | `layerVariables` | `layer_id` | 対象レイヤに設定されている `xlsout_*` 変数を取得 |\n| | `setLayerVariables` | `variables`, `layer_id` | レイヤに帳票設定用の変数を付与・更新 |\n| | `applyDefaults` | `layer_id`, `script` | 不足している変数を補完し、テンプレートやフォルダを自動作成 |\n| | `regenerateTemplates` | `layer_id` | レイヤ用の標準テンプレートを再生成 |\n| **UI** | `openSettings` | - | geo_excel の設定ダイアログを開く |"
-  },
-  {
-   "role": "user",
-   "content": "geo_excel の状態を確認して"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_excel` プラグインの現在の状態は以下の通りです。\n\n---\n\n### **1. 実行環境**\n- **win32com (pywin32)**: 利用可能 (`true`)\n- **Excel 登録状態**: 検出済み・利用可能 (`excel_registered: true`)\n- **標準出力フォルダ**: `C:\\Users\\ryu.RYU-NOTE\\Documents\\geo_excel`（フォルダ作成済み）\n\n### **2. 対象レイヤ・選択状態**\n- **アクティブレイヤ**: `t`（ID: `t_b832b1f1_80fa_4cdc_8ff1_8ce03c826d9f`）\n- **地物選択数**: `0` 件\n\n### **3. レイヤ変数設定状況（帳票定義）**\n現在のアクティブレイヤ `t` には帳票出力用のレイヤ変数が設定されていません（未初期化）。\n\n- `xlsout_template_path`: 未設定\n- `xlsout_output_path_fixed`: 未設定\n- `xlsout_output_path_variable`: 未設定\n- `xlsout_list_template_path`: 未設定\n- `xlsout_list_output_path_fixed`: 未設定\n- `xlsout_list_output_path_variable`: 未設定\n\n※ 必要に応じて `applyDefaults` を実行すると、標準テンプレートの生成および出力先フォルダの自動設定が行われます。"
-  },
-  {
-   "role": "user",
-   "content": "geo_userfunc プラグインの情報を describe_plugins で調べて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_userfunc` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグインID**: `geo_userfunc`\n- **プラグイン名**: `ユーザー関数ライブラリ (geo_userfunc)`\n- **概要**: \n  - ユーザー定義 Python コードを一元管理するライブラリ管理プラグイン。\n  - `@qgsfunction` による**カスタム式関数**の式エンジンへの登録・管理。\n  - プロジェクトイベント（`openProject` / `saveProject` / `closeProject`）にフックする処理の配線・実行。\n  - `main(context)` 形式の**ユーザーマクロ**の実行管理（他プラグイン、例えば `geo_excel` などが共有レジストリに登録したマクロも一括管理・実行可能）。\n  - アップストリーム（外部 URL 等）からの関数定義の取得・更新管理。\n\n---\n\n### **主な利用シーン**\n- QGISのフィールド計算機やラベル式等で使えるカスタム関数（例: `zen2han` 全角半角変換など）の作成・登録・動作確認\n- プロジェクトのオープン・保存・終了時に自動実行させたい Python スクリプトの管理\n- `main(context)` 形式の自動化マクロ（バッチ処理や帳票出力など）の呼び出し\n- AI が作成した新しい Python 式関数／スクリプトの即時登録・検証\n- 外部リポジトリ（URL）からの最新スクリプトの取得・同期\n\n---\n\n### **主な提供メソッド (`bridge_call`)**\n\n| カテゴリ | メソッド名 | 主な引数 | 説明 |\n| :--- | :--- | :--- | :--- |\n| **ライブラリ・状態** | `status` | - | ライブラリパス、登録ファイル数、式関数数、フック数等を取得 |\n| | `openManager` | - | 管理ダイアログを表示 |\n| | `openLibraryDir` | - | ライブラリ格納フォルダをOSのファイルマネージャで開く |\n| | `reload` | - | ライブラリを再スキャンして全再登録（関数の差し替え・フック再配線） |\n| **関数の管理・編集** | `listFunctions` | - | 管理下の Python ファイル一覧、型、登録関数名、フック一覧を取得 |\n| | `readFunction` | `name` | 対象ファイルのソースコードを取得 |\n| | `saveFunction` | `name`, `source` | 構文検証を行った上で Python ファイルを保存（要 reload） |\n| | `deleteFunction` | `name` | ライブラリ内のファイルを削除 |\n| | `setEnabled` | `name`, `enabled` | 対象ファイルの有効／無効を切り替え |\n| **評価・実行** | `evalExpression` | `expression`, `layer_id`, `feature_id` | 式関数を評価して結果を取得（動作テスト用） |\n| | `listMacros` | - | 実行可能なマクロ一覧（他プラグイン登録分を含む）を取得 |\n| | `run` | `name`, `layer_id`, `feature_id`, `args`, `confirm` | 指定したマクロを実行 |\n| **外部同期 (Upstream)** | `listSources` | - | `sources.json` に登録されている取得元 URL 一覧 |\n| | `addSource` / `removeSource` | `file`, `url` | 外部取得元の追加／削除 |\n| | `updateFromUpstream` | - | 登録された URL から最新コードを一括ダウンロード・構文検証して適用 |\n| | `fetchFromUrl` | `url`, `name` | 指定 URL から単一ファイルをダウンロードして登録 |"
-  },
-  {
-   "role": "user",
-   "content": "geo_userfunc の状態を確認して"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_userfunc` プラグインの現在の状態は以下の通りです。\n\n---\n\n### **1. ライブラリ管理環境**\n- **ライブラリ配置ディレクトリ**:  \n  `C:/Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4/profiles/geo_custom/python/geo_userfunc`\n- **管理ファイル総数**: 1 件\n- **有効なファイル数**: 1 件\n\n### **2. 登録されている式関数 (`@qgsfunction`)**\n- **`zen2han`**（全角・半角変換関数など）\n\n### **3. プロジェクトイベントフック**\n`user_functions.py` により以下のプロジェクトイベントが配線されています：\n- **`openProject`**: プロジェクトオープン時の自動処理\n- **`saveProject`**: プロジェクト保存時の自動処理\n- **`closeProject`**: プロジェクト終了時の自動処理\n\n### **4. 共有レジストリに登録されているマクロ**\n他プラグイン（`geo_excel`）から以下の3つのマクロが登録されており、`geo_userfunc` から実行可能です：\n1. **一覧帳票を出力 (アクティブレイヤ)** (`geo_excel.exportList.py`)\n2. **単票を出力 (選択地物)** (`geo_excel.exportSingle.py`)\n3. **単票を一括出力 (選択地物または全地物)** (`geo_excel.exportSingleBulk.py`)"
-  },
-  {
-   "role": "user",
-   "content": "geo_legend プラグインの情報を describe_plugins で調べて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_legend` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグインID**: `geo_legend`\n- **プラグイン名**: `凡例ビュー (geo_legend)`\n- **概要**: \n  - レイヤの凡例（シンボル・ラベル一覧）を専用の**ドックパネル**に表示するプラグイン。\n  - プロジェクト変数（`legend_*`）で登録された特定レイヤや、現在のアクティブレイヤを切り替えて凡例を確認可能。\n  - レイヤの不透明度スライダー操作や、名前付きスタイルの切り替えにも対応しています。\n\n---\n\n### **主な利用シーン**\n- レイヤのシンボルと凡例ラベルの確認\n- 凡例ドックパネルを開いて対象レイヤを切り替え\n- レイヤの不透明度（Opacity: 0.0〜1.0）の確認・変更\n- レイヤに保存されている名前付きスタイルの切り替え\n- レイヤをプロジェクト変数（`legend_*`）に登録して、凡例ドックから素早く呼び出せるようにする\n- 登録済み `legend_*` 変数の確認・編集・削除\n\n---\n\n### **主な提供メソッド (`bridge_call`)**\n\n| カテゴリ | メソッド名 | 主な引数 | 説明 |\n| :--- | :--- | :--- | :--- |\n| **パネル操作** | `openDock` / `closeDock` | - | 凡例ドックパネルの開閉 |\n| | `status` | - | パネル開閉状態、選択レイヤ、不透明度、凡例行数などを取得 |\n| **凡例・レイヤ表示** | `legend` | - | 選択中レイヤの凡例項目（シンボルラベル一覧）を取得 |\n| | `listDatasets` | - | 凡例対象コンボの一覧（`legend_*` 登録レイヤ + カレントレイヤ）を取得 |\n| | `selectDataset` | `dataset` | 凡例対象を切り替え（index / 表示名 / layer_id） |\n| | `selectCurrentLayer`| - | 凡例対象を現在のアクティブレイヤに合わせる |\n| | `refresh` | - | コンボボックスの再構築 |\n| **スタイル・透過度** | `opacity` | `value=None` | レイヤの不透明度を取得／設定（0.0 〜 1.0） |\n| | `listStyles` | - | 選択中レイヤの名前付きスタイル一覧と現在のスタイルを取得 |\n| | `setStyle` | `name` | 名前付きスタイルを切り替え |\n| **プロジェクト変数管理** | `registerCurrentLayer` | `priority` | カレントレイヤを `legend_*` 変数に登録 |\n| | `registerLayer` | `layer_id`, `priority` | 指定レイヤを `legend_*` 変数に登録 |\n| | `legendVariables` | - | プロジェクト変数 `legend_*` の一覧を取得 |\n| | `setLegendVariable` | `name`, `value` | `legend_*` 変数の値を編集 |\n| | `deleteLegendVariable`| `name` | `legend_*` 変数を削除 |"
-  },
-  {
-   "role": "user",
-   "content": "geo_legend の状態を確認して"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_legend` プラグインの現在の状態は以下の通りです。\n\n---\n\n### **1. パネル表示状態**\n- **凡例ドックパネル**: **表示中（開いています）** (`dockVisible: true`)\n\n### **2. 選択中の対象レイヤ**\n- **対象レイヤ**: `t`（ID: `t_b832b1f1_80fa_4cdc_8ff1_8ce03c826d9f`）\n- **レイヤ種別**: ベクターレイヤ (`QgsVectorLayer`)\n- **不透明度（Opacity）**: `1.0`（100%、不透明）\n\n### **3. 凡例の表示内容**\n- **凡例項目（1件）**:\n  - `その他の値`\n\n### **4. 凡例対象リスト・登録変数**\n- **選択肢リスト**:\n  - インデックス 0: `t`（選択中）\n- **プロジェクト変数 (`legend_*`)**: 未登録（空）"
-  },
-  {
-   "role": "user",
-   "content": "geo_launcher のパネル/ダイアログを開いて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_launcher` のダイアログを開きました。"
-  },
-  {
-   "role": "user",
-   "content": "geo_launcher プラグインの情報を describe_plugins で調べて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_launcher` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグインID**: `geo_launcher`\n- **プラグイン名**: `kasugai_qgis ランチャー連携 (geo_launcher)`\n- **概要**: \n  - Rust/Axum 製の QGIS/QField 起動ランチャー **`kasugai_qgis`** を QGIS 内からインストール／アンインストール／起動するためのプラグイン。\n  - ランチャーが未インストールの場合は GitHub からインストーラ（`setup.exe`）をダウンロードして導入。\n  - インストール済みの場合は GUI ウィンドウ（WebView2）を立ち上げてプロファイルやプロジェクトを選択して新規 QGIS を起動可能。\n  - 現在の QGIS プロセスがランチャー経由で起動されたかどうか（環境変数等）の判定も行えます。\n\n---\n\n### **主な利用シーン**\n- `kasugai_qgis` ランチャーがインストールされているかの確認\n- ランチャーの新規インストール（サイレント対応）や最新版の再インストール\n- ランチャーのアンインストール\n- ランチャーの GUI 画面を開いて別のプロファイルやプロジェクトで QGIS を起動\n- この QGIS がランチャー経由で起動したかの判別\n- プラグイン側の設定（実行ファイルパスやサイレントオプション）の確認・変更\n\n---\n\n### **主な提供メソッド (`bridge_call`)**\n\n| カテゴリ | メソッド名 | 主な引数 | 説明 |\n| :--- | :--- | :--- | :--- |\n| **GUI 操作** | `openDialog` | - | ランチャー連携ダイアログ（状態パネル）を開く |\n| | `openSettings` | - | 設定ダイアログを開く |\n| | `openDocs` | - | ドキュメントサイトを既定のブラウザで開く |\n| **ランチャー起動** | `launch` | - | ランチャー本体（`qgis_launcher.exe`）を別プロセスとして起動 |\n| **状態確認** | `status` | - | インストール状況、バージョン、起動元判定、進捗、設定情報等をまとめて取得 |\n| | `isInstalled` | - | ランチャーがインストール済みかどうか（True/False）を取得 |\n| **インストーラ** | `install` | `silent=None` | `setup.exe` をダウンロードしてインストーラを実行 |\n| | `installStatus` | - | インストーラのダウンロード／実行進捗を取得 |\n| | `uninstall` | `silent=None` | アンインストーラ（`uninstall.exe`）を実行 |\n| **設定** | `getSettings` | - | 設定（exeパス、サイレント設定など）を取得 |\n| | `setSettings` | `new_settings` | 設定を保存・更新 |"
-  },
-  {
-   "role": "user",
-   "content": "geo_launcher の状態を確認して"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_launcher` プラグインの現在の状態は以下の通りです。\n\n---\n\n### **1. インストール状態**\n- **インストール済み**: **はい（Installed）**\n- **実行ファイルパス**: `C:\\kasugai\\kasugai_qgis\\qgis_launcher.exe`\n- **ランチャーバージョン**: `2.5.5`\n\n### **2. 起動元情報**\n- **ランチャー経由での起動か**: **いいえ (`false`)**（通常のQGISショートカット等から起動されています）\n- **起動ロール**: なし (`null`)\n\n### **3. インストーラ動作状態**\n- **ステータス**: アイドル中 (`idle`)（ダウンロードやインストールの処理は行われていません）\n\n### **4. 設定内容**\n- **サイレントインストール**: 有効 (`true`)\n- **セットアップURL**: `https://yamamoto-ryuzo.github.io/kasugai_qgis/public/kasugai_qgis-setup.exe`\n- **ドキュメントURL**: `https://yamamoto-ryuzo.github.io/kasugai_qgis/`"
-  },
-  {
-   "role": "user",
-   "content": "geo_driver プラグインの情報を describe_plugins で調べて"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_driver` プラグインの情報を確認しました。概要は以下の通りです。\n\n---\n\n### **基本情報**\n- **プラグインID**: `geo_driver`\n- **プラグイン名**: `QGIS Live Driver`\n- **概要**: \n  - QGIS プロセス内の**遠隔制御ハブ**。\n  - 外部AI・LLMクライアント（MCP）、REST API、JSONLファイル経由などから QGIS を直接制御・連携するためのコア基盤プラグイン。\n  - 任意PythonのGUIスレッド実行 (`pyeval`)、全プラグインの機能呼出し (`bridge_call`)、スクリーンショット撮影、プラグインのホットリロード、レイヤ自動グループ整理機能（`layer_org`）などを提供します。\n\n---\n\n### **主な利用シーン**\n- QGIS内部（`iface`, `QgsProject`, キャンバス, レイヤ, 地物）を直接操作・検証・自動化\n- 他の登録プラグインが公開している bridge メソッドの呼出し・連携\n- 地図キャンバスやメインウィンドウ、ダイアログのスクリーンショット取得\n- プラグインの再読み込み（ホットリロード）や開発モード（dev/use）の管理\n- 取り込んだレイヤのルールに基づく自動グループ分類・命名整理（`layer_org`）\n- AIアシスタントパネルや接続情報ダイアログの開閉\n\n---\n\n### **提供されている機能・メソッド**\n\n#### **1. ドライバレベル コマンド（ツール）**\n| コマンド | 説明 |\n| :--- | :--- |\n| `pyeval(code)` | QGIS GUIスレッド上で任意の Python コードを実行 |\n| `status()` | ドライバ稼働情報、ロード済みプラグイン一覧を取得 |\n| `describe_plugins()` | AI利用可能なプラグイン機能カタログを取得 |\n| `bridge_call(plugin_id, method, args)` | プラグインが公開するブリッジメソッドを実行 |\n| `open_plugin(plugin_id)` | 対象プラグインのダイアログ/ドックを起動 |\n| `reload_plugin(plugin_id)` | プラグインを再読み込み（コード変更を即時反映） |\n| `screenshot(target, path)` | 地図キャンバスやメインウィンドウのPNG画像を取得 |\n\n#### **2. プラグイン固有メソッド (`bridge_call`)**\n| カテゴリ | メソッド名 | 説明 |\n| :--- | :--- | :--- |\n| **状態・設定** | `status` | ドライバ稼働状態（ポート、プロセスID、ディレクトリ等） |\n| | `deployMode` | デプロイモード（dev / use）と各プラグインの配置形態（junction / 実体） |\n| | `remoteControl(enabled=None)` | リモート制御受付の有効／無効を取得・設定 |\n| **UI 開閉** | `openAiPanel` | AIアシスタントドックパネルを開く |\n| | `openConnInfo` | 外部接続先（MCP/REST）情報ダイアログを開く |\n| | `openDeployMode` | デプロイモード切替ダイアログを開く |\n| **開発・リロード** | `listDevPlugins` | ホットリロード対象の開発中プラグイン一覧を取得 |\n| | `hotReload(plugin_ids=None)` | 対象プラグインを即時再読み込み |\n| **レイヤ整理 (`layer_org`)** | `layerOrgProfiles` | レイヤ整理プロファイル一覧とアクティブプロファイルを取得 |\n| | `layerOrgRules(profile=None)` | 適用されるルール定義一覧を取得 |\n| | `setLayerOrgProfile(name)` | レイヤ整理プロファイルを切り替え |\n| | `organizeLayers(profile=None, dry=False)` | ルールに従って全レイヤをフォルダ/グループ整理（プレビュー可） |\n| | `placeLayer(layer_id=None, ctx=None)` | 指定レイヤ（またはカレントレイヤ）をルール配置 |"
-  },
-  {
-   "role": "user",
-   "content": "geo_driver の状態を確認して"
-  },
-  {
-   "role": "assistant",
-   "content": "`geo_driver` プラグインの現在の状態は以下の通りです。\n\n---\n\n### **1. サーバ・通信状態**\n- **プロセスID (PID)**: `17512`\n- **HTTPポート**: `49832`\n- **リモート制御**: **有効 (`remote_enabled: true`)**\n- **ライブディレクトリ**: `C:\\devin\\qgis_live_harness\\test-results\\live\\qgis-17512\\geo_driver`\n\n### **2. デプロイモード（開発環境）**\n- **現在のモード**: **`dev`（開発モード）**\n- **配置形態**: 管理下の全プラグイン（`geo_driver`, `geo_excel`, `geo_import`, `geo_launcher`, `geo_legend`, `geo_report`, `geo_search`, `geo_userfunc`, `geo_webview`）が開発リポジトリからの**ジャンクション（シンボリックリンク）**で配置されています。\n- **リポジトリパス**: `C:\\devin\\qgis_live_harness`\n- **使用プロファイル**: `geo_custom`\n\n### **3. レイヤ自動整理機能 (`layer_org`)**\n- **アクティブプロファイル**: `default`\n\n### **4. サポートコマンド**\n- `pyeval`, `eval`, `status`, `describe_plugins`, `bridge_call`, `open_plugin`, `reload_plugin`, `screenshot`"
-  },
-  {
-   "role": "user",
-   "content": "プロジェクトのタイトルを『AI検証』に設定して"
-  },
-  {
-   "role": "assistant",
-   "content": "プロジェクトのタイトルを『**AI検証**』に設定しました。"
-  },
-  {
-   "role": "user",
-   "content": "このプロジェクトの座標参照系(CRS)を教えて"
-  },
-  {
-   "role": "assistant",
-   "content": "現在のプロジェクトの座標参照系（CRS）は以下の通りです。\n\n- **CRS**: **EPSG:4326 (WGS 84)**\n- **定義**: 緯度経度（地理座標系）"
-  },
-  {
-   "role": "user",
-   "content": "現在のプロジェクトにあるレイヤを一覧して"
-  },
-  {
-   "role": "assistant",
-   "content": "現在プロジェクトに登録されているレイヤは以下の **1件** です：\n\n- **レイヤ名**: `t`\n  - **ID**: `t_b832b1f1_80fa_4cdc_8ff1_8ce03c826d9f`\n  - **種類**: ベクターレイヤ (`Vector`)\n  - **CRS**: `EPSG:4326` (WGS 84)\n  - **地物数**: 0 件\n  - **状態**: 有効 (`Valid`)"
-  },
-  {
-   "role": "user",
-   "content": "ポイント型の一時メモリレイヤ『ai_verify_layer』を追加して"
-  },
-  {
-   "role": "assistant",
-   "content": "一時メモリレイヤ『**ai_verify_layer**』を追加しました。\n\n- **レイヤ名**: `ai_verify_layer`\n- **ジオメトリ型**: Point（ポイント）\n- **CRS**: `EPSG:4326` (WGS 84)\n- **レイヤID**: `ai_verify_layer_4b334341_ed4b_40e1_9dda_fb1b9f15c0c7`"
-  },
-  {
-   "role": "user",
-   "content": "地図を全範囲にズームして"
-  },
-  {
-   "role": "assistant",
-   "content": "地図を全範囲（プロジェクトの登録レイヤ全域）にズームしました。"
-  },
-  {
-   "role": "user",
-   "content": "地図の縮尺を1:25000にして"
-  },
-  {
-   "role": "assistant",
-   "content": "地図の縮尺を **1:25,000** に設定しました。"
-  },
   {
    "role": "user",
    "content": "地図の中心を東京(経度139.7, 緯度35.7)に移動して"
   },
   {
    "role": "assistant",
-   "content": "地図の中心を東京（経度: 139.7, 緯度: 35.7）に移動しました。\n（現在の縮尺: 約 1:25,000）"
+   "content": "指定座標をキャンバスのCRSに変換して中心を移動します。`setCenter` をキャンバスに対して使います。地図の中心を東京（経度139.7, 緯度35.7）に移動しました。縮尺は約1:25000のまま維持されています（キャンバスCRSはEPSG:4326）。"
   }
- ]
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY\\nsrc = QgsCoordinateReferenceSystem('EPSG:4326')\\ndst = iface.mapCanvas().mapSettings().destinationCrs()\\npt = QgsPointXY(139.7, 35.7)\\nif src != dst:\\n    pt = QgsCoordinateTransform(src, dst, QgsProject.instance()).transform(pt)\\ncanvas = iface.mapCanvas()\\nextent = canvas.extent()\\nextent.setCenter(pt)\\ncanvas.setExtent(extent)\\ncanvas.refresh()\\nresult = (canvas.center().x(), canvas.center().y(), dst.authid())\\nresult\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY\\nsrc = QgsCoordinateReferenceSystem('EPSG:4326')\\ncanvas = iface.mapCanvas()\\ndst = canvas.mapSettings().destinationCrs()\\npt = QgsPointXY(139.7, 35.7)\\nif src != dst:\\n    pt = QgsCoordinateTransform(src, dst, QgsProject.instance()).transform(pt)\\ncanvas.setCenter(pt)\\ncanvas.refresh()\\nresult = (canvas.center().x(), canvas.center().y(), dst.authid(), canvas.scale())\\nresult\"}"
+  }
+ ],
+ "view_tail": "[あなた] 地図の中心を東京(経度139.7, 緯度35.7)に移動して\n[AI] \n指定座標をキャンバスのCRSに変換して中心を移動します。setCenter をキャンバスに対して使います。地図の中心を東京（経度139.7, 緯度35.7）に移動しました。縮尺は約1:25000のまま維持されています（キャンバスCRSはEPSG:4326）。"
 }

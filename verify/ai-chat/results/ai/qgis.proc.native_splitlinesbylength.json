@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_splitlinesbylength",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最大長で線を切断」(id: native:splitlinesbylength) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最大長で線を切断」(id: native:splitlinesbylength) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:splitlinesbylength`「**最大長で線を切断**」は登録されています（グループ: ベクタジオメトリ）。\n\n## 用途\n\n- ライン（曲線）レイヤの**各地物を、指定した最大長以下の区間に分割**します\n- 例：1000m の道路ラインを LENGTH=250 で切断 → 250m 区間 × 4 に分割\n- 用途例：一定間隔でサンプリングしたい、長すぎるラインを扱いやすい単位に分けたい、距離標（キロポスト）的な分割、属性区間を作る前処理\n- 分割点の **Z値・M値は線形内挿**されます（標高や距離測度が付いたラインにも対応）\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | 入力レイヤ（ライン） |\n| `LENGTH` | distance | 線の最大長（レイヤのCRS単位。地物ごとに属性値で変えるデータ定義上書きも可能） |\n| `OUTPUT` | sink | 出力レイヤ |\n\n関連アルゴリズム：\n\n- `native:splitlinesbyfeature` — 別レイヤの地物（点/線/面）で交差切断\n- `grass:v.split.length` — GRASS版の等長分割\n- `qgis:pointsalonglines` — 分割ではなく等間隔点の生成（間隔だけ欲しいならこちら）\n\n注意点：分割数が多いと地物数が増えるため、出力前に属性で元地物のIDを保持しておくと集計・再結合しやすいです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:splitlinesbylength')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最大長で線を切断」(id: native:splitlinesbylength) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:splitlinesbylength「最大長で線を切断」は登録されています（グループ: ベクタジオメトリ）。\n用途\nライン（曲線）レイヤの各地物を、指定した最大長以下の区間に分割します\n例：1000m の道路ラインを LENGTH=250 で切断 → 250m 区間 × 4 に分割\n用途例：一定間隔でサンプリングしたい、長すぎるラインを扱いやすい単位に分けたい、距離標（キロポスト）的な分割、属性区間を作る前処理\n分割点の Z値・M値は線形内挿されます（標高や距離測度が付いたラインにも対応）\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\n入力レイヤ（ライン）\nLENGTH\ndistance\n線の最大長（レイヤのCRS単位。地物ごとに属性値で変えるデータ定義上書きも可能）\nOUTPUT\nsink\n出力レイヤ\n\n関連アルゴリズム：\nnative:splitlinesbyfeature — 別レイヤの地物（点/線/面）で交差切断\ngrass:v.split.length — GRASS版の等長分割\nqgis:pointsalonglines — 分割ではなく等間隔点の生成（間隔だけ欲しいならこちら）\n注意点：分割数が多いと地物数が増えるため、出力前に属性で元地物のIDを保持しておくと集計・再結合しやすいです。"
+}

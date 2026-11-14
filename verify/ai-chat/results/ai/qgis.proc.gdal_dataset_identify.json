@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_dataset_identify",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] Dataset identification」(id: gdal:dataset_identify) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] Dataset identification」(id: gdal:dataset_identify) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:dataset_identify` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:dataset_identify` |\n| 表示名 | Dataset identification |\n| プロバイダ | GDAL |\n| グループ | Miscellaneous(その他) |\n\n## 用途\n\n指定フォルダ内を走査し、**GDAL で読み取れる空間データセットを識別**して、その一覧・位置情報をベクタレイヤとして出力します。大量のファイルの中から有効なラスタ/ベクタを洗い出す「データ棚卸し」的な用途に使えます。出力は各データセットのフットプリント(範囲ポリゴン)+属性情報で、GIS 上で分布を可視化できます。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 走査する入力フォルダ | 必須 |\n| `RECURSIVE` | サブフォルダまで再帰的に探索 | true |\n| `DETAILS` | 識別したデータセットの詳細情報を出力に含める | true |\n| `OUTPUT` | 出力ベクタレイヤ(範囲ポリゴン+属性) | 必須 |\n\n実行例: `processing.run(\"gdal:dataset_identify\", {\"INPUT\": \"/data/tiles\", \"RECURSIVE\": True, \"DETAILS\": True, \"OUTPUT\": \"inventory.gpkg\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:dataset_identify')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'identify' in a.id().lower() or 'ident' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] Dataset identification」(id: gdal:dataset_identify) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:dataset_identify をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:dataset_identify\n表示名\nDataset identification\nプロバイダ\nGDAL\nグループ\nMiscellaneous(その他)\n\n用途\n指定フォルダ内を走査し、GDAL で読み取れる空間データセットを識別して、その一覧・位置情報をベクタレイヤとして出力します。大量のファイルの中から有効なラスタ/ベクタを洗い出す「データ棚卸し」的な用途に使えます。出力は各データセットのフットプリント(範囲ポリゴン)+属性情報で、GIS 上で分布を可視化できます。\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n走査する入力フォルダ\n必須\nRECURSIVE\nサブフォルダまで再帰的に探索\ntrue\nDETAILS\n識別したデータセットの詳細情報を出力に含める\ntrue\nOUTPUT\n出力ベクタレイヤ(範囲ポリゴン+属性)\n必須\n\n実行例: processing.run(\"gdal:dataset_identify\", {\"INPUT\": \"/data/tiles\", \"RECURSIVE\": True, \"DETAILS\": True, \"OUTPUT\": \"inventory.gpkg\"})"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.ActionFeatureAction",
+ "prompt": "QGISの「ActionFeatureAction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ActionFeatureAction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "`ActionFeatureAction` を objectName 完全一致で調べ、実体・実ウィジェット・所属ツールバーと内部アクションを確認します。`ActionFeatureAction` を実際に調べた結果、**現在有効で、画面上にも表示されています**。\n\n確認値:\n\n- `objectName`: `ActionFeatureAction`\n- 実体クラス: `QWidgetAction`\n- `isEnabled()`: `True`\n- `isVisible()`: `True`\n- 所属ツールバー: `mAttributesToolBar`\n- ツールバー `isEnabled()`: `True`\n- ツールバー `isVisible()`: `True`\n- 実ウィジェット: `QToolButton`\n- ボタン `isEnabled()`: `True`\n- ボタン `isVisible()`: `True`\n- 画面上の描画領域あり: `True`\n\n現在のボタン状態:\n\n- テキスト: `地物アクション`\n- `defaultAction`: `mActionFeatureAction`\n- `defaultAction.isEnabled()`: `True`\n- ツールチップ: `アクションが選択されていません`\n\nメニュー内のアクションも有効です。\n\n- `地物を複製`: `enabled=True`\n- `地物を複製/デジタイズ`: `enabled=True`\n\nしたがって、**ActionFeatureAction は現在有効で、属性ツールバー上から操作可能な状態です**。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtCore import QObject\\nfrom qgis.PyQt.QtWidgets import QWidget, QAction, QToolBar\\nwin = iface.mainWindow()\\nobj = win.findChild(QObject, 'ActionFeatureAction')\\n\\ndef action_info(x):\\n    return {\\n        'qtClass': x.metaObject().className(),\\n        'objectName': x.objectName(),\\n        'text': x.text(),\\n        'enabled': x.isEnabled(),\\n        'visible': x.isVisible(),\\n        'checkable': x.isCheckable(),\\n        'checked': x.isChecked(),\\n        'shortcut': x.shortcut().toString(),\\n    } if x else None\\n\\nif obj is None:\\n    result = {'found': False}\\nelse:\\n    action = obj if isinstance(obj, QAction) else None\\n    parent = obj.parent()\\n    tb = parent if isinstance(parent, QToolBar) else None\\n    if tb is None and action is not None:\\n        for candidate in win.findChildren(QToolBar):\\n            if action in candidate.actions():\\n                tb = candidate\\n                break\\n    widget = tb.widgetForAction(action) if tb is not"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ActionFeatureAction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nActionFeatureAction を objectName 完全一致で調べ、実体・実ウィジェット・所属ツールバーと内部アクションを確認します。ActionFeatureAction を実際に調べた結果、現在有効で、画面上にも表示されています。\n確認値:\nobjectName: ActionFeatureAction\n実体クラス: QWidgetAction\nisEnabled(): True\nisVisible(): True\n所属ツールバー: mAttributesToolBar\nツールバー isEnabled(): True\nツールバー isVisible(): True\n実ウィジェット: QToolButton\nボタン isEnabled(): True\nボタン isVisible(): True\n画面上の描画領域あり: True\n現在のボタン状態:\nテキスト: 地物アクション\ndefaultAction: mActionFeatureAction\ndefaultAction.isEnabled(): True\nツールチップ: アクションが選択されていません\nメニュー内のアクションも有効です。\n地物を複製: enabled=True\n地物を複製/デジタイズ: enabled=True\nしたがって、ActionFeatureAction は現在有効で、属性ツールバー上から操作可能な状態です。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_extractbyattribute",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性による抽出」(id: native:extractbyattribute) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性による抽出」(id: native:extractbyattribute) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の Processing registry に存在します。\n\n- **ID**: `native:extractbyattribute`\n- **表示名**: 属性による抽出\n- **グループ**: ベクタ選択\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n\n## 用途\n\n指定した属性フィールドと比較条件に一致するフィーチャだけを、新しいベクタレイヤへ抽出します。  \n条件に一致しなかったフィーチャを別レイヤへ出力することもできます。\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ベクタレイヤ（必須） |\n| `FIELD` | 条件判定に使う属性フィールド（必須） |\n| `OPERATOR` | 比較演算子。`=`、`≠`、`>`、`≥`、`<`、`≤`、`で始まる`、`contains`、`nullである` など |\n| `VALUE` | 比較する値（任意。`nullである` 等では不要） |\n| `OUTPUT` | 条件に一致したフィーチャの出力先（必須） |\n| `FAIL_OUTPUT` | 条件に一致しなかったフィーチャの出力先（任意） |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:extractbyattribute')\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'options': p.options() if hasattr(p, 'options') else None,\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else []\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性による抽出」(id: native:extractbyattribute) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の Processing registry に存在します。\nID: native:extractbyattribute\n表示名: 属性による抽出\nグループ: ベクタ選択\n種別: QGIS ネイティブ C++ アルゴリズム\n用途\n指定した属性フィールドと比較条件に一致するフィーチャだけを、新しいベクタレイヤへ抽出します。\n条件に一致しなかったフィーチャを別レイヤへ出力することもできます。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ベクタレイヤ（必須）\nFIELD\n条件判定に使う属性フィールド（必須）\nOPERATOR\n比較演算子。=、≠、>、≥、<、≤、で始まる、contains、nullである など\nVALUE\n比較する値（任意。nullである 等では不要）\nOUTPUT\n条件に一致したフィーチャの出力先（必須）\nFAIL_OUTPUT\n条件に一致しなかったフィーチャの出力先（任意）\n"
+}

@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.Models",
+ "prompt": "QGISの「Models」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Models」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "2つの「Models」系メニューが見つかりました。所在を確認します。調査結果です。「Models」に該当しうるメニューが2つあり、どちらも**有効**です。\n\n## 1. 「Models」（プロジェクトメニュー内）— 最有力\n\n| 項目 | 内容 |\n|---|---|\n| メニュー | `mMenuProjectModels` |\n| 所在 | メニューバー → **プロジェクト** → **Models** |\n| **enabled** | **true（現在有効）** |\n| 子項目 | 現在 **0件** |\n\nプロジェクトメニュー内の「Models」サブメニューで、**プロジェクトに埋め込まれたプロセシングモデルの一覧**が動的に表示されます。現在プロジェクトに埋め込みモデルが無いため空です。\n\n## 2. 「モデル」（プロセシングツールボックス内）\n\n| 項目 | 内容 |\n|---|---|\n| メニュー | `モデル_menu`（Processingプラグイン） |\n| 所在 | プロセシングツールボックス内 |\n| **enabled** | **true** |\n| 子項目 | 新規モデルを作成...（✓）/ 既存のモデルを開く...（✓）/ ツールボックスにモデルを追加...（✓） |\n\nいずれも現在有効な状態です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfrom qgis.utils import iface\\nfound = []\\nfor a in iface.mainWindow().findChildren(QAction):\\n    t = a.text() or ''\\n    n = a.objectName() or ''\\n    if 'model' in t.lower() or 'model' in n.lower() or 'モデル' in t:\\n        found.append({'objectName': n, 'text': t, 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'hasMenu': a.menu() is not None, 'checkable': a.isCheckable(), 'checked': a.isChecked()})\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfrom qgis.utils import iface\\nres = []\\nfor a in iface.mainWindow().findChildren(QAction):\\n    if a.text() in ('Models', 'モデル') and a.menu():\\n        m = a.menu()\\n        # 親メニューを辿る\\n        chain = []\\n        obj = m\\n        while obj is not None:\\n            chain.append(getattr(obj, 'objectName', lambda: '')() or getattr(obj, 'title', lambda: '')())\\n            obj = obj.parent()\\n        children = [{'text': c.text(), 'enabled': c.isEnabled()} for c in m.actions()]\\n        res.append({'text': a.text(), 'enabled': a.isEnabled(), 'menuObjectName': m.objectName(),\\n                    'parentChain': chain[:4], 'childCount': len(children), 'children': children[:8]})\\nresult = res\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Models」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n2つの「Models」系メニューが見つかりました。所在を確認します。調査結果です。「Models」に該当しうるメニューが2つあり、どちらも有効です。\n1. 「Models」（プロジェクトメニュー内）— 最有力\n項目\n内容\nメニュー\nmMenuProjectModels\n所在\nメニューバー → プロジェクト → Models\nenabled\ntrue（現在有効）\n子項目\n現在 0件\n\nプロジェクトメニュー内の「Models」サブメニューで、プロジェクトに埋め込まれたプロセシングモデルの一覧が動的に表示されます。現在プロジェクトに埋め込みモデルが無いため空です。\n2. 「モデル」（プロセシングツールボックス内）\n項目\n内容\nメニュー\nモデル_menu（Processingプラグイン）\n所在\nプロセシングツールボックス内\nenabled\ntrue\n子項目\n新規モデルを作成...（✓）/ 既存のモデルを開く...（✓）/ ツールボックスにモデルを追加...（✓）\n\nいずれも現在有効な状態です。"
+}

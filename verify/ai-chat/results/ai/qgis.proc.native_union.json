@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_union",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 和集合（union）」(id: native:union) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 和集合（union）」(id: native:union) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`native:union` **[QGIS（ネイティブC++）] 和集合（union）** は processing registry に登録されています（グループ: ベクタオーバーレイ）。\n\n### 用途\n\nポリゴンの**和集合（ユニオン）**を計算します。動作は2パターンあります:\n\n- **INPUTのみ**: 入力レイヤ内で地物同士が重なっている部分を検出し、重なり部分と非重なり部分に分割。重なり部分は重なった地物の数だけ複製されます。\n- **INPUT + OVERLAY**: 両レイヤの地物を交差部分で切断し、すべての領域をカバーする新規レイヤを作成。属性テーブルには**両レイヤの属性**が保持されます（オーバーレイに重ならない部分の属性はNULL）。\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT` | source | — | 入力レイヤ（ポリゴン） |\n| `OVERLAY` | source | （任意） | オーバーレイレイヤ。省略時は自己ユニオン |\n| `OVERLAY_FIELDS_PREFIX` | string | （任意） | オーバーレイ属性名の衝突回避用接頭辞 |\n| `GRID_SIZE` | number | （任意） | 計算時に座標をスナップするグリッドサイズ（ロバスト性向上用） |\n| `OUTPUT` | sink | — | 出力レイヤ |\n\nOVERLAY を指定しない単一レイヤ実行でも動作する点が、intersection/difference 系と異なる特徴です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('native:union')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 和集合（union）」(id: native:union) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\nnative:union [QGIS（ネイティブC++）] 和集合（union） は processing registry に登録されています（グループ: ベクタオーバーレイ）。\n用途\nポリゴンの**和集合（ユニオン）**を計算します。動作は2パターンあります:\nINPUTのみ: 入力レイヤ内で地物同士が重なっている部分を検出し、重なり部分と非重なり部分に分割。重なり部分は重なった地物の数だけ複製されます。\nINPUT + OVERLAY: 両レイヤの地物を交差部分で切断し、すべての領域をカバーする新規レイヤを作成。属性テーブルには両レイヤの属性が保持されます（オーバーレイに重ならない部分の属性はNULL）。\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT\nsource\n—\n入力レイヤ（ポリゴン）\nOVERLAY\nsource\n（任意）\nオーバーレイレイヤ。省略時は自己ユニオン\nOVERLAY_FIELDS_PREFIX\nstring\n（任意）\nオーバーレイ属性名の衝突回避用接頭辞\nGRID_SIZE\nnumber\n（任意）\n計算時に座標をスナップするグリッドサイズ（ロバスト性向上用）\nOUTPUT\nsink\n—\n出力レイヤ\n\nOVERLAY を指定しない単一レイヤ実行でも動作する点が、intersection/difference 系と異なる特徴です。"
+}

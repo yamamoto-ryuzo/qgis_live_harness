@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_collect",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] シングルパートをマルチパートに集約」(id: native:collect) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] シングルパートをマルチパートに集約」(id: native:collect) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:collect` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] シングルパートをマルチパートに集約`\n- **ID**: `native:collect`\n- **グループ**: `ベクタジオメトリ`\n- **用途**: 複数のシングルパート地物を、1つのマルチパート地物としてまとめます。属性値ごとに地物をグループ化したい場合に使えます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 集約対象のベクタレイヤ |\n| `FIELD` | グループ化に使うフィールド。省略時は全地物を1つのマルチパートに集約。複数指定も可能 |\n| `OUTPUT` | マルチパート化した地物を含む出力レイヤ |\n\n出力は、1地物しか含まれないグループでもマルチパートジオメトリになります。ジオメトリ自体は変形されず、重なりの融合も行われません。面や線を実際に結合したい場合は `Dissolve` / `Union` 系を使います。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:collect')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue', 'parentLayerParameterName', 'allowMultiple', 'defaultToAllFields'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.o"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] シングルパートをマルチパートに集約」(id: native:collect) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:collect を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] シングルパートをマルチパートに集約\nID: native:collect\nグループ: ベクタジオメトリ\n用途: 複数のシングルパート地物を、1つのマルチパート地物としてまとめます。属性値ごとに地物をグループ化したい場合に使えます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n集約対象のベクタレイヤ\nFIELD\nグループ化に使うフィールド。省略時は全地物を1つのマルチパートに集約。複数指定も可能\nOUTPUT\nマルチパート化した地物を含む出力レイヤ\n\n出力は、1地物しか含まれないグループでもマルチパートジオメトリになります。ジオメトリ自体は変形されず、重なりの融合も行われません。面や線を実際に結合したい場合は Dissolve / Union 系を使います。"
+}

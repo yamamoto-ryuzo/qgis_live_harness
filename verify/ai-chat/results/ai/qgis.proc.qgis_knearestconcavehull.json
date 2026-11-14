@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_knearestconcavehull",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] 凹包（k近傍法）」(id: qgis:knearestconcavehull) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] 凹包（k近傍法）」(id: qgis:knearestconcavehull) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis:knearestconcavehull` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `qgis:knearestconcavehull`\n- **表示名**: `凹包（k近傍法）`\n- **Provider**: `QGIS`\n- **グループ**: `ベクタジオメトリ`\n\n### 用途\n入力地物の点集合から凹包ポリゴンを生成します。ポイントレイヤ以外を入力した場合は、そのノードを使用します。凸包よりも点群の形状に沿った外形を作りたい場合に使います。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力レイヤ | — |\n| `KNEIGHBORS` | 考慮する近傍点数。小さいほど凹みが強く、大きいほど滑らか | `3` |\n| `FIELD` | 任意。属性値ごとにグループ化して別々の凹包を作成 | なし |\n| `OUTPUT` | 凹包ポリゴンの出力先 | — |\n\n`KNEIGHBORS` が点数以上になると、結果は凸包に近づきます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('qgis:knearestconcavehull')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'concave' in a.id().lower() or 'hull' in a.id().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'type': p.type("
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] 凹包（k近傍法）」(id: qgis:knearestconcavehull) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nqgis:knearestconcavehull を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: qgis:knearestconcavehull\n表示名: 凹包（k近傍法）\nProvider: QGIS\nグループ: ベクタジオメトリ\n用途\n入力地物の点集合から凹包ポリゴンを生成します。ポイントレイヤ以外を入力した場合は、そのノードを使用します。凸包よりも点群の形状に沿った外形を作りたい場合に使います。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\n入力レイヤ\n—\nKNEIGHBORS\n考慮する近傍点数。小さいほど凹みが強く、大きいほど滑らか\n3\nFIELD\n任意。属性値ごとにグループ化して別々の凹包を作成\nなし\nOUTPUT\n凹包ポリゴンの出力先\n—\n\nKNEIGHBORS が点数以上になると、結果は凸包に近づきます。"
+}

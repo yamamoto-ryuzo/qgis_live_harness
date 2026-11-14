@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_translategeometry",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 平行移動（translate）」(id: native:translategeometry) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 平行移動（translate）」(id: native:translategeometry) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`native:translategeometry` **[QGIS（ネイティブC++）] 平行移動（translate）** は processing registry に登録されています（グループ: ベクタジオメトリ）。\n\n### 用途\n\nレイヤの全地物のジオメトリを、指定したオフセット距離だけ**平行移動（トランスレート）**します。X/Y だけでなく、ジオメトリが持つ **Z値・M値もオフセット可能**です。データ全体の位置ずれ補正や、指定方向への一括移動などに使います。\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT` | source | — | 入力レイヤ |\n| `DELTA_X` | distance | 0.0 | X軸方向のオフセット距離（レイヤのCRS単位） |\n| `DELTA_Y` | distance | 0.0 | Y軸方向のオフセット距離 |\n| `DELTA_Z` | number | 0.0 | Z値への加算オフセット（3Dジオメトリ用） |\n| `DELTA_M` | number | 0.0 | M値への加算オフセット |\n| `OUTPUT` | sink | — | 出力レイヤ |\n\nDELTA_X / DELTA_Y は distance 型なのでレイヤCRSの単位で指定し、データ定義（式/フィールド参照）にも対応します。属性はそのまま引き継がれます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('native:translategeometry')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 平行移動（translate）」(id: native:translategeometry) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\nnative:translategeometry [QGIS（ネイティブC++）] 平行移動（translate） は processing registry に登録されています（グループ: ベクタジオメトリ）。\n用途\nレイヤの全地物のジオメトリを、指定したオフセット距離だけ**平行移動（トランスレート）**します。X/Y だけでなく、ジオメトリが持つ Z値・M値もオフセット可能です。データ全体の位置ずれ補正や、指定方向への一括移動などに使います。\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT\nsource\n—\n入力レイヤ\nDELTA_X\ndistance\n0.0\nX軸方向のオフセット距離（レイヤのCRS単位）\nDELTA_Y\ndistance\n0.0\nY軸方向のオフセット距離\nDELTA_Z\nnumber\n0.0\nZ値への加算オフセット（3Dジオメトリ用）\nDELTA_M\nnumber\n0.0\nM値への加算オフセット\nOUTPUT\nsink\n—\n出力レイヤ\n\nDELTA_X / DELTA_Y は distance 型なのでレイヤCRSの単位で指定し、データ定義（式/フィールド参照）にも対応します。属性はそのまま引き継がれます。"
+}

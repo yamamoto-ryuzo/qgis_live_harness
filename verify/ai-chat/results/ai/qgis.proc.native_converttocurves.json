@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_converttocurves",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 曲線ジオメトリに変換」(id: native:converttocurves) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 曲線ジオメトリに変換」(id: native:converttocurves) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:converttocurves` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] 曲線ジオメトリに変換`\n- **ID**: `native:converttocurves`\n- **グループ**: `ベクタジオメトリ`\n- **用途**: 直線セグメントで近似された弧を、可能な場合に曲線ジオメトリへ変換します。例えば `LineString` を `CompoundCurve`、`Polygon` を `CurvePolygon` に変換し、円弧を細分化したジオメトリの頂点数削減に使えます。既に曲線のジオメトリはそのまま保持されます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 変換対象のライン／ポリゴンレイヤ |\n| `DISTANCE` | 元の頂点位置と変換後の曲線上の位置に許容する最大距離。地図単位。既定値 `0.000001` |\n| `ANGLE` | 円弧候補上で頂点が等間隔に配置されているかを判定する最大角度差。度単位、`0〜45`。既定値 `0.000001` |\n| `OUTPUT` | `CompoundCurve` または `CurvePolygon` を含む出力レイヤ |\n\n許容値を厳しくすると円弧として認識されにくくなり、緩めるとより多くの折れ線が曲線に置き換えられます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:converttocurves')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({\\n            "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 曲線ジオメトリに変換」(id: native:converttocurves) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:converttocurves を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] 曲線ジオメトリに変換\nID: native:converttocurves\nグループ: ベクタジオメトリ\n用途: 直線セグメントで近似された弧を、可能な場合に曲線ジオメトリへ変換します。例えば LineString を CompoundCurve、Polygon を CurvePolygon に変換し、円弧を細分化したジオメトリの頂点数削減に使えます。既に曲線のジオメトリはそのまま保持されます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n変換対象のライン／ポリゴンレイヤ\nDISTANCE\n元の頂点位置と変換後の曲線上の位置に許容する最大距離。地図単位。既定値 0.000001\nANGLE\n円弧候補上で頂点が等間隔に配置されているかを判定する最大角度差。度単位、0〜45。既定値 0.000001\nOUTPUT\nCompoundCurve または CurvePolygon を含む出力レイヤ\n\n許容値を厳しくすると円弧として認識されにくくなり、緩めるとより多くの折れ線が曲線に置き換えられます。"
+}

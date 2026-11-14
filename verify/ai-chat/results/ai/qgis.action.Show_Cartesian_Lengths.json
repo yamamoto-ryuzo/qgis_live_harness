@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Show_Cartesian_Lengths",
+ "prompt": "QGISの「Show Cartesian Lengths」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Show Cartesian Lengths」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Show Cartesian Lengths」の現在の状態を確認します。調査結果です。\n\n## 「Show Cartesian Lengths」は **無効(OFF)** です\n\n| 項目 | 値 |\n|---|---|\n| text | `Show Cartesian Lengths` |\n| checkable | true（排他選択グループに所属） |\n| **checked** | **false → 無効（OFF)** |\n| enabled | true（押下可能） |\n| 配置 | メニュー「Floater settings」→「**Show Total Length/Perimeter**」サブメニュー内 |\n\n「Show Total Length/Perimeter」サブメニューの3択グループの現状：\n- ☑ Hidden（非表示） ← 現在選択中\n- ☐ Show Ellipsoidal Lengths\n- ☐ **Show Cartesian Lengths** ← OFF\n\nフローターに投影座標系（平面/デカルト）ベースの合計長/周長欄を表示したい場合はこのアクションをONにします。\n\nこれで「Floater settings」メニュー内の全項目を調べ終えた形です：\n\n| 設定 | 状態 |\n|---|---|\n| Show Floater | ON |\n| Show Distance / Angle / XY Coordinates / Z Value / M Value | すべてON |\n| Show Bearing/Azimuth | OFF |\n| Show Common Snapping Angle | OFF |\n| Show Area | Hidden 選択中 |\n| Show Total Length/Perimeter | Hidden 選択中 |\n\n切り替えたい項目があればお申し付けください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    if (a.text() or '') == 'Show Cartesian Lengths':\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': a.text(),\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            'tooltip': a.toolTip(),\\n            'shortcut': a.shortcut().toString(),\\n        })\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Show Cartesian Lengths」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Show Cartesian Lengths」の現在の状態を確認します。調査結果です。\n「Show Cartesian Lengths」は 無効(OFF) です\n項目\n値\ntext\nShow Cartesian Lengths\ncheckable\ntrue（排他選択グループに所属）\nchecked\nfalse → 無効（OFF)\nenabled\ntrue（押下可能）\n配置\nメニュー「Floater settings」→「Show Total Length/Perimeter」サブメニュー内\n\n「Show Total Length/Perimeter」サブメニューの3択グループの現状：\n☑ Hidden（非表示） ← 現在選択中\n☐ Show Ellipsoidal Lengths\n☐ Show Cartesian Lengths ← OFF\nフローターに投影座標系（平面/デカルト）ベースの合計長/周長欄を表示したい場合はこのアクションをONにします。\nこれで「Floater settings」メニュー内の全項目を調べ終えた形です：\n設定\n状態\nShow Floater\nON\nShow Distance / Angle / XY Coordinates / Z Value / M Value\nすべてON\nShow Bearing/Azimuth\nOFF\nShow Common Snapping Angle\nOFF\nShow Area\nHidden 選択中\nShow Total Length/Perimeter\nHidden 選択中\n\n切り替えたい項目があればお申し付けください。"
+}

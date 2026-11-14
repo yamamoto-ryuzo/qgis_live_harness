@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionAddLayers",
+ "prompt": "QGISの「レイヤを追加」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「レイヤを追加」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認できました。**「レイヤを追加」アクション（サブメニュー）は現在有効です。**\n\n## 詳細\n\n- メニューパス: **レイヤ(&L) > レイヤを追加**\n- `objectName = 'mActionAddLayers'`（サブメニュー）\n- `QAction` 状態: `enabled = true`, `visible = true`\n\nサブメニュー内の各項目もすべて有効です（全17件を走査）：\n\n| 項目 | objectName | enabled |\n|---|---|---|\n| ベクタレイヤを追加... | mActionAddOgrLayer | true |\n| ラスタレイヤを追加... | mActionAddRasterLayer | true |\n| メッシュレイヤを追加... | mActionAddMeshLayer | true |\n| CSVテキストレイヤを追加... | mActionAddDelimitedText | true |\n| SpatiaLite / MS SQL / Oracle / SAP HANA レイヤを追加 | 各 mActionAdd*Layer | true |\n| ArcGIS REST Server / WCS / XYZ / ベクタタイル / 点群レイヤを追加 | 各 mActionAdd* | true |\n| 仮想レイヤを追加/編集... | mActionAddVirtualLayer | true |\n\n※「More Add Layer actions here」だけは非表示のプレースホルダ区切り（`enabled=false, visible=false`）で、プロバイダが追加項目を挿入するための仕組みなので問題ありません。\n\nどれか実行しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nfound = []\\nfor w in iface.mainWindow().findChildren(QAction):\\n    t = w.text() or ''\\n    if 'レイヤを追加' in t or ('addlayer' in (w.objectName() or '').lower()):\\n        menus = []\\n        for m in iface.mainWindow().findChildren(QMenu):\\n            if w in m.actions():\\n                menus.append(m.title())\\n        found.append((t, w.objectName(), w.isEnabled(), w.isVisible(), menus))\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「レイヤを追加」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n確認できました。「レイヤを追加」アクション（サブメニュー）は現在有効です。\n詳細\nメニューパス: レイヤ(&L) > レイヤを追加\nobjectName = 'mActionAddLayers'（サブメニュー）\nQAction 状態: enabled = true, visible = true\nサブメニュー内の各項目もすべて有効です（全17件を走査）：\n項目\nobjectName\nenabled\nベクタレイヤを追加...\nmActionAddOgrLayer\ntrue\nラスタレイヤを追加...\nmActionAddRasterLayer\ntrue\nメッシュレイヤを追加...\nmActionAddMeshLayer\ntrue\nCSVテキストレイヤを追加...\nmActionAddDelimitedText\ntrue\nSpatiaLite / MS SQL / Oracle / SAP HANA レイヤを追加\n各 mActionAdd*Layer\ntrue\nArcGIS REST Server / WCS / XYZ / ベクタタイル / 点群レイヤを追加\n各 mActionAdd*\ntrue\n仮想レイヤを追加/編集...\nmActionAddVirtualLayer\ntrue\n\n※「More Add Layer actions here」だけは非表示のプレースホルダ区切り（enabled=false, visible=false）で、プロバイダが追加項目を挿入するための仕組みなので問題ありません。\nどれか実行しますか？"
+}

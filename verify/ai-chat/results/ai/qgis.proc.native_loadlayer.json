@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_loadlayer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤをプロジェクトに読み込む」(id: native:loadlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤをプロジェクトに読み込む」(id: native:loadlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:loadlayer` は **processing registry に存在します**。\n\n- **表示名**: レイヤをプロジェクトに読み込む\n- **グループ**: モデラーツール (`modelertools`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n処理結果のレイヤを**現在開いている QGIS プロジェクトに読み込む（レイヤツリーへ追加する）**アルゴリズムです。主に**モデルデザイナー内で**「モデルの中間・最終出力をプロジェクトに表示したい」ときに使うユーティリティで、レイヤ名を任意に付けられます。スタンドアロン実行ではなくモデル構築用の補助アルゴリズムという位置づけです。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 読み込むレイヤ（必須） | — |\n| `NAME` | プロジェクトに表示するレイヤ名（必須） | — |\n\n## 出力\n\n- `OUTPUT` — プロジェクトに読み込まれたレイヤ（`QgsProcessingOutputMapLayer`）\n\n実行例: `processing.run(\"native:loadlayer\", {'INPUT': result_layer, 'NAME': '結果レイヤ'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:loadlayer')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'provider"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤをプロジェクトに読み込む」(id: native:loadlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:loadlayer は processing registry に存在します。\n表示名: レイヤをプロジェクトに読み込む\nグループ: モデラーツール (modelertools)\nプロバイダ: QGIS（ネイティブ C++）\n用途\n処理結果のレイヤを現在開いている QGIS プロジェクトに読み込む（レイヤツリーへ追加する）アルゴリズムです。主にモデルデザイナー内で「モデルの中間・最終出力をプロジェクトに表示したい」ときに使うユーティリティで、レイヤ名を任意に付けられます。スタンドアロン実行ではなくモデル構築用の補助アルゴリズムという位置づけです。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n読み込むレイヤ（必須）\n—\nNAME\nプロジェクトに表示するレイヤ名（必須）\n—\n\n出力\nOUTPUT — プロジェクトに読み込まれたレイヤ（QgsProcessingOutputMapLayer）\n実行例: processing.run(\"native:loadlayer\", {'INPUT': result_layer, 'NAME': '結果レイヤ'})"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Merge_Layers",
+ "prompt": "QGISの「Merge Layers」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Merge Layers」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Merge Layers」アクションも **現在有効（enabled）** です。\n\n## 調査結果\n\n- テキスト: `Merge Layers`\n- 所有者: **mmqgis プラグイン**\n- `isEnabled()` = **true**、`isVisible()` = true\n- 配置場所: メニューバー **MMQGIS → Combine → Merge Layers**\n\nCombine サブメニューの3項目（Attributes Join from CSV File / Merge Layers / Spatial Join）はすべて有効です。\n\nなお、名前が似たコア機能の `ベクタレイヤをマージ...`（`native:mergevectorlayers`、ベクタ → Data Management Tools）も以前確認済みで有効ですが、こちらは mmqgis 側のマージ機能です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.utils import plugins\\nmmqgis = plugins.get('mmqgis')\\nmenu = mmqgis.mmqgis_menu\\nfound = []\\nfor a in menu.actions():\\n    m = a.menu()\\n    if m is not None:\\n        for sa in m.actions():\\n            if 'merge' in (sa.text() or '').lower():\\n                found.append({\\n                    'submenu': (a.text() or '').replace('&',''),\\n                    'action_text': sa.text(),\\n                    'enabled': sa.isEnabled(),\\n                    'visible': sa.isVisible(),\\n                })\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Merge Layers」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Merge Layers」アクションも 現在有効（enabled） です。\n調査結果\nテキスト: Merge Layers\n所有者: mmqgis プラグイン\nisEnabled() = true、isVisible() = true\n配置場所: メニューバー MMQGIS → Combine → Merge Layers\nCombine サブメニューの3項目（Attributes Join from CSV File / Merge Layers / Spatial Join）はすべて有効です。\nなお、名前が似たコア機能の ベクタレイヤをマージ...（native:mergevectorlayers、ベクタ → Data Management Tools）も以前確認済みで有効ですが、こちらは mmqgis 側のマージ機能です。"
+}

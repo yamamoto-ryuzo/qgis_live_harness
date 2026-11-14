@@ -1,0 +1,31 @@
+{
+ "id": "plugin.geo_webview.bridge.navigateTo",
+ "prompt": "geo_webview プラグインの「navigateTo」(座標を直接指定して地図ビューを移動する。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_webview プラグインの「navigateTo」(座標を直接指定して地図ビューを移動する。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`navigateTo` を実行します(緯度経度+縮尺+回転を指定)。移動と回転を確認します。`navigateTo` の動作を確認しました。\n\n## 実行内容\n\n```\nnavigateTo({lat: 35.6812, lon: 139.7671, scale: 10000, rotation: 15})\n```\n\n## 結果\n\n`ok: true` で、QGISキャンバスを直接確認したところ以下が正確に反映されています:\n\n- **中心**: (139.7671, 35.6812) — 東京駅付近\n- **縮尺**: 1:10000\n- **回転**: 15.0°\n- **CRS**: EPSG:4326\n\n`x/y+crs` 指定のほか `lat/lon` 指定も使え、`zoom`(ズームレベル)や `theme`(テーマ適用)の引数もサポートされています。URL文字列を組み立てる `navigate` に対し、こちらは座標を直接パラメータで渡せるのでAIからの呼び出しには扱いやすいメソッドです。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'navigateTo', 'plugin_id': 'geo_webview', 'args': [{'lat': 35.6812, 'lon': 139.7671, 'rotation': 15, 'scale': 10000}]}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"c = iface.mapCanvas()\\nctr = c.center()\\nresult = {'center': [round(ctr.x(),6), round(ctr.y(),6)], 'scale': round(c.scale(),1), 'rotation': c.rotation(), 'crs': c.mapSettings().destinationCrs().authid()}\"}"
+  }
+ ],
+ "view_tail": "[あなた] geo_webview プラグインの「navigateTo」(座標を直接指定して地図ビューを移動する。)を試して。必要な引数は適当な値でよい\n[AI] \nnavigateTo を実行します(緯度経度+縮尺+回転を指定)。移動と回転を確認します。navigateTo の動作を確認しました。\n実行内容\nnavigateTo({lat: 35.6812, lon: 139.7671, scale: 10000, rotation: 15})\n結果\nok: true で、QGISキャンバスを直接確認したところ以下が正確に反映されています:\n中心: (139.7671, 35.6812) — 東京駅付近\n縮尺: 1:10000\n回転: 15.0°\nCRS: EPSG:4326\nx/y+crs 指定のほか lat/lon 指定も使え、zoom(ズームレベル)や theme(テーマ適用)の引数もサポートされています。URL文字列を組み立てる navigate に対し、こちらは座標を直接パラメータで渡せるのでAIからの呼び出しには扱いやすいメソッドです。"
+}

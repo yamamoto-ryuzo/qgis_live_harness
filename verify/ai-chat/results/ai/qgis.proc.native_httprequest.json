@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_httprequest",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] HTTP(S) POST/GET request」(id: native:httprequest) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] HTTP(S) POST/GET request」(id: native:httprequest) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:httprequest`（表示名 **「HTTP(S) POST/GET request」**、グループ「File tools」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n**HTTP(S)のGET/POSTリクエストを実行し、ステータスコードと応答データを返す**アルゴリズムです。Web API・RESTエンドポイントからのデータ取得や、外部サービスへの送信をプロセッシングモデル内で行えます。応答はファイルにも書き出せます。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `URL` | リクエスト先URL |\n| `METHOD` | 方法（enum：**GET** / **POST**。デフォルト GET） |\n| `DATA` | POSTデータ（POST時の送信ボディ） |\n| `AUTH_CONFIG` | 認証設定（QGISの認証DBに登録した認証ID） |\n| `FAIL_ON_ERROR` | HTTPエラーを処理の失敗として扱うか（bool。デフォルトは警告のみ） |\n| `OUTPUT` | 出力先ファイル（任意。応答をディスクに保存） |\n\n### 出力\n\n| 出力 | 内容 |\n|---|---|\n| `OUTPUT` | ファイル出力（指定時） |\n| `STATUS_CODE` | HTTPステータスコード |\n| `RESULT_DATA` | 応答データ（本文） |\n| `ERROR_CODE` / `ERROR_MESSAGE` | ネットワークエラーのコードとメッセージ |\n\n### 補足\n\n- **モデラー内での外部API連携**が主な使い道です。`RESULT_DATA` を後続アルゴリズムに渡したり、`OUTPUT` でファイル保存→GeoJSON/CSVを別アルゴリズムで読み込む流れが組めます。\n- `AUTH_CONFIG` はQGISの「認証設定」に登録済みのIDを参照する方式のため、認証情報をパラメータに直接書かずに済みます。\n- `FAIL_ON_ERROR` をオンにすると4xx/5xxでモデルが停止、オフ（デフォルト）なら警告を出しつつエラーコードを返して継続、という違いがあります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:httprequest')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related': [(a.id(), a.displayName(), a.group()) for a in QgsApplication.processingRegistry().algorithms() if 'http' in a.id() or 'request' in a.id() or 'url' in a.id()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] HTTP(S) POST/GET request」(id: native:httprequest) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:httprequest（表示名 「HTTP(S) POST/GET request」、グループ「File tools」）がこのQGISの processing registry に登録されています。\n用途\nHTTP(S)のGET/POSTリクエストを実行し、ステータスコードと応答データを返すアルゴリズムです。Web API・RESTエンドポイントからのデータ取得や、外部サービスへの送信をプロセッシングモデル内で行えます。応答はファイルにも書き出せます。\n主なパラメータ\nパラメータ\n内容\nURL\nリクエスト先URL\nMETHOD\n方法（enum：GET / POST。デフォルト GET）\nDATA\nPOSTデータ（POST時の送信ボディ）\nAUTH_CONFIG\n認証設定（QGISの認証DBに登録した認証ID）\nFAIL_ON_ERROR\nHTTPエラーを処理の失敗として扱うか（bool。デフォルトは警告のみ）\nOUTPUT\n出力先ファイル（任意。応答をディスクに保存）\n\n出力\n出力\n内容\nOUTPUT\nファイル出力（指定時）\nSTATUS_CODE\nHTTPステータスコード\nRESULT_DATA\n応答データ（本文）\nERROR_CODE / ERROR_MESSAGE\nネットワークエラーのコードとメッセージ\n\n補足\nモデラー内での外部API連携が主な使い道です。RESULT_DATA を後続アルゴリズムに渡したり、OUTPUT でファイル保存→GeoJSON/CSVを別アルゴリズムで読み込む流れが組めます。\nAUTH_CONFIG はQGISの「認証設定」に登録済みのIDを参照する方式のため、認証情報をパラメータに直接書かずに済みます。\nFAIL_ON_ERROR をオンにすると4xx/5xxでモデルが停止、オフ（デフォルト）なら警告を出しつつエラーコードを返して継続、という違いがあります。"
+}

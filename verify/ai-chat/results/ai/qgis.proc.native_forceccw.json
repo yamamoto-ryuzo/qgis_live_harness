@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_forceccw",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Force polygons counter-clockwise」(id: native:forceccw) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Force polygons counter-clockwise」(id: native:forceccw) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:forceccw`（表示名 **「Force polygons counter-clockwise」**、グループ「ベクタジオメトリ」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\nポリゴンジオメトリの**リングの向き（頂点の巡回順）を規約に従って統一**するアルゴリズムです。具体的には：\n\n- **外周リング（exterior ring）→ 反時計回り（counter-clockwise）**\n- **内部リング（穴、interior ring）→ 時計回り（clockwise）**\n\nに強制的に揃えます。向きが逆のリングは頂点順を反転して修正します。データ形式や受け渡し先のシステム（特定のGIS・データベース仕様）がリング方向の規約を要求する場合の前処理に使います。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ（対象のポリゴン） |\n| `OUTPUT` | 出力レイヤ |\n\n### 補足：関連アルゴリズム\n\n同グループに対になるアルゴリズムが2つあります：\n\n| ID | 表示名 | 向き |\n|---|---|---|\n| `native:forceccw` | Force polygons counter-clockwise | 外周＝反時計回り（本アルゴリズム） |\n| `native:forcecw` | Force polygons clockwise | 外周＝時計回り |\n| `native:forcerhr` | 右手ルールを強制 | 右手ルール規約（外周＝反時計回り、内部＝時計回り。`forceccw` と実質同じ方向） |\n\nパラメータは `INPUT` / `OUTPUT` のみと最小構成で、エラーレイヤ等は不要です。チェック→修正の2段フローではなく、単体で直接実行できるのが Fix geometry 系との違いです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:forceccw')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related': [(a.id(), a.displayName(), a.group()) for a in QgsApplication.processingRegistry().algorithms() if 'ccw' in a.id() or 'rhr' in a.id() or 'clockwise' in a.displayName().lower() or '反時計' in a.displayName()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Force polygons counter-clockwise」(id: native:forceccw) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:forceccw（表示名 「Force polygons counter-clockwise」、グループ「ベクタジオメトリ」）がこのQGISの processing registry に登録されています。\n用途\nポリゴンジオメトリのリングの向き（頂点の巡回順）を規約に従って統一するアルゴリズムです。具体的には：\n外周リング（exterior ring）→ 反時計回り（counter-clockwise）\n内部リング（穴、interior ring）→ 時計回り（clockwise）\nに強制的に揃えます。向きが逆のリングは頂点順を反転して修正します。データ形式や受け渡し先のシステム（特定のGIS・データベース仕様）がリング方向の規約を要求する場合の前処理に使います。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ（対象のポリゴン）\nOUTPUT\n出力レイヤ\n\n補足：関連アルゴリズム\n同グループに対になるアルゴリズムが2つあります：\nID\n表示名\n向き\nnative:forceccw\nForce polygons counter-clockwise\n外周＝反時計回り（本アルゴリズム）\nnative:forcecw\nForce polygons clockwise\n外周＝時計回り\nnative:forcerhr\n右手ルールを強制\n右手ルール規約（外周＝反時計回り、内部＝時計回り。forceccw と実質同じ方向）\n\nパラメータは INPUT / OUTPUT のみと最小構成で、エラーレイヤ等は不要です。チェック→修正の2段フローではなく、単体で直接実行できるのが Fix geometry 系との違いです。"
+}

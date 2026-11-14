@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_printlayouttoimage",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイアウトを画像としてエクスポート」(id: native:printlayouttoimage) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイアウトを画像としてエクスポート」(id: native:printlayouttoimage) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:printlayouttoimage` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:printlayouttoimage`\n- **表示名**: レイアウトを画像としてエクスポート\n- **グループ**: 地図製作\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\nプロジェクト内の**印刷レイアウトを画像ファイル（PNG/JPEG/TIFF等、拡張子依存）として出力**します。DPI 指定、ワールドファイル（ジオリファレンス）の生成、メタデータ付与、アンチエイリアスに対応しており、スクリプトからの地図帳・図版の自動出力に使えます（PDF出力は `native:printlayouttopdf`）。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `LAYOUT` | layout（必須） | 対象の印刷レイアウト名 |\n| `LAYERS` | multilayer（オプション） | 地図アイテムに割り当てるレイヤ（テーマ上書き用） |\n| `DPI` | number（オプション） | 解像度（空白ならデフォルト値） |\n| `GEOREFERENCE` | boolean（デフォルト True） | ワールドファイルを生成する |\n| `INCLUDE_METADATA` | boolean（デフォルト True） | RDFメタデータ（title, author等）をエクスポート |\n| `ANTIALIAS` | boolean（デフォルト True） | アンチエイリアスを有効化 |\n| `OUTPUT` | fileDestination（必須） | 出力画像ファイルパス |\n\n実行例:\n\n```python\nprocessing.run(\"native:printlayouttoimage\", {\n    'LAYOUT': 'MyLayout',\n    'DPI': 300,\n    'GEOREFERENCE': True,\n    'OUTPUT': r'C:/output/map.png'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:printlayouttoimage')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイアウトを画像としてエクスポート」(id: native:printlayouttoimage) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:printlayouttoimage は現在の QGIS の processing registry に登録されています。\nID: native:printlayouttoimage\n表示名: レイアウトを画像としてエクスポート\nグループ: 地図製作\nプロバイダ: QGIS（ネイティブC++）\n用途\nプロジェクト内の印刷レイアウトを画像ファイル（PNG/JPEG/TIFF等、拡張子依存）として出力します。DPI 指定、ワールドファイル（ジオリファレンス）の生成、メタデータ付与、アンチエイリアスに対応しており、スクリプトからの地図帳・図版の自動出力に使えます（PDF出力は native:printlayouttopdf）。\n主なパラメータ\n名前\n種別\n説明\nLAYOUT\nlayout（必須）\n対象の印刷レイアウト名\nLAYERS\nmultilayer（オプション）\n地図アイテムに割り当てるレイヤ（テーマ上書き用）\nDPI\nnumber（オプション）\n解像度（空白ならデフォルト値）\nGEOREFERENCE\nboolean（デフォルト True）\nワールドファイルを生成する\nINCLUDE_METADATA\nboolean（デフォルト True）\nRDFメタデータ（title, author等）をエクスポート\nANTIALIAS\nboolean（デフォルト True）\nアンチエイリアスを有効化\nOUTPUT\nfileDestination（必須）\n出力画像ファイルパス\n\n実行例:\nprocessing.run(\"native:printlayouttoimage\", {\n    'LAYOUT': 'MyLayout',\n    'DPI': 300,\n    'GEOREFERENCE': True,\n    'OUTPUT': r'C:/output/map.png'\n})"
+}

@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.gdal_griddatametrics",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] グリッド（データメトリクス）」(id: gdal:griddatametrics) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] グリッド（データメトリクス）」(id: gdal:griddatametrics) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:griddatametrics` を Processing Registry で確認します。`METRIC` の選択肢も確認します。確認しました。Processing Registry に **`[GDAL] グリッド（データメトリクス）`** は存在します。\n\n- **ID:** `gdal:griddatametrics`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタ解析`\n\n### 用途\n点データを対象に、各グリッドセル周辺の **検索範囲内の点密度・値の分布・距離などを集計**し、ラスタとして出力します。Z値の補間ではなく、局所的な点データの統計／密度解析に使います。\n\n### 主なパラメータ\n- `INPUT`：入力点レイヤ\n- `Z_FIELD`：集計対象の属性値（最小・最大・範囲で使用）\n- `METRIC`：計算する指標\n  - 最小\n  - 最大\n  - 範囲\n  - 個数\n  - グリッド中心と各点の平均距離\n  - 点間距離の平均\n- `RADIUS_1` / `RADIUS_2`：検索楕円の半径（X軸／Y軸）\n- `ANGLE`：検索楕円の回転角\n- `MIN_POINTS`：集計に必要な最少点数\n- `NODATA`：NoData値\n- `DATA_TYPE`：出力ラスタのデータ型\n- `OUTPUT`：出力ラスタファイル"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:griddatametrics'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'griddatametrics' in a.id().lower() or 'データメトリクス' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'griddatametric"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nimport json\\nalg = QgsApplication.processingRegistry().algorithmById('gdal:griddatametrics')\\nresult = None\\nif alg:\\n    defs = {p.name(): p for p in alg.parameterDefinitions()}\\n    def opts(name):\\n        p = defs.get(name)\\n        try:\\n            return list(p.options()) if p is not None else None\\n        except Exception:\\n            return None\\n    result = json.dumps({\\n        'metric_options': opts('METRIC'),\\n        'data_type_options': opts('DATA_TYPE')\\n    }, ensure_ascii=False)\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] グリッド（データメトリクス）」(id: gdal:griddatametrics) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:griddatametrics を Processing Registry で確認します。METRIC の選択肢も確認します。確認しました。Processing Registry に [GDAL] グリッド（データメトリクス） は存在します。\nID: gdal:griddatametrics\nプロバイダ: GDAL\nグループ: ラスタ解析\n用途\n点データを対象に、各グリッドセル周辺の 検索範囲内の点密度・値の分布・距離などを集計し、ラスタとして出力します。Z値の補間ではなく、局所的な点データの統計／密度解析に使います。\n主なパラメータ\nINPUT：入力点レイヤ\nZ_FIELD：集計対象の属性値（最小・最大・範囲で使用）\nMETRIC：計算する指標 \n最小\n最大\n範囲\n個数\nグリッド中心と各点の平均距離\n点間距離の平均\nRADIUS_1 / RADIUS_2：検索楕円の半径（X軸／Y軸）\nANGLE：検索楕円の回転角\nMIN_POINTS：集計に必要な最少点数\nNODATA：NoData値\nDATA_TYPE：出力ラスタのデータ型\nOUTPUT：出力ラスタファイル"
+}

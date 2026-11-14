@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_zonalminmaxpoint",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Zonal minimum/maximum point」(id: native:zonalminmaxpoint) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Zonal minimum/maximum point」(id: native:zonalminmaxpoint) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`native:zonalminmaxpoint` **[QGIS（ネイティブC++）] Zonal minimum/maximum point** は processing registry に登録されています（グループ: ラスタ解析）。\n\n### 用途\n\nポリゴン（ゾーン）ごとに、その内部で**最小値・最大値を持つピクセルの位置をポイント地物として抽出**します。各ゾーン地物につき最小値ポイント1つ・最大値ポイント1つが出力されます。DEMを使った「流域内の最高点・最低点」の特定などに使えます。出力ポイントレイヤのCRSは**入力ラスタのCRS**になります。\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT` | source | — | ゾーンを表すポリゴンレイヤ |\n| `INPUT_RASTER` | raster | — | 対象ラスタレイヤ（DEM等） |\n| `RASTER_BAND` | band | 1 | 対象バンド |\n| `OUTPUT` | sink | — | 出力ポイントレイヤ（Zonal Extrema） |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('native:zonalminmaxpoint')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Zonal minimum/maximum point」(id: native:zonalminmaxpoint) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\nnative:zonalminmaxpoint [QGIS（ネイティブC++）] Zonal minimum/maximum point は processing registry に登録されています（グループ: ラスタ解析）。\n用途\nポリゴン（ゾーン）ごとに、その内部で最小値・最大値を持つピクセルの位置をポイント地物として抽出します。各ゾーン地物につき最小値ポイント1つ・最大値ポイント1つが出力されます。DEMを使った「流域内の最高点・最低点」の特定などに使えます。出力ポイントレイヤのCRSは入力ラスタのCRSになります。\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT\nsource\n—\nゾーンを表すポリゴンレイヤ\nINPUT_RASTER\nraster\n—\n対象ラスタレイヤ（DEM等）\nRASTER_BAND\nband\n1\n対象バンド\nOUTPUT\nsink\n—\n出力ポイントレイヤ（Zonal Extrema）\n"
+}

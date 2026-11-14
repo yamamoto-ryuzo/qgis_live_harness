@@ -1,0 +1,31 @@
+{
+ "id": "plugin.geo_search.bridge.search",
+ "prompt": "geo_search プラグインの「search」(検索を実行する(検索ボタン押下と同じ show_features 経路)。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_search プラグインの「search」(検索を実行する(検索ボタン押下と同じ show_features 経路)。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "検索を試します。プロジェクトにレイヤがないので「住所検索」タブ(ジオコーディング)で実行してみます。検索が実行されました。地図上の状態も確認します。`search` を実行しました。結果:\n\n- `search(\"春日井市役所\", \"住所検索\")` → `ok: true, total: 3, zoomed: true`\n- 「住所検索」タブ(index 3)で gsi ジオコーディングが実行され、3件の候補が返りました:\n  1. 春日井市役所 (136.9722, 35.2475)\n  2. 春日井市役所前郵便局\n  3. 愛知県春日井市\n- 結果はメモリレイヤ `geo_search 住所検索` としてプロジェクトに追加され、地図は先頭候補付近(中心 136.972, 35.247 / EPSG:4326)へズームしています\n\n`search` メソッドは検索タブでも使えますが、指定したタブが「住所検索」だったためジオコーディング経路で動作しました。レイヤ属性検索を試す場合は、対象レイヤをプロジェクトに追加してから実行します。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'search', 'args': ['春日井市役所', '住所検索'], 'plugin_id': 'geo_search'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"canvas = iface.mapCanvas()\\next = canvas.extent()\\nresult = {\\n  'layers': [l.name() for l in QgsProject.instance().mapLayers().values()],\\n  'center': [round(ext.center().x(), 5), round(ext.center().y(), 5)],\\n  'crs': canvas.mapSettings().destinationCrs().authid(),\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] geo_search プラグインの「search」(検索を実行する(検索ボタン押下と同じ show_features 経路)。)を試して。必要な引数は適当な値でよい\n[AI] \n検索を試します。プロジェクトにレイヤがないので「住所検索」タブ(ジオコーディング)で実行してみます。検索が実行されました。地図上の状態も確認します。search を実行しました。結果:\nsearch(\"春日井市役所\", \"住所検索\") → ok: true, total: 3, zoomed: true\n「住所検索」タブ(index 3)で gsi ジオコーディングが実行され、3件の候補が返りました: \n春日井市役所 (136.9722, 35.2475)\n春日井市役所前郵便局\n愛知県春日井市\n結果はメモリレイヤ geo_search 住所検索 としてプロジェクトに追加され、地図は先頭候補付近(中心 136.972, 35.247 / EPSG:4326)へズームしています\nsearch メソッドは検索タブでも使えますが、指定したタブが「住所検索」だったためジオコーディング経路で動作しました。レイヤ属性検索を試す場合は、対象レイヤをプロジェクトに追加してから実行します。"
+}

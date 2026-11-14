@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionShowAllLayers",
+ "prompt": "QGISの「すべてのレイヤを表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「すべてのレイヤを表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「すべてのレイヤを表示」アクションを調べます。調査結果です。「すべてのレイヤを表示」は `mActionShowAllLayers` として見つかりました。\n\n| 項目 | 値 |\n|---|---|\n| objectName | `mActionShowAllLayers` |\n| テキスト | `すべてのレイヤを表示` |\n| 有効(isEnabled) | **True(現在有効です)** |\n| ショートカット | `Ctrl+Shift+U` |\n\n関連アクションも有効です:\n\n- `mActionHideAllLayers`「すべてのレイヤを隠す」(`Ctrl+Shift+H`)\n\n実行するとレイヤパネルの全レイヤが一括で表示状態(チェックON)になります。実行しますか?"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    o = a.objectName() or ''\\n    if ('すべてのレイヤ' in t) or ('showall' in o.lower()) or ('hideall' in o.lower()):\\n        found.append((o, t, a.isEnabled(), a.isCheckable(), a.shortcut().toString()))\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「すべてのレイヤを表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「すべてのレイヤを表示」アクションを調べます。調査結果です。「すべてのレイヤを表示」は mActionShowAllLayers として見つかりました。\n項目\n値\nobjectName\nmActionShowAllLayers\nテキスト\nすべてのレイヤを表示\n有効(isEnabled)\nTrue(現在有効です)\nショートカット\nCtrl+Shift+U\n\n関連アクションも有効です:\nmActionHideAllLayers「すべてのレイヤを隠す」(Ctrl+Shift+H)\n実行するとレイヤパネルの全レイヤが一括で表示状態(チェックON)になります。実行しますか?"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionToggleFileToolBar",
+ "prompt": "QGISの「プロジェクトツールバー」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「プロジェクトツールバー」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「プロジェクトツールバー」は非表示なので、トグルを実行して表示します。「プロジェクトツールバー」を有効化しました。\n\n- アクション `mActionToggleFileToolBar` を実行 → チェック ON\n- ツールバー `mFileToolBar` が表示されました(新規プロジェクト、開く、保存などのアイコン)"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\ncands = {a.objectName(): a for a in mw.findChildren(QAction) if 'プロジェクトツールバー' in a.text() or 'FileTool' in (a.objectName() or '') or 'ProjectTool' in (a.objectName() or '')}\\naction = cands.get('mActionToggleFileToolBar') or (next(iter(cands.values())) if cands else None)\\nif action is None:\\n    result = {'action': None, 'candidates': list(cands.keys())}\\nelse:\\n    action.trigger()\\n    tb = mw.findChild(QToolBar, 'mFileToolBar')\\n    result = {'action': action.objectName(), 'checked': action.isChecked(), 'toolbar_visible': tb.isVisible() if tb else None}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「プロジェクトツールバー」機能(アクション)を実行して\n[AI] \n「プロジェクトツールバー」は非表示なので、トグルを実行して表示します。「プロジェクトツールバー」を有効化しました。\nアクション mActionToggleFileToolBar を実行 → チェック ON\nツールバー mFileToolBar が表示されました(新規プロジェクト、開く、保存などのアイコン)"
+}

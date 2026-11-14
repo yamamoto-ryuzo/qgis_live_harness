@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.action_run",
+ "prompt": "QGISの「MetaSearch」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「MetaSearch」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に「MetaSearch」アクションを調べます。「MetaSearch」アクションも **現在有効（enabled）** です。\n\n## 調査結果\n\n**アクション自体**（2つのエントリがヒット）\n\n| アクション | objectName | 有効 | 場所 |\n|---|---|---|---|\n| `MetaSearch`（サブメニュー自体） | なし | 有効 | Web(&W) メニュー直下のサブメニュー |\n| `MetaSearch`（実行アクション） | `action_run` | **有効** | Web → MetaSearch → MetaSearch |\n\n**裏側**\n- `MetaSearch` プラグインはロード済み（`qgis.utils.plugins` で確認済み）\n- CSW（Catalogue Service for the Web）カタログ検索用のコアプラグインで、`action_run` がダイアログを開く実行アクション、`isEnabled()` = true、`isVisible()` = true です。\n\nサブメニューと実行アクションの両方が有効で、問題なく起動可能な状態です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nhits = []\\ncontainers = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').replace('&','')\\n    on = (a.objectName() or '').lower()\\n    if 'metasearch' in t.lower() or 'metasearch' in on:\\n        hits.append({\\n            'text': t,\\n            'objectName': a.objectName(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n        })\\nfor m in mw.findChildren(QMenu):\\n    for a in m.actions():\\n        t = (a.text() or '').replace('&','')\\n        on = (a.objectName() or '').lower()\\n        if 'metasearch' in t.lower() or 'metasearch' in on:\\n            path = [m.title()]\\n            p = m.parent()\\n            while isinstance(p, QMenu):\\n                path.insert(0, p.title())\\n                p = p.parent()\\n            containers.append({'action_text': t, 'menu_path': ' > '.join(path)})\\n# also check plugin loaded state\\nfrom qgis.utils import plugi"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「MetaSearch」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n同様に「MetaSearch」アクションを調べます。「MetaSearch」アクションも 現在有効（enabled） です。\n調査結果\nアクション自体（2つのエントリがヒット）\nアクション\nobjectName\n有効\n場所\nMetaSearch（サブメニュー自体）\nなし\n有効\nWeb(&W) メニュー直下のサブメニュー\nMetaSearch（実行アクション）\naction_run\n有効\nWeb → MetaSearch → MetaSearch\n\n裏側\nMetaSearch プラグインはロード済み（qgis.utils.plugins で確認済み）\nCSW（Catalogue Service for the Web）カタログ検索用のコアプラグインで、action_run がダイアログを開く実行アクション、isEnabled() = true、isVisible() = true です。\nサブメニューと実行アクションの両方が有効で、問題なく起動可能な状態です。"
+}

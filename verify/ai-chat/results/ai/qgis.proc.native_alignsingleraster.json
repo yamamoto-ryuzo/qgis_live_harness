@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_alignsingleraster",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Align raster」(id: native:alignsingleraster) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Align raster」(id: native:alignsingleraster) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認しました。**`native:alignsingleraster`（表示名:「Align raster」、グループ:「ラスタツール」、プロバイダ:「QGIS（ネイティブC++）」）は存在します**。\n\n## 用途\n**1 つのラスタを、参照ラスタと同じグリッド（セルサイズ・原点・範囲・CRS）に合わせてリサンプリング**するアルゴリズムです。先ほどの `native:alignrasters`（複数ラスタ一括版）の単一ラスタ版で、出力は 1 ファイル。ラスタ計算機などでセル対応が必要な前処理や、DEM と衛星画像のグリッド統一などに使います。\n\n## 主なパラメータ\n\n| パラメータ | 型 | 説明 |\n|---|---|---|\n| `INPUT` | raster | 整列させる入力ラスタ |\n| `REFERENCE_LAYER` | raster | グリッド基準の参照ラスタ |\n| `RESAMPLING_METHOD` | enum | リサンプリング法。`最近傍`（既定）/`Bilinear`/`Cubic`/`Cubic B-Spline`/`Lanczos`/`平均`/`モード`/`最大`/`最小`/`中央値`/`Q1`/`Q3` |\n| `RESCALE` | boolean | セルサイズ変更に応じて値を再スケール（面積ベースの量・密度などに使用）。デフォルト `False` |\n| `CRS` | crs | 参照 CRS の上書き |\n| `CELL_SIZE_X` / `CELL_SIZE_Y` | number | 参照セルサイズの上書き |\n| `GRID_OFFSET_X` / `GRID_OFFSET_Y` | number | グリッド原点オフセットの上書き |\n| `EXTENT` | extent | 出力範囲のクリップ指定 |\n| `OUTPUT` | rasterDestination | 出力ラスタ（「Aligned raster」） |\n\n補足：\n- **参照レイヤ由来のグリッドをオーバーライドで細かく調整できる**のが特徴で、「参照と同じだが解像度だけ変えたい」ようなケースにも対応できます。\n- `RESCALE=True` は人口密度・降水量のような「セル面積あたりの量」を持つラスタの解像度変更で意味を持ちます（セルが大きくなる分、値をスケールして積算値を保存）。\n- カテゴリラスタ（土地利用等）は「最近傍」か「モード」を、連続量は「Bilinear」などを選ぶのが原則です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('native:alignsingleraster')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in reg.algorithms() if 'align' in a.id().lower()]}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': str(p.defaultValue())}\\n        if hasattr(p, 'options'):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': (alg.shortHelpString() or '')[:1500],\\n        'params': params,\\n    }\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Align raster」(id: native:alignsingleraster) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認しました。native:alignsingleraster（表示名:「Align raster」、グループ:「ラスタツール」、プロバイダ:「QGIS（ネイティブC++）」）は存在します。\n用途\n1 つのラスタを、参照ラスタと同じグリッド（セルサイズ・原点・範囲・CRS）に合わせてリサンプリングするアルゴリズムです。先ほどの native:alignrasters（複数ラスタ一括版）の単一ラスタ版で、出力は 1 ファイル。ラスタ計算機などでセル対応が必要な前処理や、DEM と衛星画像のグリッド統一などに使います。\n主なパラメータ\nパラメータ\n型\n説明\nINPUT\nraster\n整列させる入力ラスタ\nREFERENCE_LAYER\nraster\nグリッド基準の参照ラスタ\nRESAMPLING_METHOD\nenum\nリサンプリング法。最近傍（既定）/Bilinear/Cubic/Cubic B-Spline/Lanczos/平均/モード/最大/最小/中央値/Q1/Q3\nRESCALE\nboolean\nセルサイズ変更に応じて値を再スケール（面積ベースの量・密度などに使用）。デフォルト False\nCRS\ncrs\n参照 CRS の上書き\nCELL_SIZE_X / CELL_SIZE_Y\nnumber\n参照セルサイズの上書き\nGRID_OFFSET_X / GRID_OFFSET_Y\nnumber\nグリッド原点オフセットの上書き\nEXTENT\nextent\n出力範囲のクリップ指定\nOUTPUT\nrasterDestination\n出力ラスタ（「Aligned raster」）\n\n補足：\n参照レイヤ由来のグリッドをオーバーライドで細かく調整できるのが特徴で、「参照と同じだが解像度だけ変えたい」ようなケースにも対応できます。\nRESCALE=True は人口密度・降水量のような「セル面積あたりの量」を持つラスタの解像度変更で意味を持ちます（セルが大きくなる分、値をスケールして積算値を保存）。\nカテゴリラスタ（土地利用等）は「最近傍」か「モード」を、連続量は「Bilinear」などを選ぶのが原則です。"
+}

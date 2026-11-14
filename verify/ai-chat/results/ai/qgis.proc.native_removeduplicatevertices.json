@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_removeduplicatevertices",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 重複する頂点を削除」(id: native:removeduplicatevertices) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 重複する頂点を削除」(id: native:removeduplicatevertices) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:removeduplicatevertices` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:removeduplicatevertices`\n- **表示名**: `[QGIS（ネイティブC++）] 重複する頂点を削除`\n- **グループ**: ベクタジオメトリ\n- **用途**: ジオメトリを実質的に変えない範囲で、重複または近接しすぎた頂点を削除してベクタデータをクリーニングする。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT` | 必須 | 入力ベクタレイヤ |\n| `TOLERANCE` | 必須 | 頂点を同一とみなす距離許容範囲。既定値は `1e-06` |\n| `USE_Z_VALUE` | 必須 | 重複判定にZ値も使うか。既定値は `false` |\n| `OUTPUT` | 必須 | クリーニング済みベクタの出力先 |\n\nマルチパートジオメトリ内の頂点同士は、このアルゴリズムでは比較されません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:removeduplicatevertices')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'descript"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 重複する頂点を削除」(id: native:removeduplicatevertices) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:removeduplicatevertices を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:removeduplicatevertices\n表示名: [QGIS（ネイティブC++）] 重複する頂点を削除\nグループ: ベクタジオメトリ\n用途: ジオメトリを実質的に変えない範囲で、重複または近接しすぎた頂点を削除してベクタデータをクリーニングする。\n主なパラメータ\n名前\n必須\n説明\nINPUT\n必須\n入力ベクタレイヤ\nTOLERANCE\n必須\n頂点を同一とみなす距離許容範囲。既定値は 1e-06\nUSE_Z_VALUE\n必須\n重複判定にZ値も使うか。既定値は false\nOUTPUT\n必須\nクリーニング済みベクタの出力先\n\nマルチパートジオメトリ内の頂点同士は、このアルゴリズムでは比較されません。"
+}

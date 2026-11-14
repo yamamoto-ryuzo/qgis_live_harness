@@ -2,6 +2,7 @@
  "id": "panel.model_list",
  "prompt": "現在のプロバイダで使えるモデルを一覧して",
  "provider": "devin_acp",
+ "model": "swe-2-high",
  "history": [
   {
    "role": "user",
@@ -9,7 +10,7 @@
   },
   {
    "role": "assistant",
-   "content": "現在のプロバイダのモデル一覧を取得します。現在のプロバイダ `【ACP】Devin` で使えるモデル：\n\n- `default`\n\nモデル一覧には `── テキスト ──` グループ内の `default` のみ表示されています。"
+   "content": "現在のプロバイダ(【ACP】Devin)では、パネル側に取得可能なモデル一覧はありません。`list_model_infos` を実行すると `default` の1件のみが返り、モデル欄は自由入力(現在: `swe-2-high`)になっています。\n\nDevin CLI 側で使えるモデル指定(ドキュメント上の既知のもの):\n\n| 指定例 | 説明 |\n|---|---|\n| `default` | Devin 側の既定モデル |\n| `swe` | SWE系の最新(高速・低コスト向け) |\n| `swe-2-high`, `swe-1-6-fast` | SWE系の明示的なバージョン指定 |\n| `gpt` | OpenAI系最新 |\n| `opus`, `sonnet` | Anthropic系最新 |\n| `codex`, `gemini` | OpenAI Codex系 / Google系最新 |\n| `claude-sonnet-4.5` など | 明示的なモデルID |\n\n補足: CLI に `devin models` コマンド(アカウントで使える一覧を表示)はありますが、CLI 単体の認証(`devin auth login`)が未設定のため、この環境からは実行できませんでした。ACP 経由では IDE のサインイン情報を使うため、パネルからはモデル名の直接指定のみ可能です。"
   }
  ],
  "tools": [
@@ -18,8 +19,40 @@
  "audit": [
   {
    "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtWidgets import QWidget, QComboBox, QAbstractButton\\nfrom qgis.PyQt.QtCore import QEventLoop, QTimer\\npanel = next((w for w in iface.mainWindow().findChildren(QWidget) if type(w).__name__ == 'AiPanel' or w.objectName() == 'GeoDriverAiPanel'), None)\\nmodel_combo = None\\nbtn = None\\nif panel is not None:\\n    for c in panel.findChildren(QComboBox):\\n        if '使用するモデル' in "
+   "args": "{'code': \"\\nimport qgis.utils\\np = qgis.utils.plugins['geo_driver']._ai_panel\\nitems = []\\nfor i in range(p.cmb_model.count()):\\n    items.append({'text': p.cmb_model.itemText(i), 'data': p.cmb_model.itemData(i)})\\nresult = {'models': items, 'current': p.cmb_model.currentText(), 'current_data': p.cmb_model.currentData()}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nimport qgis.utils\\np = qgis.utils.plugins['geo_driver']._ai_panel\\nresult = {'model_infos': getattr(p, '_model_infos', None),\\n          'current_model': getattr(p, '_current_model', None),\\n          'editable': p.cmb_model.isEditable()}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nimport qgis.utils, inspect\\np = qgis.utils.plugins['geo_driver']._ai_panel\\nsrc = inspect.getsource(p._fetch_models)\\nresult = src[:3000]\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nimport qgis.utils\\nfrom geo_driver import ai_client\\nprov = qgis.utils.plugins['geo_driver']._ai_panel._provider()\\ninfo = ai_client.PROVIDERS.get(prov, {})\\nresult = {'provider_id': prov, 'info_keys': list(info.keys()),\\n          'models': info.get('models'), 'base': info.get('base')}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nimport qgis.utils\\nfrom geo_driver import ai_client\\ninfo = ai_client.PROVIDERS['devin_acp']\\nresult = info\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nimport qgis.utils, inspect\\np = qgis.utils.plugins['geo_driver']._ai_panel\\nresult = inspect.getsource(p._models_run)\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': '\\nimport inspect\\nfrom geo_driver import ai_client\\nsrc = inspect.getsource(ai_client.list_model_infos)\\nresult = src[:4000]\\n'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom geo_driver import ai_client\\nfrom geo_driver.ai_client import get_provider\\nprov = get_provider('devin_acp')\\nresult = {'provider_class': type(prov).__name__,\\n          'has_list': hasattr(prov, 'list_model_entries'),\\n          'attrs': [a for a in dir(prov) if 'model' in a.lower() or 'list' in a.lower()]}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom geo_driver import ai_client\\ntry:\\n    infos = ai_client.list_model_infos('devin_acp', '', '', timeout=60)\\n    result = {'ok': True, 'count': len(infos), 'infos': infos}\\nexcept Exception as e:\\n    result = {'ok': False, 'error': str(e)}\\n\"}"
   }
  ],
- "view_tail": "[あなた] 現在のプロバイダで使えるモデルを一覧して\n[tool] \nモデル一覧を1件取得しました\n[AI] \n現在のプロバイダのモデル一覧を取得します。現在のプロバイダ 【ACP】Devin で使えるモデル：\ndefault\nモデル一覧には ── テキスト ── グループ内の default のみ表示されています。"
+ "view_tail": "[あなた] 現在のプロバイダで使えるモデルを一覧して\n[AI] \n現在のプロバイダ(【ACP】Devin)では、パネル側に取得可能なモデル一覧はありません。list_model_infos を実行すると default の1件のみが返り、モデル欄は自由入力(現在: swe-2-high)になっています。\nDevin CLI 側で使えるモデル指定(ドキュメント上の既知のもの):\n指定例\n説明\ndefault\nDevin 側の既定モデル\nswe\nSWE系の最新(高速・低コスト向け)\nswe-2-high, swe-1-6-fast\nSWE系の明示的なバージョン指定\ngpt\nOpenAI系最新\nopus, sonnet\nAnthropic系最新\ncodex, gemini\nOpenAI Codex系 / Google系最新\nclaude-sonnet-4.5 など\n明示的なモデルID\n\n補足: CLI に devin models コマンド(アカウントで使える一覧を表示)はありますが、CLI 単体の認証(devin auth login)が未設定のため、この環境からは実行できませんでした。ACP 経由では IDE のサインイン情報を使うため、パネルからはモデル名の直接指定のみ可能です。"
 }

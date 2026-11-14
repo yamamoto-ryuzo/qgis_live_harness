@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_fuzzifyrasterlinearmembership",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタのファジー化（linear membership）」(id: native:fuzzifyrasterlinearmembership) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタのファジー化（linear membership）」(id: native:fuzzifyrasterlinearmembership) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:fuzzifyrasterlinearmembership`（表示名 **「ラスタのファジー化（linear membership）」**、グループ「ラスタ解析」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n入力ラスタをファジーメンバーシップ度（0〜1）に変換するアルゴリズムで、**2つの閾値の間を直線（リニア）で補間**する最も単純な関数形を使います。\n\n- `FUZZYLOWBOUND` 以下 → **0**（非所属）\n- `FUZZYHIGHBOUND` 以上 → **1**（完全所属）\n- その間 → 0→1へ**線形に変化**\n\n**low/high の大小を入れ替えると減少型にもなる**（ヘルプに明記）ため、「大きいほど良い」「小さいほど良い」のどちらの評価もこの1つで表現できます。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ラスタ |\n| `BAND` | 対象バンド番号 |\n| `FUZZYLOWBOUND` | メンバーシップ **=0** になるセル値 |\n| `FUZZYHIGHBOUND` | メンバーシップ **=1** になるセル値 |\n| `CREATE_OPTIONS` / `CREATION_OPTIONS` | 出力ラスタの作成オプション |\n| `OUTPUT` | ファジー化ラスタ（出力） |\n\n### 出力\n\n- `OUTPUT` — ファジー化ラスタ\n- 付随して `EXTENT`・`CRS_AUTHID`・`WIDTH_IN_PIXELS`・`HEIGHT_IN_PIXELS`・`TOTAL_PIXEL_COUNT` も返ります\n\n### 補足：パラメータ体系の違い\n\n| 関数形 | 制御パラメータ |\n|---|---|\n| `linear`（本アルゴリズム） | `FUZZYLOWBOUND`（=0）と `FUZZYHIGHBOUND`（=1）の2点 |\n| `gaussian` / `large` / `small` 等 | `FUZZYMIDPOINT` と `FUZZYSPREAD` の2点 |\n\nlinear は「どこから0で、どこから1か」を直接指定できるので、閾値が明確な評価基準（例：傾斜0〜30度を0→1で評価）に直感的に使えます。閾値付近をなだらかに減衰させたい場合は large/small/gaussian 系を選びます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:fuzzifyrasterlinearmembership')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタのファジー化（linear membership）」(id: native:fuzzifyrasterlinearmembership) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:fuzzifyrasterlinearmembership（表示名 「ラスタのファジー化（linear membership）」、グループ「ラスタ解析」）がこのQGISの processing registry に登録されています。\n用途\n入力ラスタをファジーメンバーシップ度（0〜1）に変換するアルゴリズムで、2つの閾値の間を直線（リニア）で補間する最も単純な関数形を使います。\nFUZZYLOWBOUND 以下 → 0（非所属）\nFUZZYHIGHBOUND 以上 → 1（完全所属）\nその間 → 0→1へ線形に変化\nlow/high の大小を入れ替えると減少型にもなる（ヘルプに明記）ため、「大きいほど良い」「小さいほど良い」のどちらの評価もこの1つで表現できます。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ラスタ\nBAND\n対象バンド番号\nFUZZYLOWBOUND\nメンバーシップ =0 になるセル値\nFUZZYHIGHBOUND\nメンバーシップ =1 になるセル値\nCREATE_OPTIONS / CREATION_OPTIONS\n出力ラスタの作成オプション\nOUTPUT\nファジー化ラスタ（出力）\n\n出力\nOUTPUT — ファジー化ラスタ\n付随して EXTENT・CRS_AUTHID・WIDTH_IN_PIXELS・HEIGHT_IN_PIXELS・TOTAL_PIXEL_COUNT も返ります\n補足：パラメータ体系の違い\n関数形\n制御パラメータ\nlinear（本アルゴリズム）\nFUZZYLOWBOUND（=0）と FUZZYHIGHBOUND（=1）の2点\ngaussian / large / small 等\nFUZZYMIDPOINT と FUZZYSPREAD の2点\n\nlinear は「どこから0で、どこから1か」を直接指定できるので、閾値が明確な評価基準（例：傾斜0〜30度を0→1で評価）に直感的に使えます。閾値付近をなだらかに減衰させたい場合は large/small/gaussian 系を選びます。"
+}

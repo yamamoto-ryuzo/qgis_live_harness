@@ -1,0 +1,31 @@
+{
+ "id": "plugin.geo_legend.bridge.applySingleSymbol",
+ "prompt": "geo_legend プラグインの「applySingleSymbol」(単一シンボルレンダラに戻す。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_legend プラグインの「applySingleSymbol」(単一シンボルレンダラに戻す。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`applySingleSymbol` を正常に実行できました。\n\n**実行内容**: `applySingleSymbol(null, \"#1f78b4\")` — アクティブレイヤ（テスト地目レイヤ）を単一シンボルに戻し、色を青（`#1f78b4`）に指定。\n\n**結果**\n- レンダラ: `RuleRenderer` → `singleSymbol` に変更\n- 凡例項目: 3項目 → 1項目（ラベルなし）に集約\n\nスクリーンショットでも確認できます：レイヤパネルの凡例はレイヤ名の直下の単一シンボルだけになり、地図上の全ポイントが同一の青色で表示されています。\n\n`color` を省略すれば現在の色を維持したまま単一シンボル化できます。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'applySingleSymbol', 'args': [None, '#1f78b4'], 'plugin_id': 'geo_legend'}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-ba92bb5b.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_legend プラグインの「applySingleSymbol」(単一シンボルレンダラに戻す。)を試して。必要な引数は適当な値でよい\n[AI] \napplySingleSymbol を正常に実行できました。\n実行内容: applySingleSymbol(null, \"#1f78b4\") — アクティブレイヤ（テスト地目レイヤ）を単一シンボルに戻し、色を青（#1f78b4）に指定。\n結果\nレンダラ: RuleRenderer → singleSymbol に変更\n凡例項目: 3項目 → 1項目（ラベルなし）に集約\nスクリーンショットでも確認できます：レイヤパネルの凡例はレイヤ名の直下の単一シンボルだけになり、地図上の全ポイントが同一の青色で表示されています。\ncolor を省略すれば現在の色を維持したまま単一シンボル化できます。"
+}

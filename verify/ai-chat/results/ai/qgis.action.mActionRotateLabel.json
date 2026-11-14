@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionRotateLabel",
+ "prompt": "QGISの「ラベルを回転」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ラベルを回転」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ラベルを回転」(`mActionRotateLabel`)を実行します。ラベル有効化済みなので押せるはずです。実行しました。\n\n## 「ラベルを回転」を実行 → **ツールがアクティブになりました**\n\n| 項目 | 値 |\n|---|---|\n| アクション | `mActionRotateLabel`（ラベルツールバー内、トグル式） |\n| enabled | true（前回のラベル有効化で押下可能な状態） |\n| **checked** | **true → ON** |\n| 現在のマップツール | `QgsMapToolRotateLabel`（切り替え前は `QgsMapToolMoveLabel`) |\n\nラベル回転モードが有効になりました。キャンバス上でラベルをドラッグして回転できます（Ctrl/Cmd で15度単位のスナップ）。\n\nなお排他グループのため、前回アクティブにした「ラベルを移動」(mActionMoveLabel)のチェックは自動的に外れています（checked=false)。\n\n引き続き注意点：\n- レイヤ `tmp_floater_test` は地物数0なので、画面上に回転できるラベルはまだありません\n- ツールを解除するには `a.trigger()` を再実行するか、他のマップツールに切り替えてください"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nout = {}\\nfor a in mw.findChildren(QAction):\\n    if (a.objectName() or '') == 'mActionRotateLabel':\\n        out['enabled_before'] = a.isEnabled()\\n        a.trigger()\\n        out['checked'] = a.isChecked()\\n        out['triggered'] = True\\n        break\\nmt = iface.mapCanvas().mapTool()\\nout['current_mapTool'] = mt.metaObject().className() if mt else None\\n# MoveLabel側のチェックが外れているか確認\\nfor a in mw.findChildren(QAction):\\n    if (a.objectName() or '') == 'mActionMoveLabel':\\n        out['moveLabel_checked'] = a.isChecked()\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ラベルを回転」機能(アクション)を実行して\n[AI] \n「ラベルを回転」(mActionRotateLabel)を実行します。ラベル有効化済みなので押せるはずです。実行しました。\n「ラベルを回転」を実行 → ツールがアクティブになりました\n項目\n値\nアクション\nmActionRotateLabel（ラベルツールバー内、トグル式）\nenabled\ntrue（前回のラベル有効化で押下可能な状態）\nchecked\ntrue → ON\n現在のマップツール\nQgsMapToolRotateLabel（切り替え前は QgsMapToolMoveLabel)\n\nラベル回転モードが有効になりました。キャンバス上でラベルをドラッグして回転できます（Ctrl/Cmd で15度単位のスナップ）。\nなお排他グループのため、前回アクティブにした「ラベルを移動」(mActionMoveLabel)のチェックは自動的に外れています（checked=false)。\n引き続き注意点：\nレイヤ tmp_floater_test は地物数0なので、画面上に回転できるラベルはまだありません\nツールを解除するには a.trigger() を再実行するか、他のマップツールに切り替えてください"
+}

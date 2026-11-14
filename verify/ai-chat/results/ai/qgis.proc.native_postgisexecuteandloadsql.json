@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_postgisexecuteandloadsql",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] PostgreSQL execute and load SQL」(id: native:postgisexecuteandloadsql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] PostgreSQL execute and load SQL」(id: native:postgisexecuteandloadsql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:postgisexecuteandloadsql` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:postgisexecuteandloadsql`\n- **表示名**: PostgreSQL execute and load SQL\n- **グループ**: データベース\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\nQGIS に登録済みの **PostgreSQL（PostGIS）データベース接続に対して任意の SQL クエリを実行**し、その結果を新しいレイヤとしてプロジェクトに読み込みます。DB Manager での実行に相当する処理をモデラー・スクリプトに組み込めるアルゴリズムです（読み込まず実行だけなら `native:postgisexecutesql`）。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `DATABASE` | providerconnection（必須） | データベース接続名（QGISのブラウザに登録されたPostGIS接続） |\n| `SQL` | string（必須） | 実行するSQLクエリ |\n| `ID_FIELD` | string（必須、デフォルト `\"id\"`） | 結果の一意IDフィールド名 |\n| `GEOMETRY_FIELD` | string（オプション、デフォルト `\"geom\"`） | 結果のジオメトリフィールド名 |\n\n## 出力\n\n| 名前 | 説明 |\n|---|---|\n| `OUTPUT` | クエリ結果から作成されたベクタレイヤ |\n\n実行例:\n\n```python\nres = processing.run(\"native:postgisexecuteandloadsql\", {\n    'DATABASE': 'my_postgis_connection',\n    'SQL': 'SELECT id, geom FROM public.roads WHERE width > 10',\n    'ID_FIELD': 'id',\n    'GEOMETRY_FIELD': 'geom'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:postgisexecuteandloadsql')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] PostgreSQL execute and load SQL」(id: native:postgisexecuteandloadsql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:postgisexecuteandloadsql は現在の QGIS の processing registry に登録されています。\nID: native:postgisexecuteandloadsql\n表示名: PostgreSQL execute and load SQL\nグループ: データベース\nプロバイダ: QGIS（ネイティブC++）\n用途\nQGIS に登録済みの PostgreSQL（PostGIS）データベース接続に対して任意の SQL クエリを実行し、その結果を新しいレイヤとしてプロジェクトに読み込みます。DB Manager での実行に相当する処理をモデラー・スクリプトに組み込めるアルゴリズムです（読み込まず実行だけなら native:postgisexecutesql）。\n主なパラメータ\n名前\n種別\n説明\nDATABASE\nproviderconnection（必須）\nデータベース接続名（QGISのブラウザに登録されたPostGIS接続）\nSQL\nstring（必須）\n実行するSQLクエリ\nID_FIELD\nstring（必須、デフォルト \"id\"）\n結果の一意IDフィールド名\nGEOMETRY_FIELD\nstring（オプション、デフォルト \"geom\"）\n結果のジオメトリフィールド名\n\n出力\n名前\n説明\nOUTPUT\nクエリ結果から作成されたベクタレイヤ\n\n実行例:\nres = processing.run(\"native:postgisexecuteandloadsql\", {\n    'DATABASE': 'my_postgis_connection',\n    'SQL': 'SELECT id, geom FROM public.roads WHERE width > 10',\n    'ID_FIELD': 'id',\n    'GEOMETRY_FIELD': 'geom'\n})"
+}

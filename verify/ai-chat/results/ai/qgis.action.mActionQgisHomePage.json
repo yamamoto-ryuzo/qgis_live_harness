@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionQgisHomePage",
+ "prompt": "QGISの「QGISのホームページ」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「QGISのホームページ」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認できました。**「QGISのホームページ」アクションは現在有効です。**\n\n## 詳細\n\n- メニューパス: **ヘルプ(&H) > QGISのホームページ**\n- `objectName = 'mActionQgisHomePage'`\n- `QAction` 状態: `enabled = true`, `visible = true`\n\nqgis.org の公式サイトをブラウザで開くアクションで、実行可能な状態です。実行しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nfound = []\\nfor w in iface.mainWindow().findChildren(QAction):\\n    t = w.text() or ''\\n    o = (w.objectName() or '').lower()\\n    if 'ホームページ' in t or 'homepage' in o or 'home' in o:\\n        menus = []\\n        for m in iface.mainWindow().findChildren(QMenu):\\n            if w in m.actions():\\n                menus.append(m.title())\\n        found.append((t, w.objectName(), w.isEnabled(), w.isVisible(), menus))\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「QGISのホームページ」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n確認できました。「QGISのホームページ」アクションは現在有効です。\n詳細\nメニューパス: ヘルプ(&H) > QGISのホームページ\nobjectName = 'mActionQgisHomePage'\nQAction 状態: enabled = true, visible = true\nqgis.org の公式サイトをブラウザで開くアクションで、実行可能な状態です。実行しますか？"
+}

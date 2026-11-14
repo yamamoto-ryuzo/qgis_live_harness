@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_convertgpxfeaturetype",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] GPX地物型を変換」(id: native:convertgpxfeaturetype) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] GPX地物型を変換」(id: native:convertgpxfeaturetype) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:convertgpxfeaturetype` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] GPX地物型を変換`\n- **ID**: `native:convertgpxfeaturetype`\n- **グループ**: `GPS`\n- **用途**: GPSBabel を利用して、GPX 内のウェイポイント・ルート・トラックの地物型を相互変換します。例えば、トラック点をウェイポイントとして抽出したり、ウェイポイント列をルートやトラックへ変換できます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 変換元の `.gpx` ファイル |\n| `CONVERSION` | 変換方向。`ルート→ウェイポイント`、`トラック→ウェイポイント`、`ウェイポイント→ルート`、`ウェイポイント→トラック` から選択 |\n| `OUTPUT` | 変換後の `.gpx` ファイル |\n\n出力は GPX ファイルで、処理結果として `OUTPUT_LAYER` ベクタレイヤも返されます。実行には GPSBabel が必要です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:convertgpxfeaturetype')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue', 'fileFilter', 'behavior', 'extension'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitio"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] GPX地物型を変換」(id: native:convertgpxfeaturetype) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:convertgpxfeaturetype を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] GPX地物型を変換\nID: native:convertgpxfeaturetype\nグループ: GPS\n用途: GPSBabel を利用して、GPX 内のウェイポイント・ルート・トラックの地物型を相互変換します。例えば、トラック点をウェイポイントとして抽出したり、ウェイポイント列をルートやトラックへ変換できます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n変換元の .gpx ファイル\nCONVERSION\n変換方向。ルート→ウェイポイント、トラック→ウェイポイント、ウェイポイント→ルート、ウェイポイント→トラック から選択\nOUTPUT\n変換後の .gpx ファイル\n\n出力は GPX ファイルで、処理結果として OUTPUT_LAYER ベクタレイヤも返されます。実行には GPSBabel が必要です。"
+}

@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.native_importintospatialite",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Export to SpatiaLite」(id: native:importintospatialite) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Export to SpatiaLite」(id: native:importintospatialite) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "processing registry を確認します。存在を確認しました。次にパラメータ定義を取得します。## 確認結果\n\nアルゴリズム `native:importintospatialite` は **processing registry に存在します**。\n\n- **表示名**: Export to SpatiaLite（SpatiaLite へエクスポート）\n- **グループ**: データベース (`database`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\nベクタレイヤを SpatiaLite データベースへエクスポートし、**新しいテーブルとして作成**するアルゴリズムです。既存の SpatiaLite ファイルへの追加だけでなく、GeoPackage 等の他形式レイヤをまとめて SQLite/SpatiaLite 形式に移行する用途にも使えます。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | エクスポートするレイヤ（必須） | — |\n| `DATABASE` | 出力先 SpatiaLite データベース（レイヤまたはファイル、必須） | — |\n| `TABLENAME` | 作成するテーブル名（空白ならレイヤ名） | 空 |\n| `PRIMARY_KEY` | 主キーにするフィールド（任意） | — |\n| `GEOMETRY_COLUMN` | ジオメトリカラム名 | `geom` |\n| `ENCODING` | 文字コード | `UTF-8` |\n| `OVERWRITE` | 同名テーブルを上書き | `True` |\n| `CREATEINDEX` | 空間インデックスを作成 | `True` |\n| `LOWERCASE_NAMES` | フィールド名を小文字化 | `True` |\n| `DROP_STRING_LENGTH` | 文字列長の制約を無視 | `False` |\n| `FORCE_SINGLEPART` | マルチパートをシングルパートに分解 | `False` |\n\n出力定義はなく（`outputs` が空）、結果は DB 内の新規テーブルとして反映されるタイプのアルゴリズムです。実行例: `processing.run(\"native:importintospatialite\", {'INPUT': layer, 'DATABASE': 'path/to/db.sqlite', 'TABLENAME': 'my_table'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:importintospatialite')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': (alg.shortHelpString() or '')[:2000],\\n    }\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:importintospatialite')\\nparams = []\\nfor p in alg.parameterDefinitions():\\n    params.append({\\n        'name': p.name(),\\n        'description': p.description(),\\n        'type': p.__class__.__name__,\\n        'optional': bool(p.flags() & p.FlagOptional),\\n        'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n    })\\nouts = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\nresult = {'params': params, 'outputs': outs}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Export to SpatiaLite」(id: native:importintospatialite) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nprocessing registry を確認します。存在を確認しました。次にパラメータ定義を取得します。## 確認結果\nアルゴリズム native:importintospatialite は processing registry に存在します。\n表示名: Export to SpatiaLite（SpatiaLite へエクスポート）\nグループ: データベース (database)\nプロバイダ: QGIS（ネイティブ C++）\n用途\nベクタレイヤを SpatiaLite データベースへエクスポートし、新しいテーブルとして作成するアルゴリズムです。既存の SpatiaLite ファイルへの追加だけでなく、GeoPackage 等の他形式レイヤをまとめて SQLite/SpatiaLite 形式に移行する用途にも使えます。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\nエクスポートするレイヤ（必須）\n—\nDATABASE\n出力先 SpatiaLite データベース（レイヤまたはファイル、必須）\n—\nTABLENAME\n作成するテーブル名（空白ならレイヤ名）\n空\nPRIMARY_KEY\n主キーにするフィールド（任意）\n—\nGEOMETRY_COLUMN\nジオメトリカラム名\ngeom\nENCODING\n文字コード\nUTF-8\nOVERWRITE\n同名テーブルを上書き\nTrue\nCREATEINDEX\n空間インデックスを作成\nTrue\nLOWERCASE_NAMES\nフィールド名を小文字化\nTrue\nDROP_STRING_LENGTH\n文字列長の制約を無視\nFalse\nFORCE_SINGLEPART\nマルチパートをシングルパートに分解\nFalse\n\n出力定義はなく（outputs が空）、結果は DB 内の新規テーブルとして反映されるタイプのアルゴリズムです。実行例: processing.run(\"native:importintospatialite\", {'INPUT': layer, 'DATABASE': 'path/to/db.sqlite', 'TABLENAME': 'my_table'})"
+}

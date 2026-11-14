@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_climbalongline",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Climb along line」(id: native:climbalongline) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Climb along line」(id: native:climbalongline) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:climbalongline` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] Climb along line`\n- **ID**: `native:climbalongline`\n- **グループ**: `ベクタ解析`\n- **用途**: Z値を持つライン地物について、累積標高差を計算します。登山道・ルートの総上昇量、総下降量、最低標高、最高標高を求めるのに使えます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | Z値を持つ入力ラインレイヤ |\n| `OUTPUT` | 計算結果の属性を追加した出力ラインレイヤ |\n\n出力レイヤには各地物ごとの次のフィールドが追加されます。\n\n- `climb`: 総上昇量\n- `descent`: 総下降量\n- `minelev`: 最低標高\n- `maxelev`: 最高標高\n\nさらにレイヤ全体の `TOTALCLIMB`、`TOTALDESCENT`、`MINELEVATION`、`MAXELEVATION` も返ります。入力ラインに Z 値がない場合は、先に `Drape` アルゴリズムで DEM から Z 値を付与する必要があります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:climbalongline')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue', 'parentLayerParameterName'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        out"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Climb along line」(id: native:climbalongline) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:climbalongline を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] Climb along line\nID: native:climbalongline\nグループ: ベクタ解析\n用途: Z値を持つライン地物について、累積標高差を計算します。登山道・ルートの総上昇量、総下降量、最低標高、最高標高を求めるのに使えます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\nZ値を持つ入力ラインレイヤ\nOUTPUT\n計算結果の属性を追加した出力ラインレイヤ\n\n出力レイヤには各地物ごとの次のフィールドが追加されます。\nclimb: 総上昇量\ndescent: 総下降量\nminelev: 最低標高\nmaxelev: 最高標高\nさらにレイヤ全体の TOTALCLIMB、TOTALDESCENT、MINELEVATION、MAXELEVATION も返ります。入力ラインに Z 値がない場合は、先に Drape アルゴリズムで DEM から Z 値を付与する必要があります。"
+}

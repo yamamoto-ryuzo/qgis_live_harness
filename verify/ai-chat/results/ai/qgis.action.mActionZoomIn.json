@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionZoomIn",
+ "prompt": "QGISの「拡大」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「拡大」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「拡大」アクション(`mActionZoomIn` 相当)を探して実行します。実行しました。\n\n- アクション: `mActionZoomIn`「拡大」\n- 実行後: **`checked: true`**、マップツールは `QgsMapToolZoom`(拡大モード)に切り替わりました\n\nキャンバス上でクリックするとその地点を中心に拡大、ドラッグすると矩形範囲にズームします(右ドラッグで縮小)。プログラムで即座に拡大したい場合は `iface.mapCanvas().zoomByFactor(0.5)` なども使えます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    n = a.objectName() or ''\\n    if '拡大' in t or 'ZoomIn' in n or 'zoomin' in n.lower():\\n        found.append({'objectName': n, 'text': t, 'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked()})\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionZoomIn')\\ninfo = {'enabled': a.isEnabled()}\\na.trigger()\\ninfo['checked'] = a.isChecked()\\ninfo['mapTool'] = type(iface.mapCanvas().mapTool()).__name__\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「拡大」機能(アクション)を実行して\n[AI] \n「拡大」アクション(mActionZoomIn 相当)を探して実行します。実行しました。\nアクション: mActionZoomIn「拡大」\n実行後: checked: true、マップツールは QgsMapToolZoom(拡大モード)に切り替わりました\nキャンバス上でクリックするとその地点を中心に拡大、ドラッグすると矩形範囲にズームします(右ドラッグで縮小)。プログラムで即座に拡大したい場合は iface.mapCanvas().zoomByFactor(0.5) なども使えます。"
+}

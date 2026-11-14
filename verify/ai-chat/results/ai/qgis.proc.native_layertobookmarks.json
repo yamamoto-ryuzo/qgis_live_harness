@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_layertobookmarks",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤをブックマークに変換」(id: native:layertobookmarks) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤをブックマークに変換」(id: native:layertobookmarks) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:layertobookmarks` は **processing registry に存在します**。\n\n- **表示名**: レイヤをブックマークに変換\n- **グループ**: ベクタ一般 (`vectorgeneral`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\nレイヤの**各地物の範囲（バウンディングボックス）に対応する空間ブックマークを QGIS に一括登録**するアルゴリズムです。地物名をブックマーク名に流用できるため、行政区域・施設一覧レイヤ等から「その地物へすぐ移動できるブックマーク群」を自動生成するのに使います。ベクタ出力ではなくブックマークへの登録が成果物です。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力レイヤ（必須） | — |\n| `DESTINATION` | ブックマーク先（enum）：`0` プロジェクト・ブックマーク / `1` ユーザー・ブックマーク | `0` |\n| `NAME_EXPRESSION` | ブックマーク名を生成する式（式パラメータ、必須） | — |\n| `GROUP_EXPRESSION` | ブックマークのグループ名を生成する式（任意） | 空 |\n\n## 出力\n\n- `COUNT` — 追加したブックマーク数（数値）。レイヤ出力はなし\n\n実行例: `processing.run(\"native:layertobookmarks\", {'INPUT': layer, 'DESTINATION': 0, 'NAME_EXPRESSION': '\"name\"', 'GROUP_EXPRESSION': \"'市区町村'\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:layertobookmarks')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'p"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤをブックマークに変換」(id: native:layertobookmarks) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:layertobookmarks は processing registry に存在します。\n表示名: レイヤをブックマークに変換\nグループ: ベクタ一般 (vectorgeneral)\nプロバイダ: QGIS（ネイティブ C++）\n用途\nレイヤの各地物の範囲（バウンディングボックス）に対応する空間ブックマークを QGIS に一括登録するアルゴリズムです。地物名をブックマーク名に流用できるため、行政区域・施設一覧レイヤ等から「その地物へすぐ移動できるブックマーク群」を自動生成するのに使います。ベクタ出力ではなくブックマークへの登録が成果物です。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力レイヤ（必須）\n—\nDESTINATION\nブックマーク先（enum）：0 プロジェクト・ブックマーク / 1 ユーザー・ブックマーク\n0\nNAME_EXPRESSION\nブックマーク名を生成する式（式パラメータ、必須）\n—\nGROUP_EXPRESSION\nブックマークのグループ名を生成する式（任意）\n空\n\n出力\nCOUNT — 追加したブックマーク数（数値）。レイヤ出力はなし\n実行例: processing.run(\"native:layertobookmarks\", {'INPUT': layer, 'DESTINATION': 0, 'NAME_EXPRESSION': '\"name\"', 'GROUP_EXPRESSION': \"'市区町村'\"})"
+}

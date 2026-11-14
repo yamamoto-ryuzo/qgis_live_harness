@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_extractnetworkendpoints",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Extract network end points」(id: native:extractnetworkendpoints) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Extract network end points」(id: native:extractnetworkendpoints) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の Processing registry に存在します。\n\n- **ID**: `native:extractnetworkendpoints`\n- **表示名**: Extract network end points\n- **グループ**: ネットワーク解析\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n\n## 用途\n\nネットワークを構成するラインレイヤから、**端点ノードをポイントレイヤとして抽出**します。  \n端点の定義は2種類あります。\n\n- 流入のみ・流出のみのノード：方向性を考慮した source / sink\n- 単一のエッジだけに接続するノード：方向性に関係ない行き止まり・ダングル\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | ネットワークを表すラインレイヤ（必須） |\n| `DIRECTION_FIELD` | エッジ方向を示す属性フィールド（任意） |\n| `VALUE_FORWARD` / `VALUE_BACKWARD` / `VALUE_BOTH` | 順方向・逆方向・双方向を表す属性値（任意） |\n| `DEFAULT_DIRECTION` | 方向が未指定の場合の扱い。`順方向`、`逆方向`、`双方向` |\n| `TOLERANCE` | ノードが接続しているとみなす距離許容値 |\n| `ENDPOINT_DEFINITION` | 端点の定義。`流入のみまたは流出のみ` / `単一エッジに接続` |\n| `OUTPUT` | 抽出した端点のポイントレイヤ（必須） |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:extractnetworkendpoints')\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'options': p.options() if hasattr(p, 'options') else None,\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else []\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Extract network end points」(id: native:extractnetworkendpoints) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の Processing registry に存在します。\nID: native:extractnetworkendpoints\n表示名: Extract network end points\nグループ: ネットワーク解析\n種別: QGIS ネイティブ C++ アルゴリズム\n用途\nネットワークを構成するラインレイヤから、端点ノードをポイントレイヤとして抽出します。\n端点の定義は2種類あります。\n流入のみ・流出のみのノード：方向性を考慮した source / sink\n単一のエッジだけに接続するノード：方向性に関係ない行き止まり・ダングル\n主なパラメータ\nパラメータ\n内容\nINPUT\nネットワークを表すラインレイヤ（必須）\nDIRECTION_FIELD\nエッジ方向を示す属性フィールド（任意）\nVALUE_FORWARD / VALUE_BACKWARD / VALUE_BOTH\n順方向・逆方向・双方向を表す属性値（任意）\nDEFAULT_DIRECTION\n方向が未指定の場合の扱い。順方向、逆方向、双方向\nTOLERANCE\nノードが接続しているとみなす距離許容値\nENDPOINT_DEFINITION\n端点の定義。流入のみまたは流出のみ / 単一エッジに接続\nOUTPUT\n抽出した端点のポイントレイヤ（必須）\n"
+}

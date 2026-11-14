@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionChangeLabelProperties",
+ "prompt": "QGISの「ラベルを変更」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ラベルを変更」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ラベルを変更」(`mActionChangeLabelProperties`)を実行します。実行しました。\n\n## 「ラベルを変更」を実行 → **ツールがアクティブになりました**\n\n| 項目 | 値 |\n|---|---|\n| アクション | `mActionChangeLabelProperties`（ラベルツールバー内、トグル式） |\n| enabled | true |\n| **checked** | **true → ON** |\n| 現在のマップツール | `QgsMapToolChangeLabelProperties`（切り替え前は `QgsMapToolRotateLabel`) |\n\nラベル変更モードが有効になりました。キャンバス上でラベルをクリックすると、フォント・色・サイズなどのラベル属性を変更するダイアログが開きます。\n\n排他グループのため「ラベルを回転」(mActionRotateLabel)のチェックは自動的に外れました。\n\n引き続き `tmp_floater_test` は地物数0なので、実際に操作できるラベルは画面上にありません。ツール解除は `a.trigger()` の再実行か他のマップツールへの切り替えで可能です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nout = {}\\nfor a in mw.findChildren(QAction):\\n    if (a.objectName() or '') == 'mActionChangeLabelProperties':\\n        out['enabled_before'] = a.isEnabled()\\n        a.trigger()\\n        out['checked'] = a.isChecked()\\n        out['triggered'] = True\\n        break\\nmt = iface.mapCanvas().mapTool()\\nout['current_mapTool'] = mt.metaObject().className() if mt else None\\nfor a in mw.findChildren(QAction):\\n    if (a.objectName() or '') == 'mActionRotateLabel':\\n        out['rotateLabel_checked'] = a.isChecked()\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ラベルを変更」機能(アクション)を実行して\n[AI] \n「ラベルを変更」(mActionChangeLabelProperties)を実行します。実行しました。\n「ラベルを変更」を実行 → ツールがアクティブになりました\n項目\n値\nアクション\nmActionChangeLabelProperties（ラベルツールバー内、トグル式）\nenabled\ntrue\nchecked\ntrue → ON\n現在のマップツール\nQgsMapToolChangeLabelProperties（切り替え前は QgsMapToolRotateLabel)\n\nラベル変更モードが有効になりました。キャンバス上でラベルをクリックすると、フォント・色・サイズなどのラベル属性を変更するダイアログが開きます。\n排他グループのため「ラベルを回転」(mActionRotateLabel)のチェックは自動的に外れました。\n引き続き tmp_floater_test は地物数0なので、実際に操作できるラベルは画面上にありません。ツール解除は a.trigger() の再実行か他のマップツールへの切り替えで可能です。"
+}

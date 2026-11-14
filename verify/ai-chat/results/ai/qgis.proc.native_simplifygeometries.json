@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_simplifygeometries",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 簡素化」(id: native:simplifygeometries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 簡素化」(id: native:simplifygeometries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:simplifygeometries`「**簡素化**」は登録されています（グループ: ベクタジオメトリ）。\n\n## 用途\n\n- ライン・ポリゴンのジオメトリの**頂点数を減らして簡素化**します\n- WebGIS公開用データの軽量化、概形だけ必要な表示用データ作成、処理速度向上などに使います\n- 出力は元レイヤと同じ属性を持ち、ジオメトリだけが簡素化されます\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | 入力レイヤ（ラインまたはポリゴン） |\n| `METHOD` | enum | 簡素化の方法（下記3択） |\n| `TOLERANCE` | distance | 許容範囲（大きいほど強く簡素化される。レイヤのCRS単位） |\n| `OUTPUT` | sink | 出力レイヤ |\n\n## METHOD の選択肢（実際の registry から取得）\n\n1. `距離ベース（Douglas-Peucker）` — 頂点が元のラインから TOLERANCE 以内に収まるなら削除。最も一般的\n2. `グリッドにスナップ` — 頂点を TOLERANCE 間隔のグリッドにスナップして間引く\n3. `面積ベース（Visvalingam）` — 三角形の面積が小さい（形状への影響が少ない）頂点から削除。形状を自然に保ちやすい\n\n注意点として、トポロジは保証されません — 隣接ポリゴン同士を別々に簡素化すると隙間や重なりが生じることがあります。境界共有を維持したい場合は `grass:v.generalize` や `native:cleangeometries` との併用を検討するとよいです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:simplifygeometries')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 簡素化」(id: native:simplifygeometries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:simplifygeometries「簡素化」は登録されています（グループ: ベクタジオメトリ）。\n用途\nライン・ポリゴンのジオメトリの頂点数を減らして簡素化します\nWebGIS公開用データの軽量化、概形だけ必要な表示用データ作成、処理速度向上などに使います\n出力は元レイヤと同じ属性を持ち、ジオメトリだけが簡素化されます\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\n入力レイヤ（ラインまたはポリゴン）\nMETHOD\nenum\n簡素化の方法（下記3択）\nTOLERANCE\ndistance\n許容範囲（大きいほど強く簡素化される。レイヤのCRS単位）\nOUTPUT\nsink\n出力レイヤ\n\nMETHOD の選択肢（実際の registry から取得）\n距離ベース（Douglas-Peucker） — 頂点が元のラインから TOLERANCE 以内に収まるなら削除。最も一般的\nグリッドにスナップ — 頂点を TOLERANCE 間隔のグリッドにスナップして間引く\n面積ベース（Visvalingam） — 三角形の面積が小さい（形状への影響が少ない）頂点から削除。形状を自然に保ちやすい\n注意点として、トポロジは保証されません — 隣接ポリゴン同士を別々に簡素化すると隙間や重なりが生じることがあります。境界共有を維持したい場合は grass:v.generalize や native:cleangeometries との併用を検討するとよいです。"
+}

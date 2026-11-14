@@ -1,0 +1,42 @@
+{
+ "id": "qgis.action.Show_Location_Marker",
+ "prompt": "QGISの「Show Location Marker」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Show Location Marker」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Show Location Marker」に相当するアクションを調べます。まずメインウィンドウ内の QAction を総当たりで検索します。「Show Location Marker」が見つかりました。親ウィジェット（所属メニュー/ツールバー）を確認します。構文エラーを修正します。親は QgisApp 直下の QMenu です。兄弟アクションと、どのツールボタンにぶら下がっているか確認します。GPSツールバーのオプションメニュー内のアクションと特定できました。GPS接続状態も合わせて確認します。調査結果です。\n\n## 「Show Location Marker」アクション\n\n`iface.mainWindow().findChildren(QAction)` で実体を特定しました。\n\n**所在**: GPSツールバーのオプション（ドロップダウン）メニュー内（`QToolButton(mBtnPopupOptions)` → QMenu → QgisApp）。兄弟アクションは「Show Bearing Line」「Rotate Map to Match GPS Direction」「Automatically Add Track Vertices」「Log to GeoPackage/Spatialite…」「GPS Settings…」など — いわゆる **GPS ツールバーのオプションメニュー項目**です。\n\n**現在の状態**（pyeval 実測）:\n\n| 項目 | 値 |\n|---|---|\n| isEnabled | **true（有効）** |\n| isCheckable | true |\n| isChecked | **true（ON）** |\n| isVisible | true |\n\n**実効の補足**: このアクションは「GPS現在地マーカーをキャンバスに表示するか」のトグルです。`QgsApplication.gpsConnectionRegistry()` を見ると現在のアクティブな GPS 接続は **0 件**なので、トグル自体は ON ですが、GPS 未接続のため実際にマーカーは描画されていません。\n\n## まとめ\n\n- アクションは **有効（enabled）かつ ON（checked）** です。\n- ただし位置マーカーが実際に表示されるのは GPS 接続（NMEA 等）確立時のみで、現在は未接続のためマーカーは出ていません。\n- 切り替えたい場合は当該 QAction の `setChecked(False)` / `trigger()` で可能です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nhits = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    on = a.objectName() or ''\\n    tt = a.toolTip() or ''\\n    blob = (t + '|' + on + '|' + tt).lower()\\n    if 'location' in blob or 'marker' in blob or 'マーカー' in blob or 'ロケーション' in blob or '場所' in blob:\\n        hits.append({'text': t, 'objectName': on, 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'checkable': a.isCheckable(), 'checked': a.isChecked(), 'tooltip': tt[:80]})\\nresult = hits\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': '\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfor a in mw.findChildren(QAction):\\n    if (a.text() or \\'\\') == \\'Show Location Marker\\':\\n        p = a.parent()\\n        chain = []\\n        while p is not None:\\n            chain.append(f\"{type(p).__name__}({p.objectName() or p.windowTitle() or \\'\\'})\")\\n            p = p.parent()\\n        # associated widgets\\n        assoc = [f\"{type(w).__name__}({w.objectName()})\": None for w in a.associatedWidgets()] if hasattr(a,\\'associatedWidgets\\') else {}\\n        result = {\\'enabled\\': a.isEnabled(), \\'checked\\': a.isChecked(), \\'parent_chain\\': chain, \\'assoc_widgets\\': list(assoc) if assoc else []}\\n        break\\n'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = None\\nfor a in mw.findChildren(QAction):\\n    if (a.text() or '') == 'Show Location Marker':\\n        found = a\\n        break\\np = found.parent()\\nchain = []\\nwhile p is not None:\\n    chain.append(type(p).__name__ + '(' + (p.objectName() or p.windowTitle() or '') + ')')\\n    p = p.parent()\\ntry:\\n    assoc = [type(w).__name__ + '(' + w.objectName() + ')' for w in found.associatedWidgets()]\\nexcept Exception as e:\\n    assoc = ['err: ' + str(e)]\\nresult = {'enabled': found.isEnabled(), 'checked': found.isChecked(), 'checkable': found.isCheckable(), 'parent_chain': chain, 'assoc_widgets': assoc}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\nmw = iface.mainWindow()\\ntarget = None\\nfor a in mw.findChildren(QAction):\\n    if (a.text() or '') == 'Show Location Marker':\\n        target = a\\n        break\\nmenu = target.parent()\\nsiblings = [(x.text(), x.isEnabled(), x.isChecked() if x.isCheckable() else None) for x in menu.actions()]\\n# find the widget that shows this menu\\nowner = []\\nfor w in mw.findChildren(type(menu).__mro__[0].__class__) if False else []:\\n    pass\\nfrom qgis.PyQt.QtWidgets import QWidget\\nowners = []\\nfor w in mw.findChildren(QWidget):\\n    try:\\n        if hasattr(w, 'menu') and w.menu() is menu:\\n            owners.append(type(w).__name__ + '(' + (w.objectName() or w.text() or '') + ')')\\n    except Exception:\\n        pass\\n# which toolbar contains it\\nbars = []\\nfor tb in mw.findChildren(QToolBar):\\n    for x in tb.actions():\\n        if x is target or x in menu.actions():\\n            bars.append(tb.objectName() or tb.windowTitle("
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\ntry:\\n    reg = QgsApplication.gpsConnectionRegistry()\\n    conns = list(reg.connections().values()) if hasattr(reg,'connections') else []\\n    info = [(type(c).__name__, getattr(c,'status',lambda:None)()) for c in conns]\\nexcept Exception as e:\\n    info = 'err: ' + str(e)\\nresult = info\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Show Location Marker」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Show Location Marker」に相当するアクションを調べます。まずメインウィンドウ内の QAction を総当たりで検索します。「Show Location Marker」が見つかりました。親ウィジェット（所属メニュー/ツールバー）を確認します。構文エラーを修正します。親は QgisApp 直下の QMenu です。兄弟アクションと、どのツールボタンにぶら下がっているか確認します。GPSツールバーのオプションメニュー内のアクションと特定できました。GPS接続状態も合わせて確認します。調査結果です。\n「Show Location Marker」アクション\niface.mainWindow().findChildren(QAction) で実体を特定しました。\n所在: GPSツールバーのオプション（ドロップダウン）メニュー内（QToolButton(mBtnPopupOptions) → QMenu → QgisApp）。兄弟アクションは「Show Bearing Line」「Rotate Map to Match GPS Direction」「Automatically Add Track Vertices」「Log to GeoPackage/Spatialite…」「GPS Settings…」など — いわゆる GPS ツールバーのオプションメニュー項目です。\n現在の状態（pyeval 実測）:\n項目\n値\nisEnabled\ntrue（有効）\nisCheckable\ntrue\nisChecked\ntrue（ON）\nisVisible\ntrue\n\n実効の補足: このアクションは「GPS現在地マーカーをキャンバスに表示するか」のトグルです。QgsApplication.gpsConnectionRegistry() を見ると現在のアクティブな GPS 接続は 0 件なので、トグル自体は ON ですが、GPS 未接続のため実際にマーカーは描画されていません。\nまとめ\nアクションは 有効（enabled）かつ ON（checked） です。\nただし位置マーカーが実際に表示されるのは GPS 接続（NMEA 等）確立時のみで、現在は未接続のためマーカーは出ていません。\n切り替えたい場合は当該 QAction の setChecked(False) / trigger() で可能です。"
+}

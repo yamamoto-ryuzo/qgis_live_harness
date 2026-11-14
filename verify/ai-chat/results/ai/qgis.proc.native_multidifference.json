@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.native_multidifference",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 差分（difference、複数レイヤ）」(id: native:multidifference) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 差分（difference、複数レイヤ）」(id: native:multidifference) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "I'll check the processing registry for `native:multidifference`.存在を確認しました。次にパラメータ定義を取得します。## 確認結果: 存在します ✅\n\n`native:multidifference` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:multidifference`\n- **表示名**: 差分（difference、複数レイヤ）\n- **グループ**: ベクタオーバーレイ\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\n入力レイヤから、**複数のオーバーレイレイヤの地物と重ならない部分**（差分）を抜き出すアルゴリズムです。通常の `native:difference` が単一のオーバーレイレイヤしか受け付けないのに対し、こちらは複数レイヤを指定でき、オーバーレイは**順番に累積的に適用**されます（前の差分結果に対して次のオーバーレイで切り抜く、という繰り返し）。\n\n部分的に重なる地物はオーバーレイでクリップされ、外側部分だけが残ります。なおジオメトリは変わりますが、面積・長さなどの属性値は自動更新されない点に注意が必要です（公式ヘルプにも明記されています）。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力レイヤ（切り抜かれる側） |\n| `OVERLAYS` | multilayer（必須） | オーバーレイレイヤのリスト（切り抜く側、複数指定可） |\n| `OUTPUT` | sink → outputVector | 出力先（差分結果のベクタレイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:multidifference\", {\n    'INPUT': layer_a,\n    'OVERLAYS': [layer_b, layer_c],\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('native:multidifference')\\nresult = None if alg is None else {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:multidifference')\\nparams = []\\nfor p in alg.parameterDefinitions():\\n    params.append({'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional)})\\nouts = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\nresult = {'help': alg.shortHelpString()[:500] if alg.shortHelpString() else '', 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 差分（difference、複数レイヤ）」(id: native:multidifference) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nI'll check the processing registry for native:multidifference.存在を確認しました。次にパラメータ定義を取得します。## 確認結果: 存在します ✅\nnative:multidifference は現在の QGIS の processing registry に登録されています。\nID: native:multidifference\n表示名: 差分（difference、複数レイヤ）\nグループ: ベクタオーバーレイ\nプロバイダ: QGIS（ネイティブC++）\n用途\n入力レイヤから、複数のオーバーレイレイヤの地物と重ならない部分（差分）を抜き出すアルゴリズムです。通常の native:difference が単一のオーバーレイレイヤしか受け付けないのに対し、こちらは複数レイヤを指定でき、オーバーレイは順番に累積的に適用されます（前の差分結果に対して次のオーバーレイで切り抜く、という繰り返し）。\n部分的に重なる地物はオーバーレイでクリップされ、外側部分だけが残ります。なおジオメトリは変わりますが、面積・長さなどの属性値は自動更新されない点に注意が必要です（公式ヘルプにも明記されています）。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力レイヤ（切り抜かれる側）\nOVERLAYS\nmultilayer（必須）\nオーバーレイレイヤのリスト（切り抜く側、複数指定可）\nOUTPUT\nsink → outputVector\n出力先（差分結果のベクタレイヤ）\n\n実行例:\nprocessing.run(\"native:multidifference\", {\n    'INPUT': layer_a,\n    'OVERLAYS': [layer_b, layer_c],\n    'OUTPUT': 'memory:'\n})"
+}

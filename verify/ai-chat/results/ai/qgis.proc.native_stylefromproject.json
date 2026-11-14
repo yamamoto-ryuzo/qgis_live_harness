@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_stylefromproject",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] スタイルデータベースを作成」(id: native:stylefromproject) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] スタイルデータベースを作成」(id: native:stylefromproject) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:stylefromproject`「**スタイルデータベースを作成**」は登録されています（グループ: 地図製作）。\n\n## 用途\n\n- QGIS プロジェクト（.qgs/.qgz）から、レイヤに設定された**スタイルオブジェクト（シンボル・カラーランプ・テキストフォーマット・ラベル設定）をすべて抽出**します\n- 出力は **XML形式のスタイルデータベース**で、スタイルマネージャの「インポート/エクスポート」から別環境へ読み込めます\n- 用途例：プロジェクトで作ったシンボル群をチーム標準スタイルとして共有、複数プロジェクト間のスタイル統一、スタイル資産のライブラリ化・バックアップ\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | file | 入力プロジェクト。**空白なら現在開いているプロジェクト**が対象 |\n| `OUTPUT` | fileDestination | 出力のスタイルデータベース（.xml） |\n| `OBJECTS` | enum | 抽出するオブジェクト種別（複数選択可）。`シンボル` / `カラーランプ` / `テキストフォーマット` / `ラベル設定` |\n\n## 出力\n\n| 出力 | 型 | 内容 |\n|---|---|---|\n| `OUTPUT` | outputFile | スタイルデータベース（XML） |\n| `SYMBOLS` | outputNumber | 抽出したシンボルの数 |\n| `COLORRAMPS` | outputNumber | カラーランプの数 |\n| `TEXTFORMATS` | outputNumber | テキストフォーマットの数 |\n| `LABELSETTINGS` | outputNumber | ラベル設定の数 |\n\n関連アルゴリズム：`native:styletodb`（レイヤのスタイルをデータベースに書き込み）、`native:addstyletodb` など。スタイルマネージャのGUI操作をモデラー/バッチ化したいときに使います。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:stylefromproject')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] スタイルデータベースを作成」(id: native:stylefromproject) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:stylefromproject「スタイルデータベースを作成」は登録されています（グループ: 地図製作）。\n用途\nQGIS プロジェクト（.qgs/.qgz）から、レイヤに設定されたスタイルオブジェクト（シンボル・カラーランプ・テキストフォーマット・ラベル設定）をすべて抽出します\n出力は XML形式のスタイルデータベースで、スタイルマネージャの「インポート/エクスポート」から別環境へ読み込めます\n用途例：プロジェクトで作ったシンボル群をチーム標準スタイルとして共有、複数プロジェクト間のスタイル統一、スタイル資産のライブラリ化・バックアップ\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nfile\n入力プロジェクト。空白なら現在開いているプロジェクトが対象\nOUTPUT\nfileDestination\n出力のスタイルデータベース（.xml）\nOBJECTS\nenum\n抽出するオブジェクト種別（複数選択可）。シンボル / カラーランプ / テキストフォーマット / ラベル設定\n\n出力\n出力\n型\n内容\nOUTPUT\noutputFile\nスタイルデータベース（XML）\nSYMBOLS\noutputNumber\n抽出したシンボルの数\nCOLORRAMPS\noutputNumber\nカラーランプの数\nTEXTFORMATS\noutputNumber\nテキストフォーマットの数\nLABELSETTINGS\noutputNumber\nラベル設定の数\n\n関連アルゴリズム：native:styletodb（レイヤのスタイルをデータベースに書き込み）、native:addstyletodb など。スタイルマネージャのGUI操作をモデラー/バッチ化したいときに使います。"
+}

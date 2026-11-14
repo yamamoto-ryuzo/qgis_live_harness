@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_surfacetopolygon",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Surface to polygon」(id: native:surfacetopolygon) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Surface to polygon」(id: native:surfacetopolygon) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:surfacetopolygon`「**Surface to polygon**」は登録されています（グループ: メッシュ）。\n\n## 用途\n\n- **メッシュレイヤの境界（輪郭）をポリゴンとしてエクスポート**します\n- 出力ポリゴンは**穴（holes）を含む場合があり、マルチパートにもなり**ます\n- 用途例：TIN/メッシュデータの範囲確認・メタデータ作成、メッシュ領域をポリゴンとして他のベクタ処理（クリップ・オーバーレイのマスク）に使う、メッシュの占有領域の可視化\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | mesh | 入力メッシュレイヤ |\n| `CRS_OUTPUT` | crs | 出力座標系（任意で投影変換して出力） |\n| `OUTPUT` | sink | 出力ベクタレイヤ（ポリゴン） |\n\nパラメータはこれだけです。\n\n## 補足\n\n- 対象は**メッシュレイヤ**（MDALドライバのメッシュデータ：TIN、NetCDF、2DM、GRIB等）であって、通常のベクタやラスタではありません\n- メッシュの**外周だけ**が取り出されます（内部のエッジや三角形は出力されません）\n- ベクタのポリゴン化（ラスタ→ポリゴン）とは別物で、ラスタ境界の場合は `gdal:polygonize` や `native:pixelstopolygons`、メッシュの等高線なら `native:meshcontours` 系を使います"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:surfacetopolygon')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Surface to polygon」(id: native:surfacetopolygon) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:surfacetopolygon「Surface to polygon」は登録されています（グループ: メッシュ）。\n用途\nメッシュレイヤの境界（輪郭）をポリゴンとしてエクスポートします\n出力ポリゴンは穴（holes）を含む場合があり、マルチパートにもなります\n用途例：TIN/メッシュデータの範囲確認・メタデータ作成、メッシュ領域をポリゴンとして他のベクタ処理（クリップ・オーバーレイのマスク）に使う、メッシュの占有領域の可視化\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nmesh\n入力メッシュレイヤ\nCRS_OUTPUT\ncrs\n出力座標系（任意で投影変換して出力）\nOUTPUT\nsink\n出力ベクタレイヤ（ポリゴン）\n\nパラメータはこれだけです。\n補足\n対象はメッシュレイヤ（MDALドライバのメッシュデータ：TIN、NetCDF、2DM、GRIB等）であって、通常のベクタやラスタではありません\nメッシュの外周だけが取り出されます（内部のエッジや三角形は出力されません）\nベクタのポリゴン化（ラスタ→ポリゴン）とは別物で、ラスタ境界の場合は gdal:polygonize や native:pixelstopolygons、メッシュの等高線なら native:meshcontours 系を使います"
+}

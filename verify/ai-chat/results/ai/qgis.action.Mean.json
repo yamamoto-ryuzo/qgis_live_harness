@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Mean",
+ "prompt": "QGISの「平均値（Mean）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「平均値（Mean）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「平均値（Mean）」アクションは **有効(enabled)で、現在チェック状態(checked)です**。\n\n調査結果:\n\n- 統計サマリードック(`StatisticalSummaryDockWidget`)のオプションメニュー内に「平均値（Mean）」の `QAction` があり、`isEnabled() = True`、`isCheckable() = True`、`isChecked() = True`\n\nついでに同メニューの全統計量を取得しました。現在の状態:\n\n| 統計量 | enabled | checked |\n|---|---|---|\n| カウント（Count） | True | True |\n| 合計（Sum） | True | True |\n| **平均値（Mean）** | True | **True** |\n| 中央値（Median） | True | True |\n| 標準偏差（母集団／標本） | True | True |\n| 最小／最大／範囲（Range） | True | True |\n| 最稀値／最頻値／種類（Variety） | True | True |\n| 第1／第3四分位、四分位範囲（IQR） | True | True |\n| 欠落（NULL）値 | True | True |\n| 選択したレイヤに従う | True | False |\n\nすべての統計量がチェック済み(全部出力する設定)で、「選択したレイヤに従う」オプションのみ OFF です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolButton\\ndock = iface.mainWindow().findChild(__import__('qgis.PyQt.QtWidgets', fromlist=['QDockWidget']).QDockWidget, 'StatisticalSummaryDockWidget')\\ntb = dock.findChild(QToolButton, 'mOptionsToolButton')\\nmenu_acts = tb.menu().actions() if tb.menu() else []\\nresult = [(a.objectName(), a.text(), a.isEnabled(), a.isCheckable(), a.isChecked()) for a in menu_acts]\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「平均値（Mean）」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「平均値（Mean）」アクションは 有効(enabled)で、現在チェック状態(checked)です。\n調査結果:\n統計サマリードック(StatisticalSummaryDockWidget)のオプションメニュー内に「平均値（Mean）」の QAction があり、isEnabled() = True、isCheckable() = True、isChecked() = True\nついでに同メニューの全統計量を取得しました。現在の状態:\n統計量\nenabled\nchecked\nカウント（Count）\nTrue\nTrue\n合計（Sum）\nTrue\nTrue\n平均値（Mean）\nTrue\nTrue\n中央値（Median）\nTrue\nTrue\n標準偏差（母集団／標本）\nTrue\nTrue\n最小／最大／範囲（Range）\nTrue\nTrue\n最稀値／最頻値／種類（Variety）\nTrue\nTrue\n第1／第3四分位、四分位範囲（IQR）\nTrue\nTrue\n欠落（NULL）値\nTrue\nTrue\n選択したレイヤに従う\nTrue\nFalse\n\nすべての統計量がチェック済み(全部出力する設定)で、「選択したレイヤに従う」オプションのみ OFF です。"
+}

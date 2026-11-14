@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionTrimExtendFeature",
+ "prompt": "QGISの「地物をトリム/延長」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「地物をトリム/延長」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「地物をトリム/延長」アクションを探して実行します。ラインレイヤは編集モード中なので有効なはずです。実行しました。\n\n- アクション: `mActionTrimExtendFeature`「地物をトリム/延長」\n- 実行前: 有効(テスト路線レイヤが編集モードのため)\n- 実行後: **`checked: true`** — ツールがアクティブになりました(マップツール: `QgsMapToolEdit` 系のトリム/延長ツール)\n\nこのツールも対話式で、使い方は次の通りです:\n\n1. キャンバス上で**基準となるライン地物をクリック**(トリム/延長の境界)\n2. 続けて**トリムまたは延長したいラインの端をクリック**\n\nクリックした側の端が基準ラインまで延長、または基準ラインで切り詰められます。プログラム側で特定地物を処理したい場合は、地物を指定してジオメトリを直接加工することも可能です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    n = a.objectName() or ''\\n    if 'トリム' in t or 'Trim' in t or 'trim' in n.lower() or 'extend' in n.lower():\\n        found.append({'objectName': n, 'text': t, 'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked()})\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionTrimExtendFeature')\\ninfo = {'enabled': a.isEnabled()}\\na.trigger()\\ninfo['checked'] = a.isChecked()\\nmt = iface.mapCanvas().mapTool()\\ninfo['mapTool'] = type(mt).__name__ if mt else None\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「地物をトリム/延長」機能(アクション)を実行して\n[AI] \n「地物をトリム/延長」アクションを探して実行します。ラインレイヤは編集モード中なので有効なはずです。実行しました。\nアクション: mActionTrimExtendFeature「地物をトリム/延長」\n実行前: 有効(テスト路線レイヤが編集モードのため)\n実行後: checked: true — ツールがアクティブになりました(マップツール: QgsMapToolEdit 系のトリム/延長ツール)\nこのツールも対話式で、使い方は次の通りです:\nキャンバス上で基準となるライン地物をクリック(トリム/延長の境界)\n続けてトリムまたは延長したいラインの端をクリック\nクリックした側の端が基準ラインまで延長、または基準ラインで切り詰められます。プログラム側で特定地物を処理したい場合は、地物を指定してジオメトリを直接加工することも可能です。"
+}

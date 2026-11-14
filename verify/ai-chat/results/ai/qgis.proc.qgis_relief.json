@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_relief",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] 段彩図（relief）」(id: qgis:relief) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] 段彩図（relief）」(id: qgis:relief) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。存在を確認しました。`qgis:relief` は registry に登録されています。\n\n## [QGIS] 段彩図(relief)\n\n**用途**: DEM(標高ラスタ)から、標高に応じた色付けを施した段彩図(レリーフ/陰影つき彩色ラスタ)を生成するアルゴリズム(グループ: ラスタ地形解析)。地形図の背景表現などに使います。\n\n**主なパラメータ**:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力 DEM レイヤ |\n| `Z_FACTOR` | Z係数(標高の垂直強調倍率。デフォルト 1.0) |\n| `AUTO_COLORS` | True: 標高の頻度分布から段彩区分を自動生成 / False: `COLORS` で手動指定 |\n| `COLORS` | 段彩の色テーブル(標高の下限・上限と色の組を手動定義) |\n| `OUTPUT` | 出力段彩図ラスタ |\n| `FREQUENCY_DISTRIBUTION` | 頻度分布の出力ファイル(色区分の算出に使われる標高頻度を CSV 等で保存) |\n\n注意点: `AUTO_COLORS`=False のときは `COLORS` の指定が必須です。陰影のみが欲しい場合は別アルゴリズムの「陰影図(hillshade)」(`qgis:hillshade` または GDAL の hillshade)を使います。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:relief')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'relief' in a.id().lower() or 'hill' in a.id().lower()]}\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': type(p).__name__, 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()]\\n    outputs = [{'name': o.name(), 'desc': o.description()} for o in alg.outputDefinitions()]\\n    enum_opts = {p.name(): p.options() for p in alg.parameterDefinitions() if type(p).__name__ == 'QgsProcessingParameterEnum'}\\n    result = {'found': True, 'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'params': params, 'enums': enum_opts, 'outputs': outputs, 'shortHelp': (alg.shortHelpString() or '')[:1200]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] 段彩図（relief）」(id: qgis:relief) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。存在を確認しました。qgis:relief は registry に登録されています。\n[QGIS] 段彩図(relief)\n用途: DEM(標高ラスタ)から、標高に応じた色付けを施した段彩図(レリーフ/陰影つき彩色ラスタ)を生成するアルゴリズム(グループ: ラスタ地形解析)。地形図の背景表現などに使います。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n入力 DEM レイヤ\nZ_FACTOR\nZ係数(標高の垂直強調倍率。デフォルト 1.0)\nAUTO_COLORS\nTrue: 標高の頻度分布から段彩区分を自動生成 / False: COLORS で手動指定\nCOLORS\n段彩の色テーブル(標高の下限・上限と色の組を手動定義)\nOUTPUT\n出力段彩図ラスタ\nFREQUENCY_DISTRIBUTION\n頻度分布の出力ファイル(色区分の算出に使われる標高頻度を CSV 等で保存)\n\n注意点: AUTO_COLORS=False のときは COLORS の指定が必須です。陰影のみが欲しい場合は別アルゴリズムの「陰影図(hillshade)」(qgis:hillshade または GDAL の hillshade)を使います。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_uploadgpsdata",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] GPSデータをデバイスにアップロード」(id: native:uploadgpsdata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] GPSデータをデバイスにアップロード」(id: native:uploadgpsdata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`native:uploadgpsdata` **[QGIS（ネイティブC++）] GPSデータをデバイスにアップロード** は processing registry に登録されています（グループ: GPS）。\n\n### 用途\n\n外部ツール **GPSBabel** を利用して、GPX形式のデータを **GPSデバイス（Garmin等のハンドヘルドGPS）へ直接アップロード**します。出力レイヤはなく、デバイスへの書き込みそのものが結果となる副作用型のアルゴリズムです。動作にはシステムに GPSBabel がインストールされている必要があります。\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT` | file | — | アップロードするGPXファイル |\n| `DEVICE` | string | — | デバイス種別（GPSBabelのデバイス名、例: `garmin`） |\n| `PORT` | string | — | 接続ポート（例: `usb:`、COMポート） |\n| `FEATURE_TYPE` | enum | 0 | 転送する地物タイプ: ウェイポイント=0 / ルート=1 / トラック=2 |\n\n### 出力\n\nなし（デバイスへ直接書き込み）\n\n逆方向（デバイス→GPXダウンロード）は `native:downloadgpsdata` が対応しています。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('native:uploadgpsdata')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] GPSデータをデバイスにアップロード」(id: native:uploadgpsdata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\nnative:uploadgpsdata [QGIS（ネイティブC++）] GPSデータをデバイスにアップロード は processing registry に登録されています（グループ: GPS）。\n用途\n外部ツール GPSBabel を利用して、GPX形式のデータを GPSデバイス（Garmin等のハンドヘルドGPS）へ直接アップロードします。出力レイヤはなく、デバイスへの書き込みそのものが結果となる副作用型のアルゴリズムです。動作にはシステムに GPSBabel がインストールされている必要があります。\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT\nfile\n—\nアップロードするGPXファイル\nDEVICE\nstring\n—\nデバイス種別（GPSBabelのデバイス名、例: garmin）\nPORT\nstring\n—\n接続ポート（例: usb:、COMポート）\nFEATURE_TYPE\nenum\n0\n転送する地物タイプ: ウェイポイント=0 / ルート=1 / トラック=2\n\n出力\nなし（デバイスへ直接書き込み）\n逆方向（デバイス→GPXダウンロード）は native:downloadgpsdata が対応しています。"
+}

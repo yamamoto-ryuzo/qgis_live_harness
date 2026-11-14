@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionTextAnnotationinRectangle",
+ "prompt": "QGISの「Text Annotation in Rectangleを作成」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Text Annotation in Rectangleを作成」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Text Annotation in Rectangleを作成」アクション（`mActionTextAnnotationinRectangle`）を実行します。実行しました。「Text Annotation in Rectangleを作成」ツールが有効化されています。\n\n## 実行結果\n\n**アクション**: `mActionTextAnnotationinRectangle`（Text Annotation in Rectangleを作成）\n\n- `trigger()` 実行 → `checked=false → true`\n- `mActionTextAnnotationalongLine` は自動で `checked=false` に戻りました（排他選択）\n- アクティブマップツール: `QgsMapToolAdvancedDigitizing`（at Point と同じ高度デジタイズ系ツール）\n\n## 現在の状態\n\n| 項目 | 値 |\n|---|---|\n| Text Annotation in Rectangleアクション | checked=true |\n| Text Annotation along Lineアクション | checked=false |\n| キャンバスのマップツール | QgsMapToolAdvancedDigitizing |\n\n地図上で矩形をドラッグ（または2点指定）すると、その矩形内に収まるテキスト注記が作成されます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = None\\nprev = None\\nfor x in mw.findChildren(QAction):\\n    if x.objectName() == 'mActionTextAnnotationinRectangle':\\n        a = x\\n    elif x.objectName() == 'mActionTextAnnotationalongLine':\\n        prev = x\\nbefore = a.isChecked()\\na.trigger()\\ncanvas = iface.mapCanvas()\\ntool = canvas.mapTool()\\nresult = {'before_checked': before, 'after_checked': a.isChecked(),\\n          'textline_action_now': prev.isChecked() if prev else None,\\n          'active_map_tool': type(tool).__name__ if tool else None,\\n          'tool_name': tool.toolName() if tool and hasattr(tool, 'toolName') else None,\\n          'capture_mode': int(tool.mode()) if tool and hasattr(tool, 'mode') else None}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Text Annotation in Rectangleを作成」機能(アクション)を実行して\n[AI] \n「Text Annotation in Rectangleを作成」アクション（mActionTextAnnotationinRectangle）を実行します。実行しました。「Text Annotation in Rectangleを作成」ツールが有効化されています。\n実行結果\nアクション: mActionTextAnnotationinRectangle（Text Annotation in Rectangleを作成）\ntrigger() 実行 → checked=false → true\nmActionTextAnnotationalongLine は自動で checked=false に戻りました（排他選択）\nアクティブマップツール: QgsMapToolAdvancedDigitizing（at Point と同じ高度デジタイズ系ツール）\n現在の状態\n項目\n値\nText Annotation in Rectangleアクション\nchecked=true\nText Annotation along Lineアクション\nchecked=false\nキャンバスのマップツール\nQgsMapToolAdvancedDigitizing\n\n地図上で矩形をドラッグ（または2点指定）すると、その矩形内に収まるテキスト注記が作成されます。"
+}

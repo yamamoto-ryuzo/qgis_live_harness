@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_generateelevationprofileimage",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Generate elevation profile image」(id: native:generateelevationprofileimage) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Generate elevation profile image」(id: native:generateelevationprofileimage) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:generateelevationprofileimage`（表示名 **「Generate elevation profile image」**、グループ「Plots」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n指定した**プロファイル曲線（ライン）に沿った標高断面図を画像ファイルとして生成**するアルゴリズムです。マップ上のレイヤ群とオプションのテレインレイヤを使い、断面プロファイルをチャート画像として描画します。GUIの「標高プロファイル」ツール相当の処理をプロセッシングからバッチ実行できるものです。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `CURVE` | プロファイル曲線（断面を取るラインジオメトリ） |\n| `MAP_LAYERS` | 断面に使うマップレイヤ（複数指定可。DEM等の標高ソース） |\n| `TERRAIN_LAYER` | テレインレイヤ（オプション。プロジェクトの地形設定相当） |\n| `WIDTH` / `HEIGHT` | チャートの幅・高さ（ピクセル） |\n| `MINIMUM_DISTANCE` / `MAXIMUM_DISTANCE` | X軸（距離）の範囲 |\n| `MINIMUM_ELEVATION` / `MAXIMUM_ELEVATION` | Y軸（標高）の範囲 |\n| `TOLERANCE` | プロファイルの許容誤差（サンプリング精度） |\n| `DPI` | チャートの解像度 |\n| `TEXT_COLOR` / `TEXT_FONT_*` | チャート文字の色・フォント |\n| `BACKGROUND_COLOR` / `BORDER_COLOR` | 背景色・枠線色 |\n| `OUTPUT` | 出力画像ファイル |\n\n### 出力\n\n- `OUTPUT` — 断面図の画像ファイル\n\n### 補足\n\n- 「Fix geometry」「ラスタ解析」系とは違い「Plots（プロット）」グループで、このグループ内の関連アルゴリズムは本アルゴリズムのみです。\n- `CURVE` に渡すラインジオメトリと、標高ソース（`MAP_LAYERS` に DEM を入れるか `TERRAIN_LAYER`）があれば、モデラーやバッチで大量の断面図を自動生成できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:generateelevationprofileimage')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related': [(a.id(), a.displayName(), a.group()) for a in QgsApplication.processingRegistry().algorithms() if 'elevation' in a.id() or 'profile' in a.id()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Generate elevation profile image」(id: native:generateelevationprofileimage) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:generateelevationprofileimage（表示名 「Generate elevation profile image」、グループ「Plots」）がこのQGISの processing registry に登録されています。\n用途\n指定したプロファイル曲線（ライン）に沿った標高断面図を画像ファイルとして生成するアルゴリズムです。マップ上のレイヤ群とオプションのテレインレイヤを使い、断面プロファイルをチャート画像として描画します。GUIの「標高プロファイル」ツール相当の処理をプロセッシングからバッチ実行できるものです。\n主なパラメータ\nパラメータ\n内容\nCURVE\nプロファイル曲線（断面を取るラインジオメトリ）\nMAP_LAYERS\n断面に使うマップレイヤ（複数指定可。DEM等の標高ソース）\nTERRAIN_LAYER\nテレインレイヤ（オプション。プロジェクトの地形設定相当）\nWIDTH / HEIGHT\nチャートの幅・高さ（ピクセル）\nMINIMUM_DISTANCE / MAXIMUM_DISTANCE\nX軸（距離）の範囲\nMINIMUM_ELEVATION / MAXIMUM_ELEVATION\nY軸（標高）の範囲\nTOLERANCE\nプロファイルの許容誤差（サンプリング精度）\nDPI\nチャートの解像度\nTEXT_COLOR / TEXT_FONT_*\nチャート文字の色・フォント\nBACKGROUND_COLOR / BORDER_COLOR\n背景色・枠線色\nOUTPUT\n出力画像ファイル\n\n出力\nOUTPUT — 断面図の画像ファイル\n補足\n「Fix geometry」「ラスタ解析」系とは違い「Plots（プロット）」グループで、このグループ内の関連アルゴリズムは本アルゴリズムのみです。\nCURVE に渡すラインジオメトリと、標高ソース（MAP_LAYERS に DEM を入れるか TERRAIN_LAYER）があれば、モデラーやバッチで大量の断面図を自動生成できます。"
+}

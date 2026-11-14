@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_rastersampling",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ベクタレイヤにラスタ値を付加」(id: native:rastersampling) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ベクタレイヤにラスタ値を付加」(id: native:rastersampling) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:rastersampling` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:rastersampling`\n- **表示名**: `[QGIS（ネイティブC++）] ベクタレイヤにラスタ値を付加`\n- **グループ**: ラスタ解析\n- **用途**: ベクタ地物の位置にあるラスタ値を取得し、属性フィールドへ追加した新しいベクタレイヤを作成する。マルチバンドラスタでは全バンドの値が付加される。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT` | 必須 | 入力ベクタレイヤ |\n| `RASTERCOPY` | 必須 | 値を取得するラスタレイヤ |\n| `COLUMN_PREFIX` | 任意 | 追加するラスタ値フィールド名の接頭辞。既定値は `SAMPLE_` |\n| `OUTPUT` | 必須 | ラスタ値を付加した出力ベクタ |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:rastersampling')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'description': o.d"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ベクタレイヤにラスタ値を付加」(id: native:rastersampling) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:rastersampling を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:rastersampling\n表示名: [QGIS（ネイティブC++）] ベクタレイヤにラスタ値を付加\nグループ: ラスタ解析\n用途: ベクタ地物の位置にあるラスタ値を取得し、属性フィールドへ追加した新しいベクタレイヤを作成する。マルチバンドラスタでは全バンドの値が付加される。\n主なパラメータ\n名前\n必須\n説明\nINPUT\n必須\n入力ベクタレイヤ\nRASTERCOPY\n必須\n値を取得するラスタレイヤ\nCOLUMN_PREFIX\n任意\n追加するラスタ値フィールド名の接頭辞。既定値は SAMPLE_\nOUTPUT\n必須\nラスタ値を付加した出力ベクタ\n"
+}

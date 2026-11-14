@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionStyleManager",
+ "prompt": "QGISの「スタイルマネージャ...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「スタイルマネージャ...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「スタイルマネージャ」アクションを QGIS 内で検索します。## 調査結果\n\n「スタイルマネージャ...」アクション（`mActionStyleManager`）の状態を `qgis_pyeval` で確認しました。\n\n| 項目 | 状態 |\n|---|---|\n| アクション名 | `mActionStyleManager` |\n| 表示テキスト | スタイルマネージャ... |\n| ツールチップ | スタイルマネージャ |\n| 配置場所 | **設定(S)** メニュー ＋ **プロジェクトツールバー** の両方 |\n| ショートカット | なし |\n| 現在の有効状態 | **有効（enabled）** |\n\n### 補足\n\n- レイヤ有無に依存しないアクションのため、現在の空プロジェクトでも有効です。\n- 関連する「スタイルをコピー」（`mActionCopyStyle`）と「スタイルを貼り付け」（`mActionPasteStyle`）はアクティブレイヤが無いため **無効** になっています。\n\n実行してダイアログを開く場合は `a.trigger()` で可能ですが、モーダルダイアログが開くため、必要であれば実行します。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\nmw = iface.mainWindow()\\nmatches = []\\nfor a in mw.findChildren(QAction):\\n    name = (a.objectName() or '').lower()\\n    text = a.text() or ''\\n    tip = a.toolTip() or ''\\n    if 'style' in name or 'スタイル' in text or 'スタイル' in tip:\\n        homes = [m.title() for m in mw.findChildren(QMenu) if a in m.actions()]\\n        tb = [t.windowTitle() for t in mw.findChildren(QToolBar) if a in t.actions()]\\n        matches.append({'objectName': a.objectName(), 'text': text, 'toolTip': tip,\\n                        'enabled': a.isEnabled(), 'visible': a.isVisible(),\\n                        'shortcut': a.shortcut().toString(), 'menus': homes, 'toolbars': tb})\\nresult = matches\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「スタイルマネージャ...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「スタイルマネージャ」アクションを QGIS 内で検索します。## 調査結果\n「スタイルマネージャ...」アクション（mActionStyleManager）の状態を qgis_pyeval で確認しました。\n項目\n状態\nアクション名\nmActionStyleManager\n表示テキスト\nスタイルマネージャ...\nツールチップ\nスタイルマネージャ\n配置場所\n設定(S) メニュー ＋ プロジェクトツールバー の両方\nショートカット\nなし\n現在の有効状態\n有効（enabled）\n\n補足\nレイヤ有無に依存しないアクションのため、現在の空プロジェクトでも有効です。\n関連する「スタイルをコピー」（mActionCopyStyle）と「スタイルを貼り付け」（mActionPasteStyle）はアクティブレイヤが無いため 無効 になっています。\n実行してダイアログを開く場合は a.trigger() で可能ですが、モーダルダイアログが開くため、必要であれば実行します。"
+}

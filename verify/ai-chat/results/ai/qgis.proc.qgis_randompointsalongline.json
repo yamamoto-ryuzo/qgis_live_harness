@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_randompointsalongline",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] 線に沿ったランダム点群」(id: qgis:randompointsalongline) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] 線に沿ったランダム点群」(id: qgis:randompointsalongline) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。存在を確認しました。`qgis:randompointsalongline` は registry に登録されています。\n\n## [QGIS] 線に沿ったランダム点群\n\n**用途**: ラインレイヤの線上に、指定した数の点をランダムに配置した新しいポイントレイヤを作成するアルゴリズム(グループ: ベクタ作成)。点の位置は「地物をランダムに選択 → その線のセグメントを選択 → セグメント上のランダムな位置」という手順で決まります。道路網や河川沿いの調査点・サンプリング点の生成などに使えます。\n\n**主なパラメータ**:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ラインレイヤ |\n| `POINTS_NUMBER` | 生成する点の総数(デフォルト 1) |\n| `MIN_DISTANCE` | 点同士の最小距離(ユークリッド距離、レイヤの距離単位。デフォルト 0 = 制限なし) |\n| `OUTPUT` | 出力ポイントレイヤ |\n\n注意点: 生成される点数はレイヤ全体の合計で、線地物ごとの数ではありません。`MIN_DISTANCE` を大きくしすぎると条件を満たせず所定数に達しないことがあります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:randompointsalongline')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'randompoints' in a.id().lower()]}\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': type(p).__name__, 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()]\\n    outputs = [{'name': o.name(), 'desc': o.description()} for o in alg.outputDefinitions()]\\n    enum_opts = {p.name(): p.options() for p in alg.parameterDefinitions() if type(p).__name__ == 'QgsProcessingParameterEnum'}\\n    result = {'found': True, 'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'params': params, 'enums': enum_opts, 'outputs': outputs, 'shortHelp': (alg.shortHelpString() or '')[:800]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] 線に沿ったランダム点群」(id: qgis:randompointsalongline) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。存在を確認しました。qgis:randompointsalongline は registry に登録されています。\n[QGIS] 線に沿ったランダム点群\n用途: ラインレイヤの線上に、指定した数の点をランダムに配置した新しいポイントレイヤを作成するアルゴリズム(グループ: ベクタ作成)。点の位置は「地物をランダムに選択 → その線のセグメントを選択 → セグメント上のランダムな位置」という手順で決まります。道路網や河川沿いの調査点・サンプリング点の生成などに使えます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n入力ラインレイヤ\nPOINTS_NUMBER\n生成する点の総数(デフォルト 1)\nMIN_DISTANCE\n点同士の最小距離(ユークリッド距離、レイヤの距離単位。デフォルト 0 = 制限なし)\nOUTPUT\n出力ポイントレイヤ\n\n注意点: 生成される点数はレイヤ全体の合計で、線地物ごとの数ではありません。MIN_DISTANCE を大きくしすぎると条件を満たせず所定数に達しないことがあります。"
+}

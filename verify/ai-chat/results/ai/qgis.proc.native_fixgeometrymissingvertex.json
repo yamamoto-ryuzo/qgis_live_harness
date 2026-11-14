@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_fixgeometrymissingvertex",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Add missing vertices along borders」(id: native:fixgeometrymissingvertex) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Add missing vertices along borders」(id: native:fixgeometrymissingvertex) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:fixgeometrymissingvertex`（表示名 **「Add missing vertices along borders」**、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n「Check geometry」系の **`native:checkgeometrymissingvertex`（Missing vertices along borders）** が出力したエラーレイヤを元に、**隣接ポリゴンの境界上にあるはずの頂点が欠けている箇所に頂点を追加**する修正アルゴリズムです。\n\n隣ポリゴンの頂点がこのポリゴンの辺の途中に接しているのに、こちら側にはその位置の頂点が無い（いわゆる T 字ノード）状態を解消し、共有境界上で頂点位置を一致させます。トポロジ整合の確保や、後続のスナップ・編集操作の精度向上に有効です。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ（修正対象のポリゴン） |\n| `ERRORS` | エラーレイヤ（`checkgeometrymissingvertex` の出力） |\n| `UNIQUE_ID` | 元地物を一意に識別するフィールド |\n| `PART_IDX` / `RING_IDX` / `VERTEX_IDX` | エラーレイヤ中のパート・リング・頂点番号フィールド |\n| `TOLERANCE` | 許容範囲（数値。「境界上にある」とみなす距離の許容誤差） |\n\n### 出力\n\n- `OUTPUT` — 境界頂点が修正されたレイヤ\n- `REPORT` — 修正内容のレポートレイヤ\n\nこれまでの fixgeometry 系と同じく、基本フローは「`checkgeometrymissingvertex` で検出 → 本アルゴリズムに `INPUT` + `ERRORS` を渡して修正」です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:fixgeometrymissingvertex')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related_check': [(a.id(), a.displayName()) for a in QgsApplication.processingRegistry().algorithms() if 'missing' in a.id() or 'vertex' in a.id()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Add missing vertices along borders」(id: native:fixgeometrymissingvertex) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:fixgeometrymissingvertex（表示名 「Add missing vertices along borders」、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n用途\n「Check geometry」系の native:checkgeometrymissingvertex（Missing vertices along borders） が出力したエラーレイヤを元に、隣接ポリゴンの境界上にあるはずの頂点が欠けている箇所に頂点を追加する修正アルゴリズムです。\n隣ポリゴンの頂点がこのポリゴンの辺の途中に接しているのに、こちら側にはその位置の頂点が無い（いわゆる T 字ノード）状態を解消し、共有境界上で頂点位置を一致させます。トポロジ整合の確保や、後続のスナップ・編集操作の精度向上に有効です。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ（修正対象のポリゴン）\nERRORS\nエラーレイヤ（checkgeometrymissingvertex の出力）\nUNIQUE_ID\n元地物を一意に識別するフィールド\nPART_IDX / RING_IDX / VERTEX_IDX\nエラーレイヤ中のパート・リング・頂点番号フィールド\nTOLERANCE\n許容範囲（数値。「境界上にある」とみなす距離の許容誤差）\n\n出力\nOUTPUT — 境界頂点が修正されたレイヤ\nREPORT — 修正内容のレポートレイヤ\nこれまでの fixgeometry 系と同じく、基本フローは「checkgeometrymissingvertex で検出 → 本アルゴリズムに INPUT + ERRORS を渡して修正」です。"
+}

@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.pdal_filternoisestatistical",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Filter noise」(id: pdal:filternoisestatistical) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Filter noise」(id: pdal:filternoisestatistical) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "QGIS の processing registry を実際に照会して、該当アルゴリズムの有無とパラメータ定義を確認します。存在は確認できました。説明の精度を上げるため、各パラメータの選択肢・ヘルプ文字列も確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `pdal:filternoisestatistical`\n- **表示名**: `Filter noise`\n- **Provider**: `QGIS (PDAL)`\n- **グループ**: `Point cloud data management`\n\n### 用途\n点群データに対して、統計的外れ値除去によるノイズ判定を行います。  \n各点について近傍 `K` 点への平均距離を計算し、「全体平均距離 + `MULTIPLIER` × 標準偏差」を超えた点をノイズとして扱います。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力点群レイヤ | — |\n| `REMOVE_NOISE_POINTS` | `True`: ノイズ点を出力から削除。`False`: ノイズとして分類したまま保持 | `False` |\n| `MEAN_K` | 各点の平均距離計算に使う近傍点数 | `8` |\n| `MULTIPLIER` | 標準偏差の倍率。大きいほどノイズ判定が厳しくなる | `2.0` |\n| `VPC_OUTPUT_FORMAT` | VPC 出力の内部形式。`COPC` / `LAZ` / `LAS` | `COPC` |\n| `OUTPUT` | 出力先の点群データ | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('pdal:filternoisestatistical')\\nif alg is None:\\n    result = {'exists': False, 'matches': [a.id() for a in reg.algorithms() if 'noise' in a.id().lower() or 'noise' in a.displayName().lower()]}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        try:\\n            default = p.defaultValue()\\n        except Exception:\\n            default = None\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': default,\\n            'optional': bool(p.flags() & p.FlagOptional)\\n        })\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'tags': alg.tags(),\\n        'parameters': params,\\n        'outputs': [{'name': o"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('pdal:filternoisestatistical')\\ninfo = {'help': alg.shortHelpString(), 'params': []}\\nfor p in alg.parameterDefinitions():\\n    d = {'name': p.name(), 'desc': p.description(), 'tooltip': p.toolTip(), 'type': p.type()}\\n    if hasattr(p, 'options'):\\n        d['options'] = p.options()\\n    if hasattr(p, 'metadata'):\\n        d['metadata'] = p.metadata()\\n    info['params'].append(d)\\nresult = info\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Filter noise」(id: pdal:filternoisestatistical) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nQGIS の processing registry を実際に照会して、該当アルゴリズムの有無とパラメータ定義を確認します。存在は確認できました。説明の精度を上げるため、各パラメータの選択肢・ヘルプ文字列も確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: pdal:filternoisestatistical\n表示名: Filter noise\nProvider: QGIS (PDAL)\nグループ: Point cloud data management\n用途\n点群データに対して、統計的外れ値除去によるノイズ判定を行います。\n各点について近傍 K 点への平均距離を計算し、「全体平均距離 + MULTIPLIER × 標準偏差」を超えた点をノイズとして扱います。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\n入力点群レイヤ\n—\nREMOVE_NOISE_POINTS\nTrue: ノイズ点を出力から削除。False: ノイズとして分類したまま保持\nFalse\nMEAN_K\n各点の平均距離計算に使う近傍点数\n8\nMULTIPLIER\n標準偏差の倍率。大きいほどノイズ判定が厳しくなる\n2.0\nVPC_OUTPUT_FORMAT\nVPC 出力の内部形式。COPC / LAZ / LAS\nCOPC\nOUTPUT\n出力先の点群データ\n—\n"
+}

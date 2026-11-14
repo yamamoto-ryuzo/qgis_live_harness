@@ -1,0 +1,31 @@
+{
+ "id": "qgis.action.mActionMeasureArea",
+ "prompt": "QGISの「面積を測る」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「面積を測る」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "QGIS の「面積を測る」アクション(mActionMeasureArea)を実行します。アクションが有効化されました。念のため画面を確認します。「面積を測る」アクションを実行しました。\n\n- `iface.actionMeasureArea().trigger()` を呼び出し、アクションはチェック状態(有効)になっています\n- マップキャンバスに計測用マップツールがアクティブになりました\n\nあとはキャンバス上をクリックして頂点を打ち、右クリックで計測を終了すると面積が表示されます。なお、現在キャンバスにはレイヤが表示されていない(真っ白な)ようです — 必要であればベースマップやレイヤの追加もできます。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"a = iface.actionMeasureArea()\\na.trigger()\\nresult = {'text': a.text(), 'checked': a.isChecked(), 'tool': type(iface.mapCanvas().mapTool()).__name__}\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-64a7b6ff.png'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「面積を測る」機能(アクション)を実行して\n[AI] \nQGIS の「面積を測る」アクション(mActionMeasureArea)を実行します。アクションが有効化されました。念のため画面を確認します。「面積を測る」アクションを実行しました。\niface.actionMeasureArea().trigger() を呼び出し、アクションはチェック状態(有効)になっています\nマップキャンバスに計測用マップツールがアクティブになりました\nあとはキャンバス上をクリックして頂点を打ち、右クリックで計測を終了すると面積が表示されます。なお、現在キャンバスにはレイヤが表示されていない(真っ白な)ようです — 必要であればベースマップやレイヤの追加もできます。"
+}

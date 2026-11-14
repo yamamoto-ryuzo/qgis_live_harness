@@ -1,30 +1,30 @@
 {
  "id": "plugin.geo_search.bridge.openDialog",
  "prompt": "geo_search のパネル/ダイアログを開いて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
  "history": [
-  {
-   "role": "user",
-   "content": "こんにちは。短く返答してください"
-  },
-  {
-   "role": "assistant",
-   "content": "こんにちは！どのようなお手伝いをしましょうか？"
-  },
-  {
-   "role": "user",
-   "content": "こんにちは。短く返答してください"
-  },
-  {
-   "role": "assistant",
-   "content": "こんにちは！ご用件をどうぞ。"
-  },
   {
    "role": "user",
    "content": "geo_search のパネル/ダイアログを開いて"
   },
   {
    "role": "assistant",
-   "content": "geo_search のダイアログを開きました。"
+   "content": "geo_search の検索ダイアログを開きました。`status` で `dialogVisible: true` を確認済みです。現在のタブは「カレントレイヤ」です。"
   }
- ]
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_search', 'method': 'openDialog'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_search', 'method': 'status'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_search のパネル/ダイアログを開いて\n[AI] \ngeo_search の検索ダイアログを開きました。status で dialogVisible: true を確認済みです。現在のタブは「カレントレイヤ」です。"
 }

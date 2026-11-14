@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_removenullgeometries",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] NULLジオメトリを削除」(id: native:removenullgeometries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] NULLジオメトリを削除」(id: native:removenullgeometries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:removenullgeometries` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:removenullgeometries`\n- **表示名**: `[QGIS（ネイティブC++）] NULLジオメトリを削除`\n- **グループ**: ベクタジオメトリ\n- **用途**: ジオメトリを持たない地物（NULLジオメトリ）をベクタレイヤから除去する。必要に応じて、空ジオメトリも削除対象にできる。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT` | 必須 | 入力ベクタレイヤ |\n| `REMOVE_EMPTY` | 必須 | 座標を持たない空ジオメトリも削除するか。既定値は `false` |\n| `OUTPUT` | 任意 | NULL／空ジオメトリを除いた地物の出力先 |\n| `NULL_OUTPUT` | 任意 | 除去されたNULL／空ジオメトリ地物の出力先 |\n\n通常の地物は変更されずに `OUTPUT` へコピーされます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:removenullgeometries')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'description"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] NULLジオメトリを削除」(id: native:removenullgeometries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:removenullgeometries を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:removenullgeometries\n表示名: [QGIS（ネイティブC++）] NULLジオメトリを削除\nグループ: ベクタジオメトリ\n用途: ジオメトリを持たない地物（NULLジオメトリ）をベクタレイヤから除去する。必要に応じて、空ジオメトリも削除対象にできる。\n主なパラメータ\n名前\n必須\n説明\nINPUT\n必須\n入力ベクタレイヤ\nREMOVE_EMPTY\n必須\n座標を持たない空ジオメトリも削除するか。既定値は false\nOUTPUT\n任意\nNULL／空ジオメトリを除いた地物の出力先\nNULL_OUTPUT\n任意\n除去されたNULL／空ジオメトリ地物の出力先\n\n通常の地物は変更されずに OUTPUT へコピーされます。"
+}

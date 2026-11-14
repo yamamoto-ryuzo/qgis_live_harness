@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionToggleRasterToolBar",
+ "prompt": "QGISの「ラスタツールバー」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ラスタツールバー」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ラスタツールバー」は非表示なので、トグルを実行します。「ラスタツールバー」を有効化しました。\n\n- アクション `mActionToggleRasterToolBar` を実行 → チェック ON\n- ツールバー `mRasterToolBar` が表示されました(ヒストグラムのストレッチ、明るさ/コントラスト調整などのラスタ表示関連アイコン)"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\naction = mw.findChild(QAction, 'mActionToggleRasterToolBar')\\nif action is None:\\n    cands = [(a.objectName(), a.text()) for a in mw.findChildren(QAction) if 'ラスタ' in a.text()]\\n    result = {'action': None, 'candidates': cands}\\nelse:\\n    action.trigger()\\n    tb = mw.findChild(QToolBar, 'mRasterToolBar')\\n    result = {'action': action.objectName(), 'checked': action.isChecked(), 'toolbar_visible': tb.isVisible() if tb else None}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ラスタツールバー」機能(アクション)を実行して\n[AI] \n「ラスタツールバー」は非表示なので、トグルを実行します。「ラスタツールバー」を有効化しました。\nアクション mActionToggleRasterToolBar を実行 → チェック ON\nツールバー mRasterToolBar が表示されました(ヒストグラムのストレッチ、明るさ/コントラスト調整などのラスタ表示関連アイコン)"
+}

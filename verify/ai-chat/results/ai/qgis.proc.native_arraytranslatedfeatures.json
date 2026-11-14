@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_arraytranslatedfeatures",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 平行移動した地物の配列」(id: native:arraytranslatedfeatures) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 平行移動した地物の配列」(id: native:arraytranslatedfeatures) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認しました。**`native:arraytranslatedfeatures`（表示名:「平行移動した地物の配列」、グループ:「ベクタ作成」、プロバイダ:「QGIS（ネイティブC++）」）は存在します**。\n\n## 用途\n**入力地物を平行移動したコピーを指定数だけ生成**します。各コピーは X・Y（・Z・M）軸方向に `DELTA × k`（k = 1〜COUNT）だけずれた同形状の地物になるため、グリッド状のシンボル配列、繰り返しパターン（列柱・植栽・区画）、デザイン用途の複製配置などに使えます。**任意のジオメトリ型（点・線・ポリゴン）に適用可能**です。\n\n## 主なパラメータ\n\n| パラメータ | 型 | デフォルト | 説明 |\n|---|---|---|---|\n| `INPUT` | source | — | 入力レイヤ（点・線・ポリゴン可） |\n| `COUNT` | number | 10 | 生成するコピー数 |\n| `DELTA_X` | distance | 0.0 | X 方向のステップ距離（レイヤ CRS 単位） |\n| `DELTA_Y` | distance | 0.0 | Y 方向のステップ距離 |\n| `DELTA_Z` | number | 0.0 | Z 値のステップ（3D 地物用） |\n| `DELTA_M` | number | 0.0 | M 値のステップ |\n| `OUTPUT` | sink | — | 出力レイヤ |\n\n補足：\n- 各コピーは**形状を保ったまま平行移動**するだけです。先ほどの `native:arrayoffsetlines`（オフセット線の配列）が「線から等距離に離れた曲線」を作るのに対し、こちらは「同じ形を平行にずらす」点が違います。\n- `DELTA_X` と `DELTA_Y` を両方指定すると斜め方向の配列になり、片方だけなら直線状の一列配列です。\n- グリッド状の 2 次元配列を作りたい場合は、このアルゴリズムを 2 段階（X 方向配列 → その結果に Y 方向配列）で実行するか、「グリッド作成」系アルゴリズム（`native:creategrid`）を検討してください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('native:arraytranslatedfeatures')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in reg.algorithms() if 'array' in a.id().lower() or 'translat' in a.id().lower()]}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': str(p.defaultValue())}\\n        if hasattr(p, 'options'):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': (alg.shortHelpString() or '')[:1500],\\n        'params': params,\\n    }\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 平行移動した地物の配列」(id: native:arraytranslatedfeatures) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認しました。native:arraytranslatedfeatures（表示名:「平行移動した地物の配列」、グループ:「ベクタ作成」、プロバイダ:「QGIS（ネイティブC++）」）は存在します。\n用途\n入力地物を平行移動したコピーを指定数だけ生成します。各コピーは X・Y（・Z・M）軸方向に DELTA × k（k = 1〜COUNT）だけずれた同形状の地物になるため、グリッド状のシンボル配列、繰り返しパターン（列柱・植栽・区画）、デザイン用途の複製配置などに使えます。任意のジオメトリ型（点・線・ポリゴン）に適用可能です。\n主なパラメータ\nパラメータ\n型\nデフォルト\n説明\nINPUT\nsource\n—\n入力レイヤ（点・線・ポリゴン可）\nCOUNT\nnumber\n10\n生成するコピー数\nDELTA_X\ndistance\n0.0\nX 方向のステップ距離（レイヤ CRS 単位）\nDELTA_Y\ndistance\n0.0\nY 方向のステップ距離\nDELTA_Z\nnumber\n0.0\nZ 値のステップ（3D 地物用）\nDELTA_M\nnumber\n0.0\nM 値のステップ\nOUTPUT\nsink\n—\n出力レイヤ\n\n補足：\n各コピーは形状を保ったまま平行移動するだけです。先ほどの native:arrayoffsetlines（オフセット線の配列）が「線から等距離に離れた曲線」を作るのに対し、こちらは「同じ形を平行にずらす」点が違います。\nDELTA_X と DELTA_Y を両方指定すると斜め方向の配列になり、片方だけなら直線状の一列配列です。\nグリッド状の 2 次元配列を作りたい場合は、このアルゴリズムを 2 段階（X 方向配列 → その結果に Y 方向配列）で実行するか、「グリッド作成」系アルゴリズム（native:creategrid）を検討してください。"
+}

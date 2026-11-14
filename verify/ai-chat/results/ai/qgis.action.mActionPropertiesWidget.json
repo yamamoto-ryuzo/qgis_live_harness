@@ -1,0 +1,39 @@
+{
+ "id": "qgis.action.mActionPropertiesWidget",
+ "prompt": "QGISの「プロパティを表示」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「プロパティを表示」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "まず「プロパティを表示」に該当するアクションを探します。表示中の `Browser` ドック側で未チェックなので、実行（チェックON＝プロパティウィジェット表示）します。実行できました。ブラウザパネルにプロパティウィジェットが出たかスクリーンショットで確認します。実行しました。\n\nブラウザパネル（`Browser` ドック、表示中の方）の **`mActionPropertiesWidget`「プロパティを表示」** を `trigger()` で発火し、チェック状態が OFF → **ON** になったことを確認済みです（アクションはチェック可能なトグル型）。\n\nこれによりブラウザパネル内でプロパティウィジェットが有効化されました。ブラウザツリーで項目（フォルダ、GeoPackage、レイヤファイル等）を選択すると、その項目のプロパティがパネル下部に表示されます。\n\n補足：\n- 同名のアクションがもう1つありますが、それは非表示の `Browser2` ドック側なので触れていません。\n- 再度実行するとトグルで OFF（非表示）に戻ります。戻したい場合は言ってください。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\n\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    tt = (a.toolTip() or '')\\n    if 'プロパティ' in t or 'プロパティ' in tt or 'propert' in t.lower() or 'propert' in tt.lower():\\n        try:\\n            objs = a.associatedObjects()\\n        except Exception:\\n            objs = []\\n        out.append({\\n            'objectName': a.objectName(),\\n            'text': t,\\n            'tooltip': tt,\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'associated': [type(w).__name__ + ':' + (w.objectName() or '') for w in objs],\\n            'parent': type(a.parent()).__name__ + ':' + (a.parent().objectName() if a.parent() else ''),\\n        })\\nresult = out\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction, QDockWidget\\n\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    if a.objectName() == 'mActionPropertiesWidget':\\n        # どのドックに属するか\\n        p = a.parent()\\n        dock = None\\n        while p is not None:\\n            if isinstance(p, QDockWidget):\\n                dock = p\\n                break\\n            p = p.parent()\\n        out.append({\\n            'dock': dock.objectName() if dock else '?',\\n            'dock_visible': dock.isVisible() if dock else None,\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n        })\\nresult = out\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction, QDockWidget\\n\\nmw = iface.mainWindow()\\ndone = None\\nfor a in mw.findChildren(QAction):\\n    if a.objectName() == 'mActionPropertiesWidget':\\n        p = a.parent()\\n        dock = None\\n        while p is not None:\\n            if isinstance(p, QDockWidget):\\n                dock = p\\n                break\\n            p = p.parent()\\n        if dock is not None and dock.isVisible():\\n            a.trigger()\\n            done = {'dock': dock.objectName(), 'checked_now': a.isChecked()}\\n            break\\nresult = done\\n\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-09be5cca.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「プロパティを表示」機能(アクション)を実行して\n[AI] \nまず「プロパティを表示」に該当するアクションを探します。表示中の Browser ドック側で未チェックなので、実行（チェックON＝プロパティウィジェット表示）します。実行できました。ブラウザパネルにプロパティウィジェットが出たかスクリーンショットで確認します。実行しました。\nブラウザパネル（Browser ドック、表示中の方）の mActionPropertiesWidget「プロパティを表示」 を trigger() で発火し、チェック状態が OFF → ON になったことを確認済みです（アクションはチェック可能なトグル型）。\nこれによりブラウザパネル内でプロパティウィジェットが有効化されました。ブラウザツリーで項目（フォルダ、GeoPackage、レイヤファイル等）を選択すると、その項目のプロパティがパネル下部に表示されます。\n補足：\n同名のアクションがもう1つありますが、それは非表示の Browser2 ドック側なので触れていません。\n再度実行するとトグルで OFF（非表示）に戻ります。戻したい場合は言ってください。"
+}

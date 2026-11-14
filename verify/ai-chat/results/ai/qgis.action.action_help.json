@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.action_help",
+ "prompt": "QGISの「Help」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Help」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に「Help」アクションを調べます。「Help」というテキストのアクションは2つあり、いずれも **現在有効（enabled）** です。\n\n## 調査結果\n\n**「Help」表記のアクション**\n\n| アクション | objectName | 有効 | 場所 |\n|---|---|---|---|\n| `Help` | `action_help` | **有効** | Web → MetaSearch → Help（MetaSearch プラグインのヘルプ） |\n| `Help` | `searchLayersHelp` | **有効** | Search Layers メニュー（searchlayers プラグイン） |\n\n直前に調べていた MetaSearch 関連でいえば、`action_help` が Web → MetaSearch サブメニュー内の Help アクションで、`isEnabled()` = true、`isVisible()` = true です。\n\n## 参考：その他のヘルプ系アクション\n\n| アクション | objectName | 有効 | 場所 |\n|---|---|---|---|\n| `QGISヘルプ` | `mActionHelpContents` | 有効 | ヘルプ(&H) |\n| `C++ APIドキュメント` | `mActionHelpAPI` | 有効 | ヘルプ(&H) |\n| `PyQGIS APIドキュメント` | `mActionHelpPyQgisAPI` | 有効 | ヘルプ(&H) |\n| `ヘルプツールバー` | `mActionToggleHelpToolBar` | 有効 | ツールバー |\n| `ヘルプ` | なし（menu_from_project 由来） | 有効 | Layers menu from project |\n\nすべてのヘルプ関連アクションが有効な状態です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nhits = []\\ncontainers = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').replace('&','')\\n    on = (a.objectName() or '').lower()\\n    if 'help' in t.lower() or 'help' in on or 'ヘルプ' in t:\\n        hits.append({\\n            'text': t,\\n            'objectName': a.objectName(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n        })\\nfor m in mw.findChildren(QMenu):\\n    for a in m.actions():\\n        t = (a.text() or '').replace('&','')\\n        on = (a.objectName() or '').lower()\\n        if 'help' in t.lower() or 'help' in on or 'ヘルプ' in t:\\n            path = [m.title()]\\n            p = m.parent()\\n            while isinstance(p, QMenu):\\n                path.insert(0, p.title())\\n                p = p.parent()\\n            containers.append({'action_text': t, 'menu_path': ' > '.join(path)})\\nresult = {'actions': hits, 'containers': containers}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Help」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n同様に「Help」アクションを調べます。「Help」というテキストのアクションは2つあり、いずれも 現在有効（enabled） です。\n調査結果\n「Help」表記のアクション\nアクション\nobjectName\n有効\n場所\nHelp\naction_help\n有効\nWeb → MetaSearch → Help（MetaSearch プラグインのヘルプ）\nHelp\nsearchLayersHelp\n有効\nSearch Layers メニュー（searchlayers プラグイン）\n\n直前に調べていた MetaSearch 関連でいえば、action_help が Web → MetaSearch サブメニュー内の Help アクションで、isEnabled() = true、isVisible() = true です。\n参考：その他のヘルプ系アクション\nアクション\nobjectName\n有効\n場所\nQGISヘルプ\nmActionHelpContents\n有効\nヘルプ(&H)\nC++ APIドキュメント\nmActionHelpAPI\n有効\nヘルプ(&H)\nPyQGIS APIドキュメント\nmActionHelpPyQgisAPI\n有効\nヘルプ(&H)\nヘルプツールバー\nmActionToggleHelpToolBar\n有効\nツールバー\nヘルプ\nなし（menu_from_project 由来）\n有効\nLayers menu from project\n\nすべてのヘルプ関連アクションが有効な状態です。"
+}

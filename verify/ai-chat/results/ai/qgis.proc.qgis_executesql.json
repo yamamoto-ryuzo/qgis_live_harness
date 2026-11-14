@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_executesql",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] SQLを実行」(id: qgis:executesql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] SQLを実行」(id: qgis:executesql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis:executesql` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `qgis:executesql`\n- **表示名**: `SQLを実行`\n- **Provider**: `QGIS`\n- **グループ**: `ベクタ一般`\n\n### 用途\n入力レイヤを SQL でクエリし、結果を新しいレイヤとして出力します。入力データソースは SQL 内で `input1`、`input2`、…、`inputN` として参照します。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT_DATASOURCES` | 任意。SQL で参照する入力レイヤ群 | なし |\n| `INPUT_QUERY` | 実行する SQL クエリ | — |\n| `INPUT_UID_FIELD` | 任意。一意 ID となるフィールド名 | なし |\n| `INPUT_GEOMETRY_FIELD` | 任意。結果のジオメトリフィールド名 | なし |\n| `INPUT_GEOMETRY_TYPE` | 結果のジオメトリタイプ | `自動検出` |\n| `INPUT_GEOMETRY_CRS` | 任意。結果ジオメトリの CRS | なし |\n| `OUTPUT` | 出力レイヤ | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('qgis:executesql')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'sql' in a.id().lower() or 'execute' in a.id().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'type': p.type(),\\n      "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] SQLを実行」(id: qgis:executesql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nqgis:executesql を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: qgis:executesql\n表示名: SQLを実行\nProvider: QGIS\nグループ: ベクタ一般\n用途\n入力レイヤを SQL でクエリし、結果を新しいレイヤとして出力します。入力データソースは SQL 内で input1、input2、…、inputN として参照します。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT_DATASOURCES\n任意。SQL で参照する入力レイヤ群\nなし\nINPUT_QUERY\n実行する SQL クエリ\n—\nINPUT_UID_FIELD\n任意。一意 ID となるフィールド名\nなし\nINPUT_GEOMETRY_FIELD\n任意。結果のジオメトリフィールド名\nなし\nINPUT_GEOMETRY_TYPE\n結果のジオメトリタイプ\n自動検出\nINPUT_GEOMETRY_CRS\n任意。結果ジオメトリの CRS\nなし\nOUTPUT\n出力レイヤ\n—\n"
+}

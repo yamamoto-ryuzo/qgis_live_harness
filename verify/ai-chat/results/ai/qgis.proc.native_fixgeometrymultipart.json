@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_fixgeometrymultipart",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Convert to strictly multipart」(id: native:fixgeometrymultipart) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Convert to strictly multipart」(id: native:fixgeometrymultipart) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:fixgeometrymultipart`（表示名 **「Convert to strictly multipart」**、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n「Check geometry」系の **`native:checkgeometrymultipart`（Strictly multipart）** が出力したエラーレイヤを元に、**パートを1つしか持たない multipart ジオメトリを singlepart ジオメトリに変換**する修正アルゴリズムです。「multi 型なのに実質 single」という不整合を解消します。\n\nただしヘルプに明記されている通り、**レイヤ自体のジオメトリ型は multipart のまま変わりません**。地物単位で「真の multi（2パート以上）」だけを残し、1パートしか持たない地物を整理する処理です。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ（修正対象のベクタ） |\n| `ERRORS` | エラーレイヤ（`checkgeometrymultipart` の出力） |\n| `UNIQUE_ID` | 元地物を一意に識別するフィールド |\n| `TOLERANCE` | 許容範囲（数値） |\n\n### 出力\n\n- `OUTPUT` — strictly multipart に修正されたレイヤ\n- `REPORT` — 修正内容のレポートレイヤ\n\n### 補足\n\n- `PART_IDX` / `RING_IDX` / `VERTEX_IDX` は不要で、パラメータ構成は `fixgeometrydeletefeatures`（Delete features）と同じ最小構成です。\n- 似た名前の **`native:multiparttosingleparts`（マルチパートをシングルパートに変換）** は別物で、全マルチ地物をパートごとに別地物へ分解します。本アルゴリズムは「1パートしかない multi だけを修正する」点が違います。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:fixgeometrymultipart')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related_check': [(a.id(), a.displayName()) for a in QgsApplication.processingRegistry().algorithms() if 'multipart' in a.id() or 'multipart' in a.displayName().lower()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Convert to strictly multipart」(id: native:fixgeometrymultipart) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:fixgeometrymultipart（表示名 「Convert to strictly multipart」、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n用途\n「Check geometry」系の native:checkgeometrymultipart（Strictly multipart） が出力したエラーレイヤを元に、パートを1つしか持たない multipart ジオメトリを singlepart ジオメトリに変換する修正アルゴリズムです。「multi 型なのに実質 single」という不整合を解消します。\nただしヘルプに明記されている通り、レイヤ自体のジオメトリ型は multipart のまま変わりません。地物単位で「真の multi（2パート以上）」だけを残し、1パートしか持たない地物を整理する処理です。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ（修正対象のベクタ）\nERRORS\nエラーレイヤ（checkgeometrymultipart の出力）\nUNIQUE_ID\n元地物を一意に識別するフィールド\nTOLERANCE\n許容範囲（数値）\n\n出力\nOUTPUT — strictly multipart に修正されたレイヤ\nREPORT — 修正内容のレポートレイヤ\n補足\nPART_IDX / RING_IDX / VERTEX_IDX は不要で、パラメータ構成は fixgeometrydeletefeatures（Delete features）と同じ最小構成です。\n似た名前の native:multiparttosingleparts（マルチパートをシングルパートに変換） は別物で、全マルチ地物をパートごとに別地物へ分解します。本アルゴリズムは「1パートしかない multi だけを修正する」点が違います。"
+}

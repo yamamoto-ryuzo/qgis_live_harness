@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_import.ai.bridge_route",
+ "prompt": "geo_import プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_import プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "`describe_plugins` を実行し、`geo_import` の自己記述部分だけ抽出します。`describe_plugins` で `geo_import` の自己記述を確認しました。\n\n## 基本情報\n\n- `id`: `geo_import`\n- `name`: `データカタログ取込 (geo_import)`\n- `bridge`: `true`\n- `ok`: `true`\n- 現在の状態: `dialog: false`\n\n## summary\n\nデータカタログ（CKAN等）を検索し、データセット内のリソース（ファイル/サービスURL）を選択して QGIS へ読み込むプラグインです。検索は非同期実行のため、`search()` 後に `results()` で結果を取得します。\n\n## when_to_use\n\n- データカタログからデータセットを検索したい\n- データセットのリソース（配信ファイル/URL）を確認したい\n- リソースを選んで QGIS へレイヤとして読み込みたい\n- カタログ接続設定（CKAN URL/キャッシュ）を確認したい\n\n## invoke\n\n```json\n{\n  \"type\": \"bridge_call\",\n  \"plugin_id\": \"geo_import\",\n  \"method\": \"<method>\",\n  \"args\": []\n}\n```\n\n## 公開メソッド一覧\n\n`describe_plugins` では31個の bridge メソッドが公開されています。\n\n### ダイアログ\n\n- `openDialog()`\n- `closeDialog()`\n- `openProviders()`\n- `openSettings()`\n- `openDisclaimer()`\n- `reload()`\n- `status()`\n\n### 検索・結果\n\n- `search(text=None)`\n- `results()`\n- `gotoPage(page)`\n- `nextPage()`\n- `prevPage()`\n- `selectResult(index)`\n- `selectResults(indices)`\n- `datasetDetails(index=None)`\n\n### カテゴリ・フィルタ\n\n- `listGroups()`\n- `checkGroups(selection='all')`\n- `formatFilter(format=None)`\n\n### リソース・読み込み\n\n- `resources()`\n- `checkResources(selection='all')`\n- `link(copy=False)`\n- `loadSelected()`\n\n### サーバー・設定・キャッシュ\n\n- `listServers()`\n- `selectServers(names)`\n- `addServer(name, url)`\n- `removeServer(name)`\n- `testServer(url)`\n- `getSettings()`\n- `setSettings(settings=None)`\n- `localCache(enabled=None)`\n- `refreshCache()`"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_import プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \ndescribe_plugins を実行し、geo_import の自己記述部分だけ抽出します。describe_plugins で geo_import の自己記述を確認しました。\n基本情報\nid: geo_import\nname: データカタログ取込 (geo_import)\nbridge: true\nok: true\n現在の状態: dialog: false\nsummary\nデータカタログ（CKAN等）を検索し、データセット内のリソース（ファイル/サービスURL）を選択して QGIS へ読み込むプラグインです。検索は非同期実行のため、search() 後に results() で結果を取得します。\nwhen_to_use\nデータカタログからデータセットを検索したい\nデータセットのリソース（配信ファイル/URL）を確認したい\nリソースを選んで QGIS へレイヤとして読み込みたい\nカタログ接続設定（CKAN URL/キャッシュ）を確認したい\ninvoke\n{\n  \"type\": \"bridge_call\",\n  \"plugin_id\": \"geo_import\",\n  \"method\": \"<method>\",\n  \"args\": []\n}\n公開メソッド一覧\ndescribe_plugins では31個の bridge メソッドが公開されています。\nダイアログ\nopenDialog()\ncloseDialog()\nopenProviders()\nopenSettings()\nopenDisclaimer()\nreload()\nstatus()\n検索・結果\nsearch(text=None)\nresults()\ngotoPage(page)\nnextPage()\nprevPage()\nselectResult(index)\nselectResults(indices)\ndatasetDetails(index=None)\nカテゴリ・フィルタ\nlistGroups()\ncheckGroups(selection='all')\nformatFilter(format=None)\nリソース・読み込み\nresources()\ncheckResources(selection='all')\nlink(copy=False)\nloadSelected()\nサーバー・設定・キャッシュ\nlistServers()\nselectServers(names)\naddServer(name, url)\nremoveServer(name)\ntestServer(url)\ngetSettings()\nsetSettings(settings=None)\nlocalCache(enabled=None)\nrefreshCache()"
+}

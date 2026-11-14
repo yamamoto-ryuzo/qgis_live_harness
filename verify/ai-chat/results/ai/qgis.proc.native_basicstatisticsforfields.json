@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.native_basicstatisticsforfields",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Basic statistics for fields」(id: native:basicstatisticsforfields) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Basic statistics for fields」(id: native:basicstatisticsforfields) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "出力される統計値も確認します。確認しました。**`native:basicstatisticsforfields`（表示名:「Basic statistics for fields」、グループ:「ベクタ解析」、プロバイダ:「QGIS（ネイティブC++）」）は存在します**。\n\n## 用途\n**ベクタレイヤの属性フィールドについて基本統計量を計算**します。数値・日付・時刻・文字列フィールドに対応しており、フィールド型に応じた統計値（数値なら平均・標準偏差・四分位、文字列なら長さ・最頻値など）を返します。データ品質チェック、値分布の把握、前処理前のプロファイリングなどに使う汎用統計ツールです。\n\n## 主なパラメータ（入力）\n\n| パラメータ | 型 | 説明 |\n|---|---|---|\n| `INPUT_LAYER` | source | 入力ベクタレイヤ |\n| `FIELD_NAME` | field | 統計対象のフィールド |\n| `OUTPUT` | sink | 統計結果をテーブル（1 行）として出力 |\n| `OUTPUT_HTML_FILE` | fileDestination | HTML レポートファイル（任意） |\n\n## 出力される統計値（outputNumber として個別取得可能）\n\n- 件数系：`COUNT` / `UNIQUE`（ユニーク値数）/ `EMPTY`（NULL 数）/ `FILLED`（非 NULL 数）\n- 値域系：`MIN` / `MAX` / `RANGE` / `FIRSTQUARTILE` / `MEDIAN` / `THIRDQUARTILE` / `IQR`\n- 集計系：`SUM` / `MEAN` / `STD_DEV` / `CV`（変動係数）\n- 最頻値系：`MAJORITY`（最頻値）/ `MINORITY`（最少出現値）\n- 文字列系：`MIN_LENGTH` / `MAX_LENGTH` / `MEAN_LENGTH`\n\n補足：\n- **フィールド型によって計算される統計が異なります**（文字列フィールドなら長さ系・最頻値系のみ）。\n- 統計値は `OUTPUT` の 1 行テーブルにまとめて出力されるほか、モデラー内では各 `outputNumber` を個別の値として後続アルゴリズムに渡せます。\n- 複数フィールドの一括統計が欲しい場合は「レイヤ統計」（`native:statisticsbycategories` や GUI の統計パネル）と組み合わせるのが効率的です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('native:basicstatisticsforfields')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in reg.algorithms() if 'statistic' in a.id().lower() or 'basic' in a.id().lower()]}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': str(p.defaultValue())}\\n        if hasattr(p, 'options'):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': (alg.shortHelpString() or '')[:1500],\\n        'params': params,\\n    }\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:basicstatisticsforfields')\\nresult = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Basic statistics for fields」(id: native:basicstatisticsforfields) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n出力される統計値も確認します。確認しました。native:basicstatisticsforfields（表示名:「Basic statistics for fields」、グループ:「ベクタ解析」、プロバイダ:「QGIS（ネイティブC++）」）は存在します。\n用途\nベクタレイヤの属性フィールドについて基本統計量を計算します。数値・日付・時刻・文字列フィールドに対応しており、フィールド型に応じた統計値（数値なら平均・標準偏差・四分位、文字列なら長さ・最頻値など）を返します。データ品質チェック、値分布の把握、前処理前のプロファイリングなどに使う汎用統計ツールです。\n主なパラメータ（入力）\nパラメータ\n型\n説明\nINPUT_LAYER\nsource\n入力ベクタレイヤ\nFIELD_NAME\nfield\n統計対象のフィールド\nOUTPUT\nsink\n統計結果をテーブル（1 行）として出力\nOUTPUT_HTML_FILE\nfileDestination\nHTML レポートファイル（任意）\n\n出力される統計値（outputNumber として個別取得可能）\n件数系：COUNT / UNIQUE（ユニーク値数）/ EMPTY（NULL 数）/ FILLED（非 NULL 数）\n値域系：MIN / MAX / RANGE / FIRSTQUARTILE / MEDIAN / THIRDQUARTILE / IQR\n集計系：SUM / MEAN / STD_DEV / CV（変動係数）\n最頻値系：MAJORITY（最頻値）/ MINORITY（最少出現値）\n文字列系：MIN_LENGTH / MAX_LENGTH / MEAN_LENGTH\n補足：\nフィールド型によって計算される統計が異なります（文字列フィールドなら長さ系・最頻値系のみ）。\n統計値は OUTPUT の 1 行テーブルにまとめて出力されるほか、モデラー内では各 outputNumber を個別の値として後続アルゴリズムに渡せます。\n複数フィールドの一括統計が欲しい場合は「レイヤ統計」（native:statisticsbycategories や GUI の統計パネル）と組み合わせるのが効率的です。"
+}

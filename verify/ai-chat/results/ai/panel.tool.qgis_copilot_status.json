@@ -10,7 +10,7 @@
   },
   {
    "role": "assistant",
-   "content": "Copilot タスクは現在0件です。このQGISプロセスから起動されたCopilotセッションはなく、実行中・完了済みいずれのタスクもありません。\n\n`qgis_copilot_run` で新規タスクを起動できます。"
+   "content": "Copilotタスクは **0件** です。このQGISプロセスから起動された Copilot CLI セッションはありません。"
   }
  ],
  "tools": [
@@ -22,5 +22,5 @@
    "args": "{}"
   }
  ],
- "view_tail": "[あなた] Copilotタスクの状態を確認して\n[AI] \nCopilot タスクは現在0件です。このQGISプロセスから起動されたCopilotセッションはなく、実行中・完了済みいずれのタスクもありません。\nqgis_copilot_run で新規タスクを起動できます。"
+ "view_tail": "[あなた] Copilotタスクの状態を確認して\n[AI] \nCopilotタスクは 0件 です。このQGISプロセスから起動された Copilot CLI セッションはありません。"
 }

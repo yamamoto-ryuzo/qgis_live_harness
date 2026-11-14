@@ -1,0 +1,34 @@
+{
+ "id": "qgis.action.mActionFeatureAction",
+ "prompt": "QGISの「地物アクション」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「地物アクション」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「地物アクション」関連のアクションを検索します。絞り込みが広すぎました。「地物アクション」に的を絞って再検索します。`mActionFeatureAction` が見つかりました。enabled なので実行します。実行しました。\n\n## 「地物アクション」を実行 → **ツールがアクティブになりました**\n\n| 項目 | 値 |\n|---|---|\n| アクション | `mActionFeatureAction`（トグル式） |\n| enabled | true |\n| **checked** | **true → ON** |\n| 現在のマップツール | `QgsMapToolFeatureAction`（起動前は `QgsMapToolChangeLabelProperties`) |\n\n地物アクションモードが有効になりました。キャンバス上で地物をクリックすると、そのレイヤに定義されたアクション（URLを開く、Python実行等）が実行されるモードです。\n\n**注意点：**\n- ツールチップは「**アクションが選択されていません**」— アクティブレイヤ `tmp_floater_test` にはレイヤプロパティで定義されたアクションが1つもないため、実際に実行できるアクションは未選択です\n- また同レイヤは地物数0なので、クリック対象の地物も画面上にありません\n\nツール自体は正常に起動しています。解除するには `a.trigger()` の再実行か他のマップツールへの切り替えを行ってください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    on = (a.objectName() or '')\\n    tt = (a.toolTip() or '')\\n    if 'action' in on.lower() or 'アクション' in t or 'feature action' in t.lower() or 'feature action' in tt.lower():\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': t,\\n            'objectName': on,\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            'tooltip': tt,\\n      "
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    on = (a.objectName() or '')\\n    tt = (a.toolTip() or '')\\n    if on in ('mActionAction', 'mActionFeatureAction', 'mActionRunFeatureAction') or '地物アクション' in t or 'feature action' in tt.lower():\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': t, 'objectName': on,\\n            'checkable': a.isCheckable(), 'checked': a.isChecked(),\\n            'enabled': a.isEnabled(), 'visible': a.isVisible(),\\n            'containers': containers, 'tooltip': tt,\\n            'shortcut': a.shortcut()."
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nout = {}\\nfor a in mw.findChildren(QAction):\\n    if (a.objectName() or '') == 'mActionFeatureAction':\\n        out['enabled_before'] = a.isEnabled()\\n        a.trigger()\\n        out['checked'] = a.isChecked()\\n        out['tooltip_after'] = a.toolTip()\\n        out['triggered'] = True\\n        break\\nmt = iface.mapCanvas().mapTool()\\nout['current_mapTool'] = mt.metaObject().className() if mt else None\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「地物アクション」機能(アクション)を実行して\n[AI] \n「地物アクション」関連のアクションを検索します。絞り込みが広すぎました。「地物アクション」に的を絞って再検索します。mActionFeatureAction が見つかりました。enabled なので実行します。実行しました。\n「地物アクション」を実行 → ツールがアクティブになりました\n項目\n値\nアクション\nmActionFeatureAction（トグル式）\nenabled\ntrue\nchecked\ntrue → ON\n現在のマップツール\nQgsMapToolFeatureAction（起動前は QgsMapToolChangeLabelProperties)\n\n地物アクションモードが有効になりました。キャンバス上で地物をクリックすると、そのレイヤに定義されたアクション（URLを開く、Python実行等）が実行されるモードです。\n注意点：\nツールチップは「アクションが選択されていません」— アクティブレイヤ tmp_floater_test にはレイヤプロパティで定義されたアクションが1つもないため、実際に実行できるアクションは未選択です\nまた同レイヤは地物数0なので、クリック対象の地物も画面上にありません\nツール自体は正常に起動しています。解除するには a.trigger() の再実行か他のマップツールへの切り替えを行ってください。"
+}

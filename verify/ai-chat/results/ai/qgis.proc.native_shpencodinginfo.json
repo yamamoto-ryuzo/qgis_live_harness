@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_shpencodinginfo",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] シェープファイルの文字コードを抽出」(id: native:shpencodinginfo) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] シェープファイルの文字コードを抽出」(id: native:shpencodinginfo) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:shpencodinginfo`「**シェープファイルの文字コードを抽出**」は登録されています（グループ: ベクタ一般）。\n\n## 用途\n\n- シェープファイル（.shp/.dbf）に埋め込まれた**文字コード情報を読み取って返す**だけの情報系アルゴリズムです\n- 具体的には **.cpg ファイル**の記述と、**.dbf ファイルの LDID ヘッダブロック**（言語ドライバID）の2箇所をチェックします\n- 文字化け対策で「このシェープファイルは本当は何エンコーディングか」を調べたいときに使えます。ジオメトリや属性の変換は行いません\n\n## パラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | file | 入力レイヤ（シェープファイルのパス指定。レイヤではなくファイル入力） |\n\nパラメータはこれ1つだけです。\n\n## 出力\n\n| 出力 | 型 | 内容 |\n|---|---|---|\n| `ENCODING` | outputString | 判定された文字コード（総合結果） |\n| `CPG_ENCODING` | outputString | .cpg ファイルから読み取った文字コード |\n| `LDID_ENCODING` | outputString | .dbf の LDID ヘッダから読み取った文字コード |\n\nモデラーで「エンコーディングを判定してから Fix Encoding (`native:fixencoding`) に渡す」ような組み合わせを想定した設計になっています。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:shpencodinginfo')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] シェープファイルの文字コードを抽出」(id: native:shpencodinginfo) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:shpencodinginfo「シェープファイルの文字コードを抽出」は登録されています（グループ: ベクタ一般）。\n用途\nシェープファイル（.shp/.dbf）に埋め込まれた文字コード情報を読み取って返すだけの情報系アルゴリズムです\n具体的には .cpg ファイルの記述と、.dbf ファイルの LDID ヘッダブロック（言語ドライバID）の2箇所をチェックします\n文字化け対策で「このシェープファイルは本当は何エンコーディングか」を調べたいときに使えます。ジオメトリや属性の変換は行いません\nパラメータ\nパラメータ\n型\n内容\nINPUT\nfile\n入力レイヤ（シェープファイルのパス指定。レイヤではなくファイル入力）\n\nパラメータはこれ1つだけです。\n出力\n出力\n型\n内容\nENCODING\noutputString\n判定された文字コード（総合結果）\nCPG_ENCODING\noutputString\n.cpg ファイルから読み取った文字コード\nLDID_ENCODING\noutputString\n.dbf の LDID ヘッダから読み取った文字コード\n\nモデラーで「エンコーディングを判定してから Fix Encoding (native:fixencoding) に渡す」ような組み合わせを想定した設計になっています。"
+}

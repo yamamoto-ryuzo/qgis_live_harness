@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Database",
+ "prompt": "QGISの「Database」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Database」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Database」メニュー（DB Manager プラグイン由来）を調べます。「Database」メニューを調べました。結論：**現在有効（enabled = true）で、配下の全項目も有効です**。\n\n- **実体**: メニューバー上のアクション「&Database」→ メニュー `mDatabaseMenu`（QGIS 標準の DB Manager 関連メニュー）\n- **状態**: `isEnabled() == true`、`isVisible() == true`\n- **項目数**: 2（すべて enabled = true）\n\n| 項目 | objectName | 有効 |\n|---|---|---|\n| Query History… | `mActionQueryHistory` | ✓ |\n| DBマネージャ... | `dbManager` | ✓ |\n\n「Query History…」は SQL クエリ履歴パネル、「DBマネージャ...」は db_manager プラグインのダイアログを開くアクションで、メニュー本体・両項目ともに有効な状態です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QMenuBar\\nmw = iface.mainWindow()\\nmb = mw.menuBar()\\nres = None\\nfor a in mb.actions():\\n    if a.text().replace('&','') == 'Database':\\n        menu = a.menu()\\n        menu.aboutToShow.emit()\\n        items = [{'text': m.text().replace('&',''), 'name': m.objectName(), 'enabled': m.isEnabled(), 'sep': m.isSeparator(), 'submenu': m.menu() is not None} for m in menu.actions()]\\n        res = {'action_text': a.text(), 'menu_obj': menu.objectName(), 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'item_count': len(items), 'items': items}\\nresult = res\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Database」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Database」メニュー（DB Manager プラグイン由来）を調べます。「Database」メニューを調べました。結論：現在有効（enabled = true）で、配下の全項目も有効です。\n実体: メニューバー上のアクション「&Database」→ メニュー mDatabaseMenu（QGIS 標準の DB Manager 関連メニュー）\n状態: isEnabled() == true、isVisible() == true\n項目数: 2（すべて enabled = true）\n項目\nobjectName\n有効\nQuery History…\nmActionQueryHistory\n✓\nDBマネージャ...\ndbManager\n✓\n\n「Query History…」は SQL クエリ履歴パネル、「DBマネージャ...」は db_manager プラグインのダイアログを開くアクションで、メニュー本体・両項目ともに有効な状態です。"
+}

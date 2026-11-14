@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionMeasure",
+ "prompt": "QGISの「線の長さを測る」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「線の長さを測る」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「線の長さを測る」アクション(`mActionMeasure` 相当)を探して実行します。実行しました。\n\n- アクション: `mActionMeasure`「線の長さを測る」(Ctrl+Shift+M)\n- 実行後: **`checked: true`**、計測ツール(`QgsMapTool` 系 = Measure ツール)がアクティブになりました\n\nキャンバス上でクリックを重ねると計測ダイアログが開き、区間ごとの長さと合計が表示されます(右クリックで終了)。関連ツールの `mActionMeasureArea`(面積・Ctrl+Shift+J)、`mActionMeasureAngle`(角度)、`mActionMeasureBearing`(方位)もすべて有効な状態でした。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    n = a.objectName() or ''\\n    if '測る' in t or 'easure' in n or '計測' in t:\\n        found.append({'objectName': n, 'text': t, 'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked(), 'shortcut': a.shortcut().toString()})\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionMeasure')\\ninfo = {'enabled': a.isEnabled()}\\na.trigger()\\ninfo['checked'] = a.isChecked()\\ninfo['mapTool'] = type(iface.mapCanvas().mapTool()).__name__\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「線の長さを測る」機能(アクション)を実行して\n[AI] \n「線の長さを測る」アクション(mActionMeasure 相当)を探して実行します。実行しました。\nアクション: mActionMeasure「線の長さを測る」(Ctrl+Shift+M)\n実行後: checked: true、計測ツール(QgsMapTool 系 = Measure ツール)がアクティブになりました\nキャンバス上でクリックを重ねると計測ダイアログが開き、区間ごとの長さと合計が表示されます(右クリックで終了)。関連ツールの mActionMeasureArea(面積・Ctrl+Shift+J)、mActionMeasureAngle(角度)、mActionMeasureBearing(方位)もすべて有効な状態でした。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_joinattributesbylocation",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性の空間結合」(id: native:joinattributesbylocation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性の空間結合」(id: native:joinattributesbylocation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:joinattributesbylocation` は **processing registry に存在します**。\n\n- **表示名**: 属性の空間結合\n- **グループ**: ベクタ一般 (`vectorgeneral`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\nキーフィールドではなく**ジオメトリの空間関係（位置関係）を条件に**、別レイヤの属性を入力レイヤへ結合したベクタレイヤを作成するアルゴリズムです。「ポリゴン内にある地点にポリゴンの属性を付与する」「道路と交差する施設の属性を転記する」等、いわゆる**空間結合（spatial join）**に使います。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 属性を付与される側のレイヤ（必須） | — |\n| `PREDICATE` | 空間的関係（enum）：`交差(intersect)` / `含む(contain)` / `等しい(equal)` / `接触(touch)` / `重なる(overlap)` / `含まれる(within)` / `交差(cross)` | `0`（intersect） |\n| `JOIN` | 結合元（比較対象）レイヤ（必須） | — |\n| `JOIN_FIELDS` | 結合するフィールド（空白＝全フィールド） | 空 |\n| `METHOD` | 結合型（enum）：`0` 1対多（マッチごとに地物作成） / `1` 最初に合致した地物のみ（1対1） / `2` 最も重なる地物のみ（1対1） | `0` |\n| `DISCARD_NONMATCHING` | 結合対象がなかった地物を破棄 | `False` |\n| `PREFIX` | 結合フィールド名の接頭辞 | 空 |\n| `OUTPUT` | 出力レイヤ | 一時出力 |\n| `NON_MATCHING` | 結合できなかった地物のみの出力（任意） | — |\n\n## 出力\n\n- `OUTPUT` — 結合済みレイヤ\n- `NON_MATCHING` — マッチしなかった入力地物\n- `JOINED_COUNT` — 結合された地物数（数値）\n\n`PREDICATE` は DE-9IM モデルに基づく空間述語で複数指定可能です。実行例: `processing.run(\"native:joinattributesbylocation\", {'INPUT': points, 'JOIN': polygons, 'PREDICATE': [0, 5], 'METHOD': 1, 'OUTPUT': 'TEMPORARY_OUTPUT'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:joinattributesbylocation')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n  "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性の空間結合」(id: native:joinattributesbylocation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:joinattributesbylocation は processing registry に存在します。\n表示名: 属性の空間結合\nグループ: ベクタ一般 (vectorgeneral)\nプロバイダ: QGIS（ネイティブ C++）\n用途\nキーフィールドではなくジオメトリの空間関係（位置関係）を条件に、別レイヤの属性を入力レイヤへ結合したベクタレイヤを作成するアルゴリズムです。「ポリゴン内にある地点にポリゴンの属性を付与する」「道路と交差する施設の属性を転記する」等、いわゆる**空間結合（spatial join）**に使います。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n属性を付与される側のレイヤ（必須）\n—\nPREDICATE\n空間的関係（enum）：交差(intersect) / 含む(contain) / 等しい(equal) / 接触(touch) / 重なる(overlap) / 含まれる(within) / 交差(cross)\n0（intersect）\nJOIN\n結合元（比較対象）レイヤ（必須）\n—\nJOIN_FIELDS\n結合するフィールド（空白＝全フィールド）\n空\nMETHOD\n結合型（enum）：0 1対多（マッチごとに地物作成） / 1 最初に合致した地物のみ（1対1） / 2 最も重なる地物のみ（1対1）\n0\nDISCARD_NONMATCHING\n結合対象がなかった地物を破棄\nFalse\nPREFIX\n結合フィールド名の接頭辞\n空\nOUTPUT\n出力レイヤ\n一時出力\nNON_MATCHING\n結合できなかった地物のみの出力（任意）\n—\n\n出力\nOUTPUT — 結合済みレイヤ\nNON_MATCHING — マッチしなかった入力地物\nJOINED_COUNT — 結合された地物数（数値）\nPREDICATE は DE-9IM モデルに基づく空間述語で複数指定可能です。実行例: processing.run(\"native:joinattributesbylocation\", {'INPUT': points, 'JOIN': polygons, 'PREDICATE': [0, 5], 'METHOD': 1, 'OUTPUT': 'TEMPORARY_OUTPUT'})"
+}

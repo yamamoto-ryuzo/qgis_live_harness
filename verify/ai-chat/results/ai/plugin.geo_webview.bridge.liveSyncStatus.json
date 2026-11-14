@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_webview.bridge.liveSyncStatus",
+ "prompt": "QGISの geo_webview プラグインで「ライブ連携の状態を返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_webview プラグインで「ライブ連携の状態を返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`liveSyncStatus` を実行します。`liveSyncStatus` の現在の状態です。\n\n## ライブ連携ステータス\n\n| 項目 | 値 | 意味 |\n|---|---|---|\n| enabled | **true** | 連携は有効(liveSyncStart 済み) |\n| attached | **true** | プロジェクトへ監視接続済み |\n| running | false | 差分エクスポート実行中ではない(再入防止フラグ) |\n| pending | 0 | 未エクスポートの保留差分なし |\n| structural | false | 構造変更(レイヤ追加/削除系)の保留なし |\n| watched_layers | 23 | 監視中レイヤ数 |\n\n## live オブジェクト(配信側の状態)\n\n- `enabled: true`、`rev: 1794624546425` / `updated: 2026-11-14T11:49:06`\n- `changed: []`、`camera/selection/writeback/features: null` — Canvas 側からの書き戻し・選択・カメラ通知は現時点なし\n- `qgis_selection`: 「geo_search 住所検索」レイヤの地物 id=1,2,3(3件)が選択中、rev 1794624664754 — QGIS側の選択状態が live 配信へ記録されています\n\n連携は正常稼働中で、現時点では未処理の差分・Canvas側からの通知はありません。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'plugin_id': 'geo_webview', 'method': 'liveSyncStatus'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_webview プラグインで「ライブ連携の状態を返す。」を実行して結果を教えて\n[AI] \nliveSyncStatus を実行します。liveSyncStatus の現在の状態です。\nライブ連携ステータス\n項目\n値\n意味\nenabled\ntrue\n連携は有効(liveSyncStart 済み)\nattached\ntrue\nプロジェクトへ監視接続済み\nrunning\nfalse\n差分エクスポート実行中ではない(再入防止フラグ)\npending\n0\n未エクスポートの保留差分なし\nstructural\nfalse\n構造変更(レイヤ追加/削除系)の保留なし\nwatched_layers\n23\n監視中レイヤ数\n\nlive オブジェクト(配信側の状態)\nenabled: true、rev: 1794624546425 / updated: 2026-11-14T11:49:06\nchanged: []、camera/selection/writeback/features: null — Canvas 側からの書き戻し・選択・カメラ通知は現時点なし\nqgis_selection: 「geo_search 住所検索」レイヤの地物 id=1,2,3(3件)が選択中、rev 1794624664754 — QGIS側の選択状態が live 配信へ記録されています\n連携は正常稼働中で、現時点では未処理の差分・Canvas側からの通知はありません。"
+}

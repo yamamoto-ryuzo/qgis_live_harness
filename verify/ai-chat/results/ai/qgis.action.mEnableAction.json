@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mEnableAction",
+ "prompt": "QGISの「mEnableAction」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「mEnableAction」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "`mEnableAction`（高度なデジタイズツールの有効化）は現在 ON 状態です。実行すると OFF に切り替わりますが、実行します。実行しました。\n\n## `mEnableAction`（高度なデジタイズツールの有効化）— OFF に切替\n\n- 実行前: 有効 / **チェックON** → `trigger()` 後: **チェックOFF**\n- 高度なデジタイズ（CAD）が無効化されました\n\n### 連動した変化\n\nCAD 無効化に伴い、依存するアクションが無効化されました：\n\n| アクション | enabled | checked |\n|---|---|---|\n| `mFloaterAction`（Floater settings） | ❌ 無効に | true（チェック残存） |\n| `mConstructionAction`（作図） | ❌ 無効に | true（チェック残存） |\n\n※checked は残っていますが無効化されているので実効はしません。再度 `mEnableAction` をONにすれば両方とも有効に復帰します。\n\nなお `mEnableAction` はトグル式なので、「実行＝状態反転」です。ON に戻したい場合は言ってください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction, QDockWidget\\n\\nmw = iface.mainWindow()\\ndock = mw.findChild(QDockWidget, 'AdvancedDigitizingTools')\\nout = {}\\nfor a in dock.findChildren(QAction):\\n    if a.objectName() == 'mEnableAction':\\n        out['before'] = {'enabled': a.isEnabled(), 'checked': a.isChecked()}\\n        a.trigger()\\n        out['after'] = {'checked': a.isChecked()}\\n        break\\n# 影響確認: Floater/作図アクションの状態\\nfor a in dock.findChildren(QAction):\\n    if a.objectName() in ('mFloaterAction','mConstructionAction'):\\n        out.setdefault('related', {})[a.objectName()] = {'enabled': a.isEnabled(), 'checked': a.isChecked()}\\nresult = out\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「mEnableAction」機能(アクション)を実行して\n[AI] \nmEnableAction（高度なデジタイズツールの有効化）は現在 ON 状態です。実行すると OFF に切り替わりますが、実行します。実行しました。\nmEnableAction（高度なデジタイズツールの有効化）— OFF に切替\n実行前: 有効 / チェックON → trigger() 後: チェックOFF\n高度なデジタイズ（CAD）が無効化されました\n連動した変化\nCAD 無効化に伴い、依存するアクションが無効化されました：\nアクション\nenabled\nchecked\nmFloaterAction（Floater settings）\n❌ 無効に\ntrue（チェック残存）\nmConstructionAction（作図）\n❌ 無効に\ntrue（チェック残存）\n\n※checked は残っていますが無効化されているので実効はしません。再度 mEnableAction をONにすれば両方とも有効に復帰します。\nなお mEnableAction はトグル式なので、「実行＝状態反転」です。ON に戻したい場合は言ってください。"
+}

@@ -10,10 +10,22 @@
   },
   {
    "role": "assistant",
-   "content": "取得できるタスク結果はありません。先ほどの確認の通り、このQGISプロセスで起動されたDevin / Copilot タスクは0件のため、結果をフェッチする対象が存在しません。\n\n外部エージェントにタスクを実行させたい場合は、`qgis_devin_run` または `qgis_copilot_run` で起動できます。やらせたい内容があれば教えてください。"
+   "content": "確認できるタスク結果はありません。\n\nこのQGISプロセスでは Devin / Copilot ともに起動済みタスクが0件のため、`qgis_devin_result` / `qgis_copilot_result` に渡す task_id が存在しません。`qgis_devin_run` 等でタスクを起動すれば、完了後に結果を取得できます。"
   }
  ],
- "tools": [],
- "audit": [],
- "view_tail": "[あなた] 外部エージェントのタスク結果を確認して\n[AI] \n取得できるタスク結果はありません。先ほどの確認の通り、このQGISプロセスで起動されたDevin / Copilot タスクは0件のため、結果をフェッチする対象が存在しません。\n外部エージェントにタスクを実行させたい場合は、qgis_devin_run または qgis_copilot_run で起動できます。やらせたい内容があれば教えてください。"
+ "tools": [
+  "copilot_status",
+  "devin_status"
+ ],
+ "audit": [
+  {
+   "type": "devin_status",
+   "args": "{}"
+  },
+  {
+   "type": "copilot_status",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] 外部エージェントのタスク結果を確認して\n[AI] \n確認できるタスク結果はありません。\nこのQGISプロセスでは Devin / Copilot ともに起動済みタスクが0件のため、qgis_devin_result / qgis_copilot_result に渡す task_id が存在しません。qgis_devin_run 等でタスクを起動すれば、完了後に結果を取得できます。"
 }

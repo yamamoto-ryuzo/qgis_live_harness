@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Kasugai_QGIS_Launcher",
+ "prompt": "QGISの「Kasugai QGIS Launcher」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Kasugai QGIS Launcher」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Kasugai QGIS Launcher」に該当するアクションを検索します。## 調査結果\n\n「Kasugai QGIS Launcher」アクションの状態を `qgis_pyeval` で確認しました。\n\n| 項目 | 状態 |\n|---|---|\n| 提供元 | **geo_launcher** プラグイン |\n| 表示テキスト | Kasugai QGIS Launcher |\n| 配置場所 | **プラグイン → geo_launcher** メニュー ＋ **GeoSuite** ツールバー |\n| ショートカット | なし |\n| 現在の有効状態 | **有効（enabled）** |\n\n### 補足\n\n- QGIS 標準アクションではなく、ロード済みプラグイン `geo_launcher` が登録したアクションです（objectName は空）。\n- 実行すると geo_launcher プラグインのダイアログ（Kasugai QGIS Launcher の起動画面）が開く想定です。\n\n実行してよければ `trigger()` で起動します。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\nmw = iface.mainWindow()\\nmatches = []\\nfor a in mw.findChildren(QAction):\\n    name = a.objectName() or ''\\n    text = a.text() or ''\\n    tip = a.toolTip() or ''\\n    blob = (name + text + tip).lower()\\n    if 'kasugai' in blob or 'launcher' in blob or 'geo_launcher' in blob:\\n        homes = [m.title() for m in mw.findChildren(QMenu) if a in m.actions()]\\n        tb = [t.windowTitle() for t in mw.findChildren(QToolBar) if a in t.actions()]\\n        matches.append({'objectName': name, 'text': text, 'toolTip': tip,\\n                        'enabled': a.isEnabled(), 'visible': a.isVisible(),\\n                        'shortcut': a.shortcut().toString(), 'menus': homes, 'toolbars': tb})\\nresult = matches\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Kasugai QGIS Launcher」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Kasugai QGIS Launcher」に該当するアクションを検索します。## 調査結果\n「Kasugai QGIS Launcher」アクションの状態を qgis_pyeval で確認しました。\n項目\n状態\n提供元\ngeo_launcher プラグイン\n表示テキスト\nKasugai QGIS Launcher\n配置場所\nプラグイン → geo_launcher メニュー ＋ GeoSuite ツールバー\nショートカット\nなし\n現在の有効状態\n有効（enabled）\n\n補足\nQGIS 標準アクションではなく、ロード済みプラグイン geo_launcher が登録したアクションです（objectName は空）。\n実行すると geo_launcher プラグインのダイアログ（Kasugai QGIS Launcher の起動画面）が開く想定です。\n実行してよければ trigger() で起動します。"
+}

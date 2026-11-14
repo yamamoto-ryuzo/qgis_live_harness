@@ -1,0 +1,35 @@
+{
+ "id": "qgis.action.noname",
+ "prompt": "QGISの「統計」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「統計」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「統計」パネルのアクションを探して実行します。既に有効なので、ドックを前面に出します。「統計」パネルを前面に表示しました。\n\n- 「統計サマリー」アクション（`mActionStatisticalSummary`）は既にON（チェック済み）だったため、トグルせずドックを `raise_()` で前面に出しました\n- 画面左下に「統計」パネルが見えています（フィールド選択コンボ、統計量/値の表、「選択した地物のみ」チェック付き）\n- レイヤが無いため統計値はまだ空です。ベクタレイヤを追加してフィールドを選ぶと、個数・合計・平均・最小/最大・標準偏差などが表示されます\n\nこのパネルでは数値フィールドだけでなく文字列フィールドの統計（最小値・最大値・ユニーク値数など）も確認できます。レイヤを読み込んで試しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QDockWidget\\nfrom qgis.utils import iface\\nmw = iface.mainWindow()\\n\\nactions = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').replace('&', '')\\n    o = a.objectName() or ''\\n    if ('統計' in t or 'tatistic' in t or 'tatistic' in o):\\n        actions.append({'text': t, 'objectName': o, 'enabled': a.isEnabled(),\\n                        'checkable': a.isCheckable(), 'checked': a.isChecked()})\\n\\ndocks = [{'objectName': d.objectName(), 'title': d.windowTitle(), 'visible': d.isVisible(),\\n          'area': str(mw.dockWidgetArea(d))}\\n         for d in mw.findChildren(QDockWidget)\\n         if 'tatistic' in (d.objectName() or '') or '統計' in (d.windowTitle() or '')]\\nresult = {'actions': actions, 'docks': docks}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\nfrom qgis.utils import iface\\nmw = iface.mainWindow()\\ndock = [d for d in mw.findChildren(QDockWidget) if d.objectName() == 'StatisticalSummaryDockWidget'][0]\\ndock.show(); dock.raise_()\\nresult = {'visible': dock.isVisible(), 'area': str(mw.dockWidgetArea(dock))}\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-e854bbc3.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「統計」機能(アクション)を実行して\n[AI] \n「統計」パネルのアクションを探して実行します。既に有効なので、ドックを前面に出します。「統計」パネルを前面に表示しました。\n「統計サマリー」アクション（mActionStatisticalSummary）は既にON（チェック済み）だったため、トグルせずドックを raise_() で前面に出しました\n画面左下に「統計」パネルが見えています（フィールド選択コンボ、統計量/値の表、「選択した地物のみ」チェック付き）\nレイヤが無いため統計値はまだ空です。ベクタレイヤを追加してフィールドを選ぶと、個数・合計・平均・最小/最大・標準偏差などが表示されます\nこのパネルでは数値フィールドだけでなく文字列フィールドの統計（最小値・最大値・ユニーク値数など）も確認できます。レイヤを読み込んで試しますか？"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_import.ai.pluginInfo",
+ "prompt": "geo_import プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_import プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "`describe_plugins` を再度実行し、`geo_import` の自己記述を抽出します。`describe_plugins` の `geo_import` 情報です。\n\n- `id`: `geo_import`\n- `name`: `データカタログ取込 (geo_import)`\n- `bridge`: `true`\n- `ok`: `true`\n- `state.dialog`: `false`\n\n## summary\n\nデータカタログ（CKAN等）を検索し、データセット内のリソース（ファイル/サービスURL）を選択して QGIS へ読み込むプラグインです。検索は非同期実行のため、`search()` 後に `results()` で結果を取得します。\n\n## when_to_use\n\n- データカタログからデータセットを検索したい\n- データセットのリソース（配信ファイル/URL）を確認したい\n- リソースを選んで QGIS へレイヤとして読み込みたい\n- カタログ接続設定（CKAN URL/キャッシュ）を確認したい\n\n## invoke\n\n```json\n{\n  \"type\": \"bridge_call\",\n  \"plugin_id\": \"geo_import\",\n  \"method\": \"<method>\",\n  \"args\": []\n}\n```\n\n## methods\n\n`addServer`, `checkGroups`, `checkResources`, `closeDialog`, `datasetDetails`, `formatFilter`, `getSettings`, `gotoPage`, `link`, `listGroups`, `listServers`, `loadSelected`, `localCache`, `nextPage`, `openDialog`, `openDisclaimer`, `openProviders`, `openSettings`, `prevPage`, `refreshCache`, `reload`, `removeServer`, `resources`, `results`, `search`, `selectResult`, `selectResults`, `selectServers`, `setSettings`, `status`, `testServer`"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_import プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \ndescribe_plugins を再度実行し、geo_import の自己記述を抽出します。describe_plugins の geo_import 情報です。\nid: geo_import\nname: データカタログ取込 (geo_import)\nbridge: true\nok: true\nstate.dialog: false\nsummary\nデータカタログ（CKAN等）を検索し、データセット内のリソース（ファイル/サービスURL）を選択して QGIS へ読み込むプラグインです。検索は非同期実行のため、search() 後に results() で結果を取得します。\nwhen_to_use\nデータカタログからデータセットを検索したい\nデータセットのリソース（配信ファイル/URL）を確認したい\nリソースを選んで QGIS へレイヤとして読み込みたい\nカタログ接続設定（CKAN URL/キャッシュ）を確認したい\ninvoke\n{\n  \"type\": \"bridge_call\",\n  \"plugin_id\": \"geo_import\",\n  \"method\": \"<method>\",\n  \"args\": []\n}\nmethods\naddServer, checkGroups, checkResources, closeDialog, datasetDetails, formatFilter, getSettings, gotoPage, link, listGroups, listServers, loadSelected, localCache, nextPage, openDialog, openDisclaimer, openProviders, openSettings, prevPage, refreshCache, reload, removeServer, resources, results, search, selectResult, selectResults, selectServers, setSettings, status, testServer"
+}

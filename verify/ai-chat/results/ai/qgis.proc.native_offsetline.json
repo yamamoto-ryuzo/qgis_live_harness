@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.native_offsetline",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] オフセット線」(id: native:offsetline) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] オフセット線」(id: native:offsetline) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "JOIN_STYLE の選択肢も確認しておきます。## 確認結果: 存在します ✅\n\n`native:offsetline` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:offsetline`\n- **表示名**: オフセット線\n- **グループ**: ベクタジオメトリ\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\nライン地物から指定距離だけ離れた**平行なオフセット線**を生成します。正の距離はライン進行方向の**左側**、負の距離は**右側**にオフセットされます。ヘルプにある通り、単純な平行移動ではなくバッファ式のオフセット計算です。道路の片側への歩道線や側線作成などに使えます。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力レイヤ（ライン） |\n| `DISTANCE` | distance（必須、デフォルト 10.0） | オフセット距離（正＝左、負＝右） |\n| `SEGMENTS` | number（必須、デフォルト 8） | 四半円のセグメント数（丸みの精度） |\n| `JOIN_STYLE` | enum（必須、デフォルト 0） | 継ぎ目スタイル: `0`=丸め(Round) / `1`=Miter / `2`=Bevel |\n| `MITER_LIMIT` | number（必須、デフォルト 2） | Miter継ぎ時の最大突出距離の制限 |\n| `OUTPUT` | sink → outputVector | 出力先（オフセット線のベクタレイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:offsetline\", {\n    'INPUT': line_layer,\n    'DISTANCE': 15.0,\n    'SEGMENTS': 8,\n    'JOIN_STYLE': 0,\n    'MITER_LIMIT': 2.0,\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:offsetline')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:offsetline')\\np = alg.parameterDefinition('JOIN_STYLE')\\nresult = p.options() if hasattr(p, 'options') else None\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] オフセット線」(id: native:offsetline) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nJOIN_STYLE の選択肢も確認しておきます。## 確認結果: 存在します ✅\nnative:offsetline は現在の QGIS の processing registry に登録されています。\nID: native:offsetline\n表示名: オフセット線\nグループ: ベクタジオメトリ\nプロバイダ: QGIS（ネイティブC++）\n用途\nライン地物から指定距離だけ離れた平行なオフセット線を生成します。正の距離はライン進行方向の左側、負の距離は右側にオフセットされます。ヘルプにある通り、単純な平行移動ではなくバッファ式のオフセット計算です。道路の片側への歩道線や側線作成などに使えます。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力レイヤ（ライン）\nDISTANCE\ndistance（必須、デフォルト 10.0）\nオフセット距離（正＝左、負＝右）\nSEGMENTS\nnumber（必須、デフォルト 8）\n四半円のセグメント数（丸みの精度）\nJOIN_STYLE\nenum（必須、デフォルト 0）\n継ぎ目スタイル: 0=丸め(Round) / 1=Miter / 2=Bevel\nMITER_LIMIT\nnumber（必須、デフォルト 2）\nMiter継ぎ時の最大突出距離の制限\nOUTPUT\nsink → outputVector\n出力先（オフセット線のベクタレイヤ）\n\n実行例:\nprocessing.run(\"native:offsetline\", {\n    'INPUT': line_layer,\n    'DISTANCE': 15.0,\n    'SEGMENTS': 8,\n    'JOIN_STYLE': 0,\n    'MITER_LIMIT': 2.0,\n    'OUTPUT': 'memory:'\n})"
+}

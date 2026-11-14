@@ -1,0 +1,34 @@
+{
+ "id": "plugin.geo_search.bridge.applyTheme",
+ "prompt": "geo_search プラグインの「applyTheme」(マップテーマを適用する。additive指定時は追加表示モードも変更。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_search プラグインの「applyTheme」(マップテーマを適用する。additive指定時は追加表示モードも変更。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "まず利用可能なマップテーマを確認します。「検索前」テーマがあるので、それを additive 指定で適用します。`applyTheme` を実行しました。\n\n- `applyTheme(\"検索前\", true)` → `ok: true, applied: \"検索前\", additive: true`\n- `listThemes` で確認: `current: \"検索前\"`, `additive: true`(追加表示モードも ON になりました)\n\nプロジェクトにはレイヤがないため地図上の見た目の変化はありませんが、テーマ適用と追加表示モードの切替は正常に動作しています。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'listThemes', 'plugin_id': 'geo_search'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_search', 'args': ['検索前', True], 'method': 'applyTheme'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_search', 'method': 'listThemes'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_search プラグインの「applyTheme」(マップテーマを適用する。additive指定時は追加表示モードも変更。)を試して。必要な引数は適当な値でよい\n[AI] \nまず利用可能なマップテーマを確認します。「検索前」テーマがあるので、それを additive 指定で適用します。applyTheme を実行しました。\napplyTheme(\"検索前\", true) → ok: true, applied: \"検索前\", additive: true\nlistThemes で確認: current: \"検索前\", additive: true(追加表示モードも ON になりました)\nプロジェクトにはレイヤがないため地図上の見た目の変化はありませんが、テーマ適用と追加表示モードの切替は正常に動作しています。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_concavehull",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Concave hull (by layer)」(id: native:concavehull) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Concave hull (by layer)」(id: native:concavehull) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:concavehull` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] Concave hull (by layer)`\n- **ID**: `native:concavehull`\n- **グループ**: `ベクタジオメトリ`\n- **用途**: 入力ポイントレイヤ内の全地物を囲む凹包（concave hull）を作成します。凸包よりも点群の分布形状に沿った境界を求めたい場合に使えます。レイヤ全体に対して1つの範囲を計算するタイプです。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 凹包を作成するポイントレイヤ |\n| `ALPHA` | 凹み具合を調整するしきい値。`0〜1` で、`1` は凸包と同等。既定値 `0.3` |\n| `HOLES` | 凹包内に穴を許可するか。既定値 `True` |\n| `NO_MULTIGEOMETRY` | マルチパート結果をシングルパートに分割するか。既定値 `False` |\n| `OUTPUT` | 凹包ポリゴンの出力レイヤ |\n\n`ALPHA` を小さくすると点群へ強く沿った形状になり、大きくすると凸包に近づきます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:concavehull')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue', 'parentLayerParameterName', 'allowMultiple'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions()"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Concave hull (by layer)」(id: native:concavehull) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:concavehull を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] Concave hull (by layer)\nID: native:concavehull\nグループ: ベクタジオメトリ\n用途: 入力ポイントレイヤ内の全地物を囲む凹包（concave hull）を作成します。凸包よりも点群の分布形状に沿った境界を求めたい場合に使えます。レイヤ全体に対して1つの範囲を計算するタイプです。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n凹包を作成するポイントレイヤ\nALPHA\n凹み具合を調整するしきい値。0〜1 で、1 は凸包と同等。既定値 0.3\nHOLES\n凹包内に穴を許可するか。既定値 True\nNO_MULTIGEOMETRY\nマルチパート結果をシングルパートに分割するか。既定値 False\nOUTPUT\n凹包ポリゴンの出力レイヤ\n\nALPHA を小さくすると点群へ強く沿った形状になり、大きくすると凸包に近づきます。"
+}

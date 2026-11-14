@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_importintopostgis",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Export to PostgreSQL」(id: native:importintopostgis) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Export to PostgreSQL」(id: native:importintopostgis) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:importintopostgis`（表示名 **「Export to PostgreSQL」**、グループ「Database」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n**ベクタレイヤをPostgreSQL（PostGIS）データベースへエクスポートし、新しいテーブルを作成**するアルゴリズムです。QGIS上のベクタをDBに取り込む定型処理をプロセッシングから実行できます。\n\n- **事前にPostgreSQL接続の設定が必要**（ブラウザパネル等で接続を登録しておく）\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | エクスポートするレイヤ |\n| `DATABASE` | データベース（登録済みの接続名） |\n| `SCHEMA` | スキーマ |\n| `TABLENAME` | エクスポート先テーブル名（空白ならレイヤ名） |\n| `PRIMARY_KEY` | 主キーの属性（フィールド） |\n| `GEOMETRY_COLUMN` | ジオメトリカラム名 |\n| `ENCODING` | 文字コード |\n| `OVERWRITE` | 既存テーブルを上書きするか（bool） |\n| `CREATEINDEX` | 空間インデックスを作成するか（bool） |\n| `LOWERCASE_NAMES` | フィールド名を小文字に変換するか（bool） |\n| `DROP_STRING_LENGTH` | 文字フィールド長の制約を無視するか（bool） |\n| `FORCE_SINGLEPART` | マルチパート→シングルパートにするか（bool） |\n\n### 出力\n\n- 出力パラメータは**ありません**。DBへの書き込み自体が結果で、QGISレイヤとしては何も返しません（副作用型のアルゴリズム）。\n\n### 補足\n\n- `DATABASE` は「接続名」を指定する方式なので、接続情報（ホスト・認証等）をパラメータに直書きせず、QGISの登録済み接続を参照します。\n- 似た機能として GDAL 版の `gdal:importvectorintopostgisdatabaseavailableconnections` / `...newconnection` もあります。native版はQGISの登録接続と連携し、オプションがQGIS流に整理されています。\n- 関連アルゴリズム：`native:importintospatialite`（SpatiaLite版）、`native:postgisexecutesql`（PostgreSQLでSQL実行）、`native:postgisexecuteandloadsql`（SQL実行して結果をロード）。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:importintopostgis')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related': [(a.id(), a.displayName(), a.group()) for a in QgsApplication.processingRegistry().algorithms() if 'postgis' in a.id() or 'postgres' in a.id() or 'import' in a.id() or 'export' in a.id() or 'database' in a.id() or 'spa"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Export to PostgreSQL」(id: native:importintopostgis) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:importintopostgis（表示名 「Export to PostgreSQL」、グループ「Database」）がこのQGISの processing registry に登録されています。\n用途\nベクタレイヤをPostgreSQL（PostGIS）データベースへエクスポートし、新しいテーブルを作成するアルゴリズムです。QGIS上のベクタをDBに取り込む定型処理をプロセッシングから実行できます。\n事前にPostgreSQL接続の設定が必要（ブラウザパネル等で接続を登録しておく）\n主なパラメータ\nパラメータ\n内容\nINPUT\nエクスポートするレイヤ\nDATABASE\nデータベース（登録済みの接続名）\nSCHEMA\nスキーマ\nTABLENAME\nエクスポート先テーブル名（空白ならレイヤ名）\nPRIMARY_KEY\n主キーの属性（フィールド）\nGEOMETRY_COLUMN\nジオメトリカラム名\nENCODING\n文字コード\nOVERWRITE\n既存テーブルを上書きするか（bool）\nCREATEINDEX\n空間インデックスを作成するか（bool）\nLOWERCASE_NAMES\nフィールド名を小文字に変換するか（bool）\nDROP_STRING_LENGTH\n文字フィールド長の制約を無視するか（bool）\nFORCE_SINGLEPART\nマルチパート→シングルパートにするか（bool）\n\n出力\n出力パラメータはありません。DBへの書き込み自体が結果で、QGISレイヤとしては何も返しません（副作用型のアルゴリズム）。\n補足\nDATABASE は「接続名」を指定する方式なので、接続情報（ホスト・認証等）をパラメータに直書きせず、QGISの登録済み接続を参照します。\n似た機能として GDAL 版の gdal:importvectorintopostgisdatabaseavailableconnections / ...newconnection もあります。native版はQGISの登録接続と連携し、オプションがQGIS流に整理されています。\n関連アルゴリズム：native:importintospatialite（SpatiaLite版）、native:postgisexecutesql（PostgreSQLでSQL実行）、native:postgisexecuteandloadsql（SQL実行して結果をロード）。"
+}

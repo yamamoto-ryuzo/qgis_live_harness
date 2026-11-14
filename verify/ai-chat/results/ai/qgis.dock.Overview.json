@@ -1,0 +1,26 @@
+{
+ "id": "qgis.dock.Overview",
+ "prompt": "「全体図」パネル(ドック)を表示して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "「全体図」パネル(ドック)を表示して"
+  },
+  {
+   "role": "assistant",
+   "content": "「全体図」ドックを表示して前面に出します。「全体図」パネルを表示しました。左側ドックエリアに前面表示されています。メインキャンバスより広い範囲の縮小表示と、現在の表示範囲を示す矩形が確認でき、ドラッグで地図位置の移動にも使えます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\ndock = iface.mainWindow().findChild(QDockWidget, 'Overview')\\ndock.setVisible(True)\\ndock.show()\\ndock.raise_()\\nresult = {'visible': dock.isVisible(), 'floating': dock.isFloating(), 'area': str(iface.mainWindow().dockWidgetArea(dock))}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 「全体図」パネル(ドック)を表示して\n[AI] \n「全体図」ドックを表示して前面に出します。「全体図」パネルを表示しました。左側ドックエリアに前面表示されています。メインキャンバスより広い範囲の縮小表示と、現在の表示範囲を示す矩形が確認でき、ドラッグで地図位置の移動にも使えます。"
+}

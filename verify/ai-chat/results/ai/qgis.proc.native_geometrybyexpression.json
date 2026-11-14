@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_geometrybyexpression",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 式によるジオメトリ」(id: native:geometrybyexpression) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 式によるジオメトリ」(id: native:geometrybyexpression) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:geometrybyexpression`（表示名 **「式によるジオメトリ」**、グループ「ベクタジオメトリ」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n**QGIS式（expression）を使って各地物のジオメトリを更新・新規生成**するアルゴリズムです。式ビルダのジオメトリ系関数（`buffer()`、`centroid()`、`make_point()`、`translate()` など）を地物ごとに評価し、その結果を新しいジオメトリとして出力します。例えば：\n\n- `make_point(\"lon\", \"lat\")` — 属性からポイント生成\n- `buffer($geometry, 100)` — バッファ化\n- `centroid($geometry)` — 重心化\n\nといった、式で書けるあらゆるジオメトリ変換をバッチ適用できます。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ |\n| `OUTPUT_GEOMETRY` | 出力ジオメトリ型（enum：ポリゴン／ライン／ポイント、デフォルトはポリゴン） |\n| `WITH_Z` | 出力をZ次元持ちにするか（bool） |\n| `WITH_M` | 出力をM値持ちにするか（bool） |\n| `EXPRESSION` | ジオメトリを生成するQGIS式 |\n| `OUTPUT` | 出力レイヤ |\n\n### 出力\n\n- `OUTPUT` — 式の評価結果をジオメトリに持つレイヤ（属性は入力を継承）\n\n### 補足：関連アルゴリズム\n\n式系の姉妹アルゴリズムとして、`native:extractbyexpression`（式による**抽出**）、`qgis:selectbyexpression`（式による**選択**）、`native:orderbyexpression`（式による**並べ替え**）、`native:calculateexpression`（モデラー用の式評価）があります。本アルゴリズムは「式で**ジオメトリそのもの**を作り替える」点が特徴です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:geometrybyexpression')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related': [(a.id(), a.displayName(), a.group()) for a in QgsApplication.processingRegistry().algorithms() if 'expression' in a.id() or '式' in a.displayName()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 式によるジオメトリ」(id: native:geometrybyexpression) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:geometrybyexpression（表示名 「式によるジオメトリ」、グループ「ベクタジオメトリ」）がこのQGISの processing registry に登録されています。\n用途\nQGIS式（expression）を使って各地物のジオメトリを更新・新規生成するアルゴリズムです。式ビルダのジオメトリ系関数（buffer()、centroid()、make_point()、translate() など）を地物ごとに評価し、その結果を新しいジオメトリとして出力します。例えば：\nmake_point(\"lon\", \"lat\") — 属性からポイント生成\nbuffer($geometry, 100) — バッファ化\ncentroid($geometry) — 重心化\nといった、式で書けるあらゆるジオメトリ変換をバッチ適用できます。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ\nOUTPUT_GEOMETRY\n出力ジオメトリ型（enum：ポリゴン／ライン／ポイント、デフォルトはポリゴン）\nWITH_Z\n出力をZ次元持ちにするか（bool）\nWITH_M\n出力をM値持ちにするか（bool）\nEXPRESSION\nジオメトリを生成するQGIS式\nOUTPUT\n出力レイヤ\n\n出力\nOUTPUT — 式の評価結果をジオメトリに持つレイヤ（属性は入力を継承）\n補足：関連アルゴリズム\n式系の姉妹アルゴリズムとして、native:extractbyexpression（式による抽出）、qgis:selectbyexpression（式による選択）、native:orderbyexpression（式による並べ替え）、native:calculateexpression（モデラー用の式評価）があります。本アルゴリズムは「式でジオメトリそのものを作り替える」点が特徴です。"
+}

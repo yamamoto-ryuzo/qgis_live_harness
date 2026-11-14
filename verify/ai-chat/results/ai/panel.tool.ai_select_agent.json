@@ -1,0 +1,26 @@
+{
+ "id": "panel.tool.ai_select_agent",
+ "prompt": "利用可能なエージェントを一覧して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "利用可能なエージェントを一覧して"
+  },
+  {
+   "role": "assistant",
+   "content": "利用可能なエージェントは以下の2件です:\n\n| ID | タイトル | 説明 |\n|---|---|---|\n| `meeting_minutes_scribe` | 会議議事録作成エージェント | QGISの操作支援および会議の議事録作成をサポートするプロフェッショナルなエージェント |\n| `problem_solver` | 課題解決エージェント | QGISの操作と地理空間データ解析に精通した課題解決エージェント。複雑な課題を論理的に分解して解決へ導く |\n\nいずれもユーザーファイル(`~/.qgis-live/agents/`)に保存されています。切り替えたい場合は `ai_select_agent` で選択できます。どちらかを有効化しますか?"
+  }
+ ],
+ "tools": [
+  "instruction"
+ ],
+ "audit": [
+  {
+   "type": "instruction",
+   "args": "{'kind': 'agents', 'op': 'list'}"
+  }
+ ],
+ "view_tail": "[あなた] 利用可能なエージェントを一覧して\n[AI] \n利用可能なエージェントは以下の2件です:\nID\nタイトル\n説明\nmeeting_minutes_scribe\n会議議事録作成エージェント\nQGISの操作支援および会議の議事録作成をサポートするプロフェッショナルなエージェント\nproblem_solver\n課題解決エージェント\nQGISの操作と地理空間データ解析に精通した課題解決エージェント。複雑な課題を論理的に分解して解決へ導く\n\nいずれもユーザーファイル(~/.qgis-live/agents/)に保存されています。切り替えたい場合は ai_select_agent で選択できます。どちらかを有効化しますか?"
+}

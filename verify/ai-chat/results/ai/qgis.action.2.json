@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.2",
+ "prompt": "QGISの「ブラウザ(2)」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ブラウザ(2)」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ブラウザ(2)」は既に表示されていますが、アクションを実行します(トグル式のため一度閉じる可能性があります)。「ブラウザ(2)」アクションを実行しました。\n\nこのアクションはトグル式で、実行前にパネルは既に表示されていたため:\n\n1. 1回目の実行 → パネルが非表示に(チェック解除)\n2. 2回目の実行 → パネルが再表示(チェック状態)\n\n最終的に「ブラウザ(2)」パネルは表示状態・チェック状態のままです(画面左側、ブラウザパネルの下にあります)。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QDockWidget\\nmw = iface.mainWindow()\\nacts = [x for x in mw.findChildren(QAction) if x.text() == '\\\\u30d6\\\\u30e9\\\\u30a6\\\\u30b6(2)']\\ndocks = [x for x in mw.findChildren(QDockWidget) if x.objectName() == 'Browser2']\\na, d = acts[0], docks[0]\\nbefore = (a.isChecked(), d.isVisible())\\na.trigger()\\nafter = (a.isChecked(), d.isVisible())\\nif not d.isVisible():\\n    a.trigger()\\nresult = {'before': before, 'after_first_trigger': after, 'final': (a.isChecked(), d.isVisible())}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ブラウザ(2)」機能(アクション)を実行して\n[AI] \n「ブラウザ(2)」は既に表示されていますが、アクションを実行します(トグル式のため一度閉じる可能性があります)。「ブラウザ(2)」アクションを実行しました。\nこのアクションはトグル式で、実行前にパネルは既に表示されていたため:\n1回目の実行 → パネルが非表示に(チェック解除)\n2回目の実行 → パネルが再表示(チェック状態)\n最終的に「ブラウザ(2)」パネルは表示状態・チェック状態のままです(画面左側、ブラウザパネルの下にあります)。"
+}

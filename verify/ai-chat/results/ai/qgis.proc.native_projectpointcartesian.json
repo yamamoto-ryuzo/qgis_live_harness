@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_projectpointcartesian",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 投影点（デカルト座標）」(id: native:projectpointcartesian) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 投影点（デカルト座標）」(id: native:projectpointcartesian) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:projectpointcartesian` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:projectpointcartesian`\n- **表示名**: 投影点（デカルト座標）\n- **グループ**: ベクタジオメトリ\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\n入力点レイヤの各地物について、指定した**方位と距離でオフセット（投影）した新しい点**を持つレイヤを作成します。方位は**北を0°とする時計回りの角度（度）**、距離は**レイヤ単位**で指定します。「観測点から見通し方向X度・距離Ym先の点」を作るような測量・観測系の処理に使えます。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力ポイントレイヤ |\n| `BEARING` | number（必須、デフォルト 0） | 方位（北を0とする時計回りの角度・度） |\n| `DISTANCE` | distance（必須、デフォルト 1） | 移動距離（レイヤ単位） |\n| `OUTPUT` | sink → outputVector | 出力先（投影点レイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:projectpointcartesian\", {\n    'INPUT': point_layer,\n    'BEARING': 45.0,    # 北東方向\n    'DISTANCE': 500.0,  # 500（レイヤ単位、例: メートル）\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:projectpointcartesian')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 投影点（デカルト座標）」(id: native:projectpointcartesian) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:projectpointcartesian は現在の QGIS の processing registry に登録されています。\nID: native:projectpointcartesian\n表示名: 投影点（デカルト座標）\nグループ: ベクタジオメトリ\nプロバイダ: QGIS（ネイティブC++）\n用途\n入力点レイヤの各地物について、指定した方位と距離でオフセット（投影）した新しい点を持つレイヤを作成します。方位は北を0°とする時計回りの角度（度）、距離はレイヤ単位で指定します。「観測点から見通し方向X度・距離Ym先の点」を作るような測量・観測系の処理に使えます。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力ポイントレイヤ\nBEARING\nnumber（必須、デフォルト 0）\n方位（北を0とする時計回りの角度・度）\nDISTANCE\ndistance（必須、デフォルト 1）\n移動距離（レイヤ単位）\nOUTPUT\nsink → outputVector\n出力先（投影点レイヤ）\n\n実行例:\nprocessing.run(\"native:projectpointcartesian\", {\n    'INPUT': point_layer,\n    'BEARING': 45.0,    # 北東方向\n    'DISTANCE': 500.0,  # 500（レイヤ単位、例: メートル）\n    'OUTPUT': 'memory:'\n})"
+}

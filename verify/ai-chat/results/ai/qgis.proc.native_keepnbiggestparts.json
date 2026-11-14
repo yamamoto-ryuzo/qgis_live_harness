@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_keepnbiggestparts",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Keep N biggest parts」(id: native:keepnbiggestparts) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Keep N biggest parts」(id: native:keepnbiggestparts) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:keepnbiggestparts` は **processing registry に存在します**。\n\n- **表示名**: Keep N biggest parts（最大のNパートのみ残す）\n- **グループ**: ベクタジオメトリ (`vectorgeometry`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\nポリゴンレイヤの**マルチパートジオメトリについて、面積の大きい順に上位 N 個のパートだけを残し**、残りの小さなパート（離れ小島や細片ポリゴンなど）を除去した新しいレイヤを作成します。`PARTS=1` にすれば「各地物の最大パートのみ残す」処理になるため、ノイズ除去や本島部分だけ抽出したい場合に便利です。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `POLYGONS` | 入力ポリゴンレイヤ（必須） | — |\n| `PARTS` | 残すパート数（面積上位 N 個） | `1` |\n| `OUTPUT` | 出力レイヤ「Parts」（必須） | — |\n\n## 出力\n\n- `OUTPUT` — パート削減後のポリゴンレイヤ\n\n実行例: `processing.run(\"native:keepnbiggestparts\", {'POLYGONS': poly_layer, 'PARTS': 1, 'OUTPUT': 'TEMPORARY_OUTPUT'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:keepnbiggestparts')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        '"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Keep N biggest parts」(id: native:keepnbiggestparts) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:keepnbiggestparts は processing registry に存在します。\n表示名: Keep N biggest parts（最大のNパートのみ残す）\nグループ: ベクタジオメトリ (vectorgeometry)\nプロバイダ: QGIS（ネイティブ C++）\n用途\nポリゴンレイヤのマルチパートジオメトリについて、面積の大きい順に上位 N 個のパートだけを残し、残りの小さなパート（離れ小島や細片ポリゴンなど）を除去した新しいレイヤを作成します。PARTS=1 にすれば「各地物の最大パートのみ残す」処理になるため、ノイズ除去や本島部分だけ抽出したい場合に便利です。\n主なパラメータ\n名前\n説明\n既定値\nPOLYGONS\n入力ポリゴンレイヤ（必須）\n—\nPARTS\n残すパート数（面積上位 N 個）\n1\nOUTPUT\n出力レイヤ「Parts」（必須）\n—\n\n出力\nOUTPUT — パート削減後のポリゴンレイヤ\n実行例: processing.run(\"native:keepnbiggestparts\", {'POLYGONS': poly_layer, 'PARTS': 1, 'OUTPUT': 'TEMPORARY_OUTPUT'})"
+}

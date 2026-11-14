@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_definecurrentprojection",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Define projection」(id: native:definecurrentprojection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Define projection」(id: native:definecurrentprojection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:definecurrentprojection`\n- **表示名**: Define projection\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ベクタ一般\n\n## 用途\n既存レイヤの**座標参照系（CRS）の定義だけを指定したCRSに書き換える**アルゴリズムです。地物の座標値は一切変換されず、あくまで「このデータはこのCRSである」というメタデータを宣言します。`native:assignprojection`（Assign projection）と違い**新しいレイヤを出力せず入力レイヤ自体を変更**する点が特徴で、シェープファイルなら `.prj` ファイルを上書き（無ければ作成）します。\n\n典型的な使い道は、`.prj` が欠落したり誤ったCRSで登録されているデータの修正です。座標値を変換する「再投影」（`native:reprojectlayer`）とは目的が違うので注意してください — 実際の座標が別のCRSで記録されているデータに使うと位置がずれます。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ベクタレイヤ（必須。ヘルプ上は「Input shapefile」表記だが型は vector 全般） |\n| `CRS` | 設定するCRS（デフォルト EPSG:4326） |\n\n出力 `OUTPUT` は投影が設定された入力レイヤそのものです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber\\nalg = QgsApplication.processingRegistry().algorithmById('native:definecurrentprojection')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'proj' in a.id().lower() or 'crs' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp'"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Define projection」(id: native:definecurrentprojection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:definecurrentprojection\n表示名: Define projection\nプロバイダ: QGIS（ネイティブC++）／グループ: ベクタ一般\n用途\n既存レイヤの座標参照系（CRS）の定義だけを指定したCRSに書き換えるアルゴリズムです。地物の座標値は一切変換されず、あくまで「このデータはこのCRSである」というメタデータを宣言します。native:assignprojection（Assign projection）と違い新しいレイヤを出力せず入力レイヤ自体を変更する点が特徴で、シェープファイルなら .prj ファイルを上書き（無ければ作成）します。\n典型的な使い道は、.prj が欠落したり誤ったCRSで登録されているデータの修正です。座標値を変換する「再投影」（native:reprojectlayer）とは目的が違うので注意してください — 実際の座標が別のCRSで記録されているデータに使うと位置がずれます。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ベクタレイヤ（必須。ヘルプ上は「Input shapefile」表記だが型は vector 全般）\nCRS\n設定するCRS（デフォルト EPSG:4326）\n\n出力 OUTPUT は投影が設定された入力レイヤそのものです。"
+}

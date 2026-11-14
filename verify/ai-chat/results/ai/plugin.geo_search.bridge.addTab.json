@@ -1,0 +1,35 @@
+{
+ "id": "plugin.geo_search.bridge.addTab",
+ "prompt": "geo_search プラグインの「addTab」(任意のタブ定義dictを検索タブとして追加する。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_search プラグインの「addTab」(任意のタブ定義dictを検索タブとして追加する。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "プロジェクト内のレイヤ名を確認して、実在するレイヤを使って追加してみます。プロジェクトにレイヤがないので、例示形式そのままのダミー定義で追加します。`addTab` を実行して検索タブを追加しました。\n\n- 追加内容: `Title=\"テスト追加タブ\"`, `group=\"テスト\"`, `Layer={LayerType:\"Name\", Name:\"layer1\"}`\n- 結果: プロジェクト変数へ追加され、ダイアログも再構築(`rebuilt: true`)\n- `listTabs` で index 4 に「テスト追加タブ」(グループ「テスト」)が追加されていることを確認しました\n\n注意点: この設定は**プロジェクト変数に保存**されるため、プロジェクトを保存すると残ります。不要なら `removeTab(\"テスト追加タブ\")` で削除できます。削除しますか?"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"result = [ (l.name(), l.type().name if hasattr(l.type(),'name') else str(l.type())) for l in QgsProject.instance().mapLayers().values() ]\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [{'SearchField': {}, 'Title': 'テスト追加タブ', 'group': 'テスト', 'Layer': {'LayerType': 'Name', 'Name': 'layer1'}, 'ViewFields': []}], 'method': 'addTab', 'plugin_id': 'geo_search'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_search', 'method': 'listTabs'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_search プラグインの「addTab」(任意のタブ定義dictを検索タブとして追加する。)を試して。必要な引数は適当な値でよい\n[AI] \nプロジェクト内のレイヤ名を確認して、実在するレイヤを使って追加してみます。プロジェクトにレイヤがないので、例示形式そのままのダミー定義で追加します。addTab を実行して検索タブを追加しました。\n追加内容: Title=\"テスト追加タブ\", group=\"テスト\", Layer={LayerType:\"Name\", Name:\"layer1\"}\n結果: プロジェクト変数へ追加され、ダイアログも再構築(rebuilt: true)\nlistTabs で index 4 に「テスト追加タブ」(グループ「テスト」)が追加されていることを確認しました\n注意点: この設定はプロジェクト変数に保存されるため、プロジェクトを保存すると残ります。不要なら removeTab(\"テスト追加タブ\") で削除できます。削除しますか?"
+}

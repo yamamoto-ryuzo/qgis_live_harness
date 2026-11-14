@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_vectorlayerscatterplot",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] ベクタレイヤの散布図」(id: qgis:vectorlayerscatterplot) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] ベクタレイヤの散布図」(id: qgis:vectorlayerscatterplot) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。存在を確認しました。`qgis:vectorlayerscatterplot` は registry に登録されています。\n\n## [QGIS] ベクタレイヤの散布図\n\n**用途**: ベクタレイヤの2つの数値属性を X・Y 軸にとった散布図を作成するアルゴリズム(グループ: プロット)。2変数間の相関の可視化に使います。`scatter3dplot` の2次元版で、出力はインタラクティブなプロットを含む **HTML ファイル**です。\n\n**主なパラメータ**:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ベクタレイヤ |\n| `XFIELD` / `YFIELD` | X軸・Y軸に使う属性フィールド(数値型) |\n| `HOVERTEXT` | ホバー時に表示するテキストの式(地物名などを式で指定可) |\n| `TITLE` | グラフタイトル |\n| `XAXIS_TITLE` / `YAXIS_TITLE` | 各軸ラベル |\n| `XAXIS_LOG` / `YAXIS_LOG` | 各軸を対数スケールにする |\n| `OUTPUT` | 出力先ファイル(HTML) |\n\n注意点: 軸になるのは地物の属性値であり、ジオメトリ座標ではありません。座標をプロットしたい場合は先に `$x`/`$y` をフィールドに展開してください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:vectorlayerscatterplot')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'scatter' in a.id().lower()]}\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': type(p).__name__, 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()]\\n    outputs = [{'name': o.name(), 'desc': o.description()} for o in alg.outputDefinitions()]\\n    enum_opts = {p.name(): p.options() for p in alg.parameterDefinitions() if type(p).__name__ == 'QgsProcessingParameterEnum'}\\n    result = {'found': True, 'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'params': params, 'enums': enum_opts, 'outputs': outputs, 'shortHelp': (alg.shortHelpString() or '')[:1200]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] ベクタレイヤの散布図」(id: qgis:vectorlayerscatterplot) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。存在を確認しました。qgis:vectorlayerscatterplot は registry に登録されています。\n[QGIS] ベクタレイヤの散布図\n用途: ベクタレイヤの2つの数値属性を X・Y 軸にとった散布図を作成するアルゴリズム(グループ: プロット)。2変数間の相関の可視化に使います。scatter3dplot の2次元版で、出力はインタラクティブなプロットを含む HTML ファイルです。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n入力ベクタレイヤ\nXFIELD / YFIELD\nX軸・Y軸に使う属性フィールド(数値型)\nHOVERTEXT\nホバー時に表示するテキストの式(地物名などを式で指定可)\nTITLE\nグラフタイトル\nXAXIS_TITLE / YAXIS_TITLE\n各軸ラベル\nXAXIS_LOG / YAXIS_LOG\n各軸を対数スケールにする\nOUTPUT\n出力先ファイル(HTML)\n\n注意点: 軸になるのは地物の属性値であり、ジオメトリ座標ではありません。座標をプロットしたい場合は先に $x/$y をフィールドに展開してください。"
+}

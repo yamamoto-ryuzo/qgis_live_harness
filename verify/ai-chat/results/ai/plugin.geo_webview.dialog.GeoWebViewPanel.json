@@ -1,0 +1,31 @@
+{
+ "id": "plugin.geo_webview.dialog.GeoWebViewPanel",
+ "prompt": "geo_webview プラグインの「GeoWebViewPanel」ダイアログ/パネルを開いて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_webview プラグインの「GeoWebViewPanel」ダイアログ/パネルを開いて"
+  },
+  {
+   "role": "assistant",
+   "content": "開いています。bridge の `openPanel` を呼び出し、`{\"ok\": true, \"visible\": true}` が返りました。\n\nスクリーンショットでも左側ドックに GeoWebViewPanel(WebView パネル)が表示されていることを確認:\n\n- **Web配信(サーバレス)**: エクスポート `C:\\kasugai_s_export` / CDN `stable` / エンジン `Cesium (3D)`\n- **HTTPサーバー**: 稼働中 `http://localhost:8090` / `http://100.64.182.8:8090`(有効・ポート8090)\n- タブ: テーマ / パーマリンク / 共有(テーマは「-- テーマなし(位置のみ)--」)"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'openPanel', 'plugin_id': 'geo_webview', 'args': []}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-20725269.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_webview プラグインの「GeoWebViewPanel」ダイアログ/パネルを開いて\n[AI] \n開いています。bridge の openPanel を呼び出し、{\"ok\": true, \"visible\": true} が返りました。\nスクリーンショットでも左側ドックに GeoWebViewPanel(WebView パネル)が表示されていることを確認:\nWeb配信(サーバレス): エクスポート C:\\kasugai_s_export / CDN stable / エンジン Cesium (3D)\nHTTPサーバー: 稼働中 http://localhost:8090 / http://100.64.182.8:8090(有効・ポート8090)\nタブ: テーマ / パーマリンク / 共有(テーマは「-- テーマなし(位置のみ)--」)"
+}

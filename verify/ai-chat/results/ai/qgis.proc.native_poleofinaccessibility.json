@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_poleofinaccessibility",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 到達不能極（PIA）」(id: native:poleofinaccessibility) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 到達不能極（PIA）」(id: native:poleofinaccessibility) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:poleofinaccessibility` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:poleofinaccessibility`\n- **表示名**: 到達不能極（PIA）\n- **グループ**: ベクタジオメトリ\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\nポリゴンレイヤの各地物について **PIA（pole of inaccessibility：境界から最も遠い内部点）** を計算します。「最もアクセスしにくい点」という意味の、重心よりもポリゴン内部に深く収まる代表点で、複雑な形状へのラベル配置点などに適しています。実装は Mapbox の polylabel アルゴリズムを繰り返し計算しており、各ポリゴンの PIA までの距離が出力属性として保存されます。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力レイヤ（ポリゴン） |\n| `TOLERANCE` | distance（必須、デフォルト 1.0） | 計算の許容範囲（レイヤ単位）。小さいほど精度↑・計算時間↑ |\n| `OUTPUT` | sink → outputVector | 出力先（ポイントレイヤ。属性に境界までの距離を保持） |\n\n実行例:\n\n```python\nprocessing.run(\"native:poleofinaccessibility\", {\n    'INPUT': polygon_layer,\n    'TOLERANCE': 1.0,\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:poleofinaccessibility')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 到達不能極（PIA）」(id: native:poleofinaccessibility) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:poleofinaccessibility は現在の QGIS の processing registry に登録されています。\nID: native:poleofinaccessibility\n表示名: 到達不能極（PIA）\nグループ: ベクタジオメトリ\nプロバイダ: QGIS（ネイティブC++）\n用途\nポリゴンレイヤの各地物について PIA（pole of inaccessibility：境界から最も遠い内部点） を計算します。「最もアクセスしにくい点」という意味の、重心よりもポリゴン内部に深く収まる代表点で、複雑な形状へのラベル配置点などに適しています。実装は Mapbox の polylabel アルゴリズムを繰り返し計算しており、各ポリゴンの PIA までの距離が出力属性として保存されます。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力レイヤ（ポリゴン）\nTOLERANCE\ndistance（必須、デフォルト 1.0）\n計算の許容範囲（レイヤ単位）。小さいほど精度↑・計算時間↑\nOUTPUT\nsink → outputVector\n出力先（ポイントレイヤ。属性に境界までの距離を保持）\n\n実行例:\nprocessing.run(\"native:poleofinaccessibility\", {\n    'INPUT': polygon_layer,\n    'TOLERANCE': 1.0,\n    'OUTPUT': 'memory:'\n})"
+}

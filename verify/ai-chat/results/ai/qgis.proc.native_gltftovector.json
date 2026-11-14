@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_gltftovector",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Convert GLTF to vector features」(id: native:gltftovector) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Convert GLTF to vector features」(id: native:gltftovector) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:gltftovector`（表示名 **「Convert GLTF to vector features」**、グループ「3D Tiles」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n**GLTF（glTFバイナリ形式の3Dコンテンツ）を読み込み、通常のベクタレイヤ形式に変換**するアルゴリズムです。glTF内のメッシュジオメトリを抽出し、ポリゴンとラインの2系統に分けてベクタ出力します。3D Tiles / Cesium 系データ（タグに \"3d\"、\"tiles\"、\"cesium\"）をQGISの2D/2.5Dベクタとして扱いたい場合の変換ツールです。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力GLTFファイル（file型。`.glb` / `.gltf`） |\n| `OUTPUT_POLYGONS` | 出力ポリゴン（メッシュ面から生成） |\n| `OUTPUT_LINES` | 出力ライン（エッジ等のライン要素から生成） |\n\n### 出力\n\n- `OUTPUT_POLYGONS` — ポリゴンベクタ\n- `OUTPUT_LINES` — ラインベクタ\n\n### 補足\n\n- 「3D Tiles」グループには対になる `native:b3dmtogltf`（Convert B3DM to GLTF）があります。**B3DM（3D Tilesの地物タイル形式）→ glTF → ベクタ** という変換チェーンで、3D TilesデータをQGISのベクタデータとして取り込む導線になっています。\n- パラメータは `INPUT` + 2出力のみの最小構成です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:gltftovector')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related': [(a.id(), a.displayName(), a.group()) for a in QgsApplication.processingRegistry().algorithms() if 'gltf' in a.id() or 'gltf' in a.displayName().lower() or 'vector' in a.id() and 'convert' in a.id()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Convert GLTF to vector features」(id: native:gltftovector) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:gltftovector（表示名 「Convert GLTF to vector features」、グループ「3D Tiles」）がこのQGISの processing registry に登録されています。\n用途\nGLTF（glTFバイナリ形式の3Dコンテンツ）を読み込み、通常のベクタレイヤ形式に変換するアルゴリズムです。glTF内のメッシュジオメトリを抽出し、ポリゴンとラインの2系統に分けてベクタ出力します。3D Tiles / Cesium 系データ（タグに \"3d\"、\"tiles\"、\"cesium\"）をQGISの2D/2.5Dベクタとして扱いたい場合の変換ツールです。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力GLTFファイル（file型。.glb / .gltf）\nOUTPUT_POLYGONS\n出力ポリゴン（メッシュ面から生成）\nOUTPUT_LINES\n出力ライン（エッジ等のライン要素から生成）\n\n出力\nOUTPUT_POLYGONS — ポリゴンベクタ\nOUTPUT_LINES — ラインベクタ\n補足\n「3D Tiles」グループには対になる native:b3dmtogltf（Convert B3DM to GLTF）があります。B3DM（3D Tilesの地物タイル形式）→ glTF → ベクタ という変換チェーンで、3D TilesデータをQGISのベクタデータとして取り込む導線になっています。\nパラメータは INPUT + 2出力のみの最小構成です。"
+}

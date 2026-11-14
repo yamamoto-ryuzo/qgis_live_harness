@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_extenttolayer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 範囲の矩形レイヤ」(id: native:extenttolayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 範囲の矩形レイヤ」(id: native:extenttolayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の Processing registry に存在します。\n\n- **ID**: `native:extenttolayer`\n- **表示名**: 範囲の矩形レイヤ\n- **グループ**: ベクタ作成\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n\n## 用途\n\n指定した範囲 `xmin, xmax, ymin, ymax` と同じ形状を持つ、**1つの矩形ポリゴンだけを含むベクタレイヤ**を作成します。  \n範囲ではなくポリゴンレイヤを入力として要求する Processing アルゴリズムとの連携に便利です。\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 矩形化する範囲（必須） |\n| `OUTPUT` | 出力先のポリゴンベクタレイヤ（必須） |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:extenttolayer')\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'options': p.options() if hasattr(p, 'options') else None,\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else []\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 範囲の矩形レイヤ」(id: native:extenttolayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の Processing registry に存在します。\nID: native:extenttolayer\n表示名: 範囲の矩形レイヤ\nグループ: ベクタ作成\n種別: QGIS ネイティブ C++ アルゴリズム\n用途\n指定した範囲 xmin, xmax, ymin, ymax と同じ形状を持つ、1つの矩形ポリゴンだけを含むベクタレイヤを作成します。\n範囲ではなくポリゴンレイヤを入力として要求する Processing アルゴリズムとの連携に便利です。\n主なパラメータ\nパラメータ\n内容\nINPUT\n矩形化する範囲（必須）\nOUTPUT\n出力先のポリゴンベクタレイヤ（必須）\n"
+}

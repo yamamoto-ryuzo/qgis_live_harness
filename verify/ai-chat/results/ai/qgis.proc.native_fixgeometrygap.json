@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_fixgeometrygap",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Fill gaps」(id: native:fixgeometrygap) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Fill gaps」(id: native:fixgeometrygap) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。`METHOD` 系のパラメータがあれば選択肢も取得します。## 確認結果：存在します ✅\n\n`native:fixgeometrygap`（表示名 **「Fill gaps」**、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n「Check geometry」系の **`native:checkgeometrygap`（Small gaps）** が出力した **gaps レイヤ（隙間ポリゴン）と neighbors レイヤ（隣接地物との対応）** を元に、ポリゴン間の隙間を埋める修正アルゴリズムです。境界ズレやスナップ不良で生じた細い空隙を、指定した方法で解消します。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ（チェック時に使った元のポリゴン） |\n| `NEIGHBORS` | Neighbors レイヤ（`checkgeometrygap` の出力。隙間と隣接地物の対応） |\n| `GAPS` | Gaps レイヤ（同じく `checkgeometrygap` の出力。検出された隙間） |\n| `METHOD` | 埋め方（enum、下記参照） |\n| `UNIQUE_ID` | 元地物を一意に識別するフィールド |\n| `ERROR_ID_IDX` | エラーIDのフィールド（neighbors/gaps レイヤとの紐付け用） |\n| `TOLERANCE` | 許容範囲（数値） |\n\n### `METHOD` の選択肢（実際の enum 値）\n\n1. **最も長い共有エッジに追加** — 隙間を、最も長く接している隣接ポリゴンに併合\n2. **新規地物を作成** — 隙間を独立した新しいポリゴン地物として残す\n3. **最大の隣接エリアに追加** — 隙間を、面積が最大の隣接ポリゴンに併合\n\n### 出力\n\n- `OUTPUT` — 隙間が埋められたレイヤ\n- `REPORT` — 修正内容のレポートレイヤ\n\n他の fixgeometry 系と異なり、`ERRORS` の代わりに `NEIGHBORS` と `GAPS` の **2つの中間レイヤ** が必要なのが特徴です。どちらも `native:checkgeometrygap` を先に実行すれば出力されるので、その結果をそのまま渡すのが基本フローです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:fixgeometrygap')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Fill gaps」(id: native:fixgeometrygap) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。METHOD 系のパラメータがあれば選択肢も取得します。## 確認結果：存在します ✅\nnative:fixgeometrygap（表示名 「Fill gaps」、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n用途\n「Check geometry」系の native:checkgeometrygap（Small gaps） が出力した gaps レイヤ（隙間ポリゴン）と neighbors レイヤ（隣接地物との対応） を元に、ポリゴン間の隙間を埋める修正アルゴリズムです。境界ズレやスナップ不良で生じた細い空隙を、指定した方法で解消します。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ（チェック時に使った元のポリゴン）\nNEIGHBORS\nNeighbors レイヤ（checkgeometrygap の出力。隙間と隣接地物の対応）\nGAPS\nGaps レイヤ（同じく checkgeometrygap の出力。検出された隙間）\nMETHOD\n埋め方（enum、下記参照）\nUNIQUE_ID\n元地物を一意に識別するフィールド\nERROR_ID_IDX\nエラーIDのフィールド（neighbors/gaps レイヤとの紐付け用）\nTOLERANCE\n許容範囲（数値）\n\nMETHOD の選択肢（実際の enum 値）\n最も長い共有エッジに追加 — 隙間を、最も長く接している隣接ポリゴンに併合\n新規地物を作成 — 隙間を独立した新しいポリゴン地物として残す\n最大の隣接エリアに追加 — 隙間を、面積が最大の隣接ポリゴンに併合\n出力\nOUTPUT — 隙間が埋められたレイヤ\nREPORT — 修正内容のレポートレイヤ\n他の fixgeometry 系と異なり、ERRORS の代わりに NEIGHBORS と GAPS の 2つの中間レイヤ が必要なのが特徴です。どちらも native:checkgeometrygap を先に実行すれば出力されるので、その結果をそのまま渡すのが基本フローです。"
+}

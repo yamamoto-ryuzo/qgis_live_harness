@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionZoomOut",
+ "prompt": "QGISの「縮小」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「縮小」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「縮小」アクション(`mActionZoomOut`)を実行します。実行しました。\n\n- アクション: `mActionZoomOut`「縮小」\n- 実行後: **`checked: true`**、マップツールは `QgsMapToolZoom`(縮小モード)に切り替わりました\n\nクリックでその地点を中心に縮小、ドラッグ矩形で縮小範囲の指定ができます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionZoomOut')\\ninfo = {'text': a.text(), 'enabled': a.isEnabled()} if a else {'found': False}\\nif a:\\n    a.trigger()\\n    info['checked'] = a.isChecked()\\n    info['mapTool'] = type(iface.mapCanvas().mapTool()).__name__\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「縮小」機能(アクション)を実行して\n[AI] \n「縮小」アクション(mActionZoomOut)を実行します。実行しました。\nアクション: mActionZoomOut「縮小」\n実行後: checked: true、マップツールは QgsMapToolZoom(縮小モード)に切り替わりました\nクリックでその地点を中心に縮小、ドラッグ矩形で縮小範囲の指定ができます。"
+}

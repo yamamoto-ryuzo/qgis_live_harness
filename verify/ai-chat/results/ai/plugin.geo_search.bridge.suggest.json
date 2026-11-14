@@ -1,0 +1,42 @@
+{
+ "id": "plugin.geo_search.bridge.suggest",
+ "prompt": "geo_search プラグインの「suggest」(検索フィールドのユニーク値一覧(サジェスト相当)を返す。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_search プラグインの「suggest」(検索フィールドのユニーク値一覧(サジェスト相当)を返す。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "「住所検索」タブは検索フィールドがないので空でした。カレントレイヤタブでフィールドを指定して試します。動作確認できたので、テスト用タブは削除して元に戻します。`suggest` を試しました。結果:\n\n1. **現在タブ(住所検索)で実行**: `{\"fields\": {}}` — このタブはジオコーディング専用で検索フィールドがないため空\n2. **カレントレイヤタブで `field=\"title\"` 指定**: `field not found` — タブに SearchField が未設定のため失敗\n3. **検証用に「geo_search 住所検索」レイヤ(検索フィールド `title`)のタブを追加して実行**:\n\n```json\n{\n  \"fields\": {\n    \"title\": [\"愛知県春日井市\", \"春日井市役所\", \"春日井市役所前郵便局\"]\n  }\n}\n```\n\n指定フィールドのユニーク値一覧が正しく返りました。検証用タブは `removeTab` で削除済みです。\n\n`suggest` が有効に働くには、対象タブの `SearchField.Field` にフィールドが設定されている必要があります。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_search', 'method': 'suggest'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': ['カレントレイヤ', 'title'], 'plugin_id': 'geo_search', 'method': 'suggest'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [{'SearchField': {'Field': 'title'}, 'Title': 'サジェストテスト', 'Layer': {'LayerType': 'Name', 'Name': 'geo_search 住所検索'}, 'ViewFields': [{'Name': 'title'}, {'Name': 'address'}]}], 'plugin_id': 'geo_search', 'method': 'addTab'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'suggest', 'args': ['サジェストテスト'], 'plugin_id': 'geo_search'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': ['サジェストテスト'], 'method': 'removeTab', 'plugin_id': 'geo_search'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_search プラグインの「suggest」(検索フィールドのユニーク値一覧(サジェスト相当)を返す。)を試して。必要な引数は適当な値でよい\n[AI] \n「住所検索」タブは検索フィールドがないので空でした。カレントレイヤタブでフィールドを指定して試します。動作確認できたので、テスト用タブは削除して元に戻します。suggest を試しました。結果:\n現在タブ(住所検索)で実行: {\"fields\": {}} — このタブはジオコーディング専用で検索フィールドがないため空\nカレントレイヤタブで field=\"title\" 指定: field not found — タブに SearchField が未設定のため失敗\n検証用に「geo_search 住所検索」レイヤ(検索フィールド title)のタブを追加して実行:\n{\n  \"fields\": {\n    \"title\": [\"愛知県春日井市\", \"春日井市役所\", \"春日井市役所前郵便局\"]\n  }\n}\n指定フィールドのユニーク値一覧が正しく返りました。検証用タブは removeTab で削除済みです。\nsuggest が有効に働くには、対象タブの SearchField.Field にフィールドが設定されている必要があります。"
+}

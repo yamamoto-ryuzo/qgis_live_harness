@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_fuzzifyrastergaussianmembership",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタのファジー化（gaussian membership）」(id: native:fuzzifyrastergaussianmembership) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタのファジー化（gaussian membership）」(id: native:fuzzifyrastergaussianmembership) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:fuzzifyrastergaussianmembership`（表示名 **「ラスタのファジー化（gaussian membership）」**、グループ「ラスタ解析」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n入力ラスタを**ファジー集合へのメンバーシップ度（0〜1）に変換**するアルゴリズムです。ファジー論理に基づく適地分析・リスク評価の前処理に使います。\n\n- **0** = ファジー集合に属さない、**1** = 完全に属する\n- ガウス型（正規分布状）のメンバーシップ関数で変換するため、**中点（midpoint）に近いセル値ほど1に近づき、離れるほどなだらかに0へ減衰**します\n- 「ある値の**周辺範囲**が望ましい」評価（例：最適な標高帯・傾斜帯・温度帯）に典型的に使われる関数形です\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ラスタ |\n| `BAND` | 対象バンド番号 |\n| `FUZZYMIDPOINT` | 関数の中点 — メンバーシップが **1** になるセル値 |\n| `FUZZYSPREAD` | 関数の拡がり — 減衰の幅を制御 |\n| `CREATE_OPTIONS` / `CREATION_OPTIONS` | 出力ラスタの作成オプション（GDALオプション文字列） |\n| `OUTPUT` | ファジー化ラスタ（出力） |\n\n### 出力\n\n- `OUTPUT` — ファジー化ラスタ\n- 付随して `EXTENT`・`CRS_AUTHID`・`WIDTH_IN_PIXELS`・`HEIGHT_IN_PIXELS`・`TOTAL_PIXEL_COUNT` も返ります\n\n### 補足：メンバーシップ関数のバリエーション\n\n同じ「ラスタのファジー化」系列が全部で **6種類** 登録されています：\n\n| ID | 関数形 |\n|---|---|\n| `fuzzifyrastergaussianmembership` | ガウス型（本アルゴリズム。中点=1、両側に減衰） |\n| `fuzzifyrasterlinearmembership` | 線形 |\n| `fuzzifyrasterlargemembership` | 大きい値ほど高メンバーシップ |\n| `fuzzifyrastersmallmembership` | 小さい値ほど高メンバーシップ |\n| `fuzzifyrasternearmembership` | 近接型 |\n| `fuzzifyrasterpowermembership` | べき乗型 |\n\n「大きいほど良い／小さいほど良い」の単調評価なら large/small、「特定範囲が最適」なら本ガウス型が向いています。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:fuzzifyrastergaussianmembership')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related': [(a.id(), a.displayName()) for a in QgsApplication.processingRegistry().algorithms() if 'fuzzif' in a.id() or 'ファジー' in a.displayName()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタのファジー化（gaussian membership）」(id: native:fuzzifyrastergaussianmembership) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:fuzzifyrastergaussianmembership（表示名 「ラスタのファジー化（gaussian membership）」、グループ「ラスタ解析」）がこのQGISの processing registry に登録されています。\n用途\n入力ラスタをファジー集合へのメンバーシップ度（0〜1）に変換するアルゴリズムです。ファジー論理に基づく適地分析・リスク評価の前処理に使います。\n0 = ファジー集合に属さない、1 = 完全に属する\nガウス型（正規分布状）のメンバーシップ関数で変換するため、中点（midpoint）に近いセル値ほど1に近づき、離れるほどなだらかに0へ減衰します\n「ある値の周辺範囲が望ましい」評価（例：最適な標高帯・傾斜帯・温度帯）に典型的に使われる関数形です\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ラスタ\nBAND\n対象バンド番号\nFUZZYMIDPOINT\n関数の中点 — メンバーシップが 1 になるセル値\nFUZZYSPREAD\n関数の拡がり — 減衰の幅を制御\nCREATE_OPTIONS / CREATION_OPTIONS\n出力ラスタの作成オプション（GDALオプション文字列）\nOUTPUT\nファジー化ラスタ（出力）\n\n出力\nOUTPUT — ファジー化ラスタ\n付随して EXTENT・CRS_AUTHID・WIDTH_IN_PIXELS・HEIGHT_IN_PIXELS・TOTAL_PIXEL_COUNT も返ります\n補足：メンバーシップ関数のバリエーション\n同じ「ラスタのファジー化」系列が全部で 6種類 登録されています：\nID\n関数形\nfuzzifyrastergaussianmembership\nガウス型（本アルゴリズム。中点=1、両側に減衰）\nfuzzifyrasterlinearmembership\n線形\nfuzzifyrasterlargemembership\n大きい値ほど高メンバーシップ\nfuzzifyrastersmallmembership\n小さい値ほど高メンバーシップ\nfuzzifyrasternearmembership\n近接型\nfuzzifyrasterpowermembership\nべき乗型\n\n「大きいほど良い／小さいほど良い」の単調評価なら large/small、「特定範囲が最適」なら本ガウス型が向いています。"
+}

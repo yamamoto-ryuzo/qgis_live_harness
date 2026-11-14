@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionTemporalController",
+ "prompt": "QGISの「時系列コントローラ」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「時系列コントローラ」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「時系列コントローラ」アクションを探して実行します。実行しました。\n\n- アクション: `mActionTemporalController`「時系列コントローラ」\n- 実行後: **`checked: true`**、ドック `Temporal Controller`(タイトル「時系列コントローラ」)が **visible: true** で表示されました\n\n時系列コントローラパネルが開いた状態です。もう一度実行(トグル)すると閉じます。時間対応レイヤがあれば再生ボタン等で時系列アニメーションを操作できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    n = a.objectName() or ''\\n    if '時系列' in t or 'temporal' in n.lower() or 'Temporal' in t:\\n        found.append({'objectName': n, 'text': t, 'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked()})\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QDockWidget\\na = iface.mainWindow().findChild(QAction, 'mActionTemporalController')\\ninfo = {'enabled': a.isEnabled()}\\na.trigger()\\ninfo['checked'] = a.isChecked()\\ndocks = [d for d in iface.mainWindow().findChildren(QDockWidget) if '時系列' in (d.windowTitle() or '') or 'emporal' in d.objectName()]\\ninfo['docks'] = [{'objectName': d.objectName(), 'title': d.windowTitle(), 'visible': d.isVisible()} for d in docks]\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「時系列コントローラ」機能(アクション)を実行して\n[AI] \n「時系列コントローラ」アクションを探して実行します。実行しました。\nアクション: mActionTemporalController「時系列コントローラ」\n実行後: checked: true、ドック Temporal Controller(タイトル「時系列コントローラ」)が visible: true で表示されました\n時系列コントローラパネルが開いた状態です。もう一度実行(トグル)すると閉じます。時間対応レイヤがあれば再生ボタン等で時系列アニメーションを操作できます。"
+}

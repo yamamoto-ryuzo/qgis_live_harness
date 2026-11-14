@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_rasterlayeruniquevaluesreport",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタレイヤのユニーク値」(id: native:rasterlayeruniquevaluesreport) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタレイヤのユニーク値」(id: native:rasterlayeruniquevaluesreport) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:rasterlayeruniquevaluesreport` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:rasterlayeruniquevaluesreport`\n- **表示名**: `[QGIS（ネイティブC++）] ラスタレイヤのユニーク値`\n- **グループ**: ラスタ解析\n- **用途**: ラスタの指定バンドに含まれるユニーク値ごとのピクセル数と面積を集計する。面積はレイヤCRSの面積単位で計算される。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT` | 必須 | 対象ラスタレイヤ |\n| `BAND` | 必須 | 集計するバンド番号。既定値は `1` |\n| `OUTPUT_HTML_FILE` | 任意 | 集計結果を保存するHTMLファイル |\n| `OUTPUT_TABLE` | 任意 | ユニーク値集計表の出力先 |\n\n範囲、CRS、総ピクセル数、NoDataピクセル数なども出力として返ります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:rasterlayeruniquevaluesreport')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'de"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタレイヤのユニーク値」(id: native:rasterlayeruniquevaluesreport) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:rasterlayeruniquevaluesreport を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:rasterlayeruniquevaluesreport\n表示名: [QGIS（ネイティブC++）] ラスタレイヤのユニーク値\nグループ: ラスタ解析\n用途: ラスタの指定バンドに含まれるユニーク値ごとのピクセル数と面積を集計する。面積はレイヤCRSの面積単位で計算される。\n主なパラメータ\n名前\n必須\n説明\nINPUT\n必須\n対象ラスタレイヤ\nBAND\n必須\n集計するバンド番号。既定値は 1\nOUTPUT_HTML_FILE\n任意\n集計結果を保存するHTMLファイル\nOUTPUT_TABLE\n任意\nユニーク値集計表の出力先\n\n範囲、CRS、総ピクセル数、NoDataピクセル数なども出力として返ります。"
+}

@@ -10,7 +10,7 @@
   },
   {
    "role": "assistant",
-   "content": "「地物を再選択」(`mActionReselect`)を確認しました。\n\n| 項目 | 値 |\n|---|---|\n| objectName | `mActionReselect` |\n| **有効(enabled)** | ✅ **true(有効)** |\n| 現在の選択数 | 0 |\n\n有効な理由: 直前に「アクティブレイヤの選択を解除」で選択解除したため、QGISが **以前の選択(1地物)を記憶しており再選択可能** な状態です。実行すれば解除前の選択が復元されます。\n\n試しに実行して検証しますか?"
+   "content": "「地物を再選択」(`mActionReselect`)の状態を調べます。## 結果:「地物を再選択」は現在**有効**です\n\n| objectName | 表示テキスト | enabled | 所在 |\n|---|---|---|---|\n| `mActionReselect` | 地物を再選択 | **true** | 選択メニュー |\n\n## 状況\n\n- アクティブレイヤ: `テスト地目レイヤ`(ベクタレイヤ、選択数 0)\n- 直前の操作で「アクティブレイヤの選択を解除」を実行したため、レイヤには**解除済みの直前選択**(先ほどの2地物)が残っています\n\nこのアクションはベクタレイヤがアクティブな間は有効で、実行すると直前に解除された選択を復元します。実行すれば、さきほど解除した2地物が再び選択されるはずです。必要であれば実行します。"
   }
  ],
  "tools": [
@@ -19,8 +19,8 @@
  "audit": [
   {
    "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = next(x for x in iface.mainWindow().findChildren(QAction) if x.objectName()=='mActionReselect')\\nlyr = QgsProject.instance().mapLayersByName('repro_move')[0]\\nresult = {'text': a.text(), 'objectName': a.objectName(), 'enabled': a.isEnabled(),\\n          'selected_now': lyr.selectedFeatureCount()}\"}"
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nacts = [a for a in mw.findChildren(QAction) if a.objectName() == 'mActionReselect' or '再選択' in a.text()]\\nlyr = iface.activeLayer()\\nresult = {\\n    'actions': [{'objectName': a.objectName(), 'text': a.text(), 'enabled': a.isEnabled()} for a in acts],\\n    'activeLayer': lyr.name() if lyr else None,\\n    'selectedCount': lyr.selectedFeatureCount() if lyr else None,\\n}\"}"
   }
  ],
- "view_tail": "[あなた] QGISの「地物を再選択」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「地物を再選択」(mActionReselect)を確認しました。\n項目\n値\nobjectName\nmActionReselect\n有効(enabled)\n✅ true(有効)\n現在の選択数\n0\n\n有効な理由: 直前に「アクティブレイヤの選択を解除」で選択解除したため、QGISが 以前の選択(1地物)を記憶しており再選択可能 な状態です。実行すれば解除前の選択が復元されます。\n試しに実行して検証しますか?"
+ "view_tail": "[あなた] QGISの「地物を再選択」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「地物を再選択」(mActionReselect)の状態を調べます。## 結果:「地物を再選択」は現在有効です\nobjectName\n表示テキスト\nenabled\n所在\nmActionReselect\n地物を再選択\ntrue\n選択メニュー\n\n状況\nアクティブレイヤ: テスト地目レイヤ(ベクタレイヤ、選択数 0)\n直前の操作で「アクティブレイヤの選択を解除」を実行したため、レイヤには解除済みの直前選択(先ほどの2地物)が残っています\nこのアクションはベクタレイヤがアクティブな間は有効で、実行すると直前に解除された選択を復元します。実行すれば、さきほど解除した2地物が再び選択されるはずです。必要であれば実行します。"
 }

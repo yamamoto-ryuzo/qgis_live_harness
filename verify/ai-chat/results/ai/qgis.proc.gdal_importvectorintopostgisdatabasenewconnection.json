@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_importvectorintopostgisdatabasenewconnection",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] PostgreSQLへエクスポート（新規接続）」(id: gdal:importvectorintopostgisdatabasenewconnection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] PostgreSQLへエクスポート（新規接続）」(id: gdal:importvectorintopostgisdatabasenewconnection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:importvectorintopostgisdatabasenewconnection` を Processing Registry で確認します。確認しました。Processing Registry に **`[GDAL] PostgreSQLへエクスポート（新規接続）`** は存在します。\n\n- **ID:** `gdal:importvectorintopostgisdatabasenewconnection`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ベクタその他`\n\n### 用途\nベクタレイヤを、実行時に指定した接続情報を使って **PostgreSQL/PostGISテーブルへエクスポート**します。QGISに登録済みの接続がない場合に利用します。\n\n### 主なパラメータ\n- `INPUT`：入力ベクタレイヤ\n- `HOST` / `PORT` / `DBNAME` / `USER` / `PASSWORD`：PostgreSQL接続情報\n- `SCHEMA` / `TABLE`：出力スキーマ・テーブル名\n- `GTYPE` / `DIM`：出力ジオメトリ型・次元\n- `GEOCOLUMN`：ジオメトリカラム名\n- `PK` / `PRIMARY_KEY`：主キー設定\n- `A_SRS` / `S_SRS` / `T_SRS`：CRSの割り当て・上書き・再投影\n- `SPAT` / `CLIP` / `WHERE`：エクスポート対象地物の範囲・条件\n- `FIELDS`：エクスポートするフィールド\n- `OVERWRITE` / `APPEND` / `ADDFIELDS`：既存テーブルの扱い\n- `PROMOTETOMULTI` / `MAKEVALID` / `SKIPFAILURES`：ジオメトリ変換・妥当化・失敗時の継続\n- `OPTIONS`：追加のGDALオプション"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:importvectorintopostgisdatabasenewconnection'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'postgis' in a.id().lower() or 'postgresql' in a.displayName().lower()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg."
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] PostgreSQLへエクスポート（新規接続）」(id: gdal:importvectorintopostgisdatabasenewconnection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:importvectorintopostgisdatabasenewconnection を Processing Registry で確認します。確認しました。Processing Registry に [GDAL] PostgreSQLへエクスポート（新規接続） は存在します。\nID: gdal:importvectorintopostgisdatabasenewconnection\nプロバイダ: GDAL\nグループ: ベクタその他\n用途\nベクタレイヤを、実行時に指定した接続情報を使って PostgreSQL/PostGISテーブルへエクスポートします。QGISに登録済みの接続がない場合に利用します。\n主なパラメータ\nINPUT：入力ベクタレイヤ\nHOST / PORT / DBNAME / USER / PASSWORD：PostgreSQL接続情報\nSCHEMA / TABLE：出力スキーマ・テーブル名\nGTYPE / DIM：出力ジオメトリ型・次元\nGEOCOLUMN：ジオメトリカラム名\nPK / PRIMARY_KEY：主キー設定\nA_SRS / S_SRS / T_SRS：CRSの割り当て・上書き・再投影\nSPAT / CLIP / WHERE：エクスポート対象地物の範囲・条件\nFIELDS：エクスポートするフィールド\nOVERWRITE / APPEND / ADDFIELDS：既存テーブルの扱い\nPROMOTETOMULTI / MAKEVALID / SKIPFAILURES：ジオメトリ変換・妥当化・失敗時の継続\nOPTIONS：追加のGDALオプション"
+}

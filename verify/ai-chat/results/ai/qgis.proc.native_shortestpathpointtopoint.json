@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_shortestpathpointtopoint",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最短経路（指定始点から指定終点）」(id: native:shortestpathpointtopoint) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最短経路（指定始点から指定終点）」(id: native:shortestpathpointtopoint) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に registry を確認します。存在を確認しました。`native:shortestpathpointtopoint`「**最短経路（指定始点から指定終点）**」は登録されています（グループ: ネットワーク解析）。\n\n## 用途\n\n- ラインベクタレイヤをネットワークとして、**指定した1つの始点 → 指定した1つの終点**への最適経路を計算します\n- 先ほどの2つ（レイヤ→点、点→レイヤ）と違い、これは**1対1**の経路探索です\n- 「最短」または「最速」を選べ、経路の総コスト（距離または所要時間）も数値として返します\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | ネットワークを表すベクタレイヤ（ライン） |\n| `STRATEGY` | enum | 計算するパスの種類：`最短` / `最速` |\n| `START_POINT` | point | 始点（1点、クリックまたは座標指定） |\n| `END_POINT` | point | 終点（1点、クリックまたは座標指定） |\n| `DIRECTION_FIELD` / `VALUE_FORWARD` / `VALUE_BACKWARD` / `VALUE_BOTH` / `DEFAULT_DIRECTION` | field / string / string / string / enum | 一方通行などの向き規制（デフォルト: 順方向/逆方向/双方向） |\n| `SPEED_FIELD` / `DEFAULT_SPEED` | field / number | 最速計算用の速度属性とデフォルト速度(km/h) |\n| `TOLERANCE` | distance | トポロジ許容値（接続とみなす点間距離） |\n| `POINT_TOLERANCE` | distance | 始点・終点をネットワークへ吸着させる最大距離 |\n| `OUTPUT` | sink | 出力レイヤ（経路ライン） |\n\n## 出力\n\n- `OUTPUT`：経路のラインレイヤ\n- `TRAVEL_COST`：**旅行コスト（数値）** — このアルゴリズム固有の出力で、モデラー等で「総距離/総時間」を値として取り出せます\n\nなお、1対1なので `OUTPUT_NON_ROUTABLE`（経路不可地物）はありません。これで最短経路3兄弟（point→point / point→layer / layer→point）すべて確認できました。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:shortestpathpointtopoint')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最短経路（指定始点から指定終点）」(id: native:shortestpathpointtopoint) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に registry を確認します。存在を確認しました。native:shortestpathpointtopoint「最短経路（指定始点から指定終点）」は登録されています（グループ: ネットワーク解析）。\n用途\nラインベクタレイヤをネットワークとして、指定した1つの始点 → 指定した1つの終点への最適経路を計算します\n先ほどの2つ（レイヤ→点、点→レイヤ）と違い、これは1対1の経路探索です\n「最短」または「最速」を選べ、経路の総コスト（距離または所要時間）も数値として返します\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\nネットワークを表すベクタレイヤ（ライン）\nSTRATEGY\nenum\n計算するパスの種類：最短 / 最速\nSTART_POINT\npoint\n始点（1点、クリックまたは座標指定）\nEND_POINT\npoint\n終点（1点、クリックまたは座標指定）\nDIRECTION_FIELD / VALUE_FORWARD / VALUE_BACKWARD / VALUE_BOTH / DEFAULT_DIRECTION\nfield / string / string / string / enum\n一方通行などの向き規制（デフォルト: 順方向/逆方向/双方向）\nSPEED_FIELD / DEFAULT_SPEED\nfield / number\n最速計算用の速度属性とデフォルト速度(km/h)\nTOLERANCE\ndistance\nトポロジ許容値（接続とみなす点間距離）\nPOINT_TOLERANCE\ndistance\n始点・終点をネットワークへ吸着させる最大距離\nOUTPUT\nsink\n出力レイヤ（経路ライン）\n\n出力\nOUTPUT：経路のラインレイヤ\nTRAVEL_COST：旅行コスト（数値） — このアルゴリズム固有の出力で、モデラー等で「総距離/総時間」を値として取り出せます\nなお、1対1なので OUTPUT_NON_ROUTABLE（経路不可地物）はありません。これで最短経路3兄弟（point→point / point→layer / layer→point）すべて確認できました。"
+}

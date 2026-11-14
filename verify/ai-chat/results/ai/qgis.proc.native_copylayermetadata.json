@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_copylayermetadata",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Copy layer metadata」(id: native:copylayermetadata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Copy layer metadata」(id: native:copylayermetadata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:copylayermetadata` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] Copy layer metadata`\n- **ID**: `native:copylayermetadata`\n- **グループ**: `Metadata tools`\n- **用途**: あるレイヤのメタデータを別のレイヤへ複製します。タイトル、概要、キーワード、履歴、ライセンスなどのレイヤメタデータを別データへ揃えたい場合に使えます。対象レイヤの既存メタデータは上書きされます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `SOURCE` | メタデータのコピー元レイヤ |\n| `TARGET` | メタデータを書き込むコピー先レイヤ |\n| `DEFAULT` | コピーしたメタデータを対象レイヤの既定メタデータとして保存するか。既定値 `False` |\n| `OUTPUT` | 更新された対象レイヤ |\n\nこのアルゴリズムは地物やジオメトリをコピーするものではなく、レイヤに関連付けられたメタデータを更新する処理です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:copylayermetadata')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({\\n          "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Copy layer metadata」(id: native:copylayermetadata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:copylayermetadata を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] Copy layer metadata\nID: native:copylayermetadata\nグループ: Metadata tools\n用途: あるレイヤのメタデータを別のレイヤへ複製します。タイトル、概要、キーワード、履歴、ライセンスなどのレイヤメタデータを別データへ揃えたい場合に使えます。対象レイヤの既存メタデータは上書きされます。\n主なパラメータ:\nパラメータ\n内容\nSOURCE\nメタデータのコピー元レイヤ\nTARGET\nメタデータを書き込むコピー先レイヤ\nDEFAULT\nコピーしたメタデータを対象レイヤの既定メタデータとして保存するか。既定値 False\nOUTPUT\n更新された対象レイヤ\n\nこのアルゴリズムは地物やジオメトリをコピーするものではなく、レイヤに関連付けられたメタデータを更新する処理です。"
+}

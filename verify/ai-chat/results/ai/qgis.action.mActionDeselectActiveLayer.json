@@ -10,7 +10,7 @@
   },
   {
    "role": "assistant",
-   "content": "選択を復元してから `mActionDeselectActiveLayer` を実行します。「アクティブレイヤの選択を解除」(`mActionDeselectActiveLayer`)を実行しました。\n\n- **前提**: アクティブレイヤ = `repro_move`、1地物選択中\n- **実行**: `trigger()`\n- **実行後**: `repro_move` の選択数 **0** — アクティブレイヤの選択のみ解除されました\n\n正常に動作しています(複数レイヤに選択がある場合は、アクティブなレイヤだけが対象になります)。"
+   "content": "「アクティブレイヤの選択を解除」(`mActionDeselectActiveLayer`)を実行します。効果が分かるよう、アクティブレイヤで1地物を選択してから解除します。## 「アクティブレイヤの選択を解除」を実行しました\n\n`mActionDeselectActiveLayer` を `trigger()` で実行した結果:\n\n- 対象アクティブレイヤ: `テスト地目レイヤ`\n- 実行前の選択数: **2**(動作確認のため事前に2地物を選択)\n- 実行後の選択数: **0**\n\nアクティブレイヤのみの選択が解除されました(他レイヤの選択には影響しません)。"
   }
  ],
  "tools": [
@@ -19,8 +19,8 @@
  "audit": [
   {
    "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nlyr = QgsProject.instance().mapLayersByName('repro_move')[0]\\nlyr.selectAll()\\niface.setActiveLayer(lyr)\\nbefore = lyr.selectedFeatureCount()\\nactive = iface.activeLayer().name() if iface.activeLayer() else None\\na = next(x for x in iface.mainWindow().findChildren(QAction) if x.objectName()=='mActionDeselectActiveLayer')\\na.trigger()\\nresult = {'active_layer': active, 'before': before, 'after': lyr.selectedFeatureCount()}\"}"
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nlyr = iface.activeLayer()\\nfids = [f.id() for f in lyr.getFeatures()]\\nlyr.selectByIds(fids[:2])\\nbefore = lyr.selectedFeatureCount()\\nact = next(a for a in mw.findChildren(QAction) if a.objectName() == 'mActionDeselectActiveLayer')\\nact.trigger()\\nresult = {'layer': lyr.name(), 'selectedBefore': before, 'selectedAfter': lyr.selectedFeatureCount()}\"}"
   }
  ],
- "view_tail": "[あなた] QGISの「アクティブレイヤの選択を解除」機能(アクション)を実行して\n[AI] \n選択を復元してから mActionDeselectActiveLayer を実行します。「アクティブレイヤの選択を解除」(mActionDeselectActiveLayer)を実行しました。\n前提: アクティブレイヤ = repro_move、1地物選択中\n実行: trigger()\n実行後: repro_move の選択数 0 — アクティブレイヤの選択のみ解除されました\n正常に動作しています(複数レイヤに選択がある場合は、アクティブなレイヤだけが対象になります)。"
+ "view_tail": "[あなた] QGISの「アクティブレイヤの選択を解除」機能(アクション)を実行して\n[AI] \n「アクティブレイヤの選択を解除」(mActionDeselectActiveLayer)を実行します。効果が分かるよう、アクティブレイヤで1地物を選択してから解除します。## 「アクティブレイヤの選択を解除」を実行しました\nmActionDeselectActiveLayer を trigger() で実行した結果:\n対象アクティブレイヤ: テスト地目レイヤ\n実行前の選択数: 2(動作確認のため事前に2地物を選択)\n実行後の選択数: 0\nアクティブレイヤのみの選択が解除されました(他レイヤの選択には影響しません)。"
 }

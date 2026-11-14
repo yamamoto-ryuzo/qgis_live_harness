@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_userfunc.bridge.listMacros",
+ "prompt": "QGISの geo_userfunc プラグインで「実行可能マクロ一覧(ライブラリ内+登録済み)を返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_userfunc プラグインで「実行可能マクロ一覧(ライブラリ内+登録済み)を返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`listMacros` の結果です。\n\n**ライブラリ内マクロ**: なし\n(`user_functions.py` は `main()` を持たないためマクロとしては登録されていません)\n\n**登録済みマクロ（他プラグインからの共有レジストリ登録）**: 3件 — すべて `geo_excel` プラグイン提供\n\n| ID | タイトル |\n|---|---|\n| `geo_excel.exportList.py` | 一覧帳票を出力 (アクティブレイヤ) |\n| `geo_excel.exportSingle.py` | 単票を出力 (選択地物) |\n| `geo_excel.exportSingleBulk.py` | 単票を一括出力 (選択地物または全地物) |\n\nExcel帳票出力系のマクロが3本実行可能な状態です。実行する場合は `run` メソッドに ID を渡します（例: `run(\"geo_excel.exportSingle.py\", layer_id, feature_id)`）。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_userfunc', 'method': 'listMacros', 'args': []}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_userfunc プラグインで「実行可能マクロ一覧(ライブラリ内+登録済み)を返す。」を実行して結果を教えて\n[AI] \nlistMacros の結果です。\nライブラリ内マクロ: なし (user_functions.py は main() を持たないためマクロとしては登録されていません)\n登録済みマクロ（他プラグインからの共有レジストリ登録）: 3件 — すべて geo_excel プラグイン提供\nID\nタイトル\ngeo_excel.exportList.py\n一覧帳票を出力 (アクティブレイヤ)\ngeo_excel.exportSingle.py\n単票を出力 (選択地物)\ngeo_excel.exportSingleBulk.py\n単票を一括出力 (選択地物または全地物)\n\nExcel帳票出力系のマクロが3本実行可能な状態です。実行する場合は run メソッドに ID を渡します（例: run(\"geo_excel.exportSingle.py\", layer_id, feature_id)）。"
+}

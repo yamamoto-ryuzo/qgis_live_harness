@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mProcessingUserMenu_gdal_cliprasterbymasklayer",
+ "prompt": "QGISの「マスクレイヤでラスタを切り抜く...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「マスクレイヤでラスタを切り抜く...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "前回の検索で既にヒットしていますが、アルゴリズム登録状況も含めて確認します。「マスクレイヤでラスタを切り抜く...」アクションも **現在有効（enabled）** です。\n\n## 調査結果\n\n**アクション自体**\n- テキスト: `マスクレイヤでラスタを切り抜く...`\n- objectName: `mProcessingUserMenu_gdal:cliprasterbymasklayer`\n- `isEnabled()` = **true**、`isVisible()` = true\n- 配置場所: メニューバー **ラスタ(&R) → Extraction（抽出）→ マスクレイヤでラスタを切り抜く...**\n\n**裏側の Processing アルゴリズム**\n- `gdal:cliprasterbymasklayer` が Processing レジストリに登録済み（表示名: `マスクレイヤでラスタを切り抜く`、gdalwarp -cutline 相当）\n- GDAL プロバイダ: `isActive()` = true\n\nラスタ → Extraction メニューの切り抜き系2アクション（範囲指定 / マスクレイヤ）はどちらも有効です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"mw = iface.mainWindow()\\nreg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:cliprasterbymasklayer')\\nprov = reg.providerById('gdal')\\n\\nact = None\\nfor a in mw.findChildren(__import__('qgis.PyQt.QtWidgets', fromlist=['QAction']).QAction):\\n    if a.objectName() == 'mProcessingUserMenu_gdal:cliprasterbymasklayer':\\n        act = a\\n        break\\nresult = {\\n    'action_text': act.text() if act else None,\\n    'action_enabled': act.isEnabled() if act else None,\\n    'action_visible': act.isVisible() if act else None,\\n    'algorithm_found': alg is not None,\\n    'algorithm_display': alg.displayName() if alg else None,\\n    'provider': alg.provider().name() if alg else None,\\n    'provider_isActive': prov.isActive() if prov else None,\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「マスクレイヤでラスタを切り抜く...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n前回の検索で既にヒットしていますが、アルゴリズム登録状況も含めて確認します。「マスクレイヤでラスタを切り抜く...」アクションも 現在有効（enabled） です。\n調査結果\nアクション自体\nテキスト: マスクレイヤでラスタを切り抜く...\nobjectName: mProcessingUserMenu_gdal:cliprasterbymasklayer\nisEnabled() = true、isVisible() = true\n配置場所: メニューバー ラスタ(&R) → Extraction（抽出）→ マスクレイヤでラスタを切り抜く...\n裏側の Processing アルゴリズム\ngdal:cliprasterbymasklayer が Processing レジストリに登録済み（表示名: マスクレイヤでラスタを切り抜く、gdalwarp -cutline 相当）\nGDAL プロバイダ: isActive() = true\nラスタ → Extraction メニューの切り抜き系2アクション（範囲指定 / マスクレイヤ）はどちらも有効です。"
+}

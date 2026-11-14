@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Gridify",
+ "prompt": "QGISの「Gridify」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Gridify」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認できました。**「Gridify」アクションは現在有効です。**\n\n## 詳細\n\n- メニューパス: **MMQGIS > Modify > Gridify**\n- `QAction` 状態: `enabled = true`, `visible = true`\n- `mmqgis` プラグインの `modify_menu` 内に登録済みで（`in_modify_menu = true`）、`mm.gridify` メソッドに接続されています。\n\nポイント・ライン・ポリゴンの頂点を指定したグリッド間隔にスナップ（吸着）させるダイアログが開ける状態です。なお、類似機能の「Create Grid Layer」（グリッドレイヤ新規作成）は別アクションとして **MMQGIS > Create** 側にあり、こちらも有効です。実行しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis import utils\\nmm = utils.plugins.get('mmqgis')\\nattrs = [a for a in dir(mm) if 'grid' in a.lower()]\\nres = {'attrs': attrs}\\nfor a_name in attrs:\\n    obj = getattr(mm, a_name)\\n    if a_name.endswith('_action'):\\n        res[a_name] = {'text': obj.text(), 'enabled': obj.isEnabled(), 'visible': obj.isVisible(),\\n                       'in_modify_menu': obj in mm.modify_menu.actions()}\\n    else:\\n        res[a_name] = repr(obj)[:150]\\nresult = res\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Gridify」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n確認できました。「Gridify」アクションは現在有効です。\n詳細\nメニューパス: MMQGIS > Modify > Gridify\nQAction 状態: enabled = true, visible = true\nmmqgis プラグインの modify_menu 内に登録済みで（in_modify_menu = true）、mm.gridify メソッドに接続されています。\nポイント・ライン・ポリゴンの頂点を指定したグリッド間隔にスナップ（吸着）させるダイアログが開ける状態です。なお、類似機能の「Create Grid Layer」（グリッドレイヤ新規作成）は別アクションとして MMQGIS > Create 側にあり、こちらも有効です。実行しますか？"
+}

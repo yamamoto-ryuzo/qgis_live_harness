@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.dbManager",
+ "prompt": "QGISの「DBマネージャ...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「DBマネージャ...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に「DBマネージャ...」アクションを調べます。「DBマネージャ...」アクションも **現在有効（enabled）** です。\n\n## 調査結果\n\n**アクション自体**\n- テキスト: `DBマネージャ...`\n- objectName: `dbManager`（DB Manager プラグインが登録するアクション）\n- `isEnabled()` = **true**、`isVisible()` = true\n- 配置場所: メニューバー **&Database（データベース）→ DBマネージャ...**\n\n**裏側**\n- `db_manager` プラグインがロード済み（セッション開始時のロード済みプラグイン一覧にも含まれています）で、このアクション実行時に DB Manager ダイアログが開きます。\n\n同じ Database メニュー内の `Query History…` と併せて、データベース関連機能は正常に有効です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nhits = []\\ncontainers = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').replace('&','')\\n    on = (a.objectName() or '').lower()\\n    if 'dbマネージャ' in t or 'dbmanager' in on or 'db manager' in t.lower() or ('manager' in t.lower() and 'db' in t.lower()):\\n        hits.append({\\n            'text': t,\\n            'objectName': a.objectName(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n        })\\nfor m in mw.findChildren(QMenu):\\n    for a in m.actions():\\n        t = (a.text() or '').replace('&','')\\n        on = (a.objectName() or '').lower()\\n        if 'dbマネージャ' in t or 'dbmanager' in on or 'db manager' in t.lower():\\n            path = [m.title()]\\n            p = m.parent()\\n            while isinstance(p, QMenu):\\n                path.insert(0, p.title())\\n                p = p.parent()\\n            containers.append({'action_text': t, 'menu_path'"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「DBマネージャ...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n同様に「DBマネージャ...」アクションを調べます。「DBマネージャ...」アクションも 現在有効（enabled） です。\n調査結果\nアクション自体\nテキスト: DBマネージャ...\nobjectName: dbManager（DB Manager プラグインが登録するアクション）\nisEnabled() = true、isVisible() = true\n配置場所: メニューバー &Database（データベース）→ DBマネージャ...\n裏側\ndb_manager プラグインがロード済み（セッション開始時のロード済みプラグイン一覧にも含まれています）で、このアクション実行時に DB Manager ダイアログが開きます。\n同じ Database メニュー内の Query History… と併せて、データベース関連機能は正常に有効です。"
+}

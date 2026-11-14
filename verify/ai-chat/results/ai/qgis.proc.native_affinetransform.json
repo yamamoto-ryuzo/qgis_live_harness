@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_affinetransform",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] アフィン変換」(id: native:affinetransform) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] アフィン変換」(id: native:affinetransform) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認しました。**`native:affinetransform`（表示名:「アフィン変換」、グループ:「ベクタジオメトリ」、プロバイダ:「QGIS（ネイティブC++）」）は存在します**。\n\n## 用途\n**ベクタレイヤの全ジオメトリにアフィン変換（平行移動・拡大縮小・回転）を適用**します。図面データの位置合わせ、CAD データのオフセット補正、全体の回転・スケール変更などに使います。適用順序は**スケール → 回転 → 平行移動**です。Z 値・M 値も XY とは独立に変換できるのが特徴です。\n\n## 主なパラメータ\n\n| パラメータ | 型 | デフォルト | 説明 |\n|---|---|---|---|\n| `INPUT` | source | — | 入力ベクタレイヤ |\n| `DELTA_X` / `DELTA_Y` | distance | 0.0 | X/Y 方向の平行移動量（レイヤの CRS 単位） |\n| `DELTA_Z` / `DELTA_M` | number | 0.0 | Z 値 / M 値の加算量 |\n| `SCALE_X` / `SCALE_Y` | number | 1.0 | X/Y 軸の拡大率（1 で変化なし、X≠Y で歪み変形） |\n| `SCALE_Z` / `SCALE_M` | number | 1.0 | Z 値 / M 値の拡大率 |\n| `ROTATION_Z` | number | 0.0 | Z 軸まわりの回転角（度・反時計回り） |\n| `OUTPUT` | sink | — | 出力レイヤ（「アフィン変換済み」） |\n\n補足：\n- 回転・スケールの**基準点は原点 (0,0)** です。任意の中心を基準に変形したい場合は、先に中心を原点へ `DELTA` で移動 → 変換 → 戻す、という 2 段階処理が必要です。\n- 座標値を直接いじるので、**再投影（CRS 変換）ではありません**。CRS が異なるレイヤへの位置合わせは測地学的には近似になります。\n- X・Y 以外に Z/M まで変換できるのが、似たアルゴリズム（`native:translategeometry` など）との差別化ポイントです。単純な移動だけなら `native:translategeometry`（平行移動）でも十分です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('native:affinetransform')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in reg.algorithms() if 'affine' in a.id().lower() or 'transform' in a.id().lower()]}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': str(p.defaultValue())}\\n        if hasattr(p, 'options'):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': (alg.shortHelpString() or '')[:1000],\\n        'params': params,\\n    }\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] アフィン変換」(id: native:affinetransform) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認しました。native:affinetransform（表示名:「アフィン変換」、グループ:「ベクタジオメトリ」、プロバイダ:「QGIS（ネイティブC++）」）は存在します。\n用途\nベクタレイヤの全ジオメトリにアフィン変換（平行移動・拡大縮小・回転）を適用します。図面データの位置合わせ、CAD データのオフセット補正、全体の回転・スケール変更などに使います。適用順序はスケール → 回転 → 平行移動です。Z 値・M 値も XY とは独立に変換できるのが特徴です。\n主なパラメータ\nパラメータ\n型\nデフォルト\n説明\nINPUT\nsource\n—\n入力ベクタレイヤ\nDELTA_X / DELTA_Y\ndistance\n0.0\nX/Y 方向の平行移動量（レイヤの CRS 単位）\nDELTA_Z / DELTA_M\nnumber\n0.0\nZ 値 / M 値の加算量\nSCALE_X / SCALE_Y\nnumber\n1.0\nX/Y 軸の拡大率（1 で変化なし、X≠Y で歪み変形）\nSCALE_Z / SCALE_M\nnumber\n1.0\nZ 値 / M 値の拡大率\nROTATION_Z\nnumber\n0.0\nZ 軸まわりの回転角（度・反時計回り）\nOUTPUT\nsink\n—\n出力レイヤ（「アフィン変換済み」）\n\n補足：\n回転・スケールの基準点は原点 (0,0) です。任意の中心を基準に変形したい場合は、先に中心を原点へ DELTA で移動 → 変換 → 戻す、という 2 段階処理が必要です。\n座標値を直接いじるので、再投影（CRS 変換）ではありません。CRS が異なるレイヤへの位置合わせは測地学的には近似になります。\nX・Y 以外に Z/M まで変換できるのが、似たアルゴリズム（native:translategeometry など）との差別化ポイントです。単純な移動だけなら native:translategeometry（平行移動）でも十分です。"
+}

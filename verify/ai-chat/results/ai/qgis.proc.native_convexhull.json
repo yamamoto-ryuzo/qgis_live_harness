@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_convexhull",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 凸包（convex hull）」(id: native:convexhull) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 凸包（convex hull）」(id: native:convexhull) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:convexhull` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] 凸包（convex hull）`\n- **ID**: `native:convexhull`\n- **グループ**: `ベクタジオメトリ`\n- **用途**: 入力レイヤの**各地物ごと**に凸包を作成します。凸包は、その地物の全頂点を含む最小の凸型ポリゴンです。地物の外郭範囲や単純化した占有範囲を求める用途に使えます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 凸包を計算する入力ベクタレイヤ |\n| `OUTPUT` | 凸包ポリゴンを含む出力レイヤ |\n\nこのアルゴリズムは地物単位で処理します。レイヤ全体や属性グループごとの凸包が必要な場合は `Minimum bounding geometry`（最小境界ジオメトリ）を使います。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:convexhull')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue', 'parentLayerParameterName', 'allowMultiple'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 凸包（convex hull）」(id: native:convexhull) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:convexhull を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] 凸包（convex hull）\nID: native:convexhull\nグループ: ベクタジオメトリ\n用途: 入力レイヤの各地物ごとに凸包を作成します。凸包は、その地物の全頂点を含む最小の凸型ポリゴンです。地物の外郭範囲や単純化した占有範囲を求める用途に使えます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n凸包を計算する入力ベクタレイヤ\nOUTPUT\n凸包ポリゴンを含む出力レイヤ\n\nこのアルゴリズムは地物単位で処理します。レイヤ全体や属性グループごとの凸包が必要な場合は Minimum bounding geometry（最小境界ジオメトリ）を使います。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_meshrasterize",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュデータをラスタライズ」(id: native:meshrasterize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュデータをラスタライズ」(id: native:meshrasterize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:meshrasterize` は **processing registry に存在します**。\n\n- **表示名**: メッシュデータをラスタライズ\n- **グループ**: メッシュ (`mesh`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n**メッシュレイヤのデータセット値をラスタレイヤへ変換（ラスタライズ）**するアルゴリズムです。非構造メッシュ上のシミュレーション結果（水深・流速等）を通常のグリッドデータとして扱いたい場合に使います。\n\n挙動のポイント（ヘルプより）：\n- 3次元にスタックされたメッシュデータは、メッシュレイヤのプロパティで定義された方法（既定はマルチレベル平均法）で面上に平均された値を出力\n- **1次元メッシュは非対応**\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力メッシュレイヤ（必須） | — |\n| `DATASET_GROUPS` | 対象のデータセットグループ（任意） | `[]` |\n| `DATASET_TIME` | データセット時間（対象時刻、必須） | — |\n| `EXTENT` | 出力範囲（任意） | なし |\n| `PIXEL_SIZE` | ピクセルサイズ | `1` |\n| `CRS_OUTPUT` | 出力座標系（任意） | なし |\n| `CREATION_OPTIONS` | GDAL Creation options（任意） | 空 |\n| `OUTPUT` | 出力ラスタ（必須） | — |\n\n※ `CREATE_OPTIONS` / `CREATION_OPTIONS` が2つ定義されています（新旧名の併存と思われます）。\n\n## 出力\n\n- `OUTPUT` — ラスタライズされたラスタレイヤ\n\n実行例: `processing.run(\"native:meshrasterize\", {'INPUT': mesh, 'DATASET_GROUPS': [0], 'DATASET_TIME': {'type': 'dataset-time-step', 'value': [0, 0]}, 'PIXEL_SIZE': 5, 'OUTPUT': 'C:/out.tif'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:meshrasterize')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'prov"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュデータをラスタライズ」(id: native:meshrasterize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:meshrasterize は processing registry に存在します。\n表示名: メッシュデータをラスタライズ\nグループ: メッシュ (mesh)\nプロバイダ: QGIS（ネイティブ C++）\n用途\n**メッシュレイヤのデータセット値をラスタレイヤへ変換（ラスタライズ）**するアルゴリズムです。非構造メッシュ上のシミュレーション結果（水深・流速等）を通常のグリッドデータとして扱いたい場合に使います。\n挙動のポイント（ヘルプより）：\n3次元にスタックされたメッシュデータは、メッシュレイヤのプロパティで定義された方法（既定はマルチレベル平均法）で面上に平均された値を出力\n1次元メッシュは非対応\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力メッシュレイヤ（必須）\n—\nDATASET_GROUPS\n対象のデータセットグループ（任意）\n[]\nDATASET_TIME\nデータセット時間（対象時刻、必須）\n—\nEXTENT\n出力範囲（任意）\nなし\nPIXEL_SIZE\nピクセルサイズ\n1\nCRS_OUTPUT\n出力座標系（任意）\nなし\nCREATION_OPTIONS\nGDAL Creation options（任意）\n空\nOUTPUT\n出力ラスタ（必須）\n—\n\n※ CREATE_OPTIONS / CREATION_OPTIONS が2つ定義されています（新旧名の併存と思われます）。\n出力\nOUTPUT — ラスタライズされたラスタレイヤ\n実行例: processing.run(\"native:meshrasterize\", {'INPUT': mesh, 'DATASET_GROUPS': [0], 'DATASET_TIME': {'type': 'dataset-time-step', 'value': [0, 0]}, 'PIXEL_SIZE': 5, 'OUTPUT': 'C:/out.tif'})"
+}

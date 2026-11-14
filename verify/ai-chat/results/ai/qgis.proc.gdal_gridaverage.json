@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_gridaverage",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] グリッド（移動平均）」(id: gdal:gridaverage) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] グリッド（移動平均）」(id: gdal:gridaverage) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `gdal:gridaverage` を直接確認します。確認しました。Processing Registry に **`[GDAL] グリッド（移動平均）`** は存在します。\n\n- **ID:** `gdal:gridaverage`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタ解析`\n\n### 用途\n点データのZ値を **移動平均法で補間し、ラスタ（グリッド）を作成**するアルゴリズムです。標高点・観測値などの不規則な点データから、連続したDEMや分布面を生成できます。\n\n### 主なパラメータ\n- `INPUT`：入力点レイヤ\n- `Z_FIELD`：補間対象のZ値フィールド（省略可）\n- `RADIUS_1`：検索楕円のX方向半径\n- `RADIUS_2`：検索楕円のY方向半径\n- `ANGLE`：検索楕円の回転角（度）\n- `MIN_POINTS`：補間に必要な最少点数\n- `NODATA`：出力ラスタのNoData値\n- `DATA_TYPE`：出力データ型\n- `OUTPUT`：出力ラスタファイル\n- `EXTRA` / `OPTIONS` / `CREATION_OPTIONS`：GDAL向け追加オプション"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:gridaverage'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'gridaverage' in a.id().lower() or '移動平均' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({'name': o.name(), 'description': o.description(), 'type': o.type()})\\n    matches = sorted([a.id() for a in reg.algorithms("
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] グリッド（移動平均）」(id: gdal:gridaverage) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で gdal:gridaverage を直接確認します。確認しました。Processing Registry に [GDAL] グリッド（移動平均） は存在します。\nID: gdal:gridaverage\nプロバイダ: GDAL\nグループ: ラスタ解析\n用途\n点データのZ値を 移動平均法で補間し、ラスタ（グリッド）を作成するアルゴリズムです。標高点・観測値などの不規則な点データから、連続したDEMや分布面を生成できます。\n主なパラメータ\nINPUT：入力点レイヤ\nZ_FIELD：補間対象のZ値フィールド（省略可）\nRADIUS_1：検索楕円のX方向半径\nRADIUS_2：検索楕円のY方向半径\nANGLE：検索楕円の回転角（度）\nMIN_POINTS：補間に必要な最少点数\nNODATA：出力ラスタのNoData値\nDATA_TYPE：出力データ型\nOUTPUT：出力ラスタファイル\nEXTRA / OPTIONS / CREATION_OPTIONS：GDAL向け追加オプション"
+}

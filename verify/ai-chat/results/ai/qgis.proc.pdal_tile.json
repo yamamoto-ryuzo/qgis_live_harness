@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.pdal_tile",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Create tiles from point cloud」(id: pdal:tile) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Create tiles from point cloud」(id: pdal:tile) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`pdal:tile` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `pdal:tile`\n- **表示名**: `Create tiles from point cloud`\n- **Provider**: `QGIS (PDAL)`\n- **グループ**: `Point cloud data management`\n\n### 用途\n入力点群を指定サイズのタイルに分割し、出力ディレクトリへ保存します。大規模点群の表示・解析性能を改善するための前処理です。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `LAYERS` | タイル化対象の複数点群レイヤ | — |\n| `LENGTH` | 生成タイル1辺の長さ（CRS の距離単位） | `1000.0` |\n| `CRS` | 任意。入力点群へ割り当てる CRS | なし |\n| `VPC_OUTPUT_FORMAT` | VPC 出力の内部形式（`COPC` / `LAZ` / `LAS`） | `COPC` |\n| `OUTPUT` | 生成タイルの出力ディレクトリ | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('pdal:tile')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'tile' in a.id().lower() or 'tile' in a.displayName().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'type': p.type(),\\n     "
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('pdal:tile')\\nresult = [\\n    {'name': p.name(), 'tooltip': p.toolTip(), 'metadata': p.metadata() if hasattr(p, 'metadata') else None}\\n    for p in alg.parameterDefinitions()\\n]\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Create tiles from point cloud」(id: pdal:tile) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \npdal:tile を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: pdal:tile\n表示名: Create tiles from point cloud\nProvider: QGIS (PDAL)\nグループ: Point cloud data management\n用途\n入力点群を指定サイズのタイルに分割し、出力ディレクトリへ保存します。大規模点群の表示・解析性能を改善するための前処理です。\n主なパラメータ\nパラメータ\n意味\n既定値\nLAYERS\nタイル化対象の複数点群レイヤ\n—\nLENGTH\n生成タイル1辺の長さ（CRS の距離単位）\n1000.0\nCRS\n任意。入力点群へ割り当てる CRS\nなし\nVPC_OUTPUT_FORMAT\nVPC 出力の内部形式（COPC / LAZ / LAS）\nCOPC\nOUTPUT\n生成タイルの出力ディレクトリ\n—\n"
+}

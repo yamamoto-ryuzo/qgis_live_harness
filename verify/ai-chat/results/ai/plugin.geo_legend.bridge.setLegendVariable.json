@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_legend.bridge.setLegendVariable",
+ "prompt": "geo_legend プラグインの「setLegendVariable」(legend_* プロジェクト変数の値を設定する。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_legend プラグインの「setLegendVariable」(legend_* プロジェクト変数の値を設定する。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`setLegendVariable` を正常に実行できました。\n\n**実行内容**: `setLegendVariable(\"legend_テスト地目レイヤ\", \"5\")` — 変数の値（表示優先度）を `1` → `5` に変更\n\n**結果**（`legendVariables` と同形式で現在の変数一覧が返る）:\n\n| 変数名 | 値 | 解決先レイヤ |\n|---|---|---|\n| `legend_テスト地目レイヤ` | **5**（変更） | テスト地目レイヤ |\n| `legend_テスト路線レイヤ` | 2 | テスト路線レイヤ |\n\nこの値は凡例対象コンボでの表示優先度（並び順）として使われます。ドックの「変数一覧」ダイアログでの Edit 操作に相当します。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_legend', 'args': ['legend_テスト地目レイヤ', '5'], 'method': 'setLegendVariable'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_legend プラグインの「setLegendVariable」(legend_* プロジェクト変数の値を設定する。)を試して。必要な引数は適当な値でよい\n[AI] \nsetLegendVariable を正常に実行できました。\n実行内容: setLegendVariable(\"legend_テスト地目レイヤ\", \"5\") — 変数の値（表示優先度）を 1 → 5 に変更\n結果（legendVariables と同形式で現在の変数一覧が返る）:\n変数名\n値\n解決先レイヤ\nlegend_テスト地目レイヤ\n5（変更）\nテスト地目レイヤ\nlegend_テスト路線レイヤ\n2\nテスト路線レイヤ\n\nこの値は凡例対象コンボでの表示優先度（並び順）として使われます。ドックの「変数一覧」ダイアログでの Edit 操作に相当します。"
+}

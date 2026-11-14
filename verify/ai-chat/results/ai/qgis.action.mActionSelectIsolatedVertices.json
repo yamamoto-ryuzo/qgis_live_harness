@@ -1,0 +1,99 @@
+{
+ "id": "qgis.action.mActionSelectIsolatedVertices",
+ "prompt": "QGISの「Select Isolated Vertices」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Select Isolated Vertices」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Select Isolated Vertices」に該当するアクションを全走査します。`mActionSelectIsolatedVertices` が見つかりました(メッシュ編集ツール内、現在 enabled=True)。選択状態を検証するため、マップツールの公開メソッドを確認します。選択状態はAPIから直接取れないため、孤立頂点を追加して目視検証できるようにします。QgsMeshEditor のメソッドを確認します。`freeVerticesIndexes`/`isVertexFree` で検証できます。まず `addPointsAsVertices` のシグネチャを確認し、孤立頂点を追加します。既に孤立頂点(index 3)が存在します(2面のうち1面が未生成のため)。アクションを実行して孤立頂点を選択させます。選択状態をスクリーンショットで確認します。孤立頂点(index 3 = 139.750, 35.695)周辺にズームして選択表示を確認します。もっと拡大して選択マーカーを確認します。目視では確認しづらいため、マップツールが使う頂点マーカー(`QgsVertexMarker`)をキャンバス上から列挙します。マップツール内部の子オブジェクトから選択状態を探します。`QgsRubberBand` は QObject ではなく `QGraphicsItem` 系なので `findChildren` では拾えません。キャンバスのアイテムを直接列挙します。可視の頂点マーカーがあります。位置と色を確認します。孤立頂点(139.75, 35.695)に可視マーカーが2つ出現しています — 選択ハイライトです。メッシュ全体を映して最終確認します。実行完了です。\n\n## 「Select Isolated Vertices」を実行 → **孤立頂点を選択**\n\n**アクションの実体**: `mActionSelectIsolatedVertices` — メッシュ編集ツール(`QgsMapToolEditMeshFrame`)内のアクション(メッシュデジタイジングツールバー/右クリックメニューに対応)。編集中メッシュ内の**どの面にも属さない孤立頂点(フリー頂点)を選択**します。\n\n**実行過程と検証**:\n\n1. メッシュエディタで確認: `freeVerticesIndexes()` = `[3]` — 孤立頂点が1つ存在(一時レイヤ `tmp_mesh_edit` は4頂点・1面で、面を構成しない頂点 index 3 が孤立)\n2. `mActionSelectIsolatedVertices`(enabled=True)を `trigger()`\n3. 結果: キャンバスアイテムに **可視の `QgsVertexMarker` ×2 が座標 (139.750, 35.695)** — まさに孤立頂点 index 3 の位置 — に出現。選択ハイライトが生成されたことを確認\n\n| 項目 | 値 |\n|---|---|\n| `isEnabled()` | True(メッシュ編集中のため) |\n| 実行方式 | `trigger()`(単発実行型、非checkable) |\n| 効果 | 孤立頂点 index 3 を選択(頂点マーカーでハイライト) |\n\nこの選択状態から、「選択頂点の削除」(`mActionRemoveVertices*` 系)や「選択された頂点でドロネー三角網」など、選択対象を使う後続操作がそのまま行えます。\n\n前回作成した一時メッシュレイヤ `tmp_mesh_edit` はメッシュ編集モードのまま残っています。片付けが必要なら言ってください。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\nmw = iface.mainWindow()\\nres = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    tt = (a.toolTip() or '')\\n    on = a.objectName() or ''\\n    if ('isolat' in t.lower() or 'isolat' in tt.lower() or 'isolat' in on.lower()\\n        or '孤立' in t or '孤立' in tt or 'vertices' in on.lower() or '頂点' in t):\\n        menus = [m.title().replace('&','') for m in mw.findChildren(QMenu) if a in m.actions()]\\n        tbs = [tb.windowTitle() for tb in mw.findChildren(QToolBar) if a in tb.actions()]\\n        res.append({\\n            'objectName': on,\\n            'text': t,\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'tooltip': tt,\\n            'menus': menus,\\n            'toolbars': tbs,\\n            'parentClass': a.parent().metaObject().className() if a.parent() else None,\\n        })\\"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"mt = iface.mapCanvas().mapTool()\\nres = {'toolClass': mt.metaObject().className() if mt else None}\\nif mt:\\n    res['methods'] = [m for m in dir(mt) if 'select' in m.lower() or 'vertex' in m.lower() or 'face' in m.lower()]\\nresult = res\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"mesh = QgsProject.instance().mapLayersByName('tmp_mesh_edit')[0]\\ned = mesh.meshEditor()\\nres = {'hasEditor': ed is not None}\\nif ed:\\n    res['methods'] = [m for m in dir(ed) if not m.startswith('_')]\\nresult = res\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"mesh = QgsProject.instance().mapLayersByName('tmp_mesh_edit')[0]\\ned = mesh.meshEditor()\\nres = {\\n    'doc_addPointsAsVertices': ed.addPointsAsVertices.__doc__,\\n    'freeVertices_before': list(ed.freeVerticesIndexes()),\\n    'validVertices': ed.validVerticesCount(),\\n}\\nresult = res\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmesh = QgsProject.instance().mapLayersByName('tmp_mesh_edit')[0]\\nres = {'faces': mesh.meshFaceCount(), 'vertices': mesh.meshVertexCount()}\\n\\ntarget = None\\nfor a in iface.mainWindow().findChildren(QAction):\\n    if a.objectName() == 'mActionSelectIsolatedVertices':\\n        target = a\\n        break\\nres['enabled'] = target.isEnabled()\\ntarget.trigger()\\nres['triggered'] = True\\nresult = res\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-5e65159e.png', 'target': 'canvas'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': 'from qgis.core import QgsRectangle\\nc = iface.mapCanvas()\\nc.setExtent(QgsRectangle(139.745, 35.690, 139.755, 35.700))\\nc.refresh()\\nresult = str(c.extent())'}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-632431ec.png', 'target': 'canvas'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': 'from qgis.core import QgsRectangle\\nc = iface.mapCanvas()\\nc.setExtent(QgsRectangle(139.7485, 35.6935, 139.7515, 35.6965))\\nc.refresh()\\nresult = str(c.extent())'}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-eb47fbe1.png', 'target': 'canvas'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.gui import QgsVertexMarker\\nc = iface.mapCanvas()\\nres = []\\nfor m in c.findChildren(QgsVertexMarker):\\n    ctr = m.center()\\n    res.append({\\n        'x': ctr.x(), 'y': ctr.y(),\\n        'iconType': m.iconType(),\\n        'iconSize': m.iconSize(),\\n        'penWidth': m.penWidth(),\\n        'color': str(m.color().name()),\\n        'fillColor': str(m.fillColor().name()),\\n        'visible': m.isVisible(),\\n    })\\nresult = res\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.gui import QgsRubberBand\\nc = iface.mapCanvas()\\nres = []\\nfor rb in c.findChildren(QgsRubberBand):\\n    # ゴムバンド内のジオメトリ点数を調べる\\n    n = 0\\n    pts = []\\n    for i in range(rb.numberOfVertices()):\\n        p = rb.getPoint(0, i) if hasattr(rb, 'getPoint') else None\\n        n += 1\\n    res.append({\\n        'numVertices': rb.numberOfVertices(),\\n        'iconType': rb.iconType() if hasattr(rb,'iconType') else None,\\n        'visible': rb.isVisible(),\\n        'width': rb.width(),\\n    })\\nresult = res\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"mt = iface.mapCanvas().mapTool()\\nres = {'class': mt.metaObject().className()}\\nchildren = []\\nfor ch in mt.findChildren(object) if False else mt.children():\\n    children.append({'class': ch.metaObject().className() if hasattr(ch,'metaObject') else type(ch).__name__,\\n                     'name': ch.objectName() if hasattr(ch,'objectName') else None})\\nres['children'] = children\\n# 再帰的にQgsRubberBand等も探す\\nfrom qgis.gui import QgsMapCanvasItem\\nc = iface.mapCanvas()\\nitems = []\\nfor it in c.findChildren(QgsMapCanvasItem):\\n    items.append({'class': it.metaObject().className(), 'name': it.objectName(), 'visible': it.isVisible()})\\nres['canvasItems'] = items\\nresult = res\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"c = iface.mapCanvas()\\nres = {'items_methods': [m for m in dir(c) if 'item' in m.lower() or 'scene' in m.lower()]}\\n# items() があれば列挙\\nif hasattr(c, 'items'):\\n    res['canvasItems'] = [{'class': i.metaObject().className() if hasattr(i,'metaObject') else type(i).__name__, 'visible': i.isVisible()} for i in c.items()]\\nresult = res\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.gui import QgsVertexMarker, QgsRubberBand\\nc = iface.mapCanvas()\\nres = []\\nfor i, it in enumerate(c.items()):\\n    if isinstance(it, QgsVertexMarker) and it.isVisible():\\n        ctr = it.center()\\n        res.append({\\n            'idx': i, 'class': 'QgsVertexMarker',\\n            'x': ctr.x(), 'y': ctr.y(),\\n            'iconType': it.iconType(), 'iconSize': it.iconSize(),\\n            'color': it.color().name(), 'fillColor': it.fillColor().name(),\\n        })\\n    elif isinstance(it, QgsRubberBand) and it.isVisible():\\n        res.append({'idx': i, 'class': 'QgsRubberBand', 'n': it.numberOfVertices()})\\nresult = res\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.gui import QgsVertexMarker, QgsRubberBand\\nc = iface.mapCanvas()\\nres = []\\nfor i, it in enumerate(c.items()):\\n    if not it.isVisible():\\n        continue\\n    cls = it.metaObject().className()\\n    entry = {'idx': i, 'class': cls}\\n    if isinstance(it, QgsVertexMarker):\\n        ctr = it.center()\\n        entry.update({'x': ctr.x(), 'y': ctr.y()})\\n    elif isinstance(it, QgsRubberBand):\\n        entry['nVertices'] = it.numberOfVertices()\\n    res.append(entry)\\nresult = res\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.gui import QgsVertexMarker, QgsRubberBand\\nc = iface.mapCanvas()\\nres = []\\nfor i, it in enumerate(c.items()):\\n    if not it.isVisible():\\n        continue\\n    entry = {'idx': i, 'class': type(it).__name__}\\n    if isinstance(it, QgsVertexMarker):\\n        ctr = it.center()\\n        entry['pos'] = (ctr.x(), ctr.y())\\n    elif isinstance(it, QgsRubberBand):\\n        entry['nVertices'] = it.numberOfVertices()\\n    res.append(entry)\\nresult = res\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsRectangle\\nc = iface.mapCanvas()\\nc.setExtent(QgsRectangle(139.747, 35.683, 139.763, 35.699))\\nc.refresh()\\nresult = 'refreshed'\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-deb727ab.png', 'target': 'canvas'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Select Isolated Vertices」機能(アクション)を実行して\n[AI] \n「Select Isolated Vertices」に該当するアクションを全走査します。mActionSelectIsolatedVertices が見つかりました(メッシュ編集ツール内、現在 enabled=True)。選択状態を検証するため、マップツールの公開メソッドを確認します。選択状態はAPIから直接取れないため、孤立頂点を追加して目視検証できるようにします。QgsMeshEditor のメソッドを確認します。freeVerticesIndexes/isVertexFree で検証できます。まず addPointsAsVertices のシグネチャを確認し、孤立頂点を追加します。既に孤立頂点(index 3)が存在します(2面のうち1面が未生成のため)。アクションを実行して孤立頂点を選択させます。選択状態をスクリーンショットで確認します。孤立頂点(index 3 = 139.750, 35.695)周辺にズームして選択表示を確認します。もっと拡大して選択マーカーを確認します。目視では確認しづらいため、マップツールが使う頂点マーカー(QgsVertexMarker)をキャンバス上から列挙します。マップツール内部の子オブジェクトから選択状態を探します。QgsRubberBand は QObject ではなく QGraphicsItem 系なので findChildren では拾えません。キャンバスのアイテムを直接列挙します。可視の頂点マーカーがあります。位置と色を確認します。孤立頂点(139.75, 35.695)に可視マーカーが2つ出現しています — 選択ハイライトです。メッシュ全体を映して最終確認します。実行完了です。\n「Select Isolated Vertices」を実行 → 孤立頂点を選択\nアクションの実体: mActionSelectIsolatedVertices — メッシュ編集ツール(QgsMapToolEditMeshFrame)内のアクション(メッシュデジタイジングツールバー/右クリックメニューに対応)。編集中メッシュ内のどの面にも属さない孤立頂点(フリー頂点)を選択します。\n実行過程と検証:\nメッシュエディタで確認: freeVerticesIndexes() = [3] — 孤立頂点が1つ存在(一時レイヤ tmp_mesh_edit は4頂点・1面で、面を構成しない頂点 index 3 が孤立)\nmActionSelectIsolatedVertices(enabled=True)を trigger()\n結果: キャンバスアイテムに 可視の QgsVertexMarker ×2 が座標 (139.750, 35.695) — まさに孤立頂点 index 3 の位置 — に出現。選択ハイライトが生成されたことを確認\n項目\n値\nisEnabled()\nTrue(メッシュ編集中のため)\n実行方式\ntrigger()(単発実行型、非checkable)\n効果\n孤立頂点 index 3 を選択(頂点マーカーでハイライト)\n\nこの選択状態から、「選択頂点の削除」(mActionRemoveVertices* 系)や「選択された頂点でドロネー三角網」など、選択対象を使う後続操作がそのまま行えます。\n前回作成した一時メッシュレイヤ tmp_mesh_edit はメッシュ編集モードのまま残っています。片付けが必要なら言ってください。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_densifygeometries",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 頂点を高密度化（個数ベース）」(id: native:densifygeometries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 頂点を高密度化（個数ベース）」(id: native:densifygeometries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:densifygeometries`\n- **表示名**: 頂点を高密度化（個数ベース）\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ベクタジオメトリ\n\n## 用途\nラインまたはポリゴンレイヤの**各セグメントに指定個数の頂点を追加**して、ジオメトリを高密度化するアルゴリズムです。追加頂点はセグメントを等分する位置に挿入され、Z値/M値がある場合は線形補間されます。滑らか化（smooth）の前処理、長い直線セグメントを投影変換で正しく曲げるための頂点追加、ジオメトリ変換系処理の品質向上などに使います。形状自体（見た目の折れ線）は変わりません。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ライン/ポリゴンレイヤ（必須） |\n| `VERTICES` | 追加する頂点の個数（必須、整数、デフォルト 1、範囲 1〜10,000,000。各セグメントにこの個数ずつ挿入） |\n| `OUTPUT` | 出力レイヤ（必須） |\n\n対になるアルゴリズムに `native:densifygeometriesgivenaninterval`（頂点を高密度化（間隔ベース））があり、こちらは「個数」ではなく「間隔（距離）」で頂点密度を指定します。距離ベースのほうが一様な密度になりやすいので、用途に応じて使い分けます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber\\nalg = QgsApplication.processingRegistry().algorithmById('native:densifygeometries')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'densif' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        if isinstance(p, QgsProcessingParameterNumber):\\n            d['min'] = p.minimum(); d['max'] = p.maximum(); d['dataType'] = str(p.dataType())\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 頂点を高密度化（個数ベース）」(id: native:densifygeometries) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:densifygeometries\n表示名: 頂点を高密度化（個数ベース）\nプロバイダ: QGIS（ネイティブC++）／グループ: ベクタジオメトリ\n用途\nラインまたはポリゴンレイヤの各セグメントに指定個数の頂点を追加して、ジオメトリを高密度化するアルゴリズムです。追加頂点はセグメントを等分する位置に挿入され、Z値/M値がある場合は線形補間されます。滑らか化（smooth）の前処理、長い直線セグメントを投影変換で正しく曲げるための頂点追加、ジオメトリ変換系処理の品質向上などに使います。形状自体（見た目の折れ線）は変わりません。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ライン/ポリゴンレイヤ（必須）\nVERTICES\n追加する頂点の個数（必須、整数、デフォルト 1、範囲 1〜10,000,000。各セグメントにこの個数ずつ挿入）\nOUTPUT\n出力レイヤ（必須）\n\n対になるアルゴリズムに native:densifygeometriesgivenaninterval（頂点を高密度化（間隔ベース））があり、こちらは「個数」ではなく「間隔（距離）」で頂点密度を指定します。距離ベースのほうが一様な密度になりやすいので、用途に応じて使い分けます。"
+}

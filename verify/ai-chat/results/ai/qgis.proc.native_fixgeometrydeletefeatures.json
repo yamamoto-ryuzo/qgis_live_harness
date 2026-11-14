@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_fixgeometrydeletefeatures",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Delete features」(id: native:fixgeometrydeletefeatures) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Delete features」(id: native:fixgeometrydeletefeatures) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に registry を確認します。## 確認結果：存在します ✅\n\n`native:fixgeometrydeletefeatures`（表示名 **「Delete features」**、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n「Check geometry」系アルゴリズムが出力した**エラーレイヤに記録されたエラー地物を、元レイヤから丸ごと削除**するアルゴリズムです。頂点やポリゴンを修正するのではなく、エラー地物自体を取り除く最も単純な「修正」手段で、ヘルプには以下のようなチェックの後に使えるとあります：\n\n- Feature inside polygon（ポリゴン内部にある地物）\n- Degenerate polygons（退化ポリゴン）\n- Small segments（小セグメント）\n- Duplicated geometries（重複ジオメトリ）\n- など\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ（チェック時に使った元のレイヤ） |\n| `ERRORS` | エラーレイヤ（Check geometry 系アルゴリズムの出力） |\n| `UNIQUE_ID` | 元地物を一意に識別するフィールド |\n\n### 出力\n\n- `OUTPUT` — エラー地物を削除したクリーンなレイヤ\n- `REPORT` — 削除内容のレポートレイヤ\n\n前回までの `fixgeometryangle` / `fixgeometryarea` と違い、パート・リング・頂点番号フィールド（`PART_IDX` 等）は不要です。エラーレイヤと元地物を `UNIQUE_ID` で紐付けて、該当する地物を丸ごと削除するシンプルな仕組みです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:fixgeometrydeletefeatures')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': [(p.name(), p.description(), p.type()) for p in alg.parameterDefinitions()],\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Delete features」(id: native:fixgeometrydeletefeatures) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に registry を確認します。## 確認結果：存在します ✅\nnative:fixgeometrydeletefeatures（表示名 「Delete features」、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n用途\n「Check geometry」系アルゴリズムが出力したエラーレイヤに記録されたエラー地物を、元レイヤから丸ごと削除するアルゴリズムです。頂点やポリゴンを修正するのではなく、エラー地物自体を取り除く最も単純な「修正」手段で、ヘルプには以下のようなチェックの後に使えるとあります：\nFeature inside polygon（ポリゴン内部にある地物）\nDegenerate polygons（退化ポリゴン）\nSmall segments（小セグメント）\nDuplicated geometries（重複ジオメトリ）\nなど\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ（チェック時に使った元のレイヤ）\nERRORS\nエラーレイヤ（Check geometry 系アルゴリズムの出力）\nUNIQUE_ID\n元地物を一意に識別するフィールド\n\n出力\nOUTPUT — エラー地物を削除したクリーンなレイヤ\nREPORT — 削除内容のレポートレイヤ\n前回までの fixgeometryangle / fixgeometryarea と違い、パート・リング・頂点番号フィールド（PART_IDX 等）は不要です。エラーレイヤと元地物を UNIQUE_ID で紐付けて、該当する地物を丸ごと削除するシンプルな仕組みです。"
+}

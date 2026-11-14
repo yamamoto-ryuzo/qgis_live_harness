@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_coveragesimplify",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Simplify coverage」(id: native:coveragesimplify) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Simplify coverage」(id: native:coveragesimplify) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:coveragesimplify` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] Simplify coverage`\n- **ID**: `native:coveragesimplify`\n- **グループ**: `Vector coverage`\n- **用途**: 隣接ポリゴンが共有する境界を壊さないように、ポリゴンカバレッジ全体を簡素化します。共有エッジを同じ形に保ちながら頂点数を減らすため、行政区画・土地利用図などの位相を維持した軽量化に向きます。Visvalingam–Whyatt 方式を使用します。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 簡素化するポリゴンカバレッジレイヤ |\n| `TOLERANCE` | 簡素化の許容距離。大きいほど強く簡素化される |\n| `PRESERVE_BOUNDARY` | カバレッジ外縁を簡素化せず保持するか。既定値 `False` |\n| `OUTPUT` | 簡素化後のポリゴンレイヤ |\n\n地物自体は削除されず、最小で三角形まで簡素化されます。入力に重なりなどの不正位相がある場合も処理されますが、その不正は修正されません。実行には GEOS 3.12 以降が必要です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:coveragesimplify')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({\\n           "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Simplify coverage」(id: native:coveragesimplify) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:coveragesimplify を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] Simplify coverage\nID: native:coveragesimplify\nグループ: Vector coverage\n用途: 隣接ポリゴンが共有する境界を壊さないように、ポリゴンカバレッジ全体を簡素化します。共有エッジを同じ形に保ちながら頂点数を減らすため、行政区画・土地利用図などの位相を維持した軽量化に向きます。Visvalingam–Whyatt 方式を使用します。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n簡素化するポリゴンカバレッジレイヤ\nTOLERANCE\n簡素化の許容距離。大きいほど強く簡素化される\nPRESERVE_BOUNDARY\nカバレッジ外縁を簡素化せず保持するか。既定値 False\nOUTPUT\n簡素化後のポリゴンレイヤ\n\n地物自体は削除されず、最小で三角形まで簡素化されます。入力に重なりなどの不正位相がある場合も処理されますが、その不正は修正されません。実行には GEOS 3.12 以降が必要です。"
+}

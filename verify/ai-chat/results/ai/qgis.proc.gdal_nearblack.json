@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_nearblack",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 純黒化（near black）」(id: gdal:nearblack) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 純黒化（near black）」(id: gdal:nearblack) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:nearblack` を Processing Registry で確認します。確認しました。Processing Registry に **`[GDAL] 純黒化（near black）`** は存在します。\n\n- **ID:** `gdal:nearblack`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタ解析`\n\n### 用途\nラスタ内で「ほぼ黒」のピクセルを **完全な黒に変換**します。背景の微細な濃度差を均一化し、NoDataや透過領域として扱いやすくする用途に使います。`WHITE` を有効にすると、ほぼ白のピクセルを純白へ変換します。\n\n### 主なパラメータ\n- `INPUT`：入力ラスタ\n- `NEAR`：黒または白からの距離の閾値（既定値 `15`）\n- `WHITE`：純黒化ではなく純白化を実行\n- `OUTPUT`：出力ラスタ\n- `OPTIONS` / `CREATION_OPTIONS` / `EXTRA`：GDAL向け追加オプション"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:nearblack'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'nearblack' in a.id().lower() or '純黒' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'nearblack' in a.id().lower() or "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 純黒化（near black）」(id: gdal:nearblack) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:nearblack を Processing Registry で確認します。確認しました。Processing Registry に [GDAL] 純黒化（near black） は存在します。\nID: gdal:nearblack\nプロバイダ: GDAL\nグループ: ラスタ解析\n用途\nラスタ内で「ほぼ黒」のピクセルを 完全な黒に変換します。背景の微細な濃度差を均一化し、NoDataや透過領域として扱いやすくする用途に使います。WHITE を有効にすると、ほぼ白のピクセルを純白へ変換します。\n主なパラメータ\nINPUT：入力ラスタ\nNEAR：黒または白からの距離の閾値（既定値 15）\nWHITE：純黒化ではなく純白化を実行\nOUTPUT：出力ラスタ\nOPTIONS / CREATION_OPTIONS / EXTRA：GDAL向け追加オプション"
+}

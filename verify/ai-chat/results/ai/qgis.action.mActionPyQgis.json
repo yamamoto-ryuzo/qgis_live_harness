@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionPyQgis",
+ "prompt": "QGISの「PyQGIS API Documentation」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「PyQGIS API Documentation」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「PyQGIS API Documentation」アクションを探します。「PyQGIS API Documentation」アクションを実際に調べました。結果は以下の通りです。\n\n## 調査結果\n\n- **実体**: `mActionPyQgis` — 「デバッグ/開発ツール」ドック (`DevTools`) 内のドキュメンテーションパネル (`QgsDocumentationPanelWidget`) のツールバーに配置\n- **checkable**: False（実行系）\n- **enabled**: **True（有効）** / **visible**: True\n\n実行すると、ドキュメンテーションパネル内（またはブラウザ）で PyQGIS API ドキュメントを開く動作になります。\n\n参考: ヘルプメニューには別アクション「PyQGIS APIドキュメント」(`mActionHelpPyQgisAPI`) があり、こちらも enabled=True です（WebブラウザでPyQGIS APIページを開くもの）。同パネルには「Qt API Documentation」(`mActionQt`) も有効で配置されています。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nout = []\\nfor w in mw.findChildren(QAction):\\n    t = w.text().replace('&','')\\n    if t and ('PyQGIS' in t or 'API' in t):\\n        info = {'objectName': w.objectName(), 'text': t, 'enabled': w.isEnabled(), 'visible': w.isVisible(), 'checkable': w.isCheckable(), 'checked': w.isChecked() if w.isCheckable() else None}\\n        parents = []\\n        for obj in w.associatedObjects():\\n            if obj.isWidgetType():\\n                chain = []\\n                p = obj\\n                while p is not None:\\n                    chain.append('%s(%s)' % (p.metaObject().className(), p.objectName()))\\n                    p = p.parentWidget()\\n                parents.append(' <- '.join(chain[:8]))\\n        info['associated'] = parents\\n        if not parents:\\n            chain = []\\n            p = w.parent()\\n            while p is not None:\\n                chain.append('%s(%s)' % (p.metaObject().className(), p.o"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「PyQGIS API Documentation」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「PyQGIS API Documentation」アクションを探します。「PyQGIS API Documentation」アクションを実際に調べました。結果は以下の通りです。\n調査結果\n実体: mActionPyQgis — 「デバッグ/開発ツール」ドック (DevTools) 内のドキュメンテーションパネル (QgsDocumentationPanelWidget) のツールバーに配置\ncheckable: False（実行系）\nenabled: True（有効） / visible: True\n実行すると、ドキュメンテーションパネル内（またはブラウザ）で PyQGIS API ドキュメントを開く動作になります。\n参考: ヘルプメニューには別アクション「PyQGIS APIドキュメント」(mActionHelpPyQgisAPI) があり、こちらも enabled=True です（WebブラウザでPyQGIS APIページを開くもの）。同パネルには「Qt API Documentation」(mActionQt) も有効で配置されています。"
+}

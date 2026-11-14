@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_webview.ai.pluginInfo",
+ "prompt": "geo_webview プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_webview プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "3回目の `describe_plugins` を実行し、geo_webview エントリを前回結果と diff しました。**前回取得時と完全に同一**で、変更はありません。\n\n**geo_webview の自己記述（カタログ情報）**\n\n- `id`: `geo_webview` / `name`: geo_webview (QMap Permalink) / `bridge`: true（専用ブリッジ搭載）\n- `summary`: QGISプロジェクトを `.kasc+DATA/` パッケージに出力して KASUGAI Canvas（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）で再生するサーバレスWeb配信プラグイン。地図表示状態（中心/縮尺/回転/テーマ）をパーマリンクURLとして生成・復元。内蔵HTTPサーバは `/kasugai` 起動・`/export-data/` 配信・`/present` 画面共有・パーマリンク受領を担う。\n- `invoke`: `bridge_call` → `plugin_id: \"geo_webview\"`, `method`, `args`\n\n**公開メソッド（36個）**\n\n| カテゴリ | メソッド |\n|---|---|\n| HTTPサーバ | `startServer` `stopServer` `serverStatus` `setPort` `endpoints` `addFirewallRule` `checkAccess` `externalControl` `macAuth` |\n| パーマリンク/ナビ | `generatePermalink` `copyPermalink` `navigate` `navigateTo` `receivedHistory` |\n| KASUGAI連携 | `kasugaiExport` `kascImport` `kascInspect` `openExportFolder` `openExternal` |\n| ライブ同期 | `liveSyncStart` `liveSyncStop` `liveSyncStatus` `liveSyncFlush` `liveAddFeatures` `liveWriteback` |\n| テーマ/ブックマーク | `listThemes` `applyTheme` `saveTheme` `deleteTheme` `listBookmarks` |\n| パネル/共有 | `openPanel` `closePanel` `openPresent` |\n| 設定/状態 | `getSettings` `setSettings` `status` |\n\n**実行時スナップショット**\n```json\n{ \"panel\": true, \"panelVisible\": true, \"serverRunning\": false, \"serverPort\": null }\n```\n\n同じ質問が繰り返されているようですが、何か別の観点（例：特定メソッドの詳細、生JSON全体の出力、別プラグインとの比較など）をご希望でしたらお知らせください。"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_webview プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \n3回目の describe_plugins を実行し、geo_webview エントリを前回結果と diff しました。前回取得時と完全に同一で、変更はありません。\ngeo_webview の自己記述（カタログ情報）\nid: geo_webview / name: geo_webview (QMap Permalink) / bridge: true（専用ブリッジ搭載）\nsummary: QGISプロジェクトを .kasc+DATA/ パッケージに出力して KASUGAI Canvas（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）で再生するサーバレスWeb配信プラグイン。地図表示状態（中心/縮尺/回転/テーマ）をパーマリンクURLとして生成・復元。内蔵HTTPサーバは /kasugai 起動・/export-data/ 配信・/present 画面共有・パーマリンク受領を担う。\ninvoke: bridge_call → plugin_id: \"geo_webview\", method, args\n公開メソッド（36個）\nカテゴリ\nメソッド\nHTTPサーバ\nstartServer stopServer serverStatus setPort endpoints addFirewallRule checkAccess externalControl macAuth\nパーマリンク/ナビ\ngeneratePermalink copyPermalink navigate navigateTo receivedHistory\nKASUGAI連携\nkasugaiExport kascImport kascInspect openExportFolder openExternal\nライブ同期\nliveSyncStart liveSyncStop liveSyncStatus liveSyncFlush liveAddFeatures liveWriteback\nテーマ/ブックマーク\nlistThemes applyTheme saveTheme deleteTheme listBookmarks\nパネル/共有\nopenPanel closePanel openPresent\n設定/状態\ngetSettings setSettings status\n\n実行時スナップショット\n{ \"panel\": true, \"panelVisible\": true, \"serverRunning\": false, \"serverPort\": null }\n同じ質問が繰り返されているようですが、何か別の観点（例：特定メソッドの詳細、生JSON全体の出力、別プラグインとの比較など）をご希望でしたらお知らせください。"
+}

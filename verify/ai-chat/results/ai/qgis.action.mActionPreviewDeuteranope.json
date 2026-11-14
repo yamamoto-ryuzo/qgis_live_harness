@@ -1,0 +1,31 @@
+{
+ "id": "qgis.action.mActionPreviewDeuteranope",
+ "prompt": "QGISの「緑色盲シミュレート（Deuteranope）」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「緑色盲シミュレート（Deuteranope）」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「緑色盲シミュレート（Deuteranope）」(`mActionPreviewDeuteranope`)を実行します。「緑色盲シミュレート（Deuteranope）」(`mActionPreviewDeuteranope`)を実行しました。\n\n- アクションがチェック状態になり、`previewMode=3`(Deuteranope)に切り替わりました\n- スクリーンショットで、緑色盲(2型2色覚)の見え方にシミュレートされていることを確認しました(赤緑系のポイントが黄色〜グレー系に変換)\n\n元に戻す場合は「通常（Normal）」を実行してください。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionPreviewDeuteranope')\\na.trigger()\\niface.mapCanvas().refresh()\\nresult = (a.text(), a.isChecked(), iface.mapCanvas().previewMode())\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-2801c45b.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「緑色盲シミュレート（Deuteranope）」機能(アクション)を実行して\n[AI] \n「緑色盲シミュレート（Deuteranope）」(mActionPreviewDeuteranope)を実行します。「緑色盲シミュレート（Deuteranope）」(mActionPreviewDeuteranope)を実行しました。\nアクションがチェック状態になり、previewMode=3(Deuteranope)に切り替わりました\nスクリーンショットで、緑色盲(2型2色覚)の見え方にシミュレートされていることを確認しました(赤緑系のポイントが黄色〜グレー系に変換)\n元に戻す場合は「通常（Normal）」を実行してください。"
+}

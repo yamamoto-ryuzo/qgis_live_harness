@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_webview.bridge.serverStatus",
+ "prompt": "geo_webview プラグインの「serverStatus」(HTTPサーバの稼働状態・ポート・URLを返す。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_webview プラグインの「serverStatus」(HTTPサーバの稼働状態・ポート・URLを返す。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`serverStatus(deep=True)` で外部アクセス診断込みで試します。`serverStatus(deep=True)` の結果です。\n\n## 基本ステータス\n\n| 項目 | 値 |\n|---|---|\n| running | ✅ 稼働中 |\n| 実ポート | **8090** |\n| 優先ポート(設定値) | 8089 |\n| localhost URL | http://localhost:8090 |\n| ネットワーク URL | http://100.64.1.82:8090 |\n\n## diagnostics(deep=True で追加される外部アクセス診断)\n\n`checkAccess` と同じ内容が入っています:\n\n- ローカルIP: `100.64.1.82`(これ1件のみ)\n- **firewall_warning: true** — ファイアウォールが TCP 8090 をブロックしている可能性。許可ルールが1件も見つからない状態\n\nつまり `deep=False`(既定)なら `running/port/URL` の軽量情報のみ、`deep=True` でファイアウォール診断込みのフル版になる2段構えのメソッドです。外部公開するには引き続き `addFirewallRule(8090)` での受信ルール追加が必要です。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_webview', 'method': 'serverStatus', 'args': [True]}"
+  }
+ ],
+ "view_tail": "[あなた] geo_webview プラグインの「serverStatus」(HTTPサーバの稼働状態・ポート・URLを返す。)を試して。必要な引数は適当な値でよい\n[AI] \nserverStatus(deep=True) で外部アクセス診断込みで試します。serverStatus(deep=True) の結果です。\n基本ステータス\n項目\n値\nrunning\n✅ 稼働中\n実ポート\n8090\n優先ポート(設定値)\n8089\nlocalhost URL\nhttp://localhost:8090\nネットワーク URL\nhttp://100.64.1.82:8090\n\ndiagnostics(deep=True で追加される外部アクセス診断)\ncheckAccess と同じ内容が入っています:\nローカルIP: 100.64.1.82(これ1件のみ)\nfirewall_warning: true — ファイアウォールが TCP 8090 をブロックしている可能性。許可ルールが1件も見つからない状態\nつまり deep=False(既定)なら running/port/URL の軽量情報のみ、deep=True でファイアウォール診断込みのフル版になる2段構えのメソッドです。外部公開するには引き続き addFirewallRule(8090) での受信ルール追加が必要です。"
+}

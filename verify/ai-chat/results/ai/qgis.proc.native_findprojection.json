@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_findprojection",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Find projection」(id: native:findprojection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Find projection」(id: native:findprojection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の Processing registry に存在します。\n\n- **ID**: `native:findprojection`\n- **表示名**: Find projection\n- **グループ**: ベクタ一般\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n\n## 用途\n\n投影法が不明なベクタレイヤについて、**候補となる座標参照系（CRS）の一覧を作成**します。  \nレイヤの範囲を既知の各CRSとして解釈した場合に、指定した対象地域内へ収まるものを候補として抽出します。\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | CRSを推定したい入力ベクタレイヤ（必須） |\n| `TARGET_AREA` | レイヤが存在すると想定される地域範囲（必須） |\n| `TARGET_AREA_CRS` | `TARGET_AREA` の座標系（任意） |\n| `OUTPUT` | CRS候補を一覧化したベクタレイヤ（必須） |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:findprojection')\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'options': p.options() if hasattr(p, 'options') else None,\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else [],\\n    'outputs': [\\n        {'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__}\\n        "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Find projection」(id: native:findprojection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の Processing registry に存在します。\nID: native:findprojection\n表示名: Find projection\nグループ: ベクタ一般\n種別: QGIS ネイティブ C++ アルゴリズム\n用途\n投影法が不明なベクタレイヤについて、候補となる座標参照系（CRS）の一覧を作成します。\nレイヤの範囲を既知の各CRSとして解釈した場合に、指定した対象地域内へ収まるものを候補として抽出します。\n主なパラメータ\nパラメータ\n内容\nINPUT\nCRSを推定したい入力ベクタレイヤ（必須）\nTARGET_AREA\nレイヤが存在すると想定される地域範囲（必須）\nTARGET_AREA_CRS\nTARGET_AREA の座標系（任意）\nOUTPUT\nCRS候補を一覧化したベクタレイヤ（必須）\n"
+}

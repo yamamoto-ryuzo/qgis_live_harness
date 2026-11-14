@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_raisemessage",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッセージを表示」(id: native:raisemessage) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッセージを表示」(id: native:raisemessage) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "QGIS の Processing レジストリを直接照会して確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:raisemessage`\n- **表示名**: `[QGIS（ネイティブC++）] メッセージを表示`\n- **グループ**: モデラーツール\n- **用途**: モデル実行中に、Processing ログへ任意の情報メッセージを出力する。進行状況や中間値の確認に使える。\n\n### 主なパラメータ\n\n| 名前 | 種類 | 必須 | 説明 |\n|---|---|---:|---|\n| `MESSAGE` | 文字列 | 必須 | ログに出力する情報メッセージ |\n| `CONDITION` | 式 | 任意 | 指定した式が `true` の場合のみメッセージを出力 |\n\n出力レイヤや出力パラメータはありません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nreg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('native:raisemessage')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'provider_display': alg.provider().name() if alg.provider() else None,\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'type': p.type(),\\n                'defaultValue': p.defaultValue(),\\n                'optional': bool(p.flags() & p.FlagOptional),\\n            }\\n            for p in alg.parameterDefinitions()\\n        ],\\n        'outputs': [\\n            {'name': o.name(), 'description': o.description(), 'type': o.type()}\\n            for o in alg.output"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッセージを表示」(id: native:raisemessage) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nQGIS の Processing レジストリを直接照会して確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:raisemessage\n表示名: [QGIS（ネイティブC++）] メッセージを表示\nグループ: モデラーツール\n用途: モデル実行中に、Processing ログへ任意の情報メッセージを出力する。進行状況や中間値の確認に使える。\n主なパラメータ\n名前\n種類\n必須\n説明\nMESSAGE\n文字列\n必須\nログに出力する情報メッセージ\nCONDITION\n式\n任意\n指定した式が true の場合のみメッセージを出力\n\n出力レイヤや出力パラメータはありません。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Show_Angle",
+ "prompt": "QGISの「Show Angle」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Show Angle」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Show Angle」関連のアクションを検索します。調査結果です。\n\n## 「Show Angle」は **有効(ON)** です\n\n| 項目 | 値 |\n|---|---|\n| text | `Show Angle` |\n| checkable | true（トグル式） |\n| **checked** | **true → 有効（ON)** |\n| enabled | true（押下可能） |\n| 配置 | メニュー「**Floater settings**」内 |\n| ショートカット | なし |\n\nフローターに**角度入力欄を表示するか**の設定で、現在ONです。デジタイジングツールがアクティブな時にフローターへ角度欄が表示されます。\n\n「Floater settings」系の現状：\n- Show Floater: **ON**\n- Show Distance: **ON**\n- Show Angle: **ON**\n\nOFFにしたい場合は `a.trigger()` で切り替えられます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    on = (a.objectName() or '')\\n    tt = (a.toolTip() or '')\\n    if t.strip().lower() == 'show angle' or 'show angle' in on.lower() or 'show angle' in tt.lower():\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': t,\\n            'objectName': on,\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            'tooltip': tt,\\n            'short"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Show Angle」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Show Angle」関連のアクションを検索します。調査結果です。\n「Show Angle」は 有効(ON) です\n項目\n値\ntext\nShow Angle\ncheckable\ntrue（トグル式）\nchecked\ntrue → 有効（ON)\nenabled\ntrue（押下可能）\n配置\nメニュー「Floater settings」内\nショートカット\nなし\n\nフローターに角度入力欄を表示するかの設定で、現在ONです。デジタイジングツールがアクティブな時にフローターへ角度欄が表示されます。\n「Floater settings」系の現状：\nShow Floater: ON\nShow Distance: ON\nShow Angle: ON\nOFFにしたい場合は a.trigger() で切り替えられます。"
+}

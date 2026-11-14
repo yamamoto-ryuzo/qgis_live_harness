@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.Show_Broken_Layers_Only",
+ "prompt": "QGISの「Show Broken Layers Only」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Show Broken Layers Only」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Broken Layers」に関連するアクションを探します。壊れたレイヤの有無も確認します。「Show Broken Layers Only」アクションを実際に調べました。結果は以下の通りです。\n\n## 調査結果\n\n- **場所**: `QgisApp` 内の無名 `QMenu` に属するトグルアクション（レイヤツリーのコンテキストメニュー系 — 「コンテンツで凡例を絞り込む」「プライベートレイヤを表示」と同じメニュー群）\n- **checkable**: True\n- **enabled**: **True（有効）** / **visible**: True\n- **checked**: **False（現在OFF）**\n\n### 補足\n\n現在のプロジェクトには全1レイヤ（`tmp_floater_test`）で、`isValid()=False` の壊れたレイヤはありません。そのためオンにすると凡例は空になりますが、アクション自体は有効で切り替え可能です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nout = []\\nfor w in mw.findChildren(QAction):\\n    t = w.text().replace('&','')\\n    if t and ('Broken' in t or 'broken' in w.objectName()):\\n        info = {'objectName': w.objectName(), 'text': t, 'tooltip': w.toolTip(), 'enabled': w.isEnabled(), 'visible': w.isVisible(), 'checkable': w.isCheckable(), 'checked': w.isChecked() if w.isCheckable() else None}\\n        parents = []\\n        for obj in w.associatedObjects():\\n            if obj.isWidgetType():\\n                chain = []\\n                p = obj\\n                while p is not None:\\n                    chain.append('%s(%s)' % (p.metaObject().className(), p.objectName()))\\n                    p = p.parentWidget()\\n                parents.append(' <- '.join(chain[:8]))\\n        info['associated'] = parents\\n        out.append(info)\\nresult = out\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nbroken = [(l.name(), l.isValid()) for l in QgsProject.instance().mapLayers().values() if not l.isValid()]\\nresult = {'broken_layers': broken, 'total': len(QgsProject.instance().mapLayers())}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Show Broken Layers Only」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Broken Layers」に関連するアクションを探します。壊れたレイヤの有無も確認します。「Show Broken Layers Only」アクションを実際に調べました。結果は以下の通りです。\n調査結果\n場所: QgisApp 内の無名 QMenu に属するトグルアクション（レイヤツリーのコンテキストメニュー系 — 「コンテンツで凡例を絞り込む」「プライベートレイヤを表示」と同じメニュー群）\ncheckable: True\nenabled: True（有効） / visible: True\nchecked: False（現在OFF）\n補足\n現在のプロジェクトには全1レイヤ（tmp_floater_test）で、isValid()=False の壊れたレイヤはありません。そのためオンにすると凡例は空になりますが、アクション自体は有効で切り替え可能です。"
+}

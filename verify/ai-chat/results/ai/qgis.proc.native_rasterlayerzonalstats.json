@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_rasterlayerzonalstats",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ゾーン統計量（ラスタ）」(id: native:rasterlayerzonalstats) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ゾーン統計量（ラスタ）」(id: native:rasterlayerzonalstats) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:rasterlayerzonalstats` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:rasterlayerzonalstats`\n- **表示名**: `[QGIS（ネイティブC++）] ゾーン統計量（ラスタ）`\n- **グループ**: ラスタ解析\n- **用途**: ゾーンラスタの値ごとに、対象ラスタの値を集計し、ゾーン別の基本統計量を表として出力する。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT` | 必須 | 統計を計算する対象ラスタ |\n| `BAND` | 必須 | 対象ラスタのバンド番号。既定値は `1` |\n| `ZONES` | 必須 | ゾーンを定義するラスタ |\n| `ZONES_BAND` | 必須 | ゾーンラスタのバンド番号。既定値は `1` |\n| `REF_LAYER` | 必須 | `入力レイヤ` または `ゾーン統計の対象レイヤ` を基準にピクセルを対応付け |\n| `OUTPUT_TABLE` | 必須 | ゾーン別統計表の出力先 |\n\n対象値またはゾーン値が `NoData` のピクセルは集計対象外になります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:rasterlayerzonalstats')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'descriptio"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ゾーン統計量（ラスタ）」(id: native:rasterlayerzonalstats) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:rasterlayerzonalstats を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:rasterlayerzonalstats\n表示名: [QGIS（ネイティブC++）] ゾーン統計量（ラスタ）\nグループ: ラスタ解析\n用途: ゾーンラスタの値ごとに、対象ラスタの値を集計し、ゾーン別の基本統計量を表として出力する。\n主なパラメータ\n名前\n必須\n説明\nINPUT\n必須\n統計を計算する対象ラスタ\nBAND\n必須\n対象ラスタのバンド番号。既定値は 1\nZONES\n必須\nゾーンを定義するラスタ\nZONES_BAND\n必須\nゾーンラスタのバンド番号。既定値は 1\nREF_LAYER\n必須\n入力レイヤ または ゾーン統計の対象レイヤ を基準にピクセルを対応付け\nOUTPUT_TABLE\n必須\nゾーン別統計表の出力先\n\n対象値またはゾーン値が NoData のピクセルは集計対象外になります。"
+}

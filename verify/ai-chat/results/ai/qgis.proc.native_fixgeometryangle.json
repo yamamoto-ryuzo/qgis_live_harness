@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.native_fixgeometryangle",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Delete small angles」(id: native:fixgeometryangle) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Delete small angles」(id: native:fixgeometryangle) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "I'll check the available QGIS tools first, then query the processing registry.Now let me query the processing registry for the algorithm.The algorithm exists. Let me also quickly check the companion \"Small angles\" check algorithm it's designed to work with.## 確認結果：存在します ✅\n\n`native:fixgeometryangle`（表示名 **「Delete small angles」**、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n「Check geometry」系の **`native:checkgeometryangle`（Small angles）** が出力したエラーレイヤを元に、ジオメトリ内の**鋭角なスパイク（針状の飛び出し）を形成している頂点を削除**してジオメトリを修正するアルゴリズムです。スパイク頂点を消した結果、重複頂点が発生した場合はそれも除去してトポロジを保ちます。典型的な流れは「`checkgeometryangle` で小角度エラーを検出 → 本アルゴリズムで修正」という2段構成です。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ（修正対象のベクタ） |\n| `ERRORS` | エラーレイヤ（`checkgeometryangle` の出力） |\n| `UNIQUE_ID` | 元地物を一意に識別するフィールド |\n| `PART_IDX` / `RING_IDX` / `VERTEX_IDX` | エラーレイヤ中のパート番号・リング番号・頂点番号フィールド |\n| `TOLERANCE` | 許容範囲（数値。判定の許容誤差） |\n\n### 出力\n\n- `OUTPUT` — 小角度修正後のレイヤ\n- `REPORT` — 修正内容のレポートレイヤ\n\nなお、`UNIQUE_ID` 〜 `VERTEX_IDX` のフィールド指定はエラーレイヤの属性スキーマに依存するため、事前に `checkgeometryangle` を実行してその出力フィールド名を確認するのが確実です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:fixgeometryangle')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': [(p.name(), p.description(), p.type()) for p in alg.parameterDefinitions()],\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n    }\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nfound = [(a.id(), a.displayName(), a.group()) for a in reg.algorithms() if 'angle' in a.id().lower() or 'angle' in a.displayName().lower()]\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Delete small angles」(id: native:fixgeometryangle) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nI'll check the available QGIS tools first, then query the processing registry.Now let me query the processing registry for the algorithm.The algorithm exists. Let me also quickly check the companion \"Small angles\" check algorithm it's designed to work with.## 確認結果：存在します ✅\nnative:fixgeometryangle（表示名 「Delete small angles」、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n用途\n「Check geometry」系の native:checkgeometryangle（Small angles） が出力したエラーレイヤを元に、ジオメトリ内の鋭角なスパイク（針状の飛び出し）を形成している頂点を削除してジオメトリを修正するアルゴリズムです。スパイク頂点を消した結果、重複頂点が発生した場合はそれも除去してトポロジを保ちます。典型的な流れは「checkgeometryangle で小角度エラーを検出 → 本アルゴリズムで修正」という2段構成です。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ（修正対象のベクタ）\nERRORS\nエラーレイヤ（checkgeometryangle の出力）\nUNIQUE_ID\n元地物を一意に識別するフィールド\nPART_IDX / RING_IDX / VERTEX_IDX\nエラーレイヤ中のパート番号・リング番号・頂点番号フィールド\nTOLERANCE\n許容範囲（数値。判定の許容誤差）\n\n出力\nOUTPUT — 小角度修正後のレイヤ\nREPORT — 修正内容のレポートレイヤ\nなお、UNIQUE_ID 〜 VERTEX_IDX のフィールド指定はエラーレイヤの属性スキーマに依存するため、事前に checkgeometryangle を実行してその出力フィールド名を確認するのが確実です。"
+}

@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionOffsetPointSymbol",
+ "prompt": "QGISの「点のシンボルをオフセット」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「点のシンボルをオフセット」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「点のシンボルをオフセット」アクションを探して実行します。ポイントレイヤは編集モード中です。実行しました。\n\n- アクション: `mActionOffsetPointSymbol`「点のシンボルをオフセット」\n- 実行前: 有効(テスト地目レイヤが編集モードのため)\n- 実行後: **`checked: true`**、オフセットツールがアクティブになりました\n\n使い方: キャンバス上で**ポイント地物をクリックしてドラッグ**すると、シンボルの表示位置をオフセットできます。回転ツール同様、オフセット用のデータ定義フィールドが未設定の場合は、最初のクリックでフィールド選択ダイアログが出ることがあります。\n\n(参考: 隣の `mActionOffsetCurve`「曲線をオフセット」は現在無効 — ラインレイヤがアクティブでないためです)"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    n = a.objectName() or ''\\n    if 'オフセット' in t or 'Offset' in t or 'offset' in n.lower():\\n        found.append({'objectName': n, 'text': t, 'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked()})\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionOffsetPointSymbol')\\ninfo = {'enabled': a.isEnabled()}\\na.trigger()\\ninfo['checked'] = a.isChecked()\\ninfo['mapTool'] = type(iface.mapCanvas().mapTool()).__name__\\nresult = info\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「点のシンボルをオフセット」機能(アクション)を実行して\n[AI] \n「点のシンボルをオフセット」アクションを探して実行します。ポイントレイヤは編集モード中です。実行しました。\nアクション: mActionOffsetPointSymbol「点のシンボルをオフセット」\n実行前: 有効(テスト地目レイヤが編集モードのため)\n実行後: checked: true、オフセットツールがアクティブになりました\n使い方: キャンバス上でポイント地物をクリックしてドラッグすると、シンボルの表示位置をオフセットできます。回転ツール同様、オフセット用のデータ定義フィールドが未設定の場合は、最初のクリックでフィールド選択ダイアログが出ることがあります。\n(参考: 隣の mActionOffsetCurve「曲線をオフセット」は現在無効 — ラインレイヤがアクティブでないためです)"
+}

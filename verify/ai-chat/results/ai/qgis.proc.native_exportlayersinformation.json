@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_exportlayersinformation",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤ情報をエクスポート」(id: native:exportlayersinformation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤ情報をエクスポート」(id: native:exportlayersinformation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:exportlayersinformation`\n- **表示名**: レイヤ情報をエクスポート\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: レイヤツール\n\n## 用途\n指定したレイヤ群の**範囲（extent）をポリゴン地物とした索引レイヤを作成**し、各地物にレイヤの詳細情報を属性として付けるアルゴリズムです。付与される属性は CRS、プロバイダ名、ファイルパス、レイヤ名、サブセットフィルタ、概要（abstract）、帰属表示（attribution）など。多数のデータセットが「どの範囲をカバーしているか」を一目で確認するカタログ・索引地図の作成に向きます。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `LAYERS` | 対象レイヤ（必須、複数選択可） |\n| `OUTPUT` | 出力ポリゴンレイヤ（必須） |\n\n出力は「各レイヤの範囲を表す矩形ポリゴン + メタ情報属性」のレイヤ1つです。データ管理やメタデータ目録作りに便利なユーティリティ系アルゴリズムです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber\\nalg = QgsApplication.processingRegistry().algorithmById('native:exportlayersinformation')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'information' in a.id().lower() or 'info' in a.id().lower() or 'export' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.prov"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤ情報をエクスポート」(id: native:exportlayersinformation) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:exportlayersinformation\n表示名: レイヤ情報をエクスポート\nプロバイダ: QGIS（ネイティブC++）／グループ: レイヤツール\n用途\n指定したレイヤ群の範囲（extent）をポリゴン地物とした索引レイヤを作成し、各地物にレイヤの詳細情報を属性として付けるアルゴリズムです。付与される属性は CRS、プロバイダ名、ファイルパス、レイヤ名、サブセットフィルタ、概要（abstract）、帰属表示（attribution）など。多数のデータセットが「どの範囲をカバーしているか」を一目で確認するカタログ・索引地図の作成に向きます。\n主なパラメータ\nパラメータ\n内容\nLAYERS\n対象レイヤ（必須、複数選択可）\nOUTPUT\n出力ポリゴンレイヤ（必須）\n\n出力は「各レイヤの範囲を表す矩形ポリゴン + メタ情報属性」のレイヤ1つです。データ管理やメタデータ目録作りに便利なユーティリティ系アルゴリズムです。"
+}

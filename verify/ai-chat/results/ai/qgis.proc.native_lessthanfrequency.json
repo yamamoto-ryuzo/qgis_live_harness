@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_lessthanfrequency",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタスタックの値の過小頻度」(id: native:lessthanfrequency) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタスタックの値の過小頻度」(id: native:lessthanfrequency) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:lessthanfrequency` は **processing registry に存在します**。\n\n- **表示名**: ラスタスタックの値の過小頻度\n- **グループ**: ラスタ解析 (`rasteranalysis`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n**セルごとに、ラスタスタック（複数ラスタ）の各セル値が「基準値ラスタ」の同位置セル値より小さい回数（頻度）をカウント**したラスタを出力するアルゴリズムです。例：複数時期の降水量ラスタ群で「基準値未満だった回数」を場所ごとに集計する、等の時系列・条件評価解析に使います。\n\n挙動のポイント（ヘルプより）：\n- マルチバンドラスタは**常に第1バンド**のみが対象（他バンドは GDAL 系ツールで）\n- NoData セルは `IGNORE_NODATA` が未チェックなら出力も NoData になる\n- 出力の範囲・解像度は**基準値ラスタに合わせ**、データ型は常に **int32**\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT_VALUE_RASTER` | 基準値ラスタ（必須） | — |\n| `INPUT_VALUE_RASTER_BAND` | 対象バンド | `1` |\n| `INPUT_RASTERS` | 入力ラスタスタック（複数ラスタ指定、必須） | — |\n| `IGNORE_NODATA` | NoData を無視 | `False` |\n| `OUTPUT_NODATA_VALUE` | 出力 NoData 値 | `-9999` |\n| `CREATION_OPTIONS` | GDAL Creation options（任意） | 空 |\n| `OUTPUT` | 出力ラスタ（必須） | — |\n\n※ `CREATE_OPTIONS` / `CREATION_OPTIONS` の2つが定義されています（新旧パラメータ名の併存と思われます）。\n\n## 出力\n\n- `OUTPUT` — 頻度ラスタ（int32）\n- `OCCURRENCE_COUNT` / `FOUND_LOCATIONS_COUNT` / `MEAN_FREQUENCY_PER_LOCATION` — 頻度統計（数値）\n- `EXTENT` / `CRS_AUTHID` / `WIDTH_IN_PIXELS` / `HEIGHT_IN_PIXELS` / `TOTAL_PIXEL_COUNT` — 出力ラスタ情報\n\n実行例: `processing.run(\"native:lessthanfrequency\", {'INPUT_VALUE_RASTER': ref_raster, 'INPUT_VALUE_RASTER_BAND': 1, 'INPUT_RASTERS': [r1, r2, r3], 'OUTPUT': 'C:/out.tif'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:lessthanfrequency')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        '"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタスタックの値の過小頻度」(id: native:lessthanfrequency) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:lessthanfrequency は processing registry に存在します。\n表示名: ラスタスタックの値の過小頻度\nグループ: ラスタ解析 (rasteranalysis)\nプロバイダ: QGIS（ネイティブ C++）\n用途\nセルごとに、ラスタスタック（複数ラスタ）の各セル値が「基準値ラスタ」の同位置セル値より小さい回数（頻度）をカウントしたラスタを出力するアルゴリズムです。例：複数時期の降水量ラスタ群で「基準値未満だった回数」を場所ごとに集計する、等の時系列・条件評価解析に使います。\n挙動のポイント（ヘルプより）：\nマルチバンドラスタは常に第1バンドのみが対象（他バンドは GDAL 系ツールで）\nNoData セルは IGNORE_NODATA が未チェックなら出力も NoData になる\n出力の範囲・解像度は基準値ラスタに合わせ、データ型は常に int32\n主なパラメータ\n名前\n説明\n既定値\nINPUT_VALUE_RASTER\n基準値ラスタ（必須）\n—\nINPUT_VALUE_RASTER_BAND\n対象バンド\n1\nINPUT_RASTERS\n入力ラスタスタック（複数ラスタ指定、必須）\n—\nIGNORE_NODATA\nNoData を無視\nFalse\nOUTPUT_NODATA_VALUE\n出力 NoData 値\n-9999\nCREATION_OPTIONS\nGDAL Creation options（任意）\n空\nOUTPUT\n出力ラスタ（必須）\n—\n\n※ CREATE_OPTIONS / CREATION_OPTIONS の2つが定義されています（新旧パラメータ名の併存と思われます）。\n出力\nOUTPUT — 頻度ラスタ（int32）\nOCCURRENCE_COUNT / FOUND_LOCATIONS_COUNT / MEAN_FREQUENCY_PER_LOCATION — 頻度統計（数値）\nEXTENT / CRS_AUTHID / WIDTH_IN_PIXELS / HEIGHT_IN_PIXELS / TOTAL_PIXEL_COUNT — 出力ラスタ情報\n実行例: processing.run(\"native:lessthanfrequency\", {'INPUT_VALUE_RASTER': ref_raster, 'INPUT_VALUE_RASTER_BAND': 1, 'INPUT_RASTERS': [r1, r2, r3], 'OUTPUT': 'C:/out.tif'})"
+}

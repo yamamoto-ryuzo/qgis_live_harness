@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_joinbynearest",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性の最近傍結合」(id: native:joinbynearest) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性の最近傍結合」(id: native:joinbynearest) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:joinbynearest` は **processing registry に存在します**。\n\n- **表示名**: 属性の最近傍結合\n- **グループ**: ベクタ一般 (`vectorgeneral`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n第2レイヤのうち**空間的に最も近い地物（最近傍地物）の属性を入力レイヤに付加**したレイヤを作成するアルゴリズムです。「各施設に最も近い駅の名前を付ける」「観測点に最寄りの地点データを引く」等、最近傍（nearest neighbor）結合に使います。\n\n出力には結合属性に加えて補助フィールドが自動で追加されます：\n- `distance` — 最近傍地物までの距離\n- `n` — 採用された近傍地物のインデックス\n- `feature_x` / `feature_y` — 入力側の最短距離を構成する点座標\n- `nearest_x` / `nearest_y` — 第2レイヤ側の対応点座標\n\n注意点（ヘルプより）：\n- 距離は**デカルト距離**（楕円体上の測地距離ではない）→ レイヤの CRS 単位で計算される\n- 同距離の地物がある場合は `NEIGHBORS` を超えても全て採用される\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力レイヤ（必須） | — |\n| `INPUT_2` | 第2の入力レイヤ（近傍探索先、必須） | — |\n| `FIELDS_TO_COPY` | 第2レイヤからコピーする属性（空白＝全属性） | 空 |\n| `NEIGHBORS` | 結合する近傍地物の個数 n | `1` |\n| `MAX_DISTANCE` | 最大検索距離（これを超える地物は結合しない） | なし |\n| `DISCARD_NONMATCHING` | 結合対象がなかった地物を破棄 | `False` |\n| `PREFIX` | コピーフィールド名の接頭辞 | 空 |\n| `OUTPUT` | 出力レイヤ | 一時出力 |\n| `NON_MATCHING` | 結合できなかった地物の出力（任意） | — |\n\n## 出力\n\n- `OUTPUT` / `NON_MATCHING` — 結合済み／未結合レイヤ\n- `JOINED_COUNT` / `UNJOINABLE_COUNT` — 結合可否の地物数\n\n実行例: `processing.run(\"native:joinbynearest\", {'INPUT': facilities, 'INPUT_2': stations, 'NEIGHBORS': 3, 'MAX_DISTANCE': 1000, 'OUTPUT': 'TEMPORARY_OUTPUT'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:joinbynearest')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'prov"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性の最近傍結合」(id: native:joinbynearest) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:joinbynearest は processing registry に存在します。\n表示名: 属性の最近傍結合\nグループ: ベクタ一般 (vectorgeneral)\nプロバイダ: QGIS（ネイティブ C++）\n用途\n第2レイヤのうち空間的に最も近い地物（最近傍地物）の属性を入力レイヤに付加したレイヤを作成するアルゴリズムです。「各施設に最も近い駅の名前を付ける」「観測点に最寄りの地点データを引く」等、最近傍（nearest neighbor）結合に使います。\n出力には結合属性に加えて補助フィールドが自動で追加されます：\ndistance — 最近傍地物までの距離\nn — 採用された近傍地物のインデックス\nfeature_x / feature_y — 入力側の最短距離を構成する点座標\nnearest_x / nearest_y — 第2レイヤ側の対応点座標\n注意点（ヘルプより）：\n距離はデカルト距離（楕円体上の測地距離ではない）→ レイヤの CRS 単位で計算される\n同距離の地物がある場合は NEIGHBORS を超えても全て採用される\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力レイヤ（必須）\n—\nINPUT_2\n第2の入力レイヤ（近傍探索先、必須）\n—\nFIELDS_TO_COPY\n第2レイヤからコピーする属性（空白＝全属性）\n空\nNEIGHBORS\n結合する近傍地物の個数 n\n1\nMAX_DISTANCE\n最大検索距離（これを超える地物は結合しない）\nなし\nDISCARD_NONMATCHING\n結合対象がなかった地物を破棄\nFalse\nPREFIX\nコピーフィールド名の接頭辞\n空\nOUTPUT\n出力レイヤ\n一時出力\nNON_MATCHING\n結合できなかった地物の出力（任意）\n—\n\n出力\nOUTPUT / NON_MATCHING — 結合済み／未結合レイヤ\nJOINED_COUNT / UNJOINABLE_COUNT — 結合可否の地物数\n実行例: processing.run(\"native:joinbynearest\", {'INPUT': facilities, 'INPUT_2': stations, 'NEIGHBORS': 3, 'MAX_DISTANCE': 1000, 'OUTPUT': 'TEMPORARY_OUTPUT'})"
+}

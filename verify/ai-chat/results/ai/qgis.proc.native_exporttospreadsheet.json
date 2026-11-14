@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.native_exporttospreadsheet",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] スプレッドシートへエクスポート」(id: native:exporttospreadsheet) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] スプレッドシートへエクスポート」(id: native:exporttospreadsheet) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の Processing registry に存在します。\n\n- **ID**: `native:exporttospreadsheet`\n- **表示名**: スプレッドシートへエクスポート\n- **グループ**: レイヤツール\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n\n## 用途\n\n複数のベクタレイヤやテーブルをまとめて、**Excel / ODS スプレッドシートへ出力**します。  \n既存ファイルへの追記も可能で、レイヤごとにシートとして出力できます。\n\n対応形式:\n\n- Microsoft Excel `*.xlsx`\n- OpenDocument Spreadsheet `*.ods`\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `LAYERS` | エクスポートする入力レイヤ（必須・複数選択可） |\n| `USE_ALIAS` | フィールド名の代わりに属性エイリアスを列名として使用 |\n| `FORMATTED_VALUES` | 生値ではなく表示形式済みの値を出力 |\n| `OUTPUT` | 出力先の `.xlsx` / `.ods` ファイル（必須） |\n| `OVERWRITE` | 既存ファイルを上書きするか。無効時は既存スプレッドシートへシートを追加 |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:exporttospreadsheet')\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'options': p.options() if hasattr(p, 'options') else None,\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else []\\n}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:exporttospreadsheet')\\np = alg.parameterDefinition('OUTPUT')\\nresult = {\\n    'file_filter': p.fileFilter() if hasattr(p, 'fileFilter') else None,\\n    'default_file_extension': p.defaultFileExtension() if hasattr(p, 'defaultFileExtension') else None,\\n    'overwrite_help': alg.parameterDefinition('OVERWRITE').help() if hasattr(alg.parameterDefinition('OVERWRITE'), 'help') else None,\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] スプレッドシートへエクスポート」(id: native:exporttospreadsheet) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の Processing registry に存在します。\nID: native:exporttospreadsheet\n表示名: スプレッドシートへエクスポート\nグループ: レイヤツール\n種別: QGIS ネイティブ C++ アルゴリズム\n用途\n複数のベクタレイヤやテーブルをまとめて、Excel / ODS スプレッドシートへ出力します。\n既存ファイルへの追記も可能で、レイヤごとにシートとして出力できます。\n対応形式:\nMicrosoft Excel *.xlsx\nOpenDocument Spreadsheet *.ods\n主なパラメータ\nパラメータ\n内容\nLAYERS\nエクスポートする入力レイヤ（必須・複数選択可）\nUSE_ALIAS\nフィールド名の代わりに属性エイリアスを列名として使用\nFORMATTED_VALUES\n生値ではなく表示形式済みの値を出力\nOUTPUT\n出力先の .xlsx / .ods ファイル（必須）\nOVERWRITE\n既存ファイルを上書きするか。無効時は既存スプレッドシートへシートを追加\n"
+}

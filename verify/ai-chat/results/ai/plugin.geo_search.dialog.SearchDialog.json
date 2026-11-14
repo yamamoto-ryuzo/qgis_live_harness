@@ -1,0 +1,30 @@
+{
+ "id": "plugin.geo_search.dialog.SearchDialog",
+ "prompt": "geo_search プラグインの「SearchDialog」ダイアログ/パネルを開いて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_search プラグインの「SearchDialog」ダイアログ/パネルを開いて"
+  },
+  {
+   "role": "assistant",
+   "content": "geo_search の検索ダイアログ(SearchDialog)を開きました。`status` で `dialogVisible: true` を確認済みです。現在のタブは「カレントレイヤ」です。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_search', 'method': 'openDialog'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'status', 'plugin_id': 'geo_search'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_search プラグインの「SearchDialog」ダイアログ/パネルを開いて\n[AI] \ngeo_search の検索ダイアログ(SearchDialog)を開きました。status で dialogVisible: true を確認済みです。現在のタブは「カレントレイヤ」です。"
+}

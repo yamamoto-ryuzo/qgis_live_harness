@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_joinbylocationsummary",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Join attributes by location (summary)」(id: native:joinbylocationsummary) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Join attributes by location (summary)」(id: native:joinbylocationsummary) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:joinbylocationsummary` は **processing registry に存在します**。\n\n- **表示名**: Join attributes by location (summary)（属性の空間結合（集計））\n- **グループ**: ベクタ一般 (`vectorgeneral`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n`native:joinattributesbylocation`（属性の空間結合）の**集計版**。入力レイヤの各地物について、空間関係（述語）にマッチする第2レイヤの地物群を抽出し、その属性値の**統計サマリー（個数・合計・平均・最大最小・中央値等）を計算して入力地物に付加**します。「ポリゴン内の地点数」「エリア内の測定値の平均」といった集約型の空間結合に使います。常に1対1結合（マッチした複数地物を統計で集約する）点が通常版との違いです。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 地物を結合するレイヤ（必須） | — |\n| `PREDICATE` | 空間的関係：`intersect` / `contain` / `equal` / `touch` / `overlap` / `within` / `cross`（複数選択可） | `0`（intersect） |\n| `JOIN` | 比較対象（集計元）レイヤ（必須） | — |\n| `JOIN_FIELDS` | 集計対象フィールド（空白＝全フィールド） | 空 |\n| `SUMMARIES` | 計算する統計（enum・複数選択可。空白＝全部）：個数 / unique / min / max / 範囲 / sum / 平均 / 中央値 / stddev / 最稀値 / 最頻値 / q1 / q3 / iqr / empty / filled / min_length / max_length / mean_length | 全部 |\n| `DISCARD_NONMATCHING` | 結合対象がなかった地物を破棄 | `False` |\n| `OUTPUT` | 出力レイヤ（必須） | — |\n\n## 出力\n\n- `OUTPUT` — 集計属性が追加されたレイヤのみ（`NON_MATCHING` や個数出力は無し）\n\n実行例: `processing.run(\"native:joinbylocationsummary\", {'INPUT': polygons, 'JOIN': points, 'PREDICATE': [1], 'JOIN_FIELDS': ['value'], 'SUMMARIES': [0, 5, 6], 'OUTPUT': 'TEMPORARY_OUTPUT'})`（個数・sum・平均を計算）"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:joinbylocationsummary')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n     "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Join attributes by location (summary)」(id: native:joinbylocationsummary) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:joinbylocationsummary は processing registry に存在します。\n表示名: Join attributes by location (summary)（属性の空間結合（集計））\nグループ: ベクタ一般 (vectorgeneral)\nプロバイダ: QGIS（ネイティブ C++）\n用途\nnative:joinattributesbylocation（属性の空間結合）の集計版。入力レイヤの各地物について、空間関係（述語）にマッチする第2レイヤの地物群を抽出し、その属性値の統計サマリー（個数・合計・平均・最大最小・中央値等）を計算して入力地物に付加します。「ポリゴン内の地点数」「エリア内の測定値の平均」といった集約型の空間結合に使います。常に1対1結合（マッチした複数地物を統計で集約する）点が通常版との違いです。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n地物を結合するレイヤ（必須）\n—\nPREDICATE\n空間的関係：intersect / contain / equal / touch / overlap / within / cross（複数選択可）\n0（intersect）\nJOIN\n比較対象（集計元）レイヤ（必須）\n—\nJOIN_FIELDS\n集計対象フィールド（空白＝全フィールド）\n空\nSUMMARIES\n計算する統計（enum・複数選択可。空白＝全部）：個数 / unique / min / max / 範囲 / sum / 平均 / 中央値 / stddev / 最稀値 / 最頻値 / q1 / q3 / iqr / empty / filled / min_length / max_length / mean_length\n全部\nDISCARD_NONMATCHING\n結合対象がなかった地物を破棄\nFalse\nOUTPUT\n出力レイヤ（必須）\n—\n\n出力\nOUTPUT — 集計属性が追加されたレイヤのみ（NON_MATCHING や個数出力は無し）\n実行例: processing.run(\"native:joinbylocationsummary\", {'INPUT': polygons, 'JOIN': points, 'PREDICATE': [1], 'JOIN_FIELDS': ['value'], 'SUMMARIES': [0, 5, 6], 'OUTPUT': 'TEMPORARY_OUTPUT'})（個数・sum・平均を計算）"
+}

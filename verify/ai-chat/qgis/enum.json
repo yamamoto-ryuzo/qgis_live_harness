@@ -102,12 +102,12 @@
   },
   {
    "objectName": "",
-   "text": "ProjectFile (C:\\Users\\ryu\\OneDrive\\チE��クトッチEQGIS_portable\\ProjectFiles\\ProjectFile.qgs)",
+   "text": "ProjectFile (C:\\Users\\ryu\\OneDrive\\チE�E�E�E��E�E�E�クトッチEQGIS_portable\\ProjectFiles\\ProjectFile.qgs)",
    "checkable": false,
    "checked": false,
    "enabled": false,
    "shortcut": "",
-   "tooltip": "ProjectFile (C:\\Users\\ryu\\OneDrive\\チE��クトッチEQGIS_portable\\ProjectFiles\\ProjectFile.qgs)",
+   "tooltip": "ProjectFile (C:\\Users\\ryu\\OneDrive\\チE�E�E�E��E�E�E�クトッチEQGIS_portable\\ProjectFiles\\ProjectFile.qgs)",
    "path": "プロジェクト(&J)/最近のプロジェクト(&R)"
   },
   {
@@ -122,12 +122,12 @@
   },
   {
    "objectName": "",
-   "text": "NewProjectFile (C:\\QGIS配币E��\\ProjectFiles\\NewProjectFile.qgs)",
+   "text": "NewProjectFile (C:\\QGIS配币E�E�E�E��E�E�E�\\ProjectFiles\\NewProjectFile.qgs)",
    "checkable": false,
    "checked": false,
    "enabled": false,
    "shortcut": "",
-   "tooltip": "NewProjectFile (C:\\QGIS配币E��\\ProjectFiles\\NewProjectFile.qgs)",
+   "tooltip": "NewProjectFile (C:\\QGIS配币E�E�E�E��E�E�E�\\ProjectFiles\\NewProjectFile.qgs)",
    "path": "プロジェクト(&J)/最近のプロジェクト(&R)"
   },
   {
@@ -185,7 +185,7 @@
    "text": "元に戻す...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>プロジェクトを保存したバージョンに戻す</b>",
    "path": "プロジェクト(&J)"
@@ -482,12 +482,12 @@
   },
   {
    "objectName": "mActionAddFeature",
-   "text": "点地物を追加する",
+   "text": "地物を追加",
    "checkable": true,
    "checked": false,
    "enabled": false,
    "shortcut": "Ctrl+.",
-   "tooltip": "<b>点地物を追加する</b> (Ctrl+.)",
+   "tooltip": "<b>地物を追加</b> (Ctrl+.)",
    "path": "編集(&E)"
   },
   {
@@ -1222,16 +1222,6 @@
   },
   {
    "objectName": "",
-   "text": "AI アシスタント",
-   "checkable": true,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "AI アシスタント",
-   "path": "ビュー(&V)/パネル"
-  },
-  {
-   "objectName": "",
    "text": "GPS情報",
    "checkable": true,
    "checked": false,
@@ -1408,6 +1398,16 @@
    "enabled": true,
    "shortcut": "",
    "tooltip": "統計",
+   "path": "ビュー(&V)/パネル"
+  },
+  {
+   "objectName": "",
+   "text": "AI アシスタント",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "AI アシスタント",
    "path": "ビュー(&V)/パネル"
   },
   {
@@ -3531,6 +3531,36 @@
    "path": "Web(&W)/&MetaSearch"
   },
   {
+   "objectName": "Qgis2threejsExporterEmb",
+   "text": "Qgis2threejs Exporter",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Qgis2threejs Exporter",
+   "path": "Web(&W)/Qgis2threejs"
+  },
+  {
+   "objectName": "Qgis2threejsExporterBrw",
+   "text": "Qgis2threejs Exporter (Browser Preview)",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Qgis2threejs Exporter (Browser Preview)",
+   "path": "Web(&W)/Qgis2threejs"
+  },
+  {
+   "objectName": "Qgis2threejsExporterWoP",
+   "text": "Qgis2threejs Exporter (No Preview)",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Qgis2threejs Exporter (No Preview)",
+   "path": "Web(&W)/Qgis2threejs"
+  },
+  {
    "objectName": "mActionShowMeshCalculator",
    "text": "メッシュ計算機...",
    "checkable": false,
@@ -4864,12 +4894,12 @@
   },
   {
    "objectName": "mActionAddFeature",
-   "text": "点地物を追加する",
+   "text": "地物を追加",
    "checkable": true,
    "checked": false,
    "enabled": false,
    "shortcut": "Ctrl+.",
-   "tooltip": "<b>点地物を追加する</b> (Ctrl+.)",
+   "tooltip": "<b>地物を追加</b> (Ctrl+.)",
    "path": "(mainWindow)"
   },
   {
@@ -5949,7 +5979,7 @@
    "checked": false,
    "enabled": false,
    "shortcut": "",
-   "tooltip": "アクションが選択されていません",
+   "tooltip": "<b>地物アクションの実行</b>",
    "path": "(mainWindow)"
   },
   {
@@ -6627,7 +6657,7 @@
    "text": "元に戻す...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>プロジェクトを保存したバージョンに戻す</b>",
    "path": "(mainWindow)"
@@ -7134,12 +7164,12 @@
   },
   {
    "objectName": "",
-   "text": "ProjectFile (C:\\Users\\ryu\\OneDrive\\チE��クトッチEQGIS_portable\\ProjectFiles\\ProjectFile.qgs)",
+   "text": "ProjectFile (C:\\Users\\ryu\\OneDrive\\チE�E�E�E��E�E�E�クトッチEQGIS_portable\\ProjectFiles\\ProjectFile.qgs)",
    "checkable": false,
    "checked": false,
    "enabled": false,
    "shortcut": "",
-   "tooltip": "ProjectFile (C:\\Users\\ryu\\OneDrive\\チE��クトッチEQGIS_portable\\ProjectFiles\\ProjectFile.qgs)",
+   "tooltip": "ProjectFile (C:\\Users\\ryu\\OneDrive\\チE�E�E�E��E�E�E�クトッチEQGIS_portable\\ProjectFiles\\ProjectFile.qgs)",
    "path": "(mainWindow)"
   },
   {
@@ -7154,12 +7184,12 @@
   },
   {
    "objectName": "",
-   "text": "NewProjectFile (C:\\QGIS配币E��\\ProjectFiles\\NewProjectFile.qgs)",
+   "text": "NewProjectFile (C:\\QGIS配币E�E�E�E��E�E�E�\\ProjectFiles\\NewProjectFile.qgs)",
    "checkable": false,
    "checked": false,
    "enabled": false,
    "shortcut": "",
-   "tooltip": "NewProjectFile (C:\\QGIS配币E��\\ProjectFiles\\NewProjectFile.qgs)",
+   "tooltip": "NewProjectFile (C:\\QGIS配币E�E�E�E��E�E�E�\\ProjectFiles\\NewProjectFile.qgs)",
    "path": "(mainWindow)"
   },
   {
@@ -10594,12 +10624,12 @@
   },
   {
    "objectName": "mCreateFeatureAction",
-   "text": "Create Point Feature at Location",
+   "text": "Create Feature from Track",
    "checkable": false,
    "checked": false,
    "enabled": false,
    "shortcut": "",
-   "tooltip": "Create a new point feature at the current GPS location",
+   "tooltip": "Create Feature from Track",
    "path": "(mainWindow)"
   },
   {
@@ -10920,16 +10950,6 @@
    "enabled": true,
    "shortcut": "",
    "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "AI アシスタント",
-   "checkable": true,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "AI アシスタント",
    "path": "(mainWindow)"
   },
   {
@@ -11680,6 +11700,56 @@
    "enabled": true,
    "shortcut": "",
    "tooltip": "<b>設定</b>",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "Qgis2threejsExporter",
+   "text": "Qgis2threejs Exporter",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "<b>Qgis2threejs Exporter</b>",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "Qgis2threejsExporterEmb",
+   "text": "Qgis2threejs Exporter",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Qgis2threejs Exporter",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "Qgis2threejsExporterBrw",
+   "text": "Qgis2threejs Exporter (Browser Preview)",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Qgis2threejs Exporter (Browser Preview)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "Qgis2threejsExporterWoP",
+   "text": "Qgis2threejs Exporter (No Preview)",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Qgis2threejs Exporter (No Preview)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Qgis2threejs",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Qgis2threejs",
    "path": "(mainWindow)"
   },
   {
@@ -13190,6 +13260,16 @@
    "enabled": true,
    "shortcut": "",
    "tooltip": "タイルスケール",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "AI アシスタント",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "AI アシスタント",
    "path": "(mainWindow)"
   }
  ],
@@ -17466,11 +17546,6 @@
    "visible": false
   },
   {
-   "objectName": "GeoDriverAiPanel",
-   "title": "AI アシスタント",
-   "visible": false
-  },
-  {
    "objectName": "ProcessingToolbox",
    "title": "プロセシングツールボックス",
    "visible": false
@@ -17489,6 +17564,11 @@
    "objectName": "theTileScaleDock",
    "title": "タイルスケール",
    "visible": false
+  },
+  {
+   "objectName": "GeoDriverAiPanel",
+   "title": "AI アシスタント",
+   "visible": true
   }
  ]
 }

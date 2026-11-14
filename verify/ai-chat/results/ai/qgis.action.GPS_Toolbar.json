@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.GPS_Toolbar",
+ "prompt": "QGISの「GPS Toolbar」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「GPS Toolbar」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「GPS Toolbar」(GPSツールバー)のアクションを実行します。ツールバーは既に表示中です。アクションを実行し、状態を確認・復元します。「GPS Toolbar」アクションを実行しました。\n\n- GPSツールバー(mGpsToolBar)は既に表示されていたため、トグル実行で一度非表示になった後、再度実行して表示状態に戻しています\n- アクションはチェック状態のままです\n\nこのツールバーには GPS 接続・再接続・位置情報表示などのボタンが並んでいます(GPSデバイス未接続のため多くはグレーアウトしています)。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\nacts = [x for x in mw.findChildren(QAction) if x.text() == 'GPS Toolbar']\\ntbars = [x for x in mw.findChildren(QToolBar) if 'gps' in (x.objectName() + x.windowTitle()).lower()]\\na = acts[0] if acts else None\\nresult = {'action_found': a is not None,\\n          'checked': a.isChecked() if a else None,\\n          'toolbars': [(t.objectName(), t.windowTitle(), t.isVisible()) for t in tbars]}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\na = [x for x in mw.findChildren(QAction) if x.text() == 'GPS Toolbar'][0]\\nt = [x for x in mw.findChildren(QToolBar) if x.objectName() == 'mGpsToolBar'][0]\\nbefore = (a.isChecked(), t.isVisible())\\na.trigger()\\nif not t.isVisible():\\n    a.trigger()\\nresult = {'before': before, 'final': (a.isChecked(), t.isVisible())}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「GPS Toolbar」機能(アクション)を実行して\n[AI] \n「GPS Toolbar」(GPSツールバー)のアクションを実行します。ツールバーは既に表示中です。アクションを実行し、状態を確認・復元します。「GPS Toolbar」アクションを実行しました。\nGPSツールバー(mGpsToolBar)は既に表示されていたため、トグル実行で一度非表示になった後、再度実行して表示状態に戻しています\nアクションはチェック状態のままです\nこのツールバーには GPS 接続・再接続・位置情報表示などのボタンが並んでいます(GPSデバイス未接続のため多くはグレーアウトしています)。"
+}

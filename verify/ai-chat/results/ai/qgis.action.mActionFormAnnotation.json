@@ -10,34 +10,21 @@
   },
   {
    "role": "assistant",
-   "content": "「注記フォーム」に該当するアクションを探します。`mActionFormAnnotation` を実行します。ツールが有効化しました。キャンバスをクリックして注記を作成します。注記アイテムがキャンバス上に作成されました。内容を確認します。フォーム注記が作成されました。目視確認のためスクリーンショットを撮ります。「注記フォーム」(`mActionFormAnnotation`)を実行し、フォーム注記の作成まで検証しました。\n\n## 実行結果\n\n1. **アクション実行** → `checked=true`、`QgsMapToolFormAnnotation` がアクティブ化\n2. **キャンバスクリック**(画面中央)→ `QgsFormAnnotation` 型の注記アイテム(`QgsMapCanvasAnnotationItem`)が作成\n3. **スクリーンショット確認**: 赤いアンカーポイントと吹き出し型の注記ボックスが地図上に表示されています\n\n作成された注記:\n- 型: `QgsFormAnnotation`\n- 地図座標: (1402.58, 247.42)\n- visible: true\n- designerForm/contents は空(フォームファイル未割当のデフォルト状態)\n\n備考: この注記は古い「キャンバス注記」系(`QgsAnnotationManager`管理)で、フォーム(.uiファイル)を指定すると独自UIを表示できます。現在注記ツールがアクティブなままなので、通常操作に戻すにはパンツール等への切替が必要です。注記を削除しますか?"
+   "content": "「注記フォーム」に該当するアクションを調べます。`mActionFormAnnotation`(注記フォーム)が見つかりました。有効なので実行します。## 「注記フォーム」を実行しました\n\n`mActionFormAnnotation` を `trigger()` で実行した結果:\n\n- アクションのチェック状態: **ON**\n- キャンバスの現在のマップツール: 注記フォーム作成ツールに切り替わりました(ツールに紐づくアクションが `mActionFormAnnotation`)\n\n「編集 → 注記を追加 → 注記フォーム」のツールが有効な状態です。キャンバス上の地物をクリックすると、その地物の属性フォームを表示する注記を配置できます(注記はメイン注記レイヤに追加されます)。"
   }
  ],
  "tools": [
-  "pyeval",
-  "screenshot"
+  "pyeval"
  ],
  "audit": [
   {
    "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfound=[]\\nfor a in iface.mainWindow().findChildren(QAction):\\n    t=a.text() or ''\\n    on=a.objectName() or ''\\n    if '注記' in t or 'annotation' in on.lower() or 'Annotation' in t:\\n        found.append({'text':t,'objectName':on,'enabled':a.isEnabled(),'checkable':a.isCheckable(),'checked':a.isChecked()})\\nresult = found\"}"
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nmatches = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text().replace('&','')\\n    if '注記' in t or 'Annotation' in a.objectName() or 'annotation' in t.lower():\\n        parents = []\\n        try:\\n            for o in a.associatedObjects():\\n                if isinstance(o, QMenu):\\n                    parents.append('menu:' + (o.title() or o.objectName()))\\n                else:\\n                    parents.append(type(o).__name__)\\n        except Exception:\\n            pass\\n        matches.append({'objectName': a.objectName(), 'text': t, 'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked(), 'parents': parents})\\nresult = matches\"}"
   },
   {
    "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = next(x for x in iface.mainWindow().findChildren(QAction) if x.objectName()=='mActionFormAnnotation')\\na.trigger()\\nresult = {'checked': a.isChecked(), 'map_tool': iface.mapCanvas().mapTool().metaObject().className()}\"}"
-  },
-  {
-   "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtCore import QPointF, Qt, QEvent\\nfrom qgis.PyQt.QtGui import QMouseEvent\\nfrom qgis.PyQt.QtWidgets import QApplication\\ncanvas = iface.mapCanvas()\\npos = QPointF(int(canvas.width()/2), int(canvas.height()/2))\\nLB = Qt.MouseButton.LeftButton\\nNM = Qt.KeyboardModifier.NoModifier\\nQApplication.sendEvent(canvas.viewport(), QMouseEvent(QEvent.Type.MouseButtonPress, pos, LB, LB, NM))\\nQApplication.sendEvent(canvas.viewport(), QMouseEvent(QEvent.Type.MouseButtonRelease, pos, LB, Qt.MouseButton.NoButton, NM))\\n\\n# 何が起きたか確認: ダイアログ/注記アイテム\\ndlgs = [{'class':w.metaObject().className(),'title':w.windowTitle()} for w in QApplication.topLevelWidgets() if w.isVisible() and w.metaObject().className() not in ('QgisApp','QgsExpressionSelectionDialog','QgsSelectByFormDialog','QgsAttributeDialog')]\\nitems = [type(i).__name__ for i in canvas.scene().items() if 'Annotation' in type(i).__name__ or 'annotation' in type(i).__name__.lower()]\\nresult = {'new_dialogs': dlgs, 'annotation_"
-  },
-  {
-   "type": "pyeval",
-   "args": "{'code': \"canvas = iface.mapCanvas()\\nitems = [i for i in canvas.scene().items() if type(i).__name__=='QgsMapCanvasAnnotationItem']\\nout=[]\\nfor it in items:\\n    info={}\\n    try:\\n        ann = it.annotation()\\n        info['ann_type'] = ann.metaObject().className() if hasattr(ann,'metaObject') else type(ann).__name__\\n        info['map_pos'] = [ann.mapPosition().x(), ann.mapPosition().y()]\\n        info['contents'] = getattr(ann,'contents','')\\n        info['designer'] = getattr(ann,'designerForm','')\\n        info['visible'] = ann.isVisible()\\n    except Exception as e:\\n        info['err'] = repr(e)\\n    out.append(info)\\nresult = out\"}"
-  },
-  {
-   "type": "screenshot",
-   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-3e6d51f1.png', 'target': 'canvas'}"
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nact = next(a for a in mw.findChildren(QAction) if a.objectName() == 'mActionFormAnnotation')\\nact.trigger()\\nmt = iface.mapCanvas().mapTool()\\nresult = {'checked': act.isChecked(), 'mapTool': type(mt).__name__, 'mapToolActionObject': mt.action().objectName() if mt and mt.action() else None}\"}"
   }
  ],
- "view_tail": "[あなた] QGISの「注記フォーム」機能(アクション)を実行して\n[AI] \n「注記フォーム」に該当するアクションを探します。mActionFormAnnotation を実行します。ツールが有効化しました。キャンバスをクリックして注記を作成します。注記アイテムがキャンバス上に作成されました。内容を確認します。フォーム注記が作成されました。目視確認のためスクリーンショットを撮ります。「注記フォーム」(mActionFormAnnotation)を実行し、フォーム注記の作成まで検証しました。\n実行結果\nアクション実行 → checked=true、QgsMapToolFormAnnotation がアクティブ化\nキャンバスクリック(画面中央)→ QgsFormAnnotation 型の注記アイテム(QgsMapCanvasAnnotationItem)が作成\nスクリーンショット確認: 赤いアンカーポイントと吹き出し型の注記ボックスが地図上に表示されています\n作成された注記:\n型: QgsFormAnnotation\n地図座標: (1402.58, 247.42)\nvisible: true\ndesignerForm/contents は空(フォームファイル未割当のデフォルト状態)\n備考: この注記は古い「キャンバス注記」系(QgsAnnotationManager管理)で、フォーム(.uiファイル)を指定すると独自UIを表示できます。現在注記ツールがアクティブなままなので、通常操作に戻すにはパンツール等への切替が必要です。注記を削除しますか?"
+ "view_tail": "[あなた] QGISの「注記フォーム」機能(アクション)を実行して\n[AI] \n「注記フォーム」に該当するアクションを調べます。mActionFormAnnotation(注記フォーム)が見つかりました。有効なので実行します。## 「注記フォーム」を実行しました\nmActionFormAnnotation を trigger() で実行した結果:\nアクションのチェック状態: ON\nキャンバスの現在のマップツール: 注記フォーム作成ツールに切り替わりました(ツールに紐づくアクションが mActionFormAnnotation)\n「編集 → 注記を追加 → 注記フォーム」のツールが有効な状態です。キャンバス上の地物をクリックすると、その地物の属性フォームを表示する注記を配置できます(注記はメイン注記レイヤに追加されます)。"
 }

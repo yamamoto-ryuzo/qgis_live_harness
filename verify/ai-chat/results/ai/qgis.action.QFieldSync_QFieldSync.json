@@ -1,0 +1,34 @@
+{
+ "id": "qgis.action.QFieldSync_QFieldSync",
+ "prompt": "QGISの「QFieldSync」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「QFieldSync」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "qfieldsync プラグインのアクションを調べます。主要アクションの中に無効なものがありました。個別に確認します。調査結果です。\n\n**QFieldSync のアクション群はほぼ有効ですが、「現在のクラウドプロジェクトを同期する」だけ現在无効（enabled=False）です。**\n\n詳細 — プラグイン `qfieldsync`（`qfieldsync.qfield_sync.QFieldSync`）ロード済み:\n\n| アクション | enabled | 場所 |\n|---|---|---|\n| 現在のクラウドプロジェクトを同期する | **False** | QFieldSyncツールバー + &QFieldSync メニュー |\n| QFieldから同期 | True | ツールバー + メニュー（menu/toolbar 各1アクション） |\n| QFieldパッケージを作成 | True | ツールバー + メニュー（menu/toolbar 各1アクション） |\n| QFieldCloudプロジェクト一覧 | True | &QFieldSync メニュー |\n| QFieldSyncツールバー（ドック） | True（visible） | — |\n\nポイント:\n\n- 「現在のクラウドプロジェクトを同期する」（`cloud_synchronize_action`）は、**開いているプロジェクトが QFieldCloud プロジェクトでない（またはクラウド未ログイン）ため意図的に無効化**されていると思われます。QFieldCloud のプロジェクトを開けば有効化されるはずです。\n- 「QFieldから同期」「QFieldパッケージを作成」「QFieldCloudプロジェクト一覧」はツールバー・プラグインメニューどちらからも実行可能です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\npl = qgis.utils.plugins.get('qfieldsync')\\ninfo = {'loaded': pl is not None}\\nif pl is not None:\\n    info['plugin_type'] = type(pl).__name__\\n    info['module'] = getattr(pl, '__module__', None)\\n    info['attrs'] = [a for a in dir(pl) if not a.startswith('__')]\\nresult = info\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    o = a.objectName() or ''\\n    if 'qfield' in t.lower() or 'qfield' in o.lower() or 'クラウド' in t or '同期' in t or 'パッケージ' in t:\\n        out.append({'text': t, 'objectName': o, 'enabled': a.isEnabled(), 'visible': a.isVisible()})\\nresult = out\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\nfrom qgis.PyQt.QtWidgets import QMenu, QToolBar, QAction, QToolButton\\npl = qgis.utils.plugins['qfieldsync']\\nout = {}\\nfor name in ['cloud_synchronize_action', 'sync_action_menu', 'sync_action_toolbar', 'push_action_menu', 'push_action_toolbar']:\\n    a = getattr(pl, name, None)\\n    if isinstance(a, QAction):\\n        conts = []\\n        for w in a.associatedObjects():\\n            if isinstance(w, QMenu):\\n                conts.append('QMenu:%s [%s]' % (w.title(), w.objectName()))\\n            elif isinstance(w, QToolBar):\\n                conts.append('QToolBar:%s [%s]' % (w.windowTitle(), w.objectName()))\\n            elif isinstance(w, QToolButton):\\n                conts.append('QToolButton')\\n            else:\\n                conts.append(w.metaObject().className())\\n        out[name] = {'text': a.text(), 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'containers': conts}\\n    else:\\n        out[name] = repr(a)[:150]\\nout['last_action_warnings"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「QFieldSync」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nqfieldsync プラグインのアクションを調べます。主要アクションの中に無効なものがありました。個別に確認します。調査結果です。\nQFieldSync のアクション群はほぼ有効ですが、「現在のクラウドプロジェクトを同期する」だけ現在无効（enabled=False）です。\n詳細 — プラグイン qfieldsync（qfieldsync.qfield_sync.QFieldSync）ロード済み:\nアクション\nenabled\n場所\n現在のクラウドプロジェクトを同期する\nFalse\nQFieldSyncツールバー + &QFieldSync メニュー\nQFieldから同期\nTrue\nツールバー + メニュー（menu/toolbar 各1アクション）\nQFieldパッケージを作成\nTrue\nツールバー + メニュー（menu/toolbar 各1アクション）\nQFieldCloudプロジェクト一覧\nTrue\n&QFieldSync メニュー\nQFieldSyncツールバー（ドック）\nTrue（visible）\n—\n\nポイント:\n「現在のクラウドプロジェクトを同期する」（cloud_synchronize_action）は、開いているプロジェクトが QFieldCloud プロジェクトでない（またはクラウド未ログイン）ため意図的に無効化されていると思われます。QFieldCloud のプロジェクトを開けば有効化されるはずです。\n「QFieldから同期」「QFieldパッケージを作成」「QFieldCloudプロジェクト一覧」はツールバー・プラグインメニューどちらからも実行可能です。"
+}

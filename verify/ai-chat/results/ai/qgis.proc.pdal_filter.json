@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.pdal_filter",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Filter point cloud」(id: pdal:filter) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Filter point cloud」(id: pdal:filter) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`pdal:filter` **[QGIS (PDAL)] Filter point cloud** は processing registry に登録されています（プロバイダ: QGIS (PDAL)、グループ: Point cloud extraction）。\n\n### 用途\n\n入力点群から、**PDAL式に合致する点・切り抜き矩形内の点のみを抽出**して新しい点群として出力します。分類値・標高・Intensity等で点を絞り込む汎用フィルタツールで、他のPDALアルゴリズムでも共通で使われる FILTER_EXPRESSION / FILTER_EXTENT を単独で実行する形です。\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT` | pointcloud | — | 入力点群レイヤ |\n| `FILTER_EXPRESSION` | expression | （任意） | PDALフィルタ式（例: `Classification == 2`） |\n| `FILTER_EXTENT` | extent | （任意） | 切り抜き矩形 |\n| `VPC_OUTPUT_FORMAT` | enum | COPC | Virtual Point Cloud使用時の出力形式: COPC / LAZ / LAS |\n| `OUTPUT` | pointCloudDestination | — | 出力点群 |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('pdal:filter')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Filter point cloud」(id: pdal:filter) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\npdal:filter [QGIS (PDAL)] Filter point cloud は processing registry に登録されています（プロバイダ: QGIS (PDAL)、グループ: Point cloud extraction）。\n用途\n入力点群から、PDAL式に合致する点・切り抜き矩形内の点のみを抽出して新しい点群として出力します。分類値・標高・Intensity等で点を絞り込む汎用フィルタツールで、他のPDALアルゴリズムでも共通で使われる FILTER_EXPRESSION / FILTER_EXTENT を単独で実行する形です。\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT\npointcloud\n—\n入力点群レイヤ\nFILTER_EXPRESSION\nexpression\n（任意）\nPDALフィルタ式（例: Classification == 2）\nFILTER_EXTENT\nextent\n（任意）\n切り抜き矩形\nVPC_OUTPUT_FORMAT\nenum\nCOPC\nVirtual Point Cloud使用時の出力形式: COPC / LAZ / LAS\nOUTPUT\npointCloudDestination\n—\n出力点群\n"
+}

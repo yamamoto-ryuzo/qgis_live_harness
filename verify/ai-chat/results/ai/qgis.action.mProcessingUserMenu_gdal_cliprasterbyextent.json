@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mProcessingUserMenu_gdal_cliprasterbyextent",
+ "prompt": "QGISの「範囲を指定してラスタを切り抜く...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「範囲を指定してラスタを切り抜く...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に「範囲を指定してラスタを切り抜く...」アクションを調べます。「範囲を指定してラスタを切り抜く...」アクションも **現在有効（enabled）** です。\n\n## 調査結果\n\n**アクション自体**\n- テキスト: `範囲を指定してラスタを切り抜く...`\n- objectName: `mProcessingUserMenu_gdal:cliprasterbyextent`\n- `isEnabled()` = **true**、`isVisible()` = true\n- 配置場所: メニューバー **ラスタ(&R) → Extraction（抽出）→ 範囲を指定してラスタを切り抜く...**\n\n**裏側の Processing アルゴリズム**\n- `gdal:cliprasterbyextent` が Processing レジストリに登録済み（表示名: `範囲を指定してラスタを切り抜く`、gdal_translate -projwin 相当）\n- GDAL プロバイダ: `isActive()` = true\n\n## 参考：関連する「切り抜き」系アクション\n\n| アクション | objectName | 有効 | 場所 |\n|---|---|---|---|\n| `範囲を指定してラスタを切り抜く...` | `gdal:cliprasterbyextent` | **有効** | ラスタ → Extraction |\n| `マスクレイヤでラスタを切り抜く...` | `gdal:cliprasterbymasklayer` | 有効 | ラスタ → Extraction |\n| `切り抜く（clip）...` | `native:clip`（ベクタ用） | 有効 | ベクタ → Geoprocessing Tools |\n\n同じ Extraction メニュー内のマスクレイヤ版も有効です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nhits = []\\ncontainers = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').replace('&','')\\n    on = (a.objectName() or '').lower()\\n    if '切り抜' in t or '切抜' in t or 'clipraster' in on or 'clip' in on:\\n        hits.append({\\n            'text': t,\\n            'objectName': a.objectName(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n        })\\nfor m in mw.findChildren(QMenu):\\n    for a in m.actions():\\n        t = (a.text() or '').replace('&','')\\n        on = (a.objectName() or '').lower()\\n        if '切り抜' in t or '切抜' in t or 'clipraster' in on or 'clip' in on:\\n            path = [m.title()]\\n            p = m.parent()\\n            while isinstance(p, QMenu):\\n                path.insert(0, p.title())\\n                p = p.parent()\\n            containers.append({'action_text': t, 'menu_path': ' > '.join(path)})\\nresult = {'actions': hits, 'contai"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:cliprasterbyextent')\\nprov = reg.providerById('gdal')\\nresult = {\\n    'algorithm_found': alg is not None,\\n    'algorithm_display': alg.displayName() if alg else None,\\n    'provider': alg.provider().name() if alg else None,\\n    'provider_isActive': prov.isActive() if prov else None,\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「範囲を指定してラスタを切り抜く...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n同様に「範囲を指定してラスタを切り抜く...」アクションを調べます。「範囲を指定してラスタを切り抜く...」アクションも 現在有効（enabled） です。\n調査結果\nアクション自体\nテキスト: 範囲を指定してラスタを切り抜く...\nobjectName: mProcessingUserMenu_gdal:cliprasterbyextent\nisEnabled() = true、isVisible() = true\n配置場所: メニューバー ラスタ(&R) → Extraction（抽出）→ 範囲を指定してラスタを切り抜く...\n裏側の Processing アルゴリズム\ngdal:cliprasterbyextent が Processing レジストリに登録済み（表示名: 範囲を指定してラスタを切り抜く、gdal_translate -projwin 相当）\nGDAL プロバイダ: isActive() = true\n参考：関連する「切り抜き」系アクション\nアクション\nobjectName\n有効\n場所\n範囲を指定してラスタを切り抜く...\ngdal:cliprasterbyextent\n有効\nラスタ → Extraction\nマスクレイヤでラスタを切り抜く...\ngdal:cliprasterbymasklayer\n有効\nラスタ → Extraction\n切り抜く（clip）...\nnative:clip（ベクタ用）\n有効\nベクタ → Geoprocessing Tools\n\n同じ Extraction メニュー内のマスクレイヤ版も有効です。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_rearrange_bands",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] バンドを再構成」(id: gdal:rearrange_bands) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] バンドを再構成」(id: gdal:rearrange_bands) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:rearrange_bands` を Processing Registry で確認します。確認しました。Processing Registry に **`[GDAL] バンドを再構成`** は存在します。\n\n- **ID:** `gdal:rearrange_bands`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタ変換`\n\n### 用途\nマルチバンドラスタの **バンドを選択・並べ替えて、新しいラスタを作成**します。不要なバンドの削除や、RGB・解析用バンド順への変更に使います。\n\n### 主なパラメータ\n- `INPUT`：入力マルチバンドラスタ\n- `BANDS`：出力へ含めるバンド\n- `DATA_TYPE`：出力ラスタのデータ型\n- `OUTPUT`：出力ラスタ\n- `OPTIONS` / `CREATION_OPTIONS`：GDAL向け追加オプション"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:rearrange_bands'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'rearrange' in a.id().lower() or 'バンド' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'rearrange' in a.id().lowe"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] バンドを再構成」(id: gdal:rearrange_bands) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:rearrange_bands を Processing Registry で確認します。確認しました。Processing Registry に [GDAL] バンドを再構成 は存在します。\nID: gdal:rearrange_bands\nプロバイダ: GDAL\nグループ: ラスタ変換\n用途\nマルチバンドラスタの バンドを選択・並べ替えて、新しいラスタを作成します。不要なバンドの削除や、RGB・解析用バンド順への変更に使います。\n主なパラメータ\nINPUT：入力マルチバンドラスタ\nBANDS：出力へ含めるバンド\nDATA_TYPE：出力ラスタのデータ型\nOUTPUT：出力ラスタ\nOPTIONS / CREATION_OPTIONS：GDAL向け追加オプション"
+}

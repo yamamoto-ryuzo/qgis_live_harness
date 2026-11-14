@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_gdal2tiles",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] タイルを生成（gdal2tiles）」(id: gdal:gdal2tiles) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] タイルを生成（gdal2tiles）」(id: gdal:gdal2tiles) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:gdal2tiles` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:gdal2tiles` |\n| 表示名 | タイルを生成(gdal2tiles) |\n| プロバイダ | GDAL |\n| グループ | ラスタその他 |\n\n## 用途\n\nラスタを**ウェブ地図用のタイル群(PNG ディレクトリ構造)に変換**します(`gdal2tiles.py` に相当)。XYZ/TMS 系の `z/x/y` 構造でタイルを出力し、Leaflet や OpenLayers などでそのまま表示できる簡易ビューア HTML も生成できます。手軽な Web 地図配布・プレビュー用です。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ラスタ | 必須 |\n| `PROFILE` | タイルカットプロファイル(メルカトル / 測地系 / ラスタ) | メルカトル |\n| `ZOOM` | 生成するズームレベル | 任意 |\n| `VIEWER` | 生成する Web ビューア(すべて/GoogleMaps/OpenLayers/Leaflet/None) | すべて |\n| `TITLE` / `COPYRIGHT` | ビューアのタイトル・著作権表示 | 任意 |\n| `RESAMPLING` | リサンプリング法(Average/Nearest/Bilinear/Cubic/Cubic B-Spline/Lanczos/Antialias) | Average |\n| `SOURCE_CRS` | 入力データの空間参照系 | 任意 |\n| `NODATA` | 入力に割り当てる透明度値 | 0 |\n| `URL` / `GOOGLE_KEY` / `BING_KEY` | タイル URL・各種 API キー | 任意 |\n| `RESUME` | 不足ファイルのみ生成(再開) | false |\n| `KML` / `NO_KML` | Google Earth 用 KML の生成制御 | false |\n| `OUTPUT` | **出力フォルダ** | 必須 |\n\n実行例: `processing.run(\"gdal:gdal2tiles\", {\"INPUT\": r, \"PROFILE\": 0, \"ZOOM\": \"10-14\", \"VIEWER\": 3, \"OUTPUT\": \"tiles\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:gdal2tiles')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'tile' in a.id().lower() or '2tiles' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n    "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] タイルを生成（gdal2tiles）」(id: gdal:gdal2tiles) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:gdal2tiles をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:gdal2tiles\n表示名\nタイルを生成(gdal2tiles)\nプロバイダ\nGDAL\nグループ\nラスタその他\n\n用途\nラスタをウェブ地図用のタイル群(PNG ディレクトリ構造)に変換します(gdal2tiles.py に相当)。XYZ/TMS 系の z/x/y 構造でタイルを出力し、Leaflet や OpenLayers などでそのまま表示できる簡易ビューア HTML も生成できます。手軽な Web 地図配布・プレビュー用です。\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n入力ラスタ\n必須\nPROFILE\nタイルカットプロファイル(メルカトル / 測地系 / ラスタ)\nメルカトル\nZOOM\n生成するズームレベル\n任意\nVIEWER\n生成する Web ビューア(すべて/GoogleMaps/OpenLayers/Leaflet/None)\nすべて\nTITLE / COPYRIGHT\nビューアのタイトル・著作権表示\n任意\nRESAMPLING\nリサンプリング法(Average/Nearest/Bilinear/Cubic/Cubic B-Spline/Lanczos/Antialias)\nAverage\nSOURCE_CRS\n入力データの空間参照系\n任意\nNODATA\n入力に割り当てる透明度値\n0\nURL / GOOGLE_KEY / BING_KEY\nタイル URL・各種 API キー\n任意\nRESUME\n不足ファイルのみ生成(再開)\nfalse\nKML / NO_KML\nGoogle Earth 用 KML の生成制御\nfalse\nOUTPUT\n出力フォルダ\n必須\n\n実行例: processing.run(\"gdal:gdal2tiles\", {\"INPUT\": r, \"PROFILE\": 0, \"ZOOM\": \"10-14\", \"VIEWER\": 3, \"OUTPUT\": \"tiles\"})"
+}

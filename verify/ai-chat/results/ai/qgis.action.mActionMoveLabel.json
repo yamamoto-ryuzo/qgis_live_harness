@@ -1,0 +1,46 @@
+{
+ "id": "qgis.action.mActionMoveLabel",
+ "prompt": "QGISの「ラベルとダイアグラム、引出し線を移動」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ラベルとダイアグラム、引出し線を移動」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ラベルとダイアグラム、引出し線を移動」アクションを検索します。`mActionMoveLabel` が見つかりましたが **enabled=false** です。原因を確認します。レイヤはツリー上でアクティブです。ラベルツールが無効な理由を調べます。レイヤは空間レイヤ（Polygon）なのに無効 — アクションの有効状態が更新されていない可能性があります。カレントレイヤを切り替えて状態を再評価させます。再選択しても無効のままです。ラベルツールは「レイヤでラベルが有効」なことが条件の可能性があります。このレイヤは `labelsEnabled=false` なので、一時的に有効化して試します。実行しました。\n\n## 「ラベルとダイアグラム、引出し線を移動」を実行 → **ツールがアクティブになりました**\n\n### 経緯\n\n1. アクション `mActionMoveLabel`（ラベルツールバー内、トグル式）は当初 **enabled=false** で実行不可でした\n2. 調査の結果、ラベル系ツールは**アクティブレイヤでラベルが有効（labelsEnabled=true)になっていること**が前提条件で、`tmp_floater_test` にはラベル設定がありませんでした\n3. レイヤに簡易ラベル設定を付与して `labelsEnabled=True` にしたところ、アクションが enabled=true に変化（mActionRotateLabel / mActionPinLabels も同時に有効化）\n4. `trigger()` を実行 → 成功\n\n### 結果\n\n| 項目 | 値 |\n|---|---|\n| checked | **true → ON（ツール選択中）** |\n| 現在のマップツール | `QgsMapToolMoveLabel`（起動前は `QgsMapToolAddFeature`) |\n\nラベル移動モードが有効になっています。キャンバス上でラベル・ダイアグラム・引出し線をドラッグして移動できる状態です。\n\n**注意点：**\n- 実行のために `tmp_floater_test` レイヤに簡易ラベル設定（fieldName空）を追加しました。不要であれば `lyr.setLabelsEnabled(False)` で戻せます\n- このレイヤは地物数0なので、実際に移動できるラベルはまだ画面上に存在しません\n\nツールを解除したい場合は `a.trigger()` をもう一度実行するか、他のマップツール（例: パン）に切り替えてください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    on = (a.objectName() or '')\\n    if 'label' in on.lower() or 'ラベル' in t or '引出し' in t or 'ダイアグラム' in t:\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': t,\\n            'objectName': on,\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            'tooltip': tt if (tt := a.toolTip()) else '',\\n            'shortcut': a.shortcut().toStrin"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"tv = iface.layerTreeView()\\nroot = QgsProject.instance().layerTreeRoot()\\nout = {\\n    'iface_activeLayer': iface.activeLayer().name() if iface.activeLayer() else None,\\n    'tree_currentLayer': tv.currentLayer().name() if tv.currentLayer() else None,\\n    'tree_children': [c.name() for c in root.children()],\\n    'layers_in_registry': list(QgsProject.instance().mapLayers().keys()),\\n}\\nlyr = iface.activeLayer()\\nif lyr:\\n    out['in_tree'] = root.findLayer(lyr.id()) is not None\\nresult = out\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"lyr = iface.activeLayer()\\nout = {\\n    'name': lyr.name(),\\n    'providerType': lyr.providerType(),\\n    'isSpatial': lyr.isSpatial(),\\n    'geometryType': str(lyr.geometryType()),\\n    'wkbType': str(lyr.wkbType()),\\n    'labelsEnabled': lyr.labelsEnabled(),\\n    'editable': lyr.isEditable(),\\n    'readOnly': lyr.readOnly(),\\n    'featureCount': lyr.featureCount(),\\n}\\n# 現在のマップツールも確認\\nmt = iface.mapCanvas().mapTool()\\nout['current_mapTool'] = mt.metaObject().className() if mt else None\\nresult = out\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\ntv = iface.layerTreeView()\\nlyr = iface.activeLayer()\\n# カレントレイヤを一旦None→戻すことで activateDeactivateLayerRelatedActions を再走させる\\ntv.setCurrentLayer(None)\\ntv.setCurrentLayer(lyr)\\nmw = iface.mainWindow()\\nout = {'activeLayer': iface.activeLayer().name() if iface.activeLayer() else None}\\nfor a in mw.findChildren(QAction):\\n    if (a.objectName() or '') == 'mActionMoveLabel':\\n        out['mActionMoveLabel'] = {'enabled': a.isEnabled(), 'checked': a.isChecked()}\\nresult = out\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfrom qgis.core import QgsPalLayerSettings, QgsVectorLayerSimpleLabeling\\nlyr = iface.activeLayer()\\n# ラベル設定を付与して有効化\\nsettings = QgsPalLayerSettings()\\nsettings.fieldName = ''\\nlyr.setLabeling(QgsVectorLayerSimpleLabeling(settings))\\nlyr.setLabelsEnabled(True)\\ntv = iface.layerTreeView()\\ntv.setCurrentLayer(None)\\ntv.setCurrentLayer(lyr)\\nmw = iface.mainWindow()\\nout = {'labelsEnabled': lyr.labelsEnabled()}\\nfor a in mw.findChildren(QAction):\\n    if (a.objectName() or '') in ('mActionMoveLabel', 'mActionPinLabels', 'mActionRotateLabel'):\\n        out[a.objectName()] = {'enabled': a.isEnabled(), 'checked': a.isChecked()}\\nresult = out\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nout = {}\\nfor a in mw.findChildren(QAction):\\n    if (a.objectName() or '') == 'mActionMoveLabel':\\n        a.trigger()\\n        out['checked'] = a.isChecked()\\n        out['triggered'] = True\\n        break\\nmt = iface.mapCanvas().mapTool()\\nout['current_mapTool'] = mt.metaObject().className() if mt else None\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ラベルとダイアグラム、引出し線を移動」機能(アクション)を実行して\n[AI] \n「ラベルとダイアグラム、引出し線を移動」アクションを検索します。mActionMoveLabel が見つかりましたが enabled=false です。原因を確認します。レイヤはツリー上でアクティブです。ラベルツールが無効な理由を調べます。レイヤは空間レイヤ（Polygon）なのに無効 — アクションの有効状態が更新されていない可能性があります。カレントレイヤを切り替えて状態を再評価させます。再選択しても無効のままです。ラベルツールは「レイヤでラベルが有効」なことが条件の可能性があります。このレイヤは labelsEnabled=false なので、一時的に有効化して試します。実行しました。\n「ラベルとダイアグラム、引出し線を移動」を実行 → ツールがアクティブになりました\n経緯\nアクション mActionMoveLabel（ラベルツールバー内、トグル式）は当初 enabled=false で実行不可でした\n調査の結果、ラベル系ツールはアクティブレイヤでラベルが有効（labelsEnabled=true)になっていることが前提条件で、tmp_floater_test にはラベル設定がありませんでした\nレイヤに簡易ラベル設定を付与して labelsEnabled=True にしたところ、アクションが enabled=true に変化（mActionRotateLabel / mActionPinLabels も同時に有効化）\ntrigger() を実行 → 成功\n結果\n項目\n値\nchecked\ntrue → ON（ツール選択中）\n現在のマップツール\nQgsMapToolMoveLabel（起動前は QgsMapToolAddFeature)\n\nラベル移動モードが有効になっています。キャンバス上でラベル・ダイアグラム・引出し線をドラッグして移動できる状態です。\n注意点：\n実行のために tmp_floater_test レイヤに簡易ラベル設定（fieldName空）を追加しました。不要であれば lyr.setLabelsEnabled(False) で戻せます\nこのレイヤは地物数0なので、実際に移動できるラベルはまだ画面上に存在しません\nツールを解除したい場合は a.trigger() をもう一度実行するか、他のマップツール（例: パン）に切り替えてください。"
+}

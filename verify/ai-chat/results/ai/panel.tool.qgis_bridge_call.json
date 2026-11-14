@@ -2,6 +2,7 @@
  "id": "panel.tool.qgis_bridge_call",
  "prompt": "bridge_call で geo_search の status を呼んで",
  "provider": "devin_acp",
+ "model": "swe-2-high",
  "history": [
   {
    "role": "user",
@@ -9,7 +10,7 @@
   },
   {
    "role": "assistant",
-   "content": "`geo_search` の `status` を呼びます。`geo_search.status` の結果：\n\n```json\n{\n  \"ok\": true,\n  \"dialog\": true,\n  \"dialogVisible\": false,\n  \"resultVisible\": false,\n  \"currentTab\": {\n    \"index\": 2,\n    \"group\": \"各種レイヤ\",\n    \"title\": \"全レイヤ\"\n  },\n  \"inputs\": [\"\"],\n  \"resultTabs\": [\n    {\n      \"layer\": null,\n      \"count\": 0\n    }\n  ]\n}\n```"
+   "content": "geo_search の `status` の結果です:\n\n- `ok: true`、ダイアログは生成済み(ただし現在 `dialogVisible: false` = 非表示)\n- 現在のタブ: 「カレントレイヤ」(index 0)\n- 検索入力: 空、結果タブ: 0件\n\nさきほど `run()` で開いたダイアログは、その後閉じられたようです。"
   }
  ],
  "tools": [
@@ -18,8 +19,8 @@
  "audit": [
   {
    "type": "bridge_call",
-   "args": "{'method': 'status', 'plugin_id': 'geo_search', 'args': []}"
+   "args": "{'method': 'status', 'plugin_id': 'geo_search'}"
   }
  ],
- "view_tail": "[あなた] bridge_call で geo_search の status を呼んで\n[AI] \ngeo_search の status を呼びます。geo_search.status の結果：\n{\n  \"ok\": true,\n  \"dialog\": true,\n  \"dialogVisible\": false,\n  \"resultVisible\": false,\n  \"currentTab\": {\n    \"index\": 2,\n    \"group\": \"各種レイヤ\",\n    \"title\": \"全レイヤ\"\n  },\n  \"inputs\": [\"\"],\n  \"resultTabs\": [\n    {\n      \"layer\": null,\n      \"count\": 0\n    }\n  ]\n}"
+ "view_tail": "[あなた] bridge_call で geo_search の status を呼んで\n[AI] \ngeo_search の status の結果です:\nok: true、ダイアログは生成済み(ただし現在 dialogVisible: false = 非表示)\n現在のタブ: 「カレントレイヤ」(index 0)\n検索入力: 空、結果タブ: 0件\nさきほど run() で開いたダイアログは、その後閉じられたようです。"
 }

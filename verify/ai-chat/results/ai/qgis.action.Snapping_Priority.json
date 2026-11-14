@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Snapping_Priority",
+ "prompt": "QGISの「Snapping Priority」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Snapping Priority」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Snapping Priority」アクションを調べます。調査結果です。\n\n## 「Snapping Priority」アクション — **現在有効**\n\n高度なデジタイズパネル（`AdvancedDigitizingTools` ドック）のツールメニュー内にある**サブメニュー**です。\n\n| 項目 | 内容 |\n|---|---|\n| text / tooltip | 「Snapping Priority」 |\n| enabled | ✅ **有効** |\n| checkable | なし（サブメニュー本体） |\n\n### サブメニューの中身（排他 QActionGroup）\n\n| 選択肢 | 有効 | 状態 |\n|---|---|---|\n| **Prioritize Snapping to Common Angles**（共通角スナップ優先） | ✅ | ● **選択中** |\n| Prioritize Snapping to Features（地物スナップ優先） | ✅ | OFF |\n\n現在は「共通角へのスナップ優先」モードになっています。つまりスナップ時に地物より設定済み共通角への拘束が優先される動作です。\n\n前回の状態と合わせると：CAD有効・スナップON・スナップ優先＝共通角優先・作図ツールボタンON、です。選択肢の切替（地物優先に変更等）が必要なら言ってください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction, QDockWidget\\n\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    tt = (a.toolTip() or '')\\n    if 'snapping priority' in (t+' '+tt).lower() or 'prioritize snapping' in (t+' '+tt).lower():\\n        try:\\n            objs = a.associatedObjects()\\n        except Exception:\\n            objs = []\\n        p = a.parent()\\n        chain = []\\n        dock = None\\n        while p is not None and len(chain) < 6:\\n            chain.append(type(p).__name__ + ':' + (p.objectName() or ''))\\n            if isinstance(p, QDockWidget) and dock is None:\\n                dock = p.objectName()\\n            p = p.parent()\\n        grp = a.actionGroup()\\n        entry = {\\n            'objectName': a.objectName(),\\n            'text': t,\\n            'tooltip': tt,\\n            'enabled': a.isEnabled(),\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'has_m"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Snapping Priority」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Snapping Priority」アクションを調べます。調査結果です。\n「Snapping Priority」アクション — 現在有効\n高度なデジタイズパネル（AdvancedDigitizingTools ドック）のツールメニュー内にあるサブメニューです。\n項目\n内容\ntext / tooltip\n「Snapping Priority」\nenabled\n✅ 有効\ncheckable\nなし（サブメニュー本体）\n\nサブメニューの中身（排他 QActionGroup）\n選択肢\n有効\n状態\nPrioritize Snapping to Common Angles（共通角スナップ優先）\n✅\n● 選択中\nPrioritize Snapping to Features（地物スナップ優先）\n✅\nOFF\n\n現在は「共通角へのスナップ優先」モードになっています。つまりスナップ時に地物より設定済み共通角への拘束が優先される動作です。\n前回の状態と合わせると：CAD有効・スナップON・スナップ優先＝共通角優先・作図ツールボタンON、です。選択肢の切替（地物優先に変更等）が必要なら言ってください。"
+}

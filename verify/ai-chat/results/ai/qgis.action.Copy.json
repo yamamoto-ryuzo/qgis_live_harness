@@ -1,0 +1,34 @@
+{
+ "id": "qgis.action.Copy",
+ "prompt": "QGISの「Copy」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Copy」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Copy／コピー」というテキストを持つアクションを探します。「Copy」という名前の無名アクションが見つかりました。所在とショートカットを確認します。「地物をコピー」の無効理由（選択地物の有無）も確認します。「Copy」アクションを実際に調べました。結果は以下の通りです。\n\n## 調査結果\n\n「Copy」という文字列を持つアクションは複数あります。\n\n### 文字どおり「Copy」のアクション（無名 `QAction`）\n\n- **場所**: 距離/面積の計測ダイアログ (`QgsMeasureDialog`) の結果テーブル (`mTable`) のコンテキストメニュー用アクション\n- **enabled**: **True（有効）** / **visible**: True（ショートカットなし）\n\n### メインメニューのコピー系アクション\n\n| objectName | テキスト | 有効 |\n|---|---|---|\n| `mActionCopyFeatures` | 地物をコピー | **✗（無効）** |\n| `mActionCopyStyle` | スタイルをコピー | ○ |\n| `mActionCopyLayer` | レイヤをコピー | ○ |\n| `mActionMoveFeatureCopy` | 地物をコピー/移動 | ○（checked=False） |\n| `mActionFeatureArray` | Copy Features in an Array | ○ |\n| `mActionDecorationCopyright` | 著作権ラベル(&C)... | ○ |\n\n### 補足\n\n編集メニューの「地物をコピー」(`mActionCopyFeatures`) が無効なのは、アクティブレイヤ `tmp_floater_test`（ベクタ）で選択地物が0件のためです。地物を選択すれば有効になります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor w in mw.findChildren(QAction):\\n    t = w.text()\\n    if t and ('opy' in t or 'コピー' in t or 'opy' in w.objectName()):\\n        found.append({\\n            'objectName': w.objectName(),\\n            'text': t,\\n            'tooltip': w.toolTip(),\\n            'enabled': w.isEnabled(),\\n            'checkable': w.isCheckable(),\\n            'checked': w.isChecked() if w.isCheckable() else None,\\n        })\\nresult = found\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nout = []\\nfor w in mw.findChildren(QAction):\\n    if w.text() == 'Copy':\\n        info = {'enabled': w.isEnabled(), 'visible': w.isVisible(), 'shortcut': w.shortcut().toString(), 'parent': '%s(%s)' % (w.parent().metaObject().className() if w.parent() else '?', w.parent().objectName() if w.parent() else '')}\\n        parents = []\\n        for obj in w.associatedObjects():\\n            if obj.isWidgetType():\\n                chain = []\\n                p = obj\\n                while p is not None:\\n                    chain.append('%s(%s)' % (p.metaObject().className(), p.objectName()))\\n                    p = p.parentWidget()\\n                parents.append(' <- '.join(chain[:8]))\\n        info['associated'] = parents\\n        out.append(info)\\nresult = out\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nl = iface.activeLayer()\\nresult = {'active_layer': l.name() if l else None, 'is_vector': (l.type() == 0) if l else None, 'selected_count': l.selectedFeatureCount() if l and hasattr(l,'selectedFeatureCount') else None}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Copy」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Copy／コピー」というテキストを持つアクションを探します。「Copy」という名前の無名アクションが見つかりました。所在とショートカットを確認します。「地物をコピー」の無効理由（選択地物の有無）も確認します。「Copy」アクションを実際に調べました。結果は以下の通りです。\n調査結果\n「Copy」という文字列を持つアクションは複数あります。\n文字どおり「Copy」のアクション（無名 QAction）\n場所: 距離/面積の計測ダイアログ (QgsMeasureDialog) の結果テーブル (mTable) のコンテキストメニュー用アクション\nenabled: True（有効） / visible: True（ショートカットなし）\nメインメニューのコピー系アクション\nobjectName\nテキスト\n有効\nmActionCopyFeatures\n地物をコピー\n✗（無効）\nmActionCopyStyle\nスタイルをコピー\n○\nmActionCopyLayer\nレイヤをコピー\n○\nmActionMoveFeatureCopy\n地物をコピー/移動\n○（checked=False）\nmActionFeatureArray\nCopy Features in an Array\n○\nmActionDecorationCopyright\n著作権ラベル(&C)...\n○\n\n補足\n編集メニューの「地物をコピー」(mActionCopyFeatures) が無効なのは、アクティブレイヤ tmp_floater_test（ベクタ）で選択地物が0件のためです。地物を選択すれば有効になります。"
+}

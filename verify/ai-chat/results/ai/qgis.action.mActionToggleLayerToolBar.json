@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionToggleLayerToolBar",
+ "prompt": "QGISの「レイヤ管理ツールバー」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「レイヤ管理ツールバー」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「レイヤ管理ツールバー」は非表示なので、トグルを実行します。「レイヤ管理ツールバー」を有効化しました。\n\n- アクション `mActionToggleLayerToolBar` を実行 → チェック ON\n- ツールバー `mLayerToolBar` が表示されました(ベクタ/ラスタレイヤの追加、新規レイヤ作成、レイヤの削除などのアイコン)\n\nこれで主要なツールバーがほぼすべて表示されたはずです。確認用にメインウィンドウのスクリーンショットを撮りますか?"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\ncands = [a for a in mw.findChildren(QAction) if 'レイヤ管理ツールバー' in a.text()]\\naction = mw.findChild(QAction, 'mActionToggleLayerToolBar') or (cands[0] if cands else None)\\nif action is None:\\n    result = {'action': None}\\nelse:\\n    action.trigger()\\n    tb = mw.findChild(QToolBar, 'mLayerToolBar')\\n    result = {'action': action.objectName(), 'checked': action.isChecked(), 'toolbar_visible': tb.isVisible() if tb else None}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「レイヤ管理ツールバー」機能(アクション)を実行して\n[AI] \n「レイヤ管理ツールバー」は非表示なので、トグルを実行します。「レイヤ管理ツールバー」を有効化しました。\nアクション mActionToggleLayerToolBar を実行 → チェック ON\nツールバー mLayerToolBar が表示されました(ベクタ/ラスタレイヤの追加、新規レイヤ作成、レイヤの削除などのアイコン)\nこれで主要なツールバーがほぼすべて表示されたはずです。確認用にメインウィンドウのスクリーンショットを撮りますか?"
+}

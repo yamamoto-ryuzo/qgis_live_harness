@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_gdalinfo",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタの情報」(id: gdal:gdalinfo) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタの情報」(id: gdal:gdalinfo) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry に実際に問い合わせて確認します。確認しました。現在の QGIS Processing Registry に **`[GDAL] ラスタの情報`** は存在します。\n\n- **ID:** `gdal:gdalinfo`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタその他`\n\n### 用途\nGDAL `gdalinfo` を実行し、ラスタデータのメタ情報を確認するアルゴリズムです。CRS、範囲、ピクセルサイズ、バンド情報、メタデータ、GCP、必要に応じて統計量などを調べ、結果を **HTMLレポート** として出力します。\n\n### 主なパラメータ\n- `INPUT`：対象ラスタレイヤ\n- `MIN_MAX`：各バンドの最小・最大値を実データから計算\n- `STATS`：統計量を読み込み／必要に応じて計算\n- `NOGCP`：GCP情報を出力しない\n- `NO_METADATA`：メタデータを出力しない\n- `EXTRA`：追加の `gdalinfo` コマンドライン引数\n- `OUTPUT`：出力先HTMLファイル"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:gdalinfo'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'gdalinfo' in a.id().lower() or 'gdalinfo' in a.displayName().lower()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({'name': o.name(), 'description': o.description(), 'type': o.type()})\\n    matches = sorted([a.id() for a in reg.algor"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタの情報」(id: gdal:gdalinfo) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry に実際に問い合わせて確認します。確認しました。現在の QGIS Processing Registry に [GDAL] ラスタの情報 は存在します。\nID: gdal:gdalinfo\nプロバイダ: GDAL\nグループ: ラスタその他\n用途\nGDAL gdalinfo を実行し、ラスタデータのメタ情報を確認するアルゴリズムです。CRS、範囲、ピクセルサイズ、バンド情報、メタデータ、GCP、必要に応じて統計量などを調べ、結果を HTMLレポート として出力します。\n主なパラメータ\nINPUT：対象ラスタレイヤ\nMIN_MAX：各バンドの最小・最大値を実データから計算\nSTATS：統計量を読み込み／必要に応じて計算\nNOGCP：GCP情報を出力しない\nNO_METADATA：メタデータを出力しない\nEXTRA：追加の gdalinfo コマンドライン引数\nOUTPUT：出力先HTMLファイル"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.searchLayersHelp",
+ "prompt": "QGISの「Help」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Help」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Help」という表示のアクションを検索します。## 調査結果\n\n表示テキストが正確に「Help」の QAction は2件あり、どちらも **有効** です。\n\n### ① searchLayersHelp\n\n| 項目 | 状態 |\n|---|---|\n| 提供元 | **searchlayers** プラグイン |\n| アクション名 | `searchLayersHelp` |\n| 配置場所 | **Search Layers** メニュー |\n| 現在の有効状態 | **有効（enabled）** |\n\n### ② action_help\n\n| 項目 | 状態 |\n|---|---|\n| 提供元 | **MetaSearch** プラグイン |\n| アクション名 | `action_help` |\n| 配置場所 | **MetaSearch** メニュー |\n| 現在の有効状態 | **有効（enabled）** |\n\n### 補足\n\n- QGIS 標準の「QGISヘルプ」（`mActionHelpContents`、F1）は日本語表示のため「Help」というテキストでは存在しません。以前の調査の通り **有効** です。\n- ①②ともプラグイン独自のヘルプで、実行すると各プラグインのヘルプ（ブラウザでドキュメント等）が開く想定です。\n\nどちらを指していましたか？特定できれば `trigger()` で実行も可能です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\nmw = iface.mainWindow()\\nmatches = []\\nfor a in mw.findChildren(QAction):\\n    text = (a.text() or '').strip().lower()\\n    name = (a.objectName() or '').lower()\\n    tip = (a.toolTip() or '').lower()\\n    if text == 'help' or name.endswith('help') or name == 'action_help' or '<b>help</b>' in tip:\\n        homes = [m.title() for m in mw.findChildren(QMenu) if a in m.actions()]\\n        tb = [t.windowTitle() for t in mw.findChildren(QToolBar) if a in t.actions()]\\n        matches.append({'objectName': a.objectName(), 'text': a.text(), 'toolTip': a.toolTip(),\\n                        'enabled': a.isEnabled(), 'visible': a.isVisible(),\\n                        'shortcut': a.shortcut().toString(), 'menus': homes, 'toolbars': tb})\\nresult = matches\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Help」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Help」という表示のアクションを検索します。## 調査結果\n表示テキストが正確に「Help」の QAction は2件あり、どちらも 有効 です。\n① searchLayersHelp\n項目\n状態\n提供元\nsearchlayers プラグイン\nアクション名\nsearchLayersHelp\n配置場所\nSearch Layers メニュー\n現在の有効状態\n有効（enabled）\n\n② action_help\n項目\n状態\n提供元\nMetaSearch プラグイン\nアクション名\naction_help\n配置場所\nMetaSearch メニュー\n現在の有効状態\n有効（enabled）\n\n補足\nQGIS 標準の「QGISヘルプ」（mActionHelpContents、F1）は日本語表示のため「Help」というテキストでは存在しません。以前の調査の通り 有効 です。\n①②ともプラグイン独自のヘルプで、実行すると各プラグインのヘルプ（ブラウザでドキュメント等）が開く想定です。\nどちらを指していましたか？特定できれば trigger() で実行も可能です。"
+}

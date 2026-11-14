@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action....",
+ "prompt": "QGISの「ユーザー関数ライブラリ...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ユーザー関数ライブラリ...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ユーザー関数ライブラリ...」に該当するアクションを検索します。## 調査結果\n\n「ユーザー関数ライブラリ...」アクションの状態を `qgis_pyeval` で確認しました。\n\n| 項目 | 状態 |\n|---|---|\n| 提供元 | **geo_userfunc** プラグイン（QGIS 標準ではありません） |\n| 表示テキスト | ユーザー関数ライブラリ... |\n| 配置場所 | **プラグイン → geo_userfunc** メニュー ＋ **GeoSuite** ツールバー |\n| ショートカット | なし |\n| 現在の有効状態 | **有効（enabled）** |\n\n### 補足\n\n- これまでの GeoSuite 系プラグイン（geo_launcher、geo_report）と同じツールバーに配置されています。\n- 実行すると geo_userfunc プラグインのユーザー関数ライブラリ管理ダイアログが開く想定です。\n\n必要であれば `trigger()` で実行できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu, QToolBar\\nmw = iface.mainWindow()\\nmatches = []\\nfor a in mw.findChildren(QAction):\\n    name = a.objectName() or ''\\n    text = a.text() or ''\\n    tip = a.toolTip() or ''\\n    if 'ユーザー関数' in text or 'ユーザー関数' in tip or 'userfunc' in (name+text+tip).lower() or 'user function' in (name+tip).lower():\\n        homes = [m.title() for m in mw.findChildren(QMenu) if a in m.actions()]\\n        tb = [t.windowTitle() for t in mw.findChildren(QToolBar) if a in t.actions()]\\n        matches.append({'objectName': name, 'text': text, 'toolTip': tip,\\n                        'enabled': a.isEnabled(), 'visible': a.isVisible(),\\n                        'shortcut': a.shortcut().toString(), 'menus': homes, 'toolbars': tb})\\nresult = matches\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ユーザー関数ライブラリ...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「ユーザー関数ライブラリ...」に該当するアクションを検索します。## 調査結果\n「ユーザー関数ライブラリ...」アクションの状態を qgis_pyeval で確認しました。\n項目\n状態\n提供元\ngeo_userfunc プラグイン（QGIS 標準ではありません）\n表示テキスト\nユーザー関数ライブラリ...\n配置場所\nプラグイン → geo_userfunc メニュー ＋ GeoSuite ツールバー\nショートカット\nなし\n現在の有効状態\n有効（enabled）\n\n補足\nこれまでの GeoSuite 系プラグイン（geo_launcher、geo_report）と同じツールバーに配置されています。\n実行すると geo_userfunc プラグインのユーザー関数ライブラリ管理ダイアログが開く想定です。\n必要であれば trigger() で実行できます。"
+}

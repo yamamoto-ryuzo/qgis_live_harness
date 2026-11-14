@@ -10,10 +10,17 @@
   },
   {
    "role": "assistant",
-   "content": "AIチャットパネルの履歴は以下に保存されます。\n\n- **`C:\\Users\\ryu.RYU-NOTE\\.qgis-live\\chats.json`** — 最新50件まで永続化\n\n関連する別系統の履歴:\n\n- `C:\\devin\\agent\\chats.json` — dispatcher 内蔵チャット(エンジン実行セッション)\n- Devin ACP セッションの履歴は Devin 側が管理(再開は session_id 経由)"
+   "content": "チャット履歴の保存先は:\n\n```\nC:\\Users\\ryu.RYU-NOTE\\.qgis-live\\chats.json\n```\n\n現在存在しており、サイズは約19KBです。全チャット(チャット1〜11等)がこの1つのJSONファイルに保存されています。"
   }
  ],
- "tools": [],
- "audit": [],
- "view_tail": "[あなた] チャット履歴の保存先を教えて\n[AI] \nAIチャットパネルの履歴は以下に保存されます。\nC:\\Users\\ryu.RYU-NOTE\\.qgis-live\\chats.json — 最新50件まで永続化\n関連する別系統の履歴:\nC:\\devin\\agent\\chats.json — dispatcher 内蔵チャット(エンジン実行セッション)\nDevin ACP セッションの履歴は Devin 側が管理(再開は session_id 経由)"
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nimport qgis.utils, os, inspect\\np = qgis.utils.plugins['geo_driver']._ai_panel\\npath = p._chats_path() if callable(getattr(p, '_chats_path', None)) else p._chats_path\\nresult = {'path': path, 'exists': os.path.exists(path), 'size': os.path.getsize(path) if os.path.exists(path) else None}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] チャット履歴の保存先を教えて\n[AI] \nチャット履歴の保存先は:\nC:\\Users\\ryu.RYU-NOTE\\.qgis-live\\chats.json\n現在存在しており、サイズは約19KBです。全チャット(チャット1〜11等)がこの1つのJSONファイルに保存されています。"
 }

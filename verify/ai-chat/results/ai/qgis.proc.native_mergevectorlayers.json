@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_mergevectorlayers",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ベクタレイヤをマージ」(id: native:mergevectorlayers) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ベクタレイヤをマージ」(id: native:mergevectorlayers) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:mergevectorlayers` は **processing registry に存在します**。\n\n- **表示名**: ベクタレイヤをマージ\n- **グループ**: ベクタ一般 (`vectorgeneral`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n**同じジオメトリタイプの複数ベクタレイヤを1つに結合（縦積み/append）**するアルゴリズムです。分割されたデータの統合、複数ソースのレイヤ統合に使います。\n\n挙動のポイント（ヘルプより）：\n- 出力の属性テーブルは**全入力レイヤのフィールドを結合**。同名で型が違うフィールドは自動的に**文字列型に変換**\n- 入力に Z/M 値があれば出力にも継承。マルチパート入力があれば出力もマルチパート\n- `CRS` 未指定なら**最初のレイヤの CRS** が使われ、全レイヤがそれに再投影される\n- 任意で元レイヤ名・ソースパスを記録するフィールドを追加可能\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `LAYERS` | 入力レイヤ（複数指定、必須） | — |\n| `CRS` | 変換先 CRS（任意） | 最初のレイヤの CRS |\n| `ADD_SOURCE_FIELDS` | ソースレイヤ情報（レイヤ名・パス）をフィールドに追加 | `True` |\n| `OUTPUT` | 出力レイヤ（必須） | — |\n\n## 出力\n\n- `OUTPUT` — マージ済みレイヤ\n\n実行例: `processing.run(\"native:mergevectorlayers\", {'LAYERS': [l1, l2, l3], 'CRS': 'EPSG:6674', 'OUTPUT': 'TEMPORARY_OUTPUT'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:mergevectorlayers')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        '"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ベクタレイヤをマージ」(id: native:mergevectorlayers) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:mergevectorlayers は processing registry に存在します。\n表示名: ベクタレイヤをマージ\nグループ: ベクタ一般 (vectorgeneral)\nプロバイダ: QGIS（ネイティブ C++）\n用途\n**同じジオメトリタイプの複数ベクタレイヤを1つに結合（縦積み/append）**するアルゴリズムです。分割されたデータの統合、複数ソースのレイヤ統合に使います。\n挙動のポイント（ヘルプより）：\n出力の属性テーブルは全入力レイヤのフィールドを結合。同名で型が違うフィールドは自動的に文字列型に変換\n入力に Z/M 値があれば出力にも継承。マルチパート入力があれば出力もマルチパート\nCRS 未指定なら最初のレイヤの CRS が使われ、全レイヤがそれに再投影される\n任意で元レイヤ名・ソースパスを記録するフィールドを追加可能\n主なパラメータ\n名前\n説明\n既定値\nLAYERS\n入力レイヤ（複数指定、必須）\n—\nCRS\n変換先 CRS（任意）\n最初のレイヤの CRS\nADD_SOURCE_FIELDS\nソースレイヤ情報（レイヤ名・パス）をフィールドに追加\nTrue\nOUTPUT\n出力レイヤ（必須）\n—\n\n出力\nOUTPUT — マージ済みレイヤ\n実行例: processing.run(\"native:mergevectorlayers\", {'LAYERS': [l1, l2, l3], 'CRS': 'EPSG:6674', 'OUTPUT': 'TEMPORARY_OUTPUT'})"
+}

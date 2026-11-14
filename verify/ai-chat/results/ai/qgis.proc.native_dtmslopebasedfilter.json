@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_dtmslopebasedfilter",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] DTM filter (slope-based)」(id: native:dtmslopebasedfilter) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] DTM filter (slope-based)」(id: native:dtmslopebasedfilter) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:dtmslopebasedfilter`\n- **表示名**: DTM filter (slope-based)（英語表記のまま）\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ラスタ地形解析\n\n## 用途\n**DEM/DSM ラスタのセルを「地面（ground）」と「地物・非地面（non-ground）」に分類**するフィルタです。SAGA の同名ツールを移植したもので、Vosselman (2000) の勾配ベースフィルタに基づきます。考え方は「近いセル同士の大きな標高差は地形勾配では説明しにくい → 高いほうは地物の可能性が高い」というもので、セル間距離 `d` に対する許容最大標高差を `dz_max(d) = d × s`（s = 想定地形勾配）で定義します。カーネル半径内に許容差を超えるセルが無ければ地面と判定。DSM（建物・植生を含む表面モデル）から裸地 DTM を推定する用途に使います。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力DEMラスタ（必須） |\n| `BAND` | バンド番号（デフォルト 1） |\n| `RADIUS` | カーネル半径（ピクセル数、デフォルト 5、範囲 1〜1000） |\n| `TERRAIN_SLOPE` | 想定地形勾配 s（%、ピクセルサイズ/鉛直単位、デフォルト 30）。勾配の大きい地域では大きめに |\n| `FILTER_MODIFICATION` | フィルタ修正（なし／Relax filter／Amplify。5%信頼区間 ci = 1.65×√(2×stddev) で条件を緩和・強化） |\n| `STANDARD_DEVIATION` | 標高データの標準偏差（上記信頼区間計算用、デフォルト 0.1） |\n| `CREATION_OPTIONS` | GDAL作成オプション（上級・任意） |\n| `OUTPUT_GROUND` / `OUTPUT_NONGROUND` | 地面セルの出力／非地面セルの出力（いずれも任意） |\n\n注意点: 対象は**ラスタ化済みの標高データ**で、生の LiDAR 点群に直接使うものではありません。急峻な地形では `TERRAIN_SLOPE` を大きくしないと地面が地物側に誤分類されやすいです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber, QgsProcessingParameterBoolean, QgsProcessingParameterField, QgsProcessingParameterString\\nalg = QgsApplication.processingRegistry().algorithmById('native:dtmslopebasedfilter')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'dtm' in a.id().lower() or 'filter' in a.id().lower() or 'lidar' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        if isinstance(p, QgsProcessingParameterNumber):\\n            d['min'] = p.minimum(); d['max'] = p.maximum()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions("
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] DTM filter (slope-based)」(id: native:dtmslopebasedfilter) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:dtmslopebasedfilter\n表示名: DTM filter (slope-based)（英語表記のまま）\nプロバイダ: QGIS（ネイティブC++）／グループ: ラスタ地形解析\n用途\nDEM/DSM ラスタのセルを「地面（ground）」と「地物・非地面（non-ground）」に分類するフィルタです。SAGA の同名ツールを移植したもので、Vosselman (2000) の勾配ベースフィルタに基づきます。考え方は「近いセル同士の大きな標高差は地形勾配では説明しにくい → 高いほうは地物の可能性が高い」というもので、セル間距離 d に対する許容最大標高差を dz_max(d) = d × s（s = 想定地形勾配）で定義します。カーネル半径内に許容差を超えるセルが無ければ地面と判定。DSM（建物・植生を含む表面モデル）から裸地 DTM を推定する用途に使います。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力DEMラスタ（必須）\nBAND\nバンド番号（デフォルト 1）\nRADIUS\nカーネル半径（ピクセル数、デフォルト 5、範囲 1〜1000）\nTERRAIN_SLOPE\n想定地形勾配 s（%、ピクセルサイズ/鉛直単位、デフォルト 30）。勾配の大きい地域では大きめに\nFILTER_MODIFICATION\nフィルタ修正（なし／Relax filter／Amplify。5%信頼区間 ci = 1.65×√(2×stddev) で条件を緩和・強化）\nSTANDARD_DEVIATION\n標高データの標準偏差（上記信頼区間計算用、デフォルト 0.1）\nCREATION_OPTIONS\nGDAL作成オプション（上級・任意）\nOUTPUT_GROUND / OUTPUT_NONGROUND\n地面セルの出力／非地面セルの出力（いずれも任意）\n\n注意点: 対象はラスタ化済みの標高データで、生の LiDAR 点群に直接使うものではありません。急峻な地形では TERRAIN_SLOPE を大きくしないと地面が地物側に誤分類されやすいです。"
+}

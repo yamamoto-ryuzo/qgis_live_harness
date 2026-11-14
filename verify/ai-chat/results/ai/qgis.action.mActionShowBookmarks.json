@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionShowBookmarks",
+ "prompt": "QGISの「空間ブックマークを表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「空間ブックマークを表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「空間ブックマークを表示」アクションを調べます。調査結果です。「空間ブックマークを表示」は `mActionShowBookmarks` として見つかりました。\n\n| 項目 | 値 |\n|---|---|\n| objectName | `mActionShowBookmarks` |\n| テキスト | `空間ブックマークを表示` |\n| 有効(isEnabled) | **True(現在有効です)** |\n| チェック可能 | False(トグルではなく実行型) |\n| ショートカット | `Ctrl+Shift+B` |\n\n関連アクションも確認できました:\n\n- `mActionShowBookmarkManager`「空間ブックマーク・マネージャを表示」— 有効で現在チェックON(画面左下の「空間ブックマークマネージャ」ドックが表示中)\n- `mActionNewBookmark`「新規空間ブックマーク...」— 有効(Ctrl+B)\n\n実行する場合は `mActionShowBookmarks` を `trigger()` すれば空間ブックマークパネルが表示されます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    o = a.objectName() or ''\\n    if ('ブックマーク' in t) or ('bookmark' in o.lower()):\\n        found.append((o, t, a.isEnabled(), a.isCheckable(), a.isChecked(), a.shortcut().toString()))\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「空間ブックマークを表示」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「空間ブックマークを表示」アクションを調べます。調査結果です。「空間ブックマークを表示」は mActionShowBookmarks として見つかりました。\n項目\n値\nobjectName\nmActionShowBookmarks\nテキスト\n空間ブックマークを表示\n有効(isEnabled)\nTrue(現在有効です)\nチェック可能\nFalse(トグルではなく実行型)\nショートカット\nCtrl+Shift+B\n\n関連アクションも確認できました:\nmActionShowBookmarkManager「空間ブックマーク・マネージャを表示」— 有効で現在チェックON(画面左下の「空間ブックマークマネージャ」ドックが表示中)\nmActionNewBookmark「新規空間ブックマーク...」— 有効(Ctrl+B)\n実行する場合は mActionShowBookmarks を trigger() すれば空間ブックマークパネルが表示されます。"
+}

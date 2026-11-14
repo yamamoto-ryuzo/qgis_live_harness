@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_orientedminimumboundingbox",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最小の回転長方形」(id: native:orientedminimumboundingbox) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最小の回転長方形」(id: native:orientedminimumboundingbox) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:orientedminimumboundingbox` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:orientedminimumboundingbox`\n- **表示名**: 最小の回転長方形\n- **グループ**: ベクタジオメトリ\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\n入力レイヤの**各地物ごと**に、その地物を覆う**最小面積の回転長方形**（oriented bounding box）を計算してポリゴンとして出力します。通常の `native:boundingboxes`（軸に平行なBBox）と違い、地物の形状に沿って回転した長方形になるため、建物や道路など細長い地物の外接矩形をより正確に得られます。\n\nなお、レイヤ全体やグループ単位の外接矩形が必要な場合は「最小結合ジオメトリ」（`native:minimumboundinggeometry`）を使います。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力レイヤ |\n| `OUTPUT` | sink → outputVector | 出力先（BBoxポリゴンのベクタレイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:orientedminimumboundingbox\", {\n    'INPUT': layer,\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:orientedminimumboundingbox')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最小の回転長方形」(id: native:orientedminimumboundingbox) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:orientedminimumboundingbox は現在の QGIS の processing registry に登録されています。\nID: native:orientedminimumboundingbox\n表示名: 最小の回転長方形\nグループ: ベクタジオメトリ\nプロバイダ: QGIS（ネイティブC++）\n用途\n入力レイヤの各地物ごとに、その地物を覆う最小面積の回転長方形（oriented bounding box）を計算してポリゴンとして出力します。通常の native:boundingboxes（軸に平行なBBox）と違い、地物の形状に沿って回転した長方形になるため、建物や道路など細長い地物の外接矩形をより正確に得られます。\nなお、レイヤ全体やグループ単位の外接矩形が必要な場合は「最小結合ジオメトリ」（native:minimumboundinggeometry）を使います。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力レイヤ\nOUTPUT\nsink → outputVector\n出力先（BBoxポリゴンのベクタレイヤ）\n\n実行例:\nprocessing.run(\"native:orientedminimumboundingbox\", {\n    'INPUT': layer,\n    'OUTPUT': 'memory:'\n})"
+}

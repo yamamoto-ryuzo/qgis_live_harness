@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionAddDelimitedText",
+ "prompt": "QGISの「CSVテキストレイヤを追加...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「CSVテキストレイヤを追加...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「CSVテキストレイヤを追加」に対応するアクションを探します。調査結果です。\n\n**アクション: `mActionAddDelimitedText`「CSVテキストレイヤを追加...」**\n\n| 項目 | 状態 |\n|---|---|\n| ショートカット | Ctrl+Shift+T |\n| 有効 (isEnabled) | **有効** — 実行可能な状態です |\n| チェック可能 | いいえ(ダイアログを開くだけの通常アクション) |\n\n実行すると「データソースマネージャ」ダイアログがCSVテキストタブを選択した状態で開き、CSV/TSV等の区切りテキストからX,Y座標やWKT列を指定してポイントレイヤ等を作成できます。実行しますか?"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nresult = [(a.objectName(), a.text(), a.shortcut().toString(), a.isEnabled(), a.isCheckable(), a.isChecked()) for a in iface.mainWindow().findChildren(QAction) if 'CSV' in a.text() or 'delimited' in a.objectName().lower()]\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「CSVテキストレイヤを追加...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「CSVテキストレイヤを追加」に対応するアクションを探します。調査結果です。\nアクション: mActionAddDelimitedText「CSVテキストレイヤを追加...」\n項目\n状態\nショートカット\nCtrl+Shift+T\n有効 (isEnabled)\n有効 — 実行可能な状態です\nチェック可能\nいいえ(ダイアログを開くだけの通常アクション)\n\n実行すると「データソースマネージャ」ダイアログがCSVテキストタブを選択した状態で開き、CSV/TSV等の区切りテキストからX,Y座標やWKT列を指定してポイントレイヤ等を作成できます。実行しますか?"
+}

@@ -1,0 +1,30 @@
+{
+ "id": "plugin.geo_search.bridge.closeDialog",
+ "prompt": "QGISの geo_search プラグインで「closeDialog」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_search プラグインで「closeDialog」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`closeDialog` を実行しました。結果:\n\n- 戻り値: `{\"ok\": true}`\n- 実行後の `status`: `dialogVisible: false`, `resultVisible: false`\n\n検索ダイアログと結果ダイアログの両方が閉じられました(メソッド説明どおり「検索・結果ダイアログを閉じる」挙動)。インスタンス自体は残っているので、`openDialog` で再び開けます。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'closeDialog', 'plugin_id': 'geo_search'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_search', 'method': 'status'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_search プラグインで「closeDialog」を実行して結果を教えて\n[AI] \ncloseDialog を実行しました。結果:\n戻り値: {\"ok\": true}\n実行後の status: dialogVisible: false, resultVisible: false\n検索ダイアログと結果ダイアログの両方が閉じられました(メソッド説明どおり「検索・結果ダイアログを閉じる」挙動)。インスタンス自体は残っているので、openDialog で再び開けます。"
+}

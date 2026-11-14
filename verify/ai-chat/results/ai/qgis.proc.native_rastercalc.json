@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_rastercalc",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Raster calculator」(id: native:rastercalc) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Raster calculator」(id: native:rastercalc) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:rastercalc` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:rastercalc`\n- **表示名**: `[QGIS（ネイティブC++）] Raster calculator`\n- **グループ**: ラスタ解析\n- **用途**: ラスタレイヤ同士の代数演算や条件式を実行し、計算結果を新しいラスタとして出力する。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `LAYERS` | 必須 | 計算に使用する入力ラスタ群 |\n| `EXPRESSION` | 必須 | ラスタ計算式 |\n| `EXTENT` | 任意 | 出力範囲 |\n| `CELL_SIZE` | 任意 | 出力セルサイズ。未指定時は自動設定 |\n| `CRS` | 任意 | 出力CRS |\n| `CREATION_OPTIONS` | 任意 | ラスタ作成オプション |\n| `OUTPUT` | 必須 | 計算結果ラスタの出力先 |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:rastercalc')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'description': o.descr"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Raster calculator」(id: native:rastercalc) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:rastercalc を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:rastercalc\n表示名: [QGIS（ネイティブC++）] Raster calculator\nグループ: ラスタ解析\n用途: ラスタレイヤ同士の代数演算や条件式を実行し、計算結果を新しいラスタとして出力する。\n主なパラメータ\n名前\n必須\n説明\nLAYERS\n必須\n計算に使用する入力ラスタ群\nEXPRESSION\n必須\nラスタ計算式\nEXTENT\n任意\n出力範囲\nCELL_SIZE\n任意\n出力セルサイズ。未指定時は自動設定\nCRS\n任意\n出力CRS\nCREATION_OPTIONS\n任意\nラスタ作成オプション\nOUTPUT\n必須\n計算結果ラスタの出力先\n"
+}

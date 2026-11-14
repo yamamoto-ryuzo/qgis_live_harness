@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.1.0_2.0_3.0_4.0_...",
+ "prompt": "QGISの「1.0, 2.0, 3.0, 4.0°...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「1.0, 2.0, 3.0, 4.0°...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "調査結果です。\n\n## 「1.0, 2.0, 3.0, 4.0°...」アクション — **現在有効（未選択）**\n\n| 項目 | 内容 |\n|---|---|\n| objectName | なし（無名 QAction） |\n| text | 1.0, 2.0, 3.0, 4.0°... |\n| tooltip | 1.0, 2.0, 3.0, 4.0° |\n| enabled | ✅ **有効** |\n| checkable | トグル式 |\n| checked | OFF（未選択） |\n| 所属 | 高度なデジタイズパネル → 設定メニュー（共通角にスナップ）の排他グループ |\n\n現在のグループ選択: **「共通角にスナップしない」**。この選択肢を選ぶと 1.0° 刻みの共通角スナップが有効になります。切り替えを実行しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction, QDockWidget\\n\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    if (a.text() or '') == '1.0, 2.0, 3.0, 4.0°...':\\n        p = a.parent()\\n        chain = []\\n        dock = None\\n        while p is not None and len(chain) < 6:\\n            chain.append(type(p).__name__ + ':' + (p.objectName() or ''))\\n            if isinstance(p, QDockWidget) and dock is None:\\n                dock = p.objectName()\\n            p = p.parent()\\n        grp = a.actionGroup()\\n        out.append({\\n            'objectName': a.objectName(),\\n            'text': a.text(),\\n            'tooltip': a.toolTip(),\\n            'enabled': a.isEnabled(),\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'group_exclusive': grp.isExclusive() if grp else None,\\n            'group_selected': [ga.text() for ga in grp.actions() if ga.isChecked()] if grp else [],\\n            'dock': dock,\\n         "
+  }
+ ],
+ "view_tail": "[あなた] QGISの「1.0, 2.0, 3.0, 4.0°...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n調査結果です。\n「1.0, 2.0, 3.0, 4.0°...」アクション — 現在有効（未選択）\n項目\n内容\nobjectName\nなし（無名 QAction）\ntext\n1.0, 2.0, 3.0, 4.0°...\ntooltip\n1.0, 2.0, 3.0, 4.0°\nenabled\n✅ 有効\ncheckable\nトグル式\nchecked\nOFF（未選択）\n所属\n高度なデジタイズパネル → 設定メニュー（共通角にスナップ）の排他グループ\n\n現在のグループ選択: 「共通角にスナップしない」。この選択肢を選ぶと 1.0° 刻みの共通角スナップが有効になります。切り替えを実行しますか？"
+}

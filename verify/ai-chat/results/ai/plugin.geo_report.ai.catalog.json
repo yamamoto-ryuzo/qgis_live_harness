@@ -1,0 +1,30 @@
+{
+ "id": "plugin.geo_report.ai.catalog",
+ "prompt": "geo_report プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_report プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "`describe_plugins` のカタログ情報に加えて、bridge の `pluginInfo()` と `status()` も直接呼んで自己記述・現在の状態を確認します。`describe_plugins` のカタログと、bridge の `pluginInfo()` / `status()` の生の自己記述を取得しました。前回の要約に加え、実行時状態も分かりました。\n\n## geo_report — 帳票レイアウト管理\n\n**bridge**: あり(`qgis_bridge_call` + `plugin_id: \"geo_report\"` で呼び出し可能)\n\n**summary**: プロジェクトの印刷レイアウトをドックパネルで管理する。レイアウト選択・印刷範囲の地図上表示(スケール/角度指定)・レイアウトアイテム(ラベル/地図/画像)のプロパティ参照・変更・プロパティの JSON 保存/復元ができる。\n\n**when_to_use**:\n- 印刷レイアウト一覧の確認\n- レイアウト選択 → 印刷範囲を地図キャンバスに表示\n- アイテム(テキスト/地図/画像)の位置・サイズ・表示の確認・変更\n- レイアウトプロパティの JSON 保存/復元\n- レイアウトデザイナ/レイアウトマネージャを開く\n- レイアウトの削除・名前変更・複製\n\n**現在の実行時状態**(`status()` の実測値):\n- パネル: 開いている・表示中\n- 選択中レイアウト: `A3`(プロジェクト内レイアウト数: 13)\n- 印刷範囲: 地図上に表示中(scale=1.0、angle=15.0)\n- 選択中レイアウトのアイテム数: 2\n\n**メソッド(21個)** — `pluginInfo()` のシグネチャと例:\n\n| メソッド | 概要 |\n|---|---|\n| `openPanel()` / `closePanel()` | ドックパネル開閉(閉じると印刷範囲表示も解除) |\n| `status()` | パネル・選択レイアウト・スケール/角度・印刷範囲表示の状態 |\n| `listLayouts()` | レイアウト一覧(index/名前/ページ数/地図アイテム数/選択中) |\n| `selectLayout(layout)` | 選択(index/名前)。自動でパネルを開き印刷範囲を表示 |\n| `createLayout(name)` | 空レイアウト作成 |\n| `addStandardLayout(name=None)` | 標準テンプレート追加(省略時は一覧返却。同名は連番化) |\n| `listStandardLayouts()` | 同梱 composer/*.qpt 一覧 |\n| `duplicateLayout` / `renameLayout` / `removeLayout` | 複製/改名/削除(削除は確認なしで実行) |\n| `layoutInfo()` | ページ数・サイズ・全アイテムの情報テキスト |\n| `listItems()` | アイテム一覧(index/uuid/名前/タイプ/可視/位置・サイズ) |\n| `itemProperties(item=None)` | プロパティ参照(index/uuid/id/表示名。省略時は選択中) |\n| `setItemProperties(item, props)` | 部分適用でプロパティ変更(text/position/size/visible等) |\n| `printOptions({scale,angle}?)` | スケール・角度の取得/設定 |\n| `showPrintArea(visible)` | 印刷範囲表示の切替 |\n| `saveLayoutProperties(path=None)` | 全アイテムを JSON 保存(既定: `~/QGIS_Layouts/`) |\n| `loadLayoutProperties(path)` | JSON から復元(uuid優先・順序フォールバック) |\n| `listPropertyFiles()` | 保存済み JSON 一覧 |\n| `openLayoutManager()` | 選択中レイアウトを QGIS デザイナで開く |\n| `manageLayouts()` | QGIS 標準レイアウトマネージャを開く |\n| `refresh()` | アイテム/レイアウト情報の再読込 |\n\n`pluginInfo()` の `state` フィールドでも `panel: true, panelVisible: true` と報告されており、ドックパネルは現在開いています。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'pluginInfo', 'args': [], 'plugin_id': 'geo_report'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_report', 'method': 'status', 'args': []}"
+  }
+ ],
+ "view_tail": "[あなた] geo_report プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \ndescribe_plugins のカタログ情報に加えて、bridge の pluginInfo() と status() も直接呼んで自己記述・現在の状態を確認します。describe_plugins のカタログと、bridge の pluginInfo() / status() の生の自己記述を取得しました。前回の要約に加え、実行時状態も分かりました。\ngeo_report — 帳票レイアウト管理\nbridge: あり(qgis_bridge_call + plugin_id: \"geo_report\" で呼び出し可能)\nsummary: プロジェクトの印刷レイアウトをドックパネルで管理する。レイアウト選択・印刷範囲の地図上表示(スケール/角度指定)・レイアウトアイテム(ラベル/地図/画像)のプロパティ参照・変更・プロパティの JSON 保存/復元ができる。\nwhen_to_use:\n印刷レイアウト一覧の確認\nレイアウト選択 → 印刷範囲を地図キャンバスに表示\nアイテム(テキスト/地図/画像)の位置・サイズ・表示の確認・変更\nレイアウトプロパティの JSON 保存/復元\nレイアウトデザイナ/レイアウトマネージャを開く\nレイアウトの削除・名前変更・複製\n現在の実行時状態(status() の実測値):\nパネル: 開いている・表示中\n選択中レイアウト: A3(プロジェクト内レイアウト数: 13)\n印刷範囲: 地図上に表示中(scale=1.0、angle=15.0)\n選択中レイアウトのアイテム数: 2\nメソッド(21個) — pluginInfo() のシグネチャと例:\nメソッド\n概要\nopenPanel() / closePanel()\nドックパネル開閉(閉じると印刷範囲表示も解除)\nstatus()\nパネル・選択レイアウト・スケール/角度・印刷範囲表示の状態\nlistLayouts()\nレイアウト一覧(index/名前/ページ数/地図アイテム数/選択中)\nselectLayout(layout)\n選択(index/名前)。自動でパネルを開き印刷範囲を表示\ncreateLayout(name)\n空レイアウト作成\naddStandardLayout(name=None)\n標準テンプレート追加(省略時は一覧返却。同名は連番化)\nlistStandardLayouts()\n同梱 composer/*.qpt 一覧\nduplicateLayout / renameLayout / removeLayout\n複製/改名/削除(削除は確認なしで実行)\nlayoutInfo()\nページ数・サイズ・全アイテムの情報テキスト\nlistItems()\nアイテム一覧(index/uuid/名前/タイプ/可視/位置・サイズ)\nitemProperties(item=None)\nプロパティ参照(index/uuid/id/表示名。省略時は選択中)\nsetItemProperties(item, props)\n部分適用でプロパティ変更(text/position/size/visible等)\nprintOptions({scale,angle}?)\nスケール・角度の取得/設定\nshowPrintArea(visible)\n印刷範囲表示の切替\nsaveLayoutProperties(path=None)\n全アイテムを JSON 保存(既定: ~/QGIS_Layouts/)\nloadLayoutProperties(path)\nJSON から復元(uuid優先・順序フォールバック)\nlistPropertyFiles()\n保存済み JSON 一覧\nopenLayoutManager()\n選択中レイアウトを QGIS デザイナで開く\nmanageLayouts()\nQGIS 標準レイアウトマネージャを開く\nrefresh()\nアイテム/レイアウト情報の再読込\n\npluginInfo() の state フィールドでも panel: true, panelVisible: true と報告されており、ドックパネルは現在開いています。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_detectvectorchanges",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ベクタレイヤを比較」(id: native:detectvectorchanges) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ベクタレイヤを比較」(id: native:detectvectorchanges) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:detectvectorchanges`\n- **表示名**: ベクタレイヤを比較\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ベクタ一般\n\n## 用途\n**2つのベクタレイヤ（同じデータセットのバージョン違い）を比較**し、地物を「変更なし」「追加」「削除」の3つに分類するアルゴリズムです。差分チェック・変更検出・データ更新の検証に使います。ジオメトリ比較は2方式あり、厳密マッチは頂点数・向きまで完全一致を要求、トポロジカルマッチ（デフォルト）は辺の重なりが同じなら向きやZ/M値の違いは無視して一致とみなします。\n\n属性比較はデフォルトで**全属性**が対象ですが、比較したいフィールドだけを選ぶことも可能（常に変わるタイムスタンプやID列を除外する用途）。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `ORIGINAL` | オリジナル（旧版）レイヤ（必須） |\n| `REVISED` | 比較（新版）レイヤ（必須） |\n| `COMPARE_ATTRIBUTES` | 比較対象の属性（任意・複数可。指定時は選択属性のみ比較） |\n| `MATCH_TYPE` | ジオメトリ比較法（上級。0=厳密マッチ / 1=トポロジカルマッチ、デフォルト1） |\n| `UNCHANGED` / `ADDED` / `DELETED` | 各カテゴリの出力先（いずれも任意） |\n\n## 出力\n3レイヤ出力（変更なし／追加／削除）に加え、`UNCHANGED_COUNT`・`ADDED_COUNT`・`DELETED_COUNT` の件数も返ります。\n\n補足: `COMPARE_ATTRIBUTES` のパラメータ説明文は「ない場合はジオメトリのみ比較」とありますが、ヘルプ本文には「デフォルトではすべての属性を比較」と明記されており、実装も未指定=全属性比較です。属性差まで見たくない場合は比較属性を明示してください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber, QgsProcessingParameterBoolean, QgsProcessingParameterField\\nalg = QgsApplication.processingRegistry().algorithmById('native:detectvectorchanges')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'chang' in a.id().lower() or 'compar' in a.id().lower() or 'diff' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        if isinstance(p, QgsProcessingParameterField):\\n            d['allowMultiple'] = p.allowMultiple()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': T"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ベクタレイヤを比較」(id: native:detectvectorchanges) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:detectvectorchanges\n表示名: ベクタレイヤを比較\nプロバイダ: QGIS（ネイティブC++）／グループ: ベクタ一般\n用途\n2つのベクタレイヤ（同じデータセットのバージョン違い）を比較し、地物を「変更なし」「追加」「削除」の3つに分類するアルゴリズムです。差分チェック・変更検出・データ更新の検証に使います。ジオメトリ比較は2方式あり、厳密マッチは頂点数・向きまで完全一致を要求、トポロジカルマッチ（デフォルト）は辺の重なりが同じなら向きやZ/M値の違いは無視して一致とみなします。\n属性比較はデフォルトで全属性が対象ですが、比較したいフィールドだけを選ぶことも可能（常に変わるタイムスタンプやID列を除外する用途）。\n主なパラメータ\nパラメータ\n内容\nORIGINAL\nオリジナル（旧版）レイヤ（必須）\nREVISED\n比較（新版）レイヤ（必須）\nCOMPARE_ATTRIBUTES\n比較対象の属性（任意・複数可。指定時は選択属性のみ比較）\nMATCH_TYPE\nジオメトリ比較法（上級。0=厳密マッチ / 1=トポロジカルマッチ、デフォルト1）\nUNCHANGED / ADDED / DELETED\n各カテゴリの出力先（いずれも任意）\n\n出力\n3レイヤ出力（変更なし／追加／削除）に加え、UNCHANGED_COUNT・ADDED_COUNT・DELETED_COUNT の件数も返ります。\n補足: COMPARE_ATTRIBUTES のパラメータ説明文は「ない場合はジオメトリのみ比較」とありますが、ヘルプ本文には「デフォルトではすべての属性を比較」と明記されており、実装も未指定=全属性比較です。属性差まで見たくない場合は比較属性を明示してください。"
+}

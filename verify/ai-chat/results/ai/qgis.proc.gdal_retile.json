@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.gdal_retile",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] タイルを再タイル化」(id: gdal:retile) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] タイルを再タイル化」(id: gdal:retile) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:retile` を Processing Registry で確認します。`RESAMPLING` の選択肢も確認します。確認しました。Processing Registry に **`[GDAL] タイルを再タイル化`** は存在します。\n\n- **ID:** `gdal:retile`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ラスタその他`\n\n### 用途\n1つ以上のラスタを、指定した幅・高さ・重なり量を持つ **タイル群へ再分割**します。必要に応じてタイル用のピラミッドも作成できます。\n\n### 主なパラメータ\n- `INPUT`：入力ラスタ群\n- `TILE_SIZE_X` / `TILE_SIZE_Y`：タイル幅・高さ（既定値 `256`）\n- `OVERLAP`：隣接タイルとの重複ピクセル数\n- `LEVELS`：作成するピラミッドレベル数\n- `SOURCE_CRS`：座標参照系\n- `RESAMPLING`：リサンプリング方法（最近傍法、Bilinear、Cubic、Lanczosなど）\n- `ONLY_PYRAMIDS`：ピラミッドのみ作成\n- `DIR_FOR_ROW`：行ごとに別ディレクトリへ出力\n- `OUTPUT`：出力ディレクトリ\n- `OUTPUT_CSV`：タイルのジオリファレンス情報を含むCSV\n- `DATA_TYPE`：出力ラスタのデータ型"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:retile'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'retile' in a.id().lower() or 'タイル' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'retile' in a.id().lower() or 'タイル' in"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nimport json\\nalg = QgsApplication.processingRegistry().algorithmById('gdal:retile')\\nresult = None\\nif alg:\\n    p = next((x for x in alg.parameterDefinitions() if x.name() == 'RESAMPLING'), None)\\n    result = json.dumps({'resampling_options': list(p.options()) if p else None}, ensure_ascii=False)\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] タイルを再タイル化」(id: gdal:retile) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:retile を Processing Registry で確認します。RESAMPLING の選択肢も確認します。確認しました。Processing Registry に [GDAL] タイルを再タイル化 は存在します。\nID: gdal:retile\nプロバイダ: GDAL\nグループ: ラスタその他\n用途\n1つ以上のラスタを、指定した幅・高さ・重なり量を持つ タイル群へ再分割します。必要に応じてタイル用のピラミッドも作成できます。\n主なパラメータ\nINPUT：入力ラスタ群\nTILE_SIZE_X / TILE_SIZE_Y：タイル幅・高さ（既定値 256）\nOVERLAP：隣接タイルとの重複ピクセル数\nLEVELS：作成するピラミッドレベル数\nSOURCE_CRS：座標参照系\nRESAMPLING：リサンプリング方法（最近傍法、Bilinear、Cubic、Lanczosなど）\nONLY_PYRAMIDS：ピラミッドのみ作成\nDIR_FOR_ROW：行ごとに別ディレクトリへ出力\nOUTPUT：出力ディレクトリ\nOUTPUT_CSV：タイルのジオリファレンス情報を含むCSV\nDATA_TYPE：出力ラスタのデータ型"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionToggleSelectedLayers",
+ "prompt": "QGISの「選択レイヤを切り替え」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「選択レイヤを切り替え」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「選択レイヤを切り替え」アクションの状態を確認します。調査結果です。「選択レイヤを切り替え」は `mActionToggleSelectedLayers` として見つかりました。\n\n| 項目 | 値 |\n|---|---|\n| objectName | `mActionToggleSelectedLayers` |\n| テキスト | `選択レイヤを切り替え` |\n| 有効(isEnabled) | **True(現在有効です)** |\n| 可視(isVisible) | True |\n\n実行すると、レイヤパネルで選択されているレイヤの表示/非表示が一括で反転します(表示→非表示、非表示→表示)。実行しますか?"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionToggleSelectedLayers')\\nresult = (a.objectName(), a.text(), a.isEnabled(), a.isVisible(), a.shortcut().toString())\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「選択レイヤを切り替え」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「選択レイヤを切り替え」アクションの状態を確認します。調査結果です。「選択レイヤを切り替え」は mActionToggleSelectedLayers として見つかりました。\n項目\n値\nobjectName\nmActionToggleSelectedLayers\nテキスト\n選択レイヤを切り替え\n有効(isEnabled)\nTrue(現在有効です)\n可視(isVisible)\nTrue\n\n実行すると、レイヤパネルで選択されているレイヤの表示/非表示が一括で反転します(表示→非表示、非表示→表示)。実行しますか?"
+}

@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionShowHideLabels",
+ "prompt": "QGISの「ラベルとダイアグラムの表示非表示切り替え」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ラベルとダイアグラムの表示非表示切り替え」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "まず該当アクションを探します。`mActionShowHideLabels`（ラベルとダイアグラムの表示非表示切り替え）が見つかりました。チェック可能なマップツール型アクションで、現在未チェック・有効です。実行（トリガ）します。実行しました。結果:\n\n- **アクション**: `mActionShowHideLabels`（ラベルとダイアグラムの表示非表示切り替え）\n- **状態**: checked = **true**（マップツールがアクティブ化された）\n- **アクティブなマップツール**: `QgsMapToolAdvancedDigitizing` 系 — ラベル操作ツールは `QgsMapToolAdvancedDigitizing` の派生クラスで、Pythonバインディングでは基底クラス名が返るためこの表示になります。アクションがチェック状態なので正常に有効化されています。\n\nこのツールはクリック操作型です:\n\n- **クリック**: 地物/マーキーのラベル・ダイアグラムを**表示**（固定）\n- **Shift+クリック**: ラベル・ダイアグラムを**非表示**\n\nアクティブレイヤ `tmp_floater_test` 上で操作可能です。特定の地物に対して自動で表示/非表示を適用したい場合は、座標を指定してクリックイベントを送るか、`QgsMapToolShowHideLabels` 相当の処理（ラベル固定フィールドの更新）を行うこともできます。必要ですか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfrom qgis.utils import iface\\nfound = []\\nfor a in iface.mainWindow().findChildren(QAction):\\n    t = a.text() or ''\\n    tip = a.toolTip() or ''\\n    if ('ラベル' in t or 'ダイアグラム' in t or 'label' in a.objectName().lower() or 'diagram' in a.objectName().lower()):\\n        found.append({'objectName': a.objectName(), 'text': t, 'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked(), 'tooltip': tip[:150]})\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfrom qgis.utils import iface\\na = iface.mainWindow().findChild(QAction, 'mActionShowHideLabels')\\na.trigger()\\ncanvas = iface.mapCanvas()\\ntool = canvas.mapTool()\\nresult = {\\n  'checked': a.isChecked(),\\n  'activeMapTool': tool.__class__.__name__ if tool else None,\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ラベルとダイアグラムの表示非表示切り替え」機能(アクション)を実行して\n[AI] \nまず該当アクションを探します。mActionShowHideLabels（ラベルとダイアグラムの表示非表示切り替え）が見つかりました。チェック可能なマップツール型アクションで、現在未チェック・有効です。実行（トリガ）します。実行しました。結果:\nアクション: mActionShowHideLabels（ラベルとダイアグラムの表示非表示切り替え）\n状態: checked = true（マップツールがアクティブ化された）\nアクティブなマップツール: QgsMapToolAdvancedDigitizing 系 — ラベル操作ツールは QgsMapToolAdvancedDigitizing の派生クラスで、Pythonバインディングでは基底クラス名が返るためこの表示になります。アクションがチェック状態なので正常に有効化されています。\nこのツールはクリック操作型です:\nクリック: 地物/マーキーのラベル・ダイアグラムを表示（固定）\nShift+クリック: ラベル・ダイアグラムを非表示\nアクティブレイヤ tmp_floater_test 上で操作可能です。特定の地物に対して自動で表示/非表示を適用したい場合は、座標を指定してクリックイベントを送るか、QgsMapToolShowHideLabels 相当の処理（ラベル固定フィールドの更新）を行うこともできます。必要ですか？"
+}

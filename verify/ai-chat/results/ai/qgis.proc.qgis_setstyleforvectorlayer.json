@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_setstyleforvectorlayer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] ベクタレイヤのスタイル設定」(id: qgis:setstyleforvectorlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] ベクタレイヤのスタイル設定」(id: qgis:setstyleforvectorlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。存在を確認しました。`qgis:setstyleforvectorlayer` は registry に登録されています。\n\n## [QGIS] ベクタレイヤのスタイル設定\n\n**用途**: 既存のベクタレイヤに、QML ファイル(`.qml`)として保存されたスタイル定義(シンボル・ラベル・分類・ルールベーススタイルなど)を適用するアルゴリズム(グループ: ベクタ一般)。前回の `setstyleforrasterlayer` のベクタ版で、モデル内でのスタイル適用の自動化に使います。\n\n**主なパラメータ**:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | スタイルを適用するベクタレイヤ |\n| `STYLE` | スタイルファイル(`.qml`)のパス |\n\n**出力**: スタイルが適用された同じレイヤ(出力名は `INPUT`)。\n\n補足: QML はレイヤプロパティ → スタイル → 「スタイルを保存…」で書き出しておきます。フィールド名が QML 作成時と異なる場合、分類・ラベルの式が正しく解決されず反映が一部失敗することがあるので、同名スキーマのレイヤに適用するのが基本です。データ自体は変わらず、表示設定のみが更新されます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:setstyleforvectorlayer')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'style' in a.id().lower()]}\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': type(p).__name__, 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()]\\n    outputs = [{'name': o.name(), 'desc': o.description()} for o in alg.outputDefinitions()]\\n    enum_opts = {p.name(): p.options() for p in alg.parameterDefinitions() if type(p).__name__ == 'QgsProcessingParameterEnum'}\\n    result = {'found': True, 'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'params': params, 'enums': enum_opts, 'outputs': outputs, 'shortHelp': (alg.shortHelpString() or '')[:1200]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] ベクタレイヤのスタイル設定」(id: qgis:setstyleforvectorlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。存在を確認しました。qgis:setstyleforvectorlayer は registry に登録されています。\n[QGIS] ベクタレイヤのスタイル設定\n用途: 既存のベクタレイヤに、QML ファイル(.qml)として保存されたスタイル定義(シンボル・ラベル・分類・ルールベーススタイルなど)を適用するアルゴリズム(グループ: ベクタ一般)。前回の setstyleforrasterlayer のベクタ版で、モデル内でのスタイル適用の自動化に使います。\n主なパラメータ:\nパラメータ\n内容\nINPUT\nスタイルを適用するベクタレイヤ\nSTYLE\nスタイルファイル(.qml)のパス\n\n出力: スタイルが適用された同じレイヤ(出力名は INPUT)。\n補足: QML はレイヤプロパティ → スタイル → 「スタイルを保存…」で書き出しておきます。フィールド名が QML 作成時と異なる場合、分類・ラベルの式が正しく解決されず反映が一部失敗することがあるので、同名スキーマのレイヤに適用するのが基本です。データ自体は変わらず、表示設定のみが更新されます。"
+}

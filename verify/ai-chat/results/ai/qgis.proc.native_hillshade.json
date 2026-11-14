@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_hillshade",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 陰影図（hillshade）」(id: native:hillshade) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 陰影図（hillshade）」(id: native:hillshade) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:hillshade`（表示名 **「陰影図（hillshade）」**、グループ「ラスタ地形解析」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n**標高ラスタ（DEM/DTM）から陰影図を生成**するアルゴリズムです。仮想的な太陽光の当たり方を計算し、地形の凹凸を立体的に表現したグレースケールラスタを作成します。地形図の背景・重ね合わせ用の陰影表現として広く使われます。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | DTMレイヤ（入力の標高ラスタ） |\n| `Z_FACTOR` | Z係数 — ①XY単位とZ単位の換算（度単位→m等）、②凹凸の強調度合い |\n| `AZIMUTH` | 方位角（度。北=0の時計回り。**初期値300°**＝北西から光） |\n| `V_ANGLE` | 太陽高（度。**初期値40°**） |\n| `NODATA` | 出力のNoData値 |\n| `CREATION_OPTIONS` | 出力ラスタの作成オプション |\n| `OUTPUT` | 陰影図（出力ラスタ） |\n\n### 出力\n\n- `OUTPUT` — 陰影図ラスタ\n\n### 補足\n\n- **方位角・太陽高が光の方向を制御**します。人間の視覚は「北西からの光」で凹凸を自然に感じるため、初期値が `AZIMUTH=300`（北西）・`V_ANGLE=40` に設定されている、とヘルプ訳注に明記されています。\n- `Z_FACTOR` は緯度経度（度）のDEMでXYとZの単位が異なる場合の換算や、起伏を誇張したい場合に調整します。\n- 同系に `gdal:hillshade` もあります。native版はQGIS C++実装で、機能はほぼ同等ですが、パラメータ構成やオプションが若干異なります（native版は `V_ANGLE`／GDAL版は altitude 等）。関連アルゴリズムとして `native:slope`（傾斜）、`native:aspect`（傾斜方位）も同グループにあります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:hillshade')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related': [(a.id(), a.displayName(), a.group()) for a in QgsApplication.processingRegistry().algorithms() if 'hillshade' in a.id() or '陰影' in a.displayName() or 'slope' in a.id() or 'aspect' in a.id()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 陰影図（hillshade）」(id: native:hillshade) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:hillshade（表示名 「陰影図（hillshade）」、グループ「ラスタ地形解析」）がこのQGISの processing registry に登録されています。\n用途\n標高ラスタ（DEM/DTM）から陰影図を生成するアルゴリズムです。仮想的な太陽光の当たり方を計算し、地形の凹凸を立体的に表現したグレースケールラスタを作成します。地形図の背景・重ね合わせ用の陰影表現として広く使われます。\n主なパラメータ\nパラメータ\n内容\nINPUT\nDTMレイヤ（入力の標高ラスタ）\nZ_FACTOR\nZ係数 — ①XY単位とZ単位の換算（度単位→m等）、②凹凸の強調度合い\nAZIMUTH\n方位角（度。北=0の時計回り。初期値300°＝北西から光）\nV_ANGLE\n太陽高（度。初期値40°）\nNODATA\n出力のNoData値\nCREATION_OPTIONS\n出力ラスタの作成オプション\nOUTPUT\n陰影図（出力ラスタ）\n\n出力\nOUTPUT — 陰影図ラスタ\n補足\n方位角・太陽高が光の方向を制御します。人間の視覚は「北西からの光」で凹凸を自然に感じるため、初期値が AZIMUTH=300（北西）・V_ANGLE=40 に設定されている、とヘルプ訳注に明記されています。\nZ_FACTOR は緯度経度（度）のDEMでXYとZの単位が異なる場合の換算や、起伏を誇張したい場合に調整します。\n同系に gdal:hillshade もあります。native版はQGIS C++実装で、機能はほぼ同等ですが、パラメータ構成やオプションが若干異なります（native版は V_ANGLE／GDAL版は altitude 等）。関連アルゴリズムとして native:slope（傾斜）、native:aspect（傾斜方位）も同グループにあります。"
+}

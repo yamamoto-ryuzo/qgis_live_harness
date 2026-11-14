@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_fixgeometryoverlap",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Delete overlaps」(id: native:fixgeometryoverlap) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Delete overlaps」(id: native:fixgeometryoverlap) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:fixgeometryoverlap`（表示名 **「Delete overlaps」**、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n「Check geometry」系の **`native:checkgeometryoverlap`（Overlaps）** が出力したエラーレイヤを元に、**ポリゴン同士の重なり部分を削除**する修正アルゴリズムです。重複している領域を片側のポリゴンから取り除き、地物が互いに接するだけ（重ならない）の状態にします。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ（修正対象のポリゴン） |\n| `ERRORS` | エラーレイヤ（`checkgeometryoverlap` の出力） |\n| `UNIQUE_ID` | 元地物を一意に識別するフィールド |\n| `OVERLAP_FEATURE_UNIQUE_IDX` | 重なっている**相手側**地物の識別フィールド |\n| `ERROR_VALUE_ID` | エラー値（重なりの位置・面積情報）のフィールド |\n| `TOLERANCE` | 許容範囲（数値） |\n\n### 出力\n\n- `OUTPUT` — 重なりのないレイヤ\n- `REPORT` — 修正内容のレポートレイヤ\n\n### 補足\n\n重なりは「地物Aと地物Bのペア」で記録されるため、他の fixgeometry 系には無い **`OVERLAP_FEATURE_UNIQUE_IDX`（相手地物のID）** と **`ERROR_VALUE_ID`（エラー値）** の2フィールドが必要なのが特徴です。基本フローは同じく「`checkgeometryoverlap` で検出 → `INPUT` + `ERRORS` を渡して修正」です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:fixgeometryoverlap')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related_check': [(a.id(), a.displayName()) for a in QgsApplication.processingRegistry().algorithms() if 'overlap' in a.id() or 'overlap' in a.displayName().lower()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Delete overlaps」(id: native:fixgeometryoverlap) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:fixgeometryoverlap（表示名 「Delete overlaps」、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n用途\n「Check geometry」系の native:checkgeometryoverlap（Overlaps） が出力したエラーレイヤを元に、ポリゴン同士の重なり部分を削除する修正アルゴリズムです。重複している領域を片側のポリゴンから取り除き、地物が互いに接するだけ（重ならない）の状態にします。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ（修正対象のポリゴン）\nERRORS\nエラーレイヤ（checkgeometryoverlap の出力）\nUNIQUE_ID\n元地物を一意に識別するフィールド\nOVERLAP_FEATURE_UNIQUE_IDX\n重なっている相手側地物の識別フィールド\nERROR_VALUE_ID\nエラー値（重なりの位置・面積情報）のフィールド\nTOLERANCE\n許容範囲（数値）\n\n出力\nOUTPUT — 重なりのないレイヤ\nREPORT — 修正内容のレポートレイヤ\n補足\n重なりは「地物Aと地物Bのペア」で記録されるため、他の fixgeometry 系には無い OVERLAP_FEATURE_UNIQUE_IDX（相手地物のID） と ERROR_VALUE_ID（エラー値） の2フィールドが必要なのが特徴です。基本フローは同じく「checkgeometryoverlap で検出 → INPUT + ERRORS を渡して修正」です。"
+}

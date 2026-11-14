@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionQueryHistory",
+ "prompt": "QGISの「Query History…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Query History…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に「Query History…」アクションを調べます。「Query History…」アクションも **現在有効（enabled）** です。\n\n## 調査結果\n\n**アクション自体**\n- テキスト: `Query History…`（この環境では未翻訳・英語表記のまま）\n- objectName: `mActionQueryHistory`（QGIS コアのアクション。Processing 経由ではありません）\n- `isEnabled()` = **true**、`isVisible()` = true\n- 配置場所: メニューバー **&Database（データベース）→ Query History…**\n\nこれは SQL クエリ履歴を表示する QGIS 本体の機能で、データベースメニュー配下のコアアクションです。\n\n## 参考：類似の「履歴」アクション\n\n| アクション | objectName | 有効 | 場所 |\n|---|---|---|---|\n| `Query History…` | `mActionQueryHistory` | **有効** | Database |\n| `履歴(H)...` | `historyAction` | 有効 | プロセシング（処理履歴ダイアログ） |\n\n両方とも有効ですが、前者は SQL クエリ履歴、後者は Processing アルゴリズムの実行履歴と、用途が異なります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nhits = []\\ncontainers = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').replace('&','')\\n    on = (a.objectName() or '').lower()\\n    if 'query' in t.lower() or 'query' in on or 'history' in t.lower() or 'history' in on or 'クエリ' in t or '履歴' in t:\\n        hits.append({\\n            'text': t,\\n            'objectName': a.objectName(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n        })\\nfor m in mw.findChildren(QMenu):\\n    for a in m.actions():\\n        t = (a.text() or '').replace('&','')\\n        on = (a.objectName() or '').lower()\\n        if 'query' in t.lower() or 'query' in on or 'history' in t.lower() or 'history' in on or 'クエリ' in t or '履歴' in t:\\n            path = [m.title()]\\n            p = m.parent()\\n            while isinstance(p, QMenu):\\n                path.insert(0, p.title())\\n                p = p.parent()\\n            containe"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Query History…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n同様に「Query History…」アクションを調べます。「Query History…」アクションも 現在有効（enabled） です。\n調査結果\nアクション自体\nテキスト: Query History…（この環境では未翻訳・英語表記のまま）\nobjectName: mActionQueryHistory（QGIS コアのアクション。Processing 経由ではありません）\nisEnabled() = true、isVisible() = true\n配置場所: メニューバー &Database（データベース）→ Query History…\nこれは SQL クエリ履歴を表示する QGIS 本体の機能で、データベースメニュー配下のコアアクションです。\n参考：類似の「履歴」アクション\nアクション\nobjectName\n有効\n場所\nQuery History…\nmActionQueryHistory\n有効\nDatabase\n履歴(H)...\nhistoryAction\n有効\nプロセシング（処理履歴ダイアログ）\n\n両方とも有効ですが、前者は SQL クエリ履歴、後者は Processing アルゴリズムの実行履歴と、用途が異なります。"
+}

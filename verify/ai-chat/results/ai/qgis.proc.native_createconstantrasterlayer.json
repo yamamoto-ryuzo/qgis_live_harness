@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_createconstantrasterlayer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 定数ラスタを作成」(id: native:createconstantrasterlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 定数ラスタを作成」(id: native:createconstantrasterlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:createconstantrasterlayer` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] 定数ラスタを作成`\n- **ID**: `native:createconstantrasterlayer`\n- **グループ**: `ラスタ作成`\n- **用途**: 指定した範囲・セルサイズで、全セルが同じ値のラスタレイヤを作成します。ラスタ演算用の一定値レイヤやマスク準備に使えます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `EXTENT` | ラスタを作成する範囲 |\n| `TARGET_CRS` | 出力ラスタの CRS。既定はプロジェクト CRS |\n| `PIXEL_SIZE` | セルサイズ。`TARGET_CRS` の地図単位 |\n| `NUMBER` | 全セルに設定する定数値 |\n| `OUTPUT_TYPE` | 出力データ型。高度な設定で `Byte`〜`Float64` から選択 |\n| `OUTPUT` | 出力ラスタファイル／レイヤ |\n\n選択したデータ型で表現できない `NUMBER` を指定すると処理は失敗します。`CREATE_OPTIONS` / `CREATION_OPTIONS` は GDAL 形式の作成オプション指定用です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:createconstantrasterlayer')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue', 'fileFilter'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        output"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 定数ラスタを作成」(id: native:createconstantrasterlayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:createconstantrasterlayer を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] 定数ラスタを作成\nID: native:createconstantrasterlayer\nグループ: ラスタ作成\n用途: 指定した範囲・セルサイズで、全セルが同じ値のラスタレイヤを作成します。ラスタ演算用の一定値レイヤやマスク準備に使えます。\n主なパラメータ:\nパラメータ\n内容\nEXTENT\nラスタを作成する範囲\nTARGET_CRS\n出力ラスタの CRS。既定はプロジェクト CRS\nPIXEL_SIZE\nセルサイズ。TARGET_CRS の地図単位\nNUMBER\n全セルに設定する定数値\nOUTPUT_TYPE\n出力データ型。高度な設定で Byte〜Float64 から選択\nOUTPUT\n出力ラスタファイル／レイヤ\n\n選択したデータ型で表現できない NUMBER を指定すると処理は失敗します。CREATE_OPTIONS / CREATION_OPTIONS は GDAL 形式の作成オプション指定用です。"
+}

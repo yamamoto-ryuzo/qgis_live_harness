@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionToggleAnnotationsToolBar",
+ "prompt": "QGISの「注記ツールバー」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「注記ツールバー」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「注記ツールバー」は非表示なので、トグルを実行します。「注記ツールバー」を有効化しました。\n\n- アクション `mActionToggleAnnotationsToolBar` を実行 → チェック ON\n- ツールバー `mAnnotationsToolBar` が表示されました(テキスト注記、移動可能な注記、HTML注記、SVG注記などの作成ツール)\n\n残りの非表示ツールバーは「データソースマネージャツールバー」と「GPS Toolbar」のみです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\ncands = [a for a in mw.findChildren(QAction) if '注記' in a.text()]\\naction = mw.findChild(QAction, 'mActionToggleAnnotationsToolBar') or (cands[0] if cands else None)\\nif action is None:\\n    result = {'action': None, 'candidates': [(a.objectName(), a.text()) for a in mw.findChildren(QAction) if 'nnotation' in (a.objectName() or '')]}\\nelse:\\n    action.trigger()\\n    tb = mw.findChild(QToolBar, 'mAnnotationsToolBar')\\n    result = {'action': action.objectName(), 'checked': action.isChecked(), 'toolbar_visible': tb.isVisible() if tb else None}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「注記ツールバー」機能(アクション)を実行して\n[AI] \n「注記ツールバー」は非表示なので、トグルを実行します。「注記ツールバー」を有効化しました。\nアクション mActionToggleAnnotationsToolBar を実行 → チェック ON\nツールバー mAnnotationsToolBar が表示されました(テキスト注記、移動可能な注記、HTML注記、SVG注記などの作成ツール)\n残りの非表示ツールバーは「データソースマネージャツールバー」と「GPS Toolbar」のみです。"
+}

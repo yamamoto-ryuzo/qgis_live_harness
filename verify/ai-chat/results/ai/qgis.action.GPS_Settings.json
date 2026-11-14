@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.GPS_Settings",
+ "prompt": "QGISの「GPS Settings…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「GPS Settings…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "同じくGPSオプションメニュー内の項目です。確認します。調査結果です。\n\n## 「GPS Settings…」アクション\n\n同じく **GPSツールバーのオプションメニュー**の最後の項目です。\n\n**現在の状態**（pyeval 実測）:\n\n| 項目 | 値 |\n|---|---|\n| isEnabled | **true（有効）** |\n| isCheckable | false |\n| isVisible | true |\n| has_menu | false |\n\n**意味・実効**: トグルではなく、`trigger()` で **GPS設定ダイアログ（QgsGpsSettingsDialog相当）を開く**実行型アクションです。GPS接続先の設定、トラック設定、シンボル、方位線などGPS関連オプションをまとめて変更する画面が開きます。\n\n## まとめ\n\n- アクションは **有効（enabled）** で、いつでも実行（ダイアログ表示）可能な状態です。\n\nこれで GPSオプションメニュー内のアクションは一通り確認できました：\n\n| アクション | enabled | 種別 | 現在状態 |\n|---|---|---|---|\n| Show Location Marker | ○ | トグル | ON |\n| Show Bearing Line | ○ | トグル | OFF |\n| Rotate Map to Match GPS Direction | ○ | トグル | OFF |\n| Automatically Add Track Vertices | ○ | トグル | OFF |\n| Automatically Save Added Feature | ○ | トグル | OFF（未確認分） |\n| Time Stamp Destination | ○ | サブメニュー | Do Not Store 選択中 |\n| Log to GeoPackage/Spatialite… | ○ | トグル+ダイアログ | OFF |\n| Log NMEA Sentences… | ○ | トグル+ダイアログ | OFF |\n| GPS Settings… | ○ | 実行型 | — |\n\n全て有効ですが、実際の描画・記録には GPS 接続（現在0件）が前提です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = None\\nfor x in mw.findChildren(QAction):\\n    if (x.text() or '').startswith('GPS Settings'):\\n        a = x\\n        break\\nresult = {'text': a.text(), 'enabled': a.isEnabled(), 'checkable': a.isCheckable(),\\n          'checked': a.isChecked(), 'visible': a.isVisible(), 'tooltip': a.toolTip(),\\n          'has_menu': a.menu() is not None}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「GPS Settings…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n同じくGPSオプションメニュー内の項目です。確認します。調査結果です。\n「GPS Settings…」アクション\n同じく GPSツールバーのオプションメニューの最後の項目です。\n現在の状態（pyeval 実測）:\n項目\n値\nisEnabled\ntrue（有効）\nisCheckable\nfalse\nisVisible\ntrue\nhas_menu\nfalse\n\n意味・実効: トグルではなく、trigger() で GPS設定ダイアログ（QgsGpsSettingsDialog相当）を開く実行型アクションです。GPS接続先の設定、トラック設定、シンボル、方位線などGPS関連オプションをまとめて変更する画面が開きます。\nまとめ\nアクションは 有効（enabled） で、いつでも実行（ダイアログ表示）可能な状態です。\nこれで GPSオプションメニュー内のアクションは一通り確認できました：\nアクション\nenabled\n種別\n現在状態\nShow Location Marker\n○\nトグル\nON\nShow Bearing Line\n○\nトグル\nOFF\nRotate Map to Match GPS Direction\n○\nトグル\nOFF\nAutomatically Add Track Vertices\n○\nトグル\nOFF\nAutomatically Save Added Feature\n○\nトグル\nOFF（未確認分）\nTime Stamp Destination\n○\nサブメニュー\nDo Not Store 選択中\nLog to GeoPackage/Spatialite…\n○\nトグル+ダイアログ\nOFF\nLog NMEA Sentences…\n○\nトグル+ダイアログ\nOFF\nGPS Settings…\n○\n実行型\n—\n\n全て有効ですが、実際の描画・記録には GPS 接続（現在0件）が前提です。"
+}

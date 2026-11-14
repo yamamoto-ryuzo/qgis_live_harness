@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_advancedpythonfieldcalculator",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] Pythonフィールド計算機」(id: qgis:advancedpythonfieldcalculator) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] Pythonフィールド計算機」(id: qgis:advancedpythonfieldcalculator) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis:advancedpythonfieldcalculator` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `qgis:advancedpythonfieldcalculator`\n- **表示名**: `Pythonフィールド計算機`\n- **Provider**: `QGIS`\n- **グループ**: `ベクタテーブル`\n\n### 用途\nベクタレイヤの各地物に対して Python 式を適用し、その結果を新しい属性フィールドとして追加します。出力は新しいベクタレイヤです。`FORMULA` 内で最終値を `value` に代入します。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ベクタレイヤ | — |\n| `FIELD_NAME` | 追加するフィールド名 | `NewField` |\n| `FIELD_TYPE` | フィールド型（整数・double・文字列・bool・日付・日時・BLOB・リスト等） | — |\n| `FIELD_LENGTH` | フィールド長 | `10` |\n| `FIELD_PRECISION` | 小数精度 | `3` |\n| `GLOBAL` | 任意。全地物で共有する初期化コード・import・関数定義 | なし |\n| `FORMULA` | 各地物へ適用する Python コード。結果を `value` に代入 | `value = ` |\n| `OUTPUT` | 出力ベクタレイヤ | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('qgis:advancedpythonfieldcalculator')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'python' in a.id().lower() or 'calculator' in a.id().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] Pythonフィールド計算機」(id: qgis:advancedpythonfieldcalculator) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nqgis:advancedpythonfieldcalculator を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: qgis:advancedpythonfieldcalculator\n表示名: Pythonフィールド計算機\nProvider: QGIS\nグループ: ベクタテーブル\n用途\nベクタレイヤの各地物に対して Python 式を適用し、その結果を新しい属性フィールドとして追加します。出力は新しいベクタレイヤです。FORMULA 内で最終値を value に代入します。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\n入力ベクタレイヤ\n—\nFIELD_NAME\n追加するフィールド名\nNewField\nFIELD_TYPE\nフィールド型（整数・double・文字列・bool・日付・日時・BLOB・リスト等）\n—\nFIELD_LENGTH\nフィールド長\n10\nFIELD_PRECISION\n小数精度\n3\nGLOBAL\n任意。全地物で共有する初期化コード・import・関数定義\nなし\nFORMULA\n各地物へ適用する Python コード。結果を value に代入\nvalue = \nOUTPUT\n出力ベクタレイヤ\n—\n"
+}

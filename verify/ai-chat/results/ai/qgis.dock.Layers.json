@@ -1,0 +1,26 @@
+{
+ "id": "qgis.dock.Layers",
+ "prompt": "「レイヤ」パネル(ドック)を表示して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "「レイヤ」パネル(ドック)を表示して"
+  },
+  {
+   "role": "assistant",
+   "content": "「レイヤ」ドックを表示して前面に出します。「レイヤ」パネルを表示しました。左側ドックエリアに前面表示されています。プロジェクト内のレイヤ一覧・表示/非表示切替・グループ管理・凡例表示がここで行えます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\ndock = iface.mainWindow().findChild(QDockWidget, 'Layers')\\ndock.setVisible(True)\\ndock.show()\\ndock.raise_()\\nresult = {'visible': dock.isVisible(), 'floating': dock.isFloating(), 'area': str(iface.mainWindow().dockWidgetArea(dock))}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 「レイヤ」パネル(ドック)を表示して\n[AI] \n「レイヤ」ドックを表示して前面に出します。「レイヤ」パネルを表示しました。左側ドックエリアに前面表示されています。プロジェクト内のレイヤ一覧・表示/非表示切替・グループ管理・凡例表示がここで行えます。"
+}

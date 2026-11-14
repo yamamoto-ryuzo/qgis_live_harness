@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_downloadvectortiles",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Download vector tiles」(id: native:downloadvectortiles) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Download vector tiles」(id: native:downloadvectortiles) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:downloadvectortiles`\n- **表示名**: Download vector tiles（英語表記のまま）\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ベクタタイル\n\n## 用途\n入力の**ベクタタイルレイヤ**（リモートの XYZ/Mapbox ベクタタイルソースなど）から、指定範囲のタイルをダウンロードして**ローカルのベクタタイルファイル（MBTiles 等）に保存**するアルゴリズムです。オンラインタイルのオフラインキャッシュ化・配布用タイルセットの切り出しに使います。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ベクタタイルレイヤ（必須。プロジェクト内のベクタタイルレイヤ） |\n| `EXTENT` | ダウンロード対象の領域（必須） |\n| `MAX_ZOOM` | ダウンロードする最大ズームレベル（デフォルト 10） |\n| `TILE_LIMIT` | タイル数の上限（デフォルト 100。ダウンロード量の安全弁） |\n| `OUTPUT` | 出力ベクタタイルファイル（必須） |\n\n注意点: `MAX_ZOOM` を上げるとタイル数が4のべき乗で増えるため、`TILE_LIMIT` に引っかかる場合は範囲を絞るか上限を調整してください。元タイルソースの利用規約・ダウンロード許可にも留意が必要です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber, QgsProcessingParameterBoolean, QgsProcessingParameterString, QgsProcessingParameterExtent\\nalg = QgsApplication.processingRegistry().algorithmById('native:downloadvectortiles')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'tile' in a.id().lower() or 'download' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        if isinstance(p, QgsProcessingParameterNumber):\\n            d['min'] = p.minimum(); d['max'] = p.maximum()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n     "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Download vector tiles」(id: native:downloadvectortiles) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:downloadvectortiles\n表示名: Download vector tiles（英語表記のまま）\nプロバイダ: QGIS（ネイティブC++）／グループ: ベクタタイル\n用途\n入力のベクタタイルレイヤ（リモートの XYZ/Mapbox ベクタタイルソースなど）から、指定範囲のタイルをダウンロードしてローカルのベクタタイルファイル（MBTiles 等）に保存するアルゴリズムです。オンラインタイルのオフラインキャッシュ化・配布用タイルセットの切り出しに使います。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ベクタタイルレイヤ（必須。プロジェクト内のベクタタイルレイヤ）\nEXTENT\nダウンロード対象の領域（必須）\nMAX_ZOOM\nダウンロードする最大ズームレベル（デフォルト 10）\nTILE_LIMIT\nタイル数の上限（デフォルト 100。ダウンロード量の安全弁）\nOUTPUT\n出力ベクタタイルファイル（必須）\n\n注意点: MAX_ZOOM を上げるとタイル数が4のべき乗で増えるため、TILE_LIMIT に引っかかる場合は範囲を絞るか上限を調整してください。元タイルソースの利用規約・ダウンロード許可にも留意が必要です。"
+}

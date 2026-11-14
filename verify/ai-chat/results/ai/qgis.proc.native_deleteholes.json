@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_deleteholes",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 孔を削除」(id: native:deleteholes) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 孔を削除」(id: native:deleteholes) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:deleteholes`\n- **表示名**: 孔を削除\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ベクタジオメトリ\n\n## 用途\nポリゴン内の**孔（内側リング）を削除し、外殻リングだけのポリゴンを出力**するアルゴリズムです。属性は変更されません。面積しきい値を指定でき、「その面積より小さい孔だけ」を除去する部分的なクリーニングが可能です。小さな孔（ノイズ的な空隙）だけ潰して大きな内水域などは残したい場合や、後続の面積計算・塗りつぶし描画を簡素化したい場合に使います。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ポリゴンレイヤ（必須） |\n| `MIN_AREA` | この面積より小さい孔のみ削除（デフォルト 0.0 = **すべての孔を削除**。レイヤの面積単位） |\n| `OUTPUT` | クリーニング済み出力レイヤ（必須） |\n\n`MIN_AREA` はレイヤの面積単位（CRS依存）なので、度単位レイヤでは投影済みデータで使うのが安全です。マルチパートポリゴンそのものは維持され、あくまで各パート内の孔だけが対象です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber\\nalg = QgsApplication.processingRegistry().algorithmById('native:deleteholes')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'hole' in a.id().lower() or 'delete' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        if isinstance(p, QgsProcessingParameterNumber):\\n            d['min'] = p.minimum(); d['max'] = p.maximum()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 孔を削除」(id: native:deleteholes) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:deleteholes\n表示名: 孔を削除\nプロバイダ: QGIS（ネイティブC++）／グループ: ベクタジオメトリ\n用途\nポリゴン内の孔（内側リング）を削除し、外殻リングだけのポリゴンを出力するアルゴリズムです。属性は変更されません。面積しきい値を指定でき、「その面積より小さい孔だけ」を除去する部分的なクリーニングが可能です。小さな孔（ノイズ的な空隙）だけ潰して大きな内水域などは残したい場合や、後続の面積計算・塗りつぶし描画を簡素化したい場合に使います。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ポリゴンレイヤ（必須）\nMIN_AREA\nこの面積より小さい孔のみ削除（デフォルト 0.0 = すべての孔を削除。レイヤの面積単位）\nOUTPUT\nクリーニング済み出力レイヤ（必須）\n\nMIN_AREA はレイヤの面積単位（CRS依存）なので、度単位レイヤでは投影済みデータで使うのが安全です。マルチパートポリゴンそのものは維持され、あくまで各パート内の孔だけが対象です。"
+}

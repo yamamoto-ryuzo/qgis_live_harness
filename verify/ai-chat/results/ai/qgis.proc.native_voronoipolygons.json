@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_voronoipolygons",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Voronoi polygons」(id: native:voronoipolygons) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Voronoi polygons」(id: native:voronoipolygons) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`native:voronoipolygons` **[QGIS（ネイティブC++）] Voronoi polygons** は processing registry に登録されています（グループ: ベクタジオメトリ）。\n\n### 用途\n\n入力ポイントレイヤから **ボロノイ図（Voronoi diagram）を生成**し、ポリゴンレイヤとして出力します。各ポリゴンは「その母点に最も近い領域」を表し、施設の担当エリア分割・最近傍領域分析・空間補間の前処理などに使えます。\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT` | source | — | 入力ポイントレイヤ |\n| `BUFFER` | number | 0 | バッファ領域（範囲に対する%）。ポリゴンが入力範囲の縁で切れるのを防ぐため、範囲を拡張する量 |\n| `TOLERANCE` | number | 0 | 許容範囲。この距離内にある点を同一とみなす（重複点の除去に相当） |\n| `COPY_ATTRIBUTES` | boolean | true | 入力地物の属性を出力ポリゴンへコピーするか |\n| `OUTPUT` | sink | — | 出力ポリゴンレイヤ |\n\n`BUFFER` は外周部のボロノイポリゴンが小さく切り詰められないよう、範囲をパーセントで広げるオプションです（通常 10% 程度を推奨とされることが多い）。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('native:voronoipolygons')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Voronoi polygons」(id: native:voronoipolygons) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\nnative:voronoipolygons [QGIS（ネイティブC++）] Voronoi polygons は processing registry に登録されています（グループ: ベクタジオメトリ）。\n用途\n入力ポイントレイヤから ボロノイ図（Voronoi diagram）を生成し、ポリゴンレイヤとして出力します。各ポリゴンは「その母点に最も近い領域」を表し、施設の担当エリア分割・最近傍領域分析・空間補間の前処理などに使えます。\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT\nsource\n—\n入力ポイントレイヤ\nBUFFER\nnumber\n0\nバッファ領域（範囲に対する%）。ポリゴンが入力範囲の縁で切れるのを防ぐため、範囲を拡張する量\nTOLERANCE\nnumber\n0\n許容範囲。この距離内にある点を同一とみなす（重複点の除去に相当）\nCOPY_ATTRIBUTES\nboolean\ntrue\n入力地物の属性を出力ポリゴンへコピーするか\nOUTPUT\nsink\n—\n出力ポリゴンレイヤ\n\nBUFFER は外周部のボロノイポリゴンが小さく切り詰められないよう、範囲をパーセントで広げるオプションです（通常 10% 程度を推奨とされることが多い）。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_fixgeometryselfintersection",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Split self-intersecting geometries」(id: native:fixgeometryselfintersection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Split self-intersecting geometries」(id: native:fixgeometryselfintersection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:fixgeometryselfintersection`（表示名 **「Split self-intersecting geometries」**、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n「Check geometry」系の **`native:checkgeometryselfintersection`（Self-intersections）** が出力したエラーレイヤを元に、**自己交差しているラインまたはポリゴンを交点で分割**する修正アルゴリズムです。無効ジオメトリの原因となる「8の字」型ポリゴンや、自分自身と交差するラインを、交差箇所で切り分けて妥当なジオメトリにします。\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力レイヤ（修正対象のライン／ポリゴン） |\n| `ERRORS` | エラーレイヤ（`checkgeometryselfintersection` の出力） |\n| `METHOD` | 分割方法（enum、下記参照） |\n| `UNIQUE_ID` | 元地物を一意に識別するフィールド |\n| `PART_IDX` / `RING_IDX` / `VERTEX_IDX` | エラーレイヤ中のパート・リング・頂点番号フィールド |\n| `SEGMENT_1` / `SEGMENT_2` | 交差している2つのセグメントを示すフィールド |\n| `TOLERANCE` | 許容範囲（数値） |\n\n### `METHOD` の選択肢（実際の enum 値）\n\n1. **Split feature into a multi-part feature** — 交点で分割し、1つのマルチパート地物として保持\n2. **Split feature into multiple single-part features** — 交点で分割し、複数のシングルパート地物に分ける\n\n### 出力\n\n- `OUTPUT` — 自己交差が解消されたレイヤ\n- `REPORT` — 修正内容のレポートレイヤ\n\n### 補足\n\n- 自己交差は「同一地物内の2セグメントの交差」として記録されるため、`SEGMENT_1` / `SEGMENT_2` という固有フィールドが必要なのが特徴です。\n- 似たチェックに `native:checkgeometryselfcontact`（Self-contacts、自己接触）がありますが、本アルゴリズムが対応するのは **Self-intersections（自己交差）** の方です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:fixgeometryselfintersection')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related_check': [(a.id(), a.displayName()) for a in QgsApplication.processingRegistry().algorithms() if 'intersect' in a.id() or 'self' in a.id()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Split self-intersecting geometries」(id: native:fixgeometryselfintersection) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:fixgeometryselfintersection（表示名 「Split self-intersecting geometries」、グループ「Fix geometry」）がこのQGISの processing registry に登録されています。\n用途\n「Check geometry」系の native:checkgeometryselfintersection（Self-intersections） が出力したエラーレイヤを元に、自己交差しているラインまたはポリゴンを交点で分割する修正アルゴリズムです。無効ジオメトリの原因となる「8の字」型ポリゴンや、自分自身と交差するラインを、交差箇所で切り分けて妥当なジオメトリにします。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力レイヤ（修正対象のライン／ポリゴン）\nERRORS\nエラーレイヤ（checkgeometryselfintersection の出力）\nMETHOD\n分割方法（enum、下記参照）\nUNIQUE_ID\n元地物を一意に識別するフィールド\nPART_IDX / RING_IDX / VERTEX_IDX\nエラーレイヤ中のパート・リング・頂点番号フィールド\nSEGMENT_1 / SEGMENT_2\n交差している2つのセグメントを示すフィールド\nTOLERANCE\n許容範囲（数値）\n\nMETHOD の選択肢（実際の enum 値）\nSplit feature into a multi-part feature — 交点で分割し、1つのマルチパート地物として保持\nSplit feature into multiple single-part features — 交点で分割し、複数のシングルパート地物に分ける\n出力\nOUTPUT — 自己交差が解消されたレイヤ\nREPORT — 修正内容のレポートレイヤ\n補足\n自己交差は「同一地物内の2セグメントの交差」として記録されるため、SEGMENT_1 / SEGMENT_2 という固有フィールドが必要なのが特徴です。\n似たチェックに native:checkgeometryselfcontact（Self-contacts、自己接触）がありますが、本アルゴリズムが対応するのは Self-intersections（自己交差） の方です。"
+}

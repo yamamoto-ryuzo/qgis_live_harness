@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionPreviewModeOff",
+ "prompt": "QGISの「通常（Normal）」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「通常（Normal）」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「通常（Normal）」というアクションを探します。`mActionPreviewModeOff`「通常（Normal）」が見つかりました(印刷レイアウトのプレビューモード切替)。現在すでにチェック状態ですが、実行します。「通常（Normal）」(`mActionPreviewModeOff`)を実行しました。\n\nこれは印刷レイアウトのプレビューモードを「通常表示」に切り替える排他アクション(モノクロプレビュー等との切替グループ)で、トリガー後もチェック状態(`isChecked=True`)のままです。すでに通常モードだったため、画面上の変化はありません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    tt = t.replace('&','')\\n    o = a.objectName() or ''\\n    if ('通常' in tt) or ('normal' in o.lower()) or ('normal' in tt.lower()):\\n        found.append((o, t, a.isEnabled(), a.isCheckable(), a.isChecked(), a.shortcut().toString()))\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionPreviewModeOff')\\na.trigger()\\nresult = (a.text(), a.isChecked(), a.isEnabled())\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「通常（Normal）」機能(アクション)を実行して\n[AI] \n「通常（Normal）」というアクションを探します。mActionPreviewModeOff「通常（Normal）」が見つかりました(印刷レイアウトのプレビューモード切替)。現在すでにチェック状態ですが、実行します。「通常（Normal）」(mActionPreviewModeOff)を実行しました。\nこれは印刷レイアウトのプレビューモードを「通常表示」に切り替える排他アクション(モノクロプレビュー等との切替グループ)で、トリガー後もチェック状態(isChecked=True)のままです。すでに通常モードだったため、画面上の変化はありません。"
+}

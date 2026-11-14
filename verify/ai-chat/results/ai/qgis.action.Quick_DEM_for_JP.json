@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.Quick_DEM_for_JP",
+ "prompt": "QGISの「Quick DEM for JP」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Quick DEM for JP」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "QuickDEM4JP プラグインのアクションを調べます。調査結果です。\n\n**「Quick DEM for JP」アクションは現在有効（enabled）です。**\n\n詳細:\n\n- **プラグイン**: `QuickDEM4JP`（`QuickDEM4JP.plugin.QuickDEMforJP`）ロード済み\n- **ツールバーボタン**: 「プラグインツールバー」(mPluginToolBar) 上の QToolButton「Quick DEM for JP」\n  - `enabled=True`, `visible=True`、ツールチップ「Quick DEM for JP」\n- **toolButtonAction**（プラグインの `toolButtonAction` 属性）: `enabled=True` — ツールバー登録用のアイコンアクション\n- **Processing プロバイダ**: `QuickDEMforJPProvider` にアルゴリズム「XMLファイルからDEMを読み込む」（`quickdemforjp:...`）が1件登録済み → Processing ツールボックスからも実行可能\n\n補足:\n\n- 構造は `mojxml_plugin` と同型（`setup_algorithms_tool_button` でツールボタン構築）。ドロップダウンメニューはなく（`menu()` は `None`）、ボタン押下でアルゴリズムのダイアログが直接開く構成のようです。\n- 無効化・グレーアウト・非表示はありません。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\npl = qgis.utils.plugins.get('QuickDEM4JP')\\ninfo = {'loaded': pl is not None}\\nif pl is not None:\\n    info['plugin_type'] = type(pl).__name__\\n    info['module'] = getattr(pl, '__module__', None)\\n    info['attrs'] = [a for a in dir(pl) if not a.startswith('__')]\\nresult = info\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\nfrom qgis.PyQt.QtWidgets import QMenu, QToolBar, QAction, QToolButton\\npl = qgis.utils.plugins['QuickDEM4JP']\\nmw = iface.mainWindow()\\na = getattr(pl, 'toolButtonAction', None)\\nout = {}\\nif a is not None:\\n    conts = []\\n    for w in a.associatedObjects():\\n        if isinstance(w, QMenu):\\n            conts.append('QMenu:%s [%s]' % (w.title(), w.objectName()))\\n        elif isinstance(w, QToolBar):\\n            conts.append('QToolBar:%s [%s]' % (w.windowTitle(), w.objectName()))\\n        else:\\n            conts.append(w.metaObject().className())\\n    out['toolButtonAction'] = {'text': a.text(), 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'containers': conts}\\n# find toolbutton with DEM text\\ntbs = []\\nfor tb in mw.findChildren(QToolButton):\\n    t = (tb.text() or '') + '|' + (tb.toolTip() or '')\\n    if 'DEM' in t.upper():\\n        m = tb.menu()\\n        tbs.append({'text': tb.text(), 'toolTip': tb.toolTip(), 'enabled': tb.isEnabled(), 'visible"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Quick DEM for JP」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nQuickDEM4JP プラグインのアクションを調べます。調査結果です。\n「Quick DEM for JP」アクションは現在有効（enabled）です。\n詳細:\nプラグイン: QuickDEM4JP（QuickDEM4JP.plugin.QuickDEMforJP）ロード済み\nツールバーボタン: 「プラグインツールバー」(mPluginToolBar) 上の QToolButton「Quick DEM for JP」 \nenabled=True, visible=True、ツールチップ「Quick DEM for JP」\ntoolButtonAction（プラグインの toolButtonAction 属性）: enabled=True — ツールバー登録用のアイコンアクション\nProcessing プロバイダ: QuickDEMforJPProvider にアルゴリズム「XMLファイルからDEMを読み込む」（quickdemforjp:...）が1件登録済み → Processing ツールボックスからも実行可能\n補足:\n構造は mojxml_plugin と同型（setup_algorithms_tool_button でツールボタン構築）。ドロップダウンメニューはなく（menu() は None）、ボタン押下でアルゴリズムのダイアログが直接開く構成のようです。\n無効化・グレーアウト・非表示はありません。"
+}

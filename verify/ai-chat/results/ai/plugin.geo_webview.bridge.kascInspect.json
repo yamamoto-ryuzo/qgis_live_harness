@@ -1,0 +1,31 @@
+{
+ "id": "plugin.geo_webview.bridge.kascInspect",
+ "prompt": "geo_webview プラグインの「kascInspect」(.kasc を解析して一覧を返す(プロジェクト非変更の dry run)。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_webview プラグインの「kascInspect」(.kasc を解析して一覧を返す(プロジェクト非変更の dry run)。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`kascInspect` のシグネチャを確認します。対象の .kasc ファイルを探します。.kasc が複数あります。プラグインの出力ディレクトリにあるものを解析します。結果の末尾(カメラ・未対応行情報)を確認します。`kascInspect` の実行結果です(dry run のためプロジェクトは変更されていません)。\n\n## 解析対象\n\n`C:/Users/ryu.RYU-NOTE/Documents/kasugai_canvas_qgis/kasugai_canvas.kasc`\n\n## サマリ\n\n- **ok**: true / title: なし / base: `C:\\...\\kasugai_canvas_qgis`\n- **行数カウント**: geojson ×5、gpkg ×5、xyz ×32、base(ベースマップ)×5 — 計47エントリ\n- **未対応行(unsupported)**: 0件(全行パース成功)\n\n## 内訳\n\n**ベクター(DATA/ 配下、.qml スタイル参照付き)**\n- geojson: `サンプル/DM（スタイルサンプル）/DM_C,DM_1,DM_3`(表示)、`PSEA(P21)2QGIS/Line,point(letter)`(非表示)\n- gpkg: `国土数値情報/政策区域/行政地域/…` 3件、`図郭/全国標準地域メッシュ/…` 2件(2次メッシュ・5kmメッシュは非表示)\n\n**XYZタイル(背景図グループ)** — Google系4、地理院 地形図4・空中写真4・年度別空中写真約10、OpenStreetMap系4 など計32件(ほぼ非表示定義)\n\n**ベースマップ(base:)** — 地理院タイル標準地図/全国最新写真、OpenStreetMap など5件(visible)\n\n**その他**\n- `cams`: 「QGIS」カメラ 緯度35.689236・経度139.742953・高度8180m・pitch -90°\n- `themes`: 「テーマ」「テーマ2」「検索前」の3テーマ(表示レイヤセット定義)\n- `bookmarks`: `bookmarks.xml`\n\n実際の取り込みは `kascImport(source=...)` で行えます(逆方向: xyz→XYZラスタ、geojson/gpkg→ベクター、cam/theme/bookmark も復元)。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.utils import plugins\\nimport json\\nb = plugins['geo_webview'].bridge\\ninfo = json.loads(b.pluginInfo()) if isinstance(b.pluginInfo(), str) else b.pluginInfo()\\nresult = [m for m in info['methods'] if 'kasc' in m['name'].lower() or 'Import' in m['name']]\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'kascInspect', 'plugin_id': 'geo_webview', 'args': ['C:/Users/ryu.RYU-NOTE/Documents/kasugai_canvas_qgis/kasugai_canvas.kasc']}"
+  }
+ ],
+ "view_tail": "[あなた] geo_webview プラグインの「kascInspect」(.kasc を解析して一覧を返す(プロジェクト非変更の dry run)。)を試して。必要な引数は適当な値でよい\n[AI] \nkascInspect のシグネチャを確認します。対象の .kasc ファイルを探します。.kasc が複数あります。プラグインの出力ディレクトリにあるものを解析します。結果の末尾(カメラ・未対応行情報)を確認します。kascInspect の実行結果です(dry run のためプロジェクトは変更されていません)。\n解析対象\nC:/Users/ryu.RYU-NOTE/Documents/kasugai_canvas_qgis/kasugai_canvas.kasc\nサマリ\nok: true / title: なし / base: C:\\...\\kasugai_canvas_qgis\n行数カウント: geojson ×5、gpkg ×5、xyz ×32、base(ベースマップ)×5 — 計47エントリ\n未対応行(unsupported): 0件(全行パース成功)\n内訳\nベクター(DATA/ 配下、.qml スタイル参照付き)\ngeojson: サンプル/DM（スタイルサンプル）/DM_C,DM_1,DM_3(表示)、PSEA(P21)2QGIS/Line,point(letter)(非表示)\ngpkg: 国土数値情報/政策区域/行政地域/… 3件、図郭/全国標準地域メッシュ/… 2件(2次メッシュ・5kmメッシュは非表示)\nXYZタイル(背景図グループ) — Google系4、地理院 地形図4・空中写真4・年度別空中写真約10、OpenStreetMap系4 など計32件(ほぼ非表示定義)\nベースマップ(base:) — 地理院タイル標準地図/全国最新写真、OpenStreetMap など5件(visible)\nその他\ncams: 「QGIS」カメラ 緯度35.689236・経度139.742953・高度8180m・pitch -90°\nthemes: 「テーマ」「テーマ2」「検索前」の3テーマ(表示レイヤセット定義)\nbookmarks: bookmarks.xml\n実際の取り込みは kascImport(source=...) で行えます(逆方向: xyz→XYZラスタ、geojson/gpkg→ベクター、cam/theme/bookmark も復元)。"
+}

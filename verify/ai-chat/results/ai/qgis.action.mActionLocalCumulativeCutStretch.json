@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionLocalCumulativeCutStretch",
+ "prompt": "QGISの「表示範囲内でヒストグラムの累積的カットと引き伸ばし」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「表示範囲内でヒストグラムの累積的カットと引き伸ばし」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "調査します。まずQGISアプリ内で「累積的カット」関連のアクションを探します。アクションが見つかりました。無効になっている理由を確認するため、アクティブレイヤの状態を調べます。調査結果です。\n\n## アクションの存在確認\n\nアクションはQGISに存在し、現在**無効(disabled)** です。\n\n| 項目 | 内容 |\n|---|---|\n| objectName | `mActionLocalCumulativeCutStretch` |\n| 表示名 | 表示範囲内でヒストグラムの累積的カットと引き伸ばし |\n| enabled | **false** |\n| visible | true（メニュー上は見えている） |\n| ツールチップ | 現在の表示範囲・デフォルト値・予測値を参考にして、ローカル累積カットと引き伸ばしを行う |\n\n関連アクションとして `mActionFullCumulativeCutStretch`（「レイヤ全体のヒストグラムの累積的カットと引き伸ばし」）も存在しますが、こちらも同様に無効です。\n\n## 無効になっている理由\n\nこのアクションは**ラスタレイヤがアクティブなときのみ有効化**されます。現在の状態は:\n\n- アクティブレイヤ: `tmp_floater_test` — **メモリベクタレイヤ**（ラスタではない）\n- プロジェクト内のラスタレイヤ: **0件**\n\nつまり、ラスタレイヤを読み込んで選択すれば有効になります。必要であればDEM等のラスタを追加して有効化を確認できますが、どうしますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfrom qgis.utils import iface\\napp = iface.mainWindow()\\nfound = []\\nfor a in app.findChildren(QAction):\\n    t = a.text() or ''\\n    n = a.objectName() or ''\\n    tip = a.toolTip() or ''\\n    if ('累積' in t or 'カット' in t or 'Cumulative' in n or 'cumulative' in tip or '累積' in tip):\\n        found.append({'objectName': n, 'text': t, 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'checkable': a.isCheckable(), 'tooltip': tip[:120]})\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.utils import iface\\nfrom qgis.core import QgsMapLayer\\nlyr = iface.activeLayer()\\nif lyr is None:\\n    info = 'no active layer'\\nelse:\\n    info = {\\n        'name': lyr.name(),\\n        'type': str(lyr.type()),\\n        'isRaster': lyr.type() == QgsMapLayer.RasterLayer,\\n        'provider': lyr.providerType(),\\n        'bandCount': lyr.bandCount() if lyr.type() == QgsMapLayer.RasterLayer else None,\\n        'isValid': lyr.isValid(),\\n    }\\n# ラスタレイヤがプロジェクトにあるか\\nrasters = [l.name() for l in QgsProject.instance().mapLayers().values() if l.type() == QgsMapLayer.RasterLayer]\\nresult = {'activeLayer': info, 'rasterLayersInProject': rasters}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「表示範囲内でヒストグラムの累積的カットと引き伸ばし」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n調査します。まずQGISアプリ内で「累積的カット」関連のアクションを探します。アクションが見つかりました。無効になっている理由を確認するため、アクティブレイヤの状態を調べます。調査結果です。\nアクションの存在確認\nアクションはQGISに存在し、現在無効(disabled) です。\n項目\n内容\nobjectName\nmActionLocalCumulativeCutStretch\n表示名\n表示範囲内でヒストグラムの累積的カットと引き伸ばし\nenabled\nfalse\nvisible\ntrue（メニュー上は見えている）\nツールチップ\n現在の表示範囲・デフォルト値・予測値を参考にして、ローカル累積カットと引き伸ばしを行う\n\n関連アクションとして mActionFullCumulativeCutStretch（「レイヤ全体のヒストグラムの累積的カットと引き伸ばし」）も存在しますが、こちらも同様に無効です。\n無効になっている理由\nこのアクションはラスタレイヤがアクティブなときのみ有効化されます。現在の状態は:\nアクティブレイヤ: tmp_floater_test — メモリベクタレイヤ（ラスタではない）\nプロジェクト内のラスタレイヤ: 0件\nつまり、ラスタレイヤを読み込んで選択すれば有効になります。必要であればDEM等のラスタを追加して有効化を確認できますが、どうしますか？"
+}

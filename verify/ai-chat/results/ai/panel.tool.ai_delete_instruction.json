@@ -1,0 +1,26 @@
+{
+ "id": "panel.tool.ai_delete_instruction",
+ "prompt": "ai_verify_tmp という指示書を削除して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "ai_verify_tmp という指示書を削除して"
+  },
+  {
+   "role": "assistant",
+   "content": "`ai_verify_tmp` は skills 種別の指示書ですね。削除します。削除しました。skills 種別の指示書 `ai_verify_tmp`(`C:\\Users\\ryu.RYU-NOTE\\.qgis-live\\skills\\ai_verify_tmp.md`)を削除しました。"
+  }
+ ],
+ "tools": [
+  "instruction"
+ ],
+ "audit": [
+  {
+   "type": "instruction",
+   "args": "{'kind': 'skills', 'op': 'delete'}"
+  }
+ ],
+ "view_tail": "[あなた] ai_verify_tmp という指示書を削除して\n[AI] \nai_verify_tmp は skills 種別の指示書ですね。削除します。削除しました。skills 種別の指示書 ai_verify_tmp(C:\\Users\\ryu.RYU-NOTE\\.qgis-live\\skills\\ai_verify_tmp.md)を削除しました。"
+}

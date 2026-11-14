@@ -1,0 +1,34 @@
+{
+ "id": "qgis.proc.native_exportmeshedges",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュの辺をエクスポート」(id: native:exportmeshedges) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュの辺をエクスポート」(id: native:exportmeshedges) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の QGIS Processing registry に存在します。\n\n- **ID**: `native:exportmeshedges`\n- **表示名**: メッシュの辺をエクスポート\n- **グループ**: メッシュ\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n\n## 用途\n\nメッシュレイヤの**辺（edge）をライン型ベクタレイヤへ変換**します。  \n選択したメッシュデータセットの値を、各辺フィーチャの属性として付加できます。メッシュ構造の確認や、辺単位の解析・エクスポートに使います。\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力メッシュレイヤ（必須） |\n| `DATASET_GROUPS` | 属性として出力するデータセットグループ（任意） |\n| `DATASET_TIME` | 出力するデータセット時刻（必須） |\n| `CRS_OUTPUT` | 出力ベクタレイヤの座標系（任意） |\n| `VECTOR_OPTION` | ベクトル値の出力形式：`デカルト座標(x,y)`、`極座標`、`デカルト座標と極座標` |\n| `OUTPUT` | 出力先のラインベクタレイヤ（必須） |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:exportmeshedges')\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else []\\n}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:exportmeshedges')\\nparam = alg.parameterDefinition('VECTOR_OPTION')\\nresult = {\\n    'enum_options': param.options() if hasattr(param, 'options') else None,\\n    'metadata': alg.metadata(),\\n    'help': alg.helpString() if hasattr(alg, 'helpString') else None,\\n}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:exportmeshedges')\\nparam = alg.parameterDefinition('VECTOR_OPTION')\\nresult = {\\n    'enum_options': param.options() if hasattr(param, 'options') else None,\\n    'enum_uses_static_strings': param.usesStaticStrings() if hasattr(param, 'usesStaticStrings') else None,\\n    'short_help': alg.shortHelpString(),\\n    'help': alg.helpString() if hasattr(alg, 'helpString') else None,\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュの辺をエクスポート」(id: native:exportmeshedges) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の QGIS Processing registry に存在します。\nID: native:exportmeshedges\n表示名: メッシュの辺をエクスポート\nグループ: メッシュ\n種別: QGIS ネイティブ C++ アルゴリズム\n用途\nメッシュレイヤの辺（edge）をライン型ベクタレイヤへ変換します。\n選択したメッシュデータセットの値を、各辺フィーチャの属性として付加できます。メッシュ構造の確認や、辺単位の解析・エクスポートに使います。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力メッシュレイヤ（必須）\nDATASET_GROUPS\n属性として出力するデータセットグループ（任意）\nDATASET_TIME\n出力するデータセット時刻（必須）\nCRS_OUTPUT\n出力ベクタレイヤの座標系（任意）\nVECTOR_OPTION\nベクトル値の出力形式：デカルト座標(x,y)、極座標、デカルト座標と極座標\nOUTPUT\n出力先のラインベクタレイヤ（必須）\n"
+}

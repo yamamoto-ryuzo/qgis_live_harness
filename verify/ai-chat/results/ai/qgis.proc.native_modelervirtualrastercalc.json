@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_modelervirtualrastercalc",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Raster calculator (virtual)」(id: native:modelervirtualrastercalc) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Raster calculator (virtual)」(id: native:modelervirtualrastercalc) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:modelervirtualrastercalc` は **processing registry に存在します**。\n\n- **表示名**: Raster calculator (virtual)（ラスタ計算機（仮想））\n- **グループ**: ラスタ解析 (`rasteranalysis`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n`native:modelerrastercalc`（Raster calculator）の**インメモリ版**。ラスタレイヤ同士の代数演算（マップ代数）を式で実行しますが、結果をファイルではなく**仮想（in-memory）ラスタレイヤとして生成**します。モデル内で計算結果を一時的に使い回したいときや、ディスクに保存せず素早く試したい場合に向いています。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `LAYERS` | 演算に使うラスタレイヤ（複数指定、必須） | — |\n| `EXPRESSION` | 計算式（`\"layername@band\"` 形式、必須） | — |\n| `EXTENT` | 出力範囲（任意） | なし |\n| `CELL_SIZE` | 出力セルサイズ（空白＝自動） | 自動 |\n| `CRS` | 出力 CRS（任意） | なし |\n| `LAYER_NAME` | 出力レイヤ名（任意） | 空 |\n\n## 非 virtual 版との違い\n\n- `OUTPUT`（ファイル出力）パラメータが無く、かわりに `LAYER_NAME` だけ指定 → 結果はメモリ上の仮想ラスタ\n- `CREATION_OPTIONS` も無し（ファイル生成しないため）\n\n## 出力\n\n- `OUTPUT` — インメモリのラスタレイヤ\n\n実行例: `processing.run(\"native:modelervirtualrastercalc\", {'LAYERS': [dem], 'EXPRESSION': '\"dem@1\" * 2', 'LAYER_NAME': 'calc_result'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:modelervirtualrastercalc')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n  "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Raster calculator (virtual)」(id: native:modelervirtualrastercalc) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:modelervirtualrastercalc は processing registry に存在します。\n表示名: Raster calculator (virtual)（ラスタ計算機（仮想））\nグループ: ラスタ解析 (rasteranalysis)\nプロバイダ: QGIS（ネイティブ C++）\n用途\nnative:modelerrastercalc（Raster calculator）のインメモリ版。ラスタレイヤ同士の代数演算（マップ代数）を式で実行しますが、結果をファイルではなく仮想（in-memory）ラスタレイヤとして生成します。モデル内で計算結果を一時的に使い回したいときや、ディスクに保存せず素早く試したい場合に向いています。\n主なパラメータ\n名前\n説明\n既定値\nLAYERS\n演算に使うラスタレイヤ（複数指定、必須）\n—\nEXPRESSION\n計算式（\"layername@band\" 形式、必須）\n—\nEXTENT\n出力範囲（任意）\nなし\nCELL_SIZE\n出力セルサイズ（空白＝自動）\n自動\nCRS\n出力 CRS（任意）\nなし\nLAYER_NAME\n出力レイヤ名（任意）\n空\n\n非 virtual 版との違い\nOUTPUT（ファイル出力）パラメータが無く、かわりに LAYER_NAME だけ指定 → 結果はメモリ上の仮想ラスタ\nCREATION_OPTIONS も無し（ファイル生成しないため）\n出力\nOUTPUT — インメモリのラスタレイヤ\n実行例: processing.run(\"native:modelervirtualrastercalc\", {'LAYERS': [dem], 'EXPRESSION': '\"dem@1\" * 2', 'LAYER_NAME': 'calc_result'})"
+}

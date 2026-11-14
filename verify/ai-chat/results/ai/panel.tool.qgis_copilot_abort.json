@@ -10,10 +10,17 @@
   },
   {
    "role": "assistant",
-   "content": "中断対象のCopilotタスクはありません。現在実行中のタスクが0件のため、`qgis_copilot_abort` を呼ぶ必要がありませんでした。"
+   "content": "中断できる Copilot タスクはありません。実行中タスクが0件のため、`qgis_copilot_abort` の呼び出しは不要です。"
   }
  ],
- "tools": [],
- "audit": [],
- "view_tail": "[あなた] Copilotタスクを中断して\n[AI] \n中断対象のCopilotタスクはありません。現在実行中のタスクが0件のため、qgis_copilot_abort を呼ぶ必要がありませんでした。"
+ "tools": [
+  "copilot_status"
+ ],
+ "audit": [
+  {
+   "type": "copilot_status",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] Copilotタスクを中断して\n[AI] \n中断できる Copilot タスクはありません。実行中タスクが0件のため、qgis_copilot_abort の呼び出しは不要です。"
 }

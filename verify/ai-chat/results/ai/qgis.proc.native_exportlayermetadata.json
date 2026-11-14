@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_exportlayermetadata",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Export layer metadata」(id: native:exportlayermetadata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Export layer metadata」(id: native:exportlayermetadata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:exportlayermetadata`\n- **表示名**: Export layer metadata（英語表記のまま）\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: Metadata tools\n\n## 用途\nレイヤに設定されている**メタデータ（タイトル・概要・キーワード・ライセンス・連絡先・リンク・範囲・CRS等）を QMD ファイル（QGISメタデータのXML形式）として書き出す**アルゴリズムです。出力した .qmd をデータファイルと同名で同じフォルダに置くと、別環境の QGIS がデータ読み込み時にメタデータを自動認識します。メタデータの配布・バックアップに使います。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 対象レイヤ（必須。プロジェクト内レイヤを指定） |\n| `OUTPUT` | 出力 QMD ファイル（必須） |\n\n出力はファイルのみで、QGISレイヤとしては返りません。メタデータ自体はレイヤプロパティの「メタデータ」タブで編集した内容が対象です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber\\nalg = QgsApplication.processingRegistry().algorithmById('native:exportlayermetadata')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'metadata' in a.id().lower() or 'export' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        params[p.name()] = d\\n    outs = [(o.name(), o.description()) for o in alg.outputDefinitions()]\\n    result = {\\n        'found': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHe"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Export layer metadata」(id: native:exportlayermetadata) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:exportlayermetadata\n表示名: Export layer metadata（英語表記のまま）\nプロバイダ: QGIS（ネイティブC++）／グループ: Metadata tools\n用途\nレイヤに設定されているメタデータ（タイトル・概要・キーワード・ライセンス・連絡先・リンク・範囲・CRS等）を QMD ファイル（QGISメタデータのXML形式）として書き出すアルゴリズムです。出力した .qmd をデータファイルと同名で同じフォルダに置くと、別環境の QGIS がデータ読み込み時にメタデータを自動認識します。メタデータの配布・バックアップに使います。\n主なパラメータ\nパラメータ\n内容\nINPUT\n対象レイヤ（必須。プロジェクト内レイヤを指定）\nOUTPUT\n出力 QMD ファイル（必須）\n\n出力はファイルのみで、QGISレイヤとしては返りません。メタデータ自体はレイヤプロパティの「メタデータ」タブで編集した内容が対象です。"
+}

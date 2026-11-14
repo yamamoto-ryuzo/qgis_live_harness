@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_eliminateselectedpolygons",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] 選択地物の隣接ポリゴンを融合（eliminate）」(id: qgis:eliminateselectedpolygons) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] 選択地物の隣接ポリゴンを融合（eliminate）」(id: qgis:eliminateselectedpolygons) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis:eliminateselectedpolygons` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `qgis:eliminateselectedpolygons`\n- **表示名**: `選択地物の隣接ポリゴンを融合（eliminate）`\n- **Provider**: `QGIS`\n- **グループ**: `ベクタジオメトリ`\n\n### 用途\n入力レイヤで**選択済みのポリゴン**を、条件に合う隣接ポリゴンへ結合し、共通境界を消去します。交差処理などで発生した微小なスリバーポリゴンの除去に使われます。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT` | 選択ポリゴンを含む入力ベクタレイヤ | — |\n| `MODE` | 結合先の隣接ポリゴンを選ぶ基準 | — |\n| `OUTPUT` | 結合後の出力ベクタレイヤ | — |\n\n`MODE` の選択肢：\n- `最大の面積`\n- `最小の面積`\n- `最大の共通境界`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('qgis:eliminateselectedpolygons')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'eliminate' in a.id().lower() or 'selected' in a.id().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'ty"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] 選択地物の隣接ポリゴンを融合（eliminate）」(id: qgis:eliminateselectedpolygons) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nqgis:eliminateselectedpolygons を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: qgis:eliminateselectedpolygons\n表示名: 選択地物の隣接ポリゴンを融合（eliminate）\nProvider: QGIS\nグループ: ベクタジオメトリ\n用途\n入力レイヤで選択済みのポリゴンを、条件に合う隣接ポリゴンへ結合し、共通境界を消去します。交差処理などで発生した微小なスリバーポリゴンの除去に使われます。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\n選択ポリゴンを含む入力ベクタレイヤ\n—\nMODE\n結合先の隣接ポリゴンを選ぶ基準\n—\nOUTPUT\n結合後の出力ベクタレイヤ\n—\n\nMODE の選択肢：\n最大の面積\n最小の面積\n最大の共通境界"
+}

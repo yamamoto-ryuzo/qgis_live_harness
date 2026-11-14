@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_polygonfromlayerextent",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤ範囲を抽出」(id: native:polygonfromlayerextent) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤ範囲を抽出」(id: native:polygonfromlayerextent) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:polygonfromlayerextent` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:polygonfromlayerextent`\n- **表示名**: レイヤ範囲を抽出\n- **グループ**: レイヤツール\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\n入力レイヤの**範囲（extent）全体を覆う矩形ポリゴン**（バウンディングボックス）を出力します。ベクタ・ラスタどちらにも使え、`ROUND_TO` で矩形を指定単位に丸めて拡大することもできます。図郭枠やクリップ用領域の生成などに便利です。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | layer（必須） | 入力レイヤ（ベクタ/ラスタ可） |\n| `ROUND_TO` | distance（必須、デフォルト 0） | 範囲座標を丸める水準（例: 1000 → 矩形が1000単位の境界に拡大丸め） |\n| `OUTPUT` | sink → outputVector | 出力先（矩形ポリゴンレイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:polygonfromlayerextent\", {\n    'INPUT': layer,\n    'ROUND_TO': 0,\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:polygonfromlayerextent')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] レイヤ範囲を抽出」(id: native:polygonfromlayerextent) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:polygonfromlayerextent は現在の QGIS の processing registry に登録されています。\nID: native:polygonfromlayerextent\n表示名: レイヤ範囲を抽出\nグループ: レイヤツール\nプロバイダ: QGIS（ネイティブC++）\n用途\n入力レイヤの範囲（extent）全体を覆う矩形ポリゴン（バウンディングボックス）を出力します。ベクタ・ラスタどちらにも使え、ROUND_TO で矩形を指定単位に丸めて拡大することもできます。図郭枠やクリップ用領域の生成などに便利です。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nlayer（必須）\n入力レイヤ（ベクタ/ラスタ可）\nROUND_TO\ndistance（必須、デフォルト 0）\n範囲座標を丸める水準（例: 1000 → 矩形が1000単位の境界に拡大丸め）\nOUTPUT\nsink → outputVector\n出力先（矩形ポリゴンレイヤ）\n\n実行例:\nprocessing.run(\"native:polygonfromlayerextent\", {\n    'INPUT': layer,\n    'ROUND_TO': 0,\n    'OUTPUT': 'memory:'\n})"
+}

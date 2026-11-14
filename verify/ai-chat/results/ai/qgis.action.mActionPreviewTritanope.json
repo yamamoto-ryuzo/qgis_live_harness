@@ -1,0 +1,35 @@
+{
+ "id": "qgis.action.mActionPreviewTritanope",
+ "prompt": "QGISの「黄青盲色シミュレート（Tritanopia）」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「黄青盲色シミュレート（Tritanopia）」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「黄青盲色シミュレート」アクションを探します。`mActionPreviewTritanope` が見つかりました(有効・未チェック)。実行します。`previewMode=4`(Tritanope)に切り替わりました。表示を確認します。「黄青盲色シミュレート（Tritanopia）」(`mActionPreviewTritanope`)を実行しました。\n\n- アクションがチェック状態になり、`previewMode=4`(Tritanope)に切り替わりました\n- スクリーンショットで、青系のポイントが青緑系に、黄〜オレンジ系が赤みがかった色に変換されているなど、黄青盲(3型2色覚)の見え方にシミュレートされていることを確認しました\n\n元に戻す場合は「通常（Normal）」を実行してください。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    o = a.objectName() or ''\\n    if ('黄青' in t) or ('tritan' in o.lower()) or ('tritan' in t.lower()):\\n        found.append((o, t, a.isEnabled(), a.isChecked()))\\ntry:\\n    from qgis.core import QgsPreviewEffect\\n    modes = [(n, int(getattr(QgsPreviewEffect, n))) for n in dir(QgsPreviewEffect) if n.startswith('Preview')]\\nexcept Exception as e:\\n    modes = str(e)\\nresult = (found, modes)\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = iface.mainWindow().findChild(QAction, 'mActionPreviewTritanope')\\na.trigger()\\niface.mapCanvas().refresh()\\nresult = (a.text(), a.isChecked(), iface.mapCanvas().previewMode())\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-fd6ea25d.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「黄青盲色シミュレート（Tritanopia）」機能(アクション)を実行して\n[AI] \n「黄青盲色シミュレート」アクションを探します。mActionPreviewTritanope が見つかりました(有効・未チェック)。実行します。previewMode=4(Tritanope)に切り替わりました。表示を確認します。「黄青盲色シミュレート（Tritanopia）」(mActionPreviewTritanope)を実行しました。\nアクションがチェック状態になり、previewMode=4(Tritanope)に切り替わりました\nスクリーンショットで、青系のポイントが青緑系に、黄〜オレンジ系が赤みがかった色に変換されているなど、黄青盲(3型2色覚)の見え方にシミュレートされていることを確認しました\n元に戻す場合は「通常（Normal）」を実行してください。"
+}

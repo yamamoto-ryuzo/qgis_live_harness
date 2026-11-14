@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_orthogonalize",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオメトリを直交化」(id: native:orthogonalize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオメトリを直交化」(id: native:orthogonalize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:orthogonalize` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:orthogonalize`\n- **表示名**: ジオメトリを直交化\n- **グループ**: ベクタジオメトリ\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\n**ライン・ポリゴンレイヤ**のジオメトリを直交化します。全頂点（ノード）を少しずつシフトさせて角度を **90度または180度に近づける繰り返し処理**で、トレースやスキャン由来の歪んだ建物ポリゴン・区画線などをきれいな直角形状に整えるのに適しています。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力レイヤ（ラインまたはポリゴン） |\n| `ANGLE_TOLERANCE` | number（必須、デフォルト 15.0） | 最大許容角（度）。90/180度からこの角度以内に逸脱したノードだけが調整対象。小さいほど変形が控えめ |\n| `MAX_ITERATIONS` | number（必須、デフォルト 1000） | 最大反復回数。大きいほど直角に近づくが処理時間が増える |\n| `OUTPUT` | sink → outputVector | 出力先（直交化されたベクタレイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:orthogonalize\", {\n    'INPUT': buildings_layer,\n    'ANGLE_TOLERANCE': 15.0,\n    'MAX_ITERATIONS': 1000,\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:orthogonalize')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオメトリを直交化」(id: native:orthogonalize) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:orthogonalize は現在の QGIS の processing registry に登録されています。\nID: native:orthogonalize\n表示名: ジオメトリを直交化\nグループ: ベクタジオメトリ\nプロバイダ: QGIS（ネイティブC++）\n用途\nライン・ポリゴンレイヤのジオメトリを直交化します。全頂点（ノード）を少しずつシフトさせて角度を 90度または180度に近づける繰り返し処理で、トレースやスキャン由来の歪んだ建物ポリゴン・区画線などをきれいな直角形状に整えるのに適しています。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力レイヤ（ラインまたはポリゴン）\nANGLE_TOLERANCE\nnumber（必須、デフォルト 15.0）\n最大許容角（度）。90/180度からこの角度以内に逸脱したノードだけが調整対象。小さいほど変形が控えめ\nMAX_ITERATIONS\nnumber（必須、デフォルト 1000）\n最大反復回数。大きいほど直角に近づくが処理時間が増える\nOUTPUT\nsink → outputVector\n出力先（直交化されたベクタレイヤ）\n\n実行例:\nprocessing.run(\"native:orthogonalize\", {\n    'INPUT': buildings_layer,\n    'ANGLE_TOLERANCE': 15.0,\n    'MAX_ITERATIONS': 1000,\n    'OUTPUT': 'memory:'\n})"
+}

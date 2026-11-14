@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_dissolve",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 融合（dissolve）」(id: gdal:dissolve) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 融合（dissolve）」(id: gdal:dissolve) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:dissolve` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:dissolve` |\n| 表示名 | 融合(dissolve) |\n| プロバイダ | GDAL |\n| グループ | ベクタ・ジオプロセシング |\n\n## 用途\n\nベクタレイヤの地物を**同一属性値ごとにジオメトリを融合(ディゾルブ)**します。市町村ポリゴンを都道府県属性でまとめて都道府県境界にする、といった集約処理に使います。`FIELD` を省略すれば全地物を1つに融合します。さらに融合時に**地物数・面積/周長・属性統計**を付加できるのが QGIS 標準 `native:dissolve` との差別化ポイントです。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ベクタレイヤ | 必須 |\n| `FIELD` | ディゾルブのキーとなる属性 | 任意(省略で全体融合) |\n| `GEOMETRY` | ジオメトリ列名 | `geometry` |\n| `EXPLODE_COLLECTIONS` | マルチパートをシングルパートに分解 | false |\n| `KEEP_ATTRIBUTES` | 入力属性を引き継ぐ | false |\n| `COUNT_FEATURES` | 融合した地物数を出力 | false |\n| `COMPUTE_AREA` | 面積と周長を計算して出力 | false |\n| `COMPUTE_STATISTICS` + `STATISTICS_ATTRIBUTE` | 指定属性の最小/最大/合計/平均を出力 | false |\n| `OPTIONS` | 追加オプション | 任意 |\n| `OUTPUT` | 出力ベクタ(融合ポリゴン) | 必須 |\n\n実行例: `processing.run(\"gdal:dissolve\", {\"INPUT\": v, \"FIELD\": \"pref\", \"COUNT_FEATURES\": True, \"COMPUTE_AREA\": True, \"OUTPUT\": \"dissolved.gpkg\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:dissolve')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'dissolve' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        opts = None\\n        if hasattr(d, 'options'):\\n            try: opts = d.options()\\n            except Exception: opts = None\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n            'options': opts,\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 融合（dissolve）」(id: gdal:dissolve) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:dissolve をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:dissolve\n表示名\n融合(dissolve)\nプロバイダ\nGDAL\nグループ\nベクタ・ジオプロセシング\n\n用途\nベクタレイヤの地物を同一属性値ごとにジオメトリを融合(ディゾルブ)します。市町村ポリゴンを都道府県属性でまとめて都道府県境界にする、といった集約処理に使います。FIELD を省略すれば全地物を1つに融合します。さらに融合時に地物数・面積/周長・属性統計を付加できるのが QGIS 標準 native:dissolve との差別化ポイントです。\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n入力ベクタレイヤ\n必須\nFIELD\nディゾルブのキーとなる属性\n任意(省略で全体融合)\nGEOMETRY\nジオメトリ列名\ngeometry\nEXPLODE_COLLECTIONS\nマルチパートをシングルパートに分解\nfalse\nKEEP_ATTRIBUTES\n入力属性を引き継ぐ\nfalse\nCOUNT_FEATURES\n融合した地物数を出力\nfalse\nCOMPUTE_AREA\n面積と周長を計算して出力\nfalse\nCOMPUTE_STATISTICS + STATISTICS_ATTRIBUTE\n指定属性の最小/最大/合計/平均を出力\nfalse\nOPTIONS\n追加オプション\n任意\nOUTPUT\n出力ベクタ(融合ポリゴン)\n必須\n\n実行例: processing.run(\"gdal:dissolve\", {\"INPUT\": v, \"FIELD\": \"pref\", \"COUNT_FEATURES\": True, \"COMPUTE_AREA\": True, \"OUTPUT\": \"dissolved.gpkg\"})"
+}

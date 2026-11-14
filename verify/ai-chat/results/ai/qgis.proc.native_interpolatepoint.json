@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_interpolatepoint",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線上の指定距離点」(id: native:interpolatepoint) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線上の指定距離点」(id: native:interpolatepoint) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:interpolatepoint` は **processing registry に存在します**。\n\n- **表示名**: 線上の指定距離点\n- **グループ**: ベクタジオメトリ (`vectorgeometry`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\nライン（直線・曲線）レイヤの**各地物について、線の始点から指定した距離だけ進んだ位置にポイントを1点ずつ作成**するアルゴリズムです。道路上のキロポスト生成、一定距離地点でのサンプリングなどに使います。\n\n挙動のポイント（ヘルプより）:\n- Z 値・M 値は線形内挿される\n- マルチパートジオメトリの場合は**最初のパートのみ**が対象\n- 指定距離が線長より長い場合は **null ジオメトリの地物**が作成される\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ラインレイヤ（必須） | — |\n| `DISTANCE` | 始点からの距離（`QgsProcessingParameterDistance`。距離単位・データ定義式による可変指定が可能） | `0.0` |\n| `OUTPUT` | 出力ポイントレイヤ「内挿点」（必須） | — |\n\n`DISTANCE` はデータ定義（属性値や式）に対応しているため、フィールド値ごとに異なる距離を指定できます。\n\n実行例: `processing.run(\"native:interpolatepoint\", {'INPUT': line_layer, 'DISTANCE': 500.0, 'OUTPUT': 'TEMPORARY_OUTPUT'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:interpolatepoint')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'p"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線上の指定距離点」(id: native:interpolatepoint) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:interpolatepoint は processing registry に存在します。\n表示名: 線上の指定距離点\nグループ: ベクタジオメトリ (vectorgeometry)\nプロバイダ: QGIS（ネイティブ C++）\n用途\nライン（直線・曲線）レイヤの各地物について、線の始点から指定した距離だけ進んだ位置にポイントを1点ずつ作成するアルゴリズムです。道路上のキロポスト生成、一定距離地点でのサンプリングなどに使います。\n挙動のポイント（ヘルプより）:\nZ 値・M 値は線形内挿される\nマルチパートジオメトリの場合は最初のパートのみが対象\n指定距離が線長より長い場合は null ジオメトリの地物が作成される\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力ラインレイヤ（必須）\n—\nDISTANCE\n始点からの距離（QgsProcessingParameterDistance。距離単位・データ定義式による可変指定が可能）\n0.0\nOUTPUT\n出力ポイントレイヤ「内挿点」（必須）\n—\n\nDISTANCE はデータ定義（属性値や式）に対応しているため、フィールド値ごとに異なる距離を指定できます。\n実行例: processing.run(\"native:interpolatepoint\", {'INPUT': line_layer, 'DISTANCE': 500.0, 'OUTPUT': 'TEMPORARY_OUTPUT'})"
+}

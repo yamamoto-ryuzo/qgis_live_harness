@@ -1,0 +1,26 @@
+{
+ "id": "qgis.dock.Temporal_Controller",
+ "prompt": "「時系列コントローラ」パネル(ドック)を表示して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "「時系列コントローラ」パネル(ドック)を表示して"
+  },
+  {
+   "role": "assistant",
+   "content": "「時系列コントローラ」ドックを表示します。「時系列コントローラ」パネルを表示しました。時間範囲やステップを設定して、テンポラル対応レイヤのアニメーション再生に使えます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\nfor d in iface.mainWindow().findChildren(QDockWidget):\\n    if d.objectName() == 'Temporal Controller':\\n        d.setVisible(True)\\n        d.show()\\n        d.raise_()\\n        result = d.isVisible()\\nresult\"}"
+  }
+ ],
+ "view_tail": "[あなた] 「時系列コントローラ」パネル(ドック)を表示して\n[AI] \n「時系列コントローラ」ドックを表示します。「時系列コントローラ」パネルを表示しました。時間範囲やステップを設定して、テンポラル対応レイヤのアニメーション再生に使えます。"
+}

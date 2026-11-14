@@ -10,7 +10,7 @@
   },
   {
    "role": "assistant",
-   "content": "「元に戻す(U)」アクションを調べました。\n\n| アクション | objectName | 有効 | ショートカット | 所在 |\n|---|---|---|---|---|\n| **元に戻す(&U)** | `mActionUndo` | ❌ **無効** | Ctrl+Z | 編集メニュー/ツールバー |\n| 元に戻す... | `mActionRevertProject` | 無効 | — | プロジェクトメニュー(プロジェクトを元に戻す) |\n| 元に戻す/やり直す | (ドックパネル) | 有効 | — | 元に戻す/やり直すドック |\n\n- `mActionUndo` が無効なのは **アンドゥスタックが空**だからです。デジタル編集や属性変更などの操作履歴が無い状態なので、戻せるものがなくグレーアウトしています。これは正常な状態遷移です\n- `mActionRevertProject` も無効 — プロジェクトが未変更、または戻せる保存済み状態が無いためと考えられます\n\nなお、先ほどの `organizeLayers` で消えた `test_road` レイヤはアンドゥでは復元できません(レイヤツリー操作はアンドゥ対象外です)。"
+   "content": "「元に戻す(U)」アクションを同様に調べます。`mActionUndo` が無効になっています。理由(undoスタックの状態)も確認します。## 結果:「元に戻す(U)」は現在**無効**です\n\n完全一致のアクション:\n\n| objectName | 表示テキスト | enabled | 所在 |\n|---|---|---|---|\n| `mActionUndo` | 元に戻す(U) | **false** | 編集(E)メニュー + ツールバーボタン |\n\n「編集 → 元に戻す(U)」は現在グレーアウトしており、実行できません。ツールバーの同名ボタンも同じ状態です。\n\n## 無効の理由\n\nこのアクションはUndo/Redoパネル(QgsUndoWidget)に連動しており、**アクティブレイヤの編集アンドゥスタックが空のとき無効**になります。つまり現在、取り消し可能な編集操作(地物の追加・削除・属性変更など、編集モード中の操作)が存在しない状態です。レイヤを編集モードにして地物を変更すれば有効になります。\n\n参考:関連項目の状態\n\n- `mActionRevertProject`(プロジェクト → 元に戻す…) → **false**(直近の保存以降にプロジェクト未変更、またはバックアップが無いため)\n- 「元に戻す/やり直す」パネル(パネルメニュー) → enabled(パネル自体は開けます)"
   }
  ],
  "tools": [
@@ -19,8 +19,12 @@
  "audit": [
   {
    "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtWidgets import QApplication, QAction\\nfound = []\\nfor w in [iface.mainWindow()] + list(QApplication.topLevelWidgets()):\\n    for a in w.findChildren(QAction):\\n        t = (a.text() or '')\\n        on = (a.objectName() or '')\\n        if '元に戻' in t or 'undo' in on.lower():\\n            found.append({\\n                'text': t,\\n                'objectName': on,\\n                'enabled': a.isEnabled(),\\n                'visible': a.isVisible(),\\n                'shortcut': a.shortcut().toString() if hasattr(a, 'shortcut') else '',\\n                'parent': a.parent().metaObject().className() if a.parent() else None,\\n            })\\nuniq = {}\\nfor a in found:\\n    k = (a['objectName'], a['text'])\\n    uniq[k] = a\\nresult = list(uniq.values())\"}"
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nmatches = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text().replace('&','')\\n    if '戻す' in t or 'Undo' in t:\\n        parents = []\\n        try:\\n            for o in a.associatedObjects():\\n                if isinstance(o, QMenu):\\n                    parents.append('menu:' + (o.title() or o.objectName()))\\n                else:\\n                    parents.append(type(o).__name__)\\n        except Exception as e:\\n            parents.append('err:' + str(e))\\n        matches.append({\\n            'objectName': a.objectName(),\\n            'text': t,\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'parents': parents,\\n        })\\nresult = matches\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"proj = QgsProject.instance()\\nus = proj.undoStack()\\nresult = {'undoStackCount': us.count(), 'canUndo': us.canUndo(), 'canRedo': us.canRedo(), 'undoText': us.undoText() if us.count() else '', 'activeLayer': iface.activeLayer().name() if iface.activeLayer() else None, 'projectDirty': proj.isDirty()}\"}"
   }
  ],
- "view_tail": "[あなた] QGISの「元に戻す(U)」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「元に戻す(U)」アクションを調べました。\nアクション\nobjectName\n有効\nショートカット\n所在\n元に戻す(&U)\nmActionUndo\n❌ 無効\nCtrl+Z\n編集メニュー/ツールバー\n元に戻す...\nmActionRevertProject\n無効\n—\nプロジェクトメニュー(プロジェクトを元に戻す)\n元に戻す/やり直す\n(ドックパネル)\n有効\n—\n元に戻す/やり直すドック\n\nmActionUndo が無効なのは アンドゥスタックが空だからです。デジタル編集や属性変更などの操作履歴が無い状態なので、戻せるものがなくグレーアウトしています。これは正常な状態遷移です\nmActionRevertProject も無効 — プロジェクトが未変更、または戻せる保存済み状態が無いためと考えられます\nなお、先ほどの organizeLayers で消えた test_road レイヤはアンドゥでは復元できません(レイヤツリー操作はアンドゥ対象外です)。"
+ "view_tail": "[あなた] QGISの「元に戻す(U)」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「元に戻す(U)」アクションを同様に調べます。mActionUndo が無効になっています。理由(undoスタックの状態)も確認します。## 結果:「元に戻す(U)」は現在無効です\n完全一致のアクション:\nobjectName\n表示テキスト\nenabled\n所在\nmActionUndo\n元に戻す(U)\nfalse\n編集(E)メニュー + ツールバーボタン\n\n「編集 → 元に戻す(U)」は現在グレーアウトしており、実行できません。ツールバーの同名ボタンも同じ状態です。\n無効の理由\nこのアクションはUndo/Redoパネル(QgsUndoWidget)に連動しており、アクティブレイヤの編集アンドゥスタックが空のとき無効になります。つまり現在、取り消し可能な編集操作(地物の追加・削除・属性変更など、編集モード中の操作)が存在しない状態です。レイヤを編集モードにして地物を変更すれば有効になります。\n参考:関連項目の状態\nmActionRevertProject(プロジェクト → 元に戻す…) → false(直近の保存以降にプロジェクト未変更、またはバックアップが無いため)\n「元に戻す/やり直す」パネル(パネルメニュー) → enabled(パネル自体は開けます)"
 }

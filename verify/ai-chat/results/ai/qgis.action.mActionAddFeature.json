@@ -1,16 +1,16 @@
 {
  "id": "qgis.action.mActionAddFeature",
- "prompt": "QGISの「点地物を追加する」機能(アクション)を実行して",
+ "prompt": "QGISの「地物を追加」機能(アクション)を実行して",
  "provider": "devin_acp",
  "model": "swe-2-high",
  "history": [
   {
    "role": "user",
-   "content": "QGISの「点地物を追加する」機能(アクション)を実行して"
+   "content": "QGISの「地物を追加」機能(アクション)を実行して"
   },
   {
    "role": "assistant",
-   "content": "「点地物を追加する」に該当するアクションを探します。ツールが有効化しました。キャンバスクリックで点を配置します。クリックでは追加されませんでした。シグナルで挙動を追跡します。ツールは CapturePoint モードです。編集バッファとダイアログ有無を確認します。2回のクリックでそれぞれ地物属性フォーム(`QgsAttributeDialog`)が開いていました(フォーム抑制が効いていなかったようです)。「OK」で確定させます。「点地物を追加する」(`mActionAddFeature`)を実行し、点地物の追加まで完了しました。\n\n## 実行結果\n\n1. **点レイヤを準備**: `add_pt_test`(Point/memory)を作成・アクティブ化・編集モード開始\n2. **アクション実行**: `trigger()` → テキストが「**点地物を追加する**」に変化(アクティブレイヤのジオメトリ型で表示が切替わる動的テキスト)、`QgsMapToolAddFeature` がアクティブ化(CapturePointモード)\n3. **キャンバスクリック**: 地図座標(2000,1000)付近へ2回クリック → 各クリックで地物属性フォーム(`QgsAttributeDialog`)がオープン\n4. **フォームでOK** → 2地物が編集バッファに追加(FID: -10, -9)\n\n```\nPoint (1996.78 1001.79)\nPoint (1996.78 1001.79)\n```\n\n## 備考\n\n- `editFormConfig().setSuppress(SuppressOn)` でフォーム抑制を試みましたが効かず、属性フォームが開きました(デフォルトでは新規地物ごとに属性入力フォームが出る挙動)\n- 追加点は現在 **編集バッファ内**(未コミット)。保存にはレイヤの編集確定(`commitChanges`)が必要です\n\nテスト用に作った `add_pt_test` レイヤと未保存の編集はこのまま残っています。後始末(ロールバック/削除)が必要なら言ってください。"
+   "content": "「地物を追加」に該当するアクションを探して実行します。まず候補を調べます。## 「地物を追加」を実行しました\n\n「選択メニュー内に一致するアクションは無く、該当するのはデジタイズツールバーの `mActionAddFeature`(現在の表示名「点地物を追加する」— アクティブレイヤのジオメトリ型で名称が変わります)でした。\n\n`trigger()` で実行した結果:\n\n- アクションのチェック状態: **ON**\n- キャンバスの現在のマップツール: **`QgsMapToolDigitizeFeature`**(地物デジタイズツール)に切り替わりました\n\n現在 `テスト地目レイヤ`(ポイント・編集モード中)がアクティブなので、キャンバス上でクリックするとポイント地物を追加できる状態です。"
   }
  ],
  "tools": [
@@ -19,28 +19,12 @@
  "audit": [
   {
    "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfound=[]\\nfor a in iface.mainWindow().findChildren(QAction):\\n    t=a.text() or ''\\n    if '追加' in t or 'add' in (a.objectName() or '').lower():\\n        found.append({'text':t,'objectName':a.objectName(),'enabled':a.isEnabled(),'checkable':a.isCheckable(),'checked':a.isChecked()})\\nresult = found[:40]\"}"
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nmw = iface.mainWindow()\\nmatches = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text().replace('&','')\\n    if ('地物' in t and '追加' in t) or 'AddFeature' in a.objectName() or a.objectName() in ('mActionNewFeature','mActionAddFeature'):\\n        parents = []\\n        try:\\n            for o in a.associatedObjects():\\n                if isinstance(o, QMenu):\\n                    parents.append('menu:' + (o.title() or o.objectName()))\\n                else:\\n                    parents.append(type(o).__name__)\\n        except Exception:\\n            pass\\n        matches.append({'objectName': a.objectName(), 'text': t, 'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked(), 'parents': parents})\\nresult = matches\"}"
   },
   {
    "type": "pyeval",
-   "args": "{'code': \"from qgis.core import QgsVectorLayer, QgsProject, QgsEditFormConfig\\nfrom qgis.PyQt.QtWidgets import QAction\\nproj = QgsProject.instance()\\npt = QgsVectorLayer('Point?crs=EPSG:3857&field=name:string', 'add_pt_test', 'memory')\\n# 属性フォームのポップアップを抑制(実行をブロックしないように)\\npt.editFormConfig().setSuppress(QgsEditFormConfig.SuppressOn)\\nproj.addMapLayer(pt)\\niface.setActiveLayer(pt)\\npt.startEditing()\\na = next(x for x in iface.mainWindow().findChildren(QAction) if x.objectName()=='mActionAddFeature')\\npre = {'text': a.text(), 'enabled': a.isEnabled()}\\na.trigger()\\ntool = iface.mapCanvas().mapTool()\\nresult = {'action': pre, 'checked': a.isChecked(), 'map_tool': tool.metaObject().className() if tool else None}\"}"
-  },
-  {
-   "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtCore import QPointF, Qt, QEvent\\nfrom qgis.PyQt.QtGui import QMouseEvent\\nfrom qgis.PyQt.QtWidgets import QApplication\\nfrom qgis.core import QgsCoordinateTransform, QgsProject, QgsPointXY\\ncanvas = iface.mapCanvas()\\nlyr = QgsProject.instance().mapLayersByName('add_pt_test')[0]\\nbefore = lyr.featureCount()\\nm2p = canvas.getCoordinateTransform()\\nxt = QgsCoordinateTransform(lyr.crs(), canvas.mapSettings().destinationCrs(), QgsProject.instance())\\n# 地図座標(2000,1000)に点を打つ\\np = m2p.transform(xt.transform(QgsPointXY(2000, 1000)))\\npos = QPointF(int(p.x()), int(p.y()))\\nLB = Qt.MouseButton.LeftButton\\nNM = Qt.KeyboardModifier.NoModifier\\nQApplication.sendEvent(canvas.viewport(), QMouseEvent(QEvent.Type.MouseButtonPress, pos, LB, LB, NM))\\nQApplication.sendEvent(canvas.viewport(), QMouseEvent(QEvent.Type.MouseButtonRelease, pos, LB, Qt.MouseButton.NoButton, NM))\\nresult = {'before': before, 'after': lyr.featureCount(),\\n          'new_features': [(f.id(), f.geometry"
-  },
-  {
-   "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtCore import QPointF, Qt, QEvent\\nfrom qgis.PyQt.QtGui import QMouseEvent\\nfrom qgis.PyQt.QtWidgets import QApplication\\nfrom qgis.core import QgsCoordinateTransform, QgsProject, QgsPointXY\\ncanvas = iface.mapCanvas()\\nlyr = QgsProject.instance().mapLayersByName('add_pt_test')[0]\\ntool = canvas.mapTool()\\nlog=[]\\nlyr.featureAdded.connect(lambda fid: log.append(('featureAdded', fid)))\\ntry:\\n    lyr.committedFeaturesAdded.connect(lambda lid, feats: log.append(('committedAdded', len(feats))))\\nexcept Exception: pass\\n\\nm2p = canvas.getCoordinateTransform()\\nxt = QgsCoordinateTransform(lyr.crs(), canvas.mapSettings().destinationCrs(), QgsProject.instance())\\np = m2p.transform(xt.transform(QgsPointXY(2000,1000)))\\npos = QPointF(int(p.x()), int(p.y()))\\nLB = Qt.MouseButton.LeftButton\\nNM = Qt.KeyboardModifier.NoModifier\\nQApplication.sendEvent(canvas.viewport(), QMouseEvent(QEvent.Type.MouseButtonPress, pos, LB, LB, NM))\\nQApplication.sendEvent(canvas.viewport(), Q"
-  },
-  {
-   "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtWidgets import QApplication, QDialog\\nlyr = QgsProject.instance().mapLayersByName('add_pt_test')[0]\\neb = lyr.editBuffer()\\ninfo = {'editBuffer': bool(eb),\\n        'added': list(eb.addedFeatures().keys()) if eb else None,\\n        'provider_count': lyr.dataProvider().featureCount(),\\n        'layer_count': lyr.featureCount(),\\n        'iter_count': len(list(lyr.getFeatures()))}\\ndlgs = [{'class':w.metaObject().className(),'title':w.windowTitle(),'visible':w.isVisible()} for w in QApplication.topLevelWidgets() if isinstance(w,QDialog)]\\ninfo['dialogs'] = dlgs\\nresult = info\"}"
-  },
-  {
-   "type": "pyeval",
-   "args": "{'code': \"from qgis.PyQt.QtWidgets import QApplication, QDialog\\nlyr = QgsProject.instance().mapLayersByName('add_pt_test')[0]\\ndlgs = [w for w in QApplication.topLevelWidgets() if isinstance(w, QDialog) and w.isVisible() and w.metaObject().className()=='QgsAttributeDialog']\\nfor d in dlgs:\\n    d.accept()\\nresult = {'accepted_dialogs': len(dlgs),\\n          'edit_buffer_added': list(lyr.editBuffer().addedFeatures().keys()),\\n          'feature_count': lyr.featureCount(),\\n          'geoms': [f.geometry().asWkt() for f in lyr.getFeatures()]}\"}"
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nact = next(a for a in mw.findChildren(QAction) if a.objectName() == 'mActionAddFeature' and a.isCheckable())\\nact.trigger()\\nmt = iface.mapCanvas().mapTool()\\nresult = {'checked': act.isChecked(), 'mapTool': type(mt).__name__, 'mapToolActionObject': mt.action().objectName() if mt and mt.action() else None}\"}"
   }
  ],
- "view_tail": "[あなた] QGISの「点地物を追加する」機能(アクション)を実行して\n[AI] \n「点地物を追加する」に該当するアクションを探します。ツールが有効化しました。キャンバスクリックで点を配置します。クリックでは追加されませんでした。シグナルで挙動を追跡します。ツールは CapturePoint モードです。編集バッファとダイアログ有無を確認します。2回のクリックでそれぞれ地物属性フォーム(QgsAttributeDialog)が開いていました(フォーム抑制が効いていなかったようです)。「OK」で確定させます。「点地物を追加する」(mActionAddFeature)を実行し、点地物の追加まで完了しました。\n実行結果\n点レイヤを準備: add_pt_test(Point/memory)を作成・アクティブ化・編集モード開始\nアクション実行: trigger() → テキストが「点地物を追加する」に変化(アクティブレイヤのジオメトリ型で表示が切替わる動的テキスト)、QgsMapToolAddFeature がアクティブ化(CapturePointモード)\nキャンバスクリック: 地図座標(2000,1000)付近へ2回クリック → 各クリックで地物属性フォーム(QgsAttributeDialog)がオープン\nフォームでOK → 2地物が編集バッファに追加(FID: -10, -9)\nPoint (1996.78 1001.79)\nPoint (1996.78 1001.79)\n備考\neditFormConfig().setSuppress(SuppressOn) でフォーム抑制を試みましたが効かず、属性フォームが開きました(デフォルトでは新規地物ごとに属性入力フォームが出る挙動)\n追加点は現在 編集バッファ内(未コミット)。保存にはレイヤの編集確定(commitChanges)が必要です\nテスト用に作った add_pt_test レイヤと未保存の編集はこのまま残っています。後始末(ロールバック/削除)が必要なら言ってください。"
+ "view_tail": "[あなた] QGISの「地物を追加」機能(アクション)を実行して\n[AI] \n「地物を追加」に該当するアクションを探して実行します。まず候補を調べます。## 「地物を追加」を実行しました\n「選択メニュー内に一致するアクションは無く、該当するのはデジタイズツールバーの mActionAddFeature(現在の表示名「点地物を追加する」— アクティブレイヤのジオメトリ型で名称が変わります)でした。\ntrigger() で実行した結果:\nアクションのチェック状態: ON\nキャンバスの現在のマップツール: QgsMapToolDigitizeFeature(地物デジタイズツール)に切り替わりました\n現在 テスト地目レイヤ(ポイント・編集モード中)がアクティブなので、キャンバス上でクリックするとポイント地物を追加できる状態です。"
 }

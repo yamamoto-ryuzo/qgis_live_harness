@@ -10,10 +10,21 @@
   },
   {
    "role": "assistant",
-   "content": "指示書ファイルは以下に配置されます。\n\n- `C:\\Users\\ryu.RYU-NOTE\\.qgis-live\\agents\\` — 常時適用する指示\n- `C:\\Users\\ryu.RYU-NOTE\\.qgis-live\\skills\\` — 手順・スキル\n- `C:\\Users\\ryu.RYU-NOTE\\.qgis-live\\prompts\\` — 定型プロンプト\n\n保存すると `~/.qgis-live/<kind>/<name>.md` に書き込まれます。"
+   "content": "指示書ファイルの配置先です。\n\n**ユーザー定義ファイル**(`ai_*` / `qgis_instruction` で保存されるもの):\n\n```\nC:\\Users\\ryu.RYU-NOTE\\.qgis-live\\\n├── agents\\    ← 永続指示(1件だけ選択・有効化)\n│   ├── meeting_minutes_scribe.md\n│   └── problem_solver.md\n├── skills\\    ← オンデマンド手順書(現在は空)\n└── prompts\\   ← 定型プロンプト(未作成)\n```\n\n**プラグイン同梱ファイル**(読み取り専用・同名ユーザー保存で上書き可能):\n各プラグインのディレクトリ配下、例:\n`...\\QGIS4\\profiles\\geo_custom\\python\\plugins\\geo_search\\skills\\navigate-to-place.md` など"
   }
  ],
- "tools": [],
- "audit": [],
- "view_tail": "[あなた] 指示書ファイルの配置ディレクトリを教えて\n[AI] \n指示書ファイルは以下に配置されます。\nC:\\Users\\ryu.RYU-NOTE\\.qgis-live\\agents\\ — 常時適用する指示\nC:\\Users\\ryu.RYU-NOTE\\.qgis-live\\skills\\ — 手順・スキル\nC:\\Users\\ryu.RYU-NOTE\\.qgis-live\\prompts\\ — 定型プロンプト\n保存すると ~/.qgis-live/<kind>/<name>.md に書き込まれます。"
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nimport os\\nhome = os.path.expanduser('~')\\nbase = os.path.join(home, '.qgis-live')\\nresult = {'base': base, 'exists': os.path.isdir(base),\\n          'subdirs': sorted(os.listdir(base)) if os.path.isdir(base) else []}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nimport os\\nbase = os.path.join(os.path.expanduser('~'), '.qgis-live')\\nout = {}\\nfor kind in ('agents', 'skills', 'prompts'):\\n    d = os.path.join(base, kind)\\n    out[kind] = {'dir': d, 'files': sorted(os.listdir(d)) if os.path.isdir(d) else None}\\nresult = out\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 指示書ファイルの配置ディレクトリを教えて\n[AI] \n指示書ファイルの配置先です。\nユーザー定義ファイル(ai_* / qgis_instruction で保存されるもの):\nC:\\Users\\ryu.RYU-NOTE\\.qgis-live\\\n├── agents\\    ← 永続指示(1件だけ選択・有効化)\n│   ├── meeting_minutes_scribe.md\n│   └── problem_solver.md\n├── skills\\    ← オンデマンド手順書(現在は空)\n└── prompts\\   ← 定型プロンプト(未作成)\nプラグイン同梱ファイル(読み取り専用・同名ユーザー保存で上書き可能): 各プラグインのディレクトリ配下、例: ...\\QGIS4\\profiles\\geo_custom\\python\\plugins\\geo_search\\skills\\navigate-to-place.md など"
 }

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionAddRasterLayer",
+ "prompt": "QGISの「ラスタレイヤを追加...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ラスタレイヤを追加...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ラスタレイヤを追加」に対応するアクションを探します。調査結果です。\n\n**アクション: `mActionAddRasterLayer`「ラスタレイヤを追加...」**\n\n| 項目 | 状態 |\n|---|---|\n| ショートカット | Ctrl+Shift+R |\n| 有効 (isEnabled) | **有効** — 実行可能な状態です |\n| チェック可能 | いいえ(ダイアログを開くだけの通常アクション) |\n\n実行すると「データソースマネージャ」ダイアログがラスタタブを選択した状態で開き、GeoTIFF等のファイルやGDAL対応データソースからラスタレイヤを追加できます。実行しますか?"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nresult = [(a.objectName(), a.text(), a.shortcut().toString(), a.isEnabled(), a.isCheckable(), a.isChecked()) for a in iface.mainWindow().findChildren(QAction) if 'ラスタレイヤを追加' in a.text() or a.objectName() == 'mActionAddRasterLayer']\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ラスタレイヤを追加...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「ラスタレイヤを追加」に対応するアクションを探します。調査結果です。\nアクション: mActionAddRasterLayer「ラスタレイヤを追加...」\n項目\n状態\nショートカット\nCtrl+Shift+R\n有効 (isEnabled)\n有効 — 実行可能な状態です\nチェック可能\nいいえ(ダイアログを開くだけの通常アクション)\n\n実行すると「データソースマネージャ」ダイアログがラスタタブを選択した状態で開き、GeoTIFF等のファイルやGDAL対応データソースからラスタレイヤを追加できます。実行しますか?"
+}

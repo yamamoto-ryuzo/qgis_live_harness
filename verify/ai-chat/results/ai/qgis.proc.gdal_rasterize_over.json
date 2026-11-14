@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_rasterize_over",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタ化（属性で上書き）」(id: gdal:rasterize_over) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタ化（属性で上書き）」(id: gdal:rasterize_over) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:rasterize_over` を Processing Registry で確認します。確認しました。Processing Registry に **`[GDAL] ラスタ化（属性で上書き）`** は存在します。\n\n- **ID:** `gdal:rasterize_over`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ベクタ変換`\n\n### 用途\nベクタ地物の属性値を、既存ラスタ上の対応する位置へ **焼き込んで上書き**します。新しいラスタを作成するのではなく、対象ラスタを更新する処理です。\n\n### 主なパラメータ\n- `INPUT`：入力ベクタレイヤ\n- `INPUT_RASTER`：上書き対象の既存ラスタ\n- `FIELD`：焼き込む値を持つ属性フィールド\n- `ADD`：上書きではなく、既存値に属性値を加算\n- `EXTRA`：追加のGDALオプション\n- `OUTPUT`：更新後のラスタ"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:rasterize_over'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'rasterize_over' in a.id().lower() or 'ラスタ化' in a.displayName()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'rasterize_over' in a"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] ラスタ化（属性で上書き）」(id: gdal:rasterize_over) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:rasterize_over を Processing Registry で確認します。確認しました。Processing Registry に [GDAL] ラスタ化（属性で上書き） は存在します。\nID: gdal:rasterize_over\nプロバイダ: GDAL\nグループ: ベクタ変換\n用途\nベクタ地物の属性値を、既存ラスタ上の対応する位置へ 焼き込んで上書きします。新しいラスタを作成するのではなく、対象ラスタを更新する処理です。\n主なパラメータ\nINPUT：入力ベクタレイヤ\nINPUT_RASTER：上書き対象の既存ラスタ\nFIELD：焼き込む値を持つ属性フィールド\nADD：上書きではなく、既存値に属性値を加算\nEXTRA：追加のGDALオプション\nOUTPUT：更新後のラスタ"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_spatialiteexecutesql",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] SpatiaLiteを実行」(id: native:spatialiteexecutesql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] SpatiaLiteを実行」(id: native:spatialiteexecutesql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:spatialiteexecutesql`「**SpatiaLiteを実行**」は登録されています（グループ: データベース）。\n\n## 用途\n\n- **SpatiaLite データベース上で任意の SQL 文を直接実行**します\n- データベースは「レイヤとして読み込んだ SpatiaLite レイヤ」または「ファイルパス」で指定します\n- テーブル作成・属性一括更新・インデックス作成・空間関数（ST_*）を使ったバッチ処理など、通常のアルゴリズムでは表現しにくいDB操作をSQLで直接行うためのものです\n- **出力はありません**（出力定義が空）。SELECT 結果をレイヤとして返すものではなく、DB 自体を更新する副作用型のアルゴリズムです\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `DATABASE` | vector | Database layer（またはファイル）。対象の SpatiaLite データベースを特定するためのレイヤ/パス |\n| `SQL` | string | 実行する SQL クエリ（UPDATE/CREATE/DELETE など） |\n\n注意点：\n\n- **実際のDBファイルに書き込みが行われる**ため、破壊的な SQL（DELETE/DROP/UPDATE）は実行前にバックアップ推奨です\n- クエリ結果をベクタレイヤとして取得したい場合は、こちらではなく `gdal:executesql`（SQLによるベクタレイヤ）や DBマネージャのSQLウィンドウを使います\n- GeoPackage に対する同等のものとしては `native:spatialiteexecutesqlregistered`（登録済みDBに対しSQL実行）や、OGR 経由で `.gpkg` を開いて `gdal:executesql` を使う方法があります"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:spatialiteexecutesql')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] SpatiaLiteを実行」(id: native:spatialiteexecutesql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:spatialiteexecutesql「SpatiaLiteを実行」は登録されています（グループ: データベース）。\n用途\nSpatiaLite データベース上で任意の SQL 文を直接実行します\nデータベースは「レイヤとして読み込んだ SpatiaLite レイヤ」または「ファイルパス」で指定します\nテーブル作成・属性一括更新・インデックス作成・空間関数（ST_*）を使ったバッチ処理など、通常のアルゴリズムでは表現しにくいDB操作をSQLで直接行うためのものです\n出力はありません（出力定義が空）。SELECT 結果をレイヤとして返すものではなく、DB 自体を更新する副作用型のアルゴリズムです\n主なパラメータ\nパラメータ\n型\n内容\nDATABASE\nvector\nDatabase layer（またはファイル）。対象の SpatiaLite データベースを特定するためのレイヤ/パス\nSQL\nstring\n実行する SQL クエリ（UPDATE/CREATE/DELETE など）\n\n注意点：\n実際のDBファイルに書き込みが行われるため、破壊的な SQL（DELETE/DROP/UPDATE）は実行前にバックアップ推奨です\nクエリ結果をベクタレイヤとして取得したい場合は、こちらではなく gdal:executesql（SQLによるベクタレイヤ）や DBマネージャのSQLウィンドウを使います\nGeoPackage に対する同等のものとしては native:spatialiteexecutesqlregistered（登録済みDBに対しSQL実行）や、OGR 経由で .gpkg を開いて gdal:executesql を使う方法があります"
+}

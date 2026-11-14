@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Show_Weight",
+ "prompt": "QGISの「Show Weight」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Show Weight」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Show Weight」関連のアクションを検索します。調査結果です。\n\n## 「Show Weight」は **有効(ON)** です\n\n| 項目 | 値 |\n|---|---|\n| text | `Show Weight` |\n| checkable | true（トグル式） |\n| **checked** | **true → 有効（ON)** |\n| enabled | true（押下可能） |\n| 配置 | メニュー「**Floater settings**」内 |\n| ショートカット | なし |\n\nフローターに**Weight(重み)入力欄を表示するか**の設定で、現在ONです。\n\n「Floater settings」の最新の全状態：\n\n| 設定 | 状態 |\n|---|---|\n| Show Floater | ON |\n| Show Distance / Angle / XY Coordinates / Z Value / M Value | すべてON |\n| **Show Weight** | **ON** |\n| Show Bearing/Azimuth | OFF |\n| Show Common Snapping Angle | OFF |\n| Show Area | Hidden 選択中（非表示） |\n| Show Total Length/Perimeter | Hidden 選択中（非表示） |\n\nOFFにしたい場合は `a.trigger()` で切り替えられます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    on = (a.objectName() or '')\\n    tt = (a.toolTip() or '')\\n    if 'weight' in t.lower() or 'weight' in on.lower() or 'weight' in tt.lower() or '重量' in t:\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': t,\\n            'objectName': on,\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            'tooltip': tt,\\n            'shortcut': a"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Show Weight」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Show Weight」関連のアクションを検索します。調査結果です。\n「Show Weight」は 有効(ON) です\n項目\n値\ntext\nShow Weight\ncheckable\ntrue（トグル式）\nchecked\ntrue → 有効（ON)\nenabled\ntrue（押下可能）\n配置\nメニュー「Floater settings」内\nショートカット\nなし\n\nフローターにWeight(重み)入力欄を表示するかの設定で、現在ONです。\n「Floater settings」の最新の全状態：\n設定\n状態\nShow Floater\nON\nShow Distance / Angle / XY Coordinates / Z Value / M Value\nすべてON\nShow Weight\nON\nShow Bearing/Azimuth\nOFF\nShow Common Snapping Angle\nOFF\nShow Area\nHidden 選択中（非表示）\nShow Total Length/Perimeter\nHidden 選択中（非表示）\n\nOFFにしたい場合は a.trigger() で切り替えられます。"
+}

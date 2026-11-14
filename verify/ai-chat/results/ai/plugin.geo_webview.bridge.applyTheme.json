@@ -1,0 +1,35 @@
+{
+ "id": "plugin.geo_webview.bridge.applyTheme",
+ "prompt": "geo_webview プラグインの「applyTheme」(マップテーマをレイヤツリーへ適用し、パネルコンボも同期する。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_webview プラグインの「applyTheme」(マップテーマをレイヤツリーへ適用し、パネルコンボも同期する。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "まず `listThemes` で適用可能なマップテーマ名を確認します。テーマ「検索前」があるので適用します。適用されました。パネルのコンボが同期されたか画面で確認します。`applyTheme` の動作を確認しました。\n\n1. `listThemes` → 登録テーマは「検索前」の1件(current: null)\n2. `applyTheme(\"検索前\")` → `{\"ok\": true, \"applied\": \"検索前\"}`\n3. スクリーンショットで、パネルの「テーマ/レイヤ状態」コンボが `-- テーマなし(位置のみ) --` から「**検索前**」に同期されているのを確認(上部ツールバーのテーマ選択コンボも「検索前」表示)\n\nマップテーマのレイヤツリー適用とパネルコンボ同期の両方が正常に動いています。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'method': 'listThemes', 'plugin_id': 'geo_webview'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'applyTheme', 'plugin_id': 'geo_webview', 'args': ['検索前']}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-06c7089d.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_webview プラグインの「applyTheme」(マップテーマをレイヤツリーへ適用し、パネルコンボも同期する。)を試して。必要な引数は適当な値でよい\n[AI] \nまず listThemes で適用可能なマップテーマ名を確認します。テーマ「検索前」があるので適用します。適用されました。パネルのコンボが同期されたか画面で確認します。applyTheme の動作を確認しました。\nlistThemes → 登録テーマは「検索前」の1件(current: null)\napplyTheme(\"検索前\") → {\"ok\": true, \"applied\": \"検索前\"}\nスクリーンショットで、パネルの「テーマ/レイヤ状態」コンボが -- テーマなし(位置のみ) -- から「検索前」に同期されているのを確認(上部ツールバーのテーマ選択コンボも「検索前」表示)\nマップテーマのレイヤツリー適用とパネルコンボ同期の両方が正常に動いています。"
+}

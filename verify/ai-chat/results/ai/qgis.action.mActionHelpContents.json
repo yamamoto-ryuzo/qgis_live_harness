@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionHelpContents",
+ "prompt": "QGISの「QGISヘルプ」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「QGISヘルプ」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認できました。**「QGISヘルプ」アクションは現在有効です。**\n\n## 詳細\n\n- メニューパス: **ヘルプ(&H) > QGISヘルプ**\n- `objectName = 'mActionHelpContents'`、ショートカット **F1**\n- `QAction` 状態: `enabled = true`, `visible = true`\n\nオンラインのQGISユーザーガイド（またはローカルのヘルプ）をブラウザで開くアクションで、実行可能な状態です。同じヘルプメニュー内の「C++ APIドキュメント」「PyQGIS APIドキュメント」も有効です。実行しますか？（ブラウザが起動します）"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nfound = []\\nfor w in iface.mainWindow().findChildren(QAction):\\n    t = w.text() or ''\\n    o = w.objectName() or ''\\n    if 'ヘルプ' in t or 'help' in o.lower():\\n        found.append((t, o, w.isEnabled(), w.isVisible(), w.shortcut().toString(),\\n                      w.parent().__class__.__name__ if w.parent() else None))\\nresult = found\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「QGISヘルプ」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n確認できました。「QGISヘルプ」アクションは現在有効です。\n詳細\nメニューパス: ヘルプ(&H) > QGISヘルプ\nobjectName = 'mActionHelpContents'、ショートカット F1\nQAction 状態: enabled = true, visible = true\nオンラインのQGISユーザーガイド（またはローカルのヘルプ）をブラウザで開くアクションで、実行可能な状態です。同じヘルプメニュー内の「C++ APIドキュメント」「PyQGIS APIドキュメント」も有効です。実行しますか？（ブラウザが起動します）"
+}

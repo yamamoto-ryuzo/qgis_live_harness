@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.Click_Photos",
+ "prompt": "QGISの「Click Photos」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Click Photos」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Click Photos」アクションを探して実行します。「Click Photos」アクション(チェック式・地物クリック用ツール)を実行します。「Click Photos」アクションを実行しました。\n\n- アクションはチェック状態になり、マップキャンバスのマップツールが `MouseClick`(ImportPhotos プラグインの写真表示ツール)に切り替わりました\n- この状態で写真地点をクリックすると、その地点の写真が表示されます\n\n現在写真レイヤが読み込まれていないため、実際にクリックしても表示される写真はありません。必要であれば「Import Photos」で写真をインポートできます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nacts = [(x.objectName(), x.text(), x.isCheckable(), x.isChecked(), x.isEnabled()) for x in mw.findChildren(QAction) if 'hoto' in x.objectName() or 'hoto' in x.text() or 'lick' in x.text()]\\nresult = acts\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = [x for x in mw.findChildren(QAction) if x.text() == 'Click Photos'][0]\\na.trigger()\\nresult = {'checked': a.isChecked(), 'maptool': type(iface.mapCanvas().mapTool()).__name__}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Click Photos」機能(アクション)を実行して\n[AI] \n「Click Photos」アクションを探して実行します。「Click Photos」アクション(チェック式・地物クリック用ツール)を実行します。「Click Photos」アクションを実行しました。\nアクションはチェック状態になり、マップキャンバスのマップツールが MouseClick(ImportPhotos プラグインの写真表示ツール)に切り替わりました\nこの状態で写真地点をクリックすると、その地点の写真が表示されます\n現在写真レイヤが読み込まれていないため、実際にクリックしても表示される写真はありません。必要であれば「Import Photos」で写真をインポートできます。"
+}

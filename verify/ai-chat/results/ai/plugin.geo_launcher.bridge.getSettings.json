@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_launcher.bridge.getSettings",
+ "prompt": "QGISの geo_launcher プラグインで「getSettings」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_launcher プラグインで「getSettings」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`geo_launcher` の bridge メソッド `getSettings` を呼びます。`getSettings` の結果です:\n\n| キー | 値 |\n|---|---|\n| `exe_path_setting` | (空 = 自動検出を使用) |\n| `exe_detected` | `C:\\kasugai\\kasugai_qgis\\qgis_launcher.exe` |\n| `silent_install` | `true`(/S でサイレント実行) |\n| `setup_url` | `https://yamamoto-ryuzo.github.io/kasugai_qgis/public/kasugai_qgis-setup.exe` |\n| `docs_url` | `https://yamamoto-ryuzo.github.io/kasugai_qgis/` |\n\n設定ダイアログの表示内容と一致しています(パスは未指定で検出結果を使用、サイレント実行は ON)。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_launcher', 'method': 'getSettings', 'args': []}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_launcher プラグインで「getSettings」を実行して結果を教えて\n[AI] \ngeo_launcher の bridge メソッド getSettings を呼びます。getSettings の結果です:\nキー\n値\nexe_path_setting\n(空 = 自動検出を使用)\nexe_detected\nC:\\kasugai\\kasugai_qgis\\qgis_launcher.exe\nsilent_install\ntrue(/S でサイレント実行)\nsetup_url\nhttps://yamamoto-ryuzo.github.io/kasugai_qgis/public/kasugai_qgis-setup.exe\ndocs_url\nhttps://yamamoto-ryuzo.github.io/kasugai_qgis/\n\n設定ダイアログの表示内容と一致しています(パスは未指定で検出結果を使用、サイレント実行は ON)。"
+}

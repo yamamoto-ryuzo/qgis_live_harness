@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_hypsometriccurves",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] 高度面積曲線（hypsometric）」(id: qgis:hypsometriccurves) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] 高度面積曲線（hypsometric）」(id: qgis:hypsometriccurves) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis:hypsometriccurves` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `qgis:hypsometriccurves`\n- **表示名**: `高度面積曲線（hypsometric）`\n- **Provider**: `QGIS`\n- **グループ**: `ラスタ地形解析`\n\n### 用途\nDEM と境界レイヤを使い、標高と面積の関係（高度面積曲線）を計算します。集水域・地形区分ごとの標高分布分析などに使われ、結果は出力フォルダ内のテーブルファイルとして生成されます。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT_DEM` | 対象 DEM ラスタレイヤ | — |\n| `BOUNDARY_LAYER` | 集計対象となる境界レイヤ | — |\n| `STEP` | 標高集計の刻み幅 | `100.0` |\n| `USE_PERCENTAGE` | 面積を絶対値ではなく割合（%）で出力 | `False` |\n| `OUTPUT_DIRECTORY` | 結果テーブルの出力フォルダ | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('qgis:hypsometriccurves')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'hypso' in a.id().lower() or 'curve' in a.id().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'type': p.type(),\\"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] 高度面積曲線（hypsometric）」(id: qgis:hypsometriccurves) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nqgis:hypsometriccurves を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: qgis:hypsometriccurves\n表示名: 高度面積曲線（hypsometric）\nProvider: QGIS\nグループ: ラスタ地形解析\n用途\nDEM と境界レイヤを使い、標高と面積の関係（高度面積曲線）を計算します。集水域・地形区分ごとの標高分布分析などに使われ、結果は出力フォルダ内のテーブルファイルとして生成されます。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT_DEM\n対象 DEM ラスタレイヤ\n—\nBOUNDARY_LAYER\n集計対象となる境界レイヤ\n—\nSTEP\n標高集計の刻み幅\n100.0\nUSE_PERCENTAGE\n面積を絶対値ではなく割合（%）で出力\nFalse\nOUTPUT_DIRECTORY\n結果テーブルの出力フォルダ\n—\n"
+}

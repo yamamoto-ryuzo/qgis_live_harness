@@ -1,0 +1,35 @@
+{
+ "id": "qgis.action.mActionSelectAllVertices",
+ "prompt": "QGISの「Select All Vertices」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Select All Vertices」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "`mActionSelectAllVertices` を実行し、選択結果をキャンバスマーカーで検証します。まず実行前のマーカー状態を記録します。実行後のマーカー状態を確認します。全4頂点に選択マーカーが出ました。スクリーンショットで目視確認します。実行完了です。\n\n## 「Select All Vertices」を実行 → **全4頂点を選択**\n\n**アクションの実体**: `mActionSelectAllVertices` — メッシュ編集ツール(`QgsMapToolEditMeshFrame`)内の単発実行アクション。編集中メッシュの**全頂点を選択**します。\n\n**実行結果**(キャンバスの `QgsVertexMarker` で検証):\n\n| | 実行前 | 実行後 |\n|---|---|---|\n| 可視頂点マーカー | 2個(孤立頂点のみ) | **5個 → 全4頂点位置を網羅** |\n\n実行後のマーカー位置 = メッシュの全頂点座標に一致:\n- (139.750, 35.685) — 頂点0\n- (139.760, 35.685) — 頂点1\n- (139.760, 35.695) — 頂点2\n- (139.750, 35.695) — 頂点3(孤立頂点、マーカー2重重なり)\n\nさらに4頂点の `QgsRubberBand` も可視化され、全頂点選択のハイライトが形成されています。\n\n**比較**: 直前の「Select Isolated Vertices」では孤立頂点(139.750, 35.695)のみ選択でしたが、今回は面を構成する3頂点も含めた全頂点が選択状態になりました。この選択は「選択された頂点でドロネー三角網」「頂点の削除」「Z値の一括変更」などの後続操作の対象になります。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.gui import QgsVertexMarker\\nc = iface.mapCanvas()\\nbefore = [(round(it.center().x(),6), round(it.center().y(),6)) for it in c.items() if isinstance(it, QgsVertexMarker) and it.isVisible()]\\n\\nfrom qgis.PyQt.QtWidgets import QAction\\ntarget = None\\nfor a in iface.mainWindow().findChildren(QAction):\\n    if a.objectName() == 'mActionSelectAllVertices':\\n        target = a\\n        break\\nres = {'before': before, 'enabled': target.isEnabled()}\\ntarget.trigger()\\nres['triggered'] = True\\nresult = res\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.gui import QgsVertexMarker, QgsRubberBand\\nc = iface.mapCanvas()\\nafter = []\\nfor it in c.items():\\n    if isinstance(it, QgsVertexMarker) and it.isVisible():\\n        after.append((round(it.center().x(),6), round(it.center().y(),6)))\\nrbs = [(it.numberOfVertices()) for it in c.items() if isinstance(it, QgsRubberBand) and it.isVisible()]\\nresult = {'markers_after': after, 'visible_rubberbands': rbs}\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-dfe6266d.png', 'target': 'canvas'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Select All Vertices」機能(アクション)を実行して\n[AI] \nmActionSelectAllVertices を実行し、選択結果をキャンバスマーカーで検証します。まず実行前のマーカー状態を記録します。実行後のマーカー状態を確認します。全4頂点に選択マーカーが出ました。スクリーンショットで目視確認します。実行完了です。\n「Select All Vertices」を実行 → 全4頂点を選択\nアクションの実体: mActionSelectAllVertices — メッシュ編集ツール(QgsMapToolEditMeshFrame)内の単発実行アクション。編集中メッシュの全頂点を選択します。\n実行結果(キャンバスの QgsVertexMarker で検証):\n\n実行前\n実行後\n可視頂点マーカー\n2個(孤立頂点のみ)\n5個 → 全4頂点位置を網羅\n\n実行後のマーカー位置 = メッシュの全頂点座標に一致:\n(139.750, 35.685) — 頂点0\n(139.760, 35.685) — 頂点1\n(139.760, 35.695) — 頂点2\n(139.750, 35.695) — 頂点3(孤立頂点、マーカー2重重なり)\nさらに4頂点の QgsRubberBand も可視化され、全頂点選択のハイライトが形成されています。\n比較: 直前の「Select Isolated Vertices」では孤立頂点(139.750, 35.695)のみ選択でしたが、今回は面を構成する3頂点も含めた全頂点が選択状態になりました。この選択は「選択された頂点でドロネー三角網」「頂点の削除」「Z値の一括変更」などの後続操作の対象になります。"
+}

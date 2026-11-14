@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_legend.bridge.listDatasets",
+ "prompt": "QGISの geo_legend プラグインで「凡例対象コンボの一覧を返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_legend プラグインで「凡例対象コンボの一覧を返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`listDatasets` の結果です。\n\n**凡例対象コンボの一覧（1件）**\n\n| index | 表示名 | layer_id | 選択中 |\n|---|---|---|---|\n| 0 | ★ テスト地目レイヤ (Current) | `_________84125a20_…` | ✓ |\n\n現在のコンボ選択位置は `current: 0` です。\n\n凡例対象として並ぶのは「`legend_*` プロジェクト変数に登録されたレイヤ」＋「現在のアクティブレイヤ」で、今はアクティブレイヤ「テスト地目レイヤ」のみが候補になっています（先ほど `legend_*` 変数を削除したため）。「(Current)」はアクティブレイヤであること、「★」は変数登録済みであることを示す表示です。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'method': 'listDatasets', 'plugin_id': 'geo_legend'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_legend プラグインで「凡例対象コンボの一覧を返す。」を実行して結果を教えて\n[AI] \nlistDatasets の結果です。\n凡例対象コンボの一覧（1件）\nindex\n表示名\nlayer_id\n選択中\n0\n★ テスト地目レイヤ (Current)\n_________84125a20_…\n✓\n\n現在のコンボ選択位置は current: 0 です。\n凡例対象として並ぶのは「legend_* プロジェクト変数に登録されたレイヤ」＋「現在のアクティブレイヤ」で、今はアクティブレイヤ「テスト地目レイヤ」のみが候補になっています（先ほど legend_* 変数を削除したため）。「(Current)」はアクティブレイヤであること、「★」は変数登録済みであることを示す表示です。"
+}

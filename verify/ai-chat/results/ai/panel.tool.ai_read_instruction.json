@@ -1,0 +1,26 @@
+{
+ "id": "panel.tool.ai_read_instruction",
+ "prompt": "指示書を1つ選んで内容を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "指示書を1つ選んで内容を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`navigate-to-place` スキルを読みます。`navigate-to-place` スキル(geo_search 提供)の内容です。\n\n**用途**: 「◯◯へ移動」「◯◯にズーム」等の場所指定の地図移動\n\n**基本方針**\n- `qgis_bridge_call` → `plugin_id=\"geo_search\"`, `method=\"searchAddress\"` を使う\n- 座標のハードコードは避け、「東京」「富士山」等のあいまい指定もそのまま query に渡す\n- 座標文字列(`35.6,139.7` やDMS表記)も query へそのまま渡せる\n\n**searchAddress の引数**\n| 引数 | 既定 | 意味 |\n|---|---|---|\n| `query` | 必須 | 住所・地名・施設名または座標文字列 |\n| `provider` | gsi | `gsi`(国土地理院)/`osm`/`google`/`yahoo` |\n| `zoom` | true | 先頭候補へズーム |\n| `createLayer` | 設定依存 | false で結果レイヤを追加しない |\n\n**フォールバック**(geo_search 未ロード時)\n- `QgsMapCanvas` にズームレベルAPIは無い → `zoomScale(縮尺分母)`, `setExtent`, `zoomByFactor` 等を使う\n- EPSG:4326 → キャンバスCRS への `QgsCoordinateTransform` が必須\n\nその他、pyeval で値を返すには `result` 変数へ代入、移動後は `qgis_screenshot` で目視確認、という tips が書かれています。"
+  }
+ ],
+ "tools": [
+  "instruction"
+ ],
+ "audit": [
+  {
+   "type": "instruction",
+   "args": "{'kind': 'skills', 'op': 'read'}"
+  }
+ ],
+ "view_tail": "[あなた] 指示書を1つ選んで内容を教えて\n[AI] \nnavigate-to-place スキルを読みます。navigate-to-place スキル(geo_search 提供)の内容です。\n用途: 「◯◯へ移動」「◯◯にズーム」等の場所指定の地図移動\n基本方針\nqgis_bridge_call → plugin_id=\"geo_search\", method=\"searchAddress\" を使う\n座標のハードコードは避け、「東京」「富士山」等のあいまい指定もそのまま query に渡す\n座標文字列(35.6,139.7 やDMS表記)も query へそのまま渡せる\nsearchAddress の引数 | 引数 | 既定 | 意味 | |---|---|---| | query | 必須 | 住所・地名・施設名または座標文字列 | | provider | gsi | gsi(国土地理院)/osm/google/yahoo | | zoom | true | 先頭候補へズーム | | createLayer | 設定依存 | false で結果レイヤを追加しない |\nフォールバック(geo_search 未ロード時)\nQgsMapCanvas にズームレベルAPIは無い → zoomScale(縮尺分母), setExtent, zoomByFactor 等を使う\nEPSG:4326 → キャンバスCRS への QgsCoordinateTransform が必須\nその他、pyeval で値を返すには result 変数へ代入、移動後は qgis_screenshot で目視確認、という tips が書かれています。"
+}

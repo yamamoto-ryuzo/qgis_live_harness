@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionToggleLabelToolBar",
+ "prompt": "QGISの「ラベルツールバー」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ラベルツールバー」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ラベルツールバー」は非表示なので、トグルを実行します。「ラベルツールバー」を有効化しました。\n\n- アクション `mActionToggleLabelToolBar` を実行 → チェック ON\n- ツールバー `mLabelToolBar` が表示されました(ラベルの移動・回転・表示切替、ラベルプロパティ変更などのツール)\n\nこれらのツールは編集可能なベクタレイヤのラベルに対して使います。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar\\nmw = iface.mainWindow()\\naction = mw.findChild(QAction, 'mActionToggleLabelToolBar')\\nif action is None:\\n    cands = [(a.objectName(), a.text()) for a in mw.findChildren(QAction) if 'ラベル' in a.text()]\\n    result = {'action': None, 'candidates': cands}\\nelse:\\n    action.trigger()\\n    tb = mw.findChild(QToolBar, 'mLabelToolBar')\\n    result = {'action': action.objectName(), 'checked': action.isChecked(), 'toolbar_visible': tb.isVisible() if tb else None}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ラベルツールバー」機能(アクション)を実行して\n[AI] \n「ラベルツールバー」は非表示なので、トグルを実行します。「ラベルツールバー」を有効化しました。\nアクション mActionToggleLabelToolBar を実行 → チェック ON\nツールバー mLabelToolBar が表示されました(ラベルの移動・回転・表示切替、ラベルプロパティ変更などのツール)\nこれらのツールは編集可能なベクタレイヤのラベルに対して使います。"
+}

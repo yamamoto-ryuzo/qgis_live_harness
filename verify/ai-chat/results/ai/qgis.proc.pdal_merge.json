@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.pdal_merge",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Merge point cloud」(id: pdal:merge) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Merge point cloud」(id: pdal:merge) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`pdal:merge` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `pdal:merge`\n- **表示名**: `Merge point cloud`\n- **Provider**: `QGIS (PDAL)`\n- **グループ**: `Point cloud data management`\n\n### 用途\n複数の点群ファイル／点群レイヤを、1つの点群データへ結合します。必要に応じて属性条件や範囲で絞り込んでから出力できます。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `LAYERS` | 結合対象の複数点群レイヤ | — |\n| `FILTER_EXPRESSION` | 任意。結合前に点を絞るフィルタ式 | なし |\n| `FILTER_EXTENT` | 任意。切り抜き範囲 | なし |\n| `OUTPUT` | 結合後の点群出力先 | — |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('pdal:merge')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'merge' in a.id().lower() or 'merge' in a.displayName().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'type': p.type(),\\n  "
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('pdal:merge')\\nresult = [\\n    {'name': p.name(), 'tooltip': p.toolTip(), 'metadata': p.metadata() if hasattr(p, 'metadata') else None}\\n    for p in alg.parameterDefinitions()\\n]\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Merge point cloud」(id: pdal:merge) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \npdal:merge を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: pdal:merge\n表示名: Merge point cloud\nProvider: QGIS (PDAL)\nグループ: Point cloud data management\n用途\n複数の点群ファイル／点群レイヤを、1つの点群データへ結合します。必要に応じて属性条件や範囲で絞り込んでから出力できます。\n主なパラメータ\nパラメータ\n意味\n既定値\nLAYERS\n結合対象の複数点群レイヤ\n—\nFILTER_EXPRESSION\n任意。結合前に点を絞るフィルタ式\nなし\nFILTER_EXTENT\n任意。切り抜き範囲\nなし\nOUTPUT\n結合後の点群出力先\n—\n"
+}

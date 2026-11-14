@@ -1,0 +1,34 @@
+{
+ "id": "plugin.geo_legend.bridge.selectDataset",
+ "prompt": "geo_legend プラグインの「selectDataset」(凡例対象を選択する(index/表示名/layer_id)。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_legend プラグインの「selectDataset」(凡例対象を選択する(index/表示名/layer_id)。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "index での選択が成功しました。表示名での選択も試します。`selectDataset` を試しました。index 指定・表示名指定の両方で動作を確認できました。\n\n| 呼び出し | 結果 |\n|---|---|\n| `selectDataset(0)` | index 0 →「テスト地目レイヤ」に切替 |\n| `selectDataset(\"テスト路線レイヤ\")` | index 1 →「テスト路線レイヤ」に切替 |\n\n**status 確認**: 現在の凡例対象は「テスト路線レイヤ」（`datasetIndex: 1`、`legendRows: 1`）。選択に応じて凡例ドックの表示が更新され、ドックの不透明度スライダーなどの対象もこのレイヤになります。\n\n`dataset` 引数には **index（数値）・コンボ表示名・layer_id** のいずれも指定可能です。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_legend', 'method': 'selectDataset', 'args': [0]}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': ['テスト路線レイヤ'], 'plugin_id': 'geo_legend', 'method': 'selectDataset'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'status', 'args': [], 'plugin_id': 'geo_legend'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_legend プラグインの「selectDataset」(凡例対象を選択する(index/表示名/layer_id)。)を試して。必要な引数は適当な値でよい\n[AI] \nindex での選択が成功しました。表示名での選択も試します。selectDataset を試しました。index 指定・表示名指定の両方で動作を確認できました。\n呼び出し\n結果\nselectDataset(0)\nindex 0 →「テスト地目レイヤ」に切替\nselectDataset(\"テスト路線レイヤ\")\nindex 1 →「テスト路線レイヤ」に切替\n\nstatus 確認: 現在の凡例対象は「テスト路線レイヤ」（datasetIndex: 1、legendRows: 1）。選択に応じて凡例ドックの表示が更新され、ドックの不透明度スライダーなどの対象もこのレイヤになります。\ndataset 引数には index（数値）・コンボ表示名・layer_id のいずれも指定可能です。"
+}

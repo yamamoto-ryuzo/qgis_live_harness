@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_pointsalonglines",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオメトリに沿った等間隔点群」(id: native:pointsalonglines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオメトリに沿った等間隔点群」(id: native:pointsalonglines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:pointsalonglines` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:pointsalonglines`\n- **表示名**: ジオメトリに沿った等間隔点群\n- **グループ**: ベクタジオメトリ\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\n入力ラインレイヤの**線に沿って等間隔に配置された点群レイヤ**を作成します。間隔は直線距離ではなく**線に沿った距離**（測地距離的な意味での沿線距離）で指定し、始点・終点からのオフセットも設定できます。道路沿いのキロポスト・標本点・サンプリング点の生成に使います。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT` | source（必須） | 入力レイヤ（ライン） |\n| `DISTANCE` | distance（必須、デフォルト 1.0） | 点間距離（線に沿った距離） |\n| `START_OFFSET` | distance（必須、デフォルト 0.0） | 最初の点の開始オフセット（始点からの沿線距離） |\n| `END_OFFSET` | distance（必須、デフォルト 0.0） | 最後の点の終了オフセット（終点からの沿線距離） |\n| `OUTPUT` | sink → outputVector | 出力先（内挿点レイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:pointsalonglines\", {\n    'INPUT': line_layer,\n    'DISTANCE': 100.0,\n    'START_OFFSET': 0.0,\n    'END_OFFSET': 0.0,\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:pointsalonglines')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ジオメトリに沿った等間隔点群」(id: native:pointsalonglines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:pointsalonglines は現在の QGIS の processing registry に登録されています。\nID: native:pointsalonglines\n表示名: ジオメトリに沿った等間隔点群\nグループ: ベクタジオメトリ\nプロバイダ: QGIS（ネイティブC++）\n用途\n入力ラインレイヤの線に沿って等間隔に配置された点群レイヤを作成します。間隔は直線距離ではなく線に沿った距離（測地距離的な意味での沿線距離）で指定し、始点・終点からのオフセットも設定できます。道路沿いのキロポスト・標本点・サンプリング点の生成に使います。\n主なパラメータ\n名前\n種別\n説明\nINPUT\nsource（必須）\n入力レイヤ（ライン）\nDISTANCE\ndistance（必須、デフォルト 1.0）\n点間距離（線に沿った距離）\nSTART_OFFSET\ndistance（必須、デフォルト 0.0）\n最初の点の開始オフセット（始点からの沿線距離）\nEND_OFFSET\ndistance（必須、デフォルト 0.0）\n最後の点の終了オフセット（終点からの沿線距離）\nOUTPUT\nsink → outputVector\n出力先（内挿点レイヤ）\n\n実行例:\nprocessing.run(\"native:pointsalonglines\", {\n    'INPUT': line_layer,\n    'DISTANCE': 100.0,\n    'START_OFFSET': 0.0,\n    'END_OFFSET': 0.0,\n    'OUTPUT': 'memory:'\n})"
+}

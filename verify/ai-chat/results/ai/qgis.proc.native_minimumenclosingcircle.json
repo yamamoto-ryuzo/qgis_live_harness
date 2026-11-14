@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_minimumenclosingcircle",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最小包含円」(id: native:minimumenclosingcircle) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最小包含円」(id: native:minimumenclosingcircle) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果\n\nアルゴリズム `native:minimumenclosingcircle` は **processing registry に存在します**。\n\n- **表示名**: 最小包含円\n- **グループ**: ベクタジオメトリ (`vectorgeometry`)\n- **プロバイダ**: QGIS（ネイティブ C++）\n\n## 用途\n\n入力レイヤの**各地物ごとに、その地物全体を覆う最小面積の円（minimum enclosing circle）を計算**して出力するアルゴリズムです。地物の広がり範囲を円で表現したり、最小の覆域を求めたりするのに使います。\n\n注意（ヘルプより）：これは**地物ごと**の包含円です。レイヤ全体や属性値でグループ化した地物群をまとめて覆う円が欲しい場合は `native:minimumboundinggeometry`（TYPE=Minimum Enclosing Circle）を使います。\n\n## 主なパラメータ\n\n| 名前 | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力レイヤ（必須） | — |\n| `SEGMENTS` | 円を近似するセグメント数（滑らかさ） | `72` |\n| `OUTPUT` | 出力レイヤ「最小包含円」（必須） | — |\n\n## 出力\n\n- `OUTPUT` — 各地物の最小包含円のポリゴンレイヤ\n\n実行例: `processing.run(\"native:minimumenclosingcircle\", {'INPUT': layer, 'SEGMENTS': 72, 'OUTPUT': 'TEMPORARY_OUTPUT'})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:minimumenclosingcircle')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        info = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'default': str(p.defaultValue()) if p.defaultValue() is not None else None,\\n        }\\n        if hasattr(p, 'options'):\\n            try:\\n                info['options'] = p.options()\\n            except Exception:\\n                pass\\n        params.append(info)\\n    outs = [{'name': o.name(), 'type': o.__class__.__name__, 'description': o.description()} for o in alg.outputDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n    "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 最小包含円」(id: native:minimumenclosingcircle) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果\nアルゴリズム native:minimumenclosingcircle は processing registry に存在します。\n表示名: 最小包含円\nグループ: ベクタジオメトリ (vectorgeometry)\nプロバイダ: QGIS（ネイティブ C++）\n用途\n入力レイヤの各地物ごとに、その地物全体を覆う最小面積の円（minimum enclosing circle）を計算して出力するアルゴリズムです。地物の広がり範囲を円で表現したり、最小の覆域を求めたりするのに使います。\n注意（ヘルプより）：これは地物ごとの包含円です。レイヤ全体や属性値でグループ化した地物群をまとめて覆う円が欲しい場合は native:minimumboundinggeometry（TYPE=Minimum Enclosing Circle）を使います。\n主なパラメータ\n名前\n説明\n既定値\nINPUT\n入力レイヤ（必須）\n—\nSEGMENTS\n円を近似するセグメント数（滑らかさ）\n72\nOUTPUT\n出力レイヤ「最小包含円」（必須）\n—\n\n出力\nOUTPUT — 各地物の最小包含円のポリゴンレイヤ\n実行例: processing.run(\"native:minimumenclosingcircle\", {'INPUT': layer, 'SEGMENTS': 72, 'OUTPUT': 'TEMPORARY_OUTPUT'})"
+}

@@ -1,0 +1,34 @@
+{
+ "id": "qgis.action.Line_Extension",
+ "prompt": "QGISの「Line Extension」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Line Extension」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Line Extension」関連のアクションを検索します。アクションが見つかりました。ツールチップに「スナップを有効にする必要があります」とあるので、スナップの現在状態も併せて確認します。スナップの状態を別の方法で確認します。調査結果です。\n\n## 「Line Extension」は **無効(OFF)** です\n\n| 項目 | 値 |\n|---|---|\n| text | `Line Extension` |\n| checkable | true（トグル式） |\n| **checked** | **false → 無効（OFF)** |\n| enabled | true（押下可能） |\n| 配置 | メニュー「**作図**」内 |\n| ツールチップ | 「線延長モードを使用するにはスナップを有効にする必要があります」 |\n\n線延長モード自体はOFFですが、前提条件の**スナップは現在有効**です（`EnableSnappingAction` が checked、mapCanvas の snapping config も `enabled=true`)。つまりONにすればそのまま使える状態になっています。\n\n参考までに関連状態:\n- Show Construction Guides: **ON**\n- Snap to Visible Construction Guides: OFF\n- Record Construction Guides: OFF\n\nONにしたい場合は `a.trigger()` で切り替えられます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu, QToolButton\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    on = a.objectName() or ''\\n    if 'extension' in t.lower() or 'extension' in on.lower() or 'line extension' in (a.toolTip() or '').lower():\\n        info.append({\\n            'text': t,\\n            'objectName': on,\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'tooltip': a.toolTip(),\\n            'shortcut': a.shortcut().toString(),\\n        })\\nresult = info\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\nout = {}\\nfor a in mw.findChildren(QAction):\\n    if (a.text() or '') == 'Line Extension':\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        out['line_extension'] = {'checked': a.isChecked(), 'enabled': a.isEnabled(), 'containers': containers}\\n    if (a.objectName() or '') == 'mActionSnapping' or (a.text() or '').strip() in ('Snapping', 'スナップ'):\\n        out.setdefault('snapping_actions', []).append({'text': a.text(), 'objectName': a.objectName(), 'checkable': a.isCheckable(), 'checked': a.isChecked(), 'enabled': a.isEnabled()})\\nresult = out\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nout = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').lower(); on = (a.objectName() or '').lower()\\n    if 'snap' in t or 'snap' in on or 'スナップ' in (a.text() or ''):\\n        out.append({'text': a.text(), 'objectName': a.objectName(), 'checkable': a.isCheckable(), 'checked': a.isChecked(), 'enabled': a.isEnabled()})\\ntry:\\n    cfg = iface.mapCanvas().snappingUtils().config()\\n    snap_enabled = cfg.enabled()\\nexcept Exception as e:\\n    snap_enabled = 'error: ' + str(e)\\nresult = {'actions': out, 'snapping_config_enabled': snap_enabled}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Line Extension」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「Line Extension」関連のアクションを検索します。アクションが見つかりました。ツールチップに「スナップを有効にする必要があります」とあるので、スナップの現在状態も併せて確認します。スナップの状態を別の方法で確認します。調査結果です。\n「Line Extension」は 無効(OFF) です\n項目\n値\ntext\nLine Extension\ncheckable\ntrue（トグル式）\nchecked\nfalse → 無効（OFF)\nenabled\ntrue（押下可能）\n配置\nメニュー「作図」内\nツールチップ\n「線延長モードを使用するにはスナップを有効にする必要があります」\n\n線延長モード自体はOFFですが、前提条件のスナップは現在有効です（EnableSnappingAction が checked、mapCanvas の snapping config も enabled=true)。つまりONにすればそのまま使える状態になっています。\n参考までに関連状態:\nShow Construction Guides: ON\nSnap to Visible Construction Guides: OFF\nRecord Construction Guides: OFF\nONにしたい場合は a.trigger() で切り替えられます。"
+}

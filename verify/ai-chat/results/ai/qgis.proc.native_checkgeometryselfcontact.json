@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_checkgeometryselfcontact",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Self-contacts」(id: native:checkgeometryselfcontact) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Self-contacts」(id: native:checkgeometryselfcontact) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry から対象アルゴリズムを取得し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] Self-contacts`\n- **ID**: `native:checkgeometryselfcontact`\n- **グループ**: `Check geometry`\n- **用途**: ラインまたはポリゴン内の「自己接触」を検出するジオメトリチェックです。同一リングの頂点が3つ以上のセグメントに接しているような、位相的に不適切な形状を洗い出せます。デジタイズミスやポリゴン形状の不正箇所の確認に向きます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | チェック対象のライン／ポリゴンレイヤ |\n| `UNIQUE_ID` | 地物を一意に識別するフィールド |\n| `ERRORS` | 自己接触箇所を示すポイントレイヤ出力 |\n| `OUTPUT` | 自己接触を含む元地物を出力するレイヤ。任意 |\n| `TOLERANCE` | 高度な設定。整数 `n` を指定し、`10^-n` 地図単位未満で離れた頂点を同一視する。既定値 `8` |\n\n`ERRORS` はエラー位置と関連情報を持つポイント、`OUTPUT` は問題のある地物そのものを確認するための出力です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:checkgeometryselfcontact')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        })\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({\\n            'name': o.name(),\\n            'description': o.description(),\\n            'type': o.__class__.__name__,\\n        })\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Self-contacts」(id: native:checkgeometryselfcontact) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry から対象アルゴリズムを取得し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] Self-contacts\nID: native:checkgeometryselfcontact\nグループ: Check geometry\n用途: ラインまたはポリゴン内の「自己接触」を検出するジオメトリチェックです。同一リングの頂点が3つ以上のセグメントに接しているような、位相的に不適切な形状を洗い出せます。デジタイズミスやポリゴン形状の不正箇所の確認に向きます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\nチェック対象のライン／ポリゴンレイヤ\nUNIQUE_ID\n地物を一意に識別するフィールド\nERRORS\n自己接触箇所を示すポイントレイヤ出力\nOUTPUT\n自己接触を含む元地物を出力するレイヤ。任意\nTOLERANCE\n高度な設定。整数 n を指定し、10^-n 地図単位未満で離れた頂点を同一視する。既定値 8\n\nERRORS はエラー位置と関連情報を持つポイント、OUTPUT は問題のある地物そのものを確認するための出力です。"
+}

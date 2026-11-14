@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_checkgeometrysliverpolygon",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Sliver polygons」(id: native:checkgeometrysliverpolygon) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Sliver polygons」(id: native:checkgeometrysliverpolygon) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:checkgeometrysliverpolygon` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] Sliver polygons`\n- **ID**: `native:checkgeometrysliverpolygon`\n- **グループ**: `Check geometry`\n- **用途**: 細長く面積の小さい「スリバーポリゴン」を検出します。重ね合わせや境界編集で発生する不要な細片ポリゴンの洗い出しに使えます。\n\n判定は、ポリゴンを囲む最小正方形の面積とポリゴン自身の面積の比である **thinness** によります。正方形は `1` で、細長いほど大きくなり、`MAX_THINNESS` を超えるとエラーです。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | チェック対象のポリゴンレイヤ |\n| `UNIQUE_ID` | 地物を一意に識別するフィールド |\n| `MAX_THINNESS` | 許容する最大の細長さ。既定値 `20` |\n| `MAX_AREA` | チェック対象とする最大面積。地図単位の2乗。`0` は面積制限なし |\n| `ERRORS` | スリバーポリゴンのエラー箇所を出力するポイントレイヤ |\n| `OUTPUT` | スリバーポリゴンと判定された地物の出力。任意 |\n| `TOLERANCE` | 高度な設定。`10^-n` 地図単位未満を幾何演算上ゼロとして扱う。既定値 `8` |\n\n`MAX_AREA` は CRS の面積単位で指定するため、実用上はメートル系 CRS での利用が分かりやすいです。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:checkgeometrysliverpolygon')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('dataType', 'minValue', 'maxValue'):\\n            if hasattr(p, attr):\\n                try:\\n                    d[attr] = getattr(p, attr)()\\n                except Exception:\\n                    pass\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({\\n            'name': o.name(),\\n            'description': o.description(),\\n   "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Sliver polygons」(id: native:checkgeometrysliverpolygon) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:checkgeometrysliverpolygon を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] Sliver polygons\nID: native:checkgeometrysliverpolygon\nグループ: Check geometry\n用途: 細長く面積の小さい「スリバーポリゴン」を検出します。重ね合わせや境界編集で発生する不要な細片ポリゴンの洗い出しに使えます。\n判定は、ポリゴンを囲む最小正方形の面積とポリゴン自身の面積の比である thinness によります。正方形は 1 で、細長いほど大きくなり、MAX_THINNESS を超えるとエラーです。\n主なパラメータ:\nパラメータ\n内容\nINPUT\nチェック対象のポリゴンレイヤ\nUNIQUE_ID\n地物を一意に識別するフィールド\nMAX_THINNESS\n許容する最大の細長さ。既定値 20\nMAX_AREA\nチェック対象とする最大面積。地図単位の2乗。0 は面積制限なし\nERRORS\nスリバーポリゴンのエラー箇所を出力するポイントレイヤ\nOUTPUT\nスリバーポリゴンと判定された地物の出力。任意\nTOLERANCE\n高度な設定。10^-n 地図単位未満を幾何演算上ゼロとして扱う。既定値 8\n\nMAX_AREA は CRS の面積単位で指定するため、実用上はメートル系 CRS での利用が分かりやすいです。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionHelpPyQgisAPI",
+ "prompt": "QGISの「PyQGIS APIドキュメント」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「PyQGIS APIドキュメント」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認できました。**「PyQGIS APIドキュメント」アクションは現在有効です。**\n\n## 詳細\n\n- メニューパス: **ヘルプ(&H) > PyQGIS APIドキュメント**\n- `objectName = 'mActionHelpPyQgisAPI'`\n- `QAction` 状態: `enabled = true`, `visible = true`\n\nPyQGIS API リファレンスをブラウザで開くアクションで、実行可能な状態です。実行しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\na = iface.mainWindow().findChild(QAction, 'mActionHelpPyQgisAPI')\\nmenus = []\\nfor m in iface.mainWindow().findChildren(QMenu):\\n    if a in m.actions():\\n        menus.append(m.title())\\nresult = {'text': a.text(), 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'menus': menus}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「PyQGIS APIドキュメント」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n確認できました。「PyQGIS APIドキュメント」アクションは現在有効です。\n詳細\nメニューパス: ヘルプ(&H) > PyQGIS APIドキュメント\nobjectName = 'mActionHelpPyQgisAPI'\nQAction 状態: enabled = true, visible = true\nPyQGIS API リファレンスをブラウザで開くアクションで、実行可能な状態です。実行しますか？"
+}

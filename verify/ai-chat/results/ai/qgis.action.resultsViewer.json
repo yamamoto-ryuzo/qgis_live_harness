@@ -1,0 +1,35 @@
+{
+ "id": "qgis.action.resultsViewer",
+ "prompt": "QGISの「結果ビューア(&R)」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「結果ビューア(&R)」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「結果ビューア(&R)」アクションを探して実行します。アクションを実行します。「結果ビューア(&R)」アクションを実行しました。\n\n## 結果\n\n- `resultsViewer` アクションを trigger → **「結果ビューア」ドックが表示**されました（`visible = true`）\n- スクリーンショットでも、プロセシングツールボックスの下に「結果ビューア」パネルが現れているのが確認できます（まだプロセシング結果がないため中身は空です）\n\nProcessing の HTML 結果などを表示する領域が開きました。続けて操作しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nfound = []\\nfor w in iface.mainWindow().findChildren(QAction):\\n    t = w.text() or ''\\n    if '結果ビューア' in t or 'result' in (w.objectName() or '').lower():\\n        found.append((t, w.objectName(), w.isEnabled(), w.isVisible(),\\n                      w.parent().__class__.__name__ if w.parent() else None))\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication\\na = iface.mainWindow().findChild(QAction, 'resultsViewer')\\na.trigger()\\nQApplication.processEvents()\\ndocks = []\\nfor w in iface.mainWindow().findChildren(QDockWidget):\\n    if 'ResultsDock' in (w.objectName() or '') or '結果' in (w.windowTitle() or ''):\\n        docks.append({'title': w.windowTitle(), 'obj': w.objectName(), 'visible': w.isVisible()})\\nresult = {'triggered': a.text(), 'docks': docks}\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-cf42ae70.png', 'target': 'mainwindow'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「結果ビューア(&R)」機能(アクション)を実行して\n[AI] \n「結果ビューア(&R)」アクションを探して実行します。アクションを実行します。「結果ビューア(&R)」アクションを実行しました。\n結果\nresultsViewer アクションを trigger → 「結果ビューア」ドックが表示されました（visible = true）\nスクリーンショットでも、プロセシングツールボックスの下に「結果ビューア」パネルが現れているのが確認できます（まだプロセシング結果がないため中身は空です）\nProcessing の HTML 結果などを表示する領域が開きました。続けて操作しますか？"
+}

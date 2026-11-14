@@ -1,0 +1,30 @@
+{
+ "id": "plugin.geo_legend.bridge.registerCurrentLayer",
+ "prompt": "geo_legend プラグインの「registerCurrentLayer」(アクティブレイヤを legend_* プロジェクト変数として登録する。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_legend プラグインの「registerCurrentLayer」(アクティブレイヤを legend_* プロジェクト変数として登録する。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`registerCurrentLayer` を正常に実行できました。\n\n**実行内容**: `registerCurrentLayer(1)` — アクティブレイヤを `legend_*` プロジェクト変数として登録（priority=1）\n\n**結果**\n- 変数名: `legend_テスト地目レイヤ`\n- 値: `1`（表示優先度）\n- 解決先レイヤ: テスト地目レイヤ（layer_id で確認）\n\n**確認**: `listDatasets` を再取得すると、凡例対象コンボの表示が「★ テスト地目レイヤ (Current)」（アクティブレイヤとしての項目）から「テスト地目レイヤ」（変数登録済みレイヤとしての項目）に変わりました。変数登録されたレイヤは、アクティブレイヤが変わっても凡例対象として残り続けます。\n\nプロジェクトを保存すればこの変数も .qgs ファイルに保存され、次回プロジェクトを開いたときに凡例対象として復元されます。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'registerCurrentLayer', 'plugin_id': 'geo_legend', 'args': [1]}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'listDatasets', 'args': [], 'plugin_id': 'geo_legend'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_legend プラグインの「registerCurrentLayer」(アクティブレイヤを legend_* プロジェクト変数として登録する。)を試して。必要な引数は適当な値でよい\n[AI] \nregisterCurrentLayer を正常に実行できました。\n実行内容: registerCurrentLayer(1) — アクティブレイヤを legend_* プロジェクト変数として登録（priority=1）\n結果\n変数名: legend_テスト地目レイヤ\n値: 1（表示優先度）\n解決先レイヤ: テスト地目レイヤ（layer_id で確認）\n確認: listDatasets を再取得すると、凡例対象コンボの表示が「★ テスト地目レイヤ (Current)」（アクティブレイヤとしての項目）から「テスト地目レイヤ」（変数登録済みレイヤとしての項目）に変わりました。変数登録されたレイヤは、アクティブレイヤが変わっても凡例対象として残り続けます。\nプロジェクトを保存すればこの変数も .qgs ファイルに保存され、次回プロジェクトを開いたときに凡例対象として復元されます。"
+}

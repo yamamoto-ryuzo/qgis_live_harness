@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mProcessingUserMenu_gdal_triterrainruggednessindex",
+ "prompt": "QGISの「TRI（Terrain Ruggedness Index）...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「TRI（Terrain Ruggedness Index）...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "**「TRI（Terrain Ruggedness Index）...」も現在有効です。**\n\n- **場所**: メニューバー → `ラスタ(&R)` → `Analysis` → `TRI（Terrain Ruggedness Index）...`\n- **objectName**: `mProcessingUserMenu_gdal:triterrainruggednessindex`\n- **isEnabled()**: `true` / **isVisible()**: `true`\n- **背後のアルゴリズム**: `gdal:triterrainruggednessindex`(表示名「TRI（Terrain Ruggedness Index）」)が Processing レジストリに正常に登録済み\n\nメニューからの実行も `processing.run(\"gdal:triterrainruggednessindex\", {...})` での直接実行も可能です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nfrom qgis.core import QgsApplication\\nmw = iface.mainWindow()\\nmatches = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    ot = a.objectName() or ''\\n    if 'TRI' in t or 'tri' in ot.lower() or 'uggedness' in t or 'uggedness' in ot.lower():\\n        matches.append({'text': t, 'objectName': ot, 'enabled': a.isEnabled(), 'visible': a.isVisible()})\\nresult = matches\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nfrom qgis.core import QgsApplication\\nmw = iface.mainWindow()\\ntarget = mw.findChild(QAction, 'mProcessingUserMenu_gdal:triterrainruggednessindex')\\nfound = []\\ndef walk(m, path):\\n    for act in m.actions():\\n        if act is target:\\n            found.append(path)\\n        sub = act.menu()\\n        if sub:\\n            walk(sub, path + [sub.title()])\\nfor act in mw.menuBar().actions():\\n    sub = act.menu()\\n    if sub:\\n        walk(sub, [sub.title()])\\nalg = QgsApplication.processingRegistry().algorithmById('gdal:triterrainruggednessindex')\\nresult = {\\n    'menu_path': found,\\n    'alg_found': alg is not None,\\n    'alg_name': alg.displayName() if alg else None,\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「TRI（Terrain Ruggedness Index）...」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「TRI（Terrain Ruggedness Index）...」も現在有効です。\n場所: メニューバー → ラスタ(&R) → Analysis → TRI（Terrain Ruggedness Index）...\nobjectName: mProcessingUserMenu_gdal:triterrainruggednessindex\nisEnabled(): true / isVisible(): true\n背後のアルゴリズム: gdal:triterrainruggednessindex(表示名「TRI（Terrain Ruggedness Index）」)が Processing レジストリに正常に登録済み\nメニューからの実行も processing.run(\"gdal:triterrainruggednessindex\", {...}) での直接実行も可能です。"
+}

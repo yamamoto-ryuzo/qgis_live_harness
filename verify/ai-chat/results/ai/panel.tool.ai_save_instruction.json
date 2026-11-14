@@ -1,0 +1,30 @@
+{
+ "id": "panel.tool.ai_save_instruction",
+ "prompt": "ai_verify_tmp という名前で『検証用の一時ファイル』という内容の指示書を保存して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "ai_verify_tmp という名前で『検証用の一時ファイル』という内容の指示書を保存して"
+  },
+  {
+   "role": "assistant",
+   "content": "`skills` 種別として保存します(単なる指示書=手順書ファイルの既定種別のため)。保存しました。\n\n- 種別: **skills**(単なる指示書ファイルの既定種別として選択)\n- 保存先: `C:\\Users\\ryu.RYU-NOTE\\.qgis-live\\skills\\ai_verify_tmp.md`\n- 内容を read で読み戻して正常に保存されていることを確認済み\n\n`agents` や `prompts` として保存したかった場合は言ってください。種別を変えて保存し直します。"
+  }
+ ],
+ "tools": [
+  "instruction"
+ ],
+ "audit": [
+  {
+   "type": "instruction",
+   "args": "{'op': 'save', 'kind': 'skills', 'name': 'ai_verify_tmp', 'text': '# ai_verify_tmp\\n検証用の一時ファイル\\n\\n検証用の一時ファイル'}"
+  },
+  {
+   "type": "instruction",
+   "args": "{'kind': 'skills', 'op': 'read'}"
+  }
+ ],
+ "view_tail": "[あなた] ai_verify_tmp という名前で『検証用の一時ファイル』という内容の指示書を保存して\n[AI] \nskills 種別として保存します(単なる指示書=手順書ファイルの既定種別のため)。保存しました。\n種別: skills(単なる指示書ファイルの既定種別として選択)\n保存先: C:\\Users\\ryu.RYU-NOTE\\.qgis-live\\skills\\ai_verify_tmp.md\n内容を read で読み戻して正常に保存されていることを確認済み\nagents や prompts として保存したかった場合は言ってください。種別を変えて保存し直します。"
+}

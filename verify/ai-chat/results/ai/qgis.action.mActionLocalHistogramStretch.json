@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionLocalHistogramStretch",
+ "prompt": "QGISの「ヒストグラムを表示領域の値で引きのばす」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ヒストグラムを表示領域の値で引きのばす」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「ヒストグラムを表示領域の値で引きのばす」関連のアクションを検索します。調査結果です。\n\n## 「ヒストグラムを表示領域の値で引きのばす」は **無効（グレーアウト・実行不可）** です\n\n| 項目 | 値 |\n|---|---|\n| text | `ヒストグラムを表示領域の値で引きのばす` |\n| objectName | `mActionLocalHistogramStretch` |\n| checkable | **false（トグル式ではない = 一発実行ボタン）** |\n| **enabled** | **false → 無効（押せない状態）** |\n| 配置 | ツールバー「**ラスタツールバー**」 |\n\nこのアクションは「表示中の範囲内のピクセル値を使ってラスタのコントラストを引き伸ばす」ラスタ用コマンドです。ON/OFFの状態を持つものではなく、「有効かどうか」= enabled の意味になります。\n\n**無効な理由：** この種のアクションは**アクティブレイヤがラスタレイヤの時だけ有効**になります。現在のプロジェクトには空のベクタレイヤ `tmp_floater_test` のみでラスタレイヤがないため、グレーアウトしています。\n\n同じ理由でラスタツールバーの関連アクションもすべて無効でした：\n- ヒストグラムをデータセット全域の値で引きのばす（`mActionFullHistogramStretch`): enabled=false\n- 表示範囲内でヒストグラムの累積的カットと引き伸ばし（`mActionLocalCumulativeCutStretch`): enabled=false\n- レイヤ全体のヒストグラムの累積的カットと引き伸ばし（`mActionFullCumulativeCutStretch`): enabled=false\n\nラスタレイヤ（DEMや画像等）を追加してアクティブにすれば有効化されます。必要であればお申し付けください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QToolBar, QMenu\\nmw = iface.mainWindow()\\ninfo = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '')\\n    on = (a.objectName() or '')\\n    tt = (a.toolTip() or '')\\n    if 'histogram' in t.lower() or 'histogram' in on.lower() or 'histogram' in tt.lower() or 'ヒストグラム' in t or '引きのば' in t:\\n        containers = []\\n        for tb in mw.findChildren(QToolBar):\\n            if a in tb.actions():\\n                containers.append('toolbar:' + (tb.windowTitle() or tb.objectName()))\\n        for m in mw.findChildren(QMenu):\\n            if a in m.actions():\\n                containers.append('menu:' + (m.title() or m.objectName()))\\n        info.append({\\n            'text': t,\\n            'objectName': on,\\n            'checkable': a.isCheckable(),\\n            'checked': a.isChecked(),\\n            'enabled': a.isEnabled(),\\n            'visible': a.isVisible(),\\n            'containers': containers,\\n            'tooltip': tt"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ヒストグラムを表示領域の値で引きのばす」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「ヒストグラムを表示領域の値で引きのばす」関連のアクションを検索します。調査結果です。\n「ヒストグラムを表示領域の値で引きのばす」は 無効（グレーアウト・実行不可） です\n項目\n値\ntext\nヒストグラムを表示領域の値で引きのばす\nobjectName\nmActionLocalHistogramStretch\ncheckable\nfalse（トグル式ではない = 一発実行ボタン）\nenabled\nfalse → 無効（押せない状態）\n配置\nツールバー「ラスタツールバー」\n\nこのアクションは「表示中の範囲内のピクセル値を使ってラスタのコントラストを引き伸ばす」ラスタ用コマンドです。ON/OFFの状態を持つものではなく、「有効かどうか」= enabled の意味になります。\n無効な理由： この種のアクションはアクティブレイヤがラスタレイヤの時だけ有効になります。現在のプロジェクトには空のベクタレイヤ tmp_floater_test のみでラスタレイヤがないため、グレーアウトしています。\n同じ理由でラスタツールバーの関連アクションもすべて無効でした：\nヒストグラムをデータセット全域の値で引きのばす（mActionFullHistogramStretch): enabled=false\n表示範囲内でヒストグラムの累積的カットと引き伸ばし（mActionLocalCumulativeCutStretch): enabled=false\nレイヤ全体のヒストグラムの累積的カットと引き伸ばし（mActionFullCumulativeCutStretch): enabled=false\nラスタレイヤ（DEMや画像等）を追加してアクティブにすれば有効化されます。必要であればお申し付けください。"
+}

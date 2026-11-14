@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_topologicalcoloring",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] トポロジーによる塗り分け」(id: qgis:topologicalcoloring) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] トポロジーによる塗り分け」(id: qgis:topologicalcoloring) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。存在を確認しました。`qgis:topologicalcoloring` は registry に登録されています。\n\n## [QGIS] トポロジーによる塗り分け\n\n**用途**: ポリゴン地物に「隣接するポリゴン同士が同じ色にならない」よう色番号を割り当てるアルゴリズム(グループ: 地図製作)。行政区画や小分区の地図塗り分け(4色問題の塗分け)に使います。結果は `color_id` という新しい属性に色インデックスとして保存されます(実際の着色は別途、分類レンダラで `color_id` を使います)。\n\n**主なパラメータ**:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ポリゴンレイヤ |\n| `MIN_COLORS` | 最小色数(デフォルト 4) |\n| `MIN_DISTANCE` | 同色を許可する最小距離。これより近い(接していなくても)地物には別の色を割り当てる |\n| `BALANCE` | 割り当て方針 — `0`: 地物数が同じになるよう、`1`: 面積が同じになるよう、`2`: 同色の地物ができるだけ離れるよう |\n| `OUTPUT` | `color_id` 属性を追加した出力レイヤ |\n\n補足: 実行後、シンボロジを「分類された」にして `color_id` で分類すると塗り分け地図が完成します。`BALANCE=1` は大きなポリゴンに色が偏るのを防ぎ、`BALANCE=2` は同色のばらつきが少ない均一な見た目になります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('qgis:topologicalcoloring')\\nif alg is None:\\n    result = {'found': False, 'similar': [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'color' in a.id().lower() or 'topo' in a.id().lower()]}\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': type(p).__name__, 'default': str(p.defaultValue())} for p in alg.parameterDefinitions()]\\n    outputs = [{'name': o.name(), 'desc': o.description()} for o in alg.outputDefinitions()]\\n    enum_opts = {p.name(): p.options() for p in alg.parameterDefinitions() if type(p).__name__ == 'QgsProcessingParameterEnum'}\\n    result = {'found': True, 'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'params': params, 'enums': enum_opts, 'outputs': outputs, 'shortHelp': (alg.shortHelpString() or '')[:1500]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] トポロジーによる塗り分け」(id: qgis:topologicalcoloring) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。存在を確認しました。qgis:topologicalcoloring は registry に登録されています。\n[QGIS] トポロジーによる塗り分け\n用途: ポリゴン地物に「隣接するポリゴン同士が同じ色にならない」よう色番号を割り当てるアルゴリズム(グループ: 地図製作)。行政区画や小分区の地図塗り分け(4色問題の塗分け)に使います。結果は color_id という新しい属性に色インデックスとして保存されます(実際の着色は別途、分類レンダラで color_id を使います)。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n入力ポリゴンレイヤ\nMIN_COLORS\n最小色数(デフォルト 4)\nMIN_DISTANCE\n同色を許可する最小距離。これより近い(接していなくても)地物には別の色を割り当てる\nBALANCE\n割り当て方針 — 0: 地物数が同じになるよう、1: 面積が同じになるよう、2: 同色の地物ができるだけ離れるよう\nOUTPUT\ncolor_id 属性を追加した出力レイヤ\n\n補足: 実行後、シンボロジを「分類された」にして color_id で分類すると塗り分け地図が完成します。BALANCE=1 は大きなポリゴンに色が偏るのを防ぎ、BALANCE=2 は同色のばらつきが少ない均一な見た目になります。"
+}

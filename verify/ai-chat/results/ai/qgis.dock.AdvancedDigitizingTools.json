@@ -1,0 +1,26 @@
+{
+ "id": "qgis.dock.AdvancedDigitizingTools",
+ "prompt": "「高度なデジタイズ」パネル(ドック)を表示して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "「高度なデジタイズ」パネル(ドック)を表示して"
+  },
+  {
+   "role": "assistant",
+   "content": "「高度なデジタイズ」ドックを表示して前面に出します。「高度なデジタイズ」パネルを表示しました。左側ドックエリアにドッキングされた状態で前面に出ています。距離・角度・XY 座標の拘束入力や、CAD 的な作図補助に使えます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\ndock = iface.mainWindow().findChild(QDockWidget, 'AdvancedDigitizingTools')\\ndock.setVisible(True)\\ndock.show()\\ndock.raise_()\\nresult = {'visible': dock.isVisible(), 'floating': dock.isFloating(), 'area': str(iface.mainWindow().dockWidgetArea(dock))}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 「高度なデジタイズ」パネル(ドック)を表示して\n[AI] \n「高度なデジタイズ」ドックを表示して前面に出します。「高度なデジタイズ」パネルを表示しました。左側ドックエリアにドッキングされた状態で前面に出ています。距離・角度・XY 座標の拘束入力や、CAD 的な作図補助に使えます。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Geocode_from_Street_Layer",
+ "prompt": "QGISの「Geocode from Street Layer」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Geocode from Street Layer」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "前回の走査で既に有効と確認済みですが、念のため個別アクションを直接チェックします。確認できました。**「Geocode from Street Layer」アクションは現在有効です。**\n\n## 詳細\n\n- メニューパス: **MMQGIS > Geocode > Geocode from Street Layer**\n- `QAction` 状態: `enabled = true`, `visible = true`\n- `geocode_street_layer_action` は `mmqgis` プラグインの `geocode_menu` 内に実際に登録されており（`in_geocode_menu = true`）、`mm.geocode_street_layer` メソッドに接続されています。\n\n道路レイヤ（住所範囲つきライン）を使った住所マッチング用のダイアログが開ける状態です。実行してみますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis import utils\\nmm = utils.plugins.get('mmqgis')\\na = mm.geocode_street_layer_action\\nresult = {\\n    'text': a.text(), 'enabled': a.isEnabled(), 'visible': a.isVisible(),\\n    'in_geocode_menu': a in mm.geocode_menu.actions(),\\n    'slot': repr(mm.geocode_street_layer)[:150],\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Geocode from Street Layer」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n前回の走査で既に有効と確認済みですが、念のため個別アクションを直接チェックします。確認できました。「Geocode from Street Layer」アクションは現在有効です。\n詳細\nメニューパス: MMQGIS > Geocode > Geocode from Street Layer\nQAction 状態: enabled = true, visible = true\ngeocode_street_layer_action は mmqgis プラグインの geocode_menu 内に実際に登録されており（in_geocode_menu = true）、mm.geocode_street_layer メソッドに接続されています。\n道路レイヤ（住所範囲つきライン）を使った住所マッチング用のダイアログが開ける状態です。実行してみますか？"
+}

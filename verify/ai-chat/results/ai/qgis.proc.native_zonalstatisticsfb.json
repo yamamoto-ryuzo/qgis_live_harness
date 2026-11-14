@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_zonalstatisticsfb",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ゾーン統計量（ベクタ）」(id: native:zonalstatisticsfb) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ゾーン統計量（ベクタ）」(id: native:zonalstatisticsfb) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`native:zonalstatisticsfb` **[QGIS（ネイティブC++）] ゾーン統計量（ベクタ）** は processing registry に登録されています（グループ: ラスタ解析）。\n\n### 用途\n\nポリゴン（ゾーン）地物ごとに、内部のラスタ値の**基本統計量を計算し、統計フィールドを追加した新規レイヤを出力**します。用途自体は `native:zonalstatistics`（in place 版）と同じで、DEM×行政区で「区ごとの平均標高」などを集計します。\n\n違いは**入力レイヤを変更せず結果を新規レイヤへ書き出す**点で、モデラーやバッチ処理で非破壊に繋げたい場合はこちらが適しています（fb = feature-based の意で、従来版より高速な実装でもあります）。\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT` | source | — | ゾーンのポリゴンレイヤ |\n| `INPUT_RASTER` | raster | — | 対象ラスタレイヤ |\n| `RASTER_BAND` | band | 1 | 対象バンド |\n| `COLUMN_PREFIX` | string | `_` | 統計列名の接頭辞（例: `_mean`） |\n| `STATISTICS` | enum（複数選択） | Count/Sum/Mean | 計算する統計量 |\n| `OUTPUT` | sink | — | 出力レイヤ |\n\n### 選択可能な統計量\n\nカウント、合計、平均値、中央値、標準偏差、最小、最大、範囲、最稀値、最頻値、種類、分散 — 複数選択可。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('native:zonalstatisticsfb')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ゾーン統計量（ベクタ）」(id: native:zonalstatisticsfb) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\nnative:zonalstatisticsfb [QGIS（ネイティブC++）] ゾーン統計量（ベクタ） は processing registry に登録されています（グループ: ラスタ解析）。\n用途\nポリゴン（ゾーン）地物ごとに、内部のラスタ値の基本統計量を計算し、統計フィールドを追加した新規レイヤを出力します。用途自体は native:zonalstatistics（in place 版）と同じで、DEM×行政区で「区ごとの平均標高」などを集計します。\n違いは入力レイヤを変更せず結果を新規レイヤへ書き出す点で、モデラーやバッチ処理で非破壊に繋げたい場合はこちらが適しています（fb = feature-based の意で、従来版より高速な実装でもあります）。\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT\nsource\n—\nゾーンのポリゴンレイヤ\nINPUT_RASTER\nraster\n—\n対象ラスタレイヤ\nRASTER_BAND\nband\n1\n対象バンド\nCOLUMN_PREFIX\nstring\n_\n統計列名の接頭辞（例: _mean）\nSTATISTICS\nenum（複数選択）\nCount/Sum/Mean\n計算する統計量\nOUTPUT\nsink\n—\n出力レイヤ\n\n選択可能な統計量\nカウント、合計、平均値、中央値、標準偏差、最小、最大、範囲、最稀値、最頻値、種類、分散 — 複数選択可。"
+}

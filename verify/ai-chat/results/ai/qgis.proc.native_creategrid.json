@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_creategrid",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] グリッドを作成」(id: native:creategrid) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] グリッドを作成」(id: native:creategrid) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:creategrid` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] グリッドを作成`\n- **ID**: `native:creategrid`\n- **グループ**: `ベクタ作成`\n- **用途**: 指定範囲を覆うグリッド状のベクタレイヤを作成します。調査区画、フィッシュネット、集計用メッシュ、サンプリング地点などの作成に使えます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `TYPE` | グリッド形式。`ポイント`、`ライン`、`長方形`、`菱形`、`六角形` から選択 |\n| `EXTENT` | グリッドを作成する範囲 |\n| `HSPACING` | 水平方向のセル間隔 |\n| `VSPACING` | 垂直方向のセル間隔 |\n| `HOVERLAY` | 水平方向のセル重なり量。既定値 `0` |\n| `VOVERLAY` | 垂直方向のセル重なり量。既定値 `0` |\n| `CRS` | 出力グリッドの CRS。範囲・間隔はこの CRS の単位で解釈 |\n| `OUTPUT` | 生成されるグリッドベクタレイヤ |\n\n配置の基準は範囲左上（`minX, maxY`）です。範囲の幅・高さが間隔の整数倍でない場合、端のセル配置が期待どおりにならないことがあります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:creategrid')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({\\n            'name"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] グリッドを作成」(id: native:creategrid) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:creategrid を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] グリッドを作成\nID: native:creategrid\nグループ: ベクタ作成\n用途: 指定範囲を覆うグリッド状のベクタレイヤを作成します。調査区画、フィッシュネット、集計用メッシュ、サンプリング地点などの作成に使えます。\n主なパラメータ:\nパラメータ\n内容\nTYPE\nグリッド形式。ポイント、ライン、長方形、菱形、六角形 から選択\nEXTENT\nグリッドを作成する範囲\nHSPACING\n水平方向のセル間隔\nVSPACING\n垂直方向のセル間隔\nHOVERLAY\n水平方向のセル重なり量。既定値 0\nVOVERLAY\n垂直方向のセル重なり量。既定値 0\nCRS\n出力グリッドの CRS。範囲・間隔はこの CRS の単位で解釈\nOUTPUT\n生成されるグリッドベクタレイヤ\n\n配置の基準は範囲左上（minX, maxY）です。範囲の幅・高さが間隔の整数倍でない場合、端のセル配置が期待どおりにならないことがあります。"
+}

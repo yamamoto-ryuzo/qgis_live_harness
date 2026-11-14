@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.modelerAction",
+ "prompt": "QGISの「Model Designer…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Model Designer…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認できました。**「&Model Designer…」アクションは現在有効です。**\n\n## 詳細\n\n- メニューパス: **プロセシング(&C) > Model Designer…**\n- `QAction` 状態: `enabled = true`, `visible = true`\n- `objectName = 'modelerAction'` で、プロセシングプラグインの「グラフィカルモデラ（モデルデザイナ）」を開くアクションです。\n\nProcessing アルゴリズムを連結してワークフローを作るモデルデザイナが開ける状態です。実行（ダイアログを開く）しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\nfound = []\\nfor w in iface.mainWindow().findChildren(QAction):\\n    t = w.text() or ''\\n    if 'model' in t.lower() or 'モデル' in t or 'designer' in t.lower() or 'modeler' in (w.objectName() or '').lower():\\n        found.append((t, w.objectName(), w.isEnabled(), w.isVisible(),\\n                      w.parent().__class__.__name__ if w.parent() else None))\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\na = iface.mainWindow().findChild(QAction, 'modelerAction')\\nmenus = []\\nfor m in iface.mainWindow().findChildren(QMenu):\\n    if a in m.actions():\\n        t = m.title()\\n        par = m.parent()\\n        while isinstance(par, QMenu):\\n            t = par.title() + ' > ' + t\\n            par = par.parent()\\n        menus.append(t)\\nresult = {'text': a.text(), 'enabled': a.isEnabled(), 'visible': a.isVisible(), 'menus': menus}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Model Designer…」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n確認できました。「&Model Designer…」アクションは現在有効です。\n詳細\nメニューパス: プロセシング(&C) > Model Designer…\nQAction 状態: enabled = true, visible = true\nobjectName = 'modelerAction' で、プロセシングプラグインの「グラフィカルモデラ（モデルデザイナ）」を開くアクションです。\nProcessing アルゴリズムを連結してワークフローを作るモデルデザイナが開ける状態です。実行（ダイアログを開く）しますか？"
+}

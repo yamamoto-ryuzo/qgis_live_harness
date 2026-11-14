@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_coveragevalidate",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Validate coverage」(id: native:coveragevalidate) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Validate coverage」(id: native:coveragevalidate) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry で `native:coveragevalidate` を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] Validate coverage`\n- **ID**: `native:coveragevalidate`\n- **グループ**: `Vector coverage`\n- **用途**: 隣接ポリゴンの境界が正確に一致する「カバレッジ」として有効かを検査します。ポリゴン同士の重なりや、指定幅以下の隙間など、境界不一致の箇所を検出できます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 検査対象のポリゴンレイヤ |\n| `GAP_WIDTH` | 検出対象とする隙間の最大幅。地図単位。既定値 `0.0` |\n| `INVALID_EDGES` | 不正と判定された境界を示すラインレイヤ。任意 |\n\n出力として `INVALID_EDGES` のほか、カバレッジ全体が有効かを示す `IS_VALID` の真偽値が返ります。実行には GEOS 3.12 以降が必要です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:coveragevalidate')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n            'advanced': bool(p.flags() & QgsProcessingParameterDefinition.FlagAdvanced),\\n        }\\n        for attr in ('options', 'dataType', 'minValue', 'maxValue'):\\n            if hasattr(p, attr):\\n                try:\\n                    v = getattr(p, attr)\\n                    d[attr] = v() if callable(v) else v\\n                except Exception as e:\\n                    d[attr] = repr(e)\\n        params.append(d)\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({\\n           "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Validate coverage」(id: native:coveragevalidate) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry で native:coveragevalidate を照会し、登録状況とパラメータ定義を確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] Validate coverage\nID: native:coveragevalidate\nグループ: Vector coverage\n用途: 隣接ポリゴンの境界が正確に一致する「カバレッジ」として有効かを検査します。ポリゴン同士の重なりや、指定幅以下の隙間など、境界不一致の箇所を検出できます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\n検査対象のポリゴンレイヤ\nGAP_WIDTH\n検出対象とする隙間の最大幅。地図単位。既定値 0.0\nINVALID_EDGES\n不正と判定された境界を示すラインレイヤ。任意\n\n出力として INVALID_EDGES のほか、カバレッジ全体が有効かを示す IS_VALID の真偽値が返ります。実行には GEOS 3.12 以降が必要です。"
+}

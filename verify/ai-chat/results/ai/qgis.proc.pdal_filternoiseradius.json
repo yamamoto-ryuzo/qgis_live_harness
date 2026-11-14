@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.pdal_filternoiseradius",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Filter noise (using radius)」(id: pdal:filternoiseradius) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Filter noise (using radius)」(id: pdal:filternoiseradius) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registryを確認します。## 確認結果: 存在します ✅\n\n`pdal:filternoiseradius` **[QGIS (PDAL)] Filter noise (using radius)** は processing registry に登録されています（プロバイダ: QGIS (PDAL)、グループ: Point cloud data management）。\n\n### 用途\n\n**半径ベースの外れ値フィルタ（Radius Outlier Removal）でノイズ点を検出・除去**します。指定半径内の近傍点数が閾値未満の孤立点をノイズとみなします。空中に浮遊する点や観測ノイズのクリーニングに使います。\n\n### 主なパラメータ\n\n| パラメータ | 型 | 既定値 | 説明 |\n|---|---|---|---|\n| `INPUT` | pointcloud | — | 入力点群レイヤ |\n| `MIN_K` | number | 2 | 半径内の最小近傍点数。これ未満ならノイズ判定 |\n| `RADIUS` | number | 1.0 | 近傍探索半径 |\n| `REMOVE_NOISE_POINTS` | boolean | false | true=ノイズ点を除去、false=分類フラグのみ付与 |\n| `VPC_OUTPUT_FORMAT` | enum | COPC | Virtual Point Cloud使用時の出力形式: COPC / LAZ / LAS |\n| `OUTPUT` | pointCloudDestination | — | 出力点群 |\n\n`REMOVE_NOISE_POINTS` が false（既定）だと、ノイズ点は削除されず Classification=7（noise）としてマークされる挙動です。統計的手法で除去する `pdal:filternoisestat` もあります。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterEnum\\nalg = QgsApplication.processingRegistry().algorithmById('pdal:filternoiseradius')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type(), 'default': p.defaultValue()}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            entry['options'] = p.options()\\n        params.append(entry)\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'shortHelp': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS (PDAL)] Filter noise (using radius)」(id: pdal:filternoiseradius) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistryを確認します。## 確認結果: 存在します ✅\npdal:filternoiseradius [QGIS (PDAL)] Filter noise (using radius) は processing registry に登録されています（プロバイダ: QGIS (PDAL)、グループ: Point cloud data management）。\n用途\n半径ベースの外れ値フィルタ（Radius Outlier Removal）でノイズ点を検出・除去します。指定半径内の近傍点数が閾値未満の孤立点をノイズとみなします。空中に浮遊する点や観測ノイズのクリーニングに使います。\n主なパラメータ\nパラメータ\n型\n既定値\n説明\nINPUT\npointcloud\n—\n入力点群レイヤ\nMIN_K\nnumber\n2\n半径内の最小近傍点数。これ未満ならノイズ判定\nRADIUS\nnumber\n1.0\n近傍探索半径\nREMOVE_NOISE_POINTS\nboolean\nfalse\ntrue=ノイズ点を除去、false=分類フラグのみ付与\nVPC_OUTPUT_FORMAT\nenum\nCOPC\nVirtual Point Cloud使用時の出力形式: COPC / LAZ / LAS\nOUTPUT\npointCloudDestination\n—\n出力点群\n\nREMOVE_NOISE_POINTS が false（既定）だと、ノイズ点は削除されず Classification=7（noise）としてマークされる挙動です。統計的手法で除去する pdal:filternoisestat もあります。"
+}

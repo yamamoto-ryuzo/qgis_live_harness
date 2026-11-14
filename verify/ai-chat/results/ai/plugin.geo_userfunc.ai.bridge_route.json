@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_userfunc.ai.bridge_route",
+ "prompt": "geo_userfunc プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_userfunc プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "`describe_plugins` から取得した geo_userfunc のカタログ情報（自己記述）です。\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| id | `geo_userfunc` |\n| name | ユーザー関数ライブラリ (geo_userfunc) |\n| bridge | 搭載（専用 bridge あり、`bridge: true`） |\n\n**summary**: ユーザー定義 Python コードのライブラリ管理。`@qgsfunction` 式関数の式エンジン登録、openProject/saveProject/closeProject フックの信号配線、`main(context)` マクロのメニュー/bridge実行を行う。他プラグイン（geo_excel等）が登録したマクロも一元管理する。\n\n## when_to_use（想定用途）\n- 式で使えるユーザー関数（zen2han等）を登録・確認したい\n- プロジェクトの開閉・保存時に動くフックを管理したい\n- `main(context)` 形式のユーザーマクロを実行したい\n- AIが新しいユーザー関数を作成してQGISへ即登録したい\n- geo_excel等の他プラグインのマクロを一覧・実行したい\n- upstreamリポジトリから関数定義を更新したい\n\n## 現在の state\n- libraryDir: `C:/Users/ryu.RYU-NOTE/.../profiles/geo_custom/python/geo_userfunc`\n- fileCount: **1** / registryCount: **3**\n\n## メソッド一覧（17個、bridge_call で呼び出し）\n\n| メソッド | シグネチャ | 説明 |\n|---|---|---|\n| addSource | `addSource(file, url)` | sources.jsonへ更新元追加 |\n| deleteFunction | `deleteFunction(name)` | ライブラリ内ファイルを削除 |\n| evalExpression | `evalExpression(expression, layer_id=None, feature_id=None)` | 式を評価（式関数の確認用） |\n| fetchFromUrl | `fetchFromUrl(url, name=None)` | URLから.pyを取得・保存しreload |\n| listFunctions | `listFunctions()` | ファイル一覧＋登録済み式関数 |\n| listMacros | `listMacros()` | 実行可能マクロ一覧 |\n| listSources | `listSources()` | upstream更新元一覧 |\n| openLibraryDir | `openLibraryDir()` | ライブラリフォルダを開く |\n| openManager | `openManager()` | 管理ダイアログを開く |\n| readFunction | `readFunction(name)` | ファイルのソースを返す |\n| reload | `reload()` | 再スキャン・全再登録 |\n| removeSource | `removeSource(file)` | 更新元を削除（ファイルは残る） |\n| run | `run(name, layer_id=None, feature_id=None, args=None, confirm=False)` | マクロ実行（confirm=Trueで確認Ok） |\n| saveFunction | `saveFunction(name, source)` | 構文検証付き保存（要reload） |\n| setEnabled | `setEnabled(name, enabled=True)` | 有効/無効切替（要reload） |\n| status | `status()` | 状態サマリ |\n| updateFromUpstream | `updateFromUpstream()` | URLから再取得・上書き更新 |\n\n前回の確認時と内容は同一で、変更はありませんでした。"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_userfunc プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \ndescribe_plugins から取得した geo_userfunc のカタログ情報（自己記述）です。\n基本情報\n項目\n値\nid\ngeo_userfunc\nname\nユーザー関数ライブラリ (geo_userfunc)\nbridge\n搭載（専用 bridge あり、bridge: true）\n\nsummary: ユーザー定義 Python コードのライブラリ管理。@qgsfunction 式関数の式エンジン登録、openProject/saveProject/closeProject フックの信号配線、main(context) マクロのメニュー/bridge実行を行う。他プラグイン（geo_excel等）が登録したマクロも一元管理する。\nwhen_to_use（想定用途）\n式で使えるユーザー関数（zen2han等）を登録・確認したい\nプロジェクトの開閉・保存時に動くフックを管理したい\nmain(context) 形式のユーザーマクロを実行したい\nAIが新しいユーザー関数を作成してQGISへ即登録したい\ngeo_excel等の他プラグインのマクロを一覧・実行したい\nupstreamリポジトリから関数定義を更新したい\n現在の state\nlibraryDir: C:/Users/ryu.RYU-NOTE/.../profiles/geo_custom/python/geo_userfunc\nfileCount: 1 / registryCount: 3\nメソッド一覧（17個、bridge_call で呼び出し）\nメソッド\nシグネチャ\n説明\naddSource\naddSource(file, url)\nsources.jsonへ更新元追加\ndeleteFunction\ndeleteFunction(name)\nライブラリ内ファイルを削除\nevalExpression\nevalExpression(expression, layer_id=None, feature_id=None)\n式を評価（式関数の確認用）\nfetchFromUrl\nfetchFromUrl(url, name=None)\nURLから.pyを取得・保存しreload\nlistFunctions\nlistFunctions()\nファイル一覧＋登録済み式関数\nlistMacros\nlistMacros()\n実行可能マクロ一覧\nlistSources\nlistSources()\nupstream更新元一覧\nopenLibraryDir\nopenLibraryDir()\nライブラリフォルダを開く\nopenManager\nopenManager()\n管理ダイアログを開く\nreadFunction\nreadFunction(name)\nファイルのソースを返す\nreload\nreload()\n再スキャン・全再登録\nremoveSource\nremoveSource(file)\n更新元を削除（ファイルは残る）\nrun\nrun(name, layer_id=None, feature_id=None, args=None, confirm=False)\nマクロ実行（confirm=Trueで確認Ok）\nsaveFunction\nsaveFunction(name, source)\n構文検証付き保存（要reload）\nsetEnabled\nsetEnabled(name, enabled=True)\n有効/無効切替（要reload）\nstatus\nstatus()\n状態サマリ\nupdateFromUpstream\nupdateFromUpstream()\nURLから再取得・上書き更新\n\n前回の確認時と内容は同一で、変更はありませんでした。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_splitwithlines",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線で分割（split with lines）」(id: native:splitwithlines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線で分割（split with lines）」(id: native:splitwithlines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:splitwithlines`「**線で分割（split with lines）**」は登録されています（グループ: ベクタオーバーレイ）。\n\n## 用途\n\n- 入力レイヤの**ラインやポリゴンを、別レイヤのライン（またはポリゴンの輪郭）との交差箇所で切断**します\n- 例：ポリゴン（土地）を道路ラインで分割して2つのポリゴンに、ライン同士の交点でラインを分断\n- ジオメトリ同士の**交差点が分割点**として使われます。属性は元地物から引き継がれます\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `INPUT` | source | 入力レイヤ（ラインまたはポリゴン。分割される側） |\n| `LINES` | source | 切断線のレイヤ（ライン、またはポリゴンのリングも可） |\n| `OUTPUT` | sink | 出力レイヤ |\n\nパラメータはこれだけです。\n\n## 動作イメージ\n\n```\n入力ポリゴン:  ┌─────┐       切断線:    │\n               │     │                  │\n               └─────┘                  │\n出力:          ┌───┬──┐   (2ポリゴンに分割)\n               │   │  │\n               └───┴──┘\n```\n\n関連アルゴリズム：\n\n- `native:splitlinesbyfeature` — 別レイヤの地物で分割（近いが別実装）\n- `native:difference` — 切り分けではなく差分を取る\n- `qgis:clip` — 範囲で切り抜き\n\n注意点：ラインがポリゴンを完全に横断しないと分割されません（端がポリゴン内で止まるラインは分割不可）。また分割点での微小ギャップを防ぐため、入力のトポロジが正しい（`native:fixgeometries` で修正済み）方が確実です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:splitwithlines')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線で分割（split with lines）」(id: native:splitwithlines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:splitwithlines「線で分割（split with lines）」は登録されています（グループ: ベクタオーバーレイ）。\n用途\n入力レイヤのラインやポリゴンを、別レイヤのライン（またはポリゴンの輪郭）との交差箇所で切断します\n例：ポリゴン（土地）を道路ラインで分割して2つのポリゴンに、ライン同士の交点でラインを分断\nジオメトリ同士の交差点が分割点として使われます。属性は元地物から引き継がれます\n主なパラメータ\nパラメータ\n型\n内容\nINPUT\nsource\n入力レイヤ（ラインまたはポリゴン。分割される側）\nLINES\nsource\n切断線のレイヤ（ライン、またはポリゴンのリングも可）\nOUTPUT\nsink\n出力レイヤ\n\nパラメータはこれだけです。\n動作イメージ\n入力ポリゴン:  ┌─────┐       切断線:    │\n               │     │                  │\n               └─────┘                  │\n出力:          ┌───┬──┐   (2ポリゴンに分割)\n               │   │  │\n               └───┴──┘\n関連アルゴリズム：\nnative:splitlinesbyfeature — 別レイヤの地物で分割（近いが別実装）\nnative:difference — 切り分けではなく差分を取る\nqgis:clip — 範囲で切り抜き\n注意点：ラインがポリゴンを完全に横断しないと分割されません（端がポリゴン内で止まるラインは分割不可）。また分割点での微小ギャップを防ぐため、入力のトポロジが正しい（native:fixgeometries で修正済み）方が確実です。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_pointsalonglines",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] 出力レイヤ」(id: gdal:pointsalonglines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] 出力レイヤ」(id: gdal:pointsalonglines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:pointsalonglines` を Processing Registry で確認します。確認しました。Processing Registry に **`[GDAL] 出力レイヤ`** は存在します。\n\n- **ID:** `gdal:pointsalonglines`\n- **プロバイダ:** `GDAL`\n- **グループ:** `ベクタ・ジオプロセシング`\n\n### 用途\n入力ラインレイヤの各地物について、**線の始点からの相対距離で指定した位置に点を生成**します。例えば `0.5` なら線分の中点に点を作成します。\n\n### 主なパラメータ\n- `INPUT`：入力ラインレイヤ\n- `GEOMETRY`：対象ジオメトリカラム名（既定値 `geometry`）\n- `DISTANCE`：線分の始点からの距離を全長に対する比率で指定（既定値 `0.5`）\n- `OPTIONS`：追加のGDALオプション\n- `OUTPUT`：出力点ベクタレイヤ"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication, QgsProcessingParameterDefinition\\nimport json\\nreg = QgsApplication.processingRegistry()\\nalgo_id = 'gdal:pointsalonglines'\\nalg = reg.algorithmById(algo_id)\\nif alg is None:\\n    matches = sorted([a.id() for a in reg.algorithms() if 'pointsalong' in a.id().lower() or 'points' in a.id().lower()])\\n    result = json.dumps({'exists': False, 'requested_id': algo_id, 'matches': matches}, ensure_ascii=False)\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'default': str(p.defaultValue()),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional)\\n        })\\n    outputs = [{'name': o.name(), 'description': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    matches = sorted([a.id() for a in reg.algorithms() if 'pointsalong' in a.id"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] 出力レイヤ」(id: gdal:pointsalonglines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:pointsalonglines を Processing Registry で確認します。確認しました。Processing Registry に [GDAL] 出力レイヤ は存在します。\nID: gdal:pointsalonglines\nプロバイダ: GDAL\nグループ: ベクタ・ジオプロセシング\n用途\n入力ラインレイヤの各地物について、線の始点からの相対距離で指定した位置に点を生成します。例えば 0.5 なら線分の中点に点を作成します。\n主なパラメータ\nINPUT：入力ラインレイヤ\nGEOMETRY：対象ジオメトリカラム名（既定値 geometry）\nDISTANCE：線分の始点からの距離を全長に対する比率で指定（既定値 0.5）\nOPTIONS：追加のGDALオプション\nOUTPUT：出力点ベクタレイヤ"
+}

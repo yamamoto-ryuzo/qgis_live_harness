@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionToggleDigitizeToolBar",
+ "prompt": "QGISの「デジタイジングツールバー」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「デジタイジングツールバー」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「デジタイジングツールバー」の状態を確認します。「デジタイジングツールバー」(`mDigitizeToolBar`)は既に表示されており、トグルアクションもオンです。編集モードの切替、地物追加、頂点ツール、移動・削除・切り取り/コピー/貼り付けなどの基本編集ツールが並んでいます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QToolBar, QAction\\ntbars = [(t.objectName(), t.windowTitle(), t.isVisible()) for t in iface.mainWindow().findChildren(QToolBar) if 'igitiz' in t.objectName() or 'デジタイ' in t.windowTitle()]\\na = iface.mainWindow().findChild(QAction, 'mActionToggleDigitizeToolBar')\\nresult = {'toolbars': tbars, 'checked': a.isChecked() if a else None}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「デジタイジングツールバー」機能(アクション)を実行して\n[AI] \n「デジタイジングツールバー」の状態を確認します。「デジタイジングツールバー」(mDigitizeToolBar)は既に表示されており、トグルアクションもオンです。編集モードの切替、地物追加、頂点ツール、移動・削除・切り取り/コピー/貼り付けなどの基本編集ツールが並んでいます。"
+}

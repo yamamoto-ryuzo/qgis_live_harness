@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_hublines",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ハブ＆スポーク図」(id: native:hublines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ハブ＆スポーク図」(id: native:hublines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。## 確認結果：存在します ✅\n\n`native:hublines`（表示名 **「ハブ＆スポーク図」**、グループ「ベクタ解析」）がこのQGISの processing registry に登録されています。\n\n### 用途\n\n**スポークレイヤの各点から、対応するハブレイヤの点までを結ぶ線を作成**し、「ハブ＆スポーク図」（中心と放射状の接続図）を生成するアルゴリズムです。どのスポークがどのハブに結び付くかは、**ハブID属性とスポークID属性の一致**で決まります。商店の集客範囲・物流の起点―終点・通勤流動など「点と点の対応関係」を線で可視化するのに使います。\n\n- 入力が点でない場合は、ジオメトリ表面の頂点が使われます\n- **測地線（地球楕円体上の最短経路）**での作成も可能\n\n### 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `HUBS` | ハブレイヤ（接続先の中心となるレイヤ） |\n| `HUB_FIELD` | ハブID属性（対応付けのキー） |\n| `HUB_FIELDS` | コピーするハブ属性（空=全部） |\n| `SPOKES` | スポークレイヤ（接続元となるレイヤ） |\n| `SPOKE_FIELD` | スポークID属性（対応付けのキー） |\n| `SPOKE_FIELDS` | コピーするスポーク属性（空=全部） |\n| `GEODESIC` | 測地線を作成するか（bool） |\n| `GEODESIC_DISTANCE` | 頂点間の距離（測地線のみ。小さいほど正確） |\n| `ANTIMERIDIAN_SPLIT` | 経度180度線で線を切断するか（bool） |\n| `OUTPUT` | 出力レイヤ（ライン） |\n\n### 出力\n\n- `OUTPUT` — スポーク→ハブを結ぶラインレイヤ（両側の属性をコピー）\n\n### 補足\n\n- 対応関係は「**IDの一致**」で決まるため、最近傍ハブではなく**任意の割当**（例：住所→担当営業所）も表現できます。最近傍ハブを探すのは別アルゴリズム `native:distancetonearesthub`（Distance to nearest hub）や `qgis:distancetonearesthublinestohub` の役割です。\n- `GEODESIC` をオンにすると大圏航路のような曲線になり、`GEODESIC_DISTANCE` で頂点の細かさ（＝滑らかさと精度）を調整します。国際線のような長距離接続の可視化に向きます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:hublines')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        entry = {'name': p.name(), 'desc': p.description(), 'type': p.type()}\\n        if p.type() == 'enum':\\n            entry['options'] = p.options()\\n            entry['default'] = p.defaultValue()\\n        params.append(entry)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.displayName(),\\n        'group': alg.group(),\\n        'tags': alg.tags(),\\n        'short_help': alg.shortHelpString(),\\n        'params': params,\\n        'outputs': [(o.name(), o.description()) for o in alg.outputDefinitions()],\\n        'related': [(a.id(), a.displayName(), a.group()) for a in QgsApplication.processingRegistry().algorithms() if 'hub' in a.id() or 'spoke' in a.id() or 'nearest' in a.id() or 'distance' in a.id() and 'matrix' in a.id()],\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ハブ＆スポーク図」(id: native:hublines) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。## 確認結果：存在します ✅\nnative:hublines（表示名 「ハブ＆スポーク図」、グループ「ベクタ解析」）がこのQGISの processing registry に登録されています。\n用途\nスポークレイヤの各点から、対応するハブレイヤの点までを結ぶ線を作成し、「ハブ＆スポーク図」（中心と放射状の接続図）を生成するアルゴリズムです。どのスポークがどのハブに結び付くかは、ハブID属性とスポークID属性の一致で決まります。商店の集客範囲・物流の起点―終点・通勤流動など「点と点の対応関係」を線で可視化するのに使います。\n入力が点でない場合は、ジオメトリ表面の頂点が使われます\n**測地線（地球楕円体上の最短経路）**での作成も可能\n主なパラメータ\nパラメータ\n内容\nHUBS\nハブレイヤ（接続先の中心となるレイヤ）\nHUB_FIELD\nハブID属性（対応付けのキー）\nHUB_FIELDS\nコピーするハブ属性（空=全部）\nSPOKES\nスポークレイヤ（接続元となるレイヤ）\nSPOKE_FIELD\nスポークID属性（対応付けのキー）\nSPOKE_FIELDS\nコピーするスポーク属性（空=全部）\nGEODESIC\n測地線を作成するか（bool）\nGEODESIC_DISTANCE\n頂点間の距離（測地線のみ。小さいほど正確）\nANTIMERIDIAN_SPLIT\n経度180度線で線を切断するか（bool）\nOUTPUT\n出力レイヤ（ライン）\n\n出力\nOUTPUT — スポーク→ハブを結ぶラインレイヤ（両側の属性をコピー）\n補足\n対応関係は「IDの一致」で決まるため、最近傍ハブではなく任意の割当（例：住所→担当営業所）も表現できます。最近傍ハブを探すのは別アルゴリズム native:distancetonearesthub（Distance to nearest hub）や qgis:distancetonearesthublinestohub の役割です。\nGEODESIC をオンにすると大圏航路のような曲線になり、GEODESIC_DISTANCE で頂点の細かさ（＝滑らかさと精度）を調整します。国際線のような長距離接続の可視化に向きます。"
+}

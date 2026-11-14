@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.qgis_distancematrix",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS] 距離行列（distance matrix）」(id: qgis:distancematrix) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS] 距離行列（distance matrix）」(id: qgis:distancematrix) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis:distancematrix` を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\n\n- **ID**: `qgis:distancematrix`\n- **表示名**: `距離行列（distance matrix）`\n- **Provider**: `QGIS`\n- **グループ**: `ベクタ解析`\n\n### 用途\n入力点レイヤとターゲット点レイヤの各点間距離を計算し、距離行列または集計結果をテーブルとして出力します。全点間、または指定した近傍点数までを対象にできます。\n\n### 主なパラメータ\n\n| パラメータ | 意味 | 既定値 |\n|---|---|---|\n| `INPUT` | 起点となる入力点レイヤ | — |\n| `INPUT_FIELD` | 入力点の ID 属性 | — |\n| `TARGET` | 距離計算先の点レイヤ | — |\n| `TARGET_FIELD` | ターゲット点の ID 属性 | — |\n| `MATRIX_TYPE` | 出力形式。線形・標準・統計の3種類 | `線形距離行列` |\n| `NEAREST_POINTS` | 各入力点ごとに計算する近傍点数。`0` で全点 | `0` |\n| `OUTPUT` | 距離行列の出力先 | — |\n\n`MATRIX_TYPE` の選択肢：\n- `線形距離行列（N * k x 3）`\n- `標準距離行列（N x T）`\n- `距離統計行列（平均、標準偏差、最小、最大）`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('qgis:distancematrix')\\nif alg is None:\\n    result = {\\n        'exists': False,\\n        'matches': [\\n            {'id': a.id(), 'name': a.displayName(), 'provider': a.provider().id() if a.provider() else None}\\n            for a in reg.algorithms()\\n            if 'distance' in a.id().lower() or 'matrix' in a.id().lower()\\n        ]\\n    }\\nelse:\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'providerId': alg.provider().id() if alg.provider() else None,\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'shortDescription': alg.shortDescription(),\\n        'help': alg.shortHelpString(),\\n        'parameters': [\\n            {\\n                'name': p.name(),\\n                'description': p.description(),\\n                'type': p.type(),"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS] 距離行列（distance matrix）」(id: qgis:distancematrix) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nqgis:distancematrix を registry から照会し、存在する場合はパラメータ定義と出力を確認します。確認済みです。現在の QGIS processing registry に存在します。\nID: qgis:distancematrix\n表示名: 距離行列（distance matrix）\nProvider: QGIS\nグループ: ベクタ解析\n用途\n入力点レイヤとターゲット点レイヤの各点間距離を計算し、距離行列または集計結果をテーブルとして出力します。全点間、または指定した近傍点数までを対象にできます。\n主なパラメータ\nパラメータ\n意味\n既定値\nINPUT\n起点となる入力点レイヤ\n—\nINPUT_FIELD\n入力点の ID 属性\n—\nTARGET\n距離計算先の点レイヤ\n—\nTARGET_FIELD\nターゲット点の ID 属性\n—\nMATRIX_TYPE\n出力形式。線形・標準・統計の3種類\n線形距離行列\nNEAREST_POINTS\n各入力点ごとに計算する近傍点数。0 で全点\n0\nOUTPUT\n距離行列の出力先\n—\n\nMATRIX_TYPE の選択肢：\n線形距離行列（N * k x 3）\n標準距離行列（N x T）\n距離統計行列（平均、標準偏差、最小、最大）"
+}

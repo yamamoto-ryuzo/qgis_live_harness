@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_postgisexecutesql",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] PostgreSQLを実行」(id: native:postgisexecutesql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] PostgreSQLを実行」(id: native:postgisexecutesql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:postgisexecutesql` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:postgisexecutesql`\n- **表示名**: PostgreSQLを実行\n- **グループ**: データベース\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\nQGIS に登録済みの **PostgreSQL データベース接続に対して SQL コマンドを実行**するアルゴリズムです。結果をレイヤとして読み込まないため、UPDATE/INSERT/CREATE TABLE や VACUUM などの管理・更新系クエリをモデラーやスクリプトに組み込むのに向いています（SELECT結果をレイヤ化したい場合は `native:postgisexecuteandloadsql` を使用）。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `DATABASE` | providerconnection（必須） | データベース接続名（QGISブラウザに登録されたPostgreSQL接続） |\n| `SQL` | string（必須） | 実行するSQLクエリ |\n\n戻り値（出力）はありません。\n\n実行例:\n\n```python\nprocessing.run(\"native:postgisexecutesql\", {\n    'DATABASE': 'my_postgis_connection',\n    'SQL': 'CREATE INDEX idx_roads_geom ON public.roads USING GIST (geom)'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:postgisexecutesql')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] PostgreSQLを実行」(id: native:postgisexecutesql) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:postgisexecutesql は現在の QGIS の processing registry に登録されています。\nID: native:postgisexecutesql\n表示名: PostgreSQLを実行\nグループ: データベース\nプロバイダ: QGIS（ネイティブC++）\n用途\nQGIS に登録済みの PostgreSQL データベース接続に対して SQL コマンドを実行するアルゴリズムです。結果をレイヤとして読み込まないため、UPDATE/INSERT/CREATE TABLE や VACUUM などの管理・更新系クエリをモデラーやスクリプトに組み込むのに向いています（SELECT結果をレイヤ化したい場合は native:postgisexecuteandloadsql を使用）。\n主なパラメータ\n名前\n種別\n説明\nDATABASE\nproviderconnection（必須）\nデータベース接続名（QGISブラウザに登録されたPostgreSQL接続）\nSQL\nstring（必須）\n実行するSQLクエリ\n\n戻り値（出力）はありません。\n実行例:\nprocessing.run(\"native:postgisexecutesql\", {\n    'DATABASE': 'my_postgis_connection',\n    'SQL': 'CREATE INDEX idx_roads_geom ON public.roads USING GIST (geom)'\n})"
+}

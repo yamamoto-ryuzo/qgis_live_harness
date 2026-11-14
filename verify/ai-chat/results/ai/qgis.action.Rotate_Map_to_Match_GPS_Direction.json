@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.Rotate_Map_to_Match_GPS_Direction",
+ "prompt": "QGISの「Rotate Map to Match GPS Direction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Rotate Map to Match GPS Direction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "同じGPSオプションメニュー内のアクションです。現在状態を確認します。調査結果です。\n\n## 「Rotate Map to Match GPS Direction」アクション\n\n「Show Location Marker」「Show Bearing Line」と同じ、**GPSツールバーのオプションメニュー**内のトグルアクションです。\n\n**現在の状態**（pyeval 実測）:\n\n| 項目 | 値 |\n|---|---|\n| isEnabled | **true（有効）** |\n| isCheckable | true |\n| isChecked | **false（OFF）** |\n| isVisible | true |\n\n**意味・実効**: GPSの進行方向（bearing）に合わせて地図キャンバスを回転させるトグルです。アクション自体は有効なので `setChecked(True)` / `trigger()` で ON にできます。\n\nただしアクティブな GPS 接続は **0 件**（前回調査時点）のため、ON にしても現在は実際の回転は発生しません。方位データ受信時にのみ回転が反映されます。\n\n## まとめ\n\n- アクションは **有効（enabled）だが OFF（unchecked）** の状態です。\n- 実際の地図回転には GPS 接続と方位データが前提です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\na = None\\nfor x in mw.findChildren(QAction):\\n    if (x.text() or '') == 'Rotate Map to Match GPS Direction':\\n        a = x\\n        break\\nresult = {'enabled': a.isEnabled(), 'checkable': a.isCheckable(), 'checked': a.isChecked(),\\n          'visible': a.isVisible(), 'tooltip': a.toolTip()}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Rotate Map to Match GPS Direction」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n同じGPSオプションメニュー内のアクションです。現在状態を確認します。調査結果です。\n「Rotate Map to Match GPS Direction」アクション\n「Show Location Marker」「Show Bearing Line」と同じ、GPSツールバーのオプションメニュー内のトグルアクションです。\n現在の状態（pyeval 実測）:\n項目\n値\nisEnabled\ntrue（有効）\nisCheckable\ntrue\nisChecked\nfalse（OFF）\nisVisible\ntrue\n\n意味・実効: GPSの進行方向（bearing）に合わせて地図キャンバスを回転させるトグルです。アクション自体は有効なので setChecked(True) / trigger() で ON にできます。\nただしアクティブな GPS 接続は 0 件（前回調査時点）のため、ON にしても現在は実際の回転は発生しません。方位データ受信時にのみ回転が反映されます。\nまとめ\nアクションは 有効（enabled）だが OFF（unchecked） の状態です。\n実際の地図回転には GPS 接続と方位データが前提です。"
+}

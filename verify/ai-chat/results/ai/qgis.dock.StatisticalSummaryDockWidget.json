@@ -1,0 +1,26 @@
+{
+ "id": "qgis.dock.StatisticalSummaryDockWidget",
+ "prompt": "「統計」パネル(ドック)を表示して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "「統計」パネル(ドック)を表示して"
+  },
+  {
+   "role": "assistant",
+   "content": "「統計」ドックを表示して前面に出します。「統計」パネルを表示しました。左側ドックエリアに前面表示されています。アクティブなベクタレイヤの属性フィールド(または `$area` などの式)を選ぶと、個数・合計・平均・中央値・標準偏差などの統計量が即座に表示されます。選択地物のみを対象にする切り替えも可能です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\ndock = iface.mainWindow().findChild(QDockWidget, 'StatisticalSummaryDockWidget')\\ndock.setVisible(True)\\ndock.show()\\ndock.raise_()\\nresult = {'visible': dock.isVisible(), 'floating': dock.isFloating(), 'area': str(iface.mainWindow().dockWidgetArea(dock))}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 「統計」パネル(ドック)を表示して\n[AI] \n「統計」ドックを表示して前面に出します。「統計」パネルを表示しました。左側ドックエリアに前面表示されています。アクティブなベクタレイヤの属性フィールド(または $area などの式)を選ぶと、個数・合計・平均・中央値・標準偏差などの統計量が即座に表示されます。選択地物のみを対象にする切り替えも可能です。"
+}

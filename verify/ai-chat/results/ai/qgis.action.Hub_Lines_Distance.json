@@ -1,0 +1,50 @@
+{
+ "id": "qgis.action.Hub_Lines_Distance",
+ "prompt": "QGISの「Hub Lines / Distance」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Hub Lines / Distance」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "QGIS の Hub 系機能（Processing の \"Distance to nearest hub\" と MMQGIS プラグインの \"Hub Lines\"）を pyeval で調べます。調査完了です。結論：**「Hub Lines / Distance」は現在有効（enabled）です**。\n\n## MMQGIS のメニューアクション\n\n- メニューパス: **MMQGIS > Create > Hub Lines / Distance**\n- `QAction` 状態: `enabled = true`, `visible = true`\n- プラグイン `mmqgis`（`mmqgis_menu` クラス）がロード済みで、アクションは `mm.hub_lines` メソッドに接続されています。クリックすれば MMQGIS の Hub Lines/距離ダイアログが開く状態です。\n\n## Processing アルゴリズム（同系機能）\n\nProcessing レジストリにも 4 件の Hub 系アルゴリズムが登録されており、すべて `createInstance()` で生成可能な有効な状態です：\n\n| ID | 表示名 |\n|---|---|\n| `native:hublines` | ハブ＆スポーク図 |\n| `native:distancetonearesthub` | Distance to nearest hub |\n| `qgis:distancetonearesthublinetohub` | 最寄りのハブの距離（ハブへの線） |\n| `qgis:distancetonearesthubpoints` | 最寄りのハブの距離 |\n\nつまり GUI メニュー経由でも、`processing.run()` 経由でも Hub Lines / Distance 系の機能はすべて利用可能です。実際にダイアログを開いたり、アルゴリズムを実行したりしますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalgs = []\\nfor a in QgsApplication.processingRegistry().algorithms():\\n    if 'hub' in a.id().lower() or 'hub' in a.displayName().lower():\\n        algs.append((a.id(), a.displayName(), a.group(), a.groupId()))\\nresult = algs\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils as qu\\nacts = []\\nfor p in qgis.utils.plugins.values():\\n    for attr in dir(p):\\n        pass\\n# simpler: walk all QActions in main window with 'hub' in text/objectName\\nfrom qgis.PyQt.QtWidgets import QAction\\nfound = []\\nfor w in iface.mainWindow().findChildren(QAction):\\n    t = w.text() or ''\\n    if 'hub' in t.lower() or 'hub' in (w.objectName() or '').lower():\\n        found.append((t, w.objectName(), w.isEnabled(), w.parent().__class__.__name__ if w.parent() else None))\\nresult = found\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction, QMenu\\ninfo = []\\nfor w in iface.mainWindow().findChildren(QAction):\\n    if (w.text() or '') == 'Hub Lines / Distance':\\n        info.append({\\n            'text': w.text(), 'enabled': w.isEnabled(), 'visible': w.isVisible(),\\n            'parent': w.parent().title() if isinstance(w.parent(), QMenu) else repr(w.parent()),\\n            'tip': w.toolTip(), 'shortcut': w.shortcut().toString(),\\n        })\\nresult = info\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis import utils\\nmm = utils.plugins.get('mmqgis')\\nres = {'loaded': mm is not None}\\nif mm:\\n    res['class'] = type(mm).__name__\\n    # find attributes that look like actions\\n    res['hub_attrs'] = [a for a in dir(mm) if 'hub' in a.lower()]\\n    for a in res['hub_attrs']:\\n        obj = getattr(mm, a)\\n        res[a] = repr(obj)[:300]\\nresult = res\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis import utils\\nfrom qgis.PyQt.QtWidgets import QMenu\\nmm = utils.plugins.get('mmqgis')\\na = mm.hub_lines_action\\n# find which menu contains this action\\npath = []\\nfor m in iface.mainWindow().findChildren(QMenu):\\n    if a in m.actions():\\n        # parent chain\\n        t = m.title()\\n        par = m.parent()\\n        while isinstance(par, QMenu):\\n            t = par.title() + ' > ' + t\\n            par = par.parent()\\n        path.append(t)\\n# signal connection: try to see receivers\\ntry:\\n    from qgis.PyQt.QtCore import pyqtBoundSignal\\n    conn = a.receivers(a.triggered) if hasattr(a,'receivers') else 'n/a'\\nexcept Exception as e:\\n    conn = 'err:'+str(e)\\nresult = {'menu_path': path, 'enabled': a.isEnabled(), 'visible': a.isVisible()}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nres = {}\\nreg = QgsApplication.processingRegistry()\\nfor aid in ['native:hublines','native:distancetonearesthub','qgis:distancetonearesthublinetohub','qgis:distancetonearesthubpoints']:\\n    a = reg.algorithmById(aid)\\n    try:\\n        inst = a.createInstance() if a else None\\n        res[aid] = {'registered': a is not None, 'instantiated': inst is not None,\\n                    'flags': str(a.flags()) if a else None}\\n    except Exception as e:\\n        res[aid] = {'registered': a is not None, 'error': str(e)}\\nresult = res\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis import utils\\nfrom qgis.PyQt.QtWidgets import QMenu, QMenuBar\\nmm = utils.plugins.get('mmqgis')\\n# search attributes for menus\\nmenus = [(k, repr(v)[:120]) for k,v in vars(mm).items() if isinstance(v, QMenu)]\\nres = {'menu_attrs': menus}\\n# also scan menubar and all menus for MMQGIS title\\nmb = iface.mainWindow().menuBar()\\ntitles = [a.text() for a in mb.actions()]\\nres['menubar_titles'] = titles\\nmmmenu = None\\nfor a in mb.actions():\\n    if 'mmqgis' in a.text().lower():\\n        mmmenu = a.menu()\\nres['mmqgis_menu_found'] = mmmenu is not None\\nif mmmenu:\\n    def walk(m, prefix):\\n        out=[]\\n        for ac in m.actions():\\n            if ac.menu():\\n                out += walk(ac.menu(), prefix+ac.text()+' > ')\\n            else:\\n                out.append((prefix+ac.text(), ac.isEnabled()))\\n        return out\\n    res['items'] = [i for i in walk(mmmenu,'') if 'hub' in i[0].lower()]\\nresult = res\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Hub Lines / Distance」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \nQGIS の Hub 系機能（Processing の \"Distance to nearest hub\" と MMQGIS プラグインの \"Hub Lines\"）を pyeval で調べます。調査完了です。結論：「Hub Lines / Distance」は現在有効（enabled）です。\nMMQGIS のメニューアクション\nメニューパス: MMQGIS > Create > Hub Lines / Distance\nQAction 状態: enabled = true, visible = true\nプラグイン mmqgis（mmqgis_menu クラス）がロード済みで、アクションは mm.hub_lines メソッドに接続されています。クリックすれば MMQGIS の Hub Lines/距離ダイアログが開く状態です。\nProcessing アルゴリズム（同系機能）\nProcessing レジストリにも 4 件の Hub 系アルゴリズムが登録されており、すべて createInstance() で生成可能な有効な状態です：\nID\n表示名\nnative:hublines\nハブ＆スポーク図\nnative:distancetonearesthub\nDistance to nearest hub\nqgis:distancetonearesthublinetohub\n最寄りのハブの距離（ハブへの線）\nqgis:distancetonearesthubpoints\n最寄りのハブの距離\n\nつまり GUI メニュー経由でも、processing.run() 経由でも Hub Lines / Distance 系の機能はすべて利用可能です。実際にダイアログを開いたり、アルゴリズムを実行したりしますか？"
+}

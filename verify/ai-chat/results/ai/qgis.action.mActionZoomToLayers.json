@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionZoomToLayers",
+ "prompt": "QGISの「レイヤの領域にズーム(&L)」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「レイヤの領域にズーム(&L)」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「レイヤの領域にズーム」アクション(mActionZoomToLayer)を実行します。実行しましたが、範囲がデフォルトのままのようです。アクティブレイヤの状態を確認します。「レイヤの領域にズーム(&L)」アクションを実行しました。\n\nただし、現在のプロジェクトには**レイヤが1つも読み込まれていない**ため、ズーム先の範囲がなく表示は変わりませんでした(キャンバスはデフォルト範囲 `±1` のまま)。\n\nレイヤを追加してから再度実行すれば、そのレイヤの範囲にズームします。レイヤの追加(ファイル読み込みやベースマップ追加など)が必要であればお知らせください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"a = iface.actionZoomToLayer()\\na.trigger()\\nc = iface.mapCanvas()\\nresult = {'text': a.text(), 'extent': c.extent().toString(), 'scale': round(c.scale(), 1)}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"lyr = iface.activeLayer()\\nresult = {'active_layer': lyr.name() if lyr else None,\\n          'layer_count': len(QgsProject.instance().mapLayers())}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「レイヤの領域にズーム(&L)」機能(アクション)を実行して\n[AI] \n「レイヤの領域にズーム」アクション(mActionZoomToLayer)を実行します。実行しましたが、範囲がデフォルトのままのようです。アクティブレイヤの状態を確認します。「レイヤの領域にズーム(&L)」アクションを実行しました。\nただし、現在のプロジェクトにはレイヤが1つも読み込まれていないため、ズーム先の範囲がなく表示は変わりませんでした(キャンバスはデフォルト範囲 ±1 のまま)。\nレイヤを追加してから再度実行すれば、そのレイヤの範囲にズームします。レイヤの追加(ファイル読み込みやベースマップ追加など)が必要であればお知らせください。"
+}

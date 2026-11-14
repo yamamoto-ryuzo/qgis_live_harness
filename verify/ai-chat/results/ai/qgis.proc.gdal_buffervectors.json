@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.gdal_buffervectors",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[GDAL] バッファを作成」(id: gdal:buffervectors) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[GDAL] バッファを作成」(id: gdal:buffervectors) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`gdal:buffervectors` をレジストリで確認します。確認できました。**存在します。**\n\n## 基本情報\n\n| 項目 | 値 |\n|---|---|\n| アルゴリズムID | `gdal:buffervectors` |\n| 表示名 | バッファを作成 |\n| プロバイダ | GDAL |\n| グループ | ベクタ・ジオプロセシング |\n\n## 用途\n\nベクタレイヤの各地物に対して**指定距離のバッファ(ポリゴン)**を生成します。GDAL の SQL ダイアレクト経由で実行され、QGIS 標準の `native:buffer` と機能は似ていますが、以下のような追加機能を持つのが特徴です。\n\n- バッファ結果の**ディゾルブ(融合)**が直接指定できる\n- 属性フィールド単位でのディゾルブ\n- マルチパートの**シングルパート化(分解)**\n\nなお `DISTANCE` は QgsProcessingParameterDistance 型なので、レイヤ CRS の距離単位やジオグラフィック単位の指定に対応しています。\n\n## 主なパラメータ\n\n| パラメータ | 説明 | 既定値 |\n|---|---|---|\n| `INPUT` | 入力ベクタレイヤ | 必須 |\n| `GEOMETRY` | ジオメトリ列名 | `geometry` |\n| `DISTANCE` | バッファ距離 | 10.0 |\n| `FIELD` | この属性でグループ化してディゾルブ | 任意 |\n| `DISSOLVE` | 結果全体をディゾルブ | false |\n| `EXPLODE_COLLECTIONS` | ジオメトリコレクションをシングルパートに分解 | false |\n| `OPTIONS` | 追加の作成オプション | 任意 |\n| `OUTPUT` | 出力ベクタレイヤ | 必須 |\n\n実行例: `processing.run(\"gdal:buffervectors\", {\"INPUT\": layer, \"DISTANCE\": 100, \"DISSOLVE\": True, \"OUTPUT\": \"buffered.gpkg\"})`"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"reg = QgsApplication.processingRegistry()\\nalg = reg.algorithmById('gdal:buffervectors')\\nif alg is None:\\n    result = {'exists': False, 'similar': [a.id() for a in reg.algorithms() if 'buffer' in a.id().lower()][:60]}\\nelse:\\n    params = []\\n    for d in alg.parameterDefinitions():\\n        params.append({\\n            'name': d.name(),\\n            'description': d.description(),\\n            'type': d.__class__.__name__,\\n            'default': d.defaultValue(),\\n            'optional': bool(d.flags() & d.FlagOptional),\\n        })\\n    outs = [{'name': o.name(), 'description': o.description(), 'type': o.__class__.__name__} for o in alg.destinationParameterDefinitions()]\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'params': params,\\n        'outputs': outs,\\n    }\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[GDAL] バッファを作成」(id: gdal:buffervectors) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \ngdal:buffervectors をレジストリで確認します。確認できました。存在します。\n基本情報\n項目\n値\nアルゴリズムID\ngdal:buffervectors\n表示名\nバッファを作成\nプロバイダ\nGDAL\nグループ\nベクタ・ジオプロセシング\n\n用途\nベクタレイヤの各地物に対して**指定距離のバッファ(ポリゴン)**を生成します。GDAL の SQL ダイアレクト経由で実行され、QGIS 標準の native:buffer と機能は似ていますが、以下のような追加機能を持つのが特徴です。\nバッファ結果の**ディゾルブ(融合)**が直接指定できる\n属性フィールド単位でのディゾルブ\nマルチパートのシングルパート化(分解)\nなお DISTANCE は QgsProcessingParameterDistance 型なので、レイヤ CRS の距離単位やジオグラフィック単位の指定に対応しています。\n主なパラメータ\nパラメータ\n説明\n既定値\nINPUT\n入力ベクタレイヤ\n必須\nGEOMETRY\nジオメトリ列名\ngeometry\nDISTANCE\nバッファ距離\n10.0\nFIELD\nこの属性でグループ化してディゾルブ\n任意\nDISSOLVE\n結果全体をディゾルブ\nfalse\nEXPLODE_COLLECTIONS\nジオメトリコレクションをシングルパートに分解\nfalse\nOPTIONS\n追加の作成オプション\n任意\nOUTPUT\n出力ベクタレイヤ\n必須\n\n実行例: processing.run(\"gdal:buffervectors\", {\"INPUT\": layer, \"DISTANCE\": 100, \"DISSOLVE\": True, \"OUTPUT\": \"buffered.gpkg\"})"
+}

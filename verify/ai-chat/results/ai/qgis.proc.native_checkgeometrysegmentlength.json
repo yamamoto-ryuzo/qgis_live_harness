@@ -1,0 +1,30 @@
+{
+ "id": "qgis.proc.native_checkgeometrysegmentlength",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Small segments」(id: native:checkgeometrysegmentlength) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Small segments」(id: native:checkgeometrysegmentlength) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を実際に照会して、アルゴリズムの有無と定義済みパラメータを確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n\n- **表示名**: `[QGIS（ネイティブC++）] Small segments`\n- **ID**: `native:checkgeometrysegmentlength`\n- **グループ**: `Check geometry`\n- **用途**: ラインまたはポリゴン内で、指定した最小長より短いセグメントを検出するジオメトリチェックです。過剰に近い頂点、細かな破片、データ変換・簡素化でできた不適切な短辺の洗い出しに使えます。\n\n主なパラメータ:\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | チェック対象のライン／ポリゴンレイヤ |\n| `UNIQUE_ID` | 地物を一意に識別するフィールド |\n| `MIN_SEGMENT_LENGTH` | 有効とみなす最小セグメント長。単位はレイヤの地図単位 |\n| `ERRORS` | 短いセグメントの位置を示すエラーポイント出力 |\n| `OUTPUT` | 短いセグメントを含む元地物の出力。任意 |\n| `TOLERANCE` | 高度な設定。整数 `n` を指定し、`10^-n` 地図単位未満の差を幾何演算上ゼロとして扱う。既定値 `8` |\n\n`MIN_SEGMENT_LENGTH` は投影法や CRS の単位に依存するため、メートル基準で判定したい場合は入力レイヤの CRS がメートル系であることが重要です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:checkgeometrysegmentlength')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        params.append({\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & QgsProcessingParameterDefinition.FlagOptional),\\n        })\\n    outputs = []\\n    for o in alg.outputDefinitions():\\n        outputs.append({\\n            'name': o.name(),\\n            'description': o.description(),\\n            'type': o.__class__.__name__,\\n        })\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'groupId': alg.groupId(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n   "
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:checkgeometrysegmentlength')\\ndetails = {}\\nfor p in alg.parameterDefinitions():\\n    d = {'class': p.__class__.__name__, 'description': p.description(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n    for attr in ('dataType', 'minValue', 'maxValue', 'allowMultiple', 'defaultToAllFields', 'parentLayerParameterName'):\\n        if hasattr(p, attr):\\n            v = getattr(p, attr)\\n            try:\\n                d[attr] = v() if callable(v) else v\\n            except Exception as e:\\n                d[attr] = repr(e)\\n    details[p.name()] = d\\nresult = details\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Small segments」(id: native:checkgeometrysegmentlength) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を実際に照会して、アルゴリズムの有無と定義済みパラメータを確認します。確認しました。現在の QGIS の Processing Registry に存在します。\n表示名: [QGIS（ネイティブC++）] Small segments\nID: native:checkgeometrysegmentlength\nグループ: Check geometry\n用途: ラインまたはポリゴン内で、指定した最小長より短いセグメントを検出するジオメトリチェックです。過剰に近い頂点、細かな破片、データ変換・簡素化でできた不適切な短辺の洗い出しに使えます。\n主なパラメータ:\nパラメータ\n内容\nINPUT\nチェック対象のライン／ポリゴンレイヤ\nUNIQUE_ID\n地物を一意に識別するフィールド\nMIN_SEGMENT_LENGTH\n有効とみなす最小セグメント長。単位はレイヤの地図単位\nERRORS\n短いセグメントの位置を示すエラーポイント出力\nOUTPUT\n短いセグメントを含む元地物の出力。任意\nTOLERANCE\n高度な設定。整数 n を指定し、10^-n 地図単位未満の差を幾何演算上ゼロとして扱う。既定値 8\n\nMIN_SEGMENT_LENGTH は投影法や CRS の単位に依存するため、メートル基準で判定したい場合は入力レイヤの CRS がメートル系であることが重要です。"
+}

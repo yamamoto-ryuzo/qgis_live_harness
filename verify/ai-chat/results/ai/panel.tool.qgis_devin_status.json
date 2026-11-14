@@ -10,7 +10,7 @@
   },
   {
    "role": "assistant",
-   "content": "外部エージェントのタスク状態を確認しました。現在このQGISプロセスから起動されたタスクはありません。\n\n- **Devin タスク**: 0件\n- **Copilot タスク**: 0件\n\n`qgis_devin_run` または `qgis_copilot_run` で新しいエージェントタスクを起動できます。"
+   "content": "外部エージェントのタスク状態です:\n\n- **Devin タスク**: 0件(`tasks: []`)\n- **Copilot タスク**: 0件(`tasks: []`)\n\nこのQGISプロセスから `qgis_devin_run` / `qgis_copilot_run` で起動されたバックグラウンドタスクは現在ありません。"
   }
  ],
  "tools": [
@@ -27,5 +27,5 @@
    "args": "{}"
   }
  ],
- "view_tail": "[あなた] 外部エージェントのタスク状態を確認して\n[AI] \n外部エージェントのタスク状態を確認しました。現在このQGISプロセスから起動されたタスクはありません。\nDevin タスク: 0件\nCopilot タスク: 0件\nqgis_devin_run または qgis_copilot_run で新しいエージェントタスクを起動できます。"
+ "view_tail": "[あなた] 外部エージェントのタスク状態を確認して\n[AI] \n外部エージェントのタスク状態です:\nDevin タスク: 0件(tasks: [])\nCopilot タスク: 0件(tasks: [])\nこのQGISプロセスから qgis_devin_run / qgis_copilot_run で起動されたバックグラウンドタスクは現在ありません。"
 }

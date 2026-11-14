@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_pixelstopoints",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタをベクタ化（pixels to points）」(id: native:pixelstopoints) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタをベクタ化（pixels to points）」(id: native:pixelstopoints) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "## 確認結果: 存在します ✅\n\n`native:pixelstopoints` は現在の QGIS の processing registry に登録されています。\n\n- **ID**: `native:pixelstopoints`\n- **表示名**: ラスタをベクタ化（pixels to points）\n- **グループ**: ベクタ作成\n- **プロバイダ**: QGIS（ネイティブC++）\n\n## 用途\n\nラスタレイヤの**各ピクセル中心に点地物を作成**し、ピクセル値を属性として持つポイントレイヤに変換します。**NoData ピクセルは出力からスキップ**されます。DEMの標高点抽出や、ラスタ値をポイントベースで加工・解析したい場合に使います（ポリゴン化なら `gdal:polygonize` や `native:pixelstopolygons` との使い分け）。\n\n## 主なパラメータ\n\n| 名前 | 種別 | 説明 |\n|---|---|---|\n| `INPUT_RASTER` | raster（必須） | 入力ラスタレイヤ |\n| `RASTER_BAND` | band（必須、デフォルト 1） | 対象バンド番号 |\n| `FIELD_NAME` | string（必須、デフォルト `\"VALUE\"`） | ピクセル値を格納する属性フィールド名 |\n| `OUTPUT` | sink → outputVector | 出力先（点ベクタレイヤ） |\n\n実行例:\n\n```python\nprocessing.run(\"native:pixelstopoints\", {\n    'INPUT_RASTER': dem_layer,\n    'RASTER_BAND': 1,\n    'FIELD_NAME': 'elev',\n    'OUTPUT': 'memory:'\n})\n```"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:pixelstopoints')\\nif alg is None:\\n    result = None\\nelse:\\n    params = [{'name': p.name(), 'desc': p.description(), 'type': p.type(), 'optional': bool(p.flags() & p.FlagOptional), 'default': str(p.defaultValue()) if p.defaultValue() is not None else None} for p in alg.parameterDefinitions()]\\n    outs = [{'name': o.name(), 'desc': o.description(), 'type': o.type()} for o in alg.outputDefinitions()]\\n    result = {'id': alg.id(), 'name': alg.displayName(), 'group': alg.group(), 'provider': alg.provider().name() if alg.provider() else None, 'help': (alg.shortHelpString() or '')[:800], 'params': params, 'outputs': outs}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] ラスタをベクタ化（pixels to points）」(id: native:pixelstopoints) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n確認結果: 存在します ✅\nnative:pixelstopoints は現在の QGIS の processing registry に登録されています。\nID: native:pixelstopoints\n表示名: ラスタをベクタ化（pixels to points）\nグループ: ベクタ作成\nプロバイダ: QGIS（ネイティブC++）\n用途\nラスタレイヤの各ピクセル中心に点地物を作成し、ピクセル値を属性として持つポイントレイヤに変換します。NoData ピクセルは出力からスキップされます。DEMの標高点抽出や、ラスタ値をポイントベースで加工・解析したい場合に使います（ポリゴン化なら gdal:polygonize や native:pixelstopolygons との使い分け）。\n主なパラメータ\n名前\n種別\n説明\nINPUT_RASTER\nraster（必須）\n入力ラスタレイヤ\nRASTER_BAND\nband（必須、デフォルト 1）\n対象バンド番号\nFIELD_NAME\nstring（必須、デフォルト \"VALUE\"）\nピクセル値を格納する属性フィールド名\nOUTPUT\nsink → outputVector\n出力先（点ベクタレイヤ）\n\n実行例:\nprocessing.run(\"native:pixelstopoints\", {\n    'INPUT_RASTER': dem_layer,\n    'RASTER_BAND': 1,\n    'FIELD_NAME': 'elev',\n    'OUTPUT': 'memory:'\n})"
+}

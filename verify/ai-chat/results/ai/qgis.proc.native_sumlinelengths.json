@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_sumlinelengths",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線長の合計」(id: native:sumlinelengths) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線長の合計」(id: native:sumlinelengths) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Registry を確認します。存在を確認しました。`native:sumlinelengths`「**線長の合計**」は登録されています（グループ: ベクタ解析）。\n\n## 用途\n\n- ポリゴンレイヤの各地物について、**そのポリゴンと交差するラインの「本数」と「総延長」を集計**し、属性として付加します\n- 例：市区町村ポリゴン × 道路網 → 各市区町村の道路延長・路線数、河川ポリゴン内の水系延長、メッシュ区画ごとのインフラ延長密度の算出\n- 出力は入力ポリゴンの複製 + 2つの集計フィールドです（ジオメトリ自体は変わりません）\n\n## 主なパラメータ\n\n| パラメータ | 型 | 内容 |\n|---|---|---|\n| `POLYGONS` | source | ポリゴンレイヤ（集計単位となる側） |\n| `LINES` | source | 線レイヤ（集計される側） |\n| `LEN_FIELD` | string | 交差する線の**総延長**を格納するフィールド名 |\n| `COUNT_FIELD` | string | 交差する線の**本数**を格納するフィールド名 |\n| `OUTPUT` | sink | 出力レイヤ（ポリゴン＋2フィールド） |\n\n## ポイント\n\n- **交差部分だけの長さ**が数えられます（ポリゴン内に入っているライン区間の延長が合計される）\n- ラインが複数ポリゴンにまたがる場合、**各ポリゴン内の部分だけ**がそのポリゴンの長さとして計上されます\n- 長さの単位はレイヤのCRS単位です。EPSG:4326 では正しい延長が出ないので、メートル系の投影座標（平面直角座標系など）で実行してください\n\n兄弟アルゴリズム：`native:countpointsinpolygon`（ポリゴン内の点数）、`native:lineintersections`（ライン交点）。「ポリゴンごとに中の点を数える」系と対をなすライン版です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"alg = QgsApplication.processingRegistry().algorithmById('native:sumlinelengths')\\nif alg is None:\\n    result = 'NOT FOUND'\\nelse:\\n    params = [(p.name(), p.type(), p.description()) for p in alg.parameterDefinitions()]\\n    outs = [(o.name(), o.type(), o.description()) for o in alg.outputDefinitions()]\\n    enums = {p.name(): p.options() for p in alg.parameterDefinitions() if p.type() == 'enum'}\\n    result = {\\n        'id': alg.id(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'shortHelpString': alg.shortHelpString(),\\n        'parameters': params,\\n        'outputs': outs,\\n        'enumOptions': enums,\\n    }\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 線長の合計」(id: native:sumlinelengths) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nRegistry を確認します。存在を確認しました。native:sumlinelengths「線長の合計」は登録されています（グループ: ベクタ解析）。\n用途\nポリゴンレイヤの各地物について、そのポリゴンと交差するラインの「本数」と「総延長」を集計し、属性として付加します\n例：市区町村ポリゴン × 道路網 → 各市区町村の道路延長・路線数、河川ポリゴン内の水系延長、メッシュ区画ごとのインフラ延長密度の算出\n出力は入力ポリゴンの複製 + 2つの集計フィールドです（ジオメトリ自体は変わりません）\n主なパラメータ\nパラメータ\n型\n内容\nPOLYGONS\nsource\nポリゴンレイヤ（集計単位となる側）\nLINES\nsource\n線レイヤ（集計される側）\nLEN_FIELD\nstring\n交差する線の総延長を格納するフィールド名\nCOUNT_FIELD\nstring\n交差する線の本数を格納するフィールド名\nOUTPUT\nsink\n出力レイヤ（ポリゴン＋2フィールド）\n\nポイント\n交差部分だけの長さが数えられます（ポリゴン内に入っているライン区間の延長が合計される）\nラインが複数ポリゴンにまたがる場合、各ポリゴン内の部分だけがそのポリゴンの長さとして計上されます\n長さの単位はレイヤのCRS単位です。EPSG:4326 では正しい延長が出ないので、メートル系の投影座標（平面直角座標系など）で実行してください\n兄弟アルゴリズム：native:countpointsinpolygon（ポリゴン内の点数）、native:lineintersections（ライン交点）。「ポリゴンごとに中の点を数える」系と対をなすライン版です。"
+}

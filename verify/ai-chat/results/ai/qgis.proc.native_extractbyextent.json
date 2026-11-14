@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_extractbyextent",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 矩形範囲で抽出」(id: native:extractbyextent) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 矩形範囲で抽出」(id: native:extractbyextent) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の Processing registry に存在します。\n\n- **ID**: `native:extractbyextent`\n- **表示名**: 矩形範囲で抽出\n- **グループ**: ベクタオーバーレイ\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n\n## 用途\n\n指定した矩形範囲と**少しでも交差するフィーチャを抽出**し、新しいベクタレイヤを作成します。  \n`CLIP` を有効にすると、フィーチャのジオメトリを範囲で切り抜きます。切り抜き結果はマルチパートになる場合があります。\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力ベクタレイヤ（必須） |\n| `EXTENT` | 抽出対象の矩形範囲（必須） |\n| `CLIP` | ジオメトリを矩形範囲で切り抜くか。既定は `false` |\n| `OUTPUT` | 抽出結果の出力先ベクタレイヤ（必須） |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:extractbyextent')\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'options': p.options() if hasattr(p, 'options') else None,\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else []\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 矩形範囲で抽出」(id: native:extractbyextent) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の Processing registry に存在します。\nID: native:extractbyextent\n表示名: 矩形範囲で抽出\nグループ: ベクタオーバーレイ\n種別: QGIS ネイティブ C++ アルゴリズム\n用途\n指定した矩形範囲と少しでも交差するフィーチャを抽出し、新しいベクタレイヤを作成します。\nCLIP を有効にすると、フィーチャのジオメトリを範囲で切り抜きます。切り抜き結果はマルチパートになる場合があります。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力ベクタレイヤ（必須）\nEXTENT\n抽出対象の矩形範囲（必須）\nCLIP\nジオメトリを矩形範囲で切り抜くか。既定は false\nOUTPUT\n抽出結果の出力先ベクタレイヤ（必須）\n"
+}

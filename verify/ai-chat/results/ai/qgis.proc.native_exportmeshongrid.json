@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_exportmeshongrid",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] グリッドメッシュをエクスポート」(id: native:exportmeshongrid) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] グリッドメッシュをエクスポート」(id: native:exportmeshongrid) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の Processing registry に存在します。\n\n- **ID**: `native:exportmeshongrid`\n- **表示名**: グリッドメッシュをエクスポート\n- **グループ**: メッシュ\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n\n## 用途\n\nメッシュデータセットの値を、指定間隔の**規則的なグリッド点上にサンプリング**し、ポイント型ベクタレイヤとして出力します。  \n3Dメッシュの値はメッシュレイヤ設定の方法で面上に集約されます。1Dメッシュは非対応です。\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力メッシュレイヤ（必須） |\n| `DATASET_GROUPS` | 出力するデータセットグループ（必須） |\n| `DATASET_TIME` | 出力するデータセット時刻（必須） |\n| `EXTENT` | グリッドを生成する範囲（任意） |\n| `GRID_SPACING` | グリッド間隔。既定値は `10`（必須） |\n| `CRS_OUTPUT` | 出力ベクタレイヤの座標系（任意） |\n| `VECTOR_OPTION` | ベクトル値の出力形式：`デカルト座標(x,y)`、`極座標`、`両方` |\n| `OUTPUT` | 出力先のポイントベクタレイヤ（必須） |"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:exportmeshongrid')\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'options': p.options() if hasattr(p, 'options') else None,\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else []\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] グリッドメッシュをエクスポート」(id: native:exportmeshongrid) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の Processing registry に存在します。\nID: native:exportmeshongrid\n表示名: グリッドメッシュをエクスポート\nグループ: メッシュ\n種別: QGIS ネイティブ C++ アルゴリズム\n用途\nメッシュデータセットの値を、指定間隔の規則的なグリッド点上にサンプリングし、ポイント型ベクタレイヤとして出力します。\n3Dメッシュの値はメッシュレイヤ設定の方法で面上に集約されます。1Dメッシュは非対応です。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力メッシュレイヤ（必須）\nDATASET_GROUPS\n出力するデータセットグループ（必須）\nDATASET_TIME\n出力するデータセット時刻（必須）\nEXTENT\nグリッドを生成する範囲（任意）\nGRID_SPACING\nグリッド間隔。既定値は 10（必須）\nCRS_OUTPUT\n出力ベクタレイヤの座標系（任意）\nVECTOR_OPTION\nベクトル値の出力形式：デカルト座標(x,y)、極座標、両方\nOUTPUT\n出力先のポイントベクタレイヤ（必須）\n"
+}

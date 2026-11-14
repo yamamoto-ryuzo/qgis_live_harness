@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_distancetonearesthub",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Distance to nearest hub」(id: native:distancetonearesthub) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Distance to nearest hub」(id: native:distancetonearesthub) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "同様に確認します。**存在します**（registry で実際に確認済み）。\n\n- **id**: `native:distancetonearesthub`\n- **表示名**: Distance to nearest hub（英語表記のまま）\n- **プロバイダ**: QGIS（ネイティブC++）／グループ: ベクタ解析\n\n## 用途\nソースレイヤの各地物から**目的地レイヤ（ハブ）の最近傍地物までの距離を計算**するアルゴリズムです。距離は各地物の**バウンディングボックス中心**を基準に測られます（ジオメトリ全体ではなく代表点同士の直線距離）。「各施設から最寄りハブ施設まで」「集水域内の点から最寄り拠点まで」といった最近傍割り当て・到達距離解析に使います。\n\n出力は2種類あり、任意でどちらか一方だけ、または両方を生成できます。\n\n## 主なパラメータ\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | ソースレイヤ（スポーク側、必須） |\n| `HUBS` | 目的地レイヤ（ハブ側、必須） |\n| `FIELD` | ハブ側の識別用属性（必須、1フィールド。出力で「どのハブが最寄りか」を示すのに使う） |\n| `UNIT` | 距離の測定単位（Meters/Feet/Miles/Kilometers/Layer Units、デフォルト Meters） |\n| `OUTPUT_LINES` | 各起点と最寄りハブを結ぶライン（スポーク）レイヤ（任意） |\n| `OUTPUT_POINTS` | 起点の中心点＋最寄りハブID・距離の属性を持つポイントレイヤ（任意） |\n\n注意点: ネットワーク距離ではなく直線距離です。また入力がポリゴンやラインでも中心点ベースなので、実際の最寄り縁辺距離が必要なら `native:joinbynearest` や最短経路系のツールを使います。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterEnum, QgsProcessingParameterNumber, QgsProcessingParameterBoolean, QgsProcessingParameterField\\nalg = QgsApplication.processingRegistry().algorithmById('native:distancetonearesthub')\\nif alg is None:\\n    cands = [a.id() for a in QgsApplication.processingRegistry().algorithms() if 'hub' in a.id().lower() or 'nearest' in a.id().lower() or 'distance' in a.id().lower()]\\n    result = {'found': False, 'candidates': sorted(cands)}\\nelse:\\n    params = {}\\n    for p in alg.parameterDefinitions():\\n        d = {'desc': p.description(), 'type': p.type(), 'default': p.defaultValue(), 'flags': int(p.flags())}\\n        if isinstance(p, QgsProcessingParameterEnum):\\n            d['options'] = p.options()\\n        if isinstance(p, QgsProcessingParameterNumber):\\n            d['min'] = p.minimum(); d['max'] = p.maximum()\\n        if isinstance(p, QgsProcessingParameterField):\\n            d['allowMultiple'] = p.allowMultiple()\\n        params[p.n"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Distance to nearest hub」(id: native:distancetonearesthub) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n同様に確認します。存在します（registry で実際に確認済み）。\nid: native:distancetonearesthub\n表示名: Distance to nearest hub（英語表記のまま）\nプロバイダ: QGIS（ネイティブC++）／グループ: ベクタ解析\n用途\nソースレイヤの各地物から目的地レイヤ（ハブ）の最近傍地物までの距離を計算するアルゴリズムです。距離は各地物のバウンディングボックス中心を基準に測られます（ジオメトリ全体ではなく代表点同士の直線距離）。「各施設から最寄りハブ施設まで」「集水域内の点から最寄り拠点まで」といった最近傍割り当て・到達距離解析に使います。\n出力は2種類あり、任意でどちらか一方だけ、または両方を生成できます。\n主なパラメータ\nパラメータ\n内容\nINPUT\nソースレイヤ（スポーク側、必須）\nHUBS\n目的地レイヤ（ハブ側、必須）\nFIELD\nハブ側の識別用属性（必須、1フィールド。出力で「どのハブが最寄りか」を示すのに使う）\nUNIT\n距離の測定単位（Meters/Feet/Miles/Kilometers/Layer Units、デフォルト Meters）\nOUTPUT_LINES\n各起点と最寄りハブを結ぶライン（スポーク）レイヤ（任意）\nOUTPUT_POINTS\n起点の中心点＋最寄りハブID・距離の属性を持つポイントレイヤ（任意）\n\n注意点: ネットワーク距離ではなく直線距離です。また入力がポリゴンやラインでも中心点ベースなので、実際の最寄り縁辺距離が必要なら native:joinbynearest や最短経路系のツールを使います。"
+}

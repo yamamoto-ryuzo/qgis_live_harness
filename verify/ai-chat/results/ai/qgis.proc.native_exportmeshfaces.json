@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_exportmeshfaces",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュの面をエクスポート」(id: native:exportmeshfaces) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュの面をエクスポート」(id: native:exportmeshfaces) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "Processing registry を確認します。確認しました。現在の Processing registry に存在します。\n\n- **ID**: `native:exportmeshfaces`\n- **表示名**: メッシュの面をエクスポート\n- **グループ**: メッシュ\n- **種別**: QGIS ネイティブ C++ アルゴリズム\n\n## 用途\n\nメッシュレイヤの**面（face）をポリゴン型ベクタレイヤへ変換**します。  \n選択したメッシュデータセットの値を、各面フィーチャの属性として付加できます。メッシュ要素の範囲確認や、面単位の解析・出力に使います。\n\n## 主なパラメータ\n\n| パラメータ | 内容 |\n|---|---|\n| `INPUT` | 入力メッシュレイヤ（必須） |\n| `DATASET_GROUPS` | 属性として出力するデータセットグループ（任意） |\n| `DATASET_TIME` | 出力するデータセット時刻（必須） |\n| `CRS_OUTPUT` | 出力ベクタレイヤの座標系（任意） |\n| `VECTOR_OPTION` | ベクトル値の出力形式：`デカルト座標(x,y)`、`極座標`、`デカルト座標と極座標` |\n| `OUTPUT` | 出力先のポリゴンベクタレイヤ（必須） |\n\n※ 日本語ヘルプには「ベクタレイヤ（線）」とありますが、英語説明と実際の用途は **faces → polygon vector layer** です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:exportmeshfaces')\\nvector_param = alg.parameterDefinition('VECTOR_OPTION') if alg else None\\nresult = {\\n    'exists': alg is not None,\\n    'id': alg.id() if alg else None,\\n    'name': alg.name() if alg else None,\\n    'display_name': alg.displayName() if alg else None,\\n    'group': alg.group() if alg else None,\\n    'short_description': alg.shortDescription() if alg else None,\\n    'short_help': alg.shortHelpString() if alg else None,\\n    'parameters': [\\n        {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.__class__.__name__,\\n            'default': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'options': p.options() if hasattr(p, 'options') else None,\\n        }\\n        for p in alg.parameterDefinitions()\\n    ] if alg else []\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] メッシュの面をエクスポート」(id: native:exportmeshfaces) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nProcessing registry を確認します。確認しました。現在の Processing registry に存在します。\nID: native:exportmeshfaces\n表示名: メッシュの面をエクスポート\nグループ: メッシュ\n種別: QGIS ネイティブ C++ アルゴリズム\n用途\nメッシュレイヤの面（face）をポリゴン型ベクタレイヤへ変換します。\n選択したメッシュデータセットの値を、各面フィーチャの属性として付加できます。メッシュ要素の範囲確認や、面単位の解析・出力に使います。\n主なパラメータ\nパラメータ\n内容\nINPUT\n入力メッシュレイヤ（必須）\nDATASET_GROUPS\n属性として出力するデータセットグループ（任意）\nDATASET_TIME\n出力するデータセット時刻（必須）\nCRS_OUTPUT\n出力ベクタレイヤの座標系（任意）\nVECTOR_OPTION\nベクトル値の出力形式：デカルト座標(x,y)、極座標、デカルト座標と極座標\nOUTPUT\n出力先のポリゴンベクタレイヤ（必須）\n\n※ 日本語ヘルプには「ベクタレイヤ（線）」とありますが、英語説明と実際の用途は faces → polygon vector layer です。"
+}

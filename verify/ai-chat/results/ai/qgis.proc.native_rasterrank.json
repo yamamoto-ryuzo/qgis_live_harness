@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_rasterrank",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Raster rank」(id: native:rasterrank) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Raster rank」(id: native:rasterrank) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:rasterrank` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:rasterrank`\n- **表示名**: `[QGIS（ネイティブC++）] Raster rank`\n- **グループ**: ラスタ解析\n- **用途**: 複数ラスタについてセルごとに値を昇順ソートし、指定した順位の値を持つラスタを作成する。複数順位を指定すると複数バンドで出力される。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT_RASTERS` | 必須 | 比較する入力ラスタスタック |\n| `RANKS` | 必須 | 出力する順位。複数指定はカンマ区切り。既定値は `1` |\n| `NODATA_HANDLING` | 必須 | `NoData` を除外するか、`NoData` 出力にするか |\n| `EXTENT` | 任意 | 出力範囲 |\n| `CELL_SIZE` | 任意 | 出力セルサイズ |\n| `CRS` | 任意 | 出力CRS |\n| `OUTPUT` | 必須 | 順位値ラスタの出力先 |\n\n入力にマルチバンドラスタがある場合は、各ラスタの第1バンドが使われます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:rasterrank')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'description': o.descr"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] Raster rank」(id: native:rasterrank) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:rasterrank を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:rasterrank\n表示名: [QGIS（ネイティブC++）] Raster rank\nグループ: ラスタ解析\n用途: 複数ラスタについてセルごとに値を昇順ソートし、指定した順位の値を持つラスタを作成する。複数順位を指定すると複数バンドで出力される。\n主なパラメータ\n名前\n必須\n説明\nINPUT_RASTERS\n必須\n比較する入力ラスタスタック\nRANKS\n必須\n出力する順位。複数指定はカンマ区切り。既定値は 1\nNODATA_HANDLING\n必須\nNoData を除外するか、NoData 出力にするか\nEXTENT\n任意\n出力範囲\nCELL_SIZE\n任意\n出力セルサイズ\nCRS\n任意\n出力CRS\nOUTPUT\n必須\n順位値ラスタの出力先\n\n入力にマルチバンドラスタがある場合は、各ラスタの第1バンドが使われます。"
+}

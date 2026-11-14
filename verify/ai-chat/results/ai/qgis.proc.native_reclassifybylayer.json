@@ -1,0 +1,26 @@
+{
+ "id": "qgis.proc.native_reclassifybylayer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性テーブルによる再分類」(id: native:reclassifybylayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性テーブルによる再分類」(id: native:reclassifybylayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "`native:reclassifybylayer` を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\n\n- **ID**: `native:reclassifybylayer`\n- **表示名**: `[QGIS（ネイティブC++）] 属性テーブルによる再分類`\n- **グループ**: ラスタ解析\n- **用途**: 属性テーブルに定義した「下限・上限・新しい値」の区分に従い、ラスタ値を再分類して新しいラスタを作成する。\n\n### 主なパラメータ\n\n| 名前 | 必須 | 説明 |\n|---|---:|---|\n| `INPUT_RASTER` | 必須 | 再分類するラスタ |\n| `RASTER_BAND` | 必須 | 対象バンド。既定値は `1` |\n| `INPUT_TABLE` | 必須 | 区分定義を持つテーブル／レイヤ |\n| `MIN_FIELD` | 必須 | 区分下限値のフィールド |\n| `MAX_FIELD` | 必須 | 区分上限値のフィールド |\n| `VALUE_FIELD` | 必須 | 出力する再分類値のフィールド |\n| `NO_DATA` | 必須 | 出力NoData値。既定値は `-9999` |\n| `RANGE_BOUNDARIES` | 必須 | 範囲境界を開区間・閉区間のどれで扱うか |\n| `NODATA_FOR_MISSING` | 必須 | どの範囲にも一致しない値をNoDataにするか |\n| `DATA_TYPE` | 必須 | 出力データ型。既定値は `Float32` |\n| `OUTPUT` | 必須 | 再分類ラスタの出力先 |\n\n任意で `CREATE_OPTIONS` / `CREATION_OPTIONS` にラスタ作成オプションを指定できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsApplication\\nalg = QgsApplication.processingRegistry().algorithmById('native:reclassifybylayer')\\nif alg is None:\\n    result = {'exists': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        item = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'defaultValue': p.defaultValue(),\\n            'optional': bool(p.flags() & p.FlagOptional),\\n            'metadata': getattr(p, 'metadata', lambda: {})(),\\n        }\\n        if hasattr(p, 'options'):\\n            item['options'] = p.options()\\n        params.append(item)\\n    result = {\\n        'exists': True,\\n        'id': alg.id(),\\n        'name': alg.name(),\\n        'displayName': alg.displayName(),\\n        'group': alg.group(),\\n        'provider': alg.provider().name() if alg.provider() else None,\\n        'parameters': params,\\n        'outputs': [\\n            {'name': o.name(), 'description': "
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] 属性テーブルによる再分類」(id: native:reclassifybylayer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \nnative:reclassifybylayer を現在の Processing レジストリで確認します。確認しました。現在の Processing レジストリに存在します。\nID: native:reclassifybylayer\n表示名: [QGIS（ネイティブC++）] 属性テーブルによる再分類\nグループ: ラスタ解析\n用途: 属性テーブルに定義した「下限・上限・新しい値」の区分に従い、ラスタ値を再分類して新しいラスタを作成する。\n主なパラメータ\n名前\n必須\n説明\nINPUT_RASTER\n必須\n再分類するラスタ\nRASTER_BAND\n必須\n対象バンド。既定値は 1\nINPUT_TABLE\n必須\n区分定義を持つテーブル／レイヤ\nMIN_FIELD\n必須\n区分下限値のフィールド\nMAX_FIELD\n必須\n区分上限値のフィールド\nVALUE_FIELD\n必須\n出力する再分類値のフィールド\nNO_DATA\n必須\n出力NoData値。既定値は -9999\nRANGE_BOUNDARIES\n必須\n範囲境界を開区間・閉区間のどれで扱うか\nNODATA_FOR_MISSING\n必須\nどの範囲にも一致しない値をNoDataにするか\nDATA_TYPE\n必須\n出力データ型。既定値は Float32\nOUTPUT\n必須\n再分類ラスタの出力先\n\n任意で CREATE_OPTIONS / CREATION_OPTIONS にラスタ作成オプションを指定できます。"
+}
