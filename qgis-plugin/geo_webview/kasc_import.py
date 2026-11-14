@@ -27,7 +27,7 @@ import urllib.request
 _LAYER_TYPES = frozenset([
     "xyz", "tile", "geojson", "layer", "geoparquet", "parquet",
     "flatgeobuf", "fgb", "gpkg", "geopackage", "csv", "tsv", "duckdb",
-    "sql", "wms", "wmts", "kml", "kmz", "wfs", "shp", "shapefile",
+    "sql", "ogrsql", "wms", "wmts", "kml", "kmz", "wfs", "shp", "shapefile",
     "image", "mvt", "pmtiles", "geotiff", "tiff", "cog", "3dtiles",
     "fly_geojson", "model", "pointcloud", "ept", "copc",
 ])
@@ -231,12 +231,16 @@ def parse_kasc(text):
             continue
 
         item = _classify_parts(
-            parts[1:] if ltype == "sql" else parts[2:],
+            parts[1:] if ltype in ("sql", "ogrsql") else parts[2:],
             {"type": ltype,
              "title": parts[0] if parts else "",
-             "url": ("|".join(parts[1:]) if ltype == "sql"
+             "url": ("|".join(parts[1:]) if ltype in ("sql", "ogrsql")
                      else (parts[1] if len(parts) > 1 else "")),
              "line": line})
+        # sql:/ogrsql: には出典スロットが無い(kasc.js と同規則。
+        # クエリ断片を attr へ誤記録しない。出典は attr= オプションで指定)
+        if ltype in ("sql", "ogrsql"):
+            item["attr"] = ""
         item["_idx"] = order
         order += 1
         if ltype == "base":
@@ -370,6 +374,216 @@ def _exclusive_groups(title):
     return out
 
 
+# ---------------------------------------------------------------------------
+# ogrsql: 行 — OGR SQL SELECT を QGIS 内の GDAL で実行し memory レイヤー化。
+# web/shared/qgis-ogr.js (PY_RUNNER) と同じ方針:
+#   FROM 参照を Memory データソースへ積み上げ、クエリ内の 'name' を "name" へ
+#   書き換えて ExecuteSQL(dialect="OGRSQL") する。結果は memory プロバイダの
+#   QgsVectorLayer として返す(一時ファイルを残さない)。
+# ---------------------------------------------------------------------------
+
+# sql:/ogrsql: 行のクエリ末尾オプション(web/shared/vector-load.js SQL_TAIL_RE)
+_SQL_TAIL_RE = re.compile(
+    r"\|\s*(off|false|attr(?:ibution)?\s*=[^|]*|cluster\s*=\s*[a-z0-9]+|"
+    r"heat(?:map)?\s*=\s*[a-z0-9]+|render\s*=\s*[a-z]+|style\s*=\s*[^|]*|"
+    r"time(?:_end|_span)?\s*=\s*[^|]*)\s*$", re.IGNORECASE)
+
+# FROM/JOIN のテーブル参照(クォート外のみ)。'name'/"name"/name + 任意で
+# '.layer'/"layer"/layer を続ける('ds'.'layer' 形式)
+_OGR_TABLE_RE = re.compile(
+    r"(?:'([^']*)'|\"([^\"]*)\"|([A-Za-z_][\w.\-]*))"
+    r"(?:\s*\.\s*(?:'([^']*)'|\"([^\"]*)\"|([A-Za-z_][\w.\-]*)))?")
+
+_PATHISH_RE = re.compile(
+    r"([/\\]|^[a-z][a-z0-9+.\-]*://|"
+    r"\.(geojson|json|fgb|flatgeobuf|parquet|geoparquet|gpkg|kml|kmz|"
+    r"zip|shp|dbf|csv|tsv|sqlite|db)$)", re.IGNORECASE)
+
+
+def _strip_sql_tail(query):
+    q = str(query or "")
+    while True:
+        m = _SQL_TAIL_RE.search(q)
+        if not m:
+            return q
+        q = q[:m.start()].strip()
+
+
+def _ogrsql_refs(query):
+    """FROM/JOIN 参照を [(source|None, name)] で返す。
+    文字列リテラル('..' / "..")内の from/join 綴りは参照とみなさない。"""
+    sql = str(query)
+    refs = []
+    i, n = 0, len(sql)
+    in_s = in_d = False
+    while i < n:
+        ch = sql[i]
+        if in_s:
+            in_s = ch != "'"
+            i += 1
+            continue
+        if in_d:
+            in_d = ch != '"'
+            i += 1
+            continue
+        if ch == "'":
+            in_s = True
+            i += 1
+            continue
+        if ch == '"':
+            in_d = True
+            i += 1
+            continue
+        m = re.match(r"(?i)(from|join)\b", sql[i:])
+        if not m:
+            i += 1
+            continue
+        j = i + m.end()
+        tm = _OGR_TABLE_RE.match(sql[j:].lstrip())
+        if not tm:
+            i = j
+            continue
+        lead = len(sql[j:]) - len(sql[j:].lstrip())
+        first = tm.group(1) or tm.group(2) or tm.group(3)
+        second = tm.group(4) or tm.group(5) or tm.group(6)
+        if second is not None:
+            refs.append((first, second))          # 'ds'.'layer'
+        elif first:
+            refs.append((None, first))
+        i = j + lead + tm.end()
+    return refs
+
+
+def _fc_from_qgs_layer(lyr):
+    """QgsVectorLayer → GeoJSON dict(QGIS4 互換・手動構築)。"""
+    import json as _json
+    from qgis.core import (QgsCoordinateReferenceSystem,
+                           QgsCoordinateTransform, QgsProject)
+    wgs = QgsCoordinateReferenceSystem("EPSG:4326")
+    tr = None
+    if lyr.crs().isValid() and lyr.crs() != wgs:
+        tr = QgsCoordinateTransform(lyr.crs(), wgs, QgsProject.instance())
+    fields = [f.name() for f in lyr.fields()]
+    feats = []
+    for f in lyr.getFeatures():
+        attrs = f.attributes()
+        props = {nm: (attrs[i] if i < len(attrs) else None)
+                 for i, nm in enumerate(fields)}
+        props = {k: (v if v is None or isinstance(v, (str, int, float, bool))
+                     else str(v)) for k, v in props.items()}
+        g = f.geometry()
+        if g is not None and not g.isNull():
+            if tr is not None:
+                g.transform(tr)
+            geom = _json.loads(g.asJson())
+        else:
+            geom = None
+        feats.append({"type": "Feature", "id": f.id(),
+                      "geometry": geom, "properties": props})
+    return {"type": "FeatureCollection", "features": feats}
+
+
+def _exec_ogrsql(query, base):
+    """ogr.ExecuteSQL を実行し (field_names, features) を返す。
+    features = [{wkb: bytes|None, props: {...}}]"""
+    import json as _json
+    from osgeo import ogr as _ogr
+    from qgis.core import QgsProject
+    q = _strip_sql_tail(query)
+    refs = _ogrsql_refs(q)
+    ds = _ogr.GetDriverByName("Memory").CreateDataSource("mem")
+    missing = []
+    for source, name in refs:
+        lyr = None
+        if source is not None:
+            sds = _ogr.Open(_ogr_source(resolve_ref(source, base)))
+            lyr = sds.GetLayerByName(name) if sds else None
+        elif _PATHISH_RE.search(name or ""):
+            sds = _ogr.Open(_ogr_source(resolve_ref(name, base)))
+            lyr = sds.GetLayer(0) if sds else None
+        else:
+            qlyrs = QgsProject.instance().mapLayersByName(name)
+            if not qlyrs:
+                qlyrs = [l for l in QgsProject.instance()
+                         .mapLayers().values() if l.id() == name]
+            sds = (_ogr.Open(_json.dumps(_fc_from_qgs_layer(qlyrs[0])))
+                   if qlyrs else None)
+            lyr = sds.GetLayer(0) if sds else None
+        if lyr is None:
+            missing.append(name)
+            continue
+        ds.CopyLayer(lyr, name)
+    if missing:
+        raise RuntimeError(
+            "ogrsql: 解決できないテーブル: " + ", ".join(missing))
+    # FROM 'x' → FROM "x" ('x' 単引用はデータソース指定のため)
+    sql = re.sub(
+        r"\b(from|join)\s+'([^']*)'\s*\.\s*(?:'([^']*)'|\"([^\"]*)\"|"
+        r"([A-Za-z_][\w.\-]*))",
+        lambda m: "{0} \"{1}\"".format(
+            m.group(1), m.group(3) or m.group(4) or m.group(5)),
+        q, flags=re.IGNORECASE)
+    sql = re.sub(r"\b(from|join)\s+'([^']*)'",
+                 lambda m: "{0} \"{1}\"".format(m.group(1), m.group(2)),
+                 sql, flags=re.IGNORECASE)
+    rl = ds.ExecuteSQL(sql, dialect="OGRSQL")
+    if rl is None:
+        raise RuntimeError("ogr.ExecuteSQL が NULL を返しました")
+    defn = rl.GetLayerDefn()
+    fields = [defn.GetFieldDefn(i).GetName()
+              for i in range(defn.GetFieldCount())]
+    feats = []
+    for f in rl:
+        props = {fields[i]: f.GetField(i) for i in range(len(fields))}
+        g = f.GetGeometryRef()
+        feats.append({"wkb": bytes(g.ExportToWkb()) if g else None,
+                      "props": props})
+    ds.ReleaseResultSet(rl)
+    return fields, feats
+
+
+def _memory_layer_from_ogr(fields, feats, name):
+    """OGR 結果 → memory: プロバイダの QgsVectorLayer。"""
+    from qgis.core import (QgsFeature, QgsField, QgsFields, QgsGeometry,
+                           QgsVectorLayer)
+    from qgis.PyQt.QtCore import QVariant
+    uri = "None"
+    for f in feats:
+        if f["wkb"]:
+            g = QgsGeometry()
+            g.fromWkb(f["wkb"])   # QGIS4: fromWkb はインスタンスメソッド
+            t = str(g.type().name).upper()
+            uri = {"POINT": "Point", "LINESTRING": "LineString",
+                   "POLYGON": "Polygon", "MULTIPOINT": "MultiPoint",
+                   "MULTILINESTRING": "MultiLineString",
+                   "MULTIPOLYGON": "MultiPolygon"}.get(t, "None")
+            break
+    layer = QgsVectorLayer("{0}?crs=epsg:4326".format(uri), name, "memory")
+    qfields = QgsFields()
+    for k in fields:
+        vals = [f["props"][k] for f in feats
+                if f["props"].get(k) is not None]
+        v = QVariant.Double if any(isinstance(x, float) for x in vals) else (
+            QVariant.LongLong if any(
+                isinstance(x, int) and not isinstance(x, bool)
+                for x in vals) else QVariant.String)
+        qfields.append(QgsField(k, v))
+    layer.dataProvider().addAttributes(qfields)
+    layer.updateFields()
+    out = []
+    for f in feats:
+        qf = QgsFeature(layer.fields())
+        if f["wkb"]:
+            qg = QgsGeometry()
+            qg.fromWkb(f["wkb"])
+            qf.setGeometry(qg)
+        qf.setAttributes([f["props"].get(k) for k in fields])
+        out.append(qf)
+    layer.dataProvider().addFeatures(out)
+    layer.updateExtents()
+    return layer
+
+
 def _build_vector(item, base, warnings):
     """ベクター行 → (QgsVectorLayer, src_desc)。不可時 None。"""
     from qgis.core import QgsVectorLayer
@@ -379,6 +593,9 @@ def _build_vector(item, base, warnings):
     leaf = _title_leaf(item["title"])
     if t == "sql":
         return None, "sql: 行は QGIS 側の対応ソースなし"
+    if t == "ogrsql":
+        fields, feats = _exec_ogrsql(item["url"], base)
+        return _memory_layer_from_ogr(fields, feats, leaf), "ogrsql"
     src = None
     if t in ("gpkg", "geopackage"):
         src = _ogr_source(ref)
@@ -781,7 +998,8 @@ def import_kasc(source, iface=None, add_to_project=True,
             try:
                 if t in ("geojson", "layer", "geoparquet", "parquet",
                          "flatgeobuf", "fgb", "gpkg", "geopackage",
-                         "csv", "tsv", "duckdb", "sql", "kml", "kmz",
+                         "csv", "tsv", "duckdb", "sql", "ogrsql",
+                         "kml", "kmz",
                          "wfs", "shp", "shapefile", "fly_geojson"):
                     layer, desc = _build_vector(item, base, warnings)
                 else:

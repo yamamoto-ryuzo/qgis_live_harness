@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **`ogrsql:` 行タイプの取り込みに対応**(`kasc_import.py`)。
+  Canvas 側で新設された OGR SQL SELECT 行(`ogrsql:タイトル|SELECT ...`)を
+  QGIS 側でもネイティブに復元する。`ogr.ExecuteSQL(dialect="OGRSQL")` を
+  QGIS 内の GDAL で直接実行し、結果を memory プロバイダのベクターレイヤー
+  として追加する。FROM 参照は QGIS プロジェクトレイヤー(表示名/レイヤーID)・
+  `'ds'.'layer'` 形式・DATA/ 相対パス・http(s) URL(/vsicurl/)を解決し、
+  クエリ末尾の Canvas オプション(`| off`/`| attr=`/`| render=` 等)は
+  実行前に除去する。QGIS4 の `QgsGeometry().fromWkb`(インスタンスメソッド)・
+  `ogr.Open`(OpenEx 非対応)に準拠
 - **`where=` を「行の最終オプション・値は改行まで」の厳格規約へ変更**。
   式中に `|`(`||` 連結・`'a|b'` リテラル等)を含む subsetString も
   そのまま `where=` へ出力できるようになった(従来は `|` 含有で
