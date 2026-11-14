@@ -45,9 +45,66 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`geo_driver`)。
 
 - `qgis-plugin/` — プラグイン群のルート。**フォルダ名=プラグインID**で複数管理。
   **各プラグインは「1つのQGISプラグイン配布物」として自律管理する**:
-  `metadata.txt`(バージョンの正)・`LICENSE`・`README.md`(+`README_JP.md`等
-  の言語別・`SEARCH.md`/`SPEC.md`等の詳細文書)・`CHANGELOG.md`
+  `metadata.txt`(バージョンの正)・`LICENSE`・`README.md`(英語)・
+  `docs/`(詳細文書・日本語ドキュメントサイトの正本)・`CHANGELOG.md`
   (そのプラグインの変更履歴)をフォルダ内に持つ。
+  **プラグイン付属ドキュメントの正本は `qgis-plugin/<id>/docs/`**。
+  ドキュメントは**日本語 HTML 形式**(KASUGAI Canvas 準拠スタイル:
+  `style.css`+`nav.js` 左サイドバーナビ。いずれもビルドで自動配置される
+  生成物なので手編集しない。英語版サイトは作らない)。
+  **`qgis_live_harness/docs/` にはプラグイン文書を置かない**(Harness 自体の
+  文書のみ。プラグイン docs は GitHub 上の `qgis-plugin/<id>/docs/`
+  ツリーで参照する運用。旧 `docs/<id>/` ミラーと `docs/plugins/<id>.html`
+  生成ページは廃止済み)。`python scripts/build-plugin-docs.py`
+  (`npm run docs`)は `docs/index.html` の seed(未存在時)と
+  `style.css`/`nav.js` の同期のみを行う。
+
+#### `README.md` 統一フォーマット
+
+全プラグインの `README.md` は以下の構成で統一する
+(plugins.qgis.org 公開に英語 README 表示が必須のため。
+日本語の詳細は `docs/` サイトへ誘導し、README には書かない):
+
+```markdown
+> **QGIS Live Harness のプラグイン** — [QGIS Live Harness](https://yamamoto-ryuzo.github.io/qgis_live_harness/) · [プラグイン一覧](https://yamamoto-ryuzo.github.io/qgis_live_harness/plugins.html) · [ドキュメント](https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/<id>/docs) · [リポジトリ](https://github.com/yamamoto-ryuzo/qgis_live_harness)
+
+# <プラグイン名> (`<id>`)
+
+**📖 日本語ドキュメント: <https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/<id>/docs>**
+（インストール・使い方・仕様の詳細はこちら）
+
+## Overview
+<英語の機能概要 1〜2パラグラフ>
+
+## Features
+<英語の主要機能箇条書き>
+
+## Requirements          ← 実行依存がある場合のみ(例: geo_excel)
+## Detailed documentation (EN)  ← ルート md(SPEC.md 等)がある場合のみ
+## Links
+- Documentation (JA): <https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/<id>/docs>
+- Changelog: [CHANGELOG.md](CHANGELOG.md)
+- License: GPL-3.0 ([LICENSE](LICENSE))
+
+## Disclaimer
+
+This software was created and tested on a personal PC.
+No liability is accepted for any damages arising from its use.
+
+<p align="center">
+  <a href="https://giphy.com/explore/free-gif" target="_blank">
+    <img src="https://github.com/yamamoto-ryuzo/QGIS_portable_3x/raw/master/imgs/giphy.gif" width="500" title="avvio QGIS">
+  </a>
+</p>
+```
+
+- 末尾の Disclaimer+giphy フッタは全プラグイン共通で必須(英語表記)
+
+- ヘッダ行は全プラグイン共通(geo_driver は「の中核ドライバ」)。
+  日本語 docs URL は GitHub の `qgis-plugin/<id>/docs/` ツリーリンク
+- 日本語本文・運用手順・ライセンス表の詳細は README に書かず
+  `docs/index.html` 等に集約する(`README_JP.md` は廃止済み)
+
   upstreamリポジトリがあるプラグイン(geo_search=GEO-search-plugin、
   geo_webview=geo_webview、geo_report、geo_import、
   geo_legend=QGIS-legendView)の文書はupstream版を復元・追従し、
@@ -737,9 +794,12 @@ npm run verify:qgis     # 別ターミナルでQGIS起動(開きっぱなし)
   (実装例: geo_webview の "geo_webview.page" context)
 - **日本語は翻訳・ドキュメントとして維持**: UIの日本語は
   ja.json の翻訳として提供し、日本語ドキュメントは
-  `README_JP.md` 等として `README.md`(英語)と併存させる
-  (upstreamが日英併記README形式を持つプラグインはその形式を維持してよい。
-  README等のドキュメント翻訳はja以外は必須としない)
+  `docs/`(日本語 HTML サイト)に集約する。`README_JP.md` は廃止。
+  **`README.md` は「日本語 docs への案内 → 簡単な英語の機能概要」
+  の統一フォーマット**(「構成」節のテンプレート参照。
+  plugins.qgis.org 公開には英語 README 表示が必須。
+  詳細な英語ドキュメントは `SPEC.md`/`SEARCH.md` 等のルート md または
+  upstream README 参照に任せる)
 - **翻訳しないもの**: 保存済み設定値・プロジェクト変数名・フィールド名・
   API値・フォーマット種別等のデータドメイン文字列・内部識別子・
   URLスキーム・外部プロトコル値。表示用文字列とセンチネル/キー値は

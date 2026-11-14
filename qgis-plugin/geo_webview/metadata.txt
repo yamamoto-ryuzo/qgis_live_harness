@@ -6,11 +6,11 @@ description = Serverless web distribution of QGIS projects — export .kasc+DATA
 version = 4.14.0
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
-about = geo_webview は開いている QGIS プロジェクトを `.kasc`+`DATA/` パッケージに出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）で再生する、QGIS のサーバレス Web 配信プラグインです。出力物は静的ホスティングだけで配信できます。パネルの `Export`（ファイル出力）/`▶ Open`（エンジン選択付きで登録・起動）に加え、`/kasugai`・bridge `kasugaiExport` からも呼べます。補助として内蔵 HTTP サーバーが `/export-data/` 配信・`/present`/`/screenshot` 画面共有・パーマリンク受領を提供します。詳細は `README_JP.md` を参照してください。
-about[en] = geo_webview is a serverless web distribution plugin for QGIS: it exports the open project as a `.kasc`+`DATA/` package playable on the KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara), and the output runs on plain static hosting. Available from the panel (`Export` = files only, `▶ Open` = pick an engine, register and launch) as well as `/kasugai` and the `kasugaiExport` bridge. The embedded HTTP server additionally provides `/export-data/` delivery, `/present`/`/screenshot` canvas sharing and permalink reception. See README.md / README_JP.md for usage details and deployment scenarios.
+about = geo_webview は開いている QGIS プロジェクトを `.kasc`+`DATA/` パッケージに出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）で再生する、QGIS のサーバレス Web 配信プラグインです。出力物は静的ホスティングだけで配信できます。パネルの `Export`（ファイル出力）/`▶ Open`（エンジン選択付きで登録・起動）に加え、`/kasugai`・bridge `kasugaiExport` からも呼べます。補助として内蔵 HTTP サーバーが `/export-data/` 配信・`/present`/`/screenshot` 画面共有・パーマリンク受領を提供します。詳細は `docs/`(日本語ドキュメントサイト) を参照してください。
+about[en] = geo_webview is a serverless web distribution plugin for QGIS: it exports the open project as a `.kasc`+`DATA/` package playable on the KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara), and the output runs on plain static hosting. Available from the panel (`Export` = files only, `▶ Open` = pick an engine, register and launch) as well as `/kasugai` and the `kasugaiExport` bridge. The embedded HTTP server additionally provides `/export-data/` delivery, `/present`/`/screenshot` canvas sharing and permalink reception. See README.md and docs/ for usage details and deployment scenarios.
 tracker = https://github.com/yamamoto-ryuzo/qgis_live_harness/issues
 repository = https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview
-homepage = https://yamamoto-ryuzo.github.io/qgis_live_harness/geo_webview/
+homepage = https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview/docs
 tags = permalink,navigation,map,view,link,external,document,excel,pdf,theme,layer,state,style,openlayers,maplibre,webmap,server,http,remote,gis,openlayers-map,geo_suite,cesium,navara,gsimap,leaflet,kasugai
 category = Plugins
 license = GPL-3.0

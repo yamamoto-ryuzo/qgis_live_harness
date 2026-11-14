@@ -1,4 +1,4 @@
-[Japanese original: `SEARCH_JP.md`](./SEARCH_JP.md)
+[Japanese doc site: `docs/search.html`](https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_search/docs/search.html)
 
 # Search Function (English)
 

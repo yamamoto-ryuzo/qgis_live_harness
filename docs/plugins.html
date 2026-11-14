@@ -23,18 +23,8 @@
       <a class="navlink" href="internals.html">Harnessのプラグイン化</a>
       <a class="navlink active" href="plugins.html">プラグイン一覧</a>
       <a class="navlink" href="geosuite.html">GeoSuite</a>
-      <a class="navlink" href="geo_webview.html">geo_webview</a>
       <div class="group">プラグイン</div>
-      <a class="navlink" href="plugins/index.html">すべてのプラグイン</a>
-      <a class="navlink" href="plugins/geo_driver.html">geo_driver</a>
-      <a class="navlink" href="plugins/geo_userfunc.html">geo_userfunc</a>
-      <a class="navlink" href="plugins/geo_import.html">geo_import</a>
-      <a class="navlink" href="plugins/geo_search.html">geo_search</a>
-      <a class="navlink" href="plugins/geo_webview.html">geo_webview</a>
-      <a class="navlink" href="plugins/geo_report.html">geo_report</a>
-      <a class="navlink" href="plugins/geo_excel.html">geo_excel</a>
-      <a class="navlink" href="plugins/geo_legend.html">geo_legend</a>
-      <a class="navlink" href="plugins/geo_launcher.html">geo_launcher</a>
+      <a class="navlink" href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin">プラグイン docs(GitHub)</a>
       <div class="group">リンク</div>
       <a class="navlink ext" href="https://github.com/yamamoto-ryuzo/qgis_live_harness">GitHub リポジトリ</a>
     </div>
@@ -77,7 +67,7 @@ Web 地図公開（WebView でパッケージ化・パーマリンク共有）�
 プロジェクト信号へ配線、<code>main(context)</code> はマクロとして実行します。
 他プラグインのマクロを一元管理する共有レジストリと、AI から関数の発見・作成・検証まで
 行える bridge を備えます。</p>
-<p>ドキュメント: <a href="plugins/geo_userfunc.html">plugins/geo_userfunc.html（このサイト内）</a> ·
+<p>ドキュメント: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_userfunc/docs">qgis-plugin/geo_userfunc/docs/(GitHub)</a> ·
 ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_userfunc/README.md">qgis-plugin/geo_userfunc/README.md</a></p>
 
 <h2><code>geo_import</code></h2>
@@ -85,7 +75,7 @@ Web 地図公開（WebView でパッケージ化・パーマリンク共有）�
 さまざまなデータセットを検索・追加するデータ取り込みプラグイン。
 追加したレイヤは共有のレイヤ整理サービス（layer_org）へ自動で渡すことができ、
 プロファイルのルールに従ったグループ配置・リネーム・スタイル適用も行います。</p>
-<p>ドキュメント: <a href="plugins/geo_import.html">plugins/geo_import.html（このサイト内）</a> ·
+<p>ドキュメント: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_import/docs">qgis-plugin/geo_import/docs/(GitHub)</a> ·
 ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_import/README.md">qgis-plugin/geo_import/README.md</a> ·
 上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/qgis-data-catalog-integration">qgis-data-catalog-integration</a></p>
 
@@ -96,7 +86,7 @@ Web 地図公開（WebView でパッケージ化・パーマリンク共有）�
 PostGIS データベースに対応し、大量データはページング表示。検索時にマップテーマを切り替える機能
 （「検索前」への復元を含む）や、現在の表示に検索結果を重ねる追加表示モードも備えます。
 日本語・英語 UI 対応、QGIS 4.x（Qt6）対応。</p>
-<p>ドキュメント: <a href="plugins/geo_search.html">plugins/geo_search.html（このサイト内）</a> ·
+<p>ドキュメント: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_search/docs">qgis-plugin/geo_search/docs/(GitHub)</a> ·
 ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_search/README.md">qgis-plugin/geo_search/README.md</a> ·
 上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/GEO-search-plugin">GEO-search-plugin</a></p>
 
@@ -108,9 +98,9 @@ KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet）�
 <code>/export-data/</code>・<code>/present</code>・<code>/screenshot</code>・パーマリンク受領を提供します。
 地図の表示状態（中心・ズーム・レイヤの表示・テーマ・スタイル）を URL で復元する
 パーマリンク機能も提供します。</p>
-<p>ドキュメント: <a href="plugins/geo_webview.html">plugins/geo_webview.html（このサイト内）</a> ·
-<a href="https://yamamoto-ryuzo.github.io/qgis_live_harness/geo_webview/">geo_webview ドキュメントサイト（GitHub Pages）</a> ·
-連携方針: <a href="geo_webview.html">外部サービス・クライアント連携（このサイト内）</a> ·
+<p>ドキュメント: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview/docs">qgis-plugin/geo_webview/docs/(GitHub)</a> ·
+<a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview/docs">geo_webview ドキュメント(GitHub)</a> ·
+連携方針: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview/docs">連携方針(integration.html・GitHub)</a> ·
 上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/geo_webview">geo_webview</a></p>
 
 <h2>報告書作成</h2>
@@ -123,7 +113,7 @@ KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet）�
 レイアウトマネージャの起動、レイアウトアイテムのプロパティ（位置・サイズ・内容）の事前編集、
 レイアウト全体を JSON テンプレートとして保存して他レイアウトへ一括適用する機能を持ち、
 統一デザインの複数図面・帳票を効率よく作成できます。日本語・英語対応。</p>
-<p>ドキュメント: <a href="plugins/geo_report.html">plugins/geo_report.html（このサイト内）</a> ·
+<p>ドキュメント: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_report/docs">qgis-plugin/geo_report/docs/(GitHub)</a> ·
 ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_report/README.md">qgis-plugin/geo_report/README.md</a> ·
 上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector">qgis-layoutitem-selector</a></p>
 
@@ -133,7 +123,7 @@ QGIS-exportExcel のレイヤアクション用スクリプトを簡易プラグ
 プラグインメニューからアクティブレイヤ・選択地物を対象に帳票を実行します。
 レイヤ変数（xlsout_*）と win32com（pywin32）・Excel が必要で、
 geo_userfunc の共有レジストリ経由で実行メニューを集約することもできます。</p>
-<p>ドキュメント: <a href="plugins/geo_excel.html">plugins/geo_excel.html（このサイト内）</a> ·
+<p>ドキュメント: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_excel/docs">qgis-plugin/geo_excel/docs/(GitHub)</a> ·
 ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_excel/README.md">qgis-plugin/geo_excel/README.md</a> ·
 上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/QGIS-exportExcel">QGIS-exportExcel</a></p>
 
@@ -141,7 +131,7 @@ geo_userfunc の共有レジストリ経由で実行メニューを集約する�
 <p>選択レイヤの凡例をコンパクトに表示するドッキングウィジェット。
 プロジェクト変数 <code>legend_group_layer_name</code> で表示する凡例を制御します。
 日本語・英語対応、QGIS 4.x（Qt6）対応。</p>
-<p>ドキュメント: <a href="plugins/geo_legend.html">plugins/geo_legend.html（このサイト内）</a> ·
+<p>ドキュメント: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_legend/docs">qgis-plugin/geo_legend/docs/(GitHub)</a> ·
 ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_legend/README.md">qgis-plugin/geo_legend/README.md</a></p>
 
 <h2><code>geo_driver</code></h2>
@@ -150,7 +140,7 @@ geo_userfunc の共有レジストリ経由で実行メニューを集約する�
 任意 Python/JS の実行・地図キャンバスのスクリーンショットを提供します
 （localhost 限定・セッショントークン認証）。AI アシスタントパネル・ホットリロード・
 GeoSuite 共有ツールバー・レイヤ整理サービス（layer_org）も内蔵。</p>
-<p>ドキュメント: <a href="plugins/geo_driver.html">plugins/geo_driver.html（このサイト内）</a> ·
+<p>ドキュメント: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_driver/docs">qgis-plugin/geo_driver/docs/(GitHub)</a> ·
 <a href="driver.html">driver.html（設計詳細）</a> /
 <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_driver/README.md">ソース qgis-plugin/geo_driver/README.md</a></p>
 
@@ -164,7 +154,7 @@ GeoSuite 共有ツールバー・レイヤ整理サービス（layer_org）も�
 GeoSuite の関連ツールとしては、ポータブル QGIS / QField 環境ランチャー
 <a href="https://github.com/yamamoto-ryuzo/yr-qgis-launcher">yr-qgis-launcher</a> もあります。</p>
 <p>リポジトリ: <a href="https://github.com/yamamoto-ryuzo/kasugai_qgis">kasugai_qgis</a> ·
-QGIS 内からの管理: <a href="plugins/geo_launcher.html">geo_launcher プラグイン（このサイト内）</a></p>
+QGIS 内からの管理: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_launcher/docs">qgis-plugin/geo_launcher/docs/(GitHub)</a></p>
 
 <nav class="pager">
   <a href="internals.html"><span class="dir">前へ</span><span class="title">Harnessのプラグイン化</span></a>

@@ -1494,12 +1494,12 @@ class GeoWebView:
                 "geo_webview",
                 self.tr("ZIP download error: {0}").format(e), duration=5)
 
-    # geo_webview ドキュメントサイト(GitHub Pages。docs/geo_webview/ を公開)
-    DOCS_URL = ('https://yamamoto-ryuzo.github.io/'
-                'qgis_live_harness/geo_webview/')
+    # geo_webview ドキュメント(qgis-plugin/geo_webview/docs/ の GitHub ツリー)
+    DOCS_URL = ('https://github.com/yamamoto-ryuzo/qgis_live_harness/'
+                'tree/master/qgis-plugin/geo_webview/docs')
 
     def on_kasugai_help_clicked(self):
-        """ドキュメントサイト(GitHub Pages)をブラウザで開く。"""
+        """ドキュメント(GitHub 上の docs/)をブラウザで開く。"""
         QDesktopServices.openUrl(QUrl(self.DOCS_URL))
 
     def on_engine_combo_changed(self, index):

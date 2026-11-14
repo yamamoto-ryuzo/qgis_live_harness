@@ -1,42 +1,41 @@
+> **QGIS Live Harness のプラグイン** — [QGIS Live Harness](https://yamamoto-ryuzo.github.io/qgis_live_harness/) · [プラグイン一覧](https://yamamoto-ryuzo.github.io/qgis_live_harness/plugins.html) · [ドキュメント](https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_launcher/docs) · [リポジトリ](https://github.com/yamamoto-ryuzo/qgis_live_harness)
+
 # geo_launcher
 
-QGIS plugin that installs/uninstalls and opens the [kasugai_qgis](https://github.com/yamamoto-ryuzo/kasugai_qgis) launcher (Rust/Axum) from inside QGIS.
+**📖 日本語ドキュメント: <https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_launcher/docs>**
+（インストール・使い方・仕様の詳細はこちら）
 
-## Design principle
+## Overview
 
-kasugai_qgis is a *launcher*: its job ends the moment it starts QGIS (it exits automatically after `/launch`). This plugin therefore manages **installation and handoff only** — it does not start or keep the launcher's API server alive.
+QGIS plugin that installs/uninstalls and opens the
+[kasugai_qgis](https://github.com/yamamoto-ryuzo/kasugai_qgis) launcher
+(Rust/Axum) from inside QGIS. The launcher itself exits right after it
+starts QGIS, so this plugin only manages installation and handoff —
+it does not keep the launcher alive.
 
 ## Features
 
-- **Install / Reinstall** — downloads `kasugai_qgis-setup.exe` from GitHub Pages and runs it (silent `/S` optional). Large primary button.
-- **Uninstall** — runs `uninstall.exe` next to `qgis_launcher.exe` (silent `/S` optional). Large primary button.
-- **Open Launcher** — starts `qgis_launcher.exe` in GUI mode (WebView2 window); the user picks profile/project there, the launcher starts a new QGIS and exits by itself.
-- **Status** — detected exe path, version (`qgis_launcher.exe --version`), and whether *this* QGIS was started via the launcher (`PORTAL_USERROLE` role, injected by the launcher into the QGIS process).
-- **Settings** — exe path override, silent install.
-- **AI bridge** — full remote control via `geo_driver` `bridge_call` / `describe_plugins`.
+- **Install / Reinstall** — downloads `kasugai_qgis-setup.exe` and runs
+  it (silent `/S` option)
+- **Uninstall** — runs `uninstall.exe` next to `qgis_launcher.exe`
+- **Open Launcher** — starts `qgis_launcher.exe` in GUI mode (WebView2)
+- **Status** — detected exe path, version, and whether this QGIS was
+  launched via the launcher (`PORTAL_USERROLE`)
+- Full remote control via `geo_driver` `bridge_call` / `describe_plugins`
 
-## Install detection
+## Links
 
-`qgis_launcher.exe` is resolved in this order:
+- Documentation (JA): <https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_launcher/docs>
+- Changelog: [CHANGELOG.md](CHANGELOG.md)
+- License: GPL-3.0 ([LICENSE](LICENSE))
 
-1. QSettings `geo_launcher/exe_path`
-2. `C:\kasugai\kasugai_qgis\qgis_launcher.exe` (NSIS default InstallDir)
-3. `C:\kasugai\*\qgis_launcher.exe` glob
+## Disclaimer
 
-## Usage
+This software was created and tested on a personal PC.
+No liability is accepted for any damages arising from its use.
 
-- Toolbar (GeoSuite) icon or `Plugins > geo_launcher > Kasugai QGIS Launcher` opens the status panel
-- `Plugins > geo_launcher > Open Launcher` opens the launcher's GUI window directly
-- `Settings...` configures exe path / silent install
-
-## Bridge API
-
-`plugins['geo_launcher'].bridge.<method>` via `bridge_call`:
-
-`pluginInfo` / `status` / `isInstalled` / `launch` / `install(silent)` / `installStatus` / `uninstall(silent)` / `getSettings` / `setSettings` / `openDialog` / `openSettings` / `openDocs`
-
-Example (MCP): `qgis_bridge_call pluginId="geo_launcher" method="install"`
-
-## License
-
-GPL-3.0
+<p align="center">
+  <a href="https://giphy.com/explore/free-gif" target="_blank">
+    <img src="https://github.com/yamamoto-ryuzo/QGIS_portable_3x/raw/master/imgs/giphy.gif" width="500" title="avvio QGIS">
+  </a>
+</p>

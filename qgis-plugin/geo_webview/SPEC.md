@@ -1,6 +1,6 @@
 # geo_webview — Specification
 
-[日本語版はこちら / Japanese: `SPEC_JP.md`](SPEC_JP.md)
+[日本語: docs/spec.html](https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/docs/spec.html)
 
 This specification formalizes the features described in the repository README and CHANGELOG, organized by capability. It targets implementers, operators and testers of the `geo_webview` plugin.
 
@@ -134,7 +134,7 @@ CI note: QGIS modules (`qgis.core`, `PyQt6`) will not be available in typical CI
 Notes
 - After making server-side code changes, restart QGIS or the plugin process to reload module code; long-running Python processes do not auto-reload.
 
-This file mirrors the Japanese `SPEC_JP.md`. If you modify `SPEC_JP.md` again, regenerate this English file to keep both versions in sync.
+This file mirrors the Japanese `docs/spec.html`. If you modify the Japanese spec again, regenerate this English file to keep both versions in sync.
 ## 14. 投影 (CRS) ポリシー
 - `.kasc` エクスポートのベクターは EPSG:4326 に正規化して出力する（ネイティブ参照の GPKG/Parquet/FGB はクライアント側で処理）。
 - WMS は複数 CRS を受け付け、要求 CRS に従ってレンダリングする。
@@ -180,9 +180,9 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 | GPKG ソース(地理座標系) | `gpkg: グループ/名 | DATA/x.gpkg | on | table=<表> | style=DATA/x.qml` | ファイルを DATA/ へ複製。複数テーブルは1ファイルを共有 |
 | GeoJSON/Parquet/FGB ソース | `geojson:` / `geoparquet:` / `flatgeobuf:` 参照行 | ローカルは複製、http(s) は URL をそのまま記述 |
 | CSV/TSV(delimitedtext・ogr) | `duckdb: 名 | DATA/x.csv | on | format=csv | lon=<列> | lat=<列>` | ジオメトリ列は `geom=`。delimitedtext は URI の xField/yField/wktField を引き継ぎ、ogr CSV はヘッダから推定。delimitedtext で非地理座標系の場合は GeoJSON 変換 |
-| フィルタ(subsetString)付き GPKG | `gpkg: … | where=<フィルタ>` | ネイティブ参照のままフィルタ維持 |
-| フィルタ付き Parquet | `duckdb: 名 | DATA/x.parquet | on | format=parquet | where=<フィルタ>` | `geoparquet:` には where= が無いため duckdb: に切替 |
-| フィルタ付き GeoJSON/FGB | GeoJSON(EPSG:4326)へ変換して `geojson:` 行 | フィルタを地物に反映して出力 |
+| フィルタ(subsetString)付き GPKG | `gpkg: … | where=<フィルタ>` | ネイティブ参照のままフィルタ維持(SQL 評価) |
+| フィルタ付き GeoJSON/FGB・URL Parquet | `geojson:`/`flatgeobuf:`/`geoparquet:` … `| where=<フィルタ>` | Canvas 側 where-eval.js のクライアント評価(OGR SQL WHERE句準拠)。評価器が扱えない式は GeoJSON 変換でフィルタを地物へ焼き込む |
+| フィルタ付き Parquet(ローカル) | `duckdb: 名 | DATA/x.parquet | on | format=parquet | where=<フィルタ>` | duckdb: へ切替えて SQL 評価 |
 | 3D Tiles レイヤ(QgsTiledSceneLayer) | `3dtiles: グループ/名 | <tileset.json URL or DATA/x/tileset.json> | on` | http(s) は URL 参照、ローカルはディレクトリごと DATA/ へ複製(1GiB 上限・超過は skipped) |
 | XYZ タイルラスタ | `xyz:` 行。表示中の**最下段**のみ `base:` 行（既定ベースマップとして既定群の先頭に置く）。「背景図」「ベースマップ」「basemap」名のグループ内にある XYZ は位置・表示状態に関わらず全て `base:` 行（ベースマップ候補）として登録し、グループ名はタイトルから外す（配下のサブグループは残し、Canvas のベースマップ選択でグループ化表示される）。非表示の候補は `| off` 付きで出力。グループ名は設定ダイアログの Basemap Groups（QSettings `kasugai_basemap_groups`・カンマ区切り）で追加可能 | zmin/zmax → minZoom=/maxZoom=。不透明度は opacity=、限定範囲は bbox=西経,南緯,東経,北緯。縮尺表示は minScale=/maxScale= |
 | XYZ ローカルテンプレート | `xyz:` 行(DATA/<dir>/{z}/{x}/{y}.png) | `file:///…/{z}/{x}/{y}.png` はタイルツリーごと DATA/ へ複製(1GiB 上限・超過は skipped) |

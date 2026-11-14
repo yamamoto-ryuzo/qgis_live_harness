@@ -1,6 +1,6 @@
 # geo_webview — Integration policy for external clients & services
 
-[日本語: `INTEGRATION_JP.md`](INTEGRATION_JP.md)
+[日本語: docs/integration.html](https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_webview/docs/integration.html)
 
 Per-target integration policy of geo_webview. Detailed policy and
 licensing notes are consolidated in this document; the READMEs carry
