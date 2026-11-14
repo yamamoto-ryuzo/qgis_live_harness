@@ -184,8 +184,28 @@ QGIS内に入る制御プラグインは **QGIS Live Driver**(`geo_driver`)。
   パネル専用の内部ドライバで動く。
   **AIチャットの実装時検討・ai-plane 検証に使うプロバイダは
   無償の `devin_acp`(IDE の Devin サインインを使うため
-  APIキー不要・無料)を既定とする**。OpenAI/Anthropic/Gemini/
+  APIキー不要・無料)を既定とする。利用モデルは無料の
+  SWE-2 High(`swe-2-high`)で固定**する(パネルのモデル欄へ設定
+  →ACPセッションへ `session/set_config_option(model)` として
+  添付。`run_ai.py` は `PROVIDER_MODEL` で自動設定済み)。
+  OpenAI/Anthropic/Gemini/
   Copilot 等の有料 API はユーザー明示依頼がある場合のみ使う。
+  プロバイダのタグ分類は3系統で統一する
+  (kasugai_canvas 側と同じ規則。新規プロバイダはいずれかに合わせる):
+  - `【API】` — パネルが LLM API を直叩きしツールループを回す
+    (gemini/copilot/azure/anthropic/openai)
+  - `【ACP】` — エージェント CLI を持続セッションで駆動し
+    ツールはエージェント側が持つ
+    (copilot_acp=`copilot --acp --stdio`、devin_acp=`devin acp`、
+    acp=カスタムエージェント=エンドポイント欄の起動コマンドで
+    任意の ACP CLI を spawn。APIキー欄は作業ディレクトリ)
+  - `【ブリッジ】` — 仲介・委譲層を挟む経路
+    (copilot_bridge/devin_bridge=別のチャット LLM が
+    `qgis_copilot_*`/`qgis_devin_*` ツールで CLI へ作業委譲、
+    agent=外部エージェント=任意の HTTP エンドポイントへ
+    POST {message,...}→{reply} 委譲)
+  表示順は `ai_client.PROVIDER_ORDER` でこの分類順に統一
+  (Canvas の PROVIDER_ORDER と同じ規則)。
   指示書は2系統のMarkdown: `~/.qgis-live/agents/*.md` は
   常時注入(パネルで選択・複数対応)、`~/.qgis-live/skills/*.md` は
   一覧のみプロンプトに載せモデルがpyevalのopen()で読む

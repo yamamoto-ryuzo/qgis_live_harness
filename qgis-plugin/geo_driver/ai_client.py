@@ -224,6 +224,20 @@ PROVIDERS = {
             "working directory for Copilot CLI sessions "
             "(default: user home)"),
     },
+    "acp": {
+        "label": QT_TRANSLATE_NOOP("geo_driver", "Custom agent"),
+        "tag": "【ACP】",
+        "base": "",
+        "model": "default",
+        "key_hint": QT_TRANSLATE_NOOP(
+            "geo_driver",
+            "working directory for the agent session "
+            "(default: user home)"),
+        "endpoint_hint": QT_TRANSLATE_NOOP(
+            "geo_driver",
+            "ACP launch command for an arbitrary agent CLI "
+            "(e.g. my-agent acp)"),
+    },
     "devin_bridge": {
         "label": "Devin",
         "tag": "【ブリッジ】",
@@ -254,7 +268,27 @@ PROVIDERS = {
             "OpenAI-compatible endpoint driving the delegation chat "
             "(e.g. https://api.openai.com/v1)"),
     },
+    "agent": {
+        "label": QT_TRANSLATE_NOOP("geo_driver", "External agent"),
+        "tag": "【ブリッジ】",
+        "base": "",
+        "model": "default",
+        "key_hint": QT_TRANSLATE_NOOP(
+            "geo_driver",
+            "Bearer token for the agent endpoint (optional)"),
+        "endpoint_hint": QT_TRANSLATE_NOOP(
+            "geo_driver",
+            "agent endpoint URL accepting POST {message,...} and "
+            "replying {reply: ...} "
+            "(e.g. http://127.0.0.1:8511/agent)"),
+    },
 }
+
+# 表示順は【API】→【ACP】→【ブリッジ】の分類順
+# (kasugai_canvas の PROVIDER_ORDER と同じ規則)
+PROVIDER_ORDER = ["gemini", "copilot", "azure", "anthropic", "openai",
+                  "copilot_acp", "devin_acp", "acp",
+                  "copilot_bridge", "devin_bridge", "agent"]
 
 # プロバイダ種別タグ → 接続方式の説明(ツールチップ・ヘルプ用)
 PROVIDER_TAGS = {
@@ -1008,8 +1042,10 @@ def _responses_only_error(e):
     エラーかを判定する。誤判定の場合 /responses 側が同様に
     失敗してそのエラーが返るだけなので広めに拾う。"""
     s = str(e).lower()
+    # "The requested model is not supported." 等の文言揺れも拾う
     return ("not accessible via the /chat/completions" in s
-            or "model_not_supported" in s)
+            or "model_not_supported" in s
+            or "not supported" in s)
 
 
 # ---- Gemini (generateContent) ----
@@ -3026,9 +3062,15 @@ class DevinAcpProvider:
             _ACP_SESSIONS[skey] = s
         return s
 
+    def _make_session(self, base, key, model):
+        """send からのセッション取得フック。base=エンドポイント欄、
+        key=APIキー欄(ACP系では認証外の別用途に使える)。
+        既定は base を cwd とみなす"""
+        return self._session(base, model)
+
     def send(self, base, key, model, system, msgs, timeout=180.0):
         from . import devin_tasks  # noqa: PLC0415
-        sess = self._session(base, model)
+        sess = self._make_session(base, key, model)
         last = msgs[-1] if msgs else {}
         text = last.get("content") or ""
         # 新規セッションの最初の発言にだけ system(指示書類)を前置
@@ -3109,13 +3151,142 @@ class CopilotAcpProvider(DevinAcpProvider):
     ENGINE = "copilot"
 
 
+def _custom_acp_argv(command):
+    """起動コマンド文字列を argv に分解する。
+
+    Windows の .cmd/.bat shim は直接 spawn できないため cmd /c 経由にする
+    (copilot.cmd 等と同じ対策)。
+    """
+    import shlex  # noqa: PLC0415
+    try:
+        argv = shlex.split(command, posix=os.name != "nt")
+    except ValueError:
+        argv = command.split()
+    argv = [a.strip('"').strip("'") for a in argv if a.strip('"').strip("'")]
+    if not argv:
+        raise ApiError("ACP launch command is empty")
+    resolved = shutil.which(argv[0])
+    if resolved is None:
+        raise ApiError(f"ACP command not found: {argv[0]}")
+    argv[0] = resolved
+    if os.name == "nt" and resolved.lower().endswith((".cmd", ".bat")):
+        argv = [os.environ.get("COMSPEC", "cmd.exe"), "/c", *argv]
+    return argv
+
+
+class CustomAcpProvider(DevinAcpProvider):
+    """【ACP】任意の ACP 対応 CLI をチャットエンジンにする。
+
+    エンドポイント欄=起動コマンド(例: `my-agent acp`)、
+    APIキー欄=セッションの作業ディレクトリ(cwd。省略時はホーム)。
+    認証は CLI 側のログインに委譲(authMethods が提示された場合のみ
+    先頭方式を best-effort で試行)。機構は DevinAcpProvider と同じ
+    (KASUGAI Canvas の【ACP】カスタムエージェントに相当)。
+    """
+
+    id = "acp"
+    label = PROVIDERS["acp"]["label"]
+    ENGINE = "custom"
+
+    def _make_session(self, base, key, model):
+        from . import devin_tasks  # noqa: PLC0415
+        command = (base or "").strip()
+        if not command:
+            raise ApiError(
+                "ACP launch command is not set (endpoint field)")
+        argv = _custom_acp_argv(command)
+        cwd = os.path.abspath(
+            os.path.expanduser((key or "").strip() or "~"))
+        skey = (self.ENGINE, command, cwd)
+        s = _ACP_SESSIONS.get(skey)
+        if s is not None and s._proc.poll() is not None:
+            s = None  # プロセスが死んでいたら作り直す
+        if s is None:
+            s = devin_tasks.AcpSession(
+                cwd, exe=argv, mcp_servers=_acp_mcp_servers(),
+                mode="bypass",
+                model=None if model in (None, "", "default") else model,
+                engine="custom")
+            _ACP_SESSIONS[skey] = s
+        return s
+
+
+class ExternalAgentProvider(OpenAIProvider):
+    """【ブリッジ】任意のエージェント HTTP エンドポイントへ委譲する。
+
+    POST {endpoint} {"message", "system", "history", "model"?}
+      → {"reply": "..."} (reply/text/message/content のいずれか)。
+    KASUGAI Canvas のブリッジハブ /agent と同じ形式で、
+    hub の provider 振り分けは model 欄ではなく
+    body の "provider" 固定値は使わず直接プロバイダURLへ送る想定。
+    """
+
+    id = "agent"
+    label = PROVIDERS["agent"]["label"]
+
+    def list_model_entries(self, base, key, timeout=30.0):
+        return [{"id": "default"}]
+
+    def list_models(self, base, key, timeout=30.0):
+        return ["default"]
+
+    def send(self, base, key, model, system, msgs, timeout=180.0):
+        url = (base or "").strip()
+        if not url:
+            raise ApiError("agent endpoint is not set")
+        last = msgs[-1] if msgs else {}
+        content = last.get("content")
+        if isinstance(content, str):
+            text = content
+        else:  # 画像付き等のマルチパート形式はテキスト部だけ結合
+            text = " ".join(
+                p.get("text", "") for p in (content or [])
+                if isinstance(p, dict))
+        headers = {}
+        if key:
+            headers["Authorization"] = f"Bearer {key}"
+        body = {
+            "message": text,
+            "system": system or "",
+            "history": [
+                {"role": m.get("role"), "content": m.get("content")}
+                for m in msgs[-20:]
+                if m.get("role") in ("user", "assistant", "model")],
+        }
+        if model and model != "default":
+            body["model"] = model
+        return _post_json(url, headers, body, timeout)
+
+    def parse(self, data):
+        if isinstance(data, dict):
+            reply = data.get("reply")
+            if isinstance(reply, dict):
+                reply = (reply.get("text") or reply.get("content")
+                         or reply.get("message") or "")
+            if not reply:
+                reply = (data.get("text") or data.get("message")
+                         or data.get("content") or "")
+            if isinstance(reply, str):
+                return {"text": reply, "calls": [], "raw": data,
+                        "usage": parse_usage(data)}
+        raise ApiError(f"Invalid agent response: {str(data)[:300]}")
+
+    def append_exchange(self, msgs, turn, results):
+        # calls は常に空。応答 dict をそのまま積むと次の送信履歴を
+        # 壊すためテキストのみにする
+        msgs.append({"role": "assistant",
+                     "content": turn.get("text") or ""})
+
+
 _PROVIDERS = {"openai": OpenAIProvider, "anthropic": AnthropicProvider,
               "gemini": GeminiProvider, "azure": AzureOpenAIProvider,
               "copilot": CopilotProvider,
               "devin_bridge": DevinBridgeProvider,
               "copilot_bridge": CopilotBridgeProvider,
               "devin_acp": DevinAcpProvider,
-              "copilot_acp": CopilotAcpProvider}
+              "copilot_acp": CopilotAcpProvider,
+              "acp": CustomAcpProvider,
+              "agent": ExternalAgentProvider}
 
 
 def get_provider(provider):

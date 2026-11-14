@@ -60,7 +60,12 @@ from qgis.PyQt.QtWidgets import (
 from . import ai_client, credential_store
 
 _SETTING = "geo_driver/ai_{}"
-_PROVIDER_IDS = list(ai_client.PROVIDERS.keys())
+# 表示順は【API】→【ACP】→【ブリッジ】(ai_client.PROVIDER_ORDER)。
+# ORDER に無い将来プロバイダは定義順で末尾に足す
+_PROVIDER_IDS = (
+    [p for p in ai_client.PROVIDER_ORDER if p in ai_client.PROVIDERS]
+    + [p for p in ai_client.PROVIDERS
+       if p not in ai_client.PROVIDER_ORDER])
 _MODEL_HINT = QT_TRANSLATE_NOOP(
     "geo_driver",
     "Press \"Fetch\" to list models from the endpoint. "
