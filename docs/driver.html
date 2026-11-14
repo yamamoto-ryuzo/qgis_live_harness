@@ -170,6 +170,25 @@ Gemini(<code>{base}/models/{model}:generateContent</code> +
 functionDeclarations)・Azure OpenAI(deploymentsパス+api-keyヘッダ)・
 GitHub Copilot。エンドポイントを変えればOllama・LM Studio・
 OpenRouter等の互換サーバも使える。設定はプロバイダごとに別保存</li>
+<li><strong>GitHub Copilot(特殊方式)</strong>: 他プロバイダのような
+「APIキー発行」ではなく<strong>トークン交換方式</strong>。
+APIキー欄には GitHub トークン(PAT: <code>ghp_…</code>/<code>github_pat_…</code>)を
+入れるか、パネルの「GitHubでサインイン」ボタン(OAuthデバイスフロー)で
+トークンを取得する。内部ではそのGitHubトークンを
+<code>api.github.com/copilot_internal/v2/token</code> へ投げて
+<strong>短期トークン(発行時刻から固定・約30分)</strong>とプラン別API先
+(<code>endpoints.api</code>: individual/business/enterprise)を取得し、
+<code>api.githubcopilot.com</code> の OpenAI互換
+<code>/chat/completions</code>・<code>/models</code> を呼ぶ。
+トークンは期限切れ60秒前に自動で再交換するため、会話を続けても
+APIキーの再入力は不要(ただし有効期限はスライドせず発行時点固定)。
+<code>v2/token</code> が応答しない環境では <code>copilot_internal/user</code> で
+API先だけを解決しGitHubトークンをそのままBearerに使うフォールバック
+(copilot CLIと同じ動作)。baseを既定から変更した場合はcopilot-api互換
+プロキシ等とみなし交換しない。<strong>要 GitHub Copilot サブスク</strong>。
+なお <code>copilot_internal</code> は GitHub 非公式の内部エンドポイント
+(VS Code・copilot CLIが使うものと同じ)で、公式に公開された
+API製品ではない点に注意</li>
 <li><strong>モデル選択</strong>: 編集可コンボ。隣の「取得」ボタンで
 <code>GET {base}/models</code> から利用可能モデル一覧を取り込む
 (GeminiではgenerateContent非対応モデルを除外)。

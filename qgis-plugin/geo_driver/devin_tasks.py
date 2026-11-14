@@ -635,11 +635,19 @@ class AcpSession:
         if engine == "devin" and not _ide_api_key():
             raise TaskError(
                 "ACP requires IDE credentials (windsurf_api_key)")
+        # devin acp は WINDSURF_EXT_HOST_PID のプロセスを「親」として
+        # 監視し、死亡を検出すると自己終了する。IDEターミナル等から
+        # 起動されたQGISが IDE再起動済みの陳腐pidを継承していると
+        # セッション生成直後に acp が落ちてしまうため、実際の親である
+        # 自プロセス(QGIS)を指すよう上書きする
+        env = dict(os.environ)
+        if env.get("WINDSURF_EXT_HOST_PID"):
+            env["WINDSURF_EXT_HOST_PID"] = str(os.getpid())
         try:
             self._proc = subprocess.Popen(  # nosec B603
                 argv, stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL, cwd=cwd,
+                stderr=subprocess.DEVNULL, cwd=cwd, env=env,
                 creationflags=_NO_WINDOW)
         except OSError as e:
             raise TaskError(f"failed to start devin acp: {e}")
