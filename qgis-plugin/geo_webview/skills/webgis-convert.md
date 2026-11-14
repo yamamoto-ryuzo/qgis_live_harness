@@ -23,7 +23,7 @@ use_when: ユーザーがデータ形式の変換・レイヤ追加・WebGIS/Can
 | ローカルラスタ(DEM/オルソ等) | XYZタイル か COG | `xyz:`/`geotiff:` | **エクスポートはローカルラスタを skipped する**ので事前にタイル化/COG化が必要 |
 | WMSラスタ | そのまま(URL) | `wms:` | 接続URIから自動で行生成 |
 | 3Dモデル/点群/建物 | 3D Tiles | `3dtiles:` | http(s)はURL参照、ローカルはDATA/へ複製(1GiB上限) |
-| フィルタ(subsetString)付き | 形式ごとに維持 | `where=`(gpkg) / `duckdb:`(parquet) / GeoJSON変換(geojson/fgb) | フィルタを変質させない経路を選ぶ |
+| フィルタ(subsetString)付き | 形式ごとに維持 | `where=`(gpkg/duckdbはSQL実行、その他ベクター系はCanvas側クライアント評価) / `duckdb:`(parquet) / GeoJSON変換(geojson/fgb) | フィルタを変質させない経路を選ぶ。`where=` は geojson:/geoparquet:/flatgeobuf: 等の全ベクター行でも利用可(式は SQL WHERE サブセット) |
 | 非地理座標系(平面直角等) | **EPSG:4326へ必ず再投影** | — | `gpkg:`ネイティブ参照もGeoJSON変換も地理座標系が前提 |
 
 ## 変換→レイヤ追加のレシピ(qgis_pyeval)
@@ -74,7 +74,8 @@ Canvas の .qml コンパイラ(web/shared/qml-style.js)の対応範囲。**再�
 
 Canvas のエンジンは `cesium`/`maplibre`/`openlayers`/`leaflet`/`gsimaps`/`navara`。ライブラリ自体の一般知識は前提としてよいが、**エンジン別の .kasc 対応差は KASUGAI Canvas 固有**なので以下に従う:
 
-- **`cesium`(既定・推奨)**: QML 再現が最も忠実(`qml-style.js`+`cesium/qml-render.js`、ラベルデクラッター付)。`3dtiles:`/`terrain:`/`scene3d:`/`cam:` の pitch・heading は **cesium 専用**
+- **`cesium`(既定・推奨)**: QML 再現が最も忠実(`qml-style.js`+`cesium/qml-render.js`、ラベルデクラッター付)。`3dtiles:`/`terrain:`/`scene3d:`/`cam:` の pitch・heading は **cesium 専用**。
+  起動時ポータル(`portal:`/`html:`/`view:`/`link:` 行=開始画面+目的別ビューカード+外部リンクカード)は **全エンジン対応**(cesium/maplibre/openlayers/leaflet/gsimaps/navara)。`view:` は .kasc 直接記述で定義し `;where=`/`;style=`・`cam=`/`base=`/`desc=`/`img=` を束ね、`link:` は `url=` で外部サイトカードになる。`portal: … | html=ファイル/URL` でポータル全体を1つのHTMLで構成するフルカスタムモードもあり(HTML内の `data-view=ビュー名`/`data-link=URL`/`data-cam=カメラ名`/`data-base=背景名`/`data-clear`/`data-close` 属性がGIS操作として動く)(export 側の自動生成は未対応・.kasc を編集して作る。gsimaps/navara は `;style=` 未対応等の機能差あり)
 - **`maplibre`**: ベクタータイル主体なら選択肢。2D QML 適用+ラベル焼き込み(`bakeQmlLabels`)
 - **`openlayers`/`leaflet`**: 2D 汎用/軽量。QML は qml-2d.js 経由で近似度は cesium より低い(leaflet はマーカーを canvas 描画)
 - **`gsimaps`/`navara`**: 地理院地図系・産総研系のニッチエンジン。凡例/スタイルの対応は限定的。指定された場合のみ使い、能力差をユーザーへ断る

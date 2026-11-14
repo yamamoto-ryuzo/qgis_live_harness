@@ -38,6 +38,7 @@ _META_TYPES = frozenset([
     "bookmark", "cloud", "plugin", "yahooappid", "title",
     "group", "terrain", "scene3d", "light", "live",
     "default_style", "defaultstyle",
+    "view", "html", "portal", "link",
 ])
 
 _BOOL_RE = re.compile(r"^(on|off|true|false)$", re.IGNORECASE)

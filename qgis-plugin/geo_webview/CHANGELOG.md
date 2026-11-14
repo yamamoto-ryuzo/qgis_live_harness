@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- kasc_import.py のメタ行タイプに `view:`/`html:`/`portal:`/`link:` を追加。
+  `portal: … | html=ファイル/URL` のポータル全体HTML指定と
+  HTML内 `data-view=`/`data-link=`/`data-cam=`/`data-base=`/`data-clear`/`data-close` の
+  GIS操作属性も Canvas 側で実装済み(全エンジン共通の shared/portal.js で動作)
+  Canvas 側の新行形式(ポータル開始画面・目的別ビューカード)を
+  .kasc 逆取り込み時にレイヤ行と誤認しないよう読み飛ばし対象へ登録
 - `skills/webgis-convert.md` を追加(geo_driver から移動)。
   geo_driver の同梱指示書集約がプラグイン別 `skills/` 対応になったため、
   KASUGAI Canvas 向け変換・kasugaiExport の手順書は本プラグインの責務として同梱する
