@@ -23,7 +23,7 @@ use_when: ユーザーがデータ形式の変換・レイヤ追加・WebGIS/Can
 | ローカルラスタ(DEM/オルソ等) | XYZタイル か COG | `xyz:`/`geotiff:` | **エクスポートはローカルラスタを skipped する**ので事前にタイル化/COG化が必要 |
 | WMSラスタ | そのまま(URL) | `wms:` | 接続URIから自動で行生成 |
 | 3Dモデル/点群/建物 | 3D Tiles | `3dtiles:` | http(s)はURL参照、ローカルはDATA/へ複製(1GiB上限) |
-| フィルタ(subsetString)付き | 形式ごとに維持 | `where=`(gpkg/duckdbはSQL実行、その他ベクター系はCanvas側クライアント評価) / `duckdb:`(parquet) / GeoJSON変換(geojson/fgb) | フィルタを変質させない経路を選ぶ。`where=` は geojson:/geoparquet:/flatgeobuf: 等の全ベクター行でも利用可(式は SQL WHERE サブセット) |
+| フィルタ(subsetString)付き | 形式ごとに維持 | `where=`(gpkg/duckdbはSQL実行、geojson/geoparquet/flatgeobufはCanvas側where-eval.jsのOGR SQL WHERE句評価) / `duckdb:`(ローカルparquet) / GeoJSON変換(where-eval非対応式のみ) | フィルタを変質させない経路を選ぶ。`where=` は全ベクター行で利用可(式は OGR SQL WHERE 句)。**where= は行の最終オプションで値は改行まで**(式中の `|`・`||` 可。off や他 key=value は where= の前に置く)。`||` 連結は where-eval 対応済みで geojson/fgb/geoparquet でもそのまま送出。単独 `|`(ビット演算)・`%` は where-eval 非対応のため GeoJSON 変換へ回る |
 | 非地理座標系(平面直角等) | **EPSG:4326へ必ず再投影** | — | `gpkg:`ネイティブ参照もGeoJSON変換も地理座標系が前提 |
 
 ## 変換→レイヤ追加のレシピ(qgis_pyeval)

@@ -1176,25 +1176,61 @@ def _copy_tree_to_data(src_dir, data_dir, slug, copied):
 def _subset_filter(layer):
     """レイヤのプロバイダフィルタ(subsetString)を where= 値として返す。
 
-    ``|`` を含む式は .kasc 行の区切りと衝突するため None を返す
-    (呼び出し側は GeoJSON 再エクスポートでフィルタを反映する)。
+    ``where=`` は .kasc 行の最終オプション(値は行末まで)なので、
+    ``||`` 連結や ``'a|b'`` リテラル等の ``|`` もそのまま出力できる。
+    改行のみ空白へ潰す(``_kasc_escape`` は ``|`` を潰すため使わない)。
     """
     try:
         raw = (layer.subsetString() or '').strip()
     except Exception:  # nosec B110  # 設計上の許容
         return None
-    if not raw or '|' in raw:
+    if not raw:
         return None
-    return _kasc_escape(raw) or None
+    return re.sub(r'[\r\n]+', ' ', raw) or None
 
 
-def _has_unusable_subset(layer):
-    """subsetString が設定済みだが | を含み where= に変換できないか。"""
+def _subset_raw(layer):
+    """レイヤのプロバイダフィルタ(subsetString)を生文字列で返す。"""
     try:
-        raw = (layer.subsetString() or '').strip()
+        return (layer.subsetString() or '').strip()
     except Exception:  # nosec B110  # 設計上の許容
+        return ''
+
+
+# Canvas 側の where-eval.js(クライアント評価)が解釈できない構文の簡易検出。
+# 引っかかった式は where= に載せず GeoJSON 変換でフィルタを焼き込む
+# (パース失敗で全件表示になる回帰を防ぐための保守的ガード)。
+# - IN(/NOT( と where-eval.js FUNCTION_NAMES 以外の「識別子+('
+#   =未対応関数呼び出し・サブクエリ入口(許可関数名は where-eval.js と同期:
+#   SUBSTR/CAST/CONCAT/HSTORE_GET_VALUE)
+# - SELECT/JOIN キーワード(サブクエリ)
+# - ~ / @ / $ / % / `(QGIS式の正規表現・変数・剰余・ジオメトリ関数・
+#   識別子引用。% は LIKE パターンのリテラル内のみ許可で裸の % は非対応)
+# - 単独の |(where-eval.js は || 連結のみ対応。奇数連の | はビット演算等の
+#   ため GeoJSON 焼き込みへ回す。偶数連=|| 連結は許可。
+#   文字列リテラル内の | はスクラブ済みで誤検出しない)
+_EVAL_UNSAFE_RE = re.compile(
+    r'[~@$%`]|(?<!\|)\|(?:\|\|)*(?!\|)|\bselect\b|\bjoin\b|'
+    r'\b(?!in\b|not\b|substr\b|cast\b|concat\b|hstore_get_value\b)'
+    r'[\w.]+\s*\(',
+    re.IGNORECASE)
+_STRING_OR_IDENT_RE = re.compile(
+    r"'(?:[^']|'')*'|\"(?:[^\"]|\"\")*\"")
+
+
+def _subset_eval_ok(raw):
+    """where-eval.js(クライアント評価)が解釈できる subset 式か。
+
+    geojson:/flatgeobuf:/geoparquet: 行の where= は Canvas 側で
+    全件読み込み後にクライアント評価されるため、SQL エンジンへ投げる
+    gpkg:/duckdb: 系より文法が狭い。非対応構文を含む式は False を返し
+    (呼び出し側は GeoJSON 変換へ回す)。文字列/識別子リテラル内の
+    記号は誤検出しないよう除去してから判定する。
+    """
+    if not raw:
         return False
-    return bool(raw and '|' in raw)
+    scrub = _STRING_OR_IDENT_RE.sub("''", raw)
+    return not _EVAL_UNSAFE_RE.search(scrub)
 
 
 def _csv_geom_hints(path):
@@ -1730,8 +1766,10 @@ def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
     - http(s) ソース: 拡張子に応じて URL をそのまま参照
     - ローカルファイル: DATA/<slug><ext> へコピーして相対参照
     - delimitedtext / .csv,.tsv → ``duckdb:``(lon=/lat=/geom= 付き)
-    - subsetString → gpkg は ``where=``、parquet は ``duckdb:+format=parquet``
-      へ切替、GeoJSON/FGB はフィルタ反映のため GeoJSON 変換へ回す
+    - subsetString → 全ネイティブ形式で ``where=``。gpkg:/duckdb: 系は
+      SQL実行、geojson:/flatgeobuf:/geoparquet: は Canvas 側
+      where-eval.js のクライアント評価(_subset_eval_ok が通る式のみ。
+      非対応式は GeoJSON 変換でフィルタを焼き込む)
     地理座標系でない場合は None(GeoJSON 再エクスポートへ回す)。
 
     embed_style=True ならローカル GPKG の layer_styles へ現在スタイルを
@@ -1740,6 +1778,7 @@ def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
     """
     src = layer.source() or ''
     subset = _subset_filter(layer)
+    subset_raw = _subset_raw(layer)
 
     # delimitedtext プロバイダ(CSV/TSV等) → duckdb:
     if (layer.providerType() or '') == 'delimitedtext':
@@ -1782,15 +1821,14 @@ def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
         if kind == 'duckdb':
             opts['format'] = 'tsv' if ext == '.tsv' else 'csv'
         if subset:
-            if kind in ('gpkg', 'duckdb'):
-                opts['where'] = subset
-            elif kind == 'geoparquet':
-                kind = 'duckdb'
-                opts['format'] = 'parquet'
-                opts['where'] = subset
-            else:
-                # geojson:/flatgeobuf: に where= は無い → GeoJSON 変換で反映
+            if kind not in ('gpkg', 'duckdb') \
+                    and not _subset_eval_ok(subset_raw):
+                # where-eval 非対応式 → GeoJSON 変換でフィルタを焼き込む
+                warnings.append(
+                    '{0}: フィルタ式が where= 非対応のためGeoJSON変換'.format(
+                        layer.name()))
                 return None
+            opts['where'] = subset
         return {'type': kind, 'ref': url, 'opts': opts}
 
     # ローカルファイルソース
@@ -1829,8 +1867,11 @@ def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
     if subset:
         if kind == 'geoparquet':
             kind = 'duckdb'
-        elif kind != 'gpkg':
-            # geojson/flatgeobuf は where= 非対応 → GeoJSON 変換で反映
+        elif kind != 'gpkg' and not _subset_eval_ok(subset_raw):
+            # where-eval 非対応式 → GeoJSON 変換でフィルタを焼き込む
+            warnings.append(
+                '{0}: フィルタ式が where= 非対応のためGeoJSON変換'.format(
+                    layer.name()))
             return None
     if kind == 'gpkg' and embed_style:
         # コピー後に埋め込むと配布コピー(DATA/)へスタイルが入らないため、
@@ -3130,8 +3171,11 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         native_formats: True なら GPKG/GeoJSON/GeoParquet/FlatGeobuf
             ソース(ローカルファイル・http URL)をそのまま参照し、
             CSV/TSV(delimitedtext 等)は ``duckdb:`` 行(lon=/lat=/geom=)、
-            フィルタ付き GPKG は ``where=`` 付き ``gpkg:``、
-            フィルタ付き Parquet は ``duckdb:+format=parquet+where=``、
+            フィルタ(subsetString)付きのネイティブ形式は ``where=``
+            付きで出力する(``gpkg:``/``duckdb:`` 系は SQL 評価、
+            ``geojson:``/``flatgeobuf:``/``geoparquet:`` は Canvas 側
+            where-eval.js のクライアント評価。ローカル Parquet は
+            ``duckdb:+format=parquet+where=`` へ切替)、
             3D Tiles レイヤは ``3dtiles:``、ローカル XYZ テンプレートは
             タイルツリー複製の ``xyz:`` 行として出力する。
             それ以外のベクターのみ GeoJSON(EPSG:4326)へ出力する。
@@ -3325,15 +3369,9 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             # 時間対応・ヒートマップ/クラスタ・透過度等の共通オプション
             vopt = _vector_opts_suffix(layer, warnings)
 
-            if _has_unusable_subset(layer):
-                warnings.append(
-                    '{0}: フィルタに | を含むためGeoJSON変換'.format(
-                        layer.name()))
-                native = None
-            else:
-                native = _native_ref(
-                    layer, slug, data_dir, copied, warnings,
-                    embed_style=embed_gpkg_style) if native_formats else None
+            native = _native_ref(
+                layer, slug, data_dir, copied, warnings,
+                embed_style=embed_gpkg_style) if native_formats else None
             if isinstance(native, dict) and native.get('skip_reason'):
                 skipped.append(
                     '{0} ({1})'.format(layer.name(), native['skip_reason']))
@@ -3342,7 +3380,11 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 line_type, ref = native['type'], native['ref']
                 line = '{0}: {1} | {2} | {3}'.format(
                     line_type, title, _kasc_escape(ref), vis_flag)
-                for key, val in native.get('opts', {}).items():
+                opts = dict(native.get('opts', {}))
+                # where= は行の最終オプション(値は行末まで)なので
+                # 他オプションの後ろへ分離してから出力する
+                where_val = opts.pop('where', None)
+                for key, val in opts.items():
                     line += ' | {0}={1}'.format(key, _kasc_escape(val))
                 line += style_opt
                 line += vopt
@@ -3350,6 +3392,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 attr = _attribution(layer)
                 if attr:
                     line += ' | attr={0}'.format(_kasc_escape(attr))
+                if where_val:
+                    line += ' | where={0}'.format(where_val)
                 layers_out.append({
                     'name': layer.name(), 'title': title, 'file': ref,
                     'qml': 'DATA/{0}.qml'.format(slug) if style_opt else None,

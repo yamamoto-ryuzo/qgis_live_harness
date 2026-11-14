@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+- **`where=` を「行の最終オプション・値は改行まで」の厳格規約へ変更**。
+  式中に `|`(`||` 連結・`'a|b'` リテラル等)を含む subsetString も
+  そのまま `where=` へ出力できるようになった(従来は `|` 含有で
+  GeoJSON 変換へ逃がしていた)。`off` や他の `key=value` は
+  `where=` より前に置く。`view:` の `;where=` は対象外(値に `|` 不可)。
+  where-eval.js(クライアント評価)は `||` 文字列連結に対応済みのため
+  `||` 含む式も `geojson:`/`flatgeobuf:`/`geoparquet:` でそのまま送出する
+  (単独 `|` のビット演算・`%` 剰余は非対応のまま GeoJSON 焼き込み。
+  `gpkg:`/`duckdb:` は SQL 評価でいずれもそのまま渡る)。
+  書き出し順も `where=` を必ず行末に出すよう整理した
+  (kasc_import.py 側も行末規約で `|` 含む式を復元)
+- レイヤーフィルタ(subsetString)の `where=` 送出を全ネイティブ形式へ拡大。
+  従来 `gpkg:`/`duckdb:` 系のみだった `where=` を
+  `geojson:`/`flatgeobuf:`/`geoparquet:`(URL)行にも発行する
+  (Canvas 側 shared/where-eval.js の OGR SQL WHERE句準拠クライアント
+  評価。ローカル/URL・GeoJSON/FGB を含む全分岐で統一)。
+  where-eval が解釈できない式(サブクエリ・未対応関数・QGIS式記法)は
+  従来通り GeoJSON 変換でフィルタを地物へ焼き込む。
+  ローカル Parquet は従来通り `duckdb:+format=parquet+where=` で SQL 評価
 - kasc_import.py のメタ行タイプに `view:`/`html:`/`portal:`/`link:` を追加。
   `portal: … | html=ファイル/URL` のポータル全体HTML指定と
   HTML内 `data-view=`/`data-link=`/`data-cam=`/`data-base=`/`data-clear`/`data-close` の

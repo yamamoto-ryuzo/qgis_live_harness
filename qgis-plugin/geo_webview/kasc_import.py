@@ -50,6 +50,21 @@ _ABS_RE = re.compile(
     r"qgis-map|\\\\|[A-Za-z]:[\\/])", re.IGNORECASE)
 
 
+def _split_kasc_tail(tail):
+    """``|`` 分割 + ``where=`` 行末規約。
+
+    ``where=`` は行の最終オプション(値は行末まで)なので、先頭が
+    ``where=`` のフィールド以降を ``|`` で結合して1フィールドにする
+    (式中に ``|`` を含んでよい)。
+    """
+    raw = tail.split("|")
+    for i, part in enumerate(raw):
+        if re.match(r"^\s*where\s*=", part, re.IGNORECASE):
+            return [p.strip() for p in raw[:i]] + [
+                "|".join(raw[i:]).strip()]
+    return [p.strip() for p in raw]
+
+
 def _classify_parts(parts, item):
     """kasc.js classifyParts 相当。
 
@@ -130,7 +145,7 @@ def parse_kasc(text):
         if sep < 0:
             continue
         ltype = line[:sep].strip().lower()
-        parts = [p.strip() for p in line[sep + 1:].split("|")]
+        parts = _split_kasc_tail(line[sep + 1:])
 
         if ltype == "cam":
             doc["cams"].append(_parse_cam(parts))

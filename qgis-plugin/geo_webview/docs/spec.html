@@ -223,7 +223,7 @@ HTTP ワーカースレッドから呼べる。</li>
 | GeoJSON/Parquet/FGB ソース | <code>geojson:</code> / <code>geoparquet:</code> / <code>flatgeobuf:</code> 参照行 | ローカルは複製、http(s) は URL をそのまま記述 |
 | CSV/TSV(delimitedtext・ogr) | <code>duckdb: 名 | DATA/x.csv | on | format=csv | lon=&lt;列&gt; | lat=&lt;列&gt;</code> | ジオメトリ列は <code>geom=</code>。delimitedtext は URI の xField/yField/wktField を引き継ぎ、ogr CSV はヘッダから推定。delimitedtext で非地理座標系の場合は GeoJSON 変換 |
 | フィルタ(subsetString)付き GPKG | <code>gpkg: … | where=&lt;フィルタ&gt;</code> | ネイティブ参照のままフィルタ維持(SQL 評価) |
-| フィルタ付き GeoJSON/FGB・URL Parquet | <code>geojson:</code>/<code>flatgeobuf:</code>/<code>geoparquet:</code> … <code>| where=&lt;フィルタ&gt;</code> | Canvas 側 where-eval.js のクライアント評価(OGR SQL WHERE句準拠)。評価器が扱えない式は GeoJSON 変換でフィルタを地物へ焼き込む |
+| フィルタ付き GeoJSON/FGB・URL Parquet | <code>geojson:</code>/<code>flatgeobuf:</code>/<code>geoparquet:</code> … <code>| where=&lt;フィルタ&gt;</code> | Canvas 側 where-eval.js のクライアント評価(OGR SQL WHERE句準拠・<code>||</code> 連結対応)。評価器が扱えない式(単独 <code>|</code>・<code>%</code> 等)は GeoJSON 変換でフィルタを地物へ焼き込む |
 | フィルタ付き Parquet(ローカル) | <code>duckdb: 名 | DATA/x.parquet | on | format=parquet | where=&lt;フィルタ&gt;</code> | duckdb: へ切替えて SQL 評価 |
 | 3D Tiles レイヤ(QgsTiledSceneLayer) | <code>3dtiles: グループ/名 | &lt;tileset.json URL or DATA/x/tileset.json&gt; | on</code> | http(s) は URL 参照、ローカルはディレクトリごと DATA/ へ複製(1GiB 上限・超過は skipped) |
 | XYZ タイルラスタ | <code>xyz:</code> 行。表示中の<strong>最下段</strong>のみ <code>base:</code> 行（既定ベースマップとして既定群の先頭に置く）。「背景図」「ベースマップ」「basemap」名のグループ内にある XYZ は位置・表示状態に関わらず全て <code>base:</code> 行（ベースマップ候補）として登録し、グループ名はタイトルから外す（配下のサブグループは残し、Canvas のベースマップ選択でグループ化表示される）。非表示の候補は <code>| off</code> 付きで出力。グループ名は設定ダイアログの Basemap Groups（QSettings <code>kasugai_basemap_groups</code>・カンマ区切り）で追加可能 | zmin/zmax → minZoom=/maxZoom=。不透明度は opacity=、限定範囲は bbox=西経,南緯,東経,北緯。縮尺表示は minScale=/maxScale= |
@@ -239,6 +239,11 @@ HTTP ワーカースレッドから呼べる。</li>
 | ブックマーク | <code>bookmarks.xml</code>(qgis_bookmarks形式・EPSG:4326正規化) + <code>bookmark:</code> 行(プロジェクト+アプリケーション両方) | <code>emit_bookmarks=False</code> で抑制。Canvas 側が XML を読み込みカメラプリセットへ展開する |
 | アトラス有効な印刷レイアウト | <code>fly_geojson: Atlas: &lt;レイアウト名&gt; | DATA/atlas_&lt;slug&gt;.geojson | speed= | pitch=-85 | height=0 | view=camera | step=</code> 行 | <code>emit_atlas=False</code> で抑制(v4.8.0〜)。各アトラスページの表示範囲(参照地図 extent)を巡回するプレゼン用フライパス。座標Z値にページを収めるカメラ高(楕円体高)を焼き込み、<code>properties.heightReference=&quot;MSL&quot;</code> で地形加算を抑止、ページ名一覧は <code>properties.pages</code> へ。地図回転付きは warnings に記録のみ |</p>
 <p>その他: <code>attr=</code> に QGIS レイヤの出典(attribution)を引き継ぐ。
+<code>where=</code> は行の<strong>最終オプション</strong>で、値は改行までが式
+(<code>||</code> 連結・<code>'a|b'</code> リテラル等の <code>|</code> を含んでよい)。
+where-eval.js は <code>||</code> 連結に対応済み(単独 <code>|</code>・<code>%</code> は非対応)。
+<code>off</code> や他の <code>key=value</code> は <code>where=</code> より前に置く。
+<code>view:</code> の <code>;where=</code> は行内トークンのため対象外(値に <code>|</code> は書けない)。
 全レイヤ行で <code>minScale=</code>/<code>maxScale=</code> に QGIS の「縮尺による表示」
 (minimumScale=引き側限界・maximumScale=寄り側限界)を出力する。
 Canvas 側は同じ範囲で表示/非表示を切り替える。

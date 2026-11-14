@@ -181,7 +181,7 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 | GeoJSON/Parquet/FGB ソース | `geojson:` / `geoparquet:` / `flatgeobuf:` 参照行 | ローカルは複製、http(s) は URL をそのまま記述 |
 | CSV/TSV(delimitedtext・ogr) | `duckdb: 名 | DATA/x.csv | on | format=csv | lon=<列> | lat=<列>` | ジオメトリ列は `geom=`。delimitedtext は URI の xField/yField/wktField を引き継ぎ、ogr CSV はヘッダから推定。delimitedtext で非地理座標系の場合は GeoJSON 変換 |
 | フィルタ(subsetString)付き GPKG | `gpkg: … | where=<フィルタ>` | ネイティブ参照のままフィルタ維持(SQL 評価) |
-| フィルタ付き GeoJSON/FGB・URL Parquet | `geojson:`/`flatgeobuf:`/`geoparquet:` … `| where=<フィルタ>` | Canvas 側 where-eval.js のクライアント評価(OGR SQL WHERE句準拠)。評価器が扱えない式は GeoJSON 変換でフィルタを地物へ焼き込む |
+| フィルタ付き GeoJSON/FGB・URL Parquet | `geojson:`/`flatgeobuf:`/`geoparquet:` … `| where=<フィルタ>` | Canvas 側 where-eval.js のクライアント評価(OGR SQL WHERE句準拠・`||` 連結対応)。評価器が扱えない式(単独 `|`・`%` 等)は GeoJSON 変換でフィルタを地物へ焼き込む |
 | フィルタ付き Parquet(ローカル) | `duckdb: 名 | DATA/x.parquet | on | format=parquet | where=<フィルタ>` | duckdb: へ切替えて SQL 評価 |
 | 3D Tiles レイヤ(QgsTiledSceneLayer) | `3dtiles: グループ/名 | <tileset.json URL or DATA/x/tileset.json> | on` | http(s) は URL 参照、ローカルはディレクトリごと DATA/ へ複製(1GiB 上限・超過は skipped) |
 | XYZ タイルラスタ | `xyz:` 行。表示中の**最下段**のみ `base:` 行（既定ベースマップとして既定群の先頭に置く）。「背景図」「ベースマップ」「basemap」名のグループ内にある XYZ は位置・表示状態に関わらず全て `base:` 行（ベースマップ候補）として登録し、グループ名はタイトルから外す（配下のサブグループは残し、Canvas のベースマップ選択でグループ化表示される）。非表示の候補は `| off` 付きで出力。グループ名は設定ダイアログの Basemap Groups（QSettings `kasugai_basemap_groups`・カンマ区切り）で追加可能 | zmin/zmax → minZoom=/maxZoom=。不透明度は opacity=、限定範囲は bbox=西経,南緯,東経,北緯。縮尺表示は minScale=/maxScale= |
@@ -198,6 +198,11 @@ QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェ
 | アトラス有効な印刷レイアウト | `fly_geojson: Atlas: <レイアウト名> | DATA/atlas_<slug>.geojson | speed= | pitch=-85 | height=0 | view=camera | step=` 行 | `emit_atlas=False` で抑制(v4.8.0〜)。各アトラスページの表示範囲(参照地図 extent)を巡回するプレゼン用フライパス。座標Z値にページを収めるカメラ高(楕円体高)を焼き込み、`properties.heightReference="MSL"` で地形加算を抑止、ページ名一覧は `properties.pages` へ。地図回転付きは warnings に記録のみ |
 
 その他: `attr=` に QGIS レイヤの出典(attribution)を引き継ぐ。
+`where=` は行の**最終オプション**で、値は改行までが式
+(`||` 連結・`'a|b'` リテラル等の `|` を含んでよい)。
+where-eval.js は `||` 連結に対応済み(単独 `|`・`%` は非対応)。
+`off` や他の `key=value` は `where=` より前に置く。
+`view:` の `;where=` は行内トークンのため対象外(値に `|` は書けない)。
 全レイヤ行で `minScale=`/`maxScale=` に QGIS の「縮尺による表示」
 (minimumScale=引き側限界・maximumScale=寄り側限界)を出力する。
 Canvas 側は同じ範囲で表示/非表示を切り替える。
