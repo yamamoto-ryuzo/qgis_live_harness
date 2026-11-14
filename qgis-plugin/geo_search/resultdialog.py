@@ -109,7 +109,7 @@ class ResultDialog(QDialog):
             rows = self.page_limit
         table = tab.get("table") or self.current_table
         table.setRowCount(rows)
-        table.setVerticalHeaderLabels([f"{i}" for i in range(s, e)])
+        table.setVerticalHeaderLabels([f"{i}" for i in range(s, s + rows)])
         self.set_feature_items(page_features, table, tab.get("fields"))
 
     def set_features(self, fields, features):
@@ -187,8 +187,11 @@ class ResultDialog(QDialog):
         total_count = 0
         for layer, fields, features in layers_with_features:
             # defensive: ensure features is a concrete list (caller may pass an iterator)
+            # _lazy なシーケンス(AddressFeaturePager)はページ単位遅延化を
+            # 維持するため list() 化しない
             try:
-                features = list(features)
+                if not getattr(features, "_lazy", False):
+                    features = list(features)
             except Exception:  # nosec B110  # 設計上の許容
                 pass
             total_count += len(features)
@@ -381,7 +384,9 @@ class ResultDialog(QDialog):
             total = 0
             for layer, fields, features in layers_with_features:
                 try:
-                    features = list(features) if features is not None else []
+                    if features is not None and not getattr(
+                            features, "_lazy", False):
+                        features = list(features)
                 except Exception:
                     features = []
                 total += len(features) if features else 0

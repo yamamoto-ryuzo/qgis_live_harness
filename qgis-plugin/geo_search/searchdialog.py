@@ -19,8 +19,9 @@ from .widget.searchwidget import (
     SearchTextWidget,
     SearchTibanWidget,
     SearchOwnerWidget,
+    SearchAddressWidget,
 )
-from .constants import OTHER_GROUP_NAME
+from .constants import OTHER_GROUP_NAME, ADDRESS_SEARCH_TITLES
 
 
 UI_FILE = "dialog.ui"
@@ -146,6 +147,8 @@ class SearchDialog(QDialog):
             return SearchTibanWidget(setting)
         if setting["Title"] == "所有者検索":
             return SearchOwnerWidget(setting)
+        if setting["Title"] in ADDRESS_SEARCH_TITLES:
+            return SearchAddressWidget(setting)
         return SearchTextWidget(setting)
 
     def create_tab_groups(self, searchtabs):

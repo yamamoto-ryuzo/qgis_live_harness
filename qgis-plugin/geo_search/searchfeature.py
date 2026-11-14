@@ -2082,3 +2082,127 @@ class SearchOwnerFeature(SearchTextFeature):
                 suggest_list += map(str, unique_values(self.layer, field_name))
         comp = QCompleter(suggest_list)
         search_widget.setCompleter(comp)
+
+
+# "住所検索"(ジオコーディング)
+class SearchAddressFeature(SearchFeature):
+    """住所・施設名を外部ジオコーダで検索するタブ用フィーチャ。
+
+    KASUGAI Canvas (kasugai_canvas/web) の住所検索と同じプロバイダ群
+    (gsi/google/yahoo/osm)を geocode.py 経由で利用する。結果は
+    EPSG:4326 のメモリレイヤのポイント地物として保持するため、
+    既存の結果ダイアログ・地物選択・ズーム機構がそのまま使える。
+    """
+
+    @property
+    def layer(self):
+        """結果格納用メモリレイヤ(無ければ作成してプロジェクトへ追加)。"""
+        return self._address_layer()
+
+    def _scratch_enabled(self):
+        """スクラッチレイヤ作成ON/OFF(ウィジェットのチェック状態優先)。"""
+        try:
+            fn = getattr(self.widget, 'create_scratch', None)
+            if callable(fn):
+                return bool(fn())
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        try:
+            return bool(self.setting.get("CreateScratch", True))
+        except Exception:  # nosec B110  # 設計上の許容
+            return True
+
+    def _address_layer(self):
+        add = self._scratch_enabled()
+        try:
+            layer = getattr(self, '_mem_layer', None)
+            if layer is not None and layer.isValid():
+                # 非登録レイヤ保持中にONへ戻した場合はプロジェクトへ登録する
+                if add:
+                    try:
+                        from qgis.core import QgsProject
+                        prj = QgsProject.instance()
+                        if prj.mapLayer(layer.id()) is None:
+                            prj.addMapLayer(layer)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+                return layer
+        except Exception:  # nosec B110  # 削除済みC++ラッパー対策
+            pass
+        from .geocode import ensure_address_layer
+        self._mem_layer = ensure_address_layer(add_to_project=add)
+        return self._mem_layer
+
+    def load(self):
+        pass
+
+    def unload(self):
+        # タブ切替でも結果レイヤ・結果ダイアログは残す(再検索まで保持)
+        pass
+
+    def search_feature(self, limit=None):
+        from . import geocode
+        from .log import log_message
+
+        # 入力値取得(他フィーチャと同じく widget.search_widgets を参照)
+        query = ""
+        try:
+            for widget in getattr(self.widget, 'search_widgets', []):
+                try:
+                    value = widget.text()
+                except Exception:
+                    value = None
+                if value:
+                    query = self.normalize_search_value(value)
+                    break
+        except Exception:
+            query = ""
+        if not query:
+            return []
+
+        layer = self._address_layer()
+
+        # 座標直入力("35.6,139.7"・DMS等)はジオコーディングを通さず直接地点化
+        coord = geocode.parse_coordinate_query(query)
+        if coord:
+            items = [{
+                "title": "{:.6f},{:.6f}".format(
+                    coord["latitude"], coord["longitude"]),
+                "address": query,
+                "latitude": coord["latitude"],
+                "longitude": coord["longitude"],
+                "provider": "coords",
+            }]
+        else:
+            provider = None
+            try:
+                provider = self.widget.current_provider()
+            except Exception:  # nosec B110  # 設計上の許容
+                provider = None
+            try:
+                # 全件取得し、地物化は結果ダイアログのページングに
+                # 応じてページ単位で遅延実行する(AddressFeaturePager)
+                items = geocode.search(
+                    query, provider=provider, setting=self.setting,
+                    limit=None)
+            except geocode.GeocodeError as e:
+                log_message(f"address search failed: {e}",
+                            "GEO-search-plugin", 1)
+                try:
+                    from qgis.PyQt.QtCore import QCoreApplication
+                    from qgis.core import Qgis
+                    self.iface.messageBar().pushMessage(
+                        QCoreApplication.translate(
+                            "SearchWidget", "Geo Search"),
+                        str(e), Qgis.MessageLevel.Warning, 8)
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+                items = []
+            except Exception as e:
+                log_message(f"address search error: {e}",
+                            "GEO-search-plugin", 2)
+                items = []
+        # レイヤを空にリセットした上でページャを返す。ResultDialog は
+        # len()/スライスを使うためそのまま全件ページングとして動作する
+        geocode.results_to_features(layer, [])
+        return geocode.AddressFeaturePager(layer, items)

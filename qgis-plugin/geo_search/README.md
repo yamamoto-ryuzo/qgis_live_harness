@@ -20,6 +20,7 @@ The codebase is designed to be compatible with QGIS 4.x and Qt6. See `THEMES.md`
 ### Search features
 
 - Lot-number search (cadastral identifiers), owner-name search, and general attribute search.
+- Address search (geocoding) tab with the same providers as KASUGAI Canvas — `gsi` (GSI), `google`, `yahoo`, `osm` (Nominatim). Results are point features in a memory layer.
 - Results displayed per-layer in tabs with configurable view fields and paging.
 - Click a result row to zoom/select the feature on the map.
 
@@ -44,7 +45,7 @@ For detailed examples and per-tab configuration, see `SEARCH.md`.
 
 Each search tab is defined by a JSON configuration object. Typical keys:
 
-- `Title`: Tab title (special handling for certain built-in search types such as lot-number)
+- `Title`: Tab title (special handling for certain built-in search types such as lot-number, owner-name and `住所検索` address search)
 - `group`: Optional grouping for tabs
 - `Layer`: Layer specification (`Name` / `File` / `Database`)
 - `SearchField` / `SearchFields`: Field(s) to search

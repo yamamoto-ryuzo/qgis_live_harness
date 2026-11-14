@@ -10,12 +10,13 @@ from qgis.core import (
 )
 """QGIS プラグイン (QGIS4/Qt6 前提、qgis.PyQt 経由でインポート)。"""
 
-from .constants import OTHER_GROUP_NAME
+from .constants import OTHER_GROUP_NAME, ADDRESS_SEARCH_TITLES
 from .i18n_json import install_translator
 from .searchfeature import (
     SearchTextFeature,
     SearchTibanFeature,
     SearchOwnerFeature,
+    SearchAddressFeature,
 )
 from .searchdialog import SearchDialog
 
@@ -1232,6 +1233,17 @@ class plugin(object):
                         widget,
                         andor=" Or ",
                         page_limit=settings.get("PageLimit", 1000),
+                    )
+                elif setting["Title"] in ADDRESS_SEARCH_TITLES:
+                    # 住所検索(ジオコーディング)
+                    # 結果は 20件/頁 でページング表示し、先へ進むほど
+                    # ページ単位で地物化される(全件に到達可)。
+                    # ページサイズはタブ設定 "PageLimit" で変更可
+                    feature = SearchAddressFeature(
+                        self.iface,
+                        setting,
+                        widget,
+                        page_limit=int(setting.get("PageLimit") or 20),
                     )
                 else:
                     # 通常検索 - 複数フィールド検索ではORを標準にする

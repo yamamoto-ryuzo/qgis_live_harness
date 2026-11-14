@@ -1,7 +1,7 @@
 {
   "component": "geo_search",
   "component_type": "qgis_plugin",
-  "version": "4.4.10",
+  "version": "4.5.0",
   "driver": {
     "type": "qgis_live_harness",
     "detect": "GET http://127.0.0.1:<http_port>/api/health",
@@ -1427,6 +1427,45 @@
       "last_result": "pass",
       "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
+    },
+    {
+      "id": "action.SearchAddressFeature.unload",
+      "kind": "action",
+      "name": "unload",
+      "source": "searchfeature.py:2116",
+      "signature": "unload()",
+      "summary": "",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "bridge_call/generic trigger→実在確認"
+      },
+      "last_result": "",
+      "last_verified": "",
+      "note": "住所検索タブ(未検証)"
+    },
+    {
+      "id": "bridge.searchAddress",
+      "kind": "bridge_method",
+      "name": "searchAddress",
+      "source": "bridge.py:791",
+      "signature": "searchAddress(query=…, provider=…, zoom=…, createLayer=…)",
+      "summary": "住所・地名をジオコーディングして候補を返し地図へ表示する。",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [
+        "QGISプラグインロード",
+        "geo_driver"
+      ],
+      "verify": {
+        "standalone": "",
+        "integrated": "bridge_call searchAddress → 応答assert"
+      },
+      "last_result": "",
+      "last_verified": "",
+      "note": "新規(未検証)"
     }
   ],
   "static": {

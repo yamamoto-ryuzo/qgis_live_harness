@@ -161,6 +161,29 @@
 - `scale`: 検索時に適用する縮尺（分母）
 - `selectTheme`: 検索時に適用する QGIS マップテーマ名
 
+### 住所検索タブ（ジオコーディング）
+
+`Title` が `住所検索`（別名 `Address Search` / `address_search`）のタブは、レイヤ属性ではなく外部ジオコーダを検索します。KASUGAI Canvas の住所検索と同じプロバイダ構成です。
+
+```json
+{
+  "Title": "住所検索",
+  "Provider": "gsi",
+  "Providers": ["gsi", "google", "yahoo", "osm"],
+  "ApiKey": "Google Maps APIキー(省略可)",
+  "YahooAppId": "YahooアプリケーションID(省略可)",
+  "CreateScratch": true
+}
+```
+
+- `Provider`: 既定プロバイダ。`gsi`(国土地理院・キー不要)、`google`(Geocoding+Placesハイブリッド・要 `ApiKey`)、`yahoo`(要 `YahooAppId`)、`osm`/`nominatim`(キー不要)
+- `Providers`: コンボに出すプロバイダ一覧（省略時は全件）。キー未設定のものは選択不可になります
+- `ApiKey` / `YahooAppId`: 未設定時は環境変数 `GOOGLE_MAPS_API_KEY` / `YAHOO_APPID` を参照
+- `CreateScratch`: タブ上の「スクラッチレイヤを作成」チェックの初期値（既定 `true`）。OFF では結果をプロジェクト非登録のメモリレイヤへ書き込むためレイヤパネルに残りません。結果テーブルとズームは従来どおり動作します
+- 結果はメモリレイヤ `geo_search 住所検索`（列: title/address/provider/lon/lat）のポイント地物として保持されるため、既存の結果テーブル・選択・ズームがそのまま使えます
+- 座標直入力（`35.6,139.7`・DMS・`北緯…東経…`）はジオコーディングを通さず直接その地点を表示します
+- AI/bridge: `searchAddress(query, provider, zoom)` でタブ設定なしにジオコーディングできます
+
 ### マップテーマ機能（概要）
 
 1. プラグイン起動時に現在の表示状態を `検索前` という名前で自動保存します。

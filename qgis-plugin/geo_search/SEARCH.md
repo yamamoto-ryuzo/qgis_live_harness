@@ -161,6 +161,29 @@ Example: the UI shows source labels in the form `[{short}]` or `[{short} #{index
 - `scale`: scale (denominator) applied when navigating on search
 - `selectTheme`: QGIS map theme name to apply when searching
 
+### Address Search Tab (geocoding)
+
+A tab whose `Title` is `住所検索` (aliases: `Address Search`, `address_search`) searches external geocoders instead of layer attributes — the same providers as KASUGAI Canvas.
+
+```json
+{
+  "Title": "住所検索",
+  "Provider": "gsi",
+  "Providers": ["gsi", "google", "yahoo", "osm"],
+  "ApiKey": "Google Maps API key (optional)",
+  "YahooAppId": "Yahoo app id (optional)",
+  "CreateScratch": true
+}
+```
+
+- `Provider`: default provider — `gsi` (GSI, no key), `google` (Geocoding + Places hybrid, needs `ApiKey`), `yahoo` (needs `YahooAppId`), `osm`/`nominatim` (no key)
+- `Providers`: providers shown in the combo (default: all). Entries without a key are disabled
+- `ApiKey` / `YahooAppId`: fall back to env vars `GOOGLE_MAPS_API_KEY` / `YAHOO_APPID`
+- `CreateScratch`: initial state of the *Create scratch layer* checkbox (default `true`). When OFF, results are written to a non-registered memory layer so nothing appears in the Layers panel; the result table and zoom still work
+- Results are stored as point features in a memory layer `geo_search 住所検索` (fields: title/address/provider/lon/lat), so the existing result table, selection and zoom work unchanged
+- Typing coordinates directly (`35.6,139.7`, DMS, `北緯…東経…`) skips geocoding and maps the point directly
+- AI/bridge: `searchAddress(query, provider, zoom)` runs geocoding without a configured tab
+
 ### Map Theme Feature (Overview)
 
 1. On plugin startup the current display state is automatically saved as a theme named `before-search`.
