@@ -1,0 +1,51 @@
+{
+ "id": "panel.tool.qgis_eval",
+ "prompt": "eval ツールで何か値を取得して",
+ "provider": "devin_acp",
+ "history": [],
+ "tools": [
+  "eval",
+  "open_plugin",
+  "pyeval",
+  "status"
+ ],
+ "audit": [
+  {
+   "type": "status",
+   "args": "{}"
+  },
+  {
+   "type": "eval",
+   "args": "{'expression': '1+1', 'plugin_id': 'geo_webview'}"
+  },
+  {
+   "type": "open_plugin",
+   "args": "{'plugin_id': 'geo_webview'}"
+  },
+  {
+   "type": "status",
+   "args": "{}"
+  },
+  {
+   "type": "eval",
+   "args": "{'plugin_id': 'geo_webview', 'expression': '1+1'}"
+  },
+  {
+   "type": "eval",
+   "args": "{'expression': '1+1', 'plugin_id': 'geo_driver'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\nfrom qgis.PyQt.QtWebEngineWidgets import QWebEngineView\\np = qgis.utils.plugins.get('geo_webview')\\nif p is None:\\n    result = {'ok': False, 'error': 'geo_webview plugin not loaded'}\\nelse:\\n    view = QWebEngineView()\\n    class TempEvalDriver:\\n        def __init__(self, view):\\n            self.view = view\\n        def _handle(self, cmd, reply=None):\\n            r"
+  },
+  {
+   "type": "eval",
+   "args": "{'expression': '({sum: 1+1, href: location.href, readyState: document.readyState})', 'plugin_id': 'geo_webview'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import qgis.utils\\np = qgis.utils.plugins.get('geo_webview')\\nd = getattr(p, 'driver', None) if p is not None else None\\nview = getattr(d, 'view', None)\\nif view is not None:\\n    view.deleteLater()\\nif p is not None and hasattr(p, 'driver'):\\n    delattr(p, 'driver')\\nresult = {'ok': True, 'removed': d is not None}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 新しいチャットを作成して"
+}

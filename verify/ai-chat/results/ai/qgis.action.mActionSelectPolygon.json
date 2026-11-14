@@ -1,0 +1,34 @@
+{
+ "id": "qgis.action.mActionSelectPolygon",
+ "prompt": "QGISの「ポリゴンによる地物選択」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「ポリゴンによる地物選択」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "`mActionSelectPolygon` を実行し、ポリゴン描画での選択をマウスイベントで検証します。「ポリゴンによる地物選択」(`mActionSelectPolygon`)を実行し、実際のポリゴン選択まで検証しました。\n\n## 実行結果\n\n1. **アクション実行**: `trigger()` → `checked=true` で選択モードがポリゴンに切替(このQGISでは各選択形状アクションは統一された `QgsMapToolSelect` ツールのモード切替として動作)\n2. **ポリゴン描画**: 地物 `repro_move` のライン(0,0)-(1000,500)を囲む4点(-100,-100)→(1100,-100)→(1100,600)→(-100,600)を左クリックで打ち、右クリックでポリゴンを閉じる操作をマウスイベントで再現\n3. **結果**: `selectedFeatureCount = 1` — ポリゴン内の地物が正しく選択されました\n\nアクションもマップツール経由の選択も正常動作しています。現在も選択ツール(ポリゴンモード)・地物1件選択中・`repro_move` 編集モード中の状態です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = next(x for x in iface.mainWindow().findChildren(QAction) if x.objectName()=='mActionSelectPolygon')\\na.trigger()\\nresult = {'checked': a.isChecked(), 'map_tool': iface.mapCanvas().mapTool().metaObject().className()}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"tool = iface.mapCanvas().mapTool()\\ninfo = {'class': tool.metaObject().className()}\\nfor attr in ('selectionMode', 'mode', 'geometryType'):\\n    try:\\n        info[attr] = getattr(tool, attr)()\\n    except Exception as e:\\n        pass\\n# アクション側の関連データ\\nfrom qgis.PyQt.QtWidgets import QAction\\nfor name in ('mActionSelectFeatures','mActionSelectPolygon','mActionSelectFreehand','mActionSelectRadius'):\\n    act = next((x for x in iface.mainWindow().findChildren(QAction) if x.objectName()==name), None)\\n    info[name] = {'checked': act.isChecked(), 'enabled': act.isEnabled()}\\nresult = info\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtCore import QPoint, QPointF, Qt, QEvent\\nfrom qgis.PyQt.QtGui import QMouseEvent\\nfrom qgis.PyQt.QtWidgets import QApplication\\nfrom qgis.core import QgsCoordinateTransform, QgsProject, QgsPointXY\\ncanvas = iface.mapCanvas()\\nlyr = QgsProject.instance().mapLayersByName('repro_move')[0]\\nlyr.removeSelection()\\n\\nxt = QgsCoordinateTransform(lyr.crs(), canvas.mapSettings().destinationCrs(), QgsProject.instance())\\nm2p = canvas.getCoordinateTransform()\\ndef to_px(x, y):\\n    p = m2p.transform(xt.transform(QgsPointXY(x, y)))\\n    return QPointF(int(p.x()), int(p.y()))\\n\\nLB = Qt.MouseButton.LeftButton\\nRB = Qt.MouseButton.RightButton\\nNM = Qt.KeyboardModifier.NoModifier\\n\\ndef click(posf, btn=LB):\\n    QApplication.sendEvent(canvas.viewport(), QMouseEvent(QEvent.Type.MouseButtonPress, posf, btn, btn, NM))\\n    QApplication.sendEvent(canvas.viewport(), QMouseEvent(QEvent.Type.MouseButtonRelease, posf, btn, Qt.MouseButton.NoButton, NM))\\n\\n# 地物(0,0)-(1000,500)を囲むポリゴ"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「ポリゴンによる地物選択」機能(アクション)を実行して\n[AI] \nmActionSelectPolygon を実行し、ポリゴン描画での選択をマウスイベントで検証します。「ポリゴンによる地物選択」(mActionSelectPolygon)を実行し、実際のポリゴン選択まで検証しました。\n実行結果\nアクション実行: trigger() → checked=true で選択モードがポリゴンに切替(このQGISでは各選択形状アクションは統一された QgsMapToolSelect ツールのモード切替として動作)\nポリゴン描画: 地物 repro_move のライン(0,0)-(1000,500)を囲む4点(-100,-100)→(1100,-100)→(1100,600)→(-100,600)を左クリックで打ち、右クリックでポリゴンを閉じる操作をマウスイベントで再現\n結果: selectedFeatureCount = 1 — ポリゴン内の地物が正しく選択されました\nアクションもマップツール経由の選択も正常動作しています。現在も選択ツール(ポリゴンモード)・地物1件選択中・repro_move 編集モード中の状態です。"
+}

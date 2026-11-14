@@ -1,0 +1,25 @@
+{
+ "id": "plugin.geo_legend.bridge.listStyles",
+ "prompt": "QGISの geo_legend プラグインで「選択中レイヤの名前付きスタイル一覧を返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_legend プラグインで「選択中レイヤの名前付きスタイル一覧を返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`geo_legend` の `listStyles()` を実行します。実行結果：\n\n```json\n{\n  \"ok\": false,\n  \"error\": \"no layer selected\"\n}\n```\n\n選択中レイヤがないため、名前付きスタイル一覧は取得できませんでした。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'listStyles', 'plugin_id': 'geo_legend', 'args': []}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_legend プラグインで「選択中レイヤの名前付きスタイル一覧を返す。」を実行して結果を教えて\n[AI] \ngeo_legend の listStyles() を実行します。実行結果：\n{\n  \"ok\": false,\n  \"error\": \"no layer selected\"\n}\n選択中レイヤがないため、名前付きスタイル一覧は取得できませんでした。"
+}

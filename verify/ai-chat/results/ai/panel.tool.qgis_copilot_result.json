@@ -1,0 +1,19 @@
+{
+ "id": "panel.tool.qgis_copilot_result",
+ "prompt": "Copilotタスクの結果を確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "Copilotタスクの結果を確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "確認できるCopilotタスクの結果はありません。タスクが0件のため `qgis_copilot_result` で取得できる対象が存在しません。\n\nタスクを起動する場合は `qgis_copilot_run` を使えます。"
+  }
+ ],
+ "tools": [],
+ "audit": [],
+ "view_tail": "[あなた] Copilotタスクの結果を確認して\n[AI] \n確認できるCopilotタスクの結果はありません。タスクが0件のため qgis_copilot_result で取得できる対象が存在しません。\nタスクを起動する場合は qgis_copilot_run を使えます。"
+}

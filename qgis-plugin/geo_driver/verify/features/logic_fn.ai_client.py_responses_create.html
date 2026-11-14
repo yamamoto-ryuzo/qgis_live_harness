@@ -13,8 +13,8 @@ code{background:#f5f5f5;padding:1px 4px}
 h1{font-size:1.4em}h2{font-size:1.1em;border-bottom:1px solid #ddd}
 </style></head><body>
 <h1>responses_create <code>logic_fn.ai_client.py:responses_create</code></h1>
-<p class='meta'>kind=logic_fn / source=<code>ai_client.py:851</code> / signature=<code>responses_create(base, api_key, model, msgs, tools=None, timeout=…, extra=…, headers=…)</code></p>
-<p>POST {base}/responses (非ストリーミング)して応答JSONを返す。chat形式msgsをResponses inputへ変換して送信。</p>
+<p class='meta'>kind=logic_fn / source=<code>ai_client.py:938</code> / signature=<code>responses_create(base, api_key, model, msgs, tools=…, timeout=…, extra=…, headers=…)</code></p>
+<p>POST {base}/responses (非ストリーミング)して応答JSONを返す。</p>
 <h2>ロジック</h2>
 <pre class='mermaid'>
 flowchart LR
@@ -26,7 +26,7 @@ flowchart LR
 <li><b>単独:</b> <code>pytest(HTTPスタブ)でPOST応答をassert</code></li>
 <li><b>連携:</b> <code>pyeval/bridge でQGIS内import確認</code></li>
 </ul>
-<h2>検証結果</h2><p class='pass'><b>PASS</b> 2026-11-14T05:30:00+09:00</p>
-<p class='meta'>QGIS内pyeval実往復: 属性実在+ローカルHTTPスタブでchat→/responses自動切替・変換・正規化を確認 + pytest(70件)</p>
+<h2>検証結果</h2><p class='pass'><b>PASS</b> 2026-11-14T07:09:57+09:00</p>
+<p class='meta'>属性/シンボル実在確認(pyeval)</p>
 <p class='meta'><a href='../index.html'>← 一覧へ</a></p>
 <script>mermaid.initialize({startOnLoad:true});</script></body></html>

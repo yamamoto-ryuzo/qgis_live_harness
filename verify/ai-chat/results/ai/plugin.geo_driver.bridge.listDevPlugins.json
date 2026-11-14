@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_driver.bridge.listDevPlugins",
+ "prompt": "QGISの geo_driver プラグインで「ホットリロード対象(開発モード配置のプラグインID)を返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_driver プラグインで「ホットリロード対象(開発モード配置のプラグインID)を返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`listDevPlugins` の実行結果です。\n\n**ホットリロード対象プラグイン（9件）**:\n\n- geo_driver\n- geo_excel\n- geo_import\n- geo_launcher\n- geo_legend\n- geo_report\n- geo_search\n- geo_userfunc\n- geo_webview\n\nこれらは `deployMode` で見た通りすべて `junction` 配置（リポジトリ側ソース直結）のため、`hotReload`（または `qgis_reload_plugin`）でコード変更が即反映されます。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'method': 'listDevPlugins', 'plugin_id': 'geo_driver'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_driver プラグインで「ホットリロード対象(開発モード配置のプラグインID)を返す。」を実行して結果を教えて\n[AI] \nlistDevPlugins の実行結果です。\nホットリロード対象プラグイン（9件）:\ngeo_driver\ngeo_excel\ngeo_import\ngeo_launcher\ngeo_legend\ngeo_report\ngeo_search\ngeo_userfunc\ngeo_webview\nこれらは deployMode で見た通りすべて junction 配置（リポジトリ側ソース直結）のため、hotReload（または qgis_reload_plugin）でコード変更が即反映されます。"
+}

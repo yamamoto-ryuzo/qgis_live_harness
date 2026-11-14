@@ -1,0 +1,31 @@
+{
+ "id": "plugin.geo_driver.action._GenericBridge.run",
+ "prompt": "geo_driver プラグインの「run」アクションを実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_driver プラグインの「run」アクションを実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "bridge には `run` が無いので、プラグインインスタンスの `run()` を pyeval で直接呼びます。geo_driver には `run` アクションは実行できません。\n\n- bridge メソッドに `run` は無し\n- プラグインインスタンスにも `run()` メソッドは存在しない（属性: `bridge`, `driver`, `initGui`, `layer_org`, `scale_style`, `unload` など）\n\ngeo_driver は GUI を持たない常駐ドライバープラグインのため、一般的なプラグインの `run()`（ダイアログ起動）が実装されていません。UI を開く場合は以下を使います。\n\n- `openAiPanel()` — AIパネル\n- `openConnInfo()` — 接続情報ダイアログ\n- `openDeployMode()` — Deploy Modeダイアログ\n\n必要ならどれかを実行します。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'method': 'run', 'plugin_id': 'geo_driver'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.utils import plugins\\np = plugins.get('geo_driver')\\nif p is None:\\n    result = {'ok': False, 'error': 'plugin instance not found'}\\nelif hasattr(p, 'run'):\\n    p.run()\\n    result = {'ok': True, 'called': 'run()'}\\nelse:\\n    result = {'ok': False, 'error': 'no run() method', 'attrs': [a for a in dir(p) if not a.startswith('_')]}\"}"
+  }
+ ],
+ "view_tail": "[あなた] geo_driver プラグインの「run」アクションを実行して\n[AI] \nbridge には run が無いので、プラグインインスタンスの run() を pyeval で直接呼びます。geo_driver には run アクションは実行できません。\nbridge メソッドに run は無し\nプラグインインスタンスにも run() メソッドは存在しない（属性: bridge, driver, initGui, layer_org, scale_style, unload など）\ngeo_driver は GUI を持たない常駐ドライバープラグインのため、一般的なプラグインの run()（ダイアログ起動）が実装されていません。UI を開く場合は以下を使います。\nopenAiPanel() — AIパネル\nopenConnInfo() — 接続情報ダイアログ\nopenDeployMode() — Deploy Modeダイアログ\n必要ならどれかを実行します。"
+}

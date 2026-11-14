@@ -1,0 +1,25 @@
+{
+ "id": "panel.confirm_mode",
+ "prompt": "ツール実行の確認モードがONか教えて",
+ "provider": "devin_acp",
+ "history": [
+  {
+   "role": "user",
+   "content": "ツール実行の確認モードがONか教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "確認モードの状態と `/agent` コマンドの実装を確認します。`/agent` の使い方：\n\n```text\n/agent\n/agent <name>\n/agent <name> <body>\n```\n\n- `/agent`：現在のエージェントと一覧を表示\n- `/agent <name>`：既存エージェントに切替\n- `/agent <name> <body>`：エージェント指示書を保存して選択\n- 本文は2行目以降に複数行で書けます\n- `/agents` も同義です\n- ファイル名に使えない文字や空白は `_` に変換されます\n\n確認モードは **OFF** です（`ツール実行の前に確認する` は未チェック）。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QWidget, QCheckBox\\npanel = next((w for w in iface.mainWindow().findChildren(QWidget) if type(w).__name__ == 'AiPanel' or w.objectName() == 'GeoDriverAiPanel'), None)\\nbox = next((b for b in panel.findChildren(QCheckBox) if b.text() == 'ツール実行の前に確認する'), None) if panel is not None else None\\nresult = {'panel': panel is not None, 'found': box is not None, 'ch"
+  }
+ ],
+ "view_tail": "[あなた] ツール実行の確認モードがONか教えて\n[AI] \n確認モードの状態と /agent コマンドの実装を確認します。/agent の使い方：\n/agent\n/agent <name>\n/agent <name> <body>\n/agent：現在のエージェントと一覧を表示\n/agent <name>：既存エージェントに切替\n/agent <name> <body>：エージェント指示書を保存して選択\n本文は2行目以降に複数行で書けます\n/agents も同義です\nファイル名に使えない文字や空白は _ に変換されます\n確認モードは OFF です（ツール実行の前に確認する は未チェック）。"
+}

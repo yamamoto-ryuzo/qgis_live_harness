@@ -1,0 +1,26 @@
+{
+ "id": "panel.tool.qgis_reload_plugin",
+ "prompt": "reload_plugin で geo_legend を再読み込みして",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "reload_plugin で geo_legend を再読み込みして"
+  },
+  {
+   "role": "assistant",
+   "content": "geo_legend を `qgis_reload_plugin` で再読み込みしました。\n\n- `loaded: true` — 再読み込み成功\n- `opened: false` — プラグインのダイアログは開かれていません\n\n必要であれば bridge の open 系メソッドや `qgis_open_plugin` でダイアログを表示できます。"
+  }
+ ],
+ "tools": [
+  "reload_plugin"
+ ],
+ "audit": [
+  {
+   "type": "reload_plugin",
+   "args": "{'plugin_id': 'geo_legend'}"
+  }
+ ],
+ "view_tail": "[あなた] reload_plugin で geo_legend を再読み込みして\n[AI] \ngeo_legend を qgis_reload_plugin で再読み込みしました。\nloaded: true — 再読み込み成功\nopened: false — プラグインのダイアログは開かれていません\n必要であれば bridge の open 系メソッドや qgis_open_plugin でダイアログを表示できます。"
+}

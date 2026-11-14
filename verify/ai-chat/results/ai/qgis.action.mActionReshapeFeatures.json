@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionReshapeFeatures",
+ "prompt": "QGISの「地物を変形」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「地物を変形」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「地物を変形」（`mActionReshapeFeatures`）の状態を確認します。「地物を変形」は現在**無効**で実行できません。\n\n## 原因\n\nこのツールはライン/ポリゴン専用ですが、アクティブレイヤ `add_pt_test` はポイントレイヤです。\n\nただし `repro_move`（ラインレイヤ・編集モード ON）なら有効化されるはずです。アクティブレイヤを `repro_move` に切り替えて実行しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nact = mw.findChild(QAction, 'mActionReshapeFeatures')\\nif act is None:\\n    cands = [(a.objectName(), a.text(), a.isEnabled()) for a in mw.findChildren(QAction)\\n             if '変形' in (a.text() or '') or 'eshape' in (a.objectName() or '')]\\n    result = {'found': None, 'candidates': cands}\\nelse:\\n    lyr = iface.activeLayer()\\n    result = {'enabled': act.isEnabled(), 'text': act.text(), 'checkable': act.isCheckable(),\\n              'layer': lyr.name(), 'geometryType': str(lyr.geometryType()), 'editable': lyr.isEditable()}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「地物を変形」機能(アクション)を実行して\n[AI] \n「地物を変形」（mActionReshapeFeatures）の状態を確認します。「地物を変形」は現在無効で実行できません。\n原因\nこのツールはライン/ポリゴン専用ですが、アクティブレイヤ add_pt_test はポイントレイヤです。\nただし repro_move（ラインレイヤ・編集モード ON）なら有効化されるはずです。アクティブレイヤを repro_move に切り替えて実行しますか？"
+}

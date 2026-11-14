@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_driver.dialog.AiPanel",
+ "prompt": "geo_driver プラグインの「AiPanel」ダイアログ/パネルを開いて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_driver プラグインの「AiPanel」ダイアログ/パネルを開いて"
+  },
+  {
+   "role": "assistant",
+   "content": "AIパネルを開きました。\n\n- **ok: true / opened: true / visible: true** — geo_driver の AIアシスタントパネル（ドック）が表示されています"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'plugin_id': 'geo_driver', 'method': 'openAiPanel'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_driver プラグインの「AiPanel」ダイアログ/パネルを開いて\n[AI] \nAIパネルを開きました。\nok: true / opened: true / visible: true — geo_driver の AIアシスタントパネル（ドック）が表示されています"
+}

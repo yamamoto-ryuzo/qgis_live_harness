@@ -1,0 +1,35 @@
+{
+ "id": "plugin.geo_driver.action._GenericBridge.openDialog",
+ "prompt": "geo_driver プラグインの「openDialog」アクションを実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_driver プラグインの「openDialog」アクションを実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "geo_driver の bridge に `openDialog` メソッドはありません。`open_dialog` 相当は `qgis_open_plugin` で試します。geo_driver には `openDialog` メソッドが存在しません（`qgis_open_plugin` でも `opened: false` で、開くべき dialog が見つかりませんでした）。\n\ngeo_driver はAI制御ハブ本体で、ダイアログ系のメソッドは以下の3つです。どれを実行しますか？\n\n- `openAiPanel()` — AIアシスタントパネル（ドック）を開く\n- `openConnInfo()` — 接続情報ダイアログ（MCP/REST接続先）を開く\n- `openDeployMode()` — Deploy Mode切替ダイアログを開く\n\n指定があれば実行します。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "open_plugin"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_driver', 'method': 'openDialog', 'args': []}"
+  },
+  {
+   "type": "open_plugin",
+   "args": "{'plugin_id': 'geo_driver'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_driver', 'args': [], 'method': 'pluginInfo'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_driver プラグインの「openDialog」アクションを実行して\n[AI] \ngeo_driver の bridge に openDialog メソッドはありません。open_dialog 相当は qgis_open_plugin で試します。geo_driver には openDialog メソッドが存在しません（qgis_open_plugin でも opened: false で、開くべき dialog が見つかりませんでした）。\ngeo_driver はAI制御ハブ本体で、ダイアログ系のメソッドは以下の3つです。どれを実行しますか？\nopenAiPanel() — AIアシスタントパネル（ドック）を開く\nopenConnInfo() — 接続情報ダイアログ（MCP/REST接続先）を開く\nopenDeployMode() — Deploy Mode切替ダイアログを開く\n指定があれば実行します。"
+}

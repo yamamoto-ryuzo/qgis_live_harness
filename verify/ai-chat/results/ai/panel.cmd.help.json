@@ -1,0 +1,10 @@
+{
+ "id": "panel.cmd.help",
+ "prompt": "/help",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [],
+ "tools": [],
+ "audit": [],
+ "view_tail": "[あなた] /help\n[cmd] 指示コマンド (ローカル実行・APIには送らない):\n/agent 現在のエージェントと一覧\n/agent <名前> エージェント切替\n/agent <名前> <本文> エージェントを保存して選択\n/skill スキル一覧\n/skill <名前> スキルの本文を表示\n/skill <名前> <本文> スキルを保存\n/prompt おすすめプロンプト一覧\n/prompt <名前> プロンプトを入力欄へ挿入\n/prompt <名前> <本文> おすすめプロンプトを保存\n(本文は2行目以降も複数行で書けます)"
+}

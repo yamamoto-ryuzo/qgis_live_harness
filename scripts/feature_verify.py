@@ -937,6 +937,24 @@ def cmd_verify(args):
                                  "code": LAYER_FIX_CODE}, timeout=30)
             layer_fix = bool(rr.get("result"))
 
+        # geo_legend: bridge の「選択中レイヤ」は iface.activeLayer でなく
+        # dock.comboBox の currentLayer。fixture レイヤをコンボに再充填して
+        # 選択させる(dock 開放後にレイヤ追加すると currentLayer=None のまま)
+        LEGEND_FIX_CODE = (
+            "import qgis.utils\n"
+            "from qgis.utils import iface\n"
+            "d = getattr(qgis.utils.plugins.get('geo_legend'),"
+            " 'dockwidget', None)\n"
+            "al = iface.activeLayer()\n"
+            "if d is not None and al is not None:\n"
+            "    d.comboBox.clear()\n"
+            "    d.comboDataSet()\n"
+            "    for i in range(d.comboBox.count()):\n"
+            "        if d.comboBox.itemData(i) == al.id():\n"
+            "            d.comboBox.setCurrentIndex(i)\n"
+            "            break\n"
+            "result = getattr(d, 'currentLayer', None) is not None")
+
         def refixture():
             """organizeLayers等がアクティブレイヤ選択/レイアウト選択を
             解除した場合に再適用する"""
@@ -947,6 +965,9 @@ def cmd_verify(args):
                 api(port, tok, {"type": "bridge_call", "plugin_id": pid,
                                 "method": "selectLayout", "args": [0]},
                     timeout=30)
+            if pid == "geo_legend":
+                api(port, tok, {"type": "pyeval",
+                                "code": LEGEND_FIX_CODE}, timeout=30)
 
         # geo_report: レイアウト選択前提のメソッド用に先頭レイアウトを選択
         if port and pid == "geo_report" and \
@@ -954,6 +975,10 @@ def cmd_verify(args):
             api(port, tok, {"type": "bridge_call", "plugin_id": pid,
                             "method": "selectLayout", "args": [0]},
                 timeout=30)
+        # geo_legend: dock.comboBox 選択前提のメソッド用にコンボを選択
+        if port and pid == "geo_legend":
+            api(port, tok, {"type": "pyeval",
+                            "code": LEGEND_FIX_CODE}, timeout=30)
         for f in feats:
             if f["last_result"] == "removed":
                 continue

@@ -1,0 +1,34 @@
+{
+ "id": "qgis.action.mActionSelectFreehand",
+ "prompt": "QGISの「フリーハンドによる地物選択」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「フリーハンドによる地物選択」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "`mActionSelectFreehand` を実行します。フリーハンド描画(押下→複数点ドラッグ→離す)で地物を囲んで選択を検証します。選択されませんでした。終点を始点とずらし、移動点も細かくして再試行します。「フリーハンドによる地物選択」(`mActionSelectFreehand`)を実行・検証しました。\n\n## 実行結果\n\n1. **アクション実行**: `trigger()` → `checked=true`、統一 `QgsMapToolSelect` がフリーハンドモードに切替\n2. **フリーハンド描画**: 地物(0,0)-(1000,500)の周囲を囲む楕円軌跡(37点)を 押下→ドラッグ(MouseMove連続送信)→離す のマウスイベントで再現\n3. **結果**: `selectedFeatureCount = 1` — フリーハンドで囲んだ地物が正しく選択されました\n\n補足: 最初の試行(角4点・少ない移動点)では選択されず、移動点を増やした軌跡で成功しました。ツール自体は正常動作しており、合成イベントでリアルなドラッグ軌跡を再現するには十分な移動点が必要、という点だけ注意があります。\n\n現在の状態: フリーハンド選択モードがアクティブ、`repro_move` の地物1件選択中・編集モード中です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = next(x for x in iface.mainWindow().findChildren(QAction) if x.objectName()=='mActionSelectFreehand')\\na.trigger()\\nresult = {'checked': a.isChecked(), 'map_tool': iface.mapCanvas().mapTool().metaObject().className()}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtCore import QPoint, QPointF, Qt, QEvent\\nfrom qgis.PyQt.QtGui import QMouseEvent\\nfrom qgis.PyQt.QtWidgets import QApplication\\nfrom qgis.core import QgsCoordinateTransform, QgsProject, QgsPointXY\\ncanvas = iface.mapCanvas()\\nlyr = QgsProject.instance().mapLayersByName('repro_move')[0]\\nlyr.removeSelection()\\n\\nxt = QgsCoordinateTransform(lyr.crs(), canvas.mapSettings().destinationCrs(), QgsProject.instance())\\nm2p = canvas.getCoordinateTransform()\\ndef to_px(x, y):\\n    p = m2p.transform(xt.transform(QgsPointXY(x, y)))\\n    return QPointF(int(p.x()), int(p.y()))\\n\\nLB = Qt.MouseButton.LeftButton\\nNM = Qt.KeyboardModifier.NoModifier\\nvp = canvas.viewport()\\n\\n# 地物(0,0)-(1000,500)を囲むフリーハンド軌跡\\npath = [(-100,-100), (1100,-100), (1100,600), (-100,600), (-100,-100)]\\nstart = to_px(*path[0])\\nQApplication.sendEvent(vp, QMouseEvent(QEvent.Type.MouseButtonPress, start, LB, LB, NM))\\nfor x, y in path[1:]:\\n    QApplication.sendEvent(vp, QMouseEvent(QEvent.Type.MouseMo"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtCore import QPointF, Qt, QEvent\\nfrom qgis.PyQt.QtGui import QMouseEvent\\nfrom qgis.PyQt.QtWidgets import QApplication\\nfrom qgis.core import QgsCoordinateTransform, QgsProject, QgsPointXY\\ncanvas = iface.mapCanvas()\\nlyr = QgsProject.instance().mapLayersByName('repro_move')[0]\\nlyr.removeSelection()\\nxt = QgsCoordinateTransform(lyr.crs(), canvas.mapSettings().destinationCrs(), QgsProject.instance())\\nm2p = canvas.getCoordinateTransform()\\ndef to_px(x, y):\\n    p = m2p.transform(xt.transform(QgsPointXY(x, y)))\\n    return QPointF(int(p.x()), int(p.y()))\\nLB = Qt.MouseButton.LeftButton\\nNM = Qt.KeyboardModifier.NoModifier\\nvp = canvas.viewport()\\n\\n# 始点 → 多角形をなぞる → 終点は始点と別位置で離す(QGIS側で自動閉合)\\nimport math\\npath = []\\nfor i in range(37):\\n    ang = math.radians(i*10)\\n    path.append((500 + 700*math.cos(ang), 250 + 400*math.sin(ang)))\\n\\nstart = to_px(*path[0])\\nQApplication.sendEvent(vp, QMouseEvent(QEvent.Type.MouseButtonPress, start, LB, LB, NM))\\nfor x, y in p"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「フリーハンドによる地物選択」機能(アクション)を実行して\n[AI] \nmActionSelectFreehand を実行します。フリーハンド描画(押下→複数点ドラッグ→離す)で地物を囲んで選択を検証します。選択されませんでした。終点を始点とずらし、移動点も細かくして再試行します。「フリーハンドによる地物選択」(mActionSelectFreehand)を実行・検証しました。\n実行結果\nアクション実行: trigger() → checked=true、統一 QgsMapToolSelect がフリーハンドモードに切替\nフリーハンド描画: 地物(0,0)-(1000,500)の周囲を囲む楕円軌跡(37点)を 押下→ドラッグ(MouseMove連続送信)→離す のマウスイベントで再現\n結果: selectedFeatureCount = 1 — フリーハンドで囲んだ地物が正しく選択されました\n補足: 最初の試行(角4点・少ない移動点)では選択されず、移動点を増やした軌跡で成功しました。ツール自体は正常動作しており、合成イベントでリアルなドラッグ軌跡を再現するには十分な移動点が必要、という点だけ注意があります。\n現在の状態: フリーハンド選択モードがアクティブ、repro_move の地物1件選択中・編集モード中です。"
+}

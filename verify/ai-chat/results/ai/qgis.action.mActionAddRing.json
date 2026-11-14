@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionAddRing",
+ "prompt": "QGISの「リングを追加」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「リングを追加」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「リングを追加」（`mActionAddRing`）の状態を確認します。「リングを追加」は現在**無効**で実行できません。\n\n## 原因\n\nポリゴンレイヤが必要ですが、プロジェクト内にあるのは以下の 2 レイヤのみです:\n\n| レイヤ | ジオメトリ | 編集モード |\n|---|---|---|\n| `add_pt_test`（アクティブ） | ポイント | ON |\n| `repro_move` | ライン | ON |\n\nポリゴンレイヤが存在しないため、どのレイヤをアクティブにしても有効化されません。\n\nテスト用にメモリのポリゴンレイヤ（四角形ポリゴン1個入り・編集モードON）を作成してアクティブにし、「リングを追加」を実行しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nact = mw.findChild(QAction, 'mActionAddRing')\\nlyr = iface.activeLayer()\\nimport qgis.core\\ngeom = lyr.geometryType() if lyr else None\\nresult = {'found': act is not None, 'enabled': act.isEnabled() if act else None,\\n          'text': act.text() if act else None,\\n          'layer': lyr.name() if lyr else None,\\n          'geometryType': str(geom), 'editable': lyr.isEditable() if lyr else None}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.core import QgsProject\\nlayers = []\\nfor lyr in QgsProject.instance().mapLayers().values():\\n    info = {'name': lyr.name(), 'type': str(lyr.type()), 'editable': lyr.isEditable() if hasattr(lyr, 'isEditable') else None}\\n    if lyr.type() == 0:\\n        info['geometryType'] = str(lyr.geometryType())\\n        info['provider'] = lyr.providerType()\\n    layers.append(info)\\nresult = layers\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「リングを追加」機能(アクション)を実行して\n[AI] \n「リングを追加」（mActionAddRing）の状態を確認します。「リングを追加」は現在無効で実行できません。\n原因\nポリゴンレイヤが必要ですが、プロジェクト内にあるのは以下の 2 レイヤのみです:\nレイヤ\nジオメトリ\n編集モード\nadd_pt_test（アクティブ）\nポイント\nON\nrepro_move\nライン\nON\n\nポリゴンレイヤが存在しないため、どのレイヤをアクティブにしても有効化されません。\nテスト用にメモリのポリゴンレイヤ（四角形ポリゴン1個入り・編集モードON）を作成してアクティブにし、「リングを追加」を実行しますか？"
+}

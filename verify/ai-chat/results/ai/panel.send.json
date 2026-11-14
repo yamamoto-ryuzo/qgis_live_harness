@@ -1,6 +1,8 @@
 {
  "id": "panel.send",
  "prompt": "こんにちは。短く返答してください",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
  "history": [
   {
    "role": "user",
@@ -8,15 +10,10 @@
   },
   {
    "role": "assistant",
-   "content": "こんにちは！どのようなお手伝いをしましょうか？"
-  },
-  {
-   "role": "user",
-   "content": "こんにちは。短く返答してください"
-  },
-  {
-   "role": "assistant",
-   "content": "こんにちは！ご用件をどうぞ。"
+   "content": "こんにちは。何をしますか？"
   }
- ]
+ ],
+ "tools": [],
+ "audit": [],
+ "view_tail": "[あなた] こんにちは。短く返答してください\n[AI] \nこんにちは。何をしますか？"
 }

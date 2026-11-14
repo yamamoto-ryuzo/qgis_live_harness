@@ -1,0 +1,25 @@
+{
+ "id": "panel.tool.qgis_describe_plugins",
+ "prompt": "describe_plugins でプラグイン一覧を取得して",
+ "provider": "devin_acp",
+ "history": [
+  {
+   "role": "user",
+   "content": "describe_plugins でプラグイン一覧を取得して"
+  },
+  {
+   "role": "assistant",
+   "content": "プラグイン一覧を取得します。一覧を簡潔に整理します。`describe_plugins` で取得したプラグイン一覧：\n\n**bridgeあり**\n- `geo_driver` — QGIS Live Driver\n- `geo_excel` — Excel帳票出力\n- `geo_import` — データカタログ取込\n- `geo_launcher` — kasugai_qgis ランチャー連携\n- `geo_legend` — 凡例ビュー\n- `geo_report` — 帳票レイアウト管理\n- `geo_search` — 地図検索\n- `geo_userfunc` — ユーザー関数ライブラリ\n- `geo_webview` — QMap Permalink\n\n**bridgeなし（generic）**\n- `ImportPhotos`\n- `MetaSearch`\n- `QuickDEM4JP`\n- `StreetView`\n- `db_manager`\n- `menu_from_project`\n- `mmqgis`\n- `mojxml_plugin`\n- `plateau_plugin`\n- `processing`\n- `qfieldsync`\n- `searchlayers`"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] describe_plugins でプラグイン一覧を取得して\n[AI] \nプラグイン一覧を取得します。一覧を簡潔に整理します。describe_plugins で取得したプラグイン一覧：\nbridgeあり\ngeo_driver — QGIS Live Driver\ngeo_excel — Excel帳票出力\ngeo_import — データカタログ取込\ngeo_launcher — kasugai_qgis ランチャー連携\ngeo_legend — 凡例ビュー\ngeo_report — 帳票レイアウト管理\ngeo_search — 地図検索\ngeo_userfunc — ユーザー関数ライブラリ\ngeo_webview — QMap Permalink\nbridgeなし（generic）\nImportPhotos\nMetaSearch\nQuickDEM4JP\nStreetView\ndb_manager\nmenu_from_project\nmmqgis\nmojxml_plugin\nplateau_plugin\nprocessing\nqfieldsync\nsearchlayers"
+}

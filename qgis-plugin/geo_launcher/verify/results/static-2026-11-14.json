@@ -3,13 +3,13 @@
     "rc": 0,
     "out": ""
   },
-  "ran_at": "2026-11-14T02:32:22+09:00",
+  "ran_at": "2026-11-14T07:09:57+09:00",
   "reload": {
     "loaded": true,
     "opened": true,
     "plugins": [
+      "ImportPhotos",
       "MetaSearch",
-      "Qgis2threejs",
       "QuickDEM4JP",
       "StreetView",
       "db_manager",
@@ -28,7 +28,6 @@
       "plateau_plugin",
       "processing",
       "qfieldsync",
-      "qgis2web",
       "searchlayers"
     ]
   }

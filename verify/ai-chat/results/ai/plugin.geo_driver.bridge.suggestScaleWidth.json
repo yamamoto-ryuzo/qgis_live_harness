@@ -1,0 +1,35 @@
+{
+ "id": "plugin.geo_driver.bridge.suggestScaleWidth",
+ "prompt": "geo_driver プラグインの「suggestScaleWidth」(レイヤ/カテゴリと縮尺から標準的な線幅を提案する。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_driver プラグインの「suggestScaleWidth」(レイヤ/カテゴリと縮尺から標準的な線幅を提案する。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "まず対象レイヤのIDと現在のキャンバス縮尺を取得します。`suggestScaleWidth` を2パターンで試しました。どちらも `{\"ok\": true}` で正常動作しています。\n\n## 1. レイヤ指定(自動判定)\n\n`layer_id=repro_move`(scale省略 → キャンバス縮尺を使用):\n\n| 項目 | 値 |\n|---|---|\n| category | `line` (名前がname_reに合わず geom=line でフォールバック) |\n| scale | 19,528.7 (現在のキャンバス) |\n| band | 〜1:25,000 (factor 1.0) |\n| base_mm | 0.3 |\n| **width_mm** | **0.30** (推奨紙面幅) |\n| real_width_m | 5.859 (0.3mm × 縮尺) |\n| width_m_equiv | 5.859 |\n\n## 2. カテゴリ+縮尺の明示指定\n\n`category=\"road\", scale=50000`:\n\n| 項目 | 値 |\n|---|---|\n| band | 〜1:100,000 (factor 0.65) |\n| base_mm | 0.4 |\n| **width_mm** | **0.26** (0.4 × 0.65) |\n| real_width_m | 6.0 (プロファイルの代表値) |\n| width_m_equiv | 13.0 (0.26mm × 50,000 相当の実幅) |\n\n備考:\n- `scale=50000` ちょうどだと帯 `〜1:50,000` ではなく `〜1:100,000` に振り分けられました(境界値は `scale < max` 判定のようです)\n- `category` と `scale` 両方を省略した場合は「アクティブレイヤ+現在縮尺」になる想定ですが、現在アクティブレイヤが無い状態なので今回は未検証です\n\n次は `applyScaleWidth` でこの提案値を `repro_move` に実適用できます(mode: `mm`/`meters`/`rules`)。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"layers = list(QgsProject.instance().mapLayers().values())\\nresult = {'layers': [{'id': l.id(), 'name': l.name()} for l in layers],\\n          'canvas_scale': iface.mapCanvas().scale(),\\n          'active': iface.activeLayer().id() if iface.activeLayer() else None}\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [{'layer_id': 'repro_move_0537ec3e_a472_4193_af7b_2b17bfa3b064'}], 'plugin_id': 'geo_driver', 'method': 'suggestScaleWidth'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_driver', 'args': [{'category': 'road', 'scale': 50000}], 'method': 'suggestScaleWidth'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_driver プラグインの「suggestScaleWidth」(レイヤ/カテゴリと縮尺から標準的な線幅を提案する。)を試して。必要な引数は適当な値でよい\n[AI] \nまず対象レイヤのIDと現在のキャンバス縮尺を取得します。suggestScaleWidth を2パターンで試しました。どちらも {\"ok\": true} で正常動作しています。\n1. レイヤ指定(自動判定)\nlayer_id=repro_move(scale省略 → キャンバス縮尺を使用):\n項目\n値\ncategory\nline (名前がname_reに合わず geom=line でフォールバック)\nscale\n19,528.7 (現在のキャンバス)\nband\n〜1:25,000 (factor 1.0)\nbase_mm\n0.3\nwidth_mm\n0.30 (推奨紙面幅)\nreal_width_m\n5.859 (0.3mm × 縮尺)\nwidth_m_equiv\n5.859\n\n2. カテゴリ+縮尺の明示指定\ncategory=\"road\", scale=50000:\n項目\n値\nband\n〜1:100,000 (factor 0.65)\nbase_mm\n0.4\nwidth_mm\n0.26 (0.4 × 0.65)\nreal_width_m\n6.0 (プロファイルの代表値)\nwidth_m_equiv\n13.0 (0.26mm × 50,000 相当の実幅)\n\n備考:\nscale=50000 ちょうどだと帯 〜1:50,000 ではなく 〜1:100,000 に振り分けられました(境界値は scale < max 判定のようです)\ncategory と scale 両方を省略した場合は「アクティブレイヤ+現在縮尺」になる想定ですが、現在アクティブレイヤが無い状態なので今回は未検証です\n次は applyScaleWidth でこの提案値を repro_move に実適用できます(mode: mm/meters/rules)。"
+}

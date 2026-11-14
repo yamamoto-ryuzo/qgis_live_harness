@@ -1,0 +1,25 @@
+{
+ "id": "qgis.action.mActionSelectAll",
+ "prompt": "QGISの「すべての地物を選択」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「すべての地物を選択」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「すべての地物を選択」アクションを実行します。「すべての地物を選択」アクションを呼び出しましたが、現在は無効状態でした。\n\n- アクション: `mActionSelectAll`\n- 有効: `false`\n- アクティブレイヤ: なし\n\nレイヤを選択すれば実行できます。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nact = None\\nfor attr in ('actionSelectAll', 'actionSelectAllFeatures'):\\n    f = getattr(iface, attr, None)\\n    if callable(f):\\n        act = f()\\n        if act:\\n            break\\nif act is None:\\n    for a in iface.mainWindow().findChildren(QAction):\\n        text = a.text().replace('&', '')\\n        if a.objectName() in ('mActionSelectAll',"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「すべての地物を選択」機能(アクション)を実行して\n[AI] \n「すべての地物を選択」アクションを実行します。「すべての地物を選択」アクションを呼び出しましたが、現在は無効状態でした。\nアクション: mActionSelectAll\n有効: false\nアクティブレイヤ: なし\nレイヤを選択すれば実行できます。"
+}

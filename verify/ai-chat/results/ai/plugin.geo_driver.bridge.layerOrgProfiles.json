@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_driver.bridge.layerOrgProfiles",
+ "prompt": "QGISの geo_driver プラグインで「利用可能なレイヤ整理プロファイル一覧とアクティブを返す。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_driver プラグインで「利用可能なレイヤ整理プロファイル一覧とアクティブを返す。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`layerOrgProfiles` の実行結果です。\n\n**利用可能なプロファイル**: 1件（アクティブ: `default`）\n\n| id | 説明 | 種別 |\n|---|---|---|\n| default | Generic layout: map services / vectors by geometry / raster / tables | プラグイン同梱（builtin） |\n\n- パス: `...\\plugins\\geo_driver\\layer_org\\default.json`\n- ユーザ定義（`~/.qgis-live/layer_org/*.json`）のプロファイルは現在ありません\n\nプロファイル内のルール詳細は `layerOrgRules` で確認できます。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_driver', 'method': 'layerOrgProfiles', 'args': []}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_driver プラグインで「利用可能なレイヤ整理プロファイル一覧とアクティブを返す。」を実行して結果を教えて\n[AI] \nlayerOrgProfiles の実行結果です。\n利用可能なプロファイル: 1件（アクティブ: default）\nid\n説明\n種別\ndefault\nGeneric layout: map services / vectors by geometry / raster / tables\nプラグイン同梱（builtin）\n\nパス: ...\\plugins\\geo_driver\\layer_org\\default.json\nユーザ定義（~/.qgis-live/layer_org/*.json）のプロファイルは現在ありません\nプロファイル内のルール詳細は layerOrgRules で確認できます。"
+}

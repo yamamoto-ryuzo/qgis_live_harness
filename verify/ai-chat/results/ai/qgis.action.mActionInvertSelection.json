@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionInvertSelection",
+ "prompt": "QGISの「地物選択を反転」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「地物選択を反転」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "「地物選択を反転」(`mActionInvertSelection`)を確認しました。\n\n| 項目 | 値 |\n|---|---|\n| objectName | `mActionInvertSelection` |\n| **有効(enabled)** | ✅ **true(有効)** |\n\n有効な理由: アクティブレイヤ(`repro_move`)が選択可能なベクタレイヤのため、このアクションは常時有効です。\n\n現在 `repro_move` は全1地物中 **0地物選択中** なので、実行すると選択が反転し **1地物が選択** されます。実行して確認しますか?"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = next(x for x in iface.mainWindow().findChildren(QAction) if x.objectName()=='mActionInvertSelection')\\nlyr = QgsProject.instance().mapLayersByName('repro_move')[0]\\nresult = {'text': a.text(), 'objectName': a.objectName(), 'enabled': a.isEnabled(),\\n          'selected_now': lyr.selectedFeatureCount(), 'feature_count': lyr.featureCount()}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「地物選択を反転」アクションについて pyeval等で実際に調べて、現在有効かどうかを確認して\n[AI] \n「地物選択を反転」(mActionInvertSelection)を確認しました。\n項目\n値\nobjectName\nmActionInvertSelection\n有効(enabled)\n✅ true(有効)\n\n有効な理由: アクティブレイヤ(repro_move)が選択可能なベクタレイヤのため、このアクションは常時有効です。\n現在 repro_move は全1地物中 0地物選択中 なので、実行すると選択が反転し 1地物が選択 されます。実行して確認しますか?"
+}

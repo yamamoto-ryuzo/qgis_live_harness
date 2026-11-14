@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_launcher.bridge.openSettings",
+ "prompt": "QGISの geo_launcher プラグインで「openSettings」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_launcher プラグインで「openSettings」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "実行しました。結果:\n\n- **ok: true / opened: true** — geo_launcher の設定ダイアログが開きました\n\n設定ダイアログでは `exe_path`（ランチャーのexeパス）や `silent_install`（サイレントインストール）の確認・変更ができます。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'method': 'openSettings', 'plugin_id': 'geo_launcher'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_launcher プラグインで「openSettings」を実行して結果を教えて\n[AI] \n実行しました。結果:\nok: true / opened: true — geo_launcher の設定ダイアログが開きました\n設定ダイアログでは exe_path（ランチャーのexeパス）や silent_install（サイレントインストール）の確認・変更ができます。"
+}

@@ -1,0 +1,43 @@
+{
+ "id": "qgis.action.mActionMergeFeatures",
+ "prompt": "QGISの「選択地物を結合」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「選択地物を結合」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「選択地物を結合」（`mActionMergeSelectedFeatures`）の状態を確認します。別名かもしれないので「結合」を含むアクションを検索します。`mActionMergeFeatures`（選択地物を結合）は有効です（2地物選択中・編集ON）。実行します。実行されました。結果の地物を確認します。「選択地物を結合」を実行しました。\n\n## 実行結果\n\n- `mActionMergeFeatures` を発火（有効状態・2地物選択中）\n- **地物数: 2 → 1** に結合されました（残存地物: fid -11）\n- 選択は解除済み、Undo スタックに「Merged features」が記録\n- `add_pt_test` は未保存の変更あり（`isModified = true`）\n\nなおキャンバス上の赤い点は2つ見えていますが、これは地物の描画更新前の表示/ツールのマーカーの可能性があり、データ上は1地物に結合済みです。\n\n属性の結合方法（どちらの値を残すか）を選ぶ必要があった場合は「選択地物の属性結合」ダイアログでの作業になりますが、今回の「選択地物を結合」はジオメトリのみを結合する機能として即時実行されました。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nact = mw.findChild(QAction, 'mActionMergeSelectedFeatures')\\nlyr = iface.activeLayer()\\nresult = {'found': act is not None, 'enabled': act.isEnabled() if act else None,\\n          'text': act.text() if act else None, 'layer': lyr.name(),\\n          'geometryType': str(lyr.geometryType()), 'editable': lyr.isEditable(),\\n          'selected': lyr.selectedFeatureCount()}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    s = (a.text() or '') + '|' + (a.objectName() or '')\\n    if '結合' in s or 'Merge' in s or 'merge' in s:\\n        found.append((a.objectName(), a.text(), (a.toolTip() or '')[:60], a.isEnabled(), a.isCheckable()))\\nresult = found\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nact = mw.findChild(QAction, 'mActionMergeFeatures')\\nlyr = iface.activeLayer()\\nbefore = lyr.featureCount()\\nact.trigger()\\nQgsApplication.processEvents()\\nimport time\\nresult = {'featureCount_before': before, 'featureCount_after': lyr.featureCount(),\\n          'selected_after': lyr.selectedFeatureCount()}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nlyr = iface.activeLayer()\\nfeats = []\\nfor f in lyr.getFeatures():\\n    feats.append({'id': f.id(), 'wkbType': str(f.geometry().wkbType()), 'name': f['name']})\\n# メッセージバー確認\\nbar = iface.messageBar()\\nmsgs = []\\nfor w in bar.findChildren(type(bar).__mro__[0] if False else object):\\n    pass\\nresult = {'features': feats, 'isModified': lyr.isModified(), 'undoText': lyr.undoStack().undoText() if hasattr(lyr, 'undoStack') else None}\\n\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-aa376bc5.png', 'target': 'canvas'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「選択地物を結合」機能(アクション)を実行して\n[AI] \n「選択地物を結合」（mActionMergeSelectedFeatures）の状態を確認します。別名かもしれないので「結合」を含むアクションを検索します。mActionMergeFeatures（選択地物を結合）は有効です（2地物選択中・編集ON）。実行します。実行されました。結果の地物を確認します。「選択地物を結合」を実行しました。\n実行結果\nmActionMergeFeatures を発火（有効状態・2地物選択中）\n地物数: 2 → 1 に結合されました（残存地物: fid -11）\n選択は解除済み、Undo スタックに「Merged features」が記録\nadd_pt_test は未保存の変更あり（isModified = true）\nなおキャンバス上の赤い点は2つ見えていますが、これは地物の描画更新前の表示/ツールのマーカーの可能性があり、データ上は1地物に結合済みです。\n属性の結合方法（どちらの値を残すか）を選ぶ必要があった場合は「選択地物の属性結合」ダイアログでの作業になりますが、今回の「選択地物を結合」はジオメトリのみを結合する機能として即時実行されました。"
+}

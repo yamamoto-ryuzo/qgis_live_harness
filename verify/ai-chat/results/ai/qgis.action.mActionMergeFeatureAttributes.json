@@ -1,0 +1,47 @@
+{
+ "id": "qgis.action.mActionMergeFeatureAttributes",
+ "prompt": "QGISの「選択地物の属性結合」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「選択地物の属性結合」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "`mActionMergeFeatureAttributes`（選択地物の属性結合）を実行します。まず有効化条件（選択地物）を確認し、地物を選択してからアクションを発火します。レイヤに2地物あるので両方選択し、アクションを発火します。属性結合ダイアログはモーダルなので、`QTimer` で非同期に発火してダイアログをユーザー側に表示します。ダイアログが開いたかスクリーンショットで確認します。「地物属性をマージ」ダイアログがモーダルで開いています。もう一度スクリーンショットで確認します。「選択地物の属性結合」を実行し、「地物属性をマージ」ダイアログが開いています。\n\n## 実行結果\n\n- `add_pt_test` レイヤの **2 地物（fid -9, -10）を選択** → アクションを発火\n- ダイアログ `QgsMergeAttributesDialogBase`（「地物属性をマージ」）がモーダルで表示中\n\nダイアログの内容:\n\n- `name` フィールド: 両地物とも `NULL`、結合行は現在「スキップ」\n- ツールバー: 選択地物から属性取得 / 最多頂点地物の属性 / 全フィールドをスキップ / 選択から削除\n- 確定は「OK」ボタン（押すと 2 地物が 1 地物に結合され、選択した方の属性値が適用されます）\n\nダイアログは画面中央 (725, 316) に開いていますが、パネルの裏に隠れている可能性があります（`raise_()`/`activateWindow()` 済み）。\n\nこのまま私が「OK」を押して結合を確定しましょうか？ それとも結合行の値（例: `name` に入れる値や、どちらの地物の属性を採用するか）を指定しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nact = mw.findChild(QAction, 'mActionMergeFeatureAttributes')\\nlyr = iface.activeLayer()\\ninfo = {\\n    'action_enabled_now': act.isEnabled(),\\n    'layer': lyr.name() if lyr else None,\\n    'editable': lyr.isEditable() if lyr else None,\\n    'featureCount': lyr.featureCount() if lyr else None,\\n    'selected': lyr.selectedFeatureCount() if lyr else None,\\n    'field_names': lyr.fields().names() if lyr else None,\\n}\\nresult = info\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nfrom qgis.PyQt.QtCore import QTimer\\nmw = iface.mainWindow()\\nact = mw.findChild(QAction, 'mActionMergeFeatureAttributes')\\nlyr = iface.activeLayer()\\nlyr.selectAll()\\nQgsApplication.processEvents()\\nenabled = act.isEnabled()\\nif enabled:\\n    QTimer.singleShot(0, act.trigger)\\nresult = {'selected': lyr.selectedFeatureCount(), 'action_enabled': enabled, 'triggered': enabled}\\n\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-2e944cfc.png', 'target': 'mainwindow'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QApplication, QDialog\\ndlgs = []\\nfor w in QApplication.topLevelWidgets():\\n    if w.isVisible() and w.objectName():\\n        dlgs.append((w.objectName(), w.windowTitle(), type(w).__name__, w.isModal()))\\nmodal = [w for w in QApplication.topLevelWidgets() if w.isVisible() and getattr(w, 'isModal', lambda: False)()]\\nresult = {'toplevel': dlgs, 'modal_visible': [(w.objectName(), w.windowTitle()) for w in modal]}\\n\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-32a5a0ce.png', 'target': 'mainwindow'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QApplication\\nmw = iface.mainWindow()\\ndlg = None\\nfor w in QApplication.topLevelWidgets():\\n    if w.objectName() == 'QgsMergeAttributesDialogBase' and w.isVisible():\\n        dlg = w\\n        break\\nif dlg:\\n    dlg.raise_()\\n    dlg.activateWindow()\\n    pix = dlg.grab()\\n    path = r'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\merge_attrs_dialog.png'\\n    pix.save(path)\\n    result = {'geometry': dlg.geometry().getRect(), 'mw_geometry': mw.geometry().getRect(), 'saved': path}\\nelse:\\n    result = {'dlg': None}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「選択地物の属性結合」機能(アクション)を実行して\n[AI] \nmActionMergeFeatureAttributes（選択地物の属性結合）を実行します。まず有効化条件（選択地物）を確認し、地物を選択してからアクションを発火します。レイヤに2地物あるので両方選択し、アクションを発火します。属性結合ダイアログはモーダルなので、QTimer で非同期に発火してダイアログをユーザー側に表示します。ダイアログが開いたかスクリーンショットで確認します。「地物属性をマージ」ダイアログがモーダルで開いています。もう一度スクリーンショットで確認します。「選択地物の属性結合」を実行し、「地物属性をマージ」ダイアログが開いています。\n実行結果\nadd_pt_test レイヤの 2 地物（fid -9, -10）を選択 → アクションを発火\nダイアログ QgsMergeAttributesDialogBase（「地物属性をマージ」）がモーダルで表示中\nダイアログの内容:\nname フィールド: 両地物とも NULL、結合行は現在「スキップ」\nツールバー: 選択地物から属性取得 / 最多頂点地物の属性 / 全フィールドをスキップ / 選択から削除\n確定は「OK」ボタン（押すと 2 地物が 1 地物に結合され、選択した方の属性値が適用されます）\nダイアログは画面中央 (725, 316) に開いていますが、パネルの裏に隠れている可能性があります（raise_()/activateWindow() 済み）。\nこのまま私が「OK」を押して結合を確定しましょうか？ それとも結合行の値（例: name に入れる値や、どちらの地物の属性を採用するか）を指定しますか？"
+}

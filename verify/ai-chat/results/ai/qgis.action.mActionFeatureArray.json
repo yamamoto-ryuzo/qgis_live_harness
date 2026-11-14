@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionFeatureArray",
+ "prompt": "QGISの「Copy Features in an Array」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Copy Features in an Array」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Copy Features in an Array」に対応するアクションを探します。`mActionFeatureArray`（Copy Features in an Array）を発火します。「Copy Features in an Array」を実行しました。\n\n## 実行結果\n\n- `mActionFeatureArray` を発火 → チェック状態 ON\n- マップツールが `QgsMapToolAdvancedDigitizing`（アレイコピーツール）に切り替わり、アクティブ\n- `add_pt_test` の 2 地物は選択状態のまま\n\nこのツールは、キャンバス上で**基準線を描くと、その線に沿って選択地物のコピーが一定間隔で配置される**ものです（ツールチップ:「Copies a feature and distributes the copies at regular intervals along a reference line」）。\n\n基準線の描画（クリック座標のシミュレート）まで実行しますか？ その場合、基準線の始点・終点やコピー数の指定があれば教えてください。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = (a.text() or '').lower()\\n    tt = (a.toolTip() or '').lower()\\n    name = a.objectName() or ''\\n    if 'array' in t or 'array' in tt or 'array' in name.lower() or 'アレイ' in t or '規則' in t:\\n        found.append((name, a.text(), (a.toolTip() or '')[:80], a.isEnabled(), a.isCheckable()))\\nresult = found\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nact = mw.findChild(QAction, 'mActionFeatureArray')\\nwas_enabled = act.isEnabled()\\nact.trigger()\\nQgsApplication.processEvents()\\nmt = iface.mapCanvas().mapTool()\\nresult = {'was_enabled': was_enabled, 'checked': act.isChecked(),\\n          'mapTool': type(mt).__name__ if mt else None}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Copy Features in an Array」機能(アクション)を実行して\n[AI] \n「Copy Features in an Array」に対応するアクションを探します。mActionFeatureArray（Copy Features in an Array）を発火します。「Copy Features in an Array」を実行しました。\n実行結果\nmActionFeatureArray を発火 → チェック状態 ON\nマップツールが QgsMapToolAdvancedDigitizing（アレイコピーツール）に切り替わり、アクティブ\nadd_pt_test の 2 地物は選択状態のまま\nこのツールは、キャンバス上で基準線を描くと、その線に沿って選択地物のコピーが一定間隔で配置されるものです（ツールチップ:「Copies a feature and distributes the copies at regular intervals along a reference line」）。\n基準線の描画（クリック座標のシミュレート）まで実行しますか？ その場合、基準線の始点・終点やコピー数の指定があれば教えてください。"
+}

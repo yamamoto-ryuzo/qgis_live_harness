@@ -1,0 +1,30 @@
+{
+ "id": "panel.multi_chat",
+ "prompt": "AIチャットパネルで新しいチャットを作成して(pyeval 等でパネルの新規チャット機能 panel._new_chat() を実行してもよい)",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "AIチャットパネルで新しいチャットを作成して(pyeval 等でパネルの新規チャット機能 panel._new_chat() を実行してもよい)"
+  },
+  {
+   "role": "assistant",
+   "content": "新しいチャットを作成しました。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"result = {\\n    'has_panel': 'panel' in globals(),\\n    'driver_type': type(driver).__name__,\\n    'driver_attrs': [a for a in dir(driver) if 'panel' in a.lower() or 'chat' in a.lower()],\\n    'panel_type': type(panel).__name__ if 'panel' in globals() else None,\\n}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': 'result = panel._new_chat()'}"
+  }
+ ],
+ "view_tail": "[AI] \n新しいチャットを作成しました。"
+}

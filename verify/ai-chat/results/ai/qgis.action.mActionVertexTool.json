@@ -1,0 +1,10 @@
+{
+ "id": "qgis.action.mActionVertexTool",
+ "prompt": "QGISの「頂点ツール(&V) - 全レイヤ」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [],
+ "tools": [],
+ "audit": [],
+ "view_tail": ""
+}

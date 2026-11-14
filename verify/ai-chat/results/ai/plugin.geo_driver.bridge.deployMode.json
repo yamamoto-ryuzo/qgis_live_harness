@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_driver.bridge.deployMode",
+ "prompt": "QGISの geo_driver プラグインで「deployモード(dev/use)と各プラグイン配置形態を返す(読取専用)。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_driver プラグインで「deployモード(dev/use)と各プラグイン配置形態を返す(読取専用)。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "`deployMode` の実行結果です。\n\n**モード**: `dev`（declared=dev / actual=dev / 乖離なし `diverged: false`）\n**リポジトリ**: `C:\\devin\\qgis_live_harness` / **プロファイル**: `geo_custom`\n\n**各プラグインの配置形態とpark状態**:\n\n| プラグイン | 配置 | parked |\n|---|---|---|\n| geo_driver | junction | – |\n| geo_excel | junction | ⏸ parked |\n| geo_import | junction | ⏸ parked |\n| geo_launcher | junction | – |\n| geo_legend | junction | – |\n| geo_report | junction | ⏸ parked |\n| geo_search | junction | ⏸ parked |\n| geo_userfunc | junction | ⏸ parked |\n| geo_webview | junction | ⏸ parked |\n\n全9プラグインが `junction` 配置（リポジトリ側ソースへ直結の開発形態）で、ホットリロード時にコード変更が即反映されます。`parked: true` の6プラグインは deploy モード切替時に一時退避対象となるようです。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'deployMode', 'args': [], 'plugin_id': 'geo_driver'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_driver プラグインで「deployモード(dev/use)と各プラグイン配置形態を返す(読取専用)。」を実行して結果を教えて\n[AI] \ndeployMode の実行結果です。\nモード: dev（declared=dev / actual=dev / 乖離なし diverged: false） リポジトリ: C:\\devin\\qgis_live_harness / プロファイル: geo_custom\n各プラグインの配置形態とpark状態:\nプラグイン\n配置\nparked\ngeo_driver\njunction\n–\ngeo_excel\njunction\n⏸ parked\ngeo_import\njunction\n⏸ parked\ngeo_launcher\njunction\n–\ngeo_legend\njunction\n–\ngeo_report\njunction\n⏸ parked\ngeo_search\njunction\n⏸ parked\ngeo_userfunc\njunction\n⏸ parked\ngeo_webview\njunction\n⏸ parked\n\n全9プラグインが junction 配置（リポジトリ側ソースへ直結の開発形態）で、ホットリロード時にコード変更が即反映されます。parked: true の6プラグインは deploy モード切替時に一時退避対象となるようです。"
+}

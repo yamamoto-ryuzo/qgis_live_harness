@@ -1,0 +1,25 @@
+{
+ "id": "qgis.proc.native_buffer",
+ "prompt": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] バッファ（buffer）」(id: native:buffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して",
+ "provider": "devin_acp",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] バッファ（buffer）」(id: native:buffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して"
+  },
+  {
+   "role": "assistant",
+   "content": "現在の processing registry を確認します。確認結果：`native:buffer` は現在の processing registry に存在します。\n\n- 名称: `バッファ（buffer）`\n- プロバイダ: `QGIS（ネイティブC++）`\n- グループ: `ベクタジオメトリ`\n\n用途：入力ベクタ地物の周囲に、固定または動的な距離でバッファポリゴンを生成します。\n\n主なパラメータ：\n\n- `INPUT`: 入力レイヤ\n- `DISTANCE`: バッファ距離（既定 `10`、属性・式による指定可）\n- `SEGMENTS`: 円弧近似の分割数（既定 `5`）\n- `END_CAP_STYLE`: 線端形状（丸め / Flat / Square）\n- `JOIN_STYLE`: 線の角部形状（丸め / Miter / Bevel）\n- `MITER_LIMIT`: Miter結合の制限値\n- `DISSOLVE`: 結果を融合\n- `SEPARATE_DISJOINT`: 離れた部分を別地物として保持\n- `OUTPUT`: 出力レイヤ"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsProcessingParameterDefinition\\nalg = QgsApplication.processingRegistry().algorithmById('native:buffer')\\nif not alg:\\n    result = {'ok': False, 'found': False}\\nelse:\\n    params = []\\n    for p in alg.parameterDefinitions():\\n        d = {\\n            'name': p.name(),\\n            'description': p.description(),\\n            'type': p.type(),\\n            'de"
+  }
+ ],
+ "view_tail": "[あなた] 現在のQGISの processing registry にアルゴリズム「[QGIS（ネイティブC++）] バッファ（buffer）」(id: native:buffer) があるかpyeval等で実際に確認してから、用途と主なパラメータを簡潔に説明して\n[AI] \n現在の processing registry を確認します。確認結果：native:buffer は現在の processing registry に存在します。\n名称: バッファ（buffer）\nプロバイダ: QGIS（ネイティブC++）\nグループ: ベクタジオメトリ\n用途：入力ベクタ地物の周囲に、固定または動的な距離でバッファポリゴンを生成します。\n主なパラメータ：\nINPUT: 入力レイヤ\nDISTANCE: バッファ距離（既定 10、属性・式による指定可）\nSEGMENTS: 円弧近似の分割数（既定 5）\nEND_CAP_STYLE: 線端形状（丸め / Flat / Square）\nJOIN_STYLE: 線の角部形状（丸め / Miter / Bevel）\nMITER_LIMIT: Miter結合の制限値\nDISSOLVE: 結果を融合\nSEPARATE_DISJOINT: 離れた部分を別地物として保持\nOUTPUT: 出力レイヤ"
+}

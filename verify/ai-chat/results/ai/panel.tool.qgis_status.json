@@ -1,0 +1,26 @@
+{
+ "id": "panel.tool.qgis_status",
+ "prompt": "status でQGISの現在状態を確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "status でQGISの現在状態を確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "QGIS の現在の状態です。\n\n- **QGIS プロセス**: PID 36700\n- **ライブドライバー**: `geo_driver`（HTTP ポート 60799）\n- **WebEngine ビュー**: なし（`view: false`）\n\n**読み込み済みプラグイン**（bridge 対応）:\n\n| プラグイン | driver | view | bridge |\n|---|---|---|---|\n| geo_driver | ✔ | – | ✔ |\n| geo_excel / geo_import / geo_launcher | – | – | ✔ |\n| geo_legend / geo_report / geo_search | – | – | ✔ |\n| geo_userfunc / geo_webview | – | – | ✔ |\n\n**その他の読み込み済みプラグイン**（bridge なし）: ImportPhotos, menu_from_project, mmqgis, mojxml_plugin, plateau_plugin, qfieldsync, QuickDEM4JP, searchlayers, StreetView, db_manager, MetaSearch, processing\n\n- geo_legend は先ほどのリロード後も正常に読み込まれています（bridge は利用可能）\n- WebEngine ビューを持つプラグインは現在起動していないため、`devreload` / `qgis_eval` が使える対象はありません"
+  }
+ ],
+ "tools": [
+  "status"
+ ],
+ "audit": [
+  {
+   "type": "status",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] status でQGISの現在状態を確認して\n[AI] \nQGIS の現在の状態です。\nQGIS プロセス: PID 36700\nライブドライバー: geo_driver（HTTP ポート 60799）\nWebEngine ビュー: なし（view: false）\n読み込み済みプラグイン（bridge 対応）:\nプラグイン\ndriver\nview\nbridge\ngeo_driver\n✔\n–\n✔\ngeo_excel / geo_import / geo_launcher\n–\n–\n✔\ngeo_legend / geo_report / geo_search\n–\n–\n✔\ngeo_userfunc / geo_webview\n–\n–\n✔\n\nその他の読み込み済みプラグイン（bridge なし）: ImportPhotos, menu_from_project, mmqgis, mojxml_plugin, plateau_plugin, qfieldsync, QuickDEM4JP, searchlayers, StreetView, db_manager, MetaSearch, processing\ngeo_legend は先ほどのリロード後も正常に読み込まれています（bridge は利用可能）\nWebEngine ビューを持つプラグインは現在起動していないため、devreload / qgis_eval が使える対象はありません"
+}

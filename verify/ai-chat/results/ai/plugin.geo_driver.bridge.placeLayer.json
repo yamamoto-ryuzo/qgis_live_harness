@@ -1,0 +1,35 @@
+{
+ "id": "plugin.geo_driver.bridge.placeLayer",
+ "prompt": "geo_driver プラグインの「placeLayer」(単一レイヤを整理ルールへ配置する。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_driver プラグインの「placeLayer」(単一レイヤを整理ルールへ配置する。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "現在プロジェクトには `repro_move` (Lines グループ内) のみあります。まず検証用のレイヤを追加してから `placeLayer` を試します。配置報告が返りました。実際のツリーとプロジェクト状態を確認します。`placeLayer` を実行しました。結果は以下の通りです。\n\n## 実行内容\n\n- 引数: `layer_id=\"place_test_1016a27a_…\"` (検証用に作成したPoint型memoryレイヤ `place_test`)\n- 戻り値: `{\"ok\": true, \"placed\": [...], \"skipped\": []}` — ルール2にマッチし `Imported Data/Vector/Points` へ配置と報告(action: `placed`)\n\n## 結果\n\n`organizeLayers` と**同じバグが再現**しました:\n\n- グループ `Imported Data/Vector/Points` は作成されたが、ノードは空\n- `place_test` レイヤは `mapLayers()` から消滅(プロジェクトから登録解除)\n\n`placeLayer` も内部で同じ `_move_to_group` (`layer_org.py:429-448`) を使うため、clone挿入前に元ノードを除去してレイヤが消える問題がそのまま出ています。\n\nつまり現状、**「配置先グループが作成されレイヤが消える」が place系API全般の動作**です。bridgeの応答は `placed` と正常を装うので、API経由だと静かにレイヤを失う点が特に厄介です。\n\n修正(挿入→除去の順序入替)を適用しましょうか? 修正後に `placeLayer`/`organizeLayers` 両方で再検証できます。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsVectorLayer, QgsProject, QgsFeature, QgsGeometry, QgsPointXY\\nproj = QgsProject.instance()\\nlyr = QgsVectorLayer('Point?crs=EPSG:3857&field=id:int', 'place_test', 'memory')\\nf = QgsFeature(lyr.fields()); f.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(0,0))); f.setAttribute('id', 1)\\nlyr.dataProvider().addFeature(f); lyr.updateExtents()\\nproj.addMapLayer(lyr)\\nresult = lyr.id()\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_driver', 'args': [{'layer_id': 'place_test_1016a27a_346b_403c_bd17_1e0956911f4a'}], 'method': 'placeLayer'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': 'proj = QgsProject.instance()\\nroot = proj.layerTreeRoot()\\ndef tree(n, d=0):\\n    out=[]\\n    for c in n.children():\\n        kind=\\'group\\' if c.nodeType()==0 else \\'layer\\'\\n        out.append(\\'  \\'*d+f\"{kind}:{c.name()}\")\\n        out+=tree(c,d+1)\\n    return out\\nresult = {\\'layers\\': [l.name() for l in proj.mapLayers().values()], \\'tree\\': tree(root)}'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_driver プラグインの「placeLayer」(単一レイヤを整理ルールへ配置する。)を試して。必要な引数は適当な値でよい\n[AI] \n現在プロジェクトには repro_move (Lines グループ内) のみあります。まず検証用のレイヤを追加してから placeLayer を試します。配置報告が返りました。実際のツリーとプロジェクト状態を確認します。placeLayer を実行しました。結果は以下の通りです。\n実行内容\n引数: layer_id=\"place_test_1016a27a_…\" (検証用に作成したPoint型memoryレイヤ place_test)\n戻り値: {\"ok\": true, \"placed\": [...], \"skipped\": []} — ルール2にマッチし Imported Data/Vector/Points へ配置と報告(action: placed)\n結果\norganizeLayers と同じバグが再現しました:\nグループ Imported Data/Vector/Points は作成されたが、ノードは空\nplace_test レイヤは mapLayers() から消滅(プロジェクトから登録解除)\nplaceLayer も内部で同じ _move_to_group (layer_org.py:429-448) を使うため、clone挿入前に元ノードを除去してレイヤが消える問題がそのまま出ています。\nつまり現状、「配置先グループが作成されレイヤが消える」が place系API全般の動作です。bridgeの応答は placed と正常を装うので、API経由だと静かにレイヤを失う点が特に厄介です。\n修正(挿入→除去の順序入替)を適用しましょうか? 修正後に placeLayer/organizeLayers 両方で再検証できます。"
+}

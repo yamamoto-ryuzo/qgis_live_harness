@@ -1,0 +1,25 @@
+{
+ "id": "panel.model_list",
+ "prompt": "現在のプロバイダで使えるモデルを一覧して",
+ "provider": "devin_acp",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在のプロバイダで使えるモデルを一覧して"
+  },
+  {
+   "role": "assistant",
+   "content": "現在のプロバイダのモデル一覧を取得します。現在のプロバイダ `【ACP】Devin` で使えるモデル：\n\n- `default`\n\nモデル一覧には `── テキスト ──` グループ内の `default` のみ表示されています。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QWidget, QComboBox, QAbstractButton\\nfrom qgis.PyQt.QtCore import QEventLoop, QTimer\\npanel = next((w for w in iface.mainWindow().findChildren(QWidget) if type(w).__name__ == 'AiPanel' or w.objectName() == 'GeoDriverAiPanel'), None)\\nmodel_combo = None\\nbtn = None\\nif panel is not None:\\n    for c in panel.findChildren(QComboBox):\\n        if '使用するモデル' in "
+  }
+ ],
+ "view_tail": "[あなた] 現在のプロバイダで使えるモデルを一覧して\n[tool] \nモデル一覧を1件取得しました\n[AI] \n現在のプロバイダのモデル一覧を取得します。現在のプロバイダ 【ACP】Devin で使えるモデル：\ndefault\nモデル一覧には ── テキスト ── グループ内の default のみ表示されています。"
+}

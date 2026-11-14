@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_driver.ai.pluginInfo",
+ "prompt": "geo_driver プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_driver プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "`describe_plugins` を再実行しました。geo_driver のエントリは前回取得時と**完全に同一**(差分なし)です。自己記述は静的なので再取得しても変わりません。\n\n要点の再掲:\n\n- **id**: `geo_driver` / **name**: QGIS Live Driver / **bridge**: 搭載\n- **役割**: QGISプロセス内の遠隔制御ハブ(ファイルJSONL・REST・MCPで `pyeval`/`bridge_call` 等を提供)+ 内蔵サービス `layer_org`・`scale_style`\n- **呼び出し方**: `bridge_call` ではなくドライバのコマンド面(MCPツール `qgis_pyeval` 等)を使う\n- **bridgeメソッド19個**: `pluginInfo`, `status`, `deployMode`, `layerOrgProfiles`, `layerOrgRules`, `setLayerOrgProfile`, `organizeLayers`, `placeLayer`, `scaleStyleProfiles`, `scaleStyleTable`, `setScaleStyleProfile`, `suggestScaleWidth`, `applyScaleWidth`, `openAiPanel`, `openConnInfo`, `openDeployMode`, `listDevPlugins`, `hotReload`, `remoteControl`\n\nカタログ全体は21プラグインで、bridge搭載は `geo_driver` のほか `geo_excel`/`geo_import`/`geo_launcher`/`geo_legend`/`geo_report`/`geo_search`/`geo_userfunc`/`geo_webview` 系、残りは汎用アダプタ応答です。\n\nなお同じ指示が3回続いていますが、得られる情報は静的で変化しません。もし「他プラグインのカタログも含めて見たい」「この自己記述の内容を変更したい」など別の意図があれば教えてください。"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_driver プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \ndescribe_plugins を再実行しました。geo_driver のエントリは前回取得時と完全に同一(差分なし)です。自己記述は静的なので再取得しても変わりません。\n要点の再掲:\nid: geo_driver / name: QGIS Live Driver / bridge: 搭載\n役割: QGISプロセス内の遠隔制御ハブ(ファイルJSONL・REST・MCPで pyeval/bridge_call 等を提供)+ 内蔵サービス layer_org・scale_style\n呼び出し方: bridge_call ではなくドライバのコマンド面(MCPツール qgis_pyeval 等)を使う\nbridgeメソッド19個: pluginInfo, status, deployMode, layerOrgProfiles, layerOrgRules, setLayerOrgProfile, organizeLayers, placeLayer, scaleStyleProfiles, scaleStyleTable, setScaleStyleProfile, suggestScaleWidth, applyScaleWidth, openAiPanel, openConnInfo, openDeployMode, listDevPlugins, hotReload, remoteControl\nカタログ全体は21プラグインで、bridge搭載は geo_driver のほか geo_excel/geo_import/geo_launcher/geo_legend/geo_report/geo_search/geo_userfunc/geo_webview 系、残りは汎用アダプタ応答です。\nなお同じ指示が3回続いていますが、得られる情報は静的で変化しません。もし「他プラグインのカタログも含めて見たい」「この自己記述の内容を変更したい」など別の意図があれば教えてください。"
+}

@@ -1,7 +1,7 @@
 # geo_report — 完全ロジックシート
 
-- 種別: qgis_plugin / バージョン: 2.9.7
-- 生成: 2026-11-14T02:32:22+09:00 / 機能数: 43
+- 種別: qgis_plugin / バージョン: 2.9.8
+- 生成: 2026-11-14T07:09:57+09:00 / 機能数: 43
 
 ## トポロジ
 
@@ -78,7 +78,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — classFactory→プラグインロード済
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — classFactory→プラグインロード済
 
 ### action.GeoReport.initGui — initGui
 
@@ -95,7 +95,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.GeoReport.run — run
 
@@ -112,7 +112,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.GeoReport.unload — unload
 
@@ -129,7 +129,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.LayoutFileSelectDialog — LayoutFileSelectDialog
 
@@ -146,7 +146,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.LayoutSelectorDialog — LayoutSelectorDialog
 
@@ -163,7 +163,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoReport._on_dock_visibility_changed — _on_dock_visibility_changed
 
@@ -180,7 +180,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.LayoutFileSelectDialog.on_file_double_clicked — on_file_double_clicked
 
@@ -197,7 +197,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.LayoutFileSelectDialog.on_selection_changed — on_selection_changed
 
@@ -214,7 +214,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.LayoutSelectorDialog._on_layouts_changed — _on_layouts_changed
 
@@ -231,7 +231,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.LayoutSelectorDialog.on_item_selected — on_item_selected
 
@@ -248,7 +248,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.LayoutSelectorDialog.on_layout_selected — on_layout_selected
 
@@ -265,7 +265,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.LayoutSelectorDialog.on_property_changed — on_property_changed
 
@@ -282,7 +282,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.LayoutSelectorDialog.on_tab_changed — on_tab_changed
 
@@ -299,7 +299,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### bridge.addStandardLayout — addStandardLayout
 
@@ -316,7 +316,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call addStandardLayout → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.closePanel — closePanel
 
@@ -333,7 +333,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call closePanel → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.createLayout — createLayout
 
@@ -350,7 +350,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call createLayout → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.duplicateLayout — duplicateLayout
 
@@ -367,7 +367,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call duplicateLayout → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=['']
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=['']
 
 ### bridge.itemProperties — itemProperties
 
@@ -384,7 +384,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call itemProperties → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.layoutInfo — layoutInfo
 
@@ -401,7 +401,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call layoutInfo → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.listItems — listItems
 
@@ -418,7 +418,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call listItems → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.listLayouts — listLayouts
 
@@ -435,7 +435,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call listLayouts → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.listPropertyFiles — listPropertyFiles
 
@@ -452,7 +452,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call listPropertyFiles → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.listStandardLayouts — listStandardLayouts
 
@@ -469,7 +469,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call listStandardLayouts → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.loadLayoutProperties — loadLayoutProperties
 
@@ -486,7 +486,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call loadLayoutProperties → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'path required'}
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'path required'}
 
 ### bridge.manageLayouts — manageLayouts
 
@@ -503,7 +503,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call manageLayouts → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.openLayoutManager — openLayoutManager
 
@@ -520,7 +520,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openLayoutManager → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.openPanel — openPanel
 
@@ -537,7 +537,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openPanel → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.pluginInfo — pluginInfo
 
@@ -554,7 +554,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.printOptions — printOptions
 
@@ -571,7 +571,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call printOptions → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.refresh — refresh
 
@@ -588,7 +588,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call refresh → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.removeLayout — removeLayout
 
@@ -605,7 +605,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call removeLayout → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.renameLayout — renameLayout
 
@@ -622,7 +622,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call renameLayout → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'new_name is empty'}
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'new_name is empty'}
 
 ### bridge.saveLayoutProperties — saveLayoutProperties
 
@@ -639,7 +639,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call saveLayoutProperties → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.selectLayout — selectLayout
 
@@ -656,7 +656,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call selectLayout → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=['']
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=['']
 
 ### bridge.setItemProperties — setItemProperties
 
@@ -673,7 +673,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call setItemProperties → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.showPrintArea — showPrintArea
 
@@ -690,7 +690,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call showPrintArea → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.status — status
 
@@ -707,7 +707,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call status → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### ai.bridge_route — bridge_call経由全到達
 
@@ -724,7 +724,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call 全method→ok/error記録
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 16メソッド到達可能
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 16メソッド到達可能
 
 ### ai.catalog — describe_plugins登録
 
@@ -741,7 +741,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=describe_plugins→plugins[]にid実在+methods非空
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — describe_plugins: methods=23
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — describe_plugins: methods=23
 
 ### ai.pluginInfo — pluginInfo自己記述
 
@@ -758,7 +758,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo→メタ一致assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 自己記述あり
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 自己記述あり
 
 ### logic_fn.__init__.py:log_message — log_message
 
@@ -775,7 +775,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.plugin.py:log_message — log_message
 
@@ -792,7 +792,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ## 検証マトリクス
 

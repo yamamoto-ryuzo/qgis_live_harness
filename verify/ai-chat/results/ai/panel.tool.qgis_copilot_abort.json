@@ -1,0 +1,19 @@
+{
+ "id": "panel.tool.qgis_copilot_abort",
+ "prompt": "Copilotタスクを中断して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "Copilotタスクを中断して"
+  },
+  {
+   "role": "assistant",
+   "content": "中断対象のCopilotタスクはありません。現在実行中のタスクが0件のため、`qgis_copilot_abort` を呼ぶ必要がありませんでした。"
+  }
+ ],
+ "tools": [],
+ "audit": [],
+ "view_tail": "[あなた] Copilotタスクを中断して\n[AI] \n中断対象のCopilotタスクはありません。現在実行中のタスクが0件のため、qgis_copilot_abort を呼ぶ必要がありませんでした。"
+}

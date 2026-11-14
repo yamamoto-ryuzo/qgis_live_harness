@@ -1,0 +1,30 @@
+{
+ "id": "qgis.action.mActionAddPart",
+ "prompt": "QGISの「部分を追加」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「部分を追加」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「部分を追加」（`mActionAddPart`）の状態を確認します。「部分を追加」を実行しました。\n\n## 実行結果\n\n- `mActionAddPart` を発火 → チェック状態 ON\n- マップツールが `QgsMapToolCapture`（部分追加ツール）に切り替わり、アクティブ\n- `add_pt_test` の 2 地物は選択状態のまま\n\nこのツールは、マルチパート地物に新しいパートを追加するものです。キャンバス上で対象地物をクリックしてから新しいパートをデジタイズします。\n\nなお、`add_pt_test` はシングル型ポイント（wkbType=Point）ですが、アクション自体は有効化されました。実際にクリックするとジオメトリ型の都合でエラーになる可能性があります。クリックのシミュレートまで実行しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nfrom qgis.core import QgsWkbTypes\\nmw = iface.mainWindow()\\nact = mw.findChild(QAction, 'mActionAddPart')\\nlyr = iface.activeLayer()\\nresult = {'enabled': act.isEnabled(), 'text': act.text(), 'checkable': act.isCheckable(),\\n          'layer': lyr.name(), 'geometryType': str(lyr.geometryType()),\\n          'wkbType': str(lyr.wkbType()), 'isMulti': QgsWkbTypes.isMultiType(lyr.wkbType()),\\n          'editable': lyr.isEditable()}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nact = mw.findChild(QAction, 'mActionAddPart')\\nact.trigger()\\nQgsApplication.processEvents()\\nmt = iface.mapCanvas().mapTool()\\nresult = {'checked': act.isChecked(), 'mapTool': type(mt).__name__ if mt else None,\\n          'selected': iface.activeLayer().selectedFeatureCount()}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「部分を追加」機能(アクション)を実行して\n[AI] \n「部分を追加」（mActionAddPart）の状態を確認します。「部分を追加」を実行しました。\n実行結果\nmActionAddPart を発火 → チェック状態 ON\nマップツールが QgsMapToolCapture（部分追加ツール）に切り替わり、アクティブ\nadd_pt_test の 2 地物は選択状態のまま\nこのツールは、マルチパート地物に新しいパートを追加するものです。キャンバス上で対象地物をクリックしてから新しいパートをデジタイズします。\nなお、add_pt_test はシングル型ポイント（wkbType=Point）ですが、アクション自体は有効化されました。実際にクリックするとジオメトリ型の都合でエラーになる可能性があります。クリックのシミュレートまで実行しますか？"
+}

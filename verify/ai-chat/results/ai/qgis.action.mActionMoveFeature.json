@@ -1,0 +1,35 @@
+{
+ "id": "qgis.action.mActionMoveFeature",
+ "prompt": "QGISの「地物を移動」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「地物を移動」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「地物を移動」アクション（`mActionMoveFeature`）の状態を確認します。前の「属性結合」ダイアログが残っている可能性もあるので、併せて確認します。「地物を移動」は有効です（編集可能レイヤ・2地物選択中）。発火してマップツールを有効化します。「地物を移動」を実行しました。\n\n## 実行結果\n\n- `mActionMoveFeature` を発火 → チェック状態 ON（ボタンが押下状態）\n- マップキャンバスのマップツールが `QgsMapToolAdvancedDigitizing`（地物移動ツール）に切り替わり、アクティブ化を確認\n- `add_pt_test` の 2 地物が選択状態（赤いポイント）のまま\n\nこのツールはマップツールなので、次はキャンバス上での操作待ちです。選択地物があるので、キャンバスをクリック＆ドラッグすると選択中の 2 地物をまとめて移動できます。\n\n実際に地物を移動させる操作（ドラッグのシミュレートや座標指定での移動）までやりますか？"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QApplication, QAction\\nmw = iface.mainWindow()\\nopen_modal = [(w.objectName(), w.windowTitle()) for w in QApplication.topLevelWidgets()\\n              if w.isVisible() and getattr(w, 'isModal', lambda: False)()]\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    t = a.text() or ''\\n    if '移動' in t or 'Move' in (a.objectName() or ''):\\n        found.append((a.objectName(), t, a.isEnabled(), a.isCheckable()))\\nlyr = iface.activeLayer()\\nresult = {'modal_dialogs': open_modal, 'actions': found,\\n          'layer': lyr.name() if lyr else None,\\n          'editable': lyr.isEditable() if lyr else None,\\n          'selected': lyr.selectedFeatureCount() if lyr else None}\\n\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nact = mw.findChild(QAction, 'mActionMoveFeature')\\nact.trigger()\\nQgsApplication.processEvents()\\ncanvas = iface.mapCanvas()\\nmt = canvas.mapTool()\\nresult = {'checked': act.isChecked(), 'mapTool': type(mt).__name__ if mt else None,\\n          'mapTool_action': getattr(mt, 'action', lambda: None)() is act if mt else None}\\n\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-90c99918.png', 'target': 'canvas'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「地物を移動」機能(アクション)を実行して\n[AI] \n「地物を移動」アクション（mActionMoveFeature）の状態を確認します。前の「属性結合」ダイアログが残っている可能性もあるので、併せて確認します。「地物を移動」は有効です（編集可能レイヤ・2地物選択中）。発火してマップツールを有効化します。「地物を移動」を実行しました。\n実行結果\nmActionMoveFeature を発火 → チェック状態 ON（ボタンが押下状態）\nマップキャンバスのマップツールが QgsMapToolAdvancedDigitizing（地物移動ツール）に切り替わり、アクティブ化を確認\nadd_pt_test の 2 地物が選択状態（赤いポイント）のまま\nこのツールはマップツールなので、次はキャンバス上での操作待ちです。選択地物があるので、キャンバスをクリック＆ドラッグすると選択中の 2 地物をまとめて移動できます。\n実際に地物を移動させる操作（ドラッグのシミュレートや座標指定での移動）までやりますか？"
+}

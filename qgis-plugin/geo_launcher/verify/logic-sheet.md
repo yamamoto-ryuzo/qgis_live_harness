@@ -1,7 +1,7 @@
 # geo_launcher — 完全ロジックシート
 
 - 種別: qgis_plugin / バージョン: 1.1.2
-- 生成: 2026-11-14T02:32:22+09:00 / 機能数: 47
+- 生成: 2026-11-14T07:09:57+09:00 / 機能数: 47
 
 ## トポロジ
 
@@ -82,7 +82,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — standalone経路のみ(要runtime依存無し)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone経路のみ(要runtime依存無し)
 
 ### action.plugin.initGui — initGui
 
@@ -99,7 +99,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.plugin.open_dialog — open_dialog
 
@@ -116,7 +116,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.plugin.unload — unload
 
@@ -133,7 +133,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.GeoLauncherDialog — GeoLauncherDialog
 
@@ -150,7 +150,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.GeoLauncherSettingsDialog — GeoLauncherSettingsDialog
 
@@ -167,7 +167,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoLauncherDialog._on_dl_progress — _on_dl_progress
 
@@ -184,7 +184,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.Installer._on_finished — _on_finished
 
@@ -201,7 +201,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.Installer._on_installer_done — _on_installer_done
 
@@ -218,7 +218,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.Installer._on_progress — _on_progress
 
@@ -235,7 +235,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.Installer._on_ready_read — _on_ready_read
 
@@ -252,7 +252,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### bridge.getSettings — getSettings
 
@@ -269,7 +269,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call getSettings → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.install — install
 
@@ -286,7 +286,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call install → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.installStatus — installStatus
 
@@ -303,7 +303,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call installStatus → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.isInstalled — isInstalled
 
@@ -320,7 +320,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call isInstalled → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.launch — launch
 
@@ -337,7 +337,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call launch → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.openDialog — openDialog
 
@@ -354,7 +354,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openDialog → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.openDocs — openDocs
 
@@ -371,7 +371,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openDocs → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.openSettings — openSettings
 
@@ -388,7 +388,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openSettings → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.pluginInfo — pluginInfo
 
@@ -405,7 +405,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.setSettings — setSettings
 
@@ -422,7 +422,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call setSettings → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.status — status
 
@@ -439,7 +439,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call status → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.uninstall — uninstall
 
@@ -456,7 +456,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call uninstall → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### integration.bridge.py:242 — QDesktopServices.openUrl
 
@@ -473,7 +473,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.dialog.py:73 — QDesktopServices.openUrl
 
@@ -490,7 +490,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.launcher.py:147 — QgsNetworkAccessManager.instance
 
@@ -507,7 +507,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.launcher.py:268 — QProcess
 
@@ -524,7 +524,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.launcher.py:48 — QProcess
 
@@ -541,7 +541,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.launcher.py:80 — QProcess.startDetached
 
@@ -558,7 +558,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.launcher.py:94 — QProcess.startDetached
 
@@ -575,7 +575,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.launcher.py:95 — QDesktopServices.openUrl
 
@@ -592,7 +592,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### ai.bridge_route — bridge_call経由全到達
 
@@ -609,7 +609,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call 全method→ok/error記録
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 4メソッド到達可能
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 4メソッド到達可能
 
 ### ai.catalog — describe_plugins登録
 
@@ -626,7 +626,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=describe_plugins→plugins[]にid実在+methods非空
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — describe_plugins: methods=11
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — describe_plugins: methods=11
 
 ### ai.pluginInfo — pluginInfo自己記述
 
@@ -643,7 +643,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo→メタ一致assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 自己記述あり
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 自己記述あり
 
 ### logic_fn.launcher.py:exe_version — exe_version
 
@@ -660,7 +660,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.launcher.py:find_uninstaller — find_uninstaller
 
@@ -677,7 +677,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.launcher.py:launch — launch
 
@@ -694,7 +694,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.launcher.py:launched_via_role — launched_via_role
 
@@ -711,7 +711,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.launcher.py:run_installer — run_installer
 
@@ -728,7 +728,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.launcher.py:uninstall — uninstall
 
@@ -745,7 +745,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:current_settings — current_settings
 
@@ -762,7 +762,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:detect_exe — detect_exe
 
@@ -779,7 +779,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:exe_path — exe_path
 
@@ -796,7 +796,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:save_settings — save_settings
 
@@ -813,7 +813,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:set_exe_path — set_exe_path
 
@@ -830,7 +830,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:set_silent_install — set_silent_install
 
@@ -847,7 +847,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:silent_install — silent_install
 
@@ -864,7 +864,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ## 検証マトリクス
 

@@ -1,7 +1,7 @@
 # geo_excel — 完全ロジックシート
 
 - 種別: qgis_plugin / バージョン: 1.9.5
-- 生成: 2026-11-14T02:32:22+09:00 / 機能数: 105
+- 生成: 2026-11-14T07:09:57+09:00 / 機能数: 105
 
 ## トポロジ
 
@@ -140,7 +140,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — standalone経路のみ(要runtime依存無し)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone経路のみ(要runtime依存無し)
 
 ### action.plugin.initGui — initGui
 
@@ -157,7 +157,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.plugin.unload — unload
 
@@ -174,7 +174,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.GeoExcelSettingsDialog — GeoExcelSettingsDialog
 
@@ -191,7 +191,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### bridge.applyDefaults — applyDefaults
 
@@ -208,7 +208,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call applyDefaults → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.checkExcel — checkExcel
 
@@ -225,7 +225,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call checkExcel → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.layerVariables — layerVariables
 
@@ -242,7 +242,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call layerVariables → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.listScripts — listScripts
 
@@ -259,7 +259,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call listScripts → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.openSettings — openSettings
 
@@ -276,7 +276,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openSettings → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.pluginInfo — pluginInfo
 
@@ -293,7 +293,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.regenerateTemplates — regenerateTemplates
 
@@ -310,7 +310,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call regenerateTemplates → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.run — run
 
@@ -327,7 +327,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call run → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.setLayerVariables — setLayerVariables
 
@@ -344,7 +344,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call setLayerVariables → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.setSettings — setSettings
 
@@ -361,7 +361,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call setSettings → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.settings — settings
 
@@ -378,7 +378,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call settings → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.status — status
 
@@ -395,7 +395,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call status → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### integration.bridge.py:284 — self._win32com_available
 
@@ -412,7 +412,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.bridge.py:292 — self._win32com_available
 
@@ -429,7 +429,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.bridge.py:334 — self._win32com_available
 
@@ -446,7 +446,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.exportList.py:623 — Dispatch
 
@@ -463,7 +463,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.exportSingle.py:974 — Dispatch
 
@@ -480,7 +480,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.exportSingleBulk.py:1019 — Dispatch
 
@@ -497,7 +497,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.settings.py:167 — Dispatch
 
@@ -514,7 +514,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.settings.py:182 — win32com_available
 
@@ -531,7 +531,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### ai.bridge_route — bridge_call経由全到達
 
@@ -548,7 +548,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call 全method→ok/error記録
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 8メソッド到達可能
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 8メソッド到達可能
 
 ### ai.catalog — describe_plugins登録
 
@@ -565,7 +565,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=describe_plugins→plugins[]にid実在+methods非空
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — describe_plugins: methods=11
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — describe_plugins: methods=11
 
 ### ai.pluginInfo — pluginInfo自己記述
 
@@ -582,7 +582,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo→メタ一致assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 自己記述あり
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 自己記述あり
 
 ### logic_fn.settings.py:auto_apply_enabled — auto_apply_enabled
 
@@ -599,7 +599,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:check_excel_launch — check_excel_launch
 
@@ -616,7 +616,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:configured_template — configured_template
 
@@ -633,7 +633,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:current_settings — current_settings
 
@@ -650,7 +650,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:documents_dir — documents_dir
 
@@ -667,7 +667,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:ensure_layer_variables — ensure_layer_variables
 
@@ -684,7 +684,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:environment_report — environment_report
 
@@ -701,7 +701,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:excel_registered — excel_registered
 
@@ -718,7 +718,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:generate_template — generate_template
 
@@ -735,7 +735,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:generated_template_path — generated_template_path
 
@@ -752,7 +752,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:output_dir — output_dir
 
@@ -769,7 +769,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:requirements — requirements
 
@@ -786,7 +786,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:save_settings — save_settings
 
@@ -803,7 +803,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:script_variable_spec — script_variable_spec
 
@@ -820,7 +820,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:set_setting — set_setting
 
@@ -837,7 +837,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:setting — setting
 
@@ -854,7 +854,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:win32com_available — win32com_available
 
@@ -871,7 +871,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.settings.py:write_xlsx — write_xlsx
 
@@ -888,7 +888,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.exportList.py:append_list_insert — append_list_insert
 
@@ -905,7 +905,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportList.py:check_same_name_opend — check_same_name_opend
 
@@ -922,7 +922,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportList.py:check_save_folder — check_save_folder
 
@@ -939,7 +939,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportList.py:contains_text_in_first_cell — contains_text_in_first_cell
 
@@ -956,7 +956,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportList.py:create_expression — create_expression
 
@@ -973,7 +973,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportList.py:evaluate_attach_text — evaluate_attach_text
 
@@ -990,7 +990,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportList.py:excel_value_text — excel_value_text
 
@@ -1007,7 +1007,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportList.py:find_list_insert — find_list_insert
 
@@ -1024,7 +1024,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportList.py:get_layer_variable — get_layer_variable
 
@@ -1041,7 +1041,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportList.py:get_layer_variable_evaluated — get_layer_variable_evaluated
 
@@ -1058,7 +1058,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportList.py:insert_list — insert_list
 
@@ -1075,7 +1075,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportList.py:insert_list_values — insert_list_values
 
@@ -1092,7 +1092,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportList.py:make_expression_context — make_expression_context
 
@@ -1109,7 +1109,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportList.py:output_list_report — output_list_report
 
@@ -1126,7 +1126,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:add_temp_theme_from_current_state — add_temp_theme_from_current_state
 
@@ -1143,7 +1143,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:append_attach — append_attach
 
@@ -1160,7 +1160,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:append_attach_fit_image — append_attach_fit_image
 
@@ -1177,7 +1177,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:change_theme — change_theme
 
@@ -1194,7 +1194,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:check_same_name_opend — check_same_name_opend
 
@@ -1211,7 +1211,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:check_save_folder — check_save_folder
 
@@ -1228,7 +1228,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:contains_text_in_first_cell — contains_text_in_first_cell
 
@@ -1245,7 +1245,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:create_expression — create_expression
 
@@ -1262,7 +1262,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:create_map_image — create_map_image
 
@@ -1279,7 +1279,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:create_map_images — create_map_images
 
@@ -1296,7 +1296,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:evaluate_attach_text — evaluate_attach_text
 
@@ -1313,7 +1313,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:excel_value_text — excel_value_text
 
@@ -1330,7 +1330,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:find_attach — find_attach
 
@@ -1347,7 +1347,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:find_attach_fit_image — find_attach_fit_image
 
@@ -1364,7 +1364,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:get_layer_variable — get_layer_variable
 
@@ -1381,7 +1381,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:get_layer_variable_on_feature — get_layer_variable_on_feature
 
@@ -1398,7 +1398,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:insert_images — insert_images
 
@@ -1415,7 +1415,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:make_expression_context — make_expression_context
 
@@ -1432,7 +1432,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:output_single_report — output_single_report
 
@@ -1449,7 +1449,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:replace_attach — replace_attach
 
@@ -1466,7 +1466,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:restore_from_temp_theme — restore_from_temp_theme
 
@@ -1483,7 +1483,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingle.py:variable_based_on_feature — variable_based_on_feature
 
@@ -1500,7 +1500,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:add_temp_theme_from_current_state — add_temp_theme_from_current_state
 
@@ -1517,7 +1517,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:append_attach — append_attach
 
@@ -1534,7 +1534,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:append_attach_fit_image — append_attach_fit_image
 
@@ -1551,7 +1551,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:change_theme — change_theme
 
@@ -1568,7 +1568,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:check_save_folder — check_save_folder
 
@@ -1585,7 +1585,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:contains_text_in_first_cell — contains_text_in_first_cell
 
@@ -1602,7 +1602,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:create_expression — create_expression
 
@@ -1619,7 +1619,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:create_map_image — create_map_image
 
@@ -1636,7 +1636,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:create_map_images — create_map_images
 
@@ -1653,7 +1653,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:evaluate_attach_text — evaluate_attach_text
 
@@ -1670,7 +1670,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:excel_value_text — excel_value_text
 
@@ -1687,7 +1687,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:find_attach — find_attach
 
@@ -1704,7 +1704,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:find_attach_fit_image — find_attach_fit_image
 
@@ -1721,7 +1721,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:get_exp_variable_for_feature — get_exp_variable_for_feature
 
@@ -1738,7 +1738,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:get_exp_variable_for_layer — get_exp_variable_for_layer
 
@@ -1755,7 +1755,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:get_layer_variable — get_layer_variable
 
@@ -1772,7 +1772,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:get_raw_variable_for_layer — get_raw_variable_for_layer
 
@@ -1789,7 +1789,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:get_variable_for_feature — get_variable_for_feature
 
@@ -1806,7 +1806,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:insert_images — insert_images
 
@@ -1823,7 +1823,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:make_expression_context — make_expression_context
 
@@ -1840,7 +1840,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:output_single_report — output_single_report
 
@@ -1857,7 +1857,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:replace_attach — replace_attach
 
@@ -1874,7 +1874,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:restore_from_temp_theme — restore_from_temp_theme
 
@@ -1891,7 +1891,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ### logic_fn.exportSingleBulk.py:variable_based_on_feature — variable_based_on_feature
 
@@ -1908,7 +1908,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — exec用テンプレ(bridge run経由で検証)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — exec用テンプレ(bridge run経由で検証)
 
 ## 検証マトリクス
 

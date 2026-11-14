@@ -10,7 +10,7 @@
     "control": "POST /api/cmd Bearer <live_dir token>",
     "detected_from": "scripts/qgis-session.mjs, live_driver.py"
   },
-  "updated": "2026-11-14T02:32:22+09:00",
+  "updated": "2026-11-14T07:09:57+09:00",
   "features": [
     {
       "id": "entry_point.__init__.py:classFactory",
@@ -27,7 +27,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone経路のみ(要runtime依存無し)"
     },
     {
@@ -45,7 +45,7 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -63,7 +63,7 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -81,7 +81,7 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -99,7 +99,7 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -117,7 +117,7 @@
         "integrated": "openDialog→screenshot→closeDialog"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -135,7 +135,7 @@
         "integrated": "openDialog→screenshot→closeDialog"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -153,7 +153,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -171,7 +171,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -189,7 +189,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -207,7 +207,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -225,7 +225,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -243,7 +243,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -261,7 +261,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -279,7 +279,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -297,7 +297,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -315,7 +315,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -333,7 +333,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -351,7 +351,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -369,7 +369,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -387,7 +387,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -405,7 +405,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -423,7 +423,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -441,7 +441,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -459,7 +459,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -477,7 +477,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -495,7 +495,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -513,7 +513,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -531,7 +531,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -549,7 +549,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -567,7 +567,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -585,7 +585,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -603,7 +603,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -621,7 +621,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -639,7 +639,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -657,7 +657,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -675,7 +675,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -693,7 +693,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -711,14 +711,14 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "bridge.addFirewallRule",
       "kind": "bridge_method",
       "name": "addFirewallRule",
-      "source": "bridge.py:1366",
+      "source": "bridge.py:1441",
       "signature": "addFirewallRule(port=…)",
       "summary": "Windowsファイアウォールに受信ルールを追加する。",
       "needs_runtime": true,
@@ -732,14 +732,14 @@
         "integrated": "bridge_call addFirewallRule → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
       "id": "bridge.applyTheme",
       "kind": "bridge_method",
       "name": "applyTheme",
-      "source": "bridge.py:817",
+      "source": "bridge.py:844",
       "signature": "applyTheme(name)",
       "summary": "マップテーマをレイヤツリーへ適用し、パネルコンボも同期する。",
       "needs_runtime": true,
@@ -753,14 +753,14 @@
         "integrated": "bridge_call applyTheme → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
       "id": "bridge.checkAccess",
       "kind": "bridge_method",
       "name": "checkAccess",
-      "source": "bridge.py:1143",
+      "source": "bridge.py:1218",
       "signature": "checkAccess()",
       "summary": "外部アクセス診断(ファイアウォール含む)を実行し結果を返す。",
       "needs_runtime": true,
@@ -774,14 +774,14 @@
         "integrated": "bridge_call checkAccess → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.closePanel",
       "kind": "bridge_method",
       "name": "closePanel",
-      "source": "bridge.py:492",
+      "source": "bridge.py:519",
       "signature": "closePanel()",
       "summary": "GeoWebViewドックパネルを隠す(インスタンスは保持)。",
       "needs_runtime": true,
@@ -795,14 +795,14 @@
         "integrated": "bridge_call closePanel → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
       "id": "bridge.copyPermalink",
       "kind": "bridge_method",
       "name": "copyPermalink",
-      "source": "bridge.py:678",
+      "source": "bridge.py:705",
       "signature": "copyPermalink()",
       "summary": "現在のパーマリンクをクリップボードへコピーする(未生成なら生成)。",
       "needs_runtime": true,
@@ -816,14 +816,14 @@
         "integrated": "bridge_call copyPermalink → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.deleteTheme",
       "kind": "bridge_method",
       "name": "deleteTheme",
-      "source": "bridge.py:868",
+      "source": "bridge.py:895",
       "signature": "deleteTheme(name)",
       "summary": "マップテーマを削除する。",
       "needs_runtime": true,
@@ -837,14 +837,14 @@
         "integrated": "bridge_call deleteTheme → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
       "id": "bridge.endpoints",
       "kind": "bridge_method",
       "name": "endpoints",
-      "source": "bridge.py:1159",
+      "source": "bridge.py:1234",
       "signature": "endpoints()",
       "summary": "HTTPサーバが公開するエンドポイント一覧と基底URLを返す。",
       "needs_runtime": true,
@@ -858,14 +858,14 @@
         "integrated": "bridge_call endpoints → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.externalControl",
       "kind": "bridge_method",
       "name": "externalControl",
-      "source": "bridge.py:616",
+      "source": "bridge.py:643",
       "signature": "externalControl(enabled=…)",
       "summary": "外部制御モード(HTTP要求で自動ナビゲート)を取得/設定する。",
       "needs_runtime": true,
@@ -879,14 +879,14 @@
         "integrated": "bridge_call externalControl → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.generatePermalink",
       "kind": "bridge_method",
       "name": "generatePermalink",
-      "source": "bridge.py:636",
+      "source": "bridge.py:663",
       "signature": "generatePermalink(theme=…)",
       "summary": "現在の地図ビューからパーマリンクURLを生成する。",
       "needs_runtime": true,
@@ -900,14 +900,14 @@
         "integrated": "bridge_call generatePermalink → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.getSettings",
       "kind": "bridge_method",
       "name": "getSettings",
-      "source": "bridge.py:1213",
+      "source": "bridge.py:1288",
       "signature": "getSettings()",
       "summary": "設定(出力先ディレクトリ・優先ポート)とバージョンを返す。",
       "needs_runtime": true,
@@ -921,14 +921,56 @@
         "integrated": "bridge_call getSettings → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
+    },
+    {
+      "id": "bridge.kascImport",
+      "kind": "bridge_method",
+      "name": "kascImport",
+      "source": "bridge.py:1186",
+      "signature": "kascImport(source=…, add_to_project=…, only_visible=…, apply_camera=…, group_prefix=…, replace=…)",
+      "summary": ".kasc+DATA/ を QGIS プロジェクトへ逆取り込みする。",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [
+        "QGISプラグインロード",
+        "geo_driver"
+      ],
+      "verify": {
+        "standalone": "",
+        "integrated": "bridge_call kascImport → added/skipped/warnings + pyeval でレイヤ実在assert"
+      },
+      "last_result": "skip",
+      "last_verified": "2026-11-14T07:09:57+09:00",
+      "note": "要実引数(応答あり): {'ok': False, 'error': 'source (.kasc path or URL) is required'}"
+    },
+    {
+      "id": "bridge.kascInspect",
+      "kind": "bridge_method",
+      "name": "kascInspect",
+      "source": "bridge.py:1170",
+      "signature": "kascInspect(source)",
+      "summary": ".kasc を解析して一覧を返す(プロジェクト非変更の dry run)。",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [
+        "QGISプラグインロード",
+        "geo_driver"
+      ],
+      "verify": {
+        "standalone": "",
+        "integrated": "bridge_call kascInspect → counts/layers/bases 応答assert"
+      },
+      "last_result": "skip",
+      "last_verified": "2026-11-14T07:09:57+09:00",
+      "note": "要実引数(応答あり): {'ok': False, 'error': 'source (.kasc path or URL) is required'}"
     },
     {
       "id": "bridge.kasugaiExport",
       "kind": "bridge_method",
       "name": "kasugaiExport",
-      "source": "bridge.py:907",
+      "source": "bridge.py:934",
       "signature": "kasugaiExport(output_dir=…, open_app=…, native_formats=…, hidden_as_off=…, embed_gpkg_style=…, emit_themes=…, emit_bookmarks=…, emit_launchers=…, emit_zip=…, engine=…, install=…, route=…, use_existing=…, emit_atlas=…)",
       "summary": "表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。",
       "needs_runtime": true,
@@ -942,56 +984,14 @@
         "integrated": "bridge_call kasugaiExport → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
-    },
-    {
-      "id": "bridge.kascInspect",
-      "kind": "bridge_method",
-      "name": "kascInspect",
-      "source": "bridge.py",
-      "signature": "kascInspect(source)",
-      "summary": ".kasc を解析して一覧を返す(プロジェクト非変更の dry run)。",
-      "needs_runtime": true,
-      "standalone_ok": false,
-      "depends": [
-        "QGISプラグインロード",
-        "geo_driver"
-      ],
-      "verify": {
-        "standalone": "",
-        "integrated": "bridge_call kascInspect → counts/layers/bases 応答assert"
-      },
-      "last_result": "pass",
-      "last_verified": "2026-11-14T06:55:00+09:00",
-      "note": "実QGIS(pid28736)で sample_qgis.kasc 解析確認(11layers/37bases/16groups/2cams)。実体は kasc_import.inspect_kasc(stdlib)"
-    },
-    {
-      "id": "bridge.kascImport",
-      "kind": "bridge_method",
-      "name": "kascImport",
-      "source": "bridge.py",
-      "signature": "kascImport(source=…, add_to_project=…, only_visible=…, apply_camera=…, group_prefix=…)",
-      "summary": ".kasc+DATA/ を QGIS プロジェクトへ逆取り込みする。",
-      "needs_runtime": true,
-      "standalone_ok": false,
-      "depends": [
-        "QGISプラグインロード",
-        "geo_driver"
-      ],
-      "verify": {
-        "standalone": "",
-        "integrated": "bridge_call kascImport → added/skipped/warnings + pyeval でレイヤ実在assert"
-      },
-      "last_result": "pass",
-      "last_verified": "2026-11-14T07:40:00+09:00",
-      "note": "実QGIS(pid28736)で sample_qgis.kasc 取込確認(6vector+5base・cam/theme/group/style/bbox適用)。replace=True の再取込で replaced=11・重複なし、bbox= は setExtent(4326→3857変換)で適用、空テーマは区別警告。kasugaiExport の逆方向"
     },
     {
       "id": "bridge.listBookmarks",
       "kind": "bridge_method",
       "name": "listBookmarks",
-      "source": "bridge.py:880",
+      "source": "bridge.py:907",
       "signature": "listBookmarks()",
       "summary": "プロジェクト/ユーザブックマーク一覧(中心EPSG:3857)を返す。",
       "needs_runtime": true,
@@ -1005,14 +1005,14 @@
         "integrated": "bridge_call listBookmarks → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.listThemes",
       "kind": "bridge_method",
       "name": "listThemes",
-      "source": "bridge.py:800",
+      "source": "bridge.py:827",
       "signature": "listThemes()",
       "summary": "マップテーマ一覧・パネルコンボの現在選択を返す。",
       "needs_runtime": true,
@@ -1026,14 +1026,14 @@
         "integrated": "bridge_call listThemes → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.liveAddFeatures",
       "kind": "bridge_method",
       "name": "liveAddFeatures",
-      "source": "bridge.py:1496",
+      "source": "bridge.py:1571",
       "signature": "liveAddFeatures(name=…, geojson=…, replace=…)",
       "summary": "GeoJSON をスクラッチ(memory)レイヤとしてプロジェクトへ",
       "needs_runtime": true,
@@ -1047,14 +1047,14 @@
         "integrated": "bridge_call liveAddFeatures → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.liveSyncFlush",
       "kind": "bridge_method",
       "name": "liveSyncFlush",
-      "source": "bridge.py:1472",
+      "source": "bridge.py:1547",
       "signature": "liveSyncFlush()",
       "summary": "保留中の変更を即時差分エクスポート+通知する。",
       "needs_runtime": true,
@@ -1068,14 +1068,14 @@
         "integrated": "bridge_call liveSyncFlush → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.liveSyncStart",
       "kind": "bridge_method",
       "name": "liveSyncStart",
-      "source": "bridge.py:1446",
+      "source": "bridge.py:1521",
       "signature": "liveSyncStart()",
       "summary": "ライブ双方向連携を有効化して監視を開始する。",
       "needs_runtime": true,
@@ -1089,14 +1089,14 @@
         "integrated": "bridge_call liveSyncStart → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.liveSyncStatus",
       "kind": "bridge_method",
       "name": "liveSyncStatus",
-      "source": "bridge.py:1431",
+      "source": "bridge.py:1506",
       "signature": "liveSyncStatus()",
       "summary": "ライブ連携の状態を返す。",
       "needs_runtime": true,
@@ -1110,14 +1110,14 @@
         "integrated": "bridge_call liveSyncStatus → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.liveSyncStop",
       "kind": "bridge_method",
       "name": "liveSyncStop",
-      "source": "bridge.py:1461",
+      "source": "bridge.py:1536",
       "signature": "liveSyncStop()",
       "summary": "ライブ双方向連携を無効化して監視を停止する。",
       "needs_runtime": true,
@@ -1131,14 +1131,14 @@
         "integrated": "bridge_call liveSyncStop → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
       "id": "bridge.liveWriteback",
       "kind": "bridge_method",
       "name": "liveWriteback",
-      "source": "bridge.py:1479",
+      "source": "bridge.py:1554",
       "signature": "liveWriteback(payload=…)",
       "summary": "Canvas 側の表示/フィルタ/テーマ状態を QGIS プロジェクトへ",
       "needs_runtime": true,
@@ -1152,14 +1152,14 @@
         "integrated": "bridge_call liveWriteback → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.macAuth",
       "kind": "bridge_method",
       "name": "macAuth",
-      "source": "bridge.py:1392",
+      "source": "bridge.py:1467",
       "signature": "macAuth(enabled=…, allowed=…)",
       "summary": "MACアドレス認証を取得/設定する。",
       "needs_runtime": true,
@@ -1173,14 +1173,14 @@
         "integrated": "bridge_call macAuth → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.navigate",
       "kind": "bridge_method",
       "name": "navigate",
-      "source": "bridge.py:710",
+      "source": "bridge.py:737",
       "signature": "navigate(url)",
       "summary": "パーマリンクURLから地図ビューを移動する(モーダル無し)。",
       "needs_runtime": true,
@@ -1194,14 +1194,14 @@
         "integrated": "bridge_call navigate → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "要実引数(応答あり): {'ok': False, 'error': 'url required'}"
     },
     {
       "id": "bridge.navigateTo",
       "kind": "bridge_method",
       "name": "navigateTo",
-      "source": "bridge.py:767",
+      "source": "bridge.py:794",
       "signature": "navigateTo(x=…, y=…, lat=…, lon=…, scale=…, zoom=…, crs=…, rotation=…, theme=…)",
       "summary": "座標を直接指定して地図ビューを移動する。",
       "needs_runtime": true,
@@ -1215,14 +1215,14 @@
         "integrated": "bridge_call navigateTo → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "要実引数(応答あり): {'ok': False, 'error': 'x/y or lat/lon required'}"
     },
     {
       "id": "bridge.openExportFolder",
       "kind": "bridge_method",
       "name": "openExportFolder",
-      "source": "bridge.py:1330",
+      "source": "bridge.py:1405",
       "signature": "openExportFolder()",
       "summary": "KASUGAI出力フォルダをOSのファイルマネージャで開く。",
       "needs_runtime": true,
@@ -1236,14 +1236,14 @@
         "integrated": "bridge_call openExportFolder → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
       "id": "bridge.openExternal",
       "kind": "bridge_method",
       "name": "openExternal",
-      "source": "bridge.py:890",
+      "source": "bridge.py:917",
       "signature": "openExternal(service)",
       "summary": "KASUGAI Canvas を指定エンジンで起動する。",
       "needs_runtime": true,
@@ -1257,14 +1257,14 @@
         "integrated": "bridge_call openExternal → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
       "id": "bridge.openPanel",
       "kind": "bridge_method",
       "name": "openPanel",
-      "source": "bridge.py:474",
+      "source": "bridge.py:501",
       "signature": "openPanel()",
       "summary": "GeoWebViewドックパネルを生成・表示する(冪等、トグルではない)。",
       "needs_runtime": true,
@@ -1278,14 +1278,14 @@
         "integrated": "bridge_call openPanel → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
       "id": "bridge.openPresent",
       "kind": "bridge_method",
       "name": "openPresent",
-      "source": "bridge.py:1341",
+      "source": "bridge.py:1416",
       "signature": "openPresent()",
       "summary": "キャンバス画面共有ページ(/present)をブラウザで開く。",
       "needs_runtime": true,
@@ -1299,14 +1299,14 @@
         "integrated": "bridge_call openPresent → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
       "id": "bridge.pluginInfo",
       "kind": "bridge_method",
       "name": "pluginInfo",
-      "source": "bridge.py:391",
+      "source": "bridge.py:418",
       "signature": "pluginInfo()",
       "summary": "プラグインの自己記述(id/summary/when_to_use/methods)を返す。",
       "needs_runtime": true,
@@ -1320,14 +1320,14 @@
         "integrated": "bridge_call pluginInfo → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.receivedHistory",
       "kind": "bridge_method",
       "name": "receivedHistory",
-      "source": "bridge.py:1358",
+      "source": "bridge.py:1433",
       "signature": "receivedHistory()",
       "summary": "受領パーマリンク履歴(最新10件)を返す。",
       "needs_runtime": true,
@@ -1341,14 +1341,14 @@
         "integrated": "bridge_call receivedHistory → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.saveTheme",
       "kind": "bridge_method",
       "name": "saveTheme",
-      "source": "bridge.py:843",
+      "source": "bridge.py:870",
       "signature": "saveTheme(name=…, overwrite=…)",
       "summary": "現在のレイヤツリー状態をマップテーマとして保存する。",
       "needs_runtime": true,
@@ -1362,14 +1362,14 @@
         "integrated": "bridge_call saveTheme → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
       "id": "bridge.serverStatus",
       "kind": "bridge_method",
       "name": "serverStatus",
-      "source": "bridge.py:505",
+      "source": "bridge.py:532",
       "signature": "serverStatus(deep=…)",
       "summary": "HTTPサーバの稼働状態・ポート・URLを返す。",
       "needs_runtime": true,
@@ -1383,14 +1383,14 @@
         "integrated": "bridge_call serverStatus → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.setPort",
       "kind": "bridge_method",
       "name": "setPort",
-      "source": "bridge.py:572",
+      "source": "bridge.py:599",
       "signature": "setPort(port)",
       "summary": "優先ポートを設定する。起動中ならそのポートで再起動する。",
       "needs_runtime": true,
@@ -1404,14 +1404,14 @@
         "integrated": "bridge_call setPort → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
       "id": "bridge.setSettings",
       "kind": "bridge_method",
       "name": "setSettings",
-      "source": "bridge.py:1241",
+      "source": "bridge.py:1316",
       "signature": "setSettings(settings=…)",
       "summary": "設定を変更する。",
       "needs_runtime": true,
@@ -1425,14 +1425,14 @@
         "integrated": "bridge_call setSettings → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
       "id": "bridge.startServer",
       "kind": "bridge_method",
       "name": "startServer",
-      "source": "bridge.py:530",
+      "source": "bridge.py:557",
       "signature": "startServer(port=…)",
       "summary": "HTTPサーバを起動する。port指定時はそのポートを優先する。",
       "needs_runtime": true,
@@ -1446,14 +1446,14 @@
         "integrated": "bridge_call startServer → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.status",
       "kind": "bridge_method",
       "name": "status",
-      "source": "bridge.py:418",
+      "source": "bridge.py:445",
       "signature": "status()",
       "summary": "パネル・サーバ・キャンバス・入出力欄の実行時状態を返す。",
       "needs_runtime": true,
@@ -1467,14 +1467,14 @@
         "integrated": "bridge_call status → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "bridge.stopServer",
       "kind": "bridge_method",
       "name": "stopServer",
-      "source": "bridge.py:563",
+      "source": "bridge.py:590",
       "signature": "stopServer()",
       "summary": "HTTPサーバを停止する。",
       "needs_runtime": true,
@@ -1488,7 +1488,7 @@
         "integrated": "bridge_call stopServer → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -1506,7 +1506,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -1523,8 +1523,26 @@
         "standalone": "",
         "integrated": "連携先の実在/生成物を確認"
       },
-      "last_result": "skip",
+      "last_result": "removed",
       "last_verified": "2026-11-14T02:32:22+09:00",
+      "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
+    },
+    {
+      "id": "integration.bridge.py:1412",
+      "kind": "integration",
+      "name": "QDesktopServices.openUrl",
+      "source": "bridge.py:1412",
+      "signature": "QDesktopServices.openUrl(…)",
+      "summary": "外部連携呼出",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "連携先の実在/生成物を確認"
+      },
+      "last_result": "skip",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1541,7 +1559,7 @@
         "standalone": "",
         "integrated": "連携先の実在/生成物を確認"
       },
-      "last_result": "skip",
+      "last_result": "removed",
       "last_verified": "2026-11-14T02:32:22+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
@@ -1559,8 +1577,44 @@
         "standalone": "",
         "integrated": "連携先の実在/生成物を確認"
       },
-      "last_result": "skip",
+      "last_result": "removed",
       "last_verified": "2026-11-14T02:32:22+09:00",
+      "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
+    },
+    {
+      "id": "integration.bridge.py:387",
+      "kind": "integration",
+      "name": "QDesktopServices.openUrl",
+      "source": "bridge.py:387",
+      "signature": "QDesktopServices.openUrl(…)",
+      "summary": "外部連携呼出",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "連携先の実在/生成物を確認"
+      },
+      "last_result": "skip",
+      "last_verified": "2026-11-14T07:09:57+09:00",
+      "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
+    },
+    {
+      "id": "integration.bridge.py:389",
+      "kind": "integration",
+      "name": "webbrowser.open",
+      "source": "bridge.py:389",
+      "signature": "webbrowser.open(…)",
+      "summary": "外部連携呼出",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "連携先の実在/生成物を確認"
+      },
+      "last_result": "skip",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1578,7 +1632,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1596,7 +1650,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1614,7 +1668,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1632,7 +1686,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1650,7 +1704,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1668,7 +1722,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1686,7 +1740,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1704,7 +1758,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1722,7 +1776,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1740,7 +1794,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1758,7 +1812,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1776,7 +1830,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1794,7 +1848,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1812,7 +1866,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1830,7 +1884,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1848,7 +1902,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1866,7 +1920,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1884,7 +1938,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1902,7 +1956,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1920,7 +1974,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1938,7 +1992,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1956,7 +2010,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1974,7 +2028,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1992,8 +2046,8 @@
         "integrated": "bridge_call 全method→ok/error記録"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
-      "note": "22メソッド到達可能"
+      "last_verified": "2026-11-14T07:09:57+09:00",
+      "note": "24メソッド到達可能"
     },
     {
       "id": "ai.catalog",
@@ -2010,8 +2064,8 @@
         "integrated": "describe_plugins→plugins[]にid実在+methods非空"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
-      "note": "describe_plugins: methods=34"
+      "last_verified": "2026-11-14T07:09:57+09:00",
+      "note": "describe_plugins: methods=36"
     },
     {
       "id": "ai.pluginInfo",
@@ -2028,7 +2082,7 @@
         "integrated": "bridge_call pluginInfo→メタ一致assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "自己記述あり"
     },
     {
@@ -2046,7 +2100,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2064,7 +2118,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2082,7 +2136,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2100,7 +2154,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2118,7 +2172,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2136,7 +2190,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2154,8 +2208,80 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
+    },
+    {
+      "id": "logic_fn.kasc_import.py:import_kasc",
+      "kind": "logic_fn",
+      "name": "import_kasc",
+      "source": "kasc_import.py:704",
+      "signature": "import_kasc(source, iface=…, add_to_project=…, only_visible=…, apply_camera=…, group_prefix=…, replace=…, timeout=…)",
+      "summary": ".kasc を QGIS プロジェクトへ再構成する(GUIスレッド前提)。",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "pyeval で属性実在+必要なら呼出"
+      },
+      "last_result": "pass",
+      "last_verified": "2026-11-14T07:09:57+09:00",
+      "note": "属性/シンボル実在確認(pyeval)"
+    },
+    {
+      "id": "logic_fn.kasc_import.py:inspect_kasc",
+      "kind": "logic_fn",
+      "name": "inspect_kasc",
+      "source": "kasc_import.py:283",
+      "signature": "inspect_kasc(source, timeout=…)",
+      "summary": ".kasc を解析し参照を解決した一覧を返す(QGIS副作用なし)。",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "pyeval で属性実在+必要なら呼出"
+      },
+      "last_result": "pass",
+      "last_verified": "2026-11-14T07:09:57+09:00",
+      "note": "属性/シンボル実在確認(pyeval)"
+    },
+    {
+      "id": "logic_fn.kasc_import.py:parse_kasc",
+      "kind": "logic_fn",
+      "name": "parse_kasc",
+      "source": "kasc_import.py:107",
+      "signature": "parse_kasc(text)",
+      "summary": ".kasc テキストを構造化 dict へ変換する(stdlib のみ)。",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "pyeval で属性実在+必要なら呼出"
+      },
+      "last_result": "pass",
+      "last_verified": "2026-11-14T07:09:57+09:00",
+      "note": "属性/シンボル実在確認(pyeval)"
+    },
+    {
+      "id": "logic_fn.kasc_import.py:resolve_ref",
+      "kind": "logic_fn",
+      "name": "resolve_ref",
+      "source": "kasc_import.py:258",
+      "signature": "resolve_ref(ref, base)",
+      "summary": "DATA/x.gpkg 等の相対参照を base(.kasc の所在)から絶対化する。",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "pyeval で属性実在+必要なら呼出"
+      },
+      "last_result": "pass",
+      "last_verified": "2026-11-14T07:09:57+09:00",
+      "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.kasugai_export.py:build_export_zip",
@@ -2172,7 +2298,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2190,7 +2316,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2208,7 +2334,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2226,7 +2352,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2244,7 +2370,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2262,7 +2388,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2280,7 +2406,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2298,7 +2424,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2316,7 +2442,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2334,7 +2460,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2352,7 +2478,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2370,7 +2496,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2388,7 +2514,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2406,7 +2532,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2424,7 +2550,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2442,7 +2568,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2460,7 +2586,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2478,7 +2604,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2496,7 +2622,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2514,7 +2640,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2532,7 +2658,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2550,7 +2676,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2568,7 +2694,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2586,7 +2712,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2604,7 +2730,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2622,7 +2748,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2640,7 +2766,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2658,7 +2784,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2676,7 +2802,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2694,7 +2820,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2712,7 +2838,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2730,7 +2856,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2748,7 +2874,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2766,7 +2892,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2784,7 +2910,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2802,7 +2928,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2820,7 +2946,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2838,7 +2964,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2856,7 +2982,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2874,7 +3000,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2892,7 +3018,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2910,7 +3036,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2928,7 +3054,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2946,7 +3072,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2964,7 +3090,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone import+attr実在"
     }
   ],
@@ -2981,13 +3107,13 @@
       "rc": 0,
       "out": "[main]\tINFO\tUsing ini file for skipped tests\n[main]\tINFO\tUsing command line arg for selected targets"
     },
-    "ran_at": "2026-11-14T02:32:22+09:00",
+    "ran_at": "2026-11-14T07:09:57+09:00",
     "reload": {
       "loaded": true,
       "opened": true,
       "plugins": [
+        "ImportPhotos",
         "MetaSearch",
-        "Qgis2threejs",
         "QuickDEM4JP",
         "StreetView",
         "db_manager",
@@ -3006,7 +3132,6 @@
         "plateau_plugin",
         "processing",
         "qfieldsync",
-        "qgis2web",
         "searchlayers"
       ]
     }

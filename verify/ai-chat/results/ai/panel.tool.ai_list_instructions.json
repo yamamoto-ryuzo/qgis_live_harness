@@ -1,0 +1,34 @@
+{
+ "id": "panel.tool.ai_list_instructions",
+ "prompt": "利用可能な指示書を一覧して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "利用可能な指示書を一覧して"
+  },
+  {
+   "role": "assistant",
+   "content": "利用可能な指示書の一覧です（3種類・計12件）。\n\n**agents** — 永続的な振る舞い指示（2件・いずれもユーザーファイル）\n\n- `meeting_minutes_scribe`: 会議議事録作成エージェント\n- `problem_solver`: 課題解決エージェント\n\n**skills** — 手順書（4件・すべてプラグイン同梱）\n\n- `legend-creation`: 凡例作成(geo_legend) — 凡例・色分け・印刷レイアウトへの凡例追加\n- `scale-line-width`: スケール連動の標準線幅 — 縮尺に応じた線幅の決定・適用\n- `webgis-convert`: WebGIS向けデータ変換 — KASUGAI Canvas向けデータ準備\n- `webgis-import`: 既存WebGISの取り込み — .kasc/Web地図ソースをQGISへ再構成\n\n**prompts** — ワンクリック提案（6件・すべてプラグイン同梱）\n\n- `create-legend`: 凡例の作成\n- `organize-layers`: レイヤ構成の整理\n- `project-doctor`: プロジェクト状態の診断\n- `save-map-image`: 表示範囲を画像保存\n- `search-features`: 地物の検索\n- `standard-line-width`: 縮尺に合った標準線幅\n\n特定の指示書の中身を確認したい場合はIDを指定してください（例: `read` で `legend-creation`）。"
+  }
+ ],
+ "tools": [
+  "instruction"
+ ],
+ "audit": [
+  {
+   "type": "instruction",
+   "args": "{'op': 'list', 'kind': 'agents'}"
+  },
+  {
+   "type": "instruction",
+   "args": "{'op': 'list', 'kind': 'skills'}"
+  },
+  {
+   "type": "instruction",
+   "args": "{'kind': 'prompts', 'op': 'list'}"
+  }
+ ],
+ "view_tail": "[あなた] 利用可能な指示書を一覧して\n[AI] \n利用可能な指示書の一覧です（3種類・計12件）。\nagents — 永続的な振る舞い指示（2件・いずれもユーザーファイル）\nmeeting_minutes_scribe: 会議議事録作成エージェント\nproblem_solver: 課題解決エージェント\nskills — 手順書（4件・すべてプラグイン同梱）\nlegend-creation: 凡例作成(geo_legend) — 凡例・色分け・印刷レイアウトへの凡例追加\nscale-line-width: スケール連動の標準線幅 — 縮尺に応じた線幅の決定・適用\nwebgis-convert: WebGIS向けデータ変換 — KASUGAI Canvas向けデータ準備\nwebgis-import: 既存WebGISの取り込み — .kasc/Web地図ソースをQGISへ再構成\nprompts — ワンクリック提案（6件・すべてプラグイン同梱）\ncreate-legend: 凡例の作成\norganize-layers: レイヤ構成の整理\nproject-doctor: プロジェクト状態の診断\nsave-map-image: 表示範囲を画像保存\nsearch-features: 地物の検索\nstandard-line-width: 縮尺に合った標準線幅\n特定の指示書の中身を確認したい場合はIDを指定してください（例: read で legend-creation）。"
+}

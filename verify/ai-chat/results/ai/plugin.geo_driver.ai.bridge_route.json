@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_driver.ai.bridge_route",
+ "prompt": "geo_driver プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_driver プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "`describe_plugins` を実行して geo_driver の情報を抽出します。`describe_plugins` で geo_driver のカタログ情報を取得しました。\n\n## geo_driver — QGIS Live Driver\n\n- **bridge**: あり(専用bridge搭載)\n- **summary**: QGISプロセス内の遠隔制御ハブ。`pyeval`/`status`/`bridge_call`/`describe_plugins` 等をファイルJSONL・REST・MCPの全経路で提供。`layer_org`(レイヤ整理)と `scale_style`(標準線幅)の2サービスを内蔵\n\n### when_to_use(想定用途)\n\n- QGIS内部(iface/QgsProject/地物/レイヤ)の直接操作・検査\n- 他プラグインのbridge呼び出し、ロード/再読み込み\n- 地図キャンバス・ウィンドウのスクリーンショット\n- レイヤのグループ整理・リネーム、標準線幅の提案・適用(固定mm/実幅m/縮尺帯ルール)\n\n### invoke 方式\n\n`bridge_call` ではなく**ドライバのコマンド面**(MCPツール)を使う指定: `pyeval` / `eval` / `status` / `describe_plugins` / `bridge_call` / `open_plugin` / `reload_plugin` / `screenshot`\n\n### bridge メソッド一覧(19個)\n\n| メソッド | シグネチャ | 内容 |\n|---|---|---|\n| pluginInfo | `pluginInfo()` | この自己記述を返す |\n| status | `status()` | ドライバ稼働状態(live_dir/http_port/pid) |\n| deployMode | `deployMode()` | deployモード(dev/use)と各プラグイン配置形態(読取専用) |\n| layerOrgProfiles | `layerOrgProfiles()` | レイヤ整理プロファイル一覧+アクティブ |\n| layerOrgRules | `layerOrgRules(profile=None)` | ルール一覧(省略=アクティブ) |\n| setLayerOrgProfile | `setLayerOrgProfile(name)` | プロファイル切替(QSettings永続化) |\n| organizeLayers | `organizeLayers(profile=None, dry=False)` | 全レイヤ再配置 ※要修正バグあり |\n| placeLayer | `placeLayer(layer_id=None, ctx=None)` | 単一レイヤ配置 ※同上 |\n| scaleStyleProfiles | `scaleStyleProfiles()` | 線幅プロファイル一覧+アクティブ |\n| scaleStyleTable | `scaleStyleTable(profile=None)` | 縮尺帯×カテゴリ線幅テーブル |\n| setScaleStyleProfile | `setScaleStyleProfile(name)` | 線幅プロファイル切替 |\n| suggestScaleWidth | `suggestScaleWidth(layer_id=None, category=None, scale=None, profile=None)` | 標準線幅の提案 |\n| applyScaleWidth | `applyScaleWidth(..., mode='mm', dry=False)` | 線幅適用(mm/meters/rulesの3モード) |\n| openAiPanel | `openAiPanel()` | AIアシスタントパネルを開く |\n| openConnInfo | `openConnInfo()` | 接続情報ダイアログ |\n| openDeployMode | `openDeployMode()` | Deploy Mode切替ダイアログ(UI操作のみ) |\n| listDevPlugins | `listDevPlugins()` | ホットリロード対象の開発中プラグインID |\n| hotReload | `hotReload(plugin_ids=None)` | sys.modules掃除+reloadPluginで即再読込 |\n| remoteControl |"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_driver プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \ndescribe_plugins を実行して geo_driver の情報を抽出します。describe_plugins で geo_driver のカタログ情報を取得しました。\ngeo_driver — QGIS Live Driver\nbridge: あり(専用bridge搭載)\nsummary: QGISプロセス内の遠隔制御ハブ。pyeval/status/bridge_call/describe_plugins 等をファイルJSONL・REST・MCPの全経路で提供。layer_org(レイヤ整理)と scale_style(標準線幅)の2サービスを内蔵\nwhen_to_use(想定用途)\nQGIS内部(iface/QgsProject/地物/レイヤ)の直接操作・検査\n他プラグインのbridge呼び出し、ロード/再読み込み\n地図キャンバス・ウィンドウのスクリーンショット\nレイヤのグループ整理・リネーム、標準線幅の提案・適用(固定mm/実幅m/縮尺帯ルール)\ninvoke 方式\nbridge_call ではなくドライバのコマンド面(MCPツール)を使う指定: pyeval / eval / status / describe_plugins / bridge_call / open_plugin / reload_plugin / screenshot\nbridge メソッド一覧(19個)\nメソッド\nシグネチャ\n内容\npluginInfo\npluginInfo()\nこの自己記述を返す\nstatus\nstatus()\nドライバ稼働状態(live_dir/http_port/pid)\ndeployMode\ndeployMode()\ndeployモード(dev/use)と各プラグイン配置形態(読取専用)\nlayerOrgProfiles\nlayerOrgProfiles()\nレイヤ整理プロファイル一覧+アクティブ\nlayerOrgRules\nlayerOrgRules(profile=None)\nルール一覧(省略=アクティブ)\nsetLayerOrgProfile\nsetLayerOrgProfile(name)\nプロファイル切替(QSettings永続化)\norganizeLayers\norganizeLayers(profile=None, dry=False)\n全レイヤ再配置 ※要修正バグあり\nplaceLayer\nplaceLayer(layer_id=None, ctx=None)\n単一レイヤ配置 ※同上\nscaleStyleProfiles\nscaleStyleProfiles()\n線幅プロファイル一覧+アクティブ\nscaleStyleTable\nscaleStyleTable(profile=None)\n縮尺帯×カテゴリ線幅テーブル\nsetScaleStyleProfile\nsetScaleStyleProfile(name)\n線幅プロファイル切替\nsuggestScaleWidth\nsuggestScaleWidth(layer_id=None, category=None, scale=None, profile=None)\n標準線幅の提案\napplyScaleWidth\napplyScaleWidth(..., mode='mm', dry=False)\n線幅適用(mm/meters/rulesの3モード)\nopenAiPanel\nopenAiPanel()\nAIアシスタントパネルを開く\nopenConnInfo\nopenConnInfo()\n接続情報ダイアログ\nopenDeployMode\nopenDeployMode()\nDeploy Mode切替ダイアログ(UI操作のみ)\nlistDevPlugins\nlistDevPlugins()\nホットリロード対象の開発中プラグインID\nhotReload\nhotReload(plugin_ids=None)\nsys.modules掃除+reloadPluginで即再読込\nremoteControl\nremoteControl(enabled=None)\nリモート制御の有効状態 取得/設定\n\n補足: これまでの検証で openConnInfo/openDeployMode/layerOrgProfiles/organizeLayers/placeLayer/scaleStyleProfiles/scaleStyleTable/suggestScaleWidth は実測済み。organizeLayers/placeLayer には _move_to_group のノード除去順バグ(レイヤ消滅)があることを確認しています。"
+}

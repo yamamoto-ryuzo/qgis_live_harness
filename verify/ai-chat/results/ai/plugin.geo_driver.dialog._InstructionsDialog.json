@@ -1,0 +1,38 @@
+{
+ "id": "plugin.geo_driver.dialog._InstructionsDialog",
+ "prompt": "geo_driver プラグインの「_InstructionsDialog」ダイアログ/パネルを開いて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_driver プラグインの「_InstructionsDialog」ダイアログ/パネルを開いて"
+  },
+  {
+   "role": "assistant",
+   "content": "`_InstructionsDialog` を開きました。\n\n- **visible: true** — 「指示書編集」ダイアログが表示されています\n- 概要: 指示書（agents | skills の *.md）の作成・編集・削除用ダイアログ。保存はユーザ側 `~/.qgis-live/<kind>/` へ書き込まれ、プラグイン同梱（bundled）ファイルは読み取り専用（同名保存でユーザ側ファイルとして優先）\n\nこのダイアログはbridgeメソッド経由では開けないため、`geo_driver.ai_panel._InstructionsDialog` を直接インスタンス化して表示しました。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.utils import plugins\\nimport inspect\\np = plugins.get('geo_driver')\\nfound = {}\\nfor name, obj in list(vars(p).items()) + [('driver.'+a, getattr(p.driver, a)) for a in dir(p.driver) if not a.startswith('__')]:\\n    if 'nstruction' in str(name) or 'ialog' in str(name):\\n        found[name] = str(type(obj))\\nresult = {'plugin_attrs': [a for a in dir(p) if 'nstr' in a or 'ial' in a],\\n          'driver_attrs': [a for a in dir(p.driver) if 'nstr' in a or 'ial' in a],\\n          'found': found}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import sys, inspect\\nfrom qgis.utils import plugins\\np = plugins.get('geo_driver')\\nres = {}\\n# find _InstructionsDialog class in geo_driver modules\\nfor mod_name, mod in list(sys.modules.items()):\\n    if 'geo_driver' in mod_name or (getattr(mod, '__file__', '') or '').find('geo_driver') >= 0:\\n        for name in dir(mod):\\n            if 'nstruction' in name:\\n                res[mod_name + '.' + name] = str(getattr(mod, name))[:200]\\n# inspect driver._instruction signature\\nres['driver._instruction_sig'] = str(inspect.signature(p.driver._instruction))\\nres['driver._instruction_doc'] = (p.driver._instruction.__doc__ or '')[:200]\\nresult = res\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"import inspect\\nfrom geo_driver.ai_panel import _InstructionsDialog\\nresult = {'init_sig': str(inspect.signature(_InstructionsDialog.__init__)),\\n          'doc': (inspect.getdoc(_InstructionsDialog) or '')[:300],\\n          'bases': [b.__name__ for b in _InstructionsDialog.__mro__]}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from geo_driver.ai_panel import _InstructionsDialog\\nfrom qgis.utils import plugins\\np = plugins.get('geo_driver')\\ndlg = _InstructionsDialog(iface.mainWindow())\\nsetattr(p, '_instr_dlg', dlg)  # GC防止\\ndlg.show()\\ndlg.raise_()\\ndlg.activateWindow()\\nresult = {'ok': True, 'visible': dlg.isVisible(), 'title': dlg.windowTitle()}\"}"
+  }
+ ],
+ "view_tail": "[あなた] geo_driver プラグインの「_InstructionsDialog」ダイアログ/パネルを開いて\n[AI] \n_InstructionsDialog を開きました。\nvisible: true — 「指示書編集」ダイアログが表示されています\n概要: 指示書（agents | skills の *.md）の作成・編集・削除用ダイアログ。保存はユーザ側 ~/.qgis-live/<kind>/ へ書き込まれ、プラグイン同梱（bundled）ファイルは読み取り専用（同名保存でユーザ側ファイルとして優先）\nこのダイアログはbridgeメソッド経由では開けないため、geo_driver.ai_panel._InstructionsDialog を直接インスタンス化して表示しました。"
+}

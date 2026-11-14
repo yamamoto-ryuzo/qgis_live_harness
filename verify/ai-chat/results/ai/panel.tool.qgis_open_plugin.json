@@ -1,0 +1,35 @@
+{
+ "id": "panel.tool.qgis_open_plugin",
+ "prompt": "open_plugin で geo_search を開いて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "open_plugin で geo_search を開いて"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis_open_plugin` ではダイアログが開かなかったので、bridge の `openDialog` を呼び出します。geo_search の検索ダイアログを開きました（`visible: true`）。\n\nなお `qgis_open_plugin` 自体は `opened: false` を返したため、bridge の `openDialog` メソッド経由で表示しました。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "open_plugin"
+ ],
+ "audit": [
+  {
+   "type": "open_plugin",
+   "args": "{'plugin_id': 'geo_search'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'plugin_id': 'geo_search', 'method': 'pluginInfo'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'plugin_id': 'geo_search', 'method': 'openDialog'}"
+  }
+ ],
+ "view_tail": "[あなた] open_plugin で geo_search を開いて\n[AI] \nqgis_open_plugin ではダイアログが開かなかったので、bridge の openDialog を呼び出します。geo_search の検索ダイアログを開きました（visible: true）。\nなお qgis_open_plugin 自体は opened: false を返したため、bridge の openDialog メソッド経由で表示しました。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionSimplifyFeature",
+ "prompt": "QGISの「地物を簡素化」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「地物を簡素化」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「地物を簡素化」（`mActionSimplifyFeature`）を確認して実行します。「地物を簡素化」は現在**無効**なため実行できませんでした（`trigger()` してもチェックは付かず、マップツールも切り替わりません）。\n\n## 原因\n\nアクティブレイヤ `add_pt_test` は**ポイントレイヤ**です。「地物を簡素化」はライン/ポリゴン専用ツールなので、ポイントレイヤがアクティブだと無効になります。\n\nプロジェクト内に `Lines` レイヤがあります。それをアクティブにして編集モードを ON にすれば有効化されるはずです。切り替えて実行しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nact = mw.findChild(QAction, 'mActionSimplifyFeature')\\nif act is None:\\n    # フォールバック: テキストで検索\\n    cands = [(a.objectName(), a.text(), a.isEnabled()) for a in mw.findChildren(QAction) if '簡素化' in (a.text() or '') or 'implify' in (a.objectName() or '')]\\n    result = {'found': None, 'candidates': cands}\\nelse:\\n    was_enabled = act.isEnabled()\\n    act.trigger()\\n    QgsApplication.processEvents()\\n    mt = iface.mapCanvas().mapTool()\\n    result = {'was_enabled': was_enabled, 'checked': act.isChecked(),\\n              'text': act.text(), 'mapTool': type(mt).__name__ if mt else None}\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「地物を簡素化」機能(アクション)を実行して\n[AI] \n「地物を簡素化」（mActionSimplifyFeature）を確認して実行します。「地物を簡素化」は現在無効なため実行できませんでした（trigger() してもチェックは付かず、マップツールも切り替わりません）。\n原因\nアクティブレイヤ add_pt_test はポイントレイヤです。「地物を簡素化」はライン/ポリゴン専用ツールなので、ポイントレイヤがアクティブだと無効になります。\nプロジェクト内に Lines レイヤがあります。それをアクティブにして編集モードを ON にすれば有効化されるはずです。切り替えて実行しますか？"
+}

@@ -1,0 +1,31 @@
+{
+ "id": "plugin.geo_driver.bridge.openDeployMode",
+ "prompt": "QGISの geo_driver プラグインで「Deploy Mode切替ダイアログを開く(切替はUI操作のみ)。」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_driver プラグインで「Deploy Mode切替ダイアログを開く(切替はUI操作のみ)。」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "bridge メソッド `openDeployMode` が該当します。実行します。開いたか確認します。「Deploy Mode切替ダイアログを開く」(bridge メソッド `openDeployMode`)を実行しました。結果は `{\"ok\": true, \"launched\": true}` で、正常に起動しています。\n\n開いたダイアログ **「配置モード」** (モーダル) の内容:\n\n- **Harnessリポジトリ**: `C:\\devin\\qgis_live_harness` (「参照…」ボタンあり)\n- **現在のモード**: 開発(junction: リポジトリ直結)\n- 注記: geo_driver 自身はホットリロードメニューまたはQGIS再起動で反映\n- 警告: モード切替はUI操作のみ。AI・自動経路からは実行不可(API/MCP経路なし)、`deployMode()` は読取専用\n\nボタン:\n- 「閉じる」— 有効\n- 「開発モードへ切替(junction)」— **無効**(現在すでに開発モードのため)\n- 「利用モードへ切替(退避版を復元)」— 有効\n- 「現在のrepoを利用版としてインストール(リリース)」— 有効\n\n仕様どおり、切替操作はAPIからはできずダイアログ上の手動操作のみとなっています。ダイアログは現在も開いたままです。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'method': 'openDeployMode', 'plugin_id': 'geo_driver'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QApplication, QDialog, QLabel, QRadioButton, QComboBox, QPushButton, QLineEdit\\nwins = []\\nfor w in QApplication.topLevelWidgets():\\n    if w.isVisible() and w is not iface.mainWindow():\\n        info = {'class': w.metaObject().className(), 'title': w.windowTitle(), 'modal': getattr(w,'isModal',lambda:False)()}\\n        if isinstance(w, QDialog):\\n            ctrls = []\\n            for c in w.findChildren((QLabel, QRadioButton, QComboBox, QPushButton, QLineEdit)):\\n                if isinstance(c, QComboBox):\\n                    ctrls.append({'cls':'QComboBox','current':c.currentText(),'items':[c.itemText(i) for i in range(c.count())]})\\n                elif isinstance(c, QRadioButton):\\n                    ctrls.append({'cls':'QRadioButton','text':c.text(),'checked':c.isChecked()})\\n                else:\\n                    t = c.text()\\n                    if t and t.strip():\\n                        ctrls.append({'cls':c.metaObject().clas"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_driver プラグインで「Deploy Mode切替ダイアログを開く(切替はUI操作のみ)。」を実行して結果を教えて\n[AI] \nbridge メソッド openDeployMode が該当します。実行します。開いたか確認します。「Deploy Mode切替ダイアログを開く」(bridge メソッド openDeployMode)を実行しました。結果は {\"ok\": true, \"launched\": true} で、正常に起動しています。\n開いたダイアログ 「配置モード」 (モーダル) の内容:\nHarnessリポジトリ: C:\\devin\\qgis_live_harness (「参照…」ボタンあり)\n現在のモード: 開発(junction: リポジトリ直結)\n注記: geo_driver 自身はホットリロードメニューまたはQGIS再起動で反映\n警告: モード切替はUI操作のみ。AI・自動経路からは実行不可(API/MCP経路なし)、deployMode() は読取専用\nボタン:\n「閉じる」— 有効\n「開発モードへ切替(junction)」— 無効(現在すでに開発モードのため)\n「利用モードへ切替(退避版を復元)」— 有効\n「現在のrepoを利用版としてインストール(リリース)」— 有効\n仕様どおり、切替操作はAPIからはできずダイアログ上の手動操作のみとなっています。ダイアログは現在も開いたままです。"
+}

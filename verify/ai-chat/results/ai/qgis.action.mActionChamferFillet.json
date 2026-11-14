@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionChamferFillet",
+ "prompt": "QGISの「Add Chamfer / Fillet」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「Add Chamfer / Fillet」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "「Add Chamfer / Fillet」に対応するアクションを探します。`mActionChamferFillet`（Add Chamfer / Fillet）は現在**無効**です。\n\n## 原因\n\nライン/ポリゴンレイヤが必要ですが、アクティブレイヤ `add_pt_test` はポイントレイヤです。\n\n`repro_move`（ラインレイヤ・編集モード ON）に切り替えれば有効化される見込みです。切り替えて実行しますか？"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"\\nfrom qgis.PyQt.QtWidgets import QAction\\nmw = iface.mainWindow()\\nfound = []\\nfor a in mw.findChildren(QAction):\\n    s = ((a.text() or '') + ' ' + (a.toolTip() or '') + ' ' + (a.objectName() or '')).lower()\\n    if 'chamfer' in s or 'fillet' in s or '面取' in s:\\n        found.append((a.objectName(), a.text(), (a.toolTip() or '')[:100], a.isEnabled(), a.isCheckable()))\\nresult = found\\n\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「Add Chamfer / Fillet」機能(アクション)を実行して\n[AI] \n「Add Chamfer / Fillet」に対応するアクションを探します。mActionChamferFillet（Add Chamfer / Fillet）は現在無効です。\n原因\nライン/ポリゴンレイヤが必要ですが、アクティブレイヤ add_pt_test はポイントレイヤです。\nrepro_move（ラインレイヤ・編集モード ON）に切り替えれば有効化される見込みです。切り替えて実行しますか？"
+}

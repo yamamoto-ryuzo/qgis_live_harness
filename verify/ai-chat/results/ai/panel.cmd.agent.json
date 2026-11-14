@@ -1,0 +1,10 @@
+{
+ "id": "panel.cmd.agent",
+ "prompt": "/agent",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [],
+ "tools": [],
+ "audit": [],
+ "view_tail": "[あなた] /agent\n[cmd] 選択中: (なし)\n- meeting_minutes_scribe: 会議議事録作成エージェント — あなたはQGISの操作支援および会議の議事録作成をサポートするプロフェッショナルなエージェントです。 [user] C:\\Users\\ryu.RYU-NOTE\\.qgis-live\\agents\\meeting_minutes_scribe.md\n- problem_solver: 課題解決エージェント — あなたはQGISの操作と地理空間データ解析に精通した課題解決のエージェントです。ユーザーの複雑な課題を論理的に分解し、以下の手順で解決へ導きます。 [user] C:\\Users\\ryu.RYU-NOTE\\.qgis-live\\agents\\problem_solver.md"
+}

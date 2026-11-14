@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_launcher.ai.pluginInfo",
+ "prompt": "geo_launcher プラグインのカタログ情報・自己記述を describe_plugins で調べて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_launcher プラグインのカタログ情報・自己記述を describe_plugins で調べて"
+  },
+  {
+   "role": "assistant",
+   "content": "`qgis_describe_plugins` を再実行し、geo_launcher の自己記述を取得しました（内容は前回と同じでした）。\n\n**geo_launcher — kasugai_qgis ランチャー連携**（`bridge: true`）\n\n- **概要**: Rust/Axum 製の QGIS/QField 起動ランチャー `kasugai_qgis` を QGIS 内からインストール/アンインストール/起動。未インストールなら GitHub Pages の setup.exe をDLしてインストール、インストール済みなら WebView2 の GUI 窓でプロファイル/プロジェクトを選んで QGIS を起動（起動後ランチャーは自動終了）。この QGIS がランチャー経由か（PORTAL_USERROLE）も返す。\n- **呼び出し**: `bridge_call` with `plugin_id: geo_launcher`\n- **状態**: `installed: true` / `launched_via_launcher: false`\n\n**メソッド一覧（11件）**:\n\n| メソッド | シグネチャ | 内容 |\n|---|---|---|\n| getSettings | `getSettings()` | 設定（exeパス/サイレント等）を返す |\n| install | `install(silent=None)` | setup.exe を非同期DL→インストーラー起動 |\n| installStatus | `installStatus()` | 進捗（idle/downloading/running_installer/done/error） |\n| isInstalled | `isInstalled()` | qgis_launcher.exe 検出 |\n| launch | `launch()` | GUIモード（WebView2窓）で起動 |\n| openDialog | `openDialog()` | 状態パネルを開く |\n| openDocs | `openDocs()` | ドキュメントサイトをブラウザで開く |\n| openSettings | `openSettings()` | 設定ダイアログを開く |\n| setSettings | `setSettings(new_settings)` | 設定保存（exe_path/silent_install） |\n| status | `status()` | インストール状態・バージョン・起動経由・進捗・設定 |\n| uninstall | `uninstall(silent=None)` | アンインストーラー起動 |\n\n`when_to_use`（使いどき）: インストール確認／インストール・再インストール／アンインストール／GUI窓を開いてユーザーに起動操作を任せる／ランチャー経由起動の確認／設定の確認・変更。"
+  }
+ ],
+ "tools": [
+  "describe_plugins"
+ ],
+ "audit": [
+  {
+   "type": "describe_plugins",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] geo_launcher プラグインのカタログ情報・自己記述を describe_plugins で調べて\n[AI] \nqgis_describe_plugins を再実行し、geo_launcher の自己記述を取得しました（内容は前回と同じでした）。\ngeo_launcher — kasugai_qgis ランチャー連携（bridge: true）\n概要: Rust/Axum 製の QGIS/QField 起動ランチャー kasugai_qgis を QGIS 内からインストール/アンインストール/起動。未インストールなら GitHub Pages の setup.exe をDLしてインストール、インストール済みなら WebView2 の GUI 窓でプロファイル/プロジェクトを選んで QGIS を起動（起動後ランチャーは自動終了）。この QGIS がランチャー経由か（PORTAL_USERROLE）も返す。\n呼び出し: bridge_call with plugin_id: geo_launcher\n状態: installed: true / launched_via_launcher: false\nメソッド一覧（11件）:\nメソッド\nシグネチャ\n内容\ngetSettings\ngetSettings()\n設定（exeパス/サイレント等）を返す\ninstall\ninstall(silent=None)\nsetup.exe を非同期DL→インストーラー起動\ninstallStatus\ninstallStatus()\n進捗（idle/downloading/running_installer/done/error）\nisInstalled\nisInstalled()\nqgis_launcher.exe 検出\nlaunch\nlaunch()\nGUIモード（WebView2窓）で起動\nopenDialog\nopenDialog()\n状態パネルを開く\nopenDocs\nopenDocs()\nドキュメントサイトをブラウザで開く\nopenSettings\nopenSettings()\n設定ダイアログを開く\nsetSettings\nsetSettings(new_settings)\n設定保存（exe_path/silent_install）\nstatus\nstatus()\nインストール状態・バージョン・起動経由・進捗・設定\nuninstall\nuninstall(silent=None)\nアンインストーラー起動\n\nwhen_to_use（使いどき）: インストール確認／インストール・再インストール／アンインストール／GUI窓を開いてユーザーに起動操作を任せる／ランチャー経由起動の確認／設定の確認・変更。"
+}

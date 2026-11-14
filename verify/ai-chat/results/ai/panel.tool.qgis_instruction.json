@@ -1,0 +1,34 @@
+{
+ "id": "panel.tool.qgis_instruction",
+ "prompt": "instruction で指示書の一覧を取得して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "instruction で指示書の一覧を取得して"
+  },
+  {
+   "role": "assistant",
+   "content": "指示書ファイルの一覧です（3種類）。\n\n**agents**（永続的な振る舞い指示）\n\n| ID | タイトル | 説明 |\n|---|---|---|\n| meeting_minutes_scribe | 会議議事録作成エージェント | QGIS操作支援および会議の議事録作成をサポート |\n| problem_solver | 課題解決エージェント | 複雑な課題を論理的に分解して解決へ導く |\n\n**skills**（手順書・必要時に読み込み）\n\n| ID | タイトル | 使いどき |\n|---|---|---|\n| legend-creation | 凡例作成(geo_legend) | 凡例作成・色分け/分類・印刷レイアウトへの凡例追加など |\n| scale-line-width | スケール連動の標準線幅 | 線幅の決定・縮尺に応じたスタイル設定 |\n| webgis-convert | WebGIS向けデータ形式変換 | KASUGAI Canvas向けデータ変換・レイヤ追加 |\n| webgis-import | 既存WebGISのQGISへの取り込み | .kasc/Web地図ソースのQGIS取り込み・再構成 |\n\n**prompts**（ワンクリック提案）\n\n| ID | タイトル | 内容 |\n|---|---|---|\n| create-legend | 凡例の作成 | アクティブレイヤに用途に合った凡例を作る指示 |\n| organize-layers | レイヤ構成の整理 | レイヤツリーを把握して構成を整える |\n| project-doctor | プロジェクト状態の診断 | プロジェクトとプラグインの点検・問題報告 |\n| save-map-image | 表示範囲を画像保存 | 現在の表示範囲をPNG書き出し |\n| search-features | 地物の検索 | 属性値で地物を検索する指示 |\n| standard-line-width | 縮尺に合った標準線幅 | scale_style の標準線幅を適用 |\n\nすべて bundled（プラグイン同梱）のものは `builtin: true`、ユーザーファイルは `~/.qgis-live/` 配下です。特定の指示書の中身を見たい場合は `read` で取得できます。"
+  }
+ ],
+ "tools": [
+  "instruction"
+ ],
+ "audit": [
+  {
+   "type": "instruction",
+   "args": "{'op': 'list', 'kind': 'agents'}"
+  },
+  {
+   "type": "instruction",
+   "args": "{'op': 'list', 'kind': 'skills'}"
+  },
+  {
+   "type": "instruction",
+   "args": "{'op': 'list', 'kind': 'prompts'}"
+  }
+ ],
+ "view_tail": "[あなた] instruction で指示書の一覧を取得して\n[AI] \n指示書ファイルの一覧です（3種類）。\nagents（永続的な振る舞い指示）\nID\nタイトル\n説明\nmeeting_minutes_scribe\n会議議事録作成エージェント\nQGIS操作支援および会議の議事録作成をサポート\nproblem_solver\n課題解決エージェント\n複雑な課題を論理的に分解して解決へ導く\n\nskills（手順書・必要時に読み込み）\nID\nタイトル\n使いどき\nlegend-creation\n凡例作成(geo_legend)\n凡例作成・色分け/分類・印刷レイアウトへの凡例追加など\nscale-line-width\nスケール連動の標準線幅\n線幅の決定・縮尺に応じたスタイル設定\nwebgis-convert\nWebGIS向けデータ形式変換\nKASUGAI Canvas向けデータ変換・レイヤ追加\nwebgis-import\n既存WebGISのQGISへの取り込み\n.kasc/Web地図ソースのQGIS取り込み・再構成\n\nprompts（ワンクリック提案）\nID\nタイトル\n内容\ncreate-legend\n凡例の作成\nアクティブレイヤに用途に合った凡例を作る指示\norganize-layers\nレイヤ構成の整理\nレイヤツリーを把握して構成を整える\nproject-doctor\nプロジェクト状態の診断\nプロジェクトとプラグインの点検・問題報告\nsave-map-image\n表示範囲を画像保存\n現在の表示範囲をPNG書き出し\nsearch-features\n地物の検索\n属性値で地物を検索する指示\nstandard-line-width\n縮尺に合った標準線幅\nscale_style の標準線幅を適用\n\nすべて bundled（プラグイン同梱）のものは builtin: true、ユーザーファイルは ~/.qgis-live/ 配下です。特定の指示書の中身を見たい場合は read で取得できます。"
+}

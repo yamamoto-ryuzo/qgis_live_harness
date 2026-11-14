@@ -1,0 +1,25 @@
+{
+ "id": "panel.tool.qgis_bridge_call",
+ "prompt": "bridge_call で geo_search の status を呼んで",
+ "provider": "devin_acp",
+ "history": [
+  {
+   "role": "user",
+   "content": "bridge_call で geo_search の status を呼んで"
+  },
+  {
+   "role": "assistant",
+   "content": "`geo_search` の `status` を呼びます。`geo_search.status` の結果：\n\n```json\n{\n  \"ok\": true,\n  \"dialog\": true,\n  \"dialogVisible\": false,\n  \"resultVisible\": false,\n  \"currentTab\": {\n    \"index\": 2,\n    \"group\": \"各種レイヤ\",\n    \"title\": \"全レイヤ\"\n  },\n  \"inputs\": [\"\"],\n  \"resultTabs\": [\n    {\n      \"layer\": null,\n      \"count\": 0\n    }\n  ]\n}\n```"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'status', 'plugin_id': 'geo_search', 'args': []}"
+  }
+ ],
+ "view_tail": "[あなた] bridge_call で geo_search の status を呼んで\n[AI] \ngeo_search の status を呼びます。geo_search.status の結果：\n{\n  \"ok\": true,\n  \"dialog\": true,\n  \"dialogVisible\": false,\n  \"resultVisible\": false,\n  \"currentTab\": {\n    \"index\": 2,\n    \"group\": \"各種レイヤ\",\n    \"title\": \"全レイヤ\"\n  },\n  \"inputs\": [\"\"],\n  \"resultTabs\": [\n    {\n      \"layer\": null,\n      \"count\": 0\n    }\n  ]\n}"
+}

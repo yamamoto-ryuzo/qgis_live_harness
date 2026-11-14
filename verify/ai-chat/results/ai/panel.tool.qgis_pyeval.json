@@ -1,0 +1,25 @@
+{
+ "id": "panel.tool.qgis_pyeval",
+ "prompt": "QGIS内で pyeval を使って Python式 1+1 を評価して",
+ "provider": "devin_acp",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGIS内で pyeval を使って Python式 1+1 を評価して"
+  },
+  {
+   "role": "assistant",
+   "content": "`1+1` を評価します。結果は `2` です。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': '1+1'}"
+  }
+ ],
+ "view_tail": "[あなた] QGIS内で pyeval を使って Python式 1+1 を評価して\n[AI] \n1+1 を評価します。結果は 2 です。"
+}

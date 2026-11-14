@@ -1,0 +1,31 @@
+{
+ "id": "panel.tool.qgis_devin_status",
+ "prompt": "外部エージェントのタスク状態を確認して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "外部エージェントのタスク状態を確認して"
+  },
+  {
+   "role": "assistant",
+   "content": "外部エージェントのタスク状態を確認しました。現在このQGISプロセスから起動されたタスクはありません。\n\n- **Devin タスク**: 0件\n- **Copilot タスク**: 0件\n\n`qgis_devin_run` または `qgis_copilot_run` で新しいエージェントタスクを起動できます。"
+  }
+ ],
+ "tools": [
+  "copilot_status",
+  "devin_status"
+ ],
+ "audit": [
+  {
+   "type": "devin_status",
+   "args": "{}"
+  },
+  {
+   "type": "copilot_status",
+   "args": "{}"
+  }
+ ],
+ "view_tail": "[あなた] 外部エージェントのタスク状態を確認して\n[AI] \n外部エージェントのタスク状態を確認しました。現在このQGISプロセスから起動されたタスクはありません。\nDevin タスク: 0件\nCopilot タスク: 0件\nqgis_devin_run または qgis_copilot_run で新しいエージェントタスクを起動できます。"
+}

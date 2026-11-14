@@ -1,0 +1,56 @@
+{
+ "id": "plugin.geo_driver.bridge.organizeLayers",
+ "prompt": "geo_driver プラグインの「organizeLayers」(プロジェクト内の全レイヤをプロファイルのルールで再配置する。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_driver プラグインの「organizeLayers」(プロジェクト内の全レイヤをプロファイルのルールで再配置する。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "まずアクティブなプロファイルを確認し、`organizeLayers` をドライランで試します。プレビュー通り `test_road` → `Imported Data/Vector/Lines` に配置されるので、本実行します。配置結果をレイヤツリーで確認します。グループはできていますがレイヤノードが見えません。詳しく確認します。レイヤがプロジェクトから消えているようです。画面を確認します。レイヤパネルにはグループ `Imported Data > Vector > Lines` が作られましたが、`test_road` レイヤ自体がプロジェクトから消えてしまっています(`mapLayers()` が空)。原因を実装側で確認します。実装を確認します。動作は確認できましたが、問題が起きました:`test_road` がグループに移動されるどころか、プロジェクトから消滅しています(`mapLayers()` が空)。原因を `_move_to_group` の実装で確認しました。\n\n[layer_org.py:429-448](file:///C:/devin/qgis_live_harness/qgis-plugin/geo_driver/layer_org.py)\n\nこの実装は **clone → 元ノード除去 → clone挿入** の順ですが、QgsProjectでは「ツリーからノードが除去されると、対応するレイヤもプロジェクトから登録解除される」ため、除去時点でレイヤが消え、その後挿入した clone は無効なレイヤを指して破棄された、と推測できます。正しい順序(QGISのD&Dと同じ **挿入→除去**)で検証します。検証完了です。結果をまとめます。\n\n## `organizeLayers` 実行結果\n\n- 実行: `organizeLayers(dry=true)` → プレビュー後 `dry=false` で本実行、ともに `{\"ok\": true}`\n- 判定: `test_road` (memory provider / vector / line) がルール3にマッチし、グループ `Imported Data/Vector/Lines` へ配置と報告(action: `placed`)\n\n## 発見した問題(バグ)\n\n**レイヤがプロジェクトから消えました。** グループ `Imported Data/Vector/Lines` は作成されましたが、`test_road` のツリーノードは消え、`QgsProject.mapLayers()` も空になりました(レイヤ登録解除)。\n\n原因は `_move_to_group` の処理順序にあります:\n\n[layer_org.py:443-448](file:///C:/devin/qgis_live_harness/qgis-plugin/geo_driver/layer_org.py)\n\n```python\nnew_node = node.clone()\nparent.removeChildNode(node)          # ← この時点でレイヤがプロジェクトから登録解除される\ngroup.insertChildNode(0 if top else -1, new_node)  # ← 無効化したレイヤを指すcloneは破棄される\n```\n\nQGISでは、ツリーからレイヤノードが除去されると対応する `QgsMapLayer` もプロジェクトから削除されます。先に元ノードを除去したためレイヤが消え、後から挿入したcloneは無効な参照として落ちた、という流れです。\n\n## 修正方法の検証\n\nQGISのドラッグ&ドロップと同じ **「clone挿入 → 元ノード除去」** の順序で手動実行したところ、レイヤは登録を保ったままグループ `Lines` 配下へ正しく移動できました(`repro_move` レイヤで確認済み)。\n\n修正は `insertChildNode` と `removeChildNode` の順序を入れ替えるだけです:\n\n```python\nnew_node = node.clone()\ngroup.insertChildNode(0 if top else -1, new_node)\nparent.removeChildNode(node)\n```\n\n`node is None` 側の `group.addLayer(layer)` 経路は問題ありません。\n\n備考:\n- 消えた `test_road` はmemoryレイヤのため復元できません(検証用の `repro_move` レイヤが現在 Lines グループ内に残っています)\n"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_driver', 'args': [], 'method': 'layerOrgProfiles'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"result = [{'id': l.id(), 'name': l.name(), 'type': str(l.type())} for l in QgsProject.instance().mapLayers().values()]\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_driver', 'method': 'organizeLayers', 'args': [{'dry': True}]}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'organizeLayers', 'plugin_id': 'geo_driver', 'args': [{'dry': False}]}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': 'root = QgsProject.instance().layerTreeRoot()\\ndef walk(node, depth=0):\\n    out = []\\n    for c in node.children():\\n        name = c.name() if hasattr(c, \\'name\\') else str(c)\\n        out.append(\\'  \\'*depth + f\"[{c.nodeType()}] {name}\")\\n        out += walk(c, depth+1)\\n    return out\\nresult = walk(root)'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': 'root = QgsProject.instance().layerTreeRoot()\\ndef walk(node, depth=0):\\n    out = []\\n    for c in node.children():\\n        kind = \\'group\\' if c.nodeType()==0 else (\\'layer\\' if c.nodeType()==1 else \\'other\\')\\n        lyr = c.layer() if c.nodeType()==1 else None\\n        out.append(\\'  \\'*depth + f\"{kind}: name={c.name()!r} layer={lyr.name() if lyr else None!r}\")\\n        out += walk(c, depth+1)\\n    return out\\nresult = {\\'tree\\': walk(root), \\'layers\\': [l.name() for l in QgsProject.instance().mapLayers().values()]}'}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-e5b521cf.png', 'target': 'mainwindow'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': 'from qgis.core import QgsVectorLayer, QgsProject, QgsLayerTree\\nproj = QgsProject.instance()\\nroot = proj.layerTreeRoot()\\n\\n# 再現用レイヤを作成\\nlyr = QgsVectorLayer(\\'LineString?crs=EPSG:3857&field=id:int\\', \\'repro_move\\', \\'memory\\')\\nproj.addMapLayer(lyr)\\n\\ngrp = root.findGroup(\\'Imported Data\\').findGroup(\\'Vector\\').findGroup(\\'Lines\\')\\nnode = root.findLayer(lyr.id())\\nparent = node.parent()\\n\\n# 修正順序: 先にcloneを挿入してから元ノードを除去\\nnew_node = node.clone()\\ngrp.insertChildNode(-1, new_node)\\nparent.removeChildNode(node)\\n\\ndef tree(n, d=0):\\n    out=[]\\n    for c in n.children():\\n        kind=\\'group\\' if c.nodeType()==0 else \\'layer\\'\\n        out.append(\\'  \\'*d+f\"{kind}:{c.name()}\")\\n        out+=tree(c,d+1)\\n    return out\\nresult = {\\'layers\\': [l.name() for l in proj.mapLayers().values()], \\'tree\\': tree(root)}'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_driver プラグインの「organizeLayers」(プロジェクト内の全レイヤをプロファイルのルールで再配置する。)を試して。必要な引数は適当な値でよい\n[AI] \nまずアクティブなプロファイルを確認し、organizeLayers をドライランで試します。プレビュー通り test_road → Imported Data/Vector/Lines に配置されるので、本実行します。配置結果をレイヤツリーで確認します。グループはできていますがレイヤノードが見えません。詳しく確認します。レイヤがプロジェクトから消えているようです。画面を確認します。レイヤパネルにはグループ Imported Data > Vector > Lines が作られましたが、test_road レイヤ自体がプロジェクトから消えてしまっています(mapLayers() が空)。原因を実装側で確認します。実装を確認します。動作は確認できましたが、問題が起きました:test_road がグループに移動されるどころか、プロジェクトから消滅しています(mapLayers() が空)。原因を _move_to_group の実装で確認しました。\nlayer_org.py:429-448\nこの実装は clone → 元ノード除去 → clone挿入 の順ですが、QgsProjectでは「ツリーからノードが除去されると、対応するレイヤもプロジェクトから登録解除される」ため、除去時点でレイヤが消え、その後挿入した clone は無効なレイヤを指して破棄された、と推測できます。正しい順序(QGISのD&Dと同じ 挿入→除去)で検証します。検証完了です。結果をまとめます。\norganizeLayers 実行結果\n実行: organizeLayers(dry=true) → プレビュー後 dry=false で本実行、ともに {\"ok\": true}\n判定: test_road (memory provider / vector / line) がルール3にマッチし、グループ Imported Data/Vector/Lines へ配置と報告(action: placed)\n発見した問題(バグ)\nレイヤがプロジェクトから消えました。 グループ Imported Data/Vector/Lines は作成されましたが、test_road のツリーノードは消え、QgsProject.mapLayers() も空になりました(レイヤ登録解除)。\n原因は _move_to_group の処理順序にあります:\nlayer_org.py:443-448\nnew_node = node.clone()\nparent.removeChildNode(node)          # ← この時点でレイヤがプロジェクトから登録解除される\ngroup.insertChildNode(0 if top else -1, new_node)  # ← 無効化したレイヤを指すcloneは破棄される\nQGISでは、ツリーからレイヤノードが除去されると対応する QgsMapLayer もプロジェクトから削除されます。先に元ノードを除去したためレイヤが消え、後から挿入したcloneは無効な参照として落ちた、という流れです。\n修正方法の検証\nQGISのドラッグ&ドロップと同じ 「clone挿入 → 元ノード除去」 の順序で手動実行したところ、レイヤは登録を保ったままグループ Lines 配下へ正しく移動できました(repro_move レイヤで確認済み)。\n修正は insertChildNode と removeChildNode の順序を入れ替えるだけです:\nnew_node = node.clone()\ngroup.insertChildNode(0 if top else -1, new_node)\nparent.removeChildNode(node)\nnode is None 側の group.addLayer(layer) 経路は問題ありません。\n備考:\n消えた test_road はmemoryレイヤのため復元できません(検証用の repro_move レイヤが現在 Lines グループ内に残っています)\nバグ修正をこのまま適用しましょうか?適用後は hotReload または QGIS 再起動で反映されます"
+}

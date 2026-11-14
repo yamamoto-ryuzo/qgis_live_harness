@@ -1,0 +1,19 @@
+{
+ "id": "panel.history_persist",
+ "prompt": "チャット履歴の保存先を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "チャット履歴の保存先を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "AIチャットパネルの履歴は以下に保存されます。\n\n- **`C:\\Users\\ryu.RYU-NOTE\\.qgis-live\\chats.json`** — 最新50件まで永続化\n\n関連する別系統の履歴:\n\n- `C:\\devin\\agent\\chats.json` — dispatcher 内蔵チャット(エンジン実行セッション)\n- Devin ACP セッションの履歴は Devin 側が管理(再開は session_id 経由)"
+  }
+ ],
+ "tools": [],
+ "audit": [],
+ "view_tail": "[あなた] チャット履歴の保存先を教えて\n[AI] \nAIチャットパネルの履歴は以下に保存されます。\nC:\\Users\\ryu.RYU-NOTE\\.qgis-live\\chats.json — 最新50件まで永続化\n関連する別系統の履歴:\nC:\\devin\\agent\\chats.json — dispatcher 内蔵チャット(エンジン実行セッション)\nDevin ACP セッションの履歴は Devin 側が管理(再開は session_id 経由)"
+}

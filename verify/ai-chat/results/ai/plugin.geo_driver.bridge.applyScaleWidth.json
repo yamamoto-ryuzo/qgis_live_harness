@@ -1,0 +1,47 @@
+{
+ "id": "plugin.geo_driver.bridge.applyScaleWidth",
+ "prompt": "geo_driver プラグインの「applyScaleWidth」(レイヤのレンダラに標準線幅を適用する。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_driver プラグインの「applyScaleWidth」(レイヤのレンダラに標準線幅を適用する。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "レイヤが0件ですが、dry-run（プレビュー）で試してみます。テスト用のメモリ線レイヤを作成して試します。dry-run 成功。今度は実際に適用します。`applyScaleWidth` を試しました。プロジェクトにレイヤが無かったため、テスト用メモリ線レイヤ `test_road`（3地物）を作成してアクティブ化した上で実行しています。\n\n**dry-run（dry=True）→ 本適用（dry=False）ともに成功**:\n\n- **layer**: test_road（レイヤ名から `category: road` を自動推定）\n- **縮尺**: 約 1:19,529 → バンド「〜1:25,000」\n- **適用線幅**: 0.4 mm（base_mm 0.4 × factor 1.0）\n- **実幅相当**: real_width_m 6.0 m / 現縮尺換算 約 7.8 m\n- **symbols**: 1 個のシンボルへ適用\n\n**検証**: レンダラのシンボル幅が実際に `0.4 mm` に設定されていることを確認しました。\n\n補足: `mode='mm'`（紙面幅固定）で試しました。他に `'meters'`（実世界幅でズーム連動）、`'rules'`（縮尺帯で切替わるルールレンダラ）があります。テストレイヤは残したままですが、不要なら削除します。"
+  }
+ ],
+ "tools": [
+  "bridge_call",
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"al = iface.activeLayer()\\nresult = {'active_layer': al.name() if al else None,\\n          'layer_count': len(QgsProject.instance().mapLayers()),\\n          'scale': iface.mapCanvas().scale()}\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'args': [None, None, None, 'mm', None, True], 'method': 'applyScaleWidth', 'plugin_id': 'geo_driver'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.core import QgsVectorLayer, QgsFeature, QgsGeometry, QgsPointXY\\nvl = QgsVectorLayer('LineString?crs=EPSG:3857', 'test_road', 'memory')\\npr = vl.dataProvider()\\nfor i in range(3):\\n    f = QgsFeature()\\n    f.setGeometry(QgsGeometry.fromPolylineXY([QgsPointXY(i*1000, 0), QgsPointXY(i*1000+800, 500)]))\\n    pr.addFeature(f)\\nvl.updateExtents()\\nQgsProject.instance().addMapLayer(vl)\\niface.setActiveLayer(vl)\\nresult = {'ok': True, 'layer_id': vl.id(), 'name': vl.name()}\"}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_driver', 'args': [None, None, None, 'mm', None, True], 'method': 'applyScaleWidth'}"
+  },
+  {
+   "type": "bridge_call",
+   "args": "{'plugin_id': 'geo_driver', 'method': 'applyScaleWidth', 'args': [None, None, None, 'mm', None, False]}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"al = iface.activeLayer()\\nsym = al.renderer().symbol()\\nresult = {'layer': al.name(), 'symbol_width_mm': sym.width(), 'width_unit': str(sym.outputUnit())}\"}"
+  }
+ ],
+ "view_tail": "[あなた] geo_driver プラグインの「applyScaleWidth」(レイヤのレンダラに標準線幅を適用する。)を試して。必要な引数は適当な値でよい\n[AI] \nレイヤが0件ですが、dry-run（プレビュー）で試してみます。テスト用のメモリ線レイヤを作成して試します。dry-run 成功。今度は実際に適用します。applyScaleWidth を試しました。プロジェクトにレイヤが無かったため、テスト用メモリ線レイヤ test_road（3地物）を作成してアクティブ化した上で実行しています。\ndry-run（dry=True）→ 本適用（dry=False）ともに成功:\nlayer: test_road（レイヤ名から category: road を自動推定）\n縮尺: 約 1:19,529 → バンド「〜1:25,000」\n適用線幅: 0.4 mm（base_mm 0.4 × factor 1.0）\n実幅相当: real_width_m 6.0 m / 現縮尺換算 約 7.8 m\nsymbols: 1 個のシンボルへ適用\n検証: レンダラのシンボル幅が実際に 0.4 mm に設定されていることを確認しました。\n補足: mode='mm'（紙面幅固定）で試しました。他に 'meters'（実世界幅でズーム連動）、'rules'（縮尺帯で切替わるルールレンダラ）があります。テストレイヤは残したままですが、不要なら削除します。"
+}

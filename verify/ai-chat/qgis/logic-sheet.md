@@ -1,6 +1,6 @@
 # QGIS 本体 — AI操作対象 ロジックシート
 
-- 生成: 2026-11-14T05:59:23+09:00
+- 生成: 2026-11-14T07:18:57+09:00
 - 機能数: 1274 qgis_action=754/ qgis_processing=469/ qgis_dock=23/ qgis_api=28
 
 ## トポロジ
@@ -54,7 +54,7 @@ flowchart TD
 | `qgis.action.mActionUndo` | 元に戻す(U) | exists_only | pass |
 | `qgis.action.mActionRedo` | やり直す(R) | exists_only | pass |
 | `qgis.action.mActionCutFeatures` | 地物を切り取り | exists_only | pass |
-| `qgis.action.mActionCopyFeatures` | 地物をコピー | action_trigger | pass |
+| `qgis.action.mActionCopyFeatures` | 地物をコピー | action_trigger | skip |
 | `qgis.action.mActionPasteFeatures` | 地物を貼り付け | exists_only | pass |
 | `qgis.action.mActionPasteAsNewVector` | 新規ベクタレイヤ... | manual_only | skip |
 | `qgis.action.mActionPasteAsNewMemoryVector` | 一時スクラッチレイヤ... | manual_only | skip |
@@ -115,7 +115,7 @@ flowchart TD
 | `qgis.action.mActionStatisticalSummary` | 統計サマリー | action_trigger | pass |
 | `qgis.action.mActionZoomFullExtent` | 全域表示(F) | exists_only | pass |
 | `qgis.action.mActionZoomToSelected` | 選択部分にズーム(S) | action_trigger | pass |
-| `qgis.action.mActionZoomToLayers` | レイヤの領域にズーム(L) | action_trigger | pass |
+| `qgis.action.mActionZoomToLayers` | レイヤの領域にズーム(L) | action_trigger | skip |
 | `qgis.action.mActionZoomActualSize` | ネイティブ解像度にズーム（100%） | exists_only | pass |
 | `qgis.action.mActionZoomLast` | 前の領域へズーム | action_trigger | pass |
 | `qgis.action.mActionZoomNext` | 次の表示領域にズーム | action_trigger | pass |
@@ -144,6 +144,7 @@ flowchart TD
 | `qgis.action.mActionToggleSelectedLayers` | 選択レイヤを切り替え | exists_only | pass |
 | `qgis.action.mActionToggleSelectedLayersIndependently` | 選択レイヤを個別切り替え | exists_only | pass |
 | `qgis.action.mActionHideDeselectedLayers` | 選択されてないレイヤを隠す | exists_only | pass |
+| `qgis.action.AI` | AI アシスタント | action_trigger | pass |
 | `qgis.action.GPS` | GPS情報 | action_trigger | pass |
 | `qgis.action.noname` | タイルスケール | action_trigger | pass |
 | `qgis.action.noname` | デバッグ開発ツール | action_trigger | pass |
@@ -162,9 +163,6 @@ flowchart TD
 | `qgis.action.noname` | 全体図 | action_trigger | pass |
 | `qgis.action.noname` | 頂点エディタ | action_trigger | pass |
 | `qgis.action.noname` | 統計 | action_trigger | pass |
-| `qgis.action.AI` | AI アシスタント | action_trigger | pass |
-| `qgis.action.noname` | レポート | action_trigger | pass |
-| `qgis.action.noname` | 地物情報結果 | action_trigger | pass |
 | `qgis.action.mActionToggleWebToolBar` | Webツールバー | action_trigger | pass |
 | `qgis.action.mActionToggleShapeDigitizeToolBar` | シェープデジタイジングツールバー | action_trigger | pass |
 | `qgis.action.mActionToggleSnappingToolBar` | スナップツールバー | action_trigger | pass |
@@ -377,10 +375,6 @@ flowchart TD
 | `qgis.action.dbManager` | DBマネージャ... | exists_only | pass |
 | `qgis.action.action_run` | MetaSearch | exists_only | pass |
 | `qgis.action.action_help` | Help | exists_only | pass |
-| `qgis.action.Qgis2threejsExporterEmb` | Qgis2threejs Exporter | manual_only | skip |
-| `qgis.action.Qgis2threejsExporterBrw` | Qgis2threejs Exporter (Browser Preview) | manual_only | skip |
-| `qgis.action.Qgis2threejsExporterWoP` | Qgis2threejs Exporter (No Preview) | manual_only | skip |
-| `qgis.action.Create_web_map` | Create web map | exists_only | pass |
 | `qgis.action.mActionShowMeshCalculator` | メッシュ計算機... | exists_only | pass |
 | `qgis.action.mActionReindexMesh` | 面と点を再インデックス化 | exists_only | pass |
 | `qgis.action.Animate_Lines` | Animate Lines | exists_only | pass |
@@ -425,8 +419,6 @@ flowchart TD
 | `qgis.action.mActionQgisHomePage` | QGISのホームページ | exists_only | pass |
 | `qgis.action.mActionCheckQgisVersion` | QGISのバージョン情報 | exists_only | pass |
 | `qgis.action.mActionAbout` | QGISについて | manual_only | skip |
-| `qgis.action.noname_noname` | フィルタ式を編集 | exists_only | pass |
-| `qgis.action.noname_noname` | フィルタ式をクリア | exists_only | pass |
 | `qgis.action.mActionAddLayers` | レイヤを追加 | exists_only | pass |
 | `qgis.action.mActionRefresh` | 再読み込み | action_trigger | pass |
 | `qgis.action.mActionShowFilter` | ブラウザのフィルタ | action_trigger | pass |
@@ -437,13 +429,13 @@ flowchart TD
 | `qgis.action.Normal` | 通常（Normal） | exists_only | pass |
 | `qgis.action.noname_noname` | ワイルドカード | exists_only | pass |
 | `qgis.action.noname_noname` | 正規表現 | exists_only | pass |
-| `qgis.action.mFloaterAction` | Floater settings | action_trigger | pass |
-| `qgis.action.mConstructionAction` | 作図 | action_trigger | pass |
+| `qgis.action.mFloaterAction` | Floater settings | action_trigger | skip |
+| `qgis.action.mConstructionAction` | 作図 | action_trigger | skip |
 | `qgis.action.mEnableAction` | mEnableAction | action_trigger | pass |
-| `qgis.action.mConstructionModeAction` | mConstructionModeAction | action_trigger | pass |
+| `qgis.action.mConstructionModeAction` | mConstructionModeAction | action_trigger | skip |
 | `qgis.action.mParallelAction` | mParallelAction | action_trigger | skip |
 | `qgis.action.mPerpendicularAction` | mPerpendicularAction | action_trigger | skip |
-| `qgis.action.mToolsAction` | mToolsAction | action_trigger | pass |
+| `qgis.action.mToolsAction` | mToolsAction | action_trigger | skip |
 | `qgis.action.mSettingsAction` | mSettingsAction | manual_only | skip |
 | `qgis.action.Snapping_Priority` | Snapping Priority | exists_only | pass |
 | `qgis.action.Prioritize_Snapping_to_Features` | Prioritize Snapping to Features | exists_only | pass |
@@ -482,7 +474,7 @@ flowchart TD
 | `qgis.action.Show_Ellipsoidal_Lengths` | Show Ellipsoidal Lengths | exists_only | pass |
 | `qgis.action.Show_Cartesian_Lengths` | Show Cartesian Lengths | exists_only | pass |
 | `qgis.action.Show_Weight` | Show Weight | exists_only | pass |
-| `qgis.action.mActionZoomToLayer` | レイヤの領域にズーム(L) | action_trigger | pass |
+| `qgis.action.mActionZoomToLayer` | レイヤの領域にズーム(L) | action_trigger | skip |
 | `qgis.action.mActionLocalHistogramStretch` | ヒストグラムを表示領域の値で引きのばす | exists_only | pass |
 | `qgis.action.mActionMoveLabel` | ラベルとダイアグラム、引出し線を移動 | action_trigger | pass |
 | `qgis.action.mActionRotateLabel` | ラベルを回転 | action_trigger | pass |
@@ -637,6 +629,8 @@ flowchart TD
 | `qgis.action.noname_noname` | 自動的にプロジェクトを開く | manual_only | skip |
 | `qgis.action.Copy` | Copy | exists_only | pass |
 | `qgis.action.noname_noname` | 頂点エディタを表示 | exists_only | pass |
+| `qgis.action.noname_noname` | フィルタ式を編集 | exists_only | pass |
+| `qgis.action.noname_noname` | フィルタ式をクリア | exists_only | pass |
 | `qgis.action.noname_noname` | グループ追加 | exists_only | pass |
 | `qgis.action.noname_noname` | コンテンツで凡例を絞り込む | exists_only | pass |
 | `qgis.action.noname_noname` | プライベートレイヤを表示 | exists_only | pass |
@@ -696,6 +690,7 @@ flowchart TD
 | `qgis.action.mActionTextAnnotationinRectangle` | Text Annotation in Rectangleを作成 | action_trigger | pass |
 | `qgis.action.mActionPictureAnnotation` | Picture Annotationを作成 | action_trigger | pass |
 | `qgis.action.QGIS_Live_Driver` | QGIS Live Driver | exists_only | pass |
+| `qgis.action.noname_noname` | ホットリロード | exists_only | pass |
 | `qgis.action.geo_excel` | geo_excel | exists_only | pass |
 | `qgis.action.geo_import_geo_import` | geo_import | manual_only | skip |
 | `qgis.action.geo_launcher` | geo_launcher | exists_only | pass |
@@ -709,9 +704,6 @@ flowchart TD
 | `qgis.action.MOJXML_Loader` | MOJXML Loader | exists_only | pass |
 | `qgis.action.PLATEAU_3D` | PLATEAU 3D都市モデルを読み込む | exists_only | pass |
 | `qgis.action.QFieldSync_QFieldSync` | QFieldSync | exists_only | pass |
-| `qgis.action.Qgis2threejsExporter` | Qgis2threejs Exporter | manual_only | skip |
-| `qgis.action.Qgis2threejs` | Qgis2threejs | exists_only | pass |
-| `qgis.action.qgis2web` | qgis2web | exists_only | pass |
 | `qgis.action.Quick_DEM_for_JP` | Quick DEM for JP | exists_only | pass |
 | `qgis.action.Search_Layers` | Search Layers | exists_only | pass |
 | `qgis.action.StreetView_StreetView` | StreetView | exists_only | pass |
@@ -728,13 +720,6 @@ flowchart TD
 | `qgis.action.optionsAction` | オプション | manual_only | skip |
 | `qgis.action.mProcessingAlg_native_selectbylocation` | 場所による選択 | exists_only | pass |
 | `qgis.action.mProcessingAlg_native_selectwithindistance` | 一定距離以内の地物を選択 | exists_only | pass |
-| `qgis.action.actionAdd` | 追加 | exists_only | pass |
-| `qgis.action.actionDelete` | 削除 | manual_only | skip |
-| `qgis.action.actionZoomTo` | ズーム | exists_only | pass |
-| `qgis.action.actionExport` | Export | manual_only | skip |
-| `qgis.action.actionImport` | Import | manual_only | skip |
-| `qgis.action.noname_noname` | ホットリロード | exists_only | pass |
-| `qgis.action.noname_noname` | 凡例表示 | exists_only | pass |
 | `qgis.action.noname_noname` | 属性テーブルを表示 | exists_only | pass |
 | `qgis.action.mActionDigitizing` | メッシュ要素をデジタイズ | action_trigger | skip |
 | `qgis.action.ActionMeshSelectByPolygon` | ポリゴンによるメッシュ要素選択 | action_trigger | skip |
@@ -751,19 +736,34 @@ flowchart TD
 | `qgis.action.mActionRemoveVerticesWithoutFillingHole` | mActionRemoveVerticesWithoutFillingHole | exists_only | pass |
 | `qgis.action.mActionRemoveFaces` | 現在の面を削除 | manual_only | skip |
 | `qgis.action.mActionSplitFaces` | 現在の面を分割 | exists_only | pass |
-| `qgis.action.mExpandAction` | ツリーを展開する | exists_only | pass |
-| `qgis.action.mCollapseAction` | ツリーを折りたたむ | exists_only | pass |
-| `qgis.action.mExpandNewAction` | 結果を展開する | action_trigger | pass |
-| `qgis.action.mOpenFormAction` | フォームを開く | manual_only | skip |
-| `qgis.action.mClearResultsAction` | 結果をクリア | exists_only | pass |
-| `qgis.action.mActionCopy` | 地物をコピー | exists_only | pass |
-| `qgis.action.mActionPrint` | レスポンスの印刷 | manual_only | skip |
-| `qgis.action.mActionSelectFeaturesOnMouseOver` | Identify Feature on Mouse Over | action_trigger | pass |
-| `qgis.action.mActionAutoFeatureForm` | 単一地物の場合、自動でフォームを開く | manual_only | skip |
-| `qgis.action.mActionHideDerivedAttributes` | 結果の派生属性を隠す | action_trigger | pass |
-| `qgis.action.mActionShowRelations` | Show Relations | action_trigger | pass |
-| `qgis.action.mHelpToolAction` | ヘルプ | exists_only | pass |
-| `qgis.action.mActionHideNullValues` | 結果のNULL値を隠す | action_trigger | pass |
+| `qgis.action.actionAdd` | 追加 | exists_only | pass |
+| `qgis.action.actionDelete` | 削除 | manual_only | skip |
+| `qgis.action.actionZoomTo` | ズーム | exists_only | pass |
+| `qgis.action.actionExport` | Export | manual_only | skip |
+| `qgis.action.actionImport` | Import | manual_only | skip |
+| `qgis.action.noname` | 配置モード | exists_only | removed |
+| `qgis.action.noname` | 凡例 | exists_only | removed |
+| `qgis.action.noname_noname` | 属性テーブルを表示 | exists_only | removed |
+| `qgis.action.Qgis2threejsExporterEmb` | Qgis2threejs Exporter | manual_only | removed |
+| `qgis.action.Qgis2threejsExporterBrw` | Qgis2threejs Exporter (Browser Preview) | manual_only | removed |
+| `qgis.action.Qgis2threejsExporterWoP` | Qgis2threejs Exporter (No Preview) | manual_only | removed |
+| `qgis.action.Create_web_map` | Create web map | exists_only | removed |
+| `qgis.action.Qgis2threejsExporter` | Qgis2threejs Exporter | manual_only | removed |
+| `qgis.action.Qgis2threejs` | Qgis2threejs | exists_only | removed |
+| `qgis.action.qgis2web` | qgis2web | exists_only | removed |
+| `qgis.action.mExpandAction` | ツリーを展開する | exists_only | removed |
+| `qgis.action.mCollapseAction` | ツリーを折りたたむ | exists_only | removed |
+| `qgis.action.mExpandNewAction` | 結果を展開する | action_trigger | removed |
+| `qgis.action.mOpenFormAction` | フォームを開く | manual_only | removed |
+| `qgis.action.mClearResultsAction` | 結果をクリア | exists_only | removed |
+| `qgis.action.mActionCopy` | 地物をコピー | exists_only | removed |
+| `qgis.action.mActionPrint` | レスポンスの印刷 | manual_only | removed |
+| `qgis.action.mActionSelectFeaturesOnMouseOver` | Identify Feature on Mouse Over | action_trigger | removed |
+| `qgis.action.mActionAutoFeatureForm` | 単一地物の場合、自動でフォームを開く | manual_only | removed |
+| `qgis.action.mActionHideDerivedAttributes` | 結果の派生属性を隠す | action_trigger | removed |
+| `qgis.action.mActionShowRelations` | Show Relations | action_trigger | removed |
+| `qgis.action.mHelpToolAction` | ヘルプ | exists_only | removed |
+| `qgis.action.mActionHideNullValues` | 結果のNULL値を隠す | action_trigger | removed |
 | `qgis.action.Show_Location` | Show Location | exists_only | removed |
 | `qgis.action.Show_Altitude_Geoid` | Show Altitude (Geoid) | exists_only | removed |
 | `qgis.action.Show_Altitude_WGS-84_Ellipsoid` | Show Altitude (WGS-84 Ellipsoid) | exists_only | removed |
@@ -1256,16 +1256,15 @@ flowchart TD
 | `qgis.proc.qgis_variabledistancebuffer` | 可変距離バッファ | proc_meta | pass |
 | `qgis.proc.qgis_vectorlayerhistogram` | ベクタレイヤのヒストグラム | proc_meta | pass |
 | `qgis.proc.qgis_vectorlayerscatterplot` | ベクタレイヤの散布図 | proc_meta | pass |
-| `qgis.proc.qgis2web_exportProject` | Export project | proc_meta | pass |
-| `qgis.proc.qgis2web_exportRasterLayer` | Export raster layer | proc_meta | pass |
-| `qgis.proc.qgis2web_exportVectorLayer` | Export vector layer | proc_meta | pass |
 | `qgis.proc.quickdemforjp_quickdemforjp` | XMLファイルからDEMを読み込む | proc_meta | pass |
+| `qgis.proc.qgis2web_exportProject` | Export project | proc_meta | removed |
+| `qgis.proc.qgis2web_exportRasterLayer` | Export raster layer | proc_meta | removed |
+| `qgis.proc.qgis2web_exportVectorLayer` | Export vector layer | proc_meta | removed |
 
 ### qgis_dock (23件)
 
 | id | name | check | result |
 |---|---|---|---|
-| `qgis.dock.Layers` | レイヤ | dock_toggle | pass |
 | `qgis.dock.Browser` | ブラウザ | dock_toggle | pass |
 | `qgis.dock.LayerOrder` | レイヤ順序 | dock_toggle | pass |
 | `qgis.dock.AdvancedDigitizingTools` | 高度なデジタイズ | dock_toggle | pass |
@@ -1273,6 +1272,7 @@ flowchart TD
 | `qgis.dock.undo_redo_dock` | 元に戻す/やり直す | dock_toggle | pass |
 | `qgis.dock.StatisticalSummaryDockWidget` | 統計 | dock_toggle | pass |
 | `qgis.dock.VertexEditor` | 頂点エディタ | dock_toggle | pass |
+| `qgis.dock.Layers` | レイヤ | dock_toggle | pass |
 | `qgis.dock.QgsGeometryValidationDockBase` | ジオメトリ検証 | dock_toggle | pass |
 | `qgis.dock.LayerStyling` | レイヤスタイル | dock_toggle | pass |
 | `qgis.dock.DevTools` | デバッグ開発ツール | dock_toggle | pass |
@@ -1280,14 +1280,14 @@ flowchart TD
 | `qgis.dock.Browser2` | ブラウザ(2) | dock_toggle | pass |
 | `qgis.dock.GPSInformation` | GPS情報 | dock_toggle | pass |
 | `qgis.dock.MessageLog` | ログメッセージ | dock_toggle | pass |
+| `qgis.dock.GeoDriverAiPanel` | AI アシスタント | dock_toggle | pass |
 | `qgis.dock.ProcessingToolbox` | プロセシングツールボックス | dock_toggle | pass |
 | `qgis.dock.ResultsViewer` | 結果ビューア | dock_toggle | pass |
 | `qgis.dock.BookmarksDockWidget` | 空間ブックマークマネージャ | dock_toggle | pass |
 | `qgis.dock.theTileScaleDock` | タイルスケール | dock_toggle | pass |
-| `qgis.dock.GeoDriverAiPanel` | AI アシスタント | dock_toggle | pass |
-| `qgis.dock.LegendViewDockWidgetBase` | 凡例表示 | dock_toggle | pass |
-| `qgis.dock.GeoReportLayoutSelectorPanel` | レポート | dock_toggle | pass |
-| `qgis.dock.IdentifyResultsDock` | 地物情報結果 | dock_toggle | pass |
+| `qgis.dock.LegendViewDockWidgetBase` | 凡例表示 | dock_toggle | removed |
+| `qgis.dock.GeoReportLayoutSelectorPanel` | レポート | dock_toggle | removed |
+| `qgis.dock.IdentifyResultsDock` | 地物情報結果 | dock_toggle | removed |
 
 ### qgis_api (28件)
 

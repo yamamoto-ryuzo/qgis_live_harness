@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_launcher.bridge.openDocs",
+ "prompt": "QGISの geo_launcher プラグインで「openDocs」を実行して結果を教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの geo_launcher プラグインで「openDocs」を実行して結果を教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "実行しました。結果:\n\n- **ok: true / opened: true** — ドキュメントサイトをブラウザで開きました\n- **URL**: https://yamamoto-ryuzo.github.io/kasugai_qgis/\n\nkasugai_qgis ランチャーのドキュメントが既定のブラウザで開かれています。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'args': [], 'method': 'openDocs', 'plugin_id': 'geo_launcher'}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの geo_launcher プラグインで「openDocs」を実行して結果を教えて\n[AI] \n実行しました。結果:\nok: true / opened: true — ドキュメントサイトをブラウザで開きました\nURL: https://yamamoto-ryuzo.github.io/kasugai_qgis/\nkasugai_qgis ランチャーのドキュメントが既定のブラウザで開かれています。"
+}

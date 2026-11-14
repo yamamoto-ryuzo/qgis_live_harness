@@ -1,7 +1,7 @@
 # geo_import — 完全ロジックシート
 
 - 種別: qgis_plugin / バージョン: 2.10.11
-- 生成: 2026-11-14T02:32:22+09:00 / 機能数: 78
+- 生成: 2026-11-14T07:09:57+09:00 / 機能数: 78
 
 ## トポロジ
 
@@ -113,7 +113,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — standalone経路のみ(要runtime依存無し)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone経路のみ(要runtime依存無し)
 
 ### action.DataFetchThread.run — run
 
@@ -130,7 +130,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.GeoImport.initGui — initGui
 
@@ -147,7 +147,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.GeoImport.run — run
 
@@ -164,7 +164,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.GeoImport.unload — unload
 
@@ -181,7 +181,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.GeoImportDialog — GeoImportDialog
 
@@ -198,7 +198,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.GeoImportDialogDataProviders — GeoImportDialogDataProviders
 
@@ -215,7 +215,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.GeoImportDialogDisclaimer — GeoImportDialogDisclaimer
 
@@ -232,7 +232,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.GeoImportDialogSettings — GeoImportDialogSettings
 
@@ -249,7 +249,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialog._on_data_ready — _on_data_ready
 
@@ -266,7 +266,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialog._on_org_layers_added — _on_org_layers_added
 
@@ -283,7 +283,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialog.category_item_clicked — category_item_clicked
 
@@ -300,7 +300,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialog.list_all_clicked — list_all_clicked
 
@@ -317,7 +317,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialog.list_group_item_changed — list_group_item_changed
 
@@ -334,7 +334,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialog.load_resource_clicked — load_resource_clicked
 
@@ -351,7 +351,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialog.next_page_clicked — next_page_clicked
 
@@ -368,7 +368,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialog.on_IDC_bSelectAllResources_clicked — on_IDC_bSelectAllResources_clicked
 
@@ -385,7 +385,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialog.previous_page_clicked — previous_page_clicked
 
@@ -402,7 +402,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialog.refresh_sqlite_clicked — refresh_sqlite_clicked
 
@@ -419,7 +419,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialog.resource_item_changed — resource_item_changed
 
@@ -436,7 +436,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialog.select_data_provider_clicked — select_data_provider_clicked
 
@@ -453,7 +453,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialogDataProviders.item_checked_changed — item_checked_changed
 
@@ -470,7 +470,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialogDataProviders.save_btn_clicked — save_btn_clicked
 
@@ -487,7 +487,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoImportDialogDataProviders.server_in_list_clicked — server_in_list_clicked
 
@@ -504,7 +504,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### bridge.addServer — addServer
 
@@ -521,7 +521,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call addServer → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'name and url required'}
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'name and url required'}
 
 ### bridge.checkGroups — checkGroups
 
@@ -538,7 +538,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call checkGroups → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.checkResources — checkResources
 
@@ -555,7 +555,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call checkResources → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.closeDialog — closeDialog
 
@@ -572,7 +572,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call closeDialog → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.datasetDetails — datasetDetails
 
@@ -589,7 +589,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call datasetDetails → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.formatFilter — formatFilter
 
@@ -606,7 +606,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call formatFilter → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.getSettings — getSettings
 
@@ -623,7 +623,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call getSettings → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.gotoPage — gotoPage
 
@@ -640,7 +640,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call gotoPage → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.link — link
 
@@ -657,7 +657,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call link → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.listGroups — listGroups
 
@@ -674,7 +674,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call listGroups → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.listServers — listServers
 
@@ -691,7 +691,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call listServers → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.loadSelected — loadSelected
 
@@ -708,7 +708,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call loadSelected → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.localCache — localCache
 
@@ -725,7 +725,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call localCache → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.nextPage — nextPage
 
@@ -742,7 +742,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call nextPage → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.openDialog — openDialog
 
@@ -759,7 +759,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openDialog → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.openDisclaimer — openDisclaimer
 
@@ -776,7 +776,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openDisclaimer → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.openProviders — openProviders
 
@@ -793,7 +793,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openProviders → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.openSettings — openSettings
 
@@ -810,7 +810,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openSettings → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.pluginInfo — pluginInfo
 
@@ -827,7 +827,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.prevPage — prevPage
 
@@ -844,7 +844,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call prevPage → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.refreshCache — refreshCache
 
@@ -861,7 +861,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call refreshCache → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.reload — reload
 
@@ -878,7 +878,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call reload → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.removeServer — removeServer
 
@@ -895,7 +895,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call removeServer → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.resources — resources
 
@@ -912,7 +912,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call resources → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.results — results
 
@@ -929,7 +929,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call results → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.search — search
 
@@ -946,7 +946,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call search → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.selectResult — selectResult
 
@@ -963,7 +963,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call selectResult → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[0]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[0]
 
 ### bridge.selectResults — selectResults
 
@@ -980,7 +980,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call selectResults → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.selectServers — selectServers
 
@@ -997,7 +997,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call selectServers → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.setSettings — setSettings
 
@@ -1014,7 +1014,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call setSettings → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.status — status
 
@@ -1031,7 +1031,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call status → 応答assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
 
 ### bridge.testServer — testServer
 
@@ -1048,7 +1048,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call testServer → 応答assert
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### integration.geo_import_dialog.py:1660 — requests.get
 
@@ -1065,7 +1065,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.httpcall.py:139 — QgsNetworkAccessManager.instance
 
@@ -1082,7 +1082,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.util.py:1251 — subprocess.Popen
 
@@ -1099,7 +1099,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.util.py:1253 — subprocess.Popen
 
@@ -1116,7 +1116,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.util.py:1257 — subprocess.Popen
 
@@ -1133,7 +1133,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.util.py:229 — subprocess.call
 
@@ -1150,7 +1150,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.util.py:901 — subprocess.call
 
@@ -1167,7 +1167,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.util.py:907 — subprocess.call
 
@@ -1184,7 +1184,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### ai.bridge_route — bridge_call経由全到達
 
@@ -1201,7 +1201,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call 全method→ok/error記録
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 25メソッド到達可能
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 25メソッド到達可能
 
 ### ai.catalog — describe_plugins登録
 
@@ -1218,7 +1218,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=describe_plugins→plugins[]にid実在+methods非空
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — describe_plugins: methods=31
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — describe_plugins: methods=31
 
 ### ai.pluginInfo — pluginInfo自己記述
 
@@ -1235,7 +1235,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo→メタ一致assert
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 自己記述あり
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 自己記述あり
 
 ### logic_fn.clipboard.py:copy — copy
 
@@ -1252,7 +1252,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.geo_import_dialog.py:fetch_page_from_db — fetch_page_from_db
 
@@ -1269,7 +1269,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.mlit_xml_checker.py:diagnose_xml_type — diagnose_xml_type
 
@@ -1285,7 +1285,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
 
 ### logic_fn.mlit_xml_checker.py:main — main
 
@@ -1301,7 +1301,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
 
 ### logic_fn.mlit_xml_checker.py:test_all_xml_types — test_all_xml_types
 
@@ -1317,7 +1317,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
 
 ### logic_fn.save_ckan_to_sqlite.py:save_ckan_groups_to_sqlite — save_ckan_groups_to_sqlite
 
@@ -1333,7 +1333,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
 
 ### logic_fn.save_ckan_to_sqlite.py:save_ckan_packages_to_sqlite — save_ckan_packages_to_sqlite
 
@@ -1349,7 +1349,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
 
 ### logic_fn.xml_attribute_loader.py:diagnose_mlit_xml — diagnose_mlit_xml
 
@@ -1366,7 +1366,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.xml_attribute_loader.py:print_mlit_xml_diagnosis — print_mlit_xml_diagnosis
 
@@ -1383,7 +1383,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.xml_diagnostics.py:diagnose_xml_file — diagnose_xml_file
 
@@ -1399,7 +1399,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
 
 ### logic_fn.xml_diagnostics.py:print_diagnosis — print_diagnosis
 
@@ -1415,7 +1415,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T02:32:22+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
 
 ## 検証マトリクス
 

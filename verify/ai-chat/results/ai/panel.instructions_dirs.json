@@ -1,0 +1,19 @@
+{
+ "id": "panel.instructions_dirs",
+ "prompt": "指示書ファイルの配置ディレクトリを教えて",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "指示書ファイルの配置ディレクトリを教えて"
+  },
+  {
+   "role": "assistant",
+   "content": "指示書ファイルは以下に配置されます。\n\n- `C:\\Users\\ryu.RYU-NOTE\\.qgis-live\\agents\\` — 常時適用する指示\n- `C:\\Users\\ryu.RYU-NOTE\\.qgis-live\\skills\\` — 手順・スキル\n- `C:\\Users\\ryu.RYU-NOTE\\.qgis-live\\prompts\\` — 定型プロンプト\n\n保存すると `~/.qgis-live/<kind>/<name>.md` に書き込まれます。"
+  }
+ ],
+ "tools": [],
+ "audit": [],
+ "view_tail": "[あなた] 指示書ファイルの配置ディレクトリを教えて\n[AI] \n指示書ファイルは以下に配置されます。\nC:\\Users\\ryu.RYU-NOTE\\.qgis-live\\agents\\ — 常時適用する指示\nC:\\Users\\ryu.RYU-NOTE\\.qgis-live\\skills\\ — 手順・スキル\nC:\\Users\\ryu.RYU-NOTE\\.qgis-live\\prompts\\ — 定型プロンプト\n保存すると ~/.qgis-live/<kind>/<name>.md に書き込まれます。"
+}

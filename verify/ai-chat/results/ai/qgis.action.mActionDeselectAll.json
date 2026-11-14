@@ -1,0 +1,26 @@
+{
+ "id": "qgis.action.mActionDeselectAll",
+ "prompt": "QGISの「全レイヤの選択を解除」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「全レイヤの選択を解除」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "`mActionDeselectAll` を実行して選択解除を確認します。「全レイヤの選択を解除」(`mActionDeselectAll`)を実行しました。\n\n- **実行前**: `repro_move` で1地物選択中\n- **実行**: `trigger()`\n- **実行後**: 選択数 **0** — 全レイヤの選択が解除されました(プロジェクト内の全レイヤで選択数0を確認)\n\n正常に動作しています。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\nlyr = QgsProject.instance().mapLayersByName('repro_move')[0]\\nbefore = lyr.selectedFeatureCount()\\na = next(x for x in iface.mainWindow().findChildren(QAction) if x.objectName()=='mActionDeselectAll')\\na.trigger()\\nafter = lyr.selectedFeatureCount()\\n# 全レイヤの選択状態も確認\\nall_sel = {l.name(): l.selectedFeatureCount() for l in QgsProject.instance().mapLayers().values() if hasattr(l,'selectedFeatureCount')}\\nresult = {'before': before, 'after': after, 'all_layers': all_sel}\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「全レイヤの選択を解除」機能(アクション)を実行して\n[AI] \nmActionDeselectAll を実行して選択解除を確認します。「全レイヤの選択を解除」(mActionDeselectAll)を実行しました。\n実行前: repro_move で1地物選択中\n実行: trigger()\n実行後: 選択数 0 — 全レイヤの選択が解除されました(プロジェクト内の全レイヤで選択数0を確認)\n正常に動作しています。"
+}

@@ -1,0 +1,26 @@
+{
+ "id": "plugin.geo_driver.bridge.layerOrgRules",
+ "prompt": "geo_driver プラグインの「layerOrgRules」(プロファイルのルール一覧を返す(省略時=アクティブ)。)を試して。必要な引数は適当な値でよい",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "geo_driver プラグインの「layerOrgRules」(プロファイルのルール一覧を返す(省略時=アクティブ)。)を試して。必要な引数は適当な値でよい"
+  },
+  {
+   "role": "assistant",
+   "content": "`layerOrgRules`（引数省略 → アクティブプロファイル `default`）の実行結果です。\n\n**プロファイル**: default — Generic layout（`enabled: true`）\n- **ルートグループ**: `Imported Data` / **フォールバック**: `Other`\n\n**ルール一覧（8件・上から順に適用）**:\n\n| # | 条件 (match) | 振り分け先グループ |\n|---|---|---|\n| 1 | format: wms / wmts / wfs / xyz / georss | `Services` |\n| 2 | provider: wms / wcs | `Services` |\n| 3 | vector + point | `Vector/Points` |\n| 4 | vector + line | `Vector/Lines` |\n| 5 | vector + polygon | `Vector/Polygons` |\n| 6 | vector（その他） | `Vector/Other` |\n| 7 | raster | `Raster` |\n| 8 | mesh / pointcloud / vector_tile | `Other` |\n\nどのルールにも rename/style の指定はありません。実際の振り分けは `organizeLayers`（`dry=True` でプレビュー可）で実行できます。"
+  }
+ ],
+ "tools": [
+  "bridge_call"
+ ],
+ "audit": [
+  {
+   "type": "bridge_call",
+   "args": "{'method': 'layerOrgRules', 'args': [], 'plugin_id': 'geo_driver'}"
+  }
+ ],
+ "view_tail": "[あなた] geo_driver プラグインの「layerOrgRules」(プロファイルのルール一覧を返す(省略時=アクティブ)。)を試して。必要な引数は適当な値でよい\n[AI] \nlayerOrgRules（引数省略 → アクティブプロファイル default）の実行結果です。\nプロファイル: default — Generic layout（enabled: true）\nルートグループ: Imported Data / フォールバック: Other\nルール一覧（8件・上から順に適用）:\n#\n条件 (match)\n振り分け先グループ\n1\nformat: wms / wmts / wfs / xyz / georss\nServices\n2\nprovider: wms / wcs\nServices\n3\nvector + point\nVector/Points\n4\nvector + line\nVector/Lines\n5\nvector + polygon\nVector/Polygons\n6\nvector（その他）\nVector/Other\n7\nraster\nRaster\n8\nmesh / pointcloud / vector_tile\nOther\n\nどのルールにも rename/style の指定はありません。実際の振り分けは organizeLayers（dry=True でプレビュー可）で実行できます。"
+}

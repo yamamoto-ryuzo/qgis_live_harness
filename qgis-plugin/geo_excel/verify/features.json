@@ -10,7 +10,7 @@
     "control": "POST /api/cmd Bearer <live_dir token>",
     "detected_from": "scripts/qgis-session.mjs, live_driver.py"
   },
-  "updated": "2026-11-14T02:32:22+09:00",
+  "updated": "2026-11-14T07:09:57+09:00",
   "features": [
     {
       "id": "entry_point.__init__.py:classFactory",
@@ -27,7 +27,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone経路のみ(要runtime依存無し)"
     },
     {
@@ -45,7 +45,7 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -63,7 +63,7 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -81,7 +81,7 @@
         "integrated": "openDialog→screenshot→closeDialog"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -102,7 +102,7 @@
         "integrated": "bridge_call applyDefaults → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -123,7 +123,7 @@
         "integrated": "bridge_call checkExcel → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -144,7 +144,7 @@
         "integrated": "bridge_call layerVariables → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -165,7 +165,7 @@
         "integrated": "bridge_call listScripts → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -186,7 +186,7 @@
         "integrated": "bridge_call openSettings → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -207,7 +207,7 @@
         "integrated": "bridge_call pluginInfo → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -228,7 +228,7 @@
         "integrated": "bridge_call regenerateTemplates → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -249,7 +249,7 @@
         "integrated": "bridge_call run → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -270,7 +270,7 @@
         "integrated": "bridge_call setLayerVariables → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -291,7 +291,7 @@
         "integrated": "bridge_call setSettings → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -312,7 +312,7 @@
         "integrated": "bridge_call settings → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -333,7 +333,7 @@
         "integrated": "bridge_call status → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -351,7 +351,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -369,7 +369,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -387,7 +387,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -405,7 +405,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -423,7 +423,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -441,7 +441,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -459,7 +459,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -477,7 +477,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -495,7 +495,7 @@
         "integrated": "bridge_call 全method→ok/error記録"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "8メソッド到達可能"
     },
     {
@@ -513,7 +513,7 @@
         "integrated": "describe_plugins→plugins[]にid実在+methods非空"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "describe_plugins: methods=11"
     },
     {
@@ -531,7 +531,7 @@
         "integrated": "bridge_call pluginInfo→メタ一致assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "自己記述あり"
     },
     {
@@ -549,7 +549,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -567,7 +567,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -585,7 +585,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -603,7 +603,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -621,7 +621,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -639,7 +639,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -657,7 +657,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -675,7 +675,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -693,7 +693,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -711,7 +711,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -729,7 +729,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -747,7 +747,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -765,7 +765,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -783,7 +783,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -801,7 +801,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -819,7 +819,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -837,7 +837,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -855,7 +855,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -873,7 +873,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -891,7 +891,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -909,7 +909,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -927,7 +927,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -945,7 +945,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -963,7 +963,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -981,7 +981,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -999,7 +999,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1017,7 +1017,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1035,7 +1035,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1053,7 +1053,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1071,7 +1071,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1089,7 +1089,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1107,7 +1107,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1125,7 +1125,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1143,7 +1143,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1161,7 +1161,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1179,7 +1179,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1197,7 +1197,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1215,7 +1215,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1233,7 +1233,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1251,7 +1251,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1269,7 +1269,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1287,7 +1287,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1305,7 +1305,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1323,7 +1323,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1341,7 +1341,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1359,7 +1359,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1377,7 +1377,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1395,7 +1395,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1413,7 +1413,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1431,7 +1431,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1449,7 +1449,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1467,7 +1467,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1485,7 +1485,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1503,7 +1503,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1521,7 +1521,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1539,7 +1539,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1557,7 +1557,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1575,7 +1575,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1593,7 +1593,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1611,7 +1611,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1629,7 +1629,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1647,7 +1647,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1665,7 +1665,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1683,7 +1683,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1701,7 +1701,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1719,7 +1719,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1737,7 +1737,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1755,7 +1755,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1773,7 +1773,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1791,7 +1791,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1809,7 +1809,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1827,7 +1827,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1845,7 +1845,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1863,7 +1863,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1881,7 +1881,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1899,7 +1899,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1917,7 +1917,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     },
     {
@@ -1935,7 +1935,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "exec用テンプレ(bridge run経由で検証)"
     }
   ],
@@ -1952,13 +1952,13 @@
       "rc": 0,
       "out": "[main]\tINFO\tUsing ini file for skipped tests\n[main]\tINFO\tUsing command line arg for selected targets\n[tester]\tWARNING\tnosec encountered (B112), but no failed test on file C:\\devin\\qgis_live_harness\\qgis-plugin\\geo_excel\\settings.py:151"
     },
-    "ran_at": "2026-11-14T02:32:22+09:00",
+    "ran_at": "2026-11-14T07:09:57+09:00",
     "reload": {
       "loaded": true,
       "opened": false,
       "plugins": [
+        "ImportPhotos",
         "MetaSearch",
-        "Qgis2threejs",
         "QuickDEM4JP",
         "StreetView",
         "db_manager",
@@ -1977,7 +1977,6 @@
         "plateau_plugin",
         "processing",
         "qfieldsync",
-        "qgis2web",
         "searchlayers"
       ]
     }

@@ -1,0 +1,43 @@
+{
+ "id": "qgis.action.mActionHtmlAnnotation",
+ "prompt": "QGISの「HTML注記」機能(アクション)を実行して",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "QGISの「HTML注記」機能(アクション)を実行して"
+  },
+  {
+   "role": "assistant",
+   "content": "`mActionHtmlAnnotation` を実行し、クリックでHTML注記を作成します。HTML注記が作成されました。内容を設定して表示確認します。注記ボックスは出ていますが中身が見えません。サイズやドキュメントを確認します。「HTML注記」(`mActionHtmlAnnotation`)を実行し、HTML注記の作成まで検証しました。\n\n## 実行結果\n\n1. **アクション実行** → `checked=true`、`QgsMapToolHtmlAnnotation` がアクティブ化\n2. **キャンバスクリック** → `QgsHtmlAnnotation` 型の注記アイテム(`QgsMapCanvasAnnotationItem`)が作成\n3. **内容設定**: `htmlSource` に `<b>HTML注記テスト</b><br/>Devinから作成` をセット\n   - 地図座標: (911.72, 970.79)、フレーム 50×25mm\n\n## 備考\n\nスクリーンショット上は吹き出しフレームのみ表示で、HTML本文が描画されていません。これはHTML注記のコンテンツがプロキシQWidget(内部ブラウザ相当)で描画されるためで、オフスクリーンのキャンバス画像取得には映らないケースと思われます。機能自体(注記作成・HTML設定・位置確定)はAPI上正常です。\n\n現在の状態:\n- キャンバス上に注記2件(フォーム注記 + HTML注記)\n- HTML注記ツールがアクティブ\n\n注記の削除や元のツールへの復帰が必要なら言ってください。"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QAction\\na = next(x for x in iface.mainWindow().findChildren(QAction) if x.objectName()=='mActionHtmlAnnotation')\\na.trigger()\\nresult = {'checked': a.isChecked(), 'map_tool': iface.mapCanvas().mapTool().metaObject().className()}\"}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtCore import QPointF, Qt, QEvent\\nfrom qgis.PyQt.QtGui import QMouseEvent\\nfrom qgis.PyQt.QtWidgets import QApplication\\ncanvas = iface.mapCanvas()\\npos = QPointF(int(canvas.width()/3), int(canvas.height()/3))\\nLB = Qt.MouseButton.LeftButton\\nNM = Qt.KeyboardModifier.NoModifier\\nQApplication.sendEvent(canvas.viewport(), QMouseEvent(QEvent.Type.MouseButtonPress, pos, LB, LB, NM))\\nQApplication.sendEvent(canvas.viewport(), QMouseEvent(QEvent.Type.MouseButtonRelease, pos, LB, Qt.MouseButton.NoButton, NM))\\n\\nitems = [i for i in canvas.scene().items() if type(i).__name__=='QgsMapCanvasAnnotationItem']\\nout=[]\\nfor it in items:\\n    try:\\n        ann = it.annotation()\\n        out.append({'type': type(ann).__name__ if not hasattr(ann,'metaObject') else ann.metaObject().className(),\\n                    'pos': [ann.mapPosition().x(), ann.mapPosition().y()],\\n                    'html': getattr(ann,'htmlSource',None)})\\n    except Exception as e:\\n        out.append("
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"canvas = iface.mapCanvas()\\nitems = [i for i in canvas.scene().items() if type(i).__name__=='QgsMapCanvasAnnotationItem']\\nfor it in items:\\n    ann = it.annotation()\\n    if type(ann).__name__ == 'QgsHtmlAnnotation':\\n        ann.setHtmlSource('<html><body><b>HTML注記テスト</b><br/>Devinから作成</body></html>')\\n        ann.setHasFixedMapPosition(True)\\n        src = ann.htmlSource()\\ncanvas.refresh()\\nresult = src\"}"
+  },
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-175fc1b3.png', 'target': 'canvas'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"canvas = iface.mapCanvas()\\nitems = [i for i in canvas.scene().items() if type(i).__name__=='QgsMapCanvasAnnotationItem']\\nout=[]\\nfor it in items:\\n    ann = it.annotation()\\n    d = {'type': type(ann).__name__}\\n    for m in ('htmlSource','frameSizeMm','frameOffsetFromReferencePointMm','contents'):\\n        try: d[m] = getattr(ann, m)()\\n        except Exception: pass\\n    try:\\n        d['bounding'] = str(it.boundingRect())\\n    except Exception: pass\\n    out.append(d)\\nresult = out\"}"
+  }
+ ],
+ "view_tail": "[あなた] QGISの「HTML注記」機能(アクション)を実行して\n[AI] \nmActionHtmlAnnotation を実行し、クリックでHTML注記を作成します。HTML注記が作成されました。内容を設定して表示確認します。注記ボックスは出ていますが中身が見えません。サイズやドキュメントを確認します。「HTML注記」(mActionHtmlAnnotation)を実行し、HTML注記の作成まで検証しました。\n実行結果\nアクション実行 → checked=true、QgsMapToolHtmlAnnotation がアクティブ化\nキャンバスクリック → QgsHtmlAnnotation 型の注記アイテム(QgsMapCanvasAnnotationItem)が作成\n内容設定: htmlSource に <b>HTML注記テスト</b><br/>Devinから作成 をセット \n地図座標: (911.72, 970.79)、フレーム 50×25mm\n備考\nスクリーンショット上は吹き出しフレームのみ表示で、HTML本文が描画されていません。これはHTML注記のコンテンツがプロキシQWidget(内部ブラウザ相当)で描画されるためで、オフスクリーンのキャンバス画像取得には映らないケースと思われます。機能自体(注記作成・HTML設定・位置確定)はAPI上正常です。\n現在の状態:\nキャンバス上に注記2件(フォーム注記 + HTML注記)\nHTML注記ツールがアクティブ\n注記の削除や元のツールへの復帰が必要なら言ってください。"
+}

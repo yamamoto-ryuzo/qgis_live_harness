@@ -13,8 +13,8 @@ code{background:#f5f5f5;padding:1px 4px}
 h1{font-size:1.4em}h2{font-size:1.1em;border-bottom:1px solid #ddd}
 </style></head><body>
 <h1>parse_responses_output <code>logic_fn.ai_client.py:parse_responses_output</code></h1>
-<p class='meta'>kind=logic_fn / source=<code>ai_client.py:878</code> / signature=<code>parse_responses_output(data)</code></p>
-<p>Responses API応答 → parse()と同じ {text,calls,raw,usage} に正規化。rawはchat形式assistant(append_exchange互換)。</p>
+<p class='meta'>kind=logic_fn / source=<code>ai_client.py:965</code> / signature=<code>parse_responses_output(data)</code></p>
+<p>Responses API応答 → parse()と同じ {&quot;text&quot;,&quot;calls&quot;,&quot;raw&quot;,&quot;usage&quot;}。</p>
 <h2>ロジック</h2>
 <pre class='mermaid'>
 flowchart LR
@@ -26,7 +26,7 @@ flowchart LR
 <li><b>単独:</b> <code>直接呼出して正規化結果をassert</code></li>
 <li><b>連携:</b> <code>pyeval で属性実在+正規化確認</code></li>
 </ul>
-<h2>検証結果</h2><p class='pass'><b>PASS</b> 2026-11-14T05:30:00+09:00</p>
-<p class='meta'>QGIS内pyeval実往復: 属性実在+ローカルHTTPスタブでchat→/responses自動切替・変換・正規化を確認 + pytest(70件)</p>
+<h2>検証結果</h2><p class='pass'><b>PASS</b> 2026-11-14T07:09:57+09:00</p>
+<p class='meta'>属性/シンボル実在確認(pyeval)</p>
 <p class='meta'><a href='../index.html'>← 一覧へ</a></p>
 <script>mermaid.initialize({startOnLoad:true});</script></body></html>

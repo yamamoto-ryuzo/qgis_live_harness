@@ -1,0 +1,25 @@
+{
+ "id": "qgis.dock.Browser",
+ "prompt": "「ブラウザ」パネル(ドック)を表示して",
+ "provider": "devin_acp",
+ "history": [
+  {
+   "role": "user",
+   "content": "「ブラウザ」パネル(ドック)を表示して"
+  },
+  {
+   "role": "assistant",
+   "content": "ブラウザパネルを表示します。「ブラウザ」パネルを表示しました。"
+  }
+ ],
+ "tools": [
+  "pyeval"
+ ],
+ "audit": [
+  {
+   "type": "pyeval",
+   "args": "{'code': \"from qgis.PyQt.QtWidgets import QDockWidget\\ndock = iface.mainWindow().findChild(QDockWidget, 'Browser')\\nif dock:\\n    dock.setVisible(True)\\n    dock.raise_()\\n    result = {'ok': True, 'title': dock.windowTitle(), 'visible': dock.isVisible()}\\nelse:\\n    result = {'ok': False, 'error': 'Browser dock not found'}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 「ブラウザ」パネル(ドック)を表示して\n[AI] \nブラウザパネルを表示します。「ブラウザ」パネルを表示しました。"
+}

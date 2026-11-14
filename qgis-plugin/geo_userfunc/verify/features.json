@@ -10,7 +10,7 @@
     "control": "POST /api/cmd Bearer <live_dir token>",
     "detected_from": "scripts/qgis-session.mjs, live_driver.py"
   },
-  "updated": "2026-11-14T02:32:22+09:00",
+  "updated": "2026-11-14T07:09:57+09:00",
   "features": [
     {
       "id": "entry_point.__init__.py:classFactory",
@@ -27,7 +27,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "standalone経路のみ(要runtime依存無し)"
     },
     {
@@ -45,7 +45,7 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -63,7 +63,7 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -81,7 +81,7 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -99,7 +99,7 @@
         "integrated": "openDialog→screenshot→closeDialog"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -117,7 +117,7 @@
         "integrated": "openDialog→screenshot→closeDialog"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -135,7 +135,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -153,7 +153,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -174,7 +174,7 @@
         "integrated": "bridge_call addSource → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "要実引数(応答あり): {'ok': False, 'error': 'file must be a .py file name'}"
     },
     {
@@ -195,7 +195,7 @@
         "integrated": "bridge_call deleteFunction → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -216,7 +216,7 @@
         "integrated": "bridge_call evalExpression → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "要実引数(応答あり): {'ok': False, 'error': 'parser error: \\nIncomplete expression. You might not have finished the full expression.'}"
     },
     {
@@ -237,7 +237,7 @@
         "integrated": "bridge_call fetchFromUrl → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "要実引数(応答あり): {'ok': False, 'error': 'only http/https URLs are allowed'}"
     },
     {
@@ -258,7 +258,7 @@
         "integrated": "bridge_call listFunctions → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -279,7 +279,7 @@
         "integrated": "bridge_call listMacros → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -300,7 +300,7 @@
         "integrated": "bridge_call listSources → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -321,7 +321,7 @@
         "integrated": "bridge_call openLibraryDir → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -342,7 +342,7 @@
         "integrated": "bridge_call openManager → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -363,7 +363,7 @@
         "integrated": "bridge_call pluginInfo → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -384,7 +384,7 @@
         "integrated": "bridge_call readFunction → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "要実引数(応答あり): {'ok': False, 'error': 'file not found: '}"
     },
     {
@@ -405,7 +405,7 @@
         "integrated": "bridge_call reload → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -426,7 +426,7 @@
         "integrated": "bridge_call removeSource → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -447,7 +447,7 @@
         "integrated": "bridge_call run → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "要実引数(応答あり): {'ok': False, 'error': 'unknown macro: '}"
     },
     {
@@ -468,7 +468,7 @@
         "integrated": "bridge_call saveFunction → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -489,7 +489,7 @@
         "integrated": "bridge_call setEnabled → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -510,7 +510,7 @@
         "integrated": "bridge_call status → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -531,7 +531,7 @@
         "integrated": "bridge_call updateFromUpstream → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -549,7 +549,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -567,7 +567,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -585,7 +585,7 @@
         "integrated": "bridge_call 全method→ok/error記録"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "11メソッド到達可能"
     },
     {
@@ -603,7 +603,7 @@
         "integrated": "describe_plugins→plugins[]にid実在+methods非空"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "describe_plugins: methods=17"
     },
     {
@@ -621,7 +621,7 @@
         "integrated": "bridge_call pluginInfo→メタ一致assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "自己記述あり"
     },
     {
@@ -639,7 +639,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -657,7 +657,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -675,7 +675,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -693,7 +693,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -711,7 +711,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -729,7 +729,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -747,7 +747,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T02:32:22+09:00",
+      "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     }
   ],
@@ -762,15 +762,15 @@
     },
     "bandit": {
       "rc": 1,
-      "out": "Run started:2026-11-13 17:33:15.618504+00:00\n\nTest results:\n>> Issue: [B112:try_except_continue] Try, Except, Continue detected.\n   Severity: Low   Confidence: High\n   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)\n   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b112_try_except_continue.html\n   Location: C:\\devin\\qgis_live_harness\\qgis-plugin\\geo_userfunc\\bridge.py:430:12\n429\t                    data = json.load(f)\n430\t            except Exception:\n431\t                continue\n432\t            for item in data if isinstance(data, list) else []:\n\n--------------------------------------------------\n\nCode scanned:\n\tTotal lines of code: 1491\n\tTotal lines skipped (#nosec): 0\n\tTotal potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 4\n\nRun metrics:\n\tTotal issues (by severity):\n\t\tUndefined: 0\n\t\tLow: 1\n\t\tMedium: 0\n\t\tHigh: 0\n\tTotal issues (by confidence):\n\t\tUndefined: 0\n\t\tLow: 0\n\t\tMedium: 0\n\t\tHigh: 1\nFiles skipped (0):\n[main]\tINFO\tUsing ini file for skipped tests\n[main]\tINFO\tUsing command line arg for selected targets\n[warnings]\tWARNING\tinvalid escape sequence '\\]'\n\n[warnings]\tWARNING\tinvalid escape sequence '\\]'\n\n[tester]\tWARNING\tnosec encountered (B102), but no failed test on file C:\\devin\\qgis_live_harness\\qgis-plugin\\geo_userfunc\\library.py:256"
+      "out": "Run started:2026-11-13 22:10:54.317257+00:00\n\nTest results:\n>> Issue: [B112:try_except_continue] Try, Except, Continue detected.\n   Severity: Low   Confidence: High\n   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)\n   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b112_try_except_continue.html\n   Location: C:\\devin\\qgis_live_harness\\qgis-plugin\\geo_userfunc\\bridge.py:430:12\n429\t                    data = json.load(f)\n430\t            except Exception:\n431\t                continue\n432\t            for item in data if isinstance(data, list) else []:\n\n--------------------------------------------------\n\nCode scanned:\n\tTotal lines of code: 1491\n\tTotal lines skipped (#nosec): 0\n\tTotal potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 4\n\nRun metrics:\n\tTotal issues (by severity):\n\t\tUndefined: 0\n\t\tLow: 1\n\t\tMedium: 0\n\t\tHigh: 0\n\tTotal issues (by confidence):\n\t\tUndefined: 0\n\t\tLow: 0\n\t\tMedium: 0\n\t\tHigh: 1\nFiles skipped (0):\n[main]\tINFO\tUsing ini file for skipped tests\n[main]\tINFO\tUsing command line arg for selected targets\n[warnings]\tWARNING\tinvalid escape sequence '\\]'\n\n[warnings]\tWARNING\tinvalid escape sequence '\\]'\n\n[tester]\tWARNING\tnosec encountered (B102), but no failed test on file C:\\devin\\qgis_live_harness\\qgis-plugin\\geo_userfunc\\library.py:256"
     },
-    "ran_at": "2026-11-14T02:32:22+09:00",
+    "ran_at": "2026-11-14T07:09:57+09:00",
     "reload": {
       "loaded": true,
       "opened": false,
       "plugins": [
+        "ImportPhotos",
         "MetaSearch",
-        "Qgis2threejs",
         "QuickDEM4JP",
         "StreetView",
         "db_manager",
@@ -789,7 +789,6 @@
         "plateau_plugin",
         "processing",
         "qfieldsync",
-        "qgis2web",
         "searchlayers"
       ]
     }

@@ -1,0 +1,31 @@
+{
+ "id": "panel.tool.qgis_screenshot",
+ "prompt": "現在の地図キャンバスのスクリーンショットを撮って",
+ "provider": "devin_acp",
+ "model": "swe-2-high",
+ "history": [
+  {
+   "role": "user",
+   "content": "現在の地図キャンバスのスクリーンショットを撮って"
+  },
+  {
+   "role": "assistant",
+   "content": "スクリーンショットを撮りました。ただし現在のプロジェクトにはレイヤが0件で、地図キャンバスは白紙（空白）の状態です。\n\n- キャンバスサイズ: 571 × 841 px\n- 表示縮尺: 約 1:1,469,104"
+  }
+ ],
+ "tools": [
+  "pyeval",
+  "screenshot"
+ ],
+ "audit": [
+  {
+   "type": "screenshot",
+   "args": "{'path': 'C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\qgis-shot-eab4a9f5.png', 'target': 'canvas'}"
+  },
+  {
+   "type": "pyeval",
+   "args": "{'code': \"layers = QgsProject.instance().mapLayers().values()\\nresult = {\\n    'layer_count': len(layers),\\n    'visible_layers': [l.name() for l in layers if l.isValid() and QgsProject.instance().layerTreeRoot().findLayer(l.id()).isVisible() if QgsProject.instance().layerTreeRoot().findLayer(l.id())],\\n    'canvas_extent': iface.mapCanvas().extent().toString(),\\n    'canvas_scale': iface.mapCanvas().scale(),\\n    'canvas_size': [iface.mapCanvas().width(), iface.mapCanvas().height()],\\n}\"}"
+  }
+ ],
+ "view_tail": "[あなた] 現在の地図キャンバスのスクリーンショットを撮って\n[AI] \nスクリーンショットを撮りました。ただし現在のプロジェクトにはレイヤが0件で、地図キャンバスは白紙（空白）の状態です。\nキャンバスサイズ: 571 × 841 px\n表示縮尺: 約 1:1,469,104"
+}
