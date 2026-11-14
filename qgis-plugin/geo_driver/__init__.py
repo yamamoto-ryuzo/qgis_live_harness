@@ -165,13 +165,25 @@ class GeoDriverPlugin:
     def _sweep_menu_actions(self):
         """同名テキストの残存アクションをメニューから除去する。
 
-        過去世代のプラグインがunloadで除去し損ねたQAction(リロードで
-        孤立したもの)を掃除する。initGuiで新規追加の前に呼ぶ。
+        過去世代・他世代のプラグインが残した同名QActionを掃除する。
+        メニューイベント処理中の実行を避けるため _menu_cleanup 経由で
+        遅延実行される。遅延中に追加済みの現行自身のアクションは
+        参照一致で除外する。
         """
         menu = self._own_menu()
         if menu is None:
             return
+        own = [x for x in (self._ai_action, self._action,
+                           self._conn_action, self._mode_action)
+               if x is not None]
+        if self._hot_menu is not None:
+            try:
+                own.append(self._hot_menu.menuAction())
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
         for a in list(menu.actions()):
+            if any(a is x for x in own):
+                continue
             if a.text() in self._own_action_texts():
                 try:
                     menu.removeAction(a)
@@ -179,9 +191,58 @@ class GeoDriverPlugin:
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
 
+    def _defer_menu_cleanup(self, items):
+        """unload() からのメニュー除去をイベント完了後へ遅延する。
+
+        removePluginMenu を QMenu のイベント処理中(triggered ハンドラ
+        内の reloadPlugin 経路等)に呼ぶと、ポップアップ処理中の
+        メニュー階層を破壊して access violation になる実績がある。
+        """
+        try:
+            from qgis.PyQt.QtCore import QTimer
+            QTimer.singleShot(0, lambda: self._menu_cleanup(items))
+        except Exception:  # nosec B110  # 設計上の許容
+            self._menu_cleanup(items)
+
+    def _menu_cleanup(self, items):
+        """遅延実行されるプラグインメニュー除去。
+
+        遅延中に initGui で追加された新世代のアクションを誤って
+        除去しないよう、除去対象は unload 時点で捕捉した参照のみとし、
+        末尾の sweep も現行自身のアクションを除外する。
+        """
+        for a in items.get("actions") or ():
+            try:
+                self.iface.removePluginMenu("QGIS Live Driver", a)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            try:
+                a.deleteLater()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+        m = items.get("hot_menu")
+        if m is not None:
+            try:
+                self.iface.removePluginMenu(
+                    "QGIS Live Driver", m.menuAction())
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            try:
+                m.deleteLater()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+        try:
+            self._sweep_menu_actions()  # 自身以外の残存も掃除
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
     def initGui(self):
         from qgis.PyQt.QtWidgets import QAction
-        self._sweep_menu_actions()  # 前世代の孤立アクション除去
+        # メニュー操作はイベント完了後へ遅延する。reloadPlugin 経由で
+        # メニューのイベント処理中に initGui が走ると、メニュー階層の
+        # 変更が access violation になり得る(実績あり)。
+        # 遅延 sweep は現行自身のアクションを除外するため安全。
+        self._defer_menu_cleanup({})
         self._ai_action = QAction(
             QCoreApplication.translate("geo_driver", "AI Assistant"),
             self.iface.mainWindow())
@@ -246,14 +307,14 @@ class GeoDriverPlugin:
         for pid in ids:
             act = self._hot_menu.addAction(pid)
             act.triggered.connect(
-                lambda _checked=False, p=pid: self._hot_reload([p]))
+                lambda _checked=False, p=pid: self._defer_hot_reload([p]))
         if ids:
             self._hot_menu.addSeparator()
             act = self._hot_menu.addAction(
                 QCoreApplication.translate(
                     "geo_driver", "Reload All"))
             act.triggered.connect(
-                lambda _checked=False: self._hot_reload(ids))
+                lambda _checked=False: self._defer_hot_reload(ids))
         else:
             act = self._hot_menu.addAction(
                 QCoreApplication.translate(
@@ -269,6 +330,20 @@ class GeoDriverPlugin:
             _log("hot reload id discovery failed:\n"
                  + traceback.format_exc())
             return []
+
+    def _defer_hot_reload(self, ids):
+        """メニューイベント完了後にホットリロードを実行する。
+
+        triggered ハンドラ内で直接 reloadPlugin すると、unload() が
+        ポップアップ処理中のメニュー階層を removePluginMenu で書き換え、
+        Qt 側で access violation になる(実績: ホットリロード経由の
+        geo_driver リロードで発生)。イベント完了後へ遅延する。
+        """
+        try:
+            from qgis.PyQt.QtCore import QTimer
+            QTimer.singleShot(0, lambda: self._hot_reload(ids))
+        except Exception:
+            self._hot_reload(ids)
 
     def _hot_reload(self, ids):
         try:
@@ -634,13 +709,9 @@ class GeoDriverPlugin:
             except Exception:  # nosec B110  # 設計上の許容
                 pass
             self._ai_driver = None
+        _menu_cleanup_items = {}
         if self._hot_menu is not None:
-            try:
-                self.iface.removePluginMenu(
-                    "QGIS Live Driver", self._hot_menu.menuAction())
-                self._hot_menu.deleteLater()
-            except Exception:  # nosec B110  # 設計上の許容
-                pass
+            _menu_cleanup_items["hot_menu"] = self._hot_menu
             self._hot_menu = None
         if self._conn_dlg is not None:
             try:
@@ -649,19 +720,20 @@ class GeoDriverPlugin:
             except Exception:  # nosec B110  # 設計上の許容
                 pass
             self._conn_dlg = None
-        for action in (self._ai_action, self._action, self._conn_action,
-                       self._mode_action):
-            if action is not None:
-                try:
-                    self.iface.removePluginMenu("QGIS Live Driver",
-                                                action)
-                    action.deleteLater()
-                except Exception:  # nosec B110  # 設計上の許容
-                    pass
+        # プラグインメニュー上の QAction/QMenu 除去はイベント完了後へ
+        # 遅延する。メニューの triggered ハンドラ内から reloadPlugin 経由で
+        # unload が走ると、removePluginMenu がポップアップ処理中の
+        # メニュー階層を書き換え Qt 内部で access violation になる
+        # (実績: 他ドライバのホットリロードからの geo_driver 再読込)。
+        _menu_cleanup_items["actions"] = [
+            a for a in (self._ai_action, self._action,
+                        self._conn_action, self._mode_action)
+            if a is not None]
         self._ai_action = None
         self._action = None
         self._conn_action = None
         self._mode_action = None
+        self._defer_menu_cleanup(_menu_cleanup_items)
         if self._mode_timer is not None:
             try:
                 self._mode_timer.stop()
@@ -705,7 +777,6 @@ class GeoDriverPlugin:
             except Exception:  # nosec B110  # 設計上の許容
                 pass
         self._geo_tb = None
-        self._sweep_menu_actions()  # 自身以外の残存も掃除
         try:
             self._stop()
         except Exception:  # nosec B110  # 設計上の許容

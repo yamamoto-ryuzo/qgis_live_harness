@@ -577,6 +577,12 @@ Guidelines:
   GUI thread with `iface`, `QgsProject`, `QgsApplication` and `driver`
   in scope. Expressions return their value; for statements assign the
   output to a variable named `result`.
+- To move the map to a named place (city, address, landmark), prefer
+  `qgis_bridge_call` on geo_search `searchAddress` over hardcoding
+  coordinates. QgsMapCanvas has no "zoom level" API — use
+  zoomScale(denominator), setExtent(), zoomByFactor() or
+  zoomToFeatureExtent(), and transform EPSG:4326 lon/lat to the canvas
+  CRS before setCenter().
 - Use `qgis_status` first if you need to know which plugins are loaded
   or whether a plugin has a WebEngine view.
 - Use `qgis_screenshot` to visually check the map canvas or the main

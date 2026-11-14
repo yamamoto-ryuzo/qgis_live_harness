@@ -107,7 +107,8 @@ def reload_plugin_now(plugin_id):
         qgis.utils.startPlugin(plugin_id)
     p = qgis.utils.plugins.get(plugin_id)
     opened = False
-    if p is not None and hasattr(p, "open_dialog"):
+    if (p is not None and hasattr(p, "open_dialog")
+            and getattr(p, "open_dialog_on_reload", True)):
         p.open_dialog()
         opened = True
     return {

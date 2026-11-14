@@ -1,5 +1,14 @@
 # CHANGELOG — geo_launcher
 
+## [Unreleased]
+
+- 修正: リロード/ホットリロードのたびに管理ダイアログが勝手に
+  前面へ出る問題 — plugin に `open_dialog_on_reload = False` を
+  追加し、ドライバ側の「open_dialog 再表示」規約から opt-out。
+  表示はツールバー/メニュー/bridge `openDialog`/`open_plugin` の
+  明示操作のみとなる(geo_driver 側も同フラグを参照するよう
+  同時修正)
+
 ## 1.1.2
 
 - 変更: プラグイン ID を `kasugai_launcher` → `geo_launcher` にリネーム

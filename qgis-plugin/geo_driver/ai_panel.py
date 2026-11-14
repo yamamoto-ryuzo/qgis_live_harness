@@ -50,6 +50,7 @@ from qgis.PyQt.QtWidgets import (
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
+    QSizePolicy,
     QSplitter,
     QTextBrowser,
     QVBoxLayout,
@@ -382,6 +383,12 @@ class AiPanel(QDockWidget):
         # ---- チャット表示 ----
         self.view = QTextBrowser(root)
         self.view.setOpenExternalLinks(True)
+        # pre(改行不能ブロック)のツール出力や長いコードブロックで
+        # ドキュメントのsizeHintが膨張しドック幅が勝手に広がるのを
+        # 防ぐ。横はsizeHintを無視し、はみ出る分はビュー内の
+        # 横スクロールに委ねる
+        self.view.setSizePolicy(
+            QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
         lay.addWidget(self.view, 1)
 
         # ---- 添付画像(入力欄への貼付・D&D・📎ボタンで追加) ----
@@ -1084,8 +1091,10 @@ class AiPanel(QDockWidget):
         cl.setContentsMargins(2, 2, 2, 2)
         cl.setSpacing(2)
         thumb = QLabel(chip)
-        thumb.setPixmap(QPixmap.fromImage(img).scaledToHeight(
-            44, Qt.TransformationMode.SmoothTransformation))
+        thumb.setPixmap(QPixmap.fromImage(img).scaled(
+            220, 44,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation))
         thumb.setToolTip(path)
         cl.addWidget(thumb)
         btn = QPushButton("✕", chip)

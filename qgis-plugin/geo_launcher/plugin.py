@@ -29,6 +29,12 @@ PLUGIN_DIR = os.path.dirname(__file__)
 
 
 class plugin(object):
+    # reload_plugin/ホットリロードの「open_dialog 再表示」対象外にする。
+    # このプラグインの窓はインストール管理用の補助ダイアログであり、
+    # リロードのたびに前面へ出ると作業の邪魔になる。表示は
+    # ツールバー/メニュー/bridge openDialog の明示操作のみとする
+    open_dialog_on_reload = False
+
     def __init__(self, iface):
         self.iface = iface
         self.actions = []

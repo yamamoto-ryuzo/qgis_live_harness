@@ -14,7 +14,7 @@
   "configured": true,
   "checked": "2026-11-14T07:18:57+09:00"
  },
- "updated": "2026-11-14T09:09:23+09:00",
+ "updated": "2026-11-14T09:17:30+09:00",
  "features": [
   {
    "id": "panel.send",
@@ -18787,9 +18787,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -18821,9 +18821,9 @@
     "expect_reply": null
    },
    "tool_result": "skip",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "skip",
-   "note": "action disabled(要コンテキスト)",
+   "note": "action disabled(要コンテキスト) | ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -18853,9 +18853,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -18887,9 +18887,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -18921,9 +18921,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -19130,9 +19130,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -19164,9 +19164,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -19198,9 +19198,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -19232,9 +19232,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -19266,9 +19266,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -19300,9 +19300,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -19334,9 +19334,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -19391,9 +19391,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -19425,9 +19425,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -19457,9 +19457,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -19489,9 +19489,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:03+09:00"
   },
   {
@@ -19521,9 +19521,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:11+09:00"
   },
   {
@@ -19553,9 +19553,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:11+09:00"
   },
   {
@@ -19585,9 +19585,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:11+09:00"
   },
   {
@@ -19617,9 +19617,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:11+09:00"
   },
   {
@@ -19649,9 +19649,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:11+09:00"
   },
   {
@@ -19681,9 +19681,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:11+09:00"
   },
   {
@@ -19715,9 +19715,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "check定義変更のため再検証",
+   "note": "check定義変更のため再検証 | ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:11+09:00"
   },
   {
@@ -19749,9 +19749,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "skip",
    "last_result": "pass",
-   "note": "",
+   "note": "ai(devin_acp): panel not available",
    "last_verified": "2026-11-14T07:14:11+09:00"
   },
   {
@@ -19783,10 +19783,11 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証",
-   "last_verified": "2026-11-14T07:14:11+09:00"
+   "ai_result": "fail",
+   "last_result": "fail",
+   "note": "check定義変更のため再検証 | ai(devin_acp): runner exc: no live geo_driver session",
+   "last_verified": "2026-11-14T07:14:11+09:00",
+   "ai_provider": "devin_acp"
   },
   {
    "id": "qgis.action.noname",
@@ -19817,10 +19818,11 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証",
-   "last_verified": "2026-11-14T07:14:11+09:00"
+   "ai_result": "fail",
+   "last_result": "fail",
+   "note": "check定義変更のため再検証 | ai(devin_acp): runner exc: no live geo_driver session",
+   "last_verified": "2026-11-14T07:14:11+09:00",
+   "ai_provider": "devin_acp"
   },
   {
    "id": "qgis.action.noname",
@@ -19851,10 +19853,11 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証",
-   "last_verified": "2026-11-14T07:14:11+09:00"
+   "ai_result": "fail",
+   "last_result": "fail",
+   "note": "check定義変更のため再検証 | ai(devin_acp): runner exc: no live geo_driver session",
+   "last_verified": "2026-11-14T07:14:11+09:00",
+   "ai_provider": "devin_acp"
   },
   {
    "id": "qgis.action.2",
@@ -19885,10 +19888,11 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T07:14:11+09:00"
+   "ai_result": "fail",
+   "last_result": "fail",
+   "note": "ai(devin_acp): runner exc: no live geo_driver session",
+   "last_verified": "2026-11-14T07:14:11+09:00",
+   "ai_provider": "devin_acp"
   },
   {
    "id": "qgis.action.noname",
@@ -19919,10 +19923,11 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証",
-   "last_verified": "2026-11-14T07:14:11+09:00"
+   "ai_result": "fail",
+   "last_result": "fail",
+   "note": "check定義変更のため再検証 | ai(devin_acp): runner exc: no live geo_driver session",
+   "last_verified": "2026-11-14T07:14:11+09:00",
+   "ai_provider": "devin_acp"
   },
   {
    "id": "qgis.action.noname",
@@ -19953,10 +19958,11 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証",
-   "last_verified": "2026-11-14T07:14:11+09:00"
+   "ai_result": "fail",
+   "last_result": "fail",
+   "note": "check定義変更のため再検証 | ai(devin_acp): runner exc: no live geo_driver session",
+   "last_verified": "2026-11-14T07:14:11+09:00",
+   "ai_provider": "devin_acp"
   },
   {
    "id": "qgis.action.noname",
@@ -19987,9 +19993,9 @@
     "expect_reply": null
    },
    "tool_result": "pass",
-   "ai_result": "untested",
+   "ai_result": "fail",
    "last_result": "pass",
-   "note": "check定義変更のため再検証",
+   "note": "check定義変更のため再検証 | ai(devin_acp): channel dead",
    "last_verified": "2026-11-14T07:14:11+09:00"
   },
   {

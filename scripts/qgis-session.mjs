@@ -218,7 +218,7 @@ else:
     qgis.utils.loadPlugin(PLUGIN_ID)
     qgis.utils.startPlugin(PLUGIN_ID)
 _p = qgis.utils.plugins.get(PLUGIN_ID)
-if hasattr(_p, "open_dialog"):
+if hasattr(_p, "open_dialog") and getattr(_p, "open_dialog_on_reload", True):
     _p.open_dialog()
 result = {"loaded": PLUGIN_ID in qgis.utils.plugins,
           "plugins": sorted(qgis.utils.plugins.keys())}

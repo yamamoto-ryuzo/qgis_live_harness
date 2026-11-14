@@ -6,6 +6,13 @@
 ## [Unreleased]
 
 ### Added
+- ai_client.py: SYSTEM_PROMPT の Guidelines に地名移動の指針を
+  追加。「場所名への移動は geo_search の searchAddress を優先」
+  「QgsMapCanvas にズームレベルAPIは無く zoomScale(縮尺分母)/
+  setExtent/zoomByFactor/zoomToFeatureExtent を使い、EPSG:4326 の
+  緯度経度はキャンバスCRSへ変換してから setCenter」ことを明記。
+  モデルが不存在の setZoomLevel を試し座標をハードコードする
+  誤りを防ぐ
 - ai_client.py / ai_panel.py / live_driver.py / mcp_http.py:
   **指示書の第3種別 `prompts`(おすすめプロンプト)**を追加。
   パネル入力行の「おすすめ…」コンボから選ぶとファイル本文が
@@ -84,6 +91,34 @@
   -r でセッション再開。acp engine も同ワーカーで対応)
 
 ### Fixed
+- live_driver.py / qgis-session.mjs: **リロード時の「open_dialog
+  再表示」で管理用ダイアログまで勝手に開く問題**を修正。
+  `reload_plugin_now` とフォールバック `reloadCode` は
+  `open_dialog` を持つ全プラグインへ無条件で open_dialog() を
+  呼んでいたが、プラグイン側が `open_dialog_on_reload = False`
+  を定義した場合は再表示をスキップするよう opt-out を追加。
+  geo_launcher(インストール管理窓)が本フラグを利用する。
+  `open_plugin` コマンドは「開け」の明示要求なので従来通り
+  無条件で開く
+- ai_panel.py: **ツール出力の長い1行(例: `qgis_pyeval` のJSON引数)
+  でドックの横幅が勝手に広がる問題**を修正。tool出力は `<pre>`
+  (改行不能ブロック)で描画されるため QTextDocument の
+  idealWidth が膨張し、QTextBrowser の sizeHint 経由でドックが
+  押し広げられていた。ビューの横方向 sizePolicy を Ignored に
+  してコンテンツ幅をレイアウトへ伝えないようにし、はみ出る分は
+  ビュー内の横スクロールに委ねる。併せて添付画像サムネイルを
+  scaled(220x44, KeepAspectRatio)に変更し、横長パノラマ画像でも
+  attach行がドックを押し広げないようにした
+- __init__.py: **ホットリロード経由の reloadPlugin で access
+  violation になるクラッシュ**を修正。QMenu の triggered ハンドラ内で
+  `unload()` が `iface.removePluginMenu` を呼ぶと、ポップアップ処理中の
+  メニュー階層を書き換えて Qt 内部で落ちる(実績: 旧ID `qgis_live_driver`
+  のホットリロード「すべて再読込」からの geo_driver 再読込)。
+  `_defer_hot_reload` でリロード実行自体を `QTimer.singleShot(0)` で
+  イベント完了後へ遅延し、さらに `unload()`/`initGui` のプラグイン
+  メニュー操作(removePluginMenu・sweep)も `_defer_menu_cleanup` で
+  遅延実行に変更。遅延 sweep が新世代アクションを誤削除しないよう
+  `_sweep_menu_actions` は現行自身のオブジェクトを参照一致で除外する
 - live_driver.py: **`bridge_call` の kwargs 形式引数を正規化**する
   `_bridge_args` を追加。モデルが `args=[{"k": v,...}]` や
   `args={"k": v}`、`args=[pos..., {"k": v}]` 形式で呼んだ場合、
