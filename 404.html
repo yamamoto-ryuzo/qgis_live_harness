@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8"><title>Redirecting…</title>
+<script>
+var p = location.pathname.replace(/^\/qgis_live_harness/, "");
+if (!/^\/(docs|qgis-plugin)\//.test(p)) {
+  location.replace("/qgis_live_harness/docs" + p + location.search + location.hash);
+}
+</script>
+</head><body><p>Not found.</p></body></html>
