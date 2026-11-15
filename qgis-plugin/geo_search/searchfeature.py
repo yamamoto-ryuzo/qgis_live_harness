@@ -60,13 +60,6 @@ class SearchFeature(object):
             except Exception:  # nosec B110  # 設計上の許容
                 pass
 
-        # 結果ダイアログの「表示範囲内のみ」絞込に使うキャンバス範囲を提供
-        try:
-            self.result_dialog.set_extent_getter(
-                self._canvas_extent_geometry)
-        except Exception:  # nosec B110  # 設計上の許容
-            pass
-
         # 検索ウィジェットは常に有効化（カレントレイヤがNoneでも入力可能にする）
         self.widget.setEnabled(True)
         # pan mode (0: default zoom-to-selected). May be set by plugin when dialog is created.
@@ -297,18 +290,6 @@ class SearchFeature(object):
 
     def search_feature(self):
         raise NotImplementedError
-
-    def _canvas_extent_geometry(self):
-        """現在のキャンバス表示範囲を (QgsGeometry, canvas CRS) で返す。"""
-        try:
-            from qgis.core import QgsGeometry
-            canvas = self.iface.mapCanvas()
-            if canvas is None:
-                return None
-            crs = canvas.mapSettings().destinationCrs()
-            return (QgsGeometry.fromRect(canvas.extent()), crs)
-        except Exception:  # nosec B110  # 設計上の許容
-            return None
 
     def normalize_search_value(self, value):
         """検索値を正規化する（全角英数字を半角に変換）"""

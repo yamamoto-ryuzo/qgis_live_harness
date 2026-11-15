@@ -3,102 +3,11 @@ import os
 import math
 
 from qgis.PyQt.QtCore import QDate, pyqtSignal, QCoreApplication
-from qgis.PyQt.QtWidgets import (
-    QDialog, QTableWidgetItem, QTabWidget, QTableWidget, QHeaderView,
-    QPushButton, QCheckBox, QFileDialog, QInputDialog, QMessageBox,
-    QHBoxLayout, QWidget,
-)
+from qgis.PyQt.QtWidgets import QDialog, QTableWidgetItem, QTabWidget, QTableWidget, QHeaderView
 from qgis.PyQt import uic
 
 
 UI_FILE = "result.ui"
-
-
-def _entries_feature_count(entries):
-    return sum(len(e[3] or []) for e in entries)
-
-
-def export_entries_to_csv(entries, path, encoding="utf-8"):
-    """entries=[(label, layer, fields, features)] をCSV(属性のみ)へ書き出す。"""
-    import csv as _csv
-
-    multi = len(entries) > 1
-    with open(path, "w", newline="", encoding=encoding,
-              errors="replace") as fh:
-        writer = _csv.writer(fh)
-        for label, _layer, fields, features in entries:
-            names = [getattr(fld, "name", lambda: str(fld))()
-                     for fld in (fields or [])]
-            if not names and features:
-                names = [f.name() for f in features[0].fields()]
-            writer.writerow((["layer"] if multi else []) + names)
-            for feat in features or []:
-                row = []
-                for n in names:
-                    v = feat.attribute(n)
-                    row.append("" if v is None else str(v))
-                writer.writerow(([label] if multi else []) + row)
-    return _entries_feature_count(entries)
-
-
-def export_entries_to_geojson(entries, path):
-    """entries=[(label, layer, fields, features)] をGeoJSONへ書き出す。"""
-    import json as _json
-
-    from qgis.core import QgsJsonUtils
-
-    feats = []
-    for _label, _layer, _fields, features in entries:
-        for feat in features or []:
-            feats.append(QgsJsonUtils.exportFeature(feat))
-    with open(path, "w", encoding="utf-8") as fh:
-        _json.dump({"type": "FeatureCollection", "features": feats},
-                   fh, ensure_ascii=False)
-    return len(feats)
-
-
-def add_entries_as_memory_layers(entries, project=None):
-    """entries=[(label, layer, fields, features)] をメモリレイヤ化して登録。"""
-    from qgis.core import (
-        QgsFeature, QgsProject, QgsVectorLayer, QgsWkbTypes,
-    )
-
-    project = project or QgsProject.instance()
-    created = []
-    for label, layer, _fields, features in entries:
-        feats = list(features or [])
-        if not feats:
-            continue
-        f0 = feats[0]
-        if layer is not None:
-            wkb_name = QgsWkbTypes.displayString(layer.wkbType())
-            crs = layer.crs()
-            src_fields = layer.fields()
-        else:
-            wkb_name = (QgsWkbTypes.displayString(f0.geometry().wkbType())
-                        if f0.hasGeometry() else "None")
-            crs = None
-            src_fields = f0.fields()
-        uri = wkb_name or "None"
-        if crs is not None and crs.isValid():
-            uri = f"{uri}?crs={crs.authid()}"
-        name = str(label or (layer.name() if layer is not None
-                             else "Results"))
-        mem = QgsVectorLayer(uri, name, "memory")
-        mem.dataProvider().addAttributes(list(src_fields))
-        mem.updateFields()
-        out = []
-        for feat in feats:
-            nf = QgsFeature(mem.fields())
-            nf.setAttributes(list(feat.attributes()))
-            if feat.hasGeometry():
-                nf.setGeometry(feat.geometry())
-            out.append(nf)
-        mem.dataProvider().addFeatures(out)
-        mem.updateExtents()
-        project.addMapLayer(mem)
-        created.append(mem.name())
-    return created
 
 # 検索結果表示ダイアログ
 
@@ -164,27 +73,6 @@ class ResultDialog(QDialog):
                     self.formAttributeCombo.setVisible(False)
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
-        except Exception:  # nosec B110  # 設計上の許容
-            pass
-        # row 3: 「表示範囲内のみ」絞込 + エクスポートボタン
-        self._extent_getter = None
-        self._source_layers = None
-        try:
-            controls = QWidget(self)
-            row = QHBoxLayout(controls)
-            row.setContentsMargins(0, 0, 0, 0)
-            self.extentCheckBox = QCheckBox(
-                QCoreApplication.translate("SearchWidget", "表示範囲内のみ"),
-                controls)
-            self.extentCheckBox.toggled.connect(self._on_extent_toggled)
-            self.exportButton = QPushButton(
-                QCoreApplication.translate("SearchWidget", "エクスポート..."),
-                controls)
-            self.exportButton.clicked.connect(self.export_results)
-            row.addWidget(self.extentCheckBox)
-            row.addWidget(self.exportButton)
-            row.addStretch(1)
-            self.gridLayout.addWidget(controls, 3, 0, 1, 6)
         except Exception:  # nosec B110  # 設計上の許容
             pass
 
@@ -279,14 +167,8 @@ class ResultDialog(QDialog):
         self.pageBox.setValue(1)
         self.move_page(1)
 
-    def set_features_by_layer(self, layers_with_features, preserve_source=False):
+    def set_features_by_layer(self, layers_with_features):
         """Accepts an iterable of (layer, fields, features) and creates a tab per layer."""
-        if not preserve_source:
-            try:
-                layers_with_features = list(layers_with_features)
-            except Exception:  # nosec B110  # 設計上の許容
-                layers_with_features = []
-            self._source_layers = layers_with_features
         # if a static formWidget exists in the UI, ensure it's hidden when showing tables
         try:
             if getattr(self, 'formWidget', None) is not None:
@@ -490,150 +372,6 @@ class ResultDialog(QDialog):
                     f"set_features_by_layer: tab_index={i} layer={getattr(layer, 'name', lambda: layer)()} fields_count={len(fields)} features_count={len(features)} first_feature={feat_type}", "GEO-search-plugin", 0)
         except Exception:  # nosec B110  # 設計上の許容
             pass
-        # 新しい結果が入った時に「表示範囲内のみ」が有効なら再適用する
-        if not preserve_source:
-            cb = getattr(self, "extentCheckBox", None)
-            if cb is not None and cb.isChecked():
-                self._on_extent_toggled(True)
-
-    def set_extent_getter(self, getter):
-        """表示範囲フィルタ用の取得callableを登録する。
-        getter() -> (QgsGeometry, QgsCoordinateReferenceSystem) or None"""
-        self._extent_getter = getter
-
-    @staticmethod
-    def _entry_layer(entry):
-        layer = entry[0] if entry else None
-        if isinstance(layer, tuple):
-            layer = layer[1] if len(layer) > 1 else None
-        return layer
-
-    def _on_extent_toggled(self, checked):
-        """『表示範囲内のみ』チェックで結果をキャンバス範囲に絞り込む。"""
-        source = getattr(self, "_source_layers", None)
-        if source is None:
-            return
-        if not checked:
-            self.set_features_by_layer(source, preserve_source=True)
-            return
-        getter = getattr(self, "_extent_getter", None)
-        got = getter() if getter else None
-        if not got:
-            cb = getattr(self, "extentCheckBox", None)
-            if cb is not None:
-                cb.setChecked(False)
-            return
-        extent_geom, extent_crs = got
-        from qgis.core import (
-            QgsCoordinateTransform, QgsGeometry, QgsProject,
-        )
-        filtered = []
-        for entry in source:
-            layer_item, fields, features = entry[0], entry[1], entry[2]
-            actual = self._entry_layer(entry)
-            try:
-                feats = list(features or [])
-            except Exception:  # nosec B110  # 設計上の許容
-                feats = []
-            if actual is not None and extent_geom is not None:
-                geom = QgsGeometry(extent_geom)
-                try:
-                    if (extent_crs is not None and extent_crs.isValid()
-                            and actual.crs() != extent_crs):
-                        tr = QgsCoordinateTransform(
-                            extent_crs, actual.crs(),
-                            QgsProject.instance())
-                        geom.transform(tr)
-                except Exception:  # nosec B110  # 設計上の許容
-                    geom = QgsGeometry(extent_geom)
-                feats = [f for f in feats
-                         if f.hasGeometry()
-                         and f.geometry().intersects(geom)]
-            filtered.append((layer_item, fields, feats))
-        self.set_features_by_layer(filtered, preserve_source=True)
-
-    def _export_entries(self, scope="all"):
-        """エクスポート対象を (label, layer, fields, features) のlistで返す。"""
-        tabs = getattr(self, "_tabs", None) or []
-        entries = []
-        if scope == "all":
-            for i, t in enumerate(tabs):
-                entries.append((self.tabWidget.tabText(i), t.get("layer"),
-                                t.get("fields"), t.get("features") or []))
-            return entries
-        idx = self.tabWidget.currentIndex()
-        if idx < 0 or idx >= len(tabs):
-            return entries
-        t = tabs[idx]
-        try:
-            feats = list(t.get("features") or [])
-        except Exception:  # nosec B110  # 設計上の許容
-            feats = []
-        if scope == "selected":
-            table = t.get("table")
-            ids = set()
-            try:
-                for item in table.selectedItems() or []:
-                    v = item.data(self.data_role)
-                    if v is not None:
-                        ids.add(v)
-            except Exception:  # nosec B110  # 設計上の許容
-                ids = set()
-            feats = [f for f in feats if f.id() in ids]
-        entries.append((self.tabWidget.tabText(idx), t.get("layer"),
-                        t.get("fields"), feats))
-        return entries
-
-    def export_results(self):
-        """『エクスポート』ボタン: 範囲/形式/文字コードを選んで出力する。"""
-        scopes = [self.tr("全タブ"), self.tr("現在タブ"),
-                  self.tr("現在タブの選択行")]
-        scope, ok = QInputDialog.getItem(
-            self, self.tr("エクスポート"), self.tr("範囲"),
-            scopes, 0, False)
-        if not ok:
-            return
-        scope = ["all", "tab", "selected"][scopes.index(scope)]
-        fmts = ["CSV (属性のみ)", "GeoJSON", "メモリレイヤ"]
-        fmt, ok = QInputDialog.getItem(
-            self, self.tr("エクスポート"), self.tr("形式"),
-            fmts, 0, False)
-        if not ok:
-            return
-        fmt = ["csv", "geojson", "memory"][fmts.index(fmt)]
-        entries = self._export_entries(scope)
-        if fmt == "memory":
-            names = add_entries_as_memory_layers(entries)
-            QMessageBox.information(
-                self, self.tr("エクスポート"),
-                self.tr("メモリレイヤを追加しました: {0}").format(
-                    ", ".join(names)))
-            return
-        enc = "utf-8"
-        if fmt == "csv":
-            encs = ["UTF-8", "UTF-8 (BOM)", "Shift_JIS"]
-            enc_label, ok = QInputDialog.getItem(
-                self, self.tr("エクスポート"), self.tr("文字コード"),
-                encs, 0, False)
-            if not ok:
-                return
-            enc = ["utf-8", "utf-8-sig", "cp932"][encs.index(enc_label)]
-        filters = "CSV (*.csv)" if fmt == "csv" else "GeoJSON (*.geojson)"
-        path, _ = QFileDialog.getSaveFileName(
-            self, self.tr("エクスポート"), "", filters)
-        if not path:
-            return
-        if fmt == "csv":
-            if not path.lower().endswith(".csv"):
-                path += ".csv"
-            count = export_entries_to_csv(entries, path, enc)
-        else:
-            if not path.lower().endswith((".geojson", ".json")):
-                path += ".geojson"
-            count = export_entries_to_geojson(entries, path)
-        QMessageBox.information(
-            self, self.tr("エクスポート"),
-            self.tr("{0} 件を出力しました: {1}").format(count, path))
 
     def set_form_by_layer(self, layers_with_features):
         """Placeholder API: set results for 'form' display mode with per-layer tabs.
