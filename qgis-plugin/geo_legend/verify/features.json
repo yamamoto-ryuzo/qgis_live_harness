@@ -10,7 +10,7 @@
     "control": "POST /api/cmd Bearer <live_dir token>",
     "detected_from": "scripts/qgis-session.mjs, live_driver.py"
   },
-  "updated": "2026-11-14T07:12:30+09:00",
+  "updated": "2026-11-15T22:33:28+09:00",
   "features": [
     {
       "id": "entry_point.__init__.py:classFactory",
@@ -27,7 +27,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone経路のみ(要runtime依存無し)"
     },
     {
@@ -45,7 +45,7 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -63,7 +63,7 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -81,7 +81,7 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -99,7 +99,7 @@
         "integrated": "openDialog→screenshot→closeDialog"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -120,7 +120,7 @@
         "integrated": "bridge_call addLayoutLegend → レイアウトに凡例アイテム実在assert(実測pass)"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -141,7 +141,7 @@
         "integrated": "bridge_call applyCategories → renderer=categorizedSymbol+legendSymbolItems assert(実測pass)"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -162,7 +162,7 @@
         "integrated": "bridge_call applyGraduated → renderer=graduatedSymbol+レンジassert(実測pass)"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -183,7 +183,7 @@
         "integrated": "bridge_call applyRules → renderer=RuleRenderer+ルールラベルassert(実測pass)"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -204,7 +204,7 @@
         "integrated": "bridge_call applySingleSymbol → renderer=singleSymbol assert(実測pass)"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -225,7 +225,7 @@
         "integrated": "bridge_call closeDock → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -246,7 +246,7 @@
         "integrated": "bridge_call deleteLegendVariable → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -267,7 +267,7 @@
         "integrated": "bridge_call exportLegendImage → PNG生成(10KB)+内容目視assert(実測pass)"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -288,7 +288,7 @@
         "integrated": "bridge_call legend → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -309,7 +309,7 @@
         "integrated": "bridge_call legendSpec → type/items/legend_items応答assert(実測pass)"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -330,7 +330,7 @@
         "integrated": "bridge_call legendVariables → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -351,7 +351,7 @@
         "integrated": "bridge_call listDatasets → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -372,7 +372,7 @@
         "integrated": "bridge_call listStyles → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -393,7 +393,7 @@
         "integrated": "bridge_call opacity → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -414,7 +414,7 @@
         "integrated": "bridge_call openDock → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -435,7 +435,7 @@
         "integrated": "bridge_call pluginInfo → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -456,7 +456,7 @@
         "integrated": "bridge_call refresh → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -477,7 +477,7 @@
         "integrated": "bridge_call registerCurrentLayer → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -498,7 +498,7 @@
         "integrated": "bridge_call registerLayer → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -519,7 +519,7 @@
         "integrated": "bridge_call selectCurrentLayer → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -540,7 +540,7 @@
         "integrated": "bridge_call selectDataset → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "要実引数(応答あり): {'ok': False, 'error': 'dataset not found: {}'}"
     },
     {
@@ -561,7 +561,7 @@
         "integrated": "bridge_call setLegendVariable → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -582,7 +582,7 @@
         "integrated": "bridge_call setStyle → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -603,7 +603,7 @@
         "integrated": "bridge_call status → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -621,7 +621,7 @@
         "integrated": "bridge_call 全method→ok/error記録"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "12メソッド到達可能"
     },
     {
@@ -639,7 +639,7 @@
         "integrated": "describe_plugins→plugins[]にid実在+methods非空"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "describe_plugins: methods=23"
     },
     {
@@ -657,50 +657,8 @@
         "integrated": "bridge_call pluginInfo→メタ一致assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "自己記述あり"
-    },
-    {
-      "id": "ai.prompt.create-legend",
-      "kind": "ai_integration",
-      "name": "同梱おすすめプロンプト create-legend",
-      "source": "prompts/create-legend.md",
-      "signature": "",
-      "summary": "凡例作成の定型指示(パネルのおすすめコンボで選択→入力欄へ挿入)",
-      "needs_runtime": true,
-      "standalone_ok": false,
-      "depends": [],
-      "verify": {
-        "standalone": "",
-        "integrated": "instruction op=list kind=prompts → id=create-legend & builtin、path=geo_legend/prompts/"
-      },
-      "last_result": "removed",
-      "last_verified": "2026-11-14T06:46:49+09:00",
-      "note": "実QGIS(pid28736)で確認済"
-    },
-    {
-      "id": "ai.skill.legend-creation",
-      "kind": "ai_integration",
-      "name": "同梱スキル legend-creation",
-      "source": "skills/legend-creation.md",
-      "signature": "",
-      "summary": "凡例作成(applyCategories/applyGraduated/applyRules/addLayoutLegend/exportLegendImage)の手順書。モデルが ai_read_instruction で読む",
-      "needs_runtime": true,
-      "standalone_ok": false,
-      "depends": [
-        "bridge.applyCategories",
-        "bridge.applyGraduated",
-        "bridge.applyRules",
-        "bridge.addLayoutLegend",
-        "bridge.exportLegendImage"
-      ],
-      "verify": {
-        "standalone": "",
-        "integrated": "ai_list_instructions→skills[]に id=legend-creation & builtin、ai_read_instruction→title/desc/when+本文"
-      },
-      "last_result": "removed",
-      "last_verified": "2026-11-14T16:20:00+09:00",
-      "note": "実QGISで ai_client.list_skills()→builtin=true・path=geo_legend/skills/・when正解、load_instruction→本文取得を確認。ai-plane(devin_acp): モデルがスキルを参照し applyCategories(cat/4分類/Spectral) → QgsCategorizedSymbolRenderer実在をassert、addLayoutLegend(検証用凡例) → QgsLayoutItemLegend実在をassert、両方pass"
     },
     {
       "id": "logic_fn.create_zip.py:bump_version",
@@ -717,7 +675,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -735,7 +693,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -753,7 +711,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -771,7 +729,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -789,7 +747,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -807,7 +765,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -825,7 +783,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -843,7 +801,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -861,7 +819,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -879,7 +837,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -897,7 +855,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -915,7 +873,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -933,7 +891,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -951,7 +909,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -969,7 +927,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -987,7 +945,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -1005,7 +963,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:12:30+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     }
   ],
@@ -1022,13 +980,14 @@
       "rc": 0,
       "out": "[main]\tINFO\tUsing ini file for skipped tests\n[main]\tINFO\tUsing command line arg for selected targets"
     },
-    "ran_at": "2026-11-14T07:12:30+09:00",
+    "ran_at": "2026-11-15T22:33:28+09:00",
     "reload": {
       "loaded": true,
       "opened": false,
       "plugins": [
         "ImportPhotos",
         "MetaSearch",
+        "Qgis2threejs",
         "QuickDEM4JP",
         "StreetView",
         "db_manager",

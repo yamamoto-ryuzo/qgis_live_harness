@@ -25,7 +25,7 @@
    "text": "SampleProjectFile (Q:\\sample_projects\\SampleProjectFile.qgs)",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "SampleProjectFile (Q:\\sample_projects\\SampleProjectFile.qgs)",
    "path": "プロジェクト(&J)/最近のプロジェクト(&R)"
@@ -185,7 +185,7 @@
    "text": "元に戻す...",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "<b>プロジェクトを保存したバージョンに戻す</b>",
    "path": "プロジェクト(&J)"
@@ -325,7 +325,7 @@
    "text": "地物をコピー",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>地物をコピー</b>",
    "path": "編集(&E)"
@@ -375,7 +375,7 @@
    "text": "地物を選択",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>シングルクリックによる地物選択</b>",
    "path": "編集(&E)/選択"
@@ -385,7 +385,7 @@
    "text": "ポリゴンによる地物選択",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>ポリゴンによる地物選択</b>",
    "path": "編集(&E)/選択"
@@ -395,7 +395,7 @@
    "text": "フリーハンドによる地物選択",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>フリーハンドによる地物選択</b>",
    "path": "編集(&E)/選択"
@@ -405,7 +405,7 @@
    "text": "円による地物選択",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>円による地物選択</b>",
    "path": "編集(&E)/選択"
@@ -415,7 +415,7 @@
    "text": "値による地物選択...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "F3",
    "tooltip": "<b>値で地物を選択</b> (F3)",
    "path": "編集(&E)/選択"
@@ -425,7 +425,7 @@
    "text": "式による地物選択...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "Ctrl+F3",
    "tooltip": "<b>式を使用して地物を選択</b> (Ctrl+F3)",
    "path": "編集(&E)/選択"
@@ -455,7 +455,7 @@
    "text": "地物を再選択",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>現在のレイヤから地物を再選択</b>",
    "path": "編集(&E)/選択"
@@ -465,7 +465,7 @@
    "text": "すべての地物を選択",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>すべての地物を選択</b>",
    "path": "編集(&E)/選択"
@@ -475,19 +475,19 @@
    "text": "地物選択を反転",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>地物選択を反転</b>",
    "path": "編集(&E)/選択"
   },
   {
    "objectName": "mActionAddFeature",
-   "text": "地物を追加",
+   "text": "点地物を追加する",
    "checkable": true,
    "checked": false,
    "enabled": false,
    "shortcut": "Ctrl+.",
-   "tooltip": "<b>地物を追加</b> (Ctrl+.)",
+   "tooltip": "<b>点地物を追加する</b> (Ctrl+.)",
    "path": "編集(&E)"
   },
   {
@@ -805,7 +805,7 @@
    "text": "選択部分にパン",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>Pans the map canvas to selected features</b>",
    "path": "ビュー(&V)"
@@ -904,7 +904,7 @@
    "objectName": "mActionStatisticalSummary",
    "text": "統計サマリー",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": true,
    "shortcut": "",
    "tooltip": "<b>統計の要約を表示</b>",
@@ -925,7 +925,7 @@
    "text": "選択部分にズーム(&S)",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "Ctrl+J",
    "tooltip": "<b>選択部分にズーム</b> (Ctrl+J)",
    "path": "ビュー(&V)"
@@ -935,7 +935,7 @@
    "text": "レイヤの領域にズーム(&L)",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤの領域にズーム</b>",
    "path": "ビュー(&V)"
@@ -1104,7 +1104,7 @@
    "objectName": "mActionMapTips",
    "text": "地図のTipsを表示",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": true,
    "shortcut": "",
    "tooltip": "<b>地図のTipsを表示</b>",
@@ -1314,7 +1314,7 @@
    "objectName": "",
    "text": "ログメッセージ",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": true,
    "shortcut": "",
    "tooltip": "ログメッセージ",
@@ -1384,7 +1384,7 @@
    "objectName": "",
    "text": "頂点エディタ",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": true,
    "shortcut": "",
    "tooltip": "頂点エディタ",
@@ -1394,7 +1394,7 @@
    "objectName": "",
    "text": "統計",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": true,
    "shortcut": "",
    "tooltip": "統計",
@@ -1402,12 +1402,22 @@
   },
   {
    "objectName": "",
-   "text": "AI アシスタント",
+   "text": "レポート",
    "checkable": true,
-   "checked": true,
+   "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "AI アシスタント",
+   "tooltip": "レポート",
+   "path": "ビュー(&V)/パネル"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
    "path": "ビュー(&V)/パネル"
   },
   {
@@ -1604,7 +1614,7 @@
    "objectName": "",
    "text": "GPS Toolbar",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": true,
    "shortcut": "",
    "tooltip": "GPS Toolbar",
@@ -1995,7 +2005,7 @@
    "text": "スタイルをコピー",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>Copy style of the active layer</b>",
    "path": "レイヤ(&L)"
@@ -2015,7 +2025,7 @@
    "text": "レイヤをコピー",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤをコピー</b>",
    "path": "レイヤ(&L)"
@@ -2035,7 +2045,7 @@
    "text": "属性テーブルを開く(&A)",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "F6",
    "tooltip": "<b>属性テーブルを開く</b> (F6)",
    "path": "レイヤ(&L)"
@@ -2045,7 +2055,7 @@
    "text": "属性テーブルを開く（選択地物）",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "Shift+F6",
    "tooltip": "<b>属性テーブルを開く（選択地物）</b> (Shift+F6)",
    "path": "レイヤ(&L)/属性テーブルをフィルタ"
@@ -2055,7 +2065,7 @@
    "text": "属性テーブルを開く（可視地物）",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "Ctrl+F6",
    "tooltip": "<b>属性テーブルを開く（可視地物）</b> (Ctrl+F6)",
    "path": "レイヤ(&L)/属性テーブルをフィルタ"
@@ -2065,7 +2075,7 @@
    "text": "属性テーブルを開く（編集済み地物）",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>属性テーブルを開く（編集済み地物）</b>",
    "path": "レイヤ(&L)/属性テーブルをフィルタ"
@@ -2075,7 +2085,7 @@
    "text": "編集モードを切り替え(&E)",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>編集モードを切り替え</b>",
    "path": "レイヤ(&L)"
@@ -2155,7 +2165,7 @@
    "text": "名前をつけて保存(&S)...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>名前をつけてレイヤを保存</b>",
    "path": "レイヤ(&L)"
@@ -2165,7 +2175,7 @@
    "text": "レイヤ定義ファイルとして保存...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤ定義ファイルとして保存</b>",
    "path": "レイヤ(&L)"
@@ -2185,7 +2195,7 @@
    "text": "レイヤを複製",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤを複製</b>",
    "path": "レイヤ(&L)"
@@ -2195,7 +2205,7 @@
    "text": "レイヤを表示するスケールを設定",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤを表示するスケールを設定</b>",
    "path": "レイヤ(&L)"
@@ -2205,7 +2215,7 @@
    "text": "レイヤのCRSを設定",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "Ctrl+Shift+C",
    "tooltip": "<b>レイヤのCRSを設定</b> (Ctrl+Shift+C)",
    "path": "レイヤ(&L)"
@@ -2215,7 +2225,7 @@
    "text": "レイヤのCRSをプロジェクトに設定",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤのCRSをプロジェクトに設定</b>",
    "path": "レイヤ(&L)"
@@ -2225,7 +2235,7 @@
    "text": "レイヤのプロパティ(&P)...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤのプロパティ</b>",
    "path": "レイヤ(&L)"
@@ -2235,7 +2245,7 @@
    "text": "フィルタ...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "Ctrl+F",
    "tooltip": "<b>フィルタ</b> (Ctrl+F)",
    "path": "レイヤ(&L)"
@@ -2245,7 +2255,7 @@
    "text": "ラベル",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤラベリングオプション</b>",
    "path": "レイヤ(&L)"
@@ -2255,7 +2265,7 @@
    "text": "全体図に表示",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>全体図に表示</b>",
    "path": "レイヤ(&L)"
@@ -2387,7 +2397,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>設定</b>",
+   "tooltip": "設定",
    "path": "プラグイン(&P)/&geo_excel"
   },
   {
@@ -2397,7 +2407,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>geo_import</b>",
+   "tooltip": "geo_import",
    "path": "プラグイン(&P)/&geo_import"
   },
   {
@@ -2407,7 +2417,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>geo_import 設定</b>",
+   "tooltip": "geo_import 設定",
    "path": "プラグイン(&P)/&geo_import"
   },
   {
@@ -2417,7 +2427,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>Kasugai QGIS Launcher</b>",
+   "tooltip": "Kasugai QGIS Launcher",
    "path": "プラグイン(&P)/&geo_launcher"
   },
   {
@@ -2427,7 +2437,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>ランチャーを開く</b>",
+   "tooltip": "ランチャーを開く",
    "path": "プラグイン(&P)/&geo_launcher"
   },
   {
@@ -2437,7 +2447,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>設定</b>",
+   "tooltip": "設定",
    "path": "プラグイン(&P)/&geo_launcher"
   },
   {
@@ -2447,7 +2457,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>レイアウト選択</b>",
+   "tooltip": "レイアウト選択",
    "path": "プラグイン(&P)/geo_report"
   },
   {
@@ -2457,7 +2467,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>ユーザー関数ライブラリ</b>",
+   "tooltip": "ユーザー関数ライブラリ",
    "path": "プラグイン(&P)/&geo_userfunc"
   },
   {
@@ -2467,7 +2477,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>一覧帳票を出力 (アクティブレイヤ)</b>",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
    "path": "プラグイン(&P)/&geo_userfunc"
   },
   {
@@ -2477,7 +2487,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>単票を出力 (選択地物)</b>",
+   "tooltip": "単票を出力 (選択地物)",
    "path": "プラグイン(&P)/&geo_userfunc"
   },
   {
@@ -2487,7 +2497,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>単票を一括出力 (選択地物または全地物)</b>",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
    "path": "プラグイン(&P)/&geo_userfunc"
   },
   {
@@ -2497,7 +2507,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>geo_webview</b>",
+   "tooltip": "geo_webview",
    "path": "プラグイン(&P)/&geo_webview"
   },
   {
@@ -2707,7 +2717,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>地図検索</b>",
+   "tooltip": "地図検索",
    "path": "プラグイン(&P)/地図検索"
   },
   {
@@ -3885,7 +3895,7 @@
    "text": "In-Place編集",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>In-Place編集</b>",
    "path": "プロセシング(&C)"
@@ -4004,6 +4014,96 @@
  "actions": [
   {
    "objectName": "",
+   "text": "レイヤ",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイヤ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": false,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "フィルタ式を編集",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "フィルタ式を編集",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "フィルタ式をクリア",
+   "checkable": false,
+   "checked": false,
+   "enabled": false,
+   "shortcut": "",
+   "tooltip": "フィルタ式をクリア",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
    "text": "ブラウザ",
    "checkable": true,
    "checked": true,
@@ -4056,7 +4156,7 @@
    "objectName": "mActionPropertiesWidget",
    "text": "プロパティを表示",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": true,
    "shortcut": "",
    "tooltip": "プロパティウィジェットの有効化/無効化",
@@ -4166,7 +4266,7 @@
    "objectName": "mFloaterAction",
    "text": "Floater settings",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": false,
    "shortcut": "",
    "tooltip": "Floater settings",
@@ -4576,7 +4676,7 @@
    "objectName": "",
    "text": "Show Floater",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": true,
    "shortcut": "",
    "tooltip": "Show Floater",
@@ -4877,7 +4977,7 @@
    "text": "地物をコピー",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>地物をコピー</b>",
    "path": "(mainWindow)"
@@ -4894,12 +4994,12 @@
   },
   {
    "objectName": "mActionAddFeature",
-   "text": "地物を追加",
+   "text": "点地物を追加する",
    "checkable": true,
    "checked": false,
    "enabled": false,
    "shortcut": "Ctrl+.",
-   "tooltip": "<b>地物を追加</b> (Ctrl+.)",
+   "tooltip": "<b>点地物を追加する</b> (Ctrl+.)",
    "path": "(mainWindow)"
   },
   {
@@ -5117,7 +5217,7 @@
    "text": "地物を選択",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>シングルクリックによる地物選択</b>",
    "path": "(mainWindow)"
@@ -5127,7 +5227,7 @@
    "text": "ポリゴンによる地物選択",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>ポリゴンによる地物選択</b>",
    "path": "(mainWindow)"
@@ -5137,7 +5237,7 @@
    "text": "フリーハンドによる地物選択",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>フリーハンドによる地物選択</b>",
    "path": "(mainWindow)"
@@ -5147,7 +5247,7 @@
    "text": "円による地物選択",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>円による地物選択</b>",
    "path": "(mainWindow)"
@@ -5177,7 +5277,7 @@
    "text": "すべての地物を選択",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>すべての地物を選択</b>",
    "path": "(mainWindow)"
@@ -5187,7 +5287,7 @@
    "text": "地物選択を反転",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>地物選択を反転</b>",
    "path": "(mainWindow)"
@@ -5247,7 +5347,7 @@
    "text": "レイヤの領域にズーム(&L)",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤの領域にズーム</b>",
    "path": "(mainWindow)"
@@ -5257,7 +5357,7 @@
    "text": "レイヤの領域にズーム(&L)",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤの領域にズーム</b>",
    "path": "(mainWindow)"
@@ -5267,7 +5367,7 @@
    "text": "選択部分にズーム(&S)",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "Ctrl+J",
    "tooltip": "<b>選択部分にズーム</b> (Ctrl+J)",
    "path": "(mainWindow)"
@@ -5306,7 +5406,7 @@
    "objectName": "mActionMapTips",
    "text": "地図のTipsを表示",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": true,
    "shortcut": "",
    "tooltip": "<b>地図のTipsを表示</b>",
@@ -5367,7 +5467,7 @@
    "text": "ラベル",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤラベリングオプション</b>",
    "path": "(mainWindow)"
@@ -5487,7 +5587,7 @@
    "text": "属性テーブルを開く(&A)",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "F6",
    "tooltip": "<b>属性テーブルを開く</b> (F6)",
    "path": "(mainWindow)"
@@ -5497,7 +5597,7 @@
    "text": "属性テーブルを開く（選択地物）",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "Shift+F6",
    "tooltip": "<b>属性テーブルを開く（選択地物）</b> (Shift+F6)",
    "path": "(mainWindow)"
@@ -5507,7 +5607,7 @@
    "text": "属性テーブルを開く（可視地物）",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "Ctrl+F6",
    "tooltip": "<b>属性テーブルを開く（可視地物）</b> (Ctrl+F6)",
    "path": "(mainWindow)"
@@ -5517,7 +5617,7 @@
    "text": "属性テーブルを開く（編集済み地物）",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>属性テーブルを開く（編集済み地物）</b>",
    "path": "(mainWindow)"
@@ -5527,7 +5627,7 @@
    "text": "編集モードを切り替え(&E)",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>編集モードを切り替え</b>",
    "path": "(mainWindow)"
@@ -5547,7 +5647,7 @@
    "text": "名前をつけて保存(&S)...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>名前をつけてレイヤを保存</b>",
    "path": "(mainWindow)"
@@ -5567,7 +5667,7 @@
    "text": "レイヤのCRSを設定",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "Ctrl+Shift+C",
    "tooltip": "<b>レイヤのCRSを設定</b> (Ctrl+Shift+C)",
    "path": "(mainWindow)"
@@ -5577,7 +5677,7 @@
    "text": "レイヤのCRSをプロジェクトに設定",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤのCRSをプロジェクトに設定</b>",
    "path": "(mainWindow)"
@@ -5587,7 +5687,7 @@
    "text": "レイヤのプロパティ(&P)...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤのプロパティ</b>",
    "path": "(mainWindow)"
@@ -5597,7 +5697,7 @@
    "text": "フィルタ...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "Ctrl+F",
    "tooltip": "<b>フィルタ</b> (Ctrl+F)",
    "path": "(mainWindow)"
@@ -5607,7 +5707,7 @@
    "text": "全体図に表示",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>全体図に表示</b>",
    "path": "(mainWindow)"
@@ -5979,7 +6079,7 @@
    "checked": false,
    "enabled": false,
    "shortcut": "",
-   "tooltip": "<b>地物アクションの実行</b>",
+   "tooltip": "アクションが選択されていません",
    "path": "(mainWindow)"
   },
   {
@@ -5987,7 +6087,7 @@
    "text": "選択部分にパン",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>Pans the map canvas to selected features</b>",
    "path": "(mainWindow)"
@@ -6017,7 +6117,7 @@
    "text": "スタイルをコピー",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>Copy style of the active layer</b>",
    "path": "(mainWindow)"
@@ -6127,7 +6227,7 @@
    "text": "レイヤを複製",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤを複製</b>",
    "path": "(mainWindow)"
@@ -6267,7 +6367,7 @@
    "text": "式による地物選択...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "Ctrl+F3",
    "tooltip": "<b>式を使用して地物を選択</b> (Ctrl+F3)",
    "path": "(mainWindow)"
@@ -6287,7 +6387,7 @@
    "text": "フィールド計算機を開く...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>フィールド計算機を開く</b>",
    "path": "(mainWindow)"
@@ -6377,7 +6477,7 @@
    "text": "レイヤ定義ファイルとして保存...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤ定義ファイルとして保存</b>",
    "path": "(mainWindow)"
@@ -6447,7 +6547,7 @@
    "text": "レイヤを表示するスケールを設定",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤを表示するスケールを設定</b>",
    "path": "(mainWindow)"
@@ -6516,7 +6616,7 @@
    "objectName": "mActionStatisticalSummary",
    "text": "統計サマリー",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": true,
    "shortcut": "",
    "tooltip": "<b>統計の要約を表示</b>",
@@ -6537,7 +6637,7 @@
    "text": "グラフのオプション",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤダイアグラムのオプション</b>",
    "path": "(mainWindow)"
@@ -6577,7 +6677,7 @@
    "text": "値による地物選択...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "F3",
    "tooltip": "<b>値で地物を選択</b> (F3)",
    "path": "(mainWindow)"
@@ -6657,7 +6757,7 @@
    "text": "元に戻す...",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "<b>プロジェクトを保存したバージョンに戻す</b>",
    "path": "(mainWindow)"
@@ -6667,7 +6767,7 @@
    "text": "レイヤをコピー",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>レイヤをコピー</b>",
    "path": "(mainWindow)"
@@ -6737,7 +6837,7 @@
    "text": "地物を再選択",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>現在のレイヤから地物を再選択</b>",
    "path": "(mainWindow)"
@@ -7087,7 +7187,7 @@
    "text": "SampleProjectFile (Q:\\sample_projects\\SampleProjectFile.qgs)",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "SampleProjectFile (Q:\\sample_projects\\SampleProjectFile.qgs)",
    "path": "(mainWindow)"
@@ -7537,7 +7637,7 @@
    "text": "属性テーブルをフィルタ",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "属性テーブルをフィルタ",
    "path": "(mainWindow)"
@@ -7847,7 +7947,7 @@
    "text": "選択",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "選択",
    "path": "(mainWindow)"
@@ -8637,7 +8737,7 @@
    "text": "",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "",
    "path": "(mainWindow)"
@@ -8914,206 +9014,6 @@
   },
   {
    "objectName": "",
-   "text": "統計",
-   "checkable": true,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "統計",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "カウント（Count）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "カウント（Count）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "合計（Sum）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "合計（Sum）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "平均値（Mean）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "平均値（Mean）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "中央値（Median）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "中央値（Median）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "標準偏差 （母集団）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "標準偏差 （母集団）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "標準偏差 （標本）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "標準偏差 （標本）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "最小",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "最小",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "最大",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "最大",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "範囲（Range）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "範囲（Range）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "最稀値（Minority）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "最稀値（Minority）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "最頻値（Majority）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "最頻値（Majority）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "種類（Variety）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "種類（Variety）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "第１四分位（Q1）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "第１四分位（Q1）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "第３四分位（Q3）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "第３四分位（Q3）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "四分位範囲（IQR）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "四分位範囲（IQR）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "欠落（NULL）値",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "欠落（NULL）値",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "選択したレイヤに従う",
-   "checkable": true,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "選択したレイヤに従う",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
    "text": "パネル",
    "checkable": false,
    "checked": false,
@@ -9204,36 +9104,6 @@
   },
   {
    "objectName": "",
-   "text": "頂点エディタ",
-   "checkable": true,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "頂点エディタ",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "自動的にプロジェクトを開く",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "自動的にプロジェクトを開く",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
    "text": "Copy",
    "checkable": false,
    "checked": false,
@@ -9256,100 +9126,10 @@
    "objectName": "",
    "text": "頂点エディタを表示",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": true,
    "shortcut": "",
    "tooltip": "<b>頂点エディタを表示</b>",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "レイヤ",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "レイヤ",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": false,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": false,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "フィルタ式を編集",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "フィルタ式を編集",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "フィルタ式をクリア",
-   "checkable": false,
-   "checked": false,
-   "enabled": false,
-   "shortcut": "",
-   "tooltip": "フィルタ式をクリア",
    "path": "(mainWindow)"
   },
   {
@@ -9647,7 +9427,7 @@
    "text": "",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "",
    "path": "(mainWindow)"
@@ -9757,7 +9537,7 @@
    "text": "",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "",
    "path": "(mainWindow)"
@@ -10547,7 +10327,7 @@
    "text": "",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "",
    "path": "(mainWindow)"
@@ -10556,7 +10336,7 @@
    "objectName": "",
    "text": "GPS Toolbar",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": true,
    "shortcut": "",
    "tooltip": "GPS Toolbar",
@@ -10624,12 +10404,12 @@
   },
   {
    "objectName": "mCreateFeatureAction",
-   "text": "Create Feature from Track",
+   "text": "Create Point Feature at Location",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
-   "tooltip": "Create Feature from Track",
+   "tooltip": "Create a new point feature at the current GPS location",
    "path": "(mainWindow)"
   },
   {
@@ -10690,26 +10470,6 @@
    "enabled": true,
    "shortcut": "",
    "tooltip": "GPS情報",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "ログメッセージ",
-   "checkable": true,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "ログメッセージ",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "",
    "path": "(mainWindow)"
   },
   {
@@ -10954,6 +10714,26 @@
   },
   {
    "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
    "text": "一覧帳票を出力 (アクティブレイヤ)",
    "checkable": false,
    "checked": false,
@@ -11120,16 +10900,6 @@
    "enabled": true,
    "shortcut": "",
    "tooltip": "地図検索",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": true,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "選択したテーマの表示レイヤを現在の表示に追加します（オン：追加表示、オフ：通常上書き）",
    "path": "(mainWindow)"
   },
   {
@@ -11877,7 +11647,7 @@
    "text": "",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "",
    "path": "(mainWindow)"
@@ -12087,7 +11857,7 @@
    "text": "In-Place編集",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>In-Place編集</b>",
    "path": "(mainWindow)"
@@ -12894,6 +12664,596 @@
   },
   {
    "objectName": "",
+   "text": "統計",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "統計",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "カウント（Count）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "カウント（Count）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "合計（Sum）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "合計（Sum）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "平均値（Mean）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "平均値（Mean）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "中央値（Median）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "中央値（Median）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "標準偏差 （母集団）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "標準偏差 （母集団）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "標準偏差 （標本）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "標準偏差 （標本）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "最小",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "最小",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "最大",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "最大",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "範囲（Range）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "範囲（Range）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "最稀値（Minority）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "最稀値（Minority）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "最頻値（Majority）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "最頻値（Majority）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "種類（Variety）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "種類（Variety）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "第１四分位（Q1）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "第１四分位（Q1）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "第３四分位（Q3）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "第３四分位（Q3）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "四分位範囲（IQR）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "四分位範囲（IQR）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "欠落（NULL）値",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "欠落（NULL）値",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "選択したレイヤに従う",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "選択したレイヤに従う",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ログメッセージ",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ログメッセージ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "空間ブックマークマネージャ",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "空間ブックマークマネージャ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "actionAdd",
+   "text": "追加",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ブックマークを追加する",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "actionDelete",
+   "text": "削除",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ブックマークを削除する",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "actionZoomTo",
+   "text": "ズーム",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ブックマークにズーム",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "actionExport",
+   "text": "&Export",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Export",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "actionImport",
+   "text": "&Import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": false,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "タイルスケール",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "タイルスケール",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "&geo_excel",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_excel",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "&geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Kasugai QGIS Launcher",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Kasugai QGIS Launcher",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "&geo_launcher",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_launcher",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ランチャーを開く",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ランチャーを開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "&レジェンドビュー",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レジェンドビュー",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レイアウト選択",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイアウト選択",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_report",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_report",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レポート",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レポート",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "選択したテーマの表示レイヤを現在の表示に追加します（オン：追加表示、オフ：通常上書き）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "&geo_userfunc",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_userfunc",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "&geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
    "text": "",
    "checkable": false,
    "checked": false,
@@ -13154,62 +13514,22 @@
   },
   {
    "objectName": "",
-   "text": "空間ブックマークマネージャ",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "頂点エディタ",
    "checkable": true,
    "checked": true,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "空間ブックマークマネージャ",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "actionAdd",
-   "text": "追加",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "ブックマークを追加する",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "actionDelete",
-   "text": "削除",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "ブックマークを削除する",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "actionZoomTo",
-   "text": "ズーム",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "ブックマークにズーム",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "actionExport",
-   "text": "&Export",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "Export",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "actionImport",
-   "text": "&Import",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "Import",
+   "tooltip": "頂点エディタ",
    "path": "(mainWindow)"
   },
   {
@@ -13217,59 +13537,19 @@
    "text": "",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "",
    "path": "(mainWindow)"
   },
   {
    "objectName": "",
-   "text": "",
+   "text": "自動的にプロジェクトを開く",
    "checkable": true,
    "checked": true,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "タイルスケール",
-   "checkable": true,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "タイルスケール",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "AI アシスタント",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "AI アシスタント",
+   "tooltip": "自動的にプロジェクトを開く",
    "path": "(mainWindow)"
   }
  ],
@@ -17471,6 +17751,11 @@
  ],
  "docks": [
   {
+   "objectName": "Layers",
+   "title": "レイヤ",
+   "visible": true
+  },
+  {
    "objectName": "Browser",
    "title": "ブラウザ",
    "visible": true
@@ -17494,21 +17779,6 @@
    "objectName": "undo/redo dock",
    "title": "元に戻す/やり直す",
    "visible": false
-  },
-  {
-   "objectName": "StatisticalSummaryDockWidget",
-   "title": "統計",
-   "visible": false
-  },
-  {
-   "objectName": "VertexEditor",
-   "title": "頂点エディタ",
-   "visible": false
-  },
-  {
-   "objectName": "Layers",
-   "title": "レイヤ",
-   "visible": true
   },
   {
    "objectName": "QgsGeometryValidationDockBase",
@@ -17541,11 +17811,6 @@
    "visible": false
   },
   {
-   "objectName": "MessageLog",
-   "title": "ログメッセージ",
-   "visible": false
-  },
-  {
    "objectName": "ProcessingToolbox",
    "title": "プロセシングツールボックス",
    "visible": false
@@ -17554,6 +17819,16 @@
    "objectName": "ResultsViewer",
    "title": "結果ビューア",
    "visible": false
+  },
+  {
+   "objectName": "StatisticalSummaryDockWidget",
+   "title": "統計",
+   "visible": true
+  },
+  {
+   "objectName": "MessageLog",
+   "title": "ログメッセージ",
+   "visible": true
   },
   {
    "objectName": "BookmarksDockWidget",
@@ -17566,8 +17841,18 @@
    "visible": false
   },
   {
-   "objectName": "GeoDriverAiPanel",
-   "title": "AI アシスタント",
+   "objectName": "GeoReportLayoutSelectorPanel",
+   "title": "レポート",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "VertexEditor",
+   "title": "頂点エディタ",
    "visible": true
   }
  ]

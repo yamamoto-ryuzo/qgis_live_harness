@@ -8,7 +8,7 @@
   "launch": "npm run live:ensure",
   "control": "POST /api/cmd / pyeval"
  },
- "updated": "2026-11-14T18:03:35+09:00",
+ "updated": "2026-11-15T22:36:11+09:00",
  "features": [
   {
    "id": "qgis.action.mActionNewProject",
@@ -61,7 +61,7 @@
    "objectName": "SampleProjectFile_Q_sample_projects_Samp",
    "menu_path": "プロジェクト(&J)/最近のプロジェクト(&R)",
    "checkable": false,
-   "enabled": true,
+   "enabled": false,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -397,7 +397,7 @@
    "objectName": "mActionRevertProject",
    "menu_path": "プロジェクト(&J)",
    "checkable": false,
-   "enabled": true,
+   "enabled": false,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -691,7 +691,7 @@
    "objectName": "mActionCopyFeatures",
    "menu_path": "編集(&E)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -798,7 +798,7 @@
    "objectName": "mActionSelectFeatures",
    "menu_path": "編集(&E)/選択",
    "checkable": true,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -821,7 +821,7 @@
    "objectName": "mActionSelectPolygon",
    "menu_path": "編集(&E)/選択",
    "checkable": true,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -844,7 +844,7 @@
    "objectName": "mActionSelectFreehand",
    "menu_path": "編集(&E)/選択",
    "checkable": true,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -867,7 +867,7 @@
    "objectName": "mActionSelectRadius",
    "menu_path": "編集(&E)/選択",
    "checkable": true,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -890,7 +890,7 @@
    "objectName": "mActionSelectByForm",
    "menu_path": "編集(&E)/選択",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -913,7 +913,7 @@
    "objectName": "mActionSelectByExpression",
    "menu_path": "編集(&E)/選択",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -982,7 +982,7 @@
    "objectName": "mActionReselect",
    "menu_path": "編集(&E)/選択",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
@@ -1003,7 +1003,7 @@
    "objectName": "mActionSelectAll",
    "menu_path": "編集(&E)/選択",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -1026,7 +1026,7 @@
    "objectName": "mActionInvertSelection",
    "menu_path": "編集(&E)/選択",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
@@ -1041,9 +1041,9 @@
   {
    "id": "qgis.action.mActionAddFeature",
    "kind": "qgis_action",
-   "name": "地物を追加",
+   "name": "点地物を追加する",
    "source": "menu:編集(&E)",
-   "summary": "地物を追加 (編集(&E))",
+   "summary": "点地物を追加する (編集(&E))",
    "objectName": "mActionAddFeature",
    "menu_path": "編集(&E)",
    "checkable": true,
@@ -1053,7 +1053,7 @@
     "type": "action_trigger",
     "objectName": "mActionAddFeature",
     "checkable": true,
-    "text": "地物を追加"
+    "text": "点地物を追加する"
    },
    "tool_result": "pass",
    "ai_result": "pass",
@@ -1765,7 +1765,7 @@
    "objectName": "mActionPanToSelected",
    "menu_path": "ビュー(&V)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -2039,7 +2039,7 @@
    "objectName": "mActionZoomToSelected",
    "menu_path": "ビュー(&V)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -2062,7 +2062,7 @@
    "objectName": "mActionZoomToLayers",
    "menu_path": "ビュー(&V)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -2726,9 +2726,9 @@
    },
    "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): runner exc: no live geo_driver session | ai(devin_acp): assert=False | ai(devin_acp): channel dead | タイルスケールアクションはmodalダイアログ(dlg.exec)を開き制御チャンネルを占有→QGISクラッシュ実績。AI経路対象外",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -2748,10 +2748,10 @@
     "text": "デバッグ開発ツール"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): runner exc: no live geo_driver session | ai(devin_acp): assert=False | ai(devin_acp): panel not available | ai(devin_acp): assert=False | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -2771,10 +2771,10 @@
     "text": "ブラウザ"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): runner exc: no live geo_driver session | ai(devin_acp): assert=False | ai(devin_acp): panel not available | ai(devin_acp): assert=False | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.2",
@@ -2817,10 +2817,10 @@
     "text": "プロセシングツールボックス"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): runner exc: no live geo_driver session | ai(devin_acp): assert=False | ai(devin_acp): panel not available | ai(devin_acp): assert=False; tool trace不足: expect=noname|プロセシングツールボックス tools=pyeval | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tool trace不足: expect=プロセシングツールボックス|Processing tools=pyeval,screenshot | ai(devin_acp): tools=pyeval,screenshot",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -2840,10 +2840,10 @@
     "text": "レイヤ"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): runner exc: no live geo_driver session | ai(devin_acp): assert=False | ai(devin_acp): panel not available | ai(devin_acp): assert=False | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -2863,10 +2863,10 @@
     "text": "レイヤスタイル"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): channel dead | ai(devin_acp): assert=False | ai(devin_acp): panel not available | ai(devin_acp): assert=False; tool trace不足: expect=noname|レイヤスタイル tools=pyeval | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -2886,10 +2886,10 @@
     "text": "レイヤ順序"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): assert=False; tool trace不足: expect=noname|レイヤ順序 tools=pyeval | ai(devin_acp): panel not available | ai(devin_acp): assert=False; tool trace不足: expect=noname|レイヤ順序 tools=pyeval | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -2909,10 +2909,10 @@
     "text": "ログメッセージ"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): assert=False | ai(devin_acp): panel not available | ai(devin_acp): assert=False; tool trace不足: expect=noname|ログメッセージ tools=pyeval | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tool trace不足: expect=ログメッセージ|MessageLog tools=pyeval | ai(devin_acp): tools=pyeval,screenshot",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -2932,10 +2932,10 @@
     "text": "空間ブックマークマネージャ"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): assert=False; tool trace不足: expect=noname|空間ブックマークマネージャ tools=pyeval | ai(devin_acp): panel not available | ai(devin_acp): assert=False; tool trace不足: expect=noname|空間ブックマークマネージャ tools=pyeval | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tool trace不足: expect=空間ブックマークマネージャ|SpatialBookmark tools=pyeval | ai(devin_acp): tool trace不足: expect=空間ブックマークマネージャ|SpatialBookmark tools=pyeval,screenshot | ai(devin_acp): tool trace不足: expect=空間ブックマークマネージャ|SpatialBookmark tools=pyeval,screenshot | ai(devin_acp): tools=pyeval,screenshot",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -2955,10 +2955,10 @@
     "text": "結果ビューア"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): assert=False | ai(devin_acp): panel not available | ai(devin_acp): assert=False; tool trace不足: expect=noname|結果ビューア tools=pyeval | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tool trace不足: expect=結果ビューア tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -2978,10 +2978,10 @@
     "text": "元に戻す/やり直す"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): assert=False | ai(devin_acp): panel not available | ai(devin_acp): assert=False; tool trace不足: expect=noname|元に戻す/やり直す tools=pyeval | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tool trace不足: expect=元に戻す/やり直す|undo tools=pyeval | ai(devin_acp): tools=pyeval,screenshot",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -3001,10 +3001,10 @@
     "text": "高度なデジタイズ"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): assert=False | ai(devin_acp): panel not available | ai(devin_acp): assert=False; tool trace不足: expect=noname|高度なデジタイズ tools=pyeval | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tool trace不足: expect=高度なデジタイズ|AdvancedDigitizing tools=pyeval | ai(devin_acp): tools=pyeval,screenshot",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -3024,10 +3024,10 @@
     "text": "時系列コントローラ"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): assert=False; tool trace不足: expect=noname|時系列コントローラ tools=pyeval,screenshot | ai(devin_acp): panel not available | ai(devin_acp): assert=False; tool trace不足: expect=noname|時系列コントローラ tools=pyeval | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tool trace不足: expect=時系列コントローラ|Temporal tools=pyeval | ai(devin_acp): tool trace不足: expect=時系列コントローラ|Temporal tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -3047,10 +3047,10 @@
     "text": "全体図"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): assert=False | ai(devin_acp): panel not available | ai(devin_acp): assert=False | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -3070,10 +3070,10 @@
     "text": "頂点エディタ"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): assert=False | ai(devin_acp): assert=False | ai(devin_acp): assert=False; tool trace不足: expect=noname|頂点エディタ tools=pyeval | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tool trace不足: expect=頂点エディタ|VertexEditor tools=pyeval | ai(devin_acp): tools=pyeval,screenshot",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -3093,33 +3093,56 @@
     "text": "統計"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): assert=False | ai(devin_acp): assert=False | ai(devin_acp): assert=False | ai(devin_acp): assert error: Traceback (most recent call last):\n  File \"C:\\Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom/python/plugins\\geo_driver\\live_driver.py\", line 799, in _pyeval\n    res = eval(code_obj, | ai(devin_acp): tool trace不足: expect=統計|StatisticalSummary tools=pyeval | ai(devin_acp): tools=pyeval,screenshot",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
-   "id": "qgis.action.AI",
+   "id": "qgis.action.noname",
    "kind": "qgis_action",
-   "name": "AI アシスタント",
+   "name": "レポート",
    "source": "menu:ビュー(&V)/パネル",
-   "summary": "AI アシスタント (ビュー(&V)/パネル)",
-   "objectName": "AI",
+   "summary": "レポート (ビュー(&V)/パネル)",
+   "objectName": "noname",
    "menu_path": "ビュー(&V)/パネル",
    "checkable": true,
    "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
-    "objectName": "AI",
+    "objectName": "noname",
     "checkable": true,
-    "text": "AI アシスタント"
+    "text": "レポート"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.WebView",
+   "kind": "qgis_action",
+   "name": "WebView",
+   "source": "menu:ビュー(&V)/パネル",
+   "summary": "WebView (ビュー(&V)/パネル)",
+   "objectName": "WebView",
+   "menu_path": "ビュー(&V)/パネル",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "action_trigger",
+    "objectName": "WebView",
+    "checkable": true,
+    "text": "WebView"
+   },
+   "tool_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): panel not available | ai(devin_acp): assert=False; tool trace不足: expect=AI|AI\\ アシスタント tools=bridge_call,describe_plugins,screenshot | ai(devin_acp): assert=False | ai(devin_acp): tools=bridge_call,describe_plugins,open_plugin,status",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.mActionToggleWebToolBar",
@@ -4392,7 +4415,7 @@
    "objectName": "mActionCopyStyle",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
@@ -4434,7 +4457,7 @@
    "objectName": "mActionCopyLayer",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
@@ -4476,7 +4499,7 @@
    "objectName": "mActionOpenTable",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -4497,7 +4520,7 @@
    "objectName": "mActionOpenTableSelected",
    "menu_path": "レイヤ(&L)/属性テーブルをフィルタ",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -4518,7 +4541,7 @@
    "objectName": "mActionOpenTableVisible",
    "menu_path": "レイヤ(&L)/属性テーブルをフィルタ",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -4539,7 +4562,7 @@
    "objectName": "mActionOpenTableEdited",
    "menu_path": "レイヤ(&L)/属性テーブルをフィルタ",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -4560,7 +4583,7 @@
    "objectName": "mActionToggleEditing",
    "menu_path": "レイヤ(&L)",
    "checkable": true,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -4730,7 +4753,7 @@
    "objectName": "mActionLayerSaveAs",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -4751,7 +4774,7 @@
    "objectName": "mActionSaveLayerDefinition",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -4793,7 +4816,7 @@
    "objectName": "mActionDuplicateLayer",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
@@ -4814,7 +4837,7 @@
    "objectName": "mActionSetLayerScaleVisibility",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -4835,7 +4858,7 @@
    "objectName": "mActionSetLayerCRS",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -4856,7 +4879,7 @@
    "objectName": "mActionSetProjectCRSFromLayer",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -4877,7 +4900,7 @@
    "objectName": "mActionLayerProperties",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
@@ -4898,7 +4921,7 @@
    "objectName": "mActionLayerSubsetString",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
@@ -4919,7 +4942,7 @@
    "objectName": "mActionLabeling",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -4940,7 +4963,7 @@
    "objectName": "mActionAddToOverview",
    "menu_path": "レイヤ(&L)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
@@ -5221,10 +5244,10 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:30:42+09:00"
   },
   {
@@ -5305,11 +5328,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action....",
@@ -5326,10 +5349,10 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:30:42+09:00"
   },
   {
@@ -5348,10 +5371,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'レイアウト選択'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'レイアウト選択':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action....",
@@ -5390,10 +5413,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '一覧帳票を出力 (アクティブレイヤ)'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '一覧帳票を出力 (アクティブレイヤ)':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -5411,10 +5434,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '単票を出力 (選択地物)'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '単票を出力 (選択地物)':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -5432,10 +5455,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '単票を一括出力 (選択地物または全地物)'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '単票を一括出力 (選択地物または全地物)':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.geo_webview",
@@ -5560,10 +5583,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'プロジェクトのコンフィグ'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'プロジェクトのコンフィグ':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -5581,10 +5604,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'ヘルプ'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'ヘルプ':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.QFieldCloud",
@@ -5623,10 +5646,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '現在のクラウドプロジェクトを同期する'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '現在のクラウドプロジェクトを同期する':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.QField",
@@ -5686,10 +5709,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '現在のプロジェクトの構成'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '現在のプロジェクトの構成':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -5706,11 +5729,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.AI",
@@ -5729,7 +5752,7 @@
    },
    "tool_result": "pass",
    "ai_result": "pass",
-   "last_result": "pass",
+   "last_result": "removed",
    "note": "ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:30:42+09:00"
   },
@@ -5770,10 +5793,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '接続情報'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '接続情報':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:48+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -5791,10 +5814,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '配置モード'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '配置モード':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:48+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.searchLayers",
@@ -5875,10 +5898,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '凡例'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '凡例':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:48+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.geo_search",
@@ -8371,7 +8394,7 @@
    "objectName": "editInPlaceFeatures",
    "menu_path": "プロセシング(&C)",
    "checkable": true,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -8617,6 +8640,48 @@
    "last_verified": "2026-11-14T11:31:07+09:00"
   },
   {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "フィルタ式を編集",
+   "source": "mainWindow",
+   "summary": "フィルタ式を編集 (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'フィルタ式を編集'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'フィルタ式を編集':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "フィルタ式をクリア",
+   "source": "mainWindow",
+   "summary": "フィルタ式をクリア (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": false,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'フィルタ式をクリア'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'フィルタ式をクリア':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
    "id": "qgis.action.mActionAddLayers",
    "kind": "qgis_action",
    "name": "レイヤを追加",
@@ -8743,10 +8808,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '大・小文字を区別'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '大・小文字を区別':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:07+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -8764,10 +8829,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'フィルタパターン文法'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'フィルタパターン文法':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:07+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.Normal",
@@ -8806,10 +8871,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'ワイルドカード'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'ワイルドカード':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:07+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -8827,10 +8892,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '正規表現'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '正規表現':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:07+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.mFloaterAction",
@@ -9093,10 +9158,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '共通角にスナップしない'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '共通角にスナップしない':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:17+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.0.1_0.2_0.3_0.4_...",
@@ -9800,7 +9865,7 @@
    "objectName": "mActionZoomToLayer",
    "menu_path": "(mainWindow)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "action_trigger",
@@ -10213,7 +10278,7 @@
    "objectName": "mActionOpenFieldCalc",
    "menu_path": "(mainWindow)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -10234,7 +10299,7 @@
    "objectName": "mActionDiagramProperties",
    "menu_path": "(mainWindow)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "manual_only",
@@ -10658,10 +10723,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'レイアウト'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'レイアウト':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -10678,11 +10743,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -10699,11 +10764,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -10720,11 +10785,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -10741,11 +10806,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.Models",
@@ -10826,10 +10891,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '計測'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '計測':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.D",
@@ -10868,10 +10933,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'プレビューモード'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'プレビューモード':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -10889,10 +10954,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'レイヤの可視性'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'レイヤの可視性':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.Data_Filtering",
@@ -10973,10 +11038,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'レイヤを作成'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'レイヤを作成':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -10994,10 +11059,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'レイヤを追加'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'レイヤを追加':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -11008,17 +11073,17 @@
    "objectName": "noname",
    "menu_path": "(mainWindow)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '属性テーブルをフィルタ'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '属性テーブルをフィルタ':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.P",
@@ -11078,10 +11143,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'プラグイン'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'プラグイン':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:38+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.S",
@@ -11386,17 +11451,17 @@
    "objectName": "noname",
    "menu_path": "(mainWindow)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '選択'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '選択':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:38+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -11413,11 +11478,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:38+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -11435,10 +11500,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '注記を追加'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '注記を追加':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:38+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -11456,10 +11521,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '属性を編集'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '属性を編集':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:38+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -11477,10 +11542,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'ジオメトリを編集'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'ジオメトリを編集':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:38+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.M",
@@ -11940,11 +12005,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:38+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.mAllowIntersectionsAction",
@@ -12024,11 +12089,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:38+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.mAllLayersAction",
@@ -12132,10 +12197,10 @@
     "text": "頂点"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -12155,10 +12220,10 @@
     "text": "セグメント"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -12178,10 +12243,10 @@
     "text": "エリア"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -12201,10 +12266,10 @@
     "text": "重心点"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -12224,10 +12289,10 @@
     "text": "セグメントの中央"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -12247,10 +12312,10 @@
     "text": "線のエンドポイント"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.TopologicalEditingAction",
@@ -12597,363 +12662,6 @@
    "last_verified": "2026-11-14T11:31:47+09:00"
   },
   {
-   "id": "qgis.action.Count",
-   "kind": "qgis_action",
-   "name": "カウント（Count）",
-   "source": "mainWindow",
-   "summary": "カウント（Count） (ツールバー/コンテキスト)",
-   "objectName": "Count",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Count' or a.text() == 'カウント（Count）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Count' or _a.text() == 'カウント（Count）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Sum",
-   "kind": "qgis_action",
-   "name": "合計（Sum）",
-   "source": "mainWindow",
-   "summary": "合計（Sum） (ツールバー/コンテキスト)",
-   "objectName": "Sum",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Sum' or a.text() == '合計（Sum）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Sum' or _a.text() == '合計（Sum）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Mean",
-   "kind": "qgis_action",
-   "name": "平均値（Mean）",
-   "source": "mainWindow",
-   "summary": "平均値（Mean） (ツールバー/コンテキスト)",
-   "objectName": "Mean",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Mean' or a.text() == '平均値（Mean）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Mean' or _a.text() == '平均値（Mean）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Median",
-   "kind": "qgis_action",
-   "name": "中央値（Median）",
-   "source": "mainWindow",
-   "summary": "中央値（Median） (ツールバー/コンテキスト)",
-   "objectName": "Median",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Median' or a.text() == '中央値（Median）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Median' or _a.text() == '中央値（Median）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "標準偏差 （母集団）",
-   "source": "mainWindow",
-   "summary": "標準偏差 （母集団） (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '標準偏差 （母集団）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '標準偏差 （母集団）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "標準偏差 （標本）",
-   "source": "mainWindow",
-   "summary": "標準偏差 （標本） (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '標準偏差 （標本）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '標準偏差 （標本）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "最小",
-   "source": "mainWindow",
-   "summary": "最小 (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '最小'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '最小':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "最大",
-   "source": "mainWindow",
-   "summary": "最大 (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '最大'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '最大':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Range",
-   "kind": "qgis_action",
-   "name": "範囲（Range）",
-   "source": "mainWindow",
-   "summary": "範囲（Range） (ツールバー/コンテキスト)",
-   "objectName": "Range",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Range' or a.text() == '範囲（Range）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Range' or _a.text() == '範囲（Range）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Minority",
-   "kind": "qgis_action",
-   "name": "最稀値（Minority）",
-   "source": "mainWindow",
-   "summary": "最稀値（Minority） (ツールバー/コンテキスト)",
-   "objectName": "Minority",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Minority' or a.text() == '最稀値（Minority）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Minority' or _a.text() == '最稀値（Minority）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Majority",
-   "kind": "qgis_action",
-   "name": "最頻値（Majority）",
-   "source": "mainWindow",
-   "summary": "最頻値（Majority） (ツールバー/コンテキスト)",
-   "objectName": "Majority",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Majority' or a.text() == '最頻値（Majority）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Majority' or _a.text() == '最頻値（Majority）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Variety",
-   "kind": "qgis_action",
-   "name": "種類（Variety）",
-   "source": "mainWindow",
-   "summary": "種類（Variety） (ツールバー/コンテキスト)",
-   "objectName": "Variety",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Variety' or a.text() == '種類（Variety）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Variety' or _a.text() == '種類（Variety）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Q1",
-   "kind": "qgis_action",
-   "name": "第１四分位（Q1）",
-   "source": "mainWindow",
-   "summary": "第１四分位（Q1） (ツールバー/コンテキスト)",
-   "objectName": "Q1",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Q1' or a.text() == '第１四分位（Q1）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Q1' or _a.text() == '第１四分位（Q1）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Q3",
-   "kind": "qgis_action",
-   "name": "第３四分位（Q3）",
-   "source": "mainWindow",
-   "summary": "第３四分位（Q3） (ツールバー/コンテキスト)",
-   "objectName": "Q3",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Q3' or a.text() == '第３四分位（Q3）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Q3' or _a.text() == '第３四分位（Q3）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.IQR",
-   "kind": "qgis_action",
-   "name": "四分位範囲（IQR）",
-   "source": "mainWindow",
-   "summary": "四分位範囲（IQR） (ツールバー/コンテキスト)",
-   "objectName": "IQR",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'IQR' or a.text() == '四分位範囲（IQR）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'IQR' or _a.text() == '四分位範囲（IQR）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.NULL",
-   "kind": "qgis_action",
-   "name": "欠落（NULL）値",
-   "source": "mainWindow",
-   "summary": "欠落（NULL）値 (ツールバー/コンテキスト)",
-   "objectName": "NULL",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'NULL' or a.text() == '欠落（NULL）値'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'NULL' or _a.text() == '欠落（NULL）値':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "選択したレイヤに従う",
-   "source": "mainWindow",
-   "summary": "選択したレイヤに従う (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '選択したレイヤに従う'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '選択したレイヤに従う':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
    "id": "qgis.action.noname_noname",
    "kind": "qgis_action",
    "name": "パネル",
@@ -12969,10 +12677,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'パネル'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'パネル':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -12990,10 +12698,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'ツールバー'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'ツールバー':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.U",
@@ -13032,31 +12740,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '現在の編集'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '現在の編集':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "自動的にプロジェクトを開く",
-   "source": "mainWindow",
-   "summary": "自動的にプロジェクトを開く (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:47+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.Copy",
@@ -13095,52 +12782,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '頂点エディタを表示'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '頂点エディタを表示':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "フィルタ式を編集",
-   "source": "mainWindow",
-   "summary": "フィルタ式を編集 (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'フィルタ式を編集'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'フィルタ式を編集':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "kind": "qgis_action",
-   "name": "フィルタ式をクリア",
-   "source": "mainWindow",
-   "summary": "フィルタ式をクリア (ツールバー/コンテキスト)",
-   "objectName": "noname",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": false,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'フィルタ式をクリア'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'フィルタ式をクリア':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13158,10 +12803,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'グループ追加'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'グループ追加':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13179,10 +12824,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'コンテンツで凡例を絞り込む'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'コンテンツで凡例を絞り込む':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13200,10 +12845,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'プライベートレイヤを表示'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'プライベートレイヤを表示':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.Show_Broken_Layers_Only",
@@ -13241,11 +12886,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13263,10 +12908,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'すべて展開する'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'すべて展開する':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13284,10 +12929,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'すべて折りたたむ'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'すべて折りたたむ':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13305,10 +12950,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'ジオメトリ検証'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'ジオメトリ検証':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13326,10 +12971,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '名前で並べ替え'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '名前で並べ替え':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13347,10 +12992,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'ダウンロード数で並べ替え'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'ダウンロード数で並べ替え':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13368,10 +13013,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '投票数で並べ替え'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '投票数で並べ替え':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13389,10 +13034,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '状態で並べ替え'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '状態で並べ替え':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13410,10 +13055,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '作成日時で並べ替え'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '作成日時で並べ替え':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13431,10 +13076,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '更新日時で並べ替え'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '更新日時で並べ替え':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13451,11 +13096,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.mActionClear",
@@ -13667,11 +13312,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13689,10 +13334,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '無効化'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '無効化':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13710,10 +13355,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'グローバル'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'グローバル':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13731,10 +13376,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'レイヤ単位'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'レイヤ単位':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13751,11 +13396,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13772,11 +13417,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -13793,11 +13438,11 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
+   "tool_result": "pass",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.Show_Location_Marker",
@@ -14077,17 +13722,17 @@
   {
    "id": "qgis.action.mCreateFeatureAction",
    "kind": "qgis_action",
-   "name": "Create Feature from Track",
+   "name": "Create Point Feature at Location",
    "source": "mainWindow",
-   "summary": "Create Feature from Track (ツールバー/コンテキスト)",
+   "summary": "Create Point Feature at Location (ツールバー/コンテキスト)",
    "objectName": "mCreateFeatureAction",
    "menu_path": "(mainWindow)",
    "checkable": false,
-   "enabled": false,
+   "enabled": true,
    "ai_sample": false,
    "check": {
     "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mCreateFeatureAction' or a.text() == 'Create Feature from Track'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mCreateFeatureAction' or _a.text() == 'Create Feature from Track':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mCreateFeatureAction' or a.text() == 'Create Point Feature at Location'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mCreateFeatureAction' or _a.text() == 'Create Point Feature at Location':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
    "ai_result": "pass",
@@ -14218,10 +13863,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'このセッションでは無視'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'このセッションでは無視':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.mActionPolygonAnnotation",
@@ -14421,10 +14066,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'ホットリロード'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'ホットリロード':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:05+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.geo_excel",
@@ -14505,10 +14150,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '&レジェンドビュー'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '&レジェンドビュー':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:05+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.geo_report",
@@ -14547,10 +14192,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '地図検索'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '地図検索':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:05+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.geo_userfunc",
@@ -14841,10 +14486,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'モデル'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'モデル':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:05+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action...._...",
@@ -14861,10 +14506,10 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "result=False | ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:32:05+09:00"
   },
   {
@@ -14882,10 +14527,10 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "result=False | ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:32:05+09:00"
   },
   {
@@ -14925,10 +14570,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'スクリプト'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'スクリプト':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:05+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action...._...",
@@ -14945,10 +14590,10 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "result=False | ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:32:05+09:00"
   },
   {
@@ -14987,10 +14632,10 @@
     "type": "manual_only",
     "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "result=False | ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:32:05+09:00"
   },
   {
@@ -15078,6 +14723,468 @@
    "last_verified": "2026-11-14T11:32:05+09:00"
   },
   {
+   "id": "qgis.action.Count",
+   "kind": "qgis_action",
+   "name": "カウント（Count）",
+   "source": "mainWindow",
+   "summary": "カウント（Count） (ツールバー/コンテキスト)",
+   "objectName": "Count",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Count' or a.text() == 'カウント（Count）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Count' or _a.text() == 'カウント（Count）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Sum",
+   "kind": "qgis_action",
+   "name": "合計（Sum）",
+   "source": "mainWindow",
+   "summary": "合計（Sum） (ツールバー/コンテキスト)",
+   "objectName": "Sum",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Sum' or a.text() == '合計（Sum）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Sum' or _a.text() == '合計（Sum）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Mean",
+   "kind": "qgis_action",
+   "name": "平均値（Mean）",
+   "source": "mainWindow",
+   "summary": "平均値（Mean） (ツールバー/コンテキスト)",
+   "objectName": "Mean",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Mean' or a.text() == '平均値（Mean）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Mean' or _a.text() == '平均値（Mean）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Median",
+   "kind": "qgis_action",
+   "name": "中央値（Median）",
+   "source": "mainWindow",
+   "summary": "中央値（Median） (ツールバー/コンテキスト)",
+   "objectName": "Median",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Median' or a.text() == '中央値（Median）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Median' or _a.text() == '中央値（Median）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "標準偏差 （母集団）",
+   "source": "mainWindow",
+   "summary": "標準偏差 （母集団） (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '標準偏差 （母集団）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '標準偏差 （母集団）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "標準偏差 （標本）",
+   "source": "mainWindow",
+   "summary": "標準偏差 （標本） (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '標準偏差 （標本）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '標準偏差 （標本）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "最小",
+   "source": "mainWindow",
+   "summary": "最小 (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '最小'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '最小':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "最大",
+   "source": "mainWindow",
+   "summary": "最大 (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '最大'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '最大':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.Range",
+   "kind": "qgis_action",
+   "name": "範囲（Range）",
+   "source": "mainWindow",
+   "summary": "範囲（Range） (ツールバー/コンテキスト)",
+   "objectName": "Range",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Range' or a.text() == '範囲（Range）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Range' or _a.text() == '範囲（Range）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Minority",
+   "kind": "qgis_action",
+   "name": "最稀値（Minority）",
+   "source": "mainWindow",
+   "summary": "最稀値（Minority） (ツールバー/コンテキスト)",
+   "objectName": "Minority",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Minority' or a.text() == '最稀値（Minority）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Minority' or _a.text() == '最稀値（Minority）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Majority",
+   "kind": "qgis_action",
+   "name": "最頻値（Majority）",
+   "source": "mainWindow",
+   "summary": "最頻値（Majority） (ツールバー/コンテキスト)",
+   "objectName": "Majority",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Majority' or a.text() == '最頻値（Majority）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Majority' or _a.text() == '最頻値（Majority）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Variety",
+   "kind": "qgis_action",
+   "name": "種類（Variety）",
+   "source": "mainWindow",
+   "summary": "種類（Variety） (ツールバー/コンテキスト)",
+   "objectName": "Variety",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Variety' or a.text() == '種類（Variety）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Variety' or _a.text() == '種類（Variety）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Q1",
+   "kind": "qgis_action",
+   "name": "第１四分位（Q1）",
+   "source": "mainWindow",
+   "summary": "第１四分位（Q1） (ツールバー/コンテキスト)",
+   "objectName": "Q1",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Q1' or a.text() == '第１四分位（Q1）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Q1' or _a.text() == '第１四分位（Q1）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Q3",
+   "kind": "qgis_action",
+   "name": "第３四分位（Q3）",
+   "source": "mainWindow",
+   "summary": "第３四分位（Q3） (ツールバー/コンテキスト)",
+   "objectName": "Q3",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Q3' or a.text() == '第３四分位（Q3）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Q3' or _a.text() == '第３四分位（Q3）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.IQR",
+   "kind": "qgis_action",
+   "name": "四分位範囲（IQR）",
+   "source": "mainWindow",
+   "summary": "四分位範囲（IQR） (ツールバー/コンテキスト)",
+   "objectName": "IQR",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'IQR' or a.text() == '四分位範囲（IQR）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'IQR' or _a.text() == '四分位範囲（IQR）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.NULL",
+   "kind": "qgis_action",
+   "name": "欠落（NULL）値",
+   "source": "mainWindow",
+   "summary": "欠落（NULL）値 (ツールバー/コンテキスト)",
+   "objectName": "NULL",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'NULL' or a.text() == '欠落（NULL）値'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'NULL' or _a.text() == '欠落（NULL）値':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "kind": "qgis_action",
+   "name": "選択したレイヤに従う",
+   "source": "mainWindow",
+   "summary": "選択したレイヤに従う (ツールバー/コンテキスト)",
+   "objectName": "noname",
+   "menu_path": "(mainWindow)",
+   "checkable": true,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '選択したレイヤに従う'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '選択したレイヤに従う':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.actionAdd",
+   "kind": "qgis_action",
+   "name": "追加",
+   "source": "mainWindow",
+   "summary": "追加 (ツールバー/コンテキスト)",
+   "objectName": "actionAdd",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'actionAdd' or a.text() == '追加'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'actionAdd' or _a.text() == '追加':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:32:14+09:00"
+  },
+  {
+   "id": "qgis.action.actionDelete",
+   "kind": "qgis_action",
+   "name": "削除",
+   "source": "mainWindow",
+   "summary": "削除 (ツールバー/コンテキスト)",
+   "objectName": "actionDelete",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:32:14+09:00"
+  },
+  {
+   "id": "qgis.action.actionZoomTo",
+   "kind": "qgis_action",
+   "name": "ズーム",
+   "source": "mainWindow",
+   "summary": "ズーム (ツールバー/コンテキスト)",
+   "objectName": "actionZoomTo",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'actionZoomTo' or a.text() == 'ズーム'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'actionZoomTo' or _a.text() == 'ズーム':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:32:14+09:00"
+  },
+  {
+   "id": "qgis.action.actionExport",
+   "kind": "qgis_action",
+   "name": "Export",
+   "source": "mainWindow",
+   "summary": "Export (ツールバー/コンテキスト)",
+   "objectName": "actionExport",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:32:14+09:00"
+  },
+  {
+   "id": "qgis.action.actionImport",
+   "kind": "qgis_action",
+   "name": "Import",
+   "source": "mainWindow",
+   "summary": "Import (ツールバー/コンテキスト)",
+   "objectName": "actionImport",
+   "menu_path": "(mainWindow)",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:32:14+09:00"
+  },
+  {
    "id": "qgis.action.noname_noname",
    "kind": "qgis_action",
    "name": "属性テーブルを表示",
@@ -15093,10 +15200,10 @@
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '属性テーブルを表示'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '属性テーブルを表示':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:05+09:00"
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.action.mActionDigitizing",
@@ -15426,109 +15533,25 @@
    "last_verified": "2026-11-14T11:32:14+09:00"
   },
   {
-   "id": "qgis.action.actionAdd",
+   "id": "qgis.action.noname_noname",
    "kind": "qgis_action",
-   "name": "追加",
+   "name": "自動的にプロジェクトを開く",
    "source": "mainWindow",
-   "summary": "追加 (ツールバー/コンテキスト)",
-   "objectName": "actionAdd",
+   "summary": "自動的にプロジェクトを開く (ツールバー/コンテキスト)",
+   "objectName": "noname",
    "menu_path": "(mainWindow)",
-   "checkable": false,
+   "checkable": true,
    "enabled": true,
    "ai_sample": false,
    "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'actionAdd' or a.text() == '追加'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'actionAdd' or _a.text() == '追加':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
    },
    "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:14+09:00"
-  },
-  {
-   "id": "qgis.action.actionDelete",
-   "kind": "qgis_action",
-   "name": "削除",
-   "source": "mainWindow",
-   "summary": "削除 (ツールバー/コンテキスト)",
-   "objectName": "actionDelete",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
    "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:32:14+09:00"
-  },
-  {
-   "id": "qgis.action.actionZoomTo",
-   "kind": "qgis_action",
-   "name": "ズーム",
-   "source": "mainWindow",
-   "summary": "ズーム (ツールバー/コンテキスト)",
-   "objectName": "actionZoomTo",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'actionZoomTo' or a.text() == 'ズーム'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'actionZoomTo' or _a.text() == 'ズーム':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:14+09:00"
-  },
-  {
-   "id": "qgis.action.actionExport",
-   "kind": "qgis_action",
-   "name": "Export",
-   "source": "mainWindow",
-   "summary": "Export (ツールバー/コンテキスト)",
-   "objectName": "actionExport",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:32:14+09:00"
-  },
-  {
-   "id": "qgis.action.actionImport",
-   "kind": "qgis_action",
-   "name": "Import",
-   "source": "mainWindow",
-   "summary": "Import (ツールバー/コンテキスト)",
-   "objectName": "actionImport",
-   "menu_path": "(mainWindow)",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:32:14+09:00"
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.proc.3d_tessellate",
@@ -24851,6 +24874,25 @@
    "last_verified": "2026-11-14T11:33:45+09:00"
   },
   {
+   "id": "qgis.dock.Layers",
+   "kind": "qgis_dock",
+   "name": "レイヤ",
+   "source": "dock:Layers",
+   "summary": "ドック レイヤ",
+   "objectName": "Layers",
+   "ai_sample": false,
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "Layers",
+    "was_visible": true
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:33:45+09:00"
+  },
+  {
    "id": "qgis.dock.Browser",
    "kind": "qgis_dock",
    "name": "ブラウザ",
@@ -24938,63 +24980,6 @@
     "type": "dock_toggle",
     "objectName": "undo/redo dock",
     "was_visible": false
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:33:45+09:00"
-  },
-  {
-   "id": "qgis.dock.StatisticalSummaryDockWidget",
-   "kind": "qgis_dock",
-   "name": "統計",
-   "source": "dock:StatisticalSummaryDockWidget",
-   "summary": "ドック 統計",
-   "objectName": "StatisticalSummaryDockWidget",
-   "ai_sample": false,
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "StatisticalSummaryDockWidget",
-    "was_visible": false
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:33:45+09:00"
-  },
-  {
-   "id": "qgis.dock.VertexEditor",
-   "kind": "qgis_dock",
-   "name": "頂点エディタ",
-   "source": "dock:VertexEditor",
-   "summary": "ドック 頂点エディタ",
-   "objectName": "VertexEditor",
-   "ai_sample": false,
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "VertexEditor",
-    "was_visible": false
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:33:45+09:00"
-  },
-  {
-   "id": "qgis.dock.Layers",
-   "kind": "qgis_dock",
-   "name": "レイヤ",
-   "source": "dock:Layers",
-   "summary": "ドック レイヤ",
-   "objectName": "Layers",
-   "ai_sample": false,
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "Layers",
-    "was_visible": true
    },
    "tool_result": "pass",
    "ai_result": "pass",
@@ -25117,25 +25102,6 @@
    "last_verified": "2026-11-14T11:33:45+09:00"
   },
   {
-   "id": "qgis.dock.MessageLog",
-   "kind": "qgis_dock",
-   "name": "ログメッセージ",
-   "source": "dock:MessageLog",
-   "summary": "ドック ログメッセージ",
-   "objectName": "MessageLog",
-   "ai_sample": false,
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "MessageLog",
-    "was_visible": false
-   },
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:33:45+09:00"
-  },
-  {
    "id": "qgis.dock.ProcessingToolbox",
    "kind": "qgis_dock",
    "name": "プロセシングツールボックス",
@@ -25166,6 +25132,44 @@
     "type": "dock_toggle",
     "objectName": "ResultsViewer",
     "was_visible": false
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:33:45+09:00"
+  },
+  {
+   "id": "qgis.dock.StatisticalSummaryDockWidget",
+   "kind": "qgis_dock",
+   "name": "統計",
+   "source": "dock:StatisticalSummaryDockWidget",
+   "summary": "ドック 統計",
+   "objectName": "StatisticalSummaryDockWidget",
+   "ai_sample": false,
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "StatisticalSummaryDockWidget",
+    "was_visible": true
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:33:45+09:00"
+  },
+  {
+   "id": "qgis.dock.MessageLog",
+   "kind": "qgis_dock",
+   "name": "ログメッセージ",
+   "source": "dock:MessageLog",
+   "summary": "ドック ログメッセージ",
+   "objectName": "MessageLog",
+   "ai_sample": false,
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "MessageLog",
+    "was_visible": true
    },
    "tool_result": "pass",
    "ai_result": "pass",
@@ -25212,16 +25216,35 @@
    "last_verified": "2026-11-14T11:33:45+09:00"
   },
   {
-   "id": "qgis.dock.GeoDriverAiPanel",
+   "id": "qgis.dock.GeoReportLayoutSelectorPanel",
    "kind": "qgis_dock",
-   "name": "AI アシスタント",
-   "source": "dock:GeoDriverAiPanel",
-   "summary": "ドック AI アシスタント",
-   "objectName": "GeoDriverAiPanel",
+   "name": "レポート",
+   "source": "dock:GeoReportLayoutSelectorPanel",
+   "summary": "ドック レポート",
+   "objectName": "GeoReportLayoutSelectorPanel",
    "ai_sample": false,
    "check": {
     "type": "dock_toggle",
-    "objectName": "GeoDriverAiPanel",
+    "objectName": "GeoReportLayoutSelectorPanel",
+    "was_visible": false
+   },
+   "tool_result": "pass",
+   "ai_result": "untested",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
+  },
+  {
+   "id": "qgis.dock.VertexEditor",
+   "kind": "qgis_dock",
+   "name": "頂点エディタ",
+   "source": "dock:VertexEditor",
+   "summary": "ドック 頂点エディタ",
+   "objectName": "VertexEditor",
+   "ai_sample": false,
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "VertexEditor",
     "was_visible": true
    },
    "tool_result": "pass",
@@ -26001,27 +26024,6 @@
   {
    "id": "qgis.action.noname",
    "kind": "qgis_action",
-   "name": "配置モード",
-   "source": "menu:プラグイン(&P)/QGIS Live Driver",
-   "summary": "配置モード (プラグイン(&P)/QGIS Live Driver)",
-   "objectName": "noname",
-   "menu_path": "プラグイン(&P)/QGIS Live Driver",
-   "checkable": false,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '配置モード'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '配置モード':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "removed",
-   "note": "再出現のため再検証",
-   "last_verified": "2026-11-14T05:58:27+09:00"
-  },
-  {
-   "id": "qgis.action.noname",
-   "kind": "qgis_action",
    "name": "凡例",
    "source": "menu:プラグイン(&P)/&レジェンドビュー",
    "summary": "凡例 (プラグイン(&P)/&レジェンドビュー)",
@@ -26039,6 +26041,27 @@
    "last_result": "removed",
    "note": "再出現のため再検証",
    "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.AI",
+   "kind": "qgis_action",
+   "name": "AI アシスタント",
+   "source": "menu:プラグイン(&P)/QGIS Live Driver",
+   "summary": "AI アシスタント (プラグイン(&P)/QGIS Live Driver)",
+   "objectName": "AI",
+   "menu_path": "プラグイン(&P)/QGIS Live Driver",
+   "checkable": false,
+   "enabled": true,
+   "ai_sample": false,
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'AI' or a.text() == 'AI アシスタント'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'AI' or _a.text() == 'AI アシスタント':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "removed",
+   "note": "ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:30:42+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -26060,6 +26083,25 @@
    "last_result": "removed",
    "note": "再出現のため再検証",
    "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.dock.GeoDriverAiPanel",
+   "kind": "qgis_dock",
+   "name": "AI アシスタント",
+   "source": "dock:GeoDriverAiPanel",
+   "summary": "ドック AI アシスタント",
+   "objectName": "GeoDriverAiPanel",
+   "ai_sample": false,
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "GeoDriverAiPanel",
+    "was_visible": true
+   },
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "removed",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:33:45+09:00"
   },
   {
    "id": "qgis.action.ProjectFile_C_Users_ryu_OneDrive_E_EQGIS",
@@ -26508,25 +26550,6 @@
    "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
-   "id": "qgis.dock.GeoReportLayoutSelectorPanel",
-   "kind": "qgis_dock",
-   "name": "レポート",
-   "source": "dock:GeoReportLayoutSelectorPanel",
-   "summary": "ドック レポート",
-   "objectName": "GeoReportLayoutSelectorPanel",
-   "ai_sample": false,
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "GeoReportLayoutSelectorPanel",
-    "was_visible": true
-   },
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "removed",
-   "note": "再出現のため再検証",
-   "last_verified": "2026-11-14T05:58:27+09:00"
-  },
-  {
    "id": "qgis.dock.IdentifyResultsDock",
    "kind": "qgis_dock",
    "name": "地物情報結果",
@@ -26691,29 +26714,6 @@
    "last_result": "removed",
    "note": "mmqgis GPS情報パネル内アクション(遅延生成)",
    "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.WebView",
-   "kind": "qgis_action",
-   "name": "WebView",
-   "source": "menu:ビュー(&V)/パネル",
-   "summary": "WebView (ビュー(&V)/パネル)",
-   "objectName": "WebView",
-   "menu_path": "ビュー(&V)/パネル",
-   "checkable": true,
-   "enabled": true,
-   "ai_sample": false,
-   "check": {
-    "type": "action_trigger",
-    "objectName": "WebView",
-    "checkable": true,
-    "text": "WebView"
-   },
-   "tool_result": "fail",
-   "ai_result": "no_llm",
-   "last_result": "removed",
-   "note": "qgis2webダイアログ内ツールバーアクション。ダイアログ未オープン時は未生成",
-   "last_verified": "2026-11-14T05:07:59+09:00"
   },
   {
    "id": "qgis.action.Buffer_Settings",

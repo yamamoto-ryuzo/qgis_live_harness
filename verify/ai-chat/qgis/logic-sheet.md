@@ -1,6 +1,6 @@
 # QGIS 本体 — AI操作対象 ロジックシート
 
-- 生成: 2026-11-14T18:03:35+09:00
+- 生成: 2026-11-15T22:36:00+09:00
 - 機能数: 1276 qgis_action=756/ qgis_processing=469/ qgis_dock=23/ qgis_api=28
 
 ## トポロジ
@@ -70,7 +70,7 @@ flowchart TD
 | `qgis.action.mActionReselect` | 地物を再選択 | exists_only | pass |
 | `qgis.action.mActionSelectAll` | すべての地物を選択 | action_trigger | pass |
 | `qgis.action.mActionInvertSelection` | 地物選択を反転 | exists_only | pass |
-| `qgis.action.mActionAddFeature` | 地物を追加 | action_trigger | pass |
+| `qgis.action.mActionAddFeature` | 点地物を追加する | action_trigger | pass |
 | `qgis.action.mActionFormAnnotation` | 注記フォーム | action_trigger | pass |
 | `qgis.action.mActionHtmlAnnotation` | HTML注記 | action_trigger | pass |
 | `qgis.action.mActionMultiEditAttributes` | 選択地物の属性変更 | exists_only | pass |
@@ -162,7 +162,8 @@ flowchart TD
 | `qgis.action.noname` | 全体図 | action_trigger | pass |
 | `qgis.action.noname` | 頂点エディタ | action_trigger | pass |
 | `qgis.action.noname` | 統計 | action_trigger | pass |
-| `qgis.action.AI` | AI アシスタント | action_trigger | pass |
+| `qgis.action.noname` | レポート | action_trigger | untested |
+| `qgis.action.WebView` | WebView | action_trigger | untested |
 | `qgis.action.mActionToggleWebToolBar` | Webツールバー | action_trigger | pass |
 | `qgis.action.mActionToggleShapeDigitizeToolBar` | シェープデジタイジングツールバー | action_trigger | pass |
 | `qgis.action.mActionToggleSnappingToolBar` | スナップツールバー | action_trigger | pass |
@@ -264,7 +265,7 @@ flowchart TD
 | `qgis.action.geo_import` | geo_import | manual_only | skip |
 | `qgis.action.geo_import` | geo_import 設定 | manual_only | skip |
 | `qgis.action.Kasugai_QGIS_Launcher` | Kasugai QGIS Launcher | exists_only | pass |
-| `qgis.action.noname` | ランチャーを開く | manual_only | skip |
+| `qgis.action.noname` | ランチャーを開く | manual_only | untested |
 | `qgis.action....` | 設定... | manual_only | skip |
 | `qgis.action.noname` | レイアウト選択 | exists_only | pass |
 | `qgis.action....` | ユーザー関数ライブラリ... | exists_only | pass |
@@ -282,16 +283,16 @@ flowchart TD
 | `qgis.action.noname` | 現在のクラウドプロジェクトを同期する | exists_only | pass |
 | `qgis.action.QField` | QFieldパッケージを作成 | exists_only | pass |
 | `qgis.action.QField` | QFieldから同期 | exists_only | pass |
-| `qgis.action.noname` | 現在のプロジェクトの構成 | exists_only | pass |
-| `qgis.action.noname` | 設定 | manual_only | skip |
-| `qgis.action.AI` | AI アシスタント | exists_only | pass |
+| `qgis.action.noname` | 現在のプロジェクトの構成 | exists_only | untested |
+| `qgis.action.noname` | 設定 | manual_only | untested |
+| `qgis.action.AI` | AI アシスタント | exists_only | untested |
 | `qgis.action.localhost` | リモート制御 (localhostのみ) | manual_only | skip |
 | `qgis.action.noname` | 接続情報 | exists_only | pass |
 | `qgis.action.noname` | 配置モード | exists_only | pass |
 | `qgis.action.searchLayers` | Search Layers | exists_only | pass |
 | `qgis.action.searchLayersHelp` | Help | exists_only | pass |
 | `qgis.action.StreetView` | StreetView | exists_only | pass |
-| `qgis.action.noname` | 凡例 | exists_only | pass |
+| `qgis.action.noname` | 凡例 | exists_only | untested |
 | `qgis.action.geo_search` | 地図検索 | exists_only | pass |
 | `qgis.action.mProcessingUserMenu_native_basicstatisticsforfields` | Basic statistics for fields... | exists_only | pass |
 | `qgis.action.mProcessingUserMenu_native_countpointsinpolygon` | ポリゴン内の点の数... | exists_only | pass |
@@ -422,6 +423,8 @@ flowchart TD
 | `qgis.action.mActionQgisHomePage` | QGISのホームページ | exists_only | pass |
 | `qgis.action.mActionCheckQgisVersion` | QGISのバージョン情報 | exists_only | pass |
 | `qgis.action.mActionAbout` | QGISについて | manual_only | skip |
+| `qgis.action.noname_noname` | フィルタ式を編集 | exists_only | pass |
+| `qgis.action.noname_noname` | フィルタ式をクリア | exists_only | pass |
 | `qgis.action.mActionAddLayers` | レイヤを追加 | exists_only | pass |
 | `qgis.action.mActionRefresh` | 再読み込み | action_trigger | pass |
 | `qgis.action.mActionShowFilter` | ブラウザのフィルタ | action_trigger | pass |
@@ -443,7 +446,7 @@ flowchart TD
 | `qgis.action.Snapping_Priority` | Snapping Priority | exists_only | pass |
 | `qgis.action.Prioritize_Snapping_to_Features` | Prioritize Snapping to Features | exists_only | pass |
 | `qgis.action.Prioritize_Snapping_to_Common_Angles` | Prioritize Snapping to Common Angles | exists_only | pass |
-| `qgis.action.noname_noname` | 共通角にスナップしない | exists_only | pass |
+| `qgis.action.noname_noname` | 共通角にスナップしない | exists_only | untested |
 | `qgis.action.0.1_0.2_0.3_0.4_...` | 0.1, 0.2, 0.3, 0.4°... | exists_only | pass |
 | `qgis.action.0.5_1.0_1.5_2.0_...` | 0.5, 1.0, 1.5, 2.0°... | exists_only | pass |
 | `qgis.action.1.0_2.0_3.0_4.0_...` | 1.0, 2.0, 3.0, 4.0°... | exists_only | pass |
@@ -516,11 +519,11 @@ flowchart TD
 | `qgis.action.mActionManageElevationProfiles` | Manage Elevation Profiles… | exists_only | pass |
 | `qgis.action.J` | プロジェクト(J) | exists_only | pass |
 | `qgis.action.R` | 最近のプロジェクト(R) | manual_only | skip |
-| `qgis.action.noname_noname` | レイアウト | exists_only | pass |
+| `qgis.action.noname_noname` | レイアウト | exists_only | untested |
 | `qgis.action.noname_noname` | テンプレートから新規作成 | manual_only | skip |
 | `qgis.action.noname_noname` | 保存 | manual_only | skip |
-| `qgis.action.noname_noname` | 開く | manual_only | skip |
-| `qgis.action.noname_noname` | インポートとエクスポート | manual_only | skip |
+| `qgis.action.noname_noname` | 開く | manual_only | untested |
+| `qgis.action.noname_noname` | インポートとエクスポート | manual_only | untested |
 | `qgis.action.Models` | Models | exists_only | pass |
 | `qgis.action.V` | ビュー(V) | exists_only | pass |
 | `qgis.action.3D` | 3Dマップビュー | exists_only | pass |
@@ -536,7 +539,7 @@ flowchart TD
 | `qgis.action.noname_noname` | 属性テーブルをフィルタ | exists_only | pass |
 | `qgis.action.P` | プラグイン(P) | exists_only | pass |
 | `qgis.action.H` | ヘルプ(H) | exists_only | pass |
-| `qgis.action.noname_noname` | プラグイン | exists_only | pass |
+| `qgis.action.noname_noname` | プラグイン | exists_only | untested |
 | `qgis.action.S` | 設定(S) | manual_only | skip |
 | `qgis.action.R_R` | ラスタ(R) | exists_only | pass |
 | `qgis.action.Analysis` | Analysis | exists_only | pass |
@@ -552,10 +555,10 @@ flowchart TD
 | `qgis.action.Data_Management_Tools` | Data Management Tools | exists_only | pass |
 | `qgis.action.E` | 編集(E) | exists_only | pass |
 | `qgis.action.noname_noname` | 選択 | exists_only | pass |
-| `qgis.action.noname_noname` | 新規レイヤに地物を貼り付け | manual_only | skip |
+| `qgis.action.noname_noname` | 新規レイヤに地物を貼り付け | manual_only | untested |
 | `qgis.action.noname_noname` | 注記を追加 | exists_only | pass |
-| `qgis.action.noname_noname` | 属性を編集 | exists_only | pass |
-| `qgis.action.noname_noname` | ジオメトリを編集 | exists_only | pass |
+| `qgis.action.noname_noname` | 属性を編集 | exists_only | untested |
+| `qgis.action.noname_noname` | ジオメトリを編集 | exists_only | untested |
 | `qgis.action.M` | メッシュ(M) | exists_only | pass |
 | `qgis.action.Database` | Database | exists_only | pass |
 | `qgis.action.Web_W` | Web(W) | exists_only | pass |
@@ -577,11 +580,11 @@ flowchart TD
 | `qgis.action.mAvoidIntersectionsModeAction` | mAvoidIntersectionsModeAction | exists_only | pass |
 | `qgis.action.mSnappingWidget` | mSnappingWidget | exists_only | pass |
 | `qgis.action.EnableSnappingAction` | スナップを切り替え | action_trigger | pass |
-| `qgis.action.noname_noname` | 重なり禁止モードに設定 | manual_only | skip |
+| `qgis.action.noname_noname` | 重なり禁止モードに設定 | manual_only | untested |
 | `qgis.action.mAllowIntersectionsAction` | 重なりを許容 | exists_only | pass |
 | `qgis.action.mAvoidIntersectionsCurrentLayerAction` | アクティブレイヤの重なりを禁止 | manual_only | skip |
 | `qgis.action.mAvoidIntersectionsLayersAction` | 詳細設定に従う | manual_only | skip |
-| `qgis.action.noname_noname` | スナッピングモードを設定する | manual_only | skip |
+| `qgis.action.noname_noname` | スナッピングモードを設定する | manual_only | untested |
 | `qgis.action.mAllLayersAction` | すべてのレイヤ | exists_only | pass |
 | `qgis.action.mActiveLayerAction` | アクティブレイヤ | exists_only | pass |
 | `qgis.action.mAdvancedModeAction` | 詳細構成 | exists_only | pass |
@@ -590,8 +593,8 @@ flowchart TD
 | `qgis.action.noname_noname` | セグメント | action_trigger | pass |
 | `qgis.action.noname_noname` | エリア | action_trigger | pass |
 | `qgis.action.noname_noname` | 重心点 | action_trigger | pass |
-| `qgis.action.noname_noname` | セグメントの中央 | action_trigger | pass |
-| `qgis.action.noname_noname` | 線のエンドポイント | action_trigger | pass |
+| `qgis.action.noname_noname` | セグメントの中央 | action_trigger | untested |
+| `qgis.action.noname_noname` | 線のエンドポイント | action_trigger | untested |
 | `qgis.action.TopologicalEditingAction` | トポロジ編集 | action_trigger | pass |
 | `qgis.action.IntersectionSnappingAction` | 交点でスナップ | action_trigger | pass |
 | `qgis.action.EnableTracingAction` | トレースを有効にします | action_trigger | pass |
@@ -608,47 +611,27 @@ flowchart TD
 | `qgis.action.meshForceByLinesToolButton` | meshForceByLinesToolButton | exists_only | pass |
 | `qgis.action.annotationLayerToolButtonAction` | annotationLayerToolButtonAction | exists_only | pass |
 | `qgis.action.ActionAnnotation` | ActionAnnotation | exists_only | pass |
-| `qgis.action.Count` | カウント（Count） | exists_only | pass |
-| `qgis.action.Sum` | 合計（Sum） | exists_only | pass |
-| `qgis.action.Mean` | 平均値（Mean） | exists_only | pass |
-| `qgis.action.Median` | 中央値（Median） | exists_only | pass |
-| `qgis.action.noname_noname` | 標準偏差 （母集団） | exists_only | pass |
-| `qgis.action.noname_noname` | 標準偏差 （標本） | exists_only | pass |
-| `qgis.action.noname_noname` | 最小 | exists_only | pass |
-| `qgis.action.noname_noname` | 最大 | exists_only | pass |
-| `qgis.action.Range` | 範囲（Range） | exists_only | pass |
-| `qgis.action.Minority` | 最稀値（Minority） | exists_only | pass |
-| `qgis.action.Majority` | 最頻値（Majority） | exists_only | pass |
-| `qgis.action.Variety` | 種類（Variety） | exists_only | pass |
-| `qgis.action.Q1` | 第１四分位（Q1） | exists_only | pass |
-| `qgis.action.Q3` | 第３四分位（Q3） | exists_only | pass |
-| `qgis.action.IQR` | 四分位範囲（IQR） | exists_only | pass |
-| `qgis.action.NULL` | 欠落（NULL）値 | exists_only | pass |
-| `qgis.action.noname_noname` | 選択したレイヤに従う | exists_only | pass |
 | `qgis.action.noname_noname` | パネル | exists_only | pass |
 | `qgis.action.noname_noname` | ツールバー | exists_only | pass |
 | `qgis.action.U` | ユーザープロファイル(U) | exists_only | pass |
 | `qgis.action.noname_noname` | 現在の編集 | exists_only | pass |
-| `qgis.action.noname_noname` | 自動的にプロジェクトを開く | manual_only | skip |
 | `qgis.action.Copy` | Copy | exists_only | pass |
 | `qgis.action.noname_noname` | 頂点エディタを表示 | exists_only | pass |
-| `qgis.action.noname_noname` | フィルタ式を編集 | exists_only | pass |
-| `qgis.action.noname_noname` | フィルタ式をクリア | exists_only | pass |
 | `qgis.action.noname_noname` | グループ追加 | exists_only | pass |
 | `qgis.action.noname_noname` | コンテンツで凡例を絞り込む | exists_only | pass |
-| `qgis.action.noname_noname` | プライベートレイヤを表示 | exists_only | pass |
+| `qgis.action.noname_noname` | プライベートレイヤを表示 | exists_only | untested |
 | `qgis.action.Show_Broken_Layers_Only` | Show Broken Layers Only | exists_only | pass |
-| `qgis.action.noname_noname` | レイヤスタイル | manual_only | skip |
+| `qgis.action.noname_noname` | レイヤスタイル | manual_only | untested |
 | `qgis.action.noname_noname` | すべて展開する | exists_only | pass |
 | `qgis.action.noname_noname` | すべて折りたたむ | exists_only | pass |
 | `qgis.action.noname_noname` | ジオメトリ検証 | exists_only | pass |
 | `qgis.action.noname_noname` | 名前で並べ替え | exists_only | pass |
 | `qgis.action.noname_noname` | ダウンロード数で並べ替え | exists_only | pass |
-| `qgis.action.noname_noname` | 投票数で並べ替え | exists_only | pass |
+| `qgis.action.noname_noname` | 投票数で並べ替え | exists_only | untested |
 | `qgis.action.noname_noname` | 状態で並べ替え | exists_only | pass |
 | `qgis.action.noname_noname` | 作成日時で並べ替え | exists_only | pass |
 | `qgis.action.noname_noname` | 更新日時で並べ替え | exists_only | pass |
-| `qgis.action.noname_noname` | すべて閉じる | manual_only | skip |
+| `qgis.action.noname_noname` | すべて閉じる | manual_only | untested |
 | `qgis.action.mActionClear` | クリア | exists_only | pass |
 | `qgis.action.mActionRecord` | ログを保存する | manual_only | skip |
 | `qgis.action.mActionShowSuccessful` | 完了リクエストを表示 | action_trigger | pass |
@@ -658,11 +641,11 @@ flowchart TD
 | `qgis.action.mActionPyQgis` | PyQGIS API Documentation | exists_only | pass |
 | `qgis.action.mActionQt` | Qt API Documentation | exists_only | pass |
 | `qgis.action.mActionOpenInBrowser` | Open in Web Browser | manual_only | skip |
-| `qgis.action.noname_noname` | スナップスケールモードに設定 | manual_only | skip |
+| `qgis.action.noname_noname` | スナップスケールモードに設定 | manual_only | untested |
 | `qgis.action.noname_noname` | 無効化 | exists_only | pass |
 | `qgis.action.noname_noname` | グローバル | exists_only | pass |
 | `qgis.action.noname_noname` | レイヤ単位 | exists_only | pass |
-| `qgis.action.noname_noname` | 全範囲に設定 | manual_only | skip |
+| `qgis.action.noname_noname` | 全範囲に設定 | manual_only | untested |
 | `qgis.action.noname_noname` | プリセットのプロジェクト範囲に設定 | manual_only | skip |
 | `qgis.action.noname_noname` | 単一レイヤ範囲に設定 | manual_only | skip |
 | `qgis.action.Show_Location_Marker` | Show Location Marker | exists_only | pass |
@@ -678,7 +661,7 @@ flowchart TD
 | `qgis.action.mRecenterAction` | Recenter | manual_only | skip |
 | `qgis.action.mDestinationLayerButtonAction` | mDestinationLayerButtonAction | exists_only | pass |
 | `qgis.action.mAddTrackVertexAction` | Add Track Vertex | exists_only | pass |
-| `qgis.action.mCreateFeatureAction` | Create Feature from Track | exists_only | pass |
+| `qgis.action.mCreateFeatureAction` | Create Point Feature at Location | exists_only | pass |
 | `qgis.action.mResetFeatureAction` | Reset Track | exists_only | pass |
 | `qgis.action.mShowInfoAction` | Information | action_trigger | pass |
 | `qgis.action.mSettingsMenuAction` | mSettingsMenuAction | exists_only | pass |
@@ -699,7 +682,7 @@ flowchart TD
 | `qgis.action.geo_launcher` | geo_launcher | exists_only | pass |
 | `qgis.action.noname_noname` | レジェンドビュー | exists_only | pass |
 | `qgis.action.geo_report` | geo_report | exists_only | pass |
-| `qgis.action.noname_noname` | 地図検索 | exists_only | pass |
+| `qgis.action.noname_noname` | 地図検索 | exists_only | untested |
 | `qgis.action.geo_userfunc` | geo_userfunc | exists_only | pass |
 | `qgis.action.geo_webview_geo_webview` | geo_webview | exists_only | pass |
 | `qgis.action.ImportPhotos_ImportPhotos` | ImportPhotos | manual_only | skip |
@@ -713,11 +696,11 @@ flowchart TD
 | `qgis.action.Search_Layers` | Search Layers | exists_only | pass |
 | `qgis.action.StreetView_StreetView` | StreetView | exists_only | pass |
 | `qgis.action.MetaSearch` | MetaSearch | exists_only | pass |
-| `qgis.action.noname_noname` | モデル | exists_only | pass |
+| `qgis.action.noname_noname` | モデル | exists_only | untested |
 | `qgis.action...._...` | 新規モデルを作成... | manual_only | skip |
 | `qgis.action...._...` | 既存のモデルを開く... | manual_only | skip |
 | `qgis.action...._...` | ツールボックスにモデルを追加... | exists_only | pass |
-| `qgis.action.noname_noname` | スクリプト | exists_only | pass |
+| `qgis.action.noname_noname` | スクリプト | exists_only | untested |
 | `qgis.action...._...` | 新規スクリプトを作成... | manual_only | skip |
 | `qgis.action...._...` | テンプレートからスクリプトを作成... | exists_only | pass |
 | `qgis.action...._...` | 既存のスクリプトを開く... | manual_only | skip |
@@ -725,6 +708,28 @@ flowchart TD
 | `qgis.action.optionsAction` | オプション | manual_only | skip |
 | `qgis.action.mProcessingAlg_native_selectbylocation` | 場所による選択 | exists_only | pass |
 | `qgis.action.mProcessingAlg_native_selectwithindistance` | 一定距離以内の地物を選択 | exists_only | pass |
+| `qgis.action.Count` | カウント（Count） | exists_only | pass |
+| `qgis.action.Sum` | 合計（Sum） | exists_only | pass |
+| `qgis.action.Mean` | 平均値（Mean） | exists_only | pass |
+| `qgis.action.Median` | 中央値（Median） | exists_only | pass |
+| `qgis.action.noname_noname` | 標準偏差 （母集団） | exists_only | pass |
+| `qgis.action.noname_noname` | 標準偏差 （標本） | exists_only | pass |
+| `qgis.action.noname_noname` | 最小 | exists_only | pass |
+| `qgis.action.noname_noname` | 最大 | exists_only | pass |
+| `qgis.action.Range` | 範囲（Range） | exists_only | pass |
+| `qgis.action.Minority` | 最稀値（Minority） | exists_only | pass |
+| `qgis.action.Majority` | 最頻値（Majority） | exists_only | pass |
+| `qgis.action.Variety` | 種類（Variety） | exists_only | pass |
+| `qgis.action.Q1` | 第１四分位（Q1） | exists_only | pass |
+| `qgis.action.Q3` | 第３四分位（Q3） | exists_only | pass |
+| `qgis.action.IQR` | 四分位範囲（IQR） | exists_only | pass |
+| `qgis.action.NULL` | 欠落（NULL）値 | exists_only | pass |
+| `qgis.action.noname_noname` | 選択したレイヤに従う | exists_only | pass |
+| `qgis.action.actionAdd` | 追加 | exists_only | pass |
+| `qgis.action.actionDelete` | 削除 | manual_only | skip |
+| `qgis.action.actionZoomTo` | ズーム | exists_only | pass |
+| `qgis.action.actionExport` | Export | manual_only | skip |
+| `qgis.action.actionImport` | Import | manual_only | skip |
 | `qgis.action.noname_noname` | 属性テーブルを表示 | exists_only | pass |
 | `qgis.action.mActionDigitizing` | メッシュ要素をデジタイズ | action_trigger | pass |
 | `qgis.action.ActionMeshSelectByPolygon` | ポリゴンによるメッシュ要素選択 | action_trigger | pass |
@@ -741,13 +746,9 @@ flowchart TD
 | `qgis.action.mActionRemoveVerticesWithoutFillingHole` | mActionRemoveVerticesWithoutFillingHole | exists_only | pass |
 | `qgis.action.mActionRemoveFaces` | 現在の面を削除 | manual_only | skip |
 | `qgis.action.mActionSplitFaces` | 現在の面を分割 | exists_only | pass |
-| `qgis.action.actionAdd` | 追加 | exists_only | pass |
-| `qgis.action.actionDelete` | 削除 | manual_only | skip |
-| `qgis.action.actionZoomTo` | ズーム | exists_only | pass |
-| `qgis.action.actionExport` | Export | manual_only | skip |
-| `qgis.action.actionImport` | Import | manual_only | skip |
-| `qgis.action.noname` | 配置モード | exists_only | removed |
+| `qgis.action.noname_noname` | 自動的にプロジェクトを開く | manual_only | untested |
 | `qgis.action.noname` | 凡例 | exists_only | removed |
+| `qgis.action.AI` | AI アシスタント | exists_only | removed |
 | `qgis.action.noname_noname` | 属性テーブルを表示 | exists_only | removed |
 | `qgis.action.ProjectFile_C_Users_ryu_OneDrive_E_EQGIS` | ProjectFile (C:\Users\ryu\OneDrive\チE��クトッチEQGIS_portable\ProjectFiles\ProjectFile.qgs) | manual_only | removed |
 | `qgis.action.NewProjectFile_C_QGIS_E_ProjectFiles_New` | NewProjectFile (C:\QGIS配币E��\ProjectFiles\NewProjectFile.qgs) | manual_only | removed |
@@ -773,7 +774,6 @@ flowchart TD
 | `qgis.action.Show_Bearing` | Show Bearing | exists_only | removed |
 | `qgis.action.Show_Total_Track_Length` | Show Total Track Length | exists_only | removed |
 | `qgis.action.Show_Distance_from_Start_of_Track` | Show Distance from Start of Track | exists_only | removed |
-| `qgis.action.WebView` | WebView | action_trigger | removed |
 | `qgis.action.Buffer_Settings` | Buffer Settings… | exists_only | removed |
 | `qgis.action.Extent_Buffer` | Extent Buffer… | exists_only | removed |
 | `qgis.action.Lock_Color` | Lock Color | exists_only | removed |
@@ -1267,28 +1267,28 @@ flowchart TD
 
 | id | name | check | result |
 |---|---|---|---|
+| `qgis.dock.Layers` | レイヤ | dock_toggle | pass |
 | `qgis.dock.Browser` | ブラウザ | dock_toggle | pass |
 | `qgis.dock.LayerOrder` | レイヤ順序 | dock_toggle | pass |
 | `qgis.dock.AdvancedDigitizingTools` | 高度なデジタイズ | dock_toggle | pass |
 | `qgis.dock.Overview` | 全体図 | dock_toggle | pass |
 | `qgis.dock.undo_redo_dock` | 元に戻す/やり直す | dock_toggle | pass |
-| `qgis.dock.StatisticalSummaryDockWidget` | 統計 | dock_toggle | pass |
-| `qgis.dock.VertexEditor` | 頂点エディタ | dock_toggle | pass |
-| `qgis.dock.Layers` | レイヤ | dock_toggle | pass |
 | `qgis.dock.QgsGeometryValidationDockBase` | ジオメトリ検証 | dock_toggle | pass |
 | `qgis.dock.LayerStyling` | レイヤスタイル | dock_toggle | pass |
 | `qgis.dock.DevTools` | デバッグ開発ツール | dock_toggle | pass |
 | `qgis.dock.Temporal_Controller` | 時系列コントローラ | dock_toggle | pass |
 | `qgis.dock.Browser2` | ブラウザ(2) | dock_toggle | pass |
 | `qgis.dock.GPSInformation` | GPS情報 | dock_toggle | pass |
-| `qgis.dock.MessageLog` | ログメッセージ | dock_toggle | pass |
 | `qgis.dock.ProcessingToolbox` | プロセシングツールボックス | dock_toggle | pass |
 | `qgis.dock.ResultsViewer` | 結果ビューア | dock_toggle | pass |
+| `qgis.dock.StatisticalSummaryDockWidget` | 統計 | dock_toggle | pass |
+| `qgis.dock.MessageLog` | ログメッセージ | dock_toggle | pass |
 | `qgis.dock.BookmarksDockWidget` | 空間ブックマークマネージャ | dock_toggle | pass |
 | `qgis.dock.theTileScaleDock` | タイルスケール | dock_toggle | pass |
-| `qgis.dock.GeoDriverAiPanel` | AI アシスタント | dock_toggle | pass |
+| `qgis.dock.GeoReportLayoutSelectorPanel` | レポート | dock_toggle | untested |
+| `qgis.dock.VertexEditor` | 頂点エディタ | dock_toggle | pass |
+| `qgis.dock.GeoDriverAiPanel` | AI アシスタント | dock_toggle | removed |
 | `qgis.dock.LegendViewDockWidgetBase` | 凡例表示 | dock_toggle | removed |
-| `qgis.dock.GeoReportLayoutSelectorPanel` | レポート | dock_toggle | removed |
 | `qgis.dock.IdentifyResultsDock` | 地物情報結果 | dock_toggle | removed |
 
 ### qgis_api (28件)

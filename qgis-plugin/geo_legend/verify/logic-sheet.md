@@ -1,7 +1,7 @@
 # geo_legend — 完全ロジックシート
 
 - 種別: qgis_plugin / バージョン: 2.8.0
-- 生成: 2026-11-14T07:12:30+09:00 / 機能数: 51
+- 生成: 2026-11-15T22:33:28+09:00 / 機能数: 49
 
 ## トポロジ
 
@@ -44,8 +44,6 @@ flowchart LR
     ai_bridge_route["bridge_call経由全到達<br/><i>ai_integration</i>"]
     ai_catalog["describe_plugins登録<br/><i>ai_integration</i>"]
     ai_pluginInfo["pluginInfo自己記述<br/><i>ai_integration</i>"]
-    ai_prompt_create_legend["同梱おすすめプロンプト create-legend<br/><i>ai_integration</i>"]
-    ai_skill_legend_creation["同梱スキル legend-creation<br/><i>ai_integration</i>"]
     logic_fn_create_zip_py_bump_version["bump_version<br/><i>logic_fn</i>"]
     logic_fn_create_zip_py_create_plugin_zip["create_plugin_zip<br/><i>logic_fn</i>"]
     logic_fn_create_zip_py_get_plugin_name_and_version_from_metadata["get_plugin_name_and_version_from_metadata<br/><i>logic_fn</i>"]
@@ -85,7 +83,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone経路のみ(要runtime依存無し)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone経路のみ(要runtime依存無し)
 
 ### action.LegendView.initGui — initGui
 
@@ -102,7 +100,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.LegendView.run — run
 
@@ -119,7 +117,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.LegendView.unload — unload
 
@@ -136,7 +134,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.LegendViewDockWidget — LegendViewDockWidget
 
@@ -153,7 +151,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### bridge.addLayoutLegend — addLayoutLegend
 
@@ -170,7 +168,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call addLayoutLegend → レイアウトに凡例アイテム実在assert(実測pass)
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.applyCategories — applyCategories
 
@@ -187,7 +185,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call applyCategories → renderer=categorizedSymbol+legendSymbolItems assert(実測pass)
-- 結果: **skip** 2026-11-14T07:12:30+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.applyGraduated — applyGraduated
 
@@ -204,7 +202,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call applyGraduated → renderer=graduatedSymbol+レンジassert(実測pass)
-- 結果: **skip** 2026-11-14T07:12:30+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.applyRules — applyRules
 
@@ -221,7 +219,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call applyRules → renderer=RuleRenderer+ルールラベルassert(実測pass)
-- 結果: **skip** 2026-11-14T07:12:30+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.applySingleSymbol — applySingleSymbol
 
@@ -238,7 +236,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call applySingleSymbol → renderer=singleSymbol assert(実測pass)
-- 結果: **skip** 2026-11-14T07:12:30+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.closeDock — closeDock
 
@@ -255,7 +253,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call closeDock → 応答assert
-- 結果: **skip** 2026-11-14T07:12:30+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.deleteLegendVariable — deleteLegendVariable
 
@@ -272,7 +270,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call deleteLegendVariable → 応答assert
-- 結果: **skip** 2026-11-14T07:12:30+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.exportLegendImage — exportLegendImage
 
@@ -289,7 +287,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call exportLegendImage → PNG生成(10KB)+内容目視assert(実測pass)
-- 結果: **skip** 2026-11-14T07:12:30+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.legend — legend
 
@@ -306,7 +304,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call legend → 応答assert
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.legendSpec — legendSpec
 
@@ -323,7 +321,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call legendSpec → type/items/legend_items応答assert(実測pass)
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.legendVariables — legendVariables
 
@@ -340,7 +338,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call legendVariables → 応答assert
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.listDatasets — listDatasets
 
@@ -357,7 +355,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call listDatasets → 応答assert
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.listStyles — listStyles
 
@@ -374,7 +372,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call listStyles → 応答assert
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.opacity — opacity
 
@@ -391,7 +389,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call opacity → 応答assert
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.openDock — openDock
 
@@ -408,7 +406,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openDock → 応答assert
-- 結果: **skip** 2026-11-14T07:12:30+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.pluginInfo — pluginInfo
 
@@ -425,7 +423,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo → 応答assert
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.refresh — refresh
 
@@ -442,7 +440,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call refresh → 応答assert
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.registerCurrentLayer — registerCurrentLayer
 
@@ -459,7 +457,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call registerCurrentLayer → 応答assert
-- 結果: **skip** 2026-11-14T07:12:30+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.registerLayer — registerLayer
 
@@ -476,7 +474,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call registerLayer → 応答assert
-- 結果: **skip** 2026-11-14T07:12:30+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.selectCurrentLayer — selectCurrentLayer
 
@@ -493,7 +491,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call selectCurrentLayer → 応答assert
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.selectDataset — selectDataset
 
@@ -510,7 +508,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call selectDataset → 応答assert
-- 結果: **skip** 2026-11-14T07:12:30+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'dataset not found: {}'}
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'dataset not found: {}'}
 
 ### bridge.setLegendVariable — setLegendVariable
 
@@ -527,7 +525,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call setLegendVariable → 応答assert
-- 結果: **skip** 2026-11-14T07:12:30+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.setStyle — setStyle
 
@@ -544,7 +542,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call setStyle → 応答assert
-- 結果: **skip** 2026-11-14T07:12:30+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.status — status
 
@@ -561,7 +559,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call status → 応答assert
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### ai.bridge_route — bridge_call経由全到達
 
@@ -578,7 +576,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call 全method→ok/error記録
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — 12メソッド到達可能
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 12メソッド到達可能
 
 ### ai.catalog — describe_plugins登録
 
@@ -595,7 +593,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=describe_plugins→plugins[]にid実在+methods非空
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — describe_plugins: methods=23
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — describe_plugins: methods=23
 
 ### ai.pluginInfo — pluginInfo自己記述
 
@@ -612,41 +610,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo→メタ一致assert
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — 自己記述あり
-
-### ai.prompt.create-legend — 同梱おすすめプロンプト create-legend
-
-- kind: `ai_integration` / source: `prompts/create-legend.md`
-- signature: ``
-- 要約: 凡例作成の定型指示(パネルのおすすめコンボで選択→入力欄へ挿入)
-- needs_runtime=True / standalone_ok=False
-
-```mermaid
-flowchart LR
-  E_ai_prompt_create_legend["AI経路"] --> H_ai_prompt_create_legend["同梱おすすめプロンプト create-legend"]
-  H_ai_prompt_create_legend --> R_ai_prompt_create_legend["QGIS/ランタイムAPI"]
-  R_ai_prompt_create_legend --> OUT["結果"]
-```
-
-- 検証: 単独= / 連携=instruction op=list kind=prompts → id=create-legend & builtin、path=geo_legend/prompts/
-- 結果: **removed** 2026-11-14T06:46:49+09:00 — 実QGIS(pid28736)で確認済
-
-### ai.skill.legend-creation — 同梱スキル legend-creation
-
-- kind: `ai_integration` / source: `skills/legend-creation.md`
-- signature: ``
-- 要約: 凡例作成(applyCategories/applyGraduated/applyRules/addLayoutLegend/exportLegendImage)の手順書。モデルが ai_read_instruction で読む
-- needs_runtime=True / standalone_ok=False
-
-```mermaid
-flowchart LR
-  E_ai_skill_legend_creation["AI経路"] --> H_ai_skill_legend_creation["同梱スキル legend-creation"]
-  H_ai_skill_legend_creation --> R_ai_skill_legend_creation["QGIS/ランタイムAPI"]
-  R_ai_skill_legend_creation --> OUT["結果"]
-```
-
-- 検証: 単独= / 連携=ai_list_instructions→skills[]に id=legend-creation & builtin、ai_read_instruction→title/desc/when+本文
-- 結果: **removed** 2026-11-14T16:20:00+09:00 — 実QGISで ai_client.list_skills()→builtin=true・path=geo_legend/skills/・when正解、load_instruction→本文取得を確認。ai-plane(devin_acp): モデルがスキルを参照し applyCategories(cat/4分類/Spectral) → QgsCategorizedSymbolRenderer実在をassert、addLayoutLegend(検証用凡例) → QgsLayoutItemLegend実在をassert、両方pass
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 自己記述あり
 
 ### logic_fn.create_zip.py:bump_version — bump_version
 
@@ -662,7 +626,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.create_zip.py:create_plugin_zip — create_plugin_zip
 
@@ -678,7 +642,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.create_zip.py:get_plugin_name_and_version_from_metadata — get_plugin_name_and_version_from_metadata
 
@@ -694,7 +658,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.create_zip.py:list_zip_contents — list_zip_contents
 
@@ -710,7 +674,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.create_zip.py:update_metadata_version_and_changelog — update_metadata_version_and_changelog
 
@@ -726,7 +690,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.validate_package.py:main — main
 
@@ -742,7 +706,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.validate_package.py:validate_plugin_package — validate_plugin_package
 
@@ -758,7 +722,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.version.py:get_compatibility_info — get_compatibility_info
 
@@ -774,7 +738,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.version.py:get_version — get_version
 
@@ -790,7 +754,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.version.py:get_version_info — get_version_info
 
@@ -806,7 +770,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.version.py:is_stable — is_stable
 
@@ -822,7 +786,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.version_manager.py:bump_version — bump_version
 
@@ -838,7 +802,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.version_manager.py:main — main
 
@@ -854,7 +818,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.version_manager.py:read_version — read_version
 
@@ -870,7 +834,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.version_manager.py:show_current_version — show_current_version
 
@@ -886,7 +850,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.version_manager.py:update_metadata_version — update_metadata_version
 
@@ -902,7 +866,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.version_manager.py:write_version — write_version
 
@@ -918,7 +882,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:12:30+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ## 検証マトリクス
 
@@ -956,8 +920,6 @@ flowchart LR
 | ai.bridge_route | ai_integration | - | ○ | pass |
 | ai.catalog | ai_integration | - | ○ | pass |
 | ai.pluginInfo | ai_integration | - | ○ | pass |
-| ai.prompt.create-legend | ai_integration | - | ○ | removed |
-| ai.skill.legend-creation | ai_integration | - | ○ | removed |
 | logic_fn.create_zip.py:bump_version | logic_fn | ○ | - | pass |
 | logic_fn.create_zip.py:create_plugin_zip | logic_fn | ○ | - | pass |
 | logic_fn.create_zip.py:get_plugin_name_and_version_from_metadata | logic_fn | ○ | - | pass |

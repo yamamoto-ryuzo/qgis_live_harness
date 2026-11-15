@@ -1,7 +1,7 @@
 # geo_search — 完全ロジックシート
 
-- 種別: qgis_plugin / バージョン: 4.4.10
-- 生成: 2026-11-14T07:09:57+09:00 / 機能数: 74
+- 種別: qgis_plugin / バージョン: 4.5.2
+- 生成: 2026-11-15T22:33:28+09:00 / 機能数: 81
 
 ## トポロジ
 
@@ -13,6 +13,7 @@ flowchart LR
   end
   subgraph LOGIC["実装"]
     entry_point___init___py_classFactory["classFactory<br/><i>entry_point</i>"]
+    action_SearchAddressFeature_unload["unload<br/><i>action</i>"]
     action_SearchFeature_unload["unload<br/><i>action</i>"]
     action_SearchOwnerFeature_unload["unload<br/><i>action</i>"]
     action_SearchTextFeature_unload["unload<br/><i>action</i>"]
@@ -48,6 +49,7 @@ flowchart LR
     bridge_results["results<br/><i>bridge_method</i>"]
     bridge_saveUserTheme["saveUserTheme<br/><i>bridge_method</i>"]
     bridge_search["search<br/><i>bridge_method</i>"]
+    bridge_searchAddress["searchAddress<br/><i>bridge_method</i>"]
     bridge_searchOptions["searchOptions<br/><i>bridge_method</i>"]
     bridge_selectTab["selectTab<br/><i>bridge_method</i>"]
     bridge_setSettings["setSettings<br/><i>bridge_method</i>"]
@@ -61,7 +63,12 @@ flowchart LR
     ai_bridge_route["bridge_call経由全到達<br/><i>ai_integration</i>"]
     ai_catalog["describe_plugins登録<br/><i>ai_integration</i>"]
     ai_pluginInfo["pluginInfo自己記述<br/><i>ai_integration</i>"]
-    ai_prompt_search_features["同梱おすすめプロンプト search-features<br/><i>ai_integration</i>"]
+    logic_fn_geocode_py_ensure_address_layer["ensure_address_layer<br/><i>logic_fn</i>"]
+    logic_fn_geocode_py_parse_coordinate_query["parse_coordinate_query<br/><i>logic_fn</i>"]
+    logic_fn_geocode_py_resolve_api_key["resolve_api_key<br/><i>logic_fn</i>"]
+    logic_fn_geocode_py_resolve_yahoo_app_id["resolve_yahoo_app_id<br/><i>logic_fn</i>"]
+    logic_fn_geocode_py_results_to_features["results_to_features<br/><i>logic_fn</i>"]
+    logic_fn_geocode_py_search["search<br/><i>logic_fn</i>"]
     logic_fn_log_py_log_message["log_message<br/><i>logic_fn</i>"]
     logic_fn_theme_py_apply_legend_visibility["apply_legend_visibility<br/><i>logic_fn</i>"]
     logic_fn_theme_py_apply_theme["apply_theme<br/><i>logic_fn</i>"]
@@ -88,7 +95,7 @@ flowchart LR
     logic_fn_utils_py_unique_values["unique_values<br/><i>logic_fn</i>"]
   end
   AI --> bridge_addTab & bridge_addTabFromCurrentLayer & bridge_applyTheme & bridge_closeDialog & bridge_getSettings & bridge_listTabs & bridge_listThemes & bridge_loadUserTheme …
-  UI --> action_SearchFeature_unload & action_SearchOwnerFeature_unload & action_SearchTextFeature_unload & action_SearchTibanFeature_unload & action_plugin_initGui & action_plugin_run & action_plugin_unload & dialog_ResultDialog …
+  UI --> action_SearchAddressFeature_unload & action_SearchFeature_unload & action_SearchOwnerFeature_unload & action_SearchTextFeature_unload & action_SearchTibanFeature_unload & action_plugin_initGui & action_plugin_run & action_plugin_unload …
   LOGIC --> QGIS["QGIS API / iface / QgsProject"]
 ```
 
@@ -108,7 +115,24 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone経路のみ(要runtime依存無し)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone経路のみ(要runtime依存無し)
+
+### action.SearchAddressFeature.unload — unload
+
+- kind: `action` / source: `searchfeature.py:2139`
+- signature: `unload()`
+- 要約: 
+- needs_runtime=True / standalone_ok=False
+
+```mermaid
+flowchart LR
+  E_action_SearchAddressFeature_unload["メニュー/ツールバー"] --> H_action_SearchAddressFeature_unload["unload"]
+  H_action_SearchAddressFeature_unload --> R_action_SearchAddressFeature_unload["QGIS/ランタイムAPI"]
+  R_action_SearchAddressFeature_unload --> OUT["結果"]
+```
+
+- 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.SearchFeature.unload — unload
 
@@ -125,7 +149,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.SearchOwnerFeature.unload — unload
 
@@ -142,7 +166,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.SearchTextFeature.unload — unload
 
@@ -159,7 +183,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.SearchTibanFeature.unload — unload
 
@@ -176,11 +200,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.plugin.initGui — initGui
 
-- kind: `action` / source: `plugin.py:82`
+- kind: `action` / source: `plugin.py:83`
 - signature: `initGui()`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -193,11 +217,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.plugin.run — run
 
-- kind: `action` / source: `plugin.py:1444`
+- kind: `action` / source: `plugin.py:1456`
 - signature: `run(state=…, layer=…, view_fields=…)`
 - 要約: 検索ダイアログを表示する
 - needs_runtime=True / standalone_ok=False
@@ -210,11 +234,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.plugin.unload — unload
 
-- kind: `action` / source: `plugin.py:838`
+- kind: `action` / source: `plugin.py:839`
 - signature: `unload()`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -227,7 +251,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.ResultDialog — ResultDialog
 
@@ -244,11 +268,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.SearchDialog — SearchDialog
 
-- kind: `dialog` / source: `searchdialog.py:29`
+- kind: `dialog` / source: `searchdialog.py:30`
 - signature: `SearchDialog`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -261,11 +285,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.SearchWidget — SearchWidget
 
-- kind: `dialog` / source: `widget/searchwidget.py:21`
+- kind: `dialog` / source: `widget/searchwidget.py:23`
 - signature: `SearchWidget`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -278,7 +302,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.SettingsDialog — SettingsDialog
 
@@ -295,11 +319,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.ResultDialog._on_tab_changed — _on_tab_changed
 
-- kind: `ui_control` / source: `resultdialog.py:965`
+- kind: `ui_control` / source: `resultdialog.py:970`
 - signature: `_on_tab_changed(index)`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -312,11 +336,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.plugin._on_additive_toggled — _on_additive_toggled
 
-- kind: `ui_control` / source: `plugin.py:353`
+- kind: `ui_control` / source: `plugin.py:354`
 - signature: `_on_additive_toggled(checked)`
 - 要約: Handler for additive_theme_action.toggled
 - needs_runtime=True / standalone_ok=False
@@ -329,11 +353,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.plugin._on_map_themes_changed — _on_map_themes_changed
 
-- kind: `ui_control` / source: `plugin.py:806`
+- kind: `ui_control` / source: `plugin.py:807`
 - signature: `_on_map_themes_changed(*args, **kwargs)`
 - 要約: Wrapper for mapThemesChanged signal: log and delegate.
 - needs_runtime=True / standalone_ok=False
@@ -346,11 +370,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.plugin._on_theme_collection_changed — _on_theme_collection_changed
 
-- kind: `ui_control` / source: `plugin.py:822`
+- kind: `ui_control` / source: `plugin.py:823`
 - signature: `_on_theme_collection_changed(*args, **kwargs)`
 - 要約: Wrapper for legacy theme collection 'changed' signal.
 - needs_runtime=True / standalone_ok=False
@@ -363,11 +387,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.plugin.on_group_changed — on_group_changed
 
-- kind: `ui_control` / source: `plugin.py:423`
+- kind: `ui_control` / source: `plugin.py:424`
 - signature: `on_group_changed(index)`
 - 要約: Called when user selects a group; filter themes accordingly.
 - needs_runtime=True / standalone_ok=False
@@ -380,11 +404,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.plugin.on_project_saved — on_project_saved
 
-- kind: `ui_control` / source: `plugin.py:1624`
+- kind: `ui_control` / source: `plugin.py:1636`
 - signature: `on_project_saved()`
 - 要約: プロジェクトが保存された時の処理
 - needs_runtime=True / standalone_ok=False
@@ -397,11 +421,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### bridge.addTab — addTab
 
-- kind: `bridge_method` / source: `bridge.py:1517`
+- kind: `bridge_method` / source: `bridge.py:1666`
 - signature: `addTab(config, target=…, rebuild=…)`
 - 要約: 任意のタブ定義dictを検索タブとして追加する。
 - needs_runtime=True / standalone_ok=False
@@ -414,11 +438,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call addTab → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'config must be an object with Title'}
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'config must be an object with Title'}
 
 ### bridge.addTabFromCurrentLayer — addTabFromCurrentLayer
 
-- kind: `bridge_method` / source: `bridge.py:1250`
+- kind: `bridge_method` / source: `bridge.py:1399`
 - signature: `addTabFromCurrentLayer(title=…, rebuild=…)`
 - 要約: 現在のアクティブレイヤを検索タブとして追加する。
 - needs_runtime=True / standalone_ok=False
@@ -431,11 +455,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call addTabFromCurrentLayer → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.applyTheme — applyTheme
 
-- kind: `bridge_method` / source: `bridge.py:1041`
+- kind: `bridge_method` / source: `bridge.py:1190`
 - signature: `applyTheme(name, additive=…)`
 - 要約: マップテーマを適用する。additive指定時は追加表示モードも変更。
 - needs_runtime=True / standalone_ok=False
@@ -448,11 +472,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call applyTheme → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.closeDialog — closeDialog
 
-- kind: `bridge_method` / source: `bridge.py:1644`
+- kind: `bridge_method` / source: `bridge.py:1793`
 - signature: `closeDialog()`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -465,11 +489,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call closeDialog → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.getSettings — getSettings
 
-- kind: `bridge_method` / source: `bridge.py:1143`
+- kind: `bridge_method` / source: `bridge.py:1292`
 - signature: `getSettings()`
 - 要約: 検索設定の由来(ファイル/プロジェクト変数/env)と値を返す。
 - needs_runtime=True / standalone_ok=False
@@ -482,11 +506,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call getSettings → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.listTabs — listTabs
 
-- kind: `bridge_method` / source: `bridge.py:635`
+- kind: `bridge_method` / source: `bridge.py:650`
 - signature: `listTabs()`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -499,11 +523,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call listTabs → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.listThemes — listThemes
 
-- kind: `bridge_method` / source: `bridge.py:1009`
+- kind: `bridge_method` / source: `bridge.py:1158`
 - signature: `listThemes()`
 - 要約: マップテーマ一覧・グループ・現在選択・追加表示モードを返す。
 - needs_runtime=True / standalone_ok=False
@@ -516,11 +540,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call listThemes → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.loadUserTheme — loadUserTheme
 
-- kind: `bridge_method` / source: `bridge.py:1130`
+- kind: `bridge_method` / source: `bridge.py:1279`
 - signature: `loadUserTheme(path)`
 - 要約: ユーザーテーマJSONを読み込んで現在のプロジェクトに適用する。
 - needs_runtime=True / standalone_ok=False
@@ -533,11 +557,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call loadUserTheme → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'failed to read user theme: '}
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'failed to read user theme: '}
 
 ### bridge.openDialog — openDialog
 
-- kind: `bridge_method` / source: `bridge.py:1636`
+- kind: `bridge_method` / source: `bridge.py:1785`
 - signature: `openDialog()`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -550,11 +574,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openDialog → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.openSettings — openSettings
 
-- kind: `bridge_method` / source: `bridge.py:1393`
+- kind: `bridge_method` / source: `bridge.py:1542`
 - signature: `openSettings()`
 - 要約: 設定ダイアログを非modalで開く。
 - needs_runtime=True / standalone_ok=False
@@ -567,11 +591,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openSettings → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.pluginInfo — pluginInfo
 
-- kind: `bridge_method` / source: `bridge.py:578`
+- kind: `bridge_method` / source: `bridge.py:593`
 - signature: `pluginInfo()`
 - 要約: プラグインの自己記述(id/summary/when_to_use/methods)を返す。
 - needs_runtime=True / standalone_ok=False
@@ -584,11 +608,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.reloadDialog — reloadDialog
 
-- kind: `bridge_method` / source: `bridge.py:1211`
+- kind: `bridge_method` / source: `bridge.py:1360`
 - signature: `reloadDialog(show=…)`
 - 要約: 検索ダイアログを再構築する(設定・タブ変更の反映用)。
 - needs_runtime=True / standalone_ok=False
@@ -601,11 +625,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call reloadDialog → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.removeTab — removeTab
 
-- kind: `bridge_method` / source: `bridge.py:1303`
+- kind: `bridge_method` / source: `bridge.py:1452`
 - signature: `removeTab(tab=…, rebuild=…)`
 - 要約: 検索タブを設定ソースから削除し、ダイアログを再構築する。
 - needs_runtime=True / standalone_ok=False
@@ -618,11 +642,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call removeTab → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.resultDisplayMode — resultDisplayMode
 
-- kind: `bridge_method` / source: `bridge.py:1622`
+- kind: `bridge_method` / source: `bridge.py:1771`
 - signature: `resultDisplayMode(mode=…)`
 - 要約: 結果ダイアログの表示モードを取得/設定する('table'/'form')。
 - needs_runtime=True / standalone_ok=False
@@ -635,11 +659,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call resultDisplayMode → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.resultPage — resultPage
 
-- kind: `bridge_method` / source: `bridge.py:1603`
+- kind: `bridge_method` / source: `bridge.py:1752`
 - signature: `resultPage(page=…)`
 - 要約: 結果ダイアログの表示ページを取得/設定する(1始まり)。
 - needs_runtime=True / standalone_ok=False
@@ -652,11 +676,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call resultPage → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.results — results
 
-- kind: `bridge_method` / source: `bridge.py:719`
+- kind: `bridge_method` / source: `bridge.py:868`
 - signature: `results(max_features=…)`
 - 要約: 直近の検索結果を返す(再検索はしない)。
 - needs_runtime=True / standalone_ok=False
@@ -669,11 +693,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call results → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.saveUserTheme — saveUserTheme
 
-- kind: `bridge_method` / source: `bridge.py:1104`
+- kind: `bridge_method` / source: `bridge.py:1253`
 - signature: `saveUserTheme(path=…)`
 - 要約: 現在の表示状態をユーザーテーマJSON(.usertheme.json)に保存する。
 - needs_runtime=True / standalone_ok=False
@@ -686,11 +710,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call saveUserTheme → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.search — search
 
-- kind: `bridge_method` / source: `bridge.py:670`
+- kind: `bridge_method` / source: `bridge.py:685`
 - signature: `search(query=…, tab=…, show=…, zoom=…, max_features=…, options=…)`
 - 要約: 検索を実行する(検索ボタン押下と同じ show_features 経路)。
 - needs_runtime=True / standalone_ok=False
@@ -703,11 +727,28 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call search → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
+
+### bridge.searchAddress — searchAddress
+
+- kind: `bridge_method` / source: `bridge.py:808`
+- signature: `searchAddress(query=…, provider=…, zoom=…, createLayer=…)`
+- 要約: 住所・地名をジオコーディングして候補を返し地図へ表示する。
+- needs_runtime=True / standalone_ok=False
+
+```mermaid
+flowchart LR
+  E_bridge_searchAddress["AI/bridge_call"] --> H_bridge_searchAddress["searchAddress"]
+  H_bridge_searchAddress --> R_bridge_searchAddress["QGIS/ランタイムAPI"]
+  R_bridge_searchAddress --> OUT["結果"]
+```
+
+- 検証: 単独= / 連携=bridge_call searchAddress → 応答assert
+- 結果: **pass** 2026-11-15T22:35:31+09:00 — 実クエリ検証で pass: searchAddress('35.6812,139.7671') → ok:true provider=coords count=1 zoomed=true (2026-11-15再確認)。ランナーが全引数デフォルトのメソッドを無引数で呼び 'empty query' となった検証手順上の誤り。verify runner の引数合成の改善課題は Issue 参照
 
 ### bridge.searchOptions — searchOptions
 
-- kind: `bridge_method` / source: `bridge.py:842`
+- kind: `bridge_method` / source: `bridge.py:991`
 - signature: `searchOptions(options=…)`
 - 要約: 検索オプションを取得/設定する(設定時は全タブへ適用)。
 - needs_runtime=True / standalone_ok=False
@@ -720,11 +761,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call searchOptions → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.selectTab — selectTab
 
-- kind: `bridge_method` / source: `bridge.py:654`
+- kind: `bridge_method` / source: `bridge.py:669`
 - signature: `selectTab(tab=…)`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -737,11 +778,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call selectTab → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.setSettings — setSettings
 
-- kind: `bridge_method` / source: `bridge.py:1176`
+- kind: `bridge_method` / source: `bridge.py:1325`
 - signature: `setSettings(settings=…, rebuild=…)`
 - 要約: geo_search_json(検索設定JSONのパス)を設定する。
 - needs_runtime=True / standalone_ok=False
@@ -754,11 +795,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call setSettings → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.setTabSetting — setTabSetting
 
-- kind: `bridge_method` / source: `bridge.py:1450`
+- kind: `bridge_method` / source: `bridge.py:1599`
 - signature: `setTabSetting(tab=…, config=…, rebuild=…)`
 - 要約: 既存タブの設定JSONを更新して由来ソースへ書き戻す。
 - needs_runtime=True / standalone_ok=False
@@ -771,11 +812,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call setTabSetting → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.status — status
 
-- kind: `bridge_method` / source: `bridge.py:601`
+- kind: `bridge_method` / source: `bridge.py:616`
 - signature: `status()`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -788,11 +829,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call status → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.suggest — suggest
 
-- kind: `bridge_method` / source: `bridge.py:973`
+- kind: `bridge_method` / source: `bridge.py:1122`
 - signature: `suggest(tab=…, field=…, limit=…)`
 - 要約: 検索フィールドのユニーク値一覧(サジェスト相当)を返す。
 - needs_runtime=True / standalone_ok=False
@@ -805,11 +846,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call suggest → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.tabOptions — tabOptions
 
-- kind: `bridge_method` / source: `bridge.py:882`
+- kind: `bridge_method` / source: `bridge.py:1031`
 - signature: `tabOptions(tab=…, options=…)`
 - 要約: タブ固有の検索コントロールを取得/設定する。
 - needs_runtime=True / standalone_ok=False
@@ -822,11 +863,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call tabOptions → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.tabSetting — tabSetting
 
-- kind: `bridge_method` / source: `bridge.py:1237`
+- kind: `bridge_method` / source: `bridge.py:1386`
 - signature: `tabSetting(tab=…)`
 - 要約: 検索タブの設定JSON(由来_source/_source_index含む)を返す。
 - needs_runtime=True / standalone_ok=False
@@ -839,11 +880,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call tabSetting → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.themeAdditive — themeAdditive
 
-- kind: `bridge_method` / source: `bridge.py:1082`
+- kind: `bridge_method` / source: `bridge.py:1231`
 - signature: `themeAdditive(enabled=…)`
 - 要約: テーマ適用の追加表示モードを取得/設定する。
 - needs_runtime=True / standalone_ok=False
@@ -856,11 +897,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call themeAdditive → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.zoom — zoom
 
-- kind: `bridge_method` / source: `bridge.py:732`
+- kind: `bridge_method` / source: `bridge.py:881`
 - signature: `zoom(feature_ids=…, tab_index=…)`
 - 要約: 結果地物へズームする。feature_ids省略時はそのタブの全件。
 - needs_runtime=True / standalone_ok=False
@@ -873,7 +914,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call zoom → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### ai.bridge_route — bridge_call経由全到達
 
@@ -890,7 +931,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call 全method→ok/error記録
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 20メソッド到達可能
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 21メソッド到達可能
 
 ### ai.catalog — describe_plugins登録
 
@@ -907,7 +948,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=describe_plugins→plugins[]にid実在+methods非空
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — describe_plugins: methods=27
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — describe_plugins: methods=28
 
 ### ai.pluginInfo — pluginInfo自己記述
 
@@ -924,24 +965,109 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo→メタ一致assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 自己記述あり
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 自己記述あり
 
-### ai.prompt.search-features — 同梱おすすめプロンプト search-features
+### logic_fn.geocode.py:ensure_address_layer — ensure_address_layer
 
-- kind: `ai_integration` / source: `prompts/search-features.md`
-- signature: ``
-- 要約: 地物検索の定型指示(パネルのおすすめコンボで選択→入力欄へ挿入)
+- kind: `logic_fn` / source: `geocode.py:456`
+- signature: `ensure_address_layer(name=…, add_to_project=…)`
+- 要約: 住所検索結果用メモリレイヤ(EPSG:4326 ポイント)を find-or-create で返す。
 - needs_runtime=True / standalone_ok=False
 
 ```mermaid
 flowchart LR
-  E_ai_prompt_search_features["AI経路"] --> H_ai_prompt_search_features["同梱おすすめプロンプト search-features"]
-  H_ai_prompt_search_features --> R_ai_prompt_search_features["QGIS/ランタイムAPI"]
-  R_ai_prompt_search_features --> OUT["結果"]
+  E_logic_fn_geocode_py_ensure_address_layer["呼出元"] --> H_logic_fn_geocode_py_ensure_address_layer["ensure_address_layer"]
+  H_logic_fn_geocode_py_ensure_address_layer --> R_logic_fn_geocode_py_ensure_address_layer["QGIS/ランタイムAPI"]
+  R_logic_fn_geocode_py_ensure_address_layer --> OUT["結果"]
 ```
 
-- 検証: 単独= / 連携=instruction op=list kind=prompts → id=search-features & builtin、path=geo_search/prompts/
-- 結果: **removed** 2026-11-14T06:46:49+09:00 — 実QGIS(pid28736)で確認済
+- 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
+
+### logic_fn.geocode.py:parse_coordinate_query — parse_coordinate_query
+
+- kind: `logic_fn` / source: `geocode.py:418`
+- signature: `parse_coordinate_query(text)`
+- 要約: 座標と解釈できれば {"latitude","longitude"}、不可なら None。
+- needs_runtime=True / standalone_ok=False
+
+```mermaid
+flowchart LR
+  E_logic_fn_geocode_py_parse_coordinate_query["呼出元"] --> H_logic_fn_geocode_py_parse_coordinate_query["parse_coordinate_query"]
+  H_logic_fn_geocode_py_parse_coordinate_query --> R_logic_fn_geocode_py_parse_coordinate_query["QGIS/ランタイムAPI"]
+  R_logic_fn_geocode_py_parse_coordinate_query --> OUT["結果"]
+```
+
+- 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
+
+### logic_fn.geocode.py:resolve_api_key — resolve_api_key
+
+- kind: `logic_fn` / source: `geocode.py:320`
+- signature: `resolve_api_key(setting=…)`
+- 要約: Google Maps APIキー。設定値 "ApiKey" > 環境変数 GOOGLE_MAPS_API_KEY。
+- needs_runtime=True / standalone_ok=False
+
+```mermaid
+flowchart LR
+  E_logic_fn_geocode_py_resolve_api_key["呼出元"] --> H_logic_fn_geocode_py_resolve_api_key["resolve_api_key"]
+  H_logic_fn_geocode_py_resolve_api_key --> R_logic_fn_geocode_py_resolve_api_key["QGIS/ランタイムAPI"]
+  R_logic_fn_geocode_py_resolve_api_key --> OUT["結果"]
+```
+
+- 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
+
+### logic_fn.geocode.py:resolve_yahoo_app_id — resolve_yahoo_app_id
+
+- kind: `logic_fn` / source: `geocode.py:329`
+- signature: `resolve_yahoo_app_id(setting=…)`
+- 要約: Yahoo アプリケーションID。設定値 "YahooAppId" > 環境変数 YAHOO_APPID。
+- needs_runtime=True / standalone_ok=False
+
+```mermaid
+flowchart LR
+  E_logic_fn_geocode_py_resolve_yahoo_app_id["呼出元"] --> H_logic_fn_geocode_py_resolve_yahoo_app_id["resolve_yahoo_app_id"]
+  H_logic_fn_geocode_py_resolve_yahoo_app_id --> R_logic_fn_geocode_py_resolve_yahoo_app_id["QGIS/ランタイムAPI"]
+  R_logic_fn_geocode_py_resolve_yahoo_app_id --> OUT["結果"]
+```
+
+- 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
+
+### logic_fn.geocode.py:results_to_features — results_to_features
+
+- kind: `logic_fn` / source: `geocode.py:515`
+- signature: `results_to_features(layer, items, append=…)`
+- 要約: 検索結果 dict をメモリレイヤの地物として書き込み、作成した
+- needs_runtime=True / standalone_ok=False
+
+```mermaid
+flowchart LR
+  E_logic_fn_geocode_py_results_to_features["呼出元"] --> H_logic_fn_geocode_py_results_to_features["results_to_features"]
+  H_logic_fn_geocode_py_results_to_features --> R_logic_fn_geocode_py_results_to_features["QGIS/ランタイムAPI"]
+  R_logic_fn_geocode_py_results_to_features --> OUT["結果"]
+```
+
+- 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
+
+### logic_fn.geocode.py:search — search
+
+- kind: `logic_fn` / source: `geocode.py:338`
+- signature: `search(query, provider=…, setting=…, limit=…)`
+- 要約: ジオコーディングを実行し {title,address,latitude,longitude} を返す。
+- needs_runtime=True / standalone_ok=False
+
+```mermaid
+flowchart LR
+  E_logic_fn_geocode_py_search["呼出元"] --> H_logic_fn_geocode_py_search["search"]
+  H_logic_fn_geocode_py_search --> R_logic_fn_geocode_py_search["QGIS/ランタイムAPI"]
+  R_logic_fn_geocode_py_search --> OUT["結果"]
+```
+
+- 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.log.py:log_message — log_message
 
@@ -958,7 +1084,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:apply_legend_visibility — apply_legend_visibility
 
@@ -975,7 +1101,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:apply_theme — apply_theme
 
@@ -992,7 +1118,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:apply_user_theme — apply_user_theme
 
@@ -1009,7 +1135,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:collect_visible_layer_reload — collect_visible_layer_reload
 
@@ -1026,7 +1152,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:collect_visible_layer_snapshot — collect_visible_layer_snapshot
 
@@ -1043,7 +1169,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:get_layer_legend_state — get_layer_legend_state
 
@@ -1060,7 +1186,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:get_visible_layer_snapshot — get_visible_layer_snapshot
 
@@ -1077,7 +1203,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:group_themes — group_themes
 
@@ -1094,7 +1220,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:list_visible_layer_snapshots — list_visible_layer_snapshots
 
@@ -1111,7 +1237,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:load_user_theme — load_user_theme
 
@@ -1128,7 +1254,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:log_layer_legend_state — log_layer_legend_state
 
@@ -1145,7 +1271,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:log_layer_legend_state_by_name — log_layer_legend_state_by_name
 
@@ -1162,7 +1288,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:parse_theme_group — parse_theme_group
 
@@ -1179,7 +1305,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:remove_temp_theme — remove_temp_theme
 
@@ -1196,7 +1322,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:restore_temp_theme — restore_temp_theme
 
@@ -1213,7 +1339,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:save_current_state_as_temp_theme — save_current_state_as_temp_theme
 
@@ -1230,7 +1356,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.theme.py:save_user_theme — save_user_theme
 
@@ -1247,7 +1373,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.utils.py:get_feature_by_id — get_feature_by_id
 
@@ -1264,7 +1390,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.utils.py:name2layer — name2layer
 
@@ -1281,7 +1407,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.utils.py:name2layers — name2layers
 
@@ -1298,7 +1424,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.utils.py:remove_entry_from_json_file — remove_entry_from_json_file
 
@@ -1315,7 +1441,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.utils.py:set_project_variable — set_project_variable
 
@@ -1332,7 +1458,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.utils.py:unique_values — unique_values
 
@@ -1349,13 +1475,14 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ## 検証マトリクス
 
 | 機能 | kind | 単独 | 連携 | 結果 |
 |---|---|---|---|---|
 | entry_point.__init__.py:classFactory | entry_point | ○ | - | pass |
+| action.SearchAddressFeature.unload | action | - | ○ | pass |
 | action.SearchFeature.unload | action | - | ○ | pass |
 | action.SearchOwnerFeature.unload | action | - | ○ | pass |
 | action.SearchTextFeature.unload | action | - | ○ | pass |
@@ -1391,6 +1518,7 @@ flowchart LR
 | bridge.results | bridge_method | - | ○ | pass |
 | bridge.saveUserTheme | bridge_method | - | ○ | skip |
 | bridge.search | bridge_method | - | ○ | pass |
+| bridge.searchAddress | bridge_method | - | ○ | pass |
 | bridge.searchOptions | bridge_method | - | ○ | pass |
 | bridge.selectTab | bridge_method | - | ○ | pass |
 | bridge.setSettings | bridge_method | - | ○ | skip |
@@ -1404,7 +1532,12 @@ flowchart LR
 | ai.bridge_route | ai_integration | - | ○ | pass |
 | ai.catalog | ai_integration | - | ○ | pass |
 | ai.pluginInfo | ai_integration | - | ○ | pass |
-| ai.prompt.search-features | ai_integration | - | ○ | removed |
+| logic_fn.geocode.py:ensure_address_layer | logic_fn | - | ○ | pass |
+| logic_fn.geocode.py:parse_coordinate_query | logic_fn | - | ○ | pass |
+| logic_fn.geocode.py:resolve_api_key | logic_fn | - | ○ | pass |
+| logic_fn.geocode.py:resolve_yahoo_app_id | logic_fn | - | ○ | pass |
+| logic_fn.geocode.py:results_to_features | logic_fn | - | ○ | pass |
+| logic_fn.geocode.py:search | logic_fn | - | ○ | pass |
 | logic_fn.log.py:log_message | logic_fn | - | ○ | pass |
 | logic_fn.theme.py:apply_legend_visibility | logic_fn | - | ○ | pass |
 | logic_fn.theme.py:apply_theme | logic_fn | - | ○ | pass |

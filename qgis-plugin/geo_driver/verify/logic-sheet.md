@@ -1,7 +1,7 @@
 # geo_driver — 完全ロジックシート
 
-- 種別: qgis_plugin / バージョン: 0.16.0
-- 生成: 2026-11-14T07:09:57+09:00 / 機能数: 184
+- 種別: qgis_plugin / バージョン: 0.16.1
+- 生成: 2026-11-15T22:33:28+09:00 / 機能数: 179
 
 ## トポロジ
 
@@ -32,7 +32,6 @@ flowchart LR
     ui_AiPanel__on_provider_changed["_on_provider_changed<br/><i>ui_control</i>"]
     ui_AiPanel__on_settings_toggled["_on_settings_toggled<br/><i>ui_control</i>"]
     ui_AiPanel__on_signin["_on_signin<br/><i>ui_control</i>"]
-    ui_AiPanel_suggestedPrompts["おすすめプロンプトコンボ<br/><i>ui_control</i>"]
     ui_GeoDriverPlugin__on_toggle["_on_toggle<br/><i>ui_control</i>"]
     bridge_applyScaleWidth["applyScaleWidth<br/><i>bridge_method</i>"]
     bridge_deployMode["deployMode<br/><i>bridge_method</i>"]
@@ -55,34 +54,30 @@ flowchart LR
     bridge_suggestScaleWidth["suggestScaleWidth<br/><i>bridge_method</i>"]
     registry_ai_client_py_register_extra_tools["register_extra_tools<br/><i>registry</i>"]
     integration___init___py_59["subprocess.run<br/><i>integration</i>"]
-    integration_ai_client_py_1741["HTTPServer<br/><i>integration</i>"]
-    integration_ai_client_py_1747["HTTPServer<br/><i>integration</i>"]
-    integration_ai_client_py_1764["webbrowser.open<br/><i>integration</i>"]
-    integration_ai_client_py_1941["subprocess.Popen<br/><i>integration</i>"]
     integration_ai_client_py_2102["HTTPServer<br/><i>integration</i>"]
     integration_ai_client_py_2108["HTTPServer<br/><i>integration</i>"]
     integration_ai_client_py_2125["webbrowser.open<br/><i>integration</i>"]
+    integration_ai_client_py_2144["HTTPServer<br/><i>integration</i>"]
+    integration_ai_client_py_2150["HTTPServer<br/><i>integration</i>"]
+    integration_ai_client_py_2167["webbrowser.open<br/><i>integration</i>"]
     integration_ai_client_py_2302["subprocess.Popen<br/><i>integration</i>"]
-    integration_ai_panel_py_2150["QDesktopServices.openUrl<br/><i>integration</i>"]
+    integration_ai_client_py_2344["subprocess.Popen<br/><i>integration</i>"]
     integration_ai_panel_py_2279["QDesktopServices.openUrl<br/><i>integration</i>"]
-    integration_ai_panel_py_459["QDesktopServices.openUrl<br/><i>integration</i>"]
+    integration_ai_panel_py_2293["QDesktopServices.openUrl<br/><i>integration</i>"]
     integration_ai_panel_py_492["QDesktopServices.openUrl<br/><i>integration</i>"]
+    integration_ai_panel_py_504["QDesktopServices.openUrl<br/><i>integration</i>"]
     integration_credential_store_py_153["subprocess.run<br/><i>integration</i>"]
     integration_credential_store_py_180["subprocess.run<br/><i>integration</i>"]
     integration_credential_store_py_68["subprocess.run<br/><i>integration</i>"]
     integration_devin_tasks_py_274["subprocess.Popen<br/><i>integration</i>"]
     integration_devin_tasks_py_279["subprocess.Popen<br/><i>integration</i>"]
     integration_devin_tasks_py_639["subprocess.Popen<br/><i>integration</i>"]
-    integration_mcp_http_py_481["ThreadingHTTPServer<br/><i>integration</i>"]
+    integration_devin_tasks_py_647["subprocess.Popen<br/><i>integration</i>"]
     integration_mcp_http_py_664["ThreadingHTTPServer<br/><i>integration</i>"]
     integration_mode_switch_py_225["subprocess.run<br/><i>integration</i>"]
     ai_bridge_route["bridge_call経由全到達<br/><i>ai_integration</i>"]
     ai_catalog["describe_plugins登録<br/><i>ai_integration</i>"]
     ai_pluginInfo["pluginInfo自己記述<br/><i>ai_integration</i>"]
-    ai_prompt_bundled["同梱おすすめプロンプト(6件)<br/><i>ai_integration</i>"]
-    ai_skill_scale_line_width["同梱スキル scale-line-width<br/><i>ai_integration</i>"]
-    ai_skill_webgis_convert["同梱スキル webgis-convert<br/><i>ai_integration</i>"]
-    ai_skill_webgis_import["同梱スキル webgis-import<br/><i>ai_integration</i>"]
     logic_fn_ai_client_py_agents_dir["agents_dir<br/><i>logic_fn</i>"]
     logic_fn_ai_client_py_anthropic_content["anthropic_content<br/><i>logic_fn</i>"]
     logic_fn_ai_client_py_anthropic_headers["anthropic_headers<br/><i>logic_fn</i>"]
@@ -207,7 +202,7 @@ flowchart LR
 
 ### entry_point.__init__.py:classFactory — classFactory
 
-- kind: `entry_point` / source: `__init__.py:715`
+- kind: `entry_point` / source: `__init__.py:786`
 - signature: `classFactory(iface)`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -220,11 +215,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — classFactory→プラグインロード済
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — classFactory→プラグインロード済
 
 ### action.GeoDriverPlugin.initGui — initGui
 
-- kind: `action` / source: `__init__.py:182`
+- kind: `action` / source: `__init__.py:239`
 - signature: `initGui()`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -237,11 +232,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.GeoDriverPlugin.unload — unload
 
-- kind: `action` / source: `__init__.py:610`
+- kind: `action` / source: `__init__.py:685`
 - signature: `unload()`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -254,11 +249,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action._GenericBridge.openDialog — openDialog
 
-- kind: `action` / source: `live_driver.py:259`
+- kind: `action` / source: `live_driver.py:260`
 - signature: `openDialog()`
 - 要約: dialog/dlg/dockwidget属性のウィジェットを表示する。
 - needs_runtime=True / standalone_ok=False
@@ -271,11 +266,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action._GenericBridge.run — run
 
-- kind: `action` / source: `live_driver.py:251`
+- kind: `action` / source: `live_driver.py:252`
 - signature: `run()`
 - 要約: plugin.run()を非同期で実行する。
 - needs_runtime=True / standalone_ok=False
@@ -288,11 +283,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.AiPanel — AiPanel
 
-- kind: `dialog` / source: `ai_panel.py:160`
+- kind: `dialog` / source: `ai_panel.py:166`
 - signature: `AiPanel`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -305,11 +300,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog._InstructionsDialog — _InstructionsDialog
 
-- kind: `dialog` / source: `ai_panel.py:1991`
+- kind: `dialog` / source: `ai_panel.py:2005`
 - signature: `_InstructionsDialog`
 - 要約: 指示書(agents|skills の *.md)の作成・編集・削除ダイアログ。
 - needs_runtime=True / standalone_ok=False
@@ -322,11 +317,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog._McpDialog — _McpDialog
 
-- kind: `dialog` / source: `ai_panel.py:1883`
+- kind: `dialog` / source: `ai_panel.py:1897`
 - signature: `_McpDialog`
 - 要約: 外部MCPサーバ設定(~/.qgis-live/mcp_servers.json)の編集。
 - needs_runtime=True / standalone_ok=False
@@ -339,11 +334,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.AiPanel._on_agent_activated — _on_agent_activated
 
-- kind: `ui_control` / source: `ai_panel.py:562`
+- kind: `ui_control` / source: `ai_panel.py:574`
 - signature: `_on_agent_activated(_idx)`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -356,11 +351,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.AiPanel._on_agent_changed — _on_agent_changed
 
-- kind: `ui_control` / source: `ai_panel.py:679`
+- kind: `ui_control` / source: `ai_panel.py:691`
 - signature: `_on_agent_changed(aid)`
 - 要約: AIの ai_select_agent で選択中エージェントが切替わった。
 - needs_runtime=True / standalone_ok=False
@@ -373,11 +368,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.AiPanel._on_confirm — _on_confirm
 
-- kind: `ui_control` / source: `ai_panel.py:1870`
+- kind: `ui_control` / source: `ai_panel.py:1884`
 - signature: `_on_confirm(name, args_text)`
 - 要約: 確認ダイアログを出す(GUIスレッド)。
 - needs_runtime=True / standalone_ok=False
@@ -390,11 +385,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.AiPanel._on_destroyed — _on_destroyed
 
-- kind: `ui_control` / source: `ai_panel.py:1304`
+- kind: `ui_control` / source: `ai_panel.py:1318`
 - signature: `_on_destroyed()`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -407,11 +402,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.AiPanel._on_model_activated — _on_model_activated
 
-- kind: `ui_control` / source: `ai_panel.py:915`
+- kind: `ui_control` / source: `ai_panel.py:927`
 - signature: `_on_model_activated(idx)`
 - 要約: 項目選択時、line editには装飾無しのIDだけを残す。
 - needs_runtime=True / standalone_ok=False
@@ -424,11 +419,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.AiPanel._on_model_text_changed — _on_model_text_changed
 
-- kind: `ui_control` / source: `ai_panel.py:921`
+- kind: `ui_control` / source: `ai_panel.py:933`
 - signature: `_on_model_text_changed(_text)`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -441,11 +436,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.AiPanel._on_models — _on_models
 
-- kind: `ui_control` / source: `ai_panel.py:1346`
+- kind: `ui_control` / source: `ai_panel.py:1360`
 - signature: `_on_models(infos, error)`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -458,11 +453,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.AiPanel._on_pasted_images — _on_pasted_images
 
-- kind: `ui_control` / source: `ai_panel.py:1116`
+- kind: `ui_control` / source: `ai_panel.py:1130`
 - signature: `_on_pasted_images(sources)`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -475,11 +470,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.AiPanel._on_prompt_activated — _on_prompt_activated
 
-- kind: `ui_control` / source: `ai_panel.py:622`
+- kind: `ui_control` / source: `ai_panel.py:634`
 - signature: `_on_prompt_activated(idx)`
 - 要約: おすすめプロンプト選択 → 本文を入力欄へ挿入する。
 - needs_runtime=True / standalone_ok=False
@@ -492,11 +487,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.AiPanel._on_provider_changed — _on_provider_changed
 
-- kind: `ui_control` / source: `ai_panel.py:839`
+- kind: `ui_control` / source: `ai_panel.py:851`
 - signature: `_on_provider_changed(_idx)`
 - 要約: 切替前のプロバイダの入力値を保存し、新プロバイダの値を読み込む。
 - needs_runtime=True / standalone_ok=False
@@ -509,11 +504,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.AiPanel._on_settings_toggled — _on_settings_toggled
 
-- kind: `ui_control` / source: `ai_panel.py:535`
+- kind: `ui_control` / source: `ai_panel.py:547`
 - signature: `_on_settings_toggled(on)`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -526,11 +521,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.AiPanel._on_signin — _on_signin
 
-- kind: `ui_control` / source: `ai_panel.py:1422`
+- kind: `ui_control` / source: `ai_panel.py:1436`
 - signature: `_on_signin(pid, token)`
 - 要約: デバイスフロー完了(GUIスレッド)。トークンをキー欄へ保存。
 - needs_runtime=True / standalone_ok=False
@@ -543,28 +538,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
-
-### ui.AiPanel.suggestedPrompts — おすすめプロンプトコンボ
-
-- kind: `ui_control` / source: `ai_panel.py:_on_prompt_activated/_refresh_prompts`
-- signature: `cmb_prompt (QComboBox) + btn_prompt_edit`
-- 要約: 入力行のおすすめコンボ。選択で prompts/<id>.md の本文を入力欄へ挿入。✎で指示書エディタ(kind=prompts)を開く
-- needs_runtime=True / standalone_ok=False
-
-```mermaid
-flowchart LR
-  E_ui_AiPanel_suggestedPrompts["UIシグナル"] --> H_ui_AiPanel_suggestedPrompts["おすすめプロンプトコンボ"]
-  H_ui_AiPanel_suggestedPrompts --> R_ui_AiPanel_suggestedPrompts["QGIS/ランタイムAPI"]
-  R_ui_AiPanel_suggestedPrompts --> OUT["結果"]
-```
-
-- 検証: 単独= / 連携=パネルでコンボ選択→input.setPlainText(本文)。一覧は instruction op=list kind=prompts
-- 結果: **removed** 2026-11-14T06:46:29+09:00 — 実QGIS(pid28736)で op=list kind=prompts→6件(geo_driver×4+geo_legend+geo_search 横断集約)、prompt_body→本文のみ返却を確認
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoDriverPlugin._on_toggle — _on_toggle
 
-- kind: `ui_control` / source: `__init__.py:502`
+- kind: `ui_control` / source: `__init__.py:577`
 - signature: `_on_toggle(checked)`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -577,7 +555,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### bridge.applyScaleWidth — applyScaleWidth
 
@@ -594,7 +572,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call applyScaleWidth(dry=True) → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.deployMode — deployMode
 
@@ -611,7 +589,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call deployMode → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.hotReload — hotReload
 
@@ -628,7 +606,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call hotReload → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.layerOrgProfiles — layerOrgProfiles
 
@@ -645,7 +623,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call layerOrgProfiles → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.layerOrgRules — layerOrgRules
 
@@ -662,7 +640,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call layerOrgRules → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.listDevPlugins — listDevPlugins
 
@@ -679,7 +657,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call listDevPlugins → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.openAiPanel — openAiPanel
 
@@ -696,7 +674,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openAiPanel → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.openConnInfo — openConnInfo
 
@@ -713,7 +691,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openConnInfo → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.openDeployMode — openDeployMode
 
@@ -730,7 +708,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openDeployMode → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.organizeLayers — organizeLayers
 
@@ -747,7 +725,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call organizeLayers → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.placeLayer — placeLayer
 
@@ -764,7 +742,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call placeLayer → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.pluginInfo — pluginInfo
 
@@ -781,7 +759,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.remoteControl — remoteControl
 
@@ -798,7 +776,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call remoteControl → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.scaleStyleProfiles — scaleStyleProfiles
 
@@ -815,7 +793,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call scaleStyleProfiles → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.scaleStyleTable — scaleStyleTable
 
@@ -832,7 +810,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call scaleStyleTable → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.setLayerOrgProfile — setLayerOrgProfile
 
@@ -849,7 +827,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call setLayerOrgProfile → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.setScaleStyleProfile — setScaleStyleProfile
 
@@ -866,7 +844,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call setScaleStyleProfile → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.status — status
 
@@ -883,7 +861,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call status → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.suggestScaleWidth — suggestScaleWidth
 
@@ -900,11 +878,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call suggestScaleWidth → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### registry.ai_client.py:register_extra_tools — register_extra_tools
 
-- kind: `registry` / source: `ai_client.py:2461`
+- kind: `registry` / source: `ai_client.py:2503`
 - signature: `register_extra_tools(tools, callers)`
 - 要約: 外部MCP由来ツールを openai_tools/gemini_tools に反映する。
 - needs_runtime=True / standalone_ok=False
@@ -917,7 +895,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### integration.__init__.py:59 — subprocess.run
 
@@ -934,75 +912,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
-
-### integration.ai_client.py:1741 — HTTPServer
-
-- kind: `integration` / source: `ai_client.py:1741`
-- signature: `HTTPServer(…)`
-- 要約: 外部連携呼出
-- needs_runtime=True / standalone_ok=False
-
-```mermaid
-flowchart LR
-  E_integration_ai_client_py_1741["呼出元"] --> H_integration_ai_client_py_1741["HTTPServer"]
-  H_integration_ai_client_py_1741 --> R_integration_ai_client_py_1741["QGIS/ランタイムAPI"]
-  R_integration_ai_client_py_1741 --> OUT["結果"]
-```
-
-- 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **removed** 2026-11-14T02:36:00+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
-
-### integration.ai_client.py:1747 — HTTPServer
-
-- kind: `integration` / source: `ai_client.py:1747`
-- signature: `HTTPServer(…)`
-- 要約: 外部連携呼出
-- needs_runtime=True / standalone_ok=False
-
-```mermaid
-flowchart LR
-  E_integration_ai_client_py_1747["呼出元"] --> H_integration_ai_client_py_1747["HTTPServer"]
-  H_integration_ai_client_py_1747 --> R_integration_ai_client_py_1747["QGIS/ランタイムAPI"]
-  R_integration_ai_client_py_1747 --> OUT["結果"]
-```
-
-- 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **removed** 2026-11-14T02:36:00+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
-
-### integration.ai_client.py:1764 — webbrowser.open
-
-- kind: `integration` / source: `ai_client.py:1764`
-- signature: `webbrowser.open(…)`
-- 要約: 外部連携呼出
-- needs_runtime=True / standalone_ok=False
-
-```mermaid
-flowchart LR
-  E_integration_ai_client_py_1764["呼出元"] --> H_integration_ai_client_py_1764["webbrowser.open"]
-  H_integration_ai_client_py_1764 --> R_integration_ai_client_py_1764["QGIS/ランタイムAPI"]
-  R_integration_ai_client_py_1764 --> OUT["結果"]
-```
-
-- 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **removed** 2026-11-14T02:36:00+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
-
-### integration.ai_client.py:1941 — subprocess.Popen
-
-- kind: `integration` / source: `ai_client.py:1941`
-- signature: `subprocess.Popen(…)`
-- 要約: 外部連携呼出
-- needs_runtime=True / standalone_ok=False
-
-```mermaid
-flowchart LR
-  E_integration_ai_client_py_1941["呼出元"] --> H_integration_ai_client_py_1941["subprocess.Popen"]
-  H_integration_ai_client_py_1941 --> R_integration_ai_client_py_1941["QGIS/ランタイムAPI"]
-  R_integration_ai_client_py_1941 --> OUT["結果"]
-```
-
-- 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **removed** 2026-11-14T02:36:00+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.ai_client.py:2102 — HTTPServer
 
@@ -1019,7 +929,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **removed** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.ai_client.py:2108 — HTTPServer
 
@@ -1036,7 +946,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **removed** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.ai_client.py:2125 — webbrowser.open
 
@@ -1053,7 +963,58 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **removed** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+
+### integration.ai_client.py:2144 — HTTPServer
+
+- kind: `integration` / source: `ai_client.py:2144`
+- signature: `HTTPServer(…)`
+- 要約: 外部連携呼出
+- needs_runtime=True / standalone_ok=False
+
+```mermaid
+flowchart LR
+  E_integration_ai_client_py_2144["呼出元"] --> H_integration_ai_client_py_2144["HTTPServer"]
+  H_integration_ai_client_py_2144 --> R_integration_ai_client_py_2144["QGIS/ランタイムAPI"]
+  R_integration_ai_client_py_2144 --> OUT["結果"]
+```
+
+- 検証: 単独= / 連携=連携先の実在/生成物を確認
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+
+### integration.ai_client.py:2150 — HTTPServer
+
+- kind: `integration` / source: `ai_client.py:2150`
+- signature: `HTTPServer(…)`
+- 要約: 外部連携呼出
+- needs_runtime=True / standalone_ok=False
+
+```mermaid
+flowchart LR
+  E_integration_ai_client_py_2150["呼出元"] --> H_integration_ai_client_py_2150["HTTPServer"]
+  H_integration_ai_client_py_2150 --> R_integration_ai_client_py_2150["QGIS/ランタイムAPI"]
+  R_integration_ai_client_py_2150 --> OUT["結果"]
+```
+
+- 検証: 単独= / 連携=連携先の実在/生成物を確認
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+
+### integration.ai_client.py:2167 — webbrowser.open
+
+- kind: `integration` / source: `ai_client.py:2167`
+- signature: `webbrowser.open(…)`
+- 要約: 外部連携呼出
+- needs_runtime=True / standalone_ok=False
+
+```mermaid
+flowchart LR
+  E_integration_ai_client_py_2167["呼出元"] --> H_integration_ai_client_py_2167["webbrowser.open"]
+  H_integration_ai_client_py_2167 --> R_integration_ai_client_py_2167["QGIS/ランタイムAPI"]
+  R_integration_ai_client_py_2167 --> OUT["結果"]
+```
+
+- 検証: 単独= / 連携=連携先の実在/生成物を確認
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.ai_client.py:2302 — subprocess.Popen
 
@@ -1070,24 +1031,24 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **removed** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
-### integration.ai_panel.py:2150 — QDesktopServices.openUrl
+### integration.ai_client.py:2344 — subprocess.Popen
 
-- kind: `integration` / source: `ai_panel.py:2150`
-- signature: `QDesktopServices.openUrl(…)`
+- kind: `integration` / source: `ai_client.py:2344`
+- signature: `subprocess.Popen(…)`
 - 要約: 外部連携呼出
 - needs_runtime=True / standalone_ok=False
 
 ```mermaid
 flowchart LR
-  E_integration_ai_panel_py_2150["呼出元"] --> H_integration_ai_panel_py_2150["QDesktopServices.openUrl"]
-  H_integration_ai_panel_py_2150 --> R_integration_ai_panel_py_2150["QGIS/ランタイムAPI"]
-  R_integration_ai_panel_py_2150 --> OUT["結果"]
+  E_integration_ai_client_py_2344["呼出元"] --> H_integration_ai_client_py_2344["subprocess.Popen"]
+  H_integration_ai_client_py_2344 --> R_integration_ai_client_py_2344["QGIS/ランタイムAPI"]
+  R_integration_ai_client_py_2344 --> OUT["結果"]
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **removed** 2026-11-14T02:36:00+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.ai_panel.py:2279 — QDesktopServices.openUrl
 
@@ -1104,24 +1065,24 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **removed** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
-### integration.ai_panel.py:459 — QDesktopServices.openUrl
+### integration.ai_panel.py:2293 — QDesktopServices.openUrl
 
-- kind: `integration` / source: `ai_panel.py:459`
+- kind: `integration` / source: `ai_panel.py:2293`
 - signature: `QDesktopServices.openUrl(…)`
 - 要約: 外部連携呼出
 - needs_runtime=True / standalone_ok=False
 
 ```mermaid
 flowchart LR
-  E_integration_ai_panel_py_459["呼出元"] --> H_integration_ai_panel_py_459["QDesktopServices.openUrl"]
-  H_integration_ai_panel_py_459 --> R_integration_ai_panel_py_459["QGIS/ランタイムAPI"]
-  R_integration_ai_panel_py_459 --> OUT["結果"]
+  E_integration_ai_panel_py_2293["呼出元"] --> H_integration_ai_panel_py_2293["QDesktopServices.openUrl"]
+  H_integration_ai_panel_py_2293 --> R_integration_ai_panel_py_2293["QGIS/ランタイムAPI"]
+  R_integration_ai_panel_py_2293 --> OUT["結果"]
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **removed** 2026-11-14T02:36:00+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.ai_panel.py:492 — QDesktopServices.openUrl
 
@@ -1138,7 +1099,24 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **removed** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+
+### integration.ai_panel.py:504 — QDesktopServices.openUrl
+
+- kind: `integration` / source: `ai_panel.py:504`
+- signature: `QDesktopServices.openUrl(…)`
+- 要約: 外部連携呼出
+- needs_runtime=True / standalone_ok=False
+
+```mermaid
+flowchart LR
+  E_integration_ai_panel_py_504["呼出元"] --> H_integration_ai_panel_py_504["QDesktopServices.openUrl"]
+  H_integration_ai_panel_py_504 --> R_integration_ai_panel_py_504["QGIS/ランタイムAPI"]
+  R_integration_ai_panel_py_504 --> OUT["結果"]
+```
+
+- 検証: 単独= / 連携=連携先の実在/生成物を確認
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.credential_store.py:153 — subprocess.run
 
@@ -1155,7 +1133,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.credential_store.py:180 — subprocess.run
 
@@ -1172,7 +1150,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.credential_store.py:68 — subprocess.run
 
@@ -1189,7 +1167,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.devin_tasks.py:274 — subprocess.Popen
 
@@ -1206,7 +1184,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.devin_tasks.py:279 — subprocess.Popen
 
@@ -1223,7 +1201,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.devin_tasks.py:639 — subprocess.Popen
 
@@ -1240,24 +1218,24 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **removed** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
-### integration.mcp_http.py:481 — ThreadingHTTPServer
+### integration.devin_tasks.py:647 — subprocess.Popen
 
-- kind: `integration` / source: `mcp_http.py:481`
-- signature: `ThreadingHTTPServer(…)`
+- kind: `integration` / source: `devin_tasks.py:647`
+- signature: `subprocess.Popen(…)`
 - 要約: 外部連携呼出
 - needs_runtime=True / standalone_ok=False
 
 ```mermaid
 flowchart LR
-  E_integration_mcp_http_py_481["呼出元"] --> H_integration_mcp_http_py_481["ThreadingHTTPServer"]
-  H_integration_mcp_http_py_481 --> R_integration_mcp_http_py_481["QGIS/ランタイムAPI"]
-  R_integration_mcp_http_py_481 --> OUT["結果"]
+  E_integration_devin_tasks_py_647["呼出元"] --> H_integration_devin_tasks_py_647["subprocess.Popen"]
+  H_integration_devin_tasks_py_647 --> R_integration_devin_tasks_py_647["QGIS/ランタイムAPI"]
+  R_integration_devin_tasks_py_647 --> OUT["結果"]
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **removed** 2026-11-14T02:36:00+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.mcp_http.py:664 — ThreadingHTTPServer
 
@@ -1274,7 +1252,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.mode_switch.py:225 — subprocess.run
 
@@ -1291,7 +1269,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### ai.bridge_route — bridge_call経由全到達
 
@@ -1308,7 +1286,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call 全method→ok/error記録
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 10メソッド到達可能
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 10メソッド到達可能
 
 ### ai.catalog — describe_plugins登録
 
@@ -1325,7 +1303,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=describe_plugins→plugins[]にid実在+methods非空
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — describe_plugins: methods=19
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — describe_plugins: methods=19
 
 ### ai.pluginInfo — pluginInfo自己記述
 
@@ -1342,79 +1320,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo→メタ一致assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 自己記述あり
-
-### ai.prompt.bundled — 同梱おすすめプロンプト(6件)
-
-- kind: `ai_integration` / source: `geo_driver|geo_legend|geo_search の prompts/*.md`
-- signature: ``
-- 要約: GIS操作の定型指示をプロンプトファイルとして同梱: organize-layers/standard-line-width/save-map-image/project-doctor(geo_driver), create-legend(geo_legend), search-features(geo_search)。kind=prompts は agents/skills と同じ bundled+ユーザ上書きモデル
-- needs_runtime=True / standalone_ok=False
-
-```mermaid
-flowchart LR
-  E_ai_prompt_bundled["AI経路"] --> H_ai_prompt_bundled["同梱おすすめプロンプト(6件)"]
-  H_ai_prompt_bundled --> R_ai_prompt_bundled["QGIS/ランタイムAPI"]
-  R_ai_prompt_bundled --> OUT["結果"]
-```
-
-- 検証: 単独= / 連携=instruction op=list kind=prompts → builtin=true 6件、op=read→本文
-- 結果: **removed** 2026-11-14T06:46:29+09:00 — 実QGIS(pid28736)で確認済。ユーザは ~/.qgis-live/prompts/*.md または /prompt・ai_save_instruction で追加可能
-
-### ai.skill.scale-line-width — 同梱スキル scale-line-width
-
-- kind: `ai_integration` / source: `skills/scale-line-width.md`
-- signature: ``
-- 要約: スケール連動の標準線幅(suggestScaleWidth/applyScaleWidth)の手順書。モデルが ai_read_instruction で読む
-- needs_runtime=True / standalone_ok=False
-
-```mermaid
-flowchart LR
-  E_ai_skill_scale_line_width["AI経路"] --> H_ai_skill_scale_line_width["同梱スキル scale-line-width"]
-  H_ai_skill_scale_line_width --> R_ai_skill_scale_line_width["QGIS/ランタイムAPI"]
-  R_ai_skill_scale_line_width --> OUT["結果"]
-```
-
-- 検証: 単独= / 連携=instruction op=list →skills[]に id=scale-line-width & builtin、op=read→title/desc/when+本文
-- 結果: **removed** 2026-11-14T06:38:42+09:00 — 実QGIS(pid28736)の instruction op=list/read で builtin=true・title/desc/when 正解・本文取得を確認済
-
-### ai.skill.webgis-convert — 同梱スキル webgis-convert
-
-- kind: `ai_integration` / source: `geo_webview/skills/webgis-convert.md`
-- signature: ``
-- 要約: WebGIS(KASUGAI Canvas)向け形式変換・レイヤ追加の手順書。モデルが ai_read_instruction で読む
-- needs_runtime=True / standalone_ok=False
-
-```mermaid
-flowchart LR
-  E_ai_skill_webgis_convert["AI経路"] --> H_ai_skill_webgis_convert["同梱スキル webgis-convert"]
-  H_ai_skill_webgis_convert --> R_ai_skill_webgis_convert["QGIS/ランタイムAPI"]
-  R_ai_skill_webgis_convert --> OUT["結果"]
-```
-
-- 検証: 単独= / 連携=ai_list_instructions→skills[]に id=webgis-convert & builtin、ai_read_instruction→title/desc/when+本文
-- 結果: **removed** 2026-11-14T16:00:00+09:00 — 実QGIS(pid28736)の instruction op=list で builtin=true・title/desc/when 正解を確認済 / v?:geo_webview/skills/へ移動(プラグイン別同梱対応後も list で正常検出を再確認)
-
-### ai.skill.webgis-import — 同梱スキル webgis-import
-
-- kind: `ai_integration` / source: `geo_webview/skills/webgis-import.md`
-- signature: ``
-- 要約: 既存WebGIS(.kasc+DATA/・XYZ/WMS/WFS/MapLibre等)のQGIS取り込み手順書。モデルが ai_read_instruction で読む
-- needs_runtime=True / standalone_ok=False
-
-```mermaid
-flowchart LR
-  E_ai_skill_webgis_import["AI経路"] --> H_ai_skill_webgis_import["同梱スキル webgis-import"]
-  H_ai_skill_webgis_import --> R_ai_skill_webgis_import["QGIS/ランタイムAPI"]
-  R_ai_skill_webgis_import --> OUT["結果"]
-```
-
-- 検証: 単独= / 連携=instruction op=list →skills[]に id=webgis-import & builtin、op=read→title/desc/when+本文
-- 結果: **removed** 2026-11-14T06:55:00+09:00 — 実QGIS(pid28736)の instruction op=list で builtin=true 検出(geo_webview同梱の集約経由)。実体は geo_webview 4.14.0 の kascImport/kascInspect bridge
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 自己記述あり
 
 ### logic_fn.ai_client.py:agents_dir — agents_dir
 
-- kind: `logic_fn` / source: `ai_client.py:1401`
+- kind: `logic_fn` / source: `ai_client.py:1443`
 - signature: `agents_dir()`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -1427,11 +1337,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:anthropic_content — anthropic_content
 
-- kind: `logic_fn` / source: `ai_client.py:1148`
+- kind: `logic_fn` / source: `ai_client.py:1190`
 - signature: `anthropic_content(text, image_paths)`
 - 要約: テキスト+画像パス列をAnthropicのcontentにする。
 - needs_runtime=True / standalone_ok=False
@@ -1444,11 +1354,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:anthropic_headers — anthropic_headers
 
-- kind: `logic_fn` / source: `ai_client.py:1114`
+- kind: `logic_fn` / source: `ai_client.py:1156`
 - signature: `anthropic_headers(api_key)`
 - 要約: Messages APIの認証ヘッダ。
 - needs_runtime=True / standalone_ok=False
@@ -1461,11 +1371,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:anthropic_image_part — anthropic_image_part
 
-- kind: `logic_fn` / source: `ai_client.py:1137`
+- kind: `logic_fn` / source: `ai_client.py:1179`
 - signature: `anthropic_image_part(path)`
 - 要約: PNGファイル→Anthropicのimageブロック(読めなければNone)。
 - needs_runtime=True / standalone_ok=False
@@ -1478,11 +1388,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:anthropic_messages — anthropic_messages
 
-- kind: `logic_fn` / source: `ai_client.py:1161`
+- kind: `logic_fn` / source: `ai_client.py:1203`
 - signature: `anthropic_messages(base, api_key, model, system, messages, tools=…, timeout=…, extra=…)`
 - 要約: POST {base}/v1/messages (非ストリーミング)して応答JSONを返す。
 - needs_runtime=True / standalone_ok=False
@@ -1495,11 +1405,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:anthropic_messages_url — anthropic_messages_url
 
-- kind: `logic_fn` / source: `ai_client.py:1104`
+- kind: `logic_fn` / source: `ai_client.py:1146`
 - signature: `anthropic_messages_url(base)`
 - 要約: messagesのPOST先URL。
 - needs_runtime=True / standalone_ok=False
@@ -1512,11 +1422,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:anthropic_models_url — anthropic_models_url
 
-- kind: `logic_fn` / source: `ai_client.py:1109`
+- kind: `logic_fn` / source: `ai_client.py:1151`
 - signature: `anthropic_models_url(base)`
 - 要約: models一覧のGET先URL。
 - needs_runtime=True / standalone_ok=False
@@ -1529,11 +1439,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:anthropic_tools — anthropic_tools
 
-- kind: `logic_fn` / source: `ai_client.py:1122`
+- kind: `logic_fn` / source: `ai_client.py:1164`
 - signature: `anthropic_tools(allowed=…)`
 - 要約: mcp_http.TOOLS + INSTRUCTION_TOOLS + 外部MCPツールを
 - needs_runtime=True / standalone_ok=False
@@ -1546,11 +1456,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:attachment_temp_path — attachment_temp_path
 
-- kind: `logic_fn` / source: `ai_client.py:1288`
+- kind: `logic_fn` / source: `ai_client.py:1330`
 - signature: `attachment_temp_path()`
 - 要約: チャット入力に添付された画像の保存先(PNGに正規化して書く)。
 - needs_runtime=True / standalone_ok=False
@@ -1563,11 +1473,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:azure_chat_url — azure_chat_url
 
-- kind: `logic_fn` / source: `ai_client.py:1183`
+- kind: `logic_fn` / source: `ai_client.py:1225`
 - signature: `azure_chat_url(base)`
 - 要約: Azureのbase(deploymentsパス)をchat/completionsのPOST先URLにする。
 - needs_runtime=True / standalone_ok=False
@@ -1580,11 +1490,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:azure_resource_url — azure_resource_url
 
-- kind: `logic_fn` / source: `ai_client.py:1203`
+- kind: `logic_fn` / source: `ai_client.py:1245`
 - signature: `azure_resource_url(base, tail)`
 - 要約: {scheme}://{host}/openai/<tail>?api-version=… を作る。
 - needs_runtime=True / standalone_ok=False
@@ -1597,11 +1507,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:chat_completions — chat_completions
 
-- kind: `logic_fn` / source: `ai_client.py:812`
+- kind: `logic_fn` / source: `ai_client.py:852`
 - signature: `chat_completions(base, api_key, model, messages, tools=…, timeout=…, extra=…, headers=…)`
 - 要約: POST {base}/chat/completions (非ストリーミング)して応答JSONを返す。
 - needs_runtime=True / standalone_ok=False
@@ -1614,11 +1524,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:classify_model — classify_model
 
-- kind: `logic_fn` / source: `ai_client.py:353`
+- kind: `logic_fn` / source: `ai_client.py:387`
 - signature: `classify_model(model_id, entry=…)`
 - 要約: モデルID(+APIのメタ情報)から種別を推定する。
 - needs_runtime=True / standalone_ok=False
@@ -1631,11 +1541,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:close_acp_sessions — close_acp_sessions
 
-- kind: `logic_fn` / source: `ai_client.py:2946`
+- kind: `logic_fn` / source: `ai_client.py:2988`
 - signature: `close_acp_sessions()`
 - 要約: devin_acp で開いた全セッションを閉じる(パネル破棄時)。
 - needs_runtime=True / standalone_ok=False
@@ -1648,11 +1558,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:command_from_tool_call — command_from_tool_call
 
-- kind: `logic_fn` / source: `ai_client.py:1262`
+- kind: `logic_fn` / source: `ai_client.py:1304`
 - signature: `command_from_tool_call(tc)`
 - 要約: OpenAI tool_callオブジェクト → (name, ドライバcmd)。
 - needs_runtime=True / standalone_ok=False
@@ -1665,11 +1575,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:copilot_session — copilot_session
 
-- kind: `logic_fn` / source: `ai_client.py:676`
+- kind: `logic_fn` / source: `ai_client.py:716`
 - signature: `copilot_session(github_token, base)`
 - 要約: GitHubトークン → (Copilot APIのBearerトークン, API base) に解決する。
 - needs_runtime=True / standalone_ok=False
@@ -1682,11 +1592,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:delete_agent — delete_agent
 
-- kind: `logic_fn` / source: `ai_client.py:1632`
+- kind: `logic_fn` / source: `ai_client.py:1674`
 - signature: `delete_agent(agent_id)`
 - 要約: ユーザ側のエージェントファイルを消す(bundledは消せない)。
 - needs_runtime=True / standalone_ok=False
@@ -1699,11 +1609,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:delete_instruction — delete_instruction
 
-- kind: `logic_fn` / source: `ai_client.py:1642`
+- kind: `logic_fn` / source: `ai_client.py:1684`
 - signature: `delete_instruction(kind, item_id)`
 - 要約: ユーザ側の <kind>/<id>.md を消す(bundledは消せない)。
 - needs_runtime=True / standalone_ok=False
@@ -1716,11 +1626,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:delete_skill — delete_skill
 
-- kind: `logic_fn` / source: `ai_client.py:1637`
+- kind: `logic_fn` / source: `ai_client.py:1679`
 - signature: `delete_skill(skill_id)`
 - 要約: ユーザ側のスキルファイルを消す(bundledは消せない)。
 - needs_runtime=True / standalone_ok=False
@@ -1733,11 +1643,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:endpoint_url — endpoint_url
 
-- kind: `logic_fn` / source: `ai_client.py:775`
+- kind: `logic_fn` / source: `ai_client.py:815`
 - signature: `endpoint_url(base)`
 - 要約: base URLをchat/completionsのPOST先に正規化する。
 - needs_runtime=True / standalone_ok=False
@@ -1750,11 +1660,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:fmt_tokens — fmt_tokens
 
-- kind: `logic_fn` / source: `ai_client.py:395`
+- kind: `logic_fn` / source: `ai_client.py:429`
 - signature: `fmt_tokens(n)`
 - 要約: トークン数を短縮表記に (128000→"128k", 1048576→"1.0M")。
 - needs_runtime=True / standalone_ok=False
@@ -1767,11 +1677,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:gemini_generate — gemini_generate
 
-- kind: `logic_fn` / source: `ai_client.py:1068`
+- kind: `logic_fn` / source: `ai_client.py:1110`
 - signature: `gemini_generate(base, api_key, model, system, contents, tools=…, timeout=…, extra=…)`
 - 要約: POST {base}/models/{model}:generateContent して応答JSONを返す。
 - needs_runtime=True / standalone_ok=False
@@ -1784,11 +1694,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:gemini_models_url — gemini_models_url
 
-- kind: `logic_fn` / source: `ai_client.py:1017`
+- kind: `logic_fn` / source: `ai_client.py:1059`
 - signature: `gemini_models_url(base)`
 - 要約: base URLをmodels一覧のGET先に正規化する。
 - needs_runtime=True / standalone_ok=False
@@ -1801,11 +1711,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:gemini_tools — gemini_tools
 
-- kind: `logic_fn` / source: `ai_client.py:1043`
+- kind: `logic_fn` / source: `ai_client.py:1085`
 - signature: `gemini_tools(allowed=…)`
 - 要約: mcp_http.TOOLS + INSTRUCTION_TOOLS + 外部MCPツールを
 - needs_runtime=True / standalone_ok=False
@@ -1818,11 +1728,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:gemini_url — gemini_url
 
-- kind: `logic_fn` / source: `ai_client.py:1058`
+- kind: `logic_fn` / source: `ai_client.py:1100`
 - signature: `gemini_url(base, model)`
 - 要約: generateContentのPOST先URL。
 - needs_runtime=True / standalone_ok=False
@@ -1835,11 +1745,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:get_provider — get_provider
 
-- kind: `logic_fn` / source: `ai_client.py:3121`
+- kind: `logic_fn` / source: `ai_client.py:3298`
 - signature: `get_provider(provider)`
 - 要約: プロバイダID → プロバイダインスタンス。
 - needs_runtime=True / standalone_ok=False
@@ -1852,11 +1762,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:github_device_code — github_device_code
 
-- kind: `logic_fn` / source: `ai_client.py:736`
+- kind: `logic_fn` / source: `ai_client.py:776`
 - signature: `github_device_code(scope=…)`
 - 要約: OAuthデバイスフローを開始する。
 - needs_runtime=True / standalone_ok=False
@@ -1869,11 +1779,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:github_poll_access_token — github_poll_access_token
 
-- kind: `logic_fn` / source: `ai_client.py:750`
+- kind: `logic_fn` / source: `ai_client.py:790`
 - signature: `github_poll_access_token(device_code)`
 - 要約: デバイスフローのトークンを1回ポーリングする。
 - needs_runtime=True / standalone_ok=False
@@ -1886,11 +1796,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:image_b64 — image_b64
 
-- kind: `logic_fn` / source: `ai_client.py:1294`
+- kind: `logic_fn` / source: `ai_client.py:1336`
 - signature: `image_b64(path)`
 - 要約: PNGファイルをbase64文字列にする(読めなければNone)。
 - needs_runtime=True / standalone_ok=False
@@ -1903,11 +1813,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:image_inline_part — image_inline_part
 
-- kind: `logic_fn` / source: `ai_client.py:1312`
+- kind: `logic_fn` / source: `ai_client.py:1354`
 - signature: `image_inline_part(path)`
 - 要約: PNGファイル→GeminiのinlineDataパート(読めなければNone)。
 - needs_runtime=True / standalone_ok=False
@@ -1920,11 +1830,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:image_message_content — image_message_content
 
-- kind: `logic_fn` / source: `ai_client.py:1334`
+- kind: `logic_fn` / source: `ai_client.py:1376`
 - signature: `image_message_content(path, note=…)`
 - 要約: PNGファイルをOpenAI vision用のcontent配列にする(読めなければNone)。
 - needs_runtime=True / standalone_ok=False
@@ -1937,11 +1847,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:image_url_part — image_url_part
 
-- kind: `logic_fn` / source: `ai_client.py:1303`
+- kind: `logic_fn` / source: `ai_client.py:1345`
 - signature: `image_url_part(path)`
 - 要約: PNGファイル→OpenAIのimage_urlパート(読めなければNone)。
 - needs_runtime=True / standalone_ok=False
@@ -1954,11 +1864,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:list_agents — list_agents
 
-- kind: `logic_fn` / source: `ai_client.py:1511`
+- kind: `logic_fn` / source: `ai_client.py:1553`
 - signature: `list_agents()`
 - 要約: 利用可能なエージェント指示書一覧。
 - needs_runtime=True / standalone_ok=False
@@ -1971,11 +1881,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:list_instruction_files — list_instruction_files
 
-- kind: `logic_fn` / source: `ai_client.py:1486`
+- kind: `logic_fn` / source: `ai_client.py:1528`
 - signature: `list_instruction_files(kind)`
 - 要約: "agents"|"skills" の .md を走査する。
 - needs_runtime=True / standalone_ok=False
@@ -1988,11 +1898,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:list_model_infos — list_model_infos
 
-- kind: `logic_fn` / source: `ai_client.py:3134`
+- kind: `logic_fn` / source: `ai_client.py:3311`
 - signature: `list_model_infos(provider, base, key, timeout=…)`
 - 要約: モデル一覧をメタ情報付きで返す。
 - needs_runtime=True / standalone_ok=False
@@ -2005,11 +1915,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:list_models — list_models
 
-- kind: `logic_fn` / source: `ai_client.py:3129`
+- kind: `logic_fn` / source: `ai_client.py:3306`
 - signature: `list_models(provider, base, key, timeout=…)`
 - 要約: プロバイダのエンドポイントから利用可能なモデルID一覧を返す。
 - needs_runtime=True / standalone_ok=False
@@ -2022,11 +1932,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:list_prompts — list_prompts
 
-- kind: `logic_fn` / source: `ai_client.py:1521`
+- kind: `logic_fn` / source: `ai_client.py:1563`
 - signature: `list_prompts()`
 - 要約: おすすめプロンプト一覧(チャット入力欄へ挿入する定型文)。
 - needs_runtime=True / standalone_ok=False
@@ -2039,11 +1949,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:list_skills — list_skills
 
-- kind: `logic_fn` / source: `ai_client.py:1516`
+- kind: `logic_fn` / source: `ai_client.py:1558`
 - signature: `list_skills()`
 - 要約: 利用可能なスキル手順書一覧。
 - needs_runtime=True / standalone_ok=False
@@ -2056,11 +1966,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:load_agent — load_agent
 
-- kind: `logic_fn` / source: `ai_client.py:1587`
+- kind: `logic_fn` / source: `ai_client.py:1629`
 - signature: `load_agent(agent_id)`
 - 要約: エージェントid → 指示テキスト。未指定/未存在はNone。
 - needs_runtime=True / standalone_ok=False
@@ -2073,11 +1983,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:load_instruction — load_instruction
 
-- kind: `logic_fn` / source: `ai_client.py:1592`
+- kind: `logic_fn` / source: `ai_client.py:1634`
 - signature: `load_instruction(kind, item_id)`
 - 要約: kind("agents"|"skills")のid → 本文。未指定/未存在はNone。
 - needs_runtime=True / standalone_ok=False
@@ -2090,11 +2000,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:mcp_config_path — mcp_config_path
 
-- kind: `logic_fn` / source: `ai_client.py:1802`
+- kind: `logic_fn` / source: `ai_client.py:1844`
 - signature: `mcp_config_path()`
 - 要約: 外部MCPサーバの設定ファイル。
 - needs_runtime=True / standalone_ok=False
@@ -2107,11 +2017,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:mcp_discover — mcp_discover
 
-- kind: `logic_fn` / source: `ai_client.py:2420`
+- kind: `logic_fn` / source: `ai_client.py:2462`
 - signature: `mcp_discover(timeout=…, on_status=…, is_aborted=…)`
 - 要約: 設定ファイルの全MCPサーバへ接続しツール一覧を集約する。
 - needs_runtime=True / standalone_ok=False
@@ -2124,11 +2034,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:mcp_save_config — mcp_save_config
 
-- kind: `logic_fn` / source: `ai_client.py:1881`
+- kind: `logic_fn` / source: `ai_client.py:1923`
 - signature: `mcp_save_config(text)`
 - 要約: 設定JSONテキストを検証して mcp_servers.json へ保存する。
 - needs_runtime=True / standalone_ok=False
@@ -2141,11 +2051,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:mcp_servers_config — mcp_servers_config
 
-- kind: `logic_fn` / source: `ai_client.py:1865`
+- kind: `logic_fn` / source: `ai_client.py:1907`
 - signature: `mcp_servers_config()`
 - 要約: mcp_servers.json を読み {name: {command|url, ...}} を返す。
 - needs_runtime=True / standalone_ok=False
@@ -2158,11 +2068,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:model_info — model_info
 
-- kind: `logic_fn` / source: `ai_client.py:455`
+- kind: `logic_fn` / source: `ai_client.py:489`
 - signature: `model_info(entry)`
 - 要約: list_model_entries()の1要素 → {id, kind, price, price_desc,
 - needs_runtime=True / standalone_ok=False
@@ -2175,11 +2085,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:model_label — model_label
 
-- kind: `logic_fn` / source: `ai_client.py:513`
+- kind: `logic_fn` / source: `ai_client.py:547`
 - signature: `model_label(info)`
 - 要約: コンボの表示テキスト。価格があれば 'id   $in/$out' 形式。
 - needs_runtime=True / standalone_ok=False
@@ -2192,11 +2102,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:model_tooltip — model_tooltip
 
-- kind: `logic_fn` / source: `ai_client.py:519`
+- kind: `logic_fn` / source: `ai_client.py:553`
 - signature: `model_tooltip(info)`
 - 要約: コンボ項目のツールチップ(複数行)。
 - needs_runtime=True / standalone_ok=False
@@ -2209,11 +2119,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:openai_models_url — openai_models_url
 
-- kind: `logic_fn` / source: `ai_client.py:765`
+- kind: `logic_fn` / source: `ai_client.py:805`
 - signature: `openai_models_url(base)`
 - 要約: base URLをmodels一覧のGET先に正規化する。
 - needs_runtime=True / standalone_ok=False
@@ -2226,11 +2136,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:openai_msgs_to_responses_input — openai_msgs_to_responses_input
 
-- kind: `logic_fn` / source: `ai_client.py:897`
+- kind: `logic_fn` / source: `ai_client.py:937`
 - signature: `openai_msgs_to_responses_input(msgs)`
 - 要約: OpenAI chat形式msgs → (instructions, Responses API input items)。
 - needs_runtime=True / standalone_ok=False
@@ -2243,11 +2153,11 @@ flowchart LR
 ```
 
 - 検証: 単独=直接呼出して変換結果をassert / 連携=pyeval で属性実在+変換往復確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:openai_tools — openai_tools
 
-- kind: `logic_fn` / source: `ai_client.py:794`
+- kind: `logic_fn` / source: `ai_client.py:834`
 - signature: `openai_tools(allowed=…)`
 - 要約: mcp_http.TOOLS + INSTRUCTION_TOOLS + 外部MCPツールを
 - needs_runtime=True / standalone_ok=False
@@ -2260,11 +2170,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:parse_responses_output — parse_responses_output
 
-- kind: `logic_fn` / source: `ai_client.py:965`
+- kind: `logic_fn` / source: `ai_client.py:1005`
 - signature: `parse_responses_output(data)`
 - 要約: Responses API応答 → parse()と同じ {"text","calls","raw","usage"}。
 - needs_runtime=True / standalone_ok=False
@@ -2277,11 +2187,11 @@ flowchart LR
 ```
 
 - 検証: 単独=直接呼出して正規化結果をassert / 連携=pyeval で属性実在+正規化確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:parse_tool_arguments — parse_tool_arguments
 
-- kind: `logic_fn` / source: `ai_client.py:1251`
+- kind: `logic_fn` / source: `ai_client.py:1293`
 - signature: `parse_tool_arguments(raw)`
 - 要約: tool_callのarguments(JSON文字列)をdictにする。
 - needs_runtime=True / standalone_ok=False
@@ -2294,11 +2204,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:parse_usage — parse_usage
 
-- kind: `logic_fn` / source: `ai_client.py:485`
+- kind: `logic_fn` / source: `ai_client.py:519`
 - signature: `parse_usage(data)`
 - 要約: API応答のusage → {"in","out"}|None に正規化する。
 - needs_runtime=True / standalone_ok=False
@@ -2311,11 +2221,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:prompt_body — prompt_body
 
-- kind: `logic_fn` / source: `ai_client.py:1566`
+- kind: `logic_fn` / source: `ai_client.py:1608`
 - signature: `prompt_body(item_id)`
 - 要約: prompts の id → 入力欄へ挿入する本文。未指定/未存在はNone。
 - needs_runtime=True / standalone_ok=False
@@ -2328,11 +2238,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:prompts_dir — prompts_dir
 
-- kind: `logic_fn` / source: `ai_client.py:1409`
+- kind: `logic_fn` / source: `ai_client.py:1451`
 - signature: `prompts_dir()`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -2345,11 +2255,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:provider_defaults — provider_defaults
 
-- kind: `logic_fn` / source: `ai_client.py:586`
+- kind: `logic_fn` / source: `ai_client.py:626`
 - signature: `provider_defaults(provider)`
 - 要約: プロバイダID → {"base","model","label","key_hint","endpoint_hint"}
 - needs_runtime=True / standalone_ok=False
@@ -2362,11 +2272,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:reply_to_text — reply_to_text
 
-- kind: `logic_fn` / source: `ai_client.py:1270`
+- kind: `logic_fn` / source: `ai_client.py:1312`
 - signature: `reply_to_text(rep)`
 - 要約: ドライバのreply dictをツール結果テキストにする。
 - needs_runtime=True / standalone_ok=False
@@ -2379,11 +2289,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:responses_create — responses_create
 
-- kind: `logic_fn` / source: `ai_client.py:938`
+- kind: `logic_fn` / source: `ai_client.py:978`
 - signature: `responses_create(base, api_key, model, msgs, tools=…, timeout=…, extra=…, headers=…)`
 - 要約: POST {base}/responses (非ストリーミング)して応答JSONを返す。
 - needs_runtime=True / standalone_ok=False
@@ -2396,11 +2306,11 @@ flowchart LR
 ```
 
 - 検証: 単独=pytest(HTTPスタブ)でPOST応答をassert / 連携=pyeval/bridge でQGIS内import確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:responses_tools — responses_tools
 
-- kind: `logic_fn` / source: `ai_client.py:841`
+- kind: `logic_fn` / source: `ai_client.py:881`
 - signature: `responses_tools(tools)`
 - 要約: OpenAI function calling形式 → Responses APIのtools形式。
 - needs_runtime=True / standalone_ok=False
@@ -2413,11 +2323,11 @@ flowchart LR
 ```
 
 - 検証: 単独=pytest(HTTPスタブ)または直接呼出 / 連携=pyeval で属性実在+変換往復確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:run_extra_tool — run_extra_tool
 
-- kind: `logic_fn` / source: `ai_client.py:2471`
+- kind: `logic_fn` / source: `ai_client.py:2513`
 - signature: `run_extra_tool(name, args)`
 - 要約: 外部MCPツールを実行してテキストを返す。
 - needs_runtime=True / standalone_ok=False
@@ -2430,11 +2340,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:run_instruction_tool — run_instruction_tool
 
-- kind: `logic_fn` / source: `ai_client.py:1745`
+- kind: `logic_fn` / source: `ai_client.py:1787`
 - signature: `run_instruction_tool(name, args)`
 - 要約: ai_* ツールを実行して結果テキストを返す(パネルローカル実行)。
 - needs_runtime=True / standalone_ok=False
@@ -2447,11 +2357,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:save_agent — save_agent
 
-- kind: `logic_fn` / source: `ai_client.py:1606`
+- kind: `logic_fn` / source: `ai_client.py:1648`
 - signature: `save_agent(name, text)`
 - 要約: ユーザの agents/ に <name>.md として保存しパスを返す。
 - needs_runtime=True / standalone_ok=False
@@ -2464,11 +2374,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:save_instruction — save_instruction
 
-- kind: `logic_fn` / source: `ai_client.py:1616`
+- kind: `logic_fn` / source: `ai_client.py:1658`
 - signature: `save_instruction(kind, name, text)`
 - 要約: ユーザの <kind>/ に <name>.md として保存しパスを返す。
 - needs_runtime=True / standalone_ok=False
@@ -2481,11 +2391,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:save_skill — save_skill
 
-- kind: `logic_fn` / source: `ai_client.py:1611`
+- kind: `logic_fn` / source: `ai_client.py:1653`
 - signature: `save_skill(name, text)`
 - 要約: ユーザの skills/ に <name>.md として保存しパスを返す。
 - needs_runtime=True / standalone_ok=False
@@ -2498,11 +2408,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:screenshot_temp_path — screenshot_temp_path
 
-- kind: `logic_fn` / source: `ai_client.py:1283`
+- kind: `logic_fn` / source: `ai_client.py:1325`
 - signature: `screenshot_temp_path()`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -2515,11 +2425,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:skills_dir — skills_dir
 
-- kind: `logic_fn` / source: `ai_client.py:1405`
+- kind: `logic_fn` / source: `ai_client.py:1447`
 - signature: `skills_dir()`
 - 要約: 
 - needs_runtime=True / standalone_ok=False
@@ -2532,11 +2442,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:system_prompt — system_prompt
 
-- kind: `logic_fn` / source: `ai_client.py:1343`
+- kind: `logic_fn` / source: `ai_client.py:1385`
 - signature: `system_prompt(plugins=…, agent_text=…, skills=…, agents=…, active_agent=…)`
 - 要約: システムプロンプトを組み立てる。
 - needs_runtime=True / standalone_ok=False
@@ -2549,11 +2459,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:tool_to_command — tool_to_command
 
-- kind: `logic_fn` / source: `ai_client.py:1224`
+- kind: `logic_fn` / source: `ai_client.py:1266`
 - signature: `tool_to_command(name, args)`
 - 要約: ツール呼び出し(qgis_<type>)をドライバのコマンドdictに変換する。
 - needs_runtime=True / standalone_ok=False
@@ -2566,7 +2476,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:tr_label — tr_label
 
@@ -2583,11 +2493,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:trim_history — trim_history
 
-- kind: `logic_fn` / source: `ai_client.py:1237`
+- kind: `logic_fn` / source: `ai_client.py:1279`
 - signature: `trim_history(history, max_chars=…)`
 - 要約: 会話履歴を max_chars 以内にする。古いターンから落とし、
 - needs_runtime=True / standalone_ok=False
@@ -2600,11 +2510,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:usage_cost — usage_cost
 
-- kind: `logic_fn` / source: `ai_client.py:473`
+- kind: `logic_fn` / source: `ai_client.py:507`
 - signature: `usage_cost(info, total)`
 - 要約: model_info + 累計usage {"in","out"} → 推定コストUSD|None。
 - needs_runtime=True / standalone_ok=False
@@ -2617,11 +2527,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_client.py:user_content — user_content
 
-- kind: `logic_fn` / source: `ai_client.py:1320`
+- kind: `logic_fn` / source: `ai_client.py:1362`
 - signature: `user_content(text, image_paths)`
 - 要約: ユーザ入力(テキスト+画像パス列)をOpenAIのcontentにする。
 - needs_runtime=True / standalone_ok=False
@@ -2634,11 +2544,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.ai_panel.py:show_panel — show_panel
 
-- kind: `logic_fn` / source: `ai_panel.py:2298`
+- kind: `logic_fn` / source: `ai_panel.py:2312`
 - signature: `show_panel(iface, get_driver, panel)`
 - 要約: ドックを(必要なら生成して)表示し、インスタンスを返す。
 - needs_runtime=True / standalone_ok=False
@@ -2651,7 +2561,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.connection_info.py:build_sections — build_sections
 
@@ -2668,7 +2578,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.connection_info.py:show_dialog — show_dialog
 
@@ -2685,7 +2595,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.credential_store.py:backend — backend
 
@@ -2702,7 +2612,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.credential_store.py:backend_label — backend_label
 
@@ -2719,7 +2629,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.credential_store.py:delete_secret — delete_secret
 
@@ -2736,7 +2646,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.credential_store.py:get_secret — get_secret
 
@@ -2753,7 +2663,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.credential_store.py:set_secret — set_secret
 
@@ -2770,7 +2680,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.devin_tasks.py:abort — abort
 
@@ -2786,7 +2696,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.devin_tasks.py:find_exe — find_exe
 
@@ -2802,7 +2712,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.devin_tasks.py:result — result
 
@@ -2818,7 +2728,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.devin_tasks.py:run — run
 
@@ -2834,7 +2744,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.devin_tasks.py:status — status
 
@@ -2850,7 +2760,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.geo_toolbar.py:geo_suite_toolbar — geo_suite_toolbar
 
@@ -2867,7 +2777,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.hot_reload.py:dev_plugin_ids — dev_plugin_ids
 
@@ -2884,7 +2794,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.hot_reload.py:reload_plugins — reload_plugins
 
@@ -2901,7 +2811,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.layer_org.py:layer_attrs — layer_attrs
 
@@ -2918,7 +2828,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.layer_org.py:list_profiles — list_profiles
 
@@ -2935,7 +2845,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.layer_org.py:load_profile — load_profile
 
@@ -2952,7 +2862,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.layer_org.py:match_rule — match_rule
 
@@ -2969,7 +2879,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.layer_org.py:profiles_dir — profiles_dir
 
@@ -2986,7 +2896,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.layer_org.py:render_template — render_template
 
@@ -3003,7 +2913,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.live_driver.py:reload_plugin_now — reload_plugin_now
 
@@ -3020,7 +2930,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.mcp_http.py:start_http — start_http
 
@@ -3036,7 +2946,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.mcp_stdio.py:main — main
 
@@ -3052,7 +2962,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.mode_switch.py:deploy_state — deploy_state
 
@@ -3069,7 +2979,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.mode_switch.py:managed_ids — managed_ids
 
@@ -3086,7 +2996,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.mode_switch.py:profile_root — profile_root
 
@@ -3103,7 +3013,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.mode_switch.py:read_marker — read_marker
 
@@ -3120,7 +3030,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.mode_switch.py:repo_root — repo_root
 
@@ -3137,7 +3047,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.mode_switch.py:set_repo_path — set_repo_path
 
@@ -3154,7 +3064,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.mode_switch.py:show_dialog — show_dialog
 
@@ -3171,7 +3081,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.mode_switch.py:switch_mode — switch_mode
 
@@ -3188,7 +3098,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.scale_style.py:band_for_scale — band_for_scale
 
@@ -3205,7 +3115,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.scale_style.py:list_profiles — list_profiles
 
@@ -3222,7 +3132,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.scale_style.py:load_profile — load_profile
 
@@ -3239,7 +3149,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.scale_style.py:match_category — match_category
 
@@ -3256,7 +3166,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.scale_style.py:mm_to_meters — mm_to_meters
 
@@ -3273,7 +3183,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.scale_style.py:profiles_dir — profiles_dir
 
@@ -3290,7 +3200,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.scale_style.py:renderer_symbols — renderer_symbols
 
@@ -3307,7 +3217,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.scale_style.py:suggested_mm — suggested_mm
 
@@ -3324,7 +3234,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ## 検証マトリクス
 
@@ -3350,7 +3260,6 @@ flowchart LR
 | ui.AiPanel._on_provider_changed | ui_control | - | ○ | pass |
 | ui.AiPanel._on_settings_toggled | ui_control | - | ○ | pass |
 | ui.AiPanel._on_signin | ui_control | - | ○ | pass |
-| ui.AiPanel.suggestedPrompts | ui_control | - | ○ | removed |
 | ui.GeoDriverPlugin._on_toggle | ui_control | - | ○ | pass |
 | bridge.applyScaleWidth | bridge_method | - | ○ | skip |
 | bridge.deployMode | bridge_method | - | ○ | skip |
@@ -3373,34 +3282,30 @@ flowchart LR
 | bridge.suggestScaleWidth | bridge_method | - | ○ | pass |
 | registry.ai_client.py:register_extra_tools | registry | - | ○ | pass |
 | integration.__init__.py:59 | integration | - | ○ | skip |
-| integration.ai_client.py:1741 | integration | - | ○ | removed |
-| integration.ai_client.py:1747 | integration | - | ○ | removed |
-| integration.ai_client.py:1764 | integration | - | ○ | removed |
-| integration.ai_client.py:1941 | integration | - | ○ | removed |
-| integration.ai_client.py:2102 | integration | - | ○ | skip |
-| integration.ai_client.py:2108 | integration | - | ○ | skip |
-| integration.ai_client.py:2125 | integration | - | ○ | skip |
-| integration.ai_client.py:2302 | integration | - | ○ | skip |
-| integration.ai_panel.py:2150 | integration | - | ○ | removed |
-| integration.ai_panel.py:2279 | integration | - | ○ | skip |
-| integration.ai_panel.py:459 | integration | - | ○ | removed |
-| integration.ai_panel.py:492 | integration | - | ○ | skip |
+| integration.ai_client.py:2102 | integration | - | ○ | removed |
+| integration.ai_client.py:2108 | integration | - | ○ | removed |
+| integration.ai_client.py:2125 | integration | - | ○ | removed |
+| integration.ai_client.py:2144 | integration | - | ○ | skip |
+| integration.ai_client.py:2150 | integration | - | ○ | skip |
+| integration.ai_client.py:2167 | integration | - | ○ | skip |
+| integration.ai_client.py:2302 | integration | - | ○ | removed |
+| integration.ai_client.py:2344 | integration | - | ○ | skip |
+| integration.ai_panel.py:2279 | integration | - | ○ | removed |
+| integration.ai_panel.py:2293 | integration | - | ○ | skip |
+| integration.ai_panel.py:492 | integration | - | ○ | removed |
+| integration.ai_panel.py:504 | integration | - | ○ | skip |
 | integration.credential_store.py:153 | integration | - | ○ | skip |
 | integration.credential_store.py:180 | integration | - | ○ | skip |
 | integration.credential_store.py:68 | integration | - | ○ | skip |
 | integration.devin_tasks.py:274 | integration | - | ○ | skip |
 | integration.devin_tasks.py:279 | integration | - | ○ | skip |
-| integration.devin_tasks.py:639 | integration | - | ○ | skip |
-| integration.mcp_http.py:481 | integration | - | ○ | removed |
+| integration.devin_tasks.py:639 | integration | - | ○ | removed |
+| integration.devin_tasks.py:647 | integration | - | ○ | skip |
 | integration.mcp_http.py:664 | integration | - | ○ | skip |
 | integration.mode_switch.py:225 | integration | - | ○ | skip |
 | ai.bridge_route | ai_integration | - | ○ | pass |
 | ai.catalog | ai_integration | - | ○ | pass |
 | ai.pluginInfo | ai_integration | - | ○ | pass |
-| ai.prompt.bundled | ai_integration | - | ○ | removed |
-| ai.skill.scale-line-width | ai_integration | - | ○ | removed |
-| ai.skill.webgis-convert | ai_integration | - | ○ | removed |
-| ai.skill.webgis-import | ai_integration | - | ○ | removed |
 | logic_fn.ai_client.py:agents_dir | logic_fn | - | ○ | pass |
 | logic_fn.ai_client.py:anthropic_content | logic_fn | - | ○ | pass |
 | logic_fn.ai_client.py:anthropic_headers | logic_fn | - | ○ | pass |

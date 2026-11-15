@@ -12,9 +12,9 @@
   "provider": "copilot",
   "model": "gpt-4o",
   "configured": true,
-  "checked": "2026-11-14T18:03:35+09:00"
+  "checked": "2026-11-15T22:36:00+09:00"
  },
- "updated": "2026-11-14T18:03:35+09:00",
+ "updated": "2026-11-15T22:36:11+09:00",
  "features": [
   {
    "id": "panel.send",
@@ -1038,6 +1038,35 @@
    "last_verified": "2026-11-14T11:28:49+09:00"
   },
   {
+   "id": "plugin.geo_search.action.SearchAddressFeature.unload",
+   "scope": "plugin",
+   "kind": "action",
+   "name": "unload",
+   "plugin_id": "geo_search",
+   "ref": "qgis-plugin/geo_search/verify/features.json#action.SearchAddressFeature.unload",
+   "source": "searchfeature.py:2139",
+   "signature": "unload()",
+   "summary": "",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_search') is not None"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:29:15+09:00"
+  },
+  {
    "id": "plugin.geo_search.action.SearchFeature.unload",
    "scope": "plugin",
    "kind": "action",
@@ -1160,7 +1189,7 @@
    "name": "initGui",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#action.plugin.initGui",
-   "source": "plugin.py:82",
+   "source": "plugin.py:83",
    "signature": "initGui()",
    "summary": "",
    "needs_llm": false,
@@ -1189,7 +1218,7 @@
    "name": "run",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#action.plugin.run",
-   "source": "plugin.py:1444",
+   "source": "plugin.py:1456",
    "signature": "run(state=…, layer=…, view_fields=…)",
    "summary": "検索ダイアログを表示する",
    "needs_llm": false,
@@ -1218,7 +1247,7 @@
    "name": "unload",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#action.plugin.unload",
-   "source": "plugin.py:838",
+   "source": "plugin.py:839",
    "signature": "unload()",
    "summary": "",
    "needs_llm": false,
@@ -1276,7 +1305,7 @@
    "name": "SearchDialog",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#dialog.SearchDialog",
-   "source": "searchdialog.py:29",
+   "source": "searchdialog.py:30",
    "signature": "SearchDialog",
    "summary": "",
    "needs_llm": false,
@@ -1305,7 +1334,7 @@
    "name": "SearchWidget",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#dialog.SearchWidget",
-   "source": "widget/searchwidget.py:21",
+   "source": "widget/searchwidget.py:23",
    "signature": "SearchWidget",
    "summary": "",
    "needs_llm": false,
@@ -1363,7 +1392,7 @@
    "name": "_on_tab_changed",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#ui.ResultDialog._on_tab_changed",
-   "source": "resultdialog.py:965",
+   "source": "resultdialog.py:970",
    "signature": "_on_tab_changed(index)",
    "summary": "",
    "needs_llm": false,
@@ -1392,7 +1421,7 @@
    "name": "_on_additive_toggled",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#ui.plugin._on_additive_toggled",
-   "source": "plugin.py:353",
+   "source": "plugin.py:354",
    "signature": "_on_additive_toggled(checked)",
    "summary": "Handler for additive_theme_action.toggled",
    "needs_llm": false,
@@ -1421,7 +1450,7 @@
    "name": "_on_map_themes_changed",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#ui.plugin._on_map_themes_changed",
-   "source": "plugin.py:806",
+   "source": "plugin.py:807",
    "signature": "_on_map_themes_changed(*args, **kwargs)",
    "summary": "Wrapper for mapThemesChanged signal: log and delegate.",
    "needs_llm": false,
@@ -1450,7 +1479,7 @@
    "name": "_on_theme_collection_changed",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#ui.plugin._on_theme_collection_changed",
-   "source": "plugin.py:822",
+   "source": "plugin.py:823",
    "signature": "_on_theme_collection_changed(*args, **kwargs)",
    "summary": "Wrapper for legacy theme collection 'changed' signal.",
    "needs_llm": false,
@@ -1479,7 +1508,7 @@
    "name": "on_group_changed",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#ui.plugin.on_group_changed",
-   "source": "plugin.py:423",
+   "source": "plugin.py:424",
    "signature": "on_group_changed(index)",
    "summary": "Called when user selects a group; filter themes accordingly.",
    "needs_llm": false,
@@ -1508,7 +1537,7 @@
    "name": "on_project_saved",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#ui.plugin.on_project_saved",
-   "source": "plugin.py:1624",
+   "source": "plugin.py:1636",
    "signature": "on_project_saved()",
    "summary": "プロジェクトが保存された時の処理",
    "needs_llm": false,
@@ -1537,7 +1566,7 @@
    "name": "addTab",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.addTab",
-   "source": "bridge.py:1517",
+   "source": "bridge.py:1666",
    "signature": "addTab(config, target=…, rebuild=…)",
    "summary": "任意のタブ定義dictを検索タブとして追加する。",
    "needs_llm": false,
@@ -1567,7 +1596,7 @@
    "name": "addTabFromCurrentLayer",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.addTabFromCurrentLayer",
-   "source": "bridge.py:1250",
+   "source": "bridge.py:1399",
    "signature": "addTabFromCurrentLayer(title=…, rebuild=…)",
    "summary": "現在のアクティブレイヤを検索タブとして追加する。",
    "needs_llm": false,
@@ -1597,7 +1626,7 @@
    "name": "applyTheme",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.applyTheme",
-   "source": "bridge.py:1041",
+   "source": "bridge.py:1190",
    "signature": "applyTheme(name, additive=…)",
    "summary": "マップテーマを適用する。additive指定時は追加表示モードも変更。",
    "needs_llm": false,
@@ -1627,7 +1656,7 @@
    "name": "closeDialog",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.closeDialog",
-   "source": "bridge.py:1644",
+   "source": "bridge.py:1793",
    "signature": "closeDialog()",
    "summary": "",
    "needs_llm": false,
@@ -1657,7 +1686,7 @@
    "name": "getSettings",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.getSettings",
-   "source": "bridge.py:1143",
+   "source": "bridge.py:1292",
    "signature": "getSettings()",
    "summary": "検索設定の由来(ファイル/プロジェクト変数/env)と値を返す。",
    "needs_llm": false,
@@ -1687,7 +1716,7 @@
    "name": "listTabs",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.listTabs",
-   "source": "bridge.py:635",
+   "source": "bridge.py:650",
    "signature": "listTabs()",
    "summary": "",
    "needs_llm": false,
@@ -1717,7 +1746,7 @@
    "name": "listThemes",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.listThemes",
-   "source": "bridge.py:1009",
+   "source": "bridge.py:1158",
    "signature": "listThemes()",
    "summary": "マップテーマ一覧・グループ・現在選択・追加表示モードを返す。",
    "needs_llm": false,
@@ -1747,7 +1776,7 @@
    "name": "loadUserTheme",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.loadUserTheme",
-   "source": "bridge.py:1130",
+   "source": "bridge.py:1279",
    "signature": "loadUserTheme(path)",
    "summary": "ユーザーテーマJSONを読み込んで現在のプロジェクトに適用する。",
    "needs_llm": false,
@@ -1777,7 +1806,7 @@
    "name": "openDialog",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.openDialog",
-   "source": "bridge.py:1636",
+   "source": "bridge.py:1785",
    "signature": "openDialog()",
    "summary": "",
    "needs_llm": true,
@@ -1811,7 +1840,7 @@
    "name": "openSettings",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.openSettings",
-   "source": "bridge.py:1393",
+   "source": "bridge.py:1542",
    "signature": "openSettings()",
    "summary": "設定ダイアログを非modalで開く。",
    "needs_llm": false,
@@ -1841,7 +1870,7 @@
    "name": "pluginInfo",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.pluginInfo",
-   "source": "bridge.py:578",
+   "source": "bridge.py:593",
    "signature": "pluginInfo()",
    "summary": "プラグインの自己記述(id/summary/when_to_use/methods)を返す。",
    "needs_llm": true,
@@ -1875,7 +1904,7 @@
    "name": "reloadDialog",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.reloadDialog",
-   "source": "bridge.py:1211",
+   "source": "bridge.py:1360",
    "signature": "reloadDialog(show=…)",
    "summary": "検索ダイアログを再構築する(設定・タブ変更の反映用)。",
    "needs_llm": false,
@@ -1905,7 +1934,7 @@
    "name": "removeTab",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.removeTab",
-   "source": "bridge.py:1303",
+   "source": "bridge.py:1452",
    "signature": "removeTab(tab=…, rebuild=…)",
    "summary": "検索タブを設定ソースから削除し、ダイアログを再構築する。",
    "needs_llm": false,
@@ -1935,7 +1964,7 @@
    "name": "resultDisplayMode",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.resultDisplayMode",
-   "source": "bridge.py:1622",
+   "source": "bridge.py:1771",
    "signature": "resultDisplayMode(mode=…)",
    "summary": "結果ダイアログの表示モードを取得/設定する('table'/'form')。",
    "needs_llm": false,
@@ -1965,7 +1994,7 @@
    "name": "resultPage",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.resultPage",
-   "source": "bridge.py:1603",
+   "source": "bridge.py:1752",
    "signature": "resultPage(page=…)",
    "summary": "結果ダイアログの表示ページを取得/設定する(1始まり)。",
    "needs_llm": false,
@@ -1995,7 +2024,7 @@
    "name": "results",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.results",
-   "source": "bridge.py:719",
+   "source": "bridge.py:868",
    "signature": "results(max_features=…)",
    "summary": "直近の検索結果を返す(再検索はしない)。",
    "needs_llm": false,
@@ -2025,7 +2054,7 @@
    "name": "saveUserTheme",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.saveUserTheme",
-   "source": "bridge.py:1104",
+   "source": "bridge.py:1253",
    "signature": "saveUserTheme(path=…)",
    "summary": "現在の表示状態をユーザーテーマJSON(.usertheme.json)に保存する。",
    "needs_llm": false,
@@ -2055,7 +2084,7 @@
    "name": "search",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.search",
-   "source": "bridge.py:670",
+   "source": "bridge.py:685",
    "signature": "search(query=…, tab=…, show=…, zoom=…, max_features=…, options=…)",
    "summary": "検索を実行する(検索ボタン押下と同じ show_features 経路)。",
    "needs_llm": false,
@@ -2079,13 +2108,43 @@
    "last_verified": "2026-11-14T11:29:15+09:00"
   },
   {
+   "id": "plugin.geo_search.bridge.searchAddress",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "searchAddress",
+   "plugin_id": "geo_search",
+   "ref": "qgis-plugin/geo_search/verify/features.json#bridge.searchAddress",
+   "source": "bridge.py:808",
+   "signature": "searchAddress(query=…, provider=…, zoom=…, createLayer=…)",
+   "summary": "住所・地名をジオコーディングして候補を返し地図へ表示する。",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_search",
+    "method": "searchAddress"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "pass",
+   "note": "ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:29:15+09:00"
+  },
+  {
    "id": "plugin.geo_search.bridge.searchOptions",
    "scope": "plugin",
    "kind": "bridge_method",
    "name": "searchOptions",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.searchOptions",
-   "source": "bridge.py:842",
+   "source": "bridge.py:991",
    "signature": "searchOptions(options=…)",
    "summary": "検索オプションを取得/設定する(設定時は全タブへ適用)。",
    "needs_llm": false,
@@ -2115,7 +2174,7 @@
    "name": "selectTab",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.selectTab",
-   "source": "bridge.py:654",
+   "source": "bridge.py:669",
    "signature": "selectTab(tab=…)",
    "summary": "",
    "needs_llm": false,
@@ -2145,7 +2204,7 @@
    "name": "setSettings",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.setSettings",
-   "source": "bridge.py:1176",
+   "source": "bridge.py:1325",
    "signature": "setSettings(settings=…, rebuild=…)",
    "summary": "geo_search_json(検索設定JSONのパス)を設定する。",
    "needs_llm": false,
@@ -2175,7 +2234,7 @@
    "name": "setTabSetting",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.setTabSetting",
-   "source": "bridge.py:1450",
+   "source": "bridge.py:1599",
    "signature": "setTabSetting(tab=…, config=…, rebuild=…)",
    "summary": "既存タブの設定JSONを更新して由来ソースへ書き戻す。",
    "needs_llm": false,
@@ -2205,7 +2264,7 @@
    "name": "status",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.status",
-   "source": "bridge.py:601",
+   "source": "bridge.py:616",
    "signature": "status()",
    "summary": "",
    "needs_llm": true,
@@ -2239,7 +2298,7 @@
    "name": "suggest",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.suggest",
-   "source": "bridge.py:973",
+   "source": "bridge.py:1122",
    "signature": "suggest(tab=…, field=…, limit=…)",
    "summary": "検索フィールドのユニーク値一覧(サジェスト相当)を返す。",
    "needs_llm": false,
@@ -2269,7 +2328,7 @@
    "name": "tabOptions",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.tabOptions",
-   "source": "bridge.py:882",
+   "source": "bridge.py:1031",
    "signature": "tabOptions(tab=…, options=…)",
    "summary": "タブ固有の検索コントロールを取得/設定する。",
    "needs_llm": false,
@@ -2299,7 +2358,7 @@
    "name": "tabSetting",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.tabSetting",
-   "source": "bridge.py:1237",
+   "source": "bridge.py:1386",
    "signature": "tabSetting(tab=…)",
    "summary": "検索タブの設定JSON(由来_source/_source_index含む)を返す。",
    "needs_llm": false,
@@ -2329,7 +2388,7 @@
    "name": "themeAdditive",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.themeAdditive",
-   "source": "bridge.py:1082",
+   "source": "bridge.py:1231",
    "signature": "themeAdditive(enabled=…)",
    "summary": "テーマ適用の追加表示モードを取得/設定する。",
    "needs_llm": false,
@@ -2359,7 +2418,7 @@
    "name": "zoom",
    "plugin_id": "geo_search",
    "ref": "qgis-plugin/geo_search/verify/features.json#bridge.zoom",
-   "source": "bridge.py:732",
+   "source": "bridge.py:881",
    "signature": "zoom(feature_ids=…, tab_index=…)",
    "summary": "結果地物へズームする。feature_ids省略時はそのタブの全件。",
    "needs_llm": false,
@@ -2470,65 +2529,6 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=describe_plugins",
-   "last_verified": "2026-11-14T11:29:15+09:00"
-  },
-  {
-   "id": "plugin.geo_search.action.SearchAddressFeature.unload",
-   "scope": "plugin",
-   "kind": "action",
-   "name": "unload",
-   "plugin_id": "geo_search",
-   "ref": "qgis-plugin/geo_search/verify/features.json#action.SearchAddressFeature.unload",
-   "source": "searchfeature.py:2116",
-   "signature": "unload()",
-   "summary": "",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
-    "prompt": null,
-    "assert": "bridge_call/状態確認",
-    "cleanup": null
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_search') is not None"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:15+09:00"
-  },
-  {
-   "id": "plugin.geo_search.bridge.searchAddress",
-   "scope": "plugin",
-   "kind": "bridge_method",
-   "name": "searchAddress",
-   "plugin_id": "geo_search",
-   "ref": "qgis-plugin/geo_search/verify/features.json#bridge.searchAddress",
-   "source": "bridge.py:791",
-   "signature": "searchAddress(query=…, provider=…, zoom=…, createLayer=…)",
-   "summary": "住所・地名をジオコーディングして候補を返し地図へ表示する。",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
-    "prompt": null,
-    "assert": "bridge_call/状態確認",
-    "cleanup": null
-   },
-   "check": {
-    "type": "bridge_discover",
-    "plugin_id": "geo_search",
-    "method": "searchAddress"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "ai: 対象外(破壊的/内部/コンテキスト依存)",
    "last_verified": "2026-11-14T11:29:15+09:00"
   },
   {
@@ -2975,7 +2975,7 @@
    "ref": "qgis-plugin/geo_webview/verify/features.json#ui.GeoWebView.on_kasugai_help_clicked",
    "source": "plugin.py:1501",
    "signature": "on_kasugai_help_clicked()",
-   "summary": "ドキュメントサイト(GitHub Pages)をブラウザで開く。",
+   "summary": "ドキュメント(GitHub 上の docs/)をブラウザで開く。",
    "needs_llm": false,
    "ai_sample": false,
    "verify": {
@@ -4787,7 +4787,7 @@
    "name": "register_kasugai_project",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#registry.kasugai_export.py:register_kasugai_project",
-   "source": "kasugai_export.py:3893",
+   "source": "kasugai_export.py:3937",
    "signature": "register_kasugai_project(kasc_path, port=…, engine=…)",
    "summary": "POST /api/projects/register で.kascを外部プロジェクト登録する。",
    "needs_llm": false,
@@ -4897,13 +4897,13 @@
    "last_verified": "2026-11-14T11:29:22+09:00"
   },
   {
-   "id": "plugin.geo_webview.integration.kasugai_export.py:4022",
+   "id": "plugin.geo_webview.integration.kasugai_export.py:4066",
    "scope": "plugin",
    "kind": "integration",
    "name": "subprocess.Popen",
    "plugin_id": "geo_webview",
-   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.kasugai_export.py:4022",
-   "source": "kasugai_export.py:4022",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.kasugai_export.py:4066",
+   "source": "kasugai_export.py:4066",
    "signature": "subprocess.Popen(…)",
    "summary": "外部連携呼出",
    "needs_llm": false,
@@ -4920,19 +4920,19 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
-   "id": "plugin.geo_webview.integration.kasugai_export.py:4259",
+   "id": "plugin.geo_webview.integration.kasugai_export.py:4303",
    "scope": "plugin",
    "kind": "integration",
    "name": "subprocess.Popen",
    "plugin_id": "geo_webview",
-   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.kasugai_export.py:4259",
-   "source": "kasugai_export.py:4259",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.kasugai_export.py:4303",
+   "source": "kasugai_export.py:4303",
    "signature": "subprocess.Popen(…)",
    "summary": "外部連携呼出",
    "needs_llm": false,
@@ -4949,10 +4949,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.plugin.py:1387",
@@ -11600,7 +11600,7 @@
    "name": "initGui",
    "plugin_id": "geo_launcher",
    "ref": "qgis-plugin/geo_launcher/verify/features.json#action.plugin.initGui",
-   "source": "plugin.py:51",
+   "source": "plugin.py:57",
    "signature": "initGui()",
    "summary": "",
    "needs_llm": false,
@@ -11629,7 +11629,7 @@
    "name": "open_dialog",
    "plugin_id": "geo_launcher",
    "ref": "qgis-plugin/geo_launcher/verify/features.json#action.plugin.open_dialog",
-   "source": "plugin.py:97",
+   "source": "plugin.py:103",
    "signature": "open_dialog()",
    "summary": "状態パネルを開く(既にあれば前面に出す)。",
    "needs_llm": false,
@@ -11658,7 +11658,7 @@
    "name": "unload",
    "plugin_id": "geo_launcher",
    "ref": "qgis-plugin/geo_launcher/verify/features.json#action.plugin.unload",
-   "source": "plugin.py:83",
+   "source": "plugin.py:89",
    "signature": "unload()",
    "summary": "",
    "needs_llm": false,
@@ -12584,7 +12584,7 @@
    "name": "classFactory",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#entry_point.__init__.py:classFactory",
-   "source": "__init__.py:715",
+   "source": "__init__.py:786",
    "signature": "classFactory(iface)",
    "summary": "",
    "needs_llm": false,
@@ -12613,7 +12613,7 @@
    "name": "initGui",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#action.GeoDriverPlugin.initGui",
-   "source": "__init__.py:182",
+   "source": "__init__.py:239",
    "signature": "initGui()",
    "summary": "",
    "needs_llm": false,
@@ -12642,7 +12642,7 @@
    "name": "unload",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#action.GeoDriverPlugin.unload",
-   "source": "__init__.py:610",
+   "source": "__init__.py:685",
    "signature": "unload()",
    "summary": "",
    "needs_llm": false,
@@ -12671,7 +12671,7 @@
    "name": "openDialog",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#action._GenericBridge.openDialog",
-   "source": "live_driver.py:259",
+   "source": "live_driver.py:260",
    "signature": "openDialog()",
    "summary": "dialog/dlg/dockwidget属性のウィジェットを表示する。",
    "needs_llm": false,
@@ -12700,7 +12700,7 @@
    "name": "run",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#action._GenericBridge.run",
-   "source": "live_driver.py:251",
+   "source": "live_driver.py:252",
    "signature": "run()",
    "summary": "plugin.run()を非同期で実行する。",
    "needs_llm": false,
@@ -12729,7 +12729,7 @@
    "name": "AiPanel",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#dialog.AiPanel",
-   "source": "ai_panel.py:160",
+   "source": "ai_panel.py:166",
    "signature": "AiPanel",
    "summary": "",
    "needs_llm": false,
@@ -12758,7 +12758,7 @@
    "name": "_InstructionsDialog",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#dialog._InstructionsDialog",
-   "source": "ai_panel.py:1991",
+   "source": "ai_panel.py:2005",
    "signature": "_InstructionsDialog",
    "summary": "指示書(agents|skills の *.md)の作成・編集・削除ダイアログ。",
    "needs_llm": false,
@@ -12787,7 +12787,7 @@
    "name": "_McpDialog",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#dialog._McpDialog",
-   "source": "ai_panel.py:1883",
+   "source": "ai_panel.py:1897",
    "signature": "_McpDialog",
    "summary": "外部MCPサーバ設定(~/.qgis-live/mcp_servers.json)の編集。",
    "needs_llm": false,
@@ -12816,7 +12816,7 @@
    "name": "_on_agent_activated",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#ui.AiPanel._on_agent_activated",
-   "source": "ai_panel.py:562",
+   "source": "ai_panel.py:574",
    "signature": "_on_agent_activated(_idx)",
    "summary": "",
    "needs_llm": false,
@@ -12845,7 +12845,7 @@
    "name": "_on_agent_changed",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#ui.AiPanel._on_agent_changed",
-   "source": "ai_panel.py:679",
+   "source": "ai_panel.py:691",
    "signature": "_on_agent_changed(aid)",
    "summary": "AIの ai_select_agent で選択中エージェントが切替わった。",
    "needs_llm": false,
@@ -12874,7 +12874,7 @@
    "name": "_on_confirm",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#ui.AiPanel._on_confirm",
-   "source": "ai_panel.py:1870",
+   "source": "ai_panel.py:1884",
    "signature": "_on_confirm(name, args_text)",
    "summary": "確認ダイアログを出す(GUIスレッド)。",
    "needs_llm": false,
@@ -12903,7 +12903,7 @@
    "name": "_on_destroyed",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#ui.AiPanel._on_destroyed",
-   "source": "ai_panel.py:1304",
+   "source": "ai_panel.py:1318",
    "signature": "_on_destroyed()",
    "summary": "",
    "needs_llm": false,
@@ -12932,7 +12932,7 @@
    "name": "_on_model_activated",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#ui.AiPanel._on_model_activated",
-   "source": "ai_panel.py:915",
+   "source": "ai_panel.py:927",
    "signature": "_on_model_activated(idx)",
    "summary": "項目選択時、line editには装飾無しのIDだけを残す。",
    "needs_llm": false,
@@ -12961,7 +12961,7 @@
    "name": "_on_model_text_changed",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#ui.AiPanel._on_model_text_changed",
-   "source": "ai_panel.py:921",
+   "source": "ai_panel.py:933",
    "signature": "_on_model_text_changed(_text)",
    "summary": "",
    "needs_llm": false,
@@ -12990,7 +12990,7 @@
    "name": "_on_models",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#ui.AiPanel._on_models",
-   "source": "ai_panel.py:1346",
+   "source": "ai_panel.py:1360",
    "signature": "_on_models(infos, error)",
    "summary": "",
    "needs_llm": false,
@@ -13019,7 +13019,7 @@
    "name": "_on_pasted_images",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#ui.AiPanel._on_pasted_images",
-   "source": "ai_panel.py:1116",
+   "source": "ai_panel.py:1130",
    "signature": "_on_pasted_images(sources)",
    "summary": "",
    "needs_llm": false,
@@ -13048,7 +13048,7 @@
    "name": "_on_prompt_activated",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#ui.AiPanel._on_prompt_activated",
-   "source": "ai_panel.py:622",
+   "source": "ai_panel.py:634",
    "signature": "_on_prompt_activated(idx)",
    "summary": "おすすめプロンプト選択 → 本文を入力欄へ挿入する。",
    "needs_llm": false,
@@ -13077,7 +13077,7 @@
    "name": "_on_provider_changed",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#ui.AiPanel._on_provider_changed",
-   "source": "ai_panel.py:839",
+   "source": "ai_panel.py:851",
    "signature": "_on_provider_changed(_idx)",
    "summary": "切替前のプロバイダの入力値を保存し、新プロバイダの値を読み込む。",
    "needs_llm": false,
@@ -13106,7 +13106,7 @@
    "name": "_on_settings_toggled",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#ui.AiPanel._on_settings_toggled",
-   "source": "ai_panel.py:535",
+   "source": "ai_panel.py:547",
    "signature": "_on_settings_toggled(on)",
    "summary": "",
    "needs_llm": false,
@@ -13135,7 +13135,7 @@
    "name": "_on_signin",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#ui.AiPanel._on_signin",
-   "source": "ai_panel.py:1422",
+   "source": "ai_panel.py:1436",
    "signature": "_on_signin(pid, token)",
    "summary": "デバイスフロー完了(GUIスレッド)。トークンをキー欄へ保存。",
    "needs_llm": false,
@@ -13164,7 +13164,7 @@
    "name": "_on_toggle",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#ui.GeoDriverPlugin._on_toggle",
-   "source": "__init__.py:502",
+   "source": "__init__.py:577",
    "signature": "_on_toggle(checked)",
    "summary": "",
    "needs_llm": false,
@@ -13771,7 +13771,7 @@
    "name": "register_extra_tools",
    "plugin_id": "geo_driver",
    "ref": "qgis-plugin/geo_driver/verify/features.json#registry.ai_client.py:register_extra_tools",
-   "source": "ai_client.py:2461",
+   "source": "ai_client.py:2503",
    "signature": "register_extra_tools(tools, callers)",
    "summary": "外部MCP由来ツールを openai_tools/gemini_tools に反映する。",
    "needs_llm": false,
@@ -13823,13 +13823,13 @@
    "last_verified": "2026-11-14T11:30:02+09:00"
   },
   {
-   "id": "plugin.geo_driver.integration.ai_client.py:2102",
+   "id": "plugin.geo_driver.integration.ai_client.py:2144",
    "scope": "plugin",
    "kind": "integration",
    "name": "HTTPServer",
    "plugin_id": "geo_driver",
-   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_client.py:2102",
-   "source": "ai_client.py:2102",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_client.py:2144",
+   "source": "ai_client.py:2144",
    "signature": "HTTPServer(…)",
    "summary": "外部連携呼出",
    "needs_llm": false,
@@ -13846,19 +13846,19 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:30:02+09:00"
+   "note": "",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
-   "id": "plugin.geo_driver.integration.ai_client.py:2108",
+   "id": "plugin.geo_driver.integration.ai_client.py:2150",
    "scope": "plugin",
    "kind": "integration",
    "name": "HTTPServer",
    "plugin_id": "geo_driver",
-   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_client.py:2108",
-   "source": "ai_client.py:2108",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_client.py:2150",
+   "source": "ai_client.py:2150",
    "signature": "HTTPServer(…)",
    "summary": "外部連携呼出",
    "needs_llm": false,
@@ -13875,19 +13875,19 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:30:02+09:00"
+   "note": "",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
-   "id": "plugin.geo_driver.integration.ai_client.py:2125",
+   "id": "plugin.geo_driver.integration.ai_client.py:2167",
    "scope": "plugin",
    "kind": "integration",
    "name": "webbrowser.open",
    "plugin_id": "geo_driver",
-   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_client.py:2125",
-   "source": "ai_client.py:2125",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_client.py:2167",
+   "source": "ai_client.py:2167",
    "signature": "webbrowser.open(…)",
    "summary": "外部連携呼出",
    "needs_llm": false,
@@ -13904,19 +13904,19 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:30:02+09:00"
+   "note": "",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
-   "id": "plugin.geo_driver.integration.ai_client.py:2302",
+   "id": "plugin.geo_driver.integration.ai_client.py:2344",
    "scope": "plugin",
    "kind": "integration",
    "name": "subprocess.Popen",
    "plugin_id": "geo_driver",
-   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_client.py:2302",
-   "source": "ai_client.py:2302",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_client.py:2344",
+   "source": "ai_client.py:2344",
    "signature": "subprocess.Popen(…)",
    "summary": "外部連携呼出",
    "needs_llm": false,
@@ -13933,19 +13933,19 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:30:02+09:00"
+   "note": "",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
-   "id": "plugin.geo_driver.integration.ai_panel.py:2279",
+   "id": "plugin.geo_driver.integration.ai_panel.py:2293",
    "scope": "plugin",
    "kind": "integration",
    "name": "QDesktopServices.openUrl",
    "plugin_id": "geo_driver",
-   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_panel.py:2279",
-   "source": "ai_panel.py:2279",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_panel.py:2293",
+   "source": "ai_panel.py:2293",
    "signature": "QDesktopServices.openUrl(…)",
    "summary": "外部連携呼出",
    "needs_llm": false,
@@ -13962,19 +13962,19 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:30:02+09:00"
+   "note": "",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
-   "id": "plugin.geo_driver.integration.ai_panel.py:492",
+   "id": "plugin.geo_driver.integration.ai_panel.py:504",
    "scope": "plugin",
    "kind": "integration",
    "name": "QDesktopServices.openUrl",
    "plugin_id": "geo_driver",
-   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_panel.py:492",
-   "source": "ai_panel.py:492",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_panel.py:504",
+   "source": "ai_panel.py:504",
    "signature": "QDesktopServices.openUrl(…)",
    "summary": "外部連携呼出",
    "needs_llm": false,
@@ -13991,10 +13991,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:30:02+09:00"
+   "note": "",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "plugin.geo_driver.integration.credential_store.py:153",
@@ -14142,13 +14142,13 @@
    "last_verified": "2026-11-14T11:30:02+09:00"
   },
   {
-   "id": "plugin.geo_driver.integration.devin_tasks.py:639",
+   "id": "plugin.geo_driver.integration.devin_tasks.py:647",
    "scope": "plugin",
    "kind": "integration",
    "name": "subprocess.Popen",
    "plugin_id": "geo_driver",
-   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.devin_tasks.py:639",
-   "source": "devin_tasks.py:639",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.devin_tasks.py:647",
+   "source": "devin_tasks.py:647",
    "signature": "subprocess.Popen(…)",
    "summary": "外部連携呼出",
    "needs_llm": false,
@@ -14165,10 +14165,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:30:02+09:00"
+   "note": "",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "plugin.geo_driver.integration.mcp_http.py:664",
@@ -15542,11 +15542,11 @@
    "id": "qgis.action.mActionAddFeature",
    "scope": "qgis",
    "kind": "qgis_action",
-   "name": "地物を追加",
+   "name": "点地物を追加する",
    "ref": "verify/ai-chat/qgis/features.json#qgis.action.mActionAddFeature",
    "source": "menu:編集(&E)",
    "signature": "",
-   "summary": "地物を追加 (編集(&E))",
+   "summary": "点地物を追加する (編集(&E))",
    "needs_llm": false,
    "ai_sample": false,
    "verify": {
@@ -15556,7 +15556,7 @@
     "type": "action_trigger",
     "objectName": "mActionAddFeature",
     "checkable": true,
-    "text": "地物を追加"
+    "text": "点地物を追加する"
    },
    "ai": null,
    "tool_result": "pass",
@@ -17967,14 +17967,14 @@
    "last_verified": "2026-11-14T11:30:25+09:00"
   },
   {
-   "id": "qgis.action.AI",
+   "id": "qgis.action.noname",
    "scope": "qgis",
    "kind": "qgis_action",
-   "name": "AI アシスタント",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.AI",
+   "name": "レポート",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname",
    "source": "menu:ビュー(&V)/パネル",
    "signature": "",
-   "summary": "AI アシスタント (ビュー(&V)/パネル)",
+   "summary": "レポート (ビュー(&V)/パネル)",
    "needs_llm": false,
    "ai_sample": false,
    "verify": {
@@ -17982,16 +17982,43 @@
    },
    "check": {
     "type": "action_trigger",
-    "objectName": "AI",
+    "objectName": "noname",
     "checkable": true,
-    "text": "AI アシスタント"
+    "text": "レポート"
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): panel not available | ai(devin_acp): assert=False; tool trace不足: expect=AI|AI\\ アシスタント tools=bridge_call,describe_plugins,screenshot | ai(devin_acp): assert=False | ai(devin_acp): tools=bridge_call,describe_plugins,open_plugin,status",
-   "last_verified": "2026-11-14T11:30:25+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
+  },
+  {
+   "id": "qgis.action.WebView",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "WebView",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.WebView",
+   "source": "menu:ビュー(&V)/パネル",
+   "signature": "",
+   "summary": "WebView (ビュー(&V)/パネル)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "action_trigger"
+   },
+   "check": {
+    "type": "action_trigger",
+    "objectName": "WebView",
+    "checkable": true,
+    "text": "WebView"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "untested",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.mActionToggleWebToolBar",
@@ -20586,10 +20613,10 @@
    },
    "ai": null,
    "tool_result": "skip",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action....",
@@ -20688,7 +20715,7 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
+   "note": "result=False | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:30:42+09:00"
   },
   {
@@ -21038,10 +21065,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -21063,10 +21090,10 @@
    },
    "ai": null,
    "tool_result": "skip",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.AI",
@@ -21088,10 +21115,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.localhost",
@@ -21140,7 +21167,7 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
+   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:30:48+09:00"
   },
   {
@@ -21165,7 +21192,7 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
+   "note": "result=False | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:30:48+09:00"
   },
   {
@@ -21263,10 +21290,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:48+09:00"
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.geo_search",
@@ -24525,6 +24552,56 @@
    "last_verified": "2026-11-14T11:31:07+09:00"
   },
   {
+   "id": "qgis.action.noname_noname",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "フィルタ式を編集",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "フィルタ式を編集 (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'フィルタ式を編集'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'フィルタ式を編集':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "result=False | ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:07+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "フィルタ式をクリア",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "フィルタ式をクリア (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'フィルタ式をクリア'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'フィルタ式をクリア':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "result=False | ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:07+09:00"
+  },
+  {
    "id": "qgis.action.mActionAddLayers",
    "scope": "qgis",
    "kind": "qgis_action",
@@ -24753,7 +24830,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:07+09:00"
+   "last_verified": "2026-11-14T11:31:17+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -24777,8 +24854,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:07+09:00"
+   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:28+09:00"
   },
   {
    "id": "qgis.action.mFloaterAction",
@@ -25089,10 +25166,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:17+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.0.1_0.2_0.3_0.4_...",
@@ -26946,10 +27023,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -27021,10 +27098,10 @@
    },
    "ai": null,
    "tool_result": "skip",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -27046,10 +27123,10 @@
    },
    "ai": null,
    "tool_result": "skip",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.Models",
@@ -27198,7 +27275,7 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
+   "note": "result=False | ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:31:28+09:00"
   },
   {
@@ -27223,7 +27300,7 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
+   "note": "result=False | ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:31:28+09:00"
   },
   {
@@ -27349,7 +27426,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "last_verified": "2026-11-14T11:31:38+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -27374,7 +27451,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:28+09:00"
+   "last_verified": "2026-11-14T11:31:38+09:00"
   },
   {
    "id": "qgis.action.P",
@@ -27446,10 +27523,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:38+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.S",
@@ -27846,10 +27923,10 @@
    },
    "ai": null,
    "tool_result": "skip",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:38+09:00"
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -27873,7 +27950,7 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
+   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:31:38+09:00"
   },
   {
@@ -27896,10 +27973,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:38+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -27921,10 +27998,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:38+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.M",
@@ -28473,10 +28550,10 @@
    },
    "ai": null,
    "tool_result": "skip",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:38+09:00"
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.mAllowIntersectionsAction",
@@ -28573,10 +28650,10 @@
    },
    "ai": null,
    "tool_result": "skip",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:38+09:00"
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.mAllLayersAction",
@@ -28808,10 +28885,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -28835,10 +28912,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.TopologicalEditingAction",
@@ -29249,431 +29326,6 @@
    "last_verified": "2026-11-14T11:31:47+09:00"
   },
   {
-   "id": "qgis.action.Count",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "カウント（Count）",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Count",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "カウント（Count） (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Count' or a.text() == 'カウント（Count）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Count' or _a.text() == 'カウント（Count）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Sum",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "合計（Sum）",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Sum",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "合計（Sum） (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Sum' or a.text() == '合計（Sum）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Sum' or _a.text() == '合計（Sum）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Mean",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "平均値（Mean）",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Mean",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "平均値（Mean） (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Mean' or a.text() == '平均値（Mean）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Mean' or _a.text() == '平均値（Mean）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Median",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "中央値（Median）",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Median",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "中央値（Median） (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Median' or a.text() == '中央値（Median）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Median' or _a.text() == '中央値（Median）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "標準偏差 （母集団）",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "標準偏差 （母集団） (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '標準偏差 （母集団）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '標準偏差 （母集団）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "標準偏差 （標本）",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "標準偏差 （標本） (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '標準偏差 （標本）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '標準偏差 （標本）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "最小",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "最小 (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '最小'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '最小':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "最大",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "最大 (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '最大'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '最大':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Range",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "範囲（Range）",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Range",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "範囲（Range） (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Range' or a.text() == '範囲（Range）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Range' or _a.text() == '範囲（Range）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Minority",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "最稀値（Minority）",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Minority",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "最稀値（Minority） (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Minority' or a.text() == '最稀値（Minority）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Minority' or _a.text() == '最稀値（Minority）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Majority",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "最頻値（Majority）",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Majority",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "最頻値（Majority） (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Majority' or a.text() == '最頻値（Majority）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Majority' or _a.text() == '最頻値（Majority）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Variety",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "種類（Variety）",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Variety",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "種類（Variety） (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Variety' or a.text() == '種類（Variety）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Variety' or _a.text() == '種類（Variety）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Q1",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "第１四分位（Q1）",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Q1",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "第１四分位（Q1） (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Q1' or a.text() == '第１四分位（Q1）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Q1' or _a.text() == '第１四分位（Q1）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.Q3",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "第３四分位（Q3）",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Q3",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "第３四分位（Q3） (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Q3' or a.text() == '第３四分位（Q3）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Q3' or _a.text() == '第３四分位（Q3）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.IQR",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "四分位範囲（IQR）",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.IQR",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "四分位範囲（IQR） (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'IQR' or a.text() == '四分位範囲（IQR）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'IQR' or _a.text() == '四分位範囲（IQR）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.NULL",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "欠落（NULL）値",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.NULL",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "欠落（NULL）値 (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'NULL' or a.text() == '欠落（NULL）値'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'NULL' or _a.text() == '欠落（NULL）値':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "選択したレイヤに従う",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "選択したレイヤに従う (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '選択したレイヤに従う'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '選択したレイヤに従う':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
    "id": "qgis.action.noname_noname",
    "scope": "qgis",
    "kind": "qgis_action",
@@ -29695,7 +29347,7 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
+   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:31:47+09:00"
   },
   {
@@ -29720,7 +29372,7 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
+   "note": "result=False",
    "last_verified": "2026-11-14T11:31:47+09:00"
   },
   {
@@ -29774,31 +29426,6 @@
    "last_verified": "2026-11-14T11:31:47+09:00"
   },
   {
-   "id": "qgis.action.noname_noname",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "自動的にプロジェクトを開く",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "自動的にプロジェクトを開く (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "manual_only"
-   },
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "ai": null,
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
    "id": "qgis.action.Copy",
    "scope": "qgis",
    "kind": "qgis_action",
@@ -29840,56 +29467,6 @@
    "check": {
     "type": "exists_only",
     "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '頂点エディタを表示'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '頂点エディタを表示':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "フィルタ式を編集",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "フィルタ式を編集 (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'フィルタ式を編集'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'フィルタ式を編集':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:47+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "フィルタ式をクリア",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "フィルタ式をクリア (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == 'フィルタ式をクリア'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == 'フィルタ式をクリア':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "ai": null,
    "tool_result": "pass",
@@ -29968,10 +29545,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.Show_Broken_Layers_Only",
@@ -30018,10 +29595,10 @@
    },
    "ai": null,
    "tool_result": "skip",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -30045,8 +29622,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -30071,7 +29648,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "last_verified": "2026-11-14T11:31:47+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -30096,7 +29673,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "last_verified": "2026-11-14T11:31:47+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -30121,7 +29698,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "last_verified": "2026-11-14T11:31:47+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -30145,7 +29722,7 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
+   "note": "result=False | ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:31:57+09:00"
   },
   {
@@ -30168,10 +29745,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -30268,10 +29845,10 @@
    },
    "ai": null,
    "tool_result": "skip",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.mActionClear",
@@ -30524,10 +30101,10 @@
    },
    "ai": null,
    "tool_result": "skip",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -30551,7 +30128,7 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
+   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:31:57+09:00"
   },
   {
@@ -30624,10 +30201,10 @@
    },
    "ai": null,
    "tool_result": "skip",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:31:57+09:00"
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -31010,11 +30587,11 @@
    "id": "qgis.action.mCreateFeatureAction",
    "scope": "qgis",
    "kind": "qgis_action",
-   "name": "Create Feature from Track",
+   "name": "Create Point Feature at Location",
    "ref": "verify/ai-chat/qgis/features.json#qgis.action.mCreateFeatureAction",
    "source": "mainWindow",
    "signature": "",
-   "summary": "Create Feature from Track (ツールバー/コンテキスト)",
+   "summary": "Create Point Feature at Location (ツールバー/コンテキスト)",
    "needs_llm": false,
    "ai_sample": false,
    "verify": {
@@ -31022,7 +30599,7 @@
    },
    "check": {
     "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mCreateFeatureAction' or a.text() == 'Create Feature from Track'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mCreateFeatureAction' or _a.text() == 'Create Feature from Track':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'mCreateFeatureAction' or a.text() == 'Create Point Feature at Location'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'mCreateFeatureAction' or _a.text() == 'Create Point Feature at Location':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
    },
    "ai": null,
    "tool_result": "pass",
@@ -31419,8 +30996,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:05+09:00"
+   "note": "result=False | ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:57+09:00"
   },
   {
    "id": "qgis.action.geo_excel",
@@ -31519,8 +31096,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:05+09:00"
+   "note": "result=False | ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:57+09:00"
   },
   {
    "id": "qgis.action.geo_report",
@@ -31567,10 +31144,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:05+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action.geo_userfunc",
@@ -31917,10 +31494,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:05+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action...._...",
@@ -32017,10 +31594,10 @@
    },
    "ai": null,
    "tool_result": "pass",
-   "ai_result": "pass",
+   "ai_result": "untested",
    "last_result": "pass",
-   "note": "result=False | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:05+09:00"
+   "note": "check定義変更のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.action...._...",
@@ -32196,6 +31773,556 @@
    "last_result": "pass",
    "note": "ai(devin_acp): tools=pyeval",
    "last_verified": "2026-11-14T11:32:05+09:00"
+  },
+  {
+   "id": "qgis.action.Count",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "カウント（Count）",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Count",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "カウント（Count） (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Count' or a.text() == 'カウント（Count）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Count' or _a.text() == 'カウント（Count）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Sum",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "合計（Sum）",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Sum",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "合計（Sum） (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Sum' or a.text() == '合計（Sum）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Sum' or _a.text() == '合計（Sum）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Mean",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "平均値（Mean）",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Mean",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "平均値（Mean） (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Mean' or a.text() == '平均値（Mean）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Mean' or _a.text() == '平均値（Mean）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Median",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "中央値（Median）",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Median",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "中央値（Median） (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Median' or a.text() == '中央値（Median）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Median' or _a.text() == '中央値（Median）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "標準偏差 （母集団）",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "標準偏差 （母集団） (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '標準偏差 （母集団）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '標準偏差 （母集団）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "result=False | ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:57+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "標準偏差 （標本）",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "標準偏差 （標本） (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '標準偏差 （標本）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '標準偏差 （標本）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:32:05+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "最小",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "最小 (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '最小'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '最小':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:32:05+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "最大",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "最大 (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '最大'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '最大':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "check定義変更のため再検証 | ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:32:05+09:00"
+  },
+  {
+   "id": "qgis.action.Range",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "範囲（Range）",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Range",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "範囲（Range） (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Range' or a.text() == '範囲（Range）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Range' or _a.text() == '範囲（Range）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Minority",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "最稀値（Minority）",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Minority",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "最稀値（Minority） (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Minority' or a.text() == '最稀値（Minority）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Minority' or _a.text() == '最稀値（Minority）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Majority",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "最頻値（Majority）",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Majority",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "最頻値（Majority） (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Majority' or a.text() == '最頻値（Majority）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Majority' or _a.text() == '最頻値（Majority）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Variety",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "種類（Variety）",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Variety",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "種類（Variety） (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Variety' or a.text() == '種類（Variety）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Variety' or _a.text() == '種類（Variety）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Q1",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "第１四分位（Q1）",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Q1",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "第１四分位（Q1） (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Q1' or a.text() == '第１四分位（Q1）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Q1' or _a.text() == '第１四分位（Q1）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.Q3",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "第３四分位（Q3）",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.Q3",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "第３四分位（Q3） (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'Q3' or a.text() == '第３四分位（Q3）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'Q3' or _a.text() == '第３四分位（Q3）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.IQR",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "四分位範囲（IQR）",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.IQR",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "四分位範囲（IQR） (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'IQR' or a.text() == '四分位範囲（IQR）'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'IQR' or _a.text() == '四分位範囲（IQR）':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.NULL",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "欠落（NULL）値",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.NULL",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "欠落（NULL）値 (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'NULL' or a.text() == '欠落（NULL）値'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'NULL' or _a.text() == '欠落（NULL）値':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:31:47+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "選択したレイヤに従う",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "選択したレイヤに従う (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '選択したレイヤに従う'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '選択したレイヤに従う':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "result=False | ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:32:05+09:00"
+  },
+  {
+   "id": "qgis.action.actionAdd",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "追加",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.actionAdd",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "追加 (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'actionAdd' or a.text() == '追加'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'actionAdd' or _a.text() == '追加':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:32:14+09:00"
+  },
+  {
+   "id": "qgis.action.actionDelete",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "削除",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.actionDelete",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "削除 (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "manual_only"
+   },
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "ai": null,
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:32:14+09:00"
+  },
+  {
+   "id": "qgis.action.actionZoomTo",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "ズーム",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.actionZoomTo",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "ズーム (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'actionZoomTo' or a.text() == 'ズーム'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'actionZoomTo' or _a.text() == 'ズーム':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:32:14+09:00"
+  },
+  {
+   "id": "qgis.action.actionExport",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "Export",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.actionExport",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "Export (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "manual_only"
+   },
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "ai": null,
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:32:14+09:00"
+  },
+  {
+   "id": "qgis.action.actionImport",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "Import",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.actionImport",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "Import (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "manual_only"
+   },
+   "check": {
+    "type": "manual_only",
+    "reason": "モーダル/破壊的操作のため自動trigger対象外"
+   },
+   "ai": null,
+   "tool_result": "skip",
+   "ai_result": "no_llm",
+   "last_result": "skip",
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:32:14+09:00"
   },
   {
    "id": "qgis.action.noname_noname",
@@ -32610,39 +32737,14 @@
    "last_verified": "2026-11-14T11:32:14+09:00"
   },
   {
-   "id": "qgis.action.actionAdd",
+   "id": "qgis.action.noname_noname",
    "scope": "qgis",
    "kind": "qgis_action",
-   "name": "追加",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.actionAdd",
+   "name": "自動的にプロジェクトを開く",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
    "source": "mainWindow",
    "signature": "",
-   "summary": "追加 (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'actionAdd' or a.text() == '追加'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'actionAdd' or _a.text() == '追加':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:14+09:00"
-  },
-  {
-   "id": "qgis.action.actionDelete",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "削除",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.actionDelete",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "削除 (ツールバー/コンテキスト)",
+   "summary": "自動的にプロジェクトを開く (ツールバー/コンテキスト)",
    "needs_llm": false,
    "ai_sample": false,
    "verify": {
@@ -32654,85 +32756,10 @@
    },
    "ai": null,
    "tool_result": "skip",
-   "ai_result": "no_llm",
+   "ai_result": "untested",
    "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:32:14+09:00"
-  },
-  {
-   "id": "qgis.action.actionZoomTo",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "ズーム",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.actionZoomTo",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "ズーム (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'actionZoomTo' or a.text() == 'ズーム'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'actionZoomTo' or _a.text() == 'ズーム':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:14+09:00"
-  },
-  {
-   "id": "qgis.action.actionExport",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "Export",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.actionExport",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "Export (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "manual_only"
-   },
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "ai": null,
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:32:14+09:00"
-  },
-  {
-   "id": "qgis.action.actionImport",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "Import",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.actionImport",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "Import (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "manual_only"
-   },
-   "check": {
-    "type": "manual_only",
-    "reason": "モーダル/破壊的操作のため自動trigger対象外"
-   },
-   "ai": null,
-   "tool_result": "skip",
-   "ai_result": "no_llm",
-   "last_result": "skip",
-   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:32:14+09:00"
+   "note": "manual_only: モーダル/破壊的操作のため自動trigger対象外",
+   "last_verified": "2026-11-15T22:36:00+09:00"
   },
   {
    "id": "qgis.proc.3d_tessellate",
@@ -44385,6 +44412,32 @@
    "last_verified": "2026-11-14T11:33:45+09:00"
   },
   {
+   "id": "qgis.dock.Layers",
+   "scope": "qgis",
+   "kind": "qgis_dock",
+   "name": "レイヤ",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.dock.Layers",
+   "source": "dock:Layers",
+   "signature": "",
+   "summary": "ドック レイヤ",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "dock_toggle"
+   },
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "Layers",
+    "was_visible": true
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:33:45+09:00"
+  },
+  {
    "id": "qgis.dock.Browser",
    "scope": "qgis",
    "kind": "qgis_dock",
@@ -44506,84 +44559,6 @@
     "type": "dock_toggle",
     "objectName": "undo/redo dock",
     "was_visible": false
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:33:45+09:00"
-  },
-  {
-   "id": "qgis.dock.StatisticalSummaryDockWidget",
-   "scope": "qgis",
-   "kind": "qgis_dock",
-   "name": "統計",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.dock.StatisticalSummaryDockWidget",
-   "source": "dock:StatisticalSummaryDockWidget",
-   "signature": "",
-   "summary": "ドック 統計",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "dock_toggle"
-   },
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "StatisticalSummaryDockWidget",
-    "was_visible": false
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:33:45+09:00"
-  },
-  {
-   "id": "qgis.dock.VertexEditor",
-   "scope": "qgis",
-   "kind": "qgis_dock",
-   "name": "頂点エディタ",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.dock.VertexEditor",
-   "source": "dock:VertexEditor",
-   "signature": "",
-   "summary": "ドック 頂点エディタ",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "dock_toggle"
-   },
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "VertexEditor",
-    "was_visible": false
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:33:45+09:00"
-  },
-  {
-   "id": "qgis.dock.Layers",
-   "scope": "qgis",
-   "kind": "qgis_dock",
-   "name": "レイヤ",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.dock.Layers",
-   "source": "dock:Layers",
-   "signature": "",
-   "summary": "ドック レイヤ",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "dock_toggle"
-   },
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "Layers",
-    "was_visible": true
    },
    "ai": null,
    "tool_result": "pass",
@@ -44749,32 +44724,6 @@
    "last_verified": "2026-11-14T11:33:45+09:00"
   },
   {
-   "id": "qgis.dock.MessageLog",
-   "scope": "qgis",
-   "kind": "qgis_dock",
-   "name": "ログメッセージ",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.dock.MessageLog",
-   "source": "dock:MessageLog",
-   "signature": "",
-   "summary": "ドック ログメッセージ",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "dock_toggle"
-   },
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "MessageLog",
-    "was_visible": false
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "pass",
-   "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:33:45+09:00"
-  },
-  {
    "id": "qgis.dock.ProcessingToolbox",
    "scope": "qgis",
    "kind": "qgis_dock",
@@ -44818,6 +44767,58 @@
     "type": "dock_toggle",
     "objectName": "ResultsViewer",
     "was_visible": false
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:33:45+09:00"
+  },
+  {
+   "id": "qgis.dock.StatisticalSummaryDockWidget",
+   "scope": "qgis",
+   "kind": "qgis_dock",
+   "name": "統計",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.dock.StatisticalSummaryDockWidget",
+   "source": "dock:StatisticalSummaryDockWidget",
+   "signature": "",
+   "summary": "ドック 統計",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "dock_toggle"
+   },
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "StatisticalSummaryDockWidget",
+    "was_visible": true
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "pass",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:33:45+09:00"
+  },
+  {
+   "id": "qgis.dock.MessageLog",
+   "scope": "qgis",
+   "kind": "qgis_dock",
+   "name": "ログメッセージ",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.dock.MessageLog",
+   "source": "dock:MessageLog",
+   "signature": "",
+   "summary": "ドック ログメッセージ",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "dock_toggle"
+   },
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "MessageLog",
+    "was_visible": true
    },
    "ai": null,
    "tool_result": "pass",
@@ -44879,14 +44880,14 @@
    "last_verified": "2026-11-14T11:33:45+09:00"
   },
   {
-   "id": "qgis.dock.GeoDriverAiPanel",
+   "id": "qgis.dock.GeoReportLayoutSelectorPanel",
    "scope": "qgis",
    "kind": "qgis_dock",
-   "name": "AI アシスタント",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.dock.GeoDriverAiPanel",
-   "source": "dock:GeoDriverAiPanel",
+   "name": "レポート",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.dock.GeoReportLayoutSelectorPanel",
+   "source": "dock:GeoReportLayoutSelectorPanel",
    "signature": "",
-   "summary": "ドック AI アシスタント",
+   "summary": "ドック レポート",
    "needs_llm": false,
    "ai_sample": false,
    "verify": {
@@ -44894,7 +44895,33 @@
    },
    "check": {
     "type": "dock_toggle",
-    "objectName": "GeoDriverAiPanel",
+    "objectName": "GeoReportLayoutSelectorPanel",
+    "was_visible": false
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "untested",
+   "last_result": "pass",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-15T22:36:00+09:00"
+  },
+  {
+   "id": "qgis.dock.VertexEditor",
+   "scope": "qgis",
+   "kind": "qgis_dock",
+   "name": "頂点エディタ",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.dock.VertexEditor",
+   "source": "dock:VertexEditor",
+   "signature": "",
+   "summary": "ドック 頂点エディタ",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "dock_toggle"
+   },
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "VertexEditor",
     "was_visible": true
    },
    "ai": null,
@@ -45785,29 +45812,265 @@
    "last_verified": "2026-11-14T11:33:55+09:00"
   },
   {
-   "id": "qgis.action.noname",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "配置モード",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname",
-   "source": "menu:プラグイン(&P)/QGIS Live Driver",
-   "signature": "",
-   "summary": "配置モード (プラグイン(&P)/QGIS Live Driver)",
+   "id": "plugin.geo_webview.integration.kasugai_export.py:4022",
+   "scope": "plugin",
+   "kind": "integration",
+   "name": "subprocess.Popen",
+   "plugin_id": "geo_webview",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.kasugai_export.py:4022",
+   "source": "kasugai_export.py:4022",
+   "signature": "subprocess.Popen(…)",
+   "summary": "外部連携呼出",
    "needs_llm": false,
    "ai_sample": false,
    "verify": {
-    "tool": "exists_only"
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
    },
    "check": {
     "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '配置モード'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '配置モード':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_webview') is not None"
    },
    "ai": null,
    "tool_result": "pass",
    "ai_result": "no_llm",
    "last_result": "removed",
-   "note": "再出現のため再検証",
-   "last_verified": "2026-11-14T05:58:27+09:00"
+   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:29:22+09:00"
+  },
+  {
+   "id": "plugin.geo_webview.integration.kasugai_export.py:4259",
+   "scope": "plugin",
+   "kind": "integration",
+   "name": "subprocess.Popen",
+   "plugin_id": "geo_webview",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.kasugai_export.py:4259",
+   "source": "kasugai_export.py:4259",
+   "signature": "subprocess.Popen(…)",
+   "summary": "外部連携呼出",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_webview') is not None"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:29:22+09:00"
+  },
+  {
+   "id": "plugin.geo_driver.integration.ai_client.py:2102",
+   "scope": "plugin",
+   "kind": "integration",
+   "name": "HTTPServer",
+   "plugin_id": "geo_driver",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_client.py:2102",
+   "source": "ai_client.py:2102",
+   "signature": "HTTPServer(…)",
+   "summary": "外部連携呼出",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_driver') is not None"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:30:02+09:00"
+  },
+  {
+   "id": "plugin.geo_driver.integration.ai_client.py:2108",
+   "scope": "plugin",
+   "kind": "integration",
+   "name": "HTTPServer",
+   "plugin_id": "geo_driver",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_client.py:2108",
+   "source": "ai_client.py:2108",
+   "signature": "HTTPServer(…)",
+   "summary": "外部連携呼出",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_driver') is not None"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:30:02+09:00"
+  },
+  {
+   "id": "plugin.geo_driver.integration.ai_client.py:2125",
+   "scope": "plugin",
+   "kind": "integration",
+   "name": "webbrowser.open",
+   "plugin_id": "geo_driver",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_client.py:2125",
+   "source": "ai_client.py:2125",
+   "signature": "webbrowser.open(…)",
+   "summary": "外部連携呼出",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_driver') is not None"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:30:02+09:00"
+  },
+  {
+   "id": "plugin.geo_driver.integration.ai_client.py:2302",
+   "scope": "plugin",
+   "kind": "integration",
+   "name": "subprocess.Popen",
+   "plugin_id": "geo_driver",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_client.py:2302",
+   "source": "ai_client.py:2302",
+   "signature": "subprocess.Popen(…)",
+   "summary": "外部連携呼出",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_driver') is not None"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:30:02+09:00"
+  },
+  {
+   "id": "plugin.geo_driver.integration.ai_panel.py:2279",
+   "scope": "plugin",
+   "kind": "integration",
+   "name": "QDesktopServices.openUrl",
+   "plugin_id": "geo_driver",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_panel.py:2279",
+   "source": "ai_panel.py:2279",
+   "signature": "QDesktopServices.openUrl(…)",
+   "summary": "外部連携呼出",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_driver') is not None"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:30:02+09:00"
+  },
+  {
+   "id": "plugin.geo_driver.integration.ai_panel.py:492",
+   "scope": "plugin",
+   "kind": "integration",
+   "name": "QDesktopServices.openUrl",
+   "plugin_id": "geo_driver",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.ai_panel.py:492",
+   "source": "ai_panel.py:492",
+   "signature": "QDesktopServices.openUrl(…)",
+   "summary": "外部連携呼出",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_driver') is not None"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:30:02+09:00"
+  },
+  {
+   "id": "plugin.geo_driver.integration.devin_tasks.py:639",
+   "scope": "plugin",
+   "kind": "integration",
+   "name": "subprocess.Popen",
+   "plugin_id": "geo_driver",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#integration.devin_tasks.py:639",
+   "source": "devin_tasks.py:639",
+   "signature": "subprocess.Popen(…)",
+   "summary": "外部連携呼出",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_driver') is not None"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-14T11:30:02+09:00"
   },
   {
    "id": "qgis.action.noname",
@@ -45835,6 +46098,31 @@
    "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
+   "id": "qgis.action.AI",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "AI アシスタント",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.AI",
+   "source": "menu:プラグイン(&P)/QGIS Live Driver",
+   "signature": "",
+   "summary": "AI アシスタント (プラグイン(&P)/QGIS Live Driver)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'AI' or a.text() == 'AI アシスタント'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'AI' or _a.text() == 'AI アシスタント':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "removed",
+   "note": "ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:30:42+09:00"
+  },
+  {
    "id": "qgis.action.noname_noname",
    "scope": "qgis",
    "kind": "qgis_action",
@@ -45858,6 +46146,32 @@
    "last_result": "removed",
    "note": "再出現のため再検証",
    "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.dock.GeoDriverAiPanel",
+   "scope": "qgis",
+   "kind": "qgis_dock",
+   "name": "AI アシスタント",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.dock.GeoDriverAiPanel",
+   "source": "dock:GeoDriverAiPanel",
+   "signature": "",
+   "summary": "ドック AI アシスタント",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "dock_toggle"
+   },
+   "check": {
+    "type": "dock_toggle",
+    "objectName": "GeoDriverAiPanel",
+    "was_visible": true
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "removed",
+   "note": "ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:33:45+09:00"
   },
   {
    "id": "qgis.action.ProjectFile_C_Users_ryu_OneDrive_E_EQGIS",
@@ -46686,32 +47000,6 @@
    "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
-   "id": "qgis.dock.GeoReportLayoutSelectorPanel",
-   "scope": "qgis",
-   "kind": "qgis_dock",
-   "name": "レポート",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.dock.GeoReportLayoutSelectorPanel",
-   "source": "dock:GeoReportLayoutSelectorPanel",
-   "signature": "",
-   "summary": "ドック レポート",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "dock_toggle"
-   },
-   "check": {
-    "type": "dock_toggle",
-    "objectName": "GeoReportLayoutSelectorPanel",
-    "was_visible": true
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "removed",
-   "note": "再出現のため再検証",
-   "last_verified": "2026-11-14T05:58:27+09:00"
-  },
-  {
    "id": "qgis.dock.IdentifyResultsDock",
    "scope": "qgis",
    "kind": "qgis_dock",
@@ -46911,33 +47199,6 @@
    "last_result": "removed",
    "note": "mmqgis GPS情報パネル内アクション(遅延生成)",
    "last_verified": "2026-11-14T05:18:23+09:00"
-  },
-  {
-   "id": "qgis.action.WebView",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "WebView",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.WebView",
-   "source": "menu:ビュー(&V)/パネル",
-   "signature": "",
-   "summary": "WebView (ビュー(&V)/パネル)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "action_trigger"
-   },
-   "check": {
-    "type": "action_trigger",
-    "objectName": "WebView",
-    "checkable": true,
-    "text": "WebView"
-   },
-   "ai": null,
-   "tool_result": "fail",
-   "ai_result": "no_llm",
-   "last_result": "removed",
-   "note": "qgis2webダイアログ内ツールバーアクション。ダイアログ未オープン時は未生成",
-   "last_verified": "2026-11-14T05:07:59+09:00"
   },
   {
    "id": "qgis.action.Buffer_Settings",

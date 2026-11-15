@@ -13,7 +13,7 @@ code{background:#f5f5f5;padding:1px 4px}
 h1{font-size:1.4em}h2{font-size:1.1em;border-bottom:1px solid #ddd}
 </style></head><body>
 <h1>openai_msgs_to_responses_input <code>logic_fn.ai_client.py:openai_msgs_to_responses_input</code></h1>
-<p class='meta'>kind=logic_fn / source=<code>ai_client.py:897</code> / signature=<code>openai_msgs_to_responses_input(msgs)</code></p>
+<p class='meta'>kind=logic_fn / source=<code>ai_client.py:937</code> / signature=<code>openai_msgs_to_responses_input(msgs)</code></p>
 <p>OpenAI chat形式msgs → (instructions, Responses API input items)。</p>
 <h2>ロジック</h2>
 <pre class='mermaid'>
@@ -26,7 +26,7 @@ flowchart LR
 <li><b>単独:</b> <code>直接呼出して変換結果をassert</code></li>
 <li><b>連携:</b> <code>pyeval で属性実在+変換往復確認</code></li>
 </ul>
-<h2>検証結果</h2><p class='pass'><b>PASS</b> 2026-11-14T07:09:57+09:00</p>
+<h2>検証結果</h2><p class='pass'><b>PASS</b> 2026-11-15T22:33:28+09:00</p>
 <p class='meta'>属性/シンボル実在確認(pyeval)</p>
 <p class='meta'><a href='../index.html'>← 一覧へ</a></p>
 <script>mermaid.initialize({startOnLoad:true});</script></body></html>

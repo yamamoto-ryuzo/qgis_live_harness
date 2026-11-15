@@ -1,7 +1,7 @@
 # geo_webview — 完全ロジックシート
 
 - 種別: qgis_plugin / バージョン: 4.14.0
-- 生成: 2026-11-14T07:09:57+09:00 / 機能数: 165
+- 生成: 2026-11-15T22:33:28+09:00 / 機能数: 162
 
 ## トポロジ
 
@@ -89,14 +89,11 @@ flowchart LR
     bridge_status["status<br/><i>bridge_method</i>"]
     bridge_stopServer["stopServer<br/><i>bridge_method</i>"]
     registry_kasugai_export_py_register_kasugai_project["register_kasugai_project<br/><i>registry</i>"]
-    integration_bridge_py_1337["QDesktopServices.openUrl<br/><i>integration</i>"]
     integration_bridge_py_1412["QDesktopServices.openUrl<br/><i>integration</i>"]
-    integration_bridge_py_360["QDesktopServices.openUrl<br/><i>integration</i>"]
-    integration_bridge_py_362["webbrowser.open<br/><i>integration</i>"]
     integration_bridge_py_387["QDesktopServices.openUrl<br/><i>integration</i>"]
     integration_bridge_py_389["webbrowser.open<br/><i>integration</i>"]
-    integration_kasugai_export_py_4022["subprocess.Popen<br/><i>integration</i>"]
-    integration_kasugai_export_py_4259["subprocess.Popen<br/><i>integration</i>"]
+    integration_kasugai_export_py_4066["subprocess.Popen<br/><i>integration</i>"]
+    integration_kasugai_export_py_4303["subprocess.Popen<br/><i>integration</i>"]
     integration_plugin_py_1387["QDesktopServices.openUrl<br/><i>integration</i>"]
     integration_plugin_py_1489["QDesktopServices.openUrl<br/><i>integration</i>"]
     integration_plugin_py_1503["QDesktopServices.openUrl<br/><i>integration</i>"]
@@ -200,7 +197,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone経路のみ(要runtime依存無し)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone経路のみ(要runtime依存無し)
 
 ### action.GeoWebView.initGui — initGui
 
@@ -217,7 +214,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.GeoWebView.open_dialog — open_dialog
 
@@ -234,7 +231,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.GeoWebView.run — run
 
@@ -251,7 +248,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### action.GeoWebView.unload — unload
 
@@ -268,7 +265,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call/generic trigger→実在確認
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.GeoWebViewPanel — GeoWebViewPanel
 
@@ -285,7 +282,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### dialog.SettingsDialog — SettingsDialog
 
@@ -302,7 +299,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=openDialog→screenshot→closeDialog
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView._on_project_saved — _on_project_saved
 
@@ -319,7 +316,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.handle_request_origin_changed — handle_request_origin_changed
 
@@ -336,7 +333,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_check_access_clicked — on_check_access_clicked
 
@@ -353,7 +350,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_copy_clicked_panel — on_copy_clicked_panel
 
@@ -370,7 +367,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_engine_combo_changed — on_engine_combo_changed
 
@@ -387,7 +384,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_generate_clicked_panel — on_generate_clicked_panel
 
@@ -404,7 +401,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_hosted_combo_changed — on_hosted_combo_changed
 
@@ -421,7 +418,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_kasugai_export_clicked — on_kasugai_export_clicked
 
@@ -438,13 +435,13 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_kasugai_help_clicked — on_kasugai_help_clicked
 
 - kind: `ui_control` / source: `plugin.py:1501`
 - signature: `on_kasugai_help_clicked()`
-- 要約: ドキュメントサイト(GitHub Pages)をブラウザで開く。
+- 要約: ドキュメント(GitHub 上の docs/)をブラウザで開く。
 - needs_runtime=True / standalone_ok=False
 
 ```mermaid
@@ -455,7 +452,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_kasugai_launch_clicked — on_kasugai_launch_clicked
 
@@ -472,7 +469,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_kasugai_open_folder — on_kasugai_open_folder
 
@@ -489,7 +486,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_kasugai_outdir_browse — on_kasugai_outdir_browse
 
@@ -506,7 +503,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_kasugai_outdir_reset — on_kasugai_outdir_reset
 
@@ -523,7 +520,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_kasugai_zip_clicked — on_kasugai_zip_clicked
 
@@ -540,7 +537,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_navigate_clicked_panel — on_navigate_clicked_panel
 
@@ -557,7 +554,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_present_clicked_panel — on_present_clicked_panel
 
@@ -574,7 +571,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_received_selected — on_received_selected
 
@@ -591,7 +588,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_save_theme_clicked_panel — on_save_theme_clicked_panel
 
@@ -608,7 +605,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebView.on_standard_port_clicked — on_standard_port_clicked
 
@@ -625,7 +622,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebViewPanel._on_copy_permalink_to_clipboard — _on_copy_permalink_to_clipboard
 
@@ -642,7 +639,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebViewPanel._on_paste_from_clipboard — _on_paste_from_clipboard
 
@@ -659,7 +656,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebViewPanel._on_visibility_changed — _on_visibility_changed
 
@@ -676,7 +673,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebViewPanel.set_external_control_handler — set_external_control_handler
 
@@ -693,7 +690,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebViewPanel.set_port_change_handler — set_port_change_handler
 
@@ -710,7 +707,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebViewPanel.set_server_toggle_handler — set_server_toggle_handler
 
@@ -727,7 +724,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.GeoWebViewServerManager._on_cursor_xy — _on_cursor_xy
 
@@ -744,7 +741,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.LiveSyncController._on_layers_added — _on_layers_added
 
@@ -761,7 +758,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.LiveSyncController._on_project_read — _on_project_read
 
@@ -778,7 +775,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.LiveSyncController._on_selection_changed — _on_selection_changed
 
@@ -795,7 +792,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.LiveSyncController._on_structure — _on_structure
 
@@ -812,7 +809,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.SettingsDialog._basemap_groups_changed — _basemap_groups_changed
 
@@ -829,7 +826,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### ui.SettingsDialog._hosted_channel_changed — _hosted_channel_changed
 
@@ -846,7 +843,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=親dialog経由で操作・状態assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### bridge.addFirewallRule — addFirewallRule
 
@@ -863,7 +860,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call addFirewallRule → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.applyTheme — applyTheme
 
@@ -880,7 +877,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call applyTheme → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.checkAccess — checkAccess
 
@@ -897,7 +894,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call checkAccess → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.closePanel — closePanel
 
@@ -914,7 +911,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call closePanel → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.copyPermalink — copyPermalink
 
@@ -931,7 +928,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call copyPermalink → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.deleteTheme — deleteTheme
 
@@ -948,7 +945,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call deleteTheme → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.endpoints — endpoints
 
@@ -965,7 +962,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call endpoints → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.externalControl — externalControl
 
@@ -982,7 +979,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call externalControl → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.generatePermalink — generatePermalink
 
@@ -999,7 +996,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call generatePermalink → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.getSettings — getSettings
 
@@ -1016,7 +1013,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call getSettings → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.kascImport — kascImport
 
@@ -1033,7 +1030,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call kascImport → added/skipped/warnings + pyeval でレイヤ実在assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'source (.kasc path or URL) is required'}
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'source (.kasc path or URL) is required'}
 
 ### bridge.kascInspect — kascInspect
 
@@ -1050,7 +1047,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call kascInspect → counts/layers/bases 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'source (.kasc path or URL) is required'}
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'source (.kasc path or URL) is required'}
 
 ### bridge.kasugaiExport — kasugaiExport
 
@@ -1067,7 +1064,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call kasugaiExport → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.listBookmarks — listBookmarks
 
@@ -1084,7 +1081,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call listBookmarks → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.listThemes — listThemes
 
@@ -1101,7 +1098,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call listThemes → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.liveAddFeatures — liveAddFeatures
 
@@ -1118,7 +1115,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call liveAddFeatures → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.liveSyncFlush — liveSyncFlush
 
@@ -1135,7 +1132,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call liveSyncFlush → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:35:31+09:00 — 前提付き再検証で pass: liveSyncStart(attached)状態で liveSyncFlush → ok:true (2026-11-15再確認)。ランナーが attach 前に flush を呼び 'live sync not attached' となった検証手順上の誤り
 
 ### bridge.liveSyncStart — liveSyncStart
 
@@ -1152,7 +1149,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call liveSyncStart → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.liveSyncStatus — liveSyncStatus
 
@@ -1169,7 +1166,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call liveSyncStatus → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.liveSyncStop — liveSyncStop
 
@@ -1186,7 +1183,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call liveSyncStop → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.liveWriteback — liveWriteback
 
@@ -1203,7 +1200,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call liveWriteback → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.macAuth — macAuth
 
@@ -1220,7 +1217,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call macAuth → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.navigate — navigate
 
@@ -1237,7 +1234,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call navigate → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'url required'}
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'url required'}
 
 ### bridge.navigateTo — navigateTo
 
@@ -1254,7 +1251,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call navigateTo → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'x/y or lat/lon required'}
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 要実引数(応答あり): {'ok': False, 'error': 'x/y or lat/lon required'}
 
 ### bridge.openExportFolder — openExportFolder
 
@@ -1271,7 +1268,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openExportFolder → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.openExternal — openExternal
 
@@ -1288,7 +1285,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openExternal → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.openPanel — openPanel
 
@@ -1305,7 +1302,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openPanel → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.openPresent — openPresent
 
@@ -1322,7 +1319,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call openPresent → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.pluginInfo — pluginInfo
 
@@ -1339,7 +1336,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.receivedHistory — receivedHistory
 
@@ -1356,7 +1353,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call receivedHistory → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.saveTheme — saveTheme
 
@@ -1373,7 +1370,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call saveTheme → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.serverStatus — serverStatus
 
@@ -1390,7 +1387,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call serverStatus → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.setPort — setPort
 
@@ -1407,7 +1404,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call setPort → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.setSettings — setSettings
 
@@ -1424,7 +1421,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call setSettings → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### bridge.startServer — startServer
 
@@ -1441,7 +1438,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call startServer → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.status — status
 
@@ -1458,7 +1455,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call status → 応答assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — bridge_call応答あり args=[]
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — bridge_call応答あり args=[]
 
 ### bridge.stopServer — stopServer
 
@@ -1475,11 +1472,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call stopServer → 応答assert
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 副作用/破壊的/外部通信操作のため手動検証対象
 
 ### registry.kasugai_export.py:register_kasugai_project — register_kasugai_project
 
-- kind: `registry` / source: `kasugai_export.py:3893`
+- kind: `registry` / source: `kasugai_export.py:3937`
 - signature: `register_kasugai_project(kasc_path, port=…, engine=…)`
 - 要約: POST /api/projects/register で.kascを外部プロジェクト登録する。
 - needs_runtime=True / standalone_ok=False
@@ -1492,24 +1489,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
-
-### integration.bridge.py:1337 — QDesktopServices.openUrl
-
-- kind: `integration` / source: `bridge.py:1337`
-- signature: `QDesktopServices.openUrl(…)`
-- 要約: 外部連携呼出
-- needs_runtime=True / standalone_ok=False
-
-```mermaid
-flowchart LR
-  E_integration_bridge_py_1337["呼出元"] --> H_integration_bridge_py_1337["QDesktopServices.openUrl"]
-  H_integration_bridge_py_1337 --> R_integration_bridge_py_1337["QGIS/ランタイムAPI"]
-  R_integration_bridge_py_1337 --> OUT["結果"]
-```
-
-- 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **removed** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### integration.bridge.py:1412 — QDesktopServices.openUrl
 
@@ -1526,41 +1506,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
-
-### integration.bridge.py:360 — QDesktopServices.openUrl
-
-- kind: `integration` / source: `bridge.py:360`
-- signature: `QDesktopServices.openUrl(…)`
-- 要約: 外部連携呼出
-- needs_runtime=True / standalone_ok=False
-
-```mermaid
-flowchart LR
-  E_integration_bridge_py_360["呼出元"] --> H_integration_bridge_py_360["QDesktopServices.openUrl"]
-  H_integration_bridge_py_360 --> R_integration_bridge_py_360["QGIS/ランタイムAPI"]
-  R_integration_bridge_py_360 --> OUT["結果"]
-```
-
-- 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **removed** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
-
-### integration.bridge.py:362 — webbrowser.open
-
-- kind: `integration` / source: `bridge.py:362`
-- signature: `webbrowser.open(…)`
-- 要約: 外部連携呼出
-- needs_runtime=True / standalone_ok=False
-
-```mermaid
-flowchart LR
-  E_integration_bridge_py_362["呼出元"] --> H_integration_bridge_py_362["webbrowser.open"]
-  H_integration_bridge_py_362 --> R_integration_bridge_py_362["QGIS/ランタイムAPI"]
-  R_integration_bridge_py_362 --> OUT["結果"]
-```
-
-- 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **removed** 2026-11-14T02:32:22+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.bridge.py:387 — QDesktopServices.openUrl
 
@@ -1577,7 +1523,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.bridge.py:389 — webbrowser.open
 
@@ -1594,41 +1540,41 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
-### integration.kasugai_export.py:4022 — subprocess.Popen
+### integration.kasugai_export.py:4066 — subprocess.Popen
 
-- kind: `integration` / source: `kasugai_export.py:4022`
+- kind: `integration` / source: `kasugai_export.py:4066`
 - signature: `subprocess.Popen(…)`
 - 要約: 外部連携呼出
 - needs_runtime=True / standalone_ok=False
 
 ```mermaid
 flowchart LR
-  E_integration_kasugai_export_py_4022["呼出元"] --> H_integration_kasugai_export_py_4022["subprocess.Popen"]
-  H_integration_kasugai_export_py_4022 --> R_integration_kasugai_export_py_4022["QGIS/ランタイムAPI"]
-  R_integration_kasugai_export_py_4022 --> OUT["結果"]
+  E_integration_kasugai_export_py_4066["呼出元"] --> H_integration_kasugai_export_py_4066["subprocess.Popen"]
+  H_integration_kasugai_export_py_4066 --> R_integration_kasugai_export_py_4066["QGIS/ランタイムAPI"]
+  R_integration_kasugai_export_py_4066 --> OUT["結果"]
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
-### integration.kasugai_export.py:4259 — subprocess.Popen
+### integration.kasugai_export.py:4303 — subprocess.Popen
 
-- kind: `integration` / source: `kasugai_export.py:4259`
+- kind: `integration` / source: `kasugai_export.py:4303`
 - signature: `subprocess.Popen(…)`
 - 要約: 外部連携呼出
 - needs_runtime=True / standalone_ok=False
 
 ```mermaid
 flowchart LR
-  E_integration_kasugai_export_py_4259["呼出元"] --> H_integration_kasugai_export_py_4259["subprocess.Popen"]
-  H_integration_kasugai_export_py_4259 --> R_integration_kasugai_export_py_4259["QGIS/ランタイムAPI"]
-  R_integration_kasugai_export_py_4259 --> OUT["結果"]
+  E_integration_kasugai_export_py_4303["呼出元"] --> H_integration_kasugai_export_py_4303["subprocess.Popen"]
+  H_integration_kasugai_export_py_4303 --> R_integration_kasugai_export_py_4303["QGIS/ランタイムAPI"]
+  R_integration_kasugai_export_py_4303 --> OUT["結果"]
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.plugin.py:1387 — QDesktopServices.openUrl
 
@@ -1645,7 +1591,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.plugin.py:1489 — QDesktopServices.openUrl
 
@@ -1662,7 +1608,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.plugin.py:1503 — QDesktopServices.openUrl
 
@@ -1679,7 +1625,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.plugin.py:1835 — QDesktopServices.openUrl
 
@@ -1696,7 +1642,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:1098 — subprocess.check_output
 
@@ -1713,7 +1659,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:1127 — subprocess.check_output
 
@@ -1730,7 +1676,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:1131 — subprocess.check_output
 
@@ -1747,7 +1693,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:1135 — subprocess.check_output
 
@@ -1764,7 +1710,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:2882 — _socket.socket
 
@@ -1781,7 +1727,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:2928 — socket.socket
 
@@ -1798,7 +1744,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:3006 — socket.gethostname
 
@@ -1815,7 +1761,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:3010 — socket.getaddrinfo
 
@@ -1832,7 +1778,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:3039 — subprocess.run
 
@@ -1849,7 +1795,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:3115 — subprocess.run
 
@@ -1866,7 +1812,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:313 — socket.socket
 
@@ -1883,7 +1829,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:316 — server_socket.bind
 
@@ -1900,7 +1846,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:317 — server_socket.listen
 
@@ -1917,7 +1863,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:318 — server_socket.settimeout
 
@@ -1934,7 +1880,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:3231 — subprocess.run
 
@@ -1951,7 +1897,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:3286 — subprocess.run
 
@@ -1968,7 +1914,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### integration.server_manager.py:3299 — subprocess.run
 
@@ -1985,7 +1931,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=連携先の実在/生成物を確認
-- 結果: **skip** 2026-11-14T07:09:57+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
+- 結果: **skip** 2026-11-15T22:33:28+09:00 — 連携呼出点の記録(実連携実行はbridge_method等で確認)
 
 ### ai.bridge_route — bridge_call経由全到達
 
@@ -2002,7 +1948,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call 全method→ok/error記録
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 24メソッド到達可能
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 24メソッド到達可能
 
 ### ai.catalog — describe_plugins登録
 
@@ -2019,7 +1965,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=describe_plugins→plugins[]にid実在+methods非空
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — describe_plugins: methods=36
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — describe_plugins: methods=36
 
 ### ai.pluginInfo — pluginInfo自己記述
 
@@ -2036,7 +1982,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=bridge_call pluginInfo→メタ一致assert
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 自己記述あり
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 自己記述あり
 
 ### logic_fn.http_server.py:cors_allowed_origin — cors_allowed_origin
 
@@ -2052,7 +1998,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.http_server.py:read_http_request — read_http_request
 
@@ -2068,7 +2014,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.http_server.py:send_binary_response — send_binary_response
 
@@ -2084,7 +2030,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.http_server.py:send_head_response — send_head_response
 
@@ -2100,7 +2046,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.http_server.py:send_http_response — send_http_response
 
@@ -2116,7 +2062,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.http_server.py:send_options_response — send_options_response
 
@@ -2132,7 +2078,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.http_server.py:set_request_origin — set_request_origin
 
@@ -2148,11 +2094,11 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.kasc_import.py:import_kasc — import_kasc
 
-- kind: `logic_fn` / source: `kasc_import.py:704`
+- kind: `logic_fn` / source: `kasc_import.py:937`
 - signature: `import_kasc(source, iface=…, add_to_project=…, only_visible=…, apply_camera=…, group_prefix=…, replace=…, timeout=…)`
 - 要約: .kasc を QGIS プロジェクトへ再構成する(GUIスレッド前提)。
 - needs_runtime=True / standalone_ok=False
@@ -2165,11 +2111,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasc_import.py:inspect_kasc — inspect_kasc
 
-- kind: `logic_fn` / source: `kasc_import.py:283`
+- kind: `logic_fn` / source: `kasc_import.py:303`
 - signature: `inspect_kasc(source, timeout=…)`
 - 要約: .kasc を解析し参照を解決した一覧を返す(QGIS副作用なし)。
 - needs_runtime=True / standalone_ok=False
@@ -2182,11 +2128,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasc_import.py:parse_kasc — parse_kasc
 
-- kind: `logic_fn` / source: `kasc_import.py:107`
+- kind: `logic_fn` / source: `kasc_import.py:123`
 - signature: `parse_kasc(text)`
 - 要約: .kasc テキストを構造化 dict へ変換する(stdlib のみ)。
 - needs_runtime=True / standalone_ok=False
@@ -2199,11 +2145,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasc_import.py:resolve_ref — resolve_ref
 
-- kind: `logic_fn` / source: `kasc_import.py:258`
+- kind: `logic_fn` / source: `kasc_import.py:278`
 - signature: `resolve_ref(ref, base)`
 - 要約: DATA/x.gpkg 等の相対参照を base(.kasc の所在)から絶対化する。
 - needs_runtime=True / standalone_ok=False
@@ -2216,11 +2162,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:build_export_zip — build_export_zip
 
-- kind: `logic_fn` / source: `kasugai_export.py:3827`
+- kind: `logic_fn` / source: `kasugai_export.py:3871`
 - signature: `build_export_zip(out_dir=…)`
 - 要約: エクスポート物一式を kasugai_canvas_<tag>.zip 相当の bytes で返す。
 - needs_runtime=True / standalone_ok=False
@@ -2233,7 +2179,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:build_hosted_view_url — build_hosted_view_url
 
@@ -2250,11 +2196,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:build_kasugai_url — build_kasugai_url
 
-- kind: `logic_fn` / source: `kasugai_export.py:3875`
+- kind: `logic_fn` / source: `kasugai_export.py:3919`
 - signature: `build_kasugai_url(project_id, engine=…, port=…)`
 - 要約: KASUGAI Canvas のプロジェクトURLを構築する。
 - needs_runtime=True / standalone_ok=False
@@ -2267,11 +2213,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:build_local_view_url — build_local_view_url
 
-- kind: `logic_fn` / source: `kasugai_export.py:3981`
+- kind: `logic_fn` / source: `kasugai_export.py:4025`
 - signature: `build_local_view_url(kasc_path, engine=…, port=…)`
 - 要約: geo_webview の HTTP サーバ経由で .kasc を開くURLを組み立てる。
 - needs_runtime=True / standalone_ok=False
@@ -2284,11 +2230,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:default_install_dir — default_install_dir
 
-- kind: `logic_fn` / source: `kasugai_export.py:4122`
+- kind: `logic_fn` / source: `kasugai_export.py:4166`
 - signature: `default_install_dir()`
 - 要約: 既定インストール先。インストーラ既定の C:\kasugai\kasugai_canvas
 - needs_runtime=True / standalone_ok=False
@@ -2301,7 +2247,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:default_output_dir — default_output_dir
 
@@ -2318,11 +2264,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:detect_kasugai — detect_kasugai
 
-- kind: `logic_fn` / source: `kasugai_export.py:3860`
+- kind: `logic_fn` / source: `kasugai_export.py:3904`
 - signature: `detect_kasugai(port=…)`
 - 要約: KASUGAIローカルサーバが稼働していればcapabilitiesを返す。
 - needs_runtime=True / standalone_ok=False
@@ -2335,7 +2281,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:detect_kasugai_install_dir — detect_kasugai_install_dir
 
@@ -2352,11 +2298,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:ensure_kasugai_running — ensure_kasugai_running
 
-- kind: `logic_fn` / source: `kasugai_export.py:4069`
+- kind: `logic_fn` / source: `kasugai_export.py:4113`
 - signature: `ensure_kasugai_running(kasc_path=…, timeout=…, pump_events=…)`
 - 要約: KASUGAI Canvas ローカルサーバを使える状態にして capabilities を返す。
 - needs_runtime=True / standalone_ok=False
@@ -2369,7 +2315,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:existing_export — existing_export
 
@@ -2386,11 +2332,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:export_kasugai_project — export_kasugai_project
 
-- kind: `logic_fn` / source: `kasugai_export.py:3119`
+- kind: `logic_fn` / source: `kasugai_export.py:3160`
 - signature: `export_kasugai_project(iface, out_dir=…, visible_only=…, native_formats=…, hidden_as_off=…, embed_gpkg_style=…, emit_themes=…, emit_bookmarks=…, emit_launchers=…, emit_zip=…, emit_atlas=…, changed=…, live_url=…)`
 - 要約: レイヤツリーを KASUGAI Canvas プロジェクトとして出力する。
 - needs_runtime=True / standalone_ok=False
@@ -2403,7 +2349,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:export_zip_name — export_zip_name
 
@@ -2420,11 +2366,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:find_kasugai_engine_dir — find_kasugai_engine_dir
 
-- kind: `logic_fn` / source: `kasugai_export.py:3964`
+- kind: `logic_fn` / source: `kasugai_export.py:4008`
 - signature: `find_kasugai_engine_dir(engine=…)`
 - 要約: インストール済みCanvas web/ 内の ``<engine>/`` ディレクトリを返す。
 - needs_runtime=True / standalone_ok=False
@@ -2437,11 +2383,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:find_kasugai_exe — find_kasugai_exe
 
-- kind: `logic_fn` / source: `kasugai_export.py:3925`
+- kind: `logic_fn` / source: `kasugai_export.py:3969`
 - signature: `find_kasugai_exe()`
 - 要約: 起動可能な kasugai_canvas.exe のパスを返す（見つからなければ None）。
 - needs_runtime=True / standalone_ok=False
@@ -2454,11 +2400,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:find_kasugai_web_dir — find_kasugai_web_dir
 
-- kind: `logic_fn` / source: `kasugai_export.py:3941`
+- kind: `logic_fn` / source: `kasugai_export.py:3985`
 - signature: `find_kasugai_web_dir()`
 - 要約: インストール済み KASUGAI Canvas の配信用 ``web/`` ディレクトリを返す。
 - needs_runtime=True / standalone_ok=False
@@ -2471,7 +2417,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:get_hosted_channel — get_hosted_channel
 
@@ -2488,7 +2434,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:get_kasugai_install_dir — get_kasugai_install_dir
 
@@ -2505,7 +2451,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:get_kasugai_port — get_kasugai_port
 
@@ -2522,7 +2468,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:get_output_dir — get_output_dir
 
@@ -2539,7 +2485,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:hosted_engine_base — hosted_engine_base
 
@@ -2556,11 +2502,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:install_kasugai — install_kasugai
 
-- kind: `logic_fn` / source: `kasugai_export.py:4177`
+- kind: `logic_fn` / source: `kasugai_export.py:4221`
 - signature: `install_kasugai(dest_dir=…, progress_cb=…, cancel=…)`
 - 要約: KASUGAI Canvas の配布ZIPをダウンロード・展開してインストール先を返す。
 - needs_runtime=True / standalone_ok=False
@@ -2573,11 +2519,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:install_kasugai_setup — install_kasugai_setup
 
-- kind: `logic_fn` / source: `kasugai_export.py:4235`
+- kind: `logic_fn` / source: `kasugai_export.py:4279`
 - signature: `install_kasugai_setup(wait=…, progress_cb=…, cancel=…)`
 - 要約: NSIS セットアップをダウンロード・実行する通常インストール経路。
 - needs_runtime=True / standalone_ok=False
@@ -2590,11 +2536,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:kasugai_command — kasugai_command
 
-- kind: `logic_fn` / source: `kasugai_export.py:3913`
+- kind: `logic_fn` / source: `kasugai_export.py:3957`
 - signature: `kasugai_command(name, args=…, port=…)`
 - 要約: POST /api/command でチャットツールをキューイング(ベストエフォート)。
 - needs_runtime=True / standalone_ok=False
@@ -2607,11 +2553,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:kasugai_download_url — kasugai_download_url
 
-- kind: `logic_fn` / source: `kasugai_export.py:4109`
+- kind: `logic_fn` / source: `kasugai_export.py:4153`
 - signature: `kasugai_download_url()`
 - 要約: latest.json から配布ZIPのURLを返す（取得失敗時は既定URL）。
 - needs_runtime=True / standalone_ok=False
@@ -2624,7 +2570,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:kasugai_projects_dir — kasugai_projects_dir
 
@@ -2641,7 +2587,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:kasugai_qgis_projects_dir — kasugai_qgis_projects_dir
 
@@ -2658,11 +2604,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:kasugai_setup_url — kasugai_setup_url
 
-- kind: `logic_fn` / source: `kasugai_export.py:4223`
+- kind: `logic_fn` / source: `kasugai_export.py:4267`
 - signature: `kasugai_setup_url()`
 - 要約: 配布セットアップ(NSIS EXE)のURLを返す。
 - needs_runtime=True / standalone_ok=False
@@ -2675,7 +2621,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:last_export_dir — last_export_dir
 
@@ -2692,11 +2638,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:launch_kasugai — launch_kasugai
 
-- kind: `logic_fn` / source: `kasugai_export.py:4006`
+- kind: `logic_fn` / source: `kasugai_export.py:4050`
 - signature: `launch_kasugai(kasc_path=…, open_browser=…)`
 - 要約: kasugai_canvas.exe を起動する。起動要求に成功すれば True。
 - needs_runtime=True / standalone_ok=False
@@ -2709,7 +2655,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:normalize_engine — normalize_engine
 
@@ -2726,11 +2672,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:open_kasc_with_association — open_kasc_with_association
 
-- kind: `logic_fn` / source: `kasugai_export.py:4053`
+- kind: `logic_fn` / source: `kasugai_export.py:4097`
 - signature: `open_kasc_with_association(kasc_path)`
 - 要約: .kasc ファイル関連付け経由で Canvas 起動を要求する（Windows）。
 - needs_runtime=True / standalone_ok=False
@@ -2743,7 +2689,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:preferred_output_dir — preferred_output_dir
 
@@ -2760,7 +2706,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:project_dir_slug — project_dir_slug
 
@@ -2777,7 +2723,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:set_output_dir — set_output_dir
 
@@ -2794,11 +2740,11 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.kasugai_export.py:wait_for_kasugai — wait_for_kasugai
 
-- kind: `logic_fn` / source: `kasugai_export.py:4030`
+- kind: `logic_fn` / source: `kasugai_export.py:4074`
 - signature: `wait_for_kasugai(timeout=…, interval=…, pump_events=…)`
 - 要約: 起動直後のローカルサーバ応答を待つ。応答があれば capabilities。
 - needs_runtime=True / standalone_ok=False
@@ -2811,7 +2757,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.live_mcp.py:discover_payload — discover_payload
 
@@ -2827,7 +2773,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.live_mcp.py:driver_sessions — driver_sessions
 
@@ -2843,7 +2789,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.live_mcp.py:is_loopback_peer — is_loopback_peer
 
@@ -2859,7 +2805,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.live_mcp.py:pick_session — pick_session
 
@@ -2875,7 +2821,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.live_mcp.py:relay — relay
 
@@ -2891,7 +2837,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.live_mcp.py:request_header — request_header
 
@@ -2907,7 +2853,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.live_sync.py:live_enabled — live_enabled
 
@@ -2924,7 +2870,7 @@ flowchart LR
 ```
 
 - 検証: 単独= / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — 属性/シンボル実在確認(pyeval)
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — 属性/シンボル実在確認(pyeval)
 
 ### logic_fn.scale_zoom.py:estimate_scale_from_zoom — estimate_scale_from_zoom
 
@@ -2940,7 +2886,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.scale_zoom.py:estimate_zoom_from_scale — estimate_zoom_from_scale
 
@@ -2956,7 +2902,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ### logic_fn.scale_zoom.py:estimate_zoom_from_scale_maplibre — estimate_zoom_from_scale_maplibre
 
@@ -2972,7 +2918,7 @@ flowchart LR
 ```
 
 - 検証: 単独=import→呼出→戻り値assert / 連携=pyeval で属性実在+必要なら呼出
-- 結果: **pass** 2026-11-14T07:09:57+09:00 — standalone import+attr実在
+- 結果: **pass** 2026-11-15T22:33:28+09:00 — standalone import+attr実在
 
 ## 検証マトリクス
 
@@ -3055,14 +3001,11 @@ flowchart LR
 | bridge.status | bridge_method | - | ○ | pass |
 | bridge.stopServer | bridge_method | - | ○ | skip |
 | registry.kasugai_export.py:register_kasugai_project | registry | - | ○ | pass |
-| integration.bridge.py:1337 | integration | - | ○ | removed |
 | integration.bridge.py:1412 | integration | - | ○ | skip |
-| integration.bridge.py:360 | integration | - | ○ | removed |
-| integration.bridge.py:362 | integration | - | ○ | removed |
 | integration.bridge.py:387 | integration | - | ○ | skip |
 | integration.bridge.py:389 | integration | - | ○ | skip |
-| integration.kasugai_export.py:4022 | integration | - | ○ | skip |
-| integration.kasugai_export.py:4259 | integration | - | ○ | skip |
+| integration.kasugai_export.py:4066 | integration | - | ○ | skip |
+| integration.kasugai_export.py:4303 | integration | - | ○ | skip |
 | integration.plugin.py:1387 | integration | - | ○ | skip |
 | integration.plugin.py:1489 | integration | - | ○ | skip |
 | integration.plugin.py:1503 | integration | - | ○ | skip |

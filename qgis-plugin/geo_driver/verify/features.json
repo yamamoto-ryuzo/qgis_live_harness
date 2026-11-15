@@ -1,7 +1,7 @@
 {
   "component": "geo_driver",
   "component_type": "qgis_plugin",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "driver": {
     "type": "qgis_live_harness",
     "detect": "GET http://127.0.0.1:<http_port>/api/health",
@@ -10,13 +10,13 @@
     "control": "POST /api/cmd Bearer <live_dir token>",
     "detected_from": "scripts/qgis-session.mjs, live_driver.py"
   },
-  "updated": "2026-11-14T07:09:57+09:00",
+  "updated": "2026-11-15T22:33:28+09:00",
   "features": [
     {
       "id": "entry_point.__init__.py:classFactory",
       "kind": "entry_point",
       "name": "classFactory",
-      "source": "__init__.py:715",
+      "source": "__init__.py:786",
       "signature": "classFactory(iface)",
       "summary": "",
       "needs_runtime": true,
@@ -27,14 +27,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "classFactory→プラグインロード済"
     },
     {
       "id": "action.GeoDriverPlugin.initGui",
       "kind": "action",
       "name": "initGui",
-      "source": "__init__.py:182",
+      "source": "__init__.py:239",
       "signature": "initGui()",
       "summary": "",
       "needs_runtime": true,
@@ -45,14 +45,14 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "action.GeoDriverPlugin.unload",
       "kind": "action",
       "name": "unload",
-      "source": "__init__.py:610",
+      "source": "__init__.py:685",
       "signature": "unload()",
       "summary": "",
       "needs_runtime": true,
@@ -63,14 +63,14 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "action._GenericBridge.openDialog",
       "kind": "action",
       "name": "openDialog",
-      "source": "live_driver.py:259",
+      "source": "live_driver.py:260",
       "signature": "openDialog()",
       "summary": "dialog/dlg/dockwidget属性のウィジェットを表示する。",
       "needs_runtime": true,
@@ -81,14 +81,14 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "action._GenericBridge.run",
       "kind": "action",
       "name": "run",
-      "source": "live_driver.py:251",
+      "source": "live_driver.py:252",
       "signature": "run()",
       "summary": "plugin.run()を非同期で実行する。",
       "needs_runtime": true,
@@ -99,14 +99,14 @@
         "integrated": "bridge_call/generic trigger→実在確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "dialog.AiPanel",
       "kind": "dialog",
       "name": "AiPanel",
-      "source": "ai_panel.py:160",
+      "source": "ai_panel.py:166",
       "signature": "AiPanel",
       "summary": "",
       "needs_runtime": true,
@@ -117,14 +117,14 @@
         "integrated": "openDialog→screenshot→closeDialog"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "dialog._InstructionsDialog",
       "kind": "dialog",
       "name": "_InstructionsDialog",
-      "source": "ai_panel.py:1991",
+      "source": "ai_panel.py:2005",
       "signature": "_InstructionsDialog",
       "summary": "指示書(agents|skills の *.md)の作成・編集・削除ダイアログ。",
       "needs_runtime": true,
@@ -135,14 +135,14 @@
         "integrated": "openDialog→screenshot→closeDialog"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "dialog._McpDialog",
       "kind": "dialog",
       "name": "_McpDialog",
-      "source": "ai_panel.py:1883",
+      "source": "ai_panel.py:1897",
       "signature": "_McpDialog",
       "summary": "外部MCPサーバ設定(~/.qgis-live/mcp_servers.json)の編集。",
       "needs_runtime": true,
@@ -153,14 +153,14 @@
         "integrated": "openDialog→screenshot→closeDialog"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "ui.AiPanel._on_agent_activated",
       "kind": "ui_control",
       "name": "_on_agent_activated",
-      "source": "ai_panel.py:562",
+      "source": "ai_panel.py:574",
       "signature": "_on_agent_activated(_idx)",
       "summary": "",
       "needs_runtime": true,
@@ -171,14 +171,14 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "ui.AiPanel._on_agent_changed",
       "kind": "ui_control",
       "name": "_on_agent_changed",
-      "source": "ai_panel.py:679",
+      "source": "ai_panel.py:691",
       "signature": "_on_agent_changed(aid)",
       "summary": "AIの ai_select_agent で選択中エージェントが切替わった。",
       "needs_runtime": true,
@@ -189,14 +189,14 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "ui.AiPanel._on_confirm",
       "kind": "ui_control",
       "name": "_on_confirm",
-      "source": "ai_panel.py:1870",
+      "source": "ai_panel.py:1884",
       "signature": "_on_confirm(name, args_text)",
       "summary": "確認ダイアログを出す(GUIスレッド)。",
       "needs_runtime": true,
@@ -207,14 +207,14 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "ui.AiPanel._on_destroyed",
       "kind": "ui_control",
       "name": "_on_destroyed",
-      "source": "ai_panel.py:1304",
+      "source": "ai_panel.py:1318",
       "signature": "_on_destroyed()",
       "summary": "",
       "needs_runtime": true,
@@ -225,14 +225,14 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "ui.AiPanel._on_model_activated",
       "kind": "ui_control",
       "name": "_on_model_activated",
-      "source": "ai_panel.py:915",
+      "source": "ai_panel.py:927",
       "signature": "_on_model_activated(idx)",
       "summary": "項目選択時、line editには装飾無しのIDだけを残す。",
       "needs_runtime": true,
@@ -243,14 +243,14 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "ui.AiPanel._on_model_text_changed",
       "kind": "ui_control",
       "name": "_on_model_text_changed",
-      "source": "ai_panel.py:921",
+      "source": "ai_panel.py:933",
       "signature": "_on_model_text_changed(_text)",
       "summary": "",
       "needs_runtime": true,
@@ -261,14 +261,14 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "ui.AiPanel._on_models",
       "kind": "ui_control",
       "name": "_on_models",
-      "source": "ai_panel.py:1346",
+      "source": "ai_panel.py:1360",
       "signature": "_on_models(infos, error)",
       "summary": "",
       "needs_runtime": true,
@@ -279,14 +279,14 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "ui.AiPanel._on_pasted_images",
       "kind": "ui_control",
       "name": "_on_pasted_images",
-      "source": "ai_panel.py:1116",
+      "source": "ai_panel.py:1130",
       "signature": "_on_pasted_images(sources)",
       "summary": "",
       "needs_runtime": true,
@@ -297,14 +297,14 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "ui.AiPanel._on_prompt_activated",
       "kind": "ui_control",
       "name": "_on_prompt_activated",
-      "source": "ai_panel.py:622",
+      "source": "ai_panel.py:634",
       "signature": "_on_prompt_activated(idx)",
       "summary": "おすすめプロンプト選択 → 本文を入力欄へ挿入する。",
       "needs_runtime": true,
@@ -315,14 +315,14 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "ui.AiPanel._on_provider_changed",
       "kind": "ui_control",
       "name": "_on_provider_changed",
-      "source": "ai_panel.py:839",
+      "source": "ai_panel.py:851",
       "signature": "_on_provider_changed(_idx)",
       "summary": "切替前のプロバイダの入力値を保存し、新プロバイダの値を読み込む。",
       "needs_runtime": true,
@@ -333,14 +333,14 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "ui.AiPanel._on_settings_toggled",
       "kind": "ui_control",
       "name": "_on_settings_toggled",
-      "source": "ai_panel.py:535",
+      "source": "ai_panel.py:547",
       "signature": "_on_settings_toggled(on)",
       "summary": "",
       "needs_runtime": true,
@@ -351,14 +351,14 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "ui.AiPanel._on_signin",
       "kind": "ui_control",
       "name": "_on_signin",
-      "source": "ai_panel.py:1422",
+      "source": "ai_panel.py:1436",
       "signature": "_on_signin(pid, token)",
       "summary": "デバイスフロー完了(GUIスレッド)。トークンをキー欄へ保存。",
       "needs_runtime": true,
@@ -369,32 +369,14 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
-    },
-    {
-      "id": "ui.AiPanel.suggestedPrompts",
-      "kind": "ui_control",
-      "name": "おすすめプロンプトコンボ",
-      "source": "ai_panel.py:_on_prompt_activated/_refresh_prompts",
-      "signature": "cmb_prompt (QComboBox) + btn_prompt_edit",
-      "summary": "入力行のおすすめコンボ。選択で prompts/<id>.md の本文を入力欄へ挿入。✎で指示書エディタ(kind=prompts)を開く",
-      "needs_runtime": true,
-      "standalone_ok": false,
-      "depends": [],
-      "verify": {
-        "standalone": "",
-        "integrated": "パネルでコンボ選択→input.setPlainText(本文)。一覧は instruction op=list kind=prompts"
-      },
-      "last_result": "removed",
-      "last_verified": "2026-11-14T06:46:29+09:00",
-      "note": "実QGIS(pid28736)で op=list kind=prompts→6件(geo_driver×4+geo_legend+geo_search 横断集約)、prompt_body→本文のみ返却を確認"
     },
     {
       "id": "ui.GeoDriverPlugin._on_toggle",
       "kind": "ui_control",
       "name": "_on_toggle",
-      "source": "__init__.py:502",
+      "source": "__init__.py:577",
       "signature": "_on_toggle(checked)",
       "summary": "",
       "needs_runtime": true,
@@ -405,7 +387,7 @@
         "integrated": "親dialog経由で操作・状態assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -426,7 +408,7 @@
         "integrated": "bridge_call applyScaleWidth(dry=True) → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -447,7 +429,7 @@
         "integrated": "bridge_call deployMode → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -468,7 +450,7 @@
         "integrated": "bridge_call hotReload → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -489,7 +471,7 @@
         "integrated": "bridge_call layerOrgProfiles → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -510,7 +492,7 @@
         "integrated": "bridge_call layerOrgRules → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -531,7 +513,7 @@
         "integrated": "bridge_call listDevPlugins → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -552,7 +534,7 @@
         "integrated": "bridge_call openAiPanel → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -573,7 +555,7 @@
         "integrated": "bridge_call openConnInfo → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -594,7 +576,7 @@
         "integrated": "bridge_call openDeployMode → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -615,7 +597,7 @@
         "integrated": "bridge_call organizeLayers → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -636,7 +618,7 @@
         "integrated": "bridge_call placeLayer → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -657,7 +639,7 @@
         "integrated": "bridge_call pluginInfo → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -678,7 +660,7 @@
         "integrated": "bridge_call remoteControl → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -699,7 +681,7 @@
         "integrated": "bridge_call scaleStyleProfiles → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -720,7 +702,7 @@
         "integrated": "bridge_call scaleStyleTable → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -741,7 +723,7 @@
         "integrated": "bridge_call setLayerOrgProfile → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -762,7 +744,7 @@
         "integrated": "bridge_call setScaleStyleProfile → 応答assert"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "副作用/破壊的/外部通信操作のため手動検証対象"
     },
     {
@@ -783,7 +765,7 @@
         "integrated": "bridge_call status → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
@@ -804,14 +786,14 @@
         "integrated": "bridge_call suggestScaleWidth → 応答assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "bridge_call応答あり args=[]"
     },
     {
       "id": "registry.ai_client.py:register_extra_tools",
       "kind": "registry",
       "name": "register_extra_tools",
-      "source": "ai_client.py:2461",
+      "source": "ai_client.py:2503",
       "signature": "register_extra_tools(tools, callers)",
       "summary": "外部MCP由来ツールを openai_tools/gemini_tools に反映する。",
       "needs_runtime": true,
@@ -822,7 +804,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -840,79 +822,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
-      "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
-    },
-    {
-      "id": "integration.ai_client.py:1741",
-      "kind": "integration",
-      "name": "HTTPServer",
-      "source": "ai_client.py:1741",
-      "signature": "HTTPServer(…)",
-      "summary": "外部連携呼出",
-      "needs_runtime": true,
-      "standalone_ok": false,
-      "depends": [],
-      "verify": {
-        "standalone": "",
-        "integrated": "連携先の実在/生成物を確認"
-      },
-      "last_result": "removed",
-      "last_verified": "2026-11-14T02:36:00+09:00",
-      "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
-    },
-    {
-      "id": "integration.ai_client.py:1747",
-      "kind": "integration",
-      "name": "HTTPServer",
-      "source": "ai_client.py:1747",
-      "signature": "HTTPServer(…)",
-      "summary": "外部連携呼出",
-      "needs_runtime": true,
-      "standalone_ok": false,
-      "depends": [],
-      "verify": {
-        "standalone": "",
-        "integrated": "連携先の実在/生成物を確認"
-      },
-      "last_result": "removed",
-      "last_verified": "2026-11-14T02:36:00+09:00",
-      "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
-    },
-    {
-      "id": "integration.ai_client.py:1764",
-      "kind": "integration",
-      "name": "webbrowser.open",
-      "source": "ai_client.py:1764",
-      "signature": "webbrowser.open(…)",
-      "summary": "外部連携呼出",
-      "needs_runtime": true,
-      "standalone_ok": false,
-      "depends": [],
-      "verify": {
-        "standalone": "",
-        "integrated": "連携先の実在/生成物を確認"
-      },
-      "last_result": "removed",
-      "last_verified": "2026-11-14T02:36:00+09:00",
-      "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
-    },
-    {
-      "id": "integration.ai_client.py:1941",
-      "kind": "integration",
-      "name": "subprocess.Popen",
-      "source": "ai_client.py:1941",
-      "signature": "subprocess.Popen(…)",
-      "summary": "外部連携呼出",
-      "needs_runtime": true,
-      "standalone_ok": false,
-      "depends": [],
-      "verify": {
-        "standalone": "",
-        "integrated": "連携先の実在/生成物を確認"
-      },
-      "last_result": "removed",
-      "last_verified": "2026-11-14T02:36:00+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -929,7 +839,7 @@
         "standalone": "",
         "integrated": "連携先の実在/生成物を確認"
       },
-      "last_result": "skip",
+      "last_result": "removed",
       "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
@@ -947,7 +857,7 @@
         "standalone": "",
         "integrated": "連携先の実在/生成物を確認"
       },
-      "last_result": "skip",
+      "last_result": "removed",
       "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
@@ -965,8 +875,62 @@
         "standalone": "",
         "integrated": "連携先の実在/生成物を確認"
       },
-      "last_result": "skip",
+      "last_result": "removed",
       "last_verified": "2026-11-14T07:09:57+09:00",
+      "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
+    },
+    {
+      "id": "integration.ai_client.py:2144",
+      "kind": "integration",
+      "name": "HTTPServer",
+      "source": "ai_client.py:2144",
+      "signature": "HTTPServer(…)",
+      "summary": "外部連携呼出",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "連携先の実在/生成物を確認"
+      },
+      "last_result": "skip",
+      "last_verified": "2026-11-15T22:33:28+09:00",
+      "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
+    },
+    {
+      "id": "integration.ai_client.py:2150",
+      "kind": "integration",
+      "name": "HTTPServer",
+      "source": "ai_client.py:2150",
+      "signature": "HTTPServer(…)",
+      "summary": "外部連携呼出",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "連携先の実在/生成物を確認"
+      },
+      "last_result": "skip",
+      "last_verified": "2026-11-15T22:33:28+09:00",
+      "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
+    },
+    {
+      "id": "integration.ai_client.py:2167",
+      "kind": "integration",
+      "name": "webbrowser.open",
+      "source": "ai_client.py:2167",
+      "signature": "webbrowser.open(…)",
+      "summary": "外部連携呼出",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "連携先の実在/生成物を確認"
+      },
+      "last_result": "skip",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -983,16 +947,16 @@
         "standalone": "",
         "integrated": "連携先の実在/生成物を確認"
       },
-      "last_result": "skip",
+      "last_result": "removed",
       "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
-      "id": "integration.ai_panel.py:2150",
+      "id": "integration.ai_client.py:2344",
       "kind": "integration",
-      "name": "QDesktopServices.openUrl",
-      "source": "ai_panel.py:2150",
-      "signature": "QDesktopServices.openUrl(…)",
+      "name": "subprocess.Popen",
+      "source": "ai_client.py:2344",
+      "signature": "subprocess.Popen(…)",
       "summary": "外部連携呼出",
       "needs_runtime": true,
       "standalone_ok": false,
@@ -1001,8 +965,8 @@
         "standalone": "",
         "integrated": "連携先の実在/生成物を確認"
       },
-      "last_result": "removed",
-      "last_verified": "2026-11-14T02:36:00+09:00",
+      "last_result": "skip",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1019,15 +983,15 @@
         "standalone": "",
         "integrated": "連携先の実在/生成物を確認"
       },
-      "last_result": "skip",
+      "last_result": "removed",
       "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
-      "id": "integration.ai_panel.py:459",
+      "id": "integration.ai_panel.py:2293",
       "kind": "integration",
       "name": "QDesktopServices.openUrl",
-      "source": "ai_panel.py:459",
+      "source": "ai_panel.py:2293",
       "signature": "QDesktopServices.openUrl(…)",
       "summary": "外部連携呼出",
       "needs_runtime": true,
@@ -1037,8 +1001,8 @@
         "standalone": "",
         "integrated": "連携先の実在/生成物を確認"
       },
-      "last_result": "removed",
-      "last_verified": "2026-11-14T02:36:00+09:00",
+      "last_result": "skip",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1055,8 +1019,26 @@
         "standalone": "",
         "integrated": "連携先の実在/生成物を確認"
       },
-      "last_result": "skip",
+      "last_result": "removed",
       "last_verified": "2026-11-14T07:09:57+09:00",
+      "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
+    },
+    {
+      "id": "integration.ai_panel.py:504",
+      "kind": "integration",
+      "name": "QDesktopServices.openUrl",
+      "source": "ai_panel.py:504",
+      "signature": "QDesktopServices.openUrl(…)",
+      "summary": "外部連携呼出",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "連携先の実在/生成物を確認"
+      },
+      "last_result": "skip",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1074,7 +1056,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1092,7 +1074,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1110,7 +1092,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1128,7 +1110,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1146,7 +1128,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1163,16 +1145,16 @@
         "standalone": "",
         "integrated": "連携先の実在/生成物を確認"
       },
-      "last_result": "skip",
+      "last_result": "removed",
       "last_verified": "2026-11-14T07:09:57+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
-      "id": "integration.mcp_http.py:481",
+      "id": "integration.devin_tasks.py:647",
       "kind": "integration",
-      "name": "ThreadingHTTPServer",
-      "source": "mcp_http.py:481",
-      "signature": "ThreadingHTTPServer(…)",
+      "name": "subprocess.Popen",
+      "source": "devin_tasks.py:647",
+      "signature": "subprocess.Popen(…)",
       "summary": "外部連携呼出",
       "needs_runtime": true,
       "standalone_ok": false,
@@ -1181,8 +1163,8 @@
         "standalone": "",
         "integrated": "連携先の実在/生成物を確認"
       },
-      "last_result": "removed",
-      "last_verified": "2026-11-14T02:36:00+09:00",
+      "last_result": "skip",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1200,7 +1182,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1218,7 +1200,7 @@
         "integrated": "連携先の実在/生成物を確認"
       },
       "last_result": "skip",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "連携呼出点の記録(実連携実行はbridge_method等で確認)"
     },
     {
@@ -1236,7 +1218,7 @@
         "integrated": "bridge_call 全method→ok/error記録"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "10メソッド到達可能"
     },
     {
@@ -1254,7 +1236,7 @@
         "integrated": "describe_plugins→plugins[]にid実在+methods非空"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "describe_plugins: methods=19"
     },
     {
@@ -1272,96 +1254,14 @@
         "integrated": "bridge_call pluginInfo→メタ一致assert"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "自己記述あり"
-    },
-    {
-      "id": "ai.prompt.bundled",
-      "kind": "ai_integration",
-      "name": "同梱おすすめプロンプト(6件)",
-      "source": "geo_driver|geo_legend|geo_search の prompts/*.md",
-      "signature": "",
-      "summary": "GIS操作の定型指示をプロンプトファイルとして同梱: organize-layers/standard-line-width/save-map-image/project-doctor(geo_driver), create-legend(geo_legend), search-features(geo_search)。kind=prompts は agents/skills と同じ bundled+ユーザ上書きモデル",
-      "needs_runtime": true,
-      "standalone_ok": false,
-      "depends": [
-        "ui.AiPanel.suggestedPrompts"
-      ],
-      "verify": {
-        "standalone": "",
-        "integrated": "instruction op=list kind=prompts → builtin=true 6件、op=read→本文"
-      },
-      "last_result": "removed",
-      "last_verified": "2026-11-14T06:46:29+09:00",
-      "note": "実QGIS(pid28736)で確認済。ユーザは ~/.qgis-live/prompts/*.md または /prompt・ai_save_instruction で追加可能"
-    },
-    {
-      "id": "ai.skill.scale-line-width",
-      "kind": "ai_integration",
-      "name": "同梱スキル scale-line-width",
-      "source": "skills/scale-line-width.md",
-      "signature": "",
-      "summary": "スケール連動の標準線幅(suggestScaleWidth/applyScaleWidth)の手順書。モデルが ai_read_instruction で読む",
-      "needs_runtime": true,
-      "standalone_ok": false,
-      "depends": [
-        "bridge.scaleStyleProfiles",
-        "bridge.suggestScaleWidth",
-        "bridge.applyScaleWidth"
-      ],
-      "verify": {
-        "standalone": "",
-        "integrated": "instruction op=list →skills[]に id=scale-line-width & builtin、op=read→title/desc/when+本文"
-      },
-      "last_result": "removed",
-      "last_verified": "2026-11-14T06:38:42+09:00",
-      "note": "実QGIS(pid28736)の instruction op=list/read で builtin=true・title/desc/when 正解・本文取得を確認済"
-    },
-    {
-      "id": "ai.skill.webgis-convert",
-      "kind": "ai_integration",
-      "name": "同梱スキル webgis-convert",
-      "source": "geo_webview/skills/webgis-convert.md",
-      "signature": "",
-      "summary": "WebGIS(KASUGAI Canvas)向け形式変換・レイヤ追加の手順書。モデルが ai_read_instruction で読む",
-      "needs_runtime": true,
-      "standalone_ok": false,
-      "depends": [],
-      "verify": {
-        "standalone": "",
-        "integrated": "ai_list_instructions→skills[]に id=webgis-convert & builtin、ai_read_instruction→title/desc/when+本文"
-      },
-      "last_result": "removed",
-      "last_verified": "2026-11-14T16:00:00+09:00",
-      "note": "実QGIS(pid28736)の instruction op=list で builtin=true・title/desc/when 正解を確認済 / v?:geo_webview/skills/へ移動(プラグイン別同梱対応後も list で正常検出を再確認)"
-    },
-    {
-      "id": "ai.skill.webgis-import",
-      "kind": "ai_integration",
-      "name": "同梱スキル webgis-import",
-      "source": "geo_webview/skills/webgis-import.md",
-      "signature": "",
-      "summary": "既存WebGIS(.kasc+DATA/・XYZ/WMS/WFS/MapLibre等)のQGIS取り込み手順書。モデルが ai_read_instruction で読む",
-      "needs_runtime": true,
-      "standalone_ok": false,
-      "depends": [
-        "geo_webview bridge.kascInspect",
-        "geo_webview bridge.kascImport",
-        "geo_webview bridge.kasugaiExport"
-      ],
-      "verify": {
-        "standalone": "",
-        "integrated": "instruction op=list →skills[]に id=webgis-import & builtin、op=read→title/desc/when+本文"
-      },
-      "last_result": "removed",
-      "last_verified": "2026-11-14T06:55:00+09:00",
-      "note": "実QGIS(pid28736)の instruction op=list で builtin=true 検出(geo_webview同梱の集約経由)。実体は geo_webview 4.14.0 の kascImport/kascInspect bridge"
     },
     {
       "id": "logic_fn.ai_client.py:agents_dir",
       "kind": "logic_fn",
       "name": "agents_dir",
-      "source": "ai_client.py:1401",
+      "source": "ai_client.py:1443",
       "signature": "agents_dir()",
       "summary": "",
       "needs_runtime": true,
@@ -1372,14 +1272,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:anthropic_content",
       "kind": "logic_fn",
       "name": "anthropic_content",
-      "source": "ai_client.py:1148",
+      "source": "ai_client.py:1190",
       "signature": "anthropic_content(text, image_paths)",
       "summary": "テキスト+画像パス列をAnthropicのcontentにする。",
       "needs_runtime": true,
@@ -1390,14 +1290,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:anthropic_headers",
       "kind": "logic_fn",
       "name": "anthropic_headers",
-      "source": "ai_client.py:1114",
+      "source": "ai_client.py:1156",
       "signature": "anthropic_headers(api_key)",
       "summary": "Messages APIの認証ヘッダ。",
       "needs_runtime": true,
@@ -1408,14 +1308,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:anthropic_image_part",
       "kind": "logic_fn",
       "name": "anthropic_image_part",
-      "source": "ai_client.py:1137",
+      "source": "ai_client.py:1179",
       "signature": "anthropic_image_part(path)",
       "summary": "PNGファイル→Anthropicのimageブロック(読めなければNone)。",
       "needs_runtime": true,
@@ -1426,14 +1326,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:anthropic_messages",
       "kind": "logic_fn",
       "name": "anthropic_messages",
-      "source": "ai_client.py:1161",
+      "source": "ai_client.py:1203",
       "signature": "anthropic_messages(base, api_key, model, system, messages, tools=…, timeout=…, extra=…)",
       "summary": "POST {base}/v1/messages (非ストリーミング)して応答JSONを返す。",
       "needs_runtime": true,
@@ -1444,14 +1344,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:anthropic_messages_url",
       "kind": "logic_fn",
       "name": "anthropic_messages_url",
-      "source": "ai_client.py:1104",
+      "source": "ai_client.py:1146",
       "signature": "anthropic_messages_url(base)",
       "summary": "messagesのPOST先URL。",
       "needs_runtime": true,
@@ -1462,14 +1362,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:anthropic_models_url",
       "kind": "logic_fn",
       "name": "anthropic_models_url",
-      "source": "ai_client.py:1109",
+      "source": "ai_client.py:1151",
       "signature": "anthropic_models_url(base)",
       "summary": "models一覧のGET先URL。",
       "needs_runtime": true,
@@ -1480,14 +1380,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:anthropic_tools",
       "kind": "logic_fn",
       "name": "anthropic_tools",
-      "source": "ai_client.py:1122",
+      "source": "ai_client.py:1164",
       "signature": "anthropic_tools(allowed=…)",
       "summary": "mcp_http.TOOLS + INSTRUCTION_TOOLS + 外部MCPツールを",
       "needs_runtime": true,
@@ -1498,14 +1398,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:attachment_temp_path",
       "kind": "logic_fn",
       "name": "attachment_temp_path",
-      "source": "ai_client.py:1288",
+      "source": "ai_client.py:1330",
       "signature": "attachment_temp_path()",
       "summary": "チャット入力に添付された画像の保存先(PNGに正規化して書く)。",
       "needs_runtime": true,
@@ -1516,14 +1416,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:azure_chat_url",
       "kind": "logic_fn",
       "name": "azure_chat_url",
-      "source": "ai_client.py:1183",
+      "source": "ai_client.py:1225",
       "signature": "azure_chat_url(base)",
       "summary": "Azureのbase(deploymentsパス)をchat/completionsのPOST先URLにする。",
       "needs_runtime": true,
@@ -1534,14 +1434,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:azure_resource_url",
       "kind": "logic_fn",
       "name": "azure_resource_url",
-      "source": "ai_client.py:1203",
+      "source": "ai_client.py:1245",
       "signature": "azure_resource_url(base, tail)",
       "summary": "{scheme}://{host}/openai/<tail>?api-version=… を作る。",
       "needs_runtime": true,
@@ -1552,14 +1452,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:chat_completions",
       "kind": "logic_fn",
       "name": "chat_completions",
-      "source": "ai_client.py:812",
+      "source": "ai_client.py:852",
       "signature": "chat_completions(base, api_key, model, messages, tools=…, timeout=…, extra=…, headers=…)",
       "summary": "POST {base}/chat/completions (非ストリーミング)して応答JSONを返す。",
       "needs_runtime": true,
@@ -1570,14 +1470,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:classify_model",
       "kind": "logic_fn",
       "name": "classify_model",
-      "source": "ai_client.py:353",
+      "source": "ai_client.py:387",
       "signature": "classify_model(model_id, entry=…)",
       "summary": "モデルID(+APIのメタ情報)から種別を推定する。",
       "needs_runtime": true,
@@ -1588,14 +1488,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:close_acp_sessions",
       "kind": "logic_fn",
       "name": "close_acp_sessions",
-      "source": "ai_client.py:2946",
+      "source": "ai_client.py:2988",
       "signature": "close_acp_sessions()",
       "summary": "devin_acp で開いた全セッションを閉じる(パネル破棄時)。",
       "needs_runtime": true,
@@ -1606,14 +1506,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:command_from_tool_call",
       "kind": "logic_fn",
       "name": "command_from_tool_call",
-      "source": "ai_client.py:1262",
+      "source": "ai_client.py:1304",
       "signature": "command_from_tool_call(tc)",
       "summary": "OpenAI tool_callオブジェクト → (name, ドライバcmd)。",
       "needs_runtime": true,
@@ -1624,14 +1524,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:copilot_session",
       "kind": "logic_fn",
       "name": "copilot_session",
-      "source": "ai_client.py:676",
+      "source": "ai_client.py:716",
       "signature": "copilot_session(github_token, base)",
       "summary": "GitHubトークン → (Copilot APIのBearerトークン, API base) に解決する。",
       "needs_runtime": true,
@@ -1642,14 +1542,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:delete_agent",
       "kind": "logic_fn",
       "name": "delete_agent",
-      "source": "ai_client.py:1632",
+      "source": "ai_client.py:1674",
       "signature": "delete_agent(agent_id)",
       "summary": "ユーザ側のエージェントファイルを消す(bundledは消せない)。",
       "needs_runtime": true,
@@ -1660,14 +1560,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:delete_instruction",
       "kind": "logic_fn",
       "name": "delete_instruction",
-      "source": "ai_client.py:1642",
+      "source": "ai_client.py:1684",
       "signature": "delete_instruction(kind, item_id)",
       "summary": "ユーザ側の <kind>/<id>.md を消す(bundledは消せない)。",
       "needs_runtime": true,
@@ -1678,14 +1578,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:delete_skill",
       "kind": "logic_fn",
       "name": "delete_skill",
-      "source": "ai_client.py:1637",
+      "source": "ai_client.py:1679",
       "signature": "delete_skill(skill_id)",
       "summary": "ユーザ側のスキルファイルを消す(bundledは消せない)。",
       "needs_runtime": true,
@@ -1696,14 +1596,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:endpoint_url",
       "kind": "logic_fn",
       "name": "endpoint_url",
-      "source": "ai_client.py:775",
+      "source": "ai_client.py:815",
       "signature": "endpoint_url(base)",
       "summary": "base URLをchat/completionsのPOST先に正規化する。",
       "needs_runtime": true,
@@ -1714,14 +1614,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:fmt_tokens",
       "kind": "logic_fn",
       "name": "fmt_tokens",
-      "source": "ai_client.py:395",
+      "source": "ai_client.py:429",
       "signature": "fmt_tokens(n)",
       "summary": "トークン数を短縮表記に (128000→\"128k\", 1048576→\"1.0M\")。",
       "needs_runtime": true,
@@ -1732,14 +1632,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:gemini_generate",
       "kind": "logic_fn",
       "name": "gemini_generate",
-      "source": "ai_client.py:1068",
+      "source": "ai_client.py:1110",
       "signature": "gemini_generate(base, api_key, model, system, contents, tools=…, timeout=…, extra=…)",
       "summary": "POST {base}/models/{model}:generateContent して応答JSONを返す。",
       "needs_runtime": true,
@@ -1750,14 +1650,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:gemini_models_url",
       "kind": "logic_fn",
       "name": "gemini_models_url",
-      "source": "ai_client.py:1017",
+      "source": "ai_client.py:1059",
       "signature": "gemini_models_url(base)",
       "summary": "base URLをmodels一覧のGET先に正規化する。",
       "needs_runtime": true,
@@ -1768,14 +1668,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:gemini_tools",
       "kind": "logic_fn",
       "name": "gemini_tools",
-      "source": "ai_client.py:1043",
+      "source": "ai_client.py:1085",
       "signature": "gemini_tools(allowed=…)",
       "summary": "mcp_http.TOOLS + INSTRUCTION_TOOLS + 外部MCPツールを",
       "needs_runtime": true,
@@ -1786,14 +1686,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:gemini_url",
       "kind": "logic_fn",
       "name": "gemini_url",
-      "source": "ai_client.py:1058",
+      "source": "ai_client.py:1100",
       "signature": "gemini_url(base, model)",
       "summary": "generateContentのPOST先URL。",
       "needs_runtime": true,
@@ -1804,14 +1704,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:get_provider",
       "kind": "logic_fn",
       "name": "get_provider",
-      "source": "ai_client.py:3121",
+      "source": "ai_client.py:3298",
       "signature": "get_provider(provider)",
       "summary": "プロバイダID → プロバイダインスタンス。",
       "needs_runtime": true,
@@ -1822,14 +1722,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:github_device_code",
       "kind": "logic_fn",
       "name": "github_device_code",
-      "source": "ai_client.py:736",
+      "source": "ai_client.py:776",
       "signature": "github_device_code(scope=…)",
       "summary": "OAuthデバイスフローを開始する。",
       "needs_runtime": true,
@@ -1840,14 +1740,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:github_poll_access_token",
       "kind": "logic_fn",
       "name": "github_poll_access_token",
-      "source": "ai_client.py:750",
+      "source": "ai_client.py:790",
       "signature": "github_poll_access_token(device_code)",
       "summary": "デバイスフローのトークンを1回ポーリングする。",
       "needs_runtime": true,
@@ -1858,14 +1758,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:image_b64",
       "kind": "logic_fn",
       "name": "image_b64",
-      "source": "ai_client.py:1294",
+      "source": "ai_client.py:1336",
       "signature": "image_b64(path)",
       "summary": "PNGファイルをbase64文字列にする(読めなければNone)。",
       "needs_runtime": true,
@@ -1876,14 +1776,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:image_inline_part",
       "kind": "logic_fn",
       "name": "image_inline_part",
-      "source": "ai_client.py:1312",
+      "source": "ai_client.py:1354",
       "signature": "image_inline_part(path)",
       "summary": "PNGファイル→GeminiのinlineDataパート(読めなければNone)。",
       "needs_runtime": true,
@@ -1894,14 +1794,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:image_message_content",
       "kind": "logic_fn",
       "name": "image_message_content",
-      "source": "ai_client.py:1334",
+      "source": "ai_client.py:1376",
       "signature": "image_message_content(path, note=…)",
       "summary": "PNGファイルをOpenAI vision用のcontent配列にする(読めなければNone)。",
       "needs_runtime": true,
@@ -1912,14 +1812,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:image_url_part",
       "kind": "logic_fn",
       "name": "image_url_part",
-      "source": "ai_client.py:1303",
+      "source": "ai_client.py:1345",
       "signature": "image_url_part(path)",
       "summary": "PNGファイル→OpenAIのimage_urlパート(読めなければNone)。",
       "needs_runtime": true,
@@ -1930,14 +1830,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:list_agents",
       "kind": "logic_fn",
       "name": "list_agents",
-      "source": "ai_client.py:1511",
+      "source": "ai_client.py:1553",
       "signature": "list_agents()",
       "summary": "利用可能なエージェント指示書一覧。",
       "needs_runtime": true,
@@ -1948,14 +1848,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:list_instruction_files",
       "kind": "logic_fn",
       "name": "list_instruction_files",
-      "source": "ai_client.py:1486",
+      "source": "ai_client.py:1528",
       "signature": "list_instruction_files(kind)",
       "summary": "\"agents\"|\"skills\" の .md を走査する。",
       "needs_runtime": true,
@@ -1966,14 +1866,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:list_model_infos",
       "kind": "logic_fn",
       "name": "list_model_infos",
-      "source": "ai_client.py:3134",
+      "source": "ai_client.py:3311",
       "signature": "list_model_infos(provider, base, key, timeout=…)",
       "summary": "モデル一覧をメタ情報付きで返す。",
       "needs_runtime": true,
@@ -1984,14 +1884,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:list_models",
       "kind": "logic_fn",
       "name": "list_models",
-      "source": "ai_client.py:3129",
+      "source": "ai_client.py:3306",
       "signature": "list_models(provider, base, key, timeout=…)",
       "summary": "プロバイダのエンドポイントから利用可能なモデルID一覧を返す。",
       "needs_runtime": true,
@@ -2002,14 +1902,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:list_prompts",
       "kind": "logic_fn",
       "name": "list_prompts",
-      "source": "ai_client.py:1521",
+      "source": "ai_client.py:1563",
       "signature": "list_prompts()",
       "summary": "おすすめプロンプト一覧(チャット入力欄へ挿入する定型文)。",
       "needs_runtime": true,
@@ -2020,14 +1920,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:list_skills",
       "kind": "logic_fn",
       "name": "list_skills",
-      "source": "ai_client.py:1516",
+      "source": "ai_client.py:1558",
       "signature": "list_skills()",
       "summary": "利用可能なスキル手順書一覧。",
       "needs_runtime": true,
@@ -2038,14 +1938,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:load_agent",
       "kind": "logic_fn",
       "name": "load_agent",
-      "source": "ai_client.py:1587",
+      "source": "ai_client.py:1629",
       "signature": "load_agent(agent_id)",
       "summary": "エージェントid → 指示テキスト。未指定/未存在はNone。",
       "needs_runtime": true,
@@ -2056,14 +1956,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:load_instruction",
       "kind": "logic_fn",
       "name": "load_instruction",
-      "source": "ai_client.py:1592",
+      "source": "ai_client.py:1634",
       "signature": "load_instruction(kind, item_id)",
       "summary": "kind(\"agents\"|\"skills\")のid → 本文。未指定/未存在はNone。",
       "needs_runtime": true,
@@ -2074,14 +1974,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:mcp_config_path",
       "kind": "logic_fn",
       "name": "mcp_config_path",
-      "source": "ai_client.py:1802",
+      "source": "ai_client.py:1844",
       "signature": "mcp_config_path()",
       "summary": "外部MCPサーバの設定ファイル。",
       "needs_runtime": true,
@@ -2092,14 +1992,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:mcp_discover",
       "kind": "logic_fn",
       "name": "mcp_discover",
-      "source": "ai_client.py:2420",
+      "source": "ai_client.py:2462",
       "signature": "mcp_discover(timeout=…, on_status=…, is_aborted=…)",
       "summary": "設定ファイルの全MCPサーバへ接続しツール一覧を集約する。",
       "needs_runtime": true,
@@ -2110,14 +2010,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:mcp_save_config",
       "kind": "logic_fn",
       "name": "mcp_save_config",
-      "source": "ai_client.py:1881",
+      "source": "ai_client.py:1923",
       "signature": "mcp_save_config(text)",
       "summary": "設定JSONテキストを検証して mcp_servers.json へ保存する。",
       "needs_runtime": true,
@@ -2128,14 +2028,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:mcp_servers_config",
       "kind": "logic_fn",
       "name": "mcp_servers_config",
-      "source": "ai_client.py:1865",
+      "source": "ai_client.py:1907",
       "signature": "mcp_servers_config()",
       "summary": "mcp_servers.json を読み {name: {command|url, ...}} を返す。",
       "needs_runtime": true,
@@ -2146,14 +2046,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:model_info",
       "kind": "logic_fn",
       "name": "model_info",
-      "source": "ai_client.py:455",
+      "source": "ai_client.py:489",
       "signature": "model_info(entry)",
       "summary": "list_model_entries()の1要素 → {id, kind, price, price_desc,",
       "needs_runtime": true,
@@ -2164,14 +2064,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:model_label",
       "kind": "logic_fn",
       "name": "model_label",
-      "source": "ai_client.py:513",
+      "source": "ai_client.py:547",
       "signature": "model_label(info)",
       "summary": "コンボの表示テキスト。価格があれば 'id   $in/$out' 形式。",
       "needs_runtime": true,
@@ -2182,14 +2082,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:model_tooltip",
       "kind": "logic_fn",
       "name": "model_tooltip",
-      "source": "ai_client.py:519",
+      "source": "ai_client.py:553",
       "signature": "model_tooltip(info)",
       "summary": "コンボ項目のツールチップ(複数行)。",
       "needs_runtime": true,
@@ -2200,14 +2100,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:openai_models_url",
       "kind": "logic_fn",
       "name": "openai_models_url",
-      "source": "ai_client.py:765",
+      "source": "ai_client.py:805",
       "signature": "openai_models_url(base)",
       "summary": "base URLをmodels一覧のGET先に正規化する。",
       "needs_runtime": true,
@@ -2218,14 +2118,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:openai_msgs_to_responses_input",
       "kind": "logic_fn",
       "name": "openai_msgs_to_responses_input",
-      "source": "ai_client.py:897",
+      "source": "ai_client.py:937",
       "signature": "openai_msgs_to_responses_input(msgs)",
       "summary": "OpenAI chat形式msgs → (instructions, Responses API input items)。",
       "needs_runtime": true,
@@ -2236,14 +2136,14 @@
         "integrated": "pyeval で属性実在+変換往復確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:openai_tools",
       "kind": "logic_fn",
       "name": "openai_tools",
-      "source": "ai_client.py:794",
+      "source": "ai_client.py:834",
       "signature": "openai_tools(allowed=…)",
       "summary": "mcp_http.TOOLS + INSTRUCTION_TOOLS + 外部MCPツールを",
       "needs_runtime": true,
@@ -2254,14 +2154,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:parse_responses_output",
       "kind": "logic_fn",
       "name": "parse_responses_output",
-      "source": "ai_client.py:965",
+      "source": "ai_client.py:1005",
       "signature": "parse_responses_output(data)",
       "summary": "Responses API応答 → parse()と同じ {\"text\",\"calls\",\"raw\",\"usage\"}。",
       "needs_runtime": true,
@@ -2272,14 +2172,14 @@
         "integrated": "pyeval で属性実在+正規化確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:parse_tool_arguments",
       "kind": "logic_fn",
       "name": "parse_tool_arguments",
-      "source": "ai_client.py:1251",
+      "source": "ai_client.py:1293",
       "signature": "parse_tool_arguments(raw)",
       "summary": "tool_callのarguments(JSON文字列)をdictにする。",
       "needs_runtime": true,
@@ -2290,14 +2190,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:parse_usage",
       "kind": "logic_fn",
       "name": "parse_usage",
-      "source": "ai_client.py:485",
+      "source": "ai_client.py:519",
       "signature": "parse_usage(data)",
       "summary": "API応答のusage → {\"in\",\"out\"}|None に正規化する。",
       "needs_runtime": true,
@@ -2308,14 +2208,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:prompt_body",
       "kind": "logic_fn",
       "name": "prompt_body",
-      "source": "ai_client.py:1566",
+      "source": "ai_client.py:1608",
       "signature": "prompt_body(item_id)",
       "summary": "prompts の id → 入力欄へ挿入する本文。未指定/未存在はNone。",
       "needs_runtime": true,
@@ -2326,14 +2226,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:prompts_dir",
       "kind": "logic_fn",
       "name": "prompts_dir",
-      "source": "ai_client.py:1409",
+      "source": "ai_client.py:1451",
       "signature": "prompts_dir()",
       "summary": "",
       "needs_runtime": true,
@@ -2344,14 +2244,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:provider_defaults",
       "kind": "logic_fn",
       "name": "provider_defaults",
-      "source": "ai_client.py:586",
+      "source": "ai_client.py:626",
       "signature": "provider_defaults(provider)",
       "summary": "プロバイダID → {\"base\",\"model\",\"label\",\"key_hint\",\"endpoint_hint\"}",
       "needs_runtime": true,
@@ -2362,14 +2262,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:reply_to_text",
       "kind": "logic_fn",
       "name": "reply_to_text",
-      "source": "ai_client.py:1270",
+      "source": "ai_client.py:1312",
       "signature": "reply_to_text(rep)",
       "summary": "ドライバのreply dictをツール結果テキストにする。",
       "needs_runtime": true,
@@ -2380,14 +2280,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:responses_create",
       "kind": "logic_fn",
       "name": "responses_create",
-      "source": "ai_client.py:938",
+      "source": "ai_client.py:978",
       "signature": "responses_create(base, api_key, model, msgs, tools=…, timeout=…, extra=…, headers=…)",
       "summary": "POST {base}/responses (非ストリーミング)して応答JSONを返す。",
       "needs_runtime": true,
@@ -2398,14 +2298,14 @@
         "integrated": "pyeval/bridge でQGIS内import確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:responses_tools",
       "kind": "logic_fn",
       "name": "responses_tools",
-      "source": "ai_client.py:841",
+      "source": "ai_client.py:881",
       "signature": "responses_tools(tools)",
       "summary": "OpenAI function calling形式 → Responses APIのtools形式。",
       "needs_runtime": true,
@@ -2416,14 +2316,14 @@
         "integrated": "pyeval で属性実在+変換往復確認"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:run_extra_tool",
       "kind": "logic_fn",
       "name": "run_extra_tool",
-      "source": "ai_client.py:2471",
+      "source": "ai_client.py:2513",
       "signature": "run_extra_tool(name, args)",
       "summary": "外部MCPツールを実行してテキストを返す。",
       "needs_runtime": true,
@@ -2434,14 +2334,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:run_instruction_tool",
       "kind": "logic_fn",
       "name": "run_instruction_tool",
-      "source": "ai_client.py:1745",
+      "source": "ai_client.py:1787",
       "signature": "run_instruction_tool(name, args)",
       "summary": "ai_* ツールを実行して結果テキストを返す(パネルローカル実行)。",
       "needs_runtime": true,
@@ -2452,14 +2352,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:save_agent",
       "kind": "logic_fn",
       "name": "save_agent",
-      "source": "ai_client.py:1606",
+      "source": "ai_client.py:1648",
       "signature": "save_agent(name, text)",
       "summary": "ユーザの agents/ に <name>.md として保存しパスを返す。",
       "needs_runtime": true,
@@ -2470,14 +2370,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:save_instruction",
       "kind": "logic_fn",
       "name": "save_instruction",
-      "source": "ai_client.py:1616",
+      "source": "ai_client.py:1658",
       "signature": "save_instruction(kind, name, text)",
       "summary": "ユーザの <kind>/ に <name>.md として保存しパスを返す。",
       "needs_runtime": true,
@@ -2488,14 +2388,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:save_skill",
       "kind": "logic_fn",
       "name": "save_skill",
-      "source": "ai_client.py:1611",
+      "source": "ai_client.py:1653",
       "signature": "save_skill(name, text)",
       "summary": "ユーザの skills/ に <name>.md として保存しパスを返す。",
       "needs_runtime": true,
@@ -2506,14 +2406,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:screenshot_temp_path",
       "kind": "logic_fn",
       "name": "screenshot_temp_path",
-      "source": "ai_client.py:1283",
+      "source": "ai_client.py:1325",
       "signature": "screenshot_temp_path()",
       "summary": "",
       "needs_runtime": true,
@@ -2524,14 +2424,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:skills_dir",
       "kind": "logic_fn",
       "name": "skills_dir",
-      "source": "ai_client.py:1405",
+      "source": "ai_client.py:1447",
       "signature": "skills_dir()",
       "summary": "",
       "needs_runtime": true,
@@ -2542,14 +2442,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:system_prompt",
       "kind": "logic_fn",
       "name": "system_prompt",
-      "source": "ai_client.py:1343",
+      "source": "ai_client.py:1385",
       "signature": "system_prompt(plugins=…, agent_text=…, skills=…, agents=…, active_agent=…)",
       "summary": "システムプロンプトを組み立てる。",
       "needs_runtime": true,
@@ -2560,14 +2460,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:tool_to_command",
       "kind": "logic_fn",
       "name": "tool_to_command",
-      "source": "ai_client.py:1224",
+      "source": "ai_client.py:1266",
       "signature": "tool_to_command(name, args)",
       "summary": "ツール呼び出し(qgis_<type>)をドライバのコマンドdictに変換する。",
       "needs_runtime": true,
@@ -2578,7 +2478,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2596,14 +2496,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:trim_history",
       "kind": "logic_fn",
       "name": "trim_history",
-      "source": "ai_client.py:1237",
+      "source": "ai_client.py:1279",
       "signature": "trim_history(history, max_chars=…)",
       "summary": "会話履歴を max_chars 以内にする。古いターンから落とし、",
       "needs_runtime": true,
@@ -2614,14 +2514,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:usage_cost",
       "kind": "logic_fn",
       "name": "usage_cost",
-      "source": "ai_client.py:473",
+      "source": "ai_client.py:507",
       "signature": "usage_cost(info, total)",
       "summary": "model_info + 累計usage {\"in\",\"out\"} → 推定コストUSD|None。",
       "needs_runtime": true,
@@ -2632,14 +2532,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_client.py:user_content",
       "kind": "logic_fn",
       "name": "user_content",
-      "source": "ai_client.py:1320",
+      "source": "ai_client.py:1362",
       "signature": "user_content(text, image_paths)",
       "summary": "ユーザ入力(テキスト+画像パス列)をOpenAIのcontentにする。",
       "needs_runtime": true,
@@ -2650,14 +2550,14 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
       "id": "logic_fn.ai_panel.py:show_panel",
       "kind": "logic_fn",
       "name": "show_panel",
-      "source": "ai_panel.py:2298",
+      "source": "ai_panel.py:2312",
       "signature": "show_panel(iface, get_driver, panel)",
       "summary": "ドックを(必要なら生成して)表示し、インスタンスを返す。",
       "needs_runtime": true,
@@ -2668,7 +2568,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2686,7 +2586,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2704,7 +2604,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2722,7 +2622,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2740,7 +2640,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2758,7 +2658,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2776,7 +2676,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2794,7 +2694,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2812,7 +2712,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2830,7 +2730,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2848,7 +2748,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2866,7 +2766,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2884,7 +2784,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -2902,7 +2802,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2920,7 +2820,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2938,7 +2838,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2956,7 +2856,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2974,7 +2874,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -2992,7 +2892,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3010,7 +2910,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3028,7 +2928,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3046,7 +2946,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3064,7 +2964,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3082,7 +2982,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -3100,7 +3000,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "standalone import+attr実在"
     },
     {
@@ -3118,7 +3018,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3136,7 +3036,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3154,7 +3054,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3172,7 +3072,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3190,7 +3090,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3208,7 +3108,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3226,7 +3126,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3244,7 +3144,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3262,7 +3162,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3280,7 +3180,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3298,7 +3198,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3316,7 +3216,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3334,7 +3234,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3352,7 +3252,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3370,7 +3270,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     },
     {
@@ -3388,7 +3288,7 @@
         "integrated": "pyeval で属性実在+必要なら呼出"
       },
       "last_result": "pass",
-      "last_verified": "2026-11-14T07:09:57+09:00",
+      "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
     }
   ],
@@ -3405,7 +3305,7 @@
       "rc": 0,
       "out": "[main]\tINFO\tUsing ini file for skipped tests\n[main]\tINFO\tUsing command line arg for selected targets"
     },
-    "ran_at": "2026-11-14T07:09:57+09:00",
+    "ran_at": "2026-11-15T22:33:28+09:00",
     "reload": "skipped(制御チャンネル自身)"
   }
 }
