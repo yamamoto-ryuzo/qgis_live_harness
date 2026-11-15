@@ -3,6 +3,19 @@
 バージョン表記: VA.B.C
 - 例: V2.0.0（A=2, B=0, C=0）
 
+## V2.10.0 出力前レイアウトプレビュー(issue #13)
+- bridge.py: `previewLayout(layout=None, format="png"|"pdf"|"svg", dpi,
+  path, includeBase64)` を追加。QgsLayoutExporter で一時描画し
+  生成ファイルのパス一覧(複数ページ対応)を返す。`includeBase64` で
+  PNG先頭ページのbase64も返せる
+- bridge.py: `previewThumbnails(layouts=None, dpi=50)` を追加。
+  全(または指定)レイアウトのサムネイルPNGを一括生成し
+  レイアウト名→ファイルの一覧を返す(テンプレート一括適用後の
+  簡易プレビューグリッド相当)
+- plugin.py: パネルに「Preview Layout」ボタンを追加。
+  選択中レイアウトをPNGへ一時描画しプレビューダイアログを表示
+  (複数ページはコンボボックスで切替)
+
 ## V2.9.8 bridge createLayout の TypeError を修正
 - bridge.py: `QgsLayoutManager.generateUniqueTitle` はレイアウト名ではなく
   レイアウト種別 enum を取るため QGIS4 で TypeError になっていた。

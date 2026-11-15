@@ -1,7 +1,7 @@
 {
   "component": "geo_report",
   "component_type": "qgis_plugin",
-  "version": "2.9.8",
+  "version": "2.10.0",
   "driver": {
     "type": "qgis_live_harness",
     "detect": "GET http://127.0.0.1:<http_port>/api/health",
@@ -10,7 +10,7 @@
     "control": "POST /api/cmd Bearer <live_dir token>",
     "detected_from": "scripts/qgis-session.mjs, live_driver.py"
   },
-  "updated": "2026-11-15T22:33:28+09:00",
+  "updated": "2026-11-16T02:57:02+09:00",
   "features": [
     {
       "id": "entry_point.__init__.py:classFactory",
@@ -857,6 +857,48 @@
       "last_result": "pass",
       "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
+    },
+    {
+      "id": "bridge.previewLayout",
+      "kind": "bridge_method",
+      "name": "previewLayout",
+      "source": "bridge.py",
+      "signature": "previewLayout(layout=None, format='png', dpi=None, path=None, includeBase64=False)",
+      "summary": "QgsLayoutExporter でレイアウトを一時描画し生成ファイル(png/pdf/svg)のパス一覧を返す",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [
+        "QGISプラグインロード",
+        "geo_driver"
+      ],
+      "verify": {
+        "standalone": "",
+        "integrated": "bridge_call listLayouts → 応答assert"
+      },
+      "last_result": "pass",
+      "last_verified": "2026-11-16T02:57:02+09:00",
+      "note": "bridge_call previewLayout[0,'png']/['AI凡例','pdf'] でPNG/PDF生成確認(実QGIS)"
+    },
+    {
+      "id": "bridge.previewThumbnails",
+      "kind": "bridge_method",
+      "name": "previewThumbnails",
+      "source": "bridge.py",
+      "signature": "previewThumbnails(layouts=None, dpi=50)",
+      "summary": "全(または指定)レイアウトのサムネイルPNGを一括生成しパス一覧を返す",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [
+        "QGISプラグインロード",
+        "geo_driver"
+      ],
+      "verify": {
+        "standalone": "",
+        "integrated": "bridge_call listLayouts → 応答assert"
+      },
+      "last_result": "pass",
+      "last_verified": "2026-11-16T02:57:02+09:00",
+      "note": "bridge_call previewThumbnails[] で3レイアウト分のPNG生成確認(実QGIS)"
     }
   ],
   "static": {
