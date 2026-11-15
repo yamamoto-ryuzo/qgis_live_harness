@@ -1,7 +1,20 @@
 # 変更履歴(Changelog)
 
-## Unreleased
+## 4.15.0
 
+- **Re:Earth CMS 連携を追加**(`reearth_cms.py` 新設、Issue #11)。
+  Integration API(`https://api.cms.reearth.io/api`)を使い、
+  ベクタレイヤを CMS アイテムとして登録(Phase 1)し、
+  `.kasc`+`DATA/` 出力物を ZIP 化して CMS アセットとして
+  アップロード・公開(Phase 2、assets.cms.reearth.io 公開URL取得)できる。
+  bridge メソッド: `cmsStatus`/`cmsSettings`/`cmsSchema`/
+  `cmsRegisterLayer`(属性→フィールドkey マッピングは同名自動対応＋
+  dict 指定。`geometry_key` で地物ジオメトリを EPSG:4326 GeoJSON
+  geometry として格納、`publish` で即公開)/`cmsUploadKasc`。
+  インテグレーショントークンは環境変数 `REEARTH_CMS_TOKEN` 優先、
+  未設定時は QSettings `reearth_cms_token`。bridge はトークン値を
+  返さない(リポジトリへのコミット禁止)。読み取り側(CMSアイテムの
+  レイヤ読み込み等)は kasugai_canvas#132 が担う
 - **`ogrsql:` 行タイプの取り込みに対応**(`kasc_import.py`)。
   Canvas 側で新設された OGR SQL SELECT 行(`ogrsql:タイトル|SELECT ...`)を
   QGIS 側でもネイティブに復元する。`ogr.ExecuteSQL(dialect="OGRSQL")` を

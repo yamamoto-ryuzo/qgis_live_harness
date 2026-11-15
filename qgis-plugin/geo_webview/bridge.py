@@ -83,6 +83,8 @@ class GeoWebViewBridge:
         "プロジェクトのマップテーマ/ブックマークを一覧・適用したい",
         "QGISキャンバスを /present・/screenshot で画面共有したい",
         "既存の .kasc+DATA/(WebGISプロジェクト)をQGISへ取り込みたい",
+        "QGISのレイヤを Re:Earth CMS のアイテムとして登録したい",
+        ".kasc+DATA/ 出力物を Re:Earth CMS アセットで公開したい",
     ]
     METHOD_DOCS = {
         "status": {
@@ -244,6 +246,43 @@ class GeoWebViewBridge:
             "example": {"method": "kascImport",
                         "args": [{"source":
                                   "C:/export/kasugai_canvas.kasc"}]},
+        },
+        "cmsStatus": {
+            "description":
+                "Re:Earth CMS 接続設定の状態(トークン値は含まない)を返す。",
+            "example": {"method": "cmsStatus", "args": []},
+        },
+        "cmsSettings": {
+            "description":
+                "Re:Earth CMS 接続設定(base_url/workspace/project/model/"
+                "token)を保存する。token は環境変数 REEARTH_CMS_TOKEN が"
+                "優先され、リポジトリへコミット禁止。",
+            "example": {"method": "cmsSettings",
+                        "args": [{"workspace": "myws",
+                                  "project": "myproj",
+                                  "model": "mymodel"}]},
+        },
+        "cmsSchema": {
+            "description":
+                "接続先モデルのスキーマ(フィールド定義)を返す。",
+            "example": {"method": "cmsSchema", "args": []},
+        },
+        "cmsRegisterLayer": {
+            "description":
+                "ベクタレイヤを CMS アイテムとして登録する。"
+                "mapping={属性名:フィールドkey}(省略は同名自動対応)、"
+                "geometry_key 指定で地物ジオメトリ(4326)を格納、"
+                "publish=True で即公開。",
+            "example": {"method": "cmsRegisterLayer",
+                        "args": [{"layer_name": "roads",
+                                  "geometry_key": "location",
+                                  "publish": True}]},
+        },
+        "cmsUploadKasc": {
+            "description":
+                ".kasc+DATA/ 出力物を ZIP 化して CMS アセットとして"
+                "アップロード・公開し assets.cms.reearth.io URL を返す。",
+            "example": {"method": "cmsUploadKasc", "args": []},
         },
         "checkAccess": {
             "description":
@@ -1212,6 +1251,101 @@ class GeoWebViewBridge:
             return json.dumps(rep, ensure_ascii=False)
         except Exception as e:
             return self._err(f"kascImport failed: {e}")
+
+    # ---------- Re:Earth CMS 連携(Issue #11) ----------
+
+    def cmsStatus(self):
+        """Re:Earth CMS 接続設定の状態を返す。
+
+        base_url/workspace/project/model/has_token/token_source を返す。
+        トークン値自体は返さない(環境変数 REEARTH_CMS_TOKEN が優先)。
+        """
+        try:
+            from . import reearth_cms
+            return self._ok(reearth_cms.get_settings())
+        except Exception as e:
+            return self._err(f"cmsStatus failed: {e}")
+
+    def cmsSettings(self, settings=None):
+        """Re:Earth CMS 接続設定を保存する。
+
+        settings(dict) 対応キー(未指定キーは変更しない):
+          base_url: Integration API ベースURL
+              (既定 https://api.cms.reearth.io/api)
+          workspace: ワークスペース ID またはエイリアス
+          project: プロジェクト ID またはエイリアス
+          model: モデル ID または key
+          token: インテグレーショントークン(QSettings保存。
+              空文字でクリア。環境変数 REEARTH_CMS_TOKEN 優先)
+        """
+        try:
+            from . import reearth_cms
+            settings = dict(settings or {})
+            allowed = {"base_url", "workspace", "project", "model", "token"}
+            unknown = [k for k in settings if k not in allowed]
+            if unknown:
+                return self._err(f"unknown keys: {unknown} "
+                                 f"(allowed: {sorted(allowed)})")
+            applied = reearth_cms.save_settings(
+                base_url=settings.get("base_url"),
+                workspace=settings.get("workspace"),
+                project=settings.get("project"),
+                model=settings.get("model"),
+                token=settings.get("token"))
+            return self._ok({"applied": applied,
+                             "settings": reearth_cms.get_settings()})
+        except Exception as e:
+            return self._err(f"cmsSettings failed: {e}")
+
+    def cmsSchema(self, model=None):
+        """接続先モデルのスキーマ(フィールド定義)を返す。
+
+        属性名→CMSフィールドkey のマッピング確認用。
+        """
+        try:
+            from . import reearth_cms
+            return self._ok({"schema": reearth_cms.get_schema(model=model)})
+        except Exception as e:
+            return self._err(f"cmsSchema failed: {e}")
+
+    def cmsRegisterLayer(self, layer_name=None, mapping=None,
+                         geometry_key=None, selected_only=False,
+                         publish=False, max_features=500):
+        """ベクタレイヤを Re:Earth CMS アイテムとして登録する。
+
+        layer_name 省略時はアクティブレイヤ。mapping は
+        {属性名: CMSフィールドkey}(省略は同名自動対応、値 None/'' で除外)。
+        geometry_key 指定で地物ジオメトリを GeoJSON geometry として
+        その key の geometry フィールドへ入れる(EPSG:4326へ変換)。
+        publish=True で作成したアイテムを即公開する。
+        max_features(既定500)を超えるフィーチャ数はエラー。
+        """
+        try:
+            from . import reearth_cms
+            rep = reearth_cms.register_layer(
+                layer_name=layer_name, mapping=mapping,
+                geometry_key=geometry_key,
+                selected_only=bool(selected_only),
+                publish=bool(publish),
+                max_features=int(max_features))
+            return self._ok(rep)
+        except Exception as e:
+            return self._err(f"cmsRegisterLayer failed: {e}")
+
+    def cmsUploadKasc(self, export_dir=None, publish=True):
+        """.kasc+DATA/ 出力物を ZIP 化して CMS アセットとして公開する。
+
+        export_dir 省略時は直近の kasugaiExport 出力先を使う。
+        アセット作成→publish まで行い、assets.cms.reearth.io の
+        公開URL(asset.url)を返す。読み取り側は kasugai_canvas#132。
+        """
+        try:
+            from . import reearth_cms
+            rep = reearth_cms.upload_kasc_export(
+                export_dir=export_dir, publish=bool(publish))
+            return self._ok(rep)
+        except Exception as e:
+            return self._err(f"cmsUploadKasc failed: {e}")
 
     # ---------- 診断 / エンドポイント ----------
 
