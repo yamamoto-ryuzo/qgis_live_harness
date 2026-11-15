@@ -1,5 +1,19 @@
 # CHANGELOG — geo_excel
 
+## 1.10.0
+
+- bridge.py: 帳票出力前のドライラン検証 `validateRun(script)` と
+  フィールドマッピング表示 `fieldMapping(script)` を追加。
+  `validateRun` は帳票を出力せずにアクティブレイヤ・win32com・
+  選択地物・必須レイヤ変数(充足と式評価)・テンプレート実在・
+  出力先存在/書込・dpi 妥当性を `checks`/`errors`/`warnings` の
+  構造化リストで返す(`ready` が実行可否)。auto_apply 有効時の
+  未設定変数は実行時に既定値が補われる旨を warning で区別する。
+  `fieldMapping` はテンプレートxlsx内の `##Attach::`/`##ListInsert::`/
+  `##AttachFitImage::` プレースホルダを走査し、レイヤフィールド・
+  式・マップテーマとの対応表と未解決プレースホルダを返す
+  (validateRun の `field_mapping` にも同内容を含む)
+
 ## 1.9.7
 
 - `exportSingleBulk.py` に `check_same_name_opend` を追加
