@@ -1,5 +1,21 @@
 # CHANGELOG — geo_userfunc
 
+## 1.0.8
+
+- **実行履歴**: bridge `run`/`evalExpression` の呼出を関数名・引数・
+  ok/エラー・所要時間(ms)付きで `<profile>/geo_userfunc_history.jsonl`
+  へ記録し、bridge `history(fn, limit)` で新しい順に参照できる
+- **単体テスト実行**: bridge `testFunction(name, cases=[{args,expect}])`
+  で式関数(`name(args...)` の式評価)/マクロ(`context['args']` 経由の
+  main 実行)を複数ケースまとめて実行し pass/fail 表を返す。
+  管理ダイアログに Test/history ペイン(対象名・cases JSON・
+  Run tests/Show history・結果表示)を追加
+- **依存情報**: bridge `dependencies(name)` でライブラリ内ファイルが
+  参照する他プラグイン(`plugins['id'].bridge.m()`・束縛変数経由含む)を
+  AST から抽出し `{plugin_id: {methods:[...]}}` で返す
+- 純粋ロジックは QGIS 非依存の `history.py`(JSONL読書)と
+  `deps.py`(AST抽出)に分離し単体テスト可能にした
+
 ## 1.0.7
 
 - 個別利用時にGeoSuiteツールバーが表示されない不具合を修正。
