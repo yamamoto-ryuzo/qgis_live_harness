@@ -1,3 +1,10 @@
+2.10.12 設定ダイアログのEdit/Clearボタンが潰れて表示される不具合を修正
+- geo_import_dialog_settings.ui: geometry/minimumSizeの高さ470固定を撤廃
+  (最小幅650のみ残し、高さはsizeHintに追従)。QGISアプリスタイルシート等で
+  コンテンツが470pxを超える環境では、縮み代が余白のないwidget_3(ボタン行)に
+  集中してEdit/Clearボタンが0〜数pxに潰れていた
+- IDC_bAuthCfgEdit/IDC_bAuthCfgClearに最小高さ24pxを設定し、ユーザーが
+  ダイアログを縮めた場合も潰れないよう保険を追加
 2.10.11 vendored pyperclip を Qt 標準クリップボードへ置き換え
 - pyperclip/(~600行・PyQt4/5やqtpy等の古い互換層を含む)を削除し、
   QApplication.clipboard() を使う clipboard.py(15行)へ置き換え。
