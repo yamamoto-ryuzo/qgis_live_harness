@@ -47,20 +47,22 @@ OUTPUT_PATH_VARIABLE = "xlsout_output_path_variable"
 DEFAULT_CRS = 30167  # 7系
 
 
-def get_layer_variable(layer_context_name: str, layer: QgsVectorLayer):
+def get_layer_variable(layer_context_name: str, layer: QgsVectorLayer, quiet: bool = False):
     """
     レイヤ変数を取得
 
     Parameters
       layer_context_name -- レイヤ変数名
       layer -- レイヤ
+      quiet -- Trueの場合、変数未定義でもメッセージバーにエラーを表示しない(任意変数向け)
 
     Returns
       定義されている文字列。
-      未定義の場合、メッセージバーにエラーを表示し、空白を返却する。
+      未定義の場合、quietがFalseならメッセージバーにエラーを表示し、空白を返却する。
     """
     if not QgsExpressionContextScope.hasVariable(QgsExpressionContextUtils.layerScope(layer), layer_context_name):
-        iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "{0} is not defined!").format(layer_context_name))
+        if not quiet:
+            iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "{0} is not defined!").format(layer_context_name))
         return ""
 
     return QgsExpressionContextScope.variable(QgsExpressionContextUtils.layerScope(layer), layer_context_name)
@@ -962,7 +964,7 @@ while True:
     excel_result = False
 
     # レイヤー変数からテンプレートパス、出力パス、dpiを取得作成する
-    dpi_raw = get_layer_variable("dpi", layer)
+    dpi_raw = get_layer_variable("dpi", layer, quiet=True)
     if dpi_raw:
         # dpiがレイヤ変数に正しく設定されていたら数値変換する
         if not dpi_raw.isdecimal():

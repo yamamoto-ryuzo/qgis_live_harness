@@ -1,5 +1,13 @@
 # CHANGELOG — geo_excel
 
+## 1.9.6
+
+- 任意レイヤ変数 `dpi` 未設定時にメッセージバーへ critical
+  「dpi is not defined!」が表示される不具合を修正
+  (exportSingle/exportSingleBulk)。`get_layer_variable` に
+  `quiet` オプションを追加し、dpi 取得のみ `quiet=True` で呼ぶ。
+  未設定時は従来どおり既定 200 で静かに継続する
+
 ## 1.9.5
 
 - 同梱帳票スクリプト(exportList/exportSingle/exportSingleBulk)の
