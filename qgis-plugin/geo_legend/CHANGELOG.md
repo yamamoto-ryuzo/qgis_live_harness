@@ -20,6 +20,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   単一・レイアウト凡例・PNG出力)・引数形式・layer解決・
   scale_style/webgis-convert との連携を得られる
 
+## [2.9.0] - 2026-11-16
+
+### Added
+- **凡例エクスポートの拡充**(issue #21 の残課題対応)。
+  - `exportLegend(path, layers, title, dpi, format)` —
+    凡例のみの画像を PNG/SVG で出力(format='png'|'svg')。
+    `exportLegendImage` は format='png' の別名として維持
+  - `exportLegendHtml(path, layers, title, icon_size)` —
+    シンボル画像を data URI で埋め込んだ自己完結 HTML を生成。
+    ブラウザ単体での表示や WebGIS/レポートへの貼り付け用
+  - 凡例ドックの凡例一覧(テーブル/リスト)に右クリック
+    コンテキストメニューを追加し、現在レイヤの凡例を
+    PNG/SVG/HTML でエクスポートできる GUI 導線を新設
+- 上記メニュー・ダイアログ用の新規文字列を i18n 全9言語
+  カタログへ追加
+
 ## [2.8.0] - 2026-11-14
 
 ### Added

@@ -26,6 +26,7 @@ from qgis.core import QgsWkbTypes, QgsSymbolLayerUtils
 
 # QMessageBox.information(self,'Message',type(layer).__name__,QMessageBox.StandardButton.Ok)
 
+import json
 import os
 import re
 
@@ -94,6 +95,12 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.tableWidget.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.styleComboBox.setVisible(False)
         self.styleLabel.setVisible(False)
+
+        # 凡例一覧の右クリックからPNG/SVG/HTMLエクスポートを起動する
+        for w in (self.tableWidget, self.listWidget):
+            w.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+            w.customContextMenuRequested.connect(
+                lambda pos, w=w: self._show_legend_export_menu(w, pos))
 
         self.comboDataSet()
         self.comboBox.currentIndexChanged.connect(self.currentIndexChanged)
@@ -353,6 +360,66 @@ class LegendViewDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             break
 
         nonNumericList.append([layer_id, layer_name])
+
+    def _show_legend_export_menu(self, widget, pos):
+        """凡例一覧の右クリックメニュー(PNG/SVG/HTMLエクスポート)。"""
+        try:
+            if self.currentLayer is None or not self.currentLayer.id():
+                return
+        except RuntimeError:
+            return
+        menu = QtWidgets.QMenu(self)
+        act_png = menu.addAction(
+            self.tr("Export legend image (PNG)..."))
+        act_svg = menu.addAction(
+            self.tr("Export legend image (SVG)..."))
+        act_html = menu.addAction(
+            self.tr("Export legend as HTML..."))
+        chosen = menu.exec(widget.mapToGlobal(pos))
+        fmt = {act_png: "png", act_svg: "svg",
+               act_html: "html"}.get(chosen)
+        if fmt:
+            self._export_legend(fmt)
+
+    def _export_legend(self, fmt):
+        """現在レイヤの凡例をbridge経由でPNG/SVG/HTML出力する。"""
+        layer = self.currentLayer
+        if layer is None:
+            return
+        from qgis.utils import plugins
+        bridge = getattr(plugins.get("geo_legend"), "bridge", None)
+        if bridge is None:
+            return
+        filters = {"png": "PNG image (*.png)",
+                   "svg": "SVG image (*.svg)",
+                   "html": "HTML file (*.html)"}
+        path, _sel = QtWidgets.QFileDialog.getSaveFileName(
+            self, self.tr("Export legend"), f"legend.{fmt}",
+            filters[fmt])
+        if not path:
+            return
+        if fmt == "html":
+            res = bridge.exportLegendHtml(path, [layer.id()],
+                                          layer.name())
+        else:
+            res = bridge.exportLegend(path, [layer.id()],
+                                      layer.name(), 96, fmt)
+        try:
+            obj = json.loads(res)
+        except Exception:
+            obj = {"ok": False, "error": res}
+        if obj.get("ok"):
+            self.iface.messageBar().pushMessage(
+                "LegendView",
+                self.tr("Legend exported: %1").replace(
+                    "%1", str(obj.get("path", path))),
+                level=Qgis.MessageLevel.Success, duration=5)
+        else:
+            self.iface.messageBar().pushMessage(
+                "LegendView",
+                self.tr("Export failed: %1").replace(
+                    "%1", str(obj.get("error", res))),
+                level=Qgis.MessageLevel.Warning, duration=8)
 
     def selectCurrentLayer(self):
         """Select the currently active layer"""

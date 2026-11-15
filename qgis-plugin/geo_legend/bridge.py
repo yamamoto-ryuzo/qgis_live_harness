@@ -15,6 +15,7 @@ bridge_call コマンド(ファイルJSONL / REST /api/cmd / MCP qgis_bridge_cal
 例(MCP): qgis_bridge_call pluginId="geo_legend" method="legend"
 """
 
+import html
 import inspect
 import json
 import os
@@ -28,9 +29,11 @@ from qgis.core import (QgsCategorizedSymbolRenderer,
                        QgsLayoutSize, QgsLineSymbol, QgsMarkerSymbol,
                        QgsPrintLayout, QgsProject, QgsRendererCategory,
                        QgsRendererRange, QgsRuleBasedRenderer,
-                       QgsSingleSymbolRenderer, QgsStyle, QgsUnitTypes,
+                       QgsSingleSymbolRenderer, QgsStyle,
+                       QgsSymbolLayerUtils, QgsUnitTypes, QgsVectorLayer,
                        QgsWkbTypes)
-from qgis.PyQt.QtCore import QModelIndex, QRectF, Qt
+from qgis.PyQt.QtCore import (QBuffer, QByteArray, QIODeviceBase,
+                              QModelIndex, QRectF, QSize, Qt)
 from qgis.PyQt.QtGui import QColor
 
 
@@ -41,8 +44,8 @@ class LegendViewBridge:
     SUMMARY = ("レイヤの凡例(シンボル一覧)の表示と作成。ドックパネルに"
                "コンパクトな凡例を表示するほか、個別値分類・数値階級・"
                "ルールベースのシンボル凡例をレンダラとして作成し、"
-               "印刷レイアウトへの凡例アイテム追加や凡例画像(PNG)の"
-               "出力もできる。対象レイヤは legend_* プロジェクト変数で"
+               "印刷レイアウトへの凡例アイテム追加や凡例画像(PNG/SVG)・"
+               "自己完結HTMLの出力もできる。対象レイヤは legend_* プロジェクト変数で"
                "登録したレイヤと現在のアクティブレイヤから選択。"
                "不透明度・名前付きスタイルの切替も可能。")
     WHEN_TO_USE = [
@@ -54,7 +57,7 @@ class LegendViewBridge:
         "属性値で分類・階級区分・ルールベースの凡例(シンボル)を作成したい",
         "現在のレンダラ(凡例)の内容を取得・確認したい",
         "印刷レイアウトに凡例アイテムを追加したい",
-        "凡例だけの画像(PNG)を出力したい",
+        "凡例だけの画像(PNG/SVG)や埋め込み用HTMLを出力したい",
     ]
     METHOD_DOCS = {
         "openDock": {
@@ -207,11 +210,31 @@ class LegendViewBridge:
         },
         "exportLegendImage": {
             "description":
-                "凡例だけの画像(PNG)を出力する。path=出力先"
+                "凡例だけの画像(PNG)を出力する"
+                "(exportLegend(format='png')の別名)。path=出力先"
                 "(省略時は一時フォルダ)。layers=[id/名…]で対象限定、"
                 "title=凡例タイトル、dpi=解像度(既定96)。",
             "example": {"method": "exportLegendImage",
                         "args": [None, None, "凡例", 150]},
+        },
+        "exportLegend": {
+            "description":
+                "凡例だけの画像をPNG/SVGで出力する。format='png'|'svg'"
+                "(既定png)。path=出力先(省略時は一時フォルダ、拡張子は"
+                "自動補完)。layers=[id/名…]で対象限定、title=凡例タイトル、"
+                "dpi=PNG解像度(既定96)。",
+            "example": {"method": "exportLegend",
+                        "args": [None, None, "凡例", 96, "svg"]},
+        },
+        "exportLegendHtml": {
+            "description":
+                "凡例の自己完結HTMLを生成する(シンボル画像をdata URI"
+                "埋め込み+スタイル付。ブラウザ単体表示やWebGIS/レポート"
+                "への貼付用)。path指定時はUTF-8ファイルへも書き出す。"
+                "layers省略時は全ベクタレイヤ、icon_size=[w,h]で"
+                "シンボル画像サイズを指定可(既定40x24)。",
+            "example": {"method": "exportLegendHtml",
+                        "args": [None, None, "凡例"]},
         },
     }
 
@@ -966,9 +989,13 @@ class LegendViewBridge:
             "items": self._legend_item_labels(legend),
         })
 
-    def exportLegendImage(self, path=None, layers=None, title="凡例",
-                          dpi=96):
-        """凡例だけの画像(PNG)を出力する。"""
+    def _legend_export_layout(self, layers, title):
+        """凡例だけを置いた一時印刷レイアウトを構築する。
+
+        戻り値 (layout, legend, err)。err 非None時は呼び出し側は
+        return err するだけでよい(レイアウトは除去済み)。正常時は
+        呼び出し側が finally で removeLayout すること。
+        """
         mgr = QgsProject.instance().layoutManager()
         name = "__geo_legend_export__"
         old = mgr.layoutByName(name)
@@ -978,36 +1005,155 @@ class LegendViewBridge:
         lay.initializeDefaults()
         lay.setName(name)
         mgr.addLayout(lay)
+        legend = QgsLayoutItemLegend(lay)
+        if title:
+            legend.setTitle(str(title))
+        lay.addLayoutItem(legend)
+        err = self._legend_layers(legend, layers)
+        if err:
+            mgr.removeLayout(lay)
+            return None, None, self._err(err)
+        legend.setResizeToContents(True)
+        legend.attemptSetSceneRect(QRectF(2, 2, 60, 80))
+        legend.refreshItemSize()
+        rect = legend.rect()
+        page = lay.pageCollection().page(0)
+        page.setPageSize(QgsLayoutSize(
+            rect.width() + 4, rect.height() + 4,
+            QgsUnitTypes.LayoutUnit.LayoutMillimeters))
+        return lay, legend, None
+
+    def exportLegendImage(self, path=None, layers=None, title="凡例",
+                          dpi=96):
+        """凡例だけの画像(PNG)を出力する(exportLegend(format='png')相当)。"""
+        return self.exportLegend(path, layers, title, dpi, "png")
+
+    def exportLegend(self, path=None, layers=None, title="凡例", dpi=96,
+                     format="png"):
+        """凡例だけの画像をPNG/SVGで出力する。"""
+        fmt = str(format or "png").lower()
+        if fmt not in ("png", "svg"):
+            return self._err(f"unsupported format: {format!r} (png|svg)")
+        lay, legend, err = self._legend_export_layout(layers, title)
+        if err:
+            return err
         try:
-            legend = QgsLayoutItemLegend(lay)
-            if title:
-                legend.setTitle(str(title))
-            lay.addLayoutItem(legend)
-            err = self._legend_layers(legend, layers)
-            if err:
-                return self._err(err)
-            legend.setResizeToContents(True)
-            legend.attemptSetSceneRect(QRectF(2, 2, 60, 80))
-            legend.refreshItemSize()
-            rect = legend.rect()
-            page = lay.pageCollection().page(0)
-            page.setPageSize(QgsLayoutSize(
-                rect.width() + 4, rect.height() + 4,
-                QgsUnitTypes.LayoutUnit.LayoutMillimeters))
             if not path:
                 path = os.path.join(
                     tempfile.gettempdir(),
-                    f"legend_{int(time.time())}.png")
+                    f"legend_{int(time.time())}.{fmt}")
             path = str(path)
-            settings = QgsLayoutExporter.ImageExportSettings()
-            settings.dpi = float(dpi or 96)
-            st = QgsLayoutExporter(lay).exportToImage(path, settings)
-            ok = (int(st) == 0 and os.path.exists(path))
+            if not path.lower().endswith(f".{fmt}"):
+                path += f".{fmt}"
+            if fmt == "svg":
+                settings = QgsLayoutExporter.SvgExportSettings()
+                st = QgsLayoutExporter(lay).exportToSvg(path, settings)
+            else:
+                settings = QgsLayoutExporter.ImageExportSettings()
+                settings.dpi = float(dpi or 96)
+                st = QgsLayoutExporter(lay).exportToImage(path, settings)
+            if int(st) != 0 or not os.path.exists(path):
+                return self._err(f"export failed: {st}")
             return self._ok({
-                "path": path, "exported": ok,
+                "path": path, "format": fmt, "exported": True,
                 "status": str(st),
-                "bytes": os.path.getsize(path) if ok else 0,
+                "bytes": os.path.getsize(path),
                 "items": self._legend_item_labels(legend),
-            }) if ok else self._err(f"export failed: {st}")
+            })
         finally:
-            mgr.removeLayout(lay)
+            QgsProject.instance().layoutManager().removeLayout(lay)
+
+    @staticmethod
+    def _symbol_data_uri(symbol, size):
+        """シンボルプレビューをPNG data URI文字列にする。"""
+        pm = QgsSymbolLayerUtils.symbolPreviewPixmap(symbol, size)
+        img = pm.toImage()
+        ba = QByteArray()
+        buf = QBuffer(ba)
+        buf.open(QIODeviceBase.OpenModeFlag.WriteOnly)
+        img.save(buf, "PNG")
+        buf.close()
+        return "data:image/png;base64," + \
+            bytes(ba.toBase64()).decode("ascii")
+
+    def exportLegendHtml(self, path=None, layers=None, title="凡例",
+                         icon_size=None):
+        """凡例の自己完結HTMLを生成する(シンボル画像=data URI埋め込み)。
+
+        ブラウザ単体で表示できるほか、WebGIS/レポートへの貼り付け用
+        スニペットとして使える。path指定時はUTF-8ファイルへも書き出す。
+        layers省略時はプロジェクト内の全ベクタレイヤが対象。
+        """
+        if layers:
+            resolved = []
+            for sel in layers:
+                lyr = self._find_layer(sel)
+                if lyr is None:
+                    return self._err(f"layer not found: {sel!r}")
+                resolved.append(lyr)
+        else:
+            resolved = list(QgsProject.instance().mapLayers().values())
+        size = (QSize(int(icon_size[0]), int(icon_size[1]))
+                if icon_size else QSize(40, 24))
+        entries, skipped, labels_map = [], [], {}
+        for lyr in resolved:
+            ren = lyr.renderer() if isinstance(lyr, QgsVectorLayer) else None
+            if ren is None:
+                skipped.append(lyr.name())
+                continue
+            items = ren.legendSymbolItems()
+            labels_map[lyr.name()] = [str(it.label() or "")
+                                      for it in items]
+            entries.append((lyr, items))
+        if not entries:
+            return self._err("no vector layers with legend items")
+        layer_rows = []
+        for lyr, items in entries:
+            row_parts = []
+            for it in items:
+                label = html.escape(str(it.label() or ""))
+                sym = it.symbol()
+                if sym is not None:
+                    row_parts.append(
+                        '<div class="legend-item">'
+                        f'<img src="{self._symbol_data_uri(sym, size)}" '
+                        f'width="{size.width()}" height="{size.height()}" '
+                        f'alt=""/><span>{label}</span></div>')
+                else:
+                    row_parts.append(
+                        '<div class="legend-item legend-group">'
+                        f'<span>{label}</span></div>')
+            layer_rows.append(
+                '<div class="legend-layer"><div class="legend-layer-title">'
+                f'{html.escape(lyr.name())}</div>'
+                f'{"".join(row_parts)}</div>')
+        title_html = ('<div class="legend-title">'
+                      f'{html.escape(str(title))}</div>') if title else ""
+        css = (
+            ".legend{display:inline-block;background:#fff;color:#222;"
+            "border:1px solid #bbb;border-radius:4px;padding:8px 12px;"
+            "font-family:'Segoe UI','Meiryo',sans-serif;font-size:13px;}"
+            ".legend-title{font-weight:bold;margin-bottom:6px;}"
+            ".legend-layer{margin-top:6px;}"
+            ".legend-layer-title{font-weight:600;margin-bottom:2px;}"
+            ".legend-item{display:flex;align-items:center;gap:6px;"
+            "margin:2px 0;line-height:1.2;}"
+            ".legend-item img{flex:none;}"
+            ".legend-group{font-weight:600;}")
+        doc = ("<!DOCTYPE html>\n<html><head><meta charset=\"utf-8\">"
+               f"<title>{html.escape(str(title or 'Legend'))}</title>"
+               f"<style>{css}</style></head><body>"
+               f"<div class=\"legend\">{title_html}"
+               f"{''.join(layer_rows)}</div></body></html>")
+        out = {"layers": [lyr.name() for lyr, _ in entries],
+               "items": labels_map}
+        if skipped:
+            out["skipped_nonvector"] = skipped
+        if path:
+            path = str(path)
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(doc)
+            out["path"] = path
+            out["bytes"] = os.path.getsize(path)
+        out["html"] = doc
+        return self._ok(out)
