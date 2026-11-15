@@ -1,3 +1,10 @@
+2.10.13 同梱 instances.json の陳腐化エンドポイントを更新
+- resources/instances/instances.json: 移行済みで全APIが404を返す
+  search.ckan.jp(データカタログ横断検索システム)を削除し、接続不能だった
+  www.data.go.jp を後継の data.e-gov.go.jp(e-Govデータポータル、
+  /data/api/3/ で 200 確認済)へ置き換え。remote(ckan-instances+本repo)/
+  local bundled 両経路と、本ファイルを remote 取得する
+  kasuga_converter 側の混入も解消される
 2.10.12 設定ダイアログのEdit/Clearボタンが潰れて表示される不具合を修正
 - geo_import_dialog_settings.ui: geometry/minimumSizeの高さ470固定を撤廃
   (最小幅650のみ残し、高さはsizeHintに追従)。QGISアプリスタイルシート等で
