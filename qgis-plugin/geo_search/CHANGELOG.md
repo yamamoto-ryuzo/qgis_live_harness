@@ -1,3 +1,20 @@
+# V4.6.0 検索結果のエクスポートと表示範囲絞込
+- resultdialog.py: 結果ダイアログに「エクスポート...」ボタンを追加。
+  全タブ/現在タブ/現在タブの選択行を CSV(属性のみ)・GeoJSON・
+  メモリレイヤで出力できる。CSV は UTF-8/UTF-8(BOM)/Shift_JIS を選択可
+- resultdialog.py: 「表示範囲内のみ」チェックを追加。ON で結果を
+  現在のキャンバス表示範囲と交差する地物に絞り込み、OFF で元に戻す
+  (CRS が異なるレイヤは範囲を変換して判定)。新しい検索結果が入った
+  時もチェック有効なら再適用される
+- searchfeature.py: キャンバス表示範囲取得(_canvas_extent_geometry)を
+  結果ダイアログの extent getter として配線
+- bridge.py: exportResults(format, path, encoding, scope) を追加。
+  AI 経路から CSV/GeoJSON/メモリレイヤ出力が可能(path省略時は
+  一時ディレクトリ)。extentFilter(enabled) で絞込の取得/設定、
+  search の options.extent_only でも検索直後に適用できる
+- verify/features.json: exportResults/extentFilter/結果ダイアログの
+  絞込UI を feature として登録
+
 # V4.5.2 住所検索の結果精度改善と20件ページング化
 - geocode.py: GSI AddressSearch の応答をクライアント側で関連度順に
   リランク(完全一致>前方一致>部分一致>その他。同位はタイトルが

@@ -102,6 +102,7 @@ class GeoSearchBridge:
         "現在の表示状態をユーザーテーマとして保存/復元したい",
         "検索設定(geo_search_json・タブ設定)を確認・変更したい",
         "地番検索(完全一致/あいまい・字コード)や所有者検索(対象フィールド・一致方式)を使いたい",
+        "検索結果をCSV/GeoJSON/メモリレイヤへ出力したい・表示範囲で絞り込みたい",
     ]
     METHOD_DOCS = {
         "search": {
@@ -124,6 +125,22 @@ class GeoSearchBridge:
                 "(住所検索タブの『スクラッチレイヤを作成』チェックと連動)。",
             "example": {"method": "searchAddress",
                         "args": ["東京都渋谷区宇田川町", "gsi"]},
+        },
+        "exportResults": {
+            "description":
+                "直近の検索結果をCSV(属性のみ)/GeoJSON/メモリレイヤへ出力する。"
+                "format=csv|geojson|memory、scope=all|tab|selected、"
+                "encoding=utf-8|utf-8-sig|shift_jis(csvのみ)。"
+                "path省略時は一時ディレクトリへ出力し絶対パスを返す。",
+            "example": {"method": "exportResults",
+                        "args": ["geojson"]},
+        },
+        "extentFilter": {
+            "description":
+                "検索結果の『表示範囲内のみ』絞込を取得/設定する。"
+                "enabled=Trueで現在のキャンバス表示範囲と交差する地物のみ残し、"
+                "Falseで元の結果へ戻す。検索時は options.extent_only でも可。",
+            "example": {"method": "extentFilter", "args": [True]},
         },
         "listTabs": {
             "description":
@@ -690,9 +707,13 @@ class GeoSearchBridge:
         tab:   int(フラットindex) / タイトルstr / {"group","title"}dict。省略=現在タブ
         show:  Falseなら結果ダイアログを出さない
         zoom:  Trueなら結果bboxへズーム+地物選択(デフォルトTrue)
-        options: {"pan_mode","fixed_scale","show_layer_name"} を事前適用
+        options: {"pan_mode","fixed_scale","show_layer_name"} を事前適用。
+                 "extent_only"=True なら結果を現在のキャンバス表示範囲に絞る
         """
+        extent_only = None
         if options:
+            options = dict(options)
+            extent_only = options.pop("extent_only", None)
             applied = self._apply_search_options(options)
             if isinstance(applied, str):
                 return applied
@@ -713,6 +734,15 @@ class GeoSearchBridge:
         if err is not None:
             return err
         feat.show_features()
+        if extent_only is not None:
+            try:
+                rdlg = getattr(feat, "result_dialog", None)
+                cb = (getattr(rdlg, "extentCheckBox", None)
+                      if rdlg is not None else None)
+                if cb is not None:
+                    cb.setChecked(bool(extent_only))
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
         layers, total = self._serialize_result_tabs(feat, max_features)
         zoomed = self._zoom_to_results(feat) if zoom and total else False
         if not show:
@@ -864,6 +894,67 @@ class GeoSearchBridge:
             "results": items,
             "zoomed": zoomed,
         })
+
+    def exportResults(self, format="csv", path=None, encoding="utf-8",
+                      scope="all"):
+        """直近の検索結果をCSV/GeoJSONファイルまたはメモリレイヤへ出力する。"""
+        import os
+        import tempfile
+
+        rd = self._result_dialog()
+        if rd is None:
+            return self._err("no result dialog")
+        scope = str(scope or "all").lower()
+        if scope not in ("all", "tab", "selected"):
+            return self._err("scope must be 'all','tab' or 'selected'")
+        entries = rd._export_entries(scope)
+        count = sum(len(e[3] or []) for e in entries)
+        fmt = str(format or "csv").lower()
+        from .resultdialog import (
+            add_entries_as_memory_layers, export_entries_to_csv,
+            export_entries_to_geojson,
+        )
+        if fmt in ("memory", "memory_layer", "mem"):
+            names = add_entries_as_memory_layers(entries)
+            return self._ok({"format": "memory", "layers": names,
+                             "count": count})
+        if fmt in ("geojson", "json"):
+            ext, fmt = "geojson", "geojson"
+        elif fmt == "csv":
+            ext = "csv"
+        else:
+            return self._err("format must be 'csv','geojson' or 'memory'")
+        if not path:
+            path = os.path.join(tempfile.gettempdir(),
+                                f"geo_search_results.{ext}")
+        if fmt == "csv":
+            enc = {"utf-8": "utf-8", "utf8": "utf-8",
+                   "utf-8(bom)": "utf-8-sig", "utf-8-sig": "utf-8-sig",
+                   "bom": "utf-8-sig", "shift_jis": "cp932",
+                   "sjis": "cp932", "cp932": "cp932"}.get(
+                       str(encoding or "utf-8").lower())
+            if enc is None:
+                return self._err(f"unknown encoding: {encoding!r}")
+            count = export_entries_to_csv(entries, path, enc)
+        else:
+            count = export_entries_to_geojson(entries, path)
+        return self._ok({"format": fmt, "path": path, "count": count,
+                         "exists": os.path.exists(path)})
+
+    def extentFilter(self, enabled=None):
+        """結果の『表示範囲内のみ』絞込を取得/設定する。"""
+        rd = self._result_dialog()
+        if rd is None:
+            return self._err("no result dialog")
+        cb = getattr(rd, "extentCheckBox", None)
+        if cb is None:
+            return self._err("extent filter unavailable")
+        if enabled is not None:
+            cb.setChecked(bool(enabled))
+        total = sum(len(t.get("features") or [])
+                    for t in (getattr(rd, "_tabs", None) or []))
+        return self._ok({"enabled": bool(cb.isChecked()),
+                         "total": total})
 
     def results(self, max_features=200):
         """直近の検索結果を返す(再検索はしない)。"""
