@@ -3,6 +3,24 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
+## [0.16.2] - 2026-11-16
+
+### Added
+- live_driver.py / bridge.py / mcp_http.py / ai_panel.py:
+  **制御コマンドの監査ログ永続化**。`_handle` を通る全コマンド
+  (ファイルJSONL/REST `/api/*`/MCP/AIパネル)を
+  `~/.qgis-live/audit-<date>.jsonl`(QGIS_LIVE_REGISTRY準拠)へ
+  追記する。レコードは ts/id/type/plugin_id/method/args要約/
+  origin(呼出経路)/ok/所要ms を持ち、token・api_key・password
+  等のsecrets系キーはマスク、セッショントークンは記録しない。
+  ファイル経由のトークン不一致(unauthorized)も監査対象。
+  他プラグインへの転送コマンドは転送元で1件だけ記録する。
+  日次ローテーションに加え、QSettings `geo_driver/audit/*` で
+  有効化・ファイルサイズ上限(既定5MB・超過時は時刻付き世代へ
+  退避)・保持世代数(既定14)を管理できる。参照は新規bridge
+  メソッド `auditLog(n, filter)`(フィールド一致dict/部分一致
+  文字列)と `auditSettings(enabled, max_bytes, max_files)`。
+
 ## [Unreleased]
 
 ### Added

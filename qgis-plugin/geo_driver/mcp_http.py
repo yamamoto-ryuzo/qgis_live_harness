@@ -478,7 +478,8 @@ class _Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def _dispatch(self, cmd, timeout=180.0):
-        return self.server.driver.submit(cmd, timeout=timeout)
+        return self.server.driver.submit(cmd, timeout=timeout,
+                                         origin="http")
 
     # ---- REST ----
 

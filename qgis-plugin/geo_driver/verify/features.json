@@ -1,7 +1,7 @@
 {
   "component": "geo_driver",
   "component_type": "qgis_plugin",
-  "version": "0.16.1",
+  "version": "0.16.2",
   "driver": {
     "type": "qgis_live_harness",
     "detect": "GET http://127.0.0.1:<http_port>/api/health",
@@ -10,7 +10,7 @@
     "control": "POST /api/cmd Bearer <live_dir token>",
     "detected_from": "scripts/qgis-session.mjs, live_driver.py"
   },
-  "updated": "2026-11-15T22:33:28+09:00",
+  "updated": "2026-11-16T02:12:07+09:00",
   "features": [
     {
       "id": "entry_point.__init__.py:classFactory",
@@ -3290,6 +3290,42 @@
       "last_result": "pass",
       "last_verified": "2026-11-15T22:33:28+09:00",
       "note": "属性/シンボル実在確認(pyeval)"
+    },
+    {
+      "id": "bridge_method.GeoDriverBridge.auditLog",
+      "kind": "bridge_method",
+      "name": "auditLog",
+      "source": "bridge.py:427",
+      "signature": "auditLog(n=50, filter=None)",
+      "summary": "監査ログ(~/.qgis-live/audit-*.jsonl)の直近n件をフィルタ付きで返す",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "bridge_call geo_driver auditLog → entries実在確認"
+      },
+      "last_result": "pending",
+      "last_verified": "",
+      "note": "issue #15 追加。次回verifyで確認"
+    },
+    {
+      "id": "bridge_method.GeoDriverBridge.auditSettings",
+      "kind": "bridge_method",
+      "name": "auditSettings",
+      "source": "bridge.py:443",
+      "signature": "auditSettings(enabled=None, max_bytes=None, max_files=None)",
+      "summary": "監査ログの有効化・サイズ/世代上限を取得/設定(QSettings)",
+      "needs_runtime": true,
+      "standalone_ok": false,
+      "depends": [],
+      "verify": {
+        "standalone": "",
+        "integrated": "bridge_call geo_driver auditSettings → enabled/max_bytes実在確認"
+      },
+      "last_result": "pending",
+      "last_verified": "",
+      "note": "issue #15 追加。次回verifyで確認"
     }
   ],
   "static": {

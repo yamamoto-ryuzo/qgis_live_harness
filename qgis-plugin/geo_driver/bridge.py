@@ -150,6 +150,16 @@ class GeoDriverBridge:
                  "signature": "remoteControl(enabled=None)",
                  "description": "リモート制御(ファイルJSONL/HTTP面)の"
                                 "有効状態を取得/設定する"},
+                {"name": "auditLog",
+                 "signature": "auditLog(n=50, filter=None)",
+                 "description": "監査ログ(~/.qgis-live/audit-*.jsonl)の"
+                                "直近n件を新しい順に返す。filterは"
+                                "フィールド一致dictまたは部分一致文字列"},
+                {"name": "auditSettings",
+                 "signature": "auditSettings(enabled=None, max_bytes=None,"
+                              " max_files=None)",
+                 "description": "監査ログの有効化・ファイルサイズ/世代数"
+                                "上限を取得/設定(QSettings永続化)"},
             ],
         })
 
@@ -411,3 +421,47 @@ class GeoDriverBridge:
         return self._ok({"enabled": d is not None,
                          "live_dir": getattr(d, "dir", None),
                          "http_port": getattr(d, "http_port", None)})
+
+    # ---- 監査ログ ----
+
+    def auditLog(self, n=50, filter=None):
+        """監査ログの直近n件を新しい順に返す。
+
+        ~/.qgis-live/audit-*.jsonl(日次+サイズ上限で世代分割)を読む。
+        filter は {"type":"pyeval","plugin_id":"x","ok":false} 等の
+        フィールド一致dict、または type/method/plugin_id/origin を
+        対象にした部分一致文字列。args内のsecretsは記録時点で
+        マスク済み。
+        """
+        try:
+            from .live_driver import _audit_recent
+            entries = _audit_recent(max(int(n or 50), 1), filter)
+            return self._ok({"count": len(entries), "entries": entries})
+        except Exception as e:
+            return self._err(f"auditLog failed: {e}")
+
+    def auditSettings(self, enabled=None, max_bytes=None, max_files=None):
+        """監査ログの設定を取得/変更する(QSettings永続化)。
+
+        enabled=記録の有効/無効、max_bytes=1ファイルのサイズ上限
+        (超過時は時刻付き世代へローテーション)、max_files=保持世代数。
+        """
+        try:
+            from .live_driver import _audit_base_dir, _audit_conf
+            if enabled is not None or max_bytes is not None \
+                    or max_files is not None:
+                from qgis.PyQt.QtCore import QSettings
+                s = QSettings()
+                if enabled is not None:
+                    s.setValue("geo_driver/audit/enabled", bool(enabled))
+                if max_bytes is not None:
+                    s.setValue("geo_driver/audit/max_bytes",
+                               int(max_bytes))
+                if max_files is not None:
+                    s.setValue("geo_driver/audit/max_files",
+                               int(max_files))
+            on, mb, mf = _audit_conf()
+            return self._ok({"enabled": on, "max_bytes": mb,
+                             "max_files": mf, "dir": _audit_base_dir()})
+        except Exception as e:
+            return self._err(f"auditSettings failed: {e}")

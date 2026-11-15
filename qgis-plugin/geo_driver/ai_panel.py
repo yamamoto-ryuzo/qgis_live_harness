@@ -1799,7 +1799,7 @@ class AiPanel(QDockWidget):
             cmd["path"] = ai_client.screenshot_temp_path()
         self._emit(self.sig_status,
                    self.tr("{0} running…").format(name))
-        rep = driver.submit(cmd)
+        rep = driver.submit(cmd, origin="ai_panel")
         text = ai_client.reply_to_text(rep)
         self._emit(self.sig_append, "tool",
                    f"→ {text[:2000]}"
