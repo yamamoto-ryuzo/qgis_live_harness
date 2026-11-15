@@ -16,3 +16,6 @@ hidden_all.pgw
 osm_only.png
 osm_only.pgw
 .tmp-shots/
+
+# QGIS runtime-generated symbol DB
+symbology-style.db
