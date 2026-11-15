@@ -22,9 +22,10 @@
 """
 import json
 import os
+import time
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import QTimer, Qt, QObject, pyqtSignal, QEvent, QCoreApplication
+from qgis.PyQt.QtCore import QTimer, Qt, QObject, pyqtSignal, QEvent, QCoreApplication, QThread
 from qgis.PyQt.QtGui import QStandardItemModel, QStandardItem, QColor
 from qgis.PyQt.QtWidgets import QDialog, QApplication, QAction, QInputDialog, QLineEdit, QFileDialog
 from .ckanconnector import CkanConnector
@@ -38,6 +39,32 @@ FORM_CLASS, _ = uic.loadUiType(
         'geo_import_dialog_dataproviders.ui'
     )
 )
+
+
+class ServerCheckThread(QThread):
+    """カタログ一覧の死活チェックをバックグラウンドで実行するワーカー。
+    軽量な package_search(rows=0) をQThreadで逐次実行しGUIをブロックしない。
+    結果はサーバーごとに resultReady(api_url, ok, latency_ms, message) で通知する。"""
+    resultReady = pyqtSignal(object)
+
+    def __init__(self, cc, api_urls):
+        super(ServerCheckThread, self).__init__()
+        self._cc = cc
+        self._api_urls = list(api_urls)
+
+    def run(self):
+        for api_url in self._api_urls:
+            if self.isInterruptionRequested():
+                break
+            started = time.monotonic()
+            try:
+                ok, result = self._cc.package_search(
+                    '', None, None, rows=0, api_url=api_url)
+            except Exception as e:
+                ok, result = False, str(e)
+            latency_ms = int((time.monotonic() - started) * 1000)
+            self.resultReady.emit(
+                (api_url, bool(ok), latency_ms, '' if ok else str(result)))
 
 
 class GeoImportDialogDataProviders(QDialog, FORM_CLASS):
