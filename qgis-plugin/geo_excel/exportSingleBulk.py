@@ -788,6 +788,27 @@ def check_save_folder(path: str):
     os.makedirs(target, exist_ok=True)
 
 
+def check_same_name_opend(excel_app, book_name: str):
+    """
+    同名のブックが現在開かれていないか確認する
+
+      Parameters
+        excel_app -- Excelアプリケーション
+        book_name -- ブック名
+
+      Returns
+        既に開かれていた場合エラーをメッセージバーに表示してFalseを返却する。それ以外はTrueを返却する
+    """
+
+    # 同名のブックが開いていないか確認する
+    for wb in excel_app.Workbooks:
+        if wb.Name == book_name:
+            iface.messageBar().pushCritical("ERROR", QCoreApplication.translate("geo_excel", "A workbook named {0} \n is already open.").format(book_name))
+            return False
+
+    return True
+
+
 def output_single_report(excel_app, template_path: str, feature: QgsFeature, output_path: str, dpi: int, progress: QProgressDialog):
     """
     対象地物の情報で単票形式のExcelブックを作成、保存する
@@ -823,6 +844,11 @@ def output_single_report(excel_app, template_path: str, feature: QgsFeature, out
     tmpdir = tempfile.TemporaryDirectory()
 
     try:
+        # 同名のブックが開いていないか確認(開いているとSaveAsが失敗する)
+        book_name = os.path.basename(output_path)
+        if not check_same_name_opend(excel_app, book_name):
+            return False
+
         # Excelで指定テンプレートで新規ブックを作成する
         wb = excel_app.Workbooks.Add(template_path)
         wb.Activate

@@ -1,5 +1,14 @@
 # CHANGELOG — geo_excel
 
+## 1.9.7
+
+- `exportSingleBulk.py` に `check_same_name_opend` を追加
+  (exportSingle/exportList と同型)。single 出力後などで同名ブックが
+  Excel に開かれたまま bulk を実行すると `wb.SaveAs` が COM 例外
+  「Workbook クラスの SaveAs メソッドが失敗しました。」で落ちていた
+  不具合を修正。ブック作成前に同名オープンを検出して
+  「同じ名前のブックが既に開かれています」を通知し中断する
+
 ## 1.9.6
 
 - 任意レイヤ変数 `dpi` 未設定時にメッセージバーへ critical
