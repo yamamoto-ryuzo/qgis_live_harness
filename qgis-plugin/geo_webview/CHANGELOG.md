@@ -1,5 +1,28 @@
 # 変更履歴(Changelog)
 
+## 4.16.0
+
+- **`.kasc` エクスポートの属性フィールド選択・行フィルタ・地物数上限**
+  (Issue #14)。bridge `kasugaiExport` と
+  `export_kasugai_project` に `fields`/`where`/`limit` 引数を追加。
+  いずれも全レイヤ共通値、または `{レイヤ名 or レイヤID: 値}` の
+  レイヤ毎 dict を受け付ける(QGIS「ベクタレイヤを保存」ダイアログの
+  フィールド選択、ogr2ogr の `-select`/`-where`/`-limit` 相当)。
+  - `fields`: 出力する属性列名のリスト(カンマ区切り文字列も可)。
+    `DATA/*.geojson` の properties が選択列のみになる。
+    存在しない列名はそのレイヤを errors へ記録して除外
+  - `where`: QgsExpression 式で出力地物を絞る。レイヤの
+    プロバイダフィルタ(subsetString)とは AND 適用。
+    式のパースエラーは errors へ記録してそのレイヤを除外
+  - `limit`: レイヤ毎の出力地物数上限(1以上の整数。
+    大容量レイヤの配信サイズ制御用)
+  - いずれかを指定したベクターレイヤはネイティブ参照
+    (`gpkg:`/`geojson:` 等)を使わず、QgsFeatureRequest+materialize で
+    条件適用済みの地物を GeoJSON 変換で焼き込む。どのソース形式でも
+    フィルタが出力データへ確実に反映される
+    (.kasc 行形式・Canvas 側の変更は不要)
+  - `layers` 結果の各レイヤ辞書に `filter` キーで適用条件を返す
+
 ## 4.15.0
 
 - **Re:Earth CMS 連携を追加**(`reearth_cms.py` 新設、Issue #11)。

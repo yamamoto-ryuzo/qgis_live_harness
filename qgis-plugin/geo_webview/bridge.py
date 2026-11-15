@@ -217,6 +217,9 @@ class GeoWebViewBridge:
                 "アトラス有効な印刷レイアウトは各ページ範囲を巡回する"
                 "fly_geojson: 行+DATA/atlas_*.geojson として出力される"
                 "(Canvas FLYルート=プレゼン巡回。emit_atlas=Falseで抑制)。"
+                "fields/where/limit で属性列選択・行フィルタ(QGIS式)・"
+                "地物数上限を指定できる(全レイヤ共通 or {レイヤ名:値} "
+                "dict。指定レイヤは条件適用済み GeoJSON として出力)。"
                 "use_existing=True で再エクスポートせず既存の .kasc のみ"
                 "使用(未出力なら code=not_exported)。",
             "example": {"method": "kasugaiExport", "args": []},
@@ -975,7 +978,8 @@ class GeoWebViewBridge:
                       embed_gpkg_style=False, emit_themes=True,
                       emit_bookmarks=True, emit_launchers=True,
                       emit_zip=False, engine=None, install=False, route=None,
-                      use_existing=False, emit_atlas=True):
+                      use_existing=False, emit_atlas=True,
+                      fields=None, where=None, limit=None):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
         表示中のベクターレイヤを DATA/ へ出力し、.kasc(geojson:/gpkg:/
@@ -1006,6 +1010,15 @@ class GeoWebViewBridge:
         emit_atlas=True(既定)でアトラス有効な印刷レイアウトを
         fly_geojson: 行+DATA/atlas_*.geojson(各ページ範囲を巡回する
         ルート・座標Zにページを収めるカメラ高)として出力する。
+        fields/where/limit で属性列選択・行フィルタ・地物数上限を
+        指定できる(QGIS「ベクタレイヤを保存」のフィールド選択、
+        ogr2ogr の -select/-where/-limit 相当)。いずれも全レイヤ共通値
+        (fields は列名list/"a,b" 文字列、where は QgsExpression 式、
+        limit は 1以上の整数)、または {レイヤ名 or レイヤID: 値} の
+        レイヤ毎 dict を受ける。指定レイヤはネイティブ参照を使わず
+        条件適用済みのデータを GeoJSON 変換で出力するため、
+        DATA/*.geojson の properties が選択列のみ・where で絞った
+        地物数になる(プロバイダフィルタ subsetString とは AND 適用)。
         出力先は output_dir または設定 kasugai_output_path
         (既定: <ドキュメント>/kasugai_canvas_qgis)。
         use_existing=True で再エクスポートせず出力先の既存 .kasc のみを
@@ -1076,7 +1089,8 @@ class GeoWebViewBridge:
                     emit_launchers=bool(emit_launchers),
                     emit_zip=bool(emit_zip),
                     emit_atlas=bool(emit_atlas),
-                    live_url=live_url)
+                    live_url=live_url,
+                    fields=fields, where=where, limit=limit)
         except Exception as e:
             return self._err(f"kasugai export failed: {e}")
         out = {

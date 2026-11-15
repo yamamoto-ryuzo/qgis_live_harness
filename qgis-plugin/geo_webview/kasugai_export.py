@@ -1918,26 +1918,89 @@ def _embed_gpkg_style(layer):
         return False
 
 
-def _export_geojson(layer, path):
-    """ベクターレイヤを EPSG:4326 の GeoJSON へ書き出す。"""
+def _per_layer_opt(spec, layer):
+    """fields/where/limit 指定をレイヤ毎に解決する。
+
+    dict 指定は ``{レイヤ名 または layer.id(): 値}`` で、該当キーが
+    無ければ None(未指定)。dict 以外は全ベクターレイヤへ共通適用する
+    値としてそのまま返す。
+    """
+    if isinstance(spec, dict):
+        for key in (layer.name(), layer.id()):
+            if key in spec:
+                return spec[key]
+        return None
+    return spec
+
+
+def _fields_list(value):
+    """fields 指定(列名list またはカンマ区切りstr)を列名listへ正規化。"""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        names = [s.strip() for s in value.split(',') if s.strip()]
+    else:
+        names = [str(s).strip() for s in value if str(s).strip()]
+    return names or None
+
+
+def _export_geojson(layer, path, fields=None, where=None, limit=None):
+    """ベクターレイヤを EPSG:4326 の GeoJSON へ書き出す。
+
+    fields: 出力する属性名のリスト(未指定=全列)。
+    where: QgsExpression 互換の式で出力地物を絞る
+        (プロバイダフィルタ subsetString とは AND 適用)。
+    limit: 出力地物数の上限(1以上の整数)。
+    where/limit 指定時は条件適用済みの地物を memory レイヤへ実体化
+    (materialize)してから書き出すため、どのソース形式でも絞り込みが
+    出力データへ確実に反映される。戻り値は出力対象地物数。
+    """
     from qgis.core import (QgsCoordinateReferenceSystem,
-                           QgsCoordinateTransform, QgsProject,
+                           QgsCoordinateTransform, QgsExpression,
+                           QgsFeatureRequest, QgsProject,
                            QgsVectorFileWriter)
+    src = layer
+    if where or limit is not None:
+        req = QgsFeatureRequest()
+        if where:
+            expr = QgsExpression(str(where))
+            if expr.hasParserError():
+                raise RuntimeError(
+                    'where 式のパースエラー: {0}'.format(
+                        expr.parserErrorString()))
+            req.setFilterExpression(str(where))
+        if limit is not None:
+            lim = int(limit)
+            if lim <= 0:
+                raise RuntimeError(
+                    'limit は 1 以上の整数: {0}'.format(limit))
+            req.setLimit(lim)
+        src = layer.materialize(req)
     options = QgsVectorFileWriter.SaveVectorOptions()
     options.driverName = 'GeoJSON'
     options.fileEncoding = 'UTF-8'
+    if fields:
+        idxs, missing = [], []
+        for name in fields:
+            i = src.fields().lookupField(name)
+            (idxs if i >= 0 else missing).append(
+                i if i >= 0 else name)
+        if missing:
+            raise RuntimeError(
+                'fields に存在しない列: {0}'.format(','.join(missing)))
+        options.attributes = idxs
     options.ct = QgsCoordinateTransform(
-        layer.crs(), QgsCoordinateReferenceSystem('EPSG:4326'),
+        src.crs(), QgsCoordinateReferenceSystem('EPSG:4326'),
         QgsProject.instance())
     if hasattr(QgsVectorFileWriter, 'writeAsVectorFormatV3'):
         err, msg, _, _ = QgsVectorFileWriter.writeAsVectorFormatV3(
-            layer, path, QgsProject.instance().transformContext(), options)
+            src, path, QgsProject.instance().transformContext(), options)
     else:
         err, msg = QgsVectorFileWriter.writeAsVectorFormatV2(
-            layer, path, QgsProject.instance().transformContext(), options)
+            src, path, QgsProject.instance().transformContext(), options)
     if err != QgsVectorFileWriter.NoError:
         raise RuntimeError('GeoJSON export failed: {0} ({1})'.format(err, msg))
-    return path
+    return int(src.featureCount())
 
 
 def _export_qml(layer, path):
@@ -3163,7 +3226,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                            emit_themes=True, emit_bookmarks=True,
                            emit_launchers=True, emit_zip=False,
                            emit_atlas=True,
-                           changed=None, live_url=None):
+                           changed=None, live_url=None,
+                           fields=None, where=None, limit=None):
     """レイヤツリーを KASUGAI Canvas プロジェクトとして出力する。
 
     引数:
@@ -3224,6 +3288,25 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             出力する(既定)。各アトラスページの表示範囲を巡回する
             フライパスで、座標Z値にページを収めるカメラ高を焼き込む
             (``properties.heightReference="MSL"`` で地形加算を抑止)。
+        fields: 出力する属性列の選択(QGIS「ベクタレイヤを保存」の
+            フィールド選択、ogr2ogr の ``-select`` 相当)。全レイヤ共通の
+            列名リスト/カンマ区切り文字列、または
+            ``{レイヤ名 or layer.id(): 列名リスト}`` のレイヤ毎指定。
+            存在しない列名はそのレイヤを errors へ記録して除外する。
+        where: 出力地物を絞る QgsExpression 式(ogr2ogr ``-where`` 相当。
+            ``"code" = '12'`` 等)。fields と同様に全レイヤ共通 or
+            レイヤ毎 dict を受ける。レイヤのプロバイダフィルタ
+            (subsetString)とは AND 適用。式のパースエラーは
+            errors へ記録してそのレイヤを除外する。
+        limit: レイヤ毎の出力地物数上限(ogr2ogr ``-limit`` 相当、
+            1以上の整数)。同様に共通値 or レイヤ毎 dict を受ける
+            (大容量レイヤの CDN 配信サイズ制御用)。
+            fields/where/limit のいずれかが指定されたベクターレイヤは
+            ネイティブ参照(``gpkg:``/``geojson:`` 等)を使わず、
+            QgsFeatureRequest+materialize で条件適用済みの地物を
+            GeoJSON 変換で焼き込む。どのソース形式でもフィルタが
+            出力データへ確実に反映される(.kasc 行形式・Canvas 側の
+            変更は不要)。
 
     戻り値: {"dir","kasc","data_dir","layers":[{name,file,features}],
              "tiles":[...],"skipped":[...],"errors":[...],"warnings":[...],
@@ -3369,9 +3452,19 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             # 時間対応・ヒートマップ/クラスタ・透過度等の共通オプション
             vopt = _vector_opts_suffix(layer, warnings)
 
+            # fields/where/limit 指定は .kasc 行オプションでは表現できず
+            # 出力データへ焼き込む必要があるため GeoJSON 変換へ回す
+            # (ネイティブ参照のままでは選択・絞り込みが反映されない)
+            f_sel = _fields_list(_per_layer_opt(fields, layer))
+            w_sel = _per_layer_opt(where, layer)
+            w_sel = str(w_sel).strip() or None \
+                if w_sel is not None else None
+            l_sel = _per_layer_opt(limit, layer)
+            bake = bool(f_sel) or bool(w_sel) or l_sel is not None
             native = _native_ref(
                 layer, slug, data_dir, copied, warnings,
-                embed_style=embed_gpkg_style) if native_formats else None
+                embed_style=embed_gpkg_style) \
+                if native_formats and not bake else None
             if isinstance(native, dict) and native.get('skip_reason'):
                 skipped.append(
                     '{0} ({1})'.format(layer.name(), native['skip_reason']))
@@ -3404,10 +3497,13 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
 
             # ネイティブ参照できないベクター → GeoJSON(EPSG:4326)へ変換
             gj_path = os.path.join(data_dir, slug + '.geojson')
+            written = feat_count
             if (changed is None or (kinds or {}).get('data')
                     or not os.path.isfile(gj_path)):
                 try:
-                    _export_geojson(layer, gj_path)
+                    written = _export_geojson(
+                        layer, gj_path, fields=f_sel, where=w_sel,
+                        limit=l_sel)
                 except Exception as e:
                     errors.append(
                         '{0}: geojson {1}'.format(layer.name(), e))
@@ -3416,12 +3512,16 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 warnings.append(
                     '{0}: CRS {1} を EPSG:4326 へ再投影'.format(
                         layer.name(), layer.crs().authid() or ''))
-            layers_out.append({
+            layer_entry = {
                 'name': layer.name(), 'title': title,
                 'file': 'DATA/{0}.geojson'.format(slug),
                 'qml': 'DATA/{0}.qml'.format(slug) if style_opt else None,
-                'features': feat_count, 'format': 'geojson',
-            })
+                'features': written, 'format': 'geojson',
+            }
+            if bake:
+                layer_entry['filter'] = {
+                    'fields': f_sel, 'where': w_sel, 'limit': l_sel}
+            layers_out.append(layer_entry)
             attr = _attribution(layer)
             attr_opt = ' | attr={0}'.format(
                 _kasc_escape(attr)) if attr else ''
