@@ -1,7 +1,7 @@
 {
   "component": "geo_import",
   "component_type": "qgis_plugin",
-  "version": "2.10.12",
+  "version": "2.10.14",
   "driver": {
     "type": "qgis_live_harness",
     "detect": "GET http://127.0.0.1:<http_port>/api/health",
