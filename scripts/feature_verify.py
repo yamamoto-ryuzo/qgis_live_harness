@@ -58,6 +58,10 @@ PLUGIN_SKIP = {
                    "nextPage", "prevPage", "gotoPage", "selectResults",
                    "selectServers", "checkResources", "checkGroups",
                    "formatFilter"},
+    # Re:Earth CMS 連携: 外部CMS通信/設定書換を伴うため自動実行しない
+    # (cmsStatus は読み取り専用なので自動検証対象のまま)
+    "geo_webview": {"cmsSettings", "cmsSchema", "cmsRegisterLayer",
+                    "cmsUploadKasc"},
 }
 
 # open系は呼んで即closeDialogする対象(モーダルでなければ動作確認になる)
@@ -282,8 +286,11 @@ def load_features(vdir):
     return None
 
 
-def cmd_extract(_args):
+def cmd_extract(args):
+    only = getattr(args, "plugin", None)
     for pid in plugins():
+        if only and pid != only:
+            continue
         pdir = os.path.join(PLUGIN_ROOT, pid)
         vdir = os.path.join(pdir, "verify")
         os.makedirs(os.path.join(vdir, "features"), exist_ok=True)
@@ -577,8 +584,11 @@ flowchart LR
     print("root: rendered")
 
 
-def cmd_render(_args):
+def cmd_render(args):
+    only = getattr(args, "plugin", None)
     for pid in plugins():
+        if only and pid != only:
+            continue
         render_plugin(pid)
     render_root()
 

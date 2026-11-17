@@ -62,3 +62,15 @@ issue 管理ツール(dispatcher MCP)が利用不可だったため本ファイ�
 - AI がツール引数に `\uXXXX` エスケープで日本語を書くと expect regex が
   不一致 → ツール痕跡テキストを `\uXXXX` 実文字化した第2候補にも適用。
 - これらは検証ハーネス側の欠陥であり、製品コードの問題ではない。
+
+## ISSUE-7: geo_webview pluginInfo の cms* 5メソッドが検証カタログ未収録
+
+- 対象: `cmsRegisterLayer` / `cmsSchema` / `cmsSettings` / `cmsStatus` /
+  `cmsUploadKasc` (pluginInfo.methods 41件のうち features.json 側37件止まり)
+- 症状: describe_plugins には公開されているが
+  `qgis-plugin/geo_webview/verify/features.json` に項目がなく、
+  capability.json にも取り込まれない(AI 操作面の検証対象から漏れる)。
+- 判定: カタログ陳腐化(自己記述不備)。bridge 実装は正常で
+  `cmsStatus()` は tool-plane で ok 応答確認済み。
+- 起票: https://github.com/yamamoto-ryuzo/qgis_live_harness/issues/22
+- 検出: 2026-11-18 geo_webview スコープ tool-plane 検証時

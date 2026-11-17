@@ -1,7 +1,7 @@
 # geo_driver AIチャット — 制御面ロジックシート
 
-- 生成: 2026-11-15T22:36:00+09:00
-- scope: panel=38, plugin=467, qgis=1276
+- 生成: 2026-11-18T02:15:49+09:00
+- scope: panel=38, plugin=482, qgis=1276
 
 ## 制御トポロジ
 
@@ -160,6 +160,11 @@ sequenceDiagram
 | `plugin.geo_webview.bridge.applyTheme` | plugin | bridge_method | pass | pass | pass |
 | `plugin.geo_webview.bridge.checkAccess` | plugin | bridge_method | pass | pass | pass |
 | `plugin.geo_webview.bridge.closePanel` | plugin | bridge_method | pass | pass | pass |
+| `plugin.geo_webview.bridge.cmsRegisterLayer` | plugin | bridge_method | untested | untested | untested |
+| `plugin.geo_webview.bridge.cmsSchema` | plugin | bridge_method | untested | untested | untested |
+| `plugin.geo_webview.bridge.cmsSettings` | plugin | bridge_method | untested | untested | untested |
+| `plugin.geo_webview.bridge.cmsStatus` | plugin | bridge_method | untested | untested | untested |
+| `plugin.geo_webview.bridge.cmsUploadKasc` | plugin | bridge_method | untested | untested | untested |
 | `plugin.geo_webview.bridge.copyPermalink` | plugin | bridge_method | pass | pass | pass |
 | `plugin.geo_webview.bridge.deleteTheme` | plugin | bridge_method | pass | no_llm | pass |
 | `plugin.geo_webview.bridge.endpoints` | plugin | bridge_method | pass | pass | pass |
@@ -194,11 +199,12 @@ sequenceDiagram
 | `plugin.geo_webview.bridge.status` | plugin | bridge_method | pass | pass | pass |
 | `plugin.geo_webview.bridge.stopServer` | plugin | bridge_method | pass | pass | pass |
 | `plugin.geo_webview.registry.kasugai_export.py:register_kasugai_project` | plugin | registry | pass | no_llm | pass |
-| `plugin.geo_webview.integration.bridge.py:1412` | plugin | integration | pass | no_llm | pass |
-| `plugin.geo_webview.integration.bridge.py:387` | plugin | integration | pass | no_llm | pass |
-| `plugin.geo_webview.integration.bridge.py:389` | plugin | integration | pass | no_llm | pass |
-| `plugin.geo_webview.integration.kasugai_export.py:4066` | plugin | integration | untested | untested | untested |
-| `plugin.geo_webview.integration.kasugai_export.py:4303` | plugin | integration | untested | untested | untested |
+| `plugin.geo_webview.registry.reearth_cms.py:register_layer` | plugin | registry | untested | untested | untested |
+| `plugin.geo_webview.integration.bridge.py:1562` | plugin | integration | untested | untested | untested |
+| `plugin.geo_webview.integration.bridge.py:429` | plugin | integration | untested | untested | untested |
+| `plugin.geo_webview.integration.bridge.py:431` | plugin | integration | untested | untested | untested |
+| `plugin.geo_webview.integration.kasugai_export.py:4422` | plugin | integration | untested | untested | untested |
+| `plugin.geo_webview.integration.kasugai_export.py:4659` | plugin | integration | untested | untested | untested |
 | `plugin.geo_webview.integration.plugin.py:1387` | plugin | integration | pass | no_llm | pass |
 | `plugin.geo_webview.integration.plugin.py:1489` | plugin | integration | pass | no_llm | pass |
 | `plugin.geo_webview.integration.plugin.py:1503` | plugin | integration | pass | no_llm | pass |
@@ -264,6 +270,8 @@ sequenceDiagram
 | `plugin.geo_report.ai.bridge_route` | plugin | ai_integration | pass | pass | pass |
 | `plugin.geo_report.ai.catalog` | plugin | ai_integration | pass | pass | pass |
 | `plugin.geo_report.ai.pluginInfo` | plugin | ai_integration | pass | pass | pass |
+| `plugin.geo_report.bridge.previewLayout` | plugin | bridge_method | untested | untested | untested |
+| `plugin.geo_report.bridge.previewThumbnails` | plugin | bridge_method | untested | untested | untested |
 | `plugin.geo_import.entry_point.__init__.py:classFactory` | plugin | entry_point | pass | no_llm | pass |
 | `plugin.geo_import.action.DataFetchThread.run` | plugin | action | pass | pass | pass |
 | `plugin.geo_import.action.GeoImport.initGui` | plugin | action | pass | no_llm | pass |
@@ -497,23 +505,25 @@ sequenceDiagram
 | `plugin.geo_driver.bridge.suggestScaleWidth` | plugin | bridge_method | pass | pass | pass |
 | `plugin.geo_driver.registry.ai_client.py:register_extra_tools` | plugin | registry | pass | no_llm | pass |
 | `plugin.geo_driver.integration.__init__.py:59` | plugin | integration | pass | no_llm | pass |
-| `plugin.geo_driver.integration.ai_client.py:2144` | plugin | integration | untested | untested | untested |
-| `plugin.geo_driver.integration.ai_client.py:2150` | plugin | integration | untested | untested | untested |
-| `plugin.geo_driver.integration.ai_client.py:2167` | plugin | integration | untested | untested | untested |
-| `plugin.geo_driver.integration.ai_client.py:2344` | plugin | integration | untested | untested | untested |
-| `plugin.geo_driver.integration.ai_panel.py:2293` | plugin | integration | untested | untested | untested |
-| `plugin.geo_driver.integration.ai_panel.py:504` | plugin | integration | untested | untested | untested |
+| `plugin.geo_driver.integration.ai_client.py:2144` | plugin | integration | pass | untested | pass |
+| `plugin.geo_driver.integration.ai_client.py:2150` | plugin | integration | pass | untested | pass |
+| `plugin.geo_driver.integration.ai_client.py:2167` | plugin | integration | pass | untested | pass |
+| `plugin.geo_driver.integration.ai_client.py:2344` | plugin | integration | pass | untested | pass |
+| `plugin.geo_driver.integration.ai_panel.py:2293` | plugin | integration | pass | untested | pass |
+| `plugin.geo_driver.integration.ai_panel.py:504` | plugin | integration | pass | untested | pass |
 | `plugin.geo_driver.integration.credential_store.py:153` | plugin | integration | pass | no_llm | pass |
 | `plugin.geo_driver.integration.credential_store.py:180` | plugin | integration | pass | no_llm | pass |
 | `plugin.geo_driver.integration.credential_store.py:68` | plugin | integration | pass | no_llm | pass |
 | `plugin.geo_driver.integration.devin_tasks.py:274` | plugin | integration | pass | no_llm | pass |
 | `plugin.geo_driver.integration.devin_tasks.py:279` | plugin | integration | pass | no_llm | pass |
-| `plugin.geo_driver.integration.devin_tasks.py:647` | plugin | integration | untested | untested | untested |
+| `plugin.geo_driver.integration.devin_tasks.py:647` | plugin | integration | pass | untested | pass |
 | `plugin.geo_driver.integration.mcp_http.py:664` | plugin | integration | pass | no_llm | pass |
 | `plugin.geo_driver.integration.mode_switch.py:225` | plugin | integration | pass | no_llm | pass |
 | `plugin.geo_driver.ai.bridge_route` | plugin | ai_integration | pass | pass | pass |
 | `plugin.geo_driver.ai.catalog` | plugin | ai_integration | pass | pass | pass |
 | `plugin.geo_driver.ai.pluginInfo` | plugin | ai_integration | pass | pass | pass |
+| `plugin.geo_driver.bridge_method.GeoDriverBridge.auditLog` | plugin | bridge_method | untested | untested | untested |
+| `plugin.geo_driver.bridge_method.GeoDriverBridge.auditSettings` | plugin | bridge_method | untested | untested | untested |
 | `qgis.action.mActionNewProject` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action.mActionOpenProject` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action.SampleProjectFile_Q_sample_projects_Samp` | qgis | qgis_action | skip | no_llm | skip |
@@ -654,8 +664,8 @@ sequenceDiagram
 | `qgis.action.noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname` | qgis | qgis_action | untested | untested | untested |
-| `qgis.action.WebView` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname` | qgis | qgis_action | pass | untested | pass |
+| `qgis.action.WebView` | qgis | qgis_action | pass | untested | pass |
 | `qgis.action.mActionToggleWebToolBar` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.mActionToggleShapeDigitizeToolBar` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.mActionToggleSnappingToolBar` | qgis | qgis_action | pass | pass | pass |
@@ -757,7 +767,7 @@ sequenceDiagram
 | `qgis.action.geo_import` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action.geo_import` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action.Kasugai_QGIS_Launcher` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname` | qgis | qgis_action | skip | untested | skip |
 | `qgis.action....` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action.noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action....` | qgis | qgis_action | pass | pass | pass |
@@ -775,16 +785,16 @@ sequenceDiagram
 | `qgis.action.noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.QField` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.QField` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname` | qgis | qgis_action | untested | untested | untested |
-| `qgis.action.noname` | qgis | qgis_action | untested | untested | untested |
-| `qgis.action.AI` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname` | qgis | qgis_action | pass | untested | pass |
+| `qgis.action.noname` | qgis | qgis_action | skip | untested | skip |
+| `qgis.action.AI` | qgis | qgis_action | pass | untested | pass |
 | `qgis.action.localhost` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action.noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.searchLayers` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.searchLayersHelp` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.StreetView` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname` | qgis | qgis_action | pass | untested | pass |
 | `qgis.action.geo_search` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.mProcessingUserMenu_native_basicstatisticsforfields` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.mProcessingUserMenu_native_countpointsinpolygon` | qgis | qgis_action | pass | pass | pass |
@@ -938,7 +948,7 @@ sequenceDiagram
 | `qgis.action.Snapping_Priority` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.Prioritize_Snapping_to_Features` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.Prioritize_Snapping_to_Common_Angles` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | pass | untested | pass |
 | `qgis.action.0.1_0.2_0.3_0.4_...` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.0.5_1.0_1.5_2.0_...` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.1.0_2.0_3.0_4.0_...` | qgis | qgis_action | pass | pass | pass |
@@ -1011,11 +1021,11 @@ sequenceDiagram
 | `qgis.action.mActionManageElevationProfiles` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.J` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.R` | qgis | qgis_action | skip | no_llm | skip |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | pass | untested | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action.noname_noname` | qgis | qgis_action | skip | no_llm | skip |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | skip | untested | skip |
+| `qgis.action.noname_noname` | qgis | qgis_action | skip | untested | skip |
 | `qgis.action.Models` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.V` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.3D` | qgis | qgis_action | pass | pass | pass |
@@ -1031,7 +1041,7 @@ sequenceDiagram
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.P` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.H` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | pass | untested | pass |
 | `qgis.action.S` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action.R_R` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.Analysis` | qgis | qgis_action | pass | pass | pass |
@@ -1047,10 +1057,10 @@ sequenceDiagram
 | `qgis.action.Data_Management_Tools` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.E` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | skip | untested | skip |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | pass | untested | pass |
+| `qgis.action.noname_noname` | qgis | qgis_action | pass | untested | pass |
 | `qgis.action.M` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.Database` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.Web_W` | qgis | qgis_action | pass | pass | pass |
@@ -1072,11 +1082,11 @@ sequenceDiagram
 | `qgis.action.mAvoidIntersectionsModeAction` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.mSnappingWidget` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.EnableSnappingAction` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | skip | untested | skip |
 | `qgis.action.mAllowIntersectionsAction` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.mAvoidIntersectionsCurrentLayerAction` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action.mAvoidIntersectionsLayersAction` | qgis | qgis_action | skip | no_llm | skip |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | skip | untested | skip |
 | `qgis.action.mAllLayersAction` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.mActiveLayerAction` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.mAdvancedModeAction` | qgis | qgis_action | pass | pass | pass |
@@ -1085,8 +1095,8 @@ sequenceDiagram
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | pass | untested | pass |
+| `qgis.action.noname_noname` | qgis | qgis_action | pass | untested | pass |
 | `qgis.action.TopologicalEditingAction` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.IntersectionSnappingAction` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.EnableTracingAction` | qgis | qgis_action | pass | pass | pass |
@@ -1111,19 +1121,19 @@ sequenceDiagram
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | pass | untested | pass |
 | `qgis.action.Show_Broken_Layers_Only` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | skip | untested | skip |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | pass | untested | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | skip | untested | skip |
 | `qgis.action.mActionClear` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.mActionRecord` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action.mActionShowSuccessful` | qgis | qgis_action | pass | pass | pass |
@@ -1133,11 +1143,11 @@ sequenceDiagram
 | `qgis.action.mActionPyQgis` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.mActionQt` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.mActionOpenInBrowser` | qgis | qgis_action | skip | no_llm | skip |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | skip | untested | skip |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | skip | untested | skip |
 | `qgis.action.noname_noname` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action.noname_noname` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action.Show_Location_Marker` | qgis | qgis_action | pass | pass | pass |
@@ -1174,7 +1184,7 @@ sequenceDiagram
 | `qgis.action.geo_launcher` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.noname_noname` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.geo_report` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | pass | untested | pass |
 | `qgis.action.geo_userfunc` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.geo_webview_geo_webview` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.ImportPhotos_ImportPhotos` | qgis | qgis_action | skip | no_llm | skip |
@@ -1188,11 +1198,11 @@ sequenceDiagram
 | `qgis.action.Search_Layers` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.StreetView_StreetView` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.MetaSearch` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | pass | untested | pass |
 | `qgis.action...._...` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action...._...` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action...._...` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | pass | untested | pass |
 | `qgis.action...._...` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action...._...` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action...._...` | qgis | qgis_action | skip | no_llm | skip |
@@ -1238,7 +1248,7 @@ sequenceDiagram
 | `qgis.action.mActionRemoveVerticesWithoutFillingHole` | qgis | qgis_action | pass | pass | pass |
 | `qgis.action.mActionRemoveFaces` | qgis | qgis_action | skip | no_llm | skip |
 | `qgis.action.mActionSplitFaces` | qgis | qgis_action | pass | pass | pass |
-| `qgis.action.noname_noname` | qgis | qgis_action | untested | untested | untested |
+| `qgis.action.noname_noname` | qgis | qgis_action | skip | untested | skip |
 | `qgis.proc.3d_tessellate` | qgis | qgis_processing | pass | pass | pass |
 | `qgis.proc.gdal_aspect` | qgis | qgis_processing | pass | pass | pass |
 | `qgis.proc.gdal_assignprojection` | qgis | qgis_processing | pass | pass | pass |
@@ -1723,7 +1733,7 @@ sequenceDiagram
 | `qgis.dock.MessageLog` | qgis | qgis_dock | pass | pass | pass |
 | `qgis.dock.BookmarksDockWidget` | qgis | qgis_dock | pass | pass | pass |
 | `qgis.dock.theTileScaleDock` | qgis | qgis_dock | pass | no_llm | pass |
-| `qgis.dock.GeoReportLayoutSelectorPanel` | qgis | qgis_dock | untested | untested | untested |
+| `qgis.dock.GeoReportLayoutSelectorPanel` | qgis | qgis_dock | pass | untested | pass |
 | `qgis.dock.VertexEditor` | qgis | qgis_dock | pass | pass | pass |
 | `qgis.api.project.title_getset` | qgis | qgis_api | pass | pass | pass |
 | `qgis.api.project.crs_get` | qgis | qgis_api | pass | pass | pass |
@@ -1753,6 +1763,14 @@ sequenceDiagram
 | `qgis.api.mapcanvas.refresh` | qgis | qgis_api | pass | pass | pass |
 | `qgis.api.project.write_read` | qgis | qgis_api | pass | pass | pass |
 | `qgis.api.iface.mapTool` | qgis | qgis_api | pass | pass | pass |
+| `plugin.geo_webview.integration.bridge.py:1412` | plugin | integration | pass | no_llm | removed |
+| `plugin.geo_webview.integration.bridge.py:387` | plugin | integration | pass | no_llm | removed |
+| `plugin.geo_webview.integration.bridge.py:389` | plugin | integration | pass | no_llm | removed |
+| `plugin.geo_webview.integration.kasugai_export.py:4066` | plugin | integration | pass | untested | removed |
+| `plugin.geo_webview.integration.kasugai_export.py:4303` | plugin | integration | pass | untested | removed |
+| `qgis.action.noname` | qgis | qgis_action | pass | no_llm | removed |
+| `qgis.action.AI` | qgis | qgis_action | pass | pass | removed |
+| `qgis.action.noname_noname` | qgis | qgis_action | pass | no_llm | removed |
 | `plugin.geo_webview.integration.kasugai_export.py:4022` | plugin | integration | pass | no_llm | removed |
 | `plugin.geo_webview.integration.kasugai_export.py:4259` | plugin | integration | pass | no_llm | removed |
 | `plugin.geo_driver.integration.ai_client.py:2102` | plugin | integration | pass | no_llm | removed |
@@ -1762,9 +1780,6 @@ sequenceDiagram
 | `plugin.geo_driver.integration.ai_panel.py:2279` | plugin | integration | pass | no_llm | removed |
 | `plugin.geo_driver.integration.ai_panel.py:492` | plugin | integration | pass | no_llm | removed |
 | `plugin.geo_driver.integration.devin_tasks.py:639` | plugin | integration | pass | no_llm | removed |
-| `qgis.action.noname` | qgis | qgis_action | pass | no_llm | removed |
-| `qgis.action.AI` | qgis | qgis_action | pass | pass | removed |
-| `qgis.action.noname_noname` | qgis | qgis_action | pass | no_llm | removed |
 | `qgis.dock.GeoDriverAiPanel` | qgis | qgis_dock | pass | pass | removed |
 | `qgis.action.ProjectFile_C_Users_ryu_OneDrive_E_EQGIS` | qgis | qgis_action | skip | no_llm | removed |
 | `qgis.action.NewProjectFile_C_QGIS_E_ProjectFiles_New` | qgis | qgis_action | skip | no_llm | removed |

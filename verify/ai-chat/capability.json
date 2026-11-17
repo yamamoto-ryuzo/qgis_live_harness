@@ -12,9 +12,9 @@
   "provider": "copilot",
   "model": "gpt-4o",
   "configured": true,
-  "checked": "2026-11-15T22:36:00+09:00"
+  "checked": "2026-11-18T02:15:49+09:00"
  },
- "updated": "2026-11-15T22:36:11+09:00",
+ "updated": "2026-11-18T02:15:49+09:00",
  "features": [
   {
    "id": "panel.send",
@@ -2558,7 +2558,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:15+09:00"
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.action.GeoWebView.initGui",
@@ -2587,7 +2587,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:15+09:00"
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.action.GeoWebView.open_dialog",
@@ -2616,7 +2616,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=open_plugin,screenshot",
-   "last_verified": "2026-11-14T11:29:15+09:00"
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.action.GeoWebView.run",
@@ -2645,7 +2645,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=bridge_call,pyeval,screenshot",
-   "last_verified": "2026-11-14T11:29:15+09:00"
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.action.GeoWebView.unload",
@@ -2674,7 +2674,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:15+09:00"
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.dialog.GeoWebViewPanel",
@@ -2703,7 +2703,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=bridge_call,screenshot",
-   "last_verified": "2026-11-14T11:29:15+09:00"
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.dialog.SettingsDialog",
@@ -2732,7 +2732,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=pyeval,screenshot",
-   "last_verified": "2026-11-14T11:29:15+09:00"
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView._on_project_saved",
@@ -2760,8 +2760,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:15+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.handle_request_origin_changed",
@@ -2789,8 +2789,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:15+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_check_access_clicked",
@@ -2818,8 +2818,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:15+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_copy_clicked_panel",
@@ -2847,8 +2847,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:15+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_engine_combo_changed",
@@ -2876,8 +2876,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_generate_clicked_panel",
@@ -2905,8 +2905,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_hosted_combo_changed",
@@ -2934,8 +2934,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_kasugai_export_clicked",
@@ -2963,8 +2963,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_kasugai_help_clicked",
@@ -2992,8 +2992,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_kasugai_launch_clicked",
@@ -3021,8 +3021,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_kasugai_open_folder",
@@ -3050,8 +3050,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_kasugai_outdir_browse",
@@ -3079,8 +3079,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_kasugai_outdir_reset",
@@ -3108,8 +3108,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_kasugai_zip_clicked",
@@ -3137,8 +3137,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_navigate_clicked_panel",
@@ -3166,8 +3166,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_present_clicked_panel",
@@ -3195,8 +3195,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_received_selected",
@@ -3224,8 +3224,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_save_theme_clicked_panel",
@@ -3253,8 +3253,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebView.on_standard_port_clicked",
@@ -3282,8 +3282,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebViewPanel._on_copy_permalink_to_clipboard",
@@ -3311,8 +3311,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebViewPanel._on_paste_from_clipboard",
@@ -3340,8 +3340,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebViewPanel._on_visibility_changed",
@@ -3369,8 +3369,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebViewPanel.set_external_control_handler",
@@ -3398,8 +3398,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebViewPanel.set_port_change_handler",
@@ -3427,8 +3427,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebViewPanel.set_server_toggle_handler",
@@ -3456,8 +3456,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.GeoWebViewServerManager._on_cursor_xy",
@@ -3485,8 +3485,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.LiveSyncController._on_layers_added",
@@ -3514,8 +3514,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.LiveSyncController._on_project_read",
@@ -3543,8 +3543,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.LiveSyncController._on_selection_changed",
@@ -3572,8 +3572,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.LiveSyncController._on_structure",
@@ -3601,8 +3601,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.SettingsDialog._basemap_groups_changed",
@@ -3630,8 +3630,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.ui.SettingsDialog._hosted_channel_changed",
@@ -3659,8 +3659,8 @@
    "tool_result": "skip",
    "ai_result": "no_llm",
    "last_result": "skip",
-   "note": "UI内部スロット — 親dialog/action経由で検証 | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "UI内部スロット — 親dialog/action経由で検証",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.addFirewallRule",
@@ -3669,7 +3669,7 @@
    "name": "addFirewallRule",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.addFirewallRule",
-   "source": "bridge.py:1441",
+   "source": "bridge.py:1591",
    "signature": "addFirewallRule(port=…)",
    "summary": "Windowsファイアウォールに受信ルールを追加する。",
    "needs_llm": false,
@@ -3690,7 +3690,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.applyTheme",
@@ -3699,7 +3699,7 @@
    "name": "applyTheme",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.applyTheme",
-   "source": "bridge.py:844",
+   "source": "bridge.py:886",
    "signature": "applyTheme(name)",
    "summary": "マップテーマをレイヤツリーへ適用し、パネルコンボも同期する。",
    "needs_llm": false,
@@ -3720,7 +3720,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=bridge_call,screenshot",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.checkAccess",
@@ -3729,7 +3729,7 @@
    "name": "checkAccess",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.checkAccess",
-   "source": "bridge.py:1218",
+   "source": "bridge.py:1368",
    "signature": "checkAccess()",
    "summary": "外部アクセス診断(ファイアウォール含む)を実行し結果を返す。",
    "needs_llm": false,
@@ -3749,8 +3749,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO) | ai(devin_acp): tools=bridge_call",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "discover降格(非RO)",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.closePanel",
@@ -3759,7 +3759,7 @@
    "name": "closePanel",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.closePanel",
-   "source": "bridge.py:519",
+   "source": "bridge.py:561",
    "signature": "closePanel()",
    "summary": "GeoWebViewドックパネルを隠す(インスタンスは保持)。",
    "needs_llm": false,
@@ -3779,8 +3779,153 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO) | ai(devin_acp): tools=bridge_call,screenshot",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "discover降格(非RO)",
+   "last_verified": "2026-11-18T02:02:39+09:00"
+  },
+  {
+   "id": "plugin.geo_webview.bridge.cmsRegisterLayer",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "cmsRegisterLayer",
+   "plugin_id": "geo_webview",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.cmsRegisterLayer",
+   "source": "bridge.py:1327",
+   "signature": "cmsRegisterLayer(layer_name=…, mapping=…, geometry_key=…, selected_only=…, publish=…, max_features=…)",
+   "summary": "ベクタレイヤを Re:Earth CMS アイテムとして登録する。",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_webview",
+    "method": "cmsRegisterLayer"
+   },
+   "ai": null,
+   "tool_result": "untested",
+   "ai_result": "untested",
+   "last_result": "untested",
+   "note": ""
+  },
+  {
+   "id": "plugin.geo_webview.bridge.cmsSchema",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "cmsSchema",
+   "plugin_id": "geo_webview",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.cmsSchema",
+   "source": "bridge.py:1316",
+   "signature": "cmsSchema(model=…)",
+   "summary": "接続先モデルのスキーマ(フィールド定義)を返す。",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_webview",
+    "method": "cmsSchema"
+   },
+   "ai": null,
+   "tool_result": "untested",
+   "ai_result": "untested",
+   "last_result": "untested",
+   "note": ""
+  },
+  {
+   "id": "plugin.geo_webview.bridge.cmsSettings",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "cmsSettings",
+   "plugin_id": "geo_webview",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.cmsSettings",
+   "source": "bridge.py:1285",
+   "signature": "cmsSettings(settings=…)",
+   "summary": "Re:Earth CMS 接続設定を保存する。",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_webview",
+    "method": "cmsSettings"
+   },
+   "ai": null,
+   "tool_result": "untested",
+   "ai_result": "untested",
+   "last_result": "untested",
+   "note": ""
+  },
+  {
+   "id": "plugin.geo_webview.bridge.cmsStatus",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "cmsStatus",
+   "plugin_id": "geo_webview",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.cmsStatus",
+   "source": "bridge.py:1273",
+   "signature": "cmsStatus()",
+   "summary": "Re:Earth CMS 接続設定の状態を返す。",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_call0",
+    "plugin_id": "geo_webview",
+    "method": "cmsStatus"
+   },
+   "ai": null,
+   "tool_result": "untested",
+   "ai_result": "untested",
+   "last_result": "untested",
+   "note": ""
+  },
+  {
+   "id": "plugin.geo_webview.bridge.cmsUploadKasc",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "cmsUploadKasc",
+   "plugin_id": "geo_webview",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.cmsUploadKasc",
+   "source": "bridge.py:1351",
+   "signature": "cmsUploadKasc(export_dir=…, publish=…)",
+   "summary": ".kasc+DATA/ 出力物を ZIP 化して CMS アセットとして公開する。",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_webview",
+    "method": "cmsUploadKasc"
+   },
+   "ai": null,
+   "tool_result": "untested",
+   "ai_result": "untested",
+   "last_result": "untested",
+   "note": ""
   },
   {
    "id": "plugin.geo_webview.bridge.copyPermalink",
@@ -3789,7 +3934,7 @@
    "name": "copyPermalink",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.copyPermalink",
-   "source": "bridge.py:705",
+   "source": "bridge.py:747",
    "signature": "copyPermalink()",
    "summary": "現在のパーマリンクをクリップボードへコピーする(未生成なら生成)。",
    "needs_llm": false,
@@ -3809,8 +3954,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO) | ai(devin_acp): tools=bridge_call,pyeval",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "discover降格(非RO)",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.deleteTheme",
@@ -3819,7 +3964,7 @@
    "name": "deleteTheme",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.deleteTheme",
-   "source": "bridge.py:895",
+   "source": "bridge.py:937",
    "signature": "deleteTheme(name)",
    "summary": "マップテーマを削除する。",
    "needs_llm": false,
@@ -3840,7 +3985,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.endpoints",
@@ -3849,7 +3994,7 @@
    "name": "endpoints",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.endpoints",
-   "source": "bridge.py:1234",
+   "source": "bridge.py:1384",
    "signature": "endpoints()",
    "summary": "HTTPサーバが公開するエンドポイント一覧と基底URLを返す。",
    "needs_llm": false,
@@ -3869,8 +4014,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO) | ai(devin_acp): tools=bridge_call",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "discover降格(非RO)",
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.externalControl",
@@ -3879,7 +4024,7 @@
    "name": "externalControl",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.externalControl",
-   "source": "bridge.py:643",
+   "source": "bridge.py:685",
    "signature": "externalControl(enabled=…)",
    "summary": "外部制御モード(HTTP要求で自動ナビゲート)を取得/設定する。",
    "needs_llm": false,
@@ -3900,7 +4045,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.generatePermalink",
@@ -3909,7 +4054,7 @@
    "name": "generatePermalink",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.generatePermalink",
-   "source": "bridge.py:663",
+   "source": "bridge.py:705",
    "signature": "generatePermalink(theme=…)",
    "summary": "現在の地図ビューからパーマリンクURLを生成する。",
    "needs_llm": false,
@@ -3930,7 +4075,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=bridge_call,pyeval",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.getSettings",
@@ -3939,7 +4084,7 @@
    "name": "getSettings",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.getSettings",
-   "source": "bridge.py:1288",
+   "source": "bridge.py:1438",
    "signature": "getSettings()",
    "summary": "設定(出力先ディレクトリ・優先ポート)とバージョンを返す。",
    "needs_llm": false,
@@ -3960,7 +4105,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=bridge_call",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.kascImport",
@@ -3969,7 +4114,7 @@
    "name": "kascImport",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.kascImport",
-   "source": "bridge.py:1186",
+   "source": "bridge.py:1241",
    "signature": "kascImport(source=…, add_to_project=…, only_visible=…, apply_camera=…, group_prefix=…, replace=…)",
    "summary": ".kasc+DATA/ を QGIS プロジェクトへ逆取り込みする。",
    "needs_llm": false,
@@ -3990,7 +4135,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:02:39+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.kascInspect",
@@ -3999,7 +4144,7 @@
    "name": "kascInspect",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.kascInspect",
-   "source": "bridge.py:1170",
+   "source": "bridge.py:1225",
    "signature": "kascInspect(source)",
    "summary": ".kasc を解析して一覧を返す(プロジェクト非変更の dry run)。",
    "needs_llm": false,
@@ -4020,7 +4165,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=bridge_call,pyeval",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.kasugaiExport",
@@ -4029,8 +4174,8 @@
    "name": "kasugaiExport",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.kasugaiExport",
-   "source": "bridge.py:934",
-   "signature": "kasugaiExport(output_dir=…, open_app=…, native_formats=…, hidden_as_off=…, embed_gpkg_style=…, emit_themes=…, emit_bookmarks=…, emit_launchers=…, emit_zip=…, engine=…, install=…, route=…, use_existing=…, emit_atlas=…)",
+   "source": "bridge.py:976",
+   "signature": "kasugaiExport(output_dir=…, open_app=…, native_formats=…, hidden_as_off=…, embed_gpkg_style=…, emit_themes=…, emit_bookmarks=…, emit_launchers=…, emit_zip=…, engine=…, install=…, route=…, use_existing=…, emit_atlas=…, fields=…, where=…, limit=…, link_files=…)",
    "summary": "表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。",
    "needs_llm": false,
    "ai_sample": false,
@@ -4050,7 +4195,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.listBookmarks",
@@ -4059,7 +4204,7 @@
    "name": "listBookmarks",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.listBookmarks",
-   "source": "bridge.py:907",
+   "source": "bridge.py:949",
    "signature": "listBookmarks()",
    "summary": "プロジェクト/ユーザブックマーク一覧(中心EPSG:3857)を返す。",
    "needs_llm": false,
@@ -4080,7 +4225,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=bridge_call,pyeval",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.listThemes",
@@ -4089,7 +4234,7 @@
    "name": "listThemes",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.listThemes",
-   "source": "bridge.py:827",
+   "source": "bridge.py:869",
    "signature": "listThemes()",
    "summary": "マップテーマ一覧・パネルコンボの現在選択を返す。",
    "needs_llm": false,
@@ -4110,7 +4255,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=bridge_call",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.liveAddFeatures",
@@ -4119,7 +4264,7 @@
    "name": "liveAddFeatures",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.liveAddFeatures",
-   "source": "bridge.py:1571",
+   "source": "bridge.py:1721",
    "signature": "liveAddFeatures(name=…, geojson=…, replace=…)",
    "summary": "GeoJSON をスクラッチ(memory)レイヤとしてプロジェクトへ",
    "needs_llm": false,
@@ -4140,7 +4285,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.liveSyncFlush",
@@ -4149,7 +4294,7 @@
    "name": "liveSyncFlush",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.liveSyncFlush",
-   "source": "bridge.py:1547",
+   "source": "bridge.py:1697",
    "signature": "liveSyncFlush()",
    "summary": "保留中の変更を即時差分エクスポート+通知する。",
    "needs_llm": false,
@@ -4169,8 +4314,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO) | ai(devin_acp): tools=bridge_call",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "discover降格(非RO)",
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.liveSyncStart",
@@ -4179,7 +4324,7 @@
    "name": "liveSyncStart",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.liveSyncStart",
-   "source": "bridge.py:1521",
+   "source": "bridge.py:1671",
    "signature": "liveSyncStart()",
    "summary": "ライブ双方向連携を有効化して監視を開始する。",
    "needs_llm": false,
@@ -4199,8 +4344,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO) | ai(devin_acp): tools=bridge_call,pyeval",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "discover降格(非RO)",
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.liveSyncStatus",
@@ -4209,7 +4354,7 @@
    "name": "liveSyncStatus",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.liveSyncStatus",
-   "source": "bridge.py:1506",
+   "source": "bridge.py:1656",
    "signature": "liveSyncStatus()",
    "summary": "ライブ連携の状態を返す。",
    "needs_llm": false,
@@ -4230,7 +4375,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=bridge_call",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.liveSyncStop",
@@ -4239,7 +4384,7 @@
    "name": "liveSyncStop",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.liveSyncStop",
-   "source": "bridge.py:1536",
+   "source": "bridge.py:1686",
    "signature": "liveSyncStop()",
    "summary": "ライブ双方向連携を無効化して監視を停止する。",
    "needs_llm": false,
@@ -4259,8 +4404,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO) | ai(devin_acp): tools=bridge_call",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "discover降格(非RO)",
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.liveWriteback",
@@ -4269,7 +4414,7 @@
    "name": "liveWriteback",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.liveWriteback",
-   "source": "bridge.py:1554",
+   "source": "bridge.py:1704",
    "signature": "liveWriteback(payload=…)",
    "summary": "Canvas 側の表示/フィルタ/テーマ状態を QGIS プロジェクトへ",
    "needs_llm": false,
@@ -4290,7 +4435,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.macAuth",
@@ -4299,7 +4444,7 @@
    "name": "macAuth",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.macAuth",
-   "source": "bridge.py:1467",
+   "source": "bridge.py:1617",
    "signature": "macAuth(enabled=…, allowed=…)",
    "summary": "MACアドレス認証を取得/設定する。",
    "needs_llm": false,
@@ -4320,7 +4465,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.navigate",
@@ -4329,7 +4474,7 @@
    "name": "navigate",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.navigate",
-   "source": "bridge.py:737",
+   "source": "bridge.py:779",
    "signature": "navigate(url)",
    "summary": "パーマリンクURLから地図ビューを移動する(モーダル無し)。",
    "needs_llm": false,
@@ -4350,7 +4495,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=bridge_call,screenshot",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.navigateTo",
@@ -4359,7 +4504,7 @@
    "name": "navigateTo",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.navigateTo",
-   "source": "bridge.py:794",
+   "source": "bridge.py:836",
    "signature": "navigateTo(x=…, y=…, lat=…, lon=…, scale=…, zoom=…, crs=…, rotation=…, theme=…)",
    "summary": "座標を直接指定して地図ビューを移動する。",
    "needs_llm": false,
@@ -4380,7 +4525,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=bridge_call,pyeval",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.openExportFolder",
@@ -4389,7 +4534,7 @@
    "name": "openExportFolder",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.openExportFolder",
-   "source": "bridge.py:1405",
+   "source": "bridge.py:1555",
    "signature": "openExportFolder()",
    "summary": "KASUGAI出力フォルダをOSのファイルマネージャで開く。",
    "needs_llm": false,
@@ -4409,8 +4554,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO) | ai(devin_acp): tools=bridge_call",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "discover降格(非RO)",
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.openExternal",
@@ -4419,7 +4564,7 @@
    "name": "openExternal",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.openExternal",
-   "source": "bridge.py:917",
+   "source": "bridge.py:959",
    "signature": "openExternal(service)",
    "summary": "KASUGAI Canvas を指定エンジンで起動する。",
    "needs_llm": false,
@@ -4440,7 +4585,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.openPanel",
@@ -4449,7 +4594,7 @@
    "name": "openPanel",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.openPanel",
-   "source": "bridge.py:501",
+   "source": "bridge.py:543",
    "signature": "openPanel()",
    "summary": "GeoWebViewドックパネルを生成・表示する(冪等、トグルではない)。",
    "needs_llm": false,
@@ -4469,8 +4614,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO) | ai(devin_acp): tools=bridge_call,screenshot",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "discover降格(非RO)",
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.openPresent",
@@ -4479,7 +4624,7 @@
    "name": "openPresent",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.openPresent",
-   "source": "bridge.py:1416",
+   "source": "bridge.py:1566",
    "signature": "openPresent()",
    "summary": "キャンバス画面共有ページ(/present)をブラウザで開く。",
    "needs_llm": false,
@@ -4499,8 +4644,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO) | ai(devin_acp): tools=bridge_call",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "discover降格(非RO)",
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.pluginInfo",
@@ -4509,7 +4654,7 @@
    "name": "pluginInfo",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.pluginInfo",
-   "source": "bridge.py:418",
+   "source": "bridge.py:460",
    "signature": "pluginInfo()",
    "summary": "プラグインの自己記述(id/summary/when_to_use/methods)を返す。",
    "needs_llm": true,
@@ -4534,7 +4679,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=describe_plugins",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.receivedHistory",
@@ -4543,7 +4688,7 @@
    "name": "receivedHistory",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.receivedHistory",
-   "source": "bridge.py:1433",
+   "source": "bridge.py:1583",
    "signature": "receivedHistory()",
    "summary": "受領パーマリンク履歴(最新10件)を返す。",
    "needs_llm": false,
@@ -4563,8 +4708,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO) | ai(devin_acp): tools=bridge_call",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "discover降格(非RO)",
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.saveTheme",
@@ -4573,7 +4718,7 @@
    "name": "saveTheme",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.saveTheme",
-   "source": "bridge.py:870",
+   "source": "bridge.py:912",
    "signature": "saveTheme(name=…, overwrite=…)",
    "summary": "現在のレイヤツリー状態をマップテーマとして保存する。",
    "needs_llm": false,
@@ -4594,7 +4739,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.serverStatus",
@@ -4603,7 +4748,7 @@
    "name": "serverStatus",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.serverStatus",
-   "source": "bridge.py:532",
+   "source": "bridge.py:574",
    "signature": "serverStatus(deep=…)",
    "summary": "HTTPサーバの稼働状態・ポート・URLを返す。",
    "needs_llm": false,
@@ -4624,7 +4769,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=bridge_call",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.setPort",
@@ -4633,7 +4778,7 @@
    "name": "setPort",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.setPort",
-   "source": "bridge.py:599",
+   "source": "bridge.py:641",
    "signature": "setPort(port)",
    "summary": "優先ポートを設定する。起動中ならそのポートで再起動する。",
    "needs_llm": false,
@@ -4654,7 +4799,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.setSettings",
@@ -4663,7 +4808,7 @@
    "name": "setSettings",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.setSettings",
-   "source": "bridge.py:1316",
+   "source": "bridge.py:1466",
    "signature": "setSettings(settings=…)",
    "summary": "設定を変更する。",
    "needs_llm": false,
@@ -4684,7 +4829,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.startServer",
@@ -4693,7 +4838,7 @@
    "name": "startServer",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.startServer",
-   "source": "bridge.py:557",
+   "source": "bridge.py:599",
    "signature": "startServer(port=…)",
    "summary": "HTTPサーバを起動する。port指定時はそのポートを優先する。",
    "needs_llm": false,
@@ -4714,7 +4859,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.status",
@@ -4723,7 +4868,7 @@
    "name": "status",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.status",
-   "source": "bridge.py:445",
+   "source": "bridge.py:487",
    "signature": "status()",
    "summary": "パネル・サーバ・キャンバス・入出力欄の実行時状態を返す。",
    "needs_llm": true,
@@ -4748,7 +4893,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=bridge_call,pyeval,status",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.bridge.stopServer",
@@ -4757,7 +4902,7 @@
    "name": "stopServer",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#bridge.stopServer",
-   "source": "bridge.py:590",
+   "source": "bridge.py:632",
    "signature": "stopServer()",
    "summary": "HTTPサーバを停止する。",
    "needs_llm": false,
@@ -4777,8 +4922,8 @@
    "tool_result": "pass",
    "ai_result": "pass",
    "last_result": "pass",
-   "note": "discover降格(非RO) | ai(devin_acp): tools=bridge_call,pyeval",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "note": "discover降格(非RO)",
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.registry.kasugai_export.py:register_kasugai_project",
@@ -4787,7 +4932,7 @@
    "name": "register_kasugai_project",
    "plugin_id": "geo_webview",
    "ref": "qgis-plugin/geo_webview/verify/features.json#registry.kasugai_export.py:register_kasugai_project",
-   "source": "kasugai_export.py:3937",
+   "source": "kasugai_export.py:4293",
    "signature": "register_kasugai_project(kasc_path, port=…, engine=…)",
    "summary": "POST /api/projects/register で.kascを外部プロジェクト登録する。",
    "needs_llm": false,
@@ -4807,16 +4952,44 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
-   "id": "plugin.geo_webview.integration.bridge.py:1412",
+   "id": "plugin.geo_webview.registry.reearth_cms.py:register_layer",
+   "scope": "plugin",
+   "kind": "registry",
+   "name": "register_layer",
+   "plugin_id": "geo_webview",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#registry.reearth_cms.py:register_layer",
+   "source": "reearth_cms.py:308",
+   "signature": "register_layer(layer_name=…, mapping=…, geometry_key=…, selected_only=…, publish=…, max_features=…)",
+   "summary": "指定(またはアクティブ)ベクタレイヤを CMS アイテムとして登録する。",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; p=qgis.utils.plugins.get('geo_webview'); result = p is not None"
+   },
+   "ai": null,
+   "tool_result": "untested",
+   "ai_result": "untested",
+   "last_result": "untested",
+   "note": ""
+  },
+  {
+   "id": "plugin.geo_webview.integration.bridge.py:1562",
    "scope": "plugin",
    "kind": "integration",
    "name": "QDesktopServices.openUrl",
    "plugin_id": "geo_webview",
-   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.bridge.py:1412",
-   "source": "bridge.py:1412",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.bridge.py:1562",
+   "source": "bridge.py:1562",
    "signature": "QDesktopServices.openUrl(…)",
    "summary": "外部連携呼出",
    "needs_llm": false,
@@ -4832,20 +5005,19 @@
     "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_webview') is not None"
    },
    "ai": null,
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "tool_result": "untested",
+   "ai_result": "untested",
+   "last_result": "untested",
+   "note": ""
   },
   {
-   "id": "plugin.geo_webview.integration.bridge.py:387",
+   "id": "plugin.geo_webview.integration.bridge.py:429",
    "scope": "plugin",
    "kind": "integration",
    "name": "QDesktopServices.openUrl",
    "plugin_id": "geo_webview",
-   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.bridge.py:387",
-   "source": "bridge.py:387",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.bridge.py:429",
+   "source": "bridge.py:429",
    "signature": "QDesktopServices.openUrl(…)",
    "summary": "外部連携呼出",
    "needs_llm": false,
@@ -4861,20 +5033,19 @@
     "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_webview') is not None"
    },
    "ai": null,
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "tool_result": "untested",
+   "ai_result": "untested",
+   "last_result": "untested",
+   "note": ""
   },
   {
-   "id": "plugin.geo_webview.integration.bridge.py:389",
+   "id": "plugin.geo_webview.integration.bridge.py:431",
    "scope": "plugin",
    "kind": "integration",
    "name": "webbrowser.open",
    "plugin_id": "geo_webview",
-   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.bridge.py:389",
-   "source": "bridge.py:389",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.bridge.py:431",
+   "source": "bridge.py:431",
    "signature": "webbrowser.open(…)",
    "summary": "外部連携呼出",
    "needs_llm": false,
@@ -4890,20 +5061,19 @@
     "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_webview') is not None"
    },
    "ai": null,
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "pass",
-   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "tool_result": "untested",
+   "ai_result": "untested",
+   "last_result": "untested",
+   "note": ""
   },
   {
-   "id": "plugin.geo_webview.integration.kasugai_export.py:4066",
+   "id": "plugin.geo_webview.integration.kasugai_export.py:4422",
    "scope": "plugin",
    "kind": "integration",
    "name": "subprocess.Popen",
    "plugin_id": "geo_webview",
-   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.kasugai_export.py:4066",
-   "source": "kasugai_export.py:4066",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.kasugai_export.py:4422",
+   "source": "kasugai_export.py:4422",
    "signature": "subprocess.Popen(…)",
    "summary": "外部連携呼出",
    "needs_llm": false,
@@ -4919,20 +5089,19 @@
     "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_webview') is not None"
    },
    "ai": null,
-   "tool_result": "pass",
+   "tool_result": "untested",
    "ai_result": "untested",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-15T22:36:00+09:00"
+   "last_result": "untested",
+   "note": ""
   },
   {
-   "id": "plugin.geo_webview.integration.kasugai_export.py:4303",
+   "id": "plugin.geo_webview.integration.kasugai_export.py:4659",
    "scope": "plugin",
    "kind": "integration",
    "name": "subprocess.Popen",
    "plugin_id": "geo_webview",
-   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.kasugai_export.py:4303",
-   "source": "kasugai_export.py:4303",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.kasugai_export.py:4659",
+   "source": "kasugai_export.py:4659",
    "signature": "subprocess.Popen(…)",
    "summary": "外部連携呼出",
    "needs_llm": false,
@@ -4948,11 +5117,10 @@
     "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_webview') is not None"
    },
    "ai": null,
-   "tool_result": "pass",
+   "tool_result": "untested",
    "ai_result": "untested",
-   "last_result": "pass",
-   "note": "",
-   "last_verified": "2026-11-15T22:36:00+09:00"
+   "last_result": "untested",
+   "note": ""
   },
   {
    "id": "plugin.geo_webview.integration.plugin.py:1387",
@@ -4981,7 +5149,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.plugin.py:1489",
@@ -5010,7 +5178,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.plugin.py:1503",
@@ -5039,7 +5207,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.plugin.py:1835",
@@ -5068,7 +5236,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:1098",
@@ -5097,7 +5265,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:1127",
@@ -5126,7 +5294,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:1131",
@@ -5155,7 +5323,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:1135",
@@ -5184,7 +5352,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:2882",
@@ -5213,7 +5381,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:2928",
@@ -5242,7 +5410,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:3006",
@@ -5271,7 +5439,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:3010",
@@ -5300,7 +5468,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:3039",
@@ -5329,7 +5497,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:3115",
@@ -5358,7 +5526,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:313",
@@ -5387,7 +5555,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:316",
@@ -5416,7 +5584,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:317",
@@ -5445,7 +5613,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:318",
@@ -5474,7 +5642,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:14+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:3231",
@@ -5503,7 +5671,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:22+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:3286",
@@ -5532,7 +5700,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:22+09:00"
   },
   {
    "id": "plugin.geo_webview.integration.server_manager.py:3299",
@@ -5561,7 +5729,7 @@
    "ai_result": "no_llm",
    "last_result": "pass",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:22+09:00"
   },
   {
    "id": "plugin.geo_webview.ai.bridge_route",
@@ -5591,7 +5759,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=describe_plugins",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:22+09:00"
   },
   {
    "id": "plugin.geo_webview.ai.catalog",
@@ -5621,7 +5789,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=describe_plugins",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:22+09:00"
   },
   {
    "id": "plugin.geo_webview.ai.pluginInfo",
@@ -5651,7 +5819,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=describe_plugins",
-   "last_verified": "2026-11-14T11:29:22+09:00"
+   "last_verified": "2026-11-18T02:03:22+09:00"
   },
   {
    "id": "plugin.geo_report.entry_point.__init__.py:classFactory",
@@ -6876,6 +7044,64 @@
    "last_result": "pass",
    "note": "ai(devin_acp): panel not available | ai(devin_acp): tools=describe_plugins",
    "last_verified": "2026-11-14T11:29:30+09:00"
+  },
+  {
+   "id": "plugin.geo_report.bridge.previewLayout",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "previewLayout",
+   "plugin_id": "geo_report",
+   "ref": "qgis-plugin/geo_report/verify/features.json#bridge.previewLayout",
+   "source": "bridge.py",
+   "signature": "previewLayout(layout=None, format='png', dpi=None, path=None, includeBase64=False)",
+   "summary": "QgsLayoutExporter でレイアウトを一時描画し生成ファイル(png/pdf/svg)のパス一覧を返す",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_report",
+    "method": "previewLayout"
+   },
+   "ai": null,
+   "tool_result": "untested",
+   "ai_result": "untested",
+   "last_result": "untested",
+   "note": ""
+  },
+  {
+   "id": "plugin.geo_report.bridge.previewThumbnails",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "previewThumbnails",
+   "plugin_id": "geo_report",
+   "ref": "qgis-plugin/geo_report/verify/features.json#bridge.previewThumbnails",
+   "source": "bridge.py",
+   "signature": "previewThumbnails(layouts=None, dpi=50)",
+   "summary": "全(または指定)レイアウトのサムネイルPNGを一括生成しパス一覧を返す",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_report",
+    "method": "previewThumbnails"
+   },
+   "ai": null,
+   "tool_result": "untested",
+   "ai_result": "untested",
+   "last_result": "untested",
+   "note": ""
   },
   {
    "id": "plugin.geo_import.entry_point.__init__.py:classFactory",
@@ -14319,6 +14545,64 @@
    "last_verified": "2026-11-14T11:30:02+09:00"
   },
   {
+   "id": "plugin.geo_driver.bridge_method.GeoDriverBridge.auditLog",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "auditLog",
+   "plugin_id": "geo_driver",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#bridge_method.GeoDriverBridge.auditLog",
+   "source": "bridge.py:427",
+   "signature": "auditLog(n=50, filter=None)",
+   "summary": "監査ログ(~/.qgis-live/audit-*.jsonl)の直近n件をフィルタ付きで返す",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_driver",
+    "method": "auditLog"
+   },
+   "ai": null,
+   "tool_result": "untested",
+   "ai_result": "untested",
+   "last_result": "untested",
+   "note": ""
+  },
+  {
+   "id": "plugin.geo_driver.bridge_method.GeoDriverBridge.auditSettings",
+   "scope": "plugin",
+   "kind": "bridge_method",
+   "name": "auditSettings",
+   "plugin_id": "geo_driver",
+   "ref": "qgis-plugin/geo_driver/verify/features.json#bridge_method.GeoDriverBridge.auditSettings",
+   "source": "bridge.py:443",
+   "signature": "auditSettings(enabled=None, max_bytes=None, max_files=None)",
+   "summary": "監査ログの有効化・サイズ/世代上限を取得/設定(QSettings)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "bridge_discover",
+    "plugin_id": "geo_driver",
+    "method": "auditSettings"
+   },
+   "ai": null,
+   "tool_result": "untested",
+   "ai_result": "untested",
+   "last_result": "untested",
+   "note": ""
+  },
+  {
    "id": "qgis.action.mActionNewProject",
    "scope": "qgis",
    "kind": "qgis_action",
@@ -20791,7 +21075,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:42+09:00"
+   "last_verified": "2026-11-18T02:03:22+09:00"
   },
   {
    "id": "qgis.action.Import_Photos",
@@ -31197,7 +31481,7 @@
    "ai_result": "pass",
    "last_result": "pass",
    "note": "ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:32:05+09:00"
+   "last_verified": "2026-11-18T02:03:22+09:00"
   },
   {
    "id": "qgis.action.ImportPhotos_ImportPhotos",
@@ -45812,6 +46096,226 @@
    "last_verified": "2026-11-14T11:33:55+09:00"
   },
   {
+   "id": "plugin.geo_webview.integration.bridge.py:1412",
+   "scope": "plugin",
+   "kind": "integration",
+   "name": "QDesktopServices.openUrl",
+   "plugin_id": "geo_webview",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.bridge.py:1412",
+   "source": "bridge.py:1412",
+   "signature": "QDesktopServices.openUrl(…)",
+   "summary": "外部連携呼出",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_webview') is not None"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-18T02:03:14+09:00"
+  },
+  {
+   "id": "plugin.geo_webview.integration.bridge.py:387",
+   "scope": "plugin",
+   "kind": "integration",
+   "name": "QDesktopServices.openUrl",
+   "plugin_id": "geo_webview",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.bridge.py:387",
+   "source": "bridge.py:387",
+   "signature": "QDesktopServices.openUrl(…)",
+   "summary": "外部連携呼出",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_webview') is not None"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-18T02:03:14+09:00"
+  },
+  {
+   "id": "plugin.geo_webview.integration.bridge.py:389",
+   "scope": "plugin",
+   "kind": "integration",
+   "name": "webbrowser.open",
+   "plugin_id": "geo_webview",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.bridge.py:389",
+   "source": "bridge.py:389",
+   "signature": "webbrowser.open(…)",
+   "summary": "外部連携呼出",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_webview') is not None"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
+   "last_verified": "2026-11-18T02:03:14+09:00"
+  },
+  {
+   "id": "plugin.geo_webview.integration.kasugai_export.py:4066",
+   "scope": "plugin",
+   "kind": "integration",
+   "name": "subprocess.Popen",
+   "plugin_id": "geo_webview",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.kasugai_export.py:4066",
+   "source": "kasugai_export.py:4066",
+   "signature": "subprocess.Popen(…)",
+   "summary": "外部連携呼出",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_webview') is not None"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "untested",
+   "last_result": "removed",
+   "note": "",
+   "last_verified": "2026-11-18T02:03:14+09:00"
+  },
+  {
+   "id": "plugin.geo_webview.integration.kasugai_export.py:4303",
+   "scope": "plugin",
+   "kind": "integration",
+   "name": "subprocess.Popen",
+   "plugin_id": "geo_webview",
+   "ref": "qgis-plugin/geo_webview/verify/features.json#integration.kasugai_export.py:4303",
+   "source": "kasugai_export.py:4303",
+   "signature": "subprocess.Popen(…)",
+   "summary": "外部連携呼出",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "bridge_call/describe_plugins/pyeval 経由の到達確認",
+    "prompt": null,
+    "assert": "bridge_call/状態確認",
+    "cleanup": null
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "import qgis.utils; result = qgis.utils.plugins.get('geo_webview') is not None"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "untested",
+   "last_result": "removed",
+   "note": "",
+   "last_verified": "2026-11-18T02:03:14+09:00"
+  },
+  {
+   "id": "qgis.action.noname",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "凡例",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname",
+   "source": "menu:プラグイン(&P)/&レジェンドビュー",
+   "signature": "",
+   "summary": "凡例 (プラグイン(&P)/&レジェンドビュー)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '凡例'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '凡例':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
+   "id": "qgis.action.AI",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "AI アシスタント",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.AI",
+   "source": "menu:プラグイン(&P)/QGIS Live Driver",
+   "signature": "",
+   "summary": "AI アシスタント (プラグイン(&P)/QGIS Live Driver)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'AI' or a.text() == 'AI アシスタント'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'AI' or _a.text() == 'AI アシスタント':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "pass",
+   "last_result": "removed",
+   "note": "ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
+   "last_verified": "2026-11-14T11:30:42+09:00"
+  },
+  {
+   "id": "qgis.action.noname_noname",
+   "scope": "qgis",
+   "kind": "qgis_action",
+   "name": "属性テーブルを表示",
+   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
+   "source": "mainWindow",
+   "signature": "",
+   "summary": "属性テーブルを表示 (ツールバー/コンテキスト)",
+   "needs_llm": false,
+   "ai_sample": false,
+   "verify": {
+    "tool": "exists_only"
+   },
+   "check": {
+    "type": "exists_only",
+    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '属性テーブルを表示'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '属性テーブルを表示':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
+   },
+   "ai": null,
+   "tool_result": "pass",
+   "ai_result": "no_llm",
+   "last_result": "removed",
+   "note": "再出現のため再検証",
+   "last_verified": "2026-11-14T05:58:27+09:00"
+  },
+  {
    "id": "plugin.geo_webview.integration.kasugai_export.py:4022",
    "scope": "plugin",
    "kind": "integration",
@@ -46071,81 +46575,6 @@
    "last_result": "removed",
    "note": "ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存) | ai: 対象外(破壊的/内部/コンテキスト依存)",
    "last_verified": "2026-11-14T11:30:02+09:00"
-  },
-  {
-   "id": "qgis.action.noname",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "凡例",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname",
-   "source": "menu:プラグイン(&P)/&レジェンドビュー",
-   "signature": "",
-   "summary": "凡例 (プラグイン(&P)/&レジェンドビュー)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '凡例'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '凡例':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "removed",
-   "note": "再出現のため再検証",
-   "last_verified": "2026-11-14T05:58:27+09:00"
-  },
-  {
-   "id": "qgis.action.AI",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "AI アシスタント",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.AI",
-   "source": "menu:プラグイン(&P)/QGIS Live Driver",
-   "signature": "",
-   "summary": "AI アシスタント (プラグイン(&P)/QGIS Live Driver)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'AI' or a.text() == 'AI アシスタント'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'AI' or _a.text() == 'AI アシスタント':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "pass",
-   "last_result": "removed",
-   "note": "ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval | ai(devin_acp): tools=pyeval",
-   "last_verified": "2026-11-14T11:30:42+09:00"
-  },
-  {
-   "id": "qgis.action.noname_noname",
-   "scope": "qgis",
-   "kind": "qgis_action",
-   "name": "属性テーブルを表示",
-   "ref": "verify/ai-chat/qgis/features.json#qgis.action.noname_noname",
-   "source": "mainWindow",
-   "signature": "",
-   "summary": "属性テーブルを表示 (ツールバー/コンテキスト)",
-   "needs_llm": false,
-   "ai_sample": false,
-   "verify": {
-    "tool": "exists_only"
-   },
-   "check": {
-    "type": "exists_only",
-    "code": "result = bool([a for a in iface.mainWindow().findChildren(QAction) if a.objectName() == 'noname' or a.text() == '属性テーブルを表示'])\nif not result:\n    def _walk(_menu):\n        for _a in _menu.actions():\n            _sm = _a.menu()\n            if _sm is not None:\n                if _walk(_sm):\n                    return True\n            elif _a.objectName() == 'noname' or _a.text() == '属性テーブルを表示':\n                return True\n        return False\n    result = any(_walk(_a.menu()) for _a in iface.mainWindow().menuBar().actions() if _a.menu())"
-   },
-   "ai": null,
-   "tool_result": "pass",
-   "ai_result": "no_llm",
-   "last_result": "removed",
-   "note": "再出現のため再検証",
-   "last_verified": "2026-11-14T05:58:27+09:00"
   },
   {
    "id": "qgis.dock.GeoDriverAiPanel",
