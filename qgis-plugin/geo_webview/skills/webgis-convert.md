@@ -1,6 +1,6 @@
 # WebGIS向けデータ形式変換・レイヤ追加(KASUGAI Canvas)
 
-QGIS 内のデータを KASUGAI Canvas(.kasc+DATA/)で最適に再生できる形式へ変換し、レイヤ追加まで行う手順。
+QGIS 内のデータを KASUGAI Canvas(.kasc+canvas_data/)で最適に再生できる形式へ変換し、レイヤ追加まで行う手順。
 use_when: ユーザーがデータ形式の変換・レイヤ追加・WebGIS/Canvas 向けのデータ準備・公開用データ作成を依頼したとき
 
 ## 基本方針(サーバレス優先)
@@ -13,17 +13,38 @@ use_when: ユーザーがデータ形式の変換・レイヤ追加・WebGIS/Can
 
 変換先は用途と規模で決める。「そのまま置いて Canvas が読める形式」を優先し、安易に GeoJSON 化しない。
 
+### ベクター出力形式スイッチ(vector_format)
+
+エクスポート全体のベクター出力方針を切り替えるモード。
+パネルの **Format:** コンボ、設定ダイアログの
+**Vector Export Format** コンボ(`kasugai_vector_format`)、
+`GET /kasugai?fmt=native|recommended|geojson`、
+bridge `kasugaiExport(vector_format=...)` の4経路で切替。
+
+- **recommended**: gpkg/geojson/shp/csv/kml/wfs 等のソースは
+  すべて FlatGeobuf へ EPSG:4326 で変換し canvas_data/ へ配置(`flatgeobuf:` 行)。
+  既に FlatGeobuf/GeoParquet のソースは参照維持
+  (`flatgeobuf:`/`geoparquet:`/`duckdb:+format=parquet` 行)。
+  subsetString・fields/where/limit は変換データへ焼き込まれる
+- **native(既定)**: 読めるソースはそのまま参照
+  (`gpkg:`/`geojson:`/`shp:`/`wfs:`/`duckdb:` 行)、
+  非ネイティブ形式のみ FlatGeobuf 変換
+- **geojson(WEB連携)**: 全ベクター(FGB/GeoParquet ソース含む)を
+  GeoJSON(EPSG:4326)へ変換し canvas_data/ へ `geojson:` 行で配置。
+  canvas_data/ が全て GeoJSON になるため Canvas 以外の WebGIS・
+  GIS ツールでもそのまま読める相互運用向けモード
+
 | ソース/目的 | 推奨出力 | .kasc 行 | 理由 |
 |---|---|---|---|
-| 小〜中規模ベクター(数千地物) | FlatGeobuf(.fgb) — **既定フォールバック** | `flatgeobuf:` | エクスポート既定の変換先。空間インデックス付きバイナリで GeoJSON より小さく速い。ドライバ非搭載時は Parquet→GeoJSON の順にフォールバック |
-| 中〜大規模ベクター(数万地物〜) | **GeoParquet(.parquet)** or FlatGeobuf(.fgb) | `geoparquet:`/`flatgeobuf:` | ブラウザ内バイナリデコードで速い・変換不要で置くだけ。GeoJSON 化は避ける |
+| 小〜中規模ベクター(数千地物) | FlatGeobuf(.fgb) — **既定フォールバック** | `flatgeobuf:` | エクスポート既定の変換先。空間インデックス付きバイナリで GeoJSON より小さく速い。ドライバ非搭載時は Parquet→GeoJSON の順にフォールバック。**`bbox=auto` が既定 ON**で表示範囲のみをインデックス+HTTP Range で読むクエリ系。全件描画したい場合は `bbox=off` を付ける |
+| 中〜大規模ベクター(数万地物〜) | **GeoParquet(.parquet)** or FlatGeobuf(.fgb) | `geoparquet:`/`flatgeobuf:` | ブラウザ内バイナリデコードで速い・変換不要で置くだけ。GeoJSON 化は避ける。`flatgeobuf:` は `bbox=auto` 既定 ON で空間インデックス+Range の範囲読み(索引なし・Range 非対応サーバーは全件へフォールバック)、`geoparquet:` は全件読み込み(範囲読みは `duckdb:` 経路) |
 | 大規模+条件絞込み/範囲連動 | GeoParquet + `duckdb:` | `duckdb:`(where=/bbox=auto) | 「見ている範囲だけ読む」。DuckDB-WASM 初回ロード約60MBは SW キャッシュで緩和 |
 | 正データ管理・複数テーブル共有 | GeoPackage(.gpkg) | `gpkg:`+`table=` | sql.js Worker が直接読む。**地理座標系(EPSG:4326等)必須** |
 | CSV/TSV(緯度経度/WKT列) | そのまま or .csv複製 | `duckdb:`+`lon=`/`lat=`/`geom=` | delimitedtext の xField/yField/wktField を継承 |
 | ローカルラスタ(DEM/オルソ等) | XYZタイル か COG | `xyz:`/`geotiff:` | **エクスポートはローカルラスタを skipped する**ので事前にタイル化/COG化が必要 |
 | WMSラスタ | そのまま(URL) | `wms:` | 接続URIから自動で行生成 |
-| 3Dモデル/点群/建物 | 3D Tiles | `3dtiles:` | http(s)はURL参照、ローカルはDATA/へ複製(1GiB上限) |
-| フィルタ(subsetString)付き | 形式ごとに維持 | `where=`(gpkg/duckdbはSQL実行、geojson/geoparquet/flatgeobufはCanvas側where-eval.jsのOGR SQL WHERE句評価) / `duckdb:`(ローカルparquet) / `ogrsql:`(WHERE句に留まらずSELECT全文が必要な場合。QGIS検出時はGDAL本体のogr.ExecuteSQLで実行) / GeoJSON変換(where-eval非対応式のみ) | フィルタを変質させない経路を選ぶ。`where=` は全ベクター行で利用可(式は OGR SQL WHERE 句)。**where= は行の最終オプションで値は改行まで**(式中の `|`・`||` 可。off や他 key=value は where= の前に置く)。`||` 連結は where-eval 対応済みで geojson/fgb/geoparquet でもそのまま送出。単独 `|`(ビット演算)・`%` は where-eval 非対応のため GeoJSON 変換へ回る |
+| 3Dモデル/点群/建物 | 3D Tiles | `3dtiles:` | http(s)はURL参照、ローカルはcanvas_data/へ複製(1GiB上限) |
+| フィルタ(subsetString)付き | 形式ごとに維持 | `where=`(gpkg/duckdbはSQL実行、geojson/geoparquet/flatgeobufはCanvas側where-eval.jsのOGR SQL WHERE句評価) / `duckdb:`(ローカルparquet) / `ogrsql:`(WHERE句に留まらずSELECT全文が必要な場合。QGIS検出時はGDAL本体のogr.ExecuteSQLで実行) / FlatGeobuf変換(where-eval非対応式のみ・フォールバック時GeoJSON) | フィルタを変質させない経路を選ぶ。`where=` は全ベクター行で利用可(式は OGR SQL WHERE 句)。**where= は行の最終オプションで値は改行まで**(式中の `|`・`||` 可。off や他 key=value は where= の前に置く)。`||` 連結は where-eval 対応済みで geojson/fgb/geoparquet でもそのまま送出。単独 `|`(ビット演算)・`%` は where-eval 非対応のため FlatGeobuf 変換へ回る |
 | 非地理座標系(平面直角等) | **EPSG:4326へ必ず再投影** | — | `gpkg:`ネイティブ参照もGeoJSON変換も地理座標系が前提 |
 
 ## 変換→レイヤ追加のレシピ(qgis_pyeval)
@@ -65,7 +86,7 @@ QgsProject.instance().addMapLayer(lyr)
 Canvas の .qml コンパイラ(web/shared/qml-style.js)の対応範囲。**再現したい表現がこの範囲を外れるなら、QGIS 側で単純化してからエクスポートする**:
 
 - **レンダラ**: 単一/分類(categorized)/段階(graduated)/ルールベースは対応。`invertedPolygon`は近似、`heatmap`は対応エンジンのみ、`pointDisplacement`は中心点近似、その他(25d等)は既定スタイルへフォールバック
-- **シンボル**: SvgMarker 等の画像は DATA/ へ複製されるが、パス解釈不能なものはフォールバック。`AnimatedMarker`=先頭フレーム静止画。`GeometryGenerator` は常用関数(buffer/translate/centroid/exterior_ring/boundary/convex_hull/envelope)のみ近似、それ以外はスキップ
+- **シンボル**: SvgMarker 等の画像は canvas_data/ へ複製されるが、パス解釈不能なものはフォールバック。`AnimatedMarker`=先頭フレーム静止画。`GeometryGenerator` は常用関数(buffer/translate/centroid/exterior_ring/boundary/convex_hull/envelope)のみ近似、それ以外はスキップ
 - **ラベル**: 配置は重心/周囲の近似。`mergeLines`・未配置表示・HTML書式・タブストップ・縦書き(水平代替)・fontSizeMapUnitScale(固定値近似)・ラベル背景画像(矩形代替)・ブレンドモードは未対応/近似。**複雑な注記は QGIS 側で単純化するか、文字列入れ替え前に確定させる**
 - **縮尺表示**: レイヤの「縮尺による表示」は `minScale=`/`maxScale=` としてそのまま維持される。WebGIS でも同じ切替になるので、変換時に適切な縮尺帯を設定しておく
 - **データ定義プロパティ**: 式の一部のみ評価可。複雑な式は事前に静的な値へ置き換える
@@ -120,6 +141,6 @@ Canvas のエンジンは `cesium`/`maplibre`/`openlayers`/`leaflet`/`gsimaps`/`
 ## サイズ・配信の目安
 
 - **GitHub Pages 等の静的ホスト: 1ファイル100MB 上限**。大きいデータは URL 直参照かタイル化/分割する
-- ローカル 3D Tiles / XYZ タイルの DATA/ 複製: **1GiB 上限**(超過は skipped)
+- ローカル 3D Tiles / XYZ タイルの canvas_data/ 複製: **1GiB 上限**(超過は skipped)
 - DuckDB-WASM 初回ロード約60MBは Service Worker がブラウザ内に永続キャッシュするため、2回目以降は軽い
 - 完全サーバレス公開: エクスポート物を静的ホスト(例: kasugai_canvas_webGIS)へ置き、CDN 版エンジンを `…/<channel>/<engine>/?kasc=<.kasc URL>` で開く

@@ -27,6 +27,25 @@ def _log(msg):
         pass
 
 
+def _qt_dead(w):
+    """QtラッパーのC++側オブジェクトが削除済みかを返す。
+
+    メニュー走査や残存アクション掃除で他プラグイン/前世代の
+    削除済み QMenu/QAction へメソッドを呼ぶと、Python例外ではなく
+    access violation で QGIS ごと落ちるため、触れる前に判定する。
+    sip が取れない環境(unit test等)では False(=生存扱い)を返す。
+    """
+    try:
+        from qgis.PyQt import sip
+        return bool(sip.isdeleted(w))
+    except Exception:
+        try:
+            from PyQt6 import sip
+            return bool(sip.isdeleted(w))
+        except Exception:
+            return False
+
+
 def _http_allowed():
     """QGIS_LIVE_TOOLS から公開コマンド種別の集合を読む(None=全許可)。"""
     raw = os.environ.get("QGIS_LIVE_TOOLS", "").strip()
@@ -82,6 +101,12 @@ class GeoDriverPlugin:
     SETTING_ENABLED = "geo_driver/enabled"
     SETTING_AI_PANEL = "geo_driver/ai_panel_open"
     _MENU_NAME = "QGIS Live Driver"
+    # メニュー項目の所有世代を識別するQtプロパティ名。
+    # reloadPluginでは旧世代の遅延cleanupが新世代のinitGui後に
+    # 実行されるため、インスタンス参照だけでは新世代項目を守れない。
+    # mainWindow(プロセス内で不変)に現行トークンを置き、各項目にも
+    # 同じトークンを刻んで照合する。
+    _MENU_OWNER_PROP = "geo_driver_menu_owner"
     # メニューアクションのソース文字列(英語)。表示時は翻訳される
     _ACTION_SOURCES = ("Remote Control (localhost only)",
                        "AI Assistant",
@@ -117,6 +142,7 @@ class GeoDriverPlugin:
         self._ai_tb_button = None
         self._ai_tb_action = None
         self._mode_timer = None
+        self._menu_owner = None
         self._init_language()
         try:
             from .bridge import GeoDriverBridge
@@ -148,18 +174,51 @@ class GeoDriverPlugin:
             self.translator = None
 
     def _own_menu(self):
-        """プラグイン > QGIS Live Driver サブメニューを返す(無ければNone)。"""
+        """プラグイン > QGIS Live Driver サブメニューを返す(無ければNone)。
+
+        メニューバー全走査中に他プラグインの削除済み QMenu ラッパーへ
+        触れると access violation で QGIS ごと落ちる実績があるため、
+        自前アクションの所属メニュー(associatedObjects)を優先し、
+        走査は sip.isdeleted でラッパー死を判定してから読む。
+        """
         try:
-            for top in self.iface.mainWindow().menuBar().actions():
-                tm = top.menu()
-                if tm is None:
+            from qgis.PyQt.QtWidgets import QMenu
+            for a in (self._ai_action, self._action,
+                      self._conn_action, self._mode_action):
+                if a is None or _qt_dead(a):
                     continue
-                for a in tm.actions():
-                    sm = a.menu()
-                    if sm is not None and sm.title() == self._MENU_NAME:
-                        return sm
+                for w in a.associatedObjects():
+                    if (isinstance(w, QMenu) and not _qt_dead(w)
+                            and w.title() == self._MENU_NAME):
+                        return w
         except Exception:  # nosec B110  # 設計上の許容
             pass
+        containers = []
+        try:
+            pm = self.iface.pluginMenu()
+            if pm is not None:
+                containers.append(pm)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        try:
+            containers.extend(
+                a.menu() for a in
+                self.iface.mainWindow().menuBar().actions())
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        for tm in containers:
+            try:
+                if tm is None or _qt_dead(tm):
+                    continue
+                for a in tm.actions():
+                    if _qt_dead(a):
+                        continue
+                    sm = a.menu()
+                    if (sm is not None and not _qt_dead(sm)
+                            and sm.title() == self._MENU_NAME):
+                        return sm
+            except Exception:  # nosec B110  # 設計上の許容
+                continue
         return None
 
     def _sweep_menu_actions(self):
@@ -181,15 +240,53 @@ class GeoDriverPlugin:
                 own.append(self._hot_menu.menuAction())
             except Exception:  # nosec B110  # 設計上の許容
                 pass
+        # 現行世代の所有トークン。reloadPluginでモジュールが再読込
+        # されてもmainWindowのQtプロパティは世代をまたいで生きる。
+        cur = None
+        try:
+            cur = self.iface.mainWindow().property(self._MENU_OWNER_PROP)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
         for a in list(menu.actions()):
-            if any(a is x for x in own):
-                continue
-            if a.text() in self._own_action_texts():
-                try:
-                    menu.removeAction(a)
-                    a.deleteLater()
-                except Exception:  # nosec B110  # 設計上の許容
-                    pass
+            try:
+                if any(a is x for x in own):
+                    continue
+                # 削除済みラッパーの property/text は access violation
+                # になるため先に弾く(破壊済みはQt側がdetach済み)。
+                if _qt_dead(a):
+                    continue
+                # 現行世代が所有する項目は絶対に除去しない。
+                # 無刻印(旧版の孤児)や死んだ世代の刻印のみ掃除対象。
+                if (cur is not None
+                        and a.property(self._MENU_OWNER_PROP) == cur):
+                    continue
+                if a.text() not in self._own_action_texts():
+                    continue
+                menu.removeAction(a)
+                a.deleteLater()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+
+    def _issue_menu_owner(self):
+        """メニュー項目の所有トークンを発行しmainWindowへ記録する。
+
+        initGuiの先頭で呼ぶ。モジュール再読込をまたいで識別できるよう
+        Python側ではなくmainWindowのQtプロパティに置く。
+        """
+        token = "{0}:{1:x}".format(os.getpid(), time.time_ns())
+        try:
+            self.iface.mainWindow().setProperty(
+                self._MENU_OWNER_PROP, token)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        return token
+
+    def _tag_menu_owner(self, action):
+        """追加したメニュー項目へ所有トークンを刻む。"""
+        try:
+            action.setProperty(self._MENU_OWNER_PROP, self._menu_owner)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
 
     def _defer_menu_cleanup(self, items):
         """unload() からのメニュー除去をイベント完了後へ遅延する。
@@ -243,9 +340,11 @@ class GeoDriverPlugin:
         # 変更が access violation になり得る(実績あり)。
         # 遅延 sweep は現行自身のアクションを除外するため安全。
         self._defer_menu_cleanup({})
+        self._menu_owner = self._issue_menu_owner()
         self._ai_action = QAction(
             QCoreApplication.translate("geo_driver", "AI Assistant"),
             self.iface.mainWindow())
+        self._tag_menu_owner(self._ai_action)
         self._ai_action.triggered.connect(self._open_ai_panel)
         self.iface.addPluginToMenu("QGIS Live Driver", self._ai_action)
 
@@ -253,6 +352,7 @@ class GeoDriverPlugin:
             QCoreApplication.translate(
                 "geo_driver", "Remote Control (localhost only)"),
             self.iface.mainWindow())
+        self._tag_menu_owner(self._action)
         self._action.setCheckable(True)
         self._action.toggled.connect(self._on_toggle)
         self.iface.addPluginToMenu("QGIS Live Driver", self._action)
@@ -261,10 +361,12 @@ class GeoDriverPlugin:
             QCoreApplication.translate(
                 "geo_driver", "Connection Info"),
             self.iface.mainWindow())
+        self._tag_menu_owner(self._conn_action)
         self._conn_action.triggered.connect(self._open_conn_info)
         self.iface.addPluginToMenu("QGIS Live Driver", self._conn_action)
 
         self._hot_menu = self._build_hot_menu()
+        self._tag_menu_owner(self._hot_menu.menuAction())
         self.iface.addPluginToMenu("QGIS Live Driver",
                                    self._hot_menu.menuAction())
 
@@ -273,6 +375,7 @@ class GeoDriverPlugin:
         self._mode_action = QAction(
             QCoreApplication.translate("geo_driver", "Deploy Mode"),
             self.iface.mainWindow())
+        self._tag_menu_owner(self._mode_action)
         self._mode_action.triggered.connect(self._open_mode_dialog)
         self.iface.addPluginToMenu("QGIS Live Driver", self._mode_action)
         self._init_geo_toolbar()

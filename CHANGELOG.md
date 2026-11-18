@@ -26,6 +26,23 @@
 
 ### Fixed
 
+- **プラグイン unload/reload 時の access violation(QGISごとクラッシュ)対策**:
+  メニュー/ツールバー項目の除去を QMenu イベント処理中(triggered
+  ハンドラ内の reloadPlugin 経由等)に行うと、ポップアップ処理中の
+  メニュー階層を破壊して QGIS ごと落ちる実績があるため、管理対象
+  全プラグイン(geo_webview/geo_search/geo_import/geo_report/
+  geo_legend/geo_excel/geo_userfunc/geo_launcher)の除去処理を
+  `QTimer.singleShot(0,…)` 遅延へ統一(各プラグインへ同形の
+  `_qt_dead()`+`_defer_remove_actions()` ヘルパを複製)。
+  削除済み Qt ラッパーへ触れる前に `sip.isdeleted` で判定する
+  ガードも共通で入れた
+- **geo_driver メニュー走査の use-after-free 対策**:
+  `_own_menu()` がメニューバー全走査で `sm.title()` を呼んでおり、
+  他プラグインが残した削除済み QMenu ラッパーに触れると access
+  violation になるため、自前アクションの `associatedObjects()` から
+  所属メニューを直接引く方式へ変更。フォールバック走査
+  (pluginMenu→menuBar)と `_sweep_menu_actions()` は全オブジェクトを
+  `sip.isdeleted` 判定してから触れるよう強化
 - **GeoSuite共有ツールバーが個別利用時に表示されない不具合を修正**:
   可視状態の保証がドライバ(常時表示強制)のみに依存していたため、
   ドライバ非稼働の個別利用ではツールバーが非表示のままになり得た。

@@ -20,6 +20,54 @@ from .searchfeature import (
 )
 from .searchdialog import SearchDialog
 
+
+def _qt_dead(w):
+    """QtラッパーのC++側オブジェクトが削除済みかを返す。
+
+    削除済み QAction/QMenu/QToolBar へメソッドを呼ぶと Python 例外では
+    なく access violation になるため、触れる前に判定する。
+    """
+    try:
+        from qgis.PyQt import sip
+        return bool(sip.isdeleted(w))
+    except Exception:
+        try:
+            from PyQt6 import sip
+            return bool(sip.isdeleted(w))
+        except Exception:
+            return False
+
+
+def _defer_remove_actions(iface, menu_name, actions, toolbar=None):
+    """メニュー/ツールバー項目の除去をイベント完了後へ遅延する。
+
+    QMenu のイベント処理中(triggered ハンドラ内の reloadPlugin 経由等)
+    に removePluginMenu/removeAction するとポップアップ処理中の
+    メニュー階層を破壊して access violation になる実績があるため、
+    QTimer で遅延する。除去対象は呼出し時点の参照に限定し、
+    触れる各オブジェクトは _qt_dead で先に判定する。
+    """
+    def _cleanup():
+        for action in actions:
+            if _qt_dead(action):
+                continue
+            try:
+                iface.removePluginMenu(menu_name, action)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            try:
+                if toolbar is not None and not _qt_dead(toolbar):
+                    toolbar.removeAction(action)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+
+    try:
+        from qgis.PyQt.QtCore import QTimer
+        QTimer.singleShot(0, _cleanup)
+    except Exception:  # nosec B110  # 設計上の許容
+        _cleanup()
+
+
 # TODO: Fieldの確認
 # TODO: 表示テーブルの順番変更
 
@@ -881,11 +929,14 @@ class plugin(object):
                     pass
         except Exception:  # nosec B110  # 設計上の許容
             pass
-        try:
-            self._geo_toolbar(ensure_visible=False).removeAction(self.action)
-            self.iface.removePluginMenu(self.tr("Geo Search"), self.action)
-        except Exception:  # nosec B110  # 設計上の許容
-            pass
+        # メニュー/ツールバー項目の除去はイベント完了後へ遅延する
+        # (QMenu イベント処理中の除去は access violation の実績)
+        _defer_remove_actions(
+            self.iface, self.tr("Geo Search"),
+            [a for a in (getattr(self, 'action', None),
+                         getattr(self, 'additive_theme_action', None))
+             if a is not None],
+            self._geo_toolbar(ensure_visible=False))
 
         # コンボボックスの削除も例外処理
         try:
@@ -918,15 +969,9 @@ class plugin(object):
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
                 self.group_combobox = None
-            # 追加表示アクションの削除
+            # 追加表示アクションの削除(メニュー/ツールバーからの除去は
+            # 上の _defer_remove_actions に包含済み)
             if hasattr(self, 'additive_theme_action') and self.additive_theme_action is not None:
-                try:
-                    try:
-                        self._geo_toolbar(ensure_visible=False).removeAction(self.additive_theme_action)
-                    except Exception:  # nosec B110  # 設計上の許容
-                        pass
-                except Exception:  # nosec B110  # 設計上の許容
-                    pass
                 try:
                     self.additive_theme_action.deleteLater()
                 except Exception:  # nosec B110  # 設計上の許容

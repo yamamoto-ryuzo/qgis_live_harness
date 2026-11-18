@@ -17,15 +17,15 @@
 が最適な環境であり、このプラグインは その成果をそのまま Web
 へ持ち出します。</p>
 <pre><code>[QGIS プロジェクト]  レイヤ・スタイル(.qml)・レイヤツリー・視点・テーマ
-        │  geo_webview が .kasc + DATA/ へエクスポート
+        │  geo_webview が .kasc + canvas_data/ へエクスポート
         ▼
-[.kasc + DATA/ パッケージ]  + エンジン本体(KASUGAI Canvas web/)
+[.kasc + canvas_data/ パッケージ]  + エンジン本体(KASUGAI Canvas web/)
         │  Cesium / MapLibre / OpenLayers / Leaflet / GSI Maps で再生
         ▼  静的ホスティングへ配置
 [ブラウザの WebGIS]  ← サーバーレス（QGIS・専用サーバー不要）</code></pre>
 <ul>
 <li><strong>主機能 = サーバレス配信</strong>: 表示中レイヤと QGIS
-スタイルを <code>.kasc</code>+<code>DATA/</code>
+スタイルを <code>.kasc</code>+<code>canvas_data/</code>
 に書き出し、エンジン（KASUGAI Canvas <code>web/</code>）と一緒に
 任意の静的ホストへ置くだけで WebGIS として配信できる。 再生に QGIS
 側サーバーは不要</li>
@@ -42,13 +42,13 @@
     subgraph GWBOX[&quot;geo_webview（QGIS プラグイン）&quot;]
         direction LR
         subgraph FNC[&quot;【▶ WebView】&quot;]
-            GW[&quot;【エクスポート】&lt;br&gt;.kasc + DATA/ + &amp;lt;engine&amp;gt;.html&quot;]
+            GW[&quot;【エクスポート】&lt;br&gt;.kasc + canvas_data/ + &amp;lt;engine&amp;gt;.html&quot;]
             SRV[&quot;内蔵 HTTP サーバー localhost:8089&quot;]
         end
     end
 
     subgraph WEBBOX[&quot;WebGIS&quot;]
-        WEB[&quot;GitHub Pages / Cloudflare / Vercel 等の静的ホスト&lt;br&gt;.kasc + DATA/（エンジンを自ホストに置く場合は web/ 一式。&lt;br&gt;GSI Maps は vendor/ 未同梱なら CDN 版へ自動転送）&quot;]
+        WEB[&quot;GitHub Pages / Cloudflare / Vercel 等の静的ホスト&lt;br&gt;.kasc + canvas_data/（エンジンを自ホストに置く場合は web/ 一式。&lt;br&gt;GSI Maps は vendor/ 未同梱なら CDN 版へ自動転送）&quot;]
     end
     subgraph GHBOX[&quot;GitHubPages&quot;]
         CDN[&quot;kasugai-canvas-web&lt;br&gt;5エンジンの CDN&lt;br&gt;GitHub Pages: stable/・unstable/&quot;]
@@ -105,14 +105,14 @@ HTTP サーバーとサーバレス Web 配信で Canvas アプリなしでも�
 <tbody>
 <tr>
 <td><strong>KASUGAI Canvas</strong></td>
-<td><code>/kasugai</code>（<code>.kasc</code>+<code>DATA/</code>）</td>
+<td><code>/kasugai</code>（<code>.kasc</code>+<code>canvas_data/</code>）</td>
 <td><strong>統合プレイヤー（主）</strong>。QGIS レイヤツリーを
-<code>.kasc</code>+<code>DATA/</code>（ベクター＋<code>.qml</code>
+<code>.kasc</code>+<code>canvas_data/</code>（ベクター＋<code>.qml</code>
 スタイル）として出力し、起動中の KASUGAI
 へ外部プロジェクト登録・表示切替。パネルの <code>Export</code>
 ボタンはファイル出力のみ、<code>▶ Open</code> /
 <code>GET /kasugai?engine=</code> / <code>kasugaiExport</code>
-ブリッジは登録・起動まで行い、同じ <code>.kasc</code>+<code>DATA/</code>
+ブリッジは登録・起動まで行い、同じ <code>.kasc</code>+<code>canvas_data/</code>
 を全エンジンで再生。EXE 込みインストールでは
 rclone・自動更新・ファイル保存・<code>.kasc</code> 関連付けも利用可</td>
 </tr>
@@ -138,7 +138,7 @@ rclone・自動更新・ファイル保存・<code>.kasc</code> 関連付けも�
 </tr>
 <tr>
 <td><strong>ArcGIS 系</strong></td>
-<td><code>.kasc</code>+<code>DATA/</code> ファイル受け渡し → ArcGIS
+<td><code>.kasc</code>+<code>canvas_data/</code> ファイル受け渡し → ArcGIS
 側（SDK）の独自実装を<strong>外部静的ホストで配信</strong>（GitHub
 Pages/Cloudflare/Vercel/自前サーバ等。ArcGIS Online
 上では動作不可）</td>

@@ -25,12 +25,12 @@ API の受け皿です（v3.29.0 で OGC サービスは廃止）。</p>
 <tbody>
 <tr>
 <td><code>/kasugai</code></td>
-<td>.kasc+DATA/ エクスポート＋Canvas
+<td>.kasc+canvas_data/ エクスポート＋Canvas
 登録・起動（<code>?engine=</code>・<code>?install=1</code>）</td>
 </tr>
 <tr>
 <td><code>/export-data/&lt;rel&gt;</code></td>
-<td>直近エクスポート物（.kasc/DATA/ 等）の配信</td>
+<td>直近エクスポート物（.kasc/canvas_data/ 等）の配信</td>
 </tr>
 <tr>
 <td><code>/&lt;engine&gt;/</code></td>
@@ -110,7 +110,7 @@ alt="パネルの「パーマリンク」タブ — パーマリンク生成ボ�
 <tr>
 <td><code>/export-data/&lt;rel&gt;</code></td>
 <td>file</td>
-<td>エクスポート産物（.kasc/DATA/）の配信</td>
+<td>エクスポート産物（.kasc/canvas_data/）の配信</td>
 </tr>
 <tr>
 <td><code>/&lt;engine&gt;/</code></td>
@@ -191,10 +191,11 @@ KASUGAI Canvas（Cesium / OpenLayers / MapLibre / Leaflet / GSI Maps
 へ出力（Canvas 本体の <code>projects/</code> と分離した QGIS
 連携専用フォルダ）。未登録なら既定
 <code>&lt;ドキュメント&gt;/kasugai_canvas_qgis</code>（<code>.kasc</code>
-+ <code>DATA/</code>）へ出力。いずれも起動中の Canvas
++ <code>canvas_data/</code>）へ出力。いずれも起動中の Canvas
 には外部プロジェクトとして登録される</li>
 <li>GPKG/GeoJSON/GeoParquet/FlatGeobuf はネイティブ参照、その他は
-GeoJSON(EPSG:4326) へ変換</li>
+FlatGeobuf(EPSG:4326・空間インデックス付き) へ変換（ドライバ非搭載時は
+Parquet、失敗時は GeoJSON フォールバック）</li>
 <li>各ベクターレイヤの QGIS スタイルを <code>.qml</code>
 として同梱（KASUGAI 側が Cesium 描画へコンパイル。MapLibre/OpenLayers
 フロントでも QML をクライアント側コンパイルして適用）</li>
@@ -226,7 +227,7 @@ alt="設定ダイアログ — KASUGAI Canvas のインストール先、ホス�
 ├── panel_base.ui          # パネルレイアウト(Qt Designer)
 ├── server_manager.py      # HTTP サーバー管理・ルーティング（/kasugai・/export-data/・/present・/screenshot 等）
 ├── http_server.py         # HTTP 応答の低水準送信ユーティリティ
-├── kasugai_export.py      # KASUGAI Canvas 連携（.kasc+DATA/ 生成・登録・起動）
+├── kasugai_export.py      # KASUGAI Canvas 連携（.kasc+canvas_data/ 生成・登録・起動）
 ├── scale_zoom.py          # スケール/ズーム換算
 ├── settings_dialog.py     # 設定ダイアログ
 └── bridge.py              # AI/外部制御用ブリッジ</code></pre>

@@ -28,6 +28,53 @@ from .launcher import Installer
 PLUGIN_DIR = os.path.dirname(__file__)
 
 
+def _qt_dead(w):
+    """QtラッパーのC++側オブジェクトが削除済みかを返す。
+
+    削除済み QAction/QMenu/QToolBar へメソッドを呼ぶと Python 例外では
+    なく access violation になるため、触れる前に判定する。
+    """
+    try:
+        from qgis.PyQt import sip
+        return bool(sip.isdeleted(w))
+    except Exception:
+        try:
+            from PyQt6 import sip
+            return bool(sip.isdeleted(w))
+        except Exception:
+            return False
+
+
+def _defer_remove_actions(iface, menu_name, actions, toolbar=None):
+    """メニュー/ツールバー項目の除去をイベント完了後へ遅延する。
+
+    QMenu のイベント処理中(triggered ハンドラ内の reloadPlugin 経由等)
+    に removePluginMenu/removeAction するとポップアップ処理中の
+    メニュー階層を破壊して access violation になる実績があるため、
+    QTimer で遅延する。除去対象は呼出し時点の参照に限定し、
+    触れる各オブジェクトは _qt_dead で先に判定する。
+    """
+    def _cleanup():
+        for action in actions:
+            if _qt_dead(action):
+                continue
+            try:
+                iface.removePluginMenu(menu_name, action)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            try:
+                if toolbar is not None and not _qt_dead(toolbar):
+                    toolbar.removeAction(action)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+
+    try:
+        from qgis.PyQt.QtCore import QTimer
+        QTimer.singleShot(0, _cleanup)
+    except Exception:  # nosec B110  # 設計上の許容
+        _cleanup()
+
+
 class plugin(object):
     # reload_plugin/ホットリロードの「open_dialog 再表示」対象外にする。
     # このプラグインの窓はインストール管理用の補助ダイアログであり、
@@ -87,10 +134,10 @@ class plugin(object):
         self.actions.append(act_settings)
 
     def unload(self):
-        for a in self.actions:
-            self.iface.removePluginMenu(self.menu_name, a)
-            if self.toolbar is not None:
-                self.toolbar.removeAction(a)
+        # メニュー/ツールバー項目の除去はイベント完了後へ遅延する
+        # (QMenu イベント処理中の除去は access violation の実績)
+        _defer_remove_actions(
+            self.iface, self.menu_name, list(self.actions), self.toolbar)
         self.actions = []
         for dlg in (self._dialog, self._settings_dialog):
             if dlg is not None:

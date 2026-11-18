@@ -145,6 +145,20 @@
   先頭位置引数に渡り "layer not found" 等で失敗していた)。
   普通の dict 引数(geo_report.setItemProperties 等)は
   キー不一致で従来通り位置引数として渡る
+- __init__.py: **ホットリロード/reloadPlugin 後に
+  `プラグイン > QGIS Live Driver` サブメニューが空になる問題**
+  を修正。旧世代 `unload()` がキューイングした遅延
+  `_menu_cleanup` は新世代 `initGui()` のアクション追加
+  「後」に実行されるが、旧インスタンスは自アクション参照を
+  unload で None に済みのため、`_sweep_menu_actions` の
+  「現行自身を参照一致で除外」が機能せず、テキスト一致で
+  新世代の全アクションを `removeAction`+`deleteLater` していた。
+  モジュール再読込をまたぐ世代識別として `_MENU_OWNER_PROP`
+  トークンを導入し、initGui で発行したトークンを mainWindow
+  (プロセス内不変のQtオブジェクト)と追加する各 QAction/
+  ホットリロード QMenu の menuAction に刻印。sweep は
+  現行トークン所有の項目を除外し、無刻印(旧版の孤児)や
+  死んだ世代の刻印のみ従来通り除去する
 - ai_client.py: Copilot で `/chat/completions` を受け付けない
   **Responses API 専用モデル(GPT-6 系等)が送信エラーになる問題**
   を修正。`GET /models` の `supported_endpoints` で事前判別し、

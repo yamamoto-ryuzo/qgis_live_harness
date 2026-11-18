@@ -14,13 +14,13 @@ SAMPLE = """\
 base: GSI/std | https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png | 出典：国土地理院 | maxZoom=18 | minZoom=2
 base: none | transparent
 xyz: tiles/foo | https://example.com/{z}/{x}/{y}.png | on | maxZoom=17 | opacity=0.7 | bbox=130,30,140,40 | attr=xyz出典
-geojson: grp/sub/道路 | DATA/road.geojson | on | style=DATA/road.qml | minScale=25000 | maxScale=2500
-gpkg: grp/筆 | DATA/fude.gpkg | on | table=parcel | where="city"='X' | attr=筆出典
-geoparquet: 全件 | DATA/all.parquet | on
-duckdb: 地点 | DATA/pt.csv | on | format=csv | lon=lon | lat=lat
+geojson: grp/sub/道路 | canvas_data/road.geojson | on | style=canvas_data/road.qml | minScale=25000 | maxScale=2500
+gpkg: grp/筆 | canvas_data/fude.gpkg | on | table=parcel | where="city"='X' | attr=筆出典
+geoparquet: 全件 | canvas_data/all.parquet | on
+duckdb: 地点 | canvas_data/pt.csv | on | format=csv | lon=lon | lat=lat
 wms: オルソ | https://example.com/wms | on | layers=ortho | styles= | format=image/jpeg
 3dtiles: 建物 | https://example.com/tiles/tileset.json | on | minScale=5000
-fly_geojson: Atlas: A | DATA/atlas_a.geojson | speed=10
+fly_geojson: Atlas: A | canvas_data/atlas_a.geojson | speed=10
 theme: 概況図 | 道路 | 筆
 group: grp/sub | collapsed
 group: grp | expanded
@@ -58,7 +58,7 @@ def test_parse_opts_and_flags():
     assert xyz["opts"]["bbox"] == "130,30,140,40"
     assert xyz["opts"]["attr"] == "xyz出典"  # attr= は opts へ(裸トークンは .attr)
     gj = doc["layers"][1]
-    assert gj["opts"]["style"] == "DATA/road.qml"
+    assert gj["opts"]["style"] == "canvas_data/road.qml"
     assert gj["opts"]["minscale"] == "25000"
     assert gj["opts"]["maxscale"] == "2500"
     gk = doc["layers"][2]
@@ -100,10 +100,10 @@ def test_parse_meta_lines():
 
 
 def test_resolve_ref(tmp_path):
-    assert ki.resolve_ref("DATA/x.gpkg", "/out") == \
-        os.path.normpath("/out/DATA/x.gpkg")
-    assert ki.resolve_ref("DATA/x.gpkg", "https://h/p/") == \
-        "https://h/p/DATA/x.gpkg"
+    assert ki.resolve_ref("canvas_data/x.gpkg", "/out") == \
+        os.path.normpath("/out/canvas_data/x.gpkg")
+    assert ki.resolve_ref("canvas_data/x.gpkg", "https://h/p/") == \
+        "https://h/p/canvas_data/x.gpkg"
     assert ki.resolve_ref("https://a/b.geojson", "/out") == \
         "https://a/b.geojson"
     assert ki.resolve_ref("file:///c:/d/x.geojson", "/out") == \
@@ -112,10 +112,10 @@ def test_resolve_ref(tmp_path):
 
 def test_inspect_kasc_local(tmp_path):
     d = tmp_path / "proj"
-    (d / "DATA").mkdir(parents=True)
-    (d / "DATA" / "a.geojson").write_text("{}", encoding="utf-8")
+    (d / "canvas_data").mkdir(parents=True)
+    (d / "canvas_data" / "a.geojson").write_text("{}", encoding="utf-8")
     (d / "p.kasc").write_text(
-        "geojson: A | DATA/a.geojson | on\n"
+        "geojson: A | canvas_data/a.geojson | on\n"
         "cam:QGIS|35.0|139.0|h=1000\n", encoding="utf-8")
     rep = ki.inspect_kasc(str(d / "p.kasc"))
     assert rep["ok"] is True

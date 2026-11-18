@@ -205,7 +205,7 @@ No liability is accepted for any damages arising from its use.
   openSettings/openDocs/pluginInfo を提供
   `geo_webview/` は **KASUGAI Canvas 連携の責務プラグイン**。
   `kasugai_export.py`(bridge `kasugaiExport`)で QGIS プロジェクトを
-  `.kasc+DATA/` へ送出し、`kasc_import.py`(bridge `kascInspect`/
+  `.kasc+canvas_data/` へ送出し、`kasc_import.py`(bridge `kascInspect`/
   `kascImport`)で逆方向(.kasc → QGIS 再構成)も担う。
   同梱スキル `skills/webgis-convert.md`(QGIS→Canvas 変換手順・
   形式選定・エンジン選択・高速化)と `skills/webgis-import.md`

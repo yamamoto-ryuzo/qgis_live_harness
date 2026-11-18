@@ -22,6 +22,53 @@ from .i18n_json import install_translator
 PLUGIN_DIR = os.path.dirname(__file__)
 
 
+def _qt_dead(w):
+    """QtラッパーのC++側オブジェクトが削除済みかを返す。
+
+    削除済み QAction/QMenu/QToolBar へメソッドを呼ぶと Python 例外では
+    なく access violation になるため、触れる前に判定する。
+    """
+    try:
+        from qgis.PyQt import sip
+        return bool(sip.isdeleted(w))
+    except Exception:
+        try:
+            from PyQt6 import sip
+            return bool(sip.isdeleted(w))
+        except Exception:
+            return False
+
+
+def _defer_remove_actions(iface, menu_name, actions, toolbar=None):
+    """メニュー/ツールバー項目の除去をイベント完了後へ遅延する。
+
+    QMenu のイベント処理中(triggered ハンドラ内の reloadPlugin 経由等)
+    に removePluginMenu/removeAction するとポップアップ処理中の
+    メニュー階層を破壊して access violation になる実績があるため、
+    QTimer で遅延する。除去対象は呼出し時点の参照に限定し、
+    触れる各オブジェクトは _qt_dead で先に判定する。
+    """
+    def _cleanup():
+        for action in actions:
+            if _qt_dead(action):
+                continue
+            try:
+                iface.removePluginMenu(menu_name, action)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+            try:
+                if toolbar is not None and not _qt_dead(toolbar):
+                    toolbar.removeAction(action)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+
+    try:
+        from qgis.PyQt.QtCore import QTimer
+        QTimer.singleShot(0, _cleanup)
+    except Exception:  # nosec B110  # 設計上の許容
+        _cleanup()
+
+
 def _active_vector_layer(iface):
     layer = iface.activeLayer()
     if not isinstance(layer, QgsVectorLayer):
@@ -87,8 +134,10 @@ class plugin(object):
         # 登録できたなら自前の実行メニューは外す(二重表示防止。
         # pull経路=geo_excelが先に自前メニューを作った後でも統一される)
         self._registered_to_userfunc = True
-        for action in self.macro_actions:
-            self.iface.removePluginMenu(self.menu_name, action)
+        # 除去はイベント完了後へ遅延する(QMenu イベント処理中の除去は
+        # access violation の実績)
+        _defer_remove_actions(
+            self.iface, self.menu_name, list(self.macro_actions))
         self.macro_actions = []
 
     def _macro_run(self, ctx, script, needs_fid):
@@ -171,8 +220,11 @@ class plugin(object):
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
             self._registered_to_userfunc = False
-        for action in self.actions + self.macro_actions:
-            self.iface.removePluginMenu(self.menu_name, action)
+        # 除去はイベント完了後へ遅延する(QMenu イベント処理中の除去は
+        # access violation の実績)
+        _defer_remove_actions(
+            self.iface, self.menu_name,
+            list(self.actions) + list(self.macro_actions))
         self.actions = []
         self.macro_actions = []
         if self._settings_dialog is not None:

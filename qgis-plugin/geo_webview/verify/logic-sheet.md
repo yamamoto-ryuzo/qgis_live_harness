@@ -498,7 +498,7 @@ flowchart LR
 
 - kind: `ui_control` / source: `plugin.py:1380`
 - signature: `on_kasugai_open_folder()`
-- 要約: KASUGAI 出力フォルダ(.kasc/DATA/<engine>.html/index.html が
+- 要約: KASUGAI 出力フォルダ(.kasc/canvas_data/<engine>.html/index.html が
 - needs_runtime=True / standalone_ok=False
 
 ```mermaid
@@ -1008,7 +1008,7 @@ flowchart LR
 
 - kind: `bridge_method` / source: `bridge.py:1351`
 - signature: `cmsUploadKasc(export_dir=…, publish=…)`
-- 要約: .kasc+DATA/ 出力物を ZIP 化して CMS アセットとして公開する。
+- 要約: .kasc+canvas_data/ 出力物を ZIP 化して CMS アセットとして公開する。
 - needs_runtime=True / standalone_ok=False
 
 ```mermaid
@@ -1127,7 +1127,7 @@ flowchart LR
 
 - kind: `bridge_method` / source: `bridge.py:1241`
 - signature: `kascImport(source=…, add_to_project=…, only_visible=…, apply_camera=…, group_prefix=…, replace=…)`
-- 要約: .kasc+DATA/ を QGIS プロジェクトへ逆取り込みする。
+- 要約: .kasc+canvas_data/ を QGIS プロジェクトへ逆取り込みする。
 - needs_runtime=True / standalone_ok=False
 
 ```mermaid
@@ -1160,7 +1160,7 @@ flowchart LR
 ### bridge.kasugaiExport — kasugaiExport
 
 - kind: `bridge_method` / source: `bridge.py:976`
-- signature: `kasugaiExport(output_dir=…, open_app=…, native_formats=…, hidden_as_off=…, embed_gpkg_style=…, emit_themes=…, emit_bookmarks=…, emit_launchers=…, emit_zip=…, engine=…, install=…, route=…, use_existing=…, emit_atlas=…, fields=…, where=…, limit=…, link_files=…)`
+- signature: `kasugaiExport(output_dir=…, open_app=…, native_formats=…, hidden_as_off=…, emit_themes=…, emit_bookmarks=…, emit_launchers=…, emit_zip=…, engine=…, install=…, route=…, use_existing=…, emit_atlas=…, fields=…, where=…, limit=…, link_files=…)`
 - 要約: 表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 - needs_runtime=True / standalone_ok=False
 
@@ -2361,7 +2361,7 @@ flowchart LR
 
 - kind: `logic_fn` / source: `kasc_import.py:280`
 - signature: `resolve_ref(ref, base)`
-- 要約: DATA/x.gpkg 等の相対参照を base(.kasc の所在)から絶対化する。
+- 要約: canvas_data/x.gpkg 等の相対参照を base(.kasc の所在)から絶対化する。
 - needs_runtime=True / standalone_ok=False
 
 ```mermaid
@@ -2547,7 +2547,7 @@ flowchart LR
 ### logic_fn.kasugai_export.py:export_kasugai_project — export_kasugai_project
 
 - kind: `logic_fn` / source: `kasugai_export.py:3428`
-- signature: `export_kasugai_project(iface, out_dir=…, visible_only=…, native_formats=…, hidden_as_off=…, embed_gpkg_style=…, emit_themes=…, emit_bookmarks=…, emit_launchers=…, emit_zip=…, emit_atlas=…, changed=…, live_url=…, fields=…, where=…, limit=…, link_files=…)`
+- signature: `export_kasugai_project(iface, out_dir=…, visible_only=…, native_formats=…, hidden_as_off=…, emit_themes=…, emit_bookmarks=…, emit_launchers=…, emit_zip=…, emit_atlas=…, changed=…, live_url=…, fields=…, where=…, limit=…, link_files=…)`
 - 要約: レイヤツリーを KASUGAI Canvas プロジェクトとして出力する。
 - needs_runtime=True / standalone_ok=False
 
@@ -3256,7 +3256,7 @@ flowchart LR
 
 - kind: `logic_fn` / source: `reearth_cms.py:413`
 - signature: `upload_kasc_export(export_dir=…, publish=…)`
-- 要約: .kasc+DATA/ 出力物を ZIP 化して CMS アセットとして公開する。
+- 要約: .kasc+canvas_data/ 出力物を ZIP 化して CMS アセットとして公開する。
 - needs_runtime=True / standalone_ok=False
 
 ```mermaid
@@ -3273,7 +3273,7 @@ flowchart LR
 
 - kind: `logic_fn` / source: `reearth_cms.py:368`
 - signature: `zip_export_dir(src_dir, zip_path=…)`
-- 要約: .kasc+DATA/ の出力フォルダ一式を ZIP 化する。
+- 要約: .kasc+canvas_data/ の出力フォルダ一式を ZIP 化する。
 - needs_runtime=True / standalone_ok=False
 
 ```mermaid

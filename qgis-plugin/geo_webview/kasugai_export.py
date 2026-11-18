@@ -2,9 +2,9 @@
 """KASUGAI Canvas 連携エクスポート。
 
 QGIS プロジェクトの表示中ベクターレイヤーを GeoJSON + QGISスタイル(.qml)
-として出力し、KASUGAI Canvas プロジェクト形式(.kasc + DATA/)を生成する。
+として出力し、KASUGAI Canvas プロジェクト形式(.kasc + canvas_data/)を生成する。
 
-KASUGAI Canvas は ``geojson: タイトル | DATA/x.geojson | on | style=DATA/x.qml``
+KASUGAI Canvas は ``geojson: タイトル | canvas_data/x.geojson | on | style=canvas_data/x.qml``
 形式の .kasc 行を読み、.qml の <renderer-v2> を Cesium 描画へコンパイルする。
 ネイティブ参照できるソースは ``gpkg:``/``geojson:``/``geoparquet:``/
 ``flatgeobuf:``/``shp:``/``kml:``/``gpx:``/``topojson:``/``czml:``/
@@ -16,7 +16,7 @@ CSV/TSV・フィルタ付きソースは ``duckdb:``、
 EPSG:4326 で変換する。
 ローカルサーバー版(port 8510)が起動していれば
 ``POST /api/projects/register {path: <kasc>}`` で外部プロジェクトとして
-登録でき、そのまま ``?project=<id>`` で開ける(登録フォルダの DATA/ が
+登録でき、そのまま ``?project=<id>`` で開ける(登録フォルダの canvas_data/ が
 そのまま配信される)。``POST /api/command`` の switchProject で
 起動中の画面を切り替えることもできる。
 起動エンジンは ``/cesium/`` ``/maplibre/`` ``/openlayers/`` ``/leaflet/``
@@ -66,6 +66,15 @@ BASEMAP_GROUP_NAMES = frozenset(
     ('背景図', 'ベースマップ', 'basemap'))
 SETTINGS_KEY_BASEMAP_GROUPS = 'kasugai_basemap_groups'
 
+# ベクターの .kasc 出力モード。'native'(既定)=gpkg/geojson 等をそのまま
+# 参照、'recommended'=推奨形式(FlatGeobuf/GeoParquet)以外のベクターを
+# FlatGeobuf へ変換して canvas_data/ へ配置、'geojson'=全ベクターを
+# GeoJSON へ変換して canvas_data/ へ配置(WEB連携・他WebGISとの相互運用用)
+# (設定ダイアログの Vector Export Format・/kasugai?fmt=・
+# bridge vector_format=)
+SETTINGS_KEY_VECTOR_FORMAT = 'kasugai_vector_format'
+VECTOR_EXPORT_MODES = ('native', 'recommended', 'geojson')
+
 # .kasc と同じ場所に出力するエンジン起動HTML(サーバレス配布用)。
 # 各HTMLは ?kasc=<.kascの絶対URL> 付きでエンジンへ転送するだけの
 # 自己完結ページ。エンジン本体(web/ の中身)は ./ ../ ../../ / の順に
@@ -85,7 +94,7 @@ _PAGE_STRINGS = {
     '__T_NOTFOUND__':
         'The engine (contents of <code>web/</code>) was not found.',
     '__T_UPLOAD__':
-        'Upload this folder (<code>__KASC__</code> and <code>DATA/</code>) '
+        'Upload this folder (<code>__KASC__</code> and <code>canvas_data/</code>) '
         'together with the engine to the same web server. Locations checked:',
     '__T_CANVAS_BASE__':
         'If the engine is placed elsewhere, set its URL (with a trailing '
@@ -109,7 +118,7 @@ _PAGE_STRINGS = {
     '__T_H1__':
         'KASUGAI Canvas project \u2014 <code>__KASC__</code>',
     '__T_INTRO__':
-        'This export (<code>.kasc</code>+<code>DATA/</code>, launcher HTMLs) '
+        'This export (<code>.kasc</code>+<code>canvas_data/</code>, launcher HTMLs) '
         'can be viewed in three ways.',
     '__T_ROUTE1__':
         'Open in KASUGAI Canvas (main integrated player)',
@@ -123,7 +132,7 @@ _PAGE_STRINGS = {
         'Instant view in the browser via local HTTP delivery',
     '__T_ROUTE2_NOTE__':
         "The QGIS plugin's HTTP server serves the installed Canvas "
-        '<code>web/</code> and <code>DATA/</code> (requires Canvas '
+        '<code>web/</code> and <code>canvas_data/</code> (requires Canvas '
         'installed + server running).',
     '__T_LOCALNOTE__':
         'Open this page via <code>http://localhost:8089/export-data/</code> '
@@ -144,7 +153,7 @@ _PAGE_STRINGS = {
     '__T_PACKAGEZIP__':
         'Package ZIP',
     '__T_ZIPDESC__':
-        'A ZIP of the whole export (<code>.kasc</code>+<code>DATA/</code>+'
+        'A ZIP of the whole export (<code>.kasc</code>+<code>canvas_data/</code>+'
         'launcher HTMLs). Useful for static-host deployment and Re:Earth '
         'geo_suite <code>qgis:</code> import.<br />'
         "When opened via the plugin's HTTP server, clicking generates it "
@@ -689,6 +698,69 @@ def get_kasugai_port():
     return DEFAULT_KASUGAI_PORT
 
 
+# ---- ベクター出力モード(native / recommended / geojson) ----
+
+def get_vector_export_mode():
+    """QSettings の kasugai_vector_format を返す。
+
+    'native'(既定): gpkg/geojson/shp/csv/kml/wfs 等のソースを
+    そのまま行タイプとして参照する。
+    'recommended': 推奨形式(FlatGeobuf/GeoParquet 系)以外のベクターを
+    すべて FlatGeobuf へ変換して canvas_data/ へ配置する。
+    'geojson': 全ベクター(推奨形式ソース含む)を GeoJSON へ変換して
+    canvas_data/ へ配置する(WEB連携・他 WebGIS との相互運用用)。
+    """
+    try:
+        saved = str(_qsettings().value(
+            SETTINGS_KEY_VECTOR_FORMAT, '') or '').strip().lower()
+        if saved in VECTOR_EXPORT_MODES:
+            return saved
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return 'native'
+
+
+def set_vector_export_mode(mode):
+    """ベクター出力モードを QSettings へ保存する(VECTOR_EXPORT_MODES)。"""
+    m = str(mode or '').strip().lower()
+    _qsettings().setValue(
+        SETTINGS_KEY_VECTOR_FORMAT,
+        m if m in VECTOR_EXPORT_MODES else 'native')
+
+
+def _recommended_source_kind(layer):
+    """ソースが推奨形式(fgb/parquet)なら行タイプ、でなければ None。
+
+    推奨形式モードの事前判定用。fgb/parquet 以外のソース(gpkg/geojson/
+    shp/csv/kml/wfs 等)は ``_native_ref`` を呼ばず直接 FlatGeobuf 変換
+    へ回す。``_native_ref`` はファイルを canvas_data/ へコピーしてから行タイプを
+    返すため、捨てる参照のコピーを防ぐ目的もある。
+    """
+    path = _source_path(layer) or (layer.source() or '')
+    low = path.split('?')[0].lower()
+    if low.endswith(('.fgb', '.flatgeobuf')):
+        return 'flatgeobuf'
+    if low.endswith(('.parquet', '.geoparquet')):
+        return 'geoparquet'
+    return None
+
+
+def _is_recommended_native(native):
+    """``_native_ref`` の結果が推奨形式の行タイプかを返す。
+
+    推奨形式モードで参照を維持するのは ``flatgeobuf:``・``geoparquet:``
+    と、geoparquet ソース+subset が出す
+    ``duckdb:+format=parquet`` 行のみ。それ以外(gpkg/geojson/shp/csv/
+    kml/wfs/topojson 等)は FlatGeobuf 変換へ回す。
+    """
+    if not isinstance(native, dict):
+        return False
+    if native.get('type') in ('flatgeobuf', 'geoparquet'):
+        return True
+    return native.get('type') == 'duckdb' and \
+        (native.get('opts') or {}).get('format') == 'parquet'
+
+
 # ---- ホスト版エンジン(kasugai-canvas-web) ----
 
 KASUGAI_WEB_HOST = (
@@ -751,7 +823,7 @@ def build_hosted_view_url(kasc_path, engine=None, port=None,
     """ホスト版エンジン + geo_webviewサーバのデータ配信で .kasc を開くURL。
 
     Canvas未インストール環境向けの最終フォールバック。
-    ホスト版エンジンが /export-data/ 配下の .kasc+DATA/ を
+    ホスト版エンジンが /export-data/ 配下の .kasc+canvas_data/ を
     http://localhost:<port> から fetch する(サーバ側の
     OPTIONS/PNA対応が前提)。kasc_path が last_export_dir()
     配下に無い場合は None。
@@ -774,7 +846,7 @@ def build_hosted_view_url(kasc_path, engine=None, port=None,
 
 
 def _slugify(name, used):
-    """レイヤ名からDATA/用の安全なファイル名(ASCII)を作る。"""
+    """レイヤ名からcanvas_data/用の安全なファイル名(ASCII)を作る。"""
     slug = re.sub(r'[^A-Za-z0-9_\-]+', '_', str(name or '')).strip('_')
     if not slug:
         slug = 'layer'
@@ -1100,7 +1172,7 @@ def _source_path(layer):
 
 
 def _same_data_copy(src_abs, dest_abs):
-    """DATA/ 内の既存コピーがソースと同一内容か(サイズ+mtime一致)。
+    """canvas_data/ 内の既存コピーがソースと同一内容か(サイズ+mtime一致)。
 
     copy2 はソースの mtime を保持するため、過去エクスポートの複製は
     この条件に一致する。一致すれば再コピー不要(複製の蓄積防止)。
@@ -1114,7 +1186,7 @@ def _same_data_copy(src_abs, dest_abs):
 
 # link_files モード(.kasc をプロジェクトファイル隣へ出力し原本を
 # 相対参照で読む「複写なし」Web化)。export_kasugai_project が開始時に
-# 設定する。True のとき data_dir は 'canvas_data' (変換物の置き場)
+# 設定する。変換物の置き場 data_dir はモードによらず 'canvas_data'
 _LINK_FILES = False
 _LINK_ROOT = None  # .kasc の出力先(プロジェクトdir)の絶対パス
 
@@ -1149,16 +1221,16 @@ def _link_ref(path):
 
 
 def _dref(data_dir, name):
-    """data_dir 配下の参照文字列 'DATA/x' or 'canvas_data/x' を返す。"""
+    """data_dir 配下の参照文字列 'canvas_data/x' を返す。"""
     return '{0}/{1}'.format(os.path.basename(data_dir), name)
 
 
 def _copy_to_data(src_path, data_dir, slug, copied):
-    """ローカルファイルを DATA/<slug><ext> へコピーし 'DATA/...' を返す。
+    """ローカルファイルを canvas_data/<slug><ext> へコピーし 'canvas_data/...' を返す。
 
     宛先は常に固定名 ``<slug><ext>``。既存が同一内容なら再利用、
     異なる内容なら上書きする(旧仕様の ``<slug>_N<ext>`` 連番複製は
-    エクスポート毎に DATA/ が肥大化するため廃止)。
+    エクスポート毎に canvas_data/ が肥大化するため廃止)。
     """
     src_abs = os.path.abspath(src_path)
     if src_abs in copied:
@@ -1177,7 +1249,7 @@ def _copy_to_data(src_path, data_dir, slug, copied):
     return rel
 
 
-# DATA/ へ複製するローカルディレクトリツリー(3D Tiles / ローカルXYZタイル)の上限
+# canvas_data/ へ複製するローカルディレクトリツリー(3D Tiles / ローカルXYZタイル)の上限
 _LOCAL_TREE_MAX_BYTES = 1024 ** 3  # 1 GiB
 
 # duckdb: 行へ回せる区切りテキストの拡張子(delimitedtext / ogr 共通)
@@ -1209,7 +1281,7 @@ def _tree_bytes(path, cap):
 
 
 def _copy_tree_to_data(src_dir, data_dir, slug, copied):
-    """ローカルディレクトリを DATA/<slug>/ へ複製し 'DATA/<slug>' を返す。
+    """ローカルディレクトリを canvas_data/<slug>/ へ複製し 'canvas_data/<slug>' を返す。
 
     既存の同名ディレクトリは(前回エクスポート産物として)置き換える。
     """
@@ -1352,7 +1424,7 @@ def _tiledscene_ref(layer, slug, data_dir, copied, warnings):
 
     - http(s)/vsicurl URL → そのまま参照
     - ローカルの tileset.json(またはそのディレクトリ) → ディレクトリツリーを
-      DATA/<slug>/ へ複製して DATA/<slug>/<basename> を返す
+      canvas_data/<slug>/ へ複製して canvas_data/<slug>/<basename> を返す
     """
     src = layer.source() or ''
     m = re.search(r'(?:^|&)url=([^&]+)', src)
@@ -1386,9 +1458,9 @@ def _tiledscene_ref(layer, slug, data_dir, copied, warnings):
 
 
 def _local_xyz_template(url, slug, data_dir, copied, warnings):
-    """ローカル XYZ テンプレート(file:///.../{z}/{x}/{y}.png)を DATA/ へ複製。
+    """ローカル XYZ テンプレート(file:///.../{z}/{x}/{y}.png)を canvas_data/ へ複製。
 
-    戻り値 'DATA/<slug>/{z}/{x}/{y}.png' 形式の参照テンプレート。解決不可・
+    戻り値 'canvas_data/<slug>/{z}/{x}/{y}.png' 形式の参照テンプレート。解決不可・
     サイズ超過時は None。
     """
     path = _local_path(url)
@@ -1727,7 +1799,7 @@ def _vectortile_source(layer):
             params[k.strip().lower()] = unquote(v.strip())
     url = params.get('url') or ''
     if not url or not re.match(r'https?://', url):
-        return None  # ローカル .mbtiles・file:// 等は DATA 複製せず未対応
+        return None  # ローカル .mbtiles・file:// 等は canvas_data 複製せず未対応
 
     def _zi(key):
         try:
@@ -1796,7 +1868,7 @@ def _geotiff_layer_ref(layer, slug, data_dir, copied):
     """QgsRasterLayer のソースが GeoTIFF/COG なら参照を返す。
 
     - http(s)/vsicurl の .tif 系 → URL をそのまま参照(COG 前提)
-    - ローカルの .tif 系 → DATA/ へコピーして相対参照
+    - ローカルの .tif 系 → canvas_data/ へコピーして相対参照
     それ以外のラスタ(WMS/仮想等)やファイル不在は None。
     """
     try:
@@ -1844,7 +1916,7 @@ _SHP_SIDECARS = ('.shp', '.dbf', '.shx', '.prj', '.cpg', '.sbn', '.sbx',
 
 
 def _copy_shp_set(src_path, data_dir, slug, copied):
-    """Shapefile と sidecar を DATA/<slug><ext> 一式でコピーする。
+    """Shapefile と sidecar を canvas_data/<slug><ext> 一式でコピーする。
 
     Canvas の ``shp:`` 行は shpjs が sidecar(.dbf/.shx/.prj 等)を自動取得
     するため、同名の拡張子群をまとめて複製する。戻り値は .shp の参照。
@@ -1928,25 +2000,21 @@ def _fallback_driver():
     return 'GeoJSON', '.geojson', 'geojson'
 
 
-def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
+def _native_ref(layer, slug, data_dir, copied, warnings):
     """Canvas が直接参照できるソースなら参照辞書を返す。
 
     戻り値: ``{'type': <kasc行タイプ>, 'ref': <参照>, 'opts': {k: v}}``、
     または ``{'skip_reason': <理由>}``(表示不能と確定)、不可時は None
-    (呼び出し側で GeoJSON 再エクスポートに回す)。
+    (呼び出し側でフォールバック変換に回す)。
 
     - http(s) ソース: 拡張子に応じて URL をそのまま参照
-    - ローカルファイル: DATA/<slug><ext> へコピーして相対参照
+    - ローカルファイル: canvas_data/<slug><ext> へコピーして相対参照
     - delimitedtext / .csv,.tsv → ``duckdb:``(lon=/lat=/geom= 付き)
     - subsetString → 全ネイティブ形式で ``where=``。gpkg:/duckdb: 系は
       SQL実行、geojson:/flatgeobuf:/geoparquet: は Canvas 側
       where-eval.js のクライアント評価(_subset_eval_ok が通る式のみ。
       非対応式は FlatGeobuf 変換でフィルタを焼き込む)
-    地理座標系でない場合は None(GeoJSON 再エクスポートへ回す)。
-
-    embed_style=True ならローカル GPKG の layer_styles へ現在スタイルを
-    保存してから DATA/ へコピーする(配布コピーにスタイルを含めるため、
-    コピー前の埋め込みが必須)。
+    地理座標系でない場合は None(フォールバック変換へ回す)。
     """
     src = layer.source() or ''
     subset = _subset_filter(layer)
@@ -1993,7 +2061,7 @@ def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
         if subset:
             if kind not in ('gpkg', 'duckdb') \
                     and not _subset_eval_ok(subset_raw):
-                # where-eval 非対応式 → GeoJSON 変換でフィルタを焼き込む
+                # where-eval 非対応式 → FlatGeobuf 変換でフィルタを焼き込む
                 warnings.append(
                     '{0}: フィルタ式が where= 非対応のためベクター変換'.format(
                         layer.name()))
@@ -2061,28 +2129,11 @@ def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
         if kind == 'geoparquet':
             kind = 'duckdb'
         elif kind != 'gpkg' and not _subset_eval_ok(subset_raw):
-            # where-eval 非対応式 → GeoJSON 変換でフィルタを焼き込む
+            # where-eval 非対応式 → FlatGeobuf 変換でフィルタを焼き込む
             warnings.append(
                 '{0}: フィルタ式が where= 非対応のためベクター変換'.format(
                     layer.name()))
             return None
-    if kind == 'gpkg' and embed_style:
-        # コピー後に埋め込むと配布コピー(DATA/)へスタイルが入らないため、
-        # 必ず元 GPKG への保存 → コピーの順に行う
-        if _embed_gpkg_style(layer):
-            warnings.append(
-                '{0}: layer_styles に既定スタイルを保存'.format(layer.name()))
-            prev = copied.get(os.path.abspath(src_path))
-            if prev:
-                # 同一 GPKG の別レイヤで既に DATA/ へコピー済み → 参照名を
-                # 変えずに同じ宛先へ上書き再コピーし、全レイヤ分の
-                # layer_styles を配布コピーへ反映する
-                shutil.copy2(src_path,
-                             os.path.join(data_dir,
-                                          os.path.basename(prev)))
-        else:
-            warnings.append(
-                '{0}: layer_styles への保存に失敗'.format(layer.name()))
     if ext == '.shp':
         # Shapefile は sidecar(.dbf/.shx/.prj 等)を一式コピー
         # (link_files 時は _copy_shp_set 内で原本相対参照へ切替)
@@ -2102,21 +2153,6 @@ def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
     if subset:
         opts['where'] = subset
     return {'type': kind, 'ref': ref, 'opts': opts}
-
-
-def _embed_gpkg_style(layer):
-    """GPKG の layer_styles へ既定スタイルを保存する(QGIS 標準機能)。
-
-    データ+スタイルを1ファイルで配布できる。元ファイルに書き込む点に注意。
-    saveStyleToDatabase はエラーメッセージ文字列を返す(空=成功。
-    QGIS 4.0 実測)。
-    """
-    try:
-        res = layer.saveStyleToDatabase(
-            'kasugai', 'KASUGAI Canvas 既定スタイル', True, '')
-        return not res
-    except Exception:  # プロバイダ未対応等 → 呼び出し側で警告
-        return False
 
 
 def _per_layer_opt(spec, layer):
@@ -2498,7 +2534,7 @@ def _expand_user_funcs_in_qml(qml_path, warnings=None):
 # .qml 内で画像ファイルを参照するシンボルレイヤ。
 # キーは class 属性値(小文字)、値はファイル参照を持つ prop 名(小文字)。
 # QGIS 内蔵シンボルは transport/… 等の相対名や QGIS インストール先の
-# 絶対パスのまま書き出され、DATA/ に実体が無いと Canvas 側は解決
+# 絶対パスのまま書き出され、canvas_data/ に実体が無いと Canvas 側は解決
 # できない(円・単色へフォールバック)ため、複製して参照を書き換える
 _QML_ASSET_KEYS = {
     'svgmarker': ('name', 'path'),
@@ -2582,12 +2618,12 @@ def _resolve_asset_file(value, qml_dir, svg_dirs):
 
 def _export_qml_assets(qml_path, layer_slug, data_dir, used_names, copied,
                        warnings):
-    """.qml が参照するシンボル画像(SVG/ラスタ)を DATA/ へ複製し参照を書き換える。
+    """.qml が参照するシンボル画像(SVG/ラスタ)を canvas_data/ へ複製し参照を書き換える。
 
     QGIS 内蔵 SVG シンボルやユーザーのローカル画像は .qml に
-    生パスのまま残り、Canvas 側は .qml のある DATA/ からしか解決
-    できない。ここで参照ファイルを DATA/ へ複製し、.qml の値を
-    DATA/ 内のファイル名へ書き換える。
+    生パスのまま残り、Canvas 側は .qml のある canvas_data/ からしか解決
+    できない。ここで参照ファイルを canvas_data/ へ複製し、.qml の値を
+    canvas_data/ 内のファイル名へ書き換える。
     戻り値: 複製したファイル数。
     """
     # defusedxml を vendored 同梱し利用(実体宣言/外部参照をパーサ層で拒否)
@@ -3098,7 +3134,7 @@ def _scene_transformer(view, project, warnings):
 
 def _anim3d_fly_line(view, name, wgs3, globe, data_dir, used_names,
                      warnings):
-    """<animation3d><keyframe> 列 → fly_geojson: 行 + DATA/*.geojson。
+    """<animation3d><keyframe> 列 → fly_geojson: 行 + canvas_data/*.geojson。
 
     キーフレームは ``lookingAtMapPoint``(注視点・シーン座標)+姿勢で保持
     されるため、各キーフレームのカメラ位置を _camera_geodetic で求めて
@@ -3196,7 +3232,7 @@ def _threed_lines(project, warnings, data_dir=None, used_names=None):
     影/SSAO/EDL・グローブ時は globe=on)は ``scene3d:`` 行、平行光源は
     ``light:`` 行(シーン座標の光源方向ベクトル→方位/仰角)。
     <animation3d> キーフレームはカメラ軌道を ``fly_geojson:`` 行 +
-    DATA/anim3d_*.geojson として出力する(#60)。
+    canvas_data/anim3d_*.geojson として出力する(#60)。
     """
     out = []
     root = _project_xml_root(project)
@@ -3339,7 +3375,7 @@ def _threed_lines(project, warnings, data_dir=None, used_names=None):
 def _theme_style_qml(layer, style_name, data_dir, slug, theme_slug,
                      warnings, used_names, copied):
     """テーマ記録の名前付きスタイル(styleManager の名前)を
-    DATA/<slug>__<theme>.qml へ出力し 'DATA/...' を返す。
+    canvas_data/<slug>__<theme>.qml へ出力し 'canvas_data/...' を返す。
     styleManager に無い・無効なスタイルは None。
     xmlData() は .qml 同等の <qgis> 文書文字列(QGIS 4.0 実測)。"""
     try:
@@ -3354,7 +3390,7 @@ def _theme_style_qml(layer, style_name, data_dir, slug, theme_slug,
             f.write(st.xmlData())
         _expand_user_funcs_in_qml(fpath, warnings)
         # メインスタイルと同様にシンボル画像(SVG/ラスタ)を
-        # DATA/ へ複製して参照を書き換える(絶対パス残存を防ぐ)
+        # canvas_data/ へ複製して参照を書き換える(絶対パス残存を防ぐ)
         try:
             _export_qml_assets(
                 fpath, slug or 'layer', data_dir, used_names, copied,
@@ -3569,7 +3605,7 @@ def _atlas_page_frames(layout, warnings):
 
 
 def _export_atlas_fly(project, data_dir, used_names, warnings):
-    """アトラス有効な印刷レイアウト → fly_geojson: 行 + DATA/atlas_*.geojson。
+    """アトラス有効な印刷レイアウト → fly_geojson: 行 + canvas_data/atlas_*.geojson。
 
     各ページの表示範囲を巡回するフライパスを生成する。座標のZ値には
     そのページ範囲を収める正典カメラ高を焼き込み、GeoJSON properties の
@@ -3707,13 +3743,12 @@ def _write_engine_launchers(out_dir, kasc_name):
 
 def export_kasugai_project(iface, out_dir=None, visible_only=True,
                            native_formats=True, hidden_as_off=False,
-                           embed_gpkg_style=False,
                            emit_themes=True, emit_bookmarks=True,
                            emit_launchers=None, emit_zip=False,
                            emit_atlas=True,
                            changed=None, live_url=None,
                            fields=None, where=None, limit=None,
-                           link_files=True):
+                           link_files=True, vector_format=None):
     """レイヤツリーを KASUGAI Canvas プロジェクトとして出力する。
 
     引数:
@@ -3741,12 +3776,6 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             グループ名はタイトルから外し、配下のサブグループのみ
             ``サブグループ/レイヤ名`` として残す(Canvas 側の
             ベースマップ選択でグループ化表示される)。
-        embed_gpkg_style: True なら gpkg: 参照レイヤの現在スタイルを
-            QGIS 標準の layer_styles(useAsDefault)へも保存する。
-            **元の .gpkg ファイルへ書き込む**点に注意(opt-in)。
-            保存は DATA/ へのコピー前に行い、配布コピーにも
-            layer_styles が含まれる(対象はローカル GPKG のみ。
-            http URL 参照の GPKG へは書き込めないため対象外)。
         emit_themes: True ならプロジェクトのマップテーマを ``theme:`` 行
             (Canvas の可視性プリセット)として出力する(既定)。
             テーマが存在する場合、非表示レイヤも ``| off`` で出力しないと
@@ -3764,7 +3793,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             転送し、エンジン本体(web/ の中身)を ./ ../ ../../ / の順に
             自動探索する。出力フォルダとエンジンを同じ静的サーバーへ
             アップするだけで動くサーバレス配布の部品。
-        emit_zip: True なら出力一式(.kasc+DATA/+bookmarks.xml等)を
+        emit_zip: True なら出力一式(.kasc+canvas_data/+bookmarks.xml等)を
             ``kasugai_canvas_<tag>.zip``(export_zip_name、CDNチャンネル反映)
             として同じ場所に固める(既定 False)。
             Re:Earth geo_suite の ``qgis: <zip URL>`` インスペクタ行が
@@ -3772,7 +3801,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             ``/export-data/kasugai_canvas*.zip`` からも取得できる
             (未生成時はその場で固めて返す)。
         emit_atlas: True ならアトラス有効な印刷レイアウトを
-            ``fly_geojson:`` 行 + ``DATA/atlas_*.geojson`` として
+            ``fly_geojson:`` 行 + ``canvas_data/atlas_*.geojson`` として
             出力する(既定)。各アトラスページの表示範囲を巡回する
             フライパスで、座標Z値にページを収めるカメラ高を焼き込む
             (``properties.heightReference="MSL"`` で地形加算を抑止)。
@@ -3795,6 +3824,19 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             FlatGeobuf 変換で焼き込む。どのソース形式でもフィルタが
             出力データへ確実に反映される(.kasc 行形式・Canvas 側の
             変更は不要)。
+        vector_format: ベクターの出力モード。``None``(既定)は
+            QSettings ``kasugai_vector_format`` の値(未設定は 'native')
+            を使う。'native' は従来どおり参照優先。
+            'recommended' は推奨形式スイッチ: FlatGeobuf/GeoParquet 系
+            (``flatgeobuf:``/``geoparquet:``/``duckdb:+format=parquet``)
+            以外のベクターソース(gpkg/geojson/shp/csv/kml/wfs 等)を
+            すべて FlatGeobuf へ EPSG:4326 で変換し canvas_data/ へ配置する。
+            'geojson' は WEB連携モード: 全ベクターを GeoJSON へ EPSG:4326
+            で変換し canvas_data/ へ ``geojson:`` 行として配置する
+            (KASUGAI Canvas 以外の WebGIS・GIS ツールでも canvas_data/
+            をそのまま読める相互運用向け。推奨形式ソースも含め全て変換)。
+            変換でフィルタ(subsetString)・fields/where/limit も
+            そのまま焼き込まれる。
         link_files: True(既定)なら `.kasc` を QGIS プロジェクトファイル
             (.qgs/.qgz)と同じ場所へ出力し、参照可能なデータは**原本の
             相対パスのまま**複写せずに参照する「複写なし Web化」モード。
@@ -3802,7 +3844,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             ファイルは相対パス参照、それより外(深い親・別ドライブ)と
             変換が必要なデータのみ ``canvas_data/`` サブフォルダへ出力。
             プロジェクト未保存の場合は ``get_output_dir()`` へフォール
-            バック。False なら従来通り ``out_dir/DATA/`` へ全データ複写
+            バック。False なら従来通り ``out_dir/canvas_data/`` へ全データ複写
             (サーバレス配布・ホスティング用)。
 
     戻り値: {"dir","kasc","data_dir","layers":[{name,file,features}],
@@ -3824,8 +3866,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         else:
             out_dir = preferred_output_dir()
     out_dir = os.path.abspath(out_dir)
-    data_dir = os.path.join(
-        out_dir, 'canvas_data' if link_files else 'DATA')
+    data_dir = os.path.join(out_dir, 'canvas_data')
     os.makedirs(data_dir, exist_ok=True)
     global _last_export_dir, _LINK_FILES, _LINK_ROOT
     _last_export_dir = out_dir
@@ -3848,10 +3889,21 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         os.path.basename(project.fileName() or ''))[0] or 'QGIS Export'
 
     used_names = set()
-    slug_by_id = {}  # layer.id() → DATA/ 用 slug(theme 行の ;style= で使う)
+    slug_by_id = {}  # layer.id() → canvas_data/ 用 slug(theme 行の ;style= で使う)
     copied = {}
     layers_out, tiles_out, skipped, errors, warnings = [], [], [], [], []
     kasc_lines = []
+    # ベクター出力モード: None は QSettings kasugai_vector_format(既定
+    # 'native')を解決。'recommended' は推奨形式スイッチで、推奨形式
+    # (flatgeobuf/geoparquet 系)以外のネイティブ参照を FlatGeobuf 変換
+    # (canvas_data/ 配置)へ回す。'geojson' は WEB連携モードで全ベクターを
+    # GeoJSON 変換へ回す(ネイティブ参照を一切使わない)
+    if vector_format is None:
+        vector_format = get_vector_export_mode()
+    _fmt = str(vector_format or '').strip().lower()
+    vector_format = _fmt if _fmt in VECTOR_EXPORT_MODES else 'native'
+    recommend_fmt = vector_format == 'recommended'
+    geojson_fmt = vector_format == 'geojson'
     # ライブ差分エクスポート: {layer.id(): {'data':bool,'style':bool}}。
     # changed 指定時は未変更レイヤのデータ/スタイル書き出しを
     # 既存ファイルがある場合に限りスキップし、live.json に変更一覧を書く
@@ -3977,10 +4029,22 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 if w_sel is not None else None
             l_sel = _per_layer_opt(limit, layer)
             bake = bool(f_sel) or bool(w_sel) or l_sel is not None
-            native = _native_ref(
-                layer, slug, data_dir, copied, warnings,
-                embed_style=embed_gpkg_style) \
-                if native_formats and not bake else None
+            native = None
+            if native_formats and not bake and not geojson_fmt \
+                    and (not recommend_fmt
+                         or _recommended_source_kind(layer)):
+                # 推奨形式モードでは fgb/parquet ソースのみ _native_ref へ
+                # 進め、それ以外は直接 FlatGeobuf 変換へ回す(_native_ref
+                # は行タイプ決定前にファイルを canvas_data/ へコピーするため)。
+                # geojson モードはネイティブ参照を使わず全ベクターを
+                # GeoJSON 変換へ回す
+                native = _native_ref(
+                    layer, slug, data_dir, copied, warnings)
+                if recommend_fmt and isinstance(native, dict) \
+                        and native.get('type') \
+                        and not _is_recommended_native(native):
+                    # fgb/parquet 以外の行タイプ(万が一の迂回)も変換へ回す
+                    native = None
             if isinstance(native, dict) and native.get('skip_reason'):
                 skipped.append(
                     '{0} ({1})'.format(layer.name(), native['skip_reason']))
@@ -4013,8 +4077,12 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
 
             # ネイティブ参照できないベクター → FlatGeobuf(第1候補・
             # 空間インデックス付きで GeoJSON より軽量)等の高速形式へ
-            # EPSG:4326 で変換。ドライバが無ければ GeoJSON へ落ちる
-            drv, out_ext, out_kind = _fallback_driver()
+            # EPSG:4326 で変換。ドライバが無ければ Parquet→GeoJSON へ落ちる。
+            # geojson モードは全ベクターを GeoJSON 固定で出力する
+            if geojson_fmt:
+                drv, out_ext, out_kind = 'GeoJSON', '.geojson', 'geojson'
+            else:
+                drv, out_ext, out_kind = _fallback_driver()
             out_path = os.path.join(data_dir, slug + out_ext)
             written = feat_count
             if (changed is None or (kinds or {}).get('data')
@@ -4109,7 +4177,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             if xyz:
                 url, zmin, zmax = xyz
                 if not re.match(r'https?://', url):
-                    # file:/// 等のローカルタイルテンプレートは DATA/ へ複製
+                    # file:/// 等のローカルタイルテンプレートは canvas_data/ へ複製
                     slug = _slugify(layer.name() or 'tiles', used_names)
                     ref = _local_xyz_template(url, slug, data_dir, copied,
                                               warnings)
@@ -4260,8 +4328,9 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                             # 未変更ラスタ: 既存PNG再利用(bboxは範囲から再現)
                             baked_bbox = _raster_bbox_str(layer)
                     if baked_bbox:
-                        line = 'image: {0} | ' + _dref(data_dir, '{1}.png') + ' | {2}'.format(
-                            title, slug, vis_flag)
+                        line = 'image: {0} | {1} | {2}'.format(
+                            title, _dref(data_dir, '{0}.png'.format(slug)),
+                            vis_flag)
                         line += ' | bbox={0}'.format(baked_bbox)
                         opacity = _maplayer_opacity(layer)
                         if opacity is not None:
@@ -4471,6 +4540,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         'warnings': warnings, 'themes': theme_names,
         'bookmarks': bookmark_count, 'launchers': launchers,
         'zip': zip_path, 'atlases': atlases,
+        'vector_format': vector_format,
     }
 
 
@@ -4493,7 +4563,7 @@ def _write_export_zip(out_dir):
     """出力フォルダ一式を kasugai_canvas_<tag>.zip として固める。
 
     ファイル名は CDN チャンネルを反映(export_zip_name)。
-    展開時にルートへ .kasc+DATA/ が並ぶよう out_dir 相対パスで格納する
+    展開時にルートへ .kasc+canvas_data/ が並ぶよう out_dir 相対パスで格納する
     (zip 自身は除外)。Re:Earth geo_suite の ``qgis:`` 取り込みは
     ZIP 内の .kasc を最短パス優先で検出するため、この配置で正しく解決する。
     """

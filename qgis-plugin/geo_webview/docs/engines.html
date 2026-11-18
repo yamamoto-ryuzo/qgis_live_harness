@@ -12,7 +12,7 @@
 <div class="container">
 <main>
 <h1>3. マルチエンジン</h1>
-<p>同じ <code>.kasc</code>+<code>DATA/</code>
+<p>同じ <code>.kasc</code>+<code>canvas_data/</code>
 を5つのエンジンで再生できます（<code>?engine=</code> または 出力される
 <code>&lt;engine&gt;.html</code> 起動ページで切替）:</p>
 <table>
@@ -67,11 +67,11 @@ v3.24.0 で廃止され、 閲覧は全て KASUGAI Canvas に一本化されま�
   shared/         エンジン非依存コア（.kasc ローダー・デコーダー・i18n・QML コンパイラ）
   projects/       プロジェクトデータ（エンジン非依存）
     projects.json          プロジェクト一覧マニフェスト
-    DATA/                  （任意）全プロジェクト共有データ（../DATA/ 参照先）
+    canvas_data/                  （任意）全プロジェクト共有データ（../canvas_data/ 参照先）
     &lt;id&gt;/                  プロジェクト（id 単位で複数管理）
       kasugai_canvas.kasc  プロジェクト設定
-      DATA/                プロジェクト専用データ</code></pre>
-<p>geo_webview が出力する <code>.kasc</code>+<code>DATA/</code> は
+      canvas_data/                プロジェクト専用データ</code></pre>
+<p>geo_webview が出力する <code>.kasc</code>+<code>canvas_data/</code> は
 <code>projects/&lt;id&gt;/</code>
 の1プロジェクトとして配置され、<code>.kasc</code> 行の相対参照は
 <code>projects/&lt;id&gt;/</code> を基準に解決されます。</p>
@@ -86,9 +86,9 @@ id="起動ページenginehtml">起動ページ（<code>&lt;engine&gt;.html</code
 Leaflet / GSI Maps）構成ですが、ここでは共有コアを持つ4エンジンの
 機能比較を示します（<strong>GSI Maps</strong>
 は地理院地図を iframe で内包する別系統のエンジンのため本表の対象外。
-<code>.kasc</code>+<code>DATA/</code> の再生自体は可能）。
+<code>.kasc</code>+<code>canvas_data/</code> の再生自体は可能）。
 <code>—</code> = 非対応、<code>△</code> =
-部分的対応。すべてのエンジンが同じ <code>.kasc</code>+<code>DATA/</code>
+部分的対応。すべてのエンジンが同じ <code>.kasc</code>+<code>canvas_data/</code>
 パッケージを読みます（<code>?engine=</code> または出力される
 <code>&lt;engine&gt;.html</code> で切替）。Re:Earth geo_suite
 は別クライアント（<code>kasugai_canvas_*.zip</code>
@@ -107,7 +107,7 @@ Leaflet / GSI Maps）構成ですが、ここでは共有コアを持つ4エン�
 </thead>
 <tbody>
 <tr>
-<td><code>.kasc</code>+<code>DATA/</code> 取り込み</td>
+<td><code>.kasc</code>+<code>canvas_data/</code> 取り込み</td>
 <td>✓（<code>/kasugai</code> 登録 +
 <code>?project=</code>）</td>
 <td>✓</td>
@@ -538,7 +538,7 @@ hub → Copilot/Devin/Antigravity）</td>
 <td>△（<code>xyz:</code>/<code>base:</code>）</td>
 </tr>
 <tr>
-<td>ベクターデータ（<code>DATA/</code> ファイル）</td>
+<td>ベクターデータ（<code>canvas_data/</code> ファイル）</td>
 <td>✓</td>
 <td>✓</td>
 <td>✓</td>
@@ -598,7 +598,7 @@ hub → Copilot/Devin/Antigravity）</td>
 <code>xyz:</code>/<code>base:</code>/<code>wms:</code>/<code>wmts:</code>
 行としてタイル参照を引き継ぐ（外部タイルサービスを参照。geo_webview
 自身のタイル配信は v3.29.0 で廃止）</li>
-<li><strong>ベクターデータ</strong>: 表示中レイヤを <code>DATA/</code>
+<li><strong>ベクターデータ</strong>: 表示中レイヤを <code>canvas_data/</code>
 フォルダのファイルとして受け渡す（GPKG/GeoJSON/GeoParquet/FlatGeobuf
 は変換せずネイティブ参照）</li>
 <li><strong>スタイル引き継ぎ</strong>: QGIS レンダラを <code>.qml</code>
@@ -614,7 +614,7 @@ SELECT）は QGIS に相当ソースが無いため出力しない。3D Tiles
 レイヤ（<code>QgsTiledSceneLayer</code>）は
 <code>3dtiles:</code>、ローカル XYZ
 テンプレート（<code>file:///…/{z}/{x}/{y}.png</code>）はタイルツリーごと
-<code>DATA/</code> へ複製。QGIS の WMS
+<code>canvas_data/</code> へ複製。QGIS の WMS
 ラスタレイヤ（<code>type=xyz</code> 以外）は <code>wms:</code>
 行（<code>layers=</code>/<code>styles=</code>/<code>format=</code>
 付き）として出力し、Canvas 側が GetMap を 256px

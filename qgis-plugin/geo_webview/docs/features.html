@@ -20,7 +20,7 @@ alt="geo_webview パネル全体 — 上から Web配信（エクスポート・
 サーバー状態、テーマ／パーマリンク／共有タブ</figcaption>
 </figure>
 <h2 id="エクスポート">【エクスポート】</h2>
-<p><code>.kasc + DATA/ + &lt;engine&gt;.html + index.html</code>
+<p><code>.kasc + canvas_data/ + &lt;engine&gt;.html + index.html</code>
 を出力します。
 <strong>ファイル出力のみ</strong>で、起動・登録は行いません（kasugai_canvas*.zip
 も 生成しません — ZIP
@@ -106,7 +106,7 @@ Canvas ローカルサーバー（:8510）へ登録・表示切替・ブラウ�
 レンタルサーバー等の静的ホスト） へアップするだけで、<strong>QGIS
 なしで動く単独の WebGIS</strong> になります （Canvas の
 <code>?kasc=</code> 直読みモード）。配信に特別なサーバーサイド処理は
-不要で、<code>.kasc</code>+<code>DATA/</code>+システム一式を切り出して配布単位とすることも
+不要で、<code>.kasc</code>+<code>canvas_data/</code>+システム一式を切り出して配布単位とすることも
 できます。</p>
 <p>外部ホストへの配信は、エンジン本体（<code>web/</code>
 の中身）の置き場所で2パターンに 分かれます。</p>
@@ -121,8 +121,8 @@ Canvas ローカルサーバー（:8510）へ登録・表示切替・ブラウ�
 <tbody>
 <tr>
 <th scope="row">構成</th>
-<td>ホストには <code>.kasc</code>+<code>DATA/</code> のみ。<code>https://yamamoto-ryuzo.github.io/kasugai-canvas-web/&lt;stable|unstable&gt;/&lt;engine&gt;/?kasc=&lt;.kascのURL&gt;</code> を開く</td>
-<td>ホストに <code>.kasc</code>+<code>DATA/</code>+<code>web/</code>（エンジン一式）を配置。<code>&lt;engine&gt;.html</code> が同階層のエンジンを自動探索して開く</td>
+<td>ホストには <code>.kasc</code>+<code>canvas_data/</code> のみ。<code>https://yamamoto-ryuzo.github.io/kasugai-canvas-web/&lt;stable|unstable&gt;/&lt;engine&gt;/?kasc=&lt;.kascのURL&gt;</code> を開く</td>
+<td>ホストに <code>.kasc</code>+<code>canvas_data/</code>+<code>web/</code>（エンジン一式）を配置。<code>&lt;engine&gt;.html</code> が同階層のエンジンを自動探索して開く</td>
 </tr>
 <tr>
 <th scope="row">初回読込</th>
@@ -167,7 +167,7 @@ vendor/ 未同梱なら kasugai-canvas-web の CDN 版へ転送されるため�
 <p>目安: <strong>公開配信は A（CDN）が既定</strong>。B
 は閉域網・オフライン利用・ CORS/HTTPS
 を設定できないホスト・自己完結アーカイブ向けです。 どちらでも
-<code>.kasc</code>+<code>DATA/</code>
+<code>.kasc</code>+<code>canvas_data/</code>
 は自ホストから読むため、体感速度の大半は データ配信側で決まります。</p>
 <p>起動HTMLは <code>./ ../ ../../ /</code>
 の順にエンジンを自動探索し、同一ホストに

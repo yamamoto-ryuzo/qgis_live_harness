@@ -3,7 +3,7 @@
 
 `kasugai_export.py` が送出する .kasc 行形式を解析し、QGIS の
 レイヤツリー・スタイル(.qml)・縮尺表示・グループ・カメラを復元する。
-「既存 WebGIS(.kasc+DATA/) → QGIS」経路の実体で、再送出
+「既存 WebGIS(.kasc+canvas_data/) → QGIS」経路の実体で、再送出
 (kasugaiExport)と組み合わせると WebGIS → Canvas の変換に使える。
 
 - ``parse_kasc(text)`` — .kasc テキストを構造化 dict へ。
@@ -262,7 +262,7 @@ def parse_kasc(text):
 
 
 def _read_source(source, timeout=15):
-    """.kasc を読み (text, base_dir) を返す。base は DATA/ 相対解決用。"""
+    """.kasc を読み (text, base_dir) を返す。base は canvas_data/ 相対解決用。"""
     src = str(source or "").strip()
     if re.match(r"^https?://", src):
         req = urllib.request.Request(
@@ -278,7 +278,7 @@ def _read_source(source, timeout=15):
 
 
 def resolve_ref(ref, base):
-    """DATA/x.gpkg 等の相対参照を base(.kasc の所在)から絶対化する。"""
+    """canvas_data/x.gpkg 等の相対参照を base(.kasc の所在)から絶対化する。"""
     r = str(ref or "").strip()
     if not r:
         return ""
@@ -777,8 +777,13 @@ def _apply_common(layer, item, base, warnings, tmp_files):
         except Exception as e:
             warnings.append("{0}: style 適用失敗 {1}".format(leaf, e))
     # bbox= は Canvas 側の描画範囲制限 → QGIS のマップクリッピング
-    # 領域へ変換(image: では bbox= が位置合わせ用なので除外)
-    if o.get("bbox") is not None and item.get("type") != "image":
+    # 領域へ変換(image: では bbox= が位置合わせ用なので除外)。
+    # ただし bbox=auto|off 等の表示範囲連動クエリ指定(gpkg:/duckdb:/
+    # flatgeobuf:)は範囲値ではないため対象外とする
+    if (o.get("bbox") is not None and item.get("type") != "image"
+            and not re.match(
+                r"^(auto|on|true|view|viewport|off|none|false|static|manual)$",
+                str(o["bbox"]).strip(), re.I)):
         _apply_bbox_clip(layer, o["bbox"], leaf, warnings)
     # Canvas専用オプション(3D立上げ・時間・heat/cluster・
     # Cesium描画オプション等)は QGIS に直接対応が無い → 未適用として報告のみ

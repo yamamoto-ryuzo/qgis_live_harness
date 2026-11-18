@@ -14,7 +14,7 @@ from geo_driver.mcp_http import TOOLS, start_http
 
 
 class _FakeDriver:
-    def submit(self, cmd, timeout=180.0):
+    def submit(self, cmd, timeout=180.0, **kw):
         if cmd.get("type") == "screenshot":
             return {"id": cmd.get("id"), "error": "no canvas in test"}
         return {"id": cmd.get("id"), "result": {"echo": cmd.get("type")}}

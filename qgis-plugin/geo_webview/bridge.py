@@ -64,7 +64,7 @@ class GeoWebViewBridge:
     # 経由でこれを集約する。メソッド仕様は signature/docstring から
     # 自動生成し、METHOD_DOCS で補足する。
     NAME = "geo_webview (QMap Permalink)"
-    SUMMARY = ("QGIS プロジェクトを .kasc+DATA/ パッケージに出力して"
+    SUMMARY = ("QGIS プロジェクトを .kasc+canvas_data/ パッケージに出力して"
                "KASUGAI Canvas(Cesium/MapLibre/OpenLayers/Leaflet/"
                "GSI Maps/Navara)"
                "で再生する"
@@ -82,9 +82,9 @@ class GeoWebViewBridge:
         "外部端末からのアクセス可否(ファイアウォール等)を診断したい",
         "プロジェクトのマップテーマ/ブックマークを一覧・適用したい",
         "QGISキャンバスを /present・/screenshot で画面共有したい",
-        "既存の .kasc+DATA/(WebGISプロジェクト)をQGISへ取り込みたい",
+        "既存の .kasc+canvas_data/(WebGISプロジェクト)をQGISへ取り込みたい",
         "QGISのレイヤを Re:Earth CMS のアイテムとして登録したい",
-        ".kasc+DATA/ 出力物を Re:Earth CMS アセットで公開したい",
+        ".kasc+canvas_data/ 出力物を Re:Earth CMS アセットで公開したい",
     ]
     METHOD_DOCS = {
         "status": {
@@ -195,7 +195,7 @@ class GeoWebViewBridge:
         },
         "kasugaiExport": {
             "description":
-                "表示中レイヤをKASUGAI Canvasプロジェクト(.kasc+DATA/"
+                "表示中レイヤをKASUGAI Canvasプロジェクト(.kasc+canvas_data/"
                 "+.qmlスタイル)として出力する。GPKG/GeoJSON/Parquet/FGB"
                 "ソースは変換せず参照、CSV/TSVはduckdb:行、フィルタ付き"
                 "GPKGはwhere=付き、3D Tilesは3dtiles:行、他ベクターは"
@@ -204,8 +204,7 @@ class GeoWebViewBridge:
                 "engine=cesium|openlayers|maplibre|leaflet|gsimaps|navara "
                 "で起動エンジンを指定できる(既定 cesium)。"
                 "open_app=Falseで出力のみ。hidden_as_off=Trueで非表示レイヤ"
-                "もoff行として出力。embed_gpkg_style=TrueでGPKGの"
-                "layer_stylesへも保存。QGISブックマークは bookmarks.xml"
+                "もoff行として出力。QGISブックマークは bookmarks.xml"
                 "として出力され bookmark: 行が付く(Canvas側がカメラ"
                 "プリセットへ展開。emit_bookmarks=Falseで抑制)。"
                 ".kascと同じ場所に <engine>.html 起動ページ(index.html"
@@ -215,7 +214,7 @@ class GeoWebViewBridge:
                 "emit_zip=True で出力一式を kasugai_canvas_<tag>.zip に固める"
                 "(Re:Earth geo_suite の 'qgis:' インスペクタ行が直接取込可)。"
                 "アトラス有効な印刷レイアウトは各ページ範囲を巡回する"
-                "fly_geojson: 行+DATA/atlas_*.geojson として出力される"
+                "fly_geojson: 行+canvas_data/atlas_*.geojson として出力される"
                 "(Canvas FLYルート=プレゼン巡回。emit_atlas=Falseで抑制)。"
                 "fields/where/limit で属性列選択・行フィルタ(QGIS式)・"
                 "地物数上限を指定できる(全レイヤ共通 or {レイヤ名:値} "
@@ -229,13 +228,13 @@ class GeoWebViewBridge:
                 ".kasc(ローカルパスまたはURL)を解析し、レイヤ行・"
                 "ベースマップ・グループ・カメラ・未対応行の一覧を返す"
                 "(プロジェクトは変更しない dry run)。"
-                "DATA/ 等の相対参照は .kasc の所在から絶対化される。",
+                "canvas_data/ 等の相対参照は .kasc の所在から絶対化される。",
             "example": {"method": "kascInspect",
                         "args": ["C:/export/kasugai_canvas.kasc"]},
         },
         "kascImport": {
             "description":
-                ".kasc+DATA/ を QGIS プロジェクトへ逆取り込みする。"
+                ".kasc+canvas_data/ を QGIS プロジェクトへ逆取り込みする。"
                 "xyz:/base:→XYZラスタ、wms:/wmts:→WMSラスタ、"
                 "geojson:/gpkg:/geoparquet:/flatgeobuf:/shp:/kml:→"
                 "ベクター(ogr)、duckdb:/csv:→delimitedtext、"
@@ -283,7 +282,7 @@ class GeoWebViewBridge:
         },
         "cmsUploadKasc": {
             "description":
-                ".kasc+DATA/ 出力物を ZIP 化して CMS アセットとして"
+                ".kasc+canvas_data/ 出力物を ZIP 化して CMS アセットとして"
                 "アップロード・公開し assets.cms.reearth.io URL を返す。",
             "example": {"method": "cmsUploadKasc", "args": []},
         },
@@ -315,7 +314,7 @@ class GeoWebViewBridge:
         },
         "openExportFolder": {
             "description":
-                "KASUGAI出力フォルダ(.kasc+DATA/の出力先)を"
+                "KASUGAI出力フォルダ(.kasc+canvas_data/の出力先)を"
                 "OSのファイルマネージャで開く。",
             "example": {"method": "openExportFolder", "args": []},
         },
@@ -975,25 +974,25 @@ class GeoWebViewBridge:
 
     def kasugaiExport(self, output_dir=None, open_app=True,
                       native_formats=True, hidden_as_off=False,
-                      embed_gpkg_style=False, emit_themes=True,
+                      emit_themes=True,
                       emit_bookmarks=True, emit_launchers=True,
                       emit_zip=False, engine=None, install=False, route=None,
                       use_existing=False, emit_atlas=True,
                       fields=None, where=None, limit=None,
-                      link_files=True):
+                      link_files=True, vector_format=None):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
-        表示中のベクターレイヤを DATA/ へ出力し、.kasc(geojson:/gpkg:/
+        表示中のベクターレイヤを canvas_data/ へ出力し、.kasc(geojson:/gpkg:/
         geoparquet:/flatgeobuf:/duckdb: 行+style=.qml・3dtiles:・
         xyz:/base:行・cam:行)を生成する。native_formats=True(既定)で
         GPKG/GeoJSON/Parquet/FGB ソースは変換せずそのまま参照
-        (ファイルはDATA/へコピー、URLはそのまま記述)、CSV/TSVは
+        (ファイルはcanvas_data/へコピー、URLはそのまま記述)、CSV/TSVは
         duckdb:行(lon=/lat=/geom=)、フィルタ付きGPKGは where=付き、
         3D Tilesは3dtiles:行とし、それ以外のベクターのみ
-        GeoJSON(EPSG:4326)へ変換する。hidden_as_off=True で非表示レイヤも ``| off`` 付きで
-        出力。embed_gpkg_style=True で GPKG レイヤのスタイルを
-        layer_styles(useAsDefault)にも保存する(元ファイルへ書き込む)。
-        emit_themes=True(既定)でマップテーマを theme: 行として出力
+        FlatGeobuf(EPSG:4326・空間インデックス付き)へ変換する
+        (ドライバ非搭載時は Parquet、変換失敗時は GeoJSON フォールバック)。
+        hidden_as_off=True で非表示レイヤも ``| off`` 付きで
+        出力。emit_themes=True(既定)でマップテーマを theme: 行として出力
         (テーマがある場合は非表示レイヤも | off で自動出力)。
         emit_bookmarks=True(既定)でQGISブックマーク(プロジェクト+
         アプリケーション)を bookmarks.xml(qgis_bookmarks形式・EPSG:4326
@@ -1004,12 +1003,12 @@ class GeoWebViewBridge:
         エンジン
         起動ページを出力する。出力フォルダとエンジン(web/ の中身)を
         同じ静的サーバーへアップすれば ?kasc= 経由でサーバレス動作する。
-        emit_zip=True で出力一式(.kasc+DATA/等)を kasugai_canvas_<tag>.zip に
+        emit_zip=True で出力一式(.kasc+canvas_data/等)を kasugai_canvas_<tag>.zip に
         固める(<tag>はCDNチャンネル反映、export_zip_name)。
         Re:Earth geo_suite の qgis: インスペクタ行がこのZIPを
         直接取り込める(/export-data/kasugai_canvas*.zip でも取得可)。
         emit_atlas=True(既定)でアトラス有効な印刷レイアウトを
-        fly_geojson: 行+DATA/atlas_*.geojson(各ページ範囲を巡回する
+        fly_geojson: 行+canvas_data/atlas_*.geojson(各ページ範囲を巡回する
         ルート・座標Zにページを収めるカメラ高)として出力する。
         fields/where/limit で属性列選択・行フィルタ・地物数上限を
         指定できる(QGIS「ベクタレイヤを保存」のフィールド選択、
@@ -1017,9 +1016,9 @@ class GeoWebViewBridge:
         (fields は列名list/"a,b" 文字列、where は QgsExpression 式、
         limit は 1以上の整数)、または {レイヤ名 or レイヤID: 値} の
         レイヤ毎 dict を受ける。指定レイヤはネイティブ参照を使わず
-        条件適用済みのデータを GeoJSON 変換で出力するため、
-        DATA/*.geojson の properties が選択列のみ・where で絞った
-        地物数になる(プロバイダフィルタ subsetString とは AND 適用)。
+        条件適用済みのデータを変換出力するため(FlatGeobuf 第1候補・
+        失敗時 GeoJSON)、出力ファイルの properties が選択列のみ・
+        where で絞った地物数になる(プロバイダフィルタ subsetString とは AND 適用)。
         出力先は output_dir または設定 kasugai_output_path
         (既定: <ドキュメント>/kasugai_canvas_qgis)。
         use_existing=True で再エクスポートせず出力先の既存 .kasc のみを
@@ -1034,6 +1033,13 @@ class GeoWebViewBridge:
         を返してブラウザで開く。どちらも無理なら出力のみ行う。
         engine=cesium|openlayers|maplibre|leaflet|gsimaps|navara で起動エンジンを
         指定できる(既定 cesium、URLの ?engine= パラメータ経由)。
+        vector_format='recommended' で推奨形式スイッチ:
+        FlatGeobuf/GeoParquet 系(flatgeobuf:/geoparquet:/
+        duckdb:+format=parquet)以外のベクターをすべて FlatGeobuf へ
+        変換して canvas_data/ へ配置する。'geojson' は WEB連携モードで
+        全ベクターを GeoJSON へ変換して canvas_data/ へ geojson: 行として
+        配置する(他 WebGIS との相互運用向け)。'native' または未指定(None)は
+        設定 kasugai_vector_format(既定 'native'=参照優先)に従う。
         GUIスレッドで全レイヤを逐次エクスポートするため、大量レイヤでは
         数秒ブロックする場合がある。
         """
@@ -1084,7 +1090,6 @@ class GeoWebViewBridge:
                     self._plugin.iface, out_dir=target_dir or None,
                     native_formats=bool(native_formats),
                     hidden_as_off=bool(hidden_as_off),
-                    embed_gpkg_style=bool(embed_gpkg_style),
                     emit_themes=bool(emit_themes),
                     emit_bookmarks=bool(emit_bookmarks),
                     emit_launchers=bool(emit_launchers),
@@ -1092,7 +1097,8 @@ class GeoWebViewBridge:
                     emit_atlas=bool(emit_atlas),
                     live_url=live_url,
                     fields=fields, where=where, limit=limit,
-                    link_files=bool(link_files))
+                    link_files=bool(link_files),
+                    vector_format=vector_format)
         except Exception as e:
             return self._err(f"kasugai export failed: {e}")
         out = {
@@ -1144,7 +1150,7 @@ class GeoWebViewBridge:
             out["registered"] = False
             # Canvas未起動/未検出のフォールバック: geo_webview のHTTPサーバを
             # 最小配信サーバとして使い、インストール済みCanvasの web/ と
-            # /export-data/ 配下の .kasc+DATA/ でエンジンを開く
+            # /export-data/ 配下の .kasc+canvas_data/ でエンジンを開く
             try:
                 # 旧単一エンジン構成のインストールは ?kasc= 非対応のため
                 # <engine>/ の存在まで確認する
@@ -1241,7 +1247,7 @@ class GeoWebViewBridge:
     def kascImport(self, source=None, add_to_project=True,
                    only_visible=False, apply_camera=True,
                    group_prefix=None, replace=False):
-        """.kasc+DATA/ を QGIS プロジェクトへ逆取り込みする。
+        """.kasc+canvas_data/ を QGIS プロジェクトへ逆取り込みする。
 
         kasugaiExport の逆方向。レイヤ行を QGIS レイヤへ再構成し、
         style=.qml・minScale=/maxScale=・opacity=・where=・attr=・
@@ -1349,7 +1355,7 @@ class GeoWebViewBridge:
             return self._err(f"cmsRegisterLayer failed: {e}")
 
     def cmsUploadKasc(self, export_dir=None, publish=True):
-        """.kasc+DATA/ 出力物を ZIP 化して CMS アセットとして公開する。
+        """.kasc+canvas_data/ 出力物を ZIP 化して CMS アセットとして公開する。
 
         export_dir 省略時は直近の kasugaiExport 出力先を使う。
         アセット作成→publish まで行い、assets.cms.reearth.io の
@@ -1398,7 +1404,7 @@ class GeoWebViewBridge:
              "description": "KASUGAI Canvasエクスポート・登録・起動"},
             {"path": "/export-data/<rel>",
              "url": f"{base}/export-data/<dir>/kasugai_canvas.kasc",
-             "description": "直近エクスポート物(.kasc+DATA/)の配信"},
+             "description": "直近エクスポート物(.kasc+canvas_data/)の配信"},
             {"path": "/present",
              "url": f"{base}/present",
              "description": "QGISキャンバスのウィンドウ共有ページ"},
@@ -1471,7 +1477,7 @@ class GeoWebViewBridge:
               ("__default__" で <ドキュメント>/kasugai_canvas_qgis)
           kasugai_port: KASUGAIローカルサーバのポート(既定8510)
           kasugai_install_path: KASUGAIインストール先
-              （設定時は <install>/QGIS_projects/<id>/ へ .kasc+DATA/ を直出力）
+              （設定時は <install>/QGIS_projects/<id>/ へ .kasc+canvas_data/ を直出力）
           kasugai_hosted_channel: ホスト版エンジンのチャンネル
               (stable/unstable または完全URL。既定 stable)
           port: HTTPサーバ優先ポート(起動中なら再起動)

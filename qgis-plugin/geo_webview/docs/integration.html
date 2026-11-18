@@ -22,7 +22,7 @@
     QGIS[&quot;QGIS プロジェクト&lt;br&gt;レイヤ・スタイル・視点&quot;]
 
     subgraph GWBOX[&quot;geo_webview（QGIS プラグイン）&quot;]
-        GW[&quot;エクスポート&lt;br&gt;.kasc+DATA/・起動HTML&lt;br&gt;＋ ZIPダウンロード&quot;]
+        GW[&quot;エクスポート&lt;br&gt;.kasc+canvas_data/・起動HTML&lt;br&gt;＋ ZIPダウンロード&quot;]
         SRV[&quot;内蔵 HTTP サーバー（既定 :8089）&lt;br&gt;/kasugai 起動API・/export-data/ 配信&lt;br&gt;/&amp;lt;engine&amp;gt;/ エンジン静的フォールバック&quot;]
     end
 
@@ -32,7 +32,7 @@
 
     subgraph NORM[&quot;通常ルート：ローカル HTTP + WEB 配信（Canvas なしで即時 Web 化）&quot;]
         BR[&quot;ローカル HTTP 配信&lt;br&gt;ブラウザで即表示&quot;]
-        HOST[&quot;サーバレス WEB 配信&lt;br&gt;.kasc+DATA/+エンジンを静的ホストへ&lt;br&gt;（ホスト版 kasugai-canvas-web 含む）&quot;]
+        HOST[&quot;サーバレス WEB 配信&lt;br&gt;.kasc+canvas_data/+エンジンを静的ホストへ&lt;br&gt;（ホスト版 kasugai-canvas-web 含む）&quot;]
     end
 
     subgraph G2[&quot;② その他クライアント・外部サービス&quot;]
@@ -62,7 +62,7 @@
 <h3 id="①-arcgis-online-上ではカスタムコードを実行できない">① ArcGIS Online 上ではカスタムコードを実行できない</h3>
 <p><strong>ArcGIS Online 上で本系統の機能を動かすことは機能的に不可能です。</strong> ArcGIS Online はカスタムコード（JS アプリ・プラグイン・ExB カスタムウィジェット等）をホスティング・実行する仕組みを持たず、Re:Earth のようなプラグイン拡張経路も存在しないためです。そのため ArcGIS 系との連携は「ArcGIS Online を拡張対象とせず、<strong>ファイル受け渡しのみとし、読み込みは ArcGIS 側（SDK）の独自実装に委ねる</strong>」方針とします。</p>
 <ul>
-<li><strong>QGIS → ArcGIS 側へ供給</strong>: <code>.kasc</code>+<code>DATA/</code> 出力物をファイルとして受け渡し、ArcGIS 側が独自に読み込む（※プラグイン自身の OGC サービスは v3.29.0 で廃止）</li>
+<li><strong>QGIS → ArcGIS 側へ供給</strong>: <code>.kasc</code>+<code>canvas_data/</code> 出力物をファイルとして受け渡し、ArcGIS 側が独自に読み込む（※プラグイン自身の OGC サービスは v3.29.0 で廃止）</li>
 </ul>
 <p>読み込み側には<strong>再現（プレイヤー）実装</strong>を要件とします:</p>
 <ul>
@@ -84,7 +84,7 @@
   <td><strong>× 不可</strong> — Online はカスタムコードをホスト・実行できない。外部静的ホスト必須</td>
 </tr>
 <tr>
-  <td><code>.kasc</code>+<code>DATA/</code> ファイル一式そのもの</td>
+  <td><code>.kasc</code>+<code>canvas_data/</code> ファイル一式そのもの</td>
   <td><strong>× 不可</strong> — Online に任意の静的ファイルをホストする機能はない</td>
 </tr>
 <tr>
@@ -95,14 +95,14 @@
 </table>
 <p>ただし「加工して AGOL サービス化」する経路は <code>.kasc</code> 再生ではなく<strong>データのサービス化</strong>であり、<code>.qml</code> スタイルは引き継げず AGOL/Pro 側で作り直しになります（<code>.kasc</code> の行種・テーマ・スタイル込みの再現を要件とする場合は、外部ホストの <code>.kasc</code> プレイヤー経路が該当します）。</p>
 <h3 id="②-同等品を作る場合--データ構築を含めて一からの開発が必要">② 同等品を作る場合 — データ構築を含めて一からの開発が必要</h3>
-<p>他エンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）と同様の <code>.kasc</code>+<code>DATA/</code> プレイヤーを ArcGIS 側で実現する場合、<strong>Canvas 側のコード資産は SDK が異なり流用できないため別システムを一から作る形</strong>になります（参照できるのは <code>.kasc</code> 仕様と同一 OSS ライブラリのみ）。</p>
+<p>他エンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）と同様の <code>.kasc</code>+<code>canvas_data/</code> プレイヤーを ArcGIS 側で実現する場合、<strong>Canvas 側のコード資産は SDK が異なり流用できないため別システムを一から作る形</strong>になります（参照できるのは <code>.kasc</code> 仕様と同一 OSS ライブラリのみ）。</p>
 <p>なお <strong>ArcGIS Maps SDK for JavaScript は Leaflet/MapLibre/OpenLayers/CesiumJS と同じカテゴリの Web 地図ライブラリ</strong>（Esri 公式・WebGL ベース、MapView=2D / SceneView=3D）であり、構成としては「マルチエンジンに6番目のエンジンを追加する」のと同じ位置づけです。違いは OSS ではなく Esri 製品使用条件の範囲（帰属表示必須）である点と、SceneView が OGC 3D Tiles 非対応（I3S のみ）である点です。</p>
 <h4 id="プレイヤー実装のスコープと-kasc-行種の対応可否">プレイヤー実装のスコープと <code>.kasc</code> 行種の対応可否</h4>
 <p>Canvas と同じサーバレス配信は「ArcGIS 版 <code>.kasc</code> プレイヤーの実装」が前提です。必要な実装コンポーネント:</p>
 <p>| コンポーネント | 内容 |
 |---|---|
 | <code>.kasc</code> パーサ | 行種（行頭 <code>種類:</code>）・<code>|</code> フィールド分割・<code>on</code>/<code>off</code>・<code>key=value</code> オプションの解釈（仕様の正本は kasugai_canvas の <code>.kasc</code> 設定仕様＝<code>web/shared/kasc.js</code>） |
-| 参照解決 | <code>DATA/</code> 等の相対パスを <code>.kasc</code> の URL 基準で解決 |
+| 参照解決 | <code>canvas_data/</code> 等の相対パスを <code>.kasc</code> の URL 基準で解決 |
 | <code>.qml</code> → ArcGIS renderer 変換 | QGIS レンダラ（単一シンボル/分類/数量階級/ルールベース）を <code>SimpleRenderer</code>/<code>UniqueValueRenderer</code>/<code>ClassBreaksRenderer</code>＋シンボルへ写像。塗り・線・マーカー・透過・ラベル（<code>labelingInfo</code>）が対象。GPKG 埋め込みの <code>layer_styles</code>（QML）も同経路で適用 |
 | データローダー | 行種ごとのデコード → FeatureLayer/GraphicsLayer 化（下表参照） |
 | レイヤ表示 UI | レイヤリスト・表示 ON/OFF・透過・ベースマップ切替・属性ポップアップ（用途に応じ最小限可） |
@@ -211,7 +211,7 @@
 </thead>
 <tbody>
 <tr>
-  <td>ArcGIS Pro アドイン（.NET SDK）で <code>.kasc</code>+<code>DATA/</code> を読む</td>
+  <td>ArcGIS Pro アドイン（.NET SDK）で <code>.kasc</code>+<code>canvas_data/</code> を読む</td>
   <td>ArcGIS Pro ライセンス（Named User=Online 組織 or Enterprise ポータル、または Single Use）</td>
 </tr>
 <tr>
@@ -225,7 +225,7 @@
 </tbody>
 </table>
 <h4 id="kasc-プレイヤー実装の最小ライセンス"><code>.kasc</code> プレイヤー実装の最小ライセンス</h4>
-<p>「他エンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）と同様に <code>.kasc</code>+<code>DATA/</code> を読んで再現するプレイヤー」を ArcGIS 側で実装する場合の最小ライセンスは以下の通りで、<strong>いずれも無償または低額</strong>です。</p>
+<p>「他エンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）と同様に <code>.kasc</code>+<code>canvas_data/</code> を読んで再現するプレイヤー」を ArcGIS 側で実装する場合の最小ライセンスは以下の通りで、<strong>いずれも無償または低額</strong>です。</p>
 <table>
 <thead>
 <tr>
@@ -238,7 +238,7 @@
 <tr>
   <td>Web プレイヤー（ArcGIS Maps SDK for JavaScript）</td>
   <td><strong>ArcGIS Online 組織</strong>または <strong>ArcGIS Location Platform アカウント</strong>（無料登録）のいずれかで SDK 自体の追加購入は不要</td>
-  <td><code>.kasc</code>+<code>DATA/</code>（GeoJSON 等）を読むだけ・Esri サービス/ベースマップを使わない構成なら課金なし。Esri サービス利用時のみ API key 必須＋従量課金（無料枠あり）</td>
+  <td><code>.kasc</code>+<code>canvas_data/</code>（GeoJSON 等）を読むだけ・Esri サービス/ベースマップを使わない構成なら課金なし。Esri サービス利用時のみ API key 必須＋従量課金（無料枠あり）</td>
 </tr>
 <tr>
   <td>ネイティブプレイヤー（ArcGIS Maps SDK for Native Apps）</td>
@@ -252,7 +252,7 @@
 </tr>
 </tbody>
 </table>
-<p>いずれの経路でも <code>DATA/</code> の GeoJSON/ネイブラタイル等を読み、QML→ArcGIS レンダラ変換とレイヤ表示機能を自前で実装する必要がありますが、ライセンス上の障壁は Web プレイヤーなら実質ゼロです。</p>
+<p>いずれの経路でも <code>canvas_data/</code> の GeoJSON/ネイブラタイル等を読み、QML→ArcGIS レンダラ変換とレイヤ表示機能を自前で実装する必要がありますが、ライセンス上の障壁は Web プレイヤーなら実質ゼロです。</p>
 <h4 id="配信先実装したアプリをどこで配信するか">配信先（実装したアプリをどこで配信するか）</h4>
 <p>実装したアプリ本体は <strong>ArcGIS Online 上では動かせないため、必ず外部にホスト</strong>します。ArcGIS Online/Portal へのアイテム登録は「外部 URL の参照」でしかありません。</p>
 <p><strong>Web プレイヤー（ArcGIS Maps SDK for JavaScript）のホスト先候補</strong>（いずれも静的配信で可。括弧内は本ワークスペース内の同型実績）:</p>
@@ -265,7 +265,7 @@
 <li><strong>オブジェクトストレージ＋CDN</strong> — AWS S3+CloudFront / Google Cloud Storage / Azure Static Web Apps・Blob 静的サイト</li>
 </ul>
 <p>完成後は AGOL/Portal の「Web アプリ」アイテムとして URL を登録すれば、組織内からも参照可能です。</p>
-<p><strong>KASUGAI Canvas と同じサーバレス配信モデルが成立します</strong> — 静的アプリ＋<code>.kasc</code>+<code>DATA/</code> を静的ホストに置くだけで、データも同一オリジンから供給できます（必要な実装と行種ごとの対応可否は前節「プレイヤー実装のスコープ」参照）。</p>
+<p><strong>KASUGAI Canvas と同じサーバレス配信モデルが成立します</strong> — 静的アプリ＋<code>.kasc</code>+<code>canvas_data/</code> を静的ホストに置くだけで、データも同一オリジンから供給できます（必要な実装と行種ごとの対応可否は前節「プレイヤー実装のスコープ」参照）。</p>
 <p>その他の実装形態の配信先:</p>
 <table>
 <thead>
@@ -289,7 +289,7 @@
 </tr>
 </tbody>
 </table>
-<p>なおアプリが読む <code>.kasc</code>+<code>DATA/</code> の供給元は、本プラグインの <code>/export-data/</code> 配信または任意の静的ホストです。<strong>アプリとデータを同一オリジンに置くのが最も設定が簡単</strong>です（別オリジンでも CORS 許可で読めます）。</p>
+<p>なおアプリが読む <code>.kasc</code>+<code>canvas_data/</code> の供給元は、本プラグインの <code>/export-data/</code> 配信または任意の静的ホストです。<strong>アプリとデータを同一オリジンに置くのが最も設定が簡単</strong>です（別オリジンでも CORS 許可で読めます）。</p>
 <h3 id="③-arcgis-の管理環境内で動かすなら-enterprise-exb-のみ">③ ArcGIS の管理環境内で動かすなら Enterprise ExB のみ</h3>
 <p><strong>Esri 管理環境（Portal）内で独自 WebGIS を公式に動かす経路は、Enterprise 11.0+ の Portal 内 ExB カスタムウィジェット以外の経路は存在しません</strong>（Online にはその手段自体がない）。これが ArcGIS Enterprise が必要になる唯一のケースです。なお「組織のネットワーク境界内で完結する」だけなら、外部ホストの <code>.kasc</code> プレイヤーを顧客のイントラ Web サーバに置くだけで境界内に入ります（Esri 管理対象ではないがセキュリティ境界内）。</p>
 <p>なお外部ホストのアプリでも「<strong>Online と一体に見える</strong>」形は作れます:</p>

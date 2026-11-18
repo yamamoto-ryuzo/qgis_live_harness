@@ -5,7 +5,7 @@ Re:Earth CMS Integration API を使い、geo_webview から
 
 - Phase 1: ベクタレイヤを CMS アイテムとして登録する
   (選択フィーチャのみ/全フィーチャ、属性↔CMSフィールドのマッピング付き)
-- Phase 2: .kasc+DATA/ の出力物一式を ZIP 化して CMS アセットとして
+- Phase 2: .kasc+canvas_data/ の出力物一式を ZIP 化して CMS アセットとして
   アップロード・公開し、assets.cms.reearth.io の公開URLを取得する
 
 を行う。読み取り側(CMSアイテムのレイヤ読み込み等)は kasugai_canvas
@@ -363,10 +363,10 @@ def register_layer(layer_name=None, mapping=None, geometry_key=None,
     }
 
 
-# ---------- Phase 2: .kasc+DATA/ → CMS アセット ----------
+# ---------- Phase 2: .kasc+canvas_data/ → CMS アセット ----------
 
 def zip_export_dir(src_dir, zip_path=None):
-    """.kasc+DATA/ の出力フォルダ一式を ZIP 化する。"""
+    """.kasc+canvas_data/ の出力フォルダ一式を ZIP 化する。"""
     src_dir = os.path.abspath(src_dir)
     if not os.path.isdir(src_dir):
         raise CmsError('出力フォルダが存在しません: {0}'.format(src_dir))
@@ -411,7 +411,7 @@ def get_asset(asset_id):
 
 
 def upload_kasc_export(export_dir=None, publish=True):
-    """.kasc+DATA/ 出力物を ZIP 化して CMS アセットとして公開する。
+    """.kasc+canvas_data/ 出力物を ZIP 化して CMS アセットとして公開する。
 
     export_dir 省略時は直近の kasugaiExport 出力先(last_export_dir)。
     戻り値: {asset_id, name, url, zip_path, published}

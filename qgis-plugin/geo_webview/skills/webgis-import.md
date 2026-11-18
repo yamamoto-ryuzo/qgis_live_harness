@@ -1,6 +1,6 @@
 # 既存 WebGIS の QGIS への取り込み
 
-既存の WebGIS(KASUGAI Canvas の .kasc+DATA/、XYZ/WMS/WFS 等の Web 地図ソース、MapLibre style.json)を QGIS プロジェクトへ再構成し、kasugaiExport で Canvas へ再送出する手順。
+既存の WebGIS(KASUGAI Canvas の .kasc+canvas_data/、XYZ/WMS/WFS 等の Web 地図ソース、MapLibre style.json)を QGIS プロジェクトへ再構成し、kasugaiExport で Canvas へ再送出する手順。
 use_when: ユーザーが既存 WebGIS/.kasc の QGIS への取り込み・変換・Canvas への移行を依頼したとき
 
 ## 基本方針
@@ -9,7 +9,7 @@ use_when: ユーザーが既存 WebGIS/.kasc の QGIS への取り込み・変�
 - 取り込み → 確認/調整 → `kasugaiExport` で再送出、が「既存 WebGIS → KASUGAI Canvas」変換の往路。往路の形式変換・スタイル制約は `webgis-convert` スキルに従う
 - `.kasc` が正本の場合は専用ブリッジ(`kascInspect`/`kascImport`)を最優先で使う。個別ソースの拾い上げは `qgis_pyeval` レシピで対応
 
-## .kasc+DATA/ の取り込み(最優先)
+## .kasc+canvas_data/ の取り込み(最優先)
 
 ```
 qgis_bridge_call plugin_id="geo_webview" method="kascInspect"
@@ -85,5 +85,5 @@ QgsProject.instance().addMapLayer(lyr)
 
 1. 取り込み → `qgis_screenshot` で元の WebGIS と見比べ(色・順序・表示)
 2. `kascInspect`/`kascImport` の `skipped`/`warnings` を確認し、未対応ソースは個別レシピで補う
-3. `qgis_bridge_call` → geo_webview `kasugaiExport` で `.kasc`+`DATA/` へ再送出(`webgis-convert` スキルの形式選定表・凡例/テキスト制約に従う)
+3. `qgis_bridge_call` → geo_webview `kasugaiExport` で `.kasc`+`canvas_data/` へ再送出(`webgis-convert` スキルの形式選定表・凡例/テキスト制約に従う)
 4. 往復差分(失われたオプション・近似されたスタイル)をユーザーへ報告

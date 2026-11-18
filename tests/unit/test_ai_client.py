@@ -1306,7 +1306,7 @@ def test_mcp_config_roundtrip(tmp_path, monkeypatch):
 
 
 class _McpFakeDriver:
-    def submit(self, cmd, timeout=180.0):
+    def submit(self, cmd, timeout=180.0, **kw):
         return {"id": cmd.get("id"), "result": {"echo": cmd.get("type")}}
 
 

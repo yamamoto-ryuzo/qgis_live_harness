@@ -20,11 +20,11 @@
 <h2 id="目的と範囲">目的と範囲</h2>
 <ul>
 <li>目的: geo_webview プラグインの機能を明確に仕様化し、実装・運用・テストの基準を定める。</li>
-<li>範囲: サーバレス Web 配信（<code>.kasc</code>+<code>DATA/</code> エクスポート＝<strong>主機能</strong>）、組み込みHTTPサーバー（<code>/kasugai</code>・<code>/export-data/</code>・<code>/present</code>・<code>/screenshot</code>・パーマリンク受領＝補助）、パーマリンク生成・ナビゲート、テーマ適用、External Control の挙動、投影（CRS）ポリシー、セキュリティ/運用上の注意。</li>
+<li>範囲: サーバレス Web 配信（<code>.kasc</code>+<code>canvas_data/</code> エクスポート＝<strong>主機能</strong>）、組み込みHTTPサーバー（<code>/kasugai</code>・<code>/export-data/</code>・<code>/present</code>・<code>/screenshot</code>・パーマリンク受領＝補助）、パーマリンク生成・ナビゲート、テーマ適用、External Control の挙動、投影（CRS）ポリシー、セキュリティ/運用上の注意。</li>
 </ul>
 <h2 id="1-機能概要">1. 機能概要</h2>
 <ul>
-<li><strong>サーバレス Web 配信（主機能）</strong>: 開いている QGIS プロジェクトを <code>.kasc</code>+<code>DATA/</code> パッケージとして出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）で再生する。出力物＋エンジンを静的ホストへ置くだけで配信できる。起動経路はパネル（<code>Export</code>=ファイル出力のみ / <code>▶ Open</code>=登録・起動まで）・<code>GET /kasugai</code>・bridge <code>kasugaiExport</code> の3系統で、Canvas登録→本サーバ静的配信→ホスト版エンジンの3段フォールバックを持つ（§15）。</li>
+<li><strong>サーバレス Web 配信（主機能）</strong>: 開いている QGIS プロジェクトを <code>.kasc</code>+<code>canvas_data/</code> パッケージとして出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）で再生する。出力物＋エンジンを静的ホストへ置くだけで配信できる。起動経路はパネル（<code>Export</code>=ファイル出力のみ / <code>▶ Open</code>=登録・起動まで）・<code>GET /kasugai</code>・bridge <code>kasugaiExport</code> の3系統で、Canvas登録→本サーバ静的配信→ホスト版エンジンの3段フォールバックを持つ（§15）。</li>
 <li>組み込み HTTP サーバー（補助）: <code>/kasugai</code> <code>/export-data/</code> <code>/present</code> <code>/present/state</code> <code>/screenshot</code> <code>/received</code> <code>/layouts</code> <code>/layout-pdf</code> を提供（v3.29.0 で OGC サービスは廃止）。</li>
 <li>パーマリンク生成: QGIS の現在表示（中心座標、scale、rotation、theme など）を HTTP パーマリンク（<code>/qgis-map</code> パス）として生成・コピー・開く。<code>/qgis-map</code> は HTML を返さず、受領記録・External Control ナビゲートの URL パスとして使う（v3.24.0 でプラグイン内蔵ビューアは廃止）。</li>
 <li>Theme サポート: <code>theme</code> パラメータのマップテーマをナビゲーション時に適用し、<code>.kasc</code> へ <code>theme:</code> 行として出力（プロジェクト自体は変更しない）。</li>
@@ -34,8 +34,8 @@
 <hr />
 <h2 id="2-api--エンドポイント仕様高水準">2. API / エンドポイント仕様（高水準）</h2>
 <ul>
-<li>GET <code>/kasugai</code> — <code>.kasc</code>+<code>DATA/</code> エクスポート＋Canvas 登録。<code>engine=</code>（cesium|maplibre|openlayers|leaflet|gsimaps|navara、既定 cesium）・<code>install=1</code>（未検出時に配布ZIP取得）を受け付ける。応答 JSON <code>{ok,url,via,dir,layers,tiles,engine}</code>。</li>
-<li>GET <code>/export-data/&lt;rel&gt;</code> — 直近エクスポート出力先配下のファイル配信（.kasc/DATA/・起動HTML等）。</li>
+<li>GET <code>/kasugai</code> — <code>.kasc</code>+<code>canvas_data/</code> エクスポート＋Canvas 登録。<code>engine=</code>（cesium|maplibre|openlayers|leaflet|gsimaps|navara、既定 cesium）・<code>install=1</code>（未検出時に配布ZIP取得）を受け付ける。応答 JSON <code>{ok,url,via,dir,layers,tiles,engine}</code>。</li>
+<li>GET <code>/export-data/&lt;rel&gt;</code> — 直近エクスポート出力先配下のファイル配信（.kasc/canvas_data/・起動HTML等）。</li>
 <li>GET <code>/&lt;engine&gt;/...</code> — インストール済み KASUGAI Canvas の <code>web/</code> を静的配信（エンドポイント不一致パスのフォールバック解決）。</li>
 <li>GET <code>/present</code> <code>/present/state</code> <code>/screenshot</code> — 画面共有ページ・キャンバス状態 JSON・キャンバス PNG。</li>
 <li>GET <code>/layouts</code> — プロジェクトの印刷レイアウト一覧 JSON <code>{ok,layouts:[{name,pages,w_mm,h_mm}]}</code>（KASUGAI Canvas 印刷ダイアログが参照）。</li>
@@ -77,9 +77,9 @@
 <h2 id="4-web-配信kasugai-canvas-エクスポート">4. Web 配信（KASUGAI Canvas エクスポート）</h2>
 <p>プラグイン内蔵の生成HTMLビューア（旧 <code>/qgis-map</code>・<code>/maplibre</code>・<code>/map3d</code>）は
 <strong>v3.24.0 で廃止</strong>され、閲覧は KASUGAI Canvas に一本化された。
-現在の Web 配信は <code>.kasc</code>+<code>DATA/</code> エクスポートが中核であり、詳細は §15 を参照。</p>
+現在の Web 配信は <code>.kasc</code>+<code>canvas_data/</code> エクスポートが中核であり、詳細は §15 を参照。</p>
 <ul>
-<li>生成物: <code>kasugai_canvas.kasc</code>・<code>index.html</code>・<code>&lt;engine&gt;.html</code>×6（cesium/maplibre/openlayers/leaflet/gsimaps/navara）・<code>project.json</code>・<code>bookmarks.xml</code>・<code>DATA/</code>（GeoJSON/ネイティブ形式/.qml/タイル複製）。</li>
+<li>生成物: <code>kasugai_canvas.kasc</code>・<code>index.html</code>・<code>&lt;engine&gt;.html</code>×6（cesium/maplibre/openlayers/leaflet/gsimaps/navara）・<code>project.json</code>・<code>bookmarks.xml</code>・<code>canvas_data/</code>（GeoJSON/ネイティブ形式/.qml/タイル複製）。</li>
 <li>起動 HTML: <code>?kasc=&lt;.kasc URL&gt;</code> 付きで対応エンジンへ転送し、エンジン本体を <code>./ ../ ../../ /</code> の順に自動探索（<code>CANVAS_BASE</code> で差し替え可。エンジン未検出時は <code>HOSTED_BASE</code> のホスト版エンジンへ誘導）。</li>
 </ul>
 <hr />
@@ -87,7 +87,7 @@
 <p>WMS / WMTS・XYZ / WFS・<code>/maplibre-style</code> の各エンドポイントと関連内部実装
 （<code>wms_service.py</code>・<code>wmts_service.py</code>・<code>wfs_service.py</code>・<code>sld_renderer.py</code>・
 <code>maplibre/</code>、ANGLE パイプライン、WFS/WMTS キャッシュ）は v3.29.0 で撤去。
-プラグインはサーバレス配信（<code>.kasc</code>+<code>DATA/</code> 出力＋<code>/export-data/</code> 配信）に専念する。
+プラグインはサーバレス配信（<code>.kasc</code>+<code>canvas_data/</code> 出力＋<code>/export-data/</code> 配信）に専念する。
 旧実装の詳細は git 履歴を参照。</p>
 <h2 id="10-google-maps--google-earth-連携v3300-で廃止">10. Google Maps / Google Earth 連携（v3.30.0 で廃止）</h2>
 <p>Google Maps / Google Earth の URL 生成・パース機能
@@ -165,7 +165,7 @@ HTTP ワーカースレッドから呼べる。</li>
 <hr />
 <h2 id="15-kasugai-canvas-連携送出">15. KASUGAI Canvas 連携（送出）</h2>
 <p>QGIS プロジェクトのレイヤツリーを、KASUGAI Canvas のプロジェクト
-（<code>.kasc</code> + <code>DATA/</code>）として書き出す機能。実体は <code>kasugai_export.py</code>。</p>
+（<code>.kasc</code> + <code>canvas_data/</code>）として書き出す機能。実体は <code>kasugai_export.py</code>。</p>
 <h3 id="起動経路">起動経路</h3>
 <table>
 <thead>
@@ -198,7 +198,7 @@ HTTP ワーカースレッドから呼べる。</li>
 </tr>
 <tr>
   <td>Bridge</td>
-  <td><code>bridge_call</code> の <code>kasugaiExport(output_dir, open_app, native_formats, hidden_as_off, embed_gpkg_style, emit_themes, emit_bookmarks, emit_launchers, engine, install, route, use_existing, emit_atlas)</code></td>
+  <td><code>bridge_call</code> の <code>kasugaiExport(output_dir, open_app, native_formats, hidden_as_off, emit_themes, emit_bookmarks, emit_launchers, engine, install, route, use_existing, emit_atlas)</code></td>
   <td>Live Driver 経由の AI 制御（MCP <code>qgis_bridge_call</code> / REST <code>/api/cmd</code> / JSONL）。<code>use_existing=True</code> で再エクスポートせず既存の <code>.kasc</code> のみ使用（未出力なら <code>code=not_exported</code>）</td>
 </tr>
 </tbody>
@@ -207,10 +207,11 @@ HTTP ワーカースレッドから呼べる。</li>
 <pre><code>&lt;out_dir&gt;/                    # 既定: &lt;ドキュメント&gt;/kasugai_canvas_qgis
 ├─ kasugai_canvas.kasc        # インスペクタ設定(外部プロジェクト登録対象)
 ├─ project.json               # {&quot;title&quot;: ...}
-└─ DATA/
-   ├─ *.geojson               # 変換が必要だったベクター(EPSG:4326)
+└─ canvas_data/
+   ├─ *.geojson               # 変換失敗時の最終フォールバック出力(EPSG:4326)
+   ├─ *.fgb                   # ベクター変換の第1候補出力 / ネイティブ参照の FGB(複製)
    ├─ *.gpkg                  # ネイティブ参照の GPKG(複製)
-   ├─ *.parquet / *.fgb       # ネイティブ参照の Parquet/FGB(複製)
+   ├─ *.parquet               # ネイティブ参照の Parquet(複製)
    ├─ *.csv / *.tsv           # duckdb: 参照の区切りテキスト(複製)
    ├─ &lt;dir&gt;/                  # ローカル 3D Tiles / ローカル XYZ タイルの複製(1GiB 上限)
    ├─ *.qml                   # 各ベクターレイヤの QGIS スタイル
@@ -219,25 +220,25 @@ HTTP ワーカースレッドから呼べる。</li>
 <h3 id="kasc-行の生成規則">.kasc 行の生成規則</h3>
 <p>| QGIS 側 | .kasc 行 | 備考 |
 |---|---|---|
-| GPKG ソース(地理座標系) | <code>gpkg: グループ/名 | DATA/x.gpkg | on | table=&lt;表&gt; | style=DATA/x.qml</code> | ファイルを DATA/ へ複製。複数テーブルは1ファイルを共有 |
+| GPKG ソース(地理座標系) | <code>gpkg: グループ/名 | canvas_data/x.gpkg | on | table=&lt;表&gt; | style=canvas_data/x.qml</code> | ファイルを canvas_data/ へ複製。複数テーブルは1ファイルを共有 |
 | GeoJSON/Parquet/FGB ソース | <code>geojson:</code> / <code>geoparquet:</code> / <code>flatgeobuf:</code> 参照行 | ローカルは複製、http(s) は URL をそのまま記述 |
-| CSV/TSV(delimitedtext・ogr) | <code>duckdb: 名 | DATA/x.csv | on | format=csv | lon=&lt;列&gt; | lat=&lt;列&gt;</code> | ジオメトリ列は <code>geom=</code>。delimitedtext は URI の xField/yField/wktField を引き継ぎ、ogr CSV はヘッダから推定。delimitedtext で非地理座標系の場合は GeoJSON 変換 |
+| CSV/TSV(delimitedtext・ogr) | <code>duckdb: 名 | canvas_data/x.csv | on | format=csv | lon=&lt;列&gt; | lat=&lt;列&gt;</code> | ジオメトリ列は <code>geom=</code>。delimitedtext は URI の xField/yField/wktField を引き継ぎ、ogr CSV はヘッダから推定。delimitedtext で非地理座標系の場合は FlatGeobuf 変換(フォールバック時 GeoJSON) |
 | フィルタ(subsetString)付き GPKG | <code>gpkg: … | where=&lt;フィルタ&gt;</code> | ネイティブ参照のままフィルタ維持(SQL 評価) |
-| フィルタ付き GeoJSON/FGB・URL Parquet | <code>geojson:</code>/<code>flatgeobuf:</code>/<code>geoparquet:</code> … <code>| where=&lt;フィルタ&gt;</code> | Canvas 側 where-eval.js のクライアント評価(OGR SQL WHERE句準拠・<code>||</code> 連結対応)。評価器が扱えない式(単独 <code>|</code>・<code>%</code> 等)は GeoJSON 変換でフィルタを地物へ焼き込む |
-| フィルタ付き Parquet(ローカル) | <code>duckdb: 名 | DATA/x.parquet | on | format=parquet | where=&lt;フィルタ&gt;</code> | duckdb: へ切替えて SQL 評価 |
-| 3D Tiles レイヤ(QgsTiledSceneLayer) | <code>3dtiles: グループ/名 | &lt;tileset.json URL or DATA/x/tileset.json&gt; | on</code> | http(s) は URL 参照、ローカルはディレクトリごと DATA/ へ複製(1GiB 上限・超過は skipped) |
+| フィルタ付き GeoJSON/FGB・URL Parquet | <code>geojson:</code>/<code>flatgeobuf:</code>/<code>geoparquet:</code> … <code>| where=&lt;フィルタ&gt;</code> | Canvas 側 where-eval.js のクライアント評価(OGR SQL WHERE句準拠・<code>||</code> 連結対応)。評価器が扱えない式(単独 <code>|</code>・<code>%</code> 等)は FlatGeobuf 変換でフィルタを地物へ焼き込む(フォールバック時 GeoJSON) |
+| フィルタ付き Parquet(ローカル) | <code>duckdb: 名 | canvas_data/x.parquet | on | format=parquet | where=&lt;フィルタ&gt;</code> | duckdb: へ切替えて SQL 評価 |
+| 3D Tiles レイヤ(QgsTiledSceneLayer) | <code>3dtiles: グループ/名 | &lt;tileset.json URL or canvas_data/x/tileset.json&gt; | on</code> | http(s) は URL 参照、ローカルはディレクトリごと canvas_data/ へ複製(1GiB 上限・超過は skipped) |
 | XYZ タイルラスタ | <code>xyz:</code> 行。表示中の<strong>最下段</strong>のみ <code>base:</code> 行（既定ベースマップとして既定群の先頭に置く）。「背景図」「ベースマップ」「basemap」名のグループ内にある XYZ は位置・表示状態に関わらず全て <code>base:</code> 行（ベースマップ候補）として登録し、グループ名はタイトルから外す（配下のサブグループは残し、Canvas のベースマップ選択でグループ化表示される）。非表示の候補は <code>| off</code> 付きで出力。グループ名は設定ダイアログの Basemap Groups（QSettings <code>kasugai_basemap_groups</code>・カンマ区切り）で追加可能 | zmin/zmax → minZoom=/maxZoom=。不透明度は opacity=、限定範囲は bbox=西経,南緯,東経,北緯。縮尺表示は minScale=/maxScale= |
-| XYZ ローカルテンプレート | <code>xyz:</code> 行(DATA/<dir>/{z}/{x}/{y}.png) | <code>file:///…/{z}/{x}/{y}.png</code> はタイルツリーごと DATA/ へ複製(1GiB 上限・超過は skipped) |
+| XYZ ローカルテンプレート | <code>xyz:</code> 行(canvas_data/<dir>/{z}/{x}/{y}.png) | <code>file:///…/{z}/{x}/{y}.png</code> はタイルツリーごと canvas_data/ へ複製(1GiB 上限・超過は skipped) |
 | WMS ラスタ(type=xyz 以外) | <code>wms: グループ/名 | &lt;エンドポイントURL&gt; | on | layers=, styles=, format=</code> | QGIS の WMS 接続 URI から url=/layers=/styles=/format= を抽出。Canvas 側が GetMap を 256px タイルへ分解して要求 |
-| その他ベクター(SHP/PostGIS/WFS/メモリ等)・非地理座標系 | GeoJSON(EPSG:4326)へ変換して <code>geojson:</code> 行 | 再投影は warnings に記録 |
+| その他ベクター(SHP/PostGIS/WFS/メモリ等)・非地理座標系 | FlatGeobuf(EPSG:4326・空間インデックス付き)へ変換して canvas_data/ へ <code>flatgeobuf:</code> 行 | ドライバ非搭載時は Parquet、変換失敗時は GeoJSON へフォールバック。再投影は warnings に記録 |
 | 属性テーブルのみ(NoGeometry)・ローカルラスタ・ベクタータイル・メッシュ・点群・アノテーション等 | 出力せず <code>skipped</code> に種別/理由付きで記録 | |
 | 非表示レイヤ | <code>hidden_as_off=True</code> 時のみ <code>| off</code> 付きで出力 | 既定(visible_only=True)では除外 |
 | キャンバス | <code>cam:</code> 行(中心座標+概算高度+回転) | |
 || 保存済み3Dビュー(ローカル/グローブ) | <code>cam:QGIS3D &lt;名&gt;|lat|lon|h=|p=|d=</code> 行(注視点+dist/pitch/yaw→ENUオフセットでカメラ位置逆算: 高さ=dist·cos(pitch)・水平=dist·sin(pitch)・視線方位=360-yaw・p=pitch-90) + <code>terrain:</code> 行(垂直誇張/オフセット/陰影/ジェネレータ) + <code>scene3d:</code> 行(背景色/スカイボックス/影/SSAO/EDL・グローブは globe=on) + <code>light:</code> 行(平行光源の方位・仰角・強度・色) | 3Dビューが存在する場合のみ出力。シーンCRSはビューごとの <code>&lt;qgis3d&gt;&lt;crs&gt;</code> を解決し、地心系(QGIS4グローブ・EPSG:4978等)はECEF→測地変換で対応。既定値相当の項目は省略 |
-|| 3Dビューのアニメーション(<code>&lt;animation3d&gt;</code>キーフレーム) | <code>fly_geojson: QGIS3D &lt;名&gt; | DATA/anim3d_&lt;slug&gt;.geojson | speed=&lt;m/s&gt; | view=camera | step=&lt;m&gt;</code> 行 + カメラ軌道の LineString GeoJSON | 各キーフレーム(注視点+dist/pitch/yaw+時刻)のカメラ位置を計算してカメラ軌道にする。speed=軌道3D総延長÷アニメ時間。キーフレーム2個未満は出力しない |
+|| 3Dビューのアニメーション(<code>&lt;animation3d&gt;</code>キーフレーム) | <code>fly_geojson: QGIS3D &lt;名&gt; | canvas_data/anim3d_&lt;slug&gt;.geojson | speed=&lt;m/s&gt; | view=camera | step=&lt;m&gt;</code> 行 + カメラ軌道の LineString GeoJSON | 各キーフレーム(注視点+dist/pitch/yaw+時刻)のカメラ位置を計算してカメラ軌道にする。speed=軌道3D総延長÷アニメ時間。キーフレーム2個未満は出力しない |
 | ベクターの3Dレンダラ(立ち上げ) | ベクター行へ <code>| extrude=&lt;m&gt;</code>(立ち上げ高さ)・<code>| z=&lt;m&gt;</code>(基準高さオフセット) を付与 | QgsVectorLayer3DRenderer のポリゴン/ラインシンボル。Canvas(Cesium)側で polygon の height/extrudedHeight へ反映 |
 | ブックマーク | <code>bookmarks.xml</code>(qgis_bookmarks形式・EPSG:4326正規化) + <code>bookmark:</code> 行(プロジェクト+アプリケーション両方) | <code>emit_bookmarks=False</code> で抑制。Canvas 側が XML を読み込みカメラプリセットへ展開する |
-| アトラス有効な印刷レイアウト | <code>fly_geojson: Atlas: &lt;レイアウト名&gt; | DATA/atlas_&lt;slug&gt;.geojson | speed= | pitch=-85 | height=0 | view=camera | step=</code> 行 | <code>emit_atlas=False</code> で抑制(v4.8.0〜)。各アトラスページの表示範囲(参照地図 extent)を巡回するプレゼン用フライパス。座標Z値にページを収めるカメラ高(楕円体高)を焼き込み、<code>properties.heightReference=&quot;MSL&quot;</code> で地形加算を抑止、ページ名一覧は <code>properties.pages</code> へ。地図回転付きは warnings に記録のみ |</p>
+| アトラス有効な印刷レイアウト | <code>fly_geojson: Atlas: &lt;レイアウト名&gt; | canvas_data/atlas_&lt;slug&gt;.geojson | speed= | pitch=-85 | height=0 | view=camera | step=</code> 行 | <code>emit_atlas=False</code> で抑制(v4.8.0〜)。各アトラスページの表示範囲(参照地図 extent)を巡回するプレゼン用フライパス。座標Z値にページを収めるカメラ高(楕円体高)を焼き込み、<code>properties.heightReference=&quot;MSL&quot;</code> で地形加算を抑止、ページ名一覧は <code>properties.pages</code> へ。地図回転付きは warnings に記録のみ |</p>
 <p>その他: <code>attr=</code> に QGIS レイヤの出典(attribution)を引き継ぐ。
 <code>where=</code> は行の<strong>最終オプション</strong>で、値は改行までが式
 (<code>||</code> 連結・<code>'a|b'</code> リテラル等の <code>|</code> を含んでよい)。
@@ -249,16 +250,70 @@ where-eval.js は <code>||</code> 連結に対応済み(単独 <code>|</code>・
 Canvas 側は同じ範囲で表示/非表示を切り替える。
 <code>.qml</code> 書き出し後、シンボルレイヤが参照する画像(SvgMarker/RasterMarker/
 SVGFill/RasterFill 等の <code>name</code>/<code>imageFile</code>/<code>svgFile</code>/<code>file</code>)を実ファイルへ
-解決して DATA/ へ複製し、.qml 内の参照を DATA/ 内のファイル名へ書き換える
+解決して canvas_data/ へ複製し、.qml 内の参照を canvas_data/ 内のファイル名へ書き換える
 (QGIS 内蔵SVGの <code>transport/…</code> 等の相対名は <code>QgsApplication.svgPaths()</code> で
 解決。http(s)/data/base64: 参照はそのまま維持。解決不能は warnings 記録)。
-<code>embed_gpkg_style=True</code> なら <code>saveStyleToDatabase</code> で GPKG の
-<code>layer_styles</code> にも既定スタイルを保存する(<strong>元ファイルを更新する</strong>。
-保存は DATA/ へのコピー前に行うため配布コピーにも layer_styles が
-含まれ、同一 GPKG の複数レイヤも全レイヤ分が入る。
-対象はローカル GPKG のみで、http(s) URL 参照の GPKG は対象外)。
 <code>sql:</code> 行は QGIS 側に対応する任意クエリソースが無いため出力しない
 （クエリ系は <code>duckdb:</code> の宣言的オプションで網羅する）。</p>
+<h3 id="ベクター出力形式native-recommended">ベクター出力形式（native / recommended / geojson）</h3>
+<p>ベクターレイヤの出力方針を切り替える「推奨形式スイッチ」
+（QSettings <code>kasugai_vector_format</code>、既定 <code>native</code>）。
+切替は4経路あり、パネル/設定ダイアログは永続設定を読み書きし、
+URL/bridge は当該エクスポートだけの一時上書き（いずれも相互に同期）:</p>
+<ul>
+<li>パネルの <strong>Format:</strong> コンボ
+（<code>native (reference as-is)</code> / <code>recommended (FlatGeobuf → canvas_data/)</code> / <code>geojson (WEB interop → GeoJSON)</code>）— 永続</li>
+<li>設定ダイアログの <strong>Vector Export Format</strong> コンボ — 永続</li>
+<li><code>GET /kasugai?fmt=recommended|native|geojson</code> — そのリクエストのみ上書き
+（応答 JSON に <code>vector_format</code> を含む）</li>
+<li>bridge <code>kasugaiExport(vector_format='recommended'|'native'|'geojson')</code> — 呼出しのみ上書き</li>
+</ul>
+<table>
+<thead>
+<tr><th>モード</th><th>ベクターの扱い</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>native</code>（既定）</td>
+<td>読めるソースはそのまま参照（<code>gpkg:</code>/<code>geojson:</code>/<code>shp:</code>/<code>wfs:</code>/<code>duckdb:</code>/<code>flatgeobuf:</code>/<code>geoparquet:</code> 行）。非ネイティブ形式のみ変換（下表のフォールバック）</td>
+</tr>
+<tr>
+<td><code>recommended</code></td>
+<td>FlatGeobuf/GeoParquet 以外の全ソースを FlatGeobuf（EPSG:4326・空間インデックス付き）へ変換し canvas_data/ へ <code>flatgeobuf:</code> 行で配置。既に FlatGeobuf/GeoParquet のソースは参照を維持（<code>flatgeobuf:</code>/<code>geoparquet:</code>/<code>duckdb:+format=parquet</code> 行）。subsetString・fields/where/limit は変換データへ焼き込み。Canvas 側では <code>bbox=auto</code> の Range 範囲読みが効く</td>
+</tr>
+<tr>
+<td><code>geojson</code>（WEB連携）</td>
+<td>全ベクター（FlatGeobuf/GeoParquet ソース含む・WFS/メモリ等も）を GeoJSON（EPSG:4326）へ変換し canvas_data/ へ <code>geojson:</code> 行で配置。canvas_data/ がオープン標準の GeoJSON のみになるため、KASUGAI Canvas 以外の WebGIS・GIS ツールでもそのまま読み込める相互運用向けモード</td>
+</tr>
+</tbody>
+</table>
+<p>変換ドライバは FlatGeobuf が第1候補（非搭載環境は Parquet）で、
+変換失敗時は GeoJSON(EPSG:4326) へフォールバックする（native モードの非ネイティブ変換と同じ経路）。
+<code>geojson</code> モードは GeoJSON 固定（ドライバ切替なし）。</p>
+<h3 id="qml-スタイル出力">.qml スタイル出力</h3>
+<p>スタイル（.qml）はベクターデータ形式とは<strong>独立</strong>で、
+native/recommended/geojson のどのモードでも同じ扱い:</p>
+<ul>
+<li>出力される全ベクターレイヤについて <code>layer.saveNamedStyle()</code> で
+<code>canvas_data/&lt;slug&gt;.qml</code> を書き出し、.kasc 行へ
+<code>| style=canvas_data/&lt;slug&gt;.qml</code> を付与する。
+ネイティブ参照行（<code>gpkg:</code>/<code>flatgeobuf:</code> 等）でも
+変換行（<code>flatgeobuf:</code>/<code>geojson:</code>）でも付き方は同じ</li>
+<li>.qml の中身は <code>&lt;renderer-v2&gt;</code>（シンボル）・
+<code>&lt;labeling&gt;</code>/<code>&lt;text-style&gt;</code>（ラベル）・
+時間設定等の QGIS レンダラ定義。Canvas 側は
+<code>qml-style.js</code>+<code>&lt;engine&gt;/qml-render.js</code> が
+これをエンジン描画へコンパイルする（データ形式ではなくスタイル再現の責務）</li>
+<li>ユーザー定義関数（geo_userfunc の <code>@qgsfunction</code>）を含む式属性は
+書き出し時に宣言式へ展開する（配布物を組込み関数のみにする）</li>
+<li>シンボル画像（SvgMarker/RasterMarker/SVGFill/RasterFill 等）の参照は
+canvas_data/ へ複製し .qml 内パスを書き換える（前述「その他」の通り）</li>
+<li>差分エクスポート（<code>changed</code>）では style 変更のあったレイヤのみ
+.qml を再書き出しし、未変更レイヤは既存 .qml を再利用する</li>
+</ul>
+<p>スタイルの配布経路は <code>.qml</code>+<code>style=</code> の1系統に統一
+（v4.21.0 で GPKG <code>layer_styles</code> への書き込み経路
+<code>embed_gpkg_style</code> は廃止）。</p>
 <h3 id="kasugai-側への反映">KASUGAI 側への反映</h3>
 <p>起動中の KASUGAI ローカルサーバー（<code>KASUGAI_CANVAS_PORT</code>、既定 8510）が
 あれば <code>POST /api/projects/register</code> で外部プロジェクト登録し、
@@ -301,7 +356,7 @@ SVGFill/RasterFill 等の <code>name</code>/<code>imageFile</code>/<code>svgFile
 パスをインストール済み Canvas の <code>web/</code> 配下へ静的解決</strong>する
 （<code>find_kasugai_web_dir()</code>）。同一オリジンのため混在コンテンツ問題なし</li>
 <li><code>hosted</code>: エンジン本体は <code>kasugai-canvas-web</code>（GitHub Pages）から取得し、
-<code>.kasc</code>+<code>DATA/</code> は本サーバーの <code>/export-data/</code> から読む。https→localhost
+<code>.kasc</code>+<code>canvas_data/</code> は本サーバーの <code>/export-data/</code> から読む。https→localhost
 の fetch は Chrome Private Network Access 対象のため、サーバーは
 <code>OPTIONS</code> プリフライトに <code>Access-Control-Allow-Private-Network: true</code> で
 応答する。チャンネルは設定 <code>kasugai_hosted_channel</code>
@@ -337,7 +392,7 @@ SVGFill/RasterFill 等の <code>name</code>/<code>imageFile</code>/<code>svgFile
 <p>手動テスト手順（QGIS 実環境）:</p>
 <ol>
 <li>QGIS を起動しプラグインをインストール。</li>
-<li><code>Export</code> で <code>.kasc</code>+<code>DATA/</code> を出力し、パネルの <code>Engine:</code> でエンジンを選び <code>▶ Canvas</code> を押してブラウザでそのエンジンが開くことを確認（未出力時はエクスポートを促すメッセージが出る）。<code>▶ WebView</code> は出力→ブラウザ起動まで一発で行う（<code>/kasugai</code> と同じフォールバックが働く）。</li>
+<li><code>Export</code> で <code>.kasc</code>+<code>canvas_data/</code> を出力し、パネルの <code>Engine:</code> でエンジンを選び <code>▶ Canvas</code> を押してブラウザでそのエンジンが開くことを確認（未出力時はエクスポートを促すメッセージが出る）。<code>▶ WebView</code> は出力→ブラウザ起動まで一発で行う（<code>/kasugai</code> と同じフォールバックが働く）。</li>
 <li><code>External Control</code> を ON にして、別ホスト（または同一ホスト）から <code>/qgis-map?x=...&amp;y=...&amp;scale=...</code> にアクセスして QGIS がジャンプすることを確認。</li>
 <li><code>/screenshot</code> でキャンバス PNG が返ることを確認。</li>
 <li><code>/present</code> ページがブラウザで開くことを確認。</li>
@@ -354,7 +409,7 @@ SVGFill/RasterFill 等の <code>name</code>/<code>imageFile</code>/<code>svgFile
 <li><code>panel_base.ui</code> — Qt Designer の UI 定義。</li>
 <li><code>server_manager.py</code> — 組み込み HTTP サーバーの起動/停止・ルーティング（<code>/kasugai</code> <code>/export-data/</code> <code>/present</code> <code>/present/state</code> <code>/screenshot</code> <code>/received</code> <code>/layouts</code> <code>/layout-pdf</code> <code>/&lt;engine&gt;/</code> 等）。</li>
 <li><code>http_server.py</code> — HTTP 応答の低水準送信ユーティリティ。</li>
-<li><code>kasugai_export.py</code> — KASUGAI Canvas 連携（<code>.kasc</code>+<code>DATA/</code> 生成、起動HTML生成、プロジェクト登録、コマンド送信、フォールバックURL構築）。</li>
+<li><code>kasugai_export.py</code> — KASUGAI Canvas 連携（<code>.kasc</code>+<code>canvas_data/</code> 生成、起動HTML生成、プロジェクト登録、コマンド送信、フォールバックURL構築）。</li>
 <li><code>scale_zoom.py</code> — スケール/ズーム換算。</li>
 <li><code>settings_dialog.py</code> — 設定ダイアログ（KASUGAI インストール先・ホスト版チャンネル・Basemap Groups）。</li>
 <li><code>bridge.py</code> — AI/外部制御用ブリッジ（<code>kasugaiExport</code> 等）。</li>

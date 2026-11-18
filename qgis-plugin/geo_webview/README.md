@@ -7,14 +7,14 @@
 
 ## Overview
 
-Exports the open QGIS project as a `.kasc`+`DATA/` package playable on
+Exports the open QGIS project as a `.kasc`+`canvas_data/` package playable on
 the KASUGAI Canvas multi-engines (Cesium / MapLibre / OpenLayers /
 Leaflet / GSI Maps / Navara). The output runs on plain static hosting —
 no server-side code required.
 
 ## Features
 
-- Layer-tree export to `.kasc`+`DATA/` (GeoJSON / native GPKG・GeoJSON・
+- Layer-tree export to `.kasc`+`canvas_data/` (GeoJSON / native GPKG・GeoJSON・
   GeoParquet・FlatGeobuf references, `.qml` styles, XYZ tiles)
 - Register & switch projects on a running KASUGAI Canvas (port 8510)
 - Embedded HTTP server (default 8089): `/kasugai` export entry,
