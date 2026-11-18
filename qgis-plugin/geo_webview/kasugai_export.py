@@ -7,8 +7,13 @@ QGIS プロジェクトの表示中ベクターレイヤーを GeoJSON + QGISス
 KASUGAI Canvas は ``geojson: タイトル | DATA/x.geojson | on | style=DATA/x.qml``
 形式の .kasc 行を読み、.qml の <renderer-v2> を Cesium 描画へコンパイルする。
 ネイティブ参照できるソースは ``gpkg:``/``geojson:``/``geoparquet:``/
-``flatgeobuf:``、CSV/TSV・フィルタ付きソースは ``duckdb:``、
+``flatgeobuf:``/``shp:``/``kml:``/``gpx:``/``topojson:``/``czml:``/
+``esrijson:``/``geojsonl:``/``gml:``/``igc:``(Canvas が直接読むか
+shared/vector-load.js で GeoJSON 正規化)、WFS レイヤは ``wfs:``、
+CSV/TSV・フィルタ付きソースは ``duckdb:``、
 3D Tiles レイヤは ``3dtiles:``、XYZ タイルは ``xyz:``/``base:`` 行になる。
+直接参照できないベクターは FlatGeobuf(利用不可なら GeoParquet→GeoJSON)へ
+EPSG:4326 で変換する。
 ローカルサーバー版(port 8510)が起動していれば
 ``POST /api/projects/register {path: <kasc>}`` で外部プロジェクトとして
 登録でき、そのまま ``?project=<id>`` で開ける(登録フォルダの DATA/ が
@@ -649,6 +654,18 @@ def existing_export(output_dir=None):
     out_dir = os.path.abspath(output_dir or preferred_output_dir())
     kasc = os.path.join(out_dir, 'kasugai_canvas.kasc')
     if not os.path.isfile(kasc):
+        # link_files モードのプロジェクト隣接 .kasc も探す
+        try:
+            from qgis.core import QgsProject
+            pdir = os.path.dirname(os.path.abspath(
+                QgsProject.instance().fileName() or ''))
+        except Exception:  # nosec B110  # 設計上の許容
+            pdir = ''
+        if pdir and pdir != out_dir:
+            kasc = os.path.join(pdir, 'kasugai_canvas.kasc')
+            if os.path.isfile(kasc):
+                _last_export_dir = pdir
+                return pdir, kasc
         return None
     _last_export_dir = out_dir
     return out_dir, kasc
@@ -1095,6 +1112,47 @@ def _same_data_copy(src_abs, dest_abs):
     return s.st_size == d.st_size and s.st_mtime == d.st_mtime
 
 
+# link_files モード(.kasc をプロジェクトファイル隣へ出力し原本を
+# 相対参照で読む「複写なし」Web化)。export_kasugai_project が開始時に
+# 設定する。True のとき data_dir は 'canvas_data' (変換物の置き場)
+_LINK_FILES = False
+_LINK_ROOT = None  # .kasc の出力先(プロジェクトdir)の絶対パス
+
+
+def _link_ref(path):
+    """link_files 時、原本 ``path`` を .kasc からの相対参照で返す。
+
+    プロジェクト dir 配下または1階層上(ワークスペース相当。Canvas
+    サーバの外部プロジェクト許可 depth)までのファイルは複写せず
+    相対パスで参照する。それより外(深い親・別ドライブ)は None →
+    呼び出し側が canvas_data/ へ複写する。スペース等は percent 化。
+    """
+    if not _LINK_FILES or _LINK_ROOT is None:
+        return None
+    try:
+        rel = os.path.relpath(os.path.abspath(path), _LINK_ROOT)
+    except ValueError:  # 別ドライブは相対化不能 → 複写へ
+        return None
+    parts = rel.split(os.sep)
+    ups = 0
+    for p in parts:
+        if p == '..':
+            ups += 1
+        elif ups:
+            # '..' の後に通常セグメント以外が来る形はあり得ない
+            break
+    if ups > 1:
+        return None
+    if any(p == '..' for p in parts[ups:]):
+        return None
+    return urllib.parse.quote('/'.join(parts), safe='/')
+
+
+def _dref(data_dir, name):
+    """data_dir 配下の参照文字列 'DATA/x' or 'canvas_data/x' を返す。"""
+    return '{0}/{1}'.format(os.path.basename(data_dir), name)
+
+
 def _copy_to_data(src_path, data_dir, slug, copied):
     """ローカルファイルを DATA/<slug><ext> へコピーし 'DATA/...' を返す。
 
@@ -1114,7 +1172,7 @@ def _copy_to_data(src_path, data_dir, slug, copied):
         pass
     if not same and not _same_data_copy(src_abs, dest_abs):
         shutil.copy2(src_abs, dest_abs)
-    rel = 'DATA/' + os.path.basename(dest_abs)
+    rel = _dref(data_dir, os.path.basename(dest_abs))
     copied[src_abs] = rel
     return rel
 
@@ -1168,7 +1226,7 @@ def _copy_tree_to_data(src_dir, data_dir, slug, copied):
         if os.path.isdir(dest_abs):
             shutil.rmtree(dest_abs)
         shutil.copytree(src_abs, dest_abs)
-    rel = 'DATA/' + slug
+    rel = _dref(data_dir, slug)
     copied[src_abs] = rel
     return rel
 
@@ -1198,7 +1256,7 @@ def _subset_raw(layer):
 
 
 # Canvas 側の where-eval.js(クライアント評価)が解釈できない構文の簡易検出。
-# 引っかかった式は where= に載せず GeoJSON 変換でフィルタを焼き込む
+# 引っかかった式は where= に載せず FlatGeobuf 変換でフィルタを焼き込む
 # (パース失敗で全件表示になる回帰を防ぐための保守的ガード)。
 # - IN(/NOT( と where-eval.js FUNCTION_NAMES 以外の「識別子+('
 #   =未対応関数呼び出し・サブクエリ入口(許可関数名は where-eval.js と同期:
@@ -1315,13 +1373,16 @@ def _tiledscene_ref(layer, slug, data_dir, copied, warnings):
         base_dir, ts_path = os.path.dirname(path) or path, path
     if not os.path.isfile(ts_path):
         return None
+    link = _link_ref(ts_path)
+    if link:
+        return link
     if _tree_bytes(base_dir, _LOCAL_TREE_MAX_BYTES) > _LOCAL_TREE_MAX_BYTES:
         warnings.append(
             '{0}: 3dtiles ディレクトリが {1} 超のため複製を中止'.format(
                 layer.name(), _LOCAL_TREE_MAX_BYTES))
         return None
     _copy_tree_to_data(base_dir, data_dir, slug, copied)
-    return 'DATA/{0}/{1}'.format(slug, os.path.basename(ts_path))
+    return _dref(data_dir, '{0}/{1}'.format(slug, os.path.basename(ts_path)))
 
 
 def _local_xyz_template(url, slug, data_dir, copied, warnings):
@@ -1338,13 +1399,16 @@ def _local_xyz_template(url, slug, data_dir, copied, warnings):
     template = '{z}' + rest
     if not os.path.isdir(base_dir):
         return None
+    link = _link_ref(base_dir)
+    if link:
+        return '{0}/{1}'.format(link, template.replace(os.sep, '/'))
     if _tree_bytes(base_dir, _LOCAL_TREE_MAX_BYTES) > _LOCAL_TREE_MAX_BYTES:
         warnings.append(
             '{0}: ローカルタイルツリーが {1} 超のため複製を中止'.format(
                 slug, _LOCAL_TREE_MAX_BYTES))
         return None
     _copy_tree_to_data(base_dir, data_dir, slug, copied)
-    return 'DATA/{0}/{1}'.format(slug, template.replace(os.sep, '/'))
+    return _dref(data_dir, '{0}/{1}'.format(slug, template.replace(os.sep, '/')))
 
 
 def _maplayer_opacity(layer):
@@ -1721,7 +1785,7 @@ def _duckdb_target_ref(target, slug, data_dir, copied):
     path = _local_path(target)
     if not path or not os.path.exists(path):
         return None
-    return _copy_to_data(path, data_dir, slug, copied)
+    return _link_ref(path) or _copy_to_data(path, data_dir, slug, copied)
 
 
 # geotiff: 行へ回せるラスタファイルの拡張子(GeoTIFF/COG)
@@ -1753,7 +1817,115 @@ def _geotiff_layer_ref(layer, slug, data_dir, copied):
         return None
     if not os.path.exists(path):
         return None
-    return _copy_to_data(path, data_dir, slug, copied)
+    return _link_ref(path) or _copy_to_data(path, data_dir, slug, copied)
+
+
+# Canvas が直接参照できるベクター形式(拡張子 → .kasc 行タイプ)。
+# geojson:/gpkg:/geoparquet:/flatgeobuf: は無変換ネイティブ、
+# shp:/gpx:/kml:/gml:/topojson:/czml:/geojsonl:/igc: は Canvas 側の
+# shared/vector-load.js が GeoJSON 正規化して全エンジンで描画する
+# (いずれもこちらで GeoJSON 変換するより参照の方が高速・忠実)
+_NATIVE_KINDS = {
+    '.gpkg': 'gpkg', '.geojson': 'geojson', '.json': 'geojson',
+    '.geoparquet': 'geoparquet', '.parquet': 'geoparquet',
+    '.fgb': 'flatgeobuf', '.flatgeobuf': 'flatgeobuf',
+    '.shp': 'shp', '.gpx': 'gpx', '.kml': 'kml', '.kmz': 'kmz',
+    '.gml': 'gml', '.topojson': 'topojson', '.czml': 'czml',
+    '.geojsonl': 'geojsonl', '.ndjson': 'ndjson', '.jsonl': 'jsonl',
+    '.igc': 'igc', '.esrijson': 'esrijson', '.arcgis': 'arcgis',
+}
+
+# 形式の仕様上 WGS84(lon/lat)固定で CRS チェック不要な拡張子
+_CRS_FREE_EXTS = ('.geojson', '.json', '.gpx', '.kml', '.kmz', '.czml')
+
+# Shapefile を参照する際に一式コピーする sidecar 拡張子
+_SHP_SIDECARS = ('.shp', '.dbf', '.shx', '.prj', '.cpg', '.sbn', '.sbx',
+                 '.qpj', '.fix', '.qix')
+
+
+def _copy_shp_set(src_path, data_dir, slug, copied):
+    """Shapefile と sidecar を DATA/<slug><ext> 一式でコピーする。
+
+    Canvas の ``shp:`` 行は shpjs が sidecar(.dbf/.shx/.prj 等)を自動取得
+    するため、同名の拡張子群をまとめて複製する。戻り値は .shp の参照。
+    link_files 時は原本の場所(sidecar は .shp と同居)を相対参照する。
+    """
+    link = _link_ref(src_path)
+    if link:
+        return link
+    src_abs = os.path.abspath(src_path)
+    if src_abs in copied:
+        return copied[src_abs]
+    base = os.path.splitext(src_abs)[0]
+    ref = None
+    for e in _SHP_SIDECARS:
+        p = base + e
+        if not os.path.isfile(p):
+            continue
+        dest_abs = os.path.join(data_dir, slug + e)
+        same = False
+        try:
+            same = os.path.samefile(p, dest_abs)
+        except Exception:  # nosec B110  # 宛先未作成ならコピー対象
+            pass
+        if not same and not _same_data_copy(p, dest_abs):
+            shutil.copy2(p, dest_abs)
+        if e == '.shp':
+            ref = _dref(data_dir, os.path.basename(dest_abs))
+    if ref:
+        copied[src_abs] = ref
+    return ref
+
+
+def _wfs_ref(layer):
+    """WFS プロバイダソース → ``wfs:`` 行用参照 ``{type,ref,opts}``。
+
+    QgsWFS の source URI(url=/typename=/version=/srsname=)を分解して
+    Canvas の GetFeature GET 行へ写像する。url/typename が取れない・
+    地理座標系でない・subsetString(WFS Filter XML)がある場合は
+    None(変換へ回す)。
+    """
+    try:
+        from qgis.core import QgsDataSourceUri
+        uri = QgsDataSourceUri(layer.source() or '')
+        url = uri.param('url') or ''
+        typename = uri.param('typename') or ''
+        version = uri.param('version') or ''
+    except Exception:  # nosec B110  # URI パース失敗は変換へ
+        return None
+    if not url or not typename or not re.match(r'https?://', url):
+        return None
+    if _subset_raw(layer):
+        return None
+    if not _geo_equiv_crs(layer):
+        return None
+    opts = {'typename': typename}
+    if version:
+        opts['version'] = version
+    return {'type': 'wfs', 'ref': url, 'opts': opts}
+
+
+# ネイティブ参照できないベクターの変換出力形式(優先順)。
+# FlatGeobuf = 空間インデックス付きバイナリで GeoJSON より小さく
+# ブラウザでのデコードも速い(Canvas 全エンジン 〇)。Parquet は最小だが
+# ドライバ非搭載環境があるため第2候補、GeoJSON は最終手段
+_FALLBACK_DRIVERS = (
+    ('FlatGeobuf', '.fgb', 'flatgeobuf'),
+    ('Parquet', '.parquet', 'geoparquet'),
+    ('GeoJSON', '.geojson', 'geojson'),
+)
+
+
+def _fallback_driver():
+    """利用可能な変換出力ドライバを返す ``(driver, ext, kasc_type)``。"""
+    try:
+        from osgeo import ogr
+        for drv, ext, kind in _FALLBACK_DRIVERS:
+            if ogr.GetDriverByName(drv):
+                return drv, ext, kind
+    except Exception:  # nosec B110  # osgeo 非搭載環境は GeoJSON 固定
+        pass
+    return 'GeoJSON', '.geojson', 'geojson'
 
 
 def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
@@ -1769,7 +1941,7 @@ def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
     - subsetString → 全ネイティブ形式で ``where=``。gpkg:/duckdb: 系は
       SQL実行、geojson:/flatgeobuf:/geoparquet: は Canvas 側
       where-eval.js のクライアント評価(_subset_eval_ok が通る式のみ。
-      非対応式は GeoJSON 変換でフィルタを焼き込む)
+      非対応式は FlatGeobuf 変換でフィルタを焼き込む)
     地理座標系でない場合は None(GeoJSON 再エクスポートへ回す)。
 
     embed_style=True ならローカル GPKG の layer_styles へ現在スタイルを
@@ -1789,7 +1961,7 @@ def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
         if not geom and not (lon and lat):
             return {'skip_reason': 'ジオメトリ列なし(属性テーブル)'}
         if not _geo_equiv_crs(layer):
-            return None  # 再投影が必要 → GeoJSON 変換
+            return None  # 再投影が必要 → ベクター変換
         ref = _duckdb_target_ref(path, slug, data_dir, copied)
         if not ref:
             return None
@@ -1808,10 +1980,8 @@ def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
         url = src.replace('/vsicurl/', '')
         low = url.split('?')[0].lower()
         kind, ext = None, None
-        for e, k in (('.gpkg', 'gpkg'), ('.geojson', 'geojson'),
-                     ('.json', 'geojson'), ('.parquet', 'geoparquet'),
-                     ('.fgb', 'flatgeobuf'),
-                     ('.csv', 'duckdb'), ('.tsv', 'duckdb')):
+        for e, k in (tuple(_NATIVE_KINDS.items()) +
+                     (('.csv', 'duckdb'), ('.tsv', 'duckdb'))):
             if low.endswith(e):
                 kind, ext = k, e
                 break
@@ -1825,11 +1995,15 @@ def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
                     and not _subset_eval_ok(subset_raw):
                 # where-eval 非対応式 → GeoJSON 変換でフィルタを焼き込む
                 warnings.append(
-                    '{0}: フィルタ式が where= 非対応のためGeoJSON変換'.format(
+                    '{0}: フィルタ式が where= 非対応のためベクター変換'.format(
                         layer.name()))
                 return None
             opts['where'] = subset
         return {'type': kind, 'ref': url, 'opts': opts}
+
+    # WFS プロバイダ → wfs: 行(Canvas が GetFeature を直接発行)
+    if (layer.providerType() or '').lower() == 'wfs':
+        return _wfs_ref(layer)
 
     # ローカルファイルソース
     src_path = _source_path(layer)
@@ -1852,17 +2026,36 @@ def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
         if subset:
             opts['where'] = subset
         return {'type': 'duckdb',
-                'ref': _copy_to_data(src_path, data_dir, slug, copied),
+                'ref': _link_ref(src_path) or _copy_to_data(
+                    src_path, data_dir, slug, copied),
                 'opts': opts}
 
-    kinds = {'.gpkg': 'gpkg', '.geojson': 'geojson', '.json': 'geojson',
-             '.parquet': 'geoparquet', '.fgb': 'flatgeobuf'}
-    kind = kinds.get(ext)
+    kind = _NATIVE_KINDS.get(ext)
+    if ext == '.json':
+        # .json は GeoJSON とは限らない。先頭を読んで Topology なら
+        # topojson: 行へ(QGIS は OGR TopoJSON ドライバで読む)
+        try:
+            with open(src_path, 'rb') as f:
+                head = f.read(4096)
+            if b'"Topology"' in head.replace(b' ', b'') \
+                    or b'"Topology"' in head:
+                kind = 'topojson'
+        except Exception:  # nosec B110  # 読めなければ geojson 扱い
+            pass
+    if not kind and ext == '.zip':
+        # zip 内に .shp があれば shp: 行(shpjs が zip を直接読める)
+        try:
+            import zipfile
+            with zipfile.ZipFile(src_path) as z:
+                if any(n.lower().endswith('.shp') for n in z.namelist()):
+                    kind = 'shp'
+        except Exception:  # nosec B110  # zip 破損等は変換へ
+            pass
     if not kind:
         return None
-    # GeoJSON は仕様上 lon/lat のため CRS 不明でも同等扱いとする
-    geojson_spec = ext in ('.geojson', '.json')
-    if not geojson_spec and not _geo_equiv_crs(layer):
+    # GeoJSON/GPX/KML 等は仕様上 lon/lat のため CRS 不明でも同等扱いとする
+    if ext not in _CRS_FREE_EXTS and ext != '.zip' \
+            and not _geo_equiv_crs(layer):
         return None
     if subset:
         if kind == 'geoparquet':
@@ -1870,7 +2063,7 @@ def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
         elif kind != 'gpkg' and not _subset_eval_ok(subset_raw):
             # where-eval 非対応式 → GeoJSON 変換でフィルタを焼き込む
             warnings.append(
-                '{0}: フィルタ式が where= 非対応のためGeoJSON変換'.format(
+                '{0}: フィルタ式が where= 非対応のためベクター変換'.format(
                     layer.name()))
             return None
     if kind == 'gpkg' and embed_style:
@@ -1890,7 +2083,15 @@ def _native_ref(layer, slug, data_dir, copied, warnings, embed_style=False):
         else:
             warnings.append(
                 '{0}: layer_styles への保存に失敗'.format(layer.name()))
-    ref = _copy_to_data(src_path, data_dir, slug, copied)
+    if ext == '.shp':
+        # Shapefile は sidecar(.dbf/.shx/.prj 等)を一式コピー
+        # (link_files 時は _copy_shp_set 内で原本相対参照へ切替)
+        ref = _copy_shp_set(src_path, data_dir, slug, copied)
+    else:
+        ref = _link_ref(src_path) or _copy_to_data(
+            src_path, data_dir, slug, copied)
+    if not ref:
+        return None
     opts = {}
     if kind == 'duckdb':
         opts['format'] = 'parquet'
@@ -1944,9 +2145,12 @@ def _fields_list(value):
     return names or None
 
 
-def _export_geojson(layer, path, fields=None, where=None, limit=None):
-    """ベクターレイヤを EPSG:4326 の GeoJSON へ書き出す。
+def _export_vector(layer, path, fields=None, where=None, limit=None,
+                   driver='GeoJSON'):
+    """ベクターレイヤを EPSG:4326 の指定形式へ書き出す。
 
+    driver: ``'FlatGeobuf'``/``'Parquet'``/``'GeoJSON'`` 等の
+        QgsVectorFileWriter ドライバ名。
     fields: 出力する属性名のリスト(未指定=全列)。
     where: QgsExpression 互換の式で出力地物を絞る
         (プロバイダフィルタ subsetString とは AND 適用)。
@@ -1977,7 +2181,7 @@ def _export_geojson(layer, path, fields=None, where=None, limit=None):
             req.setLimit(lim)
         src = layer.materialize(req)
     options = QgsVectorFileWriter.SaveVectorOptions()
-    options.driverName = 'GeoJSON'
+    options.driverName = driver
     options.fileEncoding = 'UTF-8'
     if fields:
         idxs, missing = [], []
@@ -1999,7 +2203,8 @@ def _export_geojson(layer, path, fields=None, where=None, limit=None):
         err, msg = QgsVectorFileWriter.writeAsVectorFormatV2(
             src, path, QgsProject.instance().transformContext(), options)
     if err != QgsVectorFileWriter.NoError:
-        raise RuntimeError('GeoJSON export failed: {0} ({1})'.format(err, msg))
+        raise RuntimeError('{0} export failed: {1} ({2})'.format(
+            driver, err, msg))
     return int(src.featureCount())
 
 
@@ -2009,6 +2214,285 @@ def _export_qml(layer, path):
     if not ok:
         raise RuntimeError('qml save failed: {0}'.format(msg))
     return path
+
+
+# ---------------------------------------------------------------------------
+# ユーザー関数の組込み式展開
+#
+# geo_userfunc の式関数は Python 実装のため Canvas 側では評価できない。
+# 関数側が docstring に "@expr: <式>" 宣言を持つ場合、エクスポート時に
+# .qml 内の呼出しを宣言式へ書き換え、配布物を組込み関数のみにする。
+# 宣言の無い関数呼出しはそのまま残る(Canvas 側は警告+フォールバック)。
+# ---------------------------------------------------------------------------
+
+
+def _user_func_expansions():
+    """geo_userfunc bridge の expansions() で展開宣言済み関数の
+    テーブルを返す({name_lower: {args:[...], expr:...}})。"""
+    try:
+        from qgis.utils import plugins
+        b = getattr(plugins.get('geo_userfunc'), 'bridge', None)
+        fn = getattr(b, 'expansions', None)
+        if not callable(fn):
+            return {}
+        d = json.loads(fn())
+        out = {}
+        for name, e in (d.get('expansions') or {}).items():
+            if isinstance(e, dict) and e.get('expr'):
+                out[str(name).lower()] = e
+        return out
+    except Exception:
+        return {}
+
+
+def _expr_line_offsets(src):
+    off = [0]
+    i = src.find('\n')
+    while i >= 0:
+        off.append(i + 1)
+        i = src.find('\n', i + 1)
+    return off
+
+
+def _scan_expr_call(src, name_end):
+    """関数名トークン直後の位置 name_end から ``(...)`` を走査し、
+    ``(開き括弧index, 閉じ括弧の次位置, [(引数start,end), ...])`` を返す。
+    文字列リテラル(''/"")・行/ブロックコメント・括弧ネストを考慮する。
+    見つからない/閉じられない場合は None。
+    """
+    n = len(src)
+    i = name_end
+    while i < n and src[i] in ' \t\r\n':
+        i += 1
+    if i >= n or src[i] != '(':
+        return None
+    open_i = i
+    i += 1
+    depth = 1
+    arg_spans = []
+    arg_start = i
+    while i < n:
+        ch = src[i]
+        if ch == "'" or ch == '"':
+            q = ch
+            i += 1
+            while i < n:
+                if src[i] == q:
+                    if src[i + 1:i + 2] == q:
+                        i += 2
+                        continue
+                    i += 1
+                    break
+                i += 1
+            continue
+        if ch == '-' and src[i + 1:i + 2] == '-':
+            j = src.find('\n', i)
+            i = n if j < 0 else j + 1
+            continue
+        if ch == '/' and src[i + 1:i + 2] == '*':
+            j = src.find('*/', i + 2)
+            i = n if j < 0 else j + 2
+            continue
+        if ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth -= 1
+            if depth == 0:
+                arg_spans.append((arg_start, i))
+                return open_i, i + 1, arg_spans
+        elif ch == ',' and depth == 1:
+            arg_spans.append((arg_start, i))
+            arg_start = i + 1
+        i += 1
+    return None
+
+
+def _expand_user_func_expr(src, expansions, _depth=0):
+    """式文字列 src 内の展開宣言済みユーザー関数呼出しを組込み式へ展開する。
+
+    QgsExpression のノードスパンで関数名の位置を特定し、呼出し全体と
+    引数区切りは _scan_expr_call で文字列走査する(ノードスパンは
+    関数名トークンしか返さないため)。未宣言関数・パース失敗・
+    位置不一致時はその箇所をそのまま残す。
+    """
+    from qgis.core import QgsExpression, QgsExpressionNode
+    e = QgsExpression(src)
+    if not e.isValid() or e.hasParserError():
+        return src
+    root = e.rootNode()
+    if root is None:
+        return src
+    funcs = QgsExpression.Functions()
+    line_off = _expr_line_offsets(src)
+
+    def name_span(n):
+        """関数ノードの名前トークンスパン(start, end) を src オフセットで返す。
+        parserFirst/LastColumn は行内1始まり・last は排他端。
+        スパン未取得ノード(0,0,0,0)は None。"""
+        fl, fc, ll, lc = (n.parserFirstLine, n.parserFirstColumn,
+                          n.parserLastLine, n.parserLastColumn)
+        if fl < 1 or fc < 1 or ll > len(line_off) or fl > len(line_off):
+            return None
+        s = line_off[fl - 1] + fc - 1
+        t = line_off[ll - 1] + lc - 1
+        if s < 0 or t > len(src) or s >= t:
+            return None
+        return s, t
+
+    def node_children(n):
+        nt = n.nodeType()
+        kids = []
+        try:
+            if nt == QgsExpressionNode.ntUnaryOperator:
+                kids = [n.operand()]
+            elif nt == QgsExpressionNode.ntBinaryOperator:
+                kids = [n.opLeft(), n.opRight()]
+            elif nt == QgsExpressionNode.ntInOperator:
+                kids = [n.node()]
+                if n.list() is not None:
+                    kids += n.list().list()
+            elif nt == QgsExpressionNode.ntCondition:
+                for w in (n.conditions() or []):
+                    for nm in ('whenExp', 'conditionExp', 'when'):
+                        c = getattr(w, nm, None)
+                        if callable(c):
+                            try:
+                                kids.append(c())
+                            except Exception:  # nosec B110
+                                pass
+                            break
+                    for nm in ('thenExp', 'thenExpression', 'value', 'then'):
+                        c = getattr(w, nm, None)
+                        if callable(c):
+                            try:
+                                kids.append(c())
+                            except Exception:  # nosec B110
+                                pass
+                            break
+                kids.append(n.elseExp())
+            elif nt == QgsExpressionNode.ntIndexOperator:
+                kids = [n.container(), n.index()]
+            elif nt == QgsExpressionNode.ntBetweenOperator:
+                kids = [n.node(), n.lowerBound(), n.higherBound()]
+        except Exception:  # nosec B110  # 未知ノード型は子走査を諦めるだけ
+            pass
+        return [k for k in kids if k is not None]
+
+    repl = []  # (start, end, new_text) src 上の絶対位置
+
+    def walk(n):
+        if n.nodeType() == QgsExpressionNode.ntFunction:
+            try:
+                name = funcs[n.fnIndex()].name()
+            except Exception:  # nosec B110
+                name = ''
+            exp = expansions.get(str(name).lower())
+            sp = name_span(n)
+            call = _scan_expr_call(src, sp[1]) if sp else None
+            args = n.args().list() if n.args() is not None else []
+            if exp is not None and sp is not None and call is not None:
+                # 名前位置の健全性: スパン文字列が関数名と一致するか
+                frag_name = src[sp[0]:sp[1]].strip()
+                arg_spans = call[2]
+                if (len(arg_spans) == 1 and args
+                        and not src[arg_spans[0][0]:arg_spans[0][1]].strip()):
+                    arg_spans = []  # f() の空スパン
+                if (frag_name.lower() == str(name).lower()
+                        and len(arg_spans) == len(args)):
+                    vals = [_expand_user_func_expr(
+                        src[a:b], expansions, _depth + 1)
+                        for a, b in arg_spans]
+                    tmpl = str(exp.get('expr') or '')
+                    for i, p in enumerate(exp.get('args') or []):
+                        v = vals[i] if i < len(vals) else 'NULL'
+                        tmpl = tmpl.replace('{' + str(p) + '}', v)
+                    repl.append((sp[0], call[1], tmpl))
+                    return
+            # 展開しない/できない呼出し → 引数内の別関数だけ処理
+            for a in args:
+                walk(a)
+            return
+        for ch in node_children(n):
+            walk(ch)
+
+    walk(root)
+    if not repl:
+        return src
+    out = src
+    for s, t, v in sorted(repl, reverse=True):
+        out = out[:s] + v + out[t:]
+    # 展開式自身が別のユーザー関数を含む場合に備え反復
+    if _depth < 4:
+        nxt = _expand_user_func_expr(out, expansions, _depth + 1)
+        if nxt != out:
+            return nxt
+    return out
+
+
+def _xml_attr_escape(s):
+    return (s.replace('&', '&amp;').replace('<', '&lt;')
+             .replace('>', '&gt;').replace('"', '&quot;')
+             .replace('\r', '&#xd;').replace('\n', '&#xa;'))
+
+
+# .qml 内の式を持つ属性: (タグ正規表現, 必要マーカー, 式属性名)
+#   Option name="expression" — DD プロパティ/GeometryGenerator 等の式
+#   Option name="geometryModifier" — ジオメトリジェネレータの式
+#   rule filter="..." — ルールベースレンダラのフィルタ式
+#   text-style fieldName + isExpression="1" — ラベル本文の式
+#   heatmaprenderer weight_expression — ヒートマップ重み式
+_QML_EXPR_TAGS = (
+    (re.compile(r'<Option\b[^>]*>'),
+     ('name="expression"', 'name="geometryModifier"'), 'value'),
+    (re.compile(r'<rule\b[^>]*>'), None, 'filter'),
+    (re.compile(r'<text-style\b[^>]*>'), ('isExpression="1"',), 'fieldName'),
+    (re.compile(r'<heatmaprenderer\b[^>]*>', re.I), None, 'weight_expression'),
+)
+
+
+def _expand_user_funcs_in_qml(qml_path, warnings=None):
+    """保存済み .qml 内の式属性を走査し、展開宣言済みユーザー関数呼出しを
+    組込み式へ書き換える。geo_userfunc 未導入・宣言なしなら何もしない。"""
+    expansions = _user_func_expansions()
+    if not expansions:
+        return
+    try:
+        with open(qml_path, 'r', encoding='utf-8') as f:
+            xml = f.read()
+    except OSError:
+        return
+    import html as _html
+    state = {'n': 0}
+
+    def patch(tag, attr):
+        m = re.search(r'\b' + attr + r'="([^"]*)"', tag)
+        if not m:
+            return tag
+        raw = _html.unescape(m.group(1))
+        new = _expand_user_func_expr(raw, expansions)
+        if new == raw:
+            return tag
+        state['n'] += 1
+        return tag[:m.start(1)] + _xml_attr_escape(new) + tag[m.end(1):]
+
+    for tag_re, markers, attr in _QML_EXPR_TAGS:
+        def sub(m, ms=markers, a=attr):
+            t = m.group(0)
+            if ms is None:
+                return patch(t, a)
+            for mk in ms:
+                if mk in t:
+                    return patch(t, a)
+            return t
+        xml = tag_re.sub(sub, xml)
+
+    if state['n']:
+        with open(qml_path, 'w', encoding='utf-8') as f:
+            f.write(xml)
+        if warnings is not None:
+            warnings.append(
+                '{0}: ユーザー関数を組込み式へ展開({1}箇所)'.format(
+                    os.path.basename(qml_path), state['n']))
 
 
 # .qml 内で画像ファイルを参照するシンボルレイヤ。
@@ -2694,7 +3178,7 @@ def _anim3d_fly_line(view, name, wgs3, globe, data_dir, used_names,
         warnings.append('3Dビュー {0}: アニメgeojson書込失敗: {1}'.format(
             name, e))
         return None
-    return ('fly_geojson: {0} | DATA/{1}.geojson | speed={2} '
+    return ('fly_geojson: {0} | ' + _dref(data_dir, '{1}.geojson') + ' | speed={2} '
             '| view=camera | step={3}').format(
                 _kasc_escape(title), slug, speed, step)
 
@@ -2868,6 +3352,7 @@ def _theme_style_qml(layer, style_name, data_dir, slug, theme_slug,
         fpath = os.path.join(data_dir, fname)
         with open(fpath, 'w', encoding='utf-8') as f:
             f.write(st.xmlData())
+        _expand_user_funcs_in_qml(fpath, warnings)
         # メインスタイルと同様にシンボル画像(SVG/ラスタ)を
         # DATA/ へ複製して参照を書き換える(絶対パス残存を防ぐ)
         try:
@@ -2878,7 +3363,7 @@ def _theme_style_qml(layer, style_name, data_dir, slug, theme_slug,
             warnings.append(
                 'theme style {0}: シンボル画像の複製失敗: {1}'.format(
                     style_name, e))
-        return 'DATA/' + fname
+        return _dref(data_dir, fname)
     except Exception as e:
         warnings.append('theme style {0}: {1}'.format(style_name, e))
         return None
@@ -3163,14 +3648,14 @@ def _export_atlas_fly(project, data_dir, used_names, warnings):
             warnings.append('atlas {0}: geojson書込失敗: {1}'.format(
                 layout.name(), e))
             continue
-        line = ('fly_geojson: {0} | DATA/{1}.geojson | speed={2} '
+        line = ('fly_geojson: {0} | ' + _dref(data_dir, '{1}.geojson') + ' | speed={2} '
                 '| pitch=-85 | height=0 | view=camera | step={3}'
                 ).format(_kasc_escape(name), slug, speed, step)
         lines.append(line)
         infos.append({
             'layout': layout.name(), 'pages': len(pages),
             'coverage': frames['coverage'],
-            'file': 'DATA/{0}.geojson'.format(slug), 'title': name,
+            'file': _dref(data_dir, '{0}.geojson'.format(slug)), 'title': name,
         })
     return lines, infos
 
@@ -3224,10 +3709,11 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                            native_formats=True, hidden_as_off=False,
                            embed_gpkg_style=False,
                            emit_themes=True, emit_bookmarks=True,
-                           emit_launchers=True, emit_zip=False,
+                           emit_launchers=None, emit_zip=False,
                            emit_atlas=True,
                            changed=None, live_url=None,
-                           fields=None, where=None, limit=None):
+                           fields=None, where=None, limit=None,
+                           link_files=True):
     """レイヤツリーを KASUGAI Canvas プロジェクトとして出力する。
 
     引数:
@@ -3242,8 +3728,10 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             ``duckdb:+format=parquet+where=`` へ切替)、
             3D Tiles レイヤは ``3dtiles:``、ローカル XYZ テンプレートは
             タイルツリー複製の ``xyz:`` 行として出力する。
-            それ以外のベクターのみ GeoJSON(EPSG:4326)へ出力する。
-            False なら全ベクターを GeoJSON へ変換する(従来動作)。
+            それ以外のベクターは FlatGeobuf(優先・空間インデックス付き。
+            ドライバ非搭載時は GeoParquet→GeoJSON の順)へ EPSG:4326 で
+            変換する。
+            False なら全ベクターを同じ変換経路へ回す。
         hidden_as_off: True なら非表示レイヤも ``| off`` 付きで出力する
             (visible_only より優先。プロジェクト構成の丸ごと引越し用)。
             なお「背景図」「ベースマップ」「basemap」名
@@ -3304,9 +3792,18 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             fields/where/limit のいずれかが指定されたベクターレイヤは
             ネイティブ参照(``gpkg:``/``geojson:`` 等)を使わず、
             QgsFeatureRequest+materialize で条件適用済みの地物を
-            GeoJSON 変換で焼き込む。どのソース形式でもフィルタが
+            FlatGeobuf 変換で焼き込む。どのソース形式でもフィルタが
             出力データへ確実に反映される(.kasc 行形式・Canvas 側の
             変更は不要)。
+        link_files: True(既定)なら `.kasc` を QGIS プロジェクトファイル
+            (.qgs/.qgz)と同じ場所へ出力し、参照可能なデータは**原本の
+            相対パスのまま**複写せずに参照する「複写なし Web化」モード。
+            プロジェクトdir配下または1階層上(ワークスペース)までの
+            ファイルは相対パス参照、それより外(深い親・別ドライブ)と
+            変換が必要なデータのみ ``canvas_data/`` サブフォルダへ出力。
+            プロジェクト未保存の場合は ``get_output_dir()`` へフォール
+            バック。False なら従来通り ``out_dir/DATA/`` へ全データ複写
+            (サーバレス配布・ホスティング用)。
 
     戻り値: {"dir","kasc","data_dir","layers":[{name,file,features}],
              "tiles":[...],"skipped":[...],"errors":[...],"warnings":[...],
@@ -3314,11 +3811,30 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     layers が1件も無くても .kasc は出力する。
     """
     from qgis.core import QgsVectorLayer, QgsProject
-    out_dir = os.path.abspath(out_dir or get_output_dir())
-    data_dir = os.path.join(out_dir, 'DATA')
+    project = QgsProject.instance()
+    # link_files: .kasc をプロジェクトファイルと同じ場所へ置き、原本を
+    # 相対参照する。出力先の優先順位は 明示 out_dir > QSettings の
+    # kasugai_output_path > (link時)プロジェクトdir > 既定出力先。
+    if out_dir is None:
+        saved = str(
+            _qsettings().value(SETTINGS_KEY_OUTPUT, '') or '').strip()
+        configured = bool(saved and saved != '__default__')
+        if link_files and project.fileName() and not configured:
+            out_dir = os.path.dirname(os.path.abspath(project.fileName()))
+        else:
+            out_dir = preferred_output_dir()
+    out_dir = os.path.abspath(out_dir)
+    data_dir = os.path.join(
+        out_dir, 'canvas_data' if link_files else 'DATA')
     os.makedirs(data_dir, exist_ok=True)
-    global _last_export_dir
+    global _last_export_dir, _LINK_FILES, _LINK_ROOT
     _last_export_dir = out_dir
+    _LINK_FILES = bool(link_files)
+    _LINK_ROOT = out_dir
+    # link モードでは .kasc しかプロジェクト dir に置かないため、
+    # 起動HTML群(サーバレス配布用)は明示指定時のみ生成する
+    if emit_launchers is None:
+        emit_launchers = not link_files
     # 旧世代の kasugai_canvas*.zip が残っていると /export-data/ で
     # 陳腐化したZIPが配信されるため除去する(emit_zip 時は後段で再生成)
     try:
@@ -3328,7 +3844,6 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     except Exception:  # nosec B110  # 設計上の許容
         pass
 
-    project = QgsProject.instance()
     project_title = os.path.splitext(
         os.path.basename(project.fileName() or ''))[0] or 'QGIS Export'
 
@@ -3430,6 +3945,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                     or not os.path.isfile(qml_path)):
                 try:
                     _export_qml(layer, qml_path)
+                    _expand_user_funcs_in_qml(qml_path, warnings)
                     try:
                         _export_qml_assets(
                             qml_path, slug, data_dir, used_names, copied,
@@ -3438,12 +3954,12 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                         warnings.append(
                             '{0}: シンボル画像の複製失敗: {1}'.format(
                                 layer.name(), e))
-                    style_opt = ' | style=DATA/{0}.qml'.format(slug)
+                    style_opt = ' | style=' + _dref(data_dir, slug + '.qml')
                 except Exception as e:
                     errors.append('{0}: qml {1}'.format(layer.name(), e))
             else:
                 # 未変更レイヤ: 既存 .qml を再利用して書き出しをスキップ
-                style_opt = ' | style=DATA/{0}.qml'.format(slug)
+                style_opt = ' | style=' + _dref(data_dir, slug + '.qml')
             feat_count = -1
             try:
                 feat_count = int(layer.featureCount())
@@ -3453,7 +3969,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             vopt = _vector_opts_suffix(layer, warnings)
 
             # fields/where/limit 指定は .kasc 行オプションでは表現できず
-            # 出力データへ焼き込む必要があるため GeoJSON 変換へ回す
+            # 出力データへ焼き込む必要があるためベクター変換へ回す
             # (ネイティブ参照のままでは選択・絞り込みが反映されない)
             f_sel = _fields_list(_per_layer_opt(fields, layer))
             w_sel = _per_layer_opt(where, layer)
@@ -3489,34 +4005,54 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                     line += ' | where={0}'.format(where_val)
                 layers_out.append({
                     'name': layer.name(), 'title': title, 'file': ref,
-                    'qml': 'DATA/{0}.qml'.format(slug) if style_opt else None,
+                    'qml': _dref(data_dir, '{0}.qml'.format(slug)) if style_opt else None,
                     'features': feat_count, 'format': line_type,
                 })
                 kasc_lines.append(line)
                 continue
 
-            # ネイティブ参照できないベクター → GeoJSON(EPSG:4326)へ変換
-            gj_path = os.path.join(data_dir, slug + '.geojson')
+            # ネイティブ参照できないベクター → FlatGeobuf(第1候補・
+            # 空間インデックス付きで GeoJSON より軽量)等の高速形式へ
+            # EPSG:4326 で変換。ドライバが無ければ GeoJSON へ落ちる
+            drv, out_ext, out_kind = _fallback_driver()
+            out_path = os.path.join(data_dir, slug + out_ext)
             written = feat_count
             if (changed is None or (kinds or {}).get('data')
-                    or not os.path.isfile(gj_path)):
+                    or not os.path.isfile(out_path)):
                 try:
-                    written = _export_geojson(
-                        layer, gj_path, fields=f_sel, where=w_sel,
-                        limit=l_sel)
+                    written = _export_vector(
+                        layer, out_path, fields=f_sel, where=w_sel,
+                        limit=l_sel, driver=drv)
                 except Exception as e:
-                    errors.append(
-                        '{0}: geojson {1}'.format(layer.name(), e))
-                    continue
+                    # FlatGeobuf/Parquet で失敗した場合は GeoJSON で再試行
+                    if drv != 'GeoJSON':
+                        warnings.append(
+                            '{0}: {1} 変換失敗({2})のため GeoJSON へ'
+                            .format(layer.name(), drv, e))
+                        drv, out_ext, out_kind = \
+                            'GeoJSON', '.geojson', 'geojson'
+                        out_path = os.path.join(data_dir, slug + out_ext)
+                        try:
+                            written = _export_vector(
+                                layer, out_path, fields=f_sel, where=w_sel,
+                                limit=l_sel, driver=drv)
+                        except Exception as e2:
+                            errors.append(
+                                '{0}: geojson {1}'.format(layer.name(), e2))
+                            continue
+                    else:
+                        errors.append(
+                            '{0}: geojson {1}'.format(layer.name(), e))
+                        continue
             if not _geo_equiv_crs(layer):
                 warnings.append(
                     '{0}: CRS {1} を EPSG:4326 へ再投影'.format(
                         layer.name(), layer.crs().authid() or ''))
             layer_entry = {
                 'name': layer.name(), 'title': title,
-                'file': 'DATA/{0}.geojson'.format(slug),
-                'qml': 'DATA/{0}.qml'.format(slug) if style_opt else None,
-                'features': written, 'format': 'geojson',
+                'file': _dref(data_dir, '{0}{1}'.format(slug, out_ext)),
+                'qml': _dref(data_dir, '{0}.qml'.format(slug)) if style_opt else None,
+                'features': written, 'format': out_kind,
             }
             if bake:
                 layer_entry['filter'] = {
@@ -3526,9 +4062,10 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             attr_opt = ' | attr={0}'.format(
                 _kasc_escape(attr)) if attr else ''
             kasc_lines.append(
-                'geojson: {0} | DATA/{1}.geojson | {2}{3}{4}{5}{6}'.format(
+                '{7}: {0} | {9}{1}{8} | {2}{3}{4}{5}{6}'.format(
                     title, slug, vis_flag, style_opt, vopt,
-                    _scale_vis_opt(layer), attr_opt))
+                    _scale_vis_opt(layer), attr_opt, out_kind, out_ext,
+                    os.path.basename(data_dir) + '/'))
             ln_meta = _legend_node_line(tnode, title)
             if ln_meta:
                 kasc_lines.append(ln_meta)
@@ -3723,7 +4260,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                             # 未変更ラスタ: 既存PNG再利用(bboxは範囲から再現)
                             baked_bbox = _raster_bbox_str(layer)
                     if baked_bbox:
-                        line = 'image: {0} | DATA/{1}.png | {2}'.format(
+                        line = 'image: {0} | ' + _dref(data_dir, '{1}.png') + ' | {2}'.format(
                             title, slug, vis_flag)
                         line += ' | bbox={0}'.format(baked_bbox)
                         opacity = _maplayer_opacity(layer)
@@ -3737,7 +4274,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                         kasc_lines.append(line)
                         tiles_out.append({
                             'name': layer.name(),
-                            'url': 'DATA/{0}.png'.format(slug),
+                            'url': _dref(data_dir, '{0}.png'.format(slug)),
                             'type': 'image'})
                     elif ref:
                         line = 'geotiff: {0} | {1} | {2}'.format(

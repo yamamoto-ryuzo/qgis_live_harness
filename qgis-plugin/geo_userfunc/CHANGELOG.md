@@ -1,5 +1,24 @@
 # CHANGELOG — geo_userfunc
 
+## 1.0.9
+
+- 同梱関数に `line_width(base, minimum, ref_scale, scale)` を追加。
+  縮尺連動の線幅(mm)を返す式関数で、基準縮尺では base mm、
+  ズームアウトで base*ref_scale/scale に反比例・minimum で打止め、
+  ズームイン側は base で頭打ち
+  (`clamp(minimum, base*ref_scale/scale, base)` と等価)。
+  KASUGAI Canvas の `EXPR_FUNCS.line_width` と同一の縮尺則で、
+  `.kasc` エクスポート QML の `line_width(...)` DD が
+  QGIS・Canvas 両側で同じ値に評価される
+- **組込み式展開宣言 `@expr:`** を導入。`@qgsfunction` 関数の
+  docstring に `@expr: <式テンプレート>`（`{引数名}` プレースホルダ付き）
+  を書くと、`analyze_source` が `params`(位置引数名)と `expr` を抽出し、
+  bridge `expansions()` で
+  `{register_name: {args, expr, file}}` として公開する。
+  geo_webview の QML エクスポートがこれを使って QML 内の
+  ユーザー関数呼出しを組込み式へ書き換える
+  （配布物を Canvas 関数実装不要の自己完結形にするため）
+
 ## 1.0.8
 
 - **実行履歴**: bridge `run`/`evalExpression` の呼出を関数名・引数・

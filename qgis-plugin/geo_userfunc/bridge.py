@@ -342,6 +342,26 @@ class GeoUserfuncBridge:
         """ライブラリ内ファイルの一覧と登録済み式関数を返す。"""
         return self._ok(self._plugin.library.describe())
 
+    def expansions(self):
+        """@expr: 宣言のある式関数の展開テーブルを返す。
+
+        geo_webview などが QML エクスポート時にユーザー関数呼出しを
+        組込み式へ展開するために使う。
+        ``{register_name: {args: [...], expr: "...", file: "..."}}``。
+        """
+        out = {}
+        for e in self._plugin.library.entries.values():
+            if not e.enabled or not e.info:
+                continue
+            for f in e.info.get("functions", []):
+                if f.get("expr"):
+                    out[f.get("register_name") or f["name"]] = {
+                        "args": f.get("params") or [],
+                        "expr": f["expr"],
+                        "file": e.file,
+                    }
+        return self._ok({"expansions": out})
+
     def listMacros(self):
         """実行可能マクロ一覧(ライブラリ内+登録済み)を返す。"""
         local = []

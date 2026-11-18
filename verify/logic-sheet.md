@@ -1,6 +1,6 @@
 # qgis_live_harness — リポジトリ横断ロジックシート
 
-- 生成: 2026-11-15T22:35:37+09:00
+- 生成: 2026-11-18T02:15:42+09:00
 - コンポーネント: geo_driver, geo_excel, geo_import, geo_launcher, geo_legend, geo_report, geo_search, geo_userfunc, geo_webview
 
 ## プラグイン間連携

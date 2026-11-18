@@ -33,7 +33,7 @@ qgis_bridge_call plugin_id="geo_webview" method="kascImport"
 
 - **レイヤ**: `xyz:`/`base:`→XYZ、`wms:`/`wmts:`→WMS、`geojson:`/`gpkg:`/`geoparquet:`/`flatgeobuf:`/`shp:`/`kml:`→ベクター、`duckdb:`/`csv:`/`tsv:`→delimitedtext(ローカル)、`sql:`/`ogrsql:`→クエリ結果ベクター(SELECT 実行結果を GeoJSON 化して読込)、`mvt:`/`pmtiles:`→ベクタータイル、`3dtiles:`→TiledScene、`geotiff:`/`image:`→ラスタ、`fly_geojson:`→ベクター
 - **表示設定**: `style=`(.qml・リモートは一時DLで適用)・`minScale=`/`maxScale=`(縮尺表示)・`opacity=`・`where=`→subsetString・`attr=`/裸出典→attribution・`bbox=`→マップクリッピング領域・`| off`・タイトルの `/` → グループ(`//`=排他)・`group:` 折りたたみ・`theme:`→マップテーマ(タイトルはNFKC正規化+リーフ名照合)・`bookmark:`→ブックマーク・`cam:`→キャンバス中心/縮尺/回転
-- 応答の `skipped`/`warnings` を必ず確認 — Canvas専用オプション(extrude/time/heat/cluster)は未適用として列挙される
+- 応答の `skipped`/`warnings` を必ず確認 — Canvas専用オプション(extrude/time/heat/cluster・3dtiles の tilestyle/tilecolor/tileshow/tilepointsize/sse/edl・ベクターの scaledist/transldist/pixoffdist/splitdir/strot/subregion・wms の infoformat)は未適用として列挙される
 
 ## .kasc 以外の Web ソース(qgis_pyeval レシピ)
 

@@ -2620,7 +2620,7 @@ html,body{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family:
         with self._kasugai_lock:
             result = kasugai_export.export_kasugai_project(
                 self.iface,
-                out_dir=kasugai_export.preferred_output_dir())
+                out_dir=None)
             n_layers = len(result.get('layers') or [])
             n_tiles = len(result.get('tiles') or [])
             if not n_layers and not n_tiles:

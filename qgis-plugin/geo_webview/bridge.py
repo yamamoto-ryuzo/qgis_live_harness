@@ -979,7 +979,8 @@ class GeoWebViewBridge:
                       emit_bookmarks=True, emit_launchers=True,
                       emit_zip=False, engine=None, install=False, route=None,
                       use_existing=False, emit_atlas=True,
-                      fields=None, where=None, limit=None):
+                      fields=None, where=None, limit=None,
+                      link_files=True):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
         表示中のベクターレイヤを DATA/ へ出力し、.kasc(geojson:/gpkg:/
@@ -1090,7 +1091,8 @@ class GeoWebViewBridge:
                     emit_zip=bool(emit_zip),
                     emit_atlas=bool(emit_atlas),
                     live_url=live_url,
-                    fields=fields, where=where, limit=limit)
+                    fields=fields, where=where, limit=limit,
+                    link_files=bool(link_files))
         except Exception as e:
             return self._err(f"kasugai export failed: {e}")
         out = {

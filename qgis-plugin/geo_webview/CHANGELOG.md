@@ -1,5 +1,77 @@
 # 変更履歴(Changelog)
 
+## 4.19.1
+
+- `kascInspect`/`kascImport` の Canvas 専用オプション未適用報告を拡充。
+  Canvas 側(CesiumJS 監査対応)で追加された `3dtiles:` の
+  `tilestyle`/`tilecolor`/`tileshow`/`tilepointsize`/`sse`/`edl`、
+  ベクター行の `scaledist`/`transldist`/`pixoffdist`/`splitdir`/
+  `strot`/`subregion`、`wms:` の `infoformat` を、
+  QGIS へ未適用のまま警告列挙する対象へ追加
+
+## 4.19.0
+
+- **QML 内ユーザー関数を組込み式へ自動展開**して出力。
+  geo_userfunc 側で `@qgsfunction` 関数の docstring に
+  `@expr: <式テンプレート>` を宣言すると、`saveNamedStyle` /
+  テーマスタイル(`xmlData`)で出力した `.qml` を後処理し、
+  DD `expression`・ルール `filter`・ラベル `fieldName`
+  (isExpression)・`geometryModifier`・`weight_expression` 内の
+  呼出しを `QgsExpression` ノードスパン単位で宣言式へ書き換える。
+  配布 `.kasc`+`DATA/` が Canvas の関数実装なしに自己完結する
+  （宣言の無い関数は従来通り残り、Canvas 側で警告+フォールバック）
+  - 第一号: `line_width(0.2,0.08,15000,@map_scale)` →
+    `clamp(0.08, 0.2*15000/@map_scale, 0.2)`
+  - bridge `geo_userfunc.expansions()` で展開テーブルを取得
+
+## 4.18.0
+
+- **`.kasc` をプロジェクトファイル隣へ出力する「複写なし Web化」
+  (link_files) を既定化**。`export_kasugai_project` に
+  `link_files=True`(既定)を追加:
+  - 出力先の優先順位: 明示 out_dir > QSettings
+    ``kasugai_output_path`` > (link 時)プロジェクトファイル
+    (.qgs/.qgz)のフォルダ > 既定出力先。保存済みプロジェクトは
+    ``<プロジェクトdir>/kasugai_canvas.kasc`` に直接出力
+  - 参照可能なデータは**原本を複写せず相対パスで参照**:
+    プロジェクトdir配下は ``near.geojson`` 形式、1階層上
+    (ワークスペース)は ``../up.gpkg`` 形式(Canvas サーバの外部
+    プロジェクト @parent 解決で配信)。Shapefile/3D Tiles/ローカル
+    XYZ ツリーも原本の場所をそのまま参照
+  - 相対化できないファイル(2階層以上上・別ドライブ)と変換が必要な
+    データのみ ``canvas_data/`` サブフォルダへ出力(従来の DATA/ の
+    代替)。.qml スタイルも canvas_data/ へ
+  - link 時のエンジン起動HTML(emit_launchers)は既定 OFF
+    (サーバレス配布用途のみ・明示 True で生成可)
+  - ``link_files=False`` で従来互換(out_dir/DATA/ へ全複写)
+  - `existing_export` はプロジェクト隣接 .kasc も探索
+  - bridge ``kasugaiExport`` に ``link_files`` 引数を追加
+  - Canvas 側 `shared/kasc.js` も対応: 外部プロジェクトの ``..``
+    参照を ``@parent`` へ変換し Cesium 以外のエンジンでも
+    プロジェクト外の原本参照を配信できるようにした
+
+## 4.17.0
+
+- **`.kasc` ネイティブ参照の形式拡大＋フォールバック変換先を
+  FlatGeobuf へ変更**。Canvas 対応形式(ogrsql: 行まで)を
+  `_native_ref` が直接参照するよう拡張:
+  - 新規ネイティブ参照: `.kml`/`.kmz`(`kml:`)、`.gpx`(`gpx:`)、
+    `.topojson`(`.json`/`topojson=`)、`.czml`、`.igc`、
+    `.gml`、`.zip`(Shapefile ZIP→`shp:`)、`.sqlite`/`db`/`mdb`→`ogrsql:`
+  - Shapefile: `.shp` 指定時は `.dbf`/`.shx`/`.prj` 等の
+    sidecar 一式を DATA/ へ複製して `shp:` 行を出力
+  - QGIS `WFS` プロバイダレイヤ → `wfs:` 行(URL+typename を
+    プロバイダ URI から再構成、version=2.0.0 既定)
+  - リモート http(s)/vsicurl も同形式を直参照
+  - `_export_geojson` → `_export_vector` に汎用化し、
+    フォールバック変換先を FlatGeobuf(空間インデックス付き・
+    GeoJSON より軽量・全エンジン対応)を第1候補へ変更。
+    ドライバ非搭載/失敗時は Parquet→GeoJSON の順でフォールバック。
+    `fields`/`where`/`limit` の焼き込みも同じ経路で行う
+  - `kasc_import.py` も新行タイプ(`gpx`/`topojson`/`czml`/`esrijson`/
+    `geojsonl`/`wkt`/`wkb`/`igc`/`polyline`/`gml` 等)をパース対象に追加
+    (ogr で読めるものは QGIS レイヤ化、読めないものは skipped 報告)
+
 ## 4.16.0
 
 - **`.kasc` エクスポートの属性フィールド選択・行フィルタ・地物数上限**

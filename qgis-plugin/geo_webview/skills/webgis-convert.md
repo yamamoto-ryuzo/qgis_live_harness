@@ -15,7 +15,7 @@ use_when: ユーザーがデータ形式の変換・レイヤ追加・WebGIS/Can
 
 | ソース/目的 | 推奨出力 | .kasc 行 | 理由 |
 |---|---|---|---|
-| 小〜中規模ベクター(数千地物) | GeoJSON(EPSG:4326) | `geojson:` | 最も単純。大容量では遅いので規模限定 |
+| 小〜中規模ベクター(数千地物) | FlatGeobuf(.fgb) — **既定フォールバック** | `flatgeobuf:` | エクスポート既定の変換先。空間インデックス付きバイナリで GeoJSON より小さく速い。ドライバ非搭載時は Parquet→GeoJSON の順にフォールバック |
 | 中〜大規模ベクター(数万地物〜) | **GeoParquet(.parquet)** or FlatGeobuf(.fgb) | `geoparquet:`/`flatgeobuf:` | ブラウザ内バイナリデコードで速い・変換不要で置くだけ。GeoJSON 化は避ける |
 | 大規模+条件絞込み/範囲連動 | GeoParquet + `duckdb:` | `duckdb:`(where=/bbox=auto) | 「見ている範囲だけ読む」。DuckDB-WASM 初回ロード約60MBは SW キャッシュで緩和 |
 | 正データ管理・複数テーブル共有 | GeoPackage(.gpkg) | `gpkg:`+`table=` | sql.js Worker が直接読む。**地理座標系(EPSG:4326等)必須** |
@@ -97,8 +97,9 @@ Canvas のエンジンは `cesium`/`maplibre`/`openlayers`/`leaflet`/`gsimaps`/`
 
 ### 描画側の抑制(.kasc オプション。エクスポート後の行編集またはCanvas側機能)
 
-- **`cluster=on`**: 密集ポイントは件数バッジでクラスタ表示(cesium。QML の pointCluster からも自動ON)
-- **`heat=`**: ポイント密度が主題ならヒートマップ化で個別描画を省略
+- **`cluster=on`**: 密集ポイントは件数バッジでクラスタ表示(cesium。QML の pointCluster からも自動ON。Leaflet は `clusterradius=`/`clusterdisableat=`/`clustercoverage=off`/`clusterspiderfy=off`/`clusterchunked=on` で調整可・QML tolerance も引き継ぐ)
+- **`heat=`**: ポイント密度が主題ならヒートマップ化で個別描画を省略(Leaflet は `heatradius=`/`heatblur=`/`heatminopacity=`/`heatmaxzoom=`/`heatmax=`/`heatgradient=` で調整可・QML heatmapRenderer の radius/weight_expression/maximum_value/colorramp を引き継ぐ)
+- **Leaflet 固有**: `renderer=canvas`(L.canvas 切替・大量地物)・`fillrule=`・`smoothfactor=`・`noclip=`・`classname=`(ベクター)、`tms=`/`detectretina=`/`zoomoffset=`/`subdomains=`/`errortileurl=`/`nowrap=`/`crossorigin=`/`referrerpolicy=`(タイル系)、`uppercase=`/`crs=EPSG4326`(wms:)、`alt=`/`interactive=`/`erroroverlayurl=`(image:)。地図初期値は URL `?zoomsnap=/zoomdelta=/minzoom=/maxzoom=/maxbounds=/worldcopyjump=/prefercanvas=`。詳細は Canvas `docs/use/6-2-インスペクター.html`
 - **`bbox=`/`bounds=`/`extent=`**: 描画範囲を限定して範囲外のタイル取得・描画を止める
 - **`minZoom=`/`maxZoom=`**(タイル系)と **`minScale=`/`maxScale=`**(レイヤ縮尺): 見せる範囲・縮尺帯を絞る。重いレイヤと軽いレイヤを縮尺で切替える構成が最も効く
 - **ラベル**: cesium はデクラッター内蔵。逆に全件ラベルは重いので、ラベル用レイヤと地物レイヤを分けて縮尺帯で切替

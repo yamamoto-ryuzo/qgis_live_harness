@@ -1,0 +1,160 @@
+{
+ "when": "2026-11-18T02:06:58+0900",
+ "summary": {
+  "total": 30,
+  "pass": 30,
+  "fail": []
+ },
+ "results": [
+  {
+   "name": "status() returns dict",
+   "ok": true,
+   "detail": "ok"
+  },
+  {
+   "name": "openPanel() -> dock exists",
+   "ok": true,
+   "detail": "docks=['VertexEditor', 'Layers', 'Browser', 'LayerOrder', 'AdvancedDigitizingTools', 'Overview', 'undo/redo dock', 'QgsGeometryValidationDockBase', 'LayerStyling', 'DevTools', 'Temporal Controller', 'Browser2', 'GPSInformation', 'ProcessingToolbox', 'ResultsViewer', 'theTileScaleDock', '', 'StatisticalSummaryDockWidget', 'MessageLog', 'BookmarksDockWidget', '']"
+  },
+  {
+   "name": "closePanel() no error",
+   "ok": true,
+   "detail": "ok"
+  },
+  {
+   "name": "startServer -> serverStatus(running)",
+   "ok": true,
+   "detail": "{\"ok\": true, \"running\": true, \"port\": 8089, \"preferred_port\": 8089, \"localhost_url\": \"http://localhost:8089\", \"network_url\": \"http://100.64.1.82:8089\", \"diagnostics\": {\"server_running\": true, \"port\": 8089, \"local_ip\": \"100.64.1.82\", \"all_ips\": [\"100.64.1.82\"], \"localhost_url\": \"http://localhost:8089"
+  },
+  {
+   "name": "endpoints() returns",
+   "ok": true,
+   "detail": "{\"ok\": true, \"running\": true, \"port\": 8089, \"base_url\": \"http://100.64.1.82:8089\", \"localhost_url\": \"http://localhost:8089\", \"network_url\": \"http://100.64.1.82:8089\", \"endpoints\": [{\"path\": \"/kasugai\""
+  },
+  {
+   "name": "HTTP GET /qgis-map",
+   "ok": true,
+   "detail": "code=404 body="
+  },
+  {
+   "name": "HTTP GET /kasugai",
+   "ok": true,
+   "detail": "code=200 body={\"ok\": true, \"url\": \"http://127.0.0.1:8510/cesium/?project=ProjectFiles\", \"via\":"
+  },
+  {
+   "name": "HTTP GET /status",
+   "ok": true,
+   "detail": "code=404 body="
+  },
+  {
+   "name": "generatePermalink -> url",
+   "ok": true,
+   "detail": "http://localhost:8089/qgis-map?x=15558805.184640&y=4256848.120220&scale=10000.0&crs=EPSG:3857&rotation=0.00"
+  },
+  {
+   "name": "copyPermalink -> clipboard",
+   "ok": true,
+   "detail": "http://localhost:8089/qgis-map?x=15558805.184640&y=4256848.120220&scale=10000.0&crs=EPSG:3857&rotation=0.00"
+  },
+  {
+   "name": "receivedHistory() returns",
+   "ok": true,
+   "detail": "{\"ok\": true, \"received\": [{\"url\": \"http://127.0.0.1:8089/qgis-map\", \"client\": \"127.0.0.1\", \"ua\": \"Python-urllib/3.13\", \""
+  },
+  {
+   "name": "saveTheme -> listThemes contains",
+   "ok": true,
+   "detail": "themes=[\"__ai_verify_gw__\", \"テーマ\", \"テーマ2\", \"検索前\"]"
+  },
+  {
+   "name": "applyTheme no error",
+   "ok": true,
+   "detail": "ok"
+  },
+  {
+   "name": "deleteTheme -> removed",
+   "ok": true,
+   "detail": "themes=[\"テーマ\", \"テーマ2\", \"検索前\"]"
+  },
+  {
+   "name": "liveSyncStart -> status",
+   "ok": true,
+   "detail": "{\"ok\": true, \"enabled\": true, \"attached\": true, \"running\": false, \"pending\": 0, \"structural\": false, \"watched_layers\": 46, \"live\": {\"enabled\": true, \"rev\": 1794935115720, \"updated\": \"2026-11-18T02:05:"
+  },
+  {
+   "name": "liveAddFeatures no error",
+   "ok": true,
+   "detail": "{\"ok\": true, \"added\": 1, \"layers\": [{\"name\": \"__ai_verify_gw__\", \"features\": 1, \"geometry\": \"Point\"}]}"
+  },
+  {
+   "name": "liveSyncFlush no error",
+   "ok": true,
+   "detail": "ok"
+  },
+  {
+   "name": "liveSyncStop no error",
+   "ok": true,
+   "detail": "ok"
+  },
+  {
+   "name": "navigateTo -> canvas moved",
+   "ok": true,
+   "detail": "{\"lon\": 139.767125, \"lat\": 35.68123599999999, \"scale\": 10000.000000005759}"
+  },
+  {
+   "name": "kasugaiExport(temp) no error",
+   "ok": true,
+   "detail": "{\"ok\": true, \"dir\": \"C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\gw_verify_export\", \"kasc\": \"C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\gw_verify_export\\\\kasugai_canvas.kasc\", \"title\": \"ProjectFile\", \"layers\": [{\"name\": \"DM_C\", \"title\": \"サンプル/DM（スタイルサンプル）/DM_C\", \"file\": \"canvas_data/DM_C.fgb\""
+  },
+  {
+   "name": ".kasc produced",
+   "ok": true,
+   "detail": "C:\\Users\\ryu.RYU-NOTE\\AppData\\Local\\Temp\\gw_verify_export\\kasugai_canvas.kasc"
+  },
+  {
+   "name": "data dir produced (canvas_data/DATA)",
+   "ok": true,
+   "detail": "C:\\Users\\ryu.RYU-NOTE\\AppData\\Local\\Temp\\gw_verify_export/canvas_data"
+  },
+  {
+   "name": "kascInspect -> parsed",
+   "ok": true,
+   "detail": "{\"ok\": true, \"source\": \"C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\gw_verify_export\\\\kasugai_canvas.kasc\", \"base\": \"C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\gw_verify_export\", \"title\": null, \"counts\": {\"flatgeobuf\": 11, \"base\": 37}, \"layers\": [{\"type\": \"flatgeobuf\", \"title\": \"サンプル/DM（スタイルサ"
+  },
+  {
+   "name": "kascImport no error",
+   "ok": true,
+   "detail": "{\"ok\": true, \"source\": \"C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\gw_verify_export\\\\kasugai_canvas.kasc\", \"base\": \"C:\\\\Users\\\\ryu.RYU-NOTE\\\\AppData\\\\Local\\\\Temp\\\\gw_verify_export\", \"title\": null, \"added\": [{\"title\": \"サンプル/DM（スタイルサンプル）/DM_C\", \"type\": \"flatgeobuf\", \"layer_id\": \"DM_C_eb8263d3_e5f4"
+  },
+  {
+   "name": "kascImport added layers",
+   "ok": true,
+   "detail": "[\"2次メッシュ（約10㎞四方）\", \"3次メッシュ（約1km四方）\", \"5kmメッシュ（約5km四方）\", \"DM_1\", \"DM_3\", \"DM_C\", \"Google Maps\", \"Google Roads\", \"Google Satellite Hybrid\", \"Google Satellite\", \"Google Streets\", \"Line\", \"OpenStreetMap\","
+  },
+  {
+   "name": "stopServer -> server down",
+   "ok": true,
+   "detail": "status={\"ok\": true, \"running\": false, \"port\": null, \"preferred_port\": 8089, \"localhost_url\": null, \"network_url\": null, \"diagno http=-1"
+  },
+  {
+   "name": "getSettings() returns",
+   "ok": true,
+   "detail": "{\"ok\": true, \"version\": \"4.17.0\", \"kasugai_output_path\": \"\", \"kasugai_output_dir\": \"C:/Users/ryu.RYU-NOTE/Documents\\\\kasugai_canvas_qgis\", \"kasugai_in"
+  },
+  {
+   "name": "listBookmarks() returns",
+   "ok": true,
+   "detail": "{\"ok\": true, \"bookmarks\": [{\"name\": \"東京都\", \"x\": 15557945.9844, \"y\": 4257187.015550001}, {\"name\": \"東京都\", \"x\": 15557945.984399999, \"y\": 4257186.87579249"
+  },
+  {
+   "name": "cmsStatus() returns",
+   "ok": true,
+   "detail": "{\"ok\": true, \"base_url\": \"https://api.cms.reearth.io/api\", \"workspace\": \"wstest\", \"project\": \"pjtest\", \"model\": \"mdtest\", \"has_token\": false, \"token_s"
+  },
+  {
+   "name": "checkAccess() returns",
+   "ok": true,
+   "detail": "{\"ok\": true, \"diagnostics\": {\"server_running\": true, \"port\": 8089, \"local_ip\": \"100.64.1.82\", \"all_ips\": [\"100.64.1.82\"], \"localhost_url\": \"http://loc"
+  }
+ ]
+}

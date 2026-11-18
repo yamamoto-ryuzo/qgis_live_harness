@@ -28,6 +28,8 @@ _LAYER_TYPES = frozenset([
     "xyz", "tile", "geojson", "layer", "geoparquet", "parquet",
     "flatgeobuf", "fgb", "gpkg", "geopackage", "csv", "tsv", "duckdb",
     "sql", "ogrsql", "wms", "wmts", "kml", "kmz", "wfs", "shp", "shapefile",
+    "gpx", "topojson", "czml", "esrijson", "arcgis",
+    "geojsonl", "ndjson", "jsonl", "wkt", "wkb", "igc", "polyline", "gml",
     "image", "mvt", "pmtiles", "geotiff", "tiff", "cog", "3dtiles",
     "fly_geojson", "model", "pointcloud", "ept", "copc",
 ])
@@ -778,10 +780,18 @@ def _apply_common(layer, item, base, warnings, tmp_files):
     # 領域へ変換(image: では bbox= が位置合わせ用なので除外)
     if o.get("bbox") is not None and item.get("type") != "image":
         _apply_bbox_clip(layer, o["bbox"], leaf, warnings)
-    # Canvas専用オプション(3D立上げ・時間・heat/cluster等)は
-    # QGIS に直接対応が無い → 未適用として報告のみ
+    # Canvas専用オプション(3D立上げ・時間・heat/cluster・
+    # Cesium描画オプション等)は QGIS に直接対応が無い → 未適用として報告のみ
     for k in ("extrude", "z", "time", "time_end", "time_span",
-              "heat", "cluster"):
+              "heat", "cluster",
+              # Cesium 3D Tiles スタイル/描画 (3dtiles: 行)
+              "tilestyle", "tilecolor", "tileshow", "tilepointsize",
+              "sse", "edl",
+              # Cesium entity グラフィックス (ベクター行)
+              "scaledist", "transldist", "pixoffdist", "splitdir",
+              "strot", "subregion",
+              # WMS GetFeatureInfo 応答形式
+              "infoformat"):
         if o.get(k) is not None:
             warnings.append(
                 "{0}: {1}= はCanvas専用(未適用)".format(leaf, k))
@@ -999,7 +1009,9 @@ def import_kasc(source, iface=None, add_to_project=True,
                 if t in ("geojson", "layer", "geoparquet", "parquet",
                          "flatgeobuf", "fgb", "gpkg", "geopackage",
                          "csv", "tsv", "duckdb", "sql", "ogrsql",
-                         "kml", "kmz",
+                         "kml", "kmz", "gpx", "topojson", "czml",
+                         "esrijson", "arcgis", "geojsonl", "ndjson",
+                         "jsonl", "wkt", "wkb", "igc", "polyline", "gml",
                          "wfs", "shp", "shapefile", "fly_geojson"):
                     layer, desc = _build_vector(item, base, warnings)
                 else:
