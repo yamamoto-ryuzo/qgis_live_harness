@@ -1,5 +1,14 @@
 # 変更履歴(Changelog)
 
+## 4.26.1
+
+- **QGIS クラッシュ修正(スレッドセーフティ)**。
+  `GET /live/state`・`GET /present/state` がワーカースレッド上で
+  `iface.mapCanvas().mapSettings()` 等の GUI オブジェクトへ直接アクセスし、
+  ポーリング時に access violation で QGIS 本体がクラッシュする問題を修正。
+  `_canvas_state_dict()` の呼出しを既存の `_main_invoker.call()`
+  (GUI スレッド同期実行)経由に変更
+
 ## 4.26.0
 
 - **エクスポート進捗表示(件数ベース)**。

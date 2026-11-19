@@ -691,7 +691,8 @@ class GeoWebViewServerManager:
             if parsed_url.path == '/present/state':
                 try:
                     payload = json.dumps(
-                        self._canvas_state_dict(), ensure_ascii=False)
+                        self._main_invoker.call(self._canvas_state_dict),
+                        ensure_ascii=False)
                     from . import http_server
                     http_server.send_http_response(
                         conn, 200, 'OK', payload,
@@ -710,7 +711,8 @@ class GeoWebViewServerManager:
                 try:
                     payload = json.dumps(
                         {'ok': True, 'live': self._live,
-                         'canvas': self._canvas_state_dict()},
+                         'canvas': self._main_invoker.call(
+                             self._canvas_state_dict)},
                         ensure_ascii=False)
                     from . import http_server
                     http_server.send_http_response(
