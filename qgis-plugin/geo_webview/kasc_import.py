@@ -507,8 +507,8 @@ def _exec_ogrsql(query, base):
         else:
             qlyrs = QgsProject.instance().mapLayersByName(name)
             if not qlyrs:
-                qlyrs = [l for l in QgsProject.instance()
-                         .mapLayers().values() if l.id() == name]
+                qlyrs = [la for la in QgsProject.instance()
+                         .mapLayers().values() if la.id() == name]
             sds = (_ogr.Open(_json.dumps(_fc_from_qgs_layer(qlyrs[0])))
                    if qlyrs else None)
             lyr = sds.GetLayer(0) if sds else None

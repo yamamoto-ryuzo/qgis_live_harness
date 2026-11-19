@@ -33,10 +33,13 @@ PLUGINS_ROOT = REPO_ROOT / "qgis-plugin"
 DEFAULT_OUTDIR = REPO_ROOT / "dist"
 
 # gitフォールバック時の除外パターン(ディレクトリ名/拡張子)
-# "docs/" はドキュメントサイト(HTML)でありプラグイン配布物ではないため
-# ZIPから除外する
+# "docs/" はドキュメントサイト(HTML)、"verify/" は検証成果物
+# (features HTML・結果JSON)であり、どちらもプラグイン配布物ではないため
+# ZIPから除外する。verify/ の結果JSONにはスキャンレポート文字列
+# (例: 'REEARTH_CMS_TOKEN')が含まれ、サイト側 detect-secrets が
+# Secret Keyword として誤検出し得るため配布物へ混入させない
 EXCLUDE_DIRS = {"__pycache__", ".git", ".pytest_cache", "node_modules",
-                "docs"}
+                "docs", "verify"}
 EXCLUDE_SUFFIXES = {".pyc", ".pyo"}
 
 # plugins.qgis.org のスキャナが検出する開発者同梱設定ファイル。

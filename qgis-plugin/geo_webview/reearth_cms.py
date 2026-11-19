@@ -196,7 +196,6 @@ def _multipart(file_field, file_path, fields=None):
 def get_schema(workspace=None, project=None, model=None):
     """モデルのスキーマ(フィールド定義)を返す。"""
     st = _require('workspace', 'project', 'model')
-    ws = workspace or st['workspace']
     proj = project or st['project']
     mdl = model or st['model']
     return _request(
@@ -416,7 +415,7 @@ def upload_kasc_export(export_dir=None, publish=True):
     export_dir 省略時は直近の kasugaiExport 出力先(last_export_dir)。
     戻り値: {asset_id, name, url, zip_path, published}
     """
-    st = _require('workspace', 'project')
+    _require('workspace', 'project')
     if not export_dir:
         from . import kasugai_export
         export_dir = kasugai_export.last_export_dir()
