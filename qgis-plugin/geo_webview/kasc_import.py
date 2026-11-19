@@ -29,7 +29,8 @@ _LAYER_TYPES = frozenset([
     "flatgeobuf", "fgb", "gpkg", "geopackage", "csv", "tsv", "duckdb",
     "sql", "ogrsql", "wms", "wmts", "kml", "kmz", "wfs", "shp", "shapefile",
     "gpx", "topojson", "czml", "esrijson", "arcgis",
-    "geojsonl", "ndjson", "jsonl", "wkt", "wkb", "igc", "polyline", "gml",
+    "geojsonl", "ndjson", "jsonl", "geojsonseq", "fgseq", "geojson-seq",
+    "wkt", "wkb", "igc", "polyline", "gml",
     "image", "mvt", "pmtiles", "geotiff", "tiff", "cog", "3dtiles",
     "fly_geojson", "model", "pointcloud", "ept", "copc",
 ])
@@ -1016,7 +1017,8 @@ def import_kasc(source, iface=None, add_to_project=True,
                          "csv", "tsv", "duckdb", "sql", "ogrsql",
                          "kml", "kmz", "gpx", "topojson", "czml",
                          "esrijson", "arcgis", "geojsonl", "ndjson",
-                         "jsonl", "wkt", "wkb", "igc", "polyline", "gml",
+                         "jsonl", "geojsonseq", "fgseq", "geojson-seq",
+                         "wkt", "wkb", "igc", "polyline", "gml",
                          "wfs", "shp", "shapefile", "fly_geojson"):
                     layer, desc = _build_vector(item, base, warnings)
                 else:

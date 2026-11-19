@@ -175,6 +175,22 @@
   ホットリロード `CTRL_ID`・`tr` コンテキスト・
   QSettings プレフィックスを新IDへ移行。機能変更なし
 
+## [0.16.3] - 2026-11-19
+
+### Fixed
+- live_driver.py: **ホットリロード/reload_plugin で qrc リソース
+  モジュールを `sys.modules` から掃除していた問題**を修正。
+  `qRegisterResourceData` はバッファをコピーせずポインタ保持する
+  ため、pyrcc 生成モジュール(`resources`/`resources_rc`/`*_rc`)が
+  GC されると Qt グローバルリソースリストにダングリングノードが
+  残り、以後のあらゆる `":/"` パスの `QFile::open`(ドック
+  タイトルバー等の standardIcon 解決)が `QResource::fileName` で
+  access violation する(QGIS 4.0.1/Qt 6.8.1 実績)。掃除対象から
+  `resources` および `_rc` 末尾のモジュールを除外し、
+  geo_legend/geo_import 側の `resources_rc.py` でも登録バッファを
+  `sys._qgis_pinned_qrc` に固定する対策を併施(QGIS 側の
+  unloadPlugin による modules 掃除経路もカバー)
+
 ## [0.15.3] - 2026-11-12
 
 ### Changed

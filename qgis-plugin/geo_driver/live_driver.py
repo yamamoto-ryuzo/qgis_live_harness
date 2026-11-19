@@ -250,8 +250,18 @@ def reload_plugin_now(plugin_id):
     """
     import sys
     import qgis.utils
+    # Qtリソースモジュール(resources / *_rc 等の pyrcc 生成物)は掃除
+    # しない。qRegisterResourceData がバッファをコピーせずポインタ保持
+    # するため、モジュールが GC されると Qt のグローバルリソースリストに
+    # ダングリングノードが残り、その後のあらゆる ":/" パスの
+    # QFile::open(standardIcon 解決等)が access violation する
+    # (QGIS4/Qt6 実績あり)。sys.modules に残ればバッファも生存し続ける。
+    def _is_qrc_module(name):
+        base = name.rsplit('.', 1)[-1]
+        return base == 'resources' or base.endswith('_rc')
     for k in [k for k in list(sys.modules)
-              if k == plugin_id or k.startswith(plugin_id + ".")]:
+              if (k == plugin_id or k.startswith(plugin_id + "."))
+              and not _is_qrc_module(k)]:
         sys.modules.pop(k, None)
     if plugin_id in qgis.utils.plugins:
         qgis.utils.reloadPlugin(plugin_id)

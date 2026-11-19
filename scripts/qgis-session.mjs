@@ -209,8 +209,15 @@ export async function ensureQgis({ liveBase = LIVE_BASE, timeoutMs = 180000 } = 
 export const reloadCode = (pluginId) => `
 import sys, qgis.utils
 PLUGIN_ID = ${JSON.stringify(pluginId)}
+# Qtリソースモジュール(pyrcc生成物)は掃除しない。qRegisterResourceDataが
+# バッファをポインタ保持するためGCされるとグローバルリソースリストに
+# ダングリングノードが残り ":/" の QFile::open が access violation する
+def _is_qrc(name):
+    b = name.rsplit(".", 1)[-1]
+    return b == "resources" or b.endswith("_rc")
 for k in [k for k in list(sys.modules)
-          if k == PLUGIN_ID or k.startswith(PLUGIN_ID + ".")]:
+          if (k == PLUGIN_ID or k.startswith(PLUGIN_ID + "."))
+          and not _is_qrc(k)]:
     sys.modules.pop(k, None)
 if PLUGIN_ID in qgis.utils.plugins:
     qgis.utils.reloadPlugin(PLUGIN_ID)
