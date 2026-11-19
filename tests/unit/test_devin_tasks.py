@@ -333,3 +333,102 @@ def test_copilot_acp_task(monkeypatch, tmp_path):
     s = _wait(r["task_id"])
     assert s["state"] == "exited"
     assert "HELLO-ACP" in devin_tasks.result(r["task_id"])["output"]
+
+
+# ---- CLI 検出・インストール支援 ----
+
+def test_fresh_which(tmp_path, monkeypatch):
+    """_fresh_which は PATH ディレクトリ内の実行ファイルを検出する。"""
+    exe = tmp_path / ("mycli.exe" if os.name == "nt" else "mycli")
+    exe.write_bytes(b"x")
+    monkeypatch.setattr(devin_tasks, "_path_dirs",
+                        lambda: [str(tmp_path)])
+    assert devin_tasks._fresh_which("mycli") == str(exe)
+    assert devin_tasks._fresh_which("nope-mycli") is None
+
+
+def test_cli_status_devin(monkeypatch):
+    """cli_status('devin'): exe検出有無とIDE資格の有無を返す。"""
+    monkeypatch.setattr(devin_tasks, "find_exe",
+                        lambda e=None: r"C:\x\devin.exe")
+    monkeypatch.setattr(devin_tasks, "_ide_api_key", lambda: "k")
+    st = devin_tasks.cli_status("devin")
+    assert st["found"] and st["auth_ok"] is True
+    monkeypatch.setattr(devin_tasks, "find_exe", lambda e=None: None)
+    monkeypatch.setattr(devin_tasks, "_ide_api_key", lambda: None)
+    st = devin_tasks.cli_status("devin")
+    assert not st["found"] and st["auth_ok"] is False
+
+
+def test_cli_status_copilot(monkeypatch):
+    """cli_status('copilot'): spec検出有無を返す(authは未判定)。"""
+    monkeypatch.setattr(devin_tasks, "_copilot_exe_spec",
+                        lambda: ["copilot.exe"])
+    st = devin_tasks.cli_status("copilot")
+    assert st["found"] and st["path"] == "copilot.exe"
+    assert st["auth_ok"] is None
+    monkeypatch.setattr(devin_tasks, "_copilot_exe_spec", lambda: None)
+    assert not devin_tasks.cli_status("copilot")["found"]
+
+
+def test_install_cli_unknown():
+    r = devin_tasks.install_cli("bogus")
+    assert not r["ok"] and "bogus" in r["error"]
+
+
+def test_install_cli_devin_success(monkeypatch):
+    """インストーラ成功+検出で ok=True。実行内容は公式手順のみ。"""
+    calls = []
+    monkeypatch.setattr(devin_tasks, "_run_logged",
+                        lambda argv, log, timeout=900: (calls.append(argv), 0)[1])
+    monkeypatch.setattr(devin_tasks, "find_exe",
+                        lambda e=None: r"C:\x\devin.exe")
+    r = devin_tasks.install_cli("devin")
+    assert r["ok"] and r["path"].endswith("devin.exe")
+    if os.name == "nt":
+        assert "setup.ps1" in calls[0][-1]
+
+
+def test_install_cli_devin_not_detected(monkeypatch):
+    """インストーラ成功でも未検出なら ok=False。"""
+    monkeypatch.setattr(devin_tasks, "_run_logged",
+                        lambda argv, log, timeout=900: 0)
+    monkeypatch.setattr(devin_tasks, "find_exe", lambda e=None: None)
+    r = devin_tasks.install_cli("devin")
+    assert not r["ok"] and "not detected" in r["error"]
+
+
+def test_install_cli_copilot_winget(monkeypatch):
+    """winget成功+検出で ok=True・method=winget。"""
+    calls = []
+    monkeypatch.setattr(
+        devin_tasks, "_fresh_which",
+        lambda n: r"C:\x\winget.exe" if n == "winget" else None)
+    monkeypatch.setattr(
+        devin_tasks, "_run_logged",
+        lambda argv, log, timeout=900: (calls.append(argv), 0)[1])
+    monkeypatch.setattr(devin_tasks, "_copilot_exe_spec",
+                        lambda: ["copilot.exe"])
+    monkeypatch.setattr(devin_tasks, "_download_copilot",
+                        lambda log: pytest.fail("no download"))
+    r = devin_tasks.install_cli("copilot")
+    assert r["ok"] and r["method"] == "winget"
+    if os.name == "nt":
+        assert calls[0][0] == "winget"
+
+
+def test_install_cli_copilot_falls_back(monkeypatch):
+    """winget/npm が無い経路では直接DLへフォールバックする。"""
+    monkeypatch.setattr(devin_tasks, "_fresh_which", lambda n: None)
+    seen = []
+    monkeypatch.setattr(
+        devin_tasks, "_run_logged",
+        lambda argv, log, timeout=900: (seen.append(argv), 1)[1])
+    monkeypatch.setattr(devin_tasks, "_copilot_exe_spec", lambda: None)
+    monkeypatch.setattr(
+        devin_tasks, "_download_copilot",
+        lambda log: {"ok": True, "path": r"C:\b\copilot.exe",
+                     "method": "download", "error": ""})
+    r = devin_tasks.install_cli("copilot")
+    if os.name == "nt":
+        assert r["ok"] and r["method"] == "download"

@@ -176,7 +176,7 @@ def run_checks(plugin_id: str, skip_net: bool) -> bool:
     return not failures
 
 
-def build_zip(plugin_id: str, outdir: Path) -> Path | None:
+def build_zip(plugin_id: str, outdir: Path, package_name: str | None = None) -> Path | None:
     plugin_dir = PLUGINS_ROOT / plugin_id
     if not (plugin_dir / "metadata.txt").is_file():
         print(f"[skip] {plugin_id}: metadata.txt なし(プラグインではない)", file=sys.stderr)
@@ -186,11 +186,12 @@ def build_zip(plugin_id: str, outdir: Path) -> Path | None:
     if not files:
         print(f"[skip] {plugin_id}: 対象ファイルなし", file=sys.stderr)
         return None
+    top = package_name or plugin_id
     outdir.mkdir(parents=True, exist_ok=True)
-    zip_path = outdir / f"{plugin_id}-{version}.zip"
+    zip_path = outdir / f"{top}-{version}.zip"
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for rel in files:
-            arc = Path(plugin_id) / Path(*rel.parts[2:])
+            arc = Path(top) / Path(*rel.parts[2:])
             zf.write(REPO_ROOT / rel, arc.as_posix())
     print(f"[ok] {zip_path.name}  ({len(files)} files, {zip_path.stat().st_size / 1024:.0f} KB)")
     return zip_path
@@ -205,7 +206,18 @@ def main() -> int:
     ap.add_argument("--force", action="store_true", help="チェック失敗時もZIPを作成する")
     ap.add_argument("--skip-net", action="store_true", help="リンク疎通チェックを省略する")
     ap.add_argument("--outdir", default=str(DEFAULT_OUTDIR), help="出力先(既定: dist/)")
+    ap.add_argument(
+        "--package-name", action="append", default=[],
+        metavar="ID=NAME",
+        help="ZIPトップフォルダ名をサイト側package_nameに変える "
+             "(例: geo_driver=qgis_live_driver。繰り返し指定可)")
     args = ap.parse_args()
+
+    package_names = {}
+    for spec in args.package_name:
+        if "=" in spec:
+            k, v = spec.split("=", 1)
+            package_names[k.strip()] = v.strip()
 
     plugins = list_plugins()
     if args.list:
@@ -229,7 +241,8 @@ def main() -> int:
     if not args.force:
         targets = [p for p in targets if run_checks(p, args.skip_net)]
 
-    built = [build_zip(p, Path(args.outdir)) for p in targets]
+    built = [build_zip(p, Path(args.outdir), package_names.get(p))
+             for p in targets]
     ok = [b for b in built if b]
     print(f"\n{len(ok)}/{len(targets)} 件のZIPを {Path(args.outdir).resolve()} に出力")
     return 0 if ok else 1
