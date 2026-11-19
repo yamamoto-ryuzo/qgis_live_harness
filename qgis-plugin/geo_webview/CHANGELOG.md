@@ -1,6 +1,18 @@
 # 変更履歴(Changelog)
 
+## 4.26.2
+
+- **plugins.qgis.org セキュリティスキャン指摘対応**(4.26.1 がサイト
+  スキャンでブロックされた原因の修正)。全て `reearth_cms.py`:
+  - B105×2: `ENV_TOKEN`/`SKEY_TOKEN` は環境変数名・QSettingsキー名
+    という文字列定数であり秘密値ではないため `# nosec B105` で明示
+  - B310: CMS API 呼出し url に `http`/`https` スキーム検証を追加し
+    `urllib.request.urlopen` へ `# nosec B310` を明示
+  - B110×2: QGIS 外 import 失敗時フォールバックの `except: pass`
+    2 箇所へ `# nosec B110` を明示
+
 ## 4.26.1
+
 
 - **QGIS クラッシュ修正(スレッドセーフティ)**。
   `GET /live/state`・`GET /present/state` がワーカースレッド上で
