@@ -221,6 +221,7 @@ class GeoWebViewPanel(QDockWidget):
         # タブタイトル
         if getattr(self.ui, 'tabWidget_main', None) is not None:
             for _name, _text in (
+                    ('tab_web', "Web"),
                     ('tab_theme', "Theme"),
                     ('tab_permalink', "Permalink"),
                     ('tab_share', "Share")):
@@ -245,7 +246,7 @@ class GeoWebViewPanel(QDockWidget):
 
         # ラベル
         if hasattr(self.ui, 'label_webdist_info'):
-            self.ui.label_webdist_info.setText(QCoreApplication.translate('geo_webview', "Export the project as a .kasc+canvas_data/ package with engine launcher HTMLs. It plays on Cesium / MapLibre / OpenLayers / Leaflet / GSI Maps / Navara — upload with the engine to a static host for serverless delivery. The ZIP button downloads kasugai_canvas_<channel>.zip in the browser (static-host deployment / Re:Earth geo_suite 'qgis:' import)."))
+            self.ui.label_webdist_info.setText(QCoreApplication.translate('geo_webview', "Export the project as a .kasc+canvas_data/ package playable on Cesium / MapLibre / OpenLayers / Leaflet / GSI Maps / Navara — deliver from any static host."))
         if hasattr(self.ui, 'label_engine'):
             self.ui.label_engine.setText(QCoreApplication.translate('geo_webview', "Engine:"))
         if hasattr(self.ui, 'label_hosted'):
@@ -401,33 +402,47 @@ class GeoWebViewPanel(QDockWidget):
             self.update_canvas_launch_state()
 
     def update_canvas_launch_state(self):
-        """KASUGAI Canvas のインストール状態を「▶ Canvas」ボタンに反映する。
+        """KASUGAI Canvas のインストール状態を「▶ Canvas」ボタンに、
+        稼働状態を「Admin」ボタンに反映する。
 
         インストール先が検出できない(設定未登録かつインストーラ登録なし)
         場合はボタンを「Install KASUGAI Canvas」表示に変え、クリックで
         インストール導線(セットアップ/ポータブルZIP選択)へ進む。
+        「▶ Canvas」は 8510 未稼働でもインストール済み exe を
+        自動起動できるため稼働状態では無効化しない。
+        「Admin」は稼働中アプリの /admin/ を開くだけなので、
+        未稼働時はグレーアウトする。
         検出自体が失敗した場合は従来どおり通常表示のままにする。
         """
         btn = getattr(self.ui, 'pushButton_kasugai_launch', None)
-        if btn is None:
-            return
         try:
             from . import kasugai_export
             installed = bool(kasugai_export.detect_kasugai_install_dir())
         except Exception:  # nosec B110  # 設計上の許容
             installed = True
-        btn.setEnabled(True)
-        if installed:
-            btn.setText(QCoreApplication.translate('geo_webview', "▶ Canvas"))
-            btn.setToolTip(QCoreApplication.translate(
-                'geo_webview',
-                "Open the exported project in KASUGAI Canvas (main integrated player) — registers the existing .kasc with a running Canvas (port 8510) and switches to it. Requires a prior export (Export button)"))
-        else:
-            btn.setText(QCoreApplication.translate(
-                'geo_webview', "Install KASUGAI Canvas"))
-            btn.setToolTip(QCoreApplication.translate(
-                'geo_webview',
-                "KASUGAI Canvas is not installed — click to install (setup with .kasc file association or portable ZIP), then open the project"))
+        if btn is not None:
+            btn.setEnabled(True)
+            if installed:
+                btn.setText(QCoreApplication.translate('geo_webview', "▶ Canvas"))
+                btn.setToolTip(QCoreApplication.translate(
+                    'geo_webview',
+                    "Open the exported project in KASUGAI Canvas (main integrated player) — registers the existing .kasc with a running Canvas (port 8510) and switches to it. Requires a prior export (Export button)"))
+            else:
+                btn.setText(QCoreApplication.translate(
+                    'geo_webview', "Install KASUGAI Canvas"))
+                btn.setToolTip(QCoreApplication.translate(
+                    'geo_webview',
+                    "KASUGAI Canvas is not installed — click to install (setup with .kasc file association or portable ZIP), then open the project"))
+
+        # 「Admin」は稼働中の Canvas アプリ(8510)が必須。未稼働なら無効化。
+        # 稼働検出は /api/capabilities への短い HTTP 呼出しのみ。
+        admin = getattr(self.ui, 'pushButton_kasugai_admin', None)
+        if admin is not None:
+            try:
+                caps = kasugai_export.detect_kasugai()
+            except Exception:  # nosec B110  # 設計上の許容
+                caps = True
+            admin.setEnabled(bool(caps))
 
     def set_kasugai_outdir(self, path):
         """保存先表示ボタンの内容を更新する。path はフルパス。"""

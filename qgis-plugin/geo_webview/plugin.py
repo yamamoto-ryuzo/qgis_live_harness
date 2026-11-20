@@ -1697,9 +1697,10 @@ class GeoWebView:
     def on_kasugai_admin_clicked(self):
         """KASUGAI Canvas の UI 設定管理画面をブラウザで開く。
 
-        web/admin/ui-config-admin.html はローカルアプリ(既定 port 8510)
-        専用で CDN には配信されない。サーバ未稼働なら通知して開かない。
-        """
+        稼働中のローカルアプリ(既定 port 8510)の
+        web/admin/ui-config-admin.html を開く。未検出時は通知のみ
+        (ボタン自体は update_canvas_launch_state で未稼働時に
+        無効化される)。"""
         try:
             from . import kasugai_export
             port = int(kasugai_export.get_kasugai_port())
@@ -1717,8 +1718,26 @@ class GeoWebView:
                         "Start the Canvas app and try again.").format(port),
                 duration=5)
             return
-        QDesktopServices.openUrl(QUrl(
-            'http://127.0.0.1:{0}/admin/ui-config-admin.html'.format(port)))
+        admin_url = ('http://127.0.0.1:{0}/admin/ui-config-admin.html'
+                     .format(port))
+        # V8 管理画面より前にリリースされた Canvas(7.1.0 以前)は
+        # web/admin/ を持たず 404 を返す。404 ページを開く代わりに
+        # 更新を促す
+        try:
+            import urllib.request
+            req = urllib.request.Request(admin_url, method='HEAD')
+            with urllib.request.urlopen(  # nosec B310  # 直上で組立てたloopback固定URL
+                    req, timeout=2.0):
+                pass
+        except Exception:
+            self._push_message(
+                "geo_webview",
+                self.tr("The UI-config admin screen is not available in "
+                        "the installed Canvas app — update KASUGAI Canvas "
+                        "and try again."),
+                duration=8)
+            return
+        QDesktopServices.openUrl(QUrl(admin_url))
 
     def on_engine_combo_changed(self, index):
         """Web配信パネルのエンジン選択を QSettings に保存する。"""
@@ -1879,6 +1898,14 @@ class GeoWebView:
                 "geo_webview",
                 self.tr("KASUGAI launch error: {0}").format(e),
                 duration=5)
+        finally:
+            # ▶ Canvas 経由でアプリを自動起動した直後は Admin の
+            # 有効/無効を再判定する(未稼働→無効の表示が残らないよう)
+            try:
+                if self.panel is not None:
+                    self.panel.update_canvas_launch_state()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
 
     def _install_kasugai_then_launch(self, engine):
         """Canvas 未検出時: インストール方法を選択→バックグラウンド実行→

@@ -3,7 +3,7 @@ name = geo_webview
 qgisMinimumVersion = 4.0
 qgisMaximumVersion = 4.99
 description = Serverless web distribution of QGIS projects — export .kasc+canvas_data/ packages playable on KASUGAI Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara); permalinks and an embedded HTTP server
-version = 4.26.2
+version = 4.27.0
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
 about = geo_webview は開いている QGIS プロジェクトを `.kasc`+`canvas_data/` パッケージに出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）で再生する、QGIS のサーバレス Web 配信プラグインです。出力物は静的ホスティングだけで配信できます。パネルの `Export`（ファイル出力）/`▶ Open`（エンジン選択付きで登録・起動）に加え、`/kasugai`・bridge `kasugaiExport` からも呼べます。補助として内蔵 HTTP サーバーが `/export-data/` 配信・`/present`/`/screenshot` 画面共有・パーマリンク受領を提供します。詳細は `docs/`(日本語ドキュメントサイト) を参照してください。
@@ -19,6 +19,7 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 4.27.0: パネルの「Web配信(サーバレス)」と「HTTPサーバー」グループを既存タブの先頭へまとめた「Web」タブへ移動し、既定表示タブに変更(説明文を簡略化。i18n 9言語に "Web" 追加)
 	- 4.16.0: kasugaiExport に fields/where/limit を追加(属性列選択・QGIS式による行フィルタ・地物数上限。全レイヤ共通 or レイヤ毎 dict。指定レイヤは条件適用済み GeoJSON として出力)(Issue #14)
 	- 4.13.0: Navara エンジン対応(engine=navara・パネルの Engine コンボ・navara.html 起動ページ・openExternal("navara"))。tags に navara/gsimap/leaflet を追加
 	- 4.12.4: plugins.qgis.org セキュリティスキャン対応(except〜continue 6箇所の # nosec ルールIDが B110 になっていた誤りを B112 へ修正。4.12.3 がサイトスキャンでブロックされた原因)。QGIS core から撤去済みの非推奨フラグ supportsQt6 を metadata.txt から削除
