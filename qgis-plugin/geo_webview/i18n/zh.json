@@ -277,7 +277,6 @@
     "Visible data only (faster)": "仅可见数据（更快）",
     "Layers": "图层",
     "Refresh": "刷新",
-    "Per-layer .kasc options (saved to the layer; gray = auto value): site=control group (blank=auto/\"-\"=Misc), order=rank within site, list=hide from layer list, opts=extra key=value": "按图层的 .kasc 选项（保存在图层上；灰色=自动值）：site=控制分组（空=自动/\"-\"=其他）/ order=分组内排序 / list=从图层列表隐藏 / opts=额外 key=value",
     "Open the KASUGAI Canvas UI-config admin screen in the browser — per-engine UI show/hide, control defaults and startup tab. Requires the local Canvas app running (port 8510)": "在浏览器中打开 KASUGAI Canvas 的 UI 配置管理界面 — 按引擎显示/隐藏 UI、控件默认值和启动选项卡。需要本地 Canvas 应用运行中（端口 8510）",
     "KASUGAI Canvas is not running on port {0}. ": "KASUGAI Canvas 未在端口 {0} 上运行。",
     "Only output visible layers — hidden layers are not written to the .kasc at all (basemap-group XYZ candidates keep their base: rows for the background selector, as before). Skipped layers cannot be turned on in Canvas. Uncheck to emit hidden layers as | off rows with all data converted (whole-project migration)": "仅输出可见图层——隐藏图层完全不写入 .kasc（底图组的 XYZ 候选图层仍像以前一样保留 base: 行用于背景选择器）。被跳过的图层无法在 Canvas 中开启。取消勾选则以 | off 行输出隐藏图层并转换全部数据（整个项目迁移用途）",
@@ -288,7 +287,8 @@
     "KASUGAI export cancelled.": "KASUGAI 导出已取消。",
     "The UI-config admin screen is not available in the installed Canvas app — update KASUGAI Canvas and try again.": "已安装的 Canvas 应用中不包含 UI 配置管理画面 — 请更新 KASUGAI Canvas 后重试。",
     "Custom layers tab": "自定义图层标签",
-    "Group layers by their layer-tree group name into a custom \"Layers\" tab in KASUGAI Canvas (site=<group> on each layer row + custom-layer plugin tab for per-group on/off and ordering). All layers stay on the standard tab (shown as \"System layers\" while the custom tab exists); use list=off to hide a row there. Ungrouped layers go to \"Misc\". Per-layer override: layer custom properties kasugai_site / kasugai_order": " "
+    "Group layers by their layer-tree group name into a custom \"Layers\" tab in KASUGAI Canvas (site=<group> on each layer row + custom-layer plugin tab for per-group on/off and ordering). All layers stay on the standard tab (shown as \"System layers\" while the custom tab exists); use list=off to hide a row there. Ungrouped layers go to \"Misc\". Per-layer override: layer custom properties kasugai_site / kasugai_order": " ",
+    "Per-layer .kasc options (saved to the layer; gray = auto value): site=control group (blank=auto/\"-\"=Misc), order=rank within site (set via VIEW mode ▲▼), list=hide from layer list, opts=extra key=value (legend_order=asc|desc|reverse|A,B,C reorders legend entries)": "按图层的 .kasc 选项（保存在图层上；灰色=自动值）：site=控制分组（空=自动/\"-\"=其他）/ order=分组内排序 / list=从图层列表隐藏 / opts=额外 key=value (legend_order=asc|desc|reverse|A,B,C 可调整图例顺序)"
   },
   "geo_webview.page": {
     "  rotation: ": "  旋转：",

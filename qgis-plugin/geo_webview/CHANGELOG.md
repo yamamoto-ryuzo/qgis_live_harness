@@ -2,6 +2,8 @@
 
 ## 4.28.0
 
+- カスタムレイヤタブの凡例を `legend_order=asc|desc|reverse|ラベル列挙`（opts 列・`kasugai_opts`）で並び替え可能に。VIEW は凡例アイコン/項目も表示（非表示・list=off レイヤは非表示）。Layers タブは分類凡例をレイヤ行の子として表示。VIEW モードでメンバー/凡例項目を選択し ▲▼ ボタンで並び替えると `order=`/`legend_order=` がレイヤへ自動保存される
+
 - **カスタムレイヤタブ(custom-layer)+レイヤ別 .kasc オプション対応**。
   パネルに「Layers」タブを新設し、レイヤごとの .kasc オプションを
   テーブルで設定できる(値はレイヤ customProperty へ保存、

@@ -541,7 +541,7 @@
        <item>
         <widget class="QLabel" name="label_kasugai_layers_hint">
          <property name="text">
-          <string>Per-layer .kasc options (saved to the layer; gray = auto value): site=control group (blank=auto/"-"=Misc), order=rank within site, list=hide from layer list, opts=extra key=value</string>
+          <string>Per-layer .kasc options (saved to the layer; gray = auto value): site=control group (blank=auto/"-"=Misc), order=rank within site (set via VIEW mode ▲▼), list=hide from layer list, opts=extra key=value (legend_order=asc|desc|reverse|A,B,C reorders legend entries)</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -554,7 +554,7 @@
           <bool>true</bool>
          </property>
          <property name="rootIsDecorated">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <column>
           <property name="text">
@@ -564,11 +564,6 @@
          <column>
           <property name="text">
            <string>site</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>order</string>
           </property>
          </column>
          <column>
@@ -605,6 +600,38 @@
            </property>
            <property name="checkable">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_kasugai_legend_up">
+           <property name="text">
+            <string>▲</string>
+           </property>
+           <property name="toolTip">
+            <string>Move the selected legend entry up (saved to the layer's opts as legend_order=...)</string>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_kasugai_legend_down">
+           <property name="text">
+            <string>▼</string>
+           </property>
+           <property name="toolTip">
+            <string>Move the selected legend entry down (saved to the layer's opts as legend_order=...)</string>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
            </property>
           </widget>
          </item>

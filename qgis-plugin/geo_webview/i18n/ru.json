@@ -68,9 +68,9 @@
   "GeoWebViewPanel": {
     "Layers": " ",
     "Refresh": " ",
-    "Per-layer .kasc options (saved to the layer; gray = auto value): site=control group (blank=auto/\"-\"=Misc), order=rank within site, list=hide from layer list, opts=extra key=value": " - .kasc (  ;  =   ): site=   (=\"-\"=\"\"), order=    , list=   , opts=  key=value",
     "Could not load the UI file. Please consider reinstalling the plugin.": "Не удалось загрузить файл интерфейса. Попробуйте переустановить плагин.",
-    "Custom layers tab": " "
+    "Custom layers tab": " ",
+    "Per-layer .kasc options (saved to the layer; gray = auto value): site=control group (blank=auto/\"-\"=Misc), order=rank within site (set via VIEW mode ▲▼), list=hide from layer list, opts=extra key=value (legend_order=asc|desc|reverse|A,B,C reorders legend entries)": ".kasc-опции для каждого слоя (сохраняются в слое; серым = автозначение): site=группа управления (пусто=авто/\"-\"=\"Разное\"), order=порядок внутри site (задаётся в VIEW), list=скрыть из списка слоёв, opts=произвольные key=value (legend_order=asc|desc|reverse|A,B,C меняет порядок легенды)"
   },
   "QMapPermalinkPanelBase": {
     "-- No Theme (Position Only) --": "-- Без темы (только позиция) --",

@@ -798,6 +798,8 @@ def _canvas_layer_opts_suffix(layer, groups, bm_idx, site_control):
     - ``kasugai_list`` — ``off`` で標準レイヤ一覧から非表示(地図は描画)
     - ``kasugai_opts`` — 空白/``|`` 区切りの任意 ``key=value`` 列を
       そのまま追加(``opacity=0.5 heat=on`` 等)
+      (``legend_order=asc|desc|reverse|ラベル列挙`` で
+      カスタムタブの凡例順を変更可)
     ベースマップグループ内のレイヤは site= を付けない。
     """
     o = _canvas_layer_opts(layer, groups, bm_idx, site_control)

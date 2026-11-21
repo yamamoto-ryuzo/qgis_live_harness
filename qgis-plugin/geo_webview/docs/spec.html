@@ -318,9 +318,9 @@ bridge/API 引数は当該エクスポートだけの一時上書き）:</p>
 <table>
 <tr><th>列</th><th>customProperty</th><th>.kasc 出力</th></tr>
 <tr><td>site</td><td><code>kasugai_site</code></td><td><code>site=&lt;箇所名&gt;</code>（<code>-</code>/空=強制未割当。空欄＋チェックONでグループ名を自動付与）</td></tr>
-<tr><td>order</td><td><code>kasugai_order</code></td><td><code>order=&lt;数値&gt;</code>（同一 site 内の順序。小さいほど最前面）</td></tr>
-<tr><td>list</td><td><code>kasugai_list</code></td><td><code>list=off</code>（標準レイヤ一覧から非表示。地図は描画）</td></tr>
-<tr><td>opts</td><td><code>kasugai_opts</code></td><td>任意の <code>key=value</code> を空白/パイプ区切りで追加（例 <code>opacity=0.5 heat=on</code>）</td></tr>
+<tr><td>order</td><td><code>kasugai_order</code></td><td><code>order=&lt;数値&gt;</code>（同一 site 内の順序。小さいほど最前面。VIEW モードの ▲▼ ボタンで設定（EDIT の列は無し））</td></tr>
+<tr><td>list</td><td><code>kasugai_list</code></td><td><code>list=off</code>（レイヤ一覧から非表示・標準/カスタムとも。地図は描画）</td></tr>
+<tr><td>opts</td><td><code>kasugai_opts</code></td><td>任意の <code>key=value</code> を空白/パイプ区切りで追加（例 <code>opacity=0.5 heat=on</code>）。<code>legend_order=asc|desc|reverse|ラベル列挙</code> でカスタムタブの凡例順を変更可</td></tr>
 </table>
 <p><strong>Custom layers tab</strong> チェック（QSettings
 <code>kasugai_site_control</code>、既定 OFF）を ON にすると、

@@ -277,7 +277,6 @@
     "Visible data only (faster)": "केवल दृश्यमान डेटा (तेज़)",
     "Layers": "लेयर",
     "Refresh": "रीफ्रेश",
-    "Per-layer .kasc options (saved to the layer; gray = auto value): site=control group (blank=auto/\"-\"=Misc), order=rank within site, list=hide from layer list, opts=extra key=value": "प्रति-लेयर .kasc विकल्प (लेयर में सहेजे जाते हैं; ग्रे = स्वतः मान): site=नियंत्रण समूह (रिक्त=स्वतः/\"-\"=अन्य), order=साइट के भीतर क्रम, list=लेयर सूची से छिपाएँ, opts=अतिरिक्त key=value",
     "Open the KASUGAI Canvas UI-config admin screen in the browser — per-engine UI show/hide, control defaults and startup tab. Requires the local Canvas app running (port 8510)": "ब्राउज़र में KASUGAI Canvas UI-कॉन्फ़िग एडमिन स्क्रीन खोलता है — प्रति-इंजन UI दिखाएँ/छिपाएँ, नियंत्रण डिफ़ॉल्ट और स्टार्टअप टैब। स्थानीय Canvas ऐप चालू होना आवश्यक है (पोर्ट 8510)",
     "KASUGAI Canvas is not running on port {0}. ": "KASUGAI Canvas पोर्ट {0} पर नहीं चल रहा है।",
     "Only output visible layers — hidden layers are not written to the .kasc at all (basemap-group XYZ candidates keep their base: rows for the background selector, as before). Skipped layers cannot be turned on in Canvas. Uncheck to emit hidden layers as | off rows with all data converted (whole-project migration)": "केवल दृश्यमान परतें निर्यात करें — छिपी परतें .kasc में बिल्कुल नहीं लिखी जाती हैं (बेसमैप-समूह XYZ उम्मीदवार पहले की तरह पृष्ठभूमि चयनकर्ता के लिए अपनी base: पंक्तियाँ रखते हैं)। छोड़ी गई परतें Canvas में चालू नहीं की जा सकतीं। सभी डेटा रूपांतरित करके छिपी परतों को | off पंक्तियों के रूप में निर्यात करने के लिए अनचेक करें (संपूर्ण प्रोजेक्ट माइग्रेशन)",
@@ -288,7 +287,8 @@
     "KASUGAI export cancelled.": "KASUGAI निर्यात रद्द किया गया.",
     "The UI-config admin screen is not available in the installed Canvas app — update KASUGAI Canvas and try again.": "इंस्टॉल किए गए Canvas ऐप में UI-कॉन्फ़िग एडमिन स्क्रीन उपलब्ध नहीं है — KASUGAI Canvas को अपडेट करके फिर प्रयास करें।",
     "Custom layers tab": "कस्टम लेयर टैब",
-    "Group layers by their layer-tree group name into a custom \"Layers\" tab in KASUGAI Canvas (site=<group> on each layer row + custom-layer plugin tab for per-group on/off and ordering). All layers stay on the standard tab (shown as \"System layers\" while the custom tab exists); use list=off to hide a row there. Ungrouped layers go to \"Misc\". Per-layer override: layer custom properties kasugai_site / kasugai_order": " "
+    "Group layers by their layer-tree group name into a custom \"Layers\" tab in KASUGAI Canvas (site=<group> on each layer row + custom-layer plugin tab for per-group on/off and ordering). All layers stay on the standard tab (shown as \"System layers\" while the custom tab exists); use list=off to hide a row there. Ungrouped layers go to \"Misc\". Per-layer override: layer custom properties kasugai_site / kasugai_order": " ",
+    "Per-layer .kasc options (saved to the layer; gray = auto value): site=control group (blank=auto/\"-\"=Misc), order=rank within site (set via VIEW mode ▲▼), list=hide from layer list, opts=extra key=value (legend_order=asc|desc|reverse|A,B,C reorders legend entries)": "प्रति-लेयर .kasc विकल्प (लेयर में सहेजे जाते हैं; ग्रे = स्वतः मान): site=नियंत्रण समूह (रिक्त=स्वतः/\"-\"=अन्य), order=साइट के भीतर क्रम, list=लेयर सूची से छिपाएँ, opts=अतिरिक्त key=value (legend_order=asc|desc|reverse|A,B,C लेजेन्ड का क्रम बदलता है)"
   },
   "geo_webview.page": {
     "  rotation: ": "  घूर्णन: ",

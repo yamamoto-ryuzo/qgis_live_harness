@@ -134,6 +134,10 @@ class GeoWebViewPanel(QDockWidget):
             self.ui, 'pushButton_kasugai_layers_edit', None)
         self.pushButton_kasugai_layers_view = getattr(
             self.ui, 'pushButton_kasugai_layers_view', None)
+        self.pushButton_kasugai_legend_up = getattr(
+            self.ui, 'pushButton_kasugai_legend_up', None)
+        self.pushButton_kasugai_legend_down = getattr(
+            self.ui, 'pushButton_kasugai_legend_down', None)
         self._kasugai_layers_mode = 'edit'
         try:
             self._init_kasugai_layers_ui()
@@ -446,6 +450,12 @@ class GeoWebViewPanel(QDockWidget):
         if self.pushButton_kasugai_layers_view is not None:
             self.pushButton_kasugai_layers_view.clicked.connect(
                 lambda: self._set_kasugai_layers_mode('view'))
+        if self.pushButton_kasugai_legend_up is not None:
+            self.pushButton_kasugai_legend_up.clicked.connect(
+                lambda: self._move_kasugai_legend(-1))
+        if self.pushButton_kasugai_legend_down is not None:
+            self.pushButton_kasugai_legend_down.clicked.connect(
+                lambda: self._move_kasugai_legend(+1))
         if self.checkBox_site_control is not None:
             # custom-layer ON/OFF で site 列の自動値(グレー)が変わる
             self.checkBox_site_control.toggled.connect(
@@ -519,18 +529,30 @@ class GeoWebViewPanel(QDockWidget):
             self._rebuild_kasugai_layers_view(
                 tw, bm_names, bm_index, auto_on)
             return
-        tw.setColumnCount(5)
-        tw.setHeaderLabels(['Layer', 'site', 'order', 'list', 'opts'])
+        tw.setColumnCount(4)
+        tw.setHeaderLabels(['Layer', 'site', 'list', 'opts'])
         gray = QBrush(QColor(140, 140, 140))
         tw.blockSignals(True)
         try:
             tw.clear()
             for layer, groups, _node in self._kasugai_layer_rows():
                 name = '/'.join(groups + [layer.name()])
-                it = QTreeWidgetItem([name, '', '', '', ''])
+                it = QTreeWidgetItem([name, '', '', ''])
                 it.setData(0, Qt.ItemDataRole.UserRole, layer.id())
                 it.setFlags(it.flags() | Qt.ItemFlag.ItemIsEditable |
                             Qt.ItemFlag.ItemIsUserCheckable)
+                # 凡例: 行アイコン + 分類凡例は子行(▲▼ボタンで並替)
+                litems = self._kasugai_legend_items(
+                    layer, self._opts_tokens(layer))
+                if litems:
+                    it.setIcon(0, self._kasugai_legend_icon(litems[0]))
+                if len(litems) > 1:
+                    for li in litems:
+                        c = QTreeWidgetItem([li.label(), '', '', ''])
+                        c.setData(0, Qt.ItemDataRole.UserRole, 'legend')
+                        c.setIcon(0, self._kasugai_legend_icon(li))
+                        it.addChild(c)
+                    it.setExpanded(True)
                 # 個別指定 > 自動(custom-layer ON のときグループパス)
                 site = layer.customProperty('kasugai_site', None)
                 auto = '' if bm_index(groups, bm_names) is not None \
@@ -542,18 +564,15 @@ class GeoWebViewPanel(QDockWidget):
                         it.setToolTip(1, 'auto: {0}'.format(auto))
                 else:
                     it.setText(1, site)
-                order = layer.customProperty('kasugai_order', None)
-                if order is not None and str(order) != '':
-                    it.setText(2, str(order))
                 it.setCheckState(
-                    3, Qt.CheckState.Checked
+                    2, Qt.CheckState.Checked
                     if str(layer.customProperty(
                         'kasugai_list', '') or '').strip() == 'off'
                     else Qt.CheckState.Unchecked)
                 opts = layer.customProperty('kasugai_opts', None)
                 if opts:
-                    it.setText(4, str(opts))
-                it.setToolTip(4, 'key=value key=value ...')
+                    it.setText(3, str(opts))
+                it.setToolTip(3, 'key=value key=value ...')
                 tw.addTopLevelItem(it)
             tw.resizeColumnToContents(0)
         finally:
@@ -610,9 +629,9 @@ class GeoWebViewPanel(QDockWidget):
                         if o['order'] else '')
                 if o['site']:
                     sites.setdefault(o['site'], []).append(
-                        (o['order'], label, note))
+                        (o, layer, label, note))
                 else:
-                    misc.append((label, note))
+                    misc.append((o, layer, label, note))
             if sites:
                 root_sc = QTreeWidgetItem(['レイヤタブ (custom-layer)',
                                            'before=layers-panel'])
@@ -622,34 +641,185 @@ class GeoWebViewPanel(QDockWidget):
 
                 def _member_key(m):
                     try:
-                        return (0, float(m[0]))
+                        return (0, float(m[0]['order']))
                     except (TypeError, ValueError):
                         return (1, 0)
+
+                def _attach_legend(it, layer, o):
+                    items = self._kasugai_legend_items(
+                        layer, o.get('opts', []))
+                    try:
+                        if len(items) == 1:
+                            # 単一シンボルは行アイコン(Canvas の行内
+                            # スウォッチ相当)
+                            it.setIcon(
+                                0, self._kasugai_legend_icon(items[0]))
+                        elif len(items) > 1:
+                            for li in items:
+                                c = QTreeWidgetItem([li.label(), ''])
+                                c.setFlags(
+                                    c.flags()
+                                    & ~Qt.ItemFlag.ItemIsEditable)
+                                c.setData(
+                                    0, Qt.ItemDataRole.UserRole,
+                                    'legend')
+                                c.setIcon(
+                                    0, self._kasugai_legend_icon(li))
+                                it.addChild(c)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+
                 for sname, members in sites.items():
                     g = QTreeWidgetItem(
                         [sname, '{0}'.format(len(members))])
                     g.setFlags(g.flags() & ~Qt.ItemFlag.ItemIsEditable)
                     root_sc.addChild(g)
-                    for _od, label, note in sorted(
+                    for o, layer, label, note in sorted(
                             members, key=_member_key):
                         it = QTreeWidgetItem([label, note])
                         it.setFlags(it.flags()
                                     & ~Qt.ItemFlag.ItemIsEditable)
+                        it.setData(
+                            0, Qt.ItemDataRole.UserRole, layer.id())
+                        _attach_legend(it, layer, o)
                         g.addChild(it)
                 if misc:
                     g = QTreeWidgetItem(['その他',
                                          '{0}'.format(len(misc))])
                     g.setFlags(g.flags() & ~Qt.ItemFlag.ItemIsEditable)
                     root_sc.addChild(g)
-                    for label, note in misc:
+                    for o, layer, label, note in misc:
                         it = QTreeWidgetItem([label, note])
                         it.setFlags(it.flags()
                                     & ~Qt.ItemFlag.ItemIsEditable)
+                        it.setData(
+                            0, Qt.ItemDataRole.UserRole, layer.id())
+                        _attach_legend(it, layer, o)
                         g.addChild(it)
             tw.expandAll()
             tw.resizeColumnToContents(0)
         finally:
             tw.blockSignals(False)
+
+    def _opts_tokens(self, layer):
+        """レイヤの kasugai_opts を key=value トークン列で返す。"""
+        try:
+            extra = layer.customProperty('kasugai_opts', None)
+        except Exception:  # nosec B110  # 設計上の許容
+            return []
+        return [t for t in str(extra or '').replace('|', ' ').split()
+                if t]
+
+    def _kasugai_legend_items(self, layer, opts_tokens):
+        """凡例項目を Canvas の順序(レンダラのシンボル順)で返す。
+
+        ``legend_order=asc|desc|reverse|ラベル列挙`` トークンを適用する。
+        """
+        try:
+            r = layer.renderer()
+            items = (list(r.legendSymbolItems())
+                     if r is not None else [])
+        except Exception:  # nosec B110  # 設計上の許容
+            return []
+        spec = ''
+        for tok in opts_tokens or []:
+            if str(tok).startswith('legend_order='):
+                spec = str(tok).split('=', 1)[1].strip()
+        if not spec or len(items) < 2:
+            return items
+        if spec == 'reverse':
+            return list(reversed(items))
+        if spec == 'asc':
+            return sorted(items, key=lambda i: i.label())
+        if spec == 'desc':
+            return sorted(items, key=lambda i: i.label(), reverse=True)
+        pos = {t.strip(): i for i, t in enumerate(spec.split(','))}
+        return sorted(items, key=lambda i: pos.get(i.label(), 1e9))
+
+    def _kasugai_legend_icon(self, li):
+        """QgsLegendSymbolItem の QIcon(シンボルスウォッチ)を返す。"""
+        try:
+            from qgis.core import QgsSymbolLayerUtils
+            s = li.symbol()
+            if s is None:
+                return QIcon()
+            return QgsSymbolLayerUtils.symbolPreviewIcon(
+                s, QSize(16, 16))
+        except Exception:  # nosec B110  # 設計上の許容
+            return QIcon()
+
+    def _move_kasugai_legend(self, delta):
+        """▲▼ の移動処理(VIEW モードのみ)。
+
+        - グループ直下のメンバー行 → グループ内で移動し、メンバーへ
+          表順の order=1..N を振り直す(カスタムタブの凡例順に反映)
+        - メンバー直下の凡例項目行 → 移動し legend_order= を
+          kasugai_opts へ保存
+        """
+        tw = self.treeWidget_kasugai_layers
+        if tw is None or self._kasugai_layers_mode != 'view':
+            return
+        it = tw.currentItem()
+        if it is None or it.parent() is None:
+            return
+        if it.data(0, Qt.ItemDataRole.UserRole) == 'legend':
+            self._move_kasugai_legend_row(tw, it, delta)
+        elif it.parent().parent() is not None:
+            self._move_kasugai_member_row(tw, it, delta)
+
+    def _move_kasugai_legend_row(self, tw, it, delta):
+        """凡例の項目行を動かし legend_order= を保存する。"""
+        parent = it.parent()
+        lid = parent.data(0, Qt.ItemDataRole.UserRole)
+        idx = parent.indexOfChild(it)
+        ni = idx + delta
+        if ni < 0 or ni >= parent.childCount():
+            return
+        from qgis.core import QgsProject
+        layer = QgsProject.instance().mapLayer(lid)
+        if layer is None:
+            return
+        tw.blockSignals(True)
+        try:
+            parent.takeChild(idx)
+            parent.insertChild(ni, it)
+            tw.setCurrentItem(it)
+        finally:
+            tw.blockSignals(False)
+        labels = [parent.child(i).text(0)
+                  for i in range(parent.childCount())]
+        toks = [t for t in self._opts_tokens(layer)
+                if not t.startswith('legend_order=')]
+        toks.append('legend_order={0}'.format(','.join(labels)))
+        layer.setCustomProperty('kasugai_opts', ' '.join(toks))
+
+    def _move_kasugai_member_row(self, tw, it, delta):
+        """グループ内のメンバー行を動かし、メンバーへ表順の
+        order=1..N を振り直す(カスタムタブの凡例順に反映)。"""
+        grp = it.parent()
+        if grp.text(0) == 'その他':
+            # misc は order= を持たず .kasc 順なので動かさない
+            return
+        idx = grp.indexOfChild(it)
+        ni = idx + delta
+        if ni < 0 or ni >= grp.childCount():
+            return
+        tw.blockSignals(True)
+        try:
+            grp.takeChild(idx)
+            grp.insertChild(ni, it)
+            tw.setCurrentItem(it)
+            for pos in range(grp.childCount()):
+                grp.child(pos).setText(1, 'order={0}'.format(pos + 1))
+        finally:
+            tw.blockSignals(False)
+        from qgis.core import QgsProject
+        prj = QgsProject.instance()
+        for pos in range(grp.childCount()):
+            lid = grp.child(pos).data(0, Qt.ItemDataRole.UserRole)
+            layer = prj.mapLayer(lid)
+            if layer is not None:
+                layer.setCustomProperty('kasugai_order', str(pos + 1))
 
     def _on_kasugai_layer_item_changed(self, item, col):
         """セル編集をレイヤ customProperty へ反映する。"""
@@ -663,13 +833,11 @@ class GeoWebViewPanel(QDockWidget):
         if col == 1:
             key, val = 'kasugai_site', item.text(1).strip()
         elif col == 2:
-            key, val = 'kasugai_order', item.text(2).strip()
-        elif col == 3:
             key = 'kasugai_list'
-            val = 'off' if item.checkState(3) == Qt.CheckState.Checked \
+            val = 'off' if item.checkState(2) == Qt.CheckState.Checked \
                 else ''
-        elif col == 4:
-            key, val = 'kasugai_opts', item.text(4).strip()
+        elif col == 3:
+            key, val = 'kasugai_opts', item.text(3).strip()
         else:
             return
         if val == '':
