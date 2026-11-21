@@ -143,6 +143,10 @@ class GeoWebViewPanel(QDockWidget):
             self._init_kasugai_layers_ui()
         except Exception:  # nosec B110  # 設計上の許容
             pass
+        try:
+            self._init_kasugai_filter_ui()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
         # HTTP server toggle checkbox (added to UI)
         self.checkBox_server_toggle = getattr(self.ui, 'checkBox_server_toggle', None)
         # External control checkbox (new in UI)
@@ -481,6 +485,368 @@ class GeoWebViewPanel(QDockWidget):
             pass
         self._rebuild_kasugai_layers()
 
+    # --- 属性フィルタ(Filter タブ) ---------------------------------
+    def _init_kasugai_filter_ui(self):
+        """Filter タブの初期化。site(グループ)/共通数値属性/演算子/値で
+        サイト内の全レイヤへフィルタ(subset string)を一括適用する。"""
+        self.comboBox_filter_site = getattr(
+            self.ui, 'comboBox_filter_site', None)
+        if self.comboBox_filter_site is None:
+            return
+        self.comboBox_filter_field = getattr(
+            self.ui, 'comboBox_filter_field', None)
+        self.comboBox_filter_op = getattr(
+            self.ui, 'comboBox_filter_op', None)
+        self.lineEdit_filter_value = getattr(
+            self.ui, 'lineEdit_filter_value', None)
+        self.label_filter_status = getattr(
+            self.ui, 'label_filter_status', None)
+        self.widget_filter_row_num = getattr(
+            self.ui, 'widget_filter_row_num', None)
+        self.widget_filter_row_str = getattr(
+            self.ui, 'widget_filter_row_str', None)
+        self.comboBox_filter_op2 = getattr(
+            self.ui, 'comboBox_filter_op2', None)
+        self.comboBox_filter_value = getattr(
+            self.ui, 'comboBox_filter_value', None)
+        self.checkBox_filter_multi = getattr(
+            self.ui, 'checkBox_filter_multi', None)
+        self.widget_filter_row_multi = getattr(
+            self.ui, 'widget_filter_row_multi', None)
+        self.comboBox_filter_op3 = getattr(
+            self.ui, 'comboBox_filter_op3', None)
+        self.listWidget_filter_values = getattr(
+            self.ui, 'listWidget_filter_values', None)
+        if self.comboBox_filter_op is not None:
+            self.comboBox_filter_op.addItems(
+                ['=', '!=', '<', '<=', '>', '>='])
+        if self.comboBox_filter_op2 is not None:
+            self.comboBox_filter_op2.addItems(['=', '!='])
+        if self.comboBox_filter_op3 is not None:
+            self.comboBox_filter_op3.addItems(['IN', 'NOT IN'])
+        if self.widget_filter_row_multi is not None:
+            self.widget_filter_row_multi.setVisible(False)
+        if self.checkBox_filter_multi is not None:
+            self.checkBox_filter_multi.toggled.connect(
+                lambda _c: self._update_filter_mode())
+        self.comboBox_filter_site.currentIndexChanged.connect(
+            lambda _i: self._refresh_filter_fields())
+        if self.comboBox_filter_field is not None:
+            self.comboBox_filter_field.currentIndexChanged.connect(
+                lambda _i: self._update_filter_mode())
+        ab = getattr(self.ui, 'pushButton_filter_apply', None)
+        if ab is not None:
+            ab.clicked.connect(self._apply_kasugai_filter)
+        cb = getattr(self.ui, 'pushButton_filter_clear', None)
+        if cb is not None:
+            cb.clicked.connect(self._clear_kasugai_filter)
+        # タブを開いたとき最新のサイト一覧に更新
+        twm = getattr(self.ui, 'tabWidget_main', None)
+        if twm is not None:
+            twm.currentChanged.connect(
+                lambda _i: self._refresh_filter_sites())
+        self._refresh_filter_sites()
+
+    def _site_groups_for_filter(self):
+        """site名 → メンバーのベクターレイヤ一覧(「その他」含む)。
+
+        Layers タブの site= 解決規則(customProperty/グループ自動)と
+        同一のロジックでグルーピングする。
+        """
+        try:
+            from . import kasugai_export
+            bm_names = kasugai_export._basemap_group_names()
+            bm_index = kasugai_export._basemap_group_index
+            opts_of = kasugai_export._canvas_layer_opts
+        except Exception:  # nosec B110  # 設計上の許容
+            return {}
+        auto_on = bool(self.checkBox_site_control
+                       and self.checkBox_site_control.isChecked())
+        out = {}
+        for layer, groups, _node in self._kasugai_layer_rows():
+            try:
+                o = opts_of(layer, groups,
+                            bm_index(groups, bm_names), auto_on)
+            except Exception:  # nosec B110  # 設計上の許容
+                continue
+            site = o['site'] or 'その他'
+            try:
+                if layer.fields() is None:
+                    continue
+            except Exception:  # nosec B110  # 設計上の許容
+                continue
+            out.setdefault(site, []).append(layer)
+        return out
+
+    def _current_filter_layers(self):
+        cb = getattr(self, 'comboBox_filter_site', None)
+        if cb is None:
+            return []
+        return self._site_groups_for_filter().get(
+            cb.currentText(), [])
+
+    def _refresh_filter_sites(self):
+        cb = getattr(self, 'comboBox_filter_site', None)
+        if cb is None:
+            return
+        cur = cb.currentText()
+        cb.blockSignals(True)
+        cb.clear()
+        for site in self._site_groups_for_filter():
+            cb.addItem(site)
+        cb.blockSignals(False)
+        idx = cb.findText(cur)
+        cb.setCurrentIndex(idx if idx >= 0 else 0)
+        self._refresh_filter_fields()
+
+    def _refresh_filter_fields(self):
+        fb = getattr(self, 'comboBox_filter_field', None)
+        if fb is None:
+            return
+        layers = self._current_filter_layers()
+        cur = fb.currentText()
+        fb.clear()
+        # メンバー全レイヤに共通する属性フィールドを列挙
+        # (数値フィールドには '(num)' を付記)
+        common = None
+        numeric = {}
+        for layer in layers:
+            names = {}
+            try:
+                for f in layer.fields():
+                    try:
+                        names[f.name()] = bool(f.isNumeric())
+                    except Exception:  # nosec B110  # 設計上の許容
+                        names[f.name()] = False
+            except Exception:  # nosec B110  # 設計上の許容
+                names = {}
+            if common is None:
+                common = dict(names)
+            else:
+                for k in list(common):
+                    if k not in names:
+                        del common[k]
+                    else:
+                        common[k] = common[k] and names[k]
+        common = common or {}
+        for name in sorted(common):
+            label = '{0} (num)'.format(name) if common[name] else name
+            fb.addItem(label, name)
+        idx = fb.findData(cur)
+        if idx >= 0:
+            fb.setCurrentIndex(idx)
+        if not common:
+            self._update_filter_status('No common field')
+        else:
+            self._update_filter_status()
+        self._update_filter_mode()
+
+    def _filter_field_is_numeric(self):
+        """選択フィールドが全メンバーで数値型なら True。"""
+        fb = self.comboBox_filter_field
+        field = (fb.currentData() or fb.currentText()
+                 if fb is not None else '')
+        if not field:
+            return False
+        numeric, found = True, False
+        for layer in self._current_filter_layers():
+            try:
+                idx = layer.fields().indexFromName(field)
+            except Exception:  # nosec B110  # 設計上の許容
+                idx = -1
+            if idx < 0:
+                continue
+            found = True
+            try:
+                if not layer.fields().at(idx).isNumeric():
+                    numeric = False
+            except Exception:  # nosec B110  # 設計上の許容
+                numeric = False
+        return found and numeric
+
+    def _update_filter_mode(self):
+        """フィールド型と複数選択で入力行を切替。
+
+        - 数値・単一 → 演算子(= != < <= > >=) + 数値入力
+        - その他・単一 → = / != + メンバーの既存値ドロップダウン
+        - 複数選択 → IN / NOT IN + 既存値チェックリスト(数値も可)
+        """
+        num_w = getattr(self, 'widget_filter_row_num', None)
+        str_w = getattr(self, 'widget_filter_row_str', None)
+        mw = getattr(self, 'widget_filter_row_multi', None)
+        if num_w is None or str_w is None:
+            return
+        numeric = self._filter_field_is_numeric()
+        multi = bool(self.checkBox_filter_multi
+                     and self.checkBox_filter_multi.isChecked())
+        num_w.setVisible(numeric and not multi)
+        str_w.setVisible((not numeric) and not multi)
+        if mw is not None:
+            mw.setVisible(multi)
+        if numeric and not multi:
+            return
+        # 既存値をメンバー全レイヤから列挙(ドロップダウン/リスト共用)
+        vb = getattr(self, 'comboBox_filter_value', None)
+        if vb is None:
+            return
+        fb = self.comboBox_filter_field
+        field = (fb.currentData() or fb.currentText()
+                 if fb is not None else '')
+        values = set()
+        layers = self._current_filter_layers()
+        # 適用中フィルタが値の列挙まで絞ってしまうため一時解除
+        saved = []
+        for layer in layers:
+            try:
+                saved.append((layer, layer.subsetString() or ''))
+                layer.setSubsetString('')
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+        try:
+            for layer in layers:
+                try:
+                    for ft in layer.getFeatures():
+                        v = ft.attribute(field)
+                        if v is not None:
+                            values.add(str(v))
+                        if len(values) > 100:
+                            break
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+                if len(values) > 100:
+                    break
+        finally:
+            for layer, sub in saved:
+                try:
+                    layer.setSubsetString(sub)
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+        cur = vb.currentText()
+        vb.blockSignals(True)
+        vb.clear()
+        vb.addItems(sorted(values)[:100])
+        vb.blockSignals(False)
+        idx = vb.findText(cur)
+        if idx >= 0:
+            vb.setCurrentIndex(idx)
+        # 複数選択モード: チェックリストに同じ既存値を列挙
+        lw = getattr(self, 'listWidget_filter_values', None)
+        if lw is not None:
+            from qgis.PyQt.QtWidgets import QListWidgetItem
+            checked = set()
+            for i in range(lw.count()):
+                it = lw.item(i)
+                if it is not None and it.checkState() == \
+                        Qt.CheckState.Checked:
+                    checked.add(it.text())
+            lw.blockSignals(True)
+            lw.clear()
+            for v in sorted(values)[:100]:
+                it = QListWidgetItem(v)
+                it.setFlags(
+                    it.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                it.setCheckState(
+                    Qt.CheckState.Checked if v in checked
+                    else Qt.CheckState.Unchecked)
+                lw.addItem(it)
+            lw.blockSignals(False)
+
+    def _update_filter_status(self, msg=None):
+        lb = getattr(self, 'label_filter_status', None)
+        if lb is None:
+            return
+        if msg is not None:
+            lb.setText(msg)
+            return
+        # メンバーの先頭レイヤのフィルタを表示(全レイヤ共通の前提)
+        layers = self._current_filter_layers()
+        sub = ''
+        if layers:
+            try:
+                sub = layers[0].subsetString() or ''
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+        lb.setText(sub)
+
+    def _apply_kasugai_filter(self):
+        layers = self._current_filter_layers()
+        fb = self.comboBox_filter_field
+        field = (fb.currentData() or fb.currentText()
+                 if fb is not None else '')
+        op = (self.comboBox_filter_op.currentText()
+              if self.comboBox_filter_op is not None else '=')
+        if not layers or not field:
+            self._update_filter_status('Select a site and field')
+            return
+        numeric = self._filter_field_is_numeric()
+        multi = bool(self.checkBox_filter_multi
+                     and self.checkBox_filter_multi.isChecked())
+        lw = getattr(self, 'listWidget_filter_values', None)
+        if multi and lw is not None:
+            sel = []
+            for i in range(lw.count()):
+                it = lw.item(i)
+                if it is not None and it.checkState() == \
+                        Qt.CheckState.Checked:
+                    sel.append(it.text())
+            if not sel:
+                self._update_filter_status('Select values')
+                return
+            op3 = (self.comboBox_filter_op3.currentText()
+                   if self.comboBox_filter_op3 is not None
+                   else 'IN')
+            if numeric:
+                vals = ','.join(sel)
+            else:
+                vals = ','.join(
+                    "'{0}'".format(v.replace("'", "''"))
+                    for v in sel)
+            expr = '"{0}" {1} ({2})'.format(
+                field.replace('"', '""'), op3, vals)
+        elif numeric:
+            txt = (self.lineEdit_filter_value.text().strip()
+                   if self.lineEdit_filter_value is not None else '')
+            try:
+                num = float(txt)
+            except (TypeError, ValueError):
+                self._update_filter_status('Enter a number')
+                return
+            num_s = str(int(num)) if num == int(num) else str(num)
+            expr = '"{0}" {1} {2}'.format(field.replace('"', '""'),
+                                          op, num_s)
+        else:
+            op2 = (self.comboBox_filter_op2.currentText()
+                   if self.comboBox_filter_op2 is not None
+                   else '=')
+            txt = (self.comboBox_filter_value.currentText().strip()
+                   if self.comboBox_filter_value is not None else '')
+            if txt == '':
+                self._update_filter_status('Select a value')
+                return
+            expr = '"{0}" {1} \'{2}\''.format(
+                field.replace('"', '""'), op2,
+                txt.replace("'", "''"))
+        n = 0
+        for layer in layers:
+            try:
+                if layer.setSubsetString(expr):
+                    n += 1
+                layer.triggerRepaint()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+        self._update_filter_status(
+            '{0} ({1} layers)'.format(expr, n) if n
+            else 'Filter failed')
+
+    def _clear_kasugai_filter(self):
+        for layer in self._current_filter_layers():
+            try:
+                layer.setSubsetString('')
+                layer.triggerRepaint()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+        self._update_filter_status('')
+
     def _set_kasugai_layers_mode(self, mode):
         """EDIT(編集テーブル)/VIEW(出力結果表示)を切り替える。"""
         self._kasugai_layers_mode = mode
@@ -612,10 +978,9 @@ class GeoWebViewPanel(QDockWidget):
             tw.clear()
             sites, misc = {}, []
             for layer, groups, node in self._kasugai_layer_rows():
+                vis = True
                 try:
-                    if not node.itemVisibilityChecked():
-                        # QGIS で非表示のレイヤは VIEW に出さない
-                        continue
+                    vis = bool(node.itemVisibilityChecked())
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
                 o = _opts(layer, groups)
@@ -629,9 +994,9 @@ class GeoWebViewPanel(QDockWidget):
                         if o['order'] else '')
                 if o['site']:
                     sites.setdefault(o['site'], []).append(
-                        (o, layer, label, note))
+                        (o, layer, label, note, vis))
                 else:
-                    misc.append((o, layer, label, note))
+                    misc.append((o, layer, label, note, vis))
             if sites:
                 root_sc = QTreeWidgetItem(['レイヤタブ (custom-layer)',
                                            'before=layers-panel'])
@@ -669,33 +1034,55 @@ class GeoWebViewPanel(QDockWidget):
                     except Exception:  # nosec B110  # 設計上の許容
                         pass
 
+                def _member_item(o, layer, label, note, vis):
+                    it = QTreeWidgetItem([label, note])
+                    it.setFlags((it.flags()
+                                 & ~Qt.ItemFlag.ItemIsEditable)
+                                | Qt.ItemFlag.ItemIsUserCheckable)
+                    it.setCheckState(
+                        0, Qt.CheckState.Checked if vis
+                        else Qt.CheckState.Unchecked)
+                    it.setData(
+                        0, Qt.ItemDataRole.UserRole, layer.id())
+                    _attach_legend(it, layer, o)
+                    return it
+
+                def _sync_group_check(g):
+                    n = g.childCount()
+                    on = sum(
+                        g.child(i).checkState(0)
+                        == Qt.CheckState.Checked
+                        for i in range(n))
+                    st = (Qt.CheckState.Checked if on == n
+                          else Qt.CheckState.Unchecked if on == 0
+                          else Qt.CheckState.PartiallyChecked)
+                    tw.blockSignals(True)
+                    g.setCheckState(0, st)
+                    tw.blockSignals(False)
+
                 for sname, members in sites.items():
                     g = QTreeWidgetItem(
                         [sname, '{0}'.format(len(members))])
-                    g.setFlags(g.flags() & ~Qt.ItemFlag.ItemIsEditable)
+                    g.setFlags((g.flags()
+                                & ~Qt.ItemFlag.ItemIsEditable)
+                               | Qt.ItemFlag.ItemIsUserCheckable)
                     root_sc.addChild(g)
-                    for o, layer, label, note in sorted(
+                    for o, layer, label, note, vis in sorted(
                             members, key=_member_key):
-                        it = QTreeWidgetItem([label, note])
-                        it.setFlags(it.flags()
-                                    & ~Qt.ItemFlag.ItemIsEditable)
-                        it.setData(
-                            0, Qt.ItemDataRole.UserRole, layer.id())
-                        _attach_legend(it, layer, o)
-                        g.addChild(it)
+                        g.addChild(_member_item(
+                            o, layer, label, note, vis))
+                    _sync_group_check(g)
                 if misc:
                     g = QTreeWidgetItem(['その他',
                                          '{0}'.format(len(misc))])
-                    g.setFlags(g.flags() & ~Qt.ItemFlag.ItemIsEditable)
+                    g.setFlags((g.flags()
+                                & ~Qt.ItemFlag.ItemIsEditable)
+                               | Qt.ItemFlag.ItemIsUserCheckable)
                     root_sc.addChild(g)
-                    for o, layer, label, note in misc:
-                        it = QTreeWidgetItem([label, note])
-                        it.setFlags(it.flags()
-                                    & ~Qt.ItemFlag.ItemIsEditable)
-                        it.setData(
-                            0, Qt.ItemDataRole.UserRole, layer.id())
-                        _attach_legend(it, layer, o)
-                        g.addChild(it)
+                    for o, layer, label, note, vis in misc:
+                        g.addChild(_member_item(
+                            o, layer, label, note, vis))
+                    _sync_group_check(g)
             tw.expandAll()
             tw.resizeColumnToContents(0)
         finally:
@@ -821,9 +1208,66 @@ class GeoWebViewPanel(QDockWidget):
             if layer is not None:
                 layer.setCustomProperty('kasugai_order', str(pos + 1))
 
+    def _on_kasugai_view_item_checked(self, item):
+        """VIEW のチェックボックス → レイヤツリーの表示/非表示に反映。
+
+        メンバー行は個別に、グループ行はメンバー一括で
+        ``itemVisibilityChecked`` を切り替える(非表示は
+        Canvas 同様に未チェック行として残る)。
+        """
+        from qgis.core import QgsProject
+        tw = self.treeWidget_kasugai_layers
+        checked = item.checkState(0) == Qt.CheckState.Checked
+        if item.parent() is None:
+            return
+        if item.parent().parent() is None:
+            # グループ行 → メンバー一括
+            tw.blockSignals(True)
+            try:
+                for i in range(item.childCount()):
+                    m = item.child(i)
+                    if m.data(0, Qt.ItemDataRole.UserRole) in (None,
+                                                             'legend'):
+                        continue
+                    m.setCheckState(
+                        0, Qt.CheckState.Checked if checked
+                        else Qt.CheckState.Unchecked)
+            finally:
+                tw.blockSignals(False)
+            root = QgsProject.instance().layerTreeRoot()
+            for i in range(item.childCount()):
+                lid = item.child(i).data(
+                    0, Qt.ItemDataRole.UserRole)
+                node = root.findLayer(lid)
+                if node is not None:
+                    node.setItemVisibilityChecked(checked)
+            return
+        if item.data(0, Qt.ItemDataRole.UserRole) in (None, 'legend'):
+            return
+        # メンバー行 → グループ状態の更新 + 個別切替
+        # (ノード切替が rebuild シグナルを発火し得るため先に更新)
+        g = item.parent()
+        n = g.childCount()
+        on = sum(g.child(i).checkState(0) == Qt.CheckState.Checked
+                 for i in range(n))
+        st = (Qt.CheckState.Checked if on == n
+              else Qt.CheckState.Unchecked if on == 0
+              else Qt.CheckState.PartiallyChecked)
+        tw.blockSignals(True)
+        g.setCheckState(0, st)
+        tw.blockSignals(False)
+        node = QgsProject.instance().layerTreeRoot().findLayer(
+            item.data(0, Qt.ItemDataRole.UserRole))
+        if node is not None:
+            node.setItemVisibilityChecked(checked)
+
     def _on_kasugai_layer_item_changed(self, item, col):
         """セル編集をレイヤ customProperty へ反映する。"""
-        if self.treeWidget_kasugai_layers is None or col == 0:
+        if self.treeWidget_kasugai_layers is None:
+            return
+        if col == 0:
+            if self._kasugai_layers_mode == 'view':
+                self._on_kasugai_view_item_checked(item)
             return
         from qgis.core import QgsProject
         lid = item.data(0, Qt.ItemDataRole.UserRole)

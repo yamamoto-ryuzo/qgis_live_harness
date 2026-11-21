@@ -285,7 +285,8 @@
     "KASUGAI export cancelled.": "Экспорт KASUGAI отменён.",
     "The UI-config admin screen is not available in the installed Canvas app — update KASUGAI Canvas and try again.": "Экран администрирования настройки UI недоступен в установленном приложении Canvas — обновите KASUGAI Canvas и повторите попытку.",
     "Custom layers tab": " ",
-    "Group layers by their layer-tree group name into a custom \"Layers\" tab in KASUGAI Canvas (site=<group> on each layer row + custom-layer plugin tab for per-group on/off and ordering). All layers stay on the standard tab (shown as \"System layers\" while the custom tab exists); use list=off to hide a row there. Ungrouped layers go to \"Misc\". Per-layer override: layer custom properties kasugai_site / kasugai_order": " "
+    "Group layers by their layer-tree group name into a custom \"Layers\" tab in KASUGAI Canvas (site=<group> on each layer row + custom-layer plugin tab for per-group on/off and ordering). All layers stay on the standard tab (shown as \"System layers\" while the custom tab exists); use list=off to hide a row there. Ungrouped layers go to \"Misc\". Per-layer override: layer custom properties kasugai_site / kasugai_order": " ",
+    "Multi-select": "Множественный выбор"
   },
   "geo_webview.page": {
     "  rotation: ": "  поворот: ",

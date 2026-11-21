@@ -288,7 +288,8 @@
     "The UI-config admin screen is not available in the installed Canvas app — update KASUGAI Canvas and try again.": "已安装的 Canvas 应用中不包含 UI 配置管理画面 — 请更新 KASUGAI Canvas 后重试。",
     "Custom layers tab": "自定义图层标签",
     "Group layers by their layer-tree group name into a custom \"Layers\" tab in KASUGAI Canvas (site=<group> on each layer row + custom-layer plugin tab for per-group on/off and ordering). All layers stay on the standard tab (shown as \"System layers\" while the custom tab exists); use list=off to hide a row there. Ungrouped layers go to \"Misc\". Per-layer override: layer custom properties kasugai_site / kasugai_order": " ",
-    "Per-layer .kasc options (saved to the layer; gray = auto value): site=control group (blank=auto/\"-\"=Misc), order=rank within site (set via VIEW mode ▲▼), list=hide from layer list, opts=extra key=value (legend_order=asc|desc|reverse|A,B,C reorders legend entries)": "按图层的 .kasc 选项（保存在图层上；灰色=自动值）：site=控制分组（空=自动/\"-\"=其他）/ order=分组内排序 / list=从图层列表隐藏 / opts=额外 key=value (legend_order=asc|desc|reverse|A,B,C 可调整图例顺序)"
+    "Per-layer .kasc options (saved to the layer; gray = auto value): site=control group (blank=auto/\"-\"=Misc), order=rank within site (set via VIEW mode ▲▼), list=hide from layer list, opts=extra key=value (legend_order=asc|desc|reverse|A,B,C reorders legend entries)": "按图层的 .kasc 选项（保存在图层上；灰色=自动值）：site=控制分组（空=自动/\"-\"=其他）/ order=分组内排序 / list=从图层列表隐藏 / opts=额外 key=value (legend_order=asc|desc|reverse|A,B,C 可调整图例顺序)",
+    "Multi-select": "多选"
   },
   "geo_webview.page": {
     "  rotation: ": "  旋转：",
