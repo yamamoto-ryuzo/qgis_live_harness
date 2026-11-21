@@ -6,6 +6,22 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **qgis-session.mjs probeAll のタイムアウト積み上がり解消**
+  (ai-chat検証 ISSUE-4): `test-results/live/qgis-<pid>/` の死んだ pid の
+  dir を `process.kill(pid, 0)` で事前除外し、残りを `Promise.all` で
+  並列 probe するよう変更。stale dir が溜まると逐次 x5s 待ちで
+  ensure が実質180s張り付いていた
+- **ai-chat カタログの noname id 安定化**(ISSUE-5):
+  `test-results/ai-chat/build_catalog.py` に `stable_action_id()` を追加。
+  objectName が無い(または objectName 自体が日本語のみで slug が
+  "noname" に潰れる)アクションの id を `text|path|shortcut` の
+  SHA-1 ハッシュ(`a_<hex10>`)で生成し、セッション間で安定・一意にした。
+  合わせてメニュー項目の dedup key に path を追加(同名・別メニュー項目が
+  潰れていた)。移行で 107 件の旧 noname id は removed、129 件が
+  `a_*` id として再収録・一括再検証で pass/skip を書戻し済み
+
 ### Removed
 
 - **`launcher/qgis_launcher/` を撤去**: Rust 製 QGIS/QField ランチャーは

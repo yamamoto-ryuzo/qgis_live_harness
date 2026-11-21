@@ -22,10 +22,50 @@
   },
   {
    "objectName": "",
+   "text": "Oracle…",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Oracle…",
+   "path": "プロジェクト(&J)/開く"
+  },
+  {
+   "objectName": "",
+   "text": "PostgreSQL…",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "PostgreSQL…",
+   "path": "プロジェクト(&J)/開く"
+  },
+  {
+   "objectName": "",
+   "text": "GeoPackage…",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "GeoPackage…",
+   "path": "プロジェクト(&J)/開く"
+  },
+  {
+   "objectName": "",
+   "text": "ProjectFile (C:\\kasugai\\kasugai_qgis\\ProjectFiles\\ProjectFile.qgs)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ProjectFile (C:\\kasugai\\kasugai_qgis\\ProjectFiles\\ProjectFile.qgs)",
+   "path": "プロジェクト(&J)/最近のプロジェクト(&R)"
+  },
+  {
+   "objectName": "",
    "text": "SampleProjectFile (Q:\\sample_projects\\SampleProjectFile.qgs)",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "SampleProjectFile (Q:\\sample_projects\\SampleProjectFile.qgs)",
    "path": "プロジェクト(&J)/最近のプロジェクト(&R)"
@@ -185,7 +225,7 @@
    "text": "元に戻す...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>プロジェクトを保存したバージョンに戻す</b>",
    "path": "プロジェクト(&J)"
@@ -325,7 +365,7 @@
    "text": "地物をコピー",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "<b>地物をコピー</b>",
    "path": "編集(&E)"
@@ -482,12 +522,12 @@
   },
   {
    "objectName": "mActionAddFeature",
-   "text": "点地物を追加する",
+   "text": "ポリゴン地物を追加",
    "checkable": true,
    "checked": false,
    "enabled": false,
    "shortcut": "Ctrl+.",
-   "tooltip": "<b>点地物を追加する</b> (Ctrl+.)",
+   "tooltip": "<b>ポリゴン地物を追加</b> (Ctrl+.)",
    "path": "編集(&E)"
   },
   {
@@ -794,7 +834,7 @@
    "objectName": "mActionPan",
    "text": "地図を移動",
    "checkable": true,
-   "checked": true,
+   "checked": false,
    "enabled": true,
    "shortcut": "",
    "tooltip": "<b>地図を移動</b>",
@@ -904,7 +944,7 @@
    "objectName": "mActionStatisticalSummary",
    "text": "統計サマリー",
    "checkable": true,
-   "checked": true,
+   "checked": false,
    "enabled": true,
    "shortcut": "",
    "tooltip": "<b>統計の要約を表示</b>",
@@ -1222,182 +1262,192 @@
   },
   {
    "objectName": "",
-   "text": "GPS情報",
+   "text": "GPS情報パネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "GPS情報",
+   "tooltip": "GPS情報パネル",
    "path": "ビュー(&V)/パネル"
   },
   {
    "objectName": "",
-   "text": "タイルスケール",
+   "text": "タイルスケールパネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "タイルスケール",
+   "tooltip": "タイルスケールパネル",
    "path": "ビュー(&V)/パネル"
   },
   {
    "objectName": "",
-   "text": "デバッグ開発ツール",
+   "text": "デバッグ開発ツールパネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "デバッグ開発ツール",
+   "tooltip": "デバッグ開発ツールパネル",
    "path": "ビュー(&V)/パネル"
   },
   {
    "objectName": "",
-   "text": "ブラウザ",
+   "text": "ブラウザパネル",
    "checkable": true,
    "checked": true,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "ブラウザ",
+   "tooltip": "ブラウザパネル",
    "path": "ビュー(&V)/パネル"
   },
   {
    "objectName": "",
-   "text": "ブラウザ(2)",
+   "text": "ブラウザ(2)パネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "ブラウザ(2)",
+   "tooltip": "ブラウザ(2)パネル",
    "path": "ビュー(&V)/パネル"
   },
   {
    "objectName": "",
-   "text": "プロセシングツールボックス",
+   "text": "プロセシングツールボックスパネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "プロセシングツールボックス",
+   "tooltip": "プロセシングツールボックスパネル",
    "path": "ビュー(&V)/パネル"
   },
   {
    "objectName": "",
-   "text": "レイヤ",
+   "text": "レイヤパネル",
    "checkable": true,
    "checked": true,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "レイヤ",
+   "tooltip": "レイヤパネル",
    "path": "ビュー(&V)/パネル"
   },
   {
    "objectName": "",
-   "text": "レイヤスタイル",
+   "text": "レイヤスタイルパネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "レイヤスタイル",
+   "tooltip": "レイヤスタイルパネル",
    "path": "ビュー(&V)/パネル"
   },
   {
    "objectName": "",
-   "text": "レイヤ順序",
+   "text": "レイヤ順序パネル",
    "checkable": true,
    "checked": true,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "レイヤ順序",
+   "tooltip": "レイヤ順序パネル",
    "path": "ビュー(&V)/パネル"
   },
   {
    "objectName": "",
-   "text": "ログメッセージ",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "ログメッセージ",
-   "path": "ビュー(&V)/パネル"
-  },
-  {
-   "objectName": "",
-   "text": "空間ブックマークマネージャ",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "空間ブックマークマネージャ",
-   "path": "ビュー(&V)/パネル"
-  },
-  {
-   "objectName": "",
-   "text": "結果ビューア",
+   "text": "ログメッセージパネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "結果ビューア",
+   "tooltip": "ログメッセージパネル",
    "path": "ビュー(&V)/パネル"
   },
   {
    "objectName": "",
-   "text": "元に戻す/やり直す",
+   "text": "空間ブックマークマネージャパネル",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "空間ブックマークマネージャパネル",
+   "path": "ビュー(&V)/パネル"
+  },
+  {
+   "objectName": "",
+   "text": "結果ビューアパネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "元に戻す/やり直す",
+   "tooltip": "結果ビューアパネル",
    "path": "ビュー(&V)/パネル"
   },
   {
    "objectName": "",
-   "text": "高度なデジタイズ",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "高度なデジタイズ",
-   "path": "ビュー(&V)/パネル"
-  },
-  {
-   "objectName": "",
-   "text": "時系列コントローラ",
+   "text": "元に戻す/やり直すパネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "時系列コントローラ",
+   "tooltip": "元に戻す/やり直すパネル",
    "path": "ビュー(&V)/パネル"
   },
   {
    "objectName": "",
-   "text": "全体図",
+   "text": "高度なデジタイズパネル",
    "checkable": true,
    "checked": true,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "全体図",
+   "tooltip": "高度なデジタイズパネル",
    "path": "ビュー(&V)/パネル"
   },
   {
    "objectName": "",
-   "text": "頂点エディタ",
+   "text": "時系列コントローラパネル",
    "checkable": true,
-   "checked": true,
+   "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "頂点エディタ",
+   "tooltip": "時系列コントローラパネル",
    "path": "ビュー(&V)/パネル"
   },
   {
    "objectName": "",
-   "text": "統計",
+   "text": "全体図パネル",
    "checkable": true,
    "checked": true,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "統計",
+   "tooltip": "全体図パネル",
+   "path": "ビュー(&V)/パネル"
+  },
+  {
+   "objectName": "",
+   "text": "頂点エディタパネル",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "頂点エディタパネル",
+   "path": "ビュー(&V)/パネル"
+  },
+  {
+   "objectName": "",
+   "text": "統計パネル",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "統計パネル",
+   "path": "ビュー(&V)/パネル"
+  },
+  {
+   "objectName": "",
+   "text": "WebViewパネル",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebViewパネル",
    "path": "ビュー(&V)/パネル"
   },
   {
@@ -1408,16 +1458,6 @@
    "enabled": true,
    "shortcut": "",
    "tooltip": "レポート",
-   "path": "ビュー(&V)/パネル"
-  },
-  {
-   "objectName": "",
-   "text": "WebView",
-   "checkable": true,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "WebView",
    "path": "ビュー(&V)/パネル"
   },
   {
@@ -2195,7 +2235,7 @@
    "text": "レイヤを複製",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "<b>レイヤを複製</b>",
    "path": "レイヤ(&L)"
@@ -2205,7 +2245,7 @@
    "text": "レイヤを表示するスケールを設定",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "<b>レイヤを表示するスケールを設定</b>",
    "path": "レイヤ(&L)"
@@ -2215,7 +2255,7 @@
    "text": "レイヤのCRSを設定",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "Ctrl+Shift+C",
    "tooltip": "<b>レイヤのCRSを設定</b> (Ctrl+Shift+C)",
    "path": "レイヤ(&L)"
@@ -2225,7 +2265,7 @@
    "text": "レイヤのCRSをプロジェクトに設定",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "<b>レイヤのCRSをプロジェクトに設定</b>",
    "path": "レイヤ(&L)"
@@ -2637,7 +2677,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>AI アシスタント</b>",
+   "tooltip": "AI アシスタント",
    "path": "プラグイン(&P)/QGIS Live Driver"
   },
   {
@@ -2647,7 +2687,7 @@
    "checked": true,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>リモート制御 (localhostのみ)</b>",
+   "tooltip": "リモート制御 (localhostのみ)",
    "path": "プラグイン(&P)/QGIS Live Driver"
   },
   {
@@ -2657,7 +2697,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>接続情報</b>",
+   "tooltip": "接続情報",
    "path": "プラグイン(&P)/QGIS Live Driver"
   },
   {
@@ -2667,7 +2707,7 @@
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>配置モード</b>",
+   "tooltip": "配置モード",
    "path": "プラグイン(&P)/QGIS Live Driver"
   },
   {
@@ -2682,12 +2722,12 @@
   },
   {
    "objectName": "searchLayersHelp",
-   "text": "Help",
+   "text": "ヘルプ",
    "checkable": false,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>Help</b>",
+   "tooltip": "<b>ヘルプ</b>",
    "path": "プラグイン(&P)/Search Layers"
   },
   {
@@ -4014,12 +4054,12 @@
  "actions": [
   {
    "objectName": "",
-   "text": "レイヤ",
+   "text": "レイヤパネル",
    "checkable": true,
    "checked": true,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "レイヤ",
+   "tooltip": "レイヤパネル",
    "path": "(mainWindow)"
   },
   {
@@ -4077,7 +4117,7 @@
    "text": "",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "",
    "path": "(mainWindow)"
@@ -4104,12 +4144,72 @@
   },
   {
    "objectName": "",
-   "text": "ブラウザ",
+   "text": "WebViewパネル",
    "checkable": true,
    "checked": true,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "ブラウザ",
+   "tooltip": "WebViewパネル",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "頂点エディタパネル",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "頂点エディタパネル",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "自動的にプロジェクトを開く",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "自動的にプロジェクトを開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レイヤ順序パネル",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイヤ順序パネル",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ブラウザパネル",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ブラウザパネル",
    "path": "(mainWindow)"
   },
   {
@@ -4167,7 +4267,7 @@
    "text": "",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "",
    "path": "(mainWindow)"
@@ -4244,22 +4344,82 @@
   },
   {
    "objectName": "",
-   "text": "レイヤ順序",
+   "text": "WebView",
    "checkable": true,
-   "checked": true,
+   "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "レイヤ順序",
+   "tooltip": "WebView",
    "path": "(mainWindow)"
   },
   {
    "objectName": "",
-   "text": "高度なデジタイズ",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "高度なデジタイズパネル",
    "checkable": true,
    "checked": true,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "高度なデジタイズ",
+   "tooltip": "高度なデジタイズパネル",
    "path": "(mainWindow)"
   },
   {
@@ -4309,7 +4469,7 @@
    "checked": false,
    "enabled": false,
    "shortcut": "",
-   "tooltip": "パラレルモードを使用するにはスナップを有効にする必要があります",
+   "tooltip": "パラレルモードを利用するには最初の点を描く必要があります",
    "path": "(mainWindow)"
   },
   {
@@ -4319,7 +4479,7 @@
    "checked": false,
    "enabled": false,
    "shortcut": "",
-   "tooltip": "垂直モードを使用するにはスナップを有効にする必要があります",
+   "tooltip": "垂直モードを利用するには最初の点を描く必要があります",
    "path": "(mainWindow)"
   },
   {
@@ -4647,7 +4807,7 @@
    "text": "Line Extension",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "線延長モードを使用するにはスナップを有効にする必要があります",
    "path": "(mainWindow)"
@@ -4657,7 +4817,7 @@
    "text": "X/Y Point",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "xy点モードを使用するにはスナップを有効にする必要があります",
    "path": "(mainWindow)"
@@ -4854,12 +5014,12 @@
   },
   {
    "objectName": "",
-   "text": "全体図",
+   "text": "全体図パネル",
    "checkable": true,
    "checked": true,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "全体図",
+   "tooltip": "全体図パネル",
    "path": "(mainWindow)"
   },
   {
@@ -4977,7 +5137,7 @@
    "text": "地物をコピー",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "<b>地物をコピー</b>",
    "path": "(mainWindow)"
@@ -4994,12 +5154,12 @@
   },
   {
    "objectName": "mActionAddFeature",
-   "text": "点地物を追加する",
+   "text": "ポリゴン地物を追加",
    "checkable": true,
    "checked": false,
    "enabled": false,
    "shortcut": "Ctrl+.",
-   "tooltip": "<b>点地物を追加する</b> (Ctrl+.)",
+   "tooltip": "<b>ポリゴン地物を追加</b> (Ctrl+.)",
    "path": "(mainWindow)"
   },
   {
@@ -5186,7 +5346,7 @@
    "objectName": "mActionPan",
    "text": "地図を移動",
    "checkable": true,
-   "checked": true,
+   "checked": false,
    "enabled": true,
    "shortcut": "",
    "tooltip": "<b>地図を移動</b>",
@@ -5667,7 +5827,7 @@
    "text": "レイヤのCRSを設定",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "Ctrl+Shift+C",
    "tooltip": "<b>レイヤのCRSを設定</b> (Ctrl+Shift+C)",
    "path": "(mainWindow)"
@@ -5677,7 +5837,7 @@
    "text": "レイヤのCRSをプロジェクトに設定",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "<b>レイヤのCRSをプロジェクトに設定</b>",
    "path": "(mainWindow)"
@@ -5917,7 +6077,7 @@
    "text": "ラベルとダイアグラム、引出し線を移動",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>ラベル、ダイアグラム、引出し線を移動</b><p>全てのレイヤ上で可能</p>",
    "path": "(mainWindow)"
@@ -5927,7 +6087,7 @@
    "text": "ラベルを回転",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>ラベルを回転</b><p>Ctrl (Cmd)で15度単位の回転</p><p>全てのレイヤ上で可能</p>",
    "path": "(mainWindow)"
@@ -5937,7 +6097,7 @@
    "text": "ラベルを変更",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>ラベル属性の変更</b><p>フォントサイズや色などのラベル属性のカスタマイズ</p><p>すべてのレイヤ上で可能</p>",
    "path": "(mainWindow)"
@@ -6157,7 +6317,7 @@
    "text": "ラベルとダイアグラムの固定/解放",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>ラベル・図表の固定/解放</b><p>クリックしてラベル・図表を固定</p><p>シフト＋クリックで削除、Ctrl (Cmd)で状態を切り替え</p><p>全てのレイヤ上で可能</p>",
    "path": "(mainWindow)"
@@ -6207,7 +6367,7 @@
    "text": "ラベルとダイアグラムの表示非表示切り替え",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>ラベル・ダイアグラムの表示/非表示</b><p>地物/マーキーをクリックするとラベル・ダイアグラムを表示</p><p>シフト＋クリックで非表示</p><p>アクティブレイヤ上で可能</p>",
    "path": "(mainWindow)"
@@ -6227,7 +6387,7 @@
    "text": "レイヤを複製",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "<b>レイヤを複製</b>",
    "path": "(mainWindow)"
@@ -6547,7 +6707,7 @@
    "text": "レイヤを表示するスケールを設定",
    "checkable": false,
    "checked": false,
-   "enabled": true,
+   "enabled": false,
    "shortcut": "",
    "tooltip": "<b>レイヤを表示するスケールを設定</b>",
    "path": "(mainWindow)"
@@ -6616,7 +6776,7 @@
    "objectName": "mActionStatisticalSummary",
    "text": "統計サマリー",
    "checkable": true,
-   "checked": true,
+   "checked": false,
    "enabled": true,
    "shortcut": "",
    "tooltip": "<b>統計の要約を表示</b>",
@@ -6757,7 +6917,7 @@
    "text": "元に戻す...",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>プロジェクトを保存したバージョンに戻す</b>",
    "path": "(mainWindow)"
@@ -7184,10 +7344,20 @@
   },
   {
    "objectName": "",
+   "text": "ProjectFile (C:\\kasugai\\kasugai_qgis\\ProjectFiles\\ProjectFile.qgs)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ProjectFile (C:\\kasugai\\kasugai_qgis\\ProjectFiles\\ProjectFile.qgs)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
    "text": "SampleProjectFile (Q:\\sample_projects\\SampleProjectFile.qgs)",
    "checkable": false,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "SampleProjectFile (Q:\\sample_projects\\SampleProjectFile.qgs)",
    "path": "(mainWindow)"
@@ -7360,6 +7530,36 @@
    "enabled": true,
    "shortcut": "",
    "tooltip": "開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Oracle…",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Oracle…",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "PostgreSQL…",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "PostgreSQL…",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "GeoPackage…",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "GeoPackage…",
    "path": "(mainWindow)"
   },
   {
@@ -8433,6 +8633,16 @@
    "path": "(mainWindow)"
   },
   {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
    "objectName": "mUnitAction",
    "text": "",
    "checkable": false,
@@ -8466,7 +8676,7 @@
    "objectName": "EnableSnappingAction",
    "text": "スナップを切り替え",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": true,
    "shortcut": "S",
    "tooltip": "<b>スナップを有効化（S）</b> (S)",
@@ -8657,7 +8867,7 @@
    "text": "交点でスナップ",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>交点でのスナップを有効にします</b>",
    "path": "(mainWindow)"
@@ -8667,7 +8877,7 @@
    "text": "トレースを有効にします",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "T",
    "tooltip": "<b>トレースを有効にします</b> (T)",
    "path": "(mainWindow)"
@@ -8697,7 +8907,7 @@
    "text": "自己スナップ",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "<b>Enable Self-snapping</b><p></p><p>If enabled, snapping will also take the current state of the digitized feature into consideration.</p>",
    "path": "(mainWindow)"
@@ -9004,12 +9214,212 @@
   },
   {
    "objectName": "",
-   "text": "元に戻す/やり直す",
+   "text": "元に戻す/やり直すパネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "元に戻す/やり直す",
+   "tooltip": "元に戻す/やり直すパネル",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "統計パネル",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "統計パネル",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "カウント（Count）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "カウント（Count）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "合計（Sum）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "合計（Sum）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "平均値（Mean）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "平均値（Mean）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "中央値（Median）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "中央値（Median）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "標準偏差 （母集団）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "標準偏差 （母集団）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "標準偏差 （標本）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "標準偏差 （標本）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "最小",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "最小",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "最大",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "最大",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "範囲（Range）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "範囲（Range）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "最稀値（Minority）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "最稀値（Minority）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "最頻値（Majority）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "最頻値（Majority）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "種類（Variety）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "種類（Variety）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "第１四分位（Q1）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "第１四分位（Q1）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "第３四分位（Q3）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "第３四分位（Q3）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "四分位範囲（IQR）",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "四分位範囲（IQR）",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "欠落（NULL）値",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "欠落（NULL）値",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "選択したレイヤに従う",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "選択したレイヤに従う",
    "path": "(mainWindow)"
   },
   {
@@ -9040,6 +9450,56 @@
    "enabled": true,
    "shortcut": "",
    "tooltip": "ユーザープロファイル(U)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "mActionProfile_geo_custom",
+   "text": "geo_custom",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "C:/Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "mActionProfile_geo_custom",
+   "text": "geo_custom",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "C:/Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "mActionProfile_geo_custom",
+   "text": "geo_custom",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "C:/Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "mActionProfile_geo_custom",
+   "text": "geo_custom",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "C:/Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "mActionProfile_geo_custom",
+   "text": "geo_custom",
+   "checkable": true,
+   "checked": true,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "C:/Users/ryu.RYU-NOTE/AppData/Roaming/QGIS/QGIS4\\profiles\\geo_custom",
    "path": "(mainWindow)"
   },
   {
@@ -9126,7 +9586,7 @@
    "objectName": "",
    "text": "頂点エディタを表示",
    "checkable": true,
-   "checked": true,
+   "checked": false,
    "enabled": true,
    "shortcut": "",
    "tooltip": "<b>頂点エディタを表示</b>",
@@ -9324,22 +9784,22 @@
   },
   {
    "objectName": "",
-   "text": "レイヤスタイル",
+   "text": "レイヤスタイルパネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "レイヤスタイル",
+   "tooltip": "レイヤスタイルパネル",
    "path": "(mainWindow)"
   },
   {
    "objectName": "",
-   "text": "デバッグ開発ツール",
+   "text": "デバッグ開発ツールパネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "デバッグ開発ツール",
+   "tooltip": "デバッグ開発ツールパネル",
    "path": "(mainWindow)"
   },
   {
@@ -9696,7 +10156,7 @@
    "objectName": "EnableSnappingAction",
    "text": "スナップを切り替え",
    "checkable": true,
-   "checked": false,
+   "checked": true,
    "enabled": true,
    "shortcut": "S",
    "tooltip": "スナップを有効化（S）",
@@ -9867,7 +10327,7 @@
    "text": "交点でスナップ",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "交点でのスナップを有効にします",
    "path": "(mainWindow)"
@@ -9877,7 +10337,7 @@
    "text": "トレースを有効にします",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "T",
    "tooltip": "トレースを有効にします (T)",
    "path": "(mainWindow)"
@@ -9907,7 +10367,7 @@
    "text": "自己スナップ",
    "checkable": true,
    "checked": false,
-   "enabled": false,
+   "enabled": true,
    "shortcut": "",
    "tooltip": "Enable Self-snapping\n\nIf enabled, snapping will also take the current state of the digitized feature into consideration.",
    "path": "(mainWindow)"
@@ -9957,6 +10417,16 @@
    "text": "",
    "checkable": false,
    "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
    "enabled": false,
    "shortcut": "",
    "tooltip": "",
@@ -9974,12 +10444,22 @@
   },
   {
    "objectName": "",
-   "text": "時系列コントローラ",
+   "text": "時系列コントローラパネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "時系列コントローラ",
+   "tooltip": "時系列コントローラパネル",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
    "path": "(mainWindow)"
   },
   {
@@ -10034,12 +10514,12 @@
   },
   {
    "objectName": "",
-   "text": "ブラウザ(2)",
+   "text": "ブラウザ(2)パネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "ブラウザ(2)",
+   "tooltip": "ブラウザ(2)パネル",
    "path": "(mainWindow)"
   },
   {
@@ -10324,16 +10804,6 @@
   },
   {
    "objectName": "",
-   "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": false,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
    "text": "GPS Toolbar",
    "checkable": true,
    "checked": true,
@@ -10404,12 +10874,12 @@
   },
   {
    "objectName": "mCreateFeatureAction",
-   "text": "Create Point Feature at Location",
+   "text": "Create Polygon Feature from Track",
    "checkable": false,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "Create a new point feature at the current GPS location",
+   "tooltip": "Create a new polygon feature using the current GPS track",
    "path": "(mainWindow)"
   },
   {
@@ -10464,12 +10934,32 @@
   },
   {
    "objectName": "",
-   "text": "GPS情報",
+   "text": "GPS情報パネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "GPS情報",
+   "tooltip": "GPS情報パネル",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ログメッセージパネル",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ログメッセージパネル",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
    "path": "(mainWindow)"
   },
   {
@@ -10604,16 +11094,6 @@
   },
   {
    "objectName": "",
-   "text": "AI アシスタント",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "<b>AI アシスタント</b>",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
    "text": "QGIS Live Driver",
    "checkable": false,
    "checked": false,
@@ -10624,52 +11104,712 @@
   },
   {
    "objectName": "",
-   "text": "リモート制御 (localhostのみ)",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "<b>リモート制御 (localhostのみ)</b>",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "接続情報",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "<b>接続情報</b>",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "ホットリロード",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "ホットリロード",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "配置モード",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "<b>配置モード</b>",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
    "text": "GeoSuite",
    "checkable": true,
    "checked": true,
    "enabled": false,
    "shortcut": "",
    "tooltip": "GeoSuite",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "",
    "path": "(mainWindow)"
   },
   {
@@ -11564,12 +12704,12 @@
   },
   {
    "objectName": "searchLayersHelp",
-   "text": "Help",
+   "text": "ヘルプ",
    "checkable": false,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "<b>Help</b>",
+   "tooltip": "<b>ヘルプ</b>",
    "path": "(mainWindow)"
   },
   {
@@ -11634,12 +12774,12 @@
   },
   {
    "objectName": "",
-   "text": "プロセシングツールボックス",
+   "text": "プロセシングツールボックスパネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "プロセシングツールボックス",
+   "tooltip": "プロセシングツールボックスパネル",
    "path": "(mainWindow)"
   },
   {
@@ -11804,12 +12944,12 @@
   },
   {
    "objectName": "",
-   "text": "結果ビューア",
+   "text": "結果ビューアパネル",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "結果ビューア",
+   "tooltip": "結果ビューアパネル",
    "path": "(mainWindow)"
   },
   {
@@ -12664,232 +13804,2862 @@
   },
   {
    "objectName": "",
-   "text": "統計",
+   "text": "タイルスケールパネル",
    "checkable": true,
-   "checked": true,
+   "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "統計",
+   "tooltip": "タイルスケールパネル",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Kasugai QGIS Launcher",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Kasugai QGIS Launcher",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ランチャーを開く",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ランチャーを開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レイアウト選択",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイアウト選択",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Kasugai QGIS Launcher",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Kasugai QGIS Launcher",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ランチャーを開く",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ランチャーを開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レイアウト選択",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイアウト選択",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Kasugai QGIS Launcher",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Kasugai QGIS Launcher",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ランチャーを開く",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ランチャーを開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レイアウト選択",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイアウト選択",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Kasugai QGIS Launcher",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Kasugai QGIS Launcher",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ランチャーを開く",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ランチャーを開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レイアウト選択",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイアウト選択",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Kasugai QGIS Launcher",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Kasugai QGIS Launcher",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ランチャーを開く",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ランチャーを開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レイアウト選択",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイアウト選択",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Kasugai QGIS Launcher",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Kasugai QGIS Launcher",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ランチャーを開く",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ランチャーを開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レイアウト選択",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイアウト選択",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Kasugai QGIS Launcher",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Kasugai QGIS Launcher",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ランチャーを開く",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ランチャーを開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レイアウト選択",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイアウト選択",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Kasugai QGIS Launcher",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Kasugai QGIS Launcher",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ランチャーを開く",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ランチャーを開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レイアウト選択",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイアウト選択",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Kasugai QGIS Launcher",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Kasugai QGIS Launcher",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ランチャーを開く",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ランチャーを開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レイアウト選択",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイアウト選択",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Kasugai QGIS Launcher",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Kasugai QGIS Launcher",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ランチャーを開く",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ランチャーを開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レイアウト選択",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイアウト選択",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Kasugai QGIS Launcher",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Kasugai QGIS Launcher",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ランチャーを開く",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ランチャーを開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レイアウト選択",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイアウト選択",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "Kasugai QGIS Launcher",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "Kasugai QGIS Launcher",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ランチャーを開く",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ランチャーを開く",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "設定...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "レイアウト選択",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "レイアウト選択",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "WebView",
+   "checkable": true,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "WebView",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_webview",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_webview",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "geo_search",
+   "text": "地図検索",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "地図検索",
    "path": "(mainWindow)"
   },
   {
    "objectName": "",
    "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "カウント（Count）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "カウント（Count）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "合計（Sum）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "合計（Sum）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "平均値（Mean）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "平均値（Mean）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "中央値（Median）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "中央値（Median）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "標準偏差 （母集団）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "標準偏差 （母集団）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "標準偏差 （標本）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "標準偏差 （標本）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "最小",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "最小",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "最大",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "最大",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "範囲（Range）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "範囲（Range）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "最稀値（Minority）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "最稀値（Minority）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "最頻値（Majority）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "最頻値（Majority）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "種類（Variety）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "種類（Variety）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "第１四分位（Q1）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "第１四分位（Q1）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "第３四分位（Q3）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "第３四分位（Q3）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "四分位範囲（IQR）",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "四分位範囲（IQR）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "欠落（NULL）値",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "欠落（NULL）値",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "選択したレイヤに従う",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "選択したレイヤに従う",
+   "tooltip": "選択したテーマの表示レイヤを現在の表示に追加します（オン：追加表示、オフ：通常上書き）",
    "path": "(mainWindow)"
   },
   {
    "objectName": "",
-   "text": "ログメッセージ",
+   "text": "空間ブックマークマネージャパネル",
    "checkable": true,
    "checked": true,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "ログメッセージ",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "空間ブックマークマネージャ",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "空間ブックマークマネージャ",
+   "tooltip": "空間ブックマークマネージャパネル",
    "path": "(mainWindow)"
   },
   {
@@ -12980,276 +16750,6 @@
    "enabled": true,
    "shortcut": "",
    "tooltip": "",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "タイルスケール",
-   "checkable": true,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "タイルスケール",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "一覧帳票を出力 (アクティブレイヤ)",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "単票を出力 (選択地物)",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "単票を出力 (選択地物)",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "単票を一括出力 (選択地物または全地物)",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "単票を一括出力 (選択地物または全地物)",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "設定...",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "設定",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "&geo_excel",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "geo_excel",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "geo_import",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "geo_import",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "&geo_import",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "geo_import",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "geo_import 設定",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "geo_import 設定",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "Kasugai QGIS Launcher",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "Kasugai QGIS Launcher",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "&geo_launcher",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "geo_launcher",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "ランチャーを開く",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "ランチャーを開く",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "設定...",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "設定",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "&レジェンドビュー",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "レジェンドビュー",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "レイアウト選択",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "レイアウト選択",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "geo_report",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "geo_report",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "レポート",
-   "checkable": true,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "レポート",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "geo_search",
-   "text": "地図検索",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "地図検索",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "地図検索",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "地図検索",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
-   "checkable": true,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "選択したテーマの表示レイヤを現在の表示に追加します（オン：追加表示、オフ：通常上書き）",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "ユーザー関数ライブラリ...",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "ユーザー関数ライブラリ",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "&geo_userfunc",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "geo_userfunc",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "一覧帳票を出力 (アクティブレイヤ)",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "単票を出力 (選択地物)",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "単票を出力 (選択地物)",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "単票を一括出力 (選択地物または全地物)",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "単票を一括出力 (選択地物または全地物)",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "geo_webview",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "geo_webview",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "&geo_webview",
-   "checkable": false,
-   "checked": false,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "geo_webview",
    "path": "(mainWindow)"
   },
   {
@@ -13514,42 +17014,182 @@
   },
   {
    "objectName": "",
-   "text": "WebView",
+   "text": "レポート",
    "checkable": true,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "WebView",
+   "tooltip": "レポート",
    "path": "(mainWindow)"
   },
   {
    "objectName": "",
-   "text": "頂点エディタ",
-   "checkable": true,
-   "checked": true,
-   "enabled": true,
-   "shortcut": "",
-   "tooltip": "頂点エディタ",
-   "path": "(mainWindow)"
-  },
-  {
-   "objectName": "",
-   "text": "",
+   "text": "AI アシスタント",
    "checkable": false,
    "checked": false,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "",
+   "tooltip": "AI アシスタント",
    "path": "(mainWindow)"
   },
   {
    "objectName": "",
-   "text": "自動的にプロジェクトを開く",
+   "text": "リモート制御 (localhostのみ)",
    "checkable": true,
    "checked": true,
    "enabled": true,
    "shortcut": "",
-   "tooltip": "自動的にプロジェクトを開く",
+   "tooltip": "リモート制御 (localhostのみ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "接続情報",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "接続情報",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ホットリロード",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ホットリロード",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "配置モード",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "配置モード",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "ユーザー関数ライブラリ...",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "ユーザー関数ライブラリ",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "一覧帳票を出力 (アクティブレイヤ)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "一覧帳票を出力 (アクティブレイヤ)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を出力 (選択地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を出力 (選択地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "単票を一括出力 (選択地物または全地物)",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "単票を一括出力 (選択地物または全地物)",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import",
+   "path": "(mainWindow)"
+  },
+  {
+   "objectName": "",
+   "text": "geo_import 設定",
+   "checkable": false,
+   "checked": false,
+   "enabled": true,
+   "shortcut": "",
+   "tooltip": "geo_import 設定",
    "path": "(mainWindow)"
   }
  ],
@@ -17756,14 +21396,64 @@
    "visible": true
   },
   {
-   "objectName": "Browser",
-   "title": "ブラウザ",
+   "objectName": "",
+   "title": "WebView",
+   "visible": true
+  },
+  {
+   "objectName": "VertexEditor",
+   "title": "頂点エディタ",
    "visible": true
   },
   {
    "objectName": "LayerOrder",
    "title": "レイヤ順序",
    "visible": true
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "Browser",
+   "title": "ブラウザ",
+   "visible": true
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
   },
   {
    "objectName": "AdvancedDigitizingTools",
@@ -17778,6 +21468,11 @@
   {
    "objectName": "undo/redo dock",
    "title": "元に戻す/やり直す",
+   "visible": false
+  },
+  {
+   "objectName": "StatisticalSummaryDockWidget",
+   "title": "統計",
    "visible": false
   },
   {
@@ -17811,6 +21506,11 @@
    "visible": false
   },
   {
+   "objectName": "MessageLog",
+   "title": "ログメッセージ",
+   "visible": false
+  },
+  {
    "objectName": "ProcessingToolbox",
    "title": "プロセシングツールボックス",
    "visible": false
@@ -17821,28 +21521,8 @@
    "visible": false
   },
   {
-   "objectName": "StatisticalSummaryDockWidget",
-   "title": "統計",
-   "visible": true
-  },
-  {
-   "objectName": "MessageLog",
-   "title": "ログメッセージ",
-   "visible": true
-  },
-  {
-   "objectName": "BookmarksDockWidget",
-   "title": "空間ブックマークマネージャ",
-   "visible": true
-  },
-  {
    "objectName": "theTileScaleDock",
    "title": "タイルスケール",
-   "visible": false
-  },
-  {
-   "objectName": "GeoReportLayoutSelectorPanel",
-   "title": "レポート",
    "visible": false
   },
   {
@@ -17851,9 +21531,224 @@
    "visible": false
   },
   {
-   "objectName": "VertexEditor",
-   "title": "頂点エディタ",
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "",
+   "title": "WebView",
+   "visible": false
+  },
+  {
+   "objectName": "BookmarksDockWidget",
+   "title": "空間ブックマークマネージャ",
    "visible": true
+  },
+  {
+   "objectName": "GeoReportLayoutSelectorPanel",
+   "title": "レポート",
+   "visible": false
   }
  ]
 }

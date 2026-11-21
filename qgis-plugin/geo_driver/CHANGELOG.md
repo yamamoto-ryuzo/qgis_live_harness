@@ -3,6 +3,20 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
+## [1.0.3] - 2026-11-21
+
+### Added
+- `__init__._sweep_stale_registry()`: 起動時に `~/.qgis-live/` の
+  死んだ pid の registry JSON(`<pid>-<plugin>.json`)を掃除。
+  強制終了で `_stop()` が走らず残った検出ファイルを、検出側が
+  順に probe してタイムアウトが積み上がる問題の恒久対策
+  (ai-chat検証 ISSUE-4)。pid 流用時は保守的に残す
+- `live_driver.submit()` タイムアウト応答に `busy`(実行中コマンドの
+  id/type/開始時刻)と `queued`(滞留数)を追加、`status` 応答にも同項目を
+  追加。長時間コマンドで後続が飢餓した際の診断を可能にする
+  (ai-chat検証 ISSUE-3。GUIスレッド実行のプリエンプトは安全に
+  行えないため可視化までとし、回復は外部再起動の既存方針を維持)
+
 ## [1.0.2] - 2026-11-21
 
 ### Fixed

@@ -3,7 +3,7 @@
 検証実行: 2025 (capability.json updated 参照)。AI-plane は devin_acp / swe-2-high で全項目実施。
 issue 管理ツール(dispatcher MCP)が利用不可だったため本ファイルに記録。
 
-## ISSUE-1: geo_import のモーダル exec() が制御チャネルを枯渇させる
+## ISSUE-1: geo_import のモーダル exec() が制御チャネルを枯渇させる → 対応済み(2.10.17)
 
 - 対象: `plugin.geo_import.action.GeoImport.run`,
   `plugin.geo_import.dialog.GeoImportDialogSettings`,
@@ -14,17 +14,26 @@ issue 管理ツール(dispatcher MCP)が利用不可だったため本ファイ�
   非モーダル `show()`(または `open()` + WA_DeleteOnClose)にすべき。
   bridge.py 自体は show/exec を区別する記述があるため、run/openSettings
   経路の exec 使用が不整合。
-- 検証上の措置: 3 項目を AI-plane `no_llm` に変更(手動検証項目)。
+- 対応(2026-11-21): `geo_import_main.py` の exec() 3箇所を非ブロッキング化。
+  `run()` は `_open_main_dialog()` 分離+`show()`/`finished` 管理、
+  設定不備時は `open()`+`accepted` シグナルでメインへ続く、
+  `open_settings()` は `open()`+二重起動防止。実機検証: run() 0.3s・
+  open_settings() 0.2s で即応答しダイアログは正常表示を確認
+- 検証上の措置(履歴): 3 項目を AI-plane `no_llm` に変更(手動検証項目)。
 
-## ISSUE-2: geo_userfunc `_FunctionEditDialog` が GUI ハングを引き起こす
+## ISSUE-2: geo_userfunc `_FunctionEditDialog` が GUI ハングを引き起こす → 対応済み(1.0.10)
 
 - 対象: `plugin.geo_userfunc.dialog._FunctionEditDialog`
 - 症状: AI 経由で開くと QGIS 全体が無応答になり、プロセス強制終了が必要に
   なった(複数回再現)。
 - 判定: 実装側の問題(モーダル再入またはシグナルデッドロックの疑い)。
-- 検証上の措置: AI-plane `no_llm` に変更。
+- 対応(2026-11-21): `manager_dialog.py` の `exec()` を廃止し
+  `_open_editor()` へ集約(`open()`+`WA_DeleteOnClose`+`finished`→refresh+
+  同一ファイル二重オープン防止)。実機検証: 管理ダイアログからの
+  エディタ起動が非ブロッキングで即応答を確認
+- 検証上の措置(履歴): AI-plane `no_llm` に変更。
 
-## ISSUE-3: 長時間 AI 実行中に QGIS GUI スレッドが飢餓し channel dead になる
+## ISSUE-3: 長時間 AI 実行中に QGIS GUI スレッドが飢餓し channel dead になる → 一部対応(1.0.3)
 
 - 症状: run_ai.py 実行中、特定項目(上記モーダル系以外でも稀に)で
   `/api/health` は生きているが `/api/cmd`(pyeval)が無応答になる。
@@ -32,18 +41,29 @@ issue 管理ツール(dispatcher MCP)が利用不可だったため本ファイ�
 - 観測: セッション再起動で回復。同一項目の再実行では必ずしも再現しない。
 - 判定: geo_driver の制御チャネルが GUI スレッド依存で、長時間・高頻度の
   pyeval/screenshot 連打に対する耐性が不足。watchdog/自動再接続の検討余地。
-- 対応済み: run_ai.py は 30 項目ごとに ACP セッションをローテート済み。
+- 対応(2026-11-21): 実行中コマンドの追跡を追加。`submit()` タイムアウト
+  応答と `status` 応答に `busy`(id/type/since)・`queued`(滞留数)を出し、
+  呼出側がリトライ/再起動を判断できるようにした。GUIスレッド上の
+  実行は安全にプリエンプトできないため可視化まで。回復は従来どおり
+  外部再起動(Phase 3-3 規則)を使う
+- 対応済み(既存): run_ai.py は 30 項目ごとに ACP セッションをローテート済み。
 
-## ISSUE-4: `live:ensure` の stale セッション probe がタイムアウトする
+## ISSUE-4: `live:ensure` の stale セッション probe がタイムアウトする → 対応済み
 
 - 症状: `%USERPROFILE%\.qgis-live\` に死んだセッション JSON が多数残ると、
   probeAll が 180s タイムアウトして既存/新規セッションの確立に失敗する。
-- 対応: 検証では `WEBENGINE_LIVE_DIR=test-results/live2` のクリーンな
-  ディレクトリで回避。恒久対応として probe の並列化/短縮タイムアウト/
-  stale ファイル自動掃除が必要。
-- 関連ファイル: `scripts/qgis-session.mjs`
+- 対応(2026-11-21): 二面で恒久対策。
+  - geo_driver 起動時に `~/.qgis-live/` の死んだ pid の registry JSON を
+    自動掃除(`__init__._sweep_stale_registry()`。pid 流用時は残す)。
+    実機で 24件→1件に掃除されることを確認
+  - `scripts/qgis-session.mjs probeAll` が `qgis-<pid>` dir の pid を
+    `process.kill(pid,0)` で事前除外し、残りを `Promise.all` 並列 probe
+- 対応(履歴): 検証では `WEBENGINE_LIVE_DIR=test-results/live2` のクリーンな
+  ディレクトリで回避。
+- 関連ファイル: `scripts/qgis-session.mjs`,
+  `qgis-plugin/geo_driver/__init__.py`
 
-## ISSUE-5: カタログ ID `qgis.action.noname` / `qgis.action.2` の重複・不安定化
+## ISSUE-5: カタログ ID `qgis.action.noname` / `qgis.action.2` の重複・不安定化 → 対応済み
 
 - 症状: objectName を持たない QAction(ドック/ツールバーの toggle)が
   `noname` や `2` の id で大量重複登録される。結果ファイル名が衝突し
@@ -52,6 +72,13 @@ issue 管理ツール(dispatcher MCP)が利用不可だったため本ファイ�
   action text / dock title / 親ツールバー名から安定 id を導出すべき。
 - 影響: 現状でも出現順ペアリングで動作はするが、セッション間で順序が
   変わると結果が別項目に紐付く危険がある。
+- 対応(2026-11-21): `build_catalog.stable_action_id()` 追加。根本原因は
+  `slug()` が非ASCIIを潰すため日本語テキスト/objectName が全て
+  "noname" 化していた点。objectName 非空でも slug 結果が noname なら
+  `text|path|shortcut` の SHA-1(`a_<hex10>`)へフォールバック。
+  メニュー dedup key に path も追加(同名別メニュー項目の潰れ解消)。
+  移行: 旧 noname 107件 removed、`a_*` 129件を再収録し一括実機再検証で
+  pass 111/skip 18 を書戻し済み
 
 ## ISSUE-6: 検証コード側の修正(run_ai.py — 今回修正済み)
 

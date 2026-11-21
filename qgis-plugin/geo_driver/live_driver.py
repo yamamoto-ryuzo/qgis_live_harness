@@ -491,6 +491,9 @@ class LiveDriver:
         # GUIスレッド以外から iface/QgsProject に触れないため、
         # 実行は必ずこのドライバの_poll(GUIスレッド)内で行う
         self._queue = queue.Queue()
+        # 実行中コマンドの追跡(ISSUE-3: 長時間コマンドで後続が飢餓した際の
+        # 診断用。GUIスレッド上の実行はプリエンプトできないため可視化に留める)
+        self._running = None
         os.makedirs(live_dir, exist_ok=True)
         try:
             with open(os.path.join(live_dir, "token"), "w",
@@ -515,7 +518,12 @@ class LiveDriver:
         done = threading.Event()
         self._queue.put((cmd, box, done))
         if not done.wait(timeout):
-            return {"id": cmd.get("id"), "error": f"submit timeout ({timeout}s)"}
+            # 飢餓診断: 実行中コマンドと滞留数を返す(呼出側が
+            # リトライかセッション再起動かを判断できるように)
+            return {"id": cmd.get("id"),
+                    "error": f"submit timeout ({timeout}s)",
+                    "busy": self._running,
+                    "queued": self._queue.qsize()}
         return box.get("reply", {"id": cmd.get("id"), "error": "no reply"})
 
     def stop(self):
@@ -537,12 +545,17 @@ class LiveDriver:
             def _reply_once(obj, _box=box, _done=done):
                 _box["reply"] = obj
                 _done.set()
+            self._running = {"id": cmd.get("id"),
+                             "type": cmd.get("type"),
+                             "since": time.time()}
             try:
                 async_pending = self._handle(cmd, reply=_reply_once) == "async"
             except Exception:
                 async_pending = False
                 box["reply"] = {"id": cmd.get("id"),
                                 "error": traceback.format_exc()}
+            finally:
+                self._running = None
             if not async_pending and not done.is_set():
                 done.set()
 
@@ -579,10 +592,15 @@ class LiveDriver:
                                   "error": "unauthorized"}, 0.0)
                 self._reply({"id": cmd.get("id"), "error": "unauthorized"})
                 continue
+            self._running = {"id": cmd.get("id"),
+                             "type": cmd.get("type"),
+                             "since": time.time()}
             try:
                 self._handle(cmd)
             except Exception as e:
                 self._reply({"id": None, "error": repr(e)})
+            finally:
+                self._running = None
 
     def _handle(self, cmd, reply=None):
         """コマンドの入口。監査ログを記録してから _dispatch へ渡す。
@@ -788,6 +806,8 @@ class LiveDriver:
             "live_dir": self.dir,
             "http_port": self.http_port,
             "view": self.view is not None,
+            "busy": self._running,
+            "queued": self._queue.qsize(),
             "plugins": plugs,
         }
 

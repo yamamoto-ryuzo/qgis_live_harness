@@ -1,3 +1,16 @@
+2.10.17 メイン/設定ダイアログの非ブロッキング化(AI制御経路のデッドロック解消)
+- geo_import_main.py: run() の GeoImportDialog と設定不備時の
+  GeoImportDialogSettings、および open_settings() の
+  GeoImportDialogSettings が dlg.exec() でGUIスレッドを占有し、
+  bridge/AI経路(bridge_call/action trigger)からの呼出が
+  ダイアログを閉じるまで応答しない問題を解消(ai-chat検証 ISSUE-1)
+- run(): メインダイアログ生成を _open_main_dialog() へ分離し
+  show()+finished シグナルで isopen フラグを管理(bridge openDialog
+  と同構造)。設定不備時は設定ダイアログを open() で非ブロッキング
+  表示し、accepted 後に QTimer.singleShot でメインへ続く
+- open_settings(): exec()→open() 化し _settings_dlg で二重起動防止。
+  既に開いていれば raise_/activateWindow で前面化のみ
+- Qt6対応: WA_DeleteOnClose は Qt.WidgetAttribute 列挙子で指定
 2.10.16 URLエンコード名リソースのダウンロード失敗を修正
 - ckanconnector.py: __file_name_from_service でURL由来のファイル名を
   unquote して実名化し、%2F/%5C 由来のパストラバーサル防止のため

@@ -146,6 +146,16 @@ function launchQgis(liveBase) {
   );
 }
 
+// プロセス生存確認(EPERM=他ユーザーの生存プロセスなので alive 扱い)
+function pidAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (e) {
+    return e.code === "EPERM";
+  }
+}
+
 // 全live plugin dirに短時間プローブを打ち、応答したものを返す。
 // pyevalでプローブする: evaluateはレンダラー(JS側)が飢餓していると応答しないが、
 // pyevalはPython側(プラグインのQTimer)だけで完結するため、ドライバの生存確認に適する。
@@ -153,17 +163,23 @@ function launchQgis(liveBase) {
 // (reloadはviewを作り直すので飢餓したレンダラーも直せる)。
 async function probeAll(liveBase) {
   const dirs = await resolveLiveDirs(liveBase);
-  const live = [];
-  for (const d of dirs) {
+  // 死んだpidのlive dirはpyevalタイムアウト待ちになるだけなので先に除く。
+  // 残りは並列probeする(逐次だと死 dir の個数x5sかかっていた)
+  const alive = dirs.filter((d) => {
+    const m = /qgis-(\d+)/.exec(d.dir);
+    return !m || pidAlive(Number(m[1]));
+  });
+  const results = await Promise.all(alive.map(async (d) => {
     const page = new LivePage(d.dir);
     // 過去セッションの古いresultsによる誤検知を防ぐため一度空にする
     try { await page.reset(); } catch {}
     try {
       await page.pyeval("1", { timeoutMs: 5000 });
-      live.push(d);
+      return d;
     } catch {}
-  }
-  return live;
+    return null;
+  }));
+  return results.filter(Boolean);
 }
 
 /**
