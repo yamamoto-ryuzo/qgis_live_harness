@@ -1,5 +1,32 @@
 # 変更履歴(Changelog)
 
+## 4.28.0
+
+- **カスタムレイヤタブ(custom-layer)+レイヤ別 .kasc オプション対応**。
+  パネルに「Layers」タブを新設し、レイヤごとの .kasc オプションを
+  テーブルで設定できる(値はレイヤ customProperty へ保存、
+  エクスポート時に `| key=value` として出力):
+  `site`=グループ名(グレー表示=グループ名の自動値・`-` で強制未割当)/
+  `order`=グループ内順位/`list`=一覧非表示(list=off)/`opts`=任意の追加
+  key=value。タブ冒頭の「Custom layers tab」チェック
+  (QSettings `kasugai_site_control`)ON でレイヤツリーのグループ名を
+  `site=<グループ>` として一括付与し、`site=` 付きレイヤがあれば
+  `plugin: custom-layer | name=レイヤ | url=canvas_data/custom-layer.js | before=layers-panel`
+  行と同梱プラグインJS(`assets/custom-layer.js` → `canvas_data/` 複製)
+  を出力する(customProperty 個別指定でも site= が出ればプラグイン行
+  は出る)。Canvas 側では site= は custom-layer タブ(表示名
+  「レイヤ」)専用の集約キーで標準レイヤタブには全レイヤが表示され
+  (list=off のみ標準一覧から隠れる。タブ名が重複するため組み込み
+  側は「システムレイヤ」に自動改称される)、custom-layer タブで
+  グループごとの一括 on/off とメンバー凡例の表示・シンボル別
+  on/off ができる(url= プロジェクト相対のため CDN/静的ホスト・
+  全エンジンで動作)。`kasugaiExport` に `site_control` 引数を追加
+  (既定=QSettings 参照)
+- **「▶ Canvas」ボタンが毎回再エクスポートするよう変更**。
+  従来は既存の出力物をそのまま登録・表示するだけだったが、
+  押すたびに最新のレイヤ状態(名称・可視・customProperty
+  オプション)が Canvas に反映されるようになった
+
 ## 4.27.0
 
 - **パネル「Web」タブ化**。最上段にあった「Web配信(サーバレス)」

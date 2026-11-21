@@ -415,6 +415,14 @@ npm run test:unit
 
 ### L2: 実QGISでの検証
 
+**L2 検証に必要な QGIS は自動で起動される。ユーザーが事前に QGIS を
+起動しておく必要はなく、未起動でもそのまま検証コマンドを実行してよい**
+(`npm run live:ensure`/`test:live`/`verify:*` 系は内部で `ensureQgis`
+を呼び、応答する LiveDriver が無ければ QGIS を自動起動して応答まで
+ポーリングする。「QGISを起動しました」等のユーザー報告は待たずに
+開始してよい。deploy は一切行われないため、プラグイン未配置の場合だけ
+`npm run deploy`/`deploy:install` をユーザーへ依頼する)。
+
 **標準の検証対象プラグインは `geo_search`・`geo_webview`・`geo_report`・
 `geo_import`・`geo_excel`・`geo_userfunc`・`geo_legend`・
 `geo_launcher`**(実体は

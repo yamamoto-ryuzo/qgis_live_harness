@@ -22,6 +22,9 @@
    </property>
    <item>
     <widget class="QTabWidget" name="tabWidget_main">
+     <property name="tabPosition">
+      <enum>QTabWidget::South</enum>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -514,6 +517,105 @@
           </size>
          </property>
         </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_kasugai_layers">
+      <attribute name="title">
+       <string>Layers</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_tab_layers">
+       <item>
+        <widget class="QCheckBox" name="checkBox_site_control">
+         <property name="text">
+          <string>Custom layers tab</string>
+         </property>
+         <property name="toolTip">
+          <string>Group layers by their layer-tree group name into a custom "Layers" tab in KASUGAI Canvas (site=&lt;group&gt; on each layer row + custom-layer plugin tab for per-group on/off and ordering). All layers stay on the standard tab (shown as "System layers" while the custom tab exists); use list=off to hide a row there. Ungrouped layers go to "Misc". Per-layer override: layer custom properties kasugai_site / kasugai_order</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_kasugai_layers_hint">
+         <property name="text">
+          <string>Per-layer .kasc options (saved to the layer; gray = auto value): site=control group (blank=auto/"-"=Misc), order=rank within site, list=hide from layer list, opts=extra key=value</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTreeWidget" name="treeWidget_kasugai_layers">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="rootIsDecorated">
+          <bool>false</bool>
+         </property>
+         <column>
+          <property name="text">
+           <string>Layer</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>site</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>order</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>list</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>opts</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_kasugai_layers_btns">
+         <item>
+          <widget class="QPushButton" name="pushButton_kasugai_layers_edit">
+           <property name="text">
+            <string>EDIT</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_kasugai_layers_view">
+           <property name="text">
+            <string>VIEW</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_kasugai_layers_refresh">
+           <property name="text">
+            <string>Refresh</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

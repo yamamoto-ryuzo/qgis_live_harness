@@ -75,6 +75,12 @@ SETTINGS_KEY_BASEMAP_GROUPS = 'kasugai_basemap_groups'
 SETTINGS_KEY_VECTOR_FORMAT = 'kasugai_vector_format'
 VECTOR_EXPORT_MODES = ('native', 'recommended', 'geojson')
 SETTINGS_KEY_VISIBLE_DATA_ONLY = 'kasugai_visible_data_only'
+# カスタムレイヤタブ(custom-layer)の有効化設定。
+# ON のとき、レイヤツリーのグループをグループ名として ``site=<グループ>``
+# をレイヤ行へ付け、custom-layer プラグインJSを canvas_data/ へ複製して
+# ``plugin:`` 行を出力する(レイヤ customProperty ``kasugai_site`` /
+# ``kasugai_order`` で個別上書き可)
+SETTINGS_KEY_SITE_CONTROL = 'kasugai_site_control'
 
 # .kasc と同じ場所に出力するエンジン起動HTML(サーバレス配布用)。
 # 各HTMLは ?kasc=<.kascの絶対URL> 付きでエンジンへ転送するだけの
@@ -752,6 +758,120 @@ def set_visible_data_only(on):
     """非表示レイヤのデータ変換スキップを QSettings へ保存する。"""
     _qsettings().setValue(
         SETTINGS_KEY_VISIBLE_DATA_ONLY, '1' if on else '0')
+
+
+def get_site_control():
+    """QSettings の kasugai_site_control(未設定は False)を返す。
+
+    パネルの「カスタムレイヤタブ」チェックと共有される既定値。
+    True ならレイヤツリーのグループ名を ``site=<グループ>`` として
+    レイヤ行へ付け、custom-layer プラグインを canvas_data/ へ複製して
+    ``plugin:`` 行を出力する(標準レイヤタブは全レイヤを表示したまま
+    「システムレイヤ」に改称され、custom-layer タブが site ごとの
+    一括 on/off を担う)。
+    """
+    try:
+        v = _qsettings().value(SETTINGS_KEY_SITE_CONTROL, None)
+        if v is not None and str(v).strip() != '':
+            return str(v).strip().lower() not in (
+                '0', 'false', 'off', 'no')
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return False
+
+
+def set_site_control(on):
+    """カスタムレイヤタブの有効化を QSettings へ保存する。"""
+    _qsettings().setValue(
+        SETTINGS_KEY_SITE_CONTROL, '1' if on else '0')
+
+
+def _canvas_layer_opts_suffix(layer, groups, bm_idx, site_control):
+    """レイヤ行へ付ける `` | site=`` / `` | order=`` / `` | list=off`` /
+    追加オプションのオプション文字列を返す。
+
+    レイヤ customProperty(パネルの Layers タブからも設定):
+    - ``kasugai_site`` — カスタムタブのグループ名。未設定で site_control
+      ON ならグループ階層(``A/B`` 連結)を自動付与。``-``/空文字で
+      強制未割当(「その他」行・標準タブに残る)
+    - ``kasugai_order`` — 同一 site 内の並び順(小さいほど最前面)
+    - ``kasugai_list`` — ``off`` で標準レイヤ一覧から非表示(地図は描画)
+    - ``kasugai_opts`` — 空白/``|`` 区切りの任意 ``key=value`` 列を
+      そのまま追加(``opacity=0.5 heat=on`` 等)
+    ベースマップグループ内のレイヤは site= を付けない。
+    """
+    o = _canvas_layer_opts(layer, groups, bm_idx, site_control)
+    out = ''
+    if o['site']:
+        out += ' | site={0}'.format(_kasc_escape(o['site']))
+    if o['order']:
+        out += ' | order={0}'.format(_kasc_escape(o['order']))
+    if o['list'] == 'off':
+        out += ' | list=off'
+    for tok in o['opts']:
+        out += ' | {0}'.format(_kasc_escape(tok))
+    return out
+
+
+def _canvas_layer_opts(layer, groups, bm_idx, site_control):
+    """レイヤの .kasc 追加オプションを dict で返す(VIEW 表示・内部用)。
+
+    戻り値 ``{'site': <箇所名>|None, 'order': <文字列>|None,
+    'list': 'off'|None, 'opts': [<key=value>,...]}``。
+    ``site`` は ``_canvas_layer_opts_suffix`` と同一の解決規則。
+    """
+    res = {'site': None, 'order': None, 'list': None, 'opts': []}
+    try:
+        site = layer.customProperty('kasugai_site', None)
+    except Exception:  # nosec B110  # 設計上の許容
+        site = None
+    if site is None:
+        site = ('/'.join([g for g in groups if g])
+                if site_control and bm_idx is None else '')
+    else:
+        site = str(site).strip()
+    if site and site != '-' and bm_idx is None:
+        res['site'] = site
+    try:
+        order = layer.customProperty('kasugai_order', None)
+    except Exception:  # nosec B110  # 設計上の許容
+        order = None
+    if order is not None and str(order).strip() != '':
+        res['order'] = str(order).strip()
+    try:
+        lst = layer.customProperty('kasugai_list', None)
+    except Exception:  # nosec B110  # 設計上の許容
+        lst = None
+    if str(lst or '').strip() == 'off':
+        res['list'] = 'off'
+    try:
+        extra = layer.customProperty('kasugai_opts', None)
+    except Exception:  # nosec B110  # 設計上の許容
+        extra = None
+    for tok in re.split(r'[|\s]+', str(extra or '')):
+        if tok and ('=' in tok or tok in ('on', 'off')):
+            res['opts'].append(tok)
+    return res
+
+
+def _copy_site_control_plugin(data_dir, warnings):
+    """custom-layer プラグインJSを canvas_data/ へ複製する。
+
+    バンドル元は geo_webview/assets/custom-layer.js で、正本は
+    kasugai_canvas/web/cesium/PLUGIN/custom-layer/plugin.js
+    (Canvas 側更新時は内容を同期する)。
+    """
+    src = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                       'assets', 'custom-layer.js')
+    dst = os.path.join(data_dir, 'custom-layer.js')
+    try:
+        if not os.path.isfile(dst) or not _same_data_copy(src, dst):
+            import shutil
+            shutil.copy2(src, dst)
+        return True
+    except Exception as e:
+        warnings.append('custom-layer.js 複製失敗: {0}'.format(e))
+        return False
 
 
 def _recommended_source_kind(layer):
@@ -3821,7 +3941,8 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                            changed=None, live_url=None,
                            fields=None, where=None, limit=None,
                            link_files=True, vector_format=None,
-                           visible_data_only=None, progress_cb=None):
+                           visible_data_only=None, progress_cb=None,
+                           site_control=None):
     """レイヤツリーを KASUGAI Canvas プロジェクトとして出力する。
 
     引数:
@@ -3866,6 +3987,13 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             UI へ出す用途(パネルの進捗ダイアログ等)。
             コールバック内で ``ExportCancelled`` を送出するとエクスポートを
             中断できる(キャンセルボタン実装用)。
+        site_control: True ならレイヤツリーのグループ名を
+            ``site=<グループ>`` としてレイヤ行へ付け、custom-layer
+            プラグインJSを canvas_data/ へ複製して ``plugin:`` 行を
+            出力する(site ごとの一括 on/off タブが Canvas 側へ
+            追加される。レイヤ customProperty ``kasugai_site`` /
+            ``kasugai_order`` で個別上書き可)。None(既定)は
+            QSettings ``kasugai_site_control``(パネルのチェック)に従う。
         emit_themes: True ならプロジェクトのマップテーマを ``theme:`` 行
             (Canvas の可視性プリセット)として出力する(既定)。
             テーマが存在する場合、非表示レイヤも ``| off`` で出力しないと
@@ -3999,6 +4127,11 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     # kasugai_visible_data_only(パネルのチェック、初期値 ON)を解決
     if visible_data_only is None:
         visible_data_only = get_visible_data_only()
+    # カスタムレイヤタブ(パネルのチェック、既定 OFF)を解決。
+    # ON ならレイヤツリーのグループ名を site= としてレイヤ行へ付け、
+    # custom-layer プラグインを canvas_data/ へ複製して plugin: 行を出す
+    if site_control is None:
+        site_control = get_site_control()
     # ライブ差分エクスポート: {layer.id(): {'data':bool,'style':bool}}。
     # changed 指定時は未変更レイヤのデータ/スタイル書き出しを
     # 既存ファイルがある場合に限りスキップし、live.json に変更一覧を書く
@@ -4060,6 +4193,11 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         # (グループ名はタイトルから外し、配下のサブグループは残す)
         bm_idx = _basemap_group_index(groups, basemap_names)
         title = _kasc_layer_title(groups, layer.name(), exclusive_groups)
+        # レイヤ別オプション(site=/order=/list=off/追加opts)。
+        # カスタムレイヤタブ ON のときグループ名を site= として自動付与、
+        # customProperty(kasugai_site 等)は設定有無に関わらず常時有効
+        site_opt = _canvas_layer_opts_suffix(
+            layer, groups, bm_idx, site_control)
         if not visible:
             if (bm_idx is not None
                     and not isinstance(layer, QgsVectorLayer)
@@ -4186,6 +4324,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 attr = _attribution(layer)
                 if attr:
                     line += ' | attr={0}'.format(_kasc_escape(attr))
+                line += site_opt
                 if where_val:
                     line += ' | where={0}'.format(where_val)
                 layers_out.append({
@@ -4252,11 +4391,12 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             attr = _attribution(layer)
             attr_opt = ' | attr={0}'.format(
                 _kasc_escape(attr)) if attr else ''
-            kasc_lines.append(
+            line = (
                 '{7}: {0} | {9}{1}{8} | {2}{3}{4}{5}{6}'.format(
                     title, slug, vis_flag, style_opt, vopt,
                     _scale_vis_opt(layer), attr_opt, out_kind, out_ext,
-                    os.path.basename(data_dir) + '/'))
+                    os.path.basename(data_dir) + '/') + site_opt)
+            kasc_lines.append(line)
             emitted_ids.add(id(layer))
             ln_meta = _legend_node_line(tnode, title)
             if ln_meta:
@@ -4275,6 +4415,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 attr = _attribution(layer)
                 if attr:
                     line += ' | attr={0}'.format(_kasc_escape(attr))
+                line += site_opt
                 kasc_lines.append(line)
                 tiles_out.append({'name': layer.name(), 'url': vt_src['url'],
                                   'type': vt_src['kind']})
@@ -4291,6 +4432,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                     attr = _attribution(layer)
                     if attr:
                         line += ' | attr={0}'.format(_kasc_escape(attr))
+                    line += site_opt
                     kasc_lines.append(line)
                     tiles_out.append({'name': layer.name(), 'url': ref,
                                       'type': '3dtiles'})
@@ -4368,6 +4510,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                     attr = _attribution(layer)
                     if attr:
                         line += ' | attr={0}'.format(_kasc_escape(attr))
+                    line += site_opt
                     kasc_lines.append(line)
                     emitted_ids.add(id(layer))
                 tiles_out.append({'name': layer.name(), 'url': url,
@@ -4402,6 +4545,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                     attr = _attribution(layer)
                     if attr:
                         line += ' | attr={0}'.format(_kasc_escape(attr))
+                    line += site_opt
                     kasc_lines.append(line)
                     tiles_out.append({'name': layer.name(), 'url': url,
                                       'type': 'wmts'})
@@ -4434,6 +4578,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                     attr = _attribution(layer)
                     if attr:
                         line += ' | attr={0}'.format(_kasc_escape(attr))
+                    line += site_opt
                     kasc_lines.append(line)
                     tiles_out.append({'name': layer.name(), 'url': url,
                                       'type': 'wms'})
@@ -4469,6 +4614,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                         if attr:
                             line += ' | attr={0}'.format(
                                 _kasc_escape(attr))
+                        line += site_opt
                         kasc_lines.append(line)
                         tiles_out.append({
                             'name': layer.name(),
@@ -4489,6 +4635,7 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                         if attr:
                             line += ' | attr={0}'.format(
                                 _kasc_escape(attr))
+                        line += site_opt
                         kasc_lines.append(line)
                         tiles_out.append({'name': layer.name(), 'url': ref,
                                           'type': 'geotiff'})
@@ -4503,6 +4650,16 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
             progress_cb(_progress_total, _progress_total, '')
         except Exception:  # nosec B110  # UI通知の失敗で中断しない
             pass
+
+    # カスタムレイヤ: site= 付きレイヤが1件でも出力されていれば
+    # custom-layer プラグインJSを canvas_data/ へ複製し plugin: 行を出す
+    # (url= プロジェクト相対なので CDN/静的ホスティング・全エンジンで
+    # そのまま動く。site= レイヤが無ければタブ不要なので行も出さない)
+    if any(' | site=' in kl for kl in kasc_lines):
+        if _copy_site_control_plugin(data_dir, warnings):
+            kasc_lines.append(
+                'plugin: custom-layer | name=レイヤ | '
+                'url=canvas_data/custom-layer.js | before=layers-panel')
 
     cam = _camera_line(iface)
     bookmark_count = 0

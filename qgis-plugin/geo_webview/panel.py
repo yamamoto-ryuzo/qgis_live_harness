@@ -122,6 +122,23 @@ class GeoWebViewPanel(QDockWidget):
         # 非表示レイヤのデータ変換スキップ(高速化)チェック
         self.checkBox_visible_only = getattr(
             self.ui, 'checkBox_visible_only', None)
+        # カスタムレイヤタブ(site= 付与+custom-layer タブ)チェック
+        self.checkBox_site_control = getattr(
+            self.ui, 'checkBox_site_control', None)
+        # レイヤ別 .kasc オプション設定テーブル(site/order/list/opts)
+        self.treeWidget_kasugai_layers = getattr(
+            self.ui, 'treeWidget_kasugai_layers', None)
+        self.pushButton_kasugai_layers_refresh = getattr(
+            self.ui, 'pushButton_kasugai_layers_refresh', None)
+        self.pushButton_kasugai_layers_edit = getattr(
+            self.ui, 'pushButton_kasugai_layers_edit', None)
+        self.pushButton_kasugai_layers_view = getattr(
+            self.ui, 'pushButton_kasugai_layers_view', None)
+        self._kasugai_layers_mode = 'edit'
+        try:
+            self._init_kasugai_layers_ui()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
         # HTTP server toggle checkbox (added to UI)
         self.checkBox_server_toggle = getattr(self.ui, 'checkBox_server_toggle', None)
         # External control checkbox (new in UI)
@@ -329,6 +346,12 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.checkBox_visible_only.setToolTip(QCoreApplication.translate(
                 'geo_webview',
                 "Only output visible layers — hidden layers are not written to the .kasc at all (basemap-group XYZ candidates keep their base: rows for the background selector, as before). Skipped layers cannot be turned on in Canvas. Uncheck to emit hidden layers as | off rows with all data converted (whole-project migration)"))
+        if hasattr(self.ui, 'checkBox_site_control'):
+            self.ui.checkBox_site_control.setText(QCoreApplication.translate(
+                'geo_webview', "Custom layers tab"))
+            self.ui.checkBox_site_control.setToolTip(QCoreApplication.translate(
+                'geo_webview',
+                'Group layers by their layer-tree group name into a custom "Layers" tab in KASUGAI Canvas (site=<group> on each layer row + custom-layer plugin tab for per-group on/off and ordering). All layers stay on the standard tab (shown as "System layers" while the custom tab exists); use list=off to hide a row there. Ungrouped layers go to "Misc". Per-layer override: layer custom properties kasugai_site / kasugai_order'))
         if hasattr(self.ui, 'pushButton_kasugai_folder'):
             self.ui.pushButton_kasugai_folder.setText('📁')
             self.ui.pushButton_kasugai_folder.setToolTip(
@@ -400,6 +423,262 @@ class GeoWebViewPanel(QDockWidget):
     def _on_visibility_changed(self, visible):
         if visible:
             self.update_canvas_launch_state()
+
+    # --- レイヤ別 .kasc オプション設定(Layers タブ) --------------------
+    # site= / order= / list=off / 追加opts をレイヤ customProperty
+    # (kasugai_site/kasugai_order/kasugai_list/kasugai_opts)へ
+    # 読み書きする。エクスポート側は customProperty をそのまま読むため
+    # UI と .kasc の間に別の保存層は持たない。
+
+    def _init_kasugai_layers_ui(self):
+        """Layers タブのテーブル配線(初回構築・更新ボタン・ツリー変更追従)。"""
+        tw = self.treeWidget_kasugai_layers
+        if tw is None:
+            return
+        tw.itemChanged.connect(self._on_kasugai_layer_item_changed)
+        if self.pushButton_kasugai_layers_refresh is not None:
+            self.pushButton_kasugai_layers_refresh.clicked.connect(
+                self._rebuild_kasugai_layers)
+        # EDIT/VIEW トグル(排他)
+        if self.pushButton_kasugai_layers_edit is not None:
+            self.pushButton_kasugai_layers_edit.clicked.connect(
+                lambda: self._set_kasugai_layers_mode('edit'))
+        if self.pushButton_kasugai_layers_view is not None:
+            self.pushButton_kasugai_layers_view.clicked.connect(
+                lambda: self._set_kasugai_layers_mode('view'))
+        if self.checkBox_site_control is not None:
+            # custom-layer ON/OFF で site 列の自動値(グレー)が変わる
+            self.checkBox_site_control.toggled.connect(
+                lambda checked: self._rebuild_kasugai_layers())
+        tabw = getattr(self.ui, 'tabWidget_main', None)
+        if tabw is not None:
+            tabw.currentChanged.connect(
+                lambda idx: self._rebuild_kasugai_layers())
+        try:
+            from qgis.core import QgsProject
+            prj = QgsProject.instance()
+            for sig in ('layersAdded', 'layersRemoved'):
+                try:
+                    getattr(prj, sig).connect(self._rebuild_kasugai_layers)
+                except Exception:
+                    pass
+            try:
+                prj.layerTreeRoot().nameChanged.connect(
+                    lambda *a: self._rebuild_kasugai_layers())
+            except Exception:
+                pass
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        self._rebuild_kasugai_layers()
+
+    def _set_kasugai_layers_mode(self, mode):
+        """EDIT(編集テーブル)/VIEW(出力結果表示)を切り替える。"""
+        self._kasugai_layers_mode = mode
+        if self.pushButton_kasugai_layers_edit is not None:
+            self.pushButton_kasugai_layers_edit.blockSignals(True)
+            self.pushButton_kasugai_layers_edit.setChecked(mode == 'edit')
+            self.pushButton_kasugai_layers_edit.blockSignals(False)
+        if self.pushButton_kasugai_layers_view is not None:
+            self.pushButton_kasugai_layers_view.blockSignals(True)
+            self.pushButton_kasugai_layers_view.setChecked(mode == 'view')
+            self.pushButton_kasugai_layers_view.blockSignals(False)
+        self._rebuild_kasugai_layers()
+
+    def _kasugai_layer_rows(self):
+        """(layer, groups, node) のツリー順リスト。グループ自体は行にしない。"""
+        from qgis.core import QgsProject, QgsLayerTreeLayer
+        rows = []
+
+        def _walk(node, groups):
+            for ch in node.children():
+                if isinstance(ch, QgsLayerTreeLayer):
+                    lyr = ch.layer()
+                    if lyr is not None:
+                        rows.append((lyr, list(groups), ch))
+                else:
+                    _walk(ch, groups + [ch.name()])
+        _walk(QgsProject.instance().layerTreeRoot(), [])
+        return rows
+
+    def _rebuild_kasugai_layers(self, *args):
+        """Layers タブの行を現在のレイヤツリーで再構築する。"""
+        tw = self.treeWidget_kasugai_layers
+        if tw is None:
+            return
+        from qgis.PyQt.QtWidgets import QTreeWidgetItem
+        from qgis.PyQt.QtGui import QBrush, QColor
+        try:
+            from . import kasugai_export
+            bm_names = kasugai_export._basemap_group_names()
+            bm_index = kasugai_export._basemap_group_index
+        except Exception:  # nosec B110  # 設計上の許容
+            bm_names, bm_index = (), lambda g, n=None: None
+        auto_on = bool(self.checkBox_site_control
+                       and self.checkBox_site_control.isChecked())
+        if self._kasugai_layers_mode == 'view':
+            self._rebuild_kasugai_layers_view(
+                tw, bm_names, bm_index, auto_on)
+            return
+        tw.setColumnCount(5)
+        tw.setHeaderLabels(['Layer', 'site', 'order', 'list', 'opts'])
+        gray = QBrush(QColor(140, 140, 140))
+        tw.blockSignals(True)
+        try:
+            tw.clear()
+            for layer, groups, _node in self._kasugai_layer_rows():
+                name = '/'.join(groups + [layer.name()])
+                it = QTreeWidgetItem([name, '', '', '', ''])
+                it.setData(0, Qt.ItemDataRole.UserRole, layer.id())
+                it.setFlags(it.flags() | Qt.ItemFlag.ItemIsEditable |
+                            Qt.ItemFlag.ItemIsUserCheckable)
+                # 個別指定 > 自動(custom-layer ON のときグループパス)
+                site = layer.customProperty('kasugai_site', None)
+                auto = '' if bm_index(groups, bm_names) is not None \
+                    else '/'.join(groups)
+                if site is None:
+                    if auto_on and auto:
+                        it.setText(1, auto)
+                        it.setForeground(1, gray)
+                        it.setToolTip(1, 'auto: {0}'.format(auto))
+                else:
+                    it.setText(1, site)
+                order = layer.customProperty('kasugai_order', None)
+                if order is not None and str(order) != '':
+                    it.setText(2, str(order))
+                it.setCheckState(
+                    3, Qt.CheckState.Checked
+                    if str(layer.customProperty(
+                        'kasugai_list', '') or '').strip() == 'off'
+                    else Qt.CheckState.Unchecked)
+                opts = layer.customProperty('kasugai_opts', None)
+                if opts:
+                    it.setText(4, str(opts))
+                it.setToolTip(4, 'key=value key=value ...')
+                tw.addTopLevelItem(it)
+            tw.resizeColumnToContents(0)
+        finally:
+            tw.blockSignals(False)
+
+    def _rebuild_kasugai_layers_view(self, tw, bm_names, bm_index,
+                                     auto_on):
+        """VIEW モード: Canvas で実際に見えるパネル構成を再現する
+        (編集不可)。custom-layer プラグインと同じ規則:
+
+        - 「レイヤタブ (custom-layer)」(site= が1件以上あるときのみ出る):
+          site ごとのグループ(.kasc 初出順)+メンバー(order= 昇順、
+          無指定は末尾)。site 無しレイヤは末尾「その他」に集約
+        """
+        from qgis.PyQt.QtWidgets import QTreeWidgetItem
+        try:
+            from . import kasugai_export
+            opts_of = kasugai_export._canvas_layer_opts
+        except Exception:  # nosec B110  # 設計上の許容
+            opts_of = None
+
+        def _opts(layer, groups):
+            if opts_of is None:
+                return {'site': None, 'order': None, 'list': None,
+                        'opts': []}
+            try:
+                return opts_of(layer, groups,
+                               bm_index(groups, bm_names), auto_on)
+            except Exception:  # nosec B110  # 設計上の許容
+                return {'site': None, 'order': None, 'list': None,
+                        'opts': []}
+
+        tw.blockSignals(True)
+        try:
+            tw.setColumnCount(2)
+            tw.setHeaderLabels(['Canvas', ''])
+            tw.clear()
+            sites, misc = {}, []
+            for layer, groups, node in self._kasugai_layer_rows():
+                try:
+                    if not node.itemVisibilityChecked():
+                        # QGIS で非表示のレイヤは VIEW に出さない
+                        continue
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+                o = _opts(layer, groups)
+                if o['list'] == 'off':
+                    # list=off は Canvas の一覧に出ないので
+                    # VIEW にも出さない
+                    continue
+                name = '/'.join(groups + [layer.name()])
+                label = name
+                note = ('order={0}'.format(o['order'])
+                        if o['order'] else '')
+                if o['site']:
+                    sites.setdefault(o['site'], []).append(
+                        (o['order'], label, note))
+                else:
+                    misc.append((label, note))
+            if sites:
+                root_sc = QTreeWidgetItem(['レイヤタブ (custom-layer)',
+                                           'before=layers-panel'])
+                root_sc.setFlags(root_sc.flags()
+                                 & ~Qt.ItemFlag.ItemIsEditable)
+                tw.addTopLevelItem(root_sc)
+
+                def _member_key(m):
+                    try:
+                        return (0, float(m[0]))
+                    except (TypeError, ValueError):
+                        return (1, 0)
+                for sname, members in sites.items():
+                    g = QTreeWidgetItem(
+                        [sname, '{0}'.format(len(members))])
+                    g.setFlags(g.flags() & ~Qt.ItemFlag.ItemIsEditable)
+                    root_sc.addChild(g)
+                    for _od, label, note in sorted(
+                            members, key=_member_key):
+                        it = QTreeWidgetItem([label, note])
+                        it.setFlags(it.flags()
+                                    & ~Qt.ItemFlag.ItemIsEditable)
+                        g.addChild(it)
+                if misc:
+                    g = QTreeWidgetItem(['その他',
+                                         '{0}'.format(len(misc))])
+                    g.setFlags(g.flags() & ~Qt.ItemFlag.ItemIsEditable)
+                    root_sc.addChild(g)
+                    for label, note in misc:
+                        it = QTreeWidgetItem([label, note])
+                        it.setFlags(it.flags()
+                                    & ~Qt.ItemFlag.ItemIsEditable)
+                        g.addChild(it)
+            tw.expandAll()
+            tw.resizeColumnToContents(0)
+        finally:
+            tw.blockSignals(False)
+
+    def _on_kasugai_layer_item_changed(self, item, col):
+        """セル編集をレイヤ customProperty へ反映する。"""
+        if self.treeWidget_kasugai_layers is None or col == 0:
+            return
+        from qgis.core import QgsProject
+        lid = item.data(0, Qt.ItemDataRole.UserRole)
+        layer = QgsProject.instance().mapLayer(lid)
+        if layer is None:
+            return
+        if col == 1:
+            key, val = 'kasugai_site', item.text(1).strip()
+        elif col == 2:
+            key, val = 'kasugai_order', item.text(2).strip()
+        elif col == 3:
+            key = 'kasugai_list'
+            val = 'off' if item.checkState(3) == Qt.CheckState.Checked \
+                else ''
+        elif col == 4:
+            key, val = 'kasugai_opts', item.text(4).strip()
+        else:
+            return
+        if val == '':
+            layer.removeCustomProperty(key)
+        else:
+            layer.setCustomProperty(key, val)
+        # site 列を空にした場合は自動値(グレー)表示へ戻す
+        if col == 1 and val == '':
+            self._rebuild_kasugai_layers()
 
     def update_canvas_launch_state(self):
         """KASUGAI Canvas のインストール状態を「▶ Canvas」ボタンに、

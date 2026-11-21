@@ -603,6 +603,24 @@ class GeoWebView:
                     except Exception:  # nosec B110  # 設計上の許容
                         pass
 
+                # 「カスタムレイヤタブ」チェック。QSettings
+                # kasugai_site_control と双方向同期する。ON で
+                # レイヤツリーのグループ名を site= として出力し、
+                # Canvas へグループごとの一括制御タブを追加する
+                _sc_check = getattr(
+                    self.panel, 'checkBox_site_control', None)
+                if _sc_check is not None:
+                    try:
+                        from . import kasugai_export
+                        _sc_check.blockSignals(True)
+                        _sc_check.setChecked(
+                            kasugai_export.get_site_control())
+                        _sc_check.blockSignals(False)
+                        _sc_check.toggled.connect(
+                            self.on_site_control_toggled)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+
                 # Check Access ボタンのイベントを接続
                 if hasattr(self.panel, 'pushButton_check_access'):
                     self.panel.pushButton_check_access.clicked.connect(self.on_check_access_clicked)
@@ -1791,14 +1809,24 @@ class GeoWebView:
         except Exception:  # nosec B110  # 設計上の許容
             pass
 
+    def on_site_control_toggled(self, checked):
+        """パネルの「カスタムレイヤタブ」チェックを kasugai_site_control
+        へ保存する。エクスポート全経路(パネルボタン・/kasugai・bridge の
+        既定値)がこの設定に従う。"""
+        try:
+            from . import kasugai_export
+            kasugai_export.set_site_control(bool(checked))
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
     def on_kasugai_launch_clicked(self, route='auto'):
         """パネル版：選択エンジンで エクスポート→登録→ブラウザ起動 まで
         一発で行う。bridge の kasugaiExport(open_app=True) を利用する。
         route は 'kasugai'(Canvas登録=主プレイヤー) / 'local'(本サーバの
         ローカルHTTP配信で即表示) / 'hosted'(サーバレスWEB=ホスト版
         エンジン) / 'auto'(3段フォールバック)。
-        'kasugai'(「▶ Canvas」ボタン)は再エクスポートせず既存の出力物
-        だけを使い、未出力ならエクスポートを促すメッセージを出す。"""
+        'kasugai'(「▶ Canvas」ボタン)も再エクスポートしてから登録・
+        表示するため、押すたびに最新のレイヤ状態が Canvas へ反映される。"""
         try:
             engine = 'cesium'
             combo = getattr(self.panel, 'comboBox_engine', None)
@@ -1821,18 +1849,14 @@ class GeoWebView:
             if self.bridge is None:
                 from .bridge import GeoWebViewBridge
                 self.bridge = GeoWebViewBridge(self)
-            # 再エクスポートを伴う経路のみ進捗ダイアログを出す
-            # (use_existing 経路はエクスポートを実行しない)
+            # 全経路で再エクスポートを行うため進捗ダイアログを出す
             dlg = None
             try:
-                if route != 'kasugai':
-                    dlg, _cb = self._kasugai_export_progress()
-                else:
-                    _cb = None
+                dlg, _cb = self._kasugai_export_progress()
                 res = json.loads(
                     self.bridge.kasugaiExport(
                         engine=engine, open_app=True, route=route,
-                        use_existing=(route == 'kasugai'),
+                        use_existing=False,
                         progress_cb=_cb)
                     or '{}')
             finally:

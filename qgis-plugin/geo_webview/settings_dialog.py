@@ -191,6 +191,25 @@ class SettingsDialog(QtWidgets.QDialog):
         self.kasugai_visible_only_check.toggled.connect(
             self._visible_only_toggled)
         vf_layout.addWidget(self.kasugai_visible_only_check)
+        # カスタムレイヤタブ(パネルの同名チェックと同じ
+        # kasugai_site_control を読み書き)
+        self.kasugai_site_control_check = QtWidgets.QCheckBox(
+            QtCore.QCoreApplication.translate(
+                'geo_webview', "Custom layers tab"))
+        self.kasugai_site_control_check.setToolTip(
+            QtCore.QCoreApplication.translate(
+                'geo_webview',
+                'Group layers by their layer-tree group name into a '
+                'custom "Layers" tab in KASUGAI Canvas (site=<group> '
+                'on each layer row + custom-layer plugin tab for '
+                'per-group on/off and ordering). All layers stay on '
+                'the standard tab (shown as "System layers" while the '
+                'custom tab exists); use list=off to hide a row there. '
+                'Ungrouped layers go to "Misc". Per-layer override: '
+                'layer custom properties kasugai_site / kasugai_order'))
+        self.kasugai_site_control_check.toggled.connect(
+            self._site_control_toggled)
+        vf_layout.addWidget(self.kasugai_site_control_check)
         vf_group.setLayout(vf_layout)
         layout.addWidget(vf_group)
 
@@ -264,6 +283,14 @@ class SettingsDialog(QtWidgets.QDialog):
         self.kasugai_visible_only_check.setChecked(checked)
         self.kasugai_visible_only_check.blockSignals(False)
 
+        # Custom layers tab (site= grouping + custom-layer plugin tab)
+        sc = str(self.settings.value('kasugai_site_control', '')
+                 or '').strip().lower()
+        sc_checked = sc in ('1', 'true', 'on', 'yes')
+        self.kasugai_site_control_check.blockSignals(True)
+        self.kasugai_site_control_check.setChecked(sc_checked)
+        self.kasugai_site_control_check.blockSignals(False)
+
     def _vector_format_changed(self, index):
         """ベクター出力モード(native/recommended/geojson)を保存する。"""
         self.settings.setValue(
@@ -274,6 +301,11 @@ class SettingsDialog(QtWidgets.QDialog):
         """非表示レイヤのデータ変換スキップ(高速化)を保存する。"""
         self.settings.setValue(
             'kasugai_visible_data_only', '1' if checked else '0')
+
+    def _site_control_toggled(self, checked):
+        """カスタムレイヤタブ(site= 付与+custom-layer タブ)を保存する。"""
+        self.settings.setValue(
+            'kasugai_site_control', '1' if checked else '0')
 
     def _basemap_groups_changed(self):
         """追加のベースマップグループ名(カンマ区切り)を保存する。"""

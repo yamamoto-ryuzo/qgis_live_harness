@@ -66,7 +66,11 @@
     "geo_webview": "geo_webview"
   },
   "GeoWebViewPanel": {
-    "Could not load the UI file. Please consider reinstalling the plugin.": "Не удалось загрузить файл интерфейса. Попробуйте переустановить плагин."
+    "Layers": " ",
+    "Refresh": " ",
+    "Per-layer .kasc options (saved to the layer; gray = auto value): site=control group (blank=auto/\"-\"=Misc), order=rank within site, list=hide from layer list, opts=extra key=value": " - .kasc (  ;  =   ): site=   (=\"-\"=\"\"), order=    , list=   , opts=  key=value",
+    "Could not load the UI file. Please consider reinstalling the plugin.": "Не удалось загрузить файл интерфейса. Попробуйте переустановить плагин.",
+    "Custom layers tab": " "
   },
   "QMapPermalinkPanelBase": {
     "-- No Theme (Position Only) --": "-- Без темы (только позиция) --",
@@ -279,7 +283,9 @@
     "Converting layer {0}/{1}: {2}": "Преобразование слоя {0}/{1}: {2}",
     "Finalizing output ({0} layers)...": "Завершение вывода ({0} слоёв)...",
     "KASUGAI export cancelled.": "Экспорт KASUGAI отменён.",
-    "The UI-config admin screen is not available in the installed Canvas app — update KASUGAI Canvas and try again.": "Экран администрирования настройки UI недоступен в установленном приложении Canvas — обновите KASUGAI Canvas и повторите попытку."
+    "The UI-config admin screen is not available in the installed Canvas app — update KASUGAI Canvas and try again.": "Экран администрирования настройки UI недоступен в установленном приложении Canvas — обновите KASUGAI Canvas и повторите попытку.",
+    "Custom layers tab": " ",
+    "Group layers by their layer-tree group name into a custom \"Layers\" tab in KASUGAI Canvas (site=<group> on each layer row + custom-layer plugin tab for per-group on/off and ordering). All layers stay on the standard tab (shown as \"System layers\" while the custom tab exists); use list=off to hide a row there. Ungrouped layers go to \"Misc\". Per-layer override: layer custom properties kasugai_site / kasugai_order": " "
   },
   "geo_webview.page": {
     "  rotation: ": "  поворот: ",

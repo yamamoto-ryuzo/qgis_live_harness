@@ -222,7 +222,12 @@ class GeoWebViewBridge:
                 "地物数上限を指定できる(全レイヤ共通 or {レイヤ名:値} "
                 "dict。指定レイヤは条件適用済み GeoJSON として出力)。"
                 "use_existing=True で再エクスポートせず既存の .kasc のみ"
-                "使用(未出力なら code=not_exported)。",
+                "使用(未出力なら code=not_exported)。"
+                "site_control=True でレイヤツリーのグループ名を site= "
+                "としてレイヤ行へ付与し、custom-layer プラグイン"
+                "(canvas_data/custom-layer.js)によるグループごとの"
+                "一括制御タブを Canvas へ追加する(既定=QSettings "
+                "kasugai_site_control/パネルのチェック)。",
             "example": {"method": "kasugaiExport", "args": []},
         },
         "kascInspect": {
@@ -982,7 +987,8 @@ class GeoWebViewBridge:
                       use_existing=False, emit_atlas=True,
                       fields=None, where=None, limit=None,
                       link_files=True, vector_format=None,
-                      visible_data_only=None, progress_cb=None):
+                      visible_data_only=None, progress_cb=None,
+                      site_control=None):
         """表示中レイヤをKASUGAI Canvasプロジェクトとして出力・連携する。
 
         表示中のベクターレイヤを canvas_data/ へ出力し、.kasc(geojson:/gpkg:/
@@ -1053,6 +1059,11 @@ class GeoWebViewBridge:
         全ベクターを GeoJSON へ変換して canvas_data/ へ geojson: 行として
         配置する(他 WebGIS との相互運用向け)。'native' または未指定(None)は
         設定 kasugai_vector_format(既定 'native'=参照優先)に従う。
+        site_control=True でレイヤツリーのグループ名を site= として
+        レイヤ行へ付与し、custom-layer プラグインによるグループごとの
+        一括制御タブを Canvas へ追加する(既定=QSettings
+        kasugai_site_control。レイヤ customProperty kasugai_site/
+        kasugai_order で個別上書き可)。
         GUIスレッドで全レイヤを逐次エクスポートするため、大量レイヤでは
         数秒ブロックする場合がある。
         """
@@ -1115,6 +1126,9 @@ class GeoWebViewBridge:
                     visible_data_only=(
                         None if visible_data_only is None
                         else bool(visible_data_only)),
+                    site_control=(
+                        None if site_control is None
+                        else bool(site_control)),
                     progress_cb=progress_cb)
         except kasugai_export.ExportCancelled:
             return json.dumps({
