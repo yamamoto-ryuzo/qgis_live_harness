@@ -1,3 +1,12 @@
+# V4.5.3 GeoSuiteツールバーのゴーストアクション残留を修正
+- plugin.py: `addWidget` で GeoSuite ツールバーへ追加した
+  `group_combobox`/`theme_widget`/`theme_combobox` の QAction を
+  保持していなかったため、unload/reload のたびに「アイコン無し・
+  テキスト無し」の空アクションがツールバーに残っていた問題を修正。
+  返り値の QAction を `_group_combo_action`/`_theme_widget_action`/
+  `_theme_combo_action` として保持し、unload の
+  `_defer_remove_actions` で `removeAction` 対象に含めた
+
 # V4.5.2 住所検索の結果精度改善と20件ページング化
 - geocode.py: GSI AddressSearch の応答をクライアント側で関連度順に
   リランク(完全一致>前方一致>部分一致>その他。同位はタイトルが
