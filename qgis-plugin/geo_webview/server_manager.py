@@ -1512,6 +1512,42 @@ class GeoWebViewServerManager:
                         applied['filter'] += 1
                     except Exception:  # nosec B110  # 設計上の許容
                         pass
+        # where の書き戻しをフィルタパネル状態へ反映する。
+        # _filter_panel_state は Filter タブの選択として plugin: 行の
+        # filter_* で再出力されるため、ここで同期しないと Canvas 側で
+        # 解除/変更したフィルタが次回エクスポートで古い
+        # filter_values として復活する
+        try:
+            from . import kasugai_export as _ke
+            _fs = getattr(_ke, '_filter_panel_state', None)
+            if _fs and applied.get('filter'):
+                _ws = [str(e.get('where', e.get('filter')) or '').strip()
+                       for e in payload.get('layers') or []
+                       if isinstance(e, dict)]
+                _ne = next((w for w in _ws if w), '')
+                if (not _ne
+                        or re.match(r'^(?:1\s*=\s*0|0\s*=\s*1|1\s*=\s*1)$',
+                                    _ne)):
+                    # 解除/常偽(0件選択)/常真(NOT IN 0件)は選択値を空にする
+                    _fs.pop('values', None)
+                    _fs.pop('value', None)
+                else:
+                    _m = re.match(
+                        r'^\s*(NOT\s*\(\s*)?"((?:[^"]|"")+)"'
+                        r'\s+IN\s*\((.*)\)\s*\)?\s*$', _ne, re.I)
+                    if _m:
+                        _fld = _m.group(2).replace('""', '"')
+                        if not _fs.get('field') or _fs.get('field') == _fld:
+                            _fs['multi'] = True
+                            _fs['op'] = 'NOT IN' if _m.group(1) else 'IN'
+                            _fs['values'] = [
+                                a.replace("''", "'") if a else b
+                                for a, b in re.findall(
+                                    r"'((?:[^']|'')*)'|(-?[\d.]+)",
+                                    _m.group(3))]
+                _ke.set_filter_panel_state(_fs)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
         try:
             self.iface.mapCanvas().refresh()
         except Exception:  # nosec B110  # 設計上の許容

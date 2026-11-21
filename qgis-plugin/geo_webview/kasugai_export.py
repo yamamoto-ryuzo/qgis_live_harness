@@ -82,6 +82,22 @@ SETTINGS_KEY_VISIBLE_DATA_ONLY = 'kasugai_visible_data_only'
 # ``kasugai_order`` で個別上書き可)
 SETTINGS_KEY_SITE_CONTROL = 'kasugai_site_control'
 
+# Filter タブ(QGIS WEBVIEW)の選択状態。panel.py が UI 変更のたび
+# set_filter_panel_state() で同期し、plugin: 行の filter_* オプション
+# として出力する(Canvas 側「フィルタ」タブの初期選択となる)
+_filter_panel_state = None
+
+
+def set_filter_panel_state(state):
+    """Filter タブの選択状態を記録する(エクスポート時に plugin: 行へ反映)。
+
+    ``{'site': str, 'field': str, 'multi': bool, 'op': str,
+    'value': str, 'values': [str, ...]}`` または None を受ける。
+    """
+    global _filter_panel_state
+    _filter_panel_state = dict(state) if state else None
+
+
 # .kasc と同じ場所に出力するエンジン起動HTML(サーバレス配布用)。
 # 各HTMLは ?kasc=<.kascの絶対URL> 付きでエンジンへ転送するだけの
 # 自己完結ページ。エンジン本体(web/ の中身)は ./ ../ ../../ / の順に
@@ -4190,6 +4206,14 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 raise
             except Exception:  # nosec B110  # UI通知の失敗で中断しない
                 pass
+        # LIST 列(kasugai_export='off'): Canvas へ引き継がない
+        # (.kasc へ出力しない。表示列の | off とは別扱い)
+        if str(layer.customProperty(
+                'kasugai_export', '') or '').strip() == 'off':
+            skipped.append(
+                '{0} (Canvasへ引き継がない設定のため出力対象外)'.format(
+                    layer.name()))
+            continue
         # 「背景図」「basemap」名のグループはベースマップ候補の入れ物。
         # 中の XYZ レイヤはレイヤ行ではなく base: 行として登録する
         # (グループ名はタイトルから外し、配下のサブグループは残す)
@@ -4200,6 +4224,11 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
         # customProperty(kasugai_site 等)は設定有無に関わらず常時有効
         site_opt = _canvas_layer_opts_suffix(
             layer, groups, bm_idx, site_control)
+        # 表示列(kasugai_vis='off'): Canvas へ引き継ぐが初期状態は
+        # 非表示(| off)。QGIS 上で非表示でも「引き継ぐ」意図が
+        # 明示されているため visible_only スキップより優先する
+        vis_off_opt = str(layer.customProperty(
+            'kasugai_vis', '') or '').strip() == 'off'
         if not visible:
             if (bm_idx is not None
                     and not isinstance(layer, QgsVectorLayer)
@@ -4208,20 +4237,22 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 # (visible_only/hidden_as_off の対象外。非表示は | off で
                 # 「初期選択しない候補」として出す)
                 vis_flag = 'off'
-            elif export_hidden_off:
+            elif export_hidden_off or vis_off_opt:
                 vis_flag = 'off'
             elif not visible_only:
                 vis_flag = 'on'
             else:
                 continue
         else:
-            vis_flag = 'on'
+            vis_flag = 'off' if vis_off_opt else 'on'
 
         # visible_data_only: 非表示レイヤはレイヤ行を一切出力しない
         # (背景図グループの base: 候補のみ従来通り出力。Canvas のレイヤ
         # 一覧に読み込めない「未読込」エントリが残るのを防ぐ。
-        # theme: 行は出力済みレイヤのみを対象にするため整合する)
-        ref_only = bool(visible_data_only) and vis_flag == 'off'
+        # theme: 行は出力済みレイヤのみを対象にするため整合する。
+        # kasugai_vis で off にした「表示中」レイヤは引き続き対象)
+        ref_only = (bool(visible_data_only)
+                    and not visible and vis_flag == 'off')
         write_ok = not ref_only
         if ref_only and not (
                 bm_idx is not None
@@ -4348,34 +4379,56 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 drv, out_ext, out_kind = _fallback_driver()
             out_path = os.path.join(data_dir, slug + out_ext)
             written = feat_count
+            # 変換形式でも subsetString は where-eval 対応式なら where=
+            # として引き継ぐ(全地物を出力し Canvas 側で絞り込み・
+            # フィルタタブで値を再列挙できる。非対応式は従来通り
+            # データへ焼き込む)
+            subset_raw = _subset_raw(layer)
+            subset_where = None
+            if subset_raw and _subset_eval_ok(subset_raw):
+                subset_where = _subset_filter(layer)
             if (changed is None
                     or (kinds or {}).get('data')
                     or not os.path.isfile(out_path)):
+                if subset_where:
+                    try:
+                        layer.setSubsetString('')
+                    except Exception:  # nosec B110  # 設計上の許容
+                        subset_where = None
                 try:
-                    written = _export_vector(
-                        layer, out_path, fields=f_sel, where=w_sel,
-                        limit=l_sel, driver=drv)
-                except Exception as e:
-                    # FlatGeobuf/Parquet で失敗した場合は GeoJSON で再試行
-                    if drv != 'GeoJSON':
-                        warnings.append(
-                            '{0}: {1} 変換失敗({2})のため GeoJSON へ'
-                            .format(layer.name(), drv, e))
-                        drv, out_ext, out_kind = \
-                            'GeoJSON', '.geojson', 'geojson'
-                        out_path = os.path.join(data_dir, slug + out_ext)
-                        try:
-                            written = _export_vector(
-                                layer, out_path, fields=f_sel, where=w_sel,
-                                limit=l_sel, driver=drv)
-                        except Exception as e2:
+                    try:
+                        written = _export_vector(
+                            layer, out_path, fields=f_sel, where=w_sel,
+                            limit=l_sel, driver=drv)
+                    except Exception as e:
+                        # FlatGeobuf/Parquet で失敗した場合は GeoJSON で再試行
+                        if drv != 'GeoJSON':
+                            warnings.append(
+                                '{0}: {1} 変換失敗({2})のため GeoJSON へ'
+                                .format(layer.name(), drv, e))
+                            drv, out_ext, out_kind = \
+                                'GeoJSON', '.geojson', 'geojson'
+                            out_path = os.path.join(data_dir, slug + out_ext)
+                            try:
+                                written = _export_vector(
+                                    layer, out_path, fields=f_sel,
+                                    where=w_sel,
+                                    limit=l_sel, driver=drv)
+                            except Exception as e2:
+                                errors.append(
+                                    '{0}: geojson {1}'.format(
+                                        layer.name(), e2))
+                                continue
+                        else:
                             errors.append(
-                                '{0}: geojson {1}'.format(layer.name(), e2))
+                                '{0}: geojson {1}'.format(layer.name(), e))
                             continue
-                    else:
-                        errors.append(
-                            '{0}: geojson {1}'.format(layer.name(), e))
-                        continue
+                finally:
+                    if subset_where:
+                        try:
+                            layer.setSubsetString(subset_raw)
+                        except Exception:  # nosec B110  # 設計上の許容
+                            pass
             if not _geo_equiv_crs(layer):
                 warnings.append(
                     '{0}: CRS {1} を EPSG:4326 へ再投影'.format(
@@ -4398,6 +4451,9 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                     title, slug, vis_flag, style_opt, vopt,
                     _scale_vis_opt(layer), attr_opt, out_kind, out_ext,
                     os.path.basename(data_dir) + '/') + site_opt)
+            # where= は行の最終オプション(値は行末まで)
+            if subset_where:
+                line += ' | where={0}'.format(subset_where)
             kasc_lines.append(line)
             emitted_ids.add(id(layer))
             ln_meta = _legend_node_line(tnode, title)
@@ -4659,9 +4715,35 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     # そのまま動く。site= レイヤが無ければタブ不要なので行も出さない)
     if any(' | site=' in kl for kl in kasc_lines):
         if _copy_site_control_plugin(data_dir, warnings):
+            # Filter タブの選択状態を filter_* オプションとして付ける
+            # (Canvas「フィルタ」タブの初期選択。適用済みフィルタ自体は
+            # 各レイヤ行の where= で引き継がれる)
+            fs = _filter_panel_state or {}
+            plugin_opts = ''
+            if fs.get('site'):
+                plugin_opts += ' | filter_site={0}'.format(
+                    _kasc_escape(fs['site']))
+            if fs.get('field'):
+                plugin_opts += ' | filter_field={0}'.format(
+                    _kasc_escape(fs['field']))
+            if fs.get('multi'):
+                plugin_opts += ' | filter_multi=on'
+            if fs.get('op'):
+                plugin_opts += ' | filter_op={0}'.format(
+                    _kasc_escape(fs['op']))
+            if fs.get('multi'):
+                vals = [_kasc_escape(v) for v in fs.get('values') or []
+                        if str(v) != '']
+                if vals:
+                    plugin_opts += ' | filter_values={0}'.format(
+                        ','.join(vals))
+            elif str(fs.get('value') or '') != '':
+                plugin_opts += ' | filter_value={0}'.format(
+                    _kasc_escape(fs['value']))
             kasc_lines.append(
                 'plugin: custom-layer | name=レイヤ | '
-                'url=canvas_data/custom-layer.js | before=layers-panel')
+                'url=canvas_data/custom-layer.js | before=layers-panel'
+                + plugin_opts)
 
     cam = _camera_line(iface)
     bookmark_count = 0

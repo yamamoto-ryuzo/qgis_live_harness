@@ -289,7 +289,12 @@
     "Custom layers tab": "Eigene Ebenen-Registerkarte",
     "Group layers by their layer-tree group name into a custom \"Layers\" tab in KASUGAI Canvas (site=<group> on each layer row + custom-layer plugin tab for per-group on/off and ordering). All layers stay on the standard tab (shown as \"System layers\" while the custom tab exists); use list=off to hide a row there. Ungrouped layers go to \"Misc\". Per-layer override: layer custom properties kasugai_site / kasugai_order": " ",
     "Per-layer .kasc options (saved to the layer; gray = auto value): site=control group (blank=auto/\"-\"=Misc), order=rank within site (set via VIEW mode ▲▼), list=hide from layer list, opts=extra key=value (legend_order=asc|desc|reverse|A,B,C reorders legend entries)": "Layerbezogene .kasc-Optionen (am Layer gespeichert; grau = automatischer Wert): site=Steuerungsgruppe (leer=auto/\"-\"=Sonstige), order=Rang innerhalb der site, list=aus Layerliste ausblenden, opts=zusätzliche key=value (legend_order=asc|desc|reverse|A,B,C ändert die Legendenreihenfolge)",
-    "Multi-select": "Mehrfachauswahl"
+    "Multi-select": "Mehrfachauswahl",
+    "Select all": "Alle auswählen",
+    "Select none": "Auswahl aufheben",
+    "visible": "sichtbar",
+    "carry to Canvas (uncheck = not written to .kasc)": "zu Canvas uebertragen (deaktivieren = nicht in .kasc schreiben)",
+    "initially visible in Canvas (uncheck = exported with | off, hidden until toggled on)": "in Canvas anfangs sichtbar (deaktivieren = mit | off exportiert)"
   },
   "geo_webview.page": {
     "  rotation: ": "  Drehung: ",

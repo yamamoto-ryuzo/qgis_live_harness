@@ -92,6 +92,7 @@ class LiveSyncController(QObject):
         self._connected = False
         self._running = False
         self._suppress = 0  # /live/writeback 適用中の変更検出抑止
+        self._suppress_until = 0.0  # 書き戻し直後の遅延シグナル抑止窓(epoch)
 
     @contextmanager
     def suppress(self):
@@ -101,12 +102,16 @@ class LiveSyncController(QObject):
         シグナルが発火するが、これは Canvas 由来の状態なので再出力
         (QGIS → Canvas への往復)は不要。抑止中に発火した変更は
         マークしない(レイヤシグナル接続自体は維持する)。
+        setSubsetString 後のプロバイダ再読込等、with ブロックを出た後に
+        遅れて発火するシグナルも拾わないよう、解除後も短い時間窓で
+        抑止を継続する。
         """
         self._suppress += 1
         try:
             yield
         finally:
             self._suppress = max(0, self._suppress - 1)
+            self._suppress_until = time.time() + 2.0
 
     # ---- 接続管理 ----
     def attach(self):
@@ -225,7 +230,8 @@ class LiveSyncController(QObject):
     # ---- シグナルハンドラ ----
     def _mark(self, layer, kind):
         if (not self._connected or not live_enabled()
-                or self._suppress):
+                or self._suppress
+                or time.time() < self._suppress_until):
             return
         if kind == 'struct':
             self._structural = True
@@ -241,7 +247,8 @@ class LiveSyncController(QObject):
 
     def _on_structure(self, *args):
         if (not self._connected or not live_enabled()
-                or self._suppress):
+                or self._suppress
+                or time.time() < self._suppress_until):
             return
         self._structural = True
         # 追加/削除の直後はレイヤシグナル構成も追従する

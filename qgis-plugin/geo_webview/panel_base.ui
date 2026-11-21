@@ -775,6 +775,20 @@
              </widget>
             </item>
             <item>
+             <widget class="QPushButton" name="pushButton_filter_all">
+              <property name="text">
+               <string>Select all</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_filter_none">
+              <property name="text">
+               <string>Select none</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer name="horizontalSpacer_filter_multi">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
@@ -804,13 +818,6 @@
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_filter_btns">
-         <item>
-          <widget class="QPushButton" name="pushButton_filter_apply">
-           <property name="text">
-            <string>Apply</string>
-           </property>
-          </widget>
-         </item>
          <item>
           <widget class="QPushButton" name="pushButton_filter_clear">
            <property name="text">

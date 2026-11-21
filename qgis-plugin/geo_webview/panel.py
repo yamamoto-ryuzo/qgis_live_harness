@@ -534,6 +534,57 @@ class GeoWebViewPanel(QDockWidget):
         if self.comboBox_filter_field is not None:
             self.comboBox_filter_field.currentIndexChanged.connect(
                 lambda _i: self._update_filter_mode())
+        # 選択状態をエクスポートへ同期(plugin: 行の filter_* として
+        # Canvas「フィルタ」タブの初期選択になる)
+        _sync = lambda *_a: self._sync_filter_panel_state()  # noqa: E731
+        self.comboBox_filter_site.currentIndexChanged.connect(_sync)
+        if self.comboBox_filter_field is not None:
+            self.comboBox_filter_field.currentIndexChanged.connect(_sync)
+        for w in (self.comboBox_filter_op, self.comboBox_filter_op2,
+                  self.comboBox_filter_op3, self.comboBox_filter_value):
+            if w is not None:
+                w.currentIndexChanged.connect(_sync)
+        if self.comboBox_filter_value is not None:
+            self.comboBox_filter_value.editTextChanged.connect(_sync)
+        if self.lineEdit_filter_value is not None:
+            self.lineEdit_filter_value.textChanged.connect(_sync)
+        if self.checkBox_filter_multi is not None:
+            self.checkBox_filter_multi.toggled.connect(_sync)
+        if self.listWidget_filter_values is not None:
+            self.listWidget_filter_values.itemChanged.connect(_sync)
+        for name, chk in (('pushButton_filter_all', True),
+                          ('pushButton_filter_none', False)):
+            btn = getattr(self.ui, name, None)
+            if btn is not None:
+                btn.clicked.connect(
+                    lambda _c, chk=chk: self._set_filter_values_all(chk))
+        # 選択が完結した時点で即適用(適用ボタン不要)。値・演算子・
+        # 複数選択の変更のみをトリガにし、サイト/フィールドの選択
+        # 自体では適用しない(未完成の選択で誤適用しないため)
+        _auto = lambda *_a: self._auto_apply_filter()  # noqa: E731
+        for w in (self.comboBox_filter_op, self.comboBox_filter_op2,
+                  self.comboBox_filter_op3, self.comboBox_filter_value):
+            if w is not None:
+                w.currentIndexChanged.connect(_auto)
+        if self.listWidget_filter_values is not None:
+            self.listWidget_filter_values.itemChanged.connect(_auto)
+        if self.checkBox_filter_multi is not None:
+            self.checkBox_filter_multi.toggled.connect(_auto)
+        # テキスト入力は確定するまで少し待ってから適用
+        try:
+            from qgis.PyQt.QtCore import QTimer
+            self._filter_apply_timer = QTimer(self)
+            self._filter_apply_timer.setSingleShot(True)
+            self._filter_apply_timer.setInterval(350)
+            self._filter_apply_timer.timeout.connect(_auto)
+            if self.lineEdit_filter_value is not None:
+                self.lineEdit_filter_value.textChanged.connect(
+                    lambda _t: self._filter_apply_timer.start())
+            if self.comboBox_filter_value is not None:
+                self.comboBox_filter_value.editTextChanged.connect(
+                    lambda _t: self._filter_apply_timer.start())
+        except Exception:  # nosec B110  # Qt無し環境では自動適用なし
+            self._filter_apply_timer = None
         ab = getattr(self.ui, 'pushButton_filter_apply', None)
         if ab is not None:
             ab.clicked.connect(self._apply_kasugai_filter)
@@ -605,6 +656,7 @@ class GeoWebViewPanel(QDockWidget):
             return
         layers = self._current_filter_layers()
         cur = fb.currentText()
+        fb.blockSignals(True)
         fb.clear()
         # メンバー全レイヤに共通する属性フィールドを列挙
         # (数値フィールドには '(num)' を付記)
@@ -635,6 +687,7 @@ class GeoWebViewPanel(QDockWidget):
         idx = fb.findData(cur)
         if idx >= 0:
             fb.setCurrentIndex(idx)
+        fb.blockSignals(False)
         if not common:
             self._update_filter_status('No common field')
         else:
@@ -733,12 +786,21 @@ class GeoWebViewPanel(QDockWidget):
         lw = getattr(self, 'listWidget_filter_values', None)
         if lw is not None:
             from qgis.PyQt.QtWidgets import QListWidgetItem
-            checked = set()
-            for i in range(lw.count()):
-                it = lw.item(i)
-                if it is not None and it.checkState() == \
-                        Qt.CheckState.Checked:
-                    checked.add(it.text())
+            same_field = getattr(
+                self, '_last_filter_vals_field', None) == field
+            self._last_filter_vals_field = field
+            if same_field:
+                # 同一フィールドの再列挙: 既存チェックを保持
+                checked = set()
+                for i in range(lw.count()):
+                    it = lw.item(i)
+                    if it is not None and it.checkState() == \
+                            Qt.CheckState.Checked:
+                        checked.add(it.text())
+            else:
+                # フィールド/サイト切替: 適用済み subset から
+                # チェックを再シード(別フィールド適用中は全チェック)
+                checked = self._filter_seed_checked(field, values)
             lw.blockSignals(True)
             lw.clear()
             for v in sorted(values)[:100]:
@@ -750,6 +812,36 @@ class GeoWebViewPanel(QDockWidget):
                     else Qt.CheckState.Unchecked)
                 lw.addItem(it)
             lw.blockSignals(False)
+
+    def _filter_seed_checked(self, field, values):
+        """適用済み subsetString から該当フィールドのチェック値を復元。
+
+        常偽式(1=0) → 空集合(0件チェック)。
+        フィルタ無し/全通過(1=1)/解析不能/別フィールド適用中 →
+        全値(そのフィールドは無制限=全チェック)。
+        IN 式 → 列挙された値のみ。
+        """
+        import re
+        layers = self._current_filter_layers()
+        sub = ''
+        if layers:
+            try:
+                sub = (layers[0].subsetString() or '').strip()
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+        if re.match(r'^(?:1\s*=\s*0|0\s*=\s*1)$', sub):
+            return set()
+        m = re.match(
+            r'^(?:NOT\s*\(\s*)?"((?:[^"]|"")+)"'
+            r'\s+IN\s*\((.*)\)\s*\)?\s*$', sub, re.I)
+        if (not sub or m is None
+                or m.group(1).replace('""', '"') != field):
+            return set(values)
+        return {
+            a.replace("''", "'") if a else b
+            for a, b in re.findall(r"'((?:[^']|'')*)'|(-?[\d.]+)",
+                                   m.group(2))
+        }
 
     def _update_filter_status(self, msg=None):
         lb = getattr(self, 'label_filter_status', None)
@@ -767,6 +859,112 @@ class GeoWebViewPanel(QDockWidget):
             except Exception:  # nosec B110  # 設計上の許容
                 pass
         lb.setText(sub)
+
+    def _set_filter_values_all(self, checked):
+        """複数選択リストの全項目を一括チェック/解除する。"""
+        lw = getattr(self, 'listWidget_filter_values', None)
+        if lw is None:
+            return
+        st = (Qt.CheckState.Checked if checked
+              else Qt.CheckState.Unchecked)
+        lw.blockSignals(True)
+        try:
+            for i in range(lw.count()):
+                it = lw.item(i)
+                if it is not None:
+                    it.setCheckState(st)
+        finally:
+            lw.blockSignals(False)
+        self._sync_filter_panel_state()
+        self._auto_apply_filter()
+
+    def _auto_apply_filter(self):
+        """選択が完結していれば即座にフィルタを適用する。
+
+        サイト+フィールド+値(複数選択時はチェック1件以上)が揃った
+        タイミングで呼ばれる。不完全な選択では何もしない(誤適用・
+        ステータスのちらつき防止)。
+        """
+        site_cb = getattr(self, 'comboBox_filter_site', None)
+        fb = getattr(self, 'comboBox_filter_field', None)
+        if site_cb is None or fb is None:
+            return
+        if not site_cb.currentText().strip():
+            return
+        if not (fb.currentData() or fb.currentText()):
+            return
+        multi = bool(self.checkBox_filter_multi
+                     and self.checkBox_filter_multi.isChecked())
+        if multi:
+            # 0件選択も有効な状態(IN=全除外=常偽式 / NOT IN=全表示)
+            ok = True
+        elif self._filter_field_is_numeric():
+            le = getattr(self, 'lineEdit_filter_value', None)
+            txt = le.text().strip() if le is not None else ''
+            try:
+                float(txt)
+                ok = True
+            except (TypeError, ValueError):
+                ok = False
+        else:
+            vb = getattr(self, 'comboBox_filter_value', None)
+            ok = bool(vb is not None and vb.currentText().strip())
+        if ok:
+            self._apply_kasugai_filter()
+        else:
+            # 値が0件(全解除/入力クリア) = フィルタ解除として即反映
+            self._clear_kasugai_filter()
+
+    def _sync_filter_panel_state(self):
+        """Filter タブの選択状態を kasugai_export へ同期する。
+
+        エクスポート時に ``plugin:`` 行の ``filter_*`` オプションと
+        して出力され、Canvas 側「フィルタ」タブの初期選択になる。
+        """
+        try:
+            from . import kasugai_export
+        except Exception:  # nosec B110  # 設計上の許容
+            return
+        site_cb = getattr(self, 'comboBox_filter_site', None)
+        field_cb = getattr(self, 'comboBox_filter_field', None)
+        if site_cb is None or field_cb is None:
+            return
+        multi = bool(self.checkBox_filter_multi
+                     and self.checkBox_filter_multi.isChecked())
+        state = {
+            'site': site_cb.currentText(),
+            'field': field_cb.currentData() or field_cb.currentText(),
+            'multi': multi,
+        }
+        if multi:
+            state['op'] = (self.comboBox_filter_op3.currentText()
+                           if self.comboBox_filter_op3 is not None
+                           else 'IN')
+            lw = getattr(self, 'listWidget_filter_values', None)
+            vals = []
+            if lw is not None:
+                for i in range(lw.count()):
+                    it = lw.item(i)
+                    if (it is not None and it.checkState()
+                            == Qt.CheckState.Checked):
+                        vals.append(it.text())
+            state['values'] = vals
+        elif self._filter_field_is_numeric():
+            state['op'] = (self.comboBox_filter_op.currentText()
+                           if self.comboBox_filter_op is not None else '=')
+            state['value'] = (self.lineEdit_filter_value.text()
+                              if self.lineEdit_filter_value is not None
+                              else '')
+        else:
+            state['op'] = (self.comboBox_filter_op2.currentText()
+                           if self.comboBox_filter_op2 is not None else '=')
+            state['value'] = (self.comboBox_filter_value.currentText()
+                              if self.comboBox_filter_value is not None
+                              else '')
+        try:
+            kasugai_export.set_filter_panel_state(state)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
 
     def _apply_kasugai_filter(self):
         layers = self._current_filter_layers()
@@ -789,12 +987,27 @@ class GeoWebViewPanel(QDockWidget):
                 if it is not None and it.checkState() == \
                         Qt.CheckState.Checked:
                     sel.append(it.text())
-            if not sel:
-                self._update_filter_status('Select values')
-                return
             op3 = (self.comboBox_filter_op3.currentText()
                    if self.comboBox_filter_op3 is not None
                    else 'IN')
+            if not sel:
+                # 0件選択: IN=何も通さない(常偽式 1=0) /
+                # NOT IN=全て通す(フィルタ解除)
+                if op3 == 'NOT IN':
+                    self._clear_kasugai_filter()
+                else:
+                    n = 0
+                    for layer in layers:
+                        try:
+                            if layer.setSubsetString('1=0'):
+                                n += 1
+                            layer.triggerRepaint()
+                        except Exception:  # nosec B110  # 設計上の許容
+                            pass
+                    self._update_filter_status(
+                        '1=0 ({0} layers)'.format(n) if n
+                        else 'Filter failed')
+                return
             if numeric:
                 vals = ','.join(sel)
             else:
@@ -895,15 +1108,16 @@ class GeoWebViewPanel(QDockWidget):
             self._rebuild_kasugai_layers_view(
                 tw, bm_names, bm_index, auto_on)
             return
-        tw.setColumnCount(4)
-        tw.setHeaderLabels(['Layer', 'site', 'list', 'opts'])
+        tw.setColumnCount(5)
+        tw.setHeaderLabels(['Layer', 'LIST', QCoreApplication.translate(
+            'geo_webview', "visible"), 'site', 'opts'])
         gray = QBrush(QColor(140, 140, 140))
         tw.blockSignals(True)
         try:
             tw.clear()
             for layer, groups, _node in self._kasugai_layer_rows():
                 name = '/'.join(groups + [layer.name()])
-                it = QTreeWidgetItem([name, '', '', ''])
+                it = QTreeWidgetItem([name, '', '', '', ''])
                 it.setData(0, Qt.ItemDataRole.UserRole, layer.id())
                 it.setFlags(it.flags() | Qt.ItemFlag.ItemIsEditable |
                             Qt.ItemFlag.ItemIsUserCheckable)
@@ -914,31 +1128,47 @@ class GeoWebViewPanel(QDockWidget):
                     it.setIcon(0, self._kasugai_legend_icon(litems[0]))
                 if len(litems) > 1:
                     for li in litems:
-                        c = QTreeWidgetItem([li.label(), '', '', ''])
+                        c = QTreeWidgetItem([li.label(), '', '', '', ''])
                         c.setData(0, Qt.ItemDataRole.UserRole, 'legend')
                         c.setIcon(0, self._kasugai_legend_icon(li))
                         it.addChild(c)
                     it.setExpanded(True)
+                # LIST 列(チェック=Canvasへ引き継ぐ・外すと .kasc に
+                # 出力しない = kasugai_export='off')
+                it.setCheckState(
+                    1, Qt.CheckState.Unchecked
+                    if str(layer.customProperty(
+                        'kasugai_export', '') or '').strip() == 'off'
+                    else Qt.CheckState.Checked)
+                it.setToolTip(1, QCoreApplication.translate(
+                    'geo_webview',
+                    'carry to Canvas (uncheck = not written to .kasc)'))
+                # 表示列(チェック=Canvasで初期表示・外すと | off で
+                # 引き継ぐが初期非表示 = kasugai_vis='off')
+                it.setCheckState(
+                    2, Qt.CheckState.Unchecked
+                    if str(layer.customProperty(
+                        'kasugai_vis', '') or '').strip() == 'off'
+                    else Qt.CheckState.Checked)
+                it.setToolTip(2, QCoreApplication.translate(
+                    'geo_webview',
+                    'initially visible in Canvas (uncheck = exported '
+                    'with | off, hidden until toggled on)'))
                 # 個別指定 > 自動(custom-layer ON のときグループパス)
                 site = layer.customProperty('kasugai_site', None)
                 auto = '' if bm_index(groups, bm_names) is not None \
                     else '/'.join(groups)
                 if site is None:
                     if auto_on and auto:
-                        it.setText(1, auto)
-                        it.setForeground(1, gray)
-                        it.setToolTip(1, 'auto: {0}'.format(auto))
+                        it.setText(3, auto)
+                        it.setForeground(3, gray)
+                        it.setToolTip(3, 'auto: {0}'.format(auto))
                 else:
-                    it.setText(1, site)
-                it.setCheckState(
-                    2, Qt.CheckState.Checked
-                    if str(layer.customProperty(
-                        'kasugai_list', '') or '').strip() == 'off'
-                    else Qt.CheckState.Unchecked)
+                    it.setText(3, site)
                 opts = layer.customProperty('kasugai_opts', None)
                 if opts:
-                    it.setText(3, str(opts))
-                it.setToolTip(3, 'key=value key=value ...')
+                    it.setText(4, str(opts))
+                it.setToolTip(4, 'key=value key=value ...')
                 tw.addTopLevelItem(it)
             tw.resizeColumnToContents(0)
         finally:
@@ -1275,13 +1505,19 @@ class GeoWebViewPanel(QDockWidget):
         if layer is None:
             return
         if col == 1:
-            key, val = 'kasugai_site', item.text(1).strip()
+            # LIST 列(外すと kasugai_export='off' = .kasc に出力しない)
+            key = 'kasugai_export'
+            val = '' if item.checkState(1) == Qt.CheckState.Checked \
+                else 'off'
         elif col == 2:
-            key = 'kasugai_list'
-            val = 'off' if item.checkState(2) == Qt.CheckState.Checked \
-                else ''
+            # 表示列(外すと kasugai_vis='off' = | off で初期非表示)
+            key = 'kasugai_vis'
+            val = '' if item.checkState(2) == Qt.CheckState.Checked \
+                else 'off'
         elif col == 3:
-            key, val = 'kasugai_opts', item.text(3).strip()
+            key, val = 'kasugai_site', item.text(3).strip()
+        elif col == 4:
+            key, val = 'kasugai_opts', item.text(4).strip()
         else:
             return
         if val == '':
@@ -1289,7 +1525,7 @@ class GeoWebViewPanel(QDockWidget):
         else:
             layer.setCustomProperty(key, val)
         # site 列を空にした場合は自動値(グレー)表示へ戻す
-        if col == 1 and val == '':
+        if col == 3 and val == '':
             self._rebuild_kasugai_layers()
 
     def update_canvas_launch_state(self):
