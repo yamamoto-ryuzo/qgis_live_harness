@@ -3,6 +3,16 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
+## [1.0.2] - 2026-11-21
+
+### Fixed
+- layer_org._move_to_group: レイヤ移動の clone→remove→insert 順を
+  insert→remove に修正。元ノード除去が先だと
+  QgsLayerTreeRegistryBridge が「最後のツリーノード消失」と判定し
+  イベント処理後にマップレイヤ本体まで削除していた
+  (geo_import 等からの追加レイヤが placed 報告後に消失する実害あり。
+  docstring が記述する本来の順序にコードを合わせた)。
+
 ## [1.0.1] - 2026-11-20
 
 ### Fixed

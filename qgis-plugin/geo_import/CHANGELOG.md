@@ -1,3 +1,14 @@
+2.10.16 URLエンコード名リソースのダウンロード失敗を修正
+- ckanconnector.py: __file_name_from_service でURL由来のファイル名を
+  unquote して実名化し、%2F/%5C 由来のパストラバーサル防止のため
+  basename 化。S3等のパーセントエンコード名(日本語名)が長大化して
+  MAX_PATH 超過し FileNotFoundError(HTTP500相当のDL失敗)になる問題を解消
+- ckanconnector.py: download_resource のファイル書込みに win32 長パス時
+  UNC(\\?\)プレフィックス付与を追加(create_dir と同等の対策)
+- ckanconnector.py: delete=True かつファイル不存在時の os.remove が
+  FileNotFoundError になっていたのを exists ガードで修正
+- geo_import_dialog.py: dest_file 生成時にURLエンコード名を unquote+
+  basename 化
 2.10.15 qrcリソースモジュール解放によるQGISクラッシュ(access violation)の予防修正
 - resources_rc.py: qRegisterResourceData は登録バッファをコピーせず
   ポインタ保持するため、プラグインのリロード/unloadでモジュールが
