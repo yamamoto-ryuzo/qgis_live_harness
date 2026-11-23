@@ -116,7 +116,7 @@ nav.sidebar {
 main {
   flex: 1;
   min-width: 0;
-  max-width: 860px;
+  max-width: none;
   padding: 36px 0 96px;
   overflow-wrap: break-word;
 }
