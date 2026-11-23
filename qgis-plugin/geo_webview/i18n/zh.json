@@ -67,7 +67,8 @@
     "Install or reinstall KASUGAI Canvas (setup with .kasc file association or portable ZIP). Launching is handled by the CDN combo mode ('canvas') + ▶ WebView": "安装或重新安装 KASUGAI Canvas（带 .kasc 关联的安装程序或便携 ZIP）。启动由 CDN 组合框的 'canvas' 模式 + ▶ WebView 负责",
     "Browse for a local web/ folder (FILE mode — served at /<engine>/ by this server)": "选择本地 web/ 文件夹（FILE 模式 — 由本服务器在 /<engine>/ 提供）",
     "Select a local Canvas web/ folder": "选择本地 Canvas web/ 文件夹",
-    "Folder selection failed: {0}": "文件夹选择失败: {0}"
+    "Folder selection failed: {0}": "文件夹选择失败: {0}",
+    "Engine source value — for 'url' an http(s) base URL ending with '/', for 'file' a local web/ folder path. Shows the resolved source for other modes (read-only)": "引擎来源值 — 'url' 为以 '/' 结尾的 http(s) 基础 URL，'file' 为本地 web/ 文件夹路径。其他模式显示解析后的来源（只读）"
   },
   "GeoWebViewPanel": {
     "Could not load the UI file. Please consider reinstalling the plugin.": "无法加载 UI 文件。请考虑重新安装插件。"

@@ -67,7 +67,8 @@
     "Install or reinstall KASUGAI Canvas (setup with .kasc file association or portable ZIP). Launching is handled by the CDN combo mode ('canvas') + ▶ WebView": "Instala ou reinstala o KASUGAI Canvas (setup com associação .kasc ou ZIP portátil). O lançamento é feito pelo modo 'canvas' do combo CDN + ▶ WebView",
     "Browse for a local web/ folder (FILE mode — served at /<engine>/ by this server)": "Selecionar uma pasta web/ local (modo FILE — servida em /<engine>/ por este servidor)",
     "Select a local Canvas web/ folder": "Selecione uma pasta Canvas web/ local",
-    "Folder selection failed: {0}": "Falha na seleção da pasta: {0}"
+    "Folder selection failed: {0}": "Falha na seleção da pasta: {0}",
+    "Engine source value — for 'url' an http(s) base URL ending with '/', for 'file' a local web/ folder path. Shows the resolved source for other modes (read-only)": "Valor da origem do motor — para 'url' uma URL base http(s) terminada em '/', para 'file' um caminho para a pasta web/ local. Nos outros modos mostra a origem resolvida (somente leitura)"
   },
   "GeoWebViewPanel": {
     "Could not load the UI file. Please consider reinstalling the plugin.": "Não foi possível carregar o ficheiro de interface. Considere reinstalar o plugin."
