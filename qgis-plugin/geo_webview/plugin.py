@@ -2347,16 +2347,9 @@ class GeoWebView:
             combo = getattr(self.panel, 'comboBox_engine', None)
             if combo is not None and combo.currentData():
                 engine = combo.currentData()
-            if route == 'hosted':
-                try:
-                    from . import kasugai_export
-                    if kasugai_export.get_hosted_channel().strip() \
-                            .lower() == 'canvas':
-                        route = 'kasugai'
-                    elif not kasugai_export.is_hosted_channel():
-                        route = 'local'
-                except Exception:  # nosec B110  # 取得失敗は従来経路へ
-                    pass
+            # 'hosted' の CDN モード→route 変換は kasugaiExport 内で
+            # エクスポート完了後に行う(エクスポートを先に確実に
+            # 終わらせてから起動先を決定するため)。ここでは変換しない
             if route == 'kasugai':
                 # Canvas 未検出時はインストール導線(セットアップ/ZIP選択)へ。
                 # 検出処理の失敗のみ許容し、インストール導線自体の例外は
@@ -2429,7 +2422,22 @@ class GeoWebView:
                         "Serverless delivery unavailable — the HTTP server "
                         "must be running to serve canvas_data/."),
                 }
-                if route == 'kasugai':
+                # route は kasugaiExport 内でエクスポート後に解決
+                # されるため、理由表示は実際の解決結果を使う
+                resolved_route = res.get('route') or route
+                if resolved_route == 'kasugai':
+                    # CDN 'canvas' モードで Canvas 未インストール
+                    # → インストール導線へ(完了後は登録・起動へ合流)
+                    try:
+                        from . import kasugai_export as _ke
+                        _installed = bool(
+                            _ke.detect_kasugai()
+                            or _ke.detect_kasugai_install_dir())
+                    except Exception:  # nosec B110  # 検出失敗は従来挙動へ
+                        _installed = True
+                    if not _installed:
+                        self._install_kasugai_then_launch(engine)
+                        return
                     # エクスポート済みの出力物を使う経路なので
                     # 「出力しました」は付けない
                     msg = route_reasons['kasugai']
@@ -2437,7 +2445,7 @@ class GeoWebView:
                     msg = self.tr("Exported to {0}. {1}").format(
                         res.get('dir', ''),
                         route_reasons.get(
-                            route,
+                            resolved_route,
                             self.tr("No engine available — open the .kasc "
                                     "file in KASUGAI Canvas.")))
                 self._push_message(

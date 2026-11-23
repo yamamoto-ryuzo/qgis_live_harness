@@ -1,5 +1,9 @@
 # 変更履歴(Changelog)
 
+## 4.35.1
+
+- **▶ WebView の処理順を「エクスポート→route変換→起動」に厳格化** — CDN モード→route の変換を `plugin.py`(エクスポート前)から `bridge.kasugaiExport` 内の `export_kasugai_project` 完了直後へ移動。ブラウザ起動が必ずエクスポート完了後に来る構造をコード上でも明示し、「起動が先行して古い .kasc が開かれる」経路が存在しないことを保証。`route='hosted'` 入力時の `canvas`→kasugai / FILE→local 解決は bridge 内で行われ、応答 `route` は解決結果を返す。`canvas` モードで Canvas 未検出時はエクスポート完了後にインストール導線へ合流する動作を維持(理由メッセージも解決 route ベースに修正)
+
 ## 4.35.0
 
 - **CDN コンボをエンジン供給元モードとして統一(`local` モード追加)** — Web タブ「CDN:」コンボに第4モード `local` を追加し、Live View のエンジン配信元はこのコンボの選択に完全従属するよう変更。`stable`/`unstable`/カスタム http(s) URL = ホスト版エンジン(kasugai-canvas-web 等。アプリ未導入でも完結・既定)、`canvas` = 稼働中の Canvas アプリ(:8510)を直接使用(▶ Canvas と同じアプリ経路・未検出時はインストール導線/警告)、**web/ フォルダのファイルパス = FILE モード**(geo_webview サーバがそのツリーを /<engine>/ で静的配信。開発時・閉鎖ネットワーク向けに任意の web/ を直指定)。アプリ未導入前提のシンプル構成が既定動作。4.34.2 で入れた3段自動検出を廃止しモード明示型へ置き換え。ローカル系モードで配信元が見つからない場合は警告通知。エクスポートZIP名は `kasugai_canvas_local.zip`。**▶ Canvas ボタンを「Install KASUGAI Canvas」(常時インストール専用)に変更** — 起動経路は `canvas` モード + ▶ WebView に一本化し、ボタンは再インストール/修復の役割のみ(完了後は従来通り登録・ブラウザ起動へ合流)。**「Admin」ボタンを「Canvas Customize」(CANVASカスタマイズ)に改名** — 機能は同じ(稼働中アプリの /admin/ UI設定画面を開く)。**CDN コンボの選択肢を `stable`/`unstable`/`canvas`/`url`/`file` の5モード化**し、Install ボタン下に **URL/パス表示欄+「…」選択ボタン** を追加 — `url`/`file` は実値を `kasugai_hosted_value` に別保存(表示欄で編集・参照)、他モードは解決先を読取専用表示。直書きURL/パスの旧形式も互換受理

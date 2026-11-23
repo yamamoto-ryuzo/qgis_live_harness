@@ -1290,6 +1290,19 @@ class GeoWebViewBridge:
             route = 'local'
         if route not in ('auto', 'kasugai', 'local', 'hosted'):
             route = 'auto'
+        # CDN モード→route の変換はエクスポート完了後に行う
+        # (エクスポートが確実に終わってから起動先を決定するため)。
+        # 'hosted' 指定時: channel='canvas' → kasugai(アプリ経路)、
+        # FILEパス → local(:8089 静的配信)、URL/stable/unstable → hosted。
+        if route == 'hosted':
+            try:
+                _ch = kasugai_export.get_hosted_channel().strip().lower()
+                if _ch == 'canvas':
+                    route = 'kasugai'
+                elif not kasugai_export.is_hosted_channel():
+                    route = 'local'
+            except Exception:  # nosec B110  # 解決失敗は hosted のまま
+                pass
         out["route"] = route
         caps = None
         launched_default = False
