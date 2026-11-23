@@ -43,9 +43,41 @@ DOCS_ASSETS = Path(__file__).resolve().parent / "plugin_docs"
 # qgis-plugin/<id>/docs/nav.js のページ並び順(未記載は末尾にアルファベット順)
 DOCS_ORDER = {
     "geo_webview": [
-        "index.html", "architecture.html", "features.html", "engines.html",
-        "getting-started.html", "technical.html", "spec.html",
-        "integration.html", "license.html",
+        "index.html", "spec.html", "getting-started.html",
+        "architecture.html", "features.html", "engines.html",
+        "technical.html", "integration.html", "license.html",
+    ],
+}
+
+# ナビを KASUGAI Canvas 式(nav-section セクション構成)にするプラグインの
+# 定義。セクションは {"section": 見出し, "href": 見出しリンク(任意),
+# "pages": [ファイル名…] または "spec_tabs"/"use_tabs"}。
+# "spec_tabs" = spec.html のタブ別節(h2 が "N. "、N=1-7)を項目として
+# 切り出す(仕様書の子リンクからは除く)。
+# "use_tabs" = docs/use/*.html をファイル名順に項目化し、各項目の
+# 子リンクを「使い方」節の h3(機能名)として列挙する
+# (KASUGAI Canvas docs/use/ 準拠)。"extra" でタブ項目へ
+# 資料ページを子リンクとして追加できる(資料セクションからの移管)。
+NAV_SECTIONS = {
+    "geo_webview": [
+        {"section": "概要", "href": "index.html",
+         "pages": ["index.html", "spec.html", "getting-started.html",
+                    "architecture.html"]},
+        {"section": "タブ別機能", "pages": "use_tabs",
+         "extra": {
+             "1-1-Webタブ.html": ["features.html", "engines.html"],
+             "1-6-Otherタブ.html": ["integration.html"],
+             "1-7-パネル下部.html": ["technical.html"],
+         }},
+        {"section": "資料", "pages": ["license.html"]},
+    ],
+}
+
+# ナビ上部(nav-demos)へ追加するプラグイン別リンク
+NAV_DEMOS = {
+    "geo_webview": [
+        ("https://yamamoto-ryuzo.github.io/kasugai_canvas/web/cesium/",
+         "▶ サンプルサイト(KASUGAI Canvas)"),
     ],
 }
 
@@ -104,7 +136,8 @@ def _page_children(path: Path) -> list:
 def write_docs_nav(plugin_id: str, ddir: Path) -> None:
     """qgis-plugin/<id>/docs/ 用の nav.js を生成する(常に再生成)。
 
-    KASUGAI Canvas ドキュメント(docs/nav.js)と同型の左サイドバーを
+    KASUGAI Canvas ドキュメント(docs/nav.js)と同型の左サイドバー
+    (nav-section セクション + nav-group-label + 項目 + 子リンク)を
     #site-nav として描画する。ページ一覧・h2 アンカーは docs/ 内の
     HTML から自動収集する。
     """
@@ -113,71 +146,188 @@ def write_docs_nav(plugin_id: str, ddir: Path) -> None:
         ddir.glob("*.html"),
         key=lambda f: (order.get(f.name, 999), f.name),
     )
-    pages = []
+    page_map = {}
     for f in htmls:
         if f.name == "index.html":
             continue
-        pages.append((f.name, _page_title(f), _page_children(f)))
-    if (ddir / "index.html").exists():
-        pages.insert(0, ("index.html", "概要", []))
+        page_map[f.name] = (f.name, _page_title(f), _page_children(f))
+
+    # spec.html のタブ別節(h2 が "N. "、N=1-7)を切り出し、
+    # spec.html の子リンクからは除く("use_tabs" の N-2 子リンクで使う)
+    tab_items = []
+    if any(s["pages"] in ("spec_tabs", "use_tabs")
+           for s in NAV_SECTIONS.get(plugin_id, [])) \
+            and "spec.html" in page_map:
+        name, title, children = page_map["spec.html"]
+        keep = []
+        for href, text in children:
+            if re.match(r"^[1-7]\.\s", text):
+                tab_items.append((href, text))
+            else:
+                keep.append((href, text))
+        page_map["spec.html"] = (name, title, keep)
+
+    # "use_tabs": docs/use/*.html をファイル名順に項目化。
+    # 子リンクは「使い方」節内の h3(機能ごとの見出し)を
+    # "N-M <機能名>" として列挙する
+    use_items = []
+    if any(s["pages"] == "use_tabs"
+           for s in NAV_SECTIONS.get(plugin_id, [])):
+        udir = ddir / "use"
+        if udir.is_dir():
+            for i, f in enumerate(sorted(udir.glob("*.html"))):
+                rel = f"use/{f.name}"
+                src = f.read_text(encoding="utf-8")
+                # 「使い方」h2〜次の h2 までの範囲の h3 を拾う
+                seg = re.split(r'<h2\s+id="使い方"', src, maxsplit=1)
+                seg = re.split(r'<h2\s', seg[-1], maxsplit=1)[0] \
+                    if len(seg) > 1 else ""
+                children = []
+                for j, m in enumerate(re.finditer(
+                        r'<h3\s+id="([^"]+)"[^>]*>(.*?)</h3>',
+                        seg, re.S)):
+                    text = re.sub(r"<[^>]+>", "", m.group(2))
+                    text = re.sub(r"\s+", " ", text).strip()
+                    if text:
+                        children.append(
+                            (f"{rel}#{m.group(1)}",
+                             f"{i + 1}-{j + 1} {text}"))
+                use_items.append((rel, _page_title(f), children))
+
+    groups = []
+    for sec in NAV_SECTIONS.get(plugin_id, []):
+        if sec["pages"] == "spec_tabs":
+            items = [(h, t, []) for h, t in tab_items]
+        elif sec["pages"] == "use_tabs":
+            # "extra": タブ項目へ資料ページを子リンクとして追加する
+            items = []
+            for rel, title, children in use_items:
+                fname = rel.rsplit("/", 1)[-1]
+                for extra in sec.get("extra", {}).get(fname, []):
+                    if extra in page_map:
+                        children = children + [page_map[extra][:2]]
+                items.append((rel, title, children))
+        else:
+            items = []
+            for n in sec["pages"]:
+                if n == "index.html":
+                    if (ddir / "index.html").exists():
+                        items.append(("index.html", "概要", []))
+                elif n in page_map:
+                    items.append(page_map[n])
+        groups.append((sec["section"], sec.get("href"), items))
+    if not groups:
+        pages = list(page_map.values())
+        if (ddir / "index.html").exists():
+            pages.insert(0, ("index.html", "概要", []))
+        groups = [(None, None, pages)]
+
+    demos = [
+        ("https://yamamoto-ryuzo.github.io/qgis_live_harness/"
+         "plugins.html", "プラグイン一覧(サイト)"),
+        (f"{TREE}/qgis-plugin/{plugin_id}", "GitHub(プラグイン)"),
+    ] + NAV_DEMOS.get(plugin_id, [])
     ext = " target=\"_blank\" rel=\"noopener noreferrer\""
 
     def js_str(s: str) -> str:
         return "'" + s.replace("\\", "\\\\").replace("'", "\\'") + "'"
 
     lines = ["// 自動生成: scripts/build-plugin-docs.py(再実行で上書きされます)",
+             "// KASUGAI Canvas docs/nav.js と同型(セクション + 項目 + 子リンク)",
              "(function () {",
              f"  var TITLE = {js_str(plugin_id)};",
-             "  var PAGES = ["]
-    for href, title, children in pages:
+             "  var GROUPS = ["]
+    for label, shref, gpages in groups:
+        g = "    { section: " + (js_str(label) if label else "null")
+        if shref:
+            g += f", sectionHref: {js_str(shref)}"
+        g += ", items: ["
+        lines.append(g)
+        for href, title, children in gpages:
+            lines.append(
+                f"      {{ href: {js_str(href)}, text: {js_str(title)},")
+            if children:
+                lines.append("        children: [")
+                for chref, ctext in children:
+                    lines.append(
+                        f"          {{ href: {js_str(chref)}, text: {js_str(ctext)} }},")
+                lines.append("        ]")
+                lines.append("      },")
+            else:
+                lines[-1] += " },"
+        lines.append("    ]},")
+    lines.append("  ];")
+    lines.append("  var DEMOS = [")
+    for dhref, dtext in demos:
         lines.append(
-            f"    {{ href: {js_str(href)}, text: {js_str(title)},")
-        if children:
-            lines.append("      children: [")
-            for chref, ctext in children:
-                lines.append(
-                    f"        {{ href: {js_str(chref)}, text: {js_str(ctext)} }},")
-            lines.append("      ]")
-            lines.append("    },")
-        else:
-            lines[-1] += " },"
+            f"    {{ href: {js_str(dhref)}, text: {js_str(dtext)} }},")
     lines += [
         "  ];",
-        "  var LINKS = [",
-        "    { href: 'https://yamamoto-ryuzo.github.io/qgis_live_harness/"
-        "plugins.html', text: 'プラグイン一覧(サイト)' },",
-        f"    {{ href: '{TREE}/qgis-plugin/{plugin_id}',"
-        " text: 'GitHub(プラグイン)' }",
-        "  ];",
-        "  var here = location.pathname.split('/').pop() || 'index.html';",
+        "  var base = new URL('.', document.currentScript.src).pathname;",
+        "  function norm(p) {",
+        "    p = p.replace(/#.*$/, '').replace(/index\\.html$/, '')",
+        "      .replace(/\\/$/, '');",
+        "    try { p = decodeURIComponent(p); } catch (e) {}",
+        "    return p;",
+        "  }",
+        "  var current = norm(location.pathname);",
+        "  function isActive(href) {",
+        "    return href.indexOf('#') < 0 && norm(base + href) === current;",
+        "  }",
         "  var nav = document.createElement('aside');",
         "  nav.id = 'site-nav';",
-        "  var h = '<div class=\"nav-title\"><a href=\"index.html\">' +"
-        " TITLE + '</a></div>';",
+        "  var h = '<div class=\"nav-title\"><a href=\"' + base"
+        " + 'index.html\">' +"
+        " TITLE + '</a>"
+        "<span class=\"nav-version\" data-plugin-version hidden></span></div>';",
         "  h += '<div class=\"nav-demos\">';",
-        "  for (var i = 0; i < LINKS.length; i++) {",
-        f"    h += '<a class=\"nav-demo\" href=\"' + LINKS[i].href + '\"{ext}>'"
-        " + LINKS[i].text + '</a>';",
+        "  for (var i = 0; i < DEMOS.length; i++) {",
+        f"    h += '<a class=\"nav-demo\" href=\"' + DEMOS[i].href + '\"{ext}>'"
+        " + DEMOS[i].text + '</a>';",
         "  }",
-        "  h += '</div><div class=\"nav-group\"><ul>';",
-        "  for (var i = 0; i < PAGES.length; i++) {",
-        "    var p = PAGES[i];",
-        "    h += '<li><a href=\"' + p.href + '\"' +",
-        "      (p.href === here ? ' class=\"active\"' : '') + '>' + p.text + '</a>';",
-        "    if (p.children) {",
-        "      h += '<ul class=\"nav-sub\">';",
-        "      for (var j = 0; j < p.children.length; j++) {",
-        "        var c = p.children[j];",
-        "        h += '<li><a href=\"' + c.href + '\">' + c.text + '</a></li>';",
+        "  h += '</div>';",
+        "  for (var g = 0; g < GROUPS.length; g++) {",
+        "    var grp = GROUPS[g];",
+        "    if (grp.section) h += grp.sectionHref",
+        "      ? '<div class=\"nav-section\"><a href=\"' + base + grp.sectionHref"
+        " + '\">' + grp.section + '</a></div>'",
+        "      : '<div class=\"nav-section\">' + grp.section + '</div>';",
+        "    h += '<div class=\"nav-group\"><ul>';",
+        "    for (var i = 0; i < grp.items.length; i++) {",
+        "      var p = grp.items[i];",
+        "      h += '<li><a href=\"' + base + p.href + '\"' +",
+        "        (isActive(p.href) ? ' class=\"active\"' : '') + '>'"
+        " + p.text + '</a>';",
+        "      if (p.children) {",
+        "        h += '<ul class=\"nav-sub\">';",
+        "        for (var j = 0; j < p.children.length; j++) {",
+        "          var c = p.children[j];",
+        "          h += '<li><a href=\"' + base + c.href + '\"' +",
+        "            (isActive(c.href) ? ' class=\"active\"' : '') + '>'",
+        " + c.text + '</a></li>';",
+        "        }",
+        "        h += '</ul>';",
         "      }",
-        "      h += '</ul>';",
+        "      h += '</li>';",
         "    }",
-        "    h += '</li>';",
+        "    h += '</ul></div>';",
         "  }",
-        "  h += '</ul></div>';",
         "  nav.innerHTML = h;",
         "  document.body.prepend(nav);",
         "  document.body.classList.add('has-nav');",
+        "  var SCROLL_KEY = 'plugin-docs-nav-scroll';",
+        "  try {",
+        "    var st = sessionStorage.getItem(SCROLL_KEY);",
+        "    if (st) nav.scrollTop = parseInt(st, 10) || 0;",
+        "    var st_ = null;",
+        "    nav.addEventListener('scroll', function () {",
+        "      if (st_) clearTimeout(st_);",
+        "      st_ = setTimeout(function () {",
+        "        try { sessionStorage.setItem(SCROLL_KEY,",
+        " String(nav.scrollTop)); } catch (e) {}",
+        "      }, 80);",
+        "    });",
+        "  } catch (e) {}",
         "  var btn = document.createElement('button');",
         "  btn.className = 'nav-toggle'; btn.type = 'button';",
         "  btn.setAttribute('aria-label', 'メニュー'); btn.textContent = '☰';",
