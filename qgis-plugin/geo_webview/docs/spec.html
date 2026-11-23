@@ -204,12 +204,12 @@ HTTP ワーカースレッドから呼べる。</li>
 </tbody>
 </table>
 <h3 id="起動モードと出力形式">起動モード（CDN コンボ）と出力形式の関係</h3>
-<pre><code class="language-mermaid">flowchart TB
-    subgraph QGIS["QGIS geo_webview パネル"]
-        VF["形式: コンボ&lt;br&gt;native / recommended / geojson"]
-        CDN["CDN: コンボ&lt;br&gt;stable / unstable / canvas / custom"]
-        VAL["カスタム（URL/FILE）: 欄&lt;br&gt;kasugai_hosted_value"]
-        BTN["▶ WebView"]
+<p><strong>図1. パネル設定と永続化</strong> — 3つの設定項目がそれぞれ独立した QSettings キーに保存される。</p>
+<pre><code class="language-mermaid">flowchart LR
+    subgraph PANEL["geo_webview パネル"]
+        VF["形式: コンボ&lt;br/&gt;native / recommended / geojson"]
+        CDN["CDN: コンボ&lt;br/&gt;stable / unstable / canvas / custom"]
+        VAL["カスタム（URL/FILE）欄&lt;br/&gt;URL or フォルダパス"]
     end
     subgraph SET["QSettings"]
         K1["kasugai_vector_format"]
@@ -218,39 +218,36 @@ HTTP ワーカースレッドから呼べる。</li>
     end
     VF --&gt; K1
     CDN --&gt; K2
-    VAL --&gt; K3
-    BTN --&gt; RC{"route 変換&lt;br&gt;on_kasugai_launch_clicked('hosted')"}
-    K2 --&gt; RC
-    RC --&gt;|"stable/unstable&lt;br&gt;custom+URL"| HOSTED["route=hosted"]
-    RC --&gt;|"custom+パス"| LOCAL["route=local"]
-    RC --&gt;|"canvas"| KAS["route=kasugai&lt;br&gt;（ネイティブアプリ経路）"]
-    subgraph EXP["kasugaiExport → export_kasugai_project"]
-        E0["vector_format=None&lt;br&gt;→ kasugai_vector_format を読む"]
-        E1["native → ネイティブ参照行&lt;br&gt;(gpkg:/geojson:/geoparquet:/3dtiles:等)"]
-        E2["recommended → FlatGeobuf 変換&lt;br&gt;canvas_data/*.fgb"]
-        E3["geojson → GeoJSON 変換&lt;br&gt;canvas_data/*.geojson"]
-        E0 --&gt; E1 &amp; E2 &amp; E3
+    VAL --&gt; K3</code></pre>
+<p><strong>図2. CDN モード → route 変換 → エンジン供給元</strong> — 「エンジンをどこから読むか」を決める経路（データの中身とは無関係）。</p>
+<pre><code class="language-mermaid">flowchart LR
+    BTN["▶ WebView / Live View"] --&gt; RC{"route 変換"}
+    M["kasugai_hosted_channel"] --&gt; RC
+    RC --&gt;|"stable / unstable"| H["route=hosted"]
+    RC --&gt;|"custom + URL"| H
+    RC --&gt;|"custom + パス"| L["route=local"]
+    RC --&gt;|"canvas"| K["route=kasugai&lt;br/&gt;（ネイティブアプリ経路）"]
+    H --&gt; EN1["https://…/kasugai-canvas-web/&lt;ch&gt;/&lt;engine&gt;/"]
+    L --&gt; EN2["http://127.0.0.1:8089/&lt;engine&gt;/&lt;br/&gt;（指定 web/ を静的配信）"]
+    K --&gt; EN3["http://127.0.0.1:8510/&lt;engine&gt;/&lt;br/&gt;（稼働中 Canvas アプリ）"]</code></pre>
+<p><strong>図3. 形式選択 → エクスポート内容</strong> — 「.kasc の中身」を決める経路。<strong>全ルート共通</strong>で、どの CDN モードで起動しても選択した形式がそのまま使われる。</p>
+<pre><code class="language-mermaid">flowchart LR
+    K1["kasugai_vector_format"] --&gt; E0{"export_kasugai_project&lt;br/&gt;vector_format=None → QSettings 参照"}
+    E0 --&gt;|"native"| E1["ネイティブ参照行&lt;br/&gt;gpkg: / geojson: / geoparquet:&lt;br/&gt;/ 3dtiles: / duckdb: 等"]
+    E0 --&gt;|"recommended"| E2["FlatGeobuf 変換&lt;br/&gt;canvas_data/*.fgb"]
+    E0 --&gt;|"geojson"| E3["GeoJSON 変換&lt;br/&gt;canvas_data/*.geojson"]
+    E1 &amp; E2 &amp; E3 --&gt; KASC[".kasc + canvas_data/"]</code></pre>
+<p><strong>図4. 起動後のデータ供給</strong> — エンジンは <code>?kasc=</code> でプロジェクトを読み、<code>live:</code> 行があれば live API へ接続。データは常に :8089 の geo_webview サーバが供給する。</p>
+<pre><code class="language-mermaid">flowchart LR
+    subgraph ENG["起動したエンジン（図2 のどれか）"]
+        APP["&lt;engine&gt;/?kasc=&lt;url&gt;"]
     end
-    K1 -.->|全ルート共通で参照| E0
-    HOSTED --&gt; EXP
-    LOCAL --&gt; EXP
-    KAS --&gt; EXP
-    EXP --&gt; KASC[".kasc + canvas_data/"]
-    subgraph ENGINE["エンジン供給元（起動先）"]
-        EN1["https://…/kasugai-canvas-web/&lt;ch&gt;/&lt;engine&gt;/"]
-        EN2["http://127.0.0.1:8089/&lt;engine&gt;/&lt;br&gt;（FILEパス or インストール済み web/）"]
-        EN3["http://127.0.0.1:8510/&lt;engine&gt;/&lt;br&gt;（稼働中 Canvas アプリ）"]
+    subgraph SRV[":8089 geo_webview サーバ"]
+        D1["/export-data/&lt;br/&gt;.kasc + canvas_data/ の静的配信"]
+        D2["/live/kasc 他 /live/*&lt;br/&gt;ライブ連携 API"]
     end
-    HOSTED --&gt; EN1
-    LOCAL --&gt; EN2
-    KAS --&gt; EN3
-    subgraph DATA["データ配信（:8089 geo_webview サーバ）"]
-        D1["/export-data/&lt;br&gt;エクスポート物の配信"]
-        D2["/live/kasc 他 /live/*&lt;br&gt;ライブ連携 API"]
-    end
-    KASC --&gt; D1
-    EN1 &amp; EN2 &amp; EN3 --&gt;|"?kasc= で読込"| KASC
-    EN1 &amp; EN2 &amp; EN3 -.->|"live: 行があれば"| D2</code></pre>
+    APP --&gt;|".kasc 本体・データ取得"| D1
+    APP -.->|".kasc に live: 行があれば接続"| D2</code></pre>
 <p>形式選択（<code>vector_format</code>）は全ルート共通の単一経路で <code>.kasc</code>+<code>canvas_data/</code> の中身を決め、CDN モード（エンジン供給元）とは独立 — どのモードでも同じ形式が効く。route 変換だけがモード依存。</p>
 <h3 id="出力フォルダ構成">出力フォルダ構成</h3>
 <pre><code>&lt;out_dir&gt;/                    # 既定: &lt;ドキュメント&gt;/kasugai_canvas_qgis
