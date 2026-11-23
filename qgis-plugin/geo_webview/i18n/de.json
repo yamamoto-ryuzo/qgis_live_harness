@@ -362,7 +362,7 @@
     "Add failed": "Hinzufügen fehlgeschlagen",
     "Canvas Live View": "Canvas Live-Ansicht",
     "Open Canvas Live View": "Canvas Live-Ansicht öffnen",
-    "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), 'canvas' (running Canvas app :8510), a custom http(s) base URL ending with '/', or a local web/ folder path (or 'local' for auto-detect: app :8510 → installed web/; for development or closed networks)": "Von ▶ WebView / Live View verwendete Engine-Quelle — 'stable'/'unstable' (kasugai-canvas-web, funktioniert ohne Canvas-Installation), 'canvas' (laufende Canvas-App :8510), eine benutzerdefinierte http(s)-Basis-URL mit abschließendem '/' oder ein lokaler web/-Ordnerpfad (oder 'local' für automatische Erkennung: App :8510 → installiertes web/; für Entwicklung oder geschlossene Netzwerke)"
+    "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), 'canvas' (running Canvas app :8510), a custom http(s) base URL ending with '/', or a local web/ folder path (served at /<engine>/ by this server; for development or closed networks)": "Von ▶ WebView / Live View verwendete Engine-Quelle — 'stable'/'unstable' (kasugai-canvas-web, funktioniert ohne Canvas-Installation), 'canvas' (laufende Canvas-App :8510), eine benutzerdefinierte http(s)-Basis-URL mit abschließendem '/' oder ein lokaler web/-Ordnerpfad (von diesem Server unter /<engine>/ ausgeliefert; für Entwicklung oder geschlossene Netzwerke)"
   },
   "geo_webview.page": {
     "  rotation: ": "  Drehung: ",

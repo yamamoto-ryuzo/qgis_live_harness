@@ -362,7 +362,7 @@
     "Add failed": "जोड़ना विफल",
     "Canvas Live View": "Canvas लाइव व्यू",
     "Open Canvas Live View": "Canvas लाइव व्यू खोलें",
-    "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), 'canvas' (running Canvas app :8510), a custom http(s) base URL ending with '/', or a local web/ folder path (or 'local' for auto-detect: app :8510 → installed web/; for development or closed networks)": "▶ WebView / Live View द्वारा उपयोग किया जाने वाला इंजन स्रोत — 'stable'/'unstable' (kasugai-canvas-web, Canvas इंस्टॉल के बिना भी काम करता है), 'canvas' (चल रहा Canvas ऐप :8510), '/' पर समाप्त होने वाला कस्टम http(s) बेस URL, या स्थानीय web/ फ़ोल्डर पथ (या 'local' स्वतः पहचान के लिए: ऐप :8510 → इंस्टॉल किया गया web/; विकास या बंद नेटवर्क के लिए)"
+    "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), 'canvas' (running Canvas app :8510), a custom http(s) base URL ending with '/', or a local web/ folder path (served at /<engine>/ by this server; for development or closed networks)": "▶ WebView / Live View द्वारा उपयोग किया जाने वाला इंजन स्रोत — 'stable'/'unstable' (kasugai-canvas-web, Canvas इंस्टॉल के बिना भी काम करता है), 'canvas' (चल रहा Canvas ऐप :8510), '/' पर समाप्त होने वाला कस्टम http(s) बेस URL, या स्थानीय web/ फ़ोल्डर पथ (यह सर्वर /<engine>/ पर प्रदान करता है; विकास या बंद नेटवर्क के लिए)"
   },
   "geo_webview.page": {
     "  rotation: ": "  घूर्णन: ",

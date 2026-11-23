@@ -1003,11 +1003,10 @@ SETTINGS_KEY_HOSTED_CHANNEL = 'kasugai_hosted_channel'
 def get_hosted_channel():
     """QSettings の kasugai_hosted_channel(未設定は 'stable')を返す。
 
-    'stable'/'unstable'、'local'(ローカル自動検出: 稼働中アプリ
-    8510→インストール済み web/ の順。開発・閉鎖網向け)、完全URL
-    (自前ホスト用)、またはローカルの web/ ディレクトリへの
+    'stable'/'unstable'、'canvas'(稼働中の Canvas アプリ :8510)、
+    完全URL(自前ホスト用)、またはローカルの web/ ディレクトリへの
     ファイルパス(FILE モード: geo_webview サーバがそのツリーを
-    /<engine>/ で静的配信)を取る。
+    /<engine>/ で静的配信。開発・閉鎖網向け)を取る。
     """
     v = (_qsettings().value(SETTINGS_KEY_HOSTED_CHANNEL, '') or '')
     return str(v).strip() or 'stable'
@@ -1027,12 +1026,13 @@ def is_hosted_channel(channel=None):
 def local_channel_web_dir(channel=None):
     """モード値がファイルパス(FILE モード)ならその web/ ディレクトリ。
 
-    値が 'local' や hosted 系なら None(=自動検出/ホスト供給)。
-    存在する web/ ツリー(index.html 必須)のみ絶対パスで返す。
+    値が hosted 系や 'canvas'/'local'(legacy)なら None(=ホスト
+    供給/アプリ経路)。存在する web/ ツリー(index.html 必須)のみ
+    絶対パスで返す。
     """
     ch = str(channel if channel is not None
               else get_hosted_channel() or 'stable').strip().strip('"')
-    if not ch or ch.lower() in HOSTED_CHANNELS or             ch.lower() == 'local' or             ch.lower().startswith(('http://', 'https://')):
+    if not ch or ch.lower() in HOSTED_CHANNELS or             ch.lower() in ('canvas', 'local') or             ch.lower().startswith(('http://', 'https://')):
         return None
     if os.path.isfile(os.path.join(ch, 'index.html')):
         return os.path.abspath(ch)

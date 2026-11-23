@@ -903,8 +903,6 @@ class GeoWebView:
               (アプリ一体運用。未検出時は警告+本サーバ配信へ退く)
           ファイルパス(FILE モード) → その web/ ツリーを本サーバの
               /<engine>/ で静的配信。開発時・閉鎖ネットワーク向け
-          local → 上記の自動検出版: 稼働中の Canvas アプリ(既定8510)
-              優先、未起動ならインストール済み web/ を同様に配信
         """
         srv = getattr(self, 'server_manager', None)
         port = (srv.get_server_port()
@@ -918,28 +916,26 @@ class GeoWebView:
             from . import kasugai_export
             ch = kasugai_export.get_hosted_channel()
             if not kasugai_export.is_hosted_channel(ch):
-                if ch.strip().lower() in ('canvas', 'local'):
-                    # canvas/local: 稼働中アプリ(8510)を優先 — アプリの
+                if ch.strip().lower() == 'canvas':
+                    # canvas: 稼働中アプリ(8510)を使う — アプリの
                     # web/ は自動更新に追随し、開発用サーバなら開発
                     # ツリーを配信
                     cport = int(kasugai_export.get_kasugai_port() or 8510)
                     if kasugai_export.detect_kasugai(cport):
                         return ('http://127.0.0.1:{0}/{1}/?kasc={2}'
                                 .format(cport, engine, kasc_q))
-                    if ch.strip().lower() == 'canvas':
-                        self._push_message(
-                            self.tr('Canvas Live View'),
-                            self.tr("'canvas' mode needs a running Canvas "
-                                    "app (:8510)."),
-                            level=1, duration=6)
-                # FILE/local 未検出時: 本サーバが web/ を静的配信。
+                    self._push_message(
+                        self.tr('Canvas Live View'),
+                        self.tr("'canvas' mode needs a running Canvas "
+                                "app (:8510)."),
+                        level=1, duration=6)
+                # FILE モード未検出時: 本サーバが web/ を静的配信。
                 # 配信元は find_kasugai_web_dir(FILE指定>インストール済み)
-                if not kasugai_export.find_kasugai_engine_dir(engine):
+                elif not kasugai_export.find_kasugai_engine_dir(engine):
                     self._push_message(
                         self.tr('Canvas Live View'),
                         self.tr("Local engine delivery needs a valid web/ "
-                                "folder path, a running Canvas app (:8510) "
-                                "or an installed copy."),
+                                "folder path or an installed Canvas copy."),
                         level=1, duration=6)
                 return '{0}/{1}/?kasc={2}'.format(base, engine, kasc_q)
             # hosted: CORS は hosted オリジンを許可済み、PNA プリフライト

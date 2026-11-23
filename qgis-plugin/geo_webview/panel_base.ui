@@ -264,7 +264,7 @@
                <bool>true</bool>
               </property>
               <property name="toolTip">
-               <string>Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), 'canvas' (running Canvas app :8510), a custom http(s) base URL ending with '/', or a local web/ folder path (or 'local' for auto-detect: app :8510 → installed web/; for development or closed networks)</string>
+               <string>Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), 'canvas' (running Canvas app :8510), a custom http(s) base URL ending with '/', or a local web/ folder path (served at /<engine>/ by this server; for development or closed networks)</string>
               </property>
               <item>
                <property name="text">
@@ -279,11 +279,6 @@
               <item>
                <property name="text">
                 <string notr="true">canvas</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string notr="true">local</string>
                </property>
               </item>
              </widget>
