@@ -139,6 +139,20 @@ GeoSuite 共有ツールバー・レイヤ整理サービス（layer_org）も�
 
 <h2>連携ソフトウェア</h2>
 
+<h3><code>KASUGAI Canvas</code></h3>
+<p>ブラウザ完結の 2D/3D データ可視化 WebGIS(CesiumJS/MapLibre/OpenLayers/Leaflet の
+マルチエンジン)。QGIS プラグインではなく、<strong>geo_webview が出力する
+<code>.kasc + canvas_data/</code> をそのまま再生する主たる連携先</strong>です。
+<code>/live</code> 経路ではカメラ追従・選択表示・レイヤ編集差分のリアルタイム双方向同期が行え、
+QGIS=編集・生成 / Canvas=高速表示の2画面運用が主な使い方です。
+内蔵 AI チャット(Gemini)は geo_driver の MCP 経路を通じて QGIS 側を操作でき、
+Fly(自動運転)・rclone クラウドストレージ連携・Cloudflare Pages/Workers/Cloud Run への
+デプロイにも対応します。インストール不要な CDN ホスト版は
+<a href="https://yamamoto-ryuzo.github.io/kasugai-canvas-web/">kasugai-canvas-web</a>
+として配信されており、QGIS 未導入環境でも <code>.kasc</code> をブラウザ再生できます。</p>
+<p>リポジトリ: <a href="https://github.com/yamamoto-ryuzo/kasugai_canvas">kasugai_canvas</a> ·
+ドキュメント: <a href="https://yamamoto-ryuzo.github.io/kasugai_canvas/docs/">KASUGAI Canvas ドキュメント(Pages)</a></p>
+
 <h3><code>kasugai_qgis</code></h3>
 <p>Rust 製の QGIS ランチャー。QGIS プラグインではなく、同じ <code>geo_custom</code> プロファイル
 経由で連携する独立ソフトウェアです。Web UI / CLI / HTTP API から QGIS・QField を起動し、
