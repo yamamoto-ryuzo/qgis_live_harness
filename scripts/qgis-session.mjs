@@ -123,7 +123,10 @@ function launchQgis(liveBase) {
   const devMode = currentDeployMode() === "dev";
   const ps = [
     `$env:QTWEBENGINE_REMOTE_DEBUGGING='9222'`,
-    `$env:QTWEBENGINE_CHROMIUM_FLAGS='--disable-gpu --no-sandbox --disable-gpu-compositing'`,
+    // レンダラ即死の実害はサンドボックスのみ(--disable-gpu は誤診断で
+    // WebGL を全滅させるため除去。GLES 失敗は QGIS 側の Software
+    // シーングラフ強制が原因でフラグでは回避できない)
+    `$env:QTWEBENGINE_CHROMIUM_FLAGS='--no-sandbox'`,
     `$env:WEBENGINE_AUTOOPEN='1'`,
     `$env:WEBENGINE_LIVE_DIR='${liveBase.replace(/'/g, "''")}'`,
     `$env:WEBENGINE_LOG_PATH='${LOG_PATH.replace(/'/g, "''")}'`,

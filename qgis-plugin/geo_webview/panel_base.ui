@@ -852,53 +852,254 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_theme">
+     <widget class="QWidget" name="tab_xyz">
       <attribute name="title">
-       <string>Theme</string>
+       <string>XYZ</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_tab_theme">
+      <layout class="QVBoxLayout" name="verticalLayout_tab_xyz">
+       <property name="margin">
+        <number>6</number>
+       </property>
+       <property name="spacing">
+        <number>6</number>
+       </property>
        <item>
-        <widget class="QLabel" name="label_theme_selection">
-         <property name="text">
-          <string>Theme/Layer State:</string>
+        <widget class="QGroupBox" name="groupBox_xyz_bake">
+         <property name="title">
+          <string>Vector → XYZ tile bake</string>
          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_xyz_bake">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_kasugai_xyz">
+            <item>
+             <widget class="QCheckBox" name="checkBox_xyz_tiles">
+              <property name="text">
+               <string>XYZ tiles (faster display)</string>
+              </property>
+              <property name="toolTip">
+               <string>Large/complex vector layers (many features, pattern/raster/GeometryGenerator styles, cluster/heatmap renderers, etc.) are rendered by QGIS into XYZ image tiles (xyz: rows) instead of relying on browser-side QML rendering — pixel-faithful and fast to display. The vector data row is still emitted (off) for attribute queries and vector display. Note: Canvas-side filters (where=/attribute filters) do NOT affect the baked tile image</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_xyz_zoom">
+              <property name="text">
+               <string>Zoom:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinBox_xyz_zmin">
+              <property name="toolTip">
+               <string>Minimum zoom level for baked XYZ tiles (coarsest tile level)</string>
+              </property>
+              <property name="minimum">
+               <number>0</number>
+              </property>
+              <property name="maximum">
+               <number>22</number>
+              </property>
+              <property name="value">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_xyz_zoom_dash">
+              <property name="text">
+               <string>–</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinBox_xyz_zmax">
+              <property name="toolTip">
+               <string>Maximum zoom level for baked XYZ tiles (finest tile level; reduced automatically when the estimated tile count is too large)</string>
+              </property>
+              <property name="minimum">
+               <number>0</number>
+              </property>
+              <property name="maximum">
+               <number>22</number>
+              </property>
+              <property name="value">
+               <number>15</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_xyz_bake_note">
+            <property name="text">
+             <string>Canvas-side filters (where= / attribute filtering) do NOT affect the baked tile image. Per-layer override: the kasugai_render layer property — xyz = always bake, vector = never bake, auto/blank = automatic (also used by .kasc export)</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #666;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox_themes">
-         <property name="toolTip">
-          <string>Select theme option: no theme (position only) or specific theme</string>
+        <widget class="QGroupBox" name="groupBox_xyz_basemap">
+         <property name="title">
+          <string>Basemap Groups</string>
          </property>
-         <item>
-          <property name="text">
-           <string>-- No Theme (Position Only) --</string>
-          </property>
-         </item>
+         <layout class="QVBoxLayout" name="verticalLayout_xyz_basemap">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_xyz_basemap">
+            <item>
+             <widget class="QLabel" name="label_xyz_basemap">
+              <property name="text">
+               <string>Additional names:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEdit_xyz_basemap_groups">
+              <property name="placeholderText">
+               <string>e.g. 背景, Basemaps, Base Map</string>
+              </property>
+              <property name="toolTip">
+               <string>Comma-separated layer-tree group names treated as basemaps (in addition to the built-in 背景図 / ベースマップ / basemap).</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_xyz_basemap_info">
+            <property name="text">
+             <string>XYZ tile layers inside a layer-tree group with one of these names are exported as basemap entries (base:) instead of regular layers. Sub-groups are kept for grouped display.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #666;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_theme_save">
-         <item>
-          <widget class="QLineEdit" name="lineEdit_theme_name">
-           <property name="placeholderText">
-            <string>New theme name</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_save_theme">
-           <property name="toolTip">
-            <string>Save the current layer visibility and styles as a map theme</string>
-           </property>
-           <property name="text">
-            <string>Save Theme</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QGroupBox" name="groupBox_xyz_export">
+         <property name="title">
+          <string>Standalone XYZ export</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_xyz_export">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_xyz_run">
+            <item>
+             <widget class="QPushButton" name="pushButton_xyz_export">
+              <property name="text">
+               <string>Export XYZ</string>
+              </property>
+              <property name="toolTip">
+               <string>Bake the layers selected in the Layers panel to XYZ image tiles under &lt;export folder&gt;/xyz_tiles/ (zoom range follows the settings above; empty tiles are skipped)</string>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>25</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_xyz_open">
+              <property name="text">
+               <string>📁</string>
+              </property>
+              <property name="toolTip">
+               <string>Open the XYZ output folder (xyz_tiles/ — each layer has its own index.html viewer)</string>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>28</width>
+                <height>25</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>32</width>
+                <height>25</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_xyz_target">
+            <property name="text">
+             <string notr="true">Selected: —</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_xyz_opts">
+            <item>
+             <widget class="QCheckBox" name="checkBox_xyz_add_to_project">
+              <property name="text">
+               <string>Add baked tiles to the project as XYZ layers</string>
+              </property>
+              <property name="toolTip">
+               <string>After baking, register each tile tree in the QGIS project as an XYZ raster layer (file:// template) so the result can be checked on the map canvas</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_xyz_export_info">
+            <property name="text">
+             <string>Bakes the layer(s) selected in the Layers panel to XYZ tiles with the QGIS renderer. Output: &lt;export folder&gt;/xyz_tiles/&lt;layer&gt;/ + index.html.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #666;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_xyz_status">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #666;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_generate">
+        <spacer name="verticalSpacer_tab_xyz">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -912,97 +1113,170 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_permalink">
+     <widget class="QWidget" name="tab_other">
       <attribute name="title">
-       <string>Permalink</string>
+       <string>Other</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_tab_permalink">
+      <layout class="QVBoxLayout" name="verticalLayout_tab_other">
        <item>
-        <widget class="QPushButton" name="pushButton_generate">
-         <property name="text">
-          <string>Generate Permalink</string>
+        <widget class="QGroupBox" name="groupBox_other_theme">
+         <property name="title">
+          <string>Theme</string>
          </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>24</height>
-          </size>
-         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_group_theme">
+          <item>
+           <widget class="QLabel" name="label_theme_selection">
+            <property name="text">
+             <string>Theme/Layer State:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="comboBox_themes">
+            <property name="toolTip">
+             <string>Select theme option: no theme (position only) or specific theme</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>-- No Theme (Position Only) --</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_theme_save">
+            <item>
+             <widget class="QLineEdit" name="lineEdit_theme_name">
+              <property name="placeholderText">
+               <string>New theme name</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_save_theme">
+              <property name="toolTip">
+               <string>Save the current layer visibility and styles as a map theme</string>
+              </property>
+              <property name="text">
+               <string>Save Theme</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_permalink">
-         <item>
-          <widget class="QLineEdit" name="lineEdit_permalink">
-           <property name="placeholderText">
-            <string>Generated permalink will appear here</string>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_copy">
-           <property name="text">
-             <string>URLCopy</string>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_navigate_info">
-         <property name="text">
-          <string>Enter a permalink to navigate</string>
+        <widget class="QGroupBox" name="groupBox_other_permalink">
+         <property name="title">
+          <string>Permalink</string>
          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_group_permalink">
+          <item>
+           <widget class="QPushButton" name="pushButton_generate">
+            <property name="text">
+             <string>Generate Permalink</string>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>24</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_permalink">
+            <item>
+             <widget class="QLineEdit" name="lineEdit_permalink">
+              <property name="placeholderText">
+               <string>Generated permalink will appear here</string>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_copy">
+              <property name="text">
+                <string>URLCopy</string>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>22</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_navigate_info">
+            <property name="text">
+             <string>Enter a permalink to navigate</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_navigate">
+            <item>
+             <widget class="QLineEdit" name="lineEdit_navigate">
+              <property name="placeholderText">
+               <string>Paste permalink here</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_paste">
+              <property name="text">
+               <string>Paste</string>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>40</width>
+                <height>22</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_navigate">
+              <property name="text">
+               <string>Navigate</string>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>22</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_navigate">
-         <item>
-          <widget class="QLineEdit" name="lineEdit_navigate">
-           <property name="placeholderText">
-            <string>Paste permalink here</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_paste">
-           <property name="text">
-            <string>Paste</string>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>40</width>
-             <height>22</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_navigate">
-           <property name="text">
-            <string>Navigate</string>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QGroupBox" name="groupBox_other_share">
+         <property name="title">
+          <string>Share</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_group_share">
+          <item>
+           <widget class="QWidget" name="tab_share" native="true">
+            <!-- panel.py がここへ groupBox_sharing を動的追加する -->
+            <layout class="QVBoxLayout" name="verticalLayout_tab_share"/>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_permalink">
+        <spacer name="verticalSpacer_other">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -1014,14 +1288,6 @@
          </property>
         </spacer>
        </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_share">
-      <attribute name="title">
-       <string>Share</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_tab_share">
-       <!-- panel.py がここへ groupBox_sharing を動的追加する -->
       </layout>
      </widget>
     </widget>

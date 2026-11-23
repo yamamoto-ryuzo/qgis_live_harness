@@ -204,9 +204,19 @@ No liability is accepted for any damages arising from its use.
   installStatus/uninstall/getSettings/setSettings/openDialog/
   openSettings/openDocs/pluginInfo を提供
   `geo_webview/` は **KASUGAI Canvas 連携の責務プラグイン**。
-  `kasugai_export.py`(bridge `kasugaiExport`)で QGIS プロジェクトを
-  `.kasc+canvas_data/` へ送出し、`kasc_import.py`(bridge `kascInspect`/
-  `kascImport`)で逆方向(.kasc → QGIS 再構成)も担う。
+  **主軸は live ビュー機能(v4.30.0〜)**: `GET /live/kasc` が現在
+  プロジェクトから .kasc をオンデマンド生成(エクスポート不要)し、
+  「Open Canvas Live View」アクション/bridge `liveView` で既定
+  ブラウザに常駐 live ビューを提供する。QGIS4 は Qt Quick
+  Software 描画強制により埋め込み WebGL が使えないため、表示は
+  外部ブラウザに一本化(v4.31 で埋め込みドックは廃止済み)。
+  **Canvas は QGIS の Web 配布プレーヤーに留まらず、3D Tiles 等
+  重いコンテンツの高速表示メインブラウザとしての役割を持つ**
+  (QGIS=編集・生成 / Canvas=表示の2画面運用)。
+  従来機能として、`kasugai_export.py`(bridge `kasugaiExport`)で
+  QGIS プロジェクトを `.kasc+canvas_data/` へ送出し、
+  `kasc_import.py`(bridge `kascInspect`/`kascImport`)で逆方向
+  (.kasc → QGIS 再構成)も担う。
   同梱スキル `skills/webgis-convert.md`(QGIS→Canvas 変換手順・
   形式選定・エンジン選択・高速化)と `skills/webgis-import.md`
   (既存 WebGIS → QGIS 取り込み)が AI チャットの手順書。
@@ -217,7 +227,14 @@ No liability is accepted for any damages arising from its use.
   行生成、kasc_import.py のパース/取り込み、skills/webgis-*.md の
   仕様記述、verify/features.json、CHANGELOG/metadata.txt の同期)。
   逆に geo_webview 側で .kasc 解釈を変えた場合も Canvas 側
-  `shared/kasc.js` との乖離を確認して整合させること
+  `shared/kasc.js` との乖離を確認して整合させること。
+  **QML/スタイルの描画検証は QGIS↔Canvas ペア・スクリーンショット
+  比較を行う**: QGIS 側は live-drive の `pyeval` で地図キャンバスを
+  対象範囲(bbox→プロジェクトCRS変換→setExtent)・対象層表示にして
+  `screenshot`(target:"canvas")を取得、Canvas 側は Playwright で
+  同一範囲・同一解像度を撮影し目視比較する。ハーネスは
+  `kasugai_canvas/web/verify/results/qgis-vs-canvas/compare.mjs`、
+  詳細手順は `qml-spec` スキル「QGIS↔Canvas スクリーンショット比較」節
   `geo_driver/` はWebEngineを持たない制御専用プラグイン(pyeval+地図キャンバス
   スクショのみ)で、任意プラグインの遠隔操作基盤として常駐させられる。
   内蔵HTTPサーバ(`/mcp`=MCP Streamable HTTP、`/api/*`=REST)と

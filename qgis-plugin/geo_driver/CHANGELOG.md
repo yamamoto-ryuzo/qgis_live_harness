@@ -3,6 +3,20 @@
 このプラグインの変更履歴。Keep a Changelog 準拠。
 バージョンは `metadata.txt` の `version` と同期させる。
 
+## [1.0.4] - 2026-11-23
+
+### Fixed
+- **QgisApp 構築中に live コマンドが実行されて QGIS がクラッシュする
+  問題を修正** — `LiveDriver` の QTimer ポーリングは QgisApp
+  コンストラクタ内の `processEvents`(スプラッシュ進行)でも発火
+  し得るため、起動完了前に HTTP 経由(submit)の pyeval が
+  `addMapLayer` 等を実行すると、layerAdded 系シグナルのスロットが
+  未生成のドック(temporal controller 等)を触って access violation
+  になっていた(QGIS 4.0.1 で実測)。`_poll` 冒頭に初期化完了ゲート
+  (メインウィンドウ `isVisible()` + `iface.initializationCompleted`)
+  を追加し、ready 前のコマンドはキューに滞留させて初期化完了後に
+  実行する。起動後のホットリロードでは即 ready のため既存動作不変
+
 ## [1.0.3] - 2026-11-21
 
 ### Added

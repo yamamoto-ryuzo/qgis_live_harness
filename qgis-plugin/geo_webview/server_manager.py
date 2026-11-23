@@ -254,7 +254,8 @@ class GeoWebViewServerManager:
         # GET /live/state が Canvas 側へ返す
         self._live = {
             'enabled': False, 'rev': 0, 'updated': None,
-            'changed': [], 'camera': None, 'selection': None,
+            'changed': [], 'full': False,
+            'camera': None, 'selection': None,
             'writeback': None, 'features': None,
         }
         # 印刷レイアウトPDF出力もレイアウト参照の同時実行を防ぐため直列化する
@@ -916,6 +917,97 @@ class GeoWebViewServerManager:
                         'text/plain; charset=utf-8')
                 return
 
+            # GET /live/kasc : エクスポート無しで現在のプロジェクトから
+            # .kasc テキストをオンデマンド生成(3D Canvas View / live
+            # ネイティブモード)。ベクターは /live/features・/live/style
+            # 参照、非対応ラスタは /live/render PNG の image: 行で出す
+            if parsed_url.path == '/live/kasc' and not is_post:
+                try:
+                    from . import live_kasc
+                    port = self.get_server_port() or self.server_port
+                    base = 'http://127.0.0.1:{0}'.format(port)
+                    text = self._main_invoker.call(
+                        lambda: live_kasc.build_live_kasc(
+                            self.iface, base),
+                        timeout=300)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 200, 'OK', text,
+                        'text/plain; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/kasc failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
+            # GET /live/live.json : live マニフェスト(rev/changed)。
+            # shared/live.js が .kasc と同じ場所(baseUrl)の live.json を
+            # ポーリングする規約を live ネイティブ経路で再現する
+            # (/live/kasc を置いた /live/ 基準で live.json になる)
+            if parsed_url.path == '/live/live.json' and not is_post:
+                try:
+                    st = self._live
+                    payload = json.dumps({
+                        'ok': True,
+                        'rev': st.get('rev', 0),
+                        'updated': st.get('updated'),
+                        'changed': st.get('changed') or [],
+                        'full': bool(st.get('full')),
+                        'enabled': bool(st.get('enabled')),
+                    }, ensure_ascii=False)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 200, 'OK', payload,
+                        'application/json; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/live.json failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
+            # GET /live/style : レイヤの .qml をオンデマンド出力。
+            # ?layer=<kasc title>&name=<名前付きスタイル>(theme 記録用)
+            if parsed_url.path == '/live/style' and not is_post:
+                try:
+                    title = str(params.get(
+                        'layer', params.get('title', ['']))[0] or '')
+                    sname = str(params.get('name', [''])[0] or '') or None
+
+                    def _qml():
+                        layer = (self._resolve_kasc_layer(title)
+                                 if title else None)
+                        if layer is None:
+                            return {'error':
+                                    'layer not found: {0}'.format(title)}
+                        from . import live_kasc
+                        xml = live_kasc.layer_qml_xml(
+                            layer, style_name=sname)
+                        if xml is None:
+                            return {'error': 'style export failed'}
+                        return {'xml': xml}
+                    data = self._main_invoker.call(_qml, timeout=60)
+                    from . import http_server
+                    if data.get('xml') is not None:
+                        http_server.send_http_response(
+                            conn, 200, 'OK', data['xml'],
+                            'text/xml; charset=utf-8')
+                    else:
+                        http_server.send_http_response(
+                            conn, 404, 'Not Found',
+                            data.get('error') or 'style not found',
+                            'text/plain; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/style failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
             # GET /live/features : オンデマンド地物配信(GeoJSON)
             # ?layer=<kasc title>&bbox=w,s,e,n(EPSG:4326)&limit=&offset=
             # または pt=lon,lat&tol=<レイヤCRS単位> で地点検索
@@ -1274,9 +1366,26 @@ class GeoWebViewServerManager:
             ch = int(canvas.height())
         except Exception:  # nosec B110  # 設計上の許容
             pass
+        # Mercator 面の m/px。zoom(縮尺→近似テーブル推定)より正確なので、
+        # live 追従側はこれから zoom=log2(156543.03392/mpp3857) を直接導く
+        mpp3857 = None
+        try:
+            if cw:
+                ext = canvas.extent()
+                dest = ms.destinationCrs()
+                if dest.authid() != 'EPSG:3857':
+                    ext = QgsCoordinateTransform(
+                        dest,
+                        QgsCoordinateReferenceSystem('EPSG:3857'),
+                        QgsProject.instance(),
+                    ).transformBoundingBox(ext)
+                if ext.width() > 0:
+                    mpp3857 = float(ext.width()) / cw
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
         return {
             'x': c.x(), 'y': c.y(), 'scale': scale, 'crs': crs_auth,
-            'rotation': rotation, 'zoom': zoom,
+            'rotation': rotation, 'zoom': zoom, 'mpp3857': mpp3857,
             'lon': lon, 'lat': lat, 'x3857': x3857, 'y3857': y3857,
             'mupp': mupp, 'width': cw, 'height': ch,
             'cursor': self._cursor,
@@ -1285,16 +1394,20 @@ class GeoWebViewServerManager:
 
     # ---------- ライブ双方向連携 ----------
 
-    def live_update(self, changed=None, enabled=None):
+    def live_update(self, changed=None, enabled=None, full=None):
         """live_sync からの更新を記録する。/live/state と push 通知に使う。
 
         changed: [{'title': str, 'kind': 'data'|'style'|'full'}...] または None
+        full: True なら構造変更(全再読込)として Canvas 側へ伝える
+        (/live/live.json の manifest にも反映)
         """
         st = self._live
         st['rev'] = int(time.time() * 1000)
         st['updated'] = datetime.now().isoformat(timespec='seconds')
         if changed is not None:
             st['changed'] = list(changed)
+        if full is not None:
+            st['full'] = bool(full)
         if enabled is not None:
             st['enabled'] = bool(enabled)
         return st['rev']

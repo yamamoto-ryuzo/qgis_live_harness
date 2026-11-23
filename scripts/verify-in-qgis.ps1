@@ -20,8 +20,10 @@ if (-not $QgisExe -or -not (Test-Path $QgisExe)) {
 }
 
 $env:QTWEBENGINE_REMOTE_DEBUGGING = "$DebugPort"
-# この環境ではGLESコンテキスト作成に失敗しレンダラーが死ぬためGPU無効化が必須
-$env:QTWEBENGINE_CHROMIUM_FLAGS = "--disable-gpu --no-sandbox --disable-gpu-compositing"
+# レンダラ即死の実害はサンドボックスのみ(--disable-gpu は誤診断で WebGL を
+# 全滅させるため除去。GLES 失敗は QGIS 側の Software シーングラフ強制が
+# 原因でフラグでは回避できない)
+$env:QTWEBENGINE_CHROMIUM_FLAGS = "--no-sandbox"
 if (-not $NoAutoOpen) {
   $env:WEBENGINE_AUTOOPEN = "1"
   # LiveDriver(ファイル経由JS実行)の作業ディレクトリを指定

@@ -93,6 +93,25 @@ class LiveSyncController(QObject):
         self._running = False
         self._suppress = 0  # /live/writeback 適用中の変更検出抑止
         self._suppress_until = 0.0  # 書き戻し直後の遅延シグナル抑止窓(epoch)
+        # 3D Canvas View 等の live ネイティブセッション中は True。
+        # kasugai_live_sync 設定が OFF でも、エクスポート無しの
+        # /live/kasc 経路で変更検出(rev 更新)を動かすためのゲート
+        self.view_active = False
+
+    def _enabled(self):
+        """変更検出の有効判定。live 設定 ON または live ビュー稼働中。"""
+        return live_enabled() or self.view_active
+
+    def set_view_active(self, on):
+        """live ネイティブビュー(/live/kasc 利用側)の稼働状態を切替。
+
+        on=True で監視を開始し、以後の変更はエクスポートの有無に
+        関わらず /live/live.json の rev を進める(Canvas 側が
+        rev 変化で /live/kasc を再取得する)。
+        """
+        self.view_active = bool(on)
+        if on:
+            self.attach()
 
     @contextmanager
     def suppress(self):
@@ -229,7 +248,7 @@ class LiveSyncController(QObject):
 
     # ---- シグナルハンドラ ----
     def _mark(self, layer, kind):
-        if (not self._connected or not live_enabled()
+        if (not self._connected or not self._enabled()
                 or self._suppress
                 or time.time() < self._suppress_until):
             return
@@ -246,7 +265,7 @@ class LiveSyncController(QObject):
         self._timer.start(DEBOUNCE_MS)
 
     def _on_structure(self, *args):
-        if (not self._connected or not live_enabled()
+        if (not self._connected or not self._enabled()
                 or self._suppress
                 or time.time() < self._suppress_until):
             return
@@ -269,26 +288,55 @@ class LiveSyncController(QObject):
 
     # ---- 差分エクスポート + 通知 ----
     def _flush(self):
-        if self._running or not self._connected or not live_enabled():
+        if self._running or not self._connected or not self._enabled():
             return
         if not self._pending and not self._structural:
             return
         from . import kasugai_export
-        out_dir = kasugai_export.last_export_dir()
-        kasc = os.path.join(out_dir or '', 'kasugai_canvas.kasc')
-        if not out_dir or not os.path.isfile(kasc):
-            # ライブ対象となる既存エクスポートが無い(最初の
-            # kasugaiExport で確立される)ため何もしない
-            self._pending.clear()
-            self._structural = False
-            return
+        srv = getattr(self._plugin, 'server_manager', None)
         pending = self._pending
         self._pending = {}
         structural = self._structural
         self._structural = False
+        changed_titles = []
+        for lid, kinds in pending.items():
+            lyr = QgsProject.instance().mapLayer(lid)
+            changed_titles.append({
+                'title': lyr.name() if lyr is not None else str(lid),
+                'data': bool(kinds.get('data')),
+                'style': bool(kinds.get('style')),
+            })
         self._running = True
         try:
-            srv = getattr(self._plugin, 'server_manager', None)
+            # live ネイティブモード(3D Canvas View 等 /live/kasc 利用側が
+            # 稼働中で live エクスポート設定が無効)はエクスポートせず
+            # rev 更新のみ行う。Canvas 側が /live/live.json のポーリング
+            # で検出し /live/kasc を再取得する。
+            # live_enabled(設定ON)のときは従来通り差分エクスポート+通知
+            # で外部 Canvas アプリにも即時反映する。
+            if self.view_active and not live_enabled():
+                if srv is not None:
+                    try:
+                        srv.live_update(
+                            changed_titles, enabled=True,
+                            full=structural)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+                return
+            out_dir = kasugai_export.last_export_dir()
+            kasc = os.path.join(out_dir or '', 'kasugai_canvas.kasc')
+            if not out_dir or not os.path.isfile(kasc):
+                # live ネイティブモード(エクスポート無し・/live/kasc 利用):
+                # rev を進めるだけで Canvas 側が /live/live.json の
+                # ポーリングで検出し /live/kasc を再取得する
+                if srv is not None:
+                    try:
+                        srv.live_update(
+                            changed_titles, enabled=True,
+                            full=structural)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+                return
             port = (srv.get_server_port()
                     if srv and srv.is_server_running() else None)
             live_url = ('http://127.0.0.1:{0}'.format(port)
@@ -308,17 +356,10 @@ class LiveSyncController(QObject):
                     self._plugin.iface, out_dir=out_dir,
                     changed=changed, live_url=live_url)
             rev = int(time.time() * 1000)
-            changed_titles = []
-            for lid, kinds in pending.items():
-                lyr = QgsProject.instance().mapLayer(lid)
-                changed_titles.append({
-                    'title': lyr.name() if lyr is not None else str(lid),
-                    'data': bool(kinds.get('data')),
-                    'style': bool(kinds.get('style')),
-                })
             if srv is not None:
                 try:
-                    srv.live_update(changed_titles, enabled=True)
+                    srv.live_update(changed_titles, enabled=True,
+                                    full=structural)
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
             # 稼働中の Canvas アプリへ liveSync をプッシュ(即時反映)。
@@ -349,13 +390,13 @@ class LiveSyncController(QObject):
     # ---- QGIS → Canvas 選択同期 ----
     def _on_selection_changed(self, *args):
         """ベクターレイヤの selectionChanged(GUIスレッド)。デバウンスして送信。"""
-        if not self._connected or not live_enabled():
+        if not self._connected or not self._enabled():
             return
         self._sel_timer.start(SEL_DEBOUNCE_MS)
 
     def _flush_selection(self):
         """選択状態を収集し /live/state 登録 + Canvas プッシュする。"""
-        if not self._connected or not live_enabled():
+        if not self._connected or not self._enabled():
             return
         layers_out = []
         try:
@@ -407,6 +448,7 @@ class LiveSyncController(QObject):
     def status(self):
         return {
             'enabled': live_enabled(),
+            'view_active': self.view_active,
             'attached': self._connected,
             'running': self._running,
             'pending': len(self._pending),

@@ -1,5 +1,47 @@
 # 変更履歴(Changelog)
 
+## 4.31.0
+
+- **「3D Canvas View」ドックを廃止し外部ブラウザに一本化** — QGIS 4.x は QTBUG-139109 対策の `QQuickWindow::setGraphicsApi(Software)` により埋め込み WebView で WebGL が使えないことが確定したため、半機能の埋め込みドック(WebGL 不要エンジン表示+WebGL 系の外部委譲)を撤去。live 表示は「Open Canvas Live View」アクションまたは bridge `liveView`(旧 `live3dView`)で既定ブラウザを開く構成に統一(フル WebGL/Cesium・同一 live セッション)。QGIS 内の「ざっと確認」は外部ブラウザ側に集約される
+- **bridge `live3dView` → `liveView` に rename** — action は `open`(既定。`external` 同義)/`status`、第2引数 `engine` でエンジン指定可。ドック制御系(close/reload)は撤去
+- **QTWEBENGINE_* env 正規化を撤去** — 埋め込み WebEngineView が唯一の利用者だったため、`QTWEBENGINE_DISABLE_SANDBOX`/`QTWEBENGINE_CHROMIUM_FLAGS` のプロセス env 書き換えを削除(live3d_dock.py と共に)
+- `/live/*` エンドポイント(kasc/style/features/live.json/render)・live_sync の `view_active`・カメラ双方向同期は無変更で継続
+- **アイコンを役割別に刷新** — 本体 `icon.png` は「WebGIS への窓口」の地球+ピンに描き替え(既存ピンの系譜を継承)、「Open Canvas Live View」には「QGIS のリアルタイム3Dの窓口」の等角キューブ+ライブドットの専用アイコン `icon_live_view.png` を新設
+- **全 HTTP 応答に `Cache-Control: no-cache` を付与** — 従来は応答にキャッシュ系ヘッダが無く、ブラウザが shared/live.js 等のモジュールをヒューリスティックキャッシュしてプラグイン/Canvas 更新が即反映されない事態があった。ETag/Last-Modified を出さないため no-cache が毎回の再取得を強制する
+- **「Open Canvas Live View」を専用ウィンドウ起動に変更** — Chrome/Edge の `--app=<url>` モード(アドレスバー・タブなしのアプリ風ウィンドウ)で開き、「QGIS 専用ビューア」としてタブに紛れない形にした。検出順は Edge(ProgramFiles(x86)/ProgramFiles)→Chrome(ProgramFiles/x86/LocalAppData)。見つからない環境では従来通り既定ブラウザの通常タブへフォールバック
+
+## 4.30.0
+
+- **「3D Canvas View」ドックを追加** — KASUGAI Canvas を QGIS 内へ埋め込む live ビュー。QGIS 標準の「新規3Dマップビュー」(`Qgs3DMapCanvas`)と同じドックポジションに据え、2D メインキャンバス(Qt6)はそのまま存続させる構成。メニュー/ツールバーからトグル表示(既定 Right ドック)
+- **埋め込み WebGL 不可への対応(実機検証で判明した QGIS 4.x 仕様)** — QGIS は QTBUG-139109 対策として `QQuickWindow::setGraphicsApi(Software)` を起動時に実行しており、QtWebEngine の in-process GPU 初期化が失敗して **QGIS 内蔵 WebView では WebGL が使えない**(Cesium/MapLibre は初期化不可)。このため以下のマルチエンジン連携構成とした:
+  - ドックは初回ロード後に `webgl2` コンテキストをプローブし、WebGL 不可を検出すると Cesium(3D)を外部ブラウザで自動オープン(フル WebGL + live 連携)し、埋め込みドックは WebGL 不要の Leaflet(2D live ビュー)へ切替+メッセージバー通知
+  - ドック内 Canvas アプリのマルチエンジン切替は維持。ページ内から WebGL 必須エンジン(cesium/maplibre)への遷移が要求された場合は `acceptNavigationRequest` でキャンセルし、同じ live セッション URL を外部ブラウザへ委譲(`externalEngineRequested` シグナル)。leaflet/openlayers/gsimaps/navara は埋め込みのまま動作
+  - レンダラ即死対策として `QTWEBENGINE_DISABLE_SANDBOX=1` を engine 初期化前に設定(QGIS 環境では Chromium サンドボックス起動が DLL_NOT_FOUND で失敗)。また起動スクリプトが `QTWEBENGINE_CHROMIUM_FLAGS` に含める `--disable-gpu`/`--disable-gpu-compositing` は WebGL を死なせるため除去する(`--no-sandbox` 等は温存)
+- **live ネイティブモード(エクスポート不要)** — 新エンドポイント:
+  - `GET /live/kasc`: 現在のレイヤツリー・表示状態から .kasc をオンデマンド生成(ファイル出力なし)。ベクターは `geojson:` 行が `/live/features`(GeoJSON オンデマンド配信)・`style=` が `/live/style`(.qml オンデマンド)を参照し、subsetString・スタイルは常に現在値が出る
+  - `GET /live/style?layer=<title>&name=<style>`: レイヤの現在スタイル/名前付きスタイルを .qml XML で返す(theme 行の `;style=` もこのURLを参照)
+  - `GET /live/live.json`: shared/live.js の live.json ポーリング規約を live ネイティブ経路で再現(rev/changed/full を `/live/state` と同一のサーバ状態から返す)
+  - Canvas ネイティブ未対応ラスタ(GDAL ラスタ等)は `/live/render`(QGIS 描画 PNG)の `image:` 行として出力し視覚再現を担保。XYZ/WMS/WMTS・3D Tiles(URL)・ベクタータイル(URL)はネイティブ行で出力
+- **live_sync の `view_active` ゲート追加** — `kasugai_live_sync` 設定が OFF でも、3D Canvas View が開いている間は変更監視を動かし、エクスポート先が無い場合は差分エクスポートを行わず `live_update(changed, full=)` で rev だけ進める(Canvas 側が rev 検出 → `/live/kasc` 再取得で反映)。ドックを閉じると監視は従来の設定値へ戻る
+- **bridge `live3dView` 追加** — `open`/`close`/`status`/`reload`/`external` で AI・外部からドックと外部 live ビューを制御可能(`external` は第2引数 `engine` でエンジン指定可)
+- **「Open Canvas Live View」アクション追加** — ドックを経由せず外部ブラウザで live セッションを1アクションで開く(QGIS+Canvas の2画面運用)。開いた時点で live 監視を `view_active` にして以後有効のままにするため、ドックを閉じても外部ビュー側の同期は継続する
+- QtWebEngineWidgets が無い環境では外部ブラウザで同じ URL を開くフォールバック
+
+## 4.29.1
+
+- **GeoJSON 変換で 255 文字超の文字列フィールドがあるレイヤが全層エクスポート失敗する不具合を修正** — `QgsVectorFileWriter` はソースのフィールド定義(幅/精度)をそのまま使うため、GPKG 由来の `VARCHAR(255)` 等の幅制限が GeoJSON(幅の概念なし)書き出しで強制され「文字列の長さ N はフィールドの上限(255)を超えています」で変換エラーになっていた。GeoJSON 出力時は幅を除いた memory レイヤへ実体化してから書き出すよう修正(Lizmap demo `events.qgs` の `montpellier_events`(description 列が最大 1157 文字)で検出・1151 地物の出力を確認)
+
+## 4.29.0
+
+- **「XYZ」タブを新設**(Filter タブの直後) — XYZ 関連設定を1か所へ集約:
+  - ベクター→XYZ 焼き付け設定(「XYZ tiles」チェック+Zoom 範囲)を Web タブから移設(QSettings `kasugai_xyz_tiles`/`kasugai_xyz_zmin`/`kasugai_xyz_zmax` と従来通り同期)
+  - ベースマップグループ追加名エディットを移設(設定ダイアログ「Basemap Groups」と同じ QSettings `kasugai_basemap_groups` を読み書き)
+- **「Standalone XYZ export」追加(独立機能)** — **出力対象はレイヤパネルで選択中のレイヤに固定**(タブ内にその旨を明示し、一覧は選択へ自動追従)。`.kasc` 出力と同じ QGIS レンダラ焼き付け経路(`_render_vector_xyz`)で `<出力先>/xyz_tiles/<slug>/{z}/{x}/{y}.png` へ出力し、単体確認用の Leaflet `index.html` を各レイヤへ生成。`.kasc` エクスポートとは独立して動作し、ベクター以外のラスタ/WMS レイヤも再焼き付けできる。「Add baked tiles to the project」で焼き付け結果を `type=xyz` の file:// ラスタレイヤとしてプロジェクトへ追加し地図上で即確認できる。ズーム範囲はタブ上部の設定に従う(未指定は縮尺連動+タイル数上限の自動)。出力先は `/export-data/` 配信ルート配下のため HTTP サーバ稼働時は `/export-data/xyz_tiles/<slug>/index.html` でブラウザ確認も可能
+  - 一覧の `render` 列でレイヤ別に `xyz`(常にタイル化)/`vector`(タイル化しない)/`auto`(自動)を編集でき、レイヤ customProperty `kasugai_render` へ保存(.kasc 出力の自動判定でも使用)
+  - 対象は「Selected: <レイヤ名>」の1行表示のみ(一覧UIは持たない)。選択変更・レイヤ追加/除去・タブ表示で自動追従。未選択時はアクティブレイヤへフォールバック。レイヤ別焼き付け上書きは `kasugai_render` レイヤプロパティ(xyz/vector/空=auto)で指定可(.kasc 出力と共通)
+- **bridge `xyzExport` 追加** — 上記と同経路を API 化。`layers`(レイヤ名/ID の文字列またはリスト、省略時はレイヤパネルで選択中のレイヤ=UI と同じ)・`zmin`/`zmax`・`out_dir`・`add_to_project` を指定可
+- i18n 9言語(de/es/fr/hi/it/ja/pt/ru/zh)へ XYZ タブ関連文字列を追加
+
 ## 4.28.0
 
 - **Filter タブのフィールド/サイト切替時のチェック状態を実態に一致させるよう修正** — 従来は旧フィールドのチェック値をそのまま引き継ぎ「表示と選択が異なる」状態になっていた。切替時は適用済み subsetString から再シード(同フィールド適用中→その値のみ、`1=0`→0件、無し/別フィールド→全チェック)

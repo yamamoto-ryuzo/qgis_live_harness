@@ -502,9 +502,38 @@ class LiveDriver:
         except Exception:  # nosec B110  # 設計上の許容
             pass
 
+        # QgisApp コンストラクタ内の processEvents(スプラッシュ進行)でも
+        # このタイマーは発火し得る。その段階で pyeval(addMapLayer 等)を
+        # 実行すると layerAdded 系シグナルが未生成のドック
+        # (temporal controller 等)を触って access violation になる
+        # (実測: QGIS 4.0.1 / QgisApp::QgisApp 直下でクラッシュ)。
+        # メインウィンドウが可視になるまではコマンド実行を遅延する。
+        # 起動完了後のホットリロードでは isVisible()=True なので即座に
+        # ready となり、既存動作を阻害しない。
+        self._ready = self._app_ready()
+        try:
+            iface.initializationCompleted.connect(
+                self._on_initialization_completed)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
         self.timer = QTimer()
         self.timer.timeout.connect(self._poll)
         self.timer.start(POLL_MS)
+
+    def _on_initialization_completed(self):
+        self._ready = True
+
+    def _app_ready(self):
+        """QgisApp の構築が完了しコマンド実行して安全な状態か。
+
+        メインウィンドウの可視化は QgisApp 構築完了後に行われるため
+        isVisible() が判定に使える。失敗時は従来通り実行する側に倒す。
+        """
+        try:
+            return bool(self.iface.mainWindow().isVisible())
+        except Exception:  # nosec B110  # 設計上の許容
+            return True
 
     def submit(self, cmd, timeout=180.0, origin=None):
         """別スレッドからコマンドを投入し、GUIスレッドでの実行結果を待って返す。
@@ -533,6 +562,13 @@ class LiveDriver:
         self.timer.deleteLater()
 
     def _poll(self):
+        # QgisApp 構築中(初期化未完了)は一切のコマンドを実行しない。
+        # キュー投入コマンドは ready 後のポーリングで順次実行される
+        # (submit 側はタイムアウトまで待機するだけで喪失しない)。
+        if not self._ready:
+            self._ready = self._app_ready()
+            if not self._ready:
+                return
         # メモリキュー(HTTP等)の命令を先に処理
         while True:
             try:

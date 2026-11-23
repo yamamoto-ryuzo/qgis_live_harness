@@ -122,6 +122,28 @@ class GeoWebViewPanel(QDockWidget):
         # 非表示レイヤのデータ変換スキップ(高速化)チェック
         self.checkBox_visible_only = getattr(
             self.ui, 'checkBox_visible_only', None)
+        # ベクター→XYZ タイル焼き付け(高速表示)チェック+ズーム範囲
+        # (XYZ タブ内)
+        self.checkBox_xyz_tiles = getattr(
+            self.ui, 'checkBox_xyz_tiles', None)
+        self.spinBox_xyz_zmin = getattr(
+            self.ui, 'spinBox_xyz_zmin', None)
+        self.spinBox_xyz_zmax = getattr(
+            self.ui, 'spinBox_xyz_zmax', None)
+        # XYZ タブ: ベースマップグループ名と指定レイヤの独立 XYZ 出力
+        self.lineEdit_xyz_basemap_groups = getattr(
+            self.ui, 'lineEdit_xyz_basemap_groups', None)
+        self.label_xyz_target = getattr(
+            self.ui, 'label_xyz_target', None)
+
+        self.checkBox_xyz_add_to_project = getattr(
+            self.ui, 'checkBox_xyz_add_to_project', None)
+        self.pushButton_xyz_export = getattr(
+            self.ui, 'pushButton_xyz_export', None)
+        self.pushButton_xyz_open = getattr(
+            self.ui, 'pushButton_xyz_open', None)
+        self.label_xyz_status = getattr(
+            self.ui, 'label_xyz_status', None)
         # カスタムレイヤタブ(site= 付与+custom-layer タブ)チェック
         self.checkBox_site_control = getattr(
             self.ui, 'checkBox_site_control', None)
@@ -141,6 +163,10 @@ class GeoWebViewPanel(QDockWidget):
         self._kasugai_layers_mode = 'edit'
         try:
             self._init_kasugai_layers_ui()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        try:
+            self._init_xyz_tab()
         except Exception:  # nosec B110  # 設計上の許容
             pass
         try:
@@ -247,9 +273,8 @@ class GeoWebViewPanel(QDockWidget):
         if getattr(self.ui, 'tabWidget_main', None) is not None:
             for _name, _text in (
                     ('tab_web', "Web"),
-                    ('tab_theme', "Theme"),
-                    ('tab_permalink', "Permalink"),
-                    ('tab_share', "Share")):
+                    ('tab_xyz', "XYZ"),
+                    ('tab_other', "Other")):
                 _page = getattr(self.ui, _name, None)
                 if _page is not None:
                     _idx = self.ui.tabWidget_main.indexOf(_page)
@@ -258,6 +283,13 @@ class GeoWebViewPanel(QDockWidget):
                             _idx, QCoreApplication.translate('geo_webview', _text))
 
         # グループボックスのタイトル
+        for _gb, _t in (
+                ('groupBox_other_theme', "Theme"),
+                ('groupBox_other_permalink', "Permalink"),
+                ('groupBox_other_share', "Share")):
+            if hasattr(self.ui, _gb):
+                getattr(self.ui, _gb).setTitle(
+                    QCoreApplication.translate('geo_webview', _t))
         if hasattr(self.ui, 'groupBox_webdist'):
             self.ui.groupBox_webdist.setTitle(QCoreApplication.translate('geo_webview', "Web Distribution (Serverless)"))
         if hasattr(self.ui, 'groupBox_server'):
@@ -268,6 +300,15 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.groupBox_permalink.setTitle(QCoreApplication.translate('geo_webview', "Current Permalink"))
         if hasattr(self.ui, 'groupBox_navigate'):
             self.ui.groupBox_navigate.setTitle(QCoreApplication.translate('geo_webview', "Navigate to Location"))
+        if hasattr(self.ui, 'groupBox_xyz_bake'):
+            self.ui.groupBox_xyz_bake.setTitle(QCoreApplication.translate(
+                'geo_webview', "Vector → XYZ tile bake"))
+        if hasattr(self.ui, 'groupBox_xyz_basemap'):
+            self.ui.groupBox_xyz_basemap.setTitle(QCoreApplication.translate(
+                'geo_webview', "Basemap Groups"))
+        if hasattr(self.ui, 'groupBox_xyz_export'):
+            self.ui.groupBox_xyz_export.setTitle(QCoreApplication.translate(
+                'geo_webview', "Standalone XYZ export"))
 
         # ラベル
         if hasattr(self.ui, 'label_webdist_info'):
@@ -360,6 +401,54 @@ class GeoWebViewPanel(QDockWidget):
             self.ui.checkBox_site_control.setToolTip(QCoreApplication.translate(
                 'geo_webview',
                 'Group layers by their layer-tree group name into a custom "Layers" tab in KASUGAI Canvas (site=<group> on each layer row + custom-layer plugin tab for per-group on/off and ordering). All layers stay on the standard tab (shown as "System layers" while the custom tab exists); use list=off to hide a row there. Ungrouped layers go to "Misc". Per-layer override: layer custom properties kasugai_site / kasugai_order'))
+        # XYZ タブ
+        if hasattr(self.ui, 'label_xyz_bake_note'):
+            self.ui.label_xyz_bake_note.setText(QCoreApplication.translate(
+                'geo_webview',
+                "Canvas-side filters (where= / attribute filtering) do NOT affect the baked tile image. Per-layer override: the kasugai_render layer property — xyz = always bake, vector = never bake, auto/blank = automatic (also used by .kasc export)"))
+        if hasattr(self.ui, 'label_xyz_basemap'):
+            self.ui.label_xyz_basemap.setText(QCoreApplication.translate(
+                'geo_webview', "Additional names:"))
+        if hasattr(self.ui, 'lineEdit_xyz_basemap_groups'):
+            self.ui.lineEdit_xyz_basemap_groups.setPlaceholderText(
+                QCoreApplication.translate(
+                    'geo_webview', "e.g. 背景, Basemaps, Base Map"))
+            self.ui.lineEdit_xyz_basemap_groups.setToolTip(
+                QCoreApplication.translate(
+                    'geo_webview',
+                    "Comma-separated layer-tree group names treated as basemaps (in addition to the built-in 背景図 / ベースマップ / basemap)."))
+        if hasattr(self.ui, 'label_xyz_basemap_info'):
+            self.ui.label_xyz_basemap_info.setText(
+                QCoreApplication.translate(
+                    'geo_webview',
+                    "XYZ tile layers inside a layer-tree group with one of these names are exported as basemap entries (base:) instead of regular layers. Sub-groups are kept for grouped display."))
+        if hasattr(self.ui, 'label_xyz_export_info'):
+            self.ui.label_xyz_export_info.setText(QCoreApplication.translate(
+                'geo_webview',
+                "Bakes the layer(s) selected in the Layers panel to XYZ tiles with the QGIS renderer. Output: <export folder>/xyz_tiles/<layer>/ + index.html."))
+
+        if hasattr(self.ui, 'checkBox_xyz_add_to_project'):
+            self.ui.checkBox_xyz_add_to_project.setText(
+                QCoreApplication.translate(
+                    'geo_webview',
+                    "Add baked tiles to the project as XYZ layers"))
+            self.ui.checkBox_xyz_add_to_project.setToolTip(
+                QCoreApplication.translate(
+                    'geo_webview',
+                    "After baking, register each tile tree in the QGIS project as an XYZ raster layer (file:// template) so the result can be checked on the map canvas"))
+        if hasattr(self.ui, 'pushButton_xyz_export'):
+            self.ui.pushButton_xyz_export.setText(
+                QCoreApplication.translate('geo_webview', "Export XYZ"))
+            self.ui.pushButton_xyz_export.setToolTip(
+                QCoreApplication.translate(
+                    'geo_webview',
+                    "Bake the layers selected in the Layers panel to XYZ image tiles under <export folder>/xyz_tiles/ (zoom range follows the settings above; empty tiles are skipped)"))
+        if hasattr(self.ui, 'pushButton_xyz_open'):
+            self.ui.pushButton_xyz_open.setText('📁')
+            self.ui.pushButton_xyz_open.setToolTip(
+                QCoreApplication.translate(
+                    'geo_webview',
+                    "Open the XYZ output folder (xyz_tiles/ — each layer has its own index.html viewer)"))
         if hasattr(self.ui, 'pushButton_kasugai_folder'):
             self.ui.pushButton_kasugai_folder.setText('📁')
             self.ui.pushButton_kasugai_folder.setToolTip(
@@ -484,6 +573,99 @@ class GeoWebViewPanel(QDockWidget):
         except Exception:  # nosec B110  # 設計上の許容
             pass
         self._rebuild_kasugai_layers()
+
+    # --- XYZ タブ -------------------------------------------------
+    # ベクター→XYZ 焼き付けの設定(Web タブから移設したチェック+ズーム、
+    # ベースマップグループ名)と、レイヤパネルで選択中のレイヤだけを
+    # XYZ タイルへ焼き付ける独立機能(対象は選択中レイヤに固定)。
+    # 実処理(kasugai_export 呼出し・プロジェクト追加)は plugin.py 側。
+
+    def _init_xyz_tab(self):
+        """XYZ タブの配線(対象=選択中レイヤ表示の追従)。
+
+        出力対象はレイヤパネル(layerTreeView)で選択中のレイヤに固定。
+        選択変更のたび対象表示を追従させる。"""
+        try:
+            from qgis.utils import iface
+            tv = iface.layerTreeView()
+            sm = tv.selectionModel() if tv is not None else None
+            if sm is not None:
+                sm.selectionChanged.connect(
+                    self._update_xyz_target_display)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        tabw = getattr(self.ui, 'tabWidget_main', None)
+        if tabw is not None:
+            tabw.currentChanged.connect(
+                lambda idx: self._on_xyz_tab_shown())
+        try:
+            from qgis.core import QgsProject
+            prj = QgsProject.instance()
+            for sig in ('layersAdded', 'layersRemoved'):
+                try:
+                    getattr(prj, sig).connect(
+                        self._update_xyz_target_display)
+                except Exception:
+                    pass
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        self._update_xyz_target_display()
+        self._reload_basemap_groups_edit()
+
+    def _on_xyz_tab_shown(self):
+        """XYZ タブ表示時に対象表示と設定値を最新へ(設定ダイアログ側での
+        変更も反映するため basemap 名を再読込)。"""
+        self._update_xyz_target_display()
+        self._reload_basemap_groups_edit()
+
+    def _reload_basemap_groups_edit(self):
+        """kasugai_basemap_groups(QSettings)を行エディットへ反映。"""
+        le = self.lineEdit_xyz_basemap_groups
+        if le is None:
+            return
+        try:
+            from qgis.PyQt.QtCore import QSettings
+            le.blockSignals(True)
+            le.setText(str(QSettings('GeoWebView', 'geo_webview').value(
+                'kasugai_basemap_groups', '') or ''))
+            le.blockSignals(False)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    def _xyz_selected_layers(self):
+        """レイヤパネル(layerTreeView)で選択中のレイヤを返す。
+
+        未選択時はアクティブレイヤへフォールバックする。"""
+        try:
+            from qgis.utils import iface
+            tv = iface.layerTreeView()
+            layers = ([l for l in tv.selectedLayers() if l is not None]
+                      if tv is not None else [])
+            if layers:
+                return layers
+            l = iface.activeLayer()
+            return [l] if l is not None else []
+        except Exception:  # nosec B110  # 設計上の許容
+            return []
+
+    def _update_xyz_target_display(self, *args):
+        """対象=選択中レイヤの名前表示を更新する。"""
+        lbl = self.label_xyz_target
+        if lbl is None:
+            return
+        layers = self._xyz_selected_layers()
+        if layers:
+            lbl.setText(QCoreApplication.translate(
+                'geo_webview', 'Selected: {0}').format(
+                    ', '.join(l.name() for l in layers)))
+        else:
+            lbl.setText(QCoreApplication.translate(
+                'geo_webview',
+                '— no layers selected in the Layers panel —'))
+
+    def xyz_target_layers(self):
+        """XYZ 出力対象 = レイヤパネルで選択中のレイヤ(QgsMapLayer)を返す。"""
+        return self._xyz_selected_layers()
 
     # --- 属性フィルタ(Filter タブ) ---------------------------------
     def _init_kasugai_filter_ui(self):

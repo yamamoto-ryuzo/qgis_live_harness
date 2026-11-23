@@ -30,8 +30,14 @@ from qgis.core import QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTra
 
 # --- 標準ライブラリのインポート（欠落しているため追加）
 import os
+import subprocess
 import urllib.parse
 import json
+
+# NOTE: かつて埋め込み QWebEngineView(3D Canvas View ドック)用に
+# QTWEBENGINE_* 環境変数の正規化をここで行っていたが、QGIS 4.x の
+# ソフトウェア描画強制(QTBUG-139109)により埋め込み WebGL が使えず
+# ドックは廃止・外部ブラウザへ一本化したため撤去済み。
 
 # Optional components: if the panel module is not present, provide safe defaults
 # Try to import the optional UI module; fall back safely when absent.
@@ -349,6 +355,17 @@ class GeoWebView:
             except Exception:  # nosec B110  # 設計上の許容
                 pass
 
+        # Canvas live ビューを外部ブラウザで開く(QGIS+Canvas の
+        # 2画面運用の導線。/live/kasc のオンデマンド生成で
+        # エクスポート無しの live セッションへ直行する)。
+        # アイコンは本体(WebGIS窓口=地球+ピン)と区別するため
+        # リアルタイム3D窓口の専用アイコンを使う。
+        self.add_action(
+            os.path.join(self.plugin_dir, 'icon_live_view.png'),
+            text=self.tr(u'Open Canvas Live View'),
+            callback=self.open_external_live_view,
+            parent=self.iface.mainWindow())
+
         # HTTPサーバーを起動
         self.server_manager.start_http_server()
 
@@ -603,6 +620,70 @@ class GeoWebView:
                     except Exception:  # nosec B110  # 設計上の許容
                         pass
 
+                # 「XYZ tiles」チェック+ズーム範囲: 大規模・複雑スタイルの
+                # ベクターを QGIS レンダラでタイル焼き付けする高速化
+                # スイッチ。QSettings kasugai_xyz_tiles /
+                # kasugai_xyz_zmin/zmax と双方向同期する
+                _xyz_check = getattr(
+                    self.panel, 'checkBox_xyz_tiles', None)
+                _xyz_zmin = getattr(
+                    self.panel, 'spinBox_xyz_zmin', None)
+                _xyz_zmax = getattr(
+                    self.panel, 'spinBox_xyz_zmax', None)
+                if _xyz_check is not None:
+                    try:
+                        from . import kasugai_export
+                        _xyz_check.blockSignals(True)
+                        _xyz_check.setChecked(
+                            kasugai_export.get_xyz_tiles_enabled())
+                        _xyz_check.blockSignals(False)
+                        _xyz_check.toggled.connect(
+                            self.on_xyz_tiles_toggled)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+                if _xyz_zmin is not None and _xyz_zmax is not None:
+                    try:
+                        from . import kasugai_export
+                        _zmin, _zmax = kasugai_export.get_xyz_zooms()
+                        _xyz_zmin.blockSignals(True)
+                        _xyz_zmax.blockSignals(True)
+                        _xyz_zmin.setValue(_zmin)
+                        _xyz_zmax.setValue(_zmax)
+                        _xyz_zmin.blockSignals(False)
+                        _xyz_zmax.blockSignals(False)
+                        _xyz_zmin.valueChanged.connect(
+                            self.on_xyz_zooms_changed)
+                        _xyz_zmax.valueChanged.connect(
+                            self.on_xyz_zooms_changed)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+
+                # XYZ タブ: ベースマップグループ名(追加名)エディット。
+                # 設定ダイアログの同名入力と同じ QSettings
+                # kasugai_basemap_groups を読み書きする
+                _bm_edit = getattr(
+                    self.panel, 'lineEdit_xyz_basemap_groups', None)
+                if _bm_edit is not None:
+                    try:
+                        _bm_edit.editingFinished.connect(
+                            self.on_basemap_groups_changed)
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+
+                # XYZ タブ: 指定レイヤのみの独立 XYZ 焼き付け/フォルダ表示。
+                # 焼き付けは重い同期処理のため次ティックへ遅延する
+                _xyz_export_btn = getattr(
+                    self.panel, 'pushButton_xyz_export', None)
+                if _xyz_export_btn is not None:
+                    _xyz_export_btn.clicked.connect(
+                        lambda checked=False: QTimer.singleShot(
+                            0, self.on_xyz_export_clicked))
+                _xyz_open_btn = getattr(
+                    self.panel, 'pushButton_xyz_open', None)
+                if _xyz_open_btn is not None:
+                    _xyz_open_btn.clicked.connect(
+                        lambda checked=False: self.on_xyz_open_clicked())
+
                 # 「カスタムレイヤタブ」チェック。QSettings
                 # kasugai_site_control と双方向同期する。ON で
                 # レイヤツリーのグループ名を site= として出力し、
@@ -787,6 +868,84 @@ class GeoWebView:
                 self.tr("geo_webview"),
                 self.tr("Failed to create panel: {error}").format(error=str(e))
             )
+
+    def _live_url(self, engine='cesium'):
+        """Canvas live ビューが開く Canvas エンジン URL を返す。
+
+        .kasc は /live/kasc(オンデマンド生成・エクスポート不要)を
+        指し、中の live: 行で双方向連携が有効になる。
+        """
+        srv = getattr(self, 'server_manager', None)
+        port = (srv.get_server_port()
+                if srv and srv.is_server_running() else None)
+        if not port:
+            return None
+        base = 'http://127.0.0.1:{0}'.format(port)
+        kasc = base + '/live/kasc'
+        return '{0}/{1}/?kasc={2}'.format(
+            base, engine, urllib.parse.quote(kasc, safe=''))
+
+    def open_external_live_view(self, engine='cesium'):
+        """Canvas live ビューを外部ブラウザで開く(QGIS+Canvas の2画面運用)。
+
+        ``<server>/<engine>/?kasc=<base>/live/kasc`` を既定ブラウザで
+        開く。エクスポート無しの live ネイティブ。QGIS 4.x は
+        QTBUG-139109 対策の Qt Quick Software 描画強制により埋め込み
+        WebView で WebGL が使えないため、3D 表示は外部ブラウザに
+        一本化している。外部ウィンドウには閉じた通知が無いため、
+        開いた時点で live 監視を view_active にして以後は有効の
+        ままにする(ブラウザを閉じても監視コストはリスナー分のみ)。
+        """
+        try:
+            self.server_manager.start_http_server()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        url = self._live_url(engine or 'cesium')
+        if not url:
+            self._push_message(
+                self.tr('Canvas Live View'),
+                self.tr('HTTP server is not running.'),
+                level=1, duration=5)
+            return None
+        ctl = getattr(self, '_live_sync', None)
+        if ctl is not None:
+            try:
+                ctl.set_view_active(True)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+        if not self._open_app_window(url):
+            QDesktopServices.openUrl(QUrl(url))
+        return url
+
+    @staticmethod
+    def _open_app_window(url):
+        """live URL を Chrome/Edge の --app モードで開く(専用ウィンドウ)。
+
+        --app はアドレスバー・タブの無いアプリ風ウィンドウを生成する
+        Chromium 系の起動オプションで、通常タブより「QGIS 専用
+        ビューア」に近い見た目になる。対応ブラウザが見つからない
+        場合は False を返し、呼び出し側が既定ブラウザに退く。
+        """
+        candidates = []
+        for env, rel in (
+            ('ProgramFiles(x86)', 'Microsoft\\Edge\\Application\\msedge.exe'),
+            ('ProgramFiles', 'Microsoft\\Edge\\Application\\msedge.exe'),
+            ('ProgramFiles', 'Google\\Chrome\\Application\\chrome.exe'),
+            ('ProgramFiles(x86)', 'Google\\Chrome\\Application\\chrome.exe'),
+            ('LocalAppData', 'Google\\Chrome\\Application\\chrome.exe'),
+        ):
+            root = os.environ.get(env)
+            if root:
+                candidates.append(os.path.join(root, rel))
+        for exe in candidates:
+            if not os.path.isfile(exe):
+                continue
+            try:
+                subprocess.Popen([exe, '--app=' + url])  # nosec B603
+                return True
+            except Exception:  # nosec B110  # 設計上の許容
+                continue
+        return False
 
     def _collect_themes(self):
         """QGISプロジェクトのテーマ名一覧を取得"""
@@ -1818,6 +1977,133 @@ class GeoWebView:
             kasugai_export.set_site_control(bool(checked))
         except Exception:  # nosec B110  # 設計上の許容
             pass
+
+    def on_xyz_tiles_toggled(self, checked):
+        """パネルの「XYZ tiles」チェックを kasugai_xyz_tiles へ保存する。
+
+        ON 時は「フィルタはタイル画像へ反映されない」旨をポップアップで
+        一度通知する(画像焼き付けの性質上、Canvas 側の where=/属性
+        絞り込みは併記された非表示ベクター行にのみ効く)。
+        """
+        try:
+            from . import kasugai_export
+            kasugai_export.set_xyz_tiles_enabled(bool(checked))
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        if checked:
+            try:
+                from qgis.PyQt.QtWidgets import QMessageBox
+                QMessageBox.information(
+                    self.panel.widget if getattr(
+                        self.panel, 'widget', None) is not None else None,
+                    self.tr('XYZ tiles'),
+                    self.tr(
+                        'Large/complex vector layers are rendered by QGIS '
+                        'into XYZ image tiles.\n\n'
+                        'Note: filters in KASUGAI Canvas (where= / attribute '
+                        'filtering) apply only to the bundled vector data '
+                        'row — they do NOT affect the baked tile image.'))
+            except Exception:  # nosec B110  # 設計上の許容
+                pass
+
+    def on_xyz_zooms_changed(self, _value=None):
+        """パネルの XYZ 焼き付けズーム範囲スピンを QSettings へ保存する。"""
+        try:
+            from . import kasugai_export
+            zmin = getattr(self.panel, 'spinBox_xyz_zmin', None)
+            zmax = getattr(self.panel, 'spinBox_xyz_zmax', None)
+            if zmin is not None and zmax is not None:
+                kasugai_export.set_xyz_zooms(zmin.value(), zmax.value())
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    def on_basemap_groups_changed(self):
+        """XYZ タブのベースマップグループ追加名を QSettings へ保存する。
+
+        設定ダイアログの Basemap Groups と同じ
+        kasugai_basemap_groups を読み書きする。"""
+        try:
+            from qgis.PyQt.QtCore import QSettings
+            edit = getattr(
+                self.panel, 'lineEdit_xyz_basemap_groups', None)
+            if edit is not None:
+                QSettings('GeoWebView', 'geo_webview').setValue(
+                    'kasugai_basemap_groups',
+                    str(edit.text() or '').strip())
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    def on_xyz_export_clicked(self):
+        """XYZ タブ: レイヤパネルで選択中のレイヤだけを XYZ タイルへ
+        焼き付ける独立機能。.kasc 出力とは別経路で <出力先>/xyz_tiles/
+        へ {z}/{x}/{y}.png+index.html を生成する。"""
+        from . import kasugai_export
+        status = getattr(self.panel, 'label_xyz_status', None)
+
+        def _set_status(text):
+            if status is not None:
+                try:
+                    status.setText(text)
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+
+        dlg = None
+        try:
+            layers = self.panel.xyz_target_layers() \
+                if self.panel is not None else []
+            if not layers:
+                msg = self.tr(
+                    'Select layer(s) in the Layers panel first.')
+                _set_status(msg)
+                self._push_message("geo_webview", msg, duration=5)
+                return
+            add = bool(getattr(
+                self.panel, 'checkBox_xyz_add_to_project', None)
+                and self.panel.checkBox_xyz_add_to_project.isChecked())
+            dlg, _cb = self._kasugai_export_progress()
+            dlg.setWindowTitle(self.tr('XYZ Tile Export'))
+            res = kasugai_export.export_layers_xyz(
+                layers, add_to_project=add, progress_cb=_cb)
+            n = len(res.get('layers') or [])
+            n_tiles = sum(
+                int(e.get('tiles') or 0) for e in res.get('layers') or [])
+            msg = self.tr('Baked {0} layer(s), {1} tiles → {2}').format(
+                n, n_tiles, res.get('root'))
+            n_skip = len(res.get('skipped') or [])
+            if n_skip:
+                msg += self.tr(' ({0} skipped)').format(n_skip)
+            _set_status(msg)
+            self._push_message("geo_webview", msg, duration=8)
+            for w in res.get('warnings') or []:
+                self._qgis_log(str(w), 'WARNING')
+        except kasugai_export.ExportCancelled:
+            msg = self.tr('XYZ export cancelled.')
+            _set_status(msg)
+            self._push_message("geo_webview", msg, duration=5)
+        except Exception as e:
+            msg = self.tr('XYZ export error: {0}').format(e)
+            _set_status(msg)
+            self._push_message("geo_webview", msg, duration=5)
+        finally:
+            if dlg is not None:
+                try:
+                    dlg.close()
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+
+    def on_xyz_open_clicked(self):
+        """XYZ タブ: 独立出力のルート(xyz_tiles/)をエクスプローラで開く。"""
+        try:
+            from . import kasugai_export
+            root = kasugai_export.xyz_tiles_dir()
+            if not os.path.isdir(root):
+                os.makedirs(root)
+            QDesktopServices.openUrl(QUrl.fromLocalFile(root))
+        except Exception as e:
+            self._push_message(
+                "geo_webview",
+                self.tr('Failed to open the XYZ output folder: {0}')
+                .format(e), duration=5)
 
     def on_kasugai_launch_clicked(self, route='auto'):
         """パネル版：選択エンジンで エクスポート→登録→ブラウザ起動 まで

@@ -82,6 +82,15 @@ SETTINGS_KEY_VISIBLE_DATA_ONLY = 'kasugai_visible_data_only'
 # ``kasugai_order`` で個別上書き可)
 SETTINGS_KEY_SITE_CONTROL = 'kasugai_site_control'
 
+# ベクター→XYZ タイル焼き付け(高速表示モード)。大規模・複雑スタイルの
+# ベクターを QGIS レンダラでタイル画像化して ``xyz:`` 行で出す
+# (パネル/設定ダイアログの「XYZ tiles」チェックとズーム範囲と共有)
+SETTINGS_KEY_XYZ_TILES = 'kasugai_xyz_tiles'
+SETTINGS_KEY_XYZ_ZMIN = 'kasugai_xyz_zmin'
+SETTINGS_KEY_XYZ_ZMAX = 'kasugai_xyz_zmax'
+# ズーム範囲の既定(パネルのスピンと共有)
+XYZ_TILES_ZOOM_DEFAULT = (1, 15)
+
 # Filter タブ(QGIS WEBVIEW)の選択状態。panel.py が UI 変更のたび
 # set_filter_panel_state() で同期し、plugin: 行の filter_* オプション
 # として出力する(Canvas 側「フィルタ」タブの初期選択となる)
@@ -774,6 +783,64 @@ def set_visible_data_only(on):
     """非表示レイヤのデータ変換スキップを QSettings へ保存する。"""
     _qsettings().setValue(
         SETTINGS_KEY_VISIBLE_DATA_ONLY, '1' if on else '0')
+
+
+# ---- ベクター→XYZ タイル焼き付け(高速表示モード) ----
+
+def get_xyz_tiles_enabled():
+    """QSettings の kasugai_xyz_tiles(未設定は True)を返す。
+
+    パネルの「XYZ tiles (faster display)」チェックと共有される既定値。
+    True なら大規模レイヤ・複雑スタイルのベクターを QGIS レンダラで
+    XYZ タイルへ焼き付けて ``xyz:`` 行として出す
+    (データ照会用のベクター行は ``| off`` で併記)。
+    """
+    try:
+        v = _qsettings().value(SETTINGS_KEY_XYZ_TILES, None)
+        if v is not None and str(v).strip() != '':
+            return str(v).strip().lower() not in (
+                '0', 'false', 'off', 'no')
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return True
+
+
+def set_xyz_tiles_enabled(on):
+    """XYZ タイル焼き付けの有効/無効を QSettings へ保存する。"""
+    _qsettings().setValue(
+        SETTINGS_KEY_XYZ_TILES, '1' if on else '0')
+
+
+def get_xyz_zooms():
+    """QSettings の XYZ 焼き付けズーム範囲 (zmin, zmax)。
+
+    未設定時は XYZ_TILES_ZOOM_DEFAULT (1, 15)。パネルの
+    ズーム範囲スピンと共有される。
+    """
+    dmin, dmax = XYZ_TILES_ZOOM_DEFAULT
+
+    def _ival(key, default):
+        try:
+            v = _qsettings().value(key, None)
+            if v is None or str(v).strip() == '':
+                return default
+            return max(0, min(22, int(float(str(v).strip()))))
+        except Exception:  # nosec B110  # 設計上の許容
+            return default
+
+    zmin = _ival(SETTINGS_KEY_XYZ_ZMIN, dmin)
+    zmax = _ival(SETTINGS_KEY_XYZ_ZMAX, dmax)
+    if zmax < zmin:
+        zmax = zmin
+    return zmin, zmax
+
+
+def set_xyz_zooms(zmin, zmax):
+    """XYZ 焼き付けズーム範囲を QSettings へ保存する。"""
+    zmin = max(0, min(22, int(zmin)))
+    zmax = max(zmin, min(22, int(zmax)))
+    _qsettings().setValue(SETTINGS_KEY_XYZ_ZMIN, str(zmin))
+    _qsettings().setValue(SETTINGS_KEY_XYZ_ZMAX, str(zmax))
 
 
 def get_site_control():
@@ -2398,7 +2465,8 @@ def _export_vector(layer, path, fields=None, where=None, limit=None,
     """
     from qgis.core import (QgsCoordinateReferenceSystem,
                            QgsCoordinateTransform, QgsExpression,
-                           QgsFeatureRequest, QgsProject,
+                           QgsFeature, QgsFeatureRequest, QgsFields,
+                           QgsField, QgsMemoryProviderUtils, QgsProject,
                            QgsVectorFileWriter)
     src = layer
     if where or limit is not None:
@@ -2417,6 +2485,24 @@ def _export_vector(layer, path, fields=None, where=None, limit=None,
                     'limit は 1 以上の整数: {0}'.format(limit))
             req.setLimit(lim)
         src = layer.materialize(req)
+    if driver == 'GeoJSON':
+        # GeoJSON にはフィールド幅の概念がないが、Writer はソースの
+        # フィールド定義(幅/精度)をそのまま使うため、GPKG 由来の
+        # VARCHAR(255) 定義で 255 文字超の値が書き込みエラーになる。
+        # 幅を除いた memory レイヤへ実体化してから書き出す。
+        flds = QgsFields()
+        for f in src.fields():
+            nf = QgsField(f)
+            nf.setLength(0)
+            nf.setPrecision(0)
+            flds.append(nf)
+        mem = QgsMemoryProviderUtils.createMemoryLayer(
+            'export', flds, src.wkbType(), src.crs())
+        mem.startEditing()
+        mem.addFeatures(
+            [QgsFeature(f) for f in src.getFeatures()])
+        mem.commitChanges()
+        src = mem
     options = QgsVectorFileWriter.SaveVectorOptions()
     options.driverName = driver
     options.fileEncoding = 'UTF-8'
@@ -3103,6 +3189,519 @@ def _raster_bbox_str(layer):
             ext.xMinimum(), ext.yMinimum(), ext.xMaximum(), ext.yMaximum())
     except Exception:  # nosec B110  # 設計上の許容
         return None
+
+
+# ---- ベクター → XYZ タイル焼き付け ------------------------------------
+# 大規模レイヤ・複雑スタイル(パターン系/ラスタ系/GeometryGenerator 等)は
+# ブラウザ側の QML 再現で一致しきれないため、QGIS のレンダラで
+# Web メルカトル XYZ タイルへ焼き付けて ``xyz:`` 行として出す。
+# 照会・ベクタ表示用のデータ行(geojson: 等)は ``| off`` で併記する。
+# レイヤ customProperty 'kasugai_render' で強制指定:
+#   'xyz'    = 必ずタイル化 / 'vector' = タイル化しない
+# 縮尺連動(hasScaleBasedVisibility)はズーム範囲へ変換し、
+# 範囲内タイル数が _VECTOR_XYZ_TILE_CAP を超える間は maxZoom を下げる。
+
+# featureCount がこの値以上ならタイル化対象(大規模レイヤ)
+_VECTOR_XYZ_MIN_FEATURES = 2000
+# 1レイヤの焼き付けズーム上限決定に使う「範囲内タイル数」の目安
+_VECTOR_XYZ_TILE_CAP = 320
+# 絶対上限(安全網)
+_VECTOR_XYZ_TILE_HARD_CAP = 1500
+# ブラウザ QML 再現が近似的なシンボルレイヤ → タイル化対象
+_VECTOR_XYZ_SYM_COMPLEX = {
+    'GeometryGenerator', 'VectorField', 'LinearReferencing', 'MaskMarker',
+    'AnimatedMarker', 'RasterMarker',
+    'LinePatternFill', 'PointPatternFill', 'RandomMarkerFill',
+    'CentroidFill', 'GradientFill', 'ShapeburstFill',
+    'SVGFill', 'RasterFill',
+    'RasterLine', 'InterpolatedLine', 'Lineburst',
+}
+# ブラウザ再現が近似的なレンダラ(小文字比較) → タイル化対象
+_VECTOR_XYZ_REN_COMPLEX = {
+    'heatmaprenderer', 'pointcluster', 'pointdisplacement',
+    'mergedfeaturerenderer', 'embeddedsymbol', '25drenderer',
+    'invertedpolygonrenderer',
+}
+
+
+def _vector_needs_xyz(layer, feat_count):
+    """ベクターレイヤを XYZ タイル焼き付けで出すべきか。
+
+    パネルの「XYZ tiles」チェック(QSettings kasugai_xyz_tiles)が OFF
+    なら常に False。レイヤ customProperty ``kasugai_render`` で
+    ``xyz``/``vector`` の個別強制指定ができる。
+    """
+    try:
+        mode = str(layer.customProperty(
+            'kasugai_render', '') or '').strip().lower()
+        if mode == 'vector':
+            return False
+        if mode == 'xyz':
+            return True
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    if not get_xyz_tiles_enabled():
+        return False
+    try:
+        if feat_count is not None and \
+                int(feat_count) >= _VECTOR_XYZ_MIN_FEATURES:
+            return True
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    try:
+        r = layer.renderer()
+    except Exception:  # nosec B110  # 設計上の許容
+        r = None
+    if not r:
+        return False
+    try:
+        if (r.type() or '').strip().lower() in _VECTOR_XYZ_REN_COMPLEX:
+            return True
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    found = set()
+
+    def _walk_sym(sym):
+        if not sym:
+            return
+        try:
+            for sl in sym.symbolLayers():
+                try:
+                    found.add(sl.layerType())
+                    _walk_sym(sl.subSymbol())
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    def _walk_rule(rule):
+        if not rule:
+            return
+        try:
+            _walk_sym(rule.symbol())
+            for c in rule.children() or []:
+                _walk_rule(c)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    try:
+        from qgis.core import QgsRenderContext
+        for s in r.symbols(QgsRenderContext()) or []:
+            _walk_sym(s)
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    try:
+        _walk_rule(r.rootRule())
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return bool(found & _VECTOR_XYZ_SYM_COMPLEX)
+
+
+def _scale_to_zoom(scale_denom):
+    """縮尺分母 → Web メルカトルのズームレベル(0.28mm 物理ピクセル換算)。"""
+    import math
+    try:
+        d = float(scale_denom or 0)
+        if d <= 0:
+            return None
+        res = d * 0.00028
+        return max(0.0, min(24.0, math.log2(156543.03392 / res)))
+    except Exception:  # nosec B110  # 設計上の許容
+        return None
+
+
+def _vector_xyz_zooms(layer, ext3857, warnings=None):
+    """焼き付けズーム範囲 (zmin, zmax)。
+
+    基本はパネル設定の手動範囲(kasugai_xyz_zmin/zmax、既定 1-15)。
+    レイヤの縮尺連動があればその範囲でさらに絞る(手動範囲との交差)。
+    範囲内タイル数が _VECTOR_XYZ_TILE_CAP を超える間は zmax を下げる
+    (削減した場合は warnings へ通知)。
+    """
+    import math
+    zmin, zmax = get_xyz_zooms()
+    try:
+        if layer.hasScaleBasedVisibility():
+            zs = _scale_to_zoom(layer.minimumScale())
+            if zs is not None:
+                zmin = max(zmin, int(math.floor(zs)))
+            zi = _scale_to_zoom(layer.maximumScale())
+            if zi is not None:
+                zmax = min(zmax, int(math.ceil(zi)))
+            if zmax < zmin:
+                zmax = zmin
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    zmin = max(0, min(22, zmin))
+    zmax = max(zmin, min(22, zmax))
+    world = 2 * 20037508.3427892
+    w = ext3857.xMaximum() - ext3857.xMinimum()
+    h = ext3857.yMaximum() - ext3857.yMinimum()
+
+    def _count(z):
+        ts = world / (2 ** z)
+        return (max(1, int(math.ceil(w / ts))) *
+                max(1, int(math.ceil(h / ts))))
+
+    zmax0 = zmax
+    while zmax > zmin and _count(zmax) > _VECTOR_XYZ_TILE_CAP:
+        zmax -= 1
+    if zmax < zmax0 and warnings is not None:
+        warnings.append(
+            '{0}: タイル数上限のため焼き付けズームを z{1} まで縮小 '
+            '(高ズーム側は未生成)'.format(layer.name(), zmax))
+    return zmin, zmax
+
+
+def _img_blank(img):
+    """QImage が完全透明かを判定する(空タイルの保存スキップ用)。"""
+    try:
+        bits = img.constBits()
+        if bits is not None:
+            arr = bits.asarray(img.sizeInBytes())
+            if not any(arr[3::4]):  # ARGB32: 4バイト目がアルファ
+                return True
+            return False
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    try:
+        w, h = img.width(), img.height()
+        for y in range(0, h, max(1, h // 16)):
+            for x in range(0, w, max(1, w // 16)):
+                if img.pixelColor(x, y).alpha():
+                    return False
+        return True
+    except Exception:  # nosec B110  # 設計上の許容
+        return False
+
+
+def _render_vector_xyz(layer, slug, data_dir, warnings, zooms=None):
+    """ベクターレイヤを QGIS レンダラで XYZ PNG タイルへ焼き付ける。
+
+    戻り値は (urlテンプレート, zmin, zmax, bbox4326文字列, タイル数)、
+    失敗時 None。完全透明タイルは保存しない。ラベル・データ定義・
+    ペイント効果を含めた見た目がそのまま焼き付く。
+    ベクター以外の QgsMapLayer(ラスタ/WMS 等)でも同じ経路で描画できる。
+
+    zooms=(zmin, zmax) を渡すとズーム範囲を固定する。None(既定)は
+    _vector_xyz_zooms(パネル設定+縮尺連動+タイル数上限)で決める。
+
+    タイルを1枚ずつ描画すると遅いため、ズーム段ごとに
+    最大 16x16 タイル(4096px)のチャンクで1回レンダリングして
+    スライスする。縮尺依存の評価はズーム段ごとの画像に正しく効く。
+    """
+    import math
+    try:
+        from qgis.core import (QgsCoordinateReferenceSystem,
+                               QgsCoordinateTransform,
+                               QgsLabelingEngineSettings,
+                               QgsMapRendererSequentialJob,
+                               QgsMapSettings,
+                               QgsProject, QgsRectangle)
+        from qgis.PyQt.QtCore import QSize
+        from qgis.PyQt.QtGui import QColor
+    except Exception as e:
+        warnings.append(
+            '{0}: XYZ焼き付けの準備失敗: {1}'.format(layer.name(), e))
+        return None
+    ext = layer.extent()
+    if not ext or not ext.isFinite() or ext.isEmpty():
+        return None
+    crs3857 = QgsCoordinateReferenceSystem('EPSG:3857')
+    try:
+        tr = QgsCoordinateTransform(
+            layer.crs(), crs3857, QgsProject.instance())
+        ext = tr.transformBoundingBox(ext)
+    except Exception as e:
+        warnings.append(
+            '{0}: 範囲の EPSG:3857 変換失敗: {1}'.format(layer.name(), e))
+        return None
+    if zooms is not None:
+        zmin, zmax = int(zooms[0]), int(zooms[1])
+        zmin = max(0, min(22, zmin))
+        zmax = max(zmin, min(22, zmax))
+    else:
+        zmin, zmax = _vector_xyz_zooms(layer, ext, warnings)
+    out_root = os.path.join(data_dir, slug)
+    world = 2 * 20037508.3427892
+    rendered = 0
+    stop = False
+    for z in range(zmin, zmax + 1):
+        if stop:
+            break
+        ts = world / (2 ** z)
+        x0 = max(0, int(math.floor((ext.xMinimum() + world / 2) / ts)))
+        x1 = min(2 ** z - 1,
+                 int(math.floor((ext.xMaximum() + world / 2) / ts)))
+        y0 = max(0, int(math.floor((world / 2 - ext.yMaximum()) / ts)))
+        y1 = min(2 ** z - 1,
+                 int(math.floor((world / 2 - ext.yMinimum()) / ts)))
+        # 16x16 タイル(4096px)チャンク単位で一括描画→スライス
+        for bx0 in range(x0, x1 + 1, 16):
+            if stop:
+                break
+            bx1 = min(x1, bx0 + 15)
+            for by0 in range(y0, y1 + 1, 16):
+                if stop:
+                    break
+                by1 = min(y1, by0 + 15)
+                wpx = (bx1 - bx0 + 1) * 256
+                hpx = (by1 - by0 + 1) * 256
+                xmin = bx0 * ts - world / 2
+                ymin = world / 2 - (by1 + 1) * ts
+                settings = QgsMapSettings()
+                settings.setLayers([layer])
+                settings.setDestinationCrs(crs3857)
+                settings.setExtent(
+                    QgsRectangle(xmin, ymin, xmin + (bx1 - bx0 + 1) * ts,
+                                 ymin + (by1 - by0 + 1) * ts))
+                settings.setOutputSize(QSize(wpx, hpx))
+                settings.setBackgroundColor(QColor(0, 0, 0, 0))
+                try:
+                    settings.setLabelingEngineSettings(
+                        QgsLabelingEngineSettings())
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+                # 大量地物レイヤ(メッシュ等)の低ズーム描画を速くする:
+                # QGIS の描画簡略化(地物簡約+マージ)をチャンク描画へ有効化。
+                # 見た目は QGIS キャンバスの既定簡略化と同等。
+                try:
+                    from qgis.core import Qgis
+                    settings.setFlag(
+                        Qgis.MapSettingsFlag.UseRenderingOptimization,
+                        True)
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+                job = QgsMapRendererSequentialJob(settings)
+                job.start()
+                job.waitForFinished()
+                img = job.renderedImage()
+                if img.isNull() or _img_blank(img):
+                    continue
+                for tx in range(bx0, bx1 + 1):
+                    if rendered >= _VECTOR_XYZ_TILE_HARD_CAP:
+                        stop = True
+                        break
+                    for ty in range(by0, by1 + 1):
+                        tile = img.copy((tx - bx0) * 256,
+                                        (ty - by0) * 256, 256, 256)
+                        if tile.isNull() or _img_blank(tile):
+                            continue
+                        d = os.path.join(out_root, str(z), str(tx))
+                        if not os.path.isdir(d):
+                            os.makedirs(d)
+                        if tile.save(os.path.join(
+                                d, str(ty) + '.png'), 'PNG'):
+                            rendered += 1
+                            if rendered >= _VECTOR_XYZ_TILE_HARD_CAP:
+                                stop = True
+                                break
+    if not rendered:
+        return None
+    url = _dref(data_dir, '{0}/{{z}}/{{x}}/{{y}}.png'.format(slug))
+    return url, zmin, zmax, _layer_extent_bbox(layer), rendered
+
+
+def _write_xyz_index(data_dir, slug, zmin, zmax, bbox=None,
+                     title=None):
+    """焼き付けタイルを単体確認できる最小 Leaflet index.html を
+    <slug>/index.html へ出力する(未生成の場合のみ。file:// 直開き・
+    /export-data/ 配信のどちらでも動く相対参照)。
+    戻り値: 書き込んだ場合 True。"""
+    path = os.path.join(data_dir, slug, 'index.html')
+    if os.path.isfile(path):
+        return False
+    t = title or slug
+    if bbox and len(bbox) == 4:
+        w, s, e, n = bbox
+        fit = ('map.fitBounds([[{s},{w}],[{n},{e}]]);'
+               .format(s=s, w=w, n=n, e=e))
+    else:
+        fit = ('map.setView([35.681, 139.767], {zmax});'
+               .format(zmax=zmax))
+    html = """<!doctype html>
+<html><head><meta charset="utf-8">
+<title>{t} — XYZ tile check</title>
+<link rel="stylesheet"
+ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>html,body,#map{{height:100%;margin:0}}</style></head>
+<body><div id="map"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map = L.map('map');
+L.tileLayer('./{{z}}/{{x}}/{{y}}.png', {{
+  minZoom: {zmin}, maxZoom: {zmax},
+  tms: false, attribution: 'QGIS-rendered XYZ bake: {t}'
+}}).addTo(map);
+{fit}
+</script></body></html>
+""".format(t=t, zmin=zmin, zmax=zmax, fit=fit)
+    try:
+        d = os.path.dirname(path)
+        if not os.path.isdir(d):
+            os.makedirs(d)
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(html)
+        return True
+    except Exception:  # nosec B110  # 設計上の許容
+        return False
+
+
+def _dir_has_pngs(path):
+    """ディレクトリ配下に .png が1枚以上あるか(焼き付け済み判定)。"""
+    try:
+        for _r, _d, files in os.walk(path):
+            if any(f.lower().endswith('.png') for f in files):
+                return True
+    except Exception:  # nosec B110  # 設計上の許容
+        pass
+    return False
+
+
+def _reuse_vector_xyz(layer, slug, data_dir):
+    """既存タイルツリーから (url,zmin,zmax,bbox,タイル数) を再構成する。
+
+    差分エクスポート/再実行で未変更レイヤの焼き付けを省略する際に使う
+    (描画は行わない)。
+    """
+    import re as _re
+    out_root = os.path.join(data_dir, slug)
+    zs, n = set(), 0
+    try:
+        for zname in os.listdir(out_root):
+            if not _re.match(r'^\d+$', zname):
+                continue
+            zdir = os.path.join(out_root, zname)
+            if not os.path.isdir(zdir):
+                continue
+            zs.add(int(zname))
+            for _r, _d, files in os.walk(zdir):
+                n += sum(1 for f in files if f.lower().endswith('.png'))
+    except Exception:  # nosec B110  # 設計上の許容
+        return None
+    if not zs or not n:
+        return None
+    url = _dref(data_dir, '{0}/{{z}}/{{x}}/{{y}}.png'.format(slug))
+    return url, min(zs), max(zs), _layer_extent_bbox(layer), n
+
+
+# ---- 指定レイヤのみの XYZ 焼き付け(独立機能) ----------------------------
+# パネルの XYZ タブ「Standalone XYZ export」が使う。.kasc 出力とは独立に
+# チェックしたレイヤだけを <出力先>/xyz_tiles/<slug>/ へ焼き付け、
+# 確認用 index.html を付ける。出力先は /export-data/ の配信ルート
+# (last_export_dir=preferred_output_dir)配下なので、HTTP サーバ稼働時は
+# /export-data/xyz_tiles/<slug>/index.html でブラウザ確認もできる。
+
+def xyz_tiles_dir():
+    """独立 XYZ 出力の既定ルート ``<preferred_output_dir()>/xyz_tiles/``。"""
+    return os.path.join(preferred_output_dir(), 'xyz_tiles')
+
+
+def export_layers_xyz(layers, out_dir=None, zmin=None, zmax=None,
+                      add_to_project=False, progress_cb=None):
+    """指定レイヤだけを QGIS レンダラで XYZ PNG タイルへ焼き付ける。
+
+    ``.kasc`` エクスポートの自動焼き付け(_vector_needs_xyz 判定)とは
+    独立した手動経路で、チェックしたレイヤを強制的にタイル化する
+    (ベクター以外のラスタ/WMS レイヤも同じ経路で再焼き付けできる)。
+
+    引数:
+        layers: 焼き付け対象の QgsMapLayer リスト(空なら何もしない)。
+        out_dir: 出力ルート。None(既定)は xyz_tiles_dir()
+            (``<preferred_output_dir()>/xyz_tiles/``)。各レイヤは
+            ``<root>/<slug>/{z}/{x}/{y}.png`` + ``index.html`` へ出力。
+        zmin/zmax: 両方指定するとズーム範囲を固定。None なら
+            _vector_xyz_zooms(パネルの Zoom 設定+縮尺連動+タイル数上限)。
+        add_to_project: True なら焼き付けたタイルツリーを
+            ``type=xyz`` の file:// ラスタレイヤとしてプロジェクトへ追加
+            (結果を地図キャンバスで即確認できる)。
+        progress_cb: ``progress_cb(done, total, name)``。各レイヤの
+            処理開始時に呼ぶ(エクスポートと同じ契約)。
+            ExportCancelled で中断できる。
+
+    戻り値: {"root", "layers": [{name, slug, dir, url, zmin, zmax, bbox,
+             tiles, index}], "skipped": [{name, reason}],
+             "warnings": [...]}
+    """
+    warnings = []
+    layers = [l for l in (layers or []) if l is not None]
+    root = os.path.abspath(out_dir or xyz_tiles_dir())
+    if not layers:
+        return {'root': root, 'layers': [], 'skipped': [],
+                'warnings': warnings}
+    if not os.path.isdir(root):
+        os.makedirs(root)
+    zooms = None
+    try:
+        if zmin is not None and zmax is not None:
+            zooms = (int(zmin), int(zmax))
+    except Exception:  # nosec B110  # 不正値は自動範囲へフォールバック
+        zooms = None
+    used = set()
+    total = len(layers)
+    out_layers = []
+    skipped = []
+    for i, layer in enumerate(layers):
+        if progress_cb is not None:
+            progress_cb(i, total, layer.name())
+        slug = _slugify(layer.name(), used)
+        info = _render_vector_xyz(layer, slug, root, warnings,
+                                  zooms=zooms)
+        if not info:
+            skipped.append({
+                'name': layer.name(),
+                'reason': 'render produced no tiles (empty extent or '
+                          'all tiles transparent)'})
+            continue
+        url, rzmin, rzmax, bb, n_tiles = info
+        # 完全透明タイルは保存しない仕様のため url テンプレートと
+        # 実ディレクトリは一致する(slug 直下に {z}/{x}/{y}.png)
+        entry = {
+            'name': layer.name(), 'slug': slug,
+            'dir': os.path.join(root, slug),
+            'url': url, 'zmin': rzmin, 'zmax': rzmax,
+            'bbox': bb, 'tiles': n_tiles,
+        }
+        # 単体確認用の最小 Leaflet ページ(既存は温存)
+        try:
+            _bb = [float(v) for v in str(bb or '').split(',')]
+            if _write_xyz_index(root, slug, rzmin, rzmax,
+                                _bb if len(_bb) == 4 else None,
+                                title=layer.name()):
+                entry['index'] = os.path.join(root, slug, 'index.html')
+        except Exception:  # nosec B110  # 表示用HTMLの失敗は無視
+            pass
+        out_layers.append(entry)
+        if add_to_project:
+            try:
+                _add_xyz_to_project(layer, entry)
+            except Exception as e:  # nosec B110  # 追加失敗は警告のみ
+                warnings.append(
+                    '{0}: XYZ レイヤのプロジェクト追加失敗: {1}'.format(
+                        layer.name(), e))
+    if progress_cb is not None:
+        progress_cb(total, total, '')
+    return {'root': root, 'layers': out_layers, 'skipped': skipped,
+            'warnings': warnings}
+
+
+def _add_xyz_to_project(src_layer, entry):
+    """焼き付けたタイルツリーを type=xyz ラスタレイヤとして追加する。
+
+    file:// テンプレートのため移動・配布はできないが、QGIS 上で
+    焼き付け結果をそのまま重ねて確認できる。元レイヤ名の末尾に
+    ' (XYZ)' を付けて追加する。
+    """
+    from qgis.core import QgsProject, QgsRasterLayer
+    path = entry['dir'].replace('\\', '/')
+    uri = ('type=xyz&url=file:///{0}/{{z}}/{{x}}/{{y}}.png'
+           '&zmin={1}&zmax={2}').format(
+               path, entry['zmin'], entry['zmax'])
+    rl = QgsRasterLayer(
+        uri, '{0} (XYZ)'.format(src_layer.name()), 'wms')
+    if not rl.isValid():
+        raise RuntimeError('invalid xyz layer uri')
+    QgsProject.instance().addMapLayer(rl)
 
 
 def _camera_line(iface, height_hint_scale=None):
@@ -4311,6 +4910,64 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
                 pass
             # 時間対応・ヒートマップ/クラスタ・透過度等の共通オプション
             vopt = _vector_opts_suffix(layer, warnings)
+
+            # 大規模・複雑スタイルのベクターは QGIS レンダラで
+            # XYZ タイルへ焼き付け、表示は xyz: 行(縮尺選択は
+            # タイルズームに委譲)に任せる。照会・ベクタ表示用の
+            # データ行(geojson: 等)は | off で併記する
+            if _vector_needs_xyz(layer, feat_count):
+                xyz_dir = os.path.join(data_dir, slug + '_xyz')
+                # 差分管理下で変更のあるレイヤ・タイル未生成のレイヤのみ
+                # 焼き付け直す。changed=None(差分情報なしのフル出力)は
+                # 既存タイルを再利用(全件再描画はエクスポート時間を
+                # 大幅に延ばすため。スタイル変更時は live 差分経由か
+                # *_xyz ディレクトリ削除で再焼き付け)
+                just_baked = False
+                if (kinds is not None
+                        or not _dir_has_pngs(xyz_dir)):
+                    xyz_info = _render_vector_xyz(
+                        layer, slug + '_xyz', data_dir, warnings)
+                    just_baked = bool(xyz_info)
+                else:
+                    xyz_info = _reuse_vector_xyz(
+                        layer, slug + '_xyz', data_dir)
+                if xyz_info:
+                    url, zmin, zmax, bb, n_tiles = xyz_info
+                    line = 'xyz: {0} | {1} | {2}'.format(
+                        title, _kasc_escape(url), vis_flag)
+                    line += ' | maxZoom={0} | minZoom={1}'.format(
+                        zmax, zmin)
+                    op = _maplayer_opacity(layer)
+                    if op is not None:
+                        line += ' | opacity={0}'.format(op)
+                    line += _scale_vis_opt(layer)
+                    if bb:
+                        line += ' | bbox={0}'.format(bb)
+                    attr = _attribution(layer)
+                    if attr:
+                        line += ' | attr={0}'.format(
+                            _kasc_escape(attr))
+                    line += site_opt
+                    kasc_lines.append(line)
+                    # 単体確認用の最小 Leaflet ページをタイルツリー直下へ
+                    try:
+                        _bb = [float(v) for v in str(bb or '').split(',')]
+                        _write_xyz_index(
+                            data_dir, slug + '_xyz', zmin, zmax,
+                            _bb if len(_bb) == 4 else None,
+                            title=layer.name())
+                    except Exception:  # nosec B110  # 設計上の許容
+                        pass
+                    tiles_out.append({
+                        'name': layer.name(), 'url': url,
+                        'type': 'xyz', 'baked': just_baked,
+                        'tiles': n_tiles})
+                    # データ行は照会用に off で引き続き出力
+                    vis_flag = 'off'
+                else:
+                    warnings.append(
+                        '{0}: XYZ焼き付け失敗のためベクター出力へ'.format(
+                            layer.name()))
 
             # fields/where/limit 指定は .kasc 行オプションでは表現できず
             # 出力データへ焼き込む必要があるためベクター変換へ回す
