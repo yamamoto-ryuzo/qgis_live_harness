@@ -1003,12 +1003,40 @@ SETTINGS_KEY_HOSTED_CHANNEL = 'kasugai_hosted_channel'
 def get_hosted_channel():
     """QSettings の kasugai_hosted_channel(未設定は 'stable')を返す。
 
-    'stable'/'unstable'、'local'(ローカル配信モード: 稼働中アプリ
-    8510→インストール済み web/ の順。開発・閉鎖網向け)、または
-    完全URL(自前ホスト用)を取る。
+    'stable'/'unstable'、'local'(ローカル自動検出: 稼働中アプリ
+    8510→インストール済み web/ の順。開発・閉鎖網向け)、完全URL
+    (自前ホスト用)、またはローカルの web/ ディレクトリへの
+    ファイルパス(FILE モード: geo_webview サーバがそのツリーを
+    /<engine>/ で静的配信)を取る。
     """
     v = (_qsettings().value(SETTINGS_KEY_HOSTED_CHANNEL, '') or '')
     return str(v).strip() or 'stable'
+
+
+def is_hosted_channel(channel=None):
+    """モード値がホスト側供給(stable/unstable/カスタムURL)なら True。
+
+    'local' やファイルパスは False(=ローカル/FILE モード)。
+    """
+    ch = str(channel if channel is not None
+              else get_hosted_channel() or 'stable').strip()
+    return ch.lower() in HOSTED_CHANNELS or ch.lower().startswith(
+        ('http://', 'https://'))
+
+
+def local_channel_web_dir(channel=None):
+    """モード値がファイルパス(FILE モード)ならその web/ ディレクトリ。
+
+    値が 'local' や hosted 系なら None(=自動検出/ホスト供給)。
+    存在する web/ ツリー(index.html 必須)のみ絶対パスで返す。
+    """
+    ch = str(channel if channel is not None
+              else get_hosted_channel() or 'stable').strip().strip('"')
+    if not ch or ch.lower() in HOSTED_CHANNELS or             ch.lower() == 'local' or             ch.lower().startswith(('http://', 'https://')):
+        return None
+    if os.path.isfile(os.path.join(ch, 'index.html')):
+        return os.path.abspath(ch)
+    return None
 
 
 def export_zip_name(channel=None):
@@ -1020,8 +1048,10 @@ def export_zip_name(channel=None):
     """
     ch = str(channel if channel is not None
              else get_hosted_channel()).strip()
-    if ch.lower() in HOSTED_CHANNELS or ch.lower() == 'local':
+    if ch.lower() in HOSTED_CHANNELS:
         tag = ch.lower()
+    elif not is_hosted_channel(ch):
+        tag = 'local'
     elif ch.lower().startswith(('http://', 'https://')):
         seg = urllib.parse.urlparse(ch).path.rstrip('/').rsplit('/', 1)[-1]
         tag = re.sub(r'[^A-Za-z0-9_.-]+', '_', seg) or 'custom'
@@ -5746,6 +5776,12 @@ def find_kasugai_web_dir():
     ``<install>/server/web`` も見る。``web/index.html`` が存在する
     場合のみ絶対パスを返す（見つからなければ None）。
     """
+    try:
+        explicit = local_channel_web_dir()
+    except Exception:  # nosec B110  # 判定失敗は自動検出へ
+        explicit = None
+    if explicit:
+        return explicit
     cands = []
     exe = find_kasugai_exe()
     if exe:

@@ -362,7 +362,7 @@
     "Add failed": "追加失敗",
     "Canvas Live View": "Canvas ライブビュー",
     "Open Canvas Live View": "Canvas ライブビューを開く",
-    "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), a custom base URL ending with '/', or 'local' (running Canvas app :8510 → installed web/ via this server; for development or closed networks)": "▶ WebView / Live View が使うエンジンの供給元 — 'stable'/'unstable'(kasugai-canvas-web。Canvas アプリ未導入でも完結)、末尾 '/' のカスタムベースURL、または 'local'(稼働中の Canvas アプリ :8510 → インストール済み web/ を本サーバ経由。開発時・閉鎖ネットワーク用)"
+    "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), a custom http(s) base URL ending with '/', or a local web/ folder path (or 'local' for auto-detect: running app :8510 → installed web/; for development or closed networks)": "▶ WebView / Live View が使うエンジンの供給元 — 'stable'/'unstable'(kasugai-canvas-web。Canvas アプリ未導入でも完結)、末尾 '/' のカスタム http(s) ベースURL、またはローカルの web/ フォルダパス('local' 指定なら自動検出: 稼働中アプリ :8510 → インストール済み web/。開発時・閉鎖ネットワーク用)"
   },
   "geo_webview.page": {
     "  rotation: ": "  回転: ",

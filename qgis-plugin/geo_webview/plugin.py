@@ -899,9 +899,10 @@ class GeoWebView:
         モードに従う:
           stable/unstable/カスタムURL → ホスト版エンジン
               (kasugai-canvas-web 等) — Canvas アプリ未導入でも完結
-          local → 稼働中の Canvas アプリ(既定8510)、未起動なら
-              本サーバの /<engine>/ 静的配信(インストール済み web/)。
-              開発時・閉鎖ネットワーク向け
+          ファイルパス(FILE モード) → その web/ ツリーを本サーバの
+              /<engine>/ で静的配信。開発時・閉鎖ネットワーク向け
+          local → 上記の自動検出版: 稼働中の Canvas アプリ(既定8510)
+              優先、未起動ならインストール済み web/ を同様に配信
         """
         srv = getattr(self, 'server_manager', None)
         port = (srv.get_server_port()
@@ -913,18 +914,23 @@ class GeoWebView:
         kasc_q = urllib.parse.quote(kasc, safe='')
         try:
             from . import kasugai_export
-            if kasugai_export.get_hosted_channel() == 'local':
-                # local: 稼働中アプリ(8510)を優先 — アプリの web/ は
-                # 自動更新に追随し、開発用サーバなら開発ツリーを配信
-                cport = int(kasugai_export.get_kasugai_port() or 8510)
-                if kasugai_export.detect_kasugai(cport):
-                    return 'http://127.0.0.1:{0}/{1}/?kasc={2}'.format(
-                        cport, engine, kasc_q)
+            ch = kasugai_export.get_hosted_channel()
+            if not kasugai_export.is_hosted_channel(ch):
+                if ch.strip().lower() == 'local':
+                    # local: 稼働中アプリ(8510)を優先 — アプリの web/ は
+                    # 自動更新に追随し、開発用サーバなら開発ツリーを配信
+                    cport = int(kasugai_export.get_kasugai_port() or 8510)
+                    if kasugai_export.detect_kasugai(cport):
+                        return ('http://127.0.0.1:{0}/{1}/?kasc={2}'
+                                .format(cport, engine, kasc_q))
+                # FILE/local 未検出時: 本サーバが web/ を静的配信。
+                # 配信元は find_kasugai_web_dir(FILE指定>インストール済み)
                 if not kasugai_export.find_kasugai_engine_dir(engine):
                     self._push_message(
                         self.tr('Canvas Live View'),
-                        self.tr("CDN 'local' mode needs a running Canvas "
-                                "app (:8510) or an installed copy."),
+                        self.tr("Local engine delivery needs a valid web/ "
+                                "folder path, a running Canvas app (:8510) "
+                                "or an installed copy."),
                         level=1, duration=6)
                 return '{0}/{1}/?kasc={2}'.format(base, engine, kasc_q)
             # hosted: CORS は hosted オリジンを許可済み、PNA プリフライト
@@ -2217,7 +2223,7 @@ class GeoWebView:
             if route == 'hosted':
                 try:
                     from . import kasugai_export
-                    if kasugai_export.get_hosted_channel() == 'local':
+                    if not kasugai_export.is_hosted_channel():
                         route = 'local'
                 except Exception:  # nosec B110  # 取得失敗は従来経路へ
                     pass

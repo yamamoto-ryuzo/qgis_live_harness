@@ -359,7 +359,7 @@
     "Add failed": "Не удалось добавить",
     "Canvas Live View": "Live-вид Canvas",
     "Open Canvas Live View": "Открыть live-вид Canvas",
-    "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), a custom base URL ending with '/', or 'local' (running Canvas app :8510 → installed web/ via this server; for development or closed networks)": "Источник движка, используемый ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, работает без установки Canvas), пользовательский базовый URL с '/' в конце или 'local' (запущенное приложение Canvas :8510 → установленный web/ через этот сервер; для разработки или закрытых сетей)"
+    "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), a custom http(s) base URL ending with '/', or a local web/ folder path (or 'local' for auto-detect: running app :8510 → installed web/; for development or closed networks)": "Источник движка, используемый ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, работает без установки Canvas), пользовательский базовый URL http(s) с '/' в конце или локальный путь к папке web/ (или 'local' для автоопределения: запущенное приложение :8510 → установленный web/; для разработки или закрытых сетей)"
   },
   "geo_webview.page": {
     "  rotation: ": "  поворот: ",
