@@ -239,7 +239,7 @@ HTTP ワーカースレッドから呼べる。</li>
     class VF,K1 fmt;
     class OPT,VAL,K2,K3 cdn;</code></pre>
 <p><strong>図3. 形式選択 → エクスポート内容</strong> — 「.kasc の中身」を決める経路。<strong>全ルート共通</strong>で、どの CDN モードで起動しても選択した形式がそのまま使われる。ベクターの <strong>.qml スタイル出力</strong>（<code>canvas_data/*.qml</code>＋行の <code>style=</code> 付与＋シンボル画像複製）は形式選択と<strong>独立</strong>で全ルート共通（詳細は後述「.qml スタイル出力」節）。なお形式選択の対象はベクターだけで、ラスタ（<code>geotiff:</code>/<code>image:</code> 行）・ベクター焼き付け XYZ（<code>*_xyz/</code>）・<code>fly_geojson:</code>・<code>custom-layer.js</code> 等の出力物も同じく canvas_data/ へ書かれる（一覧は後述「出力フォルダ構成」）。</p>
-<pre><code class="language-mermaid">flowchart LR
+<pre><code class="language-mermaid">flowchart TB
     K1["kasugai_vector_format"] --&gt; E0{"export_kasugai_project&lt;br/&gt;vector_format=None → QSettings 参照"}
     E0 --&gt;|"native"| E1["ネイティブ参照行&lt;br/&gt;gpkg: / geojson: / geoparquet:&lt;br/&gt;/ 3dtiles: / duckdb: 等"]
     E0 --&gt;|"recommended"| E2["FlatGeobuf 変換&lt;br/&gt;canvas_data/*.fgb"]
@@ -250,7 +250,7 @@ HTTP ワーカースレッドから呼べる。</li>
     classDef fmt fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20;
     class K1,E0,E1,E2,E3,QML,KASC fmt;</code></pre>
 <p><strong>図4. CDN モード → route 変換 → エンジン供給元</strong> — 「エンジンをどこから読むか」を決める経路。形式選択（緑）は route 変換に関与しないが、<code>.kasc</code> の中身として全ルート共通で起動先エンジンに届く（詳細は図3）。</p>
-<pre><code class="language-mermaid">flowchart LR
+<pre><code class="language-mermaid">flowchart TB
     M["kasugai_hosted_channel"] --&gt; RC{"route 変換&lt;br/&gt;（図1 のボタンで発火）"}
     V["kasugai_hosted_value&lt;br/&gt;（custom 時の値）"] --&gt;|"http(s) → URL&lt;br/&gt;それ以外 → パス"| RC
     RC --&gt;|"stable / unstable"| H["route=hosted"]
