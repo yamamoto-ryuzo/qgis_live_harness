@@ -24,7 +24,7 @@
 </ul>
 <h2 id="1-機能概要">1. 機能概要</h2>
 <ul>
-<li><strong>サーバレス Web 配信（主機能）</strong>: 開いている QGIS プロジェクトを <code>.kasc</code>+<code>canvas_data/</code> パッケージとして出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）で再生する。出力物＋エンジンを静的ホストへ置くだけで配信できる。起動経路はパネル（<code>Export</code>=ファイル出力のみ / <code>▶ Open</code>=登録・起動まで）・<code>GET /kasugai</code>・bridge <code>kasugaiExport</code> の3系統で、Canvas登録→本サーバ静的配信→ホスト版エンジンの3段フォールバックを持つ（§15）。</li>
+<li><strong>サーバレス Web 配信（主機能）</strong>: 開いている QGIS プロジェクトを <code>.kasc</code>+<code>canvas_data/</code> パッケージとして出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）で再生する。出力物＋エンジンを静的ホストへ置くだけで配信できる。起動経路はパネル（<code>Export</code>=ファイル出力のみ / <code>▶ WebView</code>=CDN コンボの供給元モードで起動）・<code>GET /kasugai</code>・bridge <code>kasugaiExport</code> の3系統。エンジン供給元は <code>CDN:</code> コンボの4モード（stable/unstable=ホスト版・canvas=アプリ :8510・custom=URL または FILE パス）で選択する（§15）。</li>
 <li>組み込み HTTP サーバー（補助）: <code>/kasugai</code> <code>/export-data/</code> <code>/present</code> <code>/present/state</code> <code>/screenshot</code> <code>/received</code> <code>/layouts</code> <code>/layout-pdf</code> を提供（v3.29.0 で OGC サービスは廃止）。</li>
 <li>パーマリンク生成: QGIS の現在表示（中心座標、scale、rotation、theme など）を HTTP パーマリンク（<code>/qgis-map</code> パス）として生成・コピー・開く。<code>/qgis-map</code> は HTML を返さず、受領記録・External Control ナビゲートの URL パスとして使う（v3.24.0 でプラグイン内蔵ビューアは廃止）。</li>
 <li>Theme サポート: <code>theme</code> パラメータのマップテーマをナビゲーション時に適用し、<code>.kasc</code> へ <code>theme:</code> 行として出力（プロジェクト自体は変更しない）。</li>
@@ -179,7 +179,7 @@ HTTP ワーカースレッドから呼べる。</li>
 <tr>
   <td>パネルボタン</td>
   <td><code>▶ Canvas</code> / <code>▶ WebView</code> ボタン (<code>plugin.py: on_kasugai_launch_clicked</code>)</td>
-  <td>人手操作。パネルの <code>Engine:</code> コンボで起動エンジンを選択（QSettings <code>kasugai_engine</code> に保存）。<code>▶ Canvas</code>（route=<code>kasugai</code>）は<strong>再エクスポートしてから</strong>登録・ブラウザ起動するため、押すたびに最新のレイヤ状態が Canvas に反映される。Canvas 未検出時はボタンが「Install KASUGAI Canvas」表示となり、クリックでセットアップ(NSIS・.kasc 関連付けあり)/ポータブルZIP(展開のみ)を選んでバックグラウンドインストール後に起動へ合流。<code>▶ WebView</code>（route=<code>hosted</code>）は bridge <code>kasugaiExport(open_app=True)</code> と同じく出力→フォールバック→ブラウザ起動まで行う。CDN 行の <code>CDN:</code> コンボ（編集可、ZIP ボタンと同じ行）でホスト版チャンネルを選択（<code>stable</code>/<code>unstable</code>/カスタムURL、QSettings <code>kasugai_hosted_channel</code> に保存・設定ダイアログと共通）</td>
+  <td>人手操作。パネルの <code>Engine:</code> コンボで起動エンジンを選択（QSettings <code>kasugai_engine</code> に保存）。<code>▶ WebView</code> は <code>CDN:</code> コンボのエンジン供給元モードに従ってエクスポート→ブラウザ起動まで行う:<code>stable</code>/<code>unstable</code>=kasugai-canvas-web のホスト版エンジン（アプリ未導入で完結）、<code>canvas</code>=稼働中 Canvas アプリ :8510（ネイティブ一体運用・route=<code>kasugai</code>）、<code>custom</code>=「カスタム（URL/FILE）」欄の値で判定（http(s) URL=自前ホスト / フォルダパス=FILE モードで本サーバがその web/ を配信）。モードは QSettings <code>kasugai_hosted_channel</code>、実値は <code>kasugai_hosted_value</code> に保存（設定ダイアログと共通）。<code>Install KASUGAI Canvas</code> ボタンは常時インストール専用（セットアップ=NSIS・.kasc 関連付けあり / ポータブルZIP=展開のみ）、<code>CANVASカスタマイズ</code> ボタンは稼働中アプリの <code>/admin/</code> UI設定画面を開く</td>
 </tr>
 <tr>
   <td>パネルボタン</td>
@@ -203,6 +203,55 @@ HTTP ワーカースレッドから呼べる。</li>
 </tr>
 </tbody>
 </table>
+<h3 id="起動モードと出力形式">起動モード（CDN コンボ）と出力形式の関係</h3>
+<pre><code class="language-mermaid">flowchart TB
+    subgraph QGIS["QGIS geo_webview パネル"]
+        VF["形式: コンボ&lt;br&gt;native / recommended / geojson"]
+        CDN["CDN: コンボ&lt;br&gt;stable / unstable / canvas / custom"]
+        VAL["カスタム（URL/FILE）: 欄&lt;br&gt;kasugai_hosted_value"]
+        BTN["▶ WebView"]
+    end
+    subgraph SET["QSettings"]
+        K1["kasugai_vector_format"]
+        K2["kasugai_hosted_channel"]
+        K3["kasugai_hosted_value"]
+    end
+    VF --&gt; K1
+    CDN --&gt; K2
+    VAL --&gt; K3
+    BTN --&gt; RC{"route 変換&lt;br&gt;on_kasugai_launch_clicked('hosted')"}
+    K2 --&gt; RC
+    RC --&gt;|"stable/unstable&lt;br&gt;custom+URL"| HOSTED["route=hosted"]
+    RC --&gt;|"custom+パス"| LOCAL["route=local"]
+    RC --&gt;|"canvas"| KAS["route=kasugai&lt;br&gt;（ネイティブアプリ経路）"]
+    subgraph EXP["kasugaiExport → export_kasugai_project"]
+        E0["vector_format=None&lt;br&gt;→ kasugai_vector_format を読む"]
+        E1["native → ネイティブ参照行&lt;br&gt;(gpkg:/geojson:/geoparquet:/3dtiles:等)"]
+        E2["recommended → FlatGeobuf 変換&lt;br&gt;canvas_data/*.fgb"]
+        E3["geojson → GeoJSON 変換&lt;br&gt;canvas_data/*.geojson"]
+        E0 --&gt; E1 &amp; E2 &amp; E3
+    end
+    K1 -.->|全ルート共通で参照| E0
+    HOSTED --&gt; EXP
+    LOCAL --&gt; EXP
+    KAS --&gt; EXP
+    EXP --&gt; KASC[".kasc + canvas_data/"]
+    subgraph ENGINE["エンジン供給元（起動先）"]
+        EN1["https://…/kasugai-canvas-web/&lt;ch&gt;/&lt;engine&gt;/"]
+        EN2["http://127.0.0.1:8089/&lt;engine&gt;/&lt;br&gt;（FILEパス or インストール済み web/）"]
+        EN3["http://127.0.0.1:8510/&lt;engine&gt;/&lt;br&gt;（稼働中 Canvas アプリ）"]
+    end
+    HOSTED --&gt; EN1
+    LOCAL --&gt; EN2
+    KAS --&gt; EN3
+    subgraph DATA["データ配信（:8089 geo_webview サーバ）"]
+        D1["/export-data/&lt;br&gt;エクスポート物の配信"]
+        D2["/live/kasc 他 /live/*&lt;br&gt;ライブ連携 API"]
+    end
+    KASC --&gt; D1
+    EN1 &amp; EN2 &amp; EN3 --&gt;|"?kasc= で読込"| KASC
+    EN1 &amp; EN2 &amp; EN3 -.->|"live: 行があれば"| D2</code></pre>
+<p>形式選択（<code>vector_format</code>）は全ルート共通の単一経路で <code>.kasc</code>+<code>canvas_data/</code> の中身を決め、CDN モード（エンジン供給元）とは独立 — どのモードでも同じ形式が効く。route 変換だけがモード依存。</p>
 <h3 id="出力フォルダ構成">出力フォルダ構成</h3>
 <pre><code>&lt;out_dir&gt;/                    # 既定: &lt;ドキュメント&gt;/kasugai_canvas_qgis
 ├─ kasugai_canvas.kasc        # インスペクタ設定(外部プロジェクト登録対象)
@@ -435,9 +484,9 @@ canvas_data/ へ複製し .qml 内パスを書き換える（前述「その他�
 <code>.kasc</code>+<code>canvas_data/</code> は本サーバーの <code>/export-data/</code> から読む。https→localhost
 の fetch は Chrome Private Network Access 対象のため、サーバーは
 <code>OPTIONS</code> プリフライトに <code>Access-Control-Allow-Private-Network: true</code> で
-応答する。チャンネルは設定 <code>kasugai_hosted_channel</code>
+応答する。モードは設定 <code>kasugai_hosted_channel</code>
 （<code>stable</code>/<code>unstable</code>/カスタムURL、既定 <code>stable</code>）で、
-パネルの <code>CDN:</code> コンボまたは設定ダイアログから変更する</li>
+パネルの <code>CDN:</code> コンボ（stable/unstable/canvas/custom + 「カスタム（URL/FILE）」欄の実値 <code>kasugai_hosted_value</code>）または設定ダイアログから変更する</li>
 <li>エンジン起動HTML は <code>HEAD</code> メソッドで <code>&lt;engine&gt;/index.html</code> を自動探索する
 ため、サーバーは <code>HEAD</code>（静的配信のみ）にも応答する</li>
 </ul>
