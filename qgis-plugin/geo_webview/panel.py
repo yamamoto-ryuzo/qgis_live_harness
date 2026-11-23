@@ -400,7 +400,7 @@ class GeoWebViewPanel(QDockWidget):
                 'geo_webview',
                 "Export visible layers as a KASUGAI Canvas project (.kasc + canvas_data/ + engine launcher HTMLs) — files only"))
         if hasattr(self.ui, 'pushButton_kasugai_launch'):
-            self.ui.pushButton_kasugai_launch.setText(QCoreApplication.translate('geo_webview', "▶ Canvas"))
+            self.ui.pushButton_kasugai_launch.setText(QCoreApplication.translate('geo_webview', "Install KASUGAI Canvas"))
         if hasattr(self.ui, 'pushButton_kasugai_launch_hosted'):
             self.ui.pushButton_kasugai_launch_hosted.setText(QCoreApplication.translate('geo_webview', "▶ WebView"))
             self.ui.pushButton_kasugai_launch_hosted.setToolTip(QCoreApplication.translate(
@@ -1774,37 +1774,27 @@ class GeoWebViewPanel(QDockWidget):
             self._rebuild_kasugai_layers()
 
     def update_canvas_launch_state(self):
-        """KASUGAI Canvas のインストール状態を「▶ Canvas」ボタンに、
-        稼働状態を「Admin」ボタンに反映する。
+        """「Install KASUGAI Canvas」ボタンと「Admin」ボタンの状態反映。
 
-        インストール先が検出できない(設定未登録かつインストーラ登録なし)
-        場合はボタンを「Install KASUGAI Canvas」表示に変え、クリックで
-        インストール導線(セットアップ/ポータブルZIP選択)へ進む。
-        「▶ Canvas」は 8510 未稼働でもインストール済み exe を
-        自動起動できるため稼働状態では無効化しない。
+        Install は常時インストール(再インストール/修復)専用 —
+        起動経路は CDN コンボの 'canvas' モード + ▶ WebView に
+        一本化したため、検出状態でラベルを切り替えない。
         「Admin」は稼働中アプリの /admin/ を開くだけなので、
         未稼働時はグレーアウトする。
         検出自体が失敗した場合は従来どおり通常表示のままにする。
         """
         btn = getattr(self.ui, 'pushButton_kasugai_launch', None)
-        try:
-            from . import kasugai_export
-            installed = bool(kasugai_export.detect_kasugai_install_dir())
-        except Exception:  # nosec B110  # 設計上の許容
-            installed = True
         if btn is not None:
             btn.setEnabled(True)
-            if installed:
-                btn.setText(QCoreApplication.translate('geo_webview', "▶ Canvas"))
-                btn.setToolTip(QCoreApplication.translate(
-                    'geo_webview',
-                    "Open the exported project in KASUGAI Canvas (main integrated player) — registers the existing .kasc with a running Canvas (port 8510) and switches to it. Requires a prior export (Export button)"))
-            else:
-                btn.setText(QCoreApplication.translate(
-                    'geo_webview', "Install KASUGAI Canvas"))
-                btn.setToolTip(QCoreApplication.translate(
-                    'geo_webview',
-                    "KASUGAI Canvas is not installed — click to install (setup with .kasc file association or portable ZIP), then open the project"))
+            btn.setText(QCoreApplication.translate(
+                'geo_webview', "Install KASUGAI Canvas"))
+            btn.setToolTip(QCoreApplication.translate(
+                'geo_webview',
+                "Install or reinstall KASUGAI Canvas (setup with .kasc file association or portable ZIP). Launching is handled by the CDN combo mode ('canvas') + ▶ WebView"))
+        try:
+            from . import kasugai_export
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
 
         # 「Admin」は稼働中の Canvas アプリ(8510)が必須。未稼働なら無効化。
         # 稼働検出は /api/capabilities への短い HTTP 呼出しのみ。

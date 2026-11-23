@@ -63,7 +63,8 @@
     "Unsupported permalink URL format.": "असमर्थित परमालिंक URL प्रारूप।",
     "XYZ tile layers inside a layer-tree group with one of these names are exported as basemap entries (base:) instead of regular layers. Sub-groups are kept for grouped display.": "इन नामों के समूह के अंदर XYZ टाइल लेयर सामान्य लेयर के बजाय बेसमैप एंट्री (base:) के रूप में निर्यात होते हैं। समूहीकृत प्रदर्शन के लिए उप-समूह बनाए रखे जाते हैं।",
     "e.g. 背景, Basemaps, Base Map": "जैसे 背景, Basemaps, Base Map",
-    "geo_webview": "geo_webview"
+    "geo_webview": "geo_webview",
+    "Install or reinstall KASUGAI Canvas (setup with .kasc file association or portable ZIP). Launching is handled by the CDN combo mode ('canvas') + ▶ WebView": "KASUGAI Canvas इंस्टॉल या रीइंस्टॉल करें (.kasc एसोसिएशन वाला सेटअप या पोर्टेबल ZIP)। लॉन्च CDN कॉम्बो के 'canvas' मोड + ▶ WebView द्वारा होता है"
   },
   "GeoWebViewPanel": {
     "Could not load the UI file. Please consider reinstalling the plugin.": "UI फ़ाइल लोड नहीं हो सकी। कृपया प्लगइन को पुनः इंस्टॉल करने पर विचार करें।"

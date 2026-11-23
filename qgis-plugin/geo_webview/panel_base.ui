@@ -354,10 +354,10 @@
             <item row="1" column="0">
              <widget class="QPushButton" name="pushButton_kasugai_launch">
               <property name="text">
-               <string>&#9654; Canvas</string>
+               <string>Install KASUGAI Canvas</string>
               </property>
               <property name="toolTip">
-               <string>Open the exported project in KASUGAI Canvas (main integrated player) — registers the existing .kasc with a running Canvas (port 8510) and switches to it. Requires a prior export (Export button)</string>
+               <string>Install or reinstall KASUGAI Canvas (setup with .kasc file association or portable ZIP). Launching is handled by the CDN combo mode ('canvas') + ▶ WebView</string>
               </property>
               <property name="minimumSize">
                <size>

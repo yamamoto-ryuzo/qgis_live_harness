@@ -537,19 +537,29 @@ class GeoWebView:
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
 
-                # Web配信: 選択エンジンでエクスポート→登録→ブラウザ起動するボタン。
-                # 3系統: Canvas登録(主プレイヤー)/ローカルHTTP即表示/サーバレスWEB
-                for _btn_name, _route in (
-                        ('pushButton_kasugai_launch', 'kasugai'),
-                        ('pushButton_kasugai_launch_hosted', 'hosted')):
-                    _btn = getattr(self.panel, _btn_name, None)
-                    if _btn is not None:
-                        _btn.clicked.connect(
-                            lambda checked=False, r=_route:
-                            QTimer.singleShot(
-                                0, lambda r=r:
-                                self.on_kasugai_launch_clicked(r)))
-                        print(f"KASUGAI launch button connected: {_btn_name}")
+                # Web配信: ▶ WebView は選択エンジン+CDNモードで
+                # エクスポート→ブラウザ起動(CDNモードがアプリ経路
+                # 'canvas' も内包)。Install ボタンは Canvas アプリの
+                # インストール専用(起動は CDN モード側に一本化)
+                _install_btn = getattr(
+                    self.panel, 'pushButton_kasugai_launch', None)
+                if _install_btn is not None:
+                    _install_btn.clicked.connect(
+                        lambda checked=False:
+                        QTimer.singleShot(
+                            0, self.on_kasugai_install_clicked))
+                    print("KASUGAI install button connected: "
+                          "pushButton_kasugai_launch")
+                _btn = getattr(
+                    self.panel, 'pushButton_kasugai_launch_hosted', None)
+                if _btn is not None:
+                    _btn.clicked.connect(
+                        lambda checked=False:
+                        QTimer.singleShot(
+                            0, lambda:
+                            self.on_kasugai_launch_clicked('hosted')))
+                    print("KASUGAI launch button connected: "
+                          "pushButton_kasugai_launch_hosted")
 
                 # エンジン選択コンボ: 前回値の復元と保存
                 _engine_combo = getattr(
@@ -2319,6 +2329,22 @@ class GeoWebView:
                     self.panel.update_canvas_launch_state()
             except Exception:  # nosec B110  # 設計上の許容
                 pass
+
+    def on_kasugai_install_clicked(self):
+        """Install ボタン: Canvas アプリのインストール導線を開く。
+
+        起動経路は CDN コンボの 'canvas' モード(▶ WebView)に一本化
+        したため、このボタンは常時インストール(再インストール/修復)
+        専用。完了後は従来通り登録・ブラウザ起動へ合流する。
+        """
+        engine = 'cesium'
+        try:
+            combo = getattr(self.panel, 'comboBox_engine', None)
+            if combo is not None and combo.currentData():
+                engine = combo.currentData()
+        except Exception:  # nosec B110  # 既定エンジンで続行
+            pass
+        self._install_kasugai_then_launch(engine)
 
     def _install_kasugai_then_launch(self, engine):
         """Canvas 未検出時: インストール方法を選択→バックグラウンド実行→

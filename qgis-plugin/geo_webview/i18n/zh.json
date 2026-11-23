@@ -63,7 +63,8 @@
     "Unsupported permalink URL format.": "不支持的永久链接 URL 格式。",
     "XYZ tile layers inside a layer-tree group with one of these names are exported as basemap entries (base:) instead of regular layers. Sub-groups are kept for grouped display.": "位于这些名称分组中的 XYZ 切片图层将作为底图项（base:）导出，而非普通图层。子分组将保留以分组显示。",
     "e.g. 背景, Basemaps, Base Map": "例如 背景, Basemaps, Base Map",
-    "geo_webview": "geo_webview"
+    "geo_webview": "geo_webview",
+    "Install or reinstall KASUGAI Canvas (setup with .kasc file association or portable ZIP). Launching is handled by the CDN combo mode ('canvas') + ▶ WebView": "安装或重新安装 KASUGAI Canvas（带 .kasc 关联的安装程序或便携 ZIP）。启动由 CDN 组合框的 'canvas' 模式 + ▶ WebView 负责"
   },
   "GeoWebViewPanel": {
     "Could not load the UI file. Please consider reinstalling the plugin.": "无法加载 UI 文件。请考虑重新安装插件。"

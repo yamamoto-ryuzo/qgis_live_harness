@@ -63,7 +63,8 @@
     "Unsupported permalink URL format.": "Formato de URL de permalink não suportado.",
     "XYZ tile layers inside a layer-tree group with one of these names are exported as basemap entries (base:) instead of regular layers. Sub-groups are kept for grouped display.": "Camadas de tiles XYZ dentro de um grupo com um destes nomes são exportadas como entradas de mapa base (base:) em vez de camadas normais. Os subgrupos são mantidos para exibição agrupada.",
     "e.g. 背景, Basemaps, Base Map": "ex. Fundo, Basemaps, Base Map",
-    "geo_webview": "geo_webview"
+    "geo_webview": "geo_webview",
+    "Install or reinstall KASUGAI Canvas (setup with .kasc file association or portable ZIP). Launching is handled by the CDN combo mode ('canvas') + ▶ WebView": "Instala ou reinstala o KASUGAI Canvas (setup com associação .kasc ou ZIP portátil). O lançamento é feito pelo modo 'canvas' do combo CDN + ▶ WebView"
   },
   "GeoWebViewPanel": {
     "Could not load the UI file. Please consider reinstalling the plugin.": "Não foi possível carregar o ficheiro de interface. Considere reinstalar o plugin."
