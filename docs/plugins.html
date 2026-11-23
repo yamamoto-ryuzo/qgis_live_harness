@@ -21,9 +21,10 @@
 </figure>
 
 <h2>GeoSuite（GEO シリーズ）</h2>
-<p><code>geo_*</code> 系プラグインのうち geo_userfunc / GeoImport / GeoSearch / GeoWebView / GeoReport / geo_excel は
+<p><code>geo_*</code> 系プラグインのうち GeoWebView / GeoSearch / geo_userfunc / GeoImport / GeoReport / geo_excel は
 <a href="geosuite.html">GeoSuite</a>
-— QGIS デスクトップ + WebGIS フルサイクル ツールスイート — の構成要素です。
+— QGIS デスクトップ + WebGIS フルサイクル ツールスイート — の構成要素です
+（geo_legend / geo_launcher はスイートの補助・連携枠、geo_driver は全プラグインを束ねる制御ハブです）。
 このスイートの中核は <strong><a href="driver.html">geo_driver</a> による AI 操作</strong>です。
 <code>pyeval</code>(QGIS 内任意 Python)で <strong>QGIS 本体を直接操作</strong>し、
 <code>bridge_call</code> で各プラグインの <code>bridge.py</code> API を呼び分け、
@@ -32,7 +33,8 @@
 geo_driver 内蔵の AI アシスタントパネル(OpenAI互換/Anthropic/Gemini/Azure OpenAI/GitHub Copilot)
 からも同じ操作面を使えます。</p>
 <p>この AI 操作面の上で、データの取り込み（ローカル / CKAN）→ 検索 → Web 共有 →
-報告書作成（PDF / Excel）までをワンストップで自動化するワークフローを想定しています。
+報告書作成（PDF / Excel）までをワンストップで自動化するワークフローを想定しています
+（下記はデータ処理の流れ。このページの一覧順は制御ハブ・Web連携の主軸を先頭にしたものです）。
 各工程は人間の GUI 操作でも、AI による自律実行でも同じように動きます。</p>
 <p><strong>QGIS プロジェクト作成</strong>
 → <strong>geo_userfunc</strong>（ユーザー定義コード整備）
