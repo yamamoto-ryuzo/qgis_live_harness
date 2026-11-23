@@ -899,6 +899,8 @@ class GeoWebView:
         モードに従う:
           stable/unstable/カスタムURL → ホスト版エンジン
               (kasugai-canvas-web 等) — Canvas アプリ未導入でも完結
+          canvas → 稼働中の Canvas アプリ(既定8510)を直接使う
+              (アプリ一体運用。未検出時は警告+本サーバ配信へ退く)
           ファイルパス(FILE モード) → その web/ ツリーを本サーバの
               /<engine>/ で静的配信。開発時・閉鎖ネットワーク向け
           local → 上記の自動検出版: 稼働中の Canvas アプリ(既定8510)
@@ -916,13 +918,20 @@ class GeoWebView:
             from . import kasugai_export
             ch = kasugai_export.get_hosted_channel()
             if not kasugai_export.is_hosted_channel(ch):
-                if ch.strip().lower() == 'local':
-                    # local: 稼働中アプリ(8510)を優先 — アプリの web/ は
-                    # 自動更新に追随し、開発用サーバなら開発ツリーを配信
+                if ch.strip().lower() in ('canvas', 'local'):
+                    # canvas/local: 稼働中アプリ(8510)を優先 — アプリの
+                    # web/ は自動更新に追随し、開発用サーバなら開発
+                    # ツリーを配信
                     cport = int(kasugai_export.get_kasugai_port() or 8510)
                     if kasugai_export.detect_kasugai(cport):
                         return ('http://127.0.0.1:{0}/{1}/?kasc={2}'
                                 .format(cport, engine, kasc_q))
+                    if ch.strip().lower() == 'canvas':
+                        self._push_message(
+                            self.tr('Canvas Live View'),
+                            self.tr("'canvas' mode needs a running Canvas "
+                                    "app (:8510)."),
+                            level=1, duration=6)
                 # FILE/local 未検出時: 本サーバが web/ を静的配信。
                 # 配信元は find_kasugai_web_dir(FILE指定>インストール済み)
                 if not kasugai_export.find_kasugai_engine_dir(engine):
@@ -2206,6 +2215,16 @@ class GeoWebView:
             combo = getattr(self.panel, 'comboBox_engine', None)
             if combo is not None and combo.currentData():
                 engine = combo.currentData()
+            if route == 'hosted':
+                try:
+                    from . import kasugai_export
+                    if kasugai_export.get_hosted_channel().strip() \
+                            .lower() == 'canvas':
+                        route = 'kasugai'
+                    elif not kasugai_export.is_hosted_channel():
+                        route = 'local'
+                except Exception:  # nosec B110  # 取得失敗は従来経路へ
+                    pass
             if route == 'kasugai':
                 # Canvas 未検出時はインストール導線(セットアップ/ZIP選択)へ。
                 # 検出処理の失敗のみ許容し、インストール導線自体の例外は
@@ -2220,13 +2239,6 @@ class GeoWebView:
                 if not installed:
                     self._install_kasugai_then_launch(engine)
                     return
-            if route == 'hosted':
-                try:
-                    from . import kasugai_export
-                    if not kasugai_export.is_hosted_channel():
-                        route = 'local'
-                except Exception:  # nosec B110  # 取得失敗は従来経路へ
-                    pass
             if self.bridge is None:
                 from .bridge import GeoWebViewBridge
                 self.bridge = GeoWebViewBridge(self)
