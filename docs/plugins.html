@@ -111,6 +111,16 @@ KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet）�
 <p>ドキュメント: <a href="https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_legend/docs">qgis-plugin/geo_legend/docs/(Pages)</a> ·
 ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_legend/README.md">qgis-plugin/geo_legend/README.md</a></p>
 
+<h2><code>geo_launcher</code></h2>
+<p>Rust 製 QGIS ランチャー <code>kasugai_qgis</code> を QGIS 内から管理する連携プラグイン。
+ランチャーの検出・インストール(セットアップのダウンロードと実行、サイレント既定)・
+アンインストール・GUI 窓の起動を行います。ランチャー本体は QGIS を起動すると自動終了する
+設計のため、API サーバの起動・維持機能は持ちません。この QGIS がランチャー経由で
+起動したか(<code>PORTAL_USERROLE</code>)の表示も行います。</p>
+<p>ドキュメント: <a href="https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_launcher/docs">qgis-plugin/geo_launcher/docs/(Pages)</a> ·
+ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_launcher/README.md">qgis-plugin/geo_launcher/README.md</a> ·
+管理対象: <a href="https://github.com/yamamoto-ryuzo/kasugai_qgis">kasugai_qgis</a></p>
+
 <h2>報告書作成</h2>
 <p>GeoSuite の出力ステージを担う2系統のプラグインです。
 印刷用図面・PDF 帳票は GeoReport、Excel で配布・二次加工する報告書は geo_excel が担当します。</p>
@@ -134,16 +144,6 @@ geo_userfunc の共有レジストリ経由で実行メニューを集約する�
 <p>ドキュメント: <a href="https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_excel/docs">qgis-plugin/geo_excel/docs/(Pages)</a> ·
 ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_excel/README.md">qgis-plugin/geo_excel/README.md</a> ·
 上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/QGIS-exportExcel">QGIS-exportExcel</a></p>
-
-<h2><code>geo_launcher</code></h2>
-<p>Rust 製 QGIS ランチャー <code>kasugai_qgis</code> を QGIS 内から管理する連携プラグイン。
-ランチャーの検出・インストール(セットアップのダウンロードと実行、サイレント既定)・
-アンインストール・GUI 窓の起動を行います。ランチャー本体は QGIS を起動すると自動終了する
-設計のため、API サーバの起動・維持機能は持ちません。この QGIS がランチャー経由で
-起動したか(<code>PORTAL_USERROLE</code>)の表示も行います。</p>
-<p>ドキュメント: <a href="https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_launcher/docs">qgis-plugin/geo_launcher/docs/(Pages)</a> ·
-ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_launcher/README.md">qgis-plugin/geo_launcher/README.md</a> ·
-管理対象: <a href="https://github.com/yamamoto-ryuzo/kasugai_qgis">kasugai_qgis</a></p>
 
 <h2>連携ソフトウェア</h2>
 
