@@ -5490,8 +5490,13 @@ def export_kasugai_project(iface, out_dir=None, visible_only=True,
     # 非表示は | off 付きで後ろへ(先頭が Canvas の既定ベースマップ)
     ordered_group_bases = [line for vis, line in group_bases if vis] + \
         [line for vis, line in group_bases if not vis]
-    # QGIS 側で表示中の XYZ があれば既定ベースマップとして先頭に置く
-    bases = ([detected_base] if detected_base else []) + \
+    # QGIS 側で表示中の XYZ があれば既定ベースマップとして先頭に置く。
+    # 表示中が無い(全候補 | off)場合は「ベースマップなし」モード行を
+    # 出し、既定候補が勝手に選択されるのを防ぐ
+    no_base = [] if (detected_base or
+                     any(v for v, _l in group_bases)) \
+        else ['base: ベースマップなし | none']
+    bases = no_base + ([detected_base] if detected_base else []) + \
         ordered_group_bases + default_bases
     header = [
         '# Exported from QGIS geo_webview -> KASUGAI Canvas',

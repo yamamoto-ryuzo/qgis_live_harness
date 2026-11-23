@@ -1047,8 +1047,10 @@ class GeoWebViewServerManager:
                             return {'error':
                                     'layer not found: {0}'.format(title)}
                         from . import live_kasc
+                        port = self.get_server_port() or self.server_port
+                        base = 'http://127.0.0.1:{0}'.format(port)
                         xml = live_kasc.layer_qml_xml(
-                            layer, style_name=sname)
+                            layer, style_name=sname, base_url=base)
                         if xml is None:
                             return {'error': 'style export failed'}
                         return {'xml': xml}
@@ -2880,6 +2882,22 @@ html,body{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family:
             # foo.shp.xml 形式(ステム自体が許可ファイル)
             if ext == '.xml' and stem in allowed:
                 return True
+        # .qml のシンボル画像参照(/live/style が /live/file/ へ書き換えた
+        # もの)の配信を許可: QGIS SVG 検索パスかプロジェクト dir 配下の
+        # 実ファイルのみ
+        try:
+            asset_dirs = [
+                os.path.normcase(os.path.abspath(d))
+                for d in ex._qgis_svg_search_paths()]
+            proj_dir = QgsProject.instance().absolutePath()
+            if proj_dir:
+                asset_dirs.append(
+                    os.path.normcase(os.path.abspath(proj_dir)))
+            for d in asset_dirs:
+                if norm == d or norm.startswith(d + os.sep):
+                    return True
+        except Exception:  # nosec B110  # 判定不能は許可しない
+            pass
         return False
 
     def _handle_live_file(self, conn, enc_path, range_header=None):

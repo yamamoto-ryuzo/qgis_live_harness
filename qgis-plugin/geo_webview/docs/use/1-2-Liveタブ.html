@@ -76,6 +76,7 @@ POST は <code>/live/</code> 配下のみ受け付け、従来の CORS 許可リ
     KASC --&gt;|"image: 行&lt;br/&gt;（変換不可レイヤ）"| RN["GET /live/render&lt;br/&gt;QGIS 描画 PNG"]
     classDef live fill:#fff3e0,stroke:#e65100,color:#bf360c;
     class BTN,ENG,KASC,F,LF,ST,RN live;</code></pre>
+<p><code>/live/style</code> が返す .qml 内のシンボル画像参照（svgmarker・rastermarker・svgfill 等）は、サーバ側で実ファイルへ解決したうえ <code>/live/file/&lt;encoded-abs-path&gt;</code> へ書き換えて出力される（エクスポート経路の canvas_data/ 複製に相当）。配信許可はレイヤソース原本に加え「QGIS SVG 検索パス・プロジェクト dir 配下」の実ファイルのみで、対象外パスは 403。</p>
 <p><strong>図7. QGIS → Canvas（編集・状態の配信）</strong> — 編集検出は LiveSyncController が 1.2s デバウンスで <code>live.json</code> の rev を更新し、Canvas はポーリングで変化を検出して <code>/live/kasc</code> を再取得。キャンバス状態・QGIS 選択は <code>/live/state</code> で公開される。<code>live.controls</code>（follow / selection / qgis_follow）の正は QSettings で、パネル Live タブ・<code>POST /live/controls</code>・bridge <code>liveControls</code>/<code>liveSetControls</code> が同じ状態を共有する。<code>kasugai_live_sync</code> 設定 ON のときは rev 更新ではなく差分再エクスポート＋<code>liveSync</code> 通知（従来モード）。</p>
 <pre><code class="language-mermaid">flowchart TB
     subgraph QGIS["QGIS 側"]

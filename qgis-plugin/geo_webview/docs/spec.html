@@ -135,7 +135,7 @@ Canvas アプリで再生する。出力物＋エンジンを静的ホストへ�
 <h2 id="api-リファレンス">HTTP API リファレンス</h2>
 <ul>
 <li>GET <code>/kasugai</code> — <code>.kasc</code>+<code>canvas_data/</code> エクスポート＋Canvas 登録。<code>engine=</code>（cesium|maplibre|openlayers|leaflet|gsimaps|navara、既定 cesium）・<code>install=1</code>（未検出時に配布ZIP取得）を受け付ける。応答 JSON <code>{ok,url,via,dir,layers,tiles,engine}</code>（<a href="use/1-1-Webタブ.html#web-タブ">§1</a>）。</li>
-<li>GET <code>/live/*</code> — Live View 連携 API（<code>/live/kasc</code> <code>/live/features</code> <code>/live/file/</code> <code>/live/style</code> <code>/live/render</code> <code>/live/live.json</code> <code>/live/state</code> <code>/live/controls</code> <code>/live/camera</code> <code>/live/selection</code> <code>/live/writeback</code> <code>/live/mcp-discover</code> <code>/live/mcp</code>。<a href="use/1-2-Liveタブ.html#live-タブ">§2</a>）。</li>
+<li>GET <code>/live/*</code> — Live View 連携 API（<code>/live/kasc</code> <code>/live/features</code> <code>/live/file/</code>（レイヤソース原本＋QML シンボル画像）<code>/live/style</code> <code>/live/render</code> <code>/live/live.json</code> <code>/live/state</code> <code>/live/controls</code> <code>/live/camera</code> <code>/live/selection</code> <code>/live/writeback</code> <code>/live/mcp-discover</code> <code>/live/mcp</code>。<a href="use/1-2-Liveタブ.html#live-タブ">§2</a>）。</li>
 <li>GET <code>/export-data/&lt;rel&gt;</code> — 直近エクスポート出力先配下のファイル配信（.kasc/canvas_data/・起動HTML・xyz_tiles/ 等）。</li>
 <li>GET <code>/&lt;engine&gt;/...</code> — インストール済み KASUGAI Canvas の <code>web/</code> を静的配信（エンドポイント不一致パスのフォールバック解決）。</li>
 <li>GET <code>/present</code> <code>/present/state</code> <code>/screenshot</code> — 画面共有ページ・キャンバス状態 JSON・キャンバス PNG（<a href="use/1-6-Otherタブ.html#other-タブ">§6</a> 共有グループ）。</li>

@@ -38,12 +38,67 @@ _DEFAULT_BASE_LINES = [
 ]
 
 
-def layer_qml_xml(layer, style_name=None, warnings=None):
+def _rewrite_qml_assets_live(xml, base_url, warnings=None):
+    """live 配信用に .qml 内のシンボル画像参照を ``/live/file/`` URL へ書き換える。
+
+    エクスポート経路は ``_export_qml_assets`` が画像を canvas_data/ へ
+    複製して参照を書き換えるが、live 経路はファイルを生成しないため、
+    実ファイルの絶対パスを ``{base}/live/file/<encoded-abs-path>`` へ
+    向ける(/live/file の許可判定は server_manager._live_file_allowed)。
+    変更が無ければ入力 XML をそのまま返す。
+    """
+    warnings = warnings if warnings is not None else []
+    base = (base_url or '').rstrip('/')
+    if not base:
+        return xml
+    try:
+        from .defusedxml import ElementTree as ET
+    except ImportError:
+        from defusedxml import ElementTree as ET
+    from . import kasugai_export as ex
+    try:
+        root = ET.fromstring(xml)
+    except Exception:
+        return xml
+    try:
+        from qgis.core import QgsProject
+        qml_dir = QgsProject.instance().absolutePath() or ''
+    except Exception:  # nosec B110  # 設計上の許容
+        qml_dir = ''
+    svg_dirs = None
+    changed = False
+    for layer_el in root.iter('layer'):
+        keys = ex._QML_ASSET_KEYS.get(
+            (layer_el.get('class') or '').strip().lower())
+        if not keys:
+            continue
+        for el, attr in ex._qml_asset_props(layer_el, keys):
+            raw = (el.get(attr) or '').strip()
+            if not raw or ex._REMOTE_ASSET_RE.match(raw):
+                continue
+            if svg_dirs is None:
+                svg_dirs = ex._qgis_svg_search_paths()
+            src = ex._resolve_asset_file(raw, qml_dir, svg_dirs)
+            if not src:
+                warnings.append(
+                    'live/style: シンボル画像が見つかりません: {0}'.format(raw))
+                continue
+            enc = urllib.parse.quote(src.replace('\\', '/'), safe='')
+            el.set(attr, '{0}/live/file/{1}'.format(base, enc))
+            changed = True
+    if not changed:
+        return xml
+    return '<?xml version="1.0" encoding="UTF-8"?>\n' + \
+        ET.tostring(root, encoding='unicode')
+
+
+def layer_qml_xml(layer, style_name=None, warnings=None, base_url=None):
     """レイヤのスタイルを .qml XML 文字列で返す。
 
     style_name 指定時は styleManager の名前付きスタイル
     (xmlData() は .qml 同等の <qgis> 文書。theme 記録のスタイル用)。
     省略時は現在スタイルを exportNamedStyle で書き出す。
+    base_url 指定時はシンボル画像参照を ``{base}/live/file/`` へ書き換える。
     失敗時は None。
     """
     warnings = warnings if warnings is not None else []
@@ -84,6 +139,12 @@ def layer_qml_xml(layer, style_name=None, warnings=None):
                     pass
     except Exception:  # nosec B110  # 設計上の許容
         pass
+    if base_url:
+        try:
+            xml = _rewrite_qml_assets_live(xml, base_url, warnings)
+        except Exception as e:  # nosec B110  # 失敗しても生 QML は返す
+            warnings.append('{0}: live asset rewrite failed: {1}'.format(
+                layer.name(), e))
     return xml
 
 
@@ -517,6 +578,11 @@ def build_live_kasc(iface, base_url, warnings=None):
     ordered_group_bases = [line for vis, line in group_bases if vis] + \
         [line for vis, line in group_bases if not vis]
     header.extend(ordered_group_bases)
+    if not detected_base and not any(v for v, _l in group_bases):
+        # QGIS で表示中のベースマップが無い → Canvas 側に「ベースマップ
+        # なし」を初期選択させるモード行(全エンジン対応済み)。
+        # 出さないと後続の既定候補行が勝手に選択されてしまう
+        header.append('base: ベースマップなし | none')
     header.extend(_DEFAULT_BASE_LINES)
     try:
         cam = ex._camera_line(iface)
