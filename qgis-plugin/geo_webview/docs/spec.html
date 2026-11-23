@@ -205,12 +205,12 @@ HTTP ワーカースレッドから呼べる。</li>
 </table>
 <h3 id="起動モードと出力形式">起動モード（CDN コンボ）と出力形式の関係</h3>
 <p>色分け: <span style="background:#e8f5e9;border:1px solid #2e7d32;padding:0 6px">緑 = 形式（データの中身）</span> <span style="background:#e3f2fd;border:1px solid #1565c0;padding:0 6px">青 = CDN（エンジン供給元）</span></p>
-<p><strong>図1. 起動ボタン</strong> — 「▶ WebView / Live View」クリックで、エクスポート（図3）と route 変換（図4）を経てブラウザ起動・データ供給（図5）へ進む。</p>
+<p><strong>図1. 起動ボタン</strong> — 「▶ WebView / Live View」クリックで、<strong>route 変換（図4）→ エクスポート（図3）→ ブラウザ起動・データ供給（図5）</strong>の順に逐次処理する（並列ではない）。</p>
 <pre><code class="language-mermaid">flowchart LR
     BTN["▶ WebView / Live View&lt;br/&gt;（geo_webview パネル）"]
-    BTN --&gt;|クリック| F3["図3: 形式でエクスポート&lt;br/&gt;.kasc + canvas_data/"]
-    BTN --&gt;|クリック| F4["図4: CDN モードで route 変換&lt;br/&gt;エンジン供給元を解決"]
-    F3 &amp; F4 --&gt; F5["図5: ブラウザ起動&lt;br/&gt;?kasc= で .kasc 供給"]
+    BTN --&gt;|クリック| F4["図4: CDN モードで route 変換&lt;br/&gt;hosted / local / kasugai"]
+    F4 --&gt; F3["図3: 形式でエクスポート&lt;br/&gt;.kasc + canvas_data/"]
+    F3 --&gt; F5["図5: route 別の起動先でブラウザ起動&lt;br/&gt;?kasc= で .kasc 供給"]
     classDef fmt fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20;
     classDef cdn fill:#e3f2fd,stroke:#1565c0,color:#0d47a1;
     class F3 fmt;
