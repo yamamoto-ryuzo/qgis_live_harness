@@ -383,7 +383,7 @@ class GeoWebViewPanel(QDockWidget):
         if hasattr(self.ui, 'comboBox_hosted'):
             self.ui.comboBox_hosted.setToolTip(QCoreApplication.translate(
                 'geo_webview',
-                "Hosted engine channel used by ▶ WebView — 'stable'/'unstable' (kasugai-canvas-web stages) or a custom base URL ending with '/'"))
+                "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), a custom base URL ending with '/', or 'local' (running Canvas app :8510 → installed web/ via this server; for development or closed networks)"))
         if hasattr(self.ui, 'label_generate_info'):
             self.ui.label_generate_info.setText(QCoreApplication.translate('geo_webview', "Generate a permalink for the current map view"))
         if hasattr(self.ui, 'label_theme_selection'):

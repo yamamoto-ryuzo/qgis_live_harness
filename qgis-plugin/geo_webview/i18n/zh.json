@@ -213,7 +213,6 @@
     "HTTP Server: Stopped": "HTTP 服务器: 已停止",
     "HTTP server started (port: {0})": "HTTP 服务器已启动（端口：{0}）",
     "Hosted Engine (kasugai-canvas-web)": "托管引擎 (kasugai-canvas-web)",
-    "Hosted engine channel used by ▶ WebView — 'stable'/'unstable' (kasugai-canvas-web stages) or a custom base URL ending with '/'": "▶ WebView 使用的托管引擎通道 — 'stable'/'unstable'(kasugai-canvas-web 阶段)或以 '/' 结尾的自定义基础 URL",
     "Install Path:": "安装路径:",
     "Installed KASUGAI Canvas to {0}.": "KASUGAI Canvas 已安装到 {0}。",
     "KASUGAI Canvas": "KASUGAI Canvas",
@@ -362,7 +361,8 @@
     "Queued: {0}": "已加入队列：{0}",
     "Add failed": "添加失败",
     "Canvas Live View": "Canvas 实时视图",
-    "Open Canvas Live View": "打开 Canvas 实时视图"
+    "Open Canvas Live View": "打开 Canvas 实时视图",
+    "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), a custom base URL ending with '/', or 'local' (running Canvas app :8510 → installed web/ via this server; for development or closed networks)": "▶ WebView / Live View 使用的引擎来源 — 'stable'/'unstable'（kasugai-canvas-web，无需安装 Canvas 即可运行）、以 '/' 结尾的自定义基础 URL，或 'local'（运行中的 Canvas 应用 :8510 → 通过本服务器的已安装 web/；用于开发或封闭网络）"
   },
   "geo_webview.page": {
     "  rotation: ": "  旋转：",

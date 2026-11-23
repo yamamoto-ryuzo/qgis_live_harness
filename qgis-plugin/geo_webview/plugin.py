@@ -895,11 +895,13 @@ class GeoWebView:
 
         .kasc は /live/kasc(オンデマンド生成・エクスポート不要)を
         指し、中の live: 行で双方向連携が有効になる。エンジンの
-        配信元は3段で、1) 稼働中の Canvas アプリ(8510) →
-        2) 本サーバの /<engine>/ 静的フォールバック(インストール済み
-        web/ 配信。オフラインでも動く) → 3) ホスト版エンジン
-        (kasugai-canvas-web。Web タブの CDN コンボのチャンネル)の順。
-        アプリ未導入環境でも CDN によりライブビューが完結する。
+        配信元は Web タブの CDN コンボ(kasugai_hosted_channel)の
+        モードに従う:
+          stable/unstable/カスタムURL → ホスト版エンジン
+              (kasugai-canvas-web 等) — Canvas アプリ未導入でも完結
+          local → 稼働中の Canvas アプリ(既定8510)、未起動なら
+              本サーバの /<engine>/ 静的配信(インストール済み web/)。
+              開発時・閉鎖ネットワーク向け
         """
         srv = getattr(self, 'server_manager', None)
         port = (srv.get_server_port()
@@ -911,20 +913,25 @@ class GeoWebView:
         kasc_q = urllib.parse.quote(kasc, safe='')
         try:
             from . import kasugai_export
-            # 1) 稼働中の Canvas アプリ — 一体運用の主経路。
-            #    アプリの web/ は自動更新に追随するため常に最新。
-            cport = int(kasugai_export.get_kasugai_port() or 8510)
-            if kasugai_export.detect_kasugai(cport):
-                return 'http://127.0.0.1:{0}/{1}/?kasc={2}'.format(
-                    cport, engine, kasc_q)
-            # 3) アプリ未導入(web/ が無い)場合はホスト版エンジンへ。
-            #    CORS は hosted オリジンを許可済み、PNA プリフライトも
-            #    対応済みのため CDN→:8089 のプライベートアクセスが成立
-            if not kasugai_export.find_kasugai_engine_dir(engine):
-                hosted = kasugai_export.hosted_engine_base()
-                return '{0}{1}/?kasc={2}'.format(hosted, engine, kasc_q)
-            # 2) インストール済み web/ は本サーバが静的配信(下の既定)
-        except Exception:  # nosec B110  # 検出失敗は既定フォールバックへ
+            if kasugai_export.get_hosted_channel() == 'local':
+                # local: 稼働中アプリ(8510)を優先 — アプリの web/ は
+                # 自動更新に追随し、開発用サーバなら開発ツリーを配信
+                cport = int(kasugai_export.get_kasugai_port() or 8510)
+                if kasugai_export.detect_kasugai(cport):
+                    return 'http://127.0.0.1:{0}/{1}/?kasc={2}'.format(
+                        cport, engine, kasc_q)
+                if not kasugai_export.find_kasugai_engine_dir(engine):
+                    self._push_message(
+                        self.tr('Canvas Live View'),
+                        self.tr("CDN 'local' mode needs a running Canvas "
+                                "app (:8510) or an installed copy."),
+                        level=1, duration=6)
+                return '{0}/{1}/?kasc={2}'.format(base, engine, kasc_q)
+            # hosted: CORS は hosted オリジンを許可済み、PNA プリフライト
+            # も対応済みのため CDN→:8089 のプライベートアクセスが成立
+            hosted = kasugai_export.hosted_engine_base()
+            return '{0}{1}/?kasc={2}'.format(hosted, engine, kasc_q)
+        except Exception:  # nosec B110  # 失敗時はローカル配信へ退く
             pass
         return '{0}/{1}/?kasc={2}'.format(base, engine, kasc_q)
 
@@ -2207,6 +2214,13 @@ class GeoWebView:
                 if not installed:
                     self._install_kasugai_then_launch(engine)
                     return
+            if route == 'hosted':
+                try:
+                    from . import kasugai_export
+                    if kasugai_export.get_hosted_channel() == 'local':
+                        route = 'local'
+                except Exception:  # nosec B110  # 取得失敗は従来経路へ
+                    pass
             if self.bridge is None:
                 from .bridge import GeoWebViewBridge
                 self.bridge = GeoWebViewBridge(self)

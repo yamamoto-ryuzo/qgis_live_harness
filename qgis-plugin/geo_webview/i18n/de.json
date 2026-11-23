@@ -213,7 +213,6 @@
     "HTTP Server: Stopped": "HTTP-Server: Gestoppt",
     "HTTP server started (port: {0})": "HTTP-Server gestartet (Port: {0})",
     "Hosted Engine (kasugai-canvas-web)": "Gehostete Engine (kasugai-canvas-web)",
-    "Hosted engine channel used by ▶ WebView — 'stable'/'unstable' (kasugai-canvas-web stages) or a custom base URL ending with '/'": "Von ▶ WebView verwendeter Kanal der gehosteten Engine — 'stable'/'unstable' (kasugai-canvas-web-Stufen) oder eine benutzerdefinierte Basis-URL mit abschließendem '/'",
     "Install Path:": "Installationspfad:",
     "Installed KASUGAI Canvas to {0}.": "KASUGAI Canvas wurde nach {0} installiert.",
     "KASUGAI Canvas": "KASUGAI Canvas",
@@ -362,7 +361,8 @@
     "Queued: {0}": "In Warteschlange: {0}",
     "Add failed": "Hinzufügen fehlgeschlagen",
     "Canvas Live View": "Canvas Live-Ansicht",
-    "Open Canvas Live View": "Canvas Live-Ansicht öffnen"
+    "Open Canvas Live View": "Canvas Live-Ansicht öffnen",
+    "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), a custom base URL ending with '/', or 'local' (running Canvas app :8510 → installed web/ via this server; for development or closed networks)": "Von ▶ WebView / Live View verwendete Engine-Quelle — 'stable'/'unstable' (kasugai-canvas-web, funktioniert ohne Canvas-Installation), eine benutzerdefinierte Basis-URL mit abschließendem '/' oder 'local' (laufende Canvas-App :8510 → installiertes web/ über diesen Server; für Entwicklung oder geschlossene Netzwerke)"
   },
   "geo_webview.page": {
     "  rotation: ": "  Drehung: ",

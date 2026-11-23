@@ -1003,7 +1003,9 @@ SETTINGS_KEY_HOSTED_CHANNEL = 'kasugai_hosted_channel'
 def get_hosted_channel():
     """QSettings の kasugai_hosted_channel(未設定は 'stable')を返す。
 
-    'stable'/'unstable' または完全URL(自前ホスト用)を取る。
+    'stable'/'unstable'、'local'(ローカル配信モード: 稼働中アプリ
+    8510→インストール済み web/ の順。開発・閉鎖網向け)、または
+    完全URL(自前ホスト用)を取る。
     """
     v = (_qsettings().value(SETTINGS_KEY_HOSTED_CHANNEL, '') or '')
     return str(v).strip() or 'stable'
@@ -1018,7 +1020,7 @@ def export_zip_name(channel=None):
     """
     ch = str(channel if channel is not None
              else get_hosted_channel()).strip()
-    if ch.lower() in HOSTED_CHANNELS:
+    if ch.lower() in HOSTED_CHANNELS or ch.lower() == 'local':
         tag = ch.lower()
     elif ch.lower().startswith(('http://', 'https://')):
         seg = urllib.parse.urlparse(ch).path.rstrip('/').rsplit('/', 1)[-1]
