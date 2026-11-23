@@ -2081,7 +2081,7 @@ class GeoWebView:
             elif combo is not None:
                 combo.setCurrentText(folder)
             if combo is not None:
-                combo.setCurrentText('file')
+                combo.setCurrentText('custom')
         except Exception as e:
             self._push_message(
                 "geo_webview", self.tr('Folder selection failed: {0}')
@@ -2129,7 +2129,7 @@ class GeoWebView:
                 port = int(kasugai_export.get_kasugai_port() or 8510)
                 text = 'http://127.0.0.1:{0}/'.format(port)
                 editable = False
-            elif m in ('url', 'file'):
+            elif m in ('custom', 'url', 'file'):
                 text = value
                 editable = True
             elif m.startswith(('http://', 'https://')) or (
@@ -2166,17 +2166,11 @@ class GeoWebView:
             return
         mode = combo.currentText().strip().lower()
         if mode in ('stable', 'unstable', 'canvas'):
-            # 内容から url/file を推定してモードも切替
-            if text.lower().startswith(('http://', 'https://')):
-                combo.setCurrentText('url')
-            else:
-                combo.setCurrentText('file')
-        elif mode not in ('url', 'file'):
-            # 旧形式(直書き) → トークンへ正規化
-            if text.lower().startswith(('http://', 'https://')):
-                combo.setCurrentText('url')
-            else:
-                combo.setCurrentText('file')
+            # 固定モード中の編集 → custom へ切替(実値は上で保存済み)
+            combo.setCurrentText('custom')
+        elif mode not in ('custom', 'url', 'file'):
+            # 旧形式(直書き) → custom トークンへ正規化
+            combo.setCurrentText('custom')
 
     def on_vector_format_changed(self, index):
         """パネルのベクター出力形式コンボを kasugai_vector_format へ保存する。

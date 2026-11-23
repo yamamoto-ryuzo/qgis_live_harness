@@ -1005,9 +1005,11 @@ def get_hosted_channel():
     """QSettings の kasugai_hosted_channel(未設定は 'stable')を返す。
 
     'stable'/'unstable'、'canvas'(稼働中の Canvas アプリ :8510)、
-    'url'(カスタム http(s) URL。実値は kasugai_hosted_value)、
-    'file'(ローカル web/ フォルダの FILE モード。実値は同キー)、
-    または直接書かれた URL/パス(旧形式互換)を取る。
+    'custom'(カスタム供給元。実値は kasugai_hosted_value —
+    http(s) URL なら自前ホスト、フォルダパスなら FILE モードで
+    geo_webview サーバがそのツリーを /<engine>/ で静的配信)、
+    'url'/'file'(旧トークン=custom 同値)、または直接書かれた
+    URL/パス(旧形式互換)を取る。
     """
     v = (_qsettings().value(SETTINGS_KEY_HOSTED_CHANNEL, '') or '')
     return str(v).strip() or 'stable'
@@ -1023,28 +1025,36 @@ def get_hosted_value():
     return str(v).strip()
 
 
-def is_hosted_channel(channel=None):
-    """モード値がホスト側供給(stable/unstable/url/カスタムURL)なら True。
-
-    'canvas'/'file'/'local'(legacy)やファイルパスは False(=ローカル系)。
-    """
+def _custom_channel_value(channel=None):
+    """custom/url/file 系モードの実値を返す。それ以外はモード値そのまま。"""
     ch = str(channel if channel is not None
               else get_hosted_channel() or 'stable').strip()
-    return ch.lower() in HOSTED_CHANNELS or ch.lower() == 'url' or         ch.lower().startswith(('http://', 'https://'))
+    if ch.lower() in ('custom', 'url', 'file'):
+        return get_hosted_value()
+    return ch
+
+
+def is_hosted_channel(channel=None):
+    """モード値がホスト側供給(stable/unstable/カスタムURL)なら True。
+
+    'canvas' や FILE(パス系)は False(=ローカル系)。custom/url/file
+    トークンは実値が http(s) 始まりなら True。
+    """
+    ch = _custom_channel_value(channel)
+    return ch.lower() in HOSTED_CHANNELS or ch.lower().startswith(
+        ('http://', 'https://'))
 
 
 def local_channel_web_dir(channel=None):
     """モード値が FILE 系ならその web/ ディレクトリを返す。
 
-    'file' は kasugai_hosted_value のパス、それ以外は直接書かれた
-    パス(旧形式)を使う。hosted 系や 'canvas'/'local'(legacy)なら
-    None。存在する web/ ツリー(index.html 必須)のみ絶対パスで返す。
+    custom/file トークンは kasugai_hosted_value のパス、それ以外は
+    直接書かれたパス(旧形式)を使う。hosted 系や 'canvas'/'local'
+    (legacy)なら None。存在する web/ ツリー(index.html 必須)のみ
+    絶対パスで返す。
     """
-    ch = str(channel if channel is not None
-              else get_hosted_channel() or 'stable').strip().strip('"')
-    if ch.lower() == 'file':
-        ch = get_hosted_value().strip().strip('"')
-    if not ch or ch.lower() in HOSTED_CHANNELS or             ch.lower() in ('canvas', 'local', 'url', 'file') or             ch.lower().startswith(('http://', 'https://')):
+    ch = _custom_channel_value(channel).strip().strip('"')
+    if not ch or ch.lower() in HOSTED_CHANNELS or             ch.lower() in ('canvas', 'local') or             ch.lower().startswith(('http://', 'https://')):
         return None
     if os.path.isfile(os.path.join(ch, 'index.html')):
         return os.path.abspath(ch)
@@ -1060,7 +1070,7 @@ def export_zip_name(channel=None):
     """
     ch = str(channel if channel is not None
              else get_hosted_channel()).strip()
-    if ch.lower() == 'url':
+    if ch.lower() in ('custom', 'url', 'file'):
         ch = get_hosted_value() or 'stable'
     if ch.lower() in HOSTED_CHANNELS:
         tag = ch.lower()
@@ -1088,7 +1098,7 @@ def hosted_engine_base(channel=None):
     """
     ch = str(channel if channel is not None
              else get_hosted_channel()).strip()
-    if ch.lower() == 'url':
+    if ch.lower() in ('custom', 'url', 'file'):
         ch = get_hosted_value() or 'stable'
     if ch.lower().startswith(('http://', 'https://')):
         return ch if ch.endswith('/') else ch + '/'

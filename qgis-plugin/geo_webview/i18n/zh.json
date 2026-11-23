@@ -68,7 +68,8 @@
     "Browse for a local web/ folder (FILE mode — served at /<engine>/ by this server)": "选择本地 web/ 文件夹（FILE 模式 — 由本服务器在 /<engine>/ 提供）",
     "Select a local Canvas web/ folder": "选择本地 Canvas web/ 文件夹",
     "Folder selection failed: {0}": "文件夹选择失败: {0}",
-    "Engine source value — for 'url' an http(s) base URL ending with '/', for 'file' a local web/ folder path. Shows the resolved source for other modes (read-only)": "引擎来源值 — 'url' 为以 '/' 结尾的 http(s) 基础 URL，'file' 为本地 web/ 文件夹路径。其他模式显示解析后的来源（只读）"
+    "Custom (URL/FILE):": "自定义（URL/文件）:",
+    "Engine source value — for 'custom' an http(s) base URL ending with '/' or a local web/ folder path (FILE mode — served at /<engine>/ by this server). Shows the resolved source for other modes (read-only)": "引擎来源值 — 'custom' 为以 '/' 结尾的 http(s) 基础 URL 或本地 web/ 文件夹路径（FILE 模式 — 由本服务器在 /<engine>/ 提供）。其他模式显示解析后的来源（只读）"
   },
   "GeoWebViewPanel": {
     "Could not load the UI file. Please consider reinstalling the plugin.": "无法加载 UI 文件。请考虑重新安装插件。"

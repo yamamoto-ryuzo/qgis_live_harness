@@ -68,7 +68,8 @@
     "Browse for a local web/ folder (FILE mode — served at /<engine>/ by this server)": "Lokalen web/-Ordner auswählen (FILE-Modus — wird von diesem Server unter /<engine>/ ausgeliefert)",
     "Select a local Canvas web/ folder": "Lokalen Canvas-web/-Ordner auswählen",
     "Folder selection failed: {0}": "Ordnerauswahl fehlgeschlagen: {0}",
-    "Engine source value — for 'url' an http(s) base URL ending with '/', for 'file' a local web/ folder path. Shows the resolved source for other modes (read-only)": "Wert der Engine-Quelle — für 'url' eine http(s)-Basis-URL mit abschließendem '/', für 'file' ein lokaler web/-Ordnerpfad. Bei anderen Modi wird die aufgelöste Quelle angezeigt (schreibgeschützt)"
+    "Custom (URL/FILE):": "Benutzerdefiniert (URL/DATEI):",
+    "Engine source value — for 'custom' an http(s) base URL ending with '/' or a local web/ folder path (FILE mode — served at /<engine>/ by this server). Shows the resolved source for other modes (read-only)": "Wert der Engine-Quelle — bei 'custom' eine http(s)-Basis-URL mit abschließendem '/' oder ein lokaler web/-Ordnerpfad (FILE-Modus — wird von diesem Server unter /<engine>/ ausgeliefert). Bei anderen Modi wird die aufgelöste Quelle angezeigt (schreibgeschützt)"
   },
   "GeoWebViewPanel": {
     "Could not load the UI file. Please consider reinstalling the plugin.": "Die UI-Datei konnte nicht geladen werden. Bitte installieren Sie das Plugin neu."

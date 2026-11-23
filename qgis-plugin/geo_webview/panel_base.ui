@@ -283,12 +283,7 @@
               </item>
               <item>
                <property name="text">
-                <string notr="true">url</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string notr="true">file</string>
+                <string notr="true">custom</string>
                </property>
               </item>
              </widget>
@@ -385,13 +380,20 @@
              </widget>
             </item>
             <item row="3" column="0" colspan="2">
-             <layout class="QHBoxLayout" name="horizontalLayout_hosted_value">
+             <layout class="QHBoxLayout" name="horizontalLayout_hosted_label">
               <item>
-               <widget class="QLineEdit" name="lineEdit_hosted_value">
-                <property name="toolTip">
-                 <string>Engine source value — for 'url' an http(s) base URL ending with '/', for 'file' a local web/ folder path. Shows the resolved source for other modes (read-only)</string>
+               <widget class="QLabel" name="label_hosted_value">
+                <property name="text">
+                 <string>Custom (URL/FILE):</string>
                 </property>
                </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_hosted">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                 </property>
+               </spacer>
               </item>
               <item>
                <widget class="QPushButton" name="pushButton_hosted_browse">
@@ -410,6 +412,13 @@
                </widget>
               </item>
              </layout>
+            </item>
+            <item row="4" column="0" colspan="2">
+             <widget class="QLineEdit" name="lineEdit_hosted_value">
+              <property name="toolTip">
+               <string>Engine source value — for 'custom' an http(s) base URL ending with '/' or a local web/ folder path (FILE mode — served at /&lt;engine&gt;/ by this server). Shows the resolved source for other modes (read-only)</string>
+              </property>
+             </widget>
             </item>
             <item row="2" column="1">
              <widget class="QPushButton" name="pushButton_kasugai_admin">

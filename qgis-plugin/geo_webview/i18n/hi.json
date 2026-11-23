@@ -68,7 +68,8 @@
     "Browse for a local web/ folder (FILE mode — served at /<engine>/ by this server)": "स्थानीय web/ फ़ोल्डर चुनें (FILE मोड — यह सर्वर /<engine>/ पर प्रदान करता है)",
     "Select a local Canvas web/ folder": "स्थानीय Canvas web/ फ़ोल्डर चुनें",
     "Folder selection failed: {0}": "फ़ोल्डर चयन विफल: {0}",
-    "Engine source value — for 'url' an http(s) base URL ending with '/', for 'file' a local web/ folder path. Shows the resolved source for other modes (read-only)": "इंजन स्रोत का मान — 'url' के लिए '/' पर समाप्त होने वाला http(s) बेस URL, 'file' के लिए स्थानीय web/ फ़ोल्डर पथ। अन्य मोड में समाधानित स्रोत दिखाता है (केवल पढ़ने योग्य)"
+    "Custom (URL/FILE):": "कस्टम (URL/फ़ाइल):",
+    "Engine source value — for 'custom' an http(s) base URL ending with '/' or a local web/ folder path (FILE mode — served at /<engine>/ by this server). Shows the resolved source for other modes (read-only)": "इंजन स्रोत का मान — 'custom' के लिए '/' पर समाप्त होने वाला http(s) बेस URL या स्थानीय web/ फ़ोल्डर पथ (FILE मोड — यह सर्वर /<engine>/ पर प्रदान करता है)। अन्य मोड में समाधानित स्रोत दिखाता है (केवल पढ़ने योग्य)"
   },
   "GeoWebViewPanel": {
     "Could not load the UI file. Please consider reinstalling the plugin.": "UI फ़ाइल लोड नहीं हो सकी। कृपया प्लगइन को पुनः इंस्टॉल करने पर विचार करें।"

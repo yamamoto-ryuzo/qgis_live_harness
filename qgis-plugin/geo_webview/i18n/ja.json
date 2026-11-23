@@ -68,7 +68,8 @@
     "Browse for a local web/ folder (FILE mode — served at /<engine>/ by this server)": "ローカルの web/ フォルダを選択(FILE モード — 本サーバが /<engine>/ で配信)",
     "Select a local Canvas web/ folder": "ローカルの Canvas web/ フォルダを選択",
     "Folder selection failed: {0}": "フォルダ選択に失敗しました: {0}",
-    "Engine source value — for 'url' an http(s) base URL ending with '/', for 'file' a local web/ folder path. Shows the resolved source for other modes (read-only)": "エンジン供給元の実値 — 'url' なら末尾 '/' の http(s) ベースURL、'file' ならローカルの web/ フォルダパス。その他のモードでは解決先を表示(読取専用)"
+    "Custom (URL/FILE):": "カスタム（URL/FILE）:",
+    "Engine source value — for 'custom' an http(s) base URL ending with '/' or a local web/ folder path (FILE mode — served at /<engine>/ by this server). Shows the resolved source for other modes (read-only)": "エンジン供給元の実値 — 'custom' では末尾 '/' の http(s) ベースURL またはローカルの web/ フォルダパス(FILE モード — 本サーバが /<engine>/ で配信)。その他のモードでは解決先を表示(読取専用)"
   },
   "GeoWebViewPanel": {
     "Could not load the UI file. Please consider reinstalling the plugin.": "UIファイルを読み込めませんでした。プラグインの再インストールを検討してください。"

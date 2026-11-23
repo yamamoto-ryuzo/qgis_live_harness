@@ -541,11 +541,14 @@ class GeoWebViewPanel(QDockWidget):
                 QCoreApplication.translate(
                     'geo_webview',
                     "Browse for a local web/ folder (FILE mode — served at /<engine>/ by this server)"))
+        if hasattr(self.ui, 'label_hosted_value'):
+            self.ui.label_hosted_value.setText(
+                QCoreApplication.translate('geo_webview', "Custom (URL/FILE):"))
         if hasattr(self.ui, 'lineEdit_hosted_value'):
             self.ui.lineEdit_hosted_value.setToolTip(
                 QCoreApplication.translate(
                     'geo_webview',
-                    "Engine source value — for 'url' an http(s) base URL ending with '/', for 'file' a local web/ folder path. Shows the resolved source for other modes (read-only)"))
+                    "Engine source value — for 'custom' an http(s) base URL ending with '/' or a local web/ folder path (FILE mode — served at /<engine>/ by this server). Shows the resolved source for other modes (read-only)"))
         if hasattr(self.ui, 'pushButton_kasugai_admin'):
             self.ui.pushButton_kasugai_admin.setText(
                 QCoreApplication.translate('geo_webview', "Canvas Customize"))

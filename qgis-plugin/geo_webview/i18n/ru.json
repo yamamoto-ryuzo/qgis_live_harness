@@ -68,7 +68,8 @@
     "Browse for a local web/ folder (FILE mode — served at /<engine>/ by this server)": "Выбрать локальную папку web/ (режим FILE — отдаётся этим сервером на /<engine>/)",
     "Select a local Canvas web/ folder": "Выберите локальную папку Canvas web/",
     "Folder selection failed: {0}": "Не удалось выбрать папку: {0}",
-    "Engine source value — for 'url' an http(s) base URL ending with '/', for 'file' a local web/ folder path. Shows the resolved source for other modes (read-only)": "Значение источника движка — для 'url' базовый URL http(s) с '/' в конце, для 'file' путь к локальной папке web/. В других режимах показывает разрешённый источник (только чтение)"
+    "Custom (URL/FILE):": "Пользовательский (URL/ФАЙЛ):",
+    "Engine source value — for 'custom' an http(s) base URL ending with '/' or a local web/ folder path (FILE mode — served at /<engine>/ by this server). Shows the resolved source for other modes (read-only)": "Значение источника движка — для 'custom' базовый URL http(s) с '/' в конце или путь к локальной папке web/ (режим FILE — отдаётся этим сервером на /<engine>/). В других режимах показывает разрешённый источник (только чтение)"
   },
   "GeoWebViewPanel": {
     "Could not load the UI file. Please consider reinstalling the plugin.": "Не удалось загрузить файл интерфейса. Попробуйте переустановить плагин.",
