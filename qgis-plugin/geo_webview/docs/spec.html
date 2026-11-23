@@ -26,7 +26,7 @@
 <ul>
 <li><strong>サーバレス Web 配信（主機能）</strong>: 開いている QGIS プロジェクトを <code>.kasc</code>+<code>canvas_data/</code> パッケージとして出力し、KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara）で再生する。出力物＋エンジンを静的ホストへ置くだけで配信できる。起動経路はパネル（<code>Export</code>=ファイル出力のみ / <code>▶ WebView</code>=CDN コンボの供給元モードで起動）・<code>GET /kasugai</code>・bridge <code>kasugaiExport</code> の3系統。エンジン供給元は <code>CDN:</code> コンボの4モード（stable/unstable=ホスト版・canvas=アプリ :8510・custom=URL または FILE パス）で選択する（§15）。</li>
 <li>組み込み HTTP サーバー（補助）: <code>/kasugai</code> <code>/export-data/</code> <code>/present</code> <code>/present/state</code> <code>/screenshot</code> <code>/received</code> <code>/layouts</code> <code>/layout-pdf</code> を提供（v3.29.0 で OGC サービスは廃止）。</li>
-<li><strong>Live View（v4.30.0〜）</strong>: <code>Open Live View</code>（Live タブ/ツールバー/bridge <code>liveView</code>）で外部ブラウザに常駐ビューを開く。<code>GET /live/kasc</code> のオンデマンド生成＋<code>/live/*</code> API で編集・視点・選択・表示状態を双方向連携（エクスポート不要。§15 Live View 節・図6〜図8）。</li>
+<li><strong>Live View（v4.30.0〜）</strong>: <code>Open Live View</code>（Live タブ/ツールバー/bridge <code>liveView</code>）で外部ブラウザに常駐ビューを開く。<code>GET /live/kasc</code> のオンデマンド生成＋<code>/live/*</code> API で編集・視点・選択・表示状態を双方向連携（エクスポート不要。§15 Live View 節・図6〜図9）。</li>
 <li>パーマリンク生成: QGIS の現在表示（中心座標、scale、rotation、theme など）を HTTP パーマリンク（<code>/qgis-map</code> パス）として生成・コピー・開く。<code>/qgis-map</code> は HTML を返さず、受領記録・External Control ナビゲートの URL パスとして使う（v3.24.0 でプラグイン内蔵ビューアは廃止）。</li>
 <li>Theme サポート: <code>theme</code> パラメータのマップテーマをナビゲーション時に適用し、<code>.kasc</code> へ <code>theme:</code> 行として出力（プロジェクト自体は変更しない）。</li>
 <li>External Control: 外部からの <code>/qgis-map</code> や <code>/wms</code> を含むリクエストを受け、許可された場合に自動で QGIS をナビゲートする。</li>
@@ -206,7 +206,7 @@ HTTP ワーカースレッドから呼べる。</li>
 </table>
 <h3 id="起動モードと出力形式">起動モード（CDN コンボ）と出力形式の関係</h3>
 <p>色分け: <span style="background:#e8f5e9;border:1px solid #2e7d32;padding:0 6px">緑 = 形式（データの中身）</span> <span style="background:#e3f2fd;border:1px solid #1565c0;padding:0 6px">青 = CDN（エンジン供給元）</span></p>
-<p><strong>図1. 起動ボタン</strong> — 「▶ WebView」（Web タブ）クリックで、<strong>エクスポート（図3）→ route 変換・起動先解決（図4）→ ブラウザ起動・データ供給（図5）</strong>の順に逐次処理する（並列ではない）。エクスポートが完了してから起動されるため、開かれる .kasc は必ず最新。なお「Open Live View」（Live タブ）は<strong>エクスポートを伴わない別経路</strong>で、<code>/live/kasc</code> のオンデマンド生成を使う（図6〜図8）。</p>
+<p><strong>図1. 起動ボタン</strong> — 「▶ WebView」（Web タブ）クリックで、<strong>エクスポート（図3）→ route 変換・起動先解決（図4）→ ブラウザ起動・データ供給（図5）</strong>の順に逐次処理する（並列ではない）。エクスポートが完了してから起動されるため、開かれる .kasc は必ず最新。なお「Open Live View」（Live タブ）は<strong>エクスポートを伴わない別経路</strong>で、<code>/live/kasc</code> のオンデマンド生成を使う（図6〜図9）。</p>
 <pre><code class="language-mermaid">flowchart TB
     BTN["▶ WebView&lt;br/&gt;（geo_webview パネル Web タブ）"]
     BTN --&gt;|クリック| F3["図3: 形式でエクスポート&lt;br/&gt;.kasc + canvas_data/ を生成"]
@@ -279,7 +279,7 @@ HTTP ワーカースレッドから呼べる。</li>
     class D1,D2 fmt;</code></pre>
 <p>形式選択（<code>vector_format</code>）は全ルート共通の単一経路で <code>.kasc</code>+<code>canvas_data/</code> の中身を決め、CDN モード（エンジン供給元）とは独立 — どのモードでも同じ形式が効く。route 変換だけがモード依存。</p>
 <h3 id="live-view-双方向連携">Live View（/live/* による双方向連携）</h3>
-<p><code>Open Live View</code>（Live タブ・エンジン選択コンボ付き）/ ツールバー「Open Canvas Live View」/ bridge <code>liveView</code> が開く常駐 live ビュー。<strong>エクスポートは行わず</strong>、<code>?kasc=</code> が指す <code>GET /live/kasc</code> がリクエストごとに現在プロジェクトから .kasc をオンデマンド生成する（図6）。エンジン供給元は図4と同じ CDN コンボ（<code>kasugai_hosted_channel</code>）に従う（stable/unstable/custom URL=ホスト版、canvas=稼働中アプリ :8510、FILE=本サーバが指定 web/ を配信）。生成 .kasc 内の <code>live:</code> 行で Canvas が双方向連携モードへ入り、編集・視点・選択が相互反映される（図7）。CDN ホスト版を含む Canvas の AI チャットは <code>/live/mcp</code> リレー経由で Live Driver のツールを使える（図8）。POST は <code>/live/</code> 配下のみ受け付け、従来の CORS 許可リストが適用される。</p>
+<p><code>Open Live View</code>（Live タブ・エンジン選択コンボ付き）/ ツールバー「Open Canvas Live View」/ bridge <code>liveView</code> が開く常駐 live ビュー。<strong>エクスポートは行わず</strong>、<code>?kasc=</code> が指す <code>GET /live/kasc</code> がリクエストごとに現在プロジェクトから .kasc をオンデマンド生成する（図6）。エンジン供給元は図4と同じ CDN コンボ（<code>kasugai_hosted_channel</code>）に従う（stable/unstable/custom URL=ホスト版、canvas=稼働中アプリ :8510、FILE=本サーバが指定 web/ を配信）。生成 .kasc 内の <code>live:</code> 行で Canvas が双方向連携モードへ入り、編集・視点・選択が相互反映される（図7・図8）。CDN ホスト版を含む Canvas の AI チャットは <code>/live/mcp</code> リレー経由で Live Driver のツールを使える（図9）。POST は <code>/live/</code> 配下のみ受け付け、従来の CORS 許可リストが適用される。</p>
 <p>色分け（この節）: <span style="background:#fff3e0;border:1px solid #e65100;padding:0 6px">橙 = live API（/live/*）</span></p>
 <p><strong>図6. Live View の起動とデータ供給</strong> — 起動はブラウザで <code>&lt;engine&gt;/?kasc=&lt;base&gt;/live/kasc</code> を開くだけ。生成される .kasc の各行はエクスポート済みファイルではなく live API の URL を指し、データ・スタイル・描画はすべて :8089 がオンデマンドで供給する。</p>
 <pre><code class="language-mermaid">flowchart TB
@@ -293,19 +293,17 @@ HTTP ワーカースレッドから呼べる。</li>
     KASC --&gt;|"image: 行&lt;br/&gt;（変換不可レイヤ）"| RN["GET /live/render&lt;br/&gt;QGIS 描画 PNG"]
     classDef live fill:#fff3e0,stroke:#e65100,color:#bf360c;
     class BTN,ENG,KASC,F,LF,ST,RN live;</code></pre>
-<p><strong>図7. 双方向連携</strong> — QGIS→Canvas は編集検出（rev）・キャンバス状態・選択を <code>/live/live.json</code>・<code>/live/state</code> 経由で配信。Canvas→QGIS は POST で視点・選択・表示状態・作図を書き戻す。<code>live.controls</code>（follow / selection / qgis_follow）の正は QSettings で、パネル Live タブ・<code>POST /live/controls</code>・bridge <code>liveControls</code>/<code>liveSetControls</code> が同じ状態を共有する。<code>kasugai_live_sync</code> 設定 ON のときは rev 更新ではなく差分再エクスポート＋<code>liveSync</code> 通知（従来モード）。</p>
+<p><strong>図7. QGIS → Canvas（編集・状態の配信）</strong> — 編集検出は LiveSyncController が 1.2s デバウンスで <code>live.json</code> の rev を更新し、Canvas はポーリングで変化を検出して <code>/live/kasc</code> を再取得。キャンバス状態・QGIS 選択は <code>/live/state</code> で公開される。<code>live.controls</code>（follow / selection / qgis_follow）の正は QSettings で、パネル Live タブ・<code>POST /live/controls</code>・bridge <code>liveControls</code>/<code>liveSetControls</code> が同じ状態を共有する。<code>kasugai_live_sync</code> 設定 ON のときは rev 更新ではなく差分再エクスポート＋<code>liveSync</code> 通知（従来モード）。</p>
 <pre><code class="language-mermaid">flowchart TB
     subgraph QGIS["QGIS 側"]
         EDIT["レイヤ編集・スタイル・&lt;br/&gt;ツリー変更"]
         SYNC["LiveSyncController&lt;br/&gt;（1.2s デバウンス）"]
         QST["キャンバス状態・QGIS 選択"]
-        PROJ["プロジェクトへ反映&lt;br/&gt;表示・フィルタ・テーマ・&lt;br/&gt;スクラッチレイヤ"]
     end
     subgraph API[":8089 /live/*"]
         LJ["GET /live/live.json&lt;br/&gt;rev + changed"]
         ST["GET /live/state&lt;br/&gt;controls・add_layers・&lt;br/&gt;qgis_selection・canvas"]
         KA["GET /live/kasc&lt;br/&gt;再生成"]
-        PO["POST /live/camera&lt;br/&gt;POST /live/selection&lt;br/&gt;POST /live/writeback&lt;br/&gt;POST /live/features"]
     end
     subgraph CV["Canvas（ブラウザ）"]
         ENG2["エンジン&lt;br/&gt;（live: 行で接続）"]
@@ -315,13 +313,30 @@ HTTP ワーカースレッドから呼べる。</li>
     ENG2 --&gt;|"ポーリング"| LJ
     ENG2 --&gt;|"400ms ポーリング"| ST
     ENG2 --&gt;|"rev 変化で再取得"| KA
-    ENG2 --&gt;|"視点・選択・表示変更・作図"| PO --&gt; PROJ
     CT["live.controls&lt;br/&gt;（正=QSettings）&lt;br/&gt;Live タブ / POST /live/controls /&lt;br/&gt;bridge liveControls・liveSetControls・liveAddToCanvas"]
     CT --&gt; ST
     classDef live fill:#fff3e0,stroke:#e65100,color:#bf360c;
-    class LJ,ST,KA,PO,CT live;</code></pre>
+    class LJ,ST,KA,CT live;</code></pre>
+<p><strong>図8. Canvas → QGIS（視点・選択・作図の書き戻し）</strong> — Canvas での視点移動・選択・表示変更・作図は POST で QGIS へ書き戻す。<code>POST /live/camera</code> は <code>controls.qgis_follow</code>（「Follow Canvas view」、既定 ON）が有効なときのみ QGIS キャンバスへ適用される。</p>
+<pre><code class="language-mermaid">flowchart TB
+    subgraph CV["Canvas（ブラウザ）"]
+        ENG2["エンジン&lt;br/&gt;（live: 行で接続）"]
+    end
+    subgraph API[":8089 /live/*"]
+        CAM["POST /live/camera&lt;br/&gt;視点"]
+        SEL["POST /live/selection&lt;br/&gt;選択"]
+        WB["POST /live/writeback&lt;br/&gt;POST /live/features&lt;br/&gt;表示状態・作図"]
+    end
+    subgraph QGIS["QGIS 側"]
+        PROJ["プロジェクトへ反映&lt;br/&gt;表示・フィルタ・テーマ・&lt;br/&gt;スクラッチレイヤ"]
+    end
+    ENG2 --&gt; CAM --&gt; PROJ
+    ENG2 --&gt; SEL --&gt; PROJ
+    ENG2 --&gt; WB --&gt; PROJ
+    classDef live fill:#fff3e0,stroke:#e65100,color:#bf360c;
+    class CAM,SEL,WB live;</code></pre>
 <p><code>POST /live/camera</code> は <code>controls.qgis_follow</code>（「Follow Canvas view」、既定 ON）が有効なときのみ QGIS キャンバスへ適用される。「Add to Canvas」（Live タブのレイヤコンボ＋ボタン / <code>POST /live/controls</code> の <code>add</code> / bridge <code>liveAddToCanvas</code>）は <code>live.add_layers</code> キュー（{seq,title}・上限50）へ積み、Canvas が <code>/live/state</code> ポーリングで新しい seq を検出して <code>/live/features</code> で現在表示範囲の地物を取得する。</p>
-<p><strong>図8. Live Driver MCP リレー（v4.12.0〜）</strong> — CDN ホスト版を含む Canvas の AI チャットが Live Driver のツール（<code>qgis_pyeval</code>・<code>bridge_call</code>・<code>screenshot</code> 等）を使う経路。ドライバの <code>/mcp</code> は Bearer 保護・CORS 無しでブラウザから直接 fetch できないため本リレーがある。任意コード実行が乗るため <strong>TCP ピアが loopback の接続のみ許可</strong>（他 /live/* より露出を絞る）。</p>
+<p><strong>図9. Live Driver MCP リレー（v4.12.0〜）</strong> — CDN ホスト版を含む Canvas の AI チャットが Live Driver のツール（<code>qgis_pyeval</code>・<code>bridge_call</code>・<code>screenshot</code> 等）を使う経路。ドライバの <code>/mcp</code> は Bearer 保護・CORS 無しでブラウザから直接 fetch できないため本リレーがある。任意コード実行が乗るため <strong>TCP ピアが loopback の接続のみ許可</strong>（他 /live/* より露出を絞る）。</p>
 <pre><code class="language-mermaid">flowchart LR
     AI["Canvas AI チャット&lt;br/&gt;（CDN ホスト版・アプリ）"]
     DISC["GET /live/mcp-discover&lt;br/&gt;Live Driver セッション検出&lt;br/&gt;→ リレーURL を返す&lt;br/&gt;（トークンは返さない）"]
