@@ -2,6 +2,8 @@
 
 ## 1.0.10
 
+- metadata: plugins.qgis.org 初回公開に向け英語 `description`/
+  `about[en]` を追加し、非推奨の `supportsQt6` フラグを除去
 - `_FunctionEditDialog` のモーダル `exec()` を廃止し `open()`
   (window-modal・非ブロッキング) 化。管理ダイアログからの
   編集/新規作成が AI 制御経路や通常利用で GUI ハングする実績が
