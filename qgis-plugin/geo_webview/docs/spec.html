@@ -208,6 +208,7 @@ HTTP ワーカースレッドから呼べる。</li>
 <p><strong>図1. パネル設定と永続化</strong> — 各設定は独立した QSettings キーに保存される。「カスタム（URL/FILE）欄」は CDN コンボで <code>custom</code> を選んだ場合の入力欄（<code>kasugai_hosted_value</code>）。</p>
 <pre><code class="language-mermaid">flowchart LR
     subgraph PANEL["geo_webview パネル"]
+        BTN["▶ WebView / Live View&lt;br/&gt;（起動ボタン → 図3）"]
         VF["形式: コンボ&lt;br/&gt;native / recommended / geojson"]
         subgraph CDNBOX["CDN: コンボ"]
             OPT["選択肢&lt;br/&gt;stable / unstable / canvas / custom"]
@@ -238,7 +239,7 @@ HTTP ワーカースレッドから呼べる。</li>
     class K1,E0,E1,E2,E3,KASC fmt;</code></pre>
 <p><strong>図3. CDN モード → route 変換 → エンジン供給元</strong> — 「エンジンをどこから読むか」を決める経路。形式選択（緑）は route 変換に関与しないが、<code>.kasc</code> の中身として全ルート共通で起動先エンジンに届く（詳細は図2）。</p>
 <pre><code class="language-mermaid">flowchart LR
-    BTN["▶ WebView / Live View"] --&gt; RC{"route 変換"}
+    BTN["▶ WebView / Live View&lt;br/&gt;（図1）"] --&gt; RC{"route 変換"}
     M["kasugai_hosted_channel"] --&gt; RC
     V["kasugai_hosted_value&lt;br/&gt;（custom 時の値）"] --&gt;|"http(s) → URL&lt;br/&gt;それ以外 → パス"| RC
     RC --&gt;|"stable / unstable"| H["route=hosted"]
