@@ -2,6 +2,8 @@
 
 ## 1.10.0
 
+- metadata: plugins.qgis.org 初回公開に向け英語 `description`/
+  `about[en]` を追加し、非推奨の `supportsQt6` フラグを除去
 - bridge.py: 帳票出力前のドライラン検証 `validateRun(script)` と
   フィールドマッピング表示 `fieldMapping(script)` を追加。
   `validateRun` は帳票を出力せずにアクティブレイヤ・win32com・
