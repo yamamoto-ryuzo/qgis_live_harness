@@ -1,5 +1,5 @@
 // QGIS Live Harness docs — shared behavior
-// (mermaid rendering / heading anchors / on-this-page toc / code copy)
+// (mermaid rendering / heading anchors / code copy)
 
 // ---- code blocks: wrap <pre> with language label + copy button ----
 for (const pre of document.querySelectorAll('main pre')) {
@@ -37,7 +37,7 @@ for (const table of document.querySelectorAll('main table')) {
   wrap.appendChild(table);
 }
 
-// ---- heading ids + anchors + on-this-page toc ----
+// ---- heading ids + anchors ----
 const headings = [...document.querySelectorAll('main h2, main h3')];
 const used = new Set();
 for (const h of headings) {
@@ -53,35 +53,6 @@ for (const h of headings) {
   a.textContent = '#';
   h.appendChild(a);
 }
-const tocEl = document.querySelector('aside.toc');
-if (tocEl && headings.length >= 2) {
-  const title = document.createElement('div');
-  title.className = 'toc-title';
-  title.textContent = 'このページの内容';
-  tocEl.appendChild(title);
-  const links = new Map();
-  for (const h of headings) {
-    const a = document.createElement('a');
-    a.href = `#${h.id}`;
-    a.textContent = h.textContent.replace(/#$/, '');
-    if (h.tagName === 'H3') a.className = 'lv3';
-    tocEl.appendChild(a);
-    links.set(h.id, a);
-  }
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting) {
-          links.forEach((a) => a.classList.remove('current'));
-          links.get(e.target.id)?.classList.add('current');
-        }
-      }
-    },
-    { rootMargin: '0px 0px -75% 0px' },
-  );
-  headings.forEach((h) => observer.observe(h));
-}
-
 // ---- media modal: shared lightbox for videos and images ----
 function openMediaModal(mediaEl) {
   const modal = document.createElement('div');
