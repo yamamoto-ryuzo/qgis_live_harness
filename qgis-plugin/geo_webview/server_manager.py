@@ -806,9 +806,14 @@ class GeoWebViewServerManager:
                 try:
                     payload = json.loads(
                         req_body.decode('utf-8') or '{}')
-                    applied = self._main_invoker.call(
-                        lambda: self._apply_live_camera(payload),
-                        timeout=30)
+                    from . import live_sync as _live_mod
+                    if not _live_mod.live_controls().get(
+                            'qgis_follow', True):
+                        applied = {'enabled': False}
+                    else:
+                        applied = self._main_invoker.call(
+                            lambda: self._apply_live_camera(payload),
+                            timeout=30)
                     self._live['camera'] = {
                         'received': payload,
                         'time': datetime.now().isoformat(timespec='seconds')}
@@ -1508,7 +1513,8 @@ class GeoWebViewServerManager:
         payload = payload or {}
         controls = _live_mod.set_live_controls(
             follow=payload.get('follow'),
-            selection=payload.get('selection'))
+            selection=payload.get('selection'),
+            qgis_follow=payload.get('qgis_follow'))
         queued = 0
         if payload.get('add'):
             queued = self.live_queue_add_layer(payload.get('add'))

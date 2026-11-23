@@ -206,6 +206,7 @@ class GeoWebViewPanel(QDockWidget):
         self.groupBox_live = None
         self.checkBox_live_follow = None
         self.checkBox_live_selection = None
+        self.checkBox_live_qgis_follow = None
         self.comboBox_live_engine = None
         self.comboBox_live_layer = None
         self.pushButton_live_open = None
@@ -330,6 +331,10 @@ class GeoWebViewPanel(QDockWidget):
             self.checkBox_live_selection.setText(tr('geo_webview', 'Show QGIS selection'))
             self.checkBox_live_selection.setToolTip(tr(
                 'geo_webview', 'Highlight the features selected in QGIS on Canvas'))
+        if getattr(self, 'checkBox_live_qgis_follow', None) is not None:
+            self.checkBox_live_qgis_follow.setText(tr('geo_webview', 'Follow Canvas view'))
+            self.checkBox_live_qgis_follow.setToolTip(tr(
+                'geo_webview', 'Make the QGIS canvas follow the Canvas view'))
         if getattr(self, 'pushButton_live_add', None) is not None:
             self.pushButton_live_add.setText(tr('geo_webview', 'Add to Canvas'))
             self.pushButton_live_add.setToolTip(tr(
@@ -2089,8 +2094,14 @@ class GeoWebViewPanel(QDockWidget):
         self.checkBox_live_selection.setToolTip(tr(
             'geo_webview',
             'Highlight the features selected in QGIS on Canvas'))
+        self.checkBox_live_qgis_follow = QCheckBox(
+            tr('geo_webview', 'Follow Canvas view'))
+        self.checkBox_live_qgis_follow.setToolTip(tr(
+            'geo_webview',
+            'Make the QGIS canvas follow the Canvas view'))
         gl.addWidget(self.checkBox_live_follow)
         gl.addWidget(self.checkBox_live_selection)
+        gl.addWidget(self.checkBox_live_qgis_follow)
 
         row2 = QHBoxLayout()
         self.comboBox_live_layer = QComboBox()
@@ -2127,6 +2138,8 @@ class GeoWebViewPanel(QDockWidget):
                 lambda st: self._emit_live_control('follow', bool(st)))
             self.checkBox_live_selection.stateChanged.connect(
                 lambda st: self._emit_live_control('selection', bool(st)))
+            self.checkBox_live_qgis_follow.stateChanged.connect(
+                lambda st: self._emit_live_control('qgis_follow', bool(st)))
             self.pushButton_live_open.clicked.connect(
                 self._on_live_open_clicked)
             self.pushButton_live_add.clicked.connect(
@@ -2204,7 +2217,8 @@ class GeoWebViewPanel(QDockWidget):
             from . import live_sync
             ctl = live_sync.live_controls()
             for cb, key in ((self.checkBox_live_follow, 'follow'),
-                            (self.checkBox_live_selection, 'selection')):
+                            (self.checkBox_live_selection, 'selection'),
+                            (self.checkBox_live_qgis_follow, 'qgis_follow')):
                 if cb is not None:
                     cb.blockSignals(True)
                     cb.setChecked(bool(ctl.get(key)))

@@ -55,25 +55,30 @@ def live_controls():
 
     ``GET /live/state`` の ``live.controls`` として Canvas 側へ配信
     される QGIS 側正の操作状態。follow=Canvas を QGIS キャンバスへ
-    追従、selection=QGIS 側選択を Canvas でハイライト表示。
+    追従、selection=QGIS 側選択を Canvas でハイライト表示、
+    qgis_follow=QGIS キャンバスを Canvas 視点へ追従(逆方向)。
     """
     try:
         s = QSettings('GeoWebView', 'geo_webview')
         return {
             'follow': _settings_bool(s, 'kasugai_live_follow', False),
             'selection': _settings_bool(s, 'kasugai_live_selection', True),
+            'qgis_follow': _settings_bool(
+                s, 'kasugai_live_qgis_follow', True),
         }
     except Exception:  # nosec B110  # 設計上の許容
-        return {'follow': False, 'selection': True}
+        return {'follow': False, 'selection': True, 'qgis_follow': True}
 
 
-def set_live_controls(follow=None, selection=None):
+def set_live_controls(follow=None, selection=None, qgis_follow=None):
     """Canvas Live 制御フラグを更新(QSettings)して現在値を返す。"""
     s = QSettings('GeoWebView', 'geo_webview')
     if follow is not None:
         s.setValue('kasugai_live_follow', bool(follow))
     if selection is not None:
         s.setValue('kasugai_live_selection', bool(selection))
+    if qgis_follow is not None:
+        s.setValue('kasugai_live_qgis_follow', bool(qgis_follow))
     return live_controls()
 
 

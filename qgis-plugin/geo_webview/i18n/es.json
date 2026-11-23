@@ -352,6 +352,8 @@
     "Open the current project as a live view in the browser (served on demand via /live/kasc — no export needed)": "Abre el proyecto actual como vista en vivo en el navegador (servido bajo demanda vía /live/kasc; no requiere exportación)",
     "Follow QGIS canvas": "Seguir el lienzo de QGIS",
     "Make the Canvas camera follow the QGIS canvas": "Hace que la cámara de Canvas siga el lienzo de QGIS",
+    "Follow Canvas view": "Seguir la vista de Canvas",
+    "Make the QGIS canvas follow the Canvas view": "Hacer que el mapa de QGIS siga la vista de Canvas",
     "Show QGIS selection": "Mostrar la selección de QGIS",
     "Highlight the features selected in QGIS on Canvas": "Resalta en Canvas los objetos seleccionados en QGIS",
     "Project vector layer to add to Canvas on demand": "Capa vectorial del proyecto para añadir a Canvas bajo demanda",

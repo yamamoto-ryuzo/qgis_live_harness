@@ -116,7 +116,8 @@ class GeoWebViewBridge:
         "liveControls": {
             "description":
                 "Canvas Live 制御フラグ(follow=Canvas を QGIS キャンバスへ"
-                "追従 / selection=QGIS 選択を Canvas でハイライト)を返す。"
+                "追従 / selection=QGIS 選択を Canvas でハイライト /"
+                " qgis_follow=QGIS キャンバスを Canvas 視点へ追従)を返す。"
                 "QSettings が正でパネル Live タブと共有される。",
             "example": {"method": "liveControls", "args": []},
         },
@@ -658,15 +659,18 @@ class GeoWebViewBridge:
             'unknown action: {0} (open/status)'.format(act))
 
     def liveControls(self):
-        """Canvas Live 制御フラグ(follow/selection)を返す。"""
+        """Canvas Live 制御フラグ(follow/selection/qgis_follow)を返す。"""
         from . import live_sync
         return self._ok({'controls': live_sync.live_controls()})
 
-    def liveSetControls(self, payload=None, follow=None, selection=None):
+    def liveSetControls(self, payload=None, follow=None, selection=None,
+                        qgis_follow=None):
         """Canvas Live 制御フラグを更新する。
 
-        payload: {"follow": bool, "selection": bool, "add": "<title>"}。
-        個別引数 follow/selection も可。POST /live/controls と同じ
+        payload: {"follow": bool, "selection": bool, "qgis_follow": bool,
+                  "add": "<title>"}。
+        個別引数 follow/selection/qgis_follow も可。
+        POST /live/controls と同じ
         適用ロジック(QSettings 永続化+パネル同期+add_layers キュー)。
         """
         srv = self._server()
@@ -679,6 +683,8 @@ class GeoWebViewBridge:
             merged['follow'] = follow
         if selection is not None:
             merged['selection'] = selection
+        if qgis_follow is not None:
+            merged['qgis_follow'] = qgis_follow
         return self._ok(srv._apply_live_controls(merged))
 
     def liveAddToCanvas(self, title=None):

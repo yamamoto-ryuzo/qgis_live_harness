@@ -1,5 +1,9 @@
 # 変更履歴(Changelog)
 
+## 4.34.0
+
+- **「Follow Canvas view」(Canvas へ追従)チェックを Live タブへ追加** — `POST /live/camera`(Canvas 視点→QGIS キャンバス)は従来無条件で適用されていたが、第3の制御フラグ `qgis_follow`(QSettings `kasugai_live_qgis_follow`・既定 true=従来動作維持)でゲートするようにした。OFF 時は camera POST を受けても `applied:{enabled:false}` を返すだけで QGIS キャンバスを動かさない。「Follow QGIS canvas」(Canvas→QGIS 追従)・「Show QGIS selection」と並ぶ Live タブの3つ目のチェックで、`GET /live/state` の `live.controls`・`POST /live/controls {qgis_follow?}`・bridge `liveSetControls(qgis_follow=)` の全経路で共通。i18n 9言語対応
+
 ## 4.33.0
 
 - **Canvas Live 制御を QGIS 側へ集約(パネル「Live」タブ新設)** — これまで Canvas 側の「QGIS Live」パネルにあった操作(追従チェック/選択表示チェック/レイヤ追加)を geo_webview パネルへ移設し、QGIS 側を正とする構成に統一。Live タブは `tabWidget_main` の Web タブ直後へ動的挿入(`panel.py` コード生成・panel_base.ui 変更不要)。構成: エンジン選択コンボ+「Open Live View」(`/live/kasc` 経路・`open_external_live_view`)、「Follow QGIS canvas」「Show QGIS selection」チェック、ベクターレイヤ選択コンボ+「Add to Canvas」、ステータスラベル
