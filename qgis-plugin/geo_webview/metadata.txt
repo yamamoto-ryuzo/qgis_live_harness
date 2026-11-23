@@ -3,7 +3,7 @@ name = geo_webview
 qgisMinimumVersion = 4.0
 qgisMaximumVersion = 4.99
 description = Makes KASUGAI Canvas the persistent live viewer of the open QGIS project — on-demand /live/kasc (no export) served to an external "Open Canvas Live View" browser (Canvas is the fast main viewer for heavy content such as 3D Tiles; QGIS=editing, Canvas=viewing) — plus serverless web distribution via .kasc+canvas_data/ export playable on the Canvas multi-engines (Cesium/MapLibre/OpenLayers/Leaflet/GSI Maps/Navara); permalinks and an embedded HTTP server
-version = 4.34.0
+version = 4.34.1
 author = yamamoto-ryuzo
 email = ryu@yamakun.net
 about = geo_webview は KASUGAI Canvas を QGIS プロジェクトの常駐 live ビューアにするプラグインです（v4.30.0〜の主軸機能）。`GET /live/kasc` が現在プロジェクトの .kasc をオンデマンド生成（エクスポート不要）し、「Open Canvas Live View」アクション（または bridge `liveView`）から既定ブラウザへライブセッションを提供します（フル WebGL/Cesium。QGIS 4.x は仕様上、埋め込み WebView で WebGL が使えないため外部ブラウザに一本化）。編集差分・選択・カメラは双方向同期され、Canvas は QGIS の Web 配布プレーヤーに留まらず 3D Tiles 等の重いコンテンツを高速表示するメインビューアとして使えます（QGIS=編集・生成 / Canvas=表示の2画面運用。埋め込み WebGL は QGIS 4.x 仕様上不可のため3Dは外部ブラウザ経路）。従来機能として、プロジェクトを `.kasc`+`canvas_data/` パッケージに出力して Canvas マルチエンジンで静的再生するサーバレス Web 配信も担い、パネルの `Export`/`▶ Open`・`/kasugai`・bridge `kasugaiExport` から呼べます。内蔵 HTTP サーバーは `/export-data/` 配信・`/present`/`/screenshot` 画面共有・パーマリンク受領も提供します。詳細は `docs/`(日本語ドキュメントサイト) を参照してください。

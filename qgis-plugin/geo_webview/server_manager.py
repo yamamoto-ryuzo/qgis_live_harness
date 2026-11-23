@@ -1992,8 +1992,8 @@ class GeoWebViewServerManager:
                     tol = 1e-5
             req.setFilterRect(QgsRectangle(
                 p.x() - tol, p.y() - tol, p.x() + tol, p.y() + tol))
-        limit = self._safe_int(params.get('limit', ['2000'])[0], 2000)
-        limit = max(1, min(20000, limit or 2000))
+        limit = self._safe_int(params.get('limit', ['10000'])[0], 10000)
+        limit = max(1, min(20000, limit or 10000))
         offset = max(0, self._safe_int(
             params.get('offset', ['0'])[0], 0))
         exporter = QgsJsonExporter(layer)

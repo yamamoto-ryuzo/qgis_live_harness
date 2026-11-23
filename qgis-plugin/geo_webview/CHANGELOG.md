@@ -1,5 +1,9 @@
 # 変更履歴(Changelog)
 
+## 4.34.1
+
+- **`/live/features` の既定地物数を 2000→10000 へ引き上げ** — `limit=` 未指定時の既定値を変更(上限 20000 は据置)。Canvas 側の live クエリ(addLiveLayer・範囲追従再取得)も同値へ統一。`offset=` ページングと併用で 20000 超のレイヤも継続取得可能
+
 ## 4.34.0
 
 - **「Follow Canvas view」(Canvas へ追従)チェックを Live タブへ追加** — `POST /live/camera`(Canvas 視点→QGIS キャンバス)は従来無条件で適用されていたが、第3の制御フラグ `qgis_follow`(QSettings `kasugai_live_qgis_follow`・既定 true=従来動作維持)でゲートするようにした。OFF 時は camera POST を受けても `applied:{enabled:false}` を返すだけで QGIS キャンバスを動かさない。「Follow QGIS canvas」(Canvas→QGIS 追従)・「Show QGIS selection」と並ぶ Live タブの3つ目のチェックで、`GET /live/state` の `live.controls`・`POST /live/controls {qgis_follow?}`・bridge `liveSetControls(qgis_follow=)` の全経路で共通。i18n 9言語対応
