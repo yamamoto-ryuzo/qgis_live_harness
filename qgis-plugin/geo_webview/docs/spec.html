@@ -263,7 +263,7 @@ HTTP ワーカースレッドから呼べる。</li>
     classDef cdn fill:#e3f2fd,stroke:#1565c0,color:#0d47a1;
     class M,V,RC,H,L,K,EN1,EN2,EN3 cdn;</code></pre>
 <p><strong>図5. 起動後のデータ供給</strong> — エンジンは <code>?kasc=</code> でプロジェクトを読み、<code>live:</code> 行があれば live API へ接続。データは常に :8089 の geo_webview サーバが供給する。</p>
-<pre><code class="language-mermaid">flowchart LR
+<pre><code class="language-mermaid">flowchart TB
     subgraph ENG["起動したエンジン（図4 のどれか）"]
         APP["＜engine＞/?kasc=＜url＞"]
     end
