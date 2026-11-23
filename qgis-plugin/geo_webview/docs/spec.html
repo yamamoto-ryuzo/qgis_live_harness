@@ -204,12 +204,15 @@ HTTP ワーカースレッドから呼べる。</li>
 </tbody>
 </table>
 <h3 id="起動モードと出力形式">起動モード（CDN コンボ）と出力形式の関係</h3>
-<p><strong>図1. パネル設定と永続化</strong> — 3つの設定項目がそれぞれ独立した QSettings キーに保存される。</p>
+<p><strong>図1. パネル設定と永続化</strong> — 各設定は独立した QSettings キーに保存される。「カスタム（URL/FILE）欄」は CDN コンボで <code>custom</code> を選んだ場合の入力欄（<code>kasugai_hosted_value</code>）。</p>
 <pre><code class="language-mermaid">flowchart LR
     subgraph PANEL["geo_webview パネル"]
         VF["形式: コンボ&lt;br/&gt;native / recommended / geojson"]
-        CDN["CDN: コンボ&lt;br/&gt;stable / unstable / canvas / custom"]
-        VAL["カスタム（URL/FILE）欄&lt;br/&gt;URL or フォルダパス"]
+        subgraph CDNBOX["CDN: コンボ"]
+            OPT["選択肢&lt;br/&gt;stable / unstable / canvas / custom"]
+            VAL["custom 選択時の入力&lt;br/&gt;カスタム（URL/FILE）欄&lt;br/&gt;URL or フォルダパス"]
+            OPT -.->|"custom の場合のみ有効"| VAL
+        end
     end
     subgraph SET["QSettings"]
         K1["kasugai_vector_format"]
@@ -217,7 +220,7 @@ HTTP ワーカースレッドから呼べる。</li>
         K3["kasugai_hosted_value"]
     end
     VF --&gt; K1
-    CDN --&gt; K2
+    OPT --&gt; K2
     VAL --&gt; K3</code></pre>
 <p><strong>図2. CDN モード → route 変換 → エンジン供給元</strong> — 「エンジンをどこから読むか」を決める経路（データの中身とは無関係）。</p>
 <pre><code class="language-mermaid">flowchart LR
