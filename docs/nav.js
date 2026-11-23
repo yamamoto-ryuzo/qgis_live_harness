@@ -4,7 +4,9 @@
 // - 現在ページを自動ハイライト
 // - JS が無効でも本文は通常表示される（サイドバーだけ出ない）
 (function () {
-  // ナビ構造
+  // ナビ構造 = 2本柱: QGISプラグイン群 × KASUGAIシリーズ
+  //   連携は geo_webview + KASUGAI Canvas が主経路、AI 操作面は geo_driver
+  //   と各プラグイン bridge が担う（index.html「基本構成」参照）
   const GROUPS = [
     {
       section: 'はじめに',
@@ -15,25 +17,28 @@
       ]
     },
     {
-      section: 'コンポーネント',
+      section: 'QGISプラグイン',
       items: [
-        { href: 'driver.html', text: 'QGIS Live Driver' },
-        { href: 'harness.html', text: 'QGIS Live Harness' },
-      ]
-    },
-    {
-      section: 'ガイド',
-      items: [
+        { href: 'plugins.html', text: 'プラグイン一覧（全9件）' },
+        { href: 'geosuite.html', text: 'GeoSuite — ワークフロー' },
+        { href: 'driver.html', text: 'geo_driver — 制御ハブ' },
         { href: 'distribution.html', text: 'プラグイン配布' },
-        { href: 'internals.html', text: 'Harnessのプラグイン化' },
-        { href: 'plugins.html', text: 'プラグイン一覧' },
-        { href: 'geosuite.html', text: 'GeoSuite' },
+        { href: 'https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin', text: '各プラグイン docs(GitHub)', ext: true },
       ]
     },
     {
-      section: 'プラグイン',
+      section: 'KASUGAIシリーズ',
       items: [
-        { href: 'https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin', text: 'プラグイン docs(GitHub)', ext: true },
+        { href: 'https://github.com/yamamoto-ryuzo/kasugai_canvas', text: 'KASUGAI Canvas', ext: true },
+        { href: 'https://github.com/yamamoto-ryuzo/kasugai_canvas/tree/main/docs', text: 'Canvas ドキュメント', ext: true },
+        { href: 'https://github.com/yamamoto-ryuzo/kasugai_qgis', text: 'kasugai_qgis ランチャー', ext: true },
+      ]
+    },
+    {
+      section: '開発基盤',
+      items: [
+        { href: 'harness.html', text: 'QGIS Live Harness' },
+        { href: 'internals.html', text: 'Harnessのプラグイン化' },
       ]
     },
     {

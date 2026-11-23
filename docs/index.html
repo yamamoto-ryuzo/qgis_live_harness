@@ -32,7 +32,62 @@
 <li><a class="card" href="distribution.html"><b>プラグイン配布</b><span>開発したプラグインを単独配布物にする手順と注意点</span></a></li>
 <li><a class="card" href="internals.html"><b>Harnessのプラグイン化</b><span>何がQGIS内に移せて、何が構造上外に残るのか</span></a></li>
 </ul>
-<h2>構成(全体像)</h2>
+<h2>基本構成 — 2つの柱</h2>
+<p>このリポジトリで開発・管理しているプロダクトは <strong>QGIS プラグイン群(<code>geo_*</code> 全9本)</strong> と
+<strong>KASUGAI シリーズ</strong> の2系統です。両者の橋渡しは <strong>geo_webview + KASUGAI Canvas</strong> が
+主経路として担い、すべてのプラグインは <strong>AI 操作面(bridge)</strong> を備えます。</p>
+<pre><code class="language-mermaid">flowchart LR
+    subgraph QP[&quot;QGISプラグイン群 geo_* (9本)&quot;]
+        SUITE[&quot;GeoSuite ワークフロー&lt;br/&gt;geo_userfunc → geo_import → geo_search&lt;br/&gt;→ geo_webview → geo_report / geo_excel&quot;]
+        OTH[&quot;geo_legend / geo_launcher&lt;br/&gt;geo_driver(制御ハブ)&quot;]
+    end
+
+    subgraph KS[&quot;KASUGAIシリーズ&quot;]
+        CANVAS[&quot;KASUGAI Canvas&lt;br/&gt;マルチエンジン WebGIS&lt;br/&gt;Cesium/MapLibre/OpenLayers/Leaflet&quot;]
+        LAUNCH[&quot;kasugai_qgis&lt;br/&gt;Rust製 QGISランチャー&quot;]
+    end
+
+    AI[&quot;AIエージェント / MCPクライアント&quot;]
+
+    QP --&gt;|&quot;geo_webview: .kasc + canvas_data&lt;br/&gt;/live 双方向同期&quot;| CANVAS
+    QP --&gt;|&quot;geo_launcher: 検出/導入/起動&quot;| LAUNCH
+    AI --&gt;|&quot;geo_driver + 各プラグイン bridge&lt;br/&gt;MCP / REST / ファイルJSONL&quot;| QP
+</code></pre>
+<table>
+<thead><tr><th>柱</th><th>構成</th></tr></thead>
+<tbody><tr>
+<td><strong>QGISプラグイン群</strong></td>
+<td>取り込み(geo_import)→検索(geo_search)→Web共有(geo_webview)→報告書(geo_report/geo_excel)の
+<a href="geosuite.html">GeoSuite ワークフロー</a>＋ geo_legend / geo_userfunc / geo_launcher / geo_driver の
+全9本(<a href="plugins.html">プラグイン一覧</a>)</td>
+</tr>
+<tr>
+<td><strong>KASUGAIシリーズ</strong></td>
+<td><strong>KASUGAI Canvas</strong>(.kasc を再生するマルチエンジン WebGIS)と
+<strong>kasugai_qgis</strong>(Rust製 QGIS/QField ランチャー)の関連プロダクト群</td>
+</tr>
+</tbody></table>
+
+<h3>連携: geo_webview + KASUGAI Canvas</h3>
+<p>QGIS プロジェクトは <strong>geo_webview</strong> がレイヤツリー・スタイル(.qml)・表示状態を
+<code>.kasc + canvas_data/</code> として出力し、KASUGAI Canvas がブラウザ(またはローカルアプリ)で
+そのまま再生します。<code>/live</code> 経路ではカメラ追従・選択表示・レイヤ編集差分の
+リアルタイム双方向同期が行え、QGIS=編集・生成 / Canvas=高速表示の2画面運用が主な使い方です。
+Canvas 側からは内蔵 AI チャットが geo_driver の MCP 経路を通じて QGIS を操作できます。</p>
+
+<h3>AI機能 — 全プラグインが AI 操作面を持つ</h3>
+<ul>
+<li><strong>geo_driver(制御ハブ)</strong>: <code>pyeval</code>(QGIS内任意Python)/<code>bridge_call</code>/
+<code>describe_plugins</code>/スクリーンショットをファイルJSONL・REST <code>/api/*</code>・MCP <code>/mcp</code> で公開。
+内蔵 AI アシスタントパネル(OpenAI互換/Anthropic/Gemini/Azure OpenAI/GitHub Copilot)も搭載</li>
+<li><strong>各プラグインの <code>bridge.py</code></strong>: <code>&lt;id&gt;Bridge</code> が操作APIを公開し、
+<code>pluginInfo()</code> 標準スキーマで自己記述。<code>describe_plugins</code> カタログから AI が
+ロード中プラグインの機能を自動発見して実行・検証できる</li>
+<li><strong>QGIS Live Harness(開発基盤)</strong>: AI が「書く→devreload で実機反映→pyeval/スクショで観測
+→test:live で検証」を人間なしで反復するエージェンティックループの基盤(下記)</li>
+</ul>
+
+<h2>構成(全体像) — 開発基盤としての Harness</h2>
 <pre><code class="language-mermaid">flowchart TB
     subgraph CL[&quot;クライアント&quot;]
         C[&quot;AI / CI / 人間&quot;]
