@@ -17,19 +17,11 @@
       ]
     },
     {
-      // QGIS側プラグイン群 — geo_* 全9本。GeoSuite ワークフロー順＋制御ハブ
+      // QGIS側プラグイン群 — geo_* 全9本の一覧・ワークフロー・制御ハブ
       section: 'QGISプラグイン',
       items: [
         { href: 'plugins.html', text: 'プラグイン一覧（全9件）' },
         { href: 'geosuite.html', text: 'GeoSuite — ワークフロー' },
-        { href: 'https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_userfunc/docs/', text: 'geo_userfunc', ext: true },
-        { href: 'https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_import/docs/', text: 'geo_import', ext: true },
-        { href: 'https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_search/docs/', text: 'geo_search', ext: true },
-        { href: 'https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_webview/docs/', text: 'geo_webview', ext: true },
-        { href: 'https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_report/docs/', text: 'geo_report', ext: true },
-        { href: 'https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_excel/docs/', text: 'geo_excel', ext: true },
-        { href: 'https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_legend/docs/', text: 'geo_legend', ext: true },
-        { href: 'https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_launcher/docs/', text: 'geo_launcher', ext: true },
         { href: 'driver.html', text: 'geo_driver — 制御ハブ' },
         { href: 'distribution.html', text: 'プラグイン配布' },
       ]
