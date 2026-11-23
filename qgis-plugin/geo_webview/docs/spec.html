@@ -207,7 +207,7 @@ HTTP ワーカースレッドから呼べる。</li>
 <h3 id="起動モードと出力形式">起動モード（CDN コンボ）と出力形式の関係</h3>
 <p>色分け: <span style="background:#e8f5e9;border:1px solid #2e7d32;padding:0 6px">緑 = 形式（データの中身）</span> <span style="background:#e3f2fd;border:1px solid #1565c0;padding:0 6px">青 = CDN（エンジン供給元）</span></p>
 <p><strong>図1. 起動ボタン</strong> — 「▶ WebView」（Web タブ）クリックで、<strong>エクスポート（図3）→ route 変換・起動先解決（図4）→ ブラウザ起動・データ供給（図5）</strong>の順に逐次処理する（並列ではない）。エクスポートが完了してから起動されるため、開かれる .kasc は必ず最新。なお「Open Live View」（Live タブ）は<strong>エクスポートを伴わない別経路</strong>で、<code>/live/kasc</code> のオンデマンド生成を使う（図6〜図8）。</p>
-<pre><code class="language-mermaid">flowchart LR
+<pre><code class="language-mermaid">flowchart TB
     BTN["▶ WebView&lt;br/&gt;（geo_webview パネル Web タブ）"]
     BTN --&gt;|クリック| F3["図3: 形式でエクスポート&lt;br/&gt;.kasc + canvas_data/ を生成"]
     F3 --&gt;|エクスポート完了後| F4["図4: CDN モードで route 変換&lt;br/&gt;起動先を解決"]
@@ -217,7 +217,7 @@ HTTP ワーカースレッドから呼べる。</li>
     class F3 fmt;
     class F4,F5 cdn;</code></pre>
 <p><strong>図2. パネル設定と永続化</strong> — 各設定は独立した QSettings キーに保存される。「カスタム（URL/FILE）欄」は CDN コンボで <code>custom</code> を選んだ場合の入力欄（<code>kasugai_hosted_value</code>）。</p>
-<pre><code class="language-mermaid">flowchart LR
+<pre><code class="language-mermaid">flowchart TB
     subgraph PANEL["geo_webview パネル"]
         VF["形式: コンボ&lt;br/&gt;native / recommended / geojson"]
         subgraph CDNBOX["CDN: コンボ"]
