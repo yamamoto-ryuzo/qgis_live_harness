@@ -894,7 +894,12 @@ class GeoWebView:
         """Canvas live ビューが開く Canvas エンジン URL を返す。
 
         .kasc は /live/kasc(オンデマンド生成・エクスポート不要)を
-        指し、中の live: 行で双方向連携が有効になる。
+        指し、中の live: 行で双方向連携が有効になる。エンジンの
+        配信元は3段で、1) 稼働中の Canvas アプリ(8510) →
+        2) 本サーバの /<engine>/ 静的フォールバック(インストール済み
+        web/ 配信。オフラインでも動く) → 3) ホスト版エンジン
+        (kasugai-canvas-web。Web タブの CDN コンボのチャンネル)の順。
+        アプリ未導入環境でも CDN によりライブビューが完結する。
         """
         srv = getattr(self, 'server_manager', None)
         port = (srv.get_server_port()
@@ -903,8 +908,25 @@ class GeoWebView:
             return None
         base = 'http://127.0.0.1:{0}'.format(port)
         kasc = base + '/live/kasc'
-        return '{0}/{1}/?kasc={2}'.format(
-            base, engine, urllib.parse.quote(kasc, safe=''))
+        kasc_q = urllib.parse.quote(kasc, safe='')
+        try:
+            from . import kasugai_export
+            # 1) 稼働中の Canvas アプリ — 一体運用の主経路。
+            #    アプリの web/ は自動更新に追随するため常に最新。
+            cport = int(kasugai_export.get_kasugai_port() or 8510)
+            if kasugai_export.detect_kasugai(cport):
+                return 'http://127.0.0.1:{0}/{1}/?kasc={2}'.format(
+                    cport, engine, kasc_q)
+            # 3) アプリ未導入(web/ が無い)場合はホスト版エンジンへ。
+            #    CORS は hosted オリジンを許可済み、PNA プリフライトも
+            #    対応済みのため CDN→:8089 のプライベートアクセスが成立
+            if not kasugai_export.find_kasugai_engine_dir(engine):
+                hosted = kasugai_export.hosted_engine_base()
+                return '{0}{1}/?kasc={2}'.format(hosted, engine, kasc_q)
+            # 2) インストール済み web/ は本サーバが静的配信(下の既定)
+        except Exception:  # nosec B110  # 検出失敗は既定フォールバックへ
+            pass
+        return '{0}/{1}/?kasc={2}'.format(base, engine, kasc_q)
 
     def _live_layer_catalog(self):
         """Live タブのレイヤコンボ用カタログ(ベクターのみを使う)。"""
