@@ -998,41 +998,53 @@ KASUGAI_WEB_HOST = (
     'https://yamamoto-ryuzo.github.io/kasugai-canvas-web/')
 HOSTED_CHANNELS = ('stable', 'unstable')
 SETTINGS_KEY_HOSTED_CHANNEL = 'kasugai_hosted_channel'
+SETTINGS_KEY_HOSTED_VALUE = 'kasugai_hosted_value'
 
 
 def get_hosted_channel():
     """QSettings の kasugai_hosted_channel(未設定は 'stable')を返す。
 
     'stable'/'unstable'、'canvas'(稼働中の Canvas アプリ :8510)、
-    完全URL(自前ホスト用)、またはローカルの web/ ディレクトリへの
-    ファイルパス(FILE モード: geo_webview サーバがそのツリーを
-    /<engine>/ で静的配信。開発・閉鎖網向け)を取る。
+    'url'(カスタム http(s) URL。実値は kasugai_hosted_value)、
+    'file'(ローカル web/ フォルダの FILE モード。実値は同キー)、
+    または直接書かれた URL/パス(旧形式互換)を取る。
     """
     v = (_qsettings().value(SETTINGS_KEY_HOSTED_CHANNEL, '') or '')
     return str(v).strip() or 'stable'
 
 
-def is_hosted_channel(channel=None):
-    """モード値がホスト側供給(stable/unstable/カスタムURL)なら True。
+def get_hosted_value():
+    """QSettings の kasugai_hosted_value(url/file モードの実値)を返す。
 
-    'local' やファイルパスは False(=ローカル/FILE モード)。
+    url モードでは http(s) ベースURL、file モードでは web/ フォルダ
+    パスを保持する。
+    """
+    v = (_qsettings().value(SETTINGS_KEY_HOSTED_VALUE, '') or '')
+    return str(v).strip()
+
+
+def is_hosted_channel(channel=None):
+    """モード値がホスト側供給(stable/unstable/url/カスタムURL)なら True。
+
+    'canvas'/'file'/'local'(legacy)やファイルパスは False(=ローカル系)。
     """
     ch = str(channel if channel is not None
               else get_hosted_channel() or 'stable').strip()
-    return ch.lower() in HOSTED_CHANNELS or ch.lower().startswith(
-        ('http://', 'https://'))
+    return ch.lower() in HOSTED_CHANNELS or ch.lower() == 'url' or         ch.lower().startswith(('http://', 'https://'))
 
 
 def local_channel_web_dir(channel=None):
-    """モード値がファイルパス(FILE モード)ならその web/ ディレクトリ。
+    """モード値が FILE 系ならその web/ ディレクトリを返す。
 
-    値が hosted 系や 'canvas'/'local'(legacy)なら None(=ホスト
-    供給/アプリ経路)。存在する web/ ツリー(index.html 必須)のみ
-    絶対パスで返す。
+    'file' は kasugai_hosted_value のパス、それ以外は直接書かれた
+    パス(旧形式)を使う。hosted 系や 'canvas'/'local'(legacy)なら
+    None。存在する web/ ツリー(index.html 必須)のみ絶対パスで返す。
     """
     ch = str(channel if channel is not None
               else get_hosted_channel() or 'stable').strip().strip('"')
-    if not ch or ch.lower() in HOSTED_CHANNELS or             ch.lower() in ('canvas', 'local') or             ch.lower().startswith(('http://', 'https://')):
+    if ch.lower() == 'file':
+        ch = get_hosted_value().strip().strip('"')
+    if not ch or ch.lower() in HOSTED_CHANNELS or             ch.lower() in ('canvas', 'local', 'url', 'file') or             ch.lower().startswith(('http://', 'https://')):
         return None
     if os.path.isfile(os.path.join(ch, 'index.html')):
         return os.path.abspath(ch)
@@ -1048,6 +1060,8 @@ def export_zip_name(channel=None):
     """
     ch = str(channel if channel is not None
              else get_hosted_channel()).strip()
+    if ch.lower() == 'url':
+        ch = get_hosted_value() or 'stable'
     if ch.lower() in HOSTED_CHANNELS:
         tag = ch.lower()
     elif not is_hosted_channel(ch):
@@ -1074,6 +1088,8 @@ def hosted_engine_base(channel=None):
     """
     ch = str(channel if channel is not None
              else get_hosted_channel()).strip()
+    if ch.lower() == 'url':
+        ch = get_hosted_value() or 'stable'
     if ch.lower().startswith(('http://', 'https://')):
         return ch if ch.endswith('/') else ch + '/'
     if ch.lower() not in HOSTED_CHANNELS:

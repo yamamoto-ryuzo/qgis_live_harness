@@ -110,6 +110,7 @@ class GeoWebViewPanel(QDockWidget):
         # Canvas の UI設定管理画面(ローカルアプリ専用)を開くボタン
         self.pushButton_kasugai_admin = getattr(self.ui, 'pushButton_kasugai_admin', None)
         self.pushButton_hosted_browse = getattr(self.ui, 'pushButton_hosted_browse', None)
+        self.lineEdit_hosted_value = getattr(self.ui, 'lineEdit_hosted_value', None)
         # 保存先表示(クリックでフォルダ選択)と既定リセット
         self.pushButton_kasugai_outdir = getattr(self.ui, 'pushButton_kasugai_outdir', None)
         self.pushButton_kasugai_outdir_reset = getattr(self.ui, 'pushButton_kasugai_outdir_reset', None)
@@ -540,6 +541,11 @@ class GeoWebViewPanel(QDockWidget):
                 QCoreApplication.translate(
                     'geo_webview',
                     "Browse for a local web/ folder (FILE mode — served at /<engine>/ by this server)"))
+        if hasattr(self.ui, 'lineEdit_hosted_value'):
+            self.ui.lineEdit_hosted_value.setToolTip(
+                QCoreApplication.translate(
+                    'geo_webview',
+                    "Engine source value — for 'url' an http(s) base URL ending with '/', for 'file' a local web/ folder path. Shows the resolved source for other modes (read-only)"))
         if hasattr(self.ui, 'pushButton_kasugai_admin'):
             self.ui.pushButton_kasugai_admin.setText(
                 QCoreApplication.translate('geo_webview', "Canvas Customize"))

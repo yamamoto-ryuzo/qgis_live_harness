@@ -601,6 +601,12 @@ class GeoWebView:
                             self.on_hosted_combo_changed)
                     except Exception:  # nosec B110  # 設計上の許容
                         pass
+                _value_edit = getattr(
+                    self.panel, 'lineEdit_hosted_value', None)
+                if _value_edit is not None:
+                    _value_edit.editingFinished.connect(
+                        self.on_hosted_value_changed)
+                self._sync_hosted_value_field()
 
                 # ベクター出力形式コンボ: 推奨形式スイッチ(vector_format)の
                 # パネル側入口。設定ダイアログの Vector Export Format と同じ
@@ -2067,17 +2073,25 @@ class GeoWebView:
                     and _os.path.isfile(
                         _os.path.join(folder, 'web', 'index.html')):
                 folder = _os.path.join(folder, 'web')
+            folder = folder.replace('/', '\\')
+            edit = getattr(self.panel, 'lineEdit_hosted_value', None)
+            if edit is not None:
+                edit.setText(folder)
+                self.on_hosted_value_changed()
+            elif combo is not None:
+                combo.setCurrentText(folder)
             if combo is not None:
-                combo.setCurrentText(folder.replace('/', '\\'))
+                combo.setCurrentText('file')
         except Exception as e:
             self._push_message(
                 "geo_webview", self.tr('Folder selection failed: {0}')
                 .format(e), level=2, duration=5)
 
     def on_hosted_combo_changed(self, text):
-        """Web配信パネルのCDN(ホスト版チャンネル)選択を QSettings に保存する。
+        """Web配信パネルのCDN(エンジン供給元モード)選択を QSettings に保存する。
 
-        'stable'/'unstable' または末尾'/'のカスタムベースURLを取る。
+        'stable'/'unstable'/'canvas'/'url'/'file' を取る
+        ('url'/'file' の実値は kasugai_hosted_value に別保存)。
         hosted_engine_base() が起動時に読むため即時反映される。
         """
         try:
@@ -2087,6 +2101,82 @@ class GeoWebView:
                 str(text or '').strip() or 'stable')
         except Exception:  # nosec B110  # 設計上の許容
             pass
+        self._sync_hosted_value_field()
+
+    def _hosted_mode_and_value(self):
+        """現在の CDN コンボモードと実値を (mode, value) で返す。"""
+        try:
+            from . import kasugai_export
+            mode = (kasugai_export.get_hosted_channel() or 'stable')
+            return mode, kasugai_export.get_hosted_value()
+        except Exception:  # nosec B110  # 設計上の許容
+            return 'stable', ''
+
+    def _sync_hosted_value_field(self):
+        """URL/パス表示欄をモードに合わせて同期する。
+
+        'url'/'file' は実値を編集可で表示、'canvas' は :8510、
+        hosted 系は解決先URLを読取専用で表示する。
+        """
+        edit = getattr(self.panel, 'lineEdit_hosted_value', None)
+        if edit is None:
+            return
+        mode, value = self._hosted_mode_and_value()
+        m = mode.strip().lower()
+        try:
+            from . import kasugai_export
+            if m == 'canvas':
+                port = int(kasugai_export.get_kasugai_port() or 8510)
+                text = 'http://127.0.0.1:{0}/'.format(port)
+                editable = False
+            elif m in ('url', 'file'):
+                text = value
+                editable = True
+            elif m.startswith(('http://', 'https://')) or (
+                    m not in ('stable', 'unstable') and '/' in mode):
+                text = mode  # 旧形式(直書きURL/パス)
+                editable = True
+            else:
+                text = kasugai_export.hosted_engine_base(mode)
+                editable = False
+        except Exception:  # nosec B110  # 表示のみの失敗は許容
+            text, editable = value, True
+        edit.setReadOnly(not editable)
+        if edit.text() != text:
+            edit.setText(text)
+
+    def on_hosted_value_changed(self):
+        """URL/パス表示欄の確定を kasugai_hosted_value に保存する。
+
+        固定モード(stable/unstable/canvas)選択中に編集した場合は
+        内容から url/file へ自動でモードを切り替える。
+        """
+        edit = getattr(self.panel, 'lineEdit_hosted_value', None)
+        if edit is None:
+            return
+        text = str(edit.text() or '').strip()
+        try:
+            from qgis.PyQt.QtCore import QSettings
+            QSettings('GeoWebView', 'geo_webview').setValue(
+                'kasugai_hosted_value', text)
+        except Exception:  # nosec B110  # 設計上の許容
+            return
+        combo = getattr(self.panel, 'comboBox_hosted', None)
+        if combo is None or not text:
+            return
+        mode = combo.currentText().strip().lower()
+        if mode in ('stable', 'unstable', 'canvas'):
+            # 内容から url/file を推定してモードも切替
+            if text.lower().startswith(('http://', 'https://')):
+                combo.setCurrentText('url')
+            else:
+                combo.setCurrentText('file')
+        elif mode not in ('url', 'file'):
+            # 旧形式(直書き) → トークンへ正規化
+            if text.lower().startswith(('http://', 'https://')):
+                combo.setCurrentText('url')
+            else:
+                combo.setCurrentText('file')
 
     def on_vector_format_changed(self, index):
         """パネルのベクター出力形式コンボを kasugai_vector_format へ保存する。
