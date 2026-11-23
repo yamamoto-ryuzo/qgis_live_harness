@@ -252,7 +252,6 @@
     "Note: Canvas-side filters (where= / attribute filtering) apply only to the bundled vector data row — they do NOT affect the baked tile image.": "注意：Canvas 端过滤器（where= / 属性过滤）仅适用于附带的矢量数据行——不会影响烘焙的瓦片图像。",
     "Only output visible layers — hidden layers are not written to the .kasc at all (basemap-group XYZ candidates keep their base: rows for the background selector, as before). Skipped layers cannot be turned on in Canvas. Uncheck to emit hidden layers as | off rows with all data converted (whole-project migration)": "仅输出可见图层——隐藏图层完全不写入 .kasc（底图组的 XYZ 候选图层仍像以前一样保留 base: 行用于背景选择器）。被跳过的图层无法在 Canvas 中开启。取消勾选则以 | off 行输出隐藏图层并转换全部数据（整个项目迁移用途）",
     "Open a page that mirrors the QGIS canvas for window sharing": "打开一个镜像 QGIS 画布、用于窗口共享的页面",
-    "Open the KASUGAI Canvas UI-config admin screen in the browser — per-engine UI show/hide, control defaults and startup tab. Requires the local Canvas app running (port 8510)": "在浏览器中打开 KASUGAI Canvas 的 UI 配置管理界面 — 按引擎显示/隐藏 UI、控件默认值和启动选项卡。需要本地 Canvas 应用运行中（端口 8510）",
     "Open the XYZ output folder (xyz_tiles/ — each layer has its own index.html viewer)": "打开 XYZ 输出文件夹（xyz_tiles/ — 每个图层有自己的 index.html 查看器）",
     "Open the export folder (.kasc / canvas_data/ / engine launchers)": "打开导出文件夹（.kasc / canvas_data/ / 引擎启动器）",
     "Open the exported project in KASUGAI Canvas (main integrated player) — registers the existing .kasc with a running Canvas (port 8510) and switches to it. Requires a prior export (Export button)": "在 KASUGAI Canvas（主集成播放器）中打开已导出的项目 — 将现有 .kasc 注册到运行中的 Canvas（端口 8510）并切换过去。需先执行导出（Export 按钮）",
@@ -363,7 +362,9 @@
     "Add failed": "添加失败",
     "Canvas Live View": "Canvas 实时视图",
     "Open Canvas Live View": "打开 Canvas 实时视图",
-    "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), 'canvas' (running Canvas app :8510), a custom http(s) base URL ending with '/', or a local web/ folder path (served at /<engine>/ by this server; for development or closed networks)": "▶ WebView / Live View 使用的引擎来源 — 'stable'/'unstable'（kasugai-canvas-web，无需安装 Canvas）、'canvas'（运行中的 Canvas 应用 :8510）、以 '/' 结尾的自定义 http(s) 基础 URL，或本地 web/ 文件夹路径（由本服务器在 /<engine>/ 提供；用于开发或封闭网络）"
+    "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), 'canvas' (running Canvas app :8510), a custom http(s) base URL ending with '/', or a local web/ folder path (served at /<engine>/ by this server; for development or closed networks)": "▶ WebView / Live View 使用的引擎来源 — 'stable'/'unstable'（kasugai-canvas-web，无需安装 Canvas）、'canvas'（运行中的 Canvas 应用 :8510）、以 '/' 结尾的自定义 http(s) 基础 URL，或本地 web/ 文件夹路径（由本服务器在 /<engine>/ 提供；用于开发或封闭网络）",
+    "Open the KASUGAI Canvas customization screen in the browser — per-engine UI show/hide, control defaults and startup tab. Requires the local Canvas app running (port 8510)": "在浏览器中打开 KASUGAI Canvas 自定义画面 — 按引擎显示/隐藏 UI、控件默认值和启动选项卡。需要本地 Canvas 应用运行中（端口 8510）",
+    "Canvas Customize": "Canvas 自定义"
   },
   "geo_webview.page": {
     "  rotation: ": "  旋转：",

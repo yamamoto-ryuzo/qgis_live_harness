@@ -252,7 +252,6 @@
     "Note: Canvas-side filters (where= / attribute filtering) apply only to the bundled vector data row — they do NOT affect the baked tile image.": "注意: Canvas 側フィルタ(where= / 属性絞り込み)は同梱ベクターデータ行にのみ適用され、焼き付けタイル画像には反映されません。",
     "Only output visible layers — hidden layers are not written to the .kasc at all (basemap-group XYZ candidates keep their base: rows for the background selector, as before). Skipped layers cannot be turned on in Canvas. Uncheck to emit hidden layers as | off rows with all data converted (whole-project migration)": "表示中レイヤのみ出力 — 非表示レイヤは .kasc に一切出力されません(背景図グループの XYZ 候補は従来通り base: 行として背景選択に出力)。スキップされたレイヤは Canvas で表示にできません。オフにすると非表示レイヤも | off 行として全データを変換・出力します(プロジェクト丸ごと引越し用)",
     "Open a page that mirrors the QGIS canvas for window sharing": "QGISキャンバスをミラー表示する共有ページを開きます",
-    "Open the KASUGAI Canvas UI-config admin screen in the browser — per-engine UI show/hide, control defaults and startup tab. Requires the local Canvas app running (port 8510)": "KASUGAI Canvas の UI 設定管理画面をブラウザで開きます — エンジン別の UI 表示/非表示・コントロール初期値・起動タブを設定できます。ローカル Canvas アプリ(ポート 8510)の起動が必要です",
     "Open the XYZ output folder (xyz_tiles/ — each layer has its own index.html viewer)": "XYZ 出力フォルダを開く(xyz_tiles/ — 各レイヤに専用の index.html ビューアあり)",
     "Open the export folder (.kasc / canvas_data/ / engine launchers)": "出力フォルダを開く（.kasc / canvas_data/ / エンジン起動HTML）",
     "Open the exported project in KASUGAI Canvas (main integrated player) — registers the existing .kasc with a running Canvas (port 8510) and switches to it. Requires a prior export (Export button)": "エクスポート済みのプロジェクトを KASUGAI Canvas（メイン統合プレイヤー）で開く — 稼働中の Canvas（ポート 8510）へ既存の .kasc を登録して表示を切り替えます。事前に Export での出力が必要です",
@@ -363,7 +362,9 @@
     "Add failed": "追加失敗",
     "Canvas Live View": "Canvas ライブビュー",
     "Open Canvas Live View": "Canvas ライブビューを開く",
-    "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), 'canvas' (running Canvas app :8510), a custom http(s) base URL ending with '/', or a local web/ folder path (served at /<engine>/ by this server; for development or closed networks)": "▶ WebView / Live View が使うエンジンの供給元 — 'stable'/'unstable'(kasugai-canvas-web。Canvas アプリ未導入でも完結)、'canvas'(稼働中の Canvas アプリ :8510)、末尾 '/' のカスタム http(s) ベースURL、またはローカルの web/ フォルダパス(本サーバが /<engine>/ で配信。開発時・閉鎖ネットワーク用)"
+    "Engine source used by ▶ WebView / Live View — 'stable'/'unstable' (kasugai-canvas-web, no Canvas install needed), 'canvas' (running Canvas app :8510), a custom http(s) base URL ending with '/', or a local web/ folder path (served at /<engine>/ by this server; for development or closed networks)": "▶ WebView / Live View が使うエンジンの供給元 — 'stable'/'unstable'(kasugai-canvas-web。Canvas アプリ未導入でも完結)、'canvas'(稼働中の Canvas アプリ :8510)、末尾 '/' のカスタム http(s) ベースURL、またはローカルの web/ フォルダパス(本サーバが /<engine>/ で配信。開発時・閉鎖ネットワーク用)",
+    "Open the KASUGAI Canvas customization screen in the browser — per-engine UI show/hide, control defaults and startup tab. Requires the local Canvas app running (port 8510)": "KASUGAI Canvas のカスタマイズ画面をブラウザで開く — エンジン別のUI表示/非表示・コントロール既定値・起動タブ。ローカルの Canvas アプリ(ポート8510)の稼働が必要",
+    "Canvas Customize": "CANVASカスタマイズ"
   },
   "geo_webview.page": {
     "  rotation: ": "  回転: ",

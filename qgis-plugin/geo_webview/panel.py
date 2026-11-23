@@ -536,11 +536,11 @@ class GeoWebViewPanel(QDockWidget):
                     "Open the geo_webview documentation site in the browser"))
         if hasattr(self.ui, 'pushButton_kasugai_admin'):
             self.ui.pushButton_kasugai_admin.setText(
-                QCoreApplication.translate('geo_webview', "Admin"))
+                QCoreApplication.translate('geo_webview', "Canvas Customize"))
             self.ui.pushButton_kasugai_admin.setToolTip(
                 QCoreApplication.translate(
                     'geo_webview',
-                    "Open the KASUGAI Canvas UI-config admin screen in the browser — per-engine UI show/hide, control defaults and startup tab. Requires the local Canvas app running (port 8510)"))
+                    "Open the KASUGAI Canvas customization screen in the browser — per-engine UI show/hide, control defaults and startup tab. Requires the local Canvas app running (port 8510)"))
 
         # ボタン
         if hasattr(self.ui, 'pushButton_generate'):
@@ -1779,7 +1779,7 @@ class GeoWebViewPanel(QDockWidget):
         Install は常時インストール(再インストール/修復)専用 —
         起動経路は CDN コンボの 'canvas' モード + ▶ WebView に
         一本化したため、検出状態でラベルを切り替えない。
-        「Admin」は稼働中アプリの /admin/ を開くだけなので、
+        「Canvas Customize」は稼働中アプリの /admin/ を開くだけなので、
         未稼働時はグレーアウトする。
         検出自体が失敗した場合は従来どおり通常表示のままにする。
         """
@@ -1796,7 +1796,7 @@ class GeoWebViewPanel(QDockWidget):
         except Exception:  # nosec B110  # 設計上の許容
             pass
 
-        # 「Admin」は稼働中の Canvas アプリ(8510)が必須。未稼働なら無効化。
+        # 「Canvas Customize」は稼働中の Canvas アプリ(8510)が必須。未稼働なら無効化。
         # 稼働検出は /api/capabilities への短い HTTP 呼出しのみ。
         admin = getattr(self.ui, 'pushButton_kasugai_admin', None)
         if admin is not None:

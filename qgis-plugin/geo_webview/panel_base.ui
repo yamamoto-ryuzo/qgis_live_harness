@@ -370,10 +370,10 @@
             <item row="1" column="1">
              <widget class="QPushButton" name="pushButton_kasugai_admin">
               <property name="text">
-               <string>Admin</string>
+               <string>Canvas Customize</string>
               </property>
               <property name="toolTip">
-               <string>Open the KASUGAI Canvas UI-config admin screen in the browser — per-engine UI show/hide, control defaults and startup tab. Requires the local Canvas app running (port 8510)</string>
+               <string>Open the KASUGAI Canvas customization screen in the browser — per-engine UI show/hide, control defaults and startup tab. Requires the local Canvas app running (port 8510)</string>
               </property>
               <property name="minimumSize">
                <size>
