@@ -282,7 +282,7 @@ HTTP ワーカースレッドから呼べる。</li>
 <p><code>Open Live View</code>（Live タブ・エンジン選択コンボ付き）/ ツールバー「Open Canvas Live View」/ bridge <code>liveView</code> が開く常駐 live ビュー。<strong>エクスポートは行わず</strong>、<code>?kasc=</code> が指す <code>GET /live/kasc</code> がリクエストごとに現在プロジェクトから .kasc をオンデマンド生成する（図6）。エンジン供給元は図4と同じ CDN コンボ（<code>kasugai_hosted_channel</code>）に従う（stable/unstable/custom URL=ホスト版、canvas=稼働中アプリ :8510、FILE=本サーバが指定 web/ を配信）。生成 .kasc 内の <code>live:</code> 行で Canvas が双方向連携モードへ入り、編集・視点・選択が相互反映される（図7）。CDN ホスト版を含む Canvas の AI チャットは <code>/live/mcp</code> リレー経由で Live Driver のツールを使える（図8）。POST は <code>/live/</code> 配下のみ受け付け、従来の CORS 許可リストが適用される。</p>
 <p>色分け（この節）: <span style="background:#fff3e0;border:1px solid #e65100;padding:0 6px">橙 = live API（/live/*）</span></p>
 <p><strong>図6. Live View の起動とデータ供給</strong> — 起動はブラウザで <code>&lt;engine&gt;/?kasc=&lt;base&gt;/live/kasc</code> を開くだけ。生成される .kasc の各行はエクスポート済みファイルではなく live API の URL を指し、データ・スタイル・描画はすべて :8089 がオンデマンドで供給する。</p>
-<pre><code class="language-mermaid">flowchart LR
+<pre><code class="language-mermaid">flowchart TB
     BTN["Open Live View&lt;br/&gt;（Live タブ・ツールバー&lt;br/&gt;bridge liveView）"]
     ENG["＜engine＞/?kasc=…/live/kasc&lt;br/&gt;（エンジン供給元は図4と同じ&lt;br/&gt;CDN コンボで解決）"]
     KASC["GET /live/kasc&lt;br/&gt;現在プロジェクトから毎回&lt;br/&gt;オンデマンド生成&lt;br/&gt;（エクスポート不要）"]
