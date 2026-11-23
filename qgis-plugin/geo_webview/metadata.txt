@@ -19,6 +19,7 @@ experimental = false
 deprecated = false
 hasProcessingProvider = false
 changelog = 
+	- 4.35.2: QGIS 4.2.3 非推奨警告解消(layer.attribution()→serverProperties().attribution())・Live View の QML シンボル画像を /live/file/ で配信(ローカルパス参照404を解消)・ベースマップ未選択時の「なし」を base: | none で Canvas へ伝搬・docs をタブ別 use/ 構成へ再編
 	- 4.33.0: Canvas Live 制御を QGIS 側へ集約 — パネル「Live」タブ新設(Open Live View エンジン選択起動/QGIS キャンバス追従・QGIS 選択表示の制御フラグ/プロジェクトレイヤの Canvas オンデマンド追加)。follow/selection は QSettings が正で GET /live/state の live.controls・POST /live/controls・bridge liveControls/liveSetControls/liveAddToCanvas で共有。add は live.add_layers キュー(seq 付き)へ積み Canvas が検出して範囲読み込み
 	- 4.32.1: パネル「Web配信(サーバレス)」のエンジン行+起動行を QGridLayout(等幅2列)へ統合し、「▶ WebView」ボタンを「Admin」と同じ列幅に揃えた(左列は Engine: ラベル+コンボの入れ子レイアウト)
 	- 4.31.0: 「3D Canvas View」ドック廃止・外部ブラウザ一本化 — QGIS 4.x は Qt Quick Software 描画強制により埋め込み WebView で WebGL が使えない(QTBUG-139109 対策)ため、埋め込みドックを撤去し live 表示は「Open Canvas Live View」アクション/bridge liveView の外部ブラウザ起動に統一。QTWEBENGINE_* env 正規化も撤去(/live/* エンドポイント・live_sync は無変更)

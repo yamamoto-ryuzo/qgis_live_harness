@@ -1028,7 +1028,7 @@ def get_hosted_value():
 def _custom_channel_value(channel=None):
     """custom/url/file 系モードの実値を返す。それ以外はモード値そのまま。"""
     ch = str(channel if channel is not None
-              else get_hosted_channel() or 'stable').strip()
+             else get_hosted_channel() or 'stable').strip()
     if ch.lower() in ('custom', 'url', 'file'):
         return get_hosted_value()
     return ch
@@ -1054,7 +1054,9 @@ def local_channel_web_dir(channel=None):
     絶対パスで返す。
     """
     ch = _custom_channel_value(channel).strip().strip('"')
-    if not ch or ch.lower() in HOSTED_CHANNELS or             ch.lower() in ('canvas', 'local') or             ch.lower().startswith(('http://', 'https://')):
+    if (not ch or ch.lower() in HOSTED_CHANNELS
+            or ch.lower() in ('canvas', 'local')
+            or ch.lower().startswith(('http://', 'https://'))):
         return None
     if os.path.isfile(os.path.join(ch, 'index.html')):
         return os.path.abspath(ch)
@@ -3690,7 +3692,7 @@ def export_layers_xyz(layers, out_dir=None, zmin=None, zmax=None,
              "warnings": [...]}
     """
     warnings = []
-    layers = [l for l in (layers or []) if l is not None]
+    layers = [lyr for lyr in (layers or []) if lyr is not None]
     root = os.path.abspath(out_dir or xyz_tiles_dir())
     if not layers:
         return {'root': root, 'layers': [], 'skipped': [],

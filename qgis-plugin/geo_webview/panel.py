@@ -717,12 +717,13 @@ class GeoWebViewPanel(QDockWidget):
         try:
             from qgis.utils import iface
             tv = iface.layerTreeView()
-            layers = ([l for l in tv.selectedLayers() if l is not None]
+            layers = ([lyr for lyr in tv.selectedLayers()
+                       if lyr is not None]
                       if tv is not None else [])
             if layers:
                 return layers
-            l = iface.activeLayer()
-            return [l] if l is not None else []
+            lyr = iface.activeLayer()
+            return [lyr] if lyr is not None else []
         except Exception:  # nosec B110  # 設計上の許容
             return []
 
@@ -735,7 +736,7 @@ class GeoWebViewPanel(QDockWidget):
         if layers:
             lbl.setText(QCoreApplication.translate(
                 'geo_webview', 'Selected: {0}').format(
-                    ', '.join(l.name() for l in layers)))
+                    ', '.join(lyr.name() for lyr in layers)))
         else:
             lbl.setText(QCoreApplication.translate(
                 'geo_webview',
@@ -921,7 +922,6 @@ class GeoWebViewPanel(QDockWidget):
         # メンバー全レイヤに共通する属性フィールドを列挙
         # (数値フィールドには '(num)' を付記)
         common = None
-        numeric = {}
         for layer in layers:
             names = {}
             try:
@@ -1716,8 +1716,8 @@ class GeoWebViewPanel(QDockWidget):
             try:
                 for i in range(item.childCount()):
                     m = item.child(i)
-                    if m.data(0, Qt.ItemDataRole.UserRole) in (None,
-                                                             'legend'):
+                    if m.data(0, Qt.ItemDataRole.UserRole) in (
+                            None, 'legend'):
                         continue
                     m.setCheckState(
                         0, Qt.CheckState.Checked if checked

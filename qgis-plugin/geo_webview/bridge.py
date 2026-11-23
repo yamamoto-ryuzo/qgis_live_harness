@@ -646,9 +646,8 @@ class GeoWebViewBridge:
             ctl = getattr(p, '_live_sync', None)
             return self._ok({
                 'url': p._live_url(engine or 'cesium'),
-                'viewActive': bool(
-                    getattr(ctl, 'view_active', False))
-                    if ctl is not None else None,
+                'viewActive': (bool(getattr(ctl, 'view_active', False))
+                               if ctl is not None else None),
             })
         if act in ('open', 'external'):
             url = p.open_external_live_view(engine or 'cesium')
@@ -1430,12 +1429,12 @@ class GeoWebViewBridge:
                 try:
                     from qgis.utils import iface
                     tv = iface.layerTreeView()
-                    targets = ([l for l in tv.selectedLayers()
-                                if l is not None]
+                    targets = ([lyr for lyr in tv.selectedLayers()
+                                if lyr is not None]
                                if tv is not None else [])
                     if not targets:
-                        l = iface.activeLayer()
-                        targets = [l] if l is not None else []
+                        lyr = iface.activeLayer()
+                        targets = [lyr] if lyr is not None else []
                 except Exception:  # nosec B110  # 設計上の許容
                     targets = []
                 if not targets:
