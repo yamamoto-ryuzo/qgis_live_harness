@@ -50,6 +50,16 @@ Web 地図公開（WebView でパッケージ化・パーマリンク共有）�
 スイート全体の詳細: <a href="geosuite.html">GeoSuite（このサイト内）</a> ·
   旧リポジトリ: <a href="https://github.com/yamamoto-ryuzo/geo_suite">geo_suite</a>（アーカイブ予定）</p>
 
+<h2><code>geo_driver</code></h2>
+<p>QGIS 内部を外部クライアントへ公開する制御専用プラグインで、この Harness の中核。
+ファイル JSONL・REST <code>/api/*</code>・MCP Streamable HTTP（<code>/mcp</code>）の3経路で
+任意 Python/JS の実行・地図キャンバスのスクリーンショットを提供します
+（localhost 限定・セッショントークン認証）。AI アシスタントパネル・ホットリロード・
+GeoSuite 共有ツールバー・レイヤ整理サービス（layer_org）も内蔵。</p>
+<p>ドキュメント: <a href="https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_driver/docs">qgis-plugin/geo_driver/docs/(Pages)</a> ·
+<a href="driver.html">driver.html（設計詳細）</a> /
+<a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_driver/README.md">ソース qgis-plugin/geo_driver/README.md</a></p>
+
 <h2><code>geo_userfunc</code></h2>
 <p><a href="geosuite.html">GeoSuite</a> 前段 — プロジェクト作成時のユーザー定義コード整備担当。
 ユーザー定義 Python コードのライブラリ管理プラットフォーム。
@@ -124,16 +134,6 @@ geo_userfunc の共有レジストリ経由で実行メニューを集約する�
 日本語・英語対応、QGIS 4.x（Qt6）対応。</p>
 <p>ドキュメント: <a href="https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_legend/docs">qgis-plugin/geo_legend/docs/(Pages)</a> ·
 ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_legend/README.md">qgis-plugin/geo_legend/README.md</a></p>
-
-<h2><code>geo_driver</code></h2>
-<p>QGIS 内部を外部クライアントへ公開する制御専用プラグインで、この Harness の中核。
-ファイル JSONL・REST <code>/api/*</code>・MCP Streamable HTTP（<code>/mcp</code>）の3経路で
-任意 Python/JS の実行・地図キャンバスのスクリーンショットを提供します
-（localhost 限定・セッショントークン認証）。AI アシスタントパネル・ホットリロード・
-GeoSuite 共有ツールバー・レイヤ整理サービス（layer_org）も内蔵。</p>
-<p>ドキュメント: <a href="https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_driver/docs">qgis-plugin/geo_driver/docs/(Pages)</a> ·
-<a href="driver.html">driver.html（設計詳細）</a> /
-<a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_driver/README.md">ソース qgis-plugin/geo_driver/README.md</a></p>
 
 <h2><code>geo_launcher</code></h2>
 <p>Rust 製 QGIS ランチャー <code>kasugai_qgis</code> を QGIS 内から管理する連携プラグイン。
