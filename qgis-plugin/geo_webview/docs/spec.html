@@ -238,7 +238,7 @@ HTTP ワーカースレッドから呼べる。</li>
     classDef cdn fill:#e3f2fd,stroke:#1565c0,color:#0d47a1;
     class VF,K1 fmt;
     class OPT,VAL,K2,K3 cdn;</code></pre>
-<p><strong>図3. 形式選択 → エクスポート内容</strong> — 「.kasc の中身」を決める経路。<strong>全ルート共通</strong>で、どの CDN モードで起動しても選択した形式がそのまま使われる。ベクターの <strong>.qml スタイル出力</strong>（<code>canvas_data/*.qml</code>＋行の <code>style=</code> 付与＋シンボル画像複製）は形式選択と<strong>独立</strong>で全ルート共通（詳細は後述「.qml スタイル出力」節）。</p>
+<p><strong>図3. 形式選択 → エクスポート内容</strong> — 「.kasc の中身」を決める経路。<strong>全ルート共通</strong>で、どの CDN モードで起動しても選択した形式がそのまま使われる。ベクターの <strong>.qml スタイル出力</strong>（<code>canvas_data/*.qml</code>＋行の <code>style=</code> 付与＋シンボル画像複製）は形式選択と<strong>独立</strong>で全ルート共通（詳細は後述「.qml スタイル出力」節）。なお形式選択の対象はベクターだけで、ラスタ（<code>geotiff:</code>/<code>image:</code> 行）・ベクター焼き付け XYZ（<code>*_xyz/</code>）・<code>fly_geojson:</code>・<code>custom-layer.js</code> 等の出力物も同じく canvas_data/ へ書かれる（一覧は後述「出力フォルダ構成」）。</p>
 <pre><code class="language-mermaid">flowchart LR
     K1["kasugai_vector_format"] --&gt; E0{"export_kasugai_project&lt;br/&gt;vector_format=None → QSettings 参照"}
     E0 --&gt;|"native"| E1["ネイティブ参照行&lt;br/&gt;gpkg: / geojson: / geoparquet:&lt;br/&gt;/ 3dtiles: / duckdb: 等"]
@@ -335,15 +335,26 @@ HTTP ワーカースレッドから呼べる。</li>
 <pre><code>&lt;out_dir&gt;/                    # 既定: &lt;ドキュメント&gt;/kasugai_canvas_qgis
 ├─ kasugai_canvas.kasc        # インスペクタ設定(外部プロジェクト登録対象)
 ├─ project.json               # {&quot;title&quot;: ...}
+├─ index.html + &lt;engine&gt;.html # 起動ランチャ(emit_launchers 時)
+├─ bookmarks.xml              # qgis_bookmarks 形式(emit_bookmarks 時)
+├─ live.json                  # live 連携マニフェスト(live_sync 時)
 └─ canvas_data/
-   ├─ *.geojson               # 変換失敗時の最終フォールバック出力(EPSG:4326)
-   ├─ *.fgb                   # ベクター変換の第1候補出力 / ネイティブ参照の FGB(複製)
+   ├─ *.geojson               # geojson モード変換 / 変換失敗時の最終フォールバック(EPSG:4326)
+   ├─ *.fgb                   # recommended 変換 / ネイティブ参照の FGB(複製)
    ├─ *.gpkg                  # ネイティブ参照の GPKG(複製)
-   ├─ *.parquet               # ネイティブ参照の Parquet(複製)
+   ├─ *.parquet               # ネイティブ参照の Parquet(複製) / FGB ドライバ無し時の変換先
+   ├─ *.shp + sidecars        # ネイティブ参照(.dbf/.shx/.prj 等を一式複製)
    ├─ *.csv / *.tsv           # duckdb: 参照の区切りテキスト(複製)
+   ├─ *.gpx/.kml/.topojson 等 # その他ネイティブ参照の複製(_NATIVE_KINDS)
+   ├─ *.tif / *.tiff          # geotiff: 行のローカル GeoTIFF/COG(複製)
+   ├─ *.png                   # image: 行のラスタ焼き付け PNG(非 GeoTIFF・再現不能レンダラ)
    ├─ &lt;dir&gt;/                  # ローカル 3D Tiles / ローカル XYZ タイルの複製(1GiB 上限)
-   ├─ *.qml                   # 各ベクターレイヤの QGIS スタイル
-   └─ *.svg / *.png 等        # .qml が参照するシンボル画像(QGIS 内蔵SVG・ローカル画像の複製)
+   ├─ &lt;slug&gt;_xyz/            # 大規模・複雑スタイルのベクター焼き付け XYZ({z}/{x}/{y}.png + index.html)
+   ├─ anim3d_*.geojson        # 3D ビューアニメーションのカメラ軌道(fly_geojson: 行)
+   ├─ atlas_*.geojson         # アトラス巡回パス(fly_geojson: 行)
+   ├─ *.qml                   # 各ベクターの QGIS スタイル(&lt;slug&gt;__&lt;theme&gt;.qml = テーマ別名付きスタイル)
+   ├─ *.svg / *.png 等        # .qml が参照するシンボル画像(QGIS 内蔵SVG・ローカル画像の複製)
+   └─ custom-layer.js         # site= 出力時の custom-layer プラグイン JS
 </code></pre>
 <h3 id="kasc-行の生成規則">.kasc 行の生成規則</h3>
 <p>| QGIS 側 | .kasc 行 | 備考 |
