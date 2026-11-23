@@ -17,21 +17,31 @@
       ]
     },
     {
+      // QGIS側プラグイン群 — geo_* 全9本。GeoSuite ワークフロー順＋制御ハブ
       section: 'QGISプラグイン',
       items: [
         { href: 'plugins.html', text: 'プラグイン一覧（全9件）' },
         { href: 'geosuite.html', text: 'GeoSuite — ワークフロー' },
+        { href: 'https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_userfunc', text: 'geo_userfunc', ext: true },
+        { href: 'https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_import', text: 'geo_import', ext: true },
+        { href: 'https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_search', text: 'geo_search', ext: true },
+        { href: 'https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_webview', text: 'geo_webview', ext: true },
+        { href: 'https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_report', text: 'geo_report', ext: true },
+        { href: 'https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_excel', text: 'geo_excel', ext: true },
+        { href: 'https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_legend', text: 'geo_legend', ext: true },
+        { href: 'https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_launcher', text: 'geo_launcher', ext: true },
         { href: 'driver.html', text: 'geo_driver — 制御ハブ' },
         { href: 'distribution.html', text: 'プラグイン配布' },
-        { href: 'https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin', text: '各プラグイン docs(GitHub)', ext: true },
       ]
     },
     {
+      // KASUGAIシリーズ — 連携の主経路は geo_webview + KASUGAI Canvas
       section: 'KASUGAIシリーズ',
       items: [
         { href: 'https://github.com/yamamoto-ryuzo/kasugai_canvas', text: 'KASUGAI Canvas', ext: true },
         { href: 'https://github.com/yamamoto-ryuzo/kasugai_canvas/tree/main/docs', text: 'Canvas ドキュメント', ext: true },
         { href: 'https://github.com/yamamoto-ryuzo/kasugai_qgis', text: 'kasugai_qgis ランチャー', ext: true },
+        { href: 'https://github.com/yamamoto-ryuzo/kasugai-canvas-web', text: 'kasugai-canvas-web（CDN版）', ext: true },
       ]
     },
     {
