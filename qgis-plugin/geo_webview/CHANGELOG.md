@@ -1,5 +1,24 @@
 # 変更履歴(Changelog)
 
+## 4.33.0
+
+- **Canvas Live 制御を QGIS 側へ集約(パネル「Live」タブ新設)** — これまで Canvas 側の「QGIS Live」パネルにあった操作(追従チェック/選択表示チェック/レイヤ追加)を geo_webview パネルへ移設し、QGIS 側を正とする構成に統一。Live タブは `tabWidget_main` の Web タブ直後へ動的挿入(`panel.py` コード生成・panel_base.ui 変更不要)。構成: エンジン選択コンボ+「Open Live View」(`/live/kasc` 経路・`open_external_live_view`)、「Follow QGIS canvas」「Show QGIS selection」チェック、ベクターレイヤ選択コンボ+「Add to Canvas」、ステータスラベル
+- **制御フラグの正を QSettings に集約** — `live_sync.live_controls()`/`set_live_controls()` が `kasugai_live_follow`(既定 false)/`kasugai_live_selection`(既定 true) を QSettings へ永続化。`GET /live/state` の `live.controls`・`POST /live/controls`・bridge・パネルの全経路で同じ値を返し、変更時は `server_manager.on_live_controls_changed` フックでパネル表示へ逆同期する
+- **`POST /live/controls` エンドポイント追加** — body `{follow?:bool, selection?:bool, add?:"<kasc title>"}`。follow/selection は QSettings へ、add は `live.add_layers` キュー(seq 連番・直近50件保持)へ積む。Canvas 側は 400ms ポーリングの `/live/state` から controls を読み、未処理 seq の add_layers を検出して `/live/features` 範囲読み込みでレイヤ化する
+- **bridge メソッド追加** — `liveControls`(現在値)/`liveSetControls`(更新・payload または follow/selection 引数)/`liveAddToCanvas`(レイヤ追加キュー投入)。AI エージェントからも Canvas 追従・選択表示・レイヤ追加を操作可能
+- **Canvas 側変更(kasugai_canvas リポジトリ)** — `web/shared/live-panel.js` は接続バッジのみに退化(操作 UI 撤去)、`web/shared/live.js` が controls 適用+add_layers 処理を担う。複数 Canvas ビューア接続時は制御が一律適用される点に注意(通常の非 live アプリは無関係)
+
+## 4.32.1
+
+- **「▶ WebView」ボタンを「Admin」と同じ幅に揃えた** — パネル「Web配信(サーバレス)」のエンジン選択行(`Engine:` ラベル+コンボ+`▶ WebView`)と起動行(`▶ Canvas`/`Admin`)を1つの `QGridLayout`(等幅2列)へ統合。左列は `Engine:` ラベル+エンジンコンボの入れ子レイアウトとし、右列の `▶ WebView` が下段 `Admin` と同一列幅・右端揃いになるよう修正(従来はラベル分だけ右側が狭く不揃いだった)
+
+## 4.32.0
+
+- **ライブモードでベクターをネイティブ形式のまま配信** — `/live/kasc` は従来全ベクターを `geojson:` 行 + `/live/features`(GeoJSON オンデマンド配信・既定上限2000件)へ一律変換していたが、WebGIS としての形式別性能を測るため原本形式を維持するよう変更。ファイル/URL ソースは `_native_ref` と同じ判定で `gpkg:`/`geojson:`/`geoparquet:`/`flatgeobuf:`/`shp:`/`kml:`/`gpx:`/`topojson:`/`duckdb:`(CSV/TSV・subset 付き Parquet) 行を出力し、ローカルファイルは新エンドポイント `GET /live/file/<urlencoded-abs-path>` 経由で原本を直接配信(コピー無し・`where=`/各種オプション・`style=` は従来通り)。ファイルを持たないソース(メモリ/PostGIS/再投影必要等)のみ `/live/features` へフォールバックし、URL に `limit=20000`(サーバ上限)を明示
+- **`GET /live/file/` エンドポイント追加** — 現在プロジェクトのレイヤソース実パス(`_source_path` 解決)と Shapefile sidecar(.dbf/.shx/.prj 等・`foo.shp.xml` 含む)・SQLite `-wal`/`-shm` のみを許可するホワイトリスト方式で、それ以外のパスは 403。`Range: bytes=` 単一範囲に対応し FlatGeobuf/GeoParquet の範囲読み(206 Partial Content)が動く。gpkg:/flatgeobuf: の `bbox=auto` 表示範囲連動絞り込みもネイティブ行のまま機能する
+- **編集中レイヤはライブ表示から除外** — `isEditable()` のレイヤは原本ファイルに未保存編集が反映されず、かつ GeoJSON 全件転送は大レイヤで重いため、ライブ kasc から除外(`# skipped:` 注記付き)する運用とした。編集終了(保存/ロールバック)で自動復帰
+- **Canvas 側修正(kasugai_canvas リポジトリ)** — `/live/features` 応答のエンベロープ `{ok, geojson:{...}}` が `normalizeGeoJsonToFeatureCollection` で空に正規化され、従来の geojson: 行が**地物0件を描画**していた問題を修正(`.geojson` メンバーの再帰アンラップ。shared/vector-load.js・全エンジン共通)
+
 ## 4.31.0
 
 - **「3D Canvas View」ドックを廃止し外部ブラウザに一本化** — QGIS 4.x は QTBUG-139109 対策の `QQuickWindow::setGraphicsApi(Software)` により埋め込み WebView で WebGL が使えないことが確定したため、半機能の埋め込みドック(WebGL 不要エンジン表示+WebGL 系の外部委譲)を撤去。live 表示は「Open Canvas Live View」アクションまたは bridge `liveView`(旧 `live3dView`)で既定ブラウザを開く構成に統一(フル WebGL/Cesium・同一 live セッション)。QGIS 内の「ざっと確認」は外部ブラウザ側に集約される

@@ -4,8 +4,10 @@
 
 GET /live/kasc が呼ばれるたびに現在のレイヤツリー・表示状態・
 スタイルから .kasc を組み立てる。ベクターは canvas_data/ への
-変換・複写を行わず ``/live/features``(GeoJSON オンデマンド配信)と
-``/live/style``(.qml オンデマンド出力)へ振り向けるので、
+変換・複写を行わず、ファイル/URL ソースはネイティブ形式のまま
+``/live/file``(原本配信)を参照し、ファイルを持たないソースは
+``/live/features``(GeoJSON オンデマンド配信)へ振り向ける。
+スタイルは ``/live/style``(.qml オンデマンド出力)。
 「QGIS のデータをそのまま表示」する経路になる。
 
 Canvas がネイティブ再現できないラスタ(GDAL ラスタ等)は
@@ -104,7 +106,25 @@ def build_live_kasc(iface, base_url, warnings=None):
         return urllib.parse.quote(str(s), safe='')
 
     def feat_url(title):
-        return '{0}/live/features?layer={1}'.format(base, enc(title))
+        # limit 未指定だとサーバ既定 2000 で静かに切り詰められるため
+        # サーバ上限(20000)を明示する。超過分は応答の truncated で判別
+        return '{0}/live/features?layer={1}&limit=20000'.format(
+            base, enc(title))
+
+    def live_file_ref(path):
+        # 原本ファイルを /live/file/<encoded-abs-path> で配信する参照。
+        # shpjs 等が URL 文字列末尾の拡張子置換で sidecar(.dbf 等)を
+        # 派生するため、パス全体を1セグメントへエンコードする。
+        # http(s) ソースや file:// 形式(delimitedtext)はそのまま/
+        # 実パスへ正規化して返す
+        p = urllib.parse.unquote(str(path or '')).split('?')[0]
+        if re.match(r'https?://', p):
+            return p
+        if p.startswith('file://'):
+            p = p[7:]
+        if re.match(r'^/[A-Za-z]:/', p):
+            p = p[1:]
+        return '{0}/live/file/{1}'.format(base, enc(p))
 
     def style_url(title, name=None):
         u = '{0}/live/style?layer={1}'.format(base, enc(title))
@@ -172,6 +192,57 @@ def build_live_kasc(iface, base_url, warnings=None):
                         continue
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
+                # 編集中レイヤはライブ表示から除外(原本ファイルには
+                # 未保存の編集が反映されず、GeoJSON 経路は大レイヤで
+                # 重いため運用上除く。編集終了で復帰する)
+                try:
+                    if layer.isEditable():
+                        skipped.append(
+                            '{0} (編集中のためライブ表示を除外)'.format(
+                                layer.name()))
+                        continue
+                except Exception:  # nosec B110  # 設計上の許容
+                    pass
+                # ファイル/URL ソースはネイティブ形式のまま原本を配信
+                # (WebGIS としての形式別性能をそのまま測れるようにする。
+                # _native_ref のローカルファイル複製を /live/file 参照に
+                # 置き換える file_ref 経路)
+                native = None
+                try:
+                    native = ex._native_ref(
+                        layer, '', '', {}, warnings,
+                        write=False, file_ref=live_file_ref)
+                except Exception as e:
+                    warnings.append(
+                        '{0}: native ref failed: {1}'.format(
+                            layer.name(), e))
+                if isinstance(native, dict) and native.get('type') \
+                        and native.get('ref'):
+                    opts = dict(native.get('opts') or {})
+                    # where= は行の最終オプション(値は行末まで)
+                    where_val = opts.pop('where', None)
+                    line = '{0}: {1} | {2} | {3}'.format(
+                        native['type'], title,
+                        ex._kasc_escape(native['ref']), vis_flag)
+                    for key, val in opts.items():
+                        line += ' | {0}={1}'.format(
+                            key, ex._kasc_escape(val))
+                    line += ' | style={0}'.format(style_url(title))
+                    line += ex._vector_opts_suffix(layer, warnings)
+                    line += ex._scale_vis_opt(layer)
+                    line += _attr_opt(layer)
+                    line += site_opt
+                    if where_val:
+                        line += ' | where={0}'.format(where_val)
+                    kasc_lines.append(line)
+                    emitted_ids.add(id(layer))
+                    ln_meta = ex._legend_node_line(_tn, title)
+                    if ln_meta:
+                        kasc_lines.append(ln_meta)
+                    continue
+                # ネイティブ参照できないソース(メモリ/PostGIS/CSV列推定
+                # 失敗・再投影必要等)は /live/features の GeoJSON
+                # オンデマンド配信へフォールバック
                 line = 'geojson: {0} | {1} | {2}'.format(
                     title, feat_url(title), vis_flag)
                 line += ' | style={0}'.format(style_url(title))

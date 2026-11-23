@@ -825,6 +825,27 @@ class GeoWebView:
                 except Exception:  # nosec B110  # 設計上の許容
                     pass
 
+                # Canvas Live タブのイベントを接続
+                try:
+                    if getattr(self.panel, 'set_live_view_handler', None):
+                        self.panel.set_live_view_handler(
+                            self.open_external_live_view)
+                    if getattr(self.panel, 'set_live_control_handler', None):
+                        self.panel.set_live_control_handler(
+                            self._on_live_control_changed)
+                    if getattr(self.panel, 'set_live_add_handler', None):
+                        self.panel.set_live_add_handler(
+                            self._on_live_add_to_canvas)
+                    if getattr(self.panel, 'set_live_catalog_provider', None):
+                        self.panel.set_live_catalog_provider(
+                            self._live_layer_catalog)
+                    # /live/controls・bridge 経由の変更もパネルへ同期
+                    self.server_manager.on_live_controls_changed = (
+                        self.panel.sync_live_controls)
+                except Exception as e:
+                    self._qgis_log(
+                        f'[DEBUG] live tab wiring failed: {e}', 'WARNING')
+
                 # If external control is already checked at panel creation, apply last origin
                 try:
                     if getattr(self.panel, 'checkBox_external_control', None) is not None and self.panel.checkBox_external_control.isChecked():
@@ -884,6 +905,38 @@ class GeoWebView:
         kasc = base + '/live/kasc'
         return '{0}/{1}/?kasc={2}'.format(
             base, engine, urllib.parse.quote(kasc, safe=''))
+
+    def _live_layer_catalog(self):
+        """Live タブのレイヤコンボ用カタログ(ベクターのみを使う)。"""
+        try:
+            cat = self.server_manager._live_layer_catalog() or {}
+            return cat.get('layers') or []
+        except Exception:  # nosec B110  # 設計上の許容
+            return []
+
+    def _on_live_control_changed(self, name, on):
+        """Live タブのチェックボックス → QSettings(=live.controls の正)。"""
+        try:
+            from . import live_sync
+            ctl = live_sync.set_live_controls(
+                **{str(name): bool(on)})
+            self._qgis_log(
+                f'live control {name}={bool(on)} -> {ctl}', 'INFO')
+        except Exception as e:
+            self._qgis_log(f'live control failed: {e}', 'WARNING')
+
+    def _on_live_add_to_canvas(self, title):
+        """Live タブの「Add to Canvas」→ live.add_layers キューへ。"""
+        try:
+            seq = self.server_manager.live_queue_add_layer(title)
+            if self.panel is not None:
+                self.panel.set_live_status(
+                    self.tr('Queued: {0}').format(title) if seq
+                    else self.tr('Add failed'))
+        except Exception as e:
+            self._qgis_log(f'live add failed: {e}', 'WARNING')
+            if self.panel is not None:
+                self.panel.set_live_status(str(e))
 
     def open_external_live_view(self, engine='cesium'):
         """Canvas live ビューを外部ブラウザで開く(QGIS+Canvas の2画面運用)。

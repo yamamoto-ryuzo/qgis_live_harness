@@ -345,7 +345,22 @@
     "🏠 Local: {0}": "🏠 本地: {0}",
     "📡 Available IPs: {0}": "📡 可用 IP: {0}",
     "Bakes the layer(s) selected in the Layers panel to XYZ tiles with the QGIS renderer. Output: <export folder>/xyz_tiles/<layer>/ + index.html.": "将选中的图层用 QGIS 渲染器烘焙为 XYZ 瓦片。输出：<导出文件夹>/xyz_tiles/<图层>/ + index.html。",
-    "Other": "其他"
+    "Other": "其他",
+    "Canvas Live": "Canvas Live",
+    "Live": "Live",
+    "Open Live View": "打开实时视图",
+    "Open the current project as a live view in the browser (served on demand via /live/kasc — no export needed)": "在浏览器中以实时视图打开当前项目（通过 /live/kasc 按需提供服务——无需导出）",
+    "Follow QGIS canvas": "跟随 QGIS 画布",
+    "Make the Canvas camera follow the QGIS canvas": "使 Canvas 相机跟随 QGIS 画布",
+    "Show QGIS selection": "显示 QGIS 选择",
+    "Highlight the features selected in QGIS on Canvas": "在 Canvas 上高亮显示 QGIS 中选中的要素",
+    "Project vector layer to add to Canvas on demand": "按需添加到 Canvas 的项目矢量图层",
+    "Add to Canvas": "添加到 Canvas",
+    "Add the selected layer to the live Canvas (features are fetched for the current view extent)": "将所选图层添加到实时 Canvas（要素按当前视图范围获取）",
+    "Queued: {0}": "已加入队列：{0}",
+    "Add failed": "添加失败",
+    "Canvas Live View": "Canvas 实时视图",
+    "Open Canvas Live View": "打开 Canvas 实时视图"
   },
   "geo_webview.page": {
     "  rotation: ": "  旋转：",

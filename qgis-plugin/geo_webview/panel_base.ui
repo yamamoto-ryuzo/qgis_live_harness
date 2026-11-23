@@ -281,52 +281,56 @@
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_kasugai_launch">
-            <item>
-             <widget class="QLabel" name="label_engine">
-              <property name="text">
-               <string>Engine:</string>
-              </property>
-             </widget>
+           <layout class="QGridLayout" name="gridLayout_kasugai_launch" columnstretch="1,1">
+            <item row="0" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_kasugai_engine">
+              <item>
+               <widget class="QLabel" name="label_engine">
+                <property name="text">
+                 <string>Engine:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboBox_engine">
+                <property name="toolTip">
+                 <string>Engine used by the Open button (the exported package plays on all engines)</string>
+                </property>
+                <item>
+                 <property name="text">
+                  <string notr="true">Cesium (3D)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string notr="true">MapLibre</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string notr="true">OpenLayers</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string notr="true">Leaflet</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string notr="true">GSI Maps</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string notr="true">Navara</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
             </item>
-            <item>
-             <widget class="QComboBox" name="comboBox_engine">
-              <property name="toolTip">
-               <string>Engine used by the Open button (the exported package plays on all engines)</string>
-              </property>
-              <item>
-               <property name="text">
-                <string notr="true">Cesium (3D)</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string notr="true">MapLibre</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string notr="true">OpenLayers</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string notr="true">Leaflet</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string notr="true">GSI Maps</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string notr="true">Navara</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item>
+            <item row="0" column="1">
              <widget class="QPushButton" name="pushButton_kasugai_launch_hosted">
               <property name="text">
                <string>&#9654; WebView</string>
@@ -342,11 +346,7 @@
               </property>
              </widget>
             </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_kasugai_canvas">
-            <item>
+            <item row="1" column="0">
              <widget class="QPushButton" name="pushButton_kasugai_launch">
               <property name="text">
                <string>&#9654; Canvas</string>
@@ -362,7 +362,7 @@
               </property>
              </widget>
             </item>
-            <item>
+            <item row="1" column="1">
              <widget class="QPushButton" name="pushButton_kasugai_admin">
               <property name="text">
                <string>Admin</string>

@@ -2263,7 +2263,8 @@ def _fallback_driver():
     return 'GeoJSON', '.geojson', 'geojson'
 
 
-def _native_ref(layer, slug, data_dir, copied, warnings, write=True):
+def _native_ref(layer, slug, data_dir, copied, warnings, write=True,
+                file_ref=None):
     """Canvas が直接参照できるソースなら参照辞書を返す。
 
     戻り値: ``{'type': <kasc行タイプ>, 'ref': <参照>, 'opts': {k: v}}``、
@@ -2272,6 +2273,10 @@ def _native_ref(layer, slug, data_dir, copied, warnings, write=True):
     write=False(非表示 base: 候補の参照のみ出力)時はローカルファイルの
     新規コピーを行わず、リンク参照・既存コピーの再利用・URL参照のみ
     解決する(コピーが必要なら None → 呼び出し側はスキップ判定へ)。
+    file_ref(path)->ref を渡すとローカルファイルをコピーせずその
+    呼び出し結果を参照に使う(/live/file 配信等・live kasc 用)。
+    Shapefile sidecar も同一経路で解決される前提のため呼び出し側が
+    sidecar へのアクセスも保証すること。
 
     - http(s) ソース: 拡張子に応じて URL をそのまま参照
     - ローカルファイル: canvas_data/<slug><ext> へコピーして相対参照
@@ -2296,8 +2301,8 @@ def _native_ref(layer, slug, data_dir, copied, warnings, write=True):
             return {'skip_reason': 'ジオメトリ列なし(属性テーブル)'}
         if not _geo_equiv_crs(layer):
             return None  # 再投影が必要 → ベクター変換
-        ref = _duckdb_target_ref(path, slug, data_dir, copied,
-                                 write=write)
+        ref = file_ref(path) if file_ref else _duckdb_target_ref(
+            path, slug, data_dir, copied, write=write)
         if not ref:
             return None
         opts = {'format': 'tsv' if path.lower().endswith('.tsv') else 'csv'}
@@ -2361,8 +2366,9 @@ def _native_ref(layer, slug, data_dir, copied, warnings, write=True):
         if subset:
             opts['where'] = subset
         return {'type': 'duckdb',
-                'ref': _link_ref(src_path) or _copy_to_data(
-                    src_path, data_dir, slug, copied, write=write),
+                'ref': file_ref(src_path) if file_ref else
+                (_link_ref(src_path) or _copy_to_data(
+                    src_path, data_dir, slug, copied, write=write)),
                 'opts': opts}
 
     kind = _NATIVE_KINDS.get(ext)
@@ -2403,12 +2409,14 @@ def _native_ref(layer, slug, data_dir, copied, warnings, write=True):
             return None
     if ext == '.shp':
         # Shapefile は sidecar(.dbf/.shx/.prj 等)を一式コピー
-        # (link_files 時は _copy_shp_set 内で原本相対参照へ切替)
-        ref = _copy_shp_set(src_path, data_dir, slug, copied,
-                            write=write)
-    else:
-        ref = _link_ref(src_path) or _copy_to_data(
+        # (link_files 時は _copy_shp_set 内で原本相対参照へ切替。
+        # file_ref 指定時は原本パス参照のみ=sidecar も同一経路で解決)
+        ref = file_ref(src_path) if file_ref else _copy_shp_set(
             src_path, data_dir, slug, copied, write=write)
+    else:
+        ref = file_ref(src_path) if file_ref else (
+            _link_ref(src_path) or _copy_to_data(
+                src_path, data_dir, slug, copied, write=write))
     if not ref:
         return None
     opts = {}

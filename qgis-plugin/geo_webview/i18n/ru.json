@@ -342,7 +342,22 @@
     "🏠 Local: {0}": "🏠 Локально: {0}",
     "📡 Available IPs: {0}": "📡 Доступные IP: {0}",
     "Bakes the layer(s) selected in the Layers panel to XYZ tiles with the QGIS renderer. Output: <export folder>/xyz_tiles/<layer>/ + index.html.": "Запекает выбранные слои в XYZ-тайлы рендерером QGIS. Вывод: <папка экспорта>/xyz_tiles/<слой>/ + index.html.",
-    "Other": "Прочее"
+    "Other": "Прочее",
+    "Canvas Live": "Canvas Live",
+    "Live": "Live",
+    "Open Live View": "Открыть live-вид",
+    "Open the current project as a live view in the browser (served on demand via /live/kasc — no export needed)": "Открывает текущий проект как live-вид в браузере (обслуживается по запросу через /live/kasc — экспорт не требуется)",
+    "Follow QGIS canvas": "Следовать за картой QGIS",
+    "Make the Canvas camera follow the QGIS canvas": "Камера Canvas следует за картой QGIS",
+    "Show QGIS selection": "Показать выбор QGIS",
+    "Highlight the features selected in QGIS on Canvas": "Подсвечивает на Canvas объекты, выбранные в QGIS",
+    "Project vector layer to add to Canvas on demand": "Векторный слой проекта для добавления в Canvas по запросу",
+    "Add to Canvas": "Добавить в Canvas",
+    "Add the selected layer to the live Canvas (features are fetched for the current view extent)": "Добавляет выбранный слой в активный Canvas (объекты загружаются для текущего охвата)",
+    "Queued: {0}": "В очереди: {0}",
+    "Add failed": "Не удалось добавить",
+    "Canvas Live View": "Live-вид Canvas",
+    "Open Canvas Live View": "Открыть live-вид Canvas"
   },
   "geo_webview.page": {
     "  rotation: ": "  поворот: ",

@@ -345,7 +345,22 @@
     "🏠 Local: {0}": "🏠 Local: {0}",
     "📡 Available IPs: {0}": "📡 IPs disponíveis: {0}",
     "Bakes the layer(s) selected in the Layers panel to XYZ tiles with the QGIS renderer. Output: <export folder>/xyz_tiles/<layer>/ + index.html.": "Converte as camadas selecionadas em tiles XYZ com o renderizador QGIS. Saída: <pasta de exportação>/xyz_tiles/<camada>/ + index.html.",
-    "Other": "Outros"
+    "Other": "Outros",
+    "Canvas Live": "Canvas Live",
+    "Live": "Live",
+    "Open Live View": "Abrir vista ao vivo",
+    "Open the current project as a live view in the browser (served on demand via /live/kasc — no export needed)": "Abre o projeto atual como vista ao vivo no navegador (servido sob demanda via /live/kasc — sem exportação)",
+    "Follow QGIS canvas": "Seguir a tela do QGIS",
+    "Make the Canvas camera follow the QGIS canvas": "A câmera do Canvas segue a tela do QGIS",
+    "Show QGIS selection": "Mostrar seleção do QGIS",
+    "Highlight the features selected in QGIS on Canvas": "Destaca no Canvas os elementos selecionados no QGIS",
+    "Project vector layer to add to Canvas on demand": "Camada vetorial do projeto para adicionar ao Canvas sob demanda",
+    "Add to Canvas": "Adicionar ao Canvas",
+    "Add the selected layer to the live Canvas (features are fetched for the current view extent)": "Adiciona a camada selecionada ao Canvas ao vivo (as feições são obtidas para a extensão atual)",
+    "Queued: {0}": "Na fila: {0}",
+    "Add failed": "Falha ao adicionar",
+    "Canvas Live View": "Visualização ao vivo do Canvas",
+    "Open Canvas Live View": "Abrir visualização ao vivo do Canvas"
   },
   "geo_webview.page": {
     "  rotation: ": "  rotação: ",

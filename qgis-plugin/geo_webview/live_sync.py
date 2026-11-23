@@ -43,6 +43,40 @@ def live_enabled():
         return False
 
 
+def _settings_bool(s, key, default):
+    v = s.value(key, default)
+    if isinstance(v, bool):
+        return v
+    return str(v).lower() in ('true', '1', 'yes')
+
+
+def live_controls():
+    """Canvas Live 制御フラグ(QSettings)。
+
+    ``GET /live/state`` の ``live.controls`` として Canvas 側へ配信
+    される QGIS 側正の操作状態。follow=Canvas を QGIS キャンバスへ
+    追従、selection=QGIS 側選択を Canvas でハイライト表示。
+    """
+    try:
+        s = QSettings('GeoWebView', 'geo_webview')
+        return {
+            'follow': _settings_bool(s, 'kasugai_live_follow', False),
+            'selection': _settings_bool(s, 'kasugai_live_selection', True),
+        }
+    except Exception:  # nosec B110  # 設計上の許容
+        return {'follow': False, 'selection': True}
+
+
+def set_live_controls(follow=None, selection=None):
+    """Canvas Live 制御フラグを更新(QSettings)して現在値を返す。"""
+    s = QSettings('GeoWebView', 'geo_webview')
+    if follow is not None:
+        s.setValue('kasugai_live_follow', bool(follow))
+    if selection is not None:
+        s.setValue('kasugai_live_selection', bool(selection))
+    return live_controls()
+
+
 # レイヤシグナル名 → 変更種別。
 # 'data'=地物/フィルタ変更(GeoJSON等の再出力が必要)
 # 'style'=スタイル変更(.qml のみ再出力)

@@ -345,7 +345,22 @@
     "🏠 Local: {0}": "🏠 ローカル: {0}",
     "📡 Available IPs: {0}": "📡 利用可能なIP: {0}",
     "Bakes the layer(s) selected in the Layers panel to XYZ tiles with the QGIS renderer. Output: <export folder>/xyz_tiles/<layer>/ + index.html.": "選択中のレイヤを QGIS レンダラで XYZ タイルへ焼き付け。出力: <出力先>/xyz_tiles/<レイヤ>/ + index.html。",
-    "Other": "その他"
+    "Other": "その他",
+    "Canvas Live": "Canvas Live",
+    "Live": "Live",
+    "Open Live View": "ライブビューを開く",
+    "Open the current project as a live view in the browser (served on demand via /live/kasc — no export needed)": "現在のプロジェクトをブラウザでライブビューとして開きます(/live/kasc でオンデマンド配信・エクスポート不要)",
+    "Follow QGIS canvas": "QGIS キャンバスへ追従",
+    "Make the Canvas camera follow the QGIS canvas": "Canvas のカメラを QGIS キャンバスへ追従させます",
+    "Show QGIS selection": "QGIS の選択を表示",
+    "Highlight the features selected in QGIS on Canvas": "QGIS で選択した地物を Canvas 上でハイライト表示します",
+    "Project vector layer to add to Canvas on demand": "Canvas へオンデマンド追加するプロジェクトのベクターレイヤ",
+    "Add to Canvas": "Canvas へ追加",
+    "Add the selected layer to the live Canvas (features are fetched for the current view extent)": "選択したレイヤをライブ中の Canvas へ追加します(地物は現在の表示範囲で取得)",
+    "Queued: {0}": "キューに追加: {0}",
+    "Add failed": "追加失敗",
+    "Canvas Live View": "Canvas ライブビュー",
+    "Open Canvas Live View": "Canvas ライブビューを開く"
   },
   "geo_webview.page": {
     "  rotation: ": "  回転: ",

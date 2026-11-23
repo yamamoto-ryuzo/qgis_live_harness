@@ -114,6 +114,11 @@ class GeoWebViewPanel(QDockWidget):
         self.pushButton_kasugai_outdir_reset = getattr(self.ui, 'pushButton_kasugai_outdir_reset', None)
         self._kasugai_outdir_path = ''
         self.comboBox_engine = getattr(self.ui, 'comboBox_engine', None)
+        # 起動グリッドの左右列を均等化(▶ WebView を Admin と同幅に揃える)
+        _launch_grid = getattr(self.ui, 'gridLayout_kasugai_launch', None)
+        if _launch_grid is not None:
+            _launch_grid.setColumnStretch(0, 1)
+            _launch_grid.setColumnStretch(1, 1)
         # CDN(ホスト版エンジン)選択コンボ(▶ WebView のチャンネル)
         self.comboBox_hosted = getattr(self.ui, 'comboBox_hosted', None)
         # ベクター出力形式コンボ(推奨形式スイッチのパネル側入口)
@@ -193,6 +198,25 @@ class GeoWebViewPanel(QDockWidget):
         self.lineEdit_mac_auth = None
         try:
             self._build_sharing_group()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+        # Canvas Live 制御タブ(動的生成)
+        self._live_tab = None
+        self.groupBox_live = None
+        self.checkBox_live_follow = None
+        self.checkBox_live_selection = None
+        self.comboBox_live_engine = None
+        self.comboBox_live_layer = None
+        self.pushButton_live_open = None
+        self.pushButton_live_add = None
+        self.label_live_status = None
+        self._live_control_handler = None
+        self._live_view_handler = None
+        self._live_add_handler = None
+        self._live_catalog_provider = None
+        try:
+            self._build_live_tab()
         except Exception:  # nosec B110  # 設計上の許容
             pass
 
@@ -281,6 +305,40 @@ class GeoWebViewPanel(QDockWidget):
                     if _idx >= 0:
                         self.ui.tabWidget_main.setTabText(
                             _idx, QCoreApplication.translate('geo_webview', _text))
+            # 動的生成の Live タブ(page 名が無いため _live_tab で引く)
+            if getattr(self, '_live_tab', None) is not None:
+                _idx = self.ui.tabWidget_main.indexOf(self._live_tab)
+                if _idx >= 0:
+                    self.ui.tabWidget_main.setTabText(
+                        _idx, QCoreApplication.translate('geo_webview', 'Live'))
+
+        # 動的生成の Live タブ内の文字列(グループ/ボタン/チェック)
+        tr = QCoreApplication.translate
+        if getattr(self, 'groupBox_live', None) is not None:
+            self.groupBox_live.setTitle(tr('geo_webview', 'Canvas Live'))
+        if getattr(self, 'pushButton_live_open', None) is not None:
+            self.pushButton_live_open.setText(tr('geo_webview', 'Open Live View'))
+            self.pushButton_live_open.setToolTip(tr(
+                'geo_webview',
+                'Open the current project as a live view in the browser '
+                '(served on demand via /live/kasc — no export needed)'))
+        if getattr(self, 'checkBox_live_follow', None) is not None:
+            self.checkBox_live_follow.setText(tr('geo_webview', 'Follow QGIS canvas'))
+            self.checkBox_live_follow.setToolTip(tr(
+                'geo_webview', 'Make the Canvas camera follow the QGIS canvas'))
+        if getattr(self, 'checkBox_live_selection', None) is not None:
+            self.checkBox_live_selection.setText(tr('geo_webview', 'Show QGIS selection'))
+            self.checkBox_live_selection.setToolTip(tr(
+                'geo_webview', 'Highlight the features selected in QGIS on Canvas'))
+        if getattr(self, 'pushButton_live_add', None) is not None:
+            self.pushButton_live_add.setText(tr('geo_webview', 'Add to Canvas'))
+            self.pushButton_live_add.setToolTip(tr(
+                'geo_webview',
+                'Add the selected layer to the live Canvas '
+                '(features are fetched for the current view extent)'))
+        if getattr(self, 'comboBox_live_layer', None) is not None:
+            self.comboBox_live_layer.setToolTip(tr(
+                'geo_webview', 'Project vector layer to add to Canvas on demand'))
 
         # グループボックスのタイトル
         for _gb, _t in (
@@ -1975,3 +2033,213 @@ class GeoWebViewPanel(QDockWidget):
                 self.lineEdit_navigate.setText(text)
         except Exception:  # nosec B110  # 設計上の許容
             pass
+
+    # ---- Canvas Live 制御タブ(動的生成) ----
+
+    def _build_live_tab(self):
+        """Canvas Live 制御タブを動的に追加する。
+
+        ライブ連携中の Canvas 操縦を QGIS 側へ集約したもの
+        (Canvas 側 live パネルは接続表示のみ):
+        - Open Live View(エンジン選択付き・/live/kasc 経路)
+        - Canvas を QGIS キャンバスへ追従
+        - QGIS 側選択を Canvas でハイライト表示
+        - プロジェクトレイヤを Canvas へオンデマンド追加
+        実処理は set_live_*_handler で plugin 側へ委譲する。
+        状態の正は QSettings(live_sync.live_controls/set_live_controls)。
+        """
+        from qgis.PyQt.QtWidgets import (
+            QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, QCheckBox,
+            QPushButton, QComboBox, QLabel)
+        tabw = getattr(self.ui, 'tabWidget_main', None)
+        if tabw is None:
+            return
+        tr = QCoreApplication.translate
+
+        tab = QWidget()
+        vbox = QVBoxLayout(tab)
+        group = QGroupBox(tr('geo_webview', 'Canvas Live'))
+        self.groupBox_live = group
+        gl = QVBoxLayout(group)
+
+        row = QHBoxLayout()
+        self.comboBox_live_engine = QComboBox()
+        for label, eid in (
+                ('Cesium (3D)', 'cesium'), ('MapLibre', 'maplibre'),
+                ('OpenLayers', 'openlayers'), ('Leaflet', 'leaflet'),
+                ('GSI Maps', 'gsimaps'), ('Navara', 'navara')):
+            self.comboBox_live_engine.addItem(label, eid)
+        self.pushButton_live_open = QPushButton(
+            tr('geo_webview', 'Open Live View'))
+        self.pushButton_live_open.setToolTip(tr(
+            'geo_webview',
+            'Open the current project as a live view in the browser '
+            '(served on demand via /live/kasc — no export needed)'))
+        row.addWidget(self.comboBox_live_engine, 1)
+        row.addWidget(self.pushButton_live_open)
+        gl.addLayout(row)
+
+        self.checkBox_live_follow = QCheckBox(
+            tr('geo_webview', 'Follow QGIS canvas'))
+        self.checkBox_live_follow.setToolTip(tr(
+            'geo_webview',
+            'Make the Canvas camera follow the QGIS canvas'))
+        self.checkBox_live_selection = QCheckBox(
+            tr('geo_webview', 'Show QGIS selection'))
+        self.checkBox_live_selection.setToolTip(tr(
+            'geo_webview',
+            'Highlight the features selected in QGIS on Canvas'))
+        gl.addWidget(self.checkBox_live_follow)
+        gl.addWidget(self.checkBox_live_selection)
+
+        row2 = QHBoxLayout()
+        self.comboBox_live_layer = QComboBox()
+        self.comboBox_live_layer.setToolTip(tr(
+            'geo_webview',
+            'Project vector layer to add to Canvas on demand'))
+        self.pushButton_live_add = QPushButton(
+            tr('geo_webview', 'Add to Canvas'))
+        self.pushButton_live_add.setToolTip(tr(
+            'geo_webview',
+            'Add the selected layer to the live Canvas '
+            '(features are fetched for the current view extent)'))
+        row2.addWidget(self.comboBox_live_layer, 1)
+        row2.addWidget(self.pushButton_live_add)
+        gl.addLayout(row2)
+
+        self.label_live_status = QLabel('')
+        self.label_live_status.setStyleSheet('color:#777;font-size:0.85em;')
+        gl.addWidget(self.label_live_status)
+
+        vbox.addWidget(group)
+        vbox.addStretch(1)
+        self._live_tab = tab
+        # Web タブの直後(サーバ/起動系の隣)に差し込む
+        idx = tabw.insertTab(1, tab, tr('geo_webview', 'Live'))
+        self._live_tab_index = idx
+
+        # 初期値は QSettings の正から読む
+        self.sync_live_controls()
+
+        # イベント配線(実処理はハンドラ経由)
+        try:
+            self.checkBox_live_follow.stateChanged.connect(
+                lambda st: self._emit_live_control('follow', bool(st)))
+            self.checkBox_live_selection.stateChanged.connect(
+                lambda st: self._emit_live_control('selection', bool(st)))
+            self.pushButton_live_open.clicked.connect(
+                self._on_live_open_clicked)
+            self.pushButton_live_add.clicked.connect(
+                self._on_live_add_clicked)
+            tabw.currentChanged.connect(self._on_main_tab_changed)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        self.refresh_live_layers()
+
+    def _emit_live_control(self, name, on):
+        try:
+            if self._live_control_handler:
+                self._live_control_handler(name, on)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    def _on_live_open_clicked(self):
+        try:
+            engine = 'cesium'
+            if self.comboBox_live_engine is not None:
+                engine = self.comboBox_live_engine.currentData() or 'cesium'
+            if self._live_view_handler:
+                self._live_view_handler(engine)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    def _on_live_add_clicked(self):
+        try:
+            title = ''
+            if self.comboBox_live_layer is not None:
+                title = self.comboBox_live_layer.currentData() or ''
+            if title and self._live_add_handler:
+                self._live_add_handler(title)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    def _on_main_tab_changed(self, index):
+        # Live タブが選択されたタイミングでレイヤカタログを最新化する
+        try:
+            tabw = getattr(self.ui, 'tabWidget_main', None)
+            if (tabw is not None and self._live_tab is not None
+                    and tabw.widget(index) is self._live_tab):
+                self.refresh_live_layers()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    def set_live_control_handler(self, handler):
+        """制御フラグ変更ハンドラ: handler(name: str, on: bool)"""
+        self._live_control_handler = handler
+
+    def set_live_view_handler(self, handler):
+        """Live View 起動ハンドラ: handler(engine: str)"""
+        self._live_view_handler = handler
+
+    def set_live_add_handler(self, handler):
+        """レイヤ追加ハンドラ: handler(title: str)"""
+        self._live_add_handler = handler
+
+    def set_live_catalog_provider(self, provider):
+        """レイヤカタログ供給関数: () -> [{'title','type','count',...}]"""
+        self._live_catalog_provider = provider
+        # プロバイダ設定前はコンボが空のままのため即時反映する
+        self.refresh_live_layers()
+
+    def set_live_status(self, msg):
+        try:
+            if self.label_live_status is not None:
+                self.label_live_status.setText(str(msg or ''))
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    def sync_live_controls(self):
+        """QSettings の現在値をチェックボックスへ反映する。"""
+        try:
+            from . import live_sync
+            ctl = live_sync.live_controls()
+            for cb, key in ((self.checkBox_live_follow, 'follow'),
+                            (self.checkBox_live_selection, 'selection')):
+                if cb is not None:
+                    cb.blockSignals(True)
+                    cb.setChecked(bool(ctl.get(key)))
+                    cb.blockSignals(False)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+
+    def refresh_live_layers(self):
+        """プロジェクトのベクターレイヤ一覧をコンボへ再読込する。"""
+        combo = self.comboBox_live_layer
+        if combo is None:
+            return
+        try:
+            items = []
+            if self._live_catalog_provider:
+                catalog = self._live_catalog_provider() or []
+                items = [lyr for lyr in catalog
+                         if lyr.get('type') == 'vector']
+            cur = combo.currentData() if combo.count() else None
+            combo.blockSignals(True)
+            combo.clear()
+            for lyr in items:
+                title = str(lyr.get('title') or '')
+                count = lyr.get('count')
+                label = ('{0} ({1})'.format(title, count)
+                         if isinstance(count, int) else title)
+                combo.addItem(label, title)
+            if cur:
+                i = combo.findData(cur)
+                if i >= 0:
+                    combo.setCurrentIndex(i)
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        finally:
+            try:
+                combo.blockSignals(False)
+            except Exception:  # nosec B110  # 設計上の許容
+                pass

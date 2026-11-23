@@ -345,7 +345,22 @@
     "🏠 Local: {0}": "🏠 स्थानीय: {0}",
     "📡 Available IPs: {0}": "📡 उपलब्ध IP: {0}",
     "Bakes the layer(s) selected in the Layers panel to XYZ tiles with the QGIS renderer. Output: <export folder>/xyz_tiles/<layer>/ + index.html.": "Layers पैनल में चयनित लेयरों को QGIS रेंडरर से XYZ टाइलों में बेक करता है। आउटपुट: <एक्सपोर्ट फ़ोल्डर>/xyz_tiles/<लेयर>/ + index.html।",
-    "Other": "अन्य"
+    "Other": "अन्य",
+    "Canvas Live": "Canvas Live",
+    "Live": "Live",
+    "Open Live View": "लाइव व्यू खोलें",
+    "Open the current project as a live view in the browser (served on demand via /live/kasc — no export needed)": "वर्तमान प्रोजेक्ट को ब्राउज़र में लाइव व्यू के रूप में खोलता है (/live/kasc से ऑन-डिमांड सर्व – निर्यात आवश्यक नहीं)",
+    "Follow QGIS canvas": "QGIS कैनवस का अनुसरण करें",
+    "Make the Canvas camera follow the QGIS canvas": "Canvas कैमरा QGIS कैनवस का अनुसरण करता है",
+    "Show QGIS selection": "QGIS चयन दिखाएँ",
+    "Highlight the features selected in QGIS on Canvas": "QGIS में चयनित फीचर को Canvas पर हाइलाइट करता है",
+    "Project vector layer to add to Canvas on demand": "मांग पर Canvas में जोड़ने के लिए प्रोजेक्ट वेक्टर लेयर",
+    "Add to Canvas": "Canvas में जोड़ें",
+    "Add the selected layer to the live Canvas (features are fetched for the current view extent)": "चयनित लेयर को लाइव Canvas में जोड़ता है (फीचर वर्तमान दृश्य सीमा में प्राप्त होते हैं)",
+    "Queued: {0}": "कतार में: {0}",
+    "Add failed": "जोड़ना विफल",
+    "Canvas Live View": "Canvas लाइव व्यू",
+    "Open Canvas Live View": "Canvas लाइव व्यू खोलें"
   },
   "geo_webview.page": {
     "  rotation: ": "  घूर्णन: ",

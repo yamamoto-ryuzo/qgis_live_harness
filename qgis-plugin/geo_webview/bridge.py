@@ -113,6 +113,30 @@ class GeoWebViewBridge:
                 "ため外部ブラウザに一本化。",
             "example": {"method": "liveView", "args": ["open", "cesium"]},
         },
+        "liveControls": {
+            "description":
+                "Canvas Live 制御フラグ(follow=Canvas を QGIS キャンバスへ"
+                "追従 / selection=QGIS 選択を Canvas でハイライト)を返す。"
+                "QSettings が正でパネル Live タブと共有される。",
+            "example": {"method": "liveControls", "args": []},
+        },
+        "liveSetControls": {
+            "description":
+                "Canvas Live 制御フラグを更新する(QSettings 永続化・"
+                "GET /live/state の live.controls・パネル Live タブへ反映)。"
+                "POST /live/controls と同じ適用ロジック。",
+            "example": {"method": "liveSetControls",
+                        "args": [{"follow": True}]},
+        },
+        "liveAddToCanvas": {
+            "description":
+                "プロジェクトレイヤ(kasc タイトル)をライブ連携中の Canvas へ"
+                "オンデマンド追加する。live.add_layers キューへ積み、"
+                "Canvas が /live/state 経由で検出して /live/features の"
+                "範囲読み込みでレイヤ化する。",
+            "example": {"method": "liveAddToCanvas",
+                        "args": ["市区町村界"]},
+        },
         "serverStatus": {
             "description":
                 "HTTPサーバの稼働状態・ポート・URLを返す。deep=Trueで"
@@ -632,6 +656,44 @@ class GeoWebViewBridge:
             return self._ok({'url': url})
         return self._err(
             'unknown action: {0} (open/status)'.format(act))
+
+    def liveControls(self):
+        """Canvas Live 制御フラグ(follow/selection)を返す。"""
+        from . import live_sync
+        return self._ok({'controls': live_sync.live_controls()})
+
+    def liveSetControls(self, payload=None, follow=None, selection=None):
+        """Canvas Live 制御フラグを更新する。
+
+        payload: {"follow": bool, "selection": bool, "add": "<title>"}。
+        個別引数 follow/selection も可。POST /live/controls と同じ
+        適用ロジック(QSettings 永続化+パネル同期+add_layers キュー)。
+        """
+        srv = self._server()
+        if srv is None:
+            return self._err('server manager not available')
+        if payload is not None and not isinstance(payload, dict):
+            return self._err('payload must be a dict')
+        merged = dict(payload or {})
+        if follow is not None:
+            merged['follow'] = follow
+        if selection is not None:
+            merged['selection'] = selection
+        return self._ok(srv._apply_live_controls(merged))
+
+    def liveAddToCanvas(self, title=None):
+        """プロジェクトレイヤ(kasc タイトル)を Canvas へオンデマンド追加。
+
+        live.add_layers キューへ積み、Canvas が /live/state 経由で
+        検出して /live/features の範囲読み込みでレイヤ化する。
+        """
+        srv = self._server()
+        if srv is None:
+            return self._err('server manager not available')
+        seq = srv.live_queue_add_layer(title)
+        if not seq:
+            return self._err('empty title')
+        return self._ok({'queued': seq, 'title': title})
 
     # ---------- HTTPサーバ ----------
 
@@ -1597,7 +1659,7 @@ class GeoWebViewBridge:
              "description": "QGIS側選択地物(GeoJSON)"},
             {"path": "/live/render",
              "url": f"{base}/live/render?bbox=w,s,e,n&w=&h=",
-             "description": "4326範囲のマップ描画PNG(QGIS描画フォールバック)"},
+             "description": "4326範囲のマップ描画PNG(旧Canvas「QGIS描画」フォールバック用。残置)"},
         ]
         return self._ok({"running": server.is_server_running(),
                          "port": port, "base_url": base,

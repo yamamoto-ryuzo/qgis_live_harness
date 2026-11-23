@@ -257,7 +257,12 @@ class GeoWebViewServerManager:
             'changed': [], 'full': False,
             'camera': None, 'selection': None,
             'writeback': None, 'features': None,
+            'add_layers': [],
         }
+        # Canvas へのレイヤ追加要求の連番(live.add_layers の seq)
+        self._live_add_seq = 0
+        # live controls 変更時の通知フック(パネル同期用。plugin が設定)
+        self.on_live_controls_changed = None
         # 印刷レイアウトPDF出力もレイアウト参照の同時実行を防ぐため直列化する
         self._layout_lock = threading.Lock()
         # HTTPワーカーからGUIスレッドAPIを呼ぶための仲介
@@ -570,10 +575,13 @@ class GeoWebViewServerManager:
                 params[key] = [urllib.parse.unquote_plus(val) for val in params[key]]
             # Extract Host header for use in generated URLs (used for OnlineResource)
             host = None
+            range_header = None
             for line in request_text.splitlines():
-                if line.lower().startswith('host:'):
+                low = line.lower()
+                if low.startswith('host:'):
                     host = line.split(':', 1)[1].strip()
-                    break
+                elif low.startswith('range:'):
+                    range_header = line.split(':', 1)[1].strip()
 
             # HEAD は静的配信のみ応答する(エンジン自動探索プローブ用)
             if head_only:
@@ -710,8 +718,13 @@ class GeoWebViewServerManager:
             # live.qgis_selection は live_sync 側の選択監視が随時更新する
             if parsed_url.path == '/live/state' and not is_post:
                 try:
+                    from . import live_sync as _live_mod
+                    # controls は QSettings が正(パネル・POST /live/controls・
+                    # bridge のいずれの変更経路でも同じ値を返す)
+                    live = dict(self._live)
+                    live['controls'] = _live_mod.live_controls()
                     payload = json.dumps(
-                        {'ok': True, 'live': self._live,
+                        {'ok': True, 'live': live,
                          'canvas': self._main_invoker.call(
                              self._canvas_state_dict)},
                         ensure_ascii=False)
@@ -897,6 +910,31 @@ class GeoWebViewServerManager:
                         'text/plain; charset=utf-8')
                 return
 
+            # POST /live/controls : Canvas Live 制御フラグの更新。
+            # body: {follow?:bool, selection?:bool, add?:"<kasc title>"}
+            # follow/selection は QSettings が正。add はライヤ追加要求を
+            # live.add_layers キューへ積む(Canvas が /live/state 経由で検出)
+            if parsed_url.path == '/live/controls' and is_post:
+                try:
+                    payload = json.loads(
+                        req_body.decode('utf-8') or '{}')
+                    result = self._main_invoker.call(
+                        lambda: self._apply_live_controls(payload),
+                        timeout=30)
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 200, 'OK',
+                        json.dumps({'ok': True, **result},
+                                   ensure_ascii=False),
+                        'application/json; charset=utf-8')
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/controls failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
             # GET /live/layers : プロジェクトのレイヤーカタログ
             # (kasc タイトル付き。Canvas の「QGISからレイヤ追加」用)
             if parsed_url.path == '/live/layers' and not is_post:
@@ -939,6 +977,26 @@ class GeoWebViewServerManager:
                     http_server.send_http_response(
                         conn, 500, 'Internal Server Error',
                         f'live/kasc failed: {e}',
+                        'text/plain; charset=utf-8')
+                return
+
+            # GET /live/file/<encoded-abs-path> : プロジェクトレイヤの
+            # ソースファイルをネイティブ形式のまま配信する(live kasc の
+            # gpkg:/geojson:/geoparquet:/flatgeobuf:/shp:/duckdb: 行参照用)。
+            # 許可対象は現在プロジェクトのレイヤソース実パス＋Shapefile
+            # sidecar＋SQLite -wal/-shm のみ。Range(bytes)対応
+            # (FlatGeobuf/GeoParquet の範囲読み用)
+            if parsed_url.path.startswith('/live/file/') and not is_post:
+                try:
+                    self._handle_live_file(
+                        conn,
+                        parsed_url.path[len('/live/file/'):],
+                        range_header=range_header)
+                except Exception as e:
+                    from . import http_server
+                    http_server.send_http_response(
+                        conn, 500, 'Internal Server Error',
+                        f'live/file failed: {e}',
                         'text/plain; charset=utf-8')
                 return
 
@@ -1053,7 +1111,8 @@ class GeoWebViewServerManager:
                 return
 
             # GET /live/render : 4326 bbox 指定のマップ描画PNG
-            # (Canvas 側「QGIS描画」フォールバックオーバーレイ用)
+            # (旧 Canvas 側「QGIS描画」フォールバック用。Canvas 側は廃止済みだが
+            #  API として残置)
             # ?bbox=w,s,e,n(EPSG:4326)&w=&h=&layers=<kasc titles>&bg=transparent
             if parsed_url.path == '/live/render' and not is_post:
                 try:
@@ -1421,6 +1480,45 @@ class GeoWebViewServerManager:
         (Canvas 側は rev 変化でハイライトを再描画する)。
         """
         self._live['qgis_selection'] = dict(payload or {})
+
+    def live_queue_add_layer(self, title):
+        """Canvas へのレイヤ追加要求を live.add_layers キューへ積む。
+
+        Canvas は /live/state の live.add_layers から未処理 seq を
+        検出して /live/features オンデマンド読み込みを行う。
+        返り値は割り当てた seq(0=未登録)。
+        """
+        title = str(title or '').strip()
+        if not title:
+            return 0
+        self._live_add_seq += 1
+        self._live.setdefault('add_layers', []).append(
+            {'seq': self._live_add_seq, 'title': title})
+        # キューは直近50件に制限(取りこぼしは次回要求で補える)
+        del self._live['add_layers'][:-50]
+        return self._live_add_seq
+
+    def _apply_live_controls(self, payload):
+        """POST /live/controls ・パネルからの制御フラグ更新(GUIスレッド)。
+
+        follow/selection は QSettings へ永続化(=GET /live/state の
+        live.controls の正)。add はレイヤ追加要求としてキューへ積む。
+        """
+        from . import live_sync as _live_mod
+        payload = payload or {}
+        controls = _live_mod.set_live_controls(
+            follow=payload.get('follow'),
+            selection=payload.get('selection'))
+        queued = 0
+        if payload.get('add'):
+            queued = self.live_queue_add_layer(payload.get('add'))
+        try:
+            cb = self.on_live_controls_changed
+            if cb:
+                cb()
+        except Exception:  # nosec B110  # 設計上の許容
+            pass
+        return {'controls': controls, 'queued': queued}
 
     def _apply_live_camera(self, payload):
         """Canvas 側のカメラ(JSON)を QGIS キャンバスへ反映する(GUIスレッド)。
@@ -2003,7 +2101,8 @@ class GeoWebViewServerManager:
     def _handle_live_render(self, conn, params):
         """GET /live/render 用: EPSG:4326 の bbox で地図を描画しPNGを返す。
 
-        Canvas の「QGIS描画」フォールバックオーバーレイが使う。
+        旧 Canvas の「QGIS描画」フォールバックオーバーレイ向けだったが、
+        Canvas 側機能は廃止済みで API として残置。
         bg=transparent で背景透過、layers=<kasc titles,カンマ区切り> で
         描画対象レイヤを絞れる(省略時はキャンバスの全レイヤ)。
         応答 X-Map-Extent は EPSG:4326 で返し、配置側は
@@ -2738,6 +2837,108 @@ html,body{margin:0;padding:0;height:100%;background:#111;color:#eee;font-family:
         with open(target, 'rb') as f:
             data = f.read()
         http_server.send_binary_response(conn, 200, 'OK', data, ctype)
+
+    # Shapefile 参照時に sidecar として配信を許可する拡張子
+    _SHP_SIDECAR_EXTS = {
+        '.shp', '.dbf', '.shx', '.prj', '.cpg', '.qix', '.sbn', '.sbx',
+        '.fix', '.aih', '.ain', '.qpj', '.lyr', '.avl',
+    }
+
+    def _live_file_allowed(self, path):
+        """``path`` が現在プロジェクトのレイヤソース(またはその sidecar
+        /SQLite -wal/-shm)かを返す。GUIスレッドで呼ぶこと。"""
+        try:
+            from . import kasugai_export as ex
+            allowed = set()
+            for layer in QgsProject.instance().mapLayers().values():
+                try:
+                    p = ex._source_path(layer)
+                except Exception:  # nosec B110  # 判定不能は許可しない
+                    p = None
+                if p:
+                    allowed.add(os.path.normcase(os.path.abspath(p)))
+        except Exception:
+            return False
+        norm = os.path.normcase(os.path.abspath(path))
+        if norm in allowed:
+            return True
+        for base_p in allowed:
+            # SQLite ジャーナル(GPKG の WAL モード等)
+            if norm in (base_p + '-wal', base_p + '-shm'):
+                return True
+            # Shapefile sidecar: 要求のステム+.shp が許可済みか
+            stem, ext = os.path.splitext(norm)
+            if ext in self._SHP_SIDECAR_EXTS \
+                    and (stem + '.shp') in allowed:
+                return True
+            # foo.shp.xml 形式(ステム自体が許可ファイル)
+            if ext == '.xml' and stem in allowed:
+                return True
+        return False
+
+    def _handle_live_file(self, conn, enc_path, range_header=None):
+        """プロジェクトレイヤのソースファイルをそのまま配信する。
+
+        URL は ``/live/file/<urlencoded-abs-path>``(パス全体を1
+        セグメントにエンコード。shpjs の拡張子置換 sidecar 派生が
+        機能するよう末尾に元の拡張子を残す)。許可判定は
+        ``_live_file_allowed``。単一 Range(bytes) 要求に対応し、
+        FlatGeobuf/GeoParquet の範囲読み(206)を許す。
+        """
+        from . import http_server
+        path = urllib.parse.unquote(enc_path or '').strip()
+        if not path:
+            http_server.send_http_response(
+                conn, 404, 'Not Found', 'not found',
+                'text/plain; charset=utf-8')
+            return
+        try:
+            allowed = self._main_invoker.call(
+                lambda: self._live_file_allowed(path), timeout=15)
+        except Exception:
+            allowed = False
+        if not allowed:
+            http_server.send_http_response(
+                conn, 403, 'Forbidden',
+                'not a project layer source',
+                'text/plain; charset=utf-8')
+            return
+        if not os.path.isfile(path):
+            http_server.send_http_response(
+                conn, 404, 'Not Found', 'not found',
+                'text/plain; charset=utf-8')
+            return
+        ctype = self._static_content_type(path)
+        size = os.path.getsize(path)
+        start, end = 0, size - 1
+        status, reason = 200, 'OK'
+        if range_header:
+            m = re.match(r'bytes=(\d*)-(\d*)', range_header)
+            if m:
+                s_tok, e_tok = m.group(1), m.group(2)
+                if not s_tok and e_tok:
+                    start = max(0, size - int(e_tok))
+                elif s_tok:
+                    start = int(s_tok)
+                    if e_tok:
+                        end = min(int(e_tok), size - 1)
+                if start > end or start >= size:
+                    http_server.send_binary_response(
+                        conn, 416, 'Range Not Satisfiable', b'',
+                        'text/plain',
+                        ['Content-Range: bytes */{0}'.format(size),
+                         'Accept-Ranges: bytes'])
+                    return
+                status, reason = 206, 'Partial Content'
+        with open(path, 'rb') as f:
+            f.seek(start)
+            data = f.read(end - start + 1)
+        extra = ['Accept-Ranges: bytes']
+        if status == 206:
+            extra.append('Content-Range: bytes {0}-{1}/{2}'.format(
+                start, end, size))
+        http_server.send_binary_response(
+            conn, status, reason, data, ctype, extra)
 
     def _handle_canvas_web(self, conn, rel_path, head_only=False):
         """インストール済み KASUGAI Canvas の ``web/`` を静的配信する。
