@@ -36,7 +36,9 @@
 <p>このリポジトリで開発・管理しているプロダクトは <strong>QGIS プラグイン群(<code>geo_*</code> 全9本)</strong> と
 <strong>KASUGAI シリーズ</strong> の2系統です。両者の橋渡しは <strong>geo_webview + KASUGAI Canvas</strong> が
 主経路として担い、すべてのプラグインは <strong>AI 操作面(bridge)</strong> を備えます。</p>
-<pre><code class="language-mermaid">flowchart LR
+<pre><code class="language-mermaid">flowchart TB
+    AI[&quot;AIエージェント / MCPクライアント&quot;]
+
     subgraph QP[&quot;QGISプラグイン群 geo_* (9本)&quot;]
         SUITE[&quot;GeoSuite ワークフロー&lt;br/&gt;geo_userfunc → geo_import → geo_search&lt;br/&gt;→ geo_webview → geo_report / geo_excel&quot;]
         OTH[&quot;geo_legend / geo_launcher&lt;br/&gt;geo_driver(制御ハブ)&quot;]
@@ -47,11 +49,9 @@
         LAUNCH[&quot;kasugai_qgis&lt;br/&gt;Rust製 QGISランチャー&quot;]
     end
 
-    AI[&quot;AIエージェント / MCPクライアント&quot;]
-
+    AI --&gt;|&quot;geo_driver + 各プラグイン bridge&lt;br/&gt;MCP / REST / ファイルJSONL&quot;| QP
     QP --&gt;|&quot;geo_webview: .kasc + canvas_data&lt;br/&gt;/live 双方向同期&quot;| CANVAS
     QP --&gt;|&quot;geo_launcher: 検出/導入/起動&quot;| LAUNCH
-    AI --&gt;|&quot;geo_driver + 各プラグイン bridge&lt;br/&gt;MCP / REST / ファイルJSONL&quot;| QP
 </code></pre>
 <table>
 <thead><tr><th>柱</th><th>構成</th></tr></thead>
