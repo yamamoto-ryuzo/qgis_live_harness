@@ -560,6 +560,13 @@ class GeoWebView:
                             self.on_kasugai_launch_clicked('hosted')))
                     print("KASUGAI launch button connected: "
                           "pushButton_kasugai_launch_hosted")
+                # CDN コンボ横の「…」= web/ フォルダ選択(FILE モード)
+                _browse_btn = getattr(
+                    self.panel, 'pushButton_hosted_browse', None)
+                if _browse_btn is not None:
+                    _browse_btn.clicked.connect(
+                        lambda checked=False:
+                        self.on_hosted_browse_clicked())
 
                 # エンジン選択コンボ: 前回値の復元と保存
                 _engine_combo = getattr(
@@ -2031,6 +2038,41 @@ class GeoWebView:
                 'kasugai_engine', engine)
         except Exception:  # nosec B110  # 設計上の許容
             pass
+
+    def on_hosted_browse_clicked(self):
+        """CDN コンボ横「…」: web/ フォルダを選択して FILE モードにする。
+
+        選んだフォルダに index.html が無い場合は直下の web/ を
+        自動補完する(例: <install>/ を選んでも <install>/web/ へ)。
+        """
+        try:
+            from qgis.PyQt.QtWidgets import QFileDialog
+            combo = getattr(self.panel, 'comboBox_hosted', None)
+            start = ''
+            try:
+                from . import kasugai_export
+                start = (kasugai_export.detect_kasugai_install_dir()
+                         or '')
+            except Exception:  # nosec B110  # 既定パスなしで続行
+                pass
+            folder = QFileDialog.getExistingDirectory(
+                self.panel if self.panel is not None
+                else self.iface.mainWindow(),
+                self.tr('Select a local Canvas web/ folder'),
+                start)
+            if not folder:
+                return
+            import os as _os
+            if not _os.path.isfile(_os.path.join(folder, 'index.html')) \
+                    and _os.path.isfile(
+                        _os.path.join(folder, 'web', 'index.html')):
+                folder = _os.path.join(folder, 'web')
+            if combo is not None:
+                combo.setCurrentText(folder.replace('/', '\\'))
+        except Exception as e:
+            self._push_message(
+                "geo_webview", self.tr('Folder selection failed: {0}')
+                .format(e), level=2, duration=5)
 
     def on_hosted_combo_changed(self, text):
         """Web配信パネルのCDN(ホスト版チャンネル)選択を QSettings に保存する。

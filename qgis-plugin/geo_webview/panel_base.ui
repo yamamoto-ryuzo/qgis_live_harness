@@ -283,6 +283,22 @@
               </item>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_hosted_browse">
+              <property name="text">
+               <string>&#8230;</string>
+              </property>
+              <property name="toolTip">
+               <string>Browse for a local web/ folder (FILE mode — served at /&lt;engine&gt;/ by this server)</string>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>28</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>

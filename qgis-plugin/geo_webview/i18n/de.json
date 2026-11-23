@@ -64,7 +64,10 @@
     "XYZ tile layers inside a layer-tree group with one of these names are exported as basemap entries (base:) instead of regular layers. Sub-groups are kept for grouped display.": "XYZ-Kachellayer in einer Gruppe mit einem dieser Namen werden als Basiskarten-Einträge (base:) statt als normale Layer exportiert. Untergruppen bleiben für die gruppierte Anzeige erhalten.",
     "e.g. 背景, Basemaps, Base Map": "z. B. Hintergrund, Basemaps, Base Map",
     "geo_webview": "geo_webview",
-    "Install or reinstall KASUGAI Canvas (setup with .kasc file association or portable ZIP). Launching is handled by the CDN combo mode ('canvas') + ▶ WebView": "KASUGAI Canvas installieren oder neu installieren (Setup mit .kasc-Dateizuordnung oder portables ZIP). Der Start erfolgt über den CDN-Combo-Modus 'canvas' + ▶ WebView"
+    "Install or reinstall KASUGAI Canvas (setup with .kasc file association or portable ZIP). Launching is handled by the CDN combo mode ('canvas') + ▶ WebView": "KASUGAI Canvas installieren oder neu installieren (Setup mit .kasc-Dateizuordnung oder portables ZIP). Der Start erfolgt über den CDN-Combo-Modus 'canvas' + ▶ WebView",
+    "Browse for a local web/ folder (FILE mode — served at /<engine>/ by this server)": "Lokalen web/-Ordner auswählen (FILE-Modus — wird von diesem Server unter /<engine>/ ausgeliefert)",
+    "Select a local Canvas web/ folder": "Lokalen Canvas-web/-Ordner auswählen",
+    "Folder selection failed: {0}": "Ordnerauswahl fehlgeschlagen: {0}"
   },
   "GeoWebViewPanel": {
     "Could not load the UI file. Please consider reinstalling the plugin.": "Die UI-Datei konnte nicht geladen werden. Bitte installieren Sie das Plugin neu."
