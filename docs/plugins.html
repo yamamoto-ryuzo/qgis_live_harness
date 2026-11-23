@@ -73,17 +73,6 @@ KASUGAI Canvas のマルチエンジン（Cesium/MapLibre/OpenLayers/Leaflet）�
 連携方針: <a href="https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_webview/docs/integration.html">連携方針(integration.html)</a> ·
 上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/geo_webview">geo_webview</a></p>
 
-<h2><code>geo_userfunc</code></h2>
-<p><a href="geosuite.html">GeoSuite</a> 前段 — プロジェクト作成時のユーザー定義コード整備担当。
-ユーザー定義 Python コードのライブラリ管理プラットフォーム。
-<code>&lt;profile&gt;/python/geo_userfunc/</code> の <code>*.py</code> を AST で型分類し、
-<code>@qgsfunction</code> 式関数は式エンジンへ登録、openProject/saveProject/closeProject は
-プロジェクト信号へ配線、<code>main(context)</code> はマクロとして実行します。
-他プラグインのマクロを一元管理する共有レジストリと、AI から関数の発見・作成・検証まで
-行える bridge を備えます。</p>
-<p>ドキュメント: <a href="https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_userfunc/docs">qgis-plugin/geo_userfunc/docs/(Pages)</a> ·
-ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_userfunc/README.md">qgis-plugin/geo_userfunc/README.md</a></p>
-
 <h2><code>geo_search</code></h2>
 <p><a href="geosuite.html">GeoSuite</a> 構成要素 — 地図内検索（属性・空間検索）担当。
 地番・所有者名・属性によるマップ検索プラグイン。検索結果はレイヤごとのタブに表示され、
@@ -94,6 +83,17 @@ PostGIS データベースに対応し、大量データはページング表示
 <p>ドキュメント: <a href="https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_search/docs">qgis-plugin/geo_search/docs/(Pages)</a> ·
 ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_search/README.md">qgis-plugin/geo_search/README.md</a> ·
 上流リポジトリ: <a href="https://github.com/yamamoto-ryuzo/GEO-search-plugin">GEO-search-plugin</a></p>
+
+<h2><code>geo_userfunc</code></h2>
+<p><a href="geosuite.html">GeoSuite</a> 前段 — プロジェクト作成時のユーザー定義コード整備担当。
+ユーザー定義 Python コードのライブラリ管理プラットフォーム。
+<code>&lt;profile&gt;/python/geo_userfunc/</code> の <code>*.py</code> を AST で型分類し、
+<code>@qgsfunction</code> 式関数は式エンジンへ登録、openProject/saveProject/closeProject は
+プロジェクト信号へ配線、<code>main(context)</code> はマクロとして実行します。
+他プラグインのマクロを一元管理する共有レジストリと、AI から関数の発見・作成・検証まで
+行える bridge を備えます。</p>
+<p>ドキュメント: <a href="https://yamamoto-ryuzo.github.io/qgis_live_harness/qgis-plugin/geo_userfunc/docs">qgis-plugin/geo_userfunc/docs/(Pages)</a> ·
+ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_userfunc/README.md">qgis-plugin/geo_userfunc/README.md</a></p>
 
 <h2><code>geo_import</code></h2>
 <p><a href="geosuite.html">GeoSuite</a> 構成要素 — 自動 GIS 化（CKAN / ローカル）担当。
