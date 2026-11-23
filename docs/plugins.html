@@ -144,6 +144,16 @@ GeoSuite 共有ツールバー・レイヤ整理サービス（layer_org）も�
 <a href="driver.html">driver.html（設計詳細）</a> /
 <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_driver/README.md">ソース qgis-plugin/geo_driver/README.md</a></p>
 
+<h2><code>geo_launcher</code></h2>
+<p>Rust 製 QGIS ランチャー <code>kasugai_qgis</code> を QGIS 内から管理する連携プラグイン。
+ランチャーの検出・インストール(セットアップのダウンロードと実行、サイレント既定)・
+アンインストール・GUI 窓の起動を行います。ランチャー本体は QGIS を起動すると自動終了する
+設計のため、API サーバの起動・維持機能は持ちません。この QGIS がランチャー経由で
+起動したか(<code>PORTAL_USERROLE</code>)の表示も行います。</p>
+<p>ドキュメント: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/tree/master/qgis-plugin/geo_launcher/docs">qgis-plugin/geo_launcher/docs/(GitHub)</a> ·
+ソースREADME: <a href="https://github.com/yamamoto-ryuzo/qgis_live_harness/blob/master/qgis-plugin/geo_launcher/README.md">qgis-plugin/geo_launcher/README.md</a> ·
+管理対象: <a href="https://github.com/yamamoto-ryuzo/kasugai_qgis">kasugai_qgis</a></p>
+
 <h2>連携ソフトウェア</h2>
 
 <h3><code>kasugai_qgis</code></h3>
