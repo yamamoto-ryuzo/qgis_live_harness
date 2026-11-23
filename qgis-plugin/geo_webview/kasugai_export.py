@@ -4565,6 +4565,10 @@ def _export_atlas_fly(project, data_dir, used_names, warnings):
 def _attribution(layer):
     """レイヤの出典(attribution)文字列。失敗時は空文字。"""
     try:
+        # QGIS 3.38+/4.x: attribution() は serverProperties() へ移行
+        sp = layer.serverProperties() if hasattr(layer, 'serverProperties') else None
+        if sp is not None:
+            return (sp.attribution() or '').strip()
         return (layer.attribution() or '').strip()
     except Exception:  # nosec B110  # 設計上の許容
         return ''

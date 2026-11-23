@@ -2,6 +2,8 @@
 
 ## 4.35.2
 
+- **QGIS 4.2.3 対応: `QgsMapLayer.attribution()` の非推奨警告を解消** — QGIS 3.38+ で非推奨となった `layer.attribution()` を、`serverProperties().attribution()` 優先＋旧 API フォールバックの二段構えに変更（`kasugai_export._attribution`）。live_kasc/kasugai_export 双方の経路で QGIS 4.2.3 実行時の deprecation warning が 0 になることを確認
+
 - **Live View で QML シンボル画像が表示されない問題を修正** — `/live/style` が返す .qml のシンボル画像参照（svgmarker/rastermarker/svgfill 等）はローカルパス（`C:/…/3503.svg`）のままだったため、Canvas 側が `/live/<name>.svg` へ相対解決して全件 404 になっていた。`live_kasc._rewrite_qml_assets_live` を新設し、参照を実ファイル解決のうえ `http://127.0.0.1:<port>/live/file/<encoded-abs-path>` へ書き換えるよう変更（エクスポート経路 `_export_qml_assets` の canvas_data/ 複製に相当する live 版）。あわせて `server_manager._live_file_allowed` の許可判定へ「QGIS SVG 検索パスまたはプロジェクトディレクトリ配下の実ファイル」を追加（従来のレイヤソース+sidecar に加え、対象外パスは引き続き 403）。verify-live-view スキル＋`web/verify/results/probe-live-view.mjs`（Canvas 側）で全6エンジン実機検証 41/41 PASS を確認
 
 - **ベースマップ未選択時に Canvas 側へ「ベースマップなし」を伝搬** — QGIS で表示中のベースマップが 1 つも無い(背景図グループ OFF・base: 候補が全て `| off`)場合でも、`.kasc` 末尾に必ず追加される既定候補行(地理院標準地図等・off 無し)が Canvas 側で「最初の選択肢」として自動選択され、QGIS=なし/Canvas=標準地図 の不整合になっていた。`live_kasc`(/live/kasc)と `kasugai_export`(エクスポート)の両方で、表示中のベースマップが無い時は `base: ベースマップなし | none` モード行を出力するよう変更。Canvas 全エンジンで「ベースマップなし」が初期選択され、Live でのベースマップ ON/OFF 切替も rev 更新→再取得で正しく追従する(実機確認: 背景図 OFF→`base: | none` 出力・ON→該当行の `| off` 解除)
