@@ -294,7 +294,7 @@ HTTP ワーカースレッドから呼べる。</li>
     classDef live fill:#fff3e0,stroke:#e65100,color:#bf360c;
     class BTN,ENG,KASC,F,LF,ST,RN live;</code></pre>
 <p><strong>図7. 双方向連携</strong> — QGIS→Canvas は編集検出（rev）・キャンバス状態・選択を <code>/live/live.json</code>・<code>/live/state</code> 経由で配信。Canvas→QGIS は POST で視点・選択・表示状態・作図を書き戻す。<code>live.controls</code>（follow / selection / qgis_follow）の正は QSettings で、パネル Live タブ・<code>POST /live/controls</code>・bridge <code>liveControls</code>/<code>liveSetControls</code> が同じ状態を共有する。<code>kasugai_live_sync</code> 設定 ON のときは rev 更新ではなく差分再エクスポート＋<code>liveSync</code> 通知（従来モード）。</p>
-<pre><code class="language-mermaid">flowchart LR
+<pre><code class="language-mermaid">flowchart TB
     subgraph QGIS["QGIS 側"]
         EDIT["レイヤ編集・スタイル・&lt;br/&gt;ツリー変更"]
         SYNC["LiveSyncController&lt;br/&gt;（1.2s デバウンス）"]
