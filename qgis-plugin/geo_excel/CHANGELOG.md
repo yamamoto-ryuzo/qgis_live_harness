@@ -1,5 +1,9 @@
 # CHANGELOG — geo_excel
 
+## 1.10.1
+
+- plugins.qgis.org 再アップロード用バージョンバンプ(同一バージョン番号はサイト側で重複不可のため)。内容は 1.10.0 のスキャン対応修正と同一
+
 ## 1.10.0
 
 - plugins.qgis.org セキュリティスキャン対応: `xml.sax.saxutils` の

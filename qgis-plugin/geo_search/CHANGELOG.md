@@ -1,3 +1,6 @@
+# V4.5.4 再アップロード用バージョンバンプ
+- plugins.qgis.org では同一バージョン番号の再登録が不可のためパッチバンプ。内容は V4.5.3 のスキャン対応修正と同一
+
 # V4.5.3 GeoSuiteツールバーのゴーストアクション残留を修正
 - plugins.qgis.org スキャン対応: SEARCH.md の ApiKey 例を空値化
   (Secret Keyword誤検出回避)、geocode.py の nosec を B112 へ修正

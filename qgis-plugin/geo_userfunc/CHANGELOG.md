@@ -1,5 +1,9 @@
 # CHANGELOG — geo_userfunc
 
+## 1.0.11
+
+- plugins.qgis.org 再アップロード用バージョンバンプ(同一バージョン番号はサイト側で重複不可のため)。内容は 1.0.10 のスキャン対応修正と同一
+
 ## 1.0.10
 
 - metadata: plugins.qgis.org 初回公開に向け英語 `description`/

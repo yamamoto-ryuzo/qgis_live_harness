@@ -1,5 +1,9 @@
 # 変更履歴(Changelog)
 
+## 4.35.3
+
+- plugins.qgis.org 再アップロード用バージョンバンプ(同一バージョン番号はサイト側で重複不可のため)。内容は 4.35.2 のスキャン対応修正と同一
+
 ## 4.35.2
 
 - **plugins.qgis.org セキュリティスキャン対応** — サイト側は全有効テスト(-t)で bandit を走査するため、B110/B112 の `# nosec` 漏れ/ID誤り(continue系はB112)を修正(panel.py×5・plugin.py)。スキャナ設定ファイル(.bandit/.flake8)は `-t` との衝突(Non-exclusive include/exclude)を避けるためZIP非同梱へ方針転換
