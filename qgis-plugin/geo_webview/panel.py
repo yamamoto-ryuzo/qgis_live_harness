@@ -641,12 +641,12 @@ class GeoWebViewPanel(QDockWidget):
             for sig in ('layersAdded', 'layersRemoved'):
                 try:
                     getattr(prj, sig).connect(self._rebuild_kasugai_layers)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
             try:
                 prj.layerTreeRoot().nameChanged.connect(
                     lambda *a: self._rebuild_kasugai_layers())
-            except Exception:
+            except Exception:  # nosec B110  # 設計上の許容
                 pass
         except Exception:  # nosec B110  # 設計上の許容
             pass
@@ -683,7 +683,7 @@ class GeoWebViewPanel(QDockWidget):
                 try:
                     getattr(prj, sig).connect(
                         self._update_xyz_target_display)
-                except Exception:
+                except Exception:  # nosec B110  # 設計上の許容
                     pass
         except Exception:  # nosec B110  # 設計上の許容
             pass
@@ -879,13 +879,13 @@ class GeoWebViewPanel(QDockWidget):
             try:
                 o = opts_of(layer, groups,
                             bm_index(groups, bm_names), auto_on)
-            except Exception:  # nosec B110  # 設計上の許容
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
             site = o['site'] or 'その他'
             try:
                 if layer.fields() is None:
                     continue
-            except Exception:  # nosec B110  # 設計上の許容
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
             out.setdefault(site, []).append(layer)
         return out

@@ -8,6 +8,18 @@
 
 ### Fixed
 
+- **build-plugin-zip: スキャナ設定ファイル(.bandit/.flake8/
+  .secrets.baseline)をZIPから除外**(方針転換):
+  plugins.qgis.org のスキャナは `bandit -r <dir> -t <全有効テスト>`
+  で走査するため、同梱 `.bandit` の `skips` が `-t` include と衝突し
+  "Non-exclusive include/exclude test sets" で bandit 自体が
+  異常終了する(全8プラグイン一斉BLOCKEDの原因候補)。
+  抑制はコード側 `# nosec`/`# noqa` インラインに一本化し、
+  geo_excel(B406→html化)・geo_webview/geosearch(nosec ID誤りB110→B112・
+  未付与)・geo_import/geo_legend(生成resources_rcへ付与)を実修正。
+  全8プラグインのサイト等価スキャン(bandit -t全テスト+
+  detect-secrets --all-files)が0件を確認
+
 - **qgis-session.mjs probeAll のタイムアウト積み上がり解消**
   (ai-chat検証 ISSUE-4): `test-results/live/qgis-<pid>/` の死んだ pid の
   dir を `process.kill(pid, 0)` で事前除外し、残りを `Promise.all` で

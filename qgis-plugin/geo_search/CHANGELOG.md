@@ -1,4 +1,8 @@
 # V4.5.3 GeoSuiteツールバーのゴーストアクション残留を修正
+- plugins.qgis.org スキャン対応: SEARCH.md の ApiKey 例を空値化
+  (Secret Keyword誤検出回避)、geocode.py の nosec を B112 へ修正
+  (continue系try/exceptの正しいテストID)。.bandit/.flake8 はサイト側
+  -t 指定との衝突回避のためZIP非同梱へ方針転換
 - plugin.py: `addWidget` で GeoSuite ツールバーへ追加した
   `group_combobox`/`theme_widget`/`theme_combobox` の QAction を
   保持していなかったため、unload/reload のたびに「アイコン無し・

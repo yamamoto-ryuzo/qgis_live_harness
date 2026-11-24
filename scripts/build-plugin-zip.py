@@ -42,9 +42,14 @@ EXCLUDE_DIRS = {"__pycache__", ".git", ".pytest_cache", "node_modules",
                 "docs", "verify"}
 EXCLUDE_SUFFIXES = {".pyc", ".pyo"}
 
-# .bandit/.flake8/.secrets.baseline は plugins.qgis.org スキャナが認識する
-# 開発者同梱設定ファイル(docs/security-scanning/config-files)。
-# LOW指摘の抑制に必要なため ZIP へ同梱する(除外しない)。
+# .bandit/.flake8/.secrets.baseline は ZIP に同梱しない。
+# サイト側は `bandit -r <dir> -t <全有効テスト>` で走査するため、同梱
+# .bandit の skips が -t include と衝突し "Non-exclusive
+# include/exclude test sets" で bandit 自体が異常終了する
+# (.bandit 同梱プラグインが一斉 BLOCKED になった実績あり)。
+# 抑制はコード側の `# nosec` / `# noqa` インラインで行う。
+# repo 側には残し、ローカルの bandit/flake8 スキャン用の抑制設定として使う。
+EXCLUDE_NAMES = {".bandit", ".flake8", ".secrets.baseline"}
 
 
 def list_plugins() -> list[str]:
@@ -77,6 +82,7 @@ def tracked_files(plugin_id: str) -> list[Path]:
         files = [
             p for p in files
             if not any(part in EXCLUDE_DIRS for part in p.parts)
+            and p.name not in EXCLUDE_NAMES
             and p.suffix.lower() not in EXCLUDE_SUFFIXES
         ]
         if files:
@@ -89,6 +95,7 @@ def tracked_files(plugin_id: str) -> list[Path]:
         for p in sorted(plugin_dir.rglob("*"))
         if p.is_file()
         if not any(part in EXCLUDE_DIRS for part in p.parts)
+        and p.name not in EXCLUDE_NAMES
         and p.suffix.lower() not in EXCLUDE_SUFFIXES
     ]
 

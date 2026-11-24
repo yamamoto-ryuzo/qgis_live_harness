@@ -2,6 +2,11 @@
 
 ## 1.10.0
 
+- plugins.qgis.org セキュリティスキャン対応: `xml.sax.saxutils` の
+  `escape`/`unescape` を `html` モジュールへ置き換え(B406解消。
+  属性値のクオートエスケープも正しくなる)。スキャナ設定ファイル
+  (.bandit/.flake8)はサイト側テスト指定(-t)との衝突を避けるため
+  ZIP非同梱へ方針転換
 - metadata: plugins.qgis.org 初回公開に向け英語 `description`/
   `about[en]` を追加し、非推奨の `supportsQt6` フラグを除去
 - bridge.py: 帳票出力前のドライラン検証 `validateRun(script)` と

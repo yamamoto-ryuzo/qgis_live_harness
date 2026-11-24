@@ -1,4 +1,8 @@
 2.10.17 メイン/設定ダイアログの非ブロッキング化(AI制御経路のデッドロック解消)
+- plugins.qgis.org スキャン対応: resources_rc.py(生成コード)の
+  try/except/pass に `# nosec B110` をインライン付与。スキャナ設定
+  ファイル(.bandit/.flake8)はサイト側 -t 指定との衝突回避のため
+  ZIP非同梱へ方針転換
 - geo_import_main.py: run() の GeoImportDialog と設定不備時の
   GeoImportDialogSettings、および open_settings() の
   GeoImportDialogSettings が dlg.exec() でGUIスレッドを占有し、

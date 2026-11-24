@@ -1059,7 +1059,7 @@ class GeoWebView:
             try:
                 subprocess.Popen([exe, '--app=' + url])  # nosec B603
                 return True
-            except Exception:  # nosec B110  # 設計上の許容
+            except Exception:  # nosec B112  # 設計上の許容
                 continue
         return False
 
